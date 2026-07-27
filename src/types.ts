@@ -16,6 +16,25 @@ export interface Person {
   avatarColor: string;
 }
 
+export type BusinessType = "Agência" | "Guia" | "Restaurante";
+
+export type PlanTier = "Básico" | "Pro" | "Avançado";
+
+export interface Business {
+  id: string;
+  name: string;
+  type: BusinessType;
+  planTier: PlanTier;
+  description: string;
+  city: string;
+  state?: string;
+  country: string;
+  email: string;
+  phone?: string;
+  website?: string;
+  createdAt: string; // ISO date
+}
+
 export interface Experience {
   id: string;
   title: string;

@@ -1,32 +1,42 @@
 import { createContext, useContext, useEffect, useMemo, useState } from "react";
 import type { ReactNode } from "react";
-import type { Experience, Person } from "../types";
-import { mockExperiences, mockPeople } from "../data/mockData";
+import type { Business, Experience, Person } from "../types";
+import { mockBusinesses, mockExperiences, mockPeople } from "../data/mockData";
 
-const STORAGE_KEY = "avena-data-v1";
+const STORAGE_KEY = "avena-data-v2";
 
 interface AvenaData {
   experiences: Experience[];
   people: Person[];
+  businesses: Business[];
 }
 
 interface AvenaContextValue extends AvenaData {
   addExperience: (exp: Experience) => void;
   addPerson: (person: Person) => void;
+  addBusiness: (business: Business) => void;
 }
 
 const AvenaContext = createContext<AvenaContextValue | null>(null);
+
+function defaults(): AvenaData {
+  return {
+    experiences: mockExperiences,
+    people: mockPeople,
+    businesses: mockBusinesses,
+  };
+}
 
 function loadInitial(): AvenaData {
   const raw = localStorage.getItem(STORAGE_KEY);
   if (raw) {
     try {
-      return JSON.parse(raw);
+      return { ...defaults(), ...JSON.parse(raw) };
     } catch {
       // fall through to defaults
     }
   }
-  return { experiences: mockExperiences, people: mockPeople };
+  return defaults();
 }
 
 export function AvenaProvider({ children }: { children: ReactNode }) {
@@ -43,6 +53,8 @@ export function AvenaProvider({ children }: { children: ReactNode }) {
         setData((d) => ({ ...d, experiences: [exp, ...d.experiences] })),
       addPerson: (person) =>
         setData((d) => ({ ...d, people: [...d.people, person] })),
+      addBusiness: (business) =>
+        setData((d) => ({ ...d, businesses: [business, ...d.businesses] })),
     }),
     [data]
   );

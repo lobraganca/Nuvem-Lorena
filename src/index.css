@@ -102,6 +102,14 @@ a {
   text-decoration: none;
 }
 
+.topbar {
+  gap: 20px;
+}
+
+.topbar .brand {
+  margin-right: auto;
+}
+
 .app-content {
   flex: 1;
   display: flex;
@@ -386,6 +394,125 @@ legend {
   padding: 12px;
   border-radius: 12px;
   border: 1px solid var(--border);
+}
+
+.page-wide {
+  max-width: 1000px;
+}
+
+.plans-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 16px;
+  margin: 16px 0 8px;
+}
+
+.plan-card {
+  background: var(--bg-alt);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 20px;
+}
+
+.plan-card.plan-avançado {
+  border-color: var(--accent);
+}
+
+.plan-price {
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--accent);
+  margin: 4px 0 8px;
+}
+
+.plan-card ul {
+  margin: 12px 0 0;
+  padding-left: 18px;
+  font-size: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.plan-picker {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.plan-option {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 10px 18px;
+  border-radius: 10px;
+  border: 2px solid var(--border);
+  background: var(--bg-alt);
+  cursor: pointer;
+  color: var(--text-h);
+}
+
+.plan-option-active {
+  border-color: var(--accent);
+  background: var(--accent-soft);
+}
+
+.business-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 14px;
+}
+
+.business-card {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 16px;
+  border-radius: 12px;
+  border: 1px solid var(--border);
+  background: var(--bg-alt);
+  text-decoration: none;
+  color: inherit;
+}
+
+.business-card:hover {
+  border-color: var(--accent);
+}
+
+.business-card-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 20px;
+}
+
+.business-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.plan-badge {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+  padding: 4px 10px;
+  border-radius: 999px;
+  background: var(--bg-alt);
+  border: 1px solid var(--border);
+}
+
+.plan-badge-avançado {
+  background: var(--accent);
+  color: white;
+  border-color: var(--accent);
+}
+
+.plan-badge-pro {
+  background: var(--accent-soft);
+  color: var(--accent);
+  border-color: var(--accent);
 }
 
 @media (max-width: 800px) {

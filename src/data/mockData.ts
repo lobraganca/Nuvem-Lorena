@@ -1,4 +1,4 @@
-import type { Experience, Person } from "../types";
+import type { Business, Experience, Person } from "../types";
 
 export const mockPeople: Person[] = [
   { id: "p1", name: "Cecília", avatarColor: "#e8735f" },
@@ -110,5 +110,44 @@ export const mockExperiences: Experience[] = [
     mood: "😍",
     peopleIds: ["p1", "p2", "p3"],
     animalsSeen: ["Golfinho-rotador"],
+  },
+];
+
+export const mockBusinesses: Business[] = [
+  {
+    id: "b1",
+    name: "Blue Whale Tours",
+    type: "Agência",
+    planTier: "Avançado",
+    description: "Passeios de observação de baleias e vida marinha em Arraial do Cabo.",
+    city: "Arraial do Cabo",
+    state: "RJ",
+    country: "Brasil",
+    email: "contato@bluewhaletours.com.br",
+    website: "bluewhaletours.com.br",
+    createdAt: "2025-02-10",
+  },
+  {
+    id: "b2",
+    name: "Rafael Mendes",
+    type: "Guia",
+    planTier: "Pro",
+    description: "Guia especializado em trilhas e observação de fauna marinha.",
+    city: "Arraial do Cabo",
+    state: "RJ",
+    country: "Brasil",
+    email: "rafael.guia@gmail.com",
+    createdAt: "2025-03-01",
+  },
+  {
+    id: "b3",
+    name: "Le Petit Bistro",
+    type: "Restaurante",
+    planTier: "Básico",
+    description: "Bistrô parisiense tradicional próximo ao Louvre.",
+    city: "Paris",
+    country: "França",
+    email: "contact@lepetitbistro.fr",
+    createdAt: "2025-04-15",
   },
 ];
