@@ -16,6 +16,14 @@ export interface Person {
   avatarColor: string;
 }
 
+export interface UserProfile {
+  name: string;
+  username: string;
+  bio: string;
+  avatarPhoto?: string; // data URL
+  avatarColor: string;
+}
+
 export type BusinessType = "Agência" | "Guia" | "Restaurante";
 
 export type PlanTier = "Básico" | "Pro" | "Avançado";

@@ -1,4 +1,11 @@
-import type { Business, Experience, Person } from "../types";
+import type { Business, Experience, Person, UserProfile } from "../types";
+
+export const mockUser: UserProfile = {
+  name: "Lorena Braganca",
+  username: "lobraganca",
+  bio: "Colecionando lugares, pessoas e histórias pelo mundo 🌍✨",
+  avatarColor: "#d97757",
+};
 
 export const mockPeople: Person[] = [
   { id: "p1", name: "Cecília", avatarColor: "#e8735f" },

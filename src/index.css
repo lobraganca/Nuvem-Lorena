@@ -396,6 +396,129 @@ legend {
   border: 1px solid var(--border);
 }
 
+.ig-header {
+  display: flex;
+  gap: 32px;
+  align-items: flex-start;
+  margin: 12px 0 24px;
+  flex-wrap: wrap;
+}
+
+.ig-avatar-btn {
+  position: relative;
+  border: none;
+  background: none;
+  padding: 0;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+.ig-avatar {
+  width: 96px;
+  height: 96px;
+  border-radius: 50%;
+  object-fit: cover;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.ig-avatar-fallback {
+  color: white;
+  font-size: 36px;
+  font-weight: 700;
+}
+
+.ig-avatar-edit {
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  background: var(--accent);
+  border-radius: 50%;
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 13px;
+  border: 2px solid var(--bg);
+}
+
+.ig-header-info {
+  flex: 1;
+  min-width: 220px;
+}
+
+.ig-header-top {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.ig-username {
+  font-size: 20px;
+  margin: 0;
+}
+
+.btn-outline {
+  padding: 6px 16px;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  background: var(--bg-alt);
+  color: var(--text-h);
+  font-weight: 600;
+  cursor: pointer;
+  font-size: 13px;
+}
+
+.ig-stats-row {
+  display: flex;
+  gap: 24px;
+  margin: 14px 0;
+  font-size: 14px;
+}
+
+.ig-name {
+  font-weight: 600;
+  color: var(--text-h);
+}
+
+.ig-bio {
+  font-size: 14px;
+  margin-top: 2px;
+  white-space: pre-wrap;
+}
+
+.ig-edit-form {
+  max-width: 420px;
+  margin-bottom: 24px;
+  padding: 16px;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: var(--bg-alt);
+}
+
+.ig-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(110px, 1fr));
+  gap: 4px;
+}
+
+.ig-tile {
+  aspect-ratio: 1;
+  background: var(--bg-alt);
+  border: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-decoration: none;
+}
+
+.ig-tile-emoji {
+  font-size: 32px;
+}
+
 .places-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
