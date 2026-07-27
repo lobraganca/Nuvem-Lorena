@@ -1,15 +1,22 @@
 import { createContext, useContext, useEffect, useMemo, useState } from "react";
 import type { ReactNode } from "react";
-import type { Business, Experience, Person, UserProfile } from "../types";
-import { mockBusinesses, mockExperiences, mockPeople, mockUser } from "../data/mockData";
+import type { Business, Experience, Message, Person, UserProfile } from "../types";
+import {
+  mockBusinesses,
+  mockExperiences,
+  mockMessages,
+  mockPeople,
+  mockUser,
+} from "../data/mockData";
 
-const STORAGE_KEY = "avena-data-v3";
+const STORAGE_KEY = "avena-data-v4";
 
 interface AvenaData {
   experiences: Experience[];
   people: Person[];
   businesses: Business[];
   user: UserProfile;
+  messages: Message[];
 }
 
 interface AvenaContextValue extends AvenaData {
@@ -17,6 +24,7 @@ interface AvenaContextValue extends AvenaData {
   addPerson: (person: Person) => void;
   addBusiness: (business: Business) => void;
   updateUser: (user: Partial<UserProfile>) => void;
+  sendMessage: (personId: string, text: string) => void;
 }
 
 const AvenaContext = createContext<AvenaContextValue | null>(null);
@@ -27,6 +35,7 @@ function defaults(): AvenaData {
     people: mockPeople,
     businesses: mockBusinesses,
     user: mockUser,
+    messages: mockMessages,
   };
 }
 
@@ -60,6 +69,20 @@ export function AvenaProvider({ children }: { children: ReactNode }) {
         setData((d) => ({ ...d, businesses: [business, ...d.businesses] })),
       updateUser: (user) =>
         setData((d) => ({ ...d, user: { ...d.user, ...user } })),
+      sendMessage: (personId, text) =>
+        setData((d) => ({
+          ...d,
+          messages: [
+            ...d.messages,
+            {
+              id: crypto.randomUUID(),
+              personId,
+              sender: "me",
+              text,
+              timestamp: new Date().toISOString(),
+            },
+          ],
+        })),
     }),
     [data]
   );

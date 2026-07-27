@@ -8,6 +8,8 @@ import { Profile } from "./pages/Profile";
 import { BusinessLanding } from "./pages/BusinessLanding";
 import { BusinessRegister } from "./pages/BusinessRegister";
 import { BusinessDetail } from "./pages/BusinessDetail";
+import { Messages } from "./pages/Messages";
+import { Conversation } from "./pages/Conversation";
 
 export default function App() {
   return (
@@ -18,6 +20,7 @@ export default function App() {
             Avena
           </Link>
           <Link to="/business">Para empresas</Link>
+          <Link to="/messages">Mensagens</Link>
           <Link to="/profile">Perfil</Link>
         </nav>
         <main className="app-content">
@@ -30,6 +33,8 @@ export default function App() {
             <Route path="/business" element={<BusinessLanding />} />
             <Route path="/business/new" element={<BusinessRegister />} />
             <Route path="/business/:id" element={<BusinessDetail />} />
+            <Route path="/messages" element={<Messages />} />
+            <Route path="/messages/:id" element={<Conversation />} />
           </Routes>
         </main>
       </div>

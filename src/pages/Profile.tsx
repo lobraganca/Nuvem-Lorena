@@ -13,6 +13,7 @@ export function Profile() {
   const [name, setName] = useState(user.name);
   const [username, setUsername] = useState(user.username);
   const [bio, setBio] = useState(user.bio);
+  const [isPrivate, setIsPrivate] = useState(user.isPrivate);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const companyCounts = new Map<string, number>();
@@ -38,7 +39,7 @@ export function Profile() {
 
   function saveProfile(e: React.FormEvent) {
     e.preventDefault();
-    updateUser({ name, username, bio });
+    updateUser({ name, username, bio, isPrivate });
     setEditing(false);
   }
 
@@ -75,6 +76,9 @@ export function Profile() {
         <div className="ig-header-info">
           <div className="ig-header-top">
             <h1 className="ig-username">@{user.username}</h1>
+            <span className={`privacy-badge ${user.isPrivate ? "privacy-private" : "privacy-public"}`}>
+              {user.isPrivate ? "🔒 Privado" : "🌐 Público"}
+            </span>
             <button className="btn-outline" onClick={() => setEditing((v) => !v)}>
               {editing ? "Cancelar" : "Editar perfil"}
             </button>
@@ -111,6 +115,30 @@ export function Profile() {
             Bio
             <textarea value={bio} onChange={(e) => setBio(e.target.value)} rows={2} />
           </label>
+          <fieldset>
+            <legend>Privacidade do perfil</legend>
+            <div className="privacy-toggle">
+              <button
+                type="button"
+                className={`chip ${!isPrivate ? "chip-active" : ""}`}
+                onClick={() => setIsPrivate(false)}
+              >
+                🌐 Público
+              </button>
+              <button
+                type="button"
+                className={`chip ${isPrivate ? "chip-active" : ""}`}
+                onClick={() => setIsPrivate(true)}
+              >
+                🔒 Privado
+              </button>
+            </div>
+            <p className="muted">
+              {isPrivate
+                ? "Apenas pessoas marcadas em suas experiências podem ver seu perfil e mapa."
+                : "Qualquer pessoa na comunidade pode ver seu perfil, mapa e coleções."}
+            </p>
+          </fieldset>
           <button type="submit" className="btn-primary">
             Salvar
           </button>

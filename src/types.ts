@@ -22,6 +22,15 @@ export interface UserProfile {
   bio: string;
   avatarPhoto?: string; // data URL
   avatarColor: string;
+  isPrivate: boolean;
+}
+
+export interface Message {
+  id: string;
+  personId: string; // the other party in the conversation
+  sender: "me" | "them";
+  text: string;
+  timestamp: string; // ISO datetime
 }
 
 export type BusinessType = "Agência" | "Guia" | "Restaurante";

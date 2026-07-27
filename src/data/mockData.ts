@@ -1,11 +1,29 @@
-import type { Business, Experience, Person, UserProfile } from "../types";
+import type { Business, Experience, Message, Person, UserProfile } from "../types";
 
 export const mockUser: UserProfile = {
   name: "Lorena Braganca",
   username: "lobraganca",
   bio: "Colecionando lugares, pessoas e histórias pelo mundo 🌍✨",
   avatarColor: "#d97757",
+  isPrivate: false,
 };
+
+export const mockMessages: Message[] = [
+  {
+    id: "m1",
+    personId: "p1",
+    sender: "them",
+    text: "Saudade daquele dia das baleias em Arraial! 🐋",
+    timestamp: "2026-07-15T10:00:00",
+  },
+  {
+    id: "m2",
+    personId: "p1",
+    sender: "me",
+    text: "Eu também! Bora marcar a próxima trilha?",
+    timestamp: "2026-07-15T10:05:00",
+  },
+];
 
 export const mockPeople: Person[] = [
   { id: "p1", name: "Cecília", avatarColor: "#e8735f" },

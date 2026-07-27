@@ -26,6 +26,9 @@ export function PersonProfile() {
           {person.name[0]}
         </div>
         <h1>{person.name}</h1>
+        <Link to={`/messages/${person.id}`} className="btn-outline">
+          💬 Enviar mensagem
+        </Link>
       </div>
 
       <div className="stats-grid">
