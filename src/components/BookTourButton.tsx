@@ -3,10 +3,11 @@ import { useNavigate } from "react-router-dom";
 import { useAvena } from "../store/AvenaContext";
 import { commissionRateFor } from "../lib/plans";
 import { cancellationPolicyDescription, cancellationPolicyLabel } from "../lib/cancellation";
+import { availabilityFor } from "../lib/availability";
 import type { Business, Tour } from "../types";
 
 export function BookTourButton({ business, tour }: { business: Business; tour: Tour }) {
-  const { addBooking } = useAvena();
+  const { addBooking, bookings } = useAvena();
   const navigate = useNavigate();
   const [open, setOpen] = useState(false);
   const [travelDate, setTravelDate] = useState(new Date().toISOString().slice(0, 10));
@@ -18,9 +19,13 @@ export function BookTourButton({ business, tour }: { business: Business; tour: T
   const commissionAmount = Math.round(totalPrice * commissionRate * 100) / 100;
   const businessPayout = Math.round((totalPrice - commissionAmount) * 100) / 100;
   const cancellationPolicy = tour.cancellationPolicy ?? "moderada";
+  const availability = availabilityFor(tour, bookings, travelDate);
+  const soldOut = availability.tracked && availability.remaining === 0;
+  const exceedsCapacity = availability.tracked && travelers > availability.remaining;
 
   function confirmBooking(e: React.FormEvent) {
     e.preventDefault();
+    if (soldOut || exceedsCapacity) return;
     const booking = {
       id: crypto.randomUUID(),
       businessId: business.id,
@@ -74,6 +79,19 @@ export function BookTourButton({ business, tour }: { business: Business; tour: T
         </label>
       </div>
 
+      {availability.tracked && (
+        <div className={`availability-note ${soldOut ? "availability-none" : ""}`}>
+          {soldOut
+            ? "Sem vagas disponíveis nesta data."
+            : `${availability.remaining} de ${availability.capacity} vagas disponíveis nesta data.`}
+        </div>
+      )}
+      {exceedsCapacity && !soldOut && (
+        <div className="availability-note availability-none">
+          Só restam {availability.remaining} vagas nesta data para o número de pessoas informado.
+        </div>
+      )}
+
       <div className="booking-breakdown">
         <div>
           Valor total <strong>R$ {totalPrice.toLocaleString("pt-BR")}</strong>
@@ -92,7 +110,7 @@ export function BookTourButton({ business, tour }: { business: Business; tour: T
       </div>
 
       <div className="chip-row">
-        <button type="submit" className="btn-primary">
+        <button type="submit" className="btn-primary" disabled={soldOut || exceedsCapacity}>
           Confirmar reserva
         </button>
         <button type="button" className="btn-outline" onClick={() => setOpen(false)}>

@@ -53,6 +53,7 @@ export interface Tour {
   priceFrom?: number;
   durationHours?: number;
   cancellationPolicy?: CancellationPolicy;
+  capacityPerDay?: number; // max travelers per departure date; undefined = not tracked
 }
 
 export interface Business {

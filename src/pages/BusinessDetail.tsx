@@ -4,10 +4,13 @@ import { BookTourButton } from "../components/BookTourButton";
 import { ReputationBadge } from "../components/ReputationBadge";
 import { reviewStatsFor } from "../lib/reviews";
 import { cancellationPolicyLabel } from "../lib/cancellation";
+import { availabilityFor } from "../lib/availability";
+
+const today = new Date().toISOString().slice(0, 10);
 
 export function BusinessDetail() {
   const { id } = useParams();
-  const { businesses, reviews } = useAvena();
+  const { businesses, reviews, bookings } = useAvena();
   const business = businesses.find((b) => b.id === id);
 
   if (!business) return <div className="page">Empresa não encontrada.</div>;
@@ -54,19 +57,31 @@ export function BusinessDetail() {
         <div className="detail-block">
           <h3>Passeios disponíveis</h3>
           <div className="tour-cards">
-            {business.tours.map((t) => (
-              <div key={t.id} className="tour-card">
-                <div className="timeline-card-title">{t.title}</div>
-                <div className="muted">
-                  {t.priceFrom !== undefined && `A partir de R$ ${t.priceFrom}`}
-                  {t.durationHours !== undefined && ` · ${t.durationHours}h`}
+            {business.tours.map((t) => {
+              const availability = availabilityFor(t, bookings, today);
+              return (
+                <div key={t.id} className="tour-card">
+                  <div className="timeline-card-title">{t.title}</div>
+                  <div className="muted">
+                    {t.priceFrom !== undefined && `A partir de R$ ${t.priceFrom}`}
+                    {t.durationHours !== undefined && ` · ${t.durationHours}h`}
+                  </div>
+                  <div className="muted">
+                    Cancelamento {cancellationPolicyLabel[t.cancellationPolicy ?? "moderada"]}
+                  </div>
+                  {availability.tracked && (
+                    <div
+                      className={`availability-note ${availability.remaining === 0 ? "availability-none" : ""}`}
+                    >
+                      {availability.remaining === 0
+                        ? "Sem vagas hoje"
+                        : `${availability.remaining} de ${availability.capacity} vagas hoje`}
+                    </div>
+                  )}
+                  <BookTourButton business={business} tour={t} />
                 </div>
-                <div className="muted">
-                  Cancelamento {cancellationPolicyLabel[t.cancellationPolicy ?? "moderada"]}
-                </div>
-                <BookTourButton business={business} tour={t} />
-              </div>
-            ))}
+              );
+            })}
           </div>
         </div>
       )}

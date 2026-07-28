@@ -155,8 +155,8 @@ export const mockBusinesses: Business[] = [
     website: "bluewhaletours.com.br",
     createdAt: "2025-02-10",
     tours: [
-      { id: "t1", title: "Passeio de barco para observação de baleias", priceFrom: 220, durationHours: 4, cancellationPolicy: "moderada" },
-      { id: "t2", title: "Mergulho na Prainha", priceFrom: 180, durationHours: 3, cancellationPolicy: "rigida" },
+      { id: "t1", title: "Passeio de barco para observação de baleias", priceFrom: 220, durationHours: 4, cancellationPolicy: "moderada", capacityPerDay: 12 },
+      { id: "t2", title: "Mergulho na Prainha", priceFrom: 180, durationHours: 3, cancellationPolicy: "rigida", capacityPerDay: 6 },
     ],
   },
   {
@@ -171,7 +171,7 @@ export const mockBusinesses: Business[] = [
     email: "rafael.guia@gmail.com",
     createdAt: "2025-03-01",
     tours: [
-      { id: "t3", title: "Trilha do Pontal do Atalaia", priceFrom: 90, durationHours: 3, cancellationPolicy: "flexivel" },
+      { id: "t3", title: "Trilha do Pontal do Atalaia", priceFrom: 90, durationHours: 3, cancellationPolicy: "flexivel", capacityPerDay: 8 },
     ],
   },
   {

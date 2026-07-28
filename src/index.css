@@ -461,6 +461,12 @@ legend {
   font-size: 15px;
 }
 
+.btn-primary:disabled {
+  background: var(--border);
+  color: var(--text);
+  cursor: not-allowed;
+}
+
 .detail-block {
   margin-top: 20px;
   padding-top: 16px;
@@ -1044,6 +1050,16 @@ legend {
 
 .booking-form .form-row label {
   font-size: 12px;
+}
+
+.availability-note {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--accent);
+}
+
+.availability-none {
+  color: #b3261e;
 }
 
 .booking-breakdown {

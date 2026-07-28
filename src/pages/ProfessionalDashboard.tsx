@@ -7,7 +7,10 @@ import {
   cancellationPolicyDescription,
   cancellationPolicyLabel,
 } from "../lib/cancellation";
+import { availabilityFor } from "../lib/availability";
 import type { CancellationPolicy, Tour } from "../types";
+
+const today = new Date().toISOString().slice(0, 10);
 
 export function ProfessionalDashboard() {
   const { user, businesses, bookings, addTourToBusiness } = useAvena();
@@ -16,6 +19,7 @@ export function ProfessionalDashboard() {
   const [title, setTitle] = useState("");
   const [priceFrom, setPriceFrom] = useState("");
   const [durationHours, setDurationHours] = useState("");
+  const [capacityPerDay, setCapacityPerDay] = useState("");
   const [cancellationPolicy, setCancellationPolicy] = useState<CancellationPolicy>("moderada");
 
   if (!business) {
@@ -47,12 +51,14 @@ export function ProfessionalDashboard() {
       title,
       priceFrom: priceFrom ? Number(priceFrom) : undefined,
       durationHours: durationHours ? Number(durationHours) : undefined,
+      capacityPerDay: capacityPerDay ? Number(capacityPerDay) : undefined,
       cancellationPolicy,
     };
     addTourToBusiness(business.id, tour);
     setTitle("");
     setPriceFrom("");
     setDurationHours("");
+    setCapacityPerDay("");
     setCancellationPolicy("moderada");
   }
 
@@ -97,18 +103,26 @@ export function ProfessionalDashboard() {
         {(business.tours ?? []).length === 0 && (
           <p className="muted">Nenhum passeio publicado ainda.</p>
         )}
-        {(business.tours ?? []).map((t) => (
-          <div key={t.id} className="tour-card">
-            <div className="timeline-card-title">{t.title}</div>
-            <div className="muted">
-              {t.priceFrom !== undefined && `A partir de R$ ${t.priceFrom}`}
-              {t.durationHours !== undefined && ` · ${t.durationHours}h`}
+        {(business.tours ?? []).map((t) => {
+          const availability = availabilityFor(t, bookings, today);
+          return (
+            <div key={t.id} className="tour-card">
+              <div className="timeline-card-title">{t.title}</div>
+              <div className="muted">
+                {t.priceFrom !== undefined && `A partir de R$ ${t.priceFrom}`}
+                {t.durationHours !== undefined && ` · ${t.durationHours}h`}
+              </div>
+              <div className="muted">
+                Cancelamento {cancellationPolicyLabel[t.cancellationPolicy ?? "moderada"]}
+              </div>
+              <div className="muted">
+                {availability.tracked
+                  ? `Vagas hoje: ${availability.remaining}/${availability.capacity}`
+                  : "Vagas ilimitadas"}
+              </div>
             </div>
-            <div className="muted">
-              Cancelamento {cancellationPolicyLabel[t.cancellationPolicy ?? "moderada"]}
-            </div>
-          </div>
-        ))}
+          );
+        })}
       </div>
 
       <form className="experience-form tour-add-form" onSubmit={handleAddTour}>
@@ -136,6 +150,16 @@ export function ProfessionalDashboard() {
               type="number"
               value={durationHours}
               onChange={(e) => setDurationHours(e.target.value)}
+            />
+          </label>
+          <label>
+            Vagas por dia (opcional)
+            <input
+              type="number"
+              min={1}
+              value={capacityPerDay}
+              onChange={(e) => setCapacityPerDay(e.target.value)}
+              placeholder="Deixe em branco para ilimitado"
             />
           </label>
         </div>
