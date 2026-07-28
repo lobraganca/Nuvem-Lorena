@@ -1177,6 +1177,37 @@ legend {
   color: var(--accent);
 }
 
+.trending-section {
+  margin-bottom: 20px;
+}
+
+.trending-tour-card {
+  font: inherit;
+  cursor: pointer;
+  text-align: left;
+}
+
+.trending-places-row {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+  gap: 12px;
+}
+
+.trending-place-card {
+  font: inherit;
+  cursor: pointer;
+  text-align: left;
+  padding: 14px 16px;
+  border-radius: 10px;
+  border: 1px solid var(--border);
+  background: var(--bg-alt);
+  color: inherit;
+}
+
+.trending-place-card:hover {
+  border-color: var(--accent);
+}
+
 .business-header {
   display: flex;
   align-items: center;

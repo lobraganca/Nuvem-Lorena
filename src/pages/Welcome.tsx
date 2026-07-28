@@ -1,6 +1,7 @@
 import { useNavigate } from "react-router-dom";
 import { useAvena } from "../store/AvenaContext";
 import avenaLogo from "../assets/avena-logo-wordmark.png";
+import { TrendingSection } from "../components/TrendingSection";
 
 const FEATURES = [
   { title: "Mapa afetivo", text: "Cada pin é uma história vivida — viagens, trilhas, praias, cachoeiras e muito mais." },
@@ -41,6 +42,10 @@ export function Welcome() {
             <p className="muted">{f.text}</p>
           </div>
         ))}
+      </section>
+
+      <section className="page page-wide">
+        <TrendingSection />
       </section>
 
       <section className="page page-wide welcome-page">

@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 import { useAvena } from "../store/AvenaContext";
 import { BusinessCard } from "../components/BusinessCard";
+import { TrendingSection } from "../components/TrendingSection";
 import type { BusinessType } from "../types";
 
 type Tab = "Todos" | BusinessType;
@@ -57,6 +58,12 @@ export function Destination() {
           </div>
         )}
       </div>
+
+      {!query && (
+        <div className="page page-wide">
+          <TrendingSection />
+        </div>
+      )}
 
       {query && (
         <div className="page page-wide">
