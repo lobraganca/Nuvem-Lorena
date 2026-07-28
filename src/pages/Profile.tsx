@@ -79,9 +79,20 @@ export function Profile() {
             <span className={`privacy-badge ${user.isPrivate ? "privacy-private" : "privacy-public"}`}>
               {user.isPrivate ? "🔒 Privado" : "🌐 Público"}
             </span>
+            <span className="privacy-badge">
+              {user.accountType === "profissional" ? "🧭 Profissional" : "🧳 Turista"}
+            </span>
             <button className="btn-outline" onClick={() => setEditing((v) => !v)}>
               {editing ? "Cancelar" : "Editar perfil"}
             </button>
+            {user.accountType === "profissional" && (
+              <Link to="/professional" className="btn-outline">
+                Ir para o painel profissional
+              </Link>
+            )}
+            <Link to="/welcome" className="btn-outline">
+              Trocar tipo de conta
+            </Link>
           </div>
 
           <div className="ig-stats-row">

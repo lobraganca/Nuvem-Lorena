@@ -16,6 +16,8 @@ export interface Person {
   avatarColor: string;
 }
 
+export type AccountType = "turista" | "profissional";
+
 export interface UserProfile {
   name: string;
   username: string;
@@ -23,6 +25,8 @@ export interface UserProfile {
   avatarPhoto?: string; // data URL
   avatarColor: string;
   isPrivate: boolean;
+  accountType?: AccountType;
+  ownBusinessId?: string;
 }
 
 export interface Message {

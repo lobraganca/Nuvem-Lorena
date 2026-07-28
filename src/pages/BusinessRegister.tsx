@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { useAvena } from "../store/AvenaContext";
 import { plans } from "../lib/plans";
 import type { Business, BusinessType, PlanTier } from "../types";
@@ -7,8 +7,10 @@ import type { Business, BusinessType, PlanTier } from "../types";
 const types: BusinessType[] = ["Agência", "Guia", "Restaurante"];
 
 export function BusinessRegister() {
-  const { addBusiness } = useAvena();
+  const { addBusiness, updateUser } = useAvena();
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const isOnboarding = searchParams.get("onboarding") === "1";
 
   const [name, setName] = useState("");
   const [type, setType] = useState<BusinessType>("Agência");
@@ -41,12 +43,23 @@ export function BusinessRegister() {
     };
 
     addBusiness(business);
-    navigate(`/business/${business.id}`);
+
+    if (isOnboarding) {
+      updateUser({ ownBusinessId: business.id });
+      navigate("/professional");
+    } else {
+      navigate(`/business/${business.id}`);
+    }
   }
 
   return (
     <div className="page">
       <h1>Cadastrar empresa</h1>
+      {isOnboarding && (
+        <p className="muted">
+          Último passo para começar a usar o Avena como profissional.
+        </p>
+      )}
       <form className="experience-form" onSubmit={handleSubmit}>
         <label>
           Nome
