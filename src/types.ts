@@ -37,6 +37,14 @@ export type BusinessType = "Agência" | "Guia" | "Restaurante";
 
 export type PlanTier = "Básico" | "Pro" | "Avançado";
 
+export interface Tour {
+  id: string;
+  title: string;
+  description?: string;
+  priceFrom?: number;
+  durationHours?: number;
+}
+
 export interface Business {
   id: string;
   name: string;
@@ -50,6 +58,7 @@ export interface Business {
   phone?: string;
   website?: string;
   createdAt: string; // ISO date
+  tours?: Tour[];
 }
 
 export interface Experience {

@@ -10,6 +10,7 @@ import { BusinessRegister } from "./pages/BusinessRegister";
 import { BusinessDetail } from "./pages/BusinessDetail";
 import { Messages } from "./pages/Messages";
 import { Conversation } from "./pages/Conversation";
+import { Destination } from "./pages/Destination";
 
 export default function App() {
   return (
@@ -19,6 +20,7 @@ export default function App() {
           <Link to="/" className="brand">
             Avena
           </Link>
+          <Link to="/destination">Destinos</Link>
           <Link to="/business">Para empresas</Link>
           <Link to="/messages">Mensagens</Link>
           <Link to="/profile">Perfil</Link>
@@ -30,6 +32,7 @@ export default function App() {
             <Route path="/experience/:id" element={<ExperienceDetail />} />
             <Route path="/person/:id" element={<PersonProfile />} />
             <Route path="/profile" element={<Profile />} />
+            <Route path="/destination" element={<Destination />} />
             <Route path="/business" element={<BusinessLanding />} />
             <Route path="/business/new" element={<BusinessRegister />} />
             <Route path="/business/:id" element={<BusinessDetail />} />

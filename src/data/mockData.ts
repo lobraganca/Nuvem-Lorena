@@ -151,6 +151,10 @@ export const mockBusinesses: Business[] = [
     email: "contato@bluewhaletours.com.br",
     website: "bluewhaletours.com.br",
     createdAt: "2025-02-10",
+    tours: [
+      { id: "t1", title: "Passeio de barco para observação de baleias", priceFrom: 220, durationHours: 4 },
+      { id: "t2", title: "Mergulho na Prainha", priceFrom: 180, durationHours: 3 },
+    ],
   },
   {
     id: "b2",
@@ -163,6 +167,9 @@ export const mockBusinesses: Business[] = [
     country: "Brasil",
     email: "rafael.guia@gmail.com",
     createdAt: "2025-03-01",
+    tours: [
+      { id: "t3", title: "Trilha do Pontal do Atalaia", priceFrom: 90, durationHours: 3 },
+    ],
   },
   {
     id: "b3",
@@ -174,5 +181,34 @@ export const mockBusinesses: Business[] = [
     country: "França",
     email: "contact@lepetitbistro.fr",
     createdAt: "2025-04-15",
+  },
+  {
+    id: "b4",
+    name: "Noronha Divers",
+    type: "Agência",
+    planTier: "Pro",
+    description: "Passeios de barco, mergulho e observação de golfinhos em Fernando de Noronha.",
+    city: "Fernando de Noronha",
+    state: "PE",
+    country: "Brasil",
+    email: "contato@noronhadivers.com.br",
+    createdAt: "2025-06-01",
+    tours: [
+      { id: "t4", title: "Passeio de barco Baía dos Golfinhos", priceFrom: 250, durationHours: 5 },
+      { id: "t5", title: "Batismo de mergulho", priceFrom: 400, durationHours: 2 },
+    ],
+  },
+  {
+    id: "b5",
+    name: "Carla Andrade",
+    type: "Guia",
+    planTier: "Básico",
+    description: "Guia local credenciada, especialista em trilhas e história de Fernando de Noronha.",
+    city: "Fernando de Noronha",
+    state: "PE",
+    country: "Brasil",
+    email: "carla.guia@gmail.com",
+    createdAt: "2025-06-10",
+    tours: [{ id: "t6", title: "Trilha do Capim-Açu", priceFrom: 120, durationHours: 4 }],
   },
 ];

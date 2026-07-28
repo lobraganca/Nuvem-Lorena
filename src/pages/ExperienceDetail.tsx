@@ -2,14 +2,21 @@ import { Link, useParams } from "react-router-dom";
 import { useAvena } from "../store/AvenaContext";
 import { categoryEmoji } from "../lib/categories";
 
+const typeEmoji: Record<string, string> = {
+  Agência: "🧭",
+  Guia: "🥾",
+  Restaurante: "🍽️",
+};
+
 export function ExperienceDetail() {
   const { id } = useParams();
-  const { experiences, people } = useAvena();
+  const { experiences, people, businesses } = useAvena();
   const exp = experiences.find((e) => e.id === id);
 
   if (!exp) return <div className="page">Experiência não encontrada.</div>;
 
   const present = people.filter((p) => exp.peopleIds.includes(p.id));
+  const localBusinesses = businesses.filter((b) => b.city === exp.city);
 
   return (
     <div className="page">
@@ -82,6 +89,26 @@ export function ExperienceDetail() {
         <div className="detail-block">
           <h3>Observações</h3>
           <p>{exp.notes}</p>
+        </div>
+      )}
+
+      {localBusinesses.length > 0 && (
+        <div className="detail-block">
+          <h3>Passeios, guias e agências em {exp.city}</h3>
+          <div className="business-grid">
+            {localBusinesses.map((b) => (
+              <Link to={`/business/${b.id}`} key={b.id} className="business-card">
+                <div className="business-card-top">
+                  <span>{typeEmoji[b.type]}</span>
+                  <span className={`plan-badge plan-badge-${b.planTier.toLowerCase()}`}>
+                    {b.planTier}
+                  </span>
+                </div>
+                <div className="timeline-card-title">{b.name}</div>
+                <div className="muted">{b.type}</div>
+              </Link>
+            ))}
+          </div>
         </div>
       )}
     </div>
