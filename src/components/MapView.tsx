@@ -1,4 +1,4 @@
-import { MapContainer, TileLayer, Marker, Popup } from "react-leaflet";
+import { MapContainer, TileLayer, Marker, Popup, ZoomControl } from "react-leaflet";
 import { divIcon } from "leaflet";
 import { Link } from "react-router-dom";
 import type { Experience } from "../types";
@@ -20,7 +20,10 @@ export function MapView({ experiences }: { experiences: Experience[] }) {
       zoom={3}
       scrollWheelZoom
       className="avena-map"
+      /* Keeps the top-left clear for the search bar overlay. */
+      zoomControl={false}
     >
+      <ZoomControl position="bottomleft" />
       <TileLayer
         attribution='&copy; OpenStreetMap contributors'
         url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"

@@ -50,20 +50,22 @@ function AppShell() {
         <Link to="/" className="brand">
           <img src={avenaLogo} alt="Avena" className="brand-logo" />
         </Link>
-        {chosen && (
-          <>
-            {isProfissional && <Link to="/professional">Painel</Link>}
-            <Link to="/destination">Destinos</Link>
-            {!isProfissional && <Link to="/business">Para empresas</Link>}
-            <Link to="/messages">Mensagens</Link>
-            {!isProfissional && <Link to="/bookings">Reservas</Link>}
-            {!isProfissional && <NotificationsLink />}
-            <Link to="/profile">Perfil</Link>
-          </>
-        )}
-        <Link to="/revenue" className="nav-admin-link" title="Painel do dono da plataforma">
-          Receita
-        </Link>
+        <div className="topbar-links">
+          {chosen && (
+            <>
+              {isProfissional && <Link to="/professional">Painel</Link>}
+              <Link to="/destination">Destinos</Link>
+              {!isProfissional && <Link to="/business">Para empresas</Link>}
+              <Link to="/messages">Mensagens</Link>
+              {!isProfissional && <Link to="/bookings">Reservas</Link>}
+              {!isProfissional && <NotificationsLink />}
+              <Link to="/profile">Perfil</Link>
+            </>
+          )}
+          <Link to="/revenue" className="nav-admin-link" title="Painel do dono da plataforma">
+            Receita
+          </Link>
+        </div>
       </nav>
       <main className="app-content">
         <Routes>
