@@ -1,4 +1,4 @@
-import type { Business, Experience, Message, Person, UserProfile } from "../types";
+import type { Business, Experience, Message, Person, Review, UserProfile } from "../types";
 
 export const mockUser: UserProfile = {
   name: "Lorena Braganca",
@@ -214,5 +214,53 @@ export const mockBusinesses: Business[] = [
     email: "carla.guia@gmail.com",
     createdAt: "2025-06-10",
     tours: [{ id: "t6", title: "Trilha do Capim-Açu", priceFrom: 120, durationHours: 4 }],
+  },
+  {
+    id: "b6",
+    name: "Pousada Vista do Mar",
+    type: "Hotel",
+    planTier: "Pro",
+    description: "Pousada charmosa a 5 minutos da Baía do Sancho, em Fernando de Noronha.",
+    city: "Fernando de Noronha",
+    state: "PE",
+    country: "Brasil",
+    email: "reservas@vistadomar.com.br",
+    createdAt: "2025-05-20",
+  },
+];
+
+export const mockReviews: Review[] = [
+  {
+    id: "r1",
+    businessId: "b1",
+    bookingId: "seed-1",
+    tourTitle: "Passeio de barco para observação de baleias",
+    rating: 5,
+    comment: "Passeio incrível, tripulação super atenciosa e vimos baleias de perto!",
+    recommends: true,
+    authorName: "Cecília",
+    createdAt: "2026-07-16T09:00:00",
+  },
+  {
+    id: "r2",
+    businessId: "b1",
+    bookingId: "seed-2",
+    tourTitle: "Mergulho na Prainha",
+    rating: 4,
+    comment: "Muito bom, só achei o horário de saída meio cedo.",
+    recommends: true,
+    authorName: "Felipe",
+    createdAt: "2026-06-02T09:00:00",
+  },
+  {
+    id: "r3",
+    businessId: "b2",
+    bookingId: "seed-3",
+    tourTitle: "Trilha do Pontal do Atalaia",
+    rating: 5,
+    comment: "Rafael conhece cada pedra do caminho, super seguro e divertido.",
+    recommends: true,
+    authorName: "Marina",
+    createdAt: "2026-04-10T09:00:00",
   },
 ];

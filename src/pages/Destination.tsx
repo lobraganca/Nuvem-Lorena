@@ -2,13 +2,9 @@ import { useEffect, useMemo, useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 import { useAvena } from "../store/AvenaContext";
 import { BookTourButton } from "../components/BookTourButton";
+import { ReputationBadge } from "../components/ReputationBadge";
 import { reviewStatsFor } from "../lib/reviews";
-
-const typeEmoji: Record<string, string> = {
-  Agência: "🧭",
-  Guia: "🥾",
-  Restaurante: "🍽️",
-};
+import { businessTypeEmoji } from "../lib/categories";
 
 export function Destination() {
   const { businesses, experiences, reviews } = useAvena();
@@ -35,15 +31,17 @@ export function Destination() {
     b.city.toLowerCase().includes(query.trim().toLowerCase())
   );
 
-  const agenciesAndGuides = matches.filter((b) => b.type !== "Restaurante");
+  const agenciesAndGuides = matches.filter((b) => b.type === "Agência" || b.type === "Guia");
   const restaurants = matches.filter((b) => b.type === "Restaurante");
+  const hotels = matches.filter((b) => b.type === "Hotel");
 
   return (
     <div className="page page-wide">
       <h1>Para onde você vai?</h1>
       <p className="muted">
-        Busque uma cidade brasileira e veja passeios, guias, agências e
-        restaurantes recomendados pela comunidade.
+        Busque uma cidade brasileira e veja passeios, guias, agências,
+        restaurantes e hotéis recomendados pela comunidade — com a reputação de
+        cada um segundo quem já usou.
       </p>
 
       <input
@@ -75,55 +73,81 @@ export function Destination() {
             {agenciesAndGuides.map((b) => {
               const stats = reviewStatsFor(reviews, b.id);
               return (
-              <div key={b.id} className="destination-card">
-                <Link to={`/business/${b.id}`} className="business-card-top-link">
-                  <div className="business-card-top">
-                    <span>{typeEmoji[b.type]}</span>
-                    <span className={`plan-badge plan-badge-${b.planTier.toLowerCase()}`}>
-                      {b.planTier}
-                    </span>
-                  </div>
-                  <div className="timeline-card-title">{b.name}</div>
-                  <div className="muted">
-                    {b.type}
-                    {stats.count > 0 && ` · ⭐ ${stats.avgRating} (${stats.count})`}
-                  </div>
-                </Link>
-                {b.tours && b.tours.length > 0 && (
-                  <div className="tour-cards">
-                    {b.tours.map((t) => (
-                      <div key={t.id} className="tour-card">
-                        <div>{t.title}</div>
-                        <div className="muted">
-                          {t.priceFrom !== undefined && `A partir de R$ ${t.priceFrom}`}
-                          {t.durationHours !== undefined && ` · ${t.durationHours}h`}
-                        </div>
-                        <BookTourButton business={b} tour={t} />
-                      </div>
-                    ))}
-                  </div>
-                )}
-              </div>
-              );
-            })}
-          </div>
-
-          {restaurants.length > 0 && (
-            <>
-              <h2 className="timeline-title">Restaurantes em {query}</h2>
-              <div className="business-grid">
-                {restaurants.map((b) => (
-                  <Link to={`/business/${b.id}`} key={b.id} className="business-card">
+                <div key={b.id} className="destination-card">
+                  <Link to={`/business/${b.id}`} className="business-card-top-link">
                     <div className="business-card-top">
-                      <span>🍽️</span>
+                      <span>{businessTypeEmoji[b.type]}</span>
                       <span className={`plan-badge plan-badge-${b.planTier.toLowerCase()}`}>
                         {b.planTier}
                       </span>
                     </div>
                     <div className="timeline-card-title">{b.name}</div>
-                    <div className="muted">{b.description}</div>
+                    <div className="muted">{b.type}</div>
+                    <ReputationBadge avgRating={stats.avgRating} count={stats.count} />
                   </Link>
-                ))}
+                  {b.tours && b.tours.length > 0 && (
+                    <div className="tour-cards">
+                      {b.tours.map((t) => (
+                        <div key={t.id} className="tour-card">
+                          <div>{t.title}</div>
+                          <div className="muted">
+                            {t.priceFrom !== undefined && `A partir de R$ ${t.priceFrom}`}
+                            {t.durationHours !== undefined && ` · ${t.durationHours}h`}
+                          </div>
+                          <BookTourButton business={b} tour={t} />
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              );
+            })}
+          </div>
+
+          {hotels.length > 0 && (
+            <>
+              <h2 className="timeline-title">Hotéis em {query}</h2>
+              <div className="business-grid">
+                {hotels.map((b) => {
+                  const stats = reviewStatsFor(reviews, b.id);
+                  return (
+                    <Link to={`/business/${b.id}`} key={b.id} className="business-card">
+                      <div className="business-card-top">
+                        <span>🏨</span>
+                        <span className={`plan-badge plan-badge-${b.planTier.toLowerCase()}`}>
+                          {b.planTier}
+                        </span>
+                      </div>
+                      <div className="timeline-card-title">{b.name}</div>
+                      <div className="muted">{b.description}</div>
+                      <ReputationBadge avgRating={stats.avgRating} count={stats.count} />
+                    </Link>
+                  );
+                })}
+              </div>
+            </>
+          )}
+
+          {restaurants.length > 0 && (
+            <>
+              <h2 className="timeline-title">Restaurantes em {query}</h2>
+              <div className="business-grid">
+                {restaurants.map((b) => {
+                  const stats = reviewStatsFor(reviews, b.id);
+                  return (
+                    <Link to={`/business/${b.id}`} key={b.id} className="business-card">
+                      <div className="business-card-top">
+                        <span>🍽️</span>
+                        <span className={`plan-badge plan-badge-${b.planTier.toLowerCase()}`}>
+                          {b.planTier}
+                        </span>
+                      </div>
+                      <div className="timeline-card-title">{b.name}</div>
+                      <div className="muted">{b.description}</div>
+                      <ReputationBadge avgRating={stats.avgRating} count={stats.count} />
+                    </Link>
+                  );
+                })}
               </div>
             </>
           )}

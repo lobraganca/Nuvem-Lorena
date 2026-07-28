@@ -12,3 +12,12 @@ export function reviewStatsFor(reviews: Review[], businessId: string) {
 
   return { count, avgRating, recommendPct, reviews: businessReviews };
 }
+
+export function reputationLabel(avgRating: number): string {
+  if (avgRating === 0) return "Sem avaliações";
+  if (avgRating >= 4.5) return "Excelente";
+  if (avgRating >= 4) return "Muito bom";
+  if (avgRating >= 3) return "Bom";
+  if (avgRating >= 2) return "Regular";
+  return "Ruim";
+}

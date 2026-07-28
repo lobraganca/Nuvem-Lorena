@@ -3,9 +3,8 @@ import { useNavigate, useSearchParams } from "react-router-dom";
 import { useAvena } from "../store/AvenaContext";
 import { plans } from "../lib/plans";
 import { BRAZILIAN_STATES } from "../lib/collections";
+import { businessTypes } from "../lib/categories";
 import type { Business, BusinessType, PlanTier } from "../types";
-
-const types: BusinessType[] = ["Agência", "Guia", "Restaurante"];
 
 export function BusinessRegister() {
   const { addBusiness, updateUser } = useAvena();
@@ -69,7 +68,7 @@ export function BusinessRegister() {
         <label>
           Tipo
           <select value={type} onChange={(e) => setType(e.target.value as BusinessType)}>
-            {types.map((t) => (
+            {businessTypes.map((t) => (
               <option key={t} value={t}>
                 {t}
               </option>

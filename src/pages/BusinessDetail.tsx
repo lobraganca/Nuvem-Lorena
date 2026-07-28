@@ -1,6 +1,7 @@
 import { Link, useParams } from "react-router-dom";
 import { useAvena } from "../store/AvenaContext";
 import { BookTourButton } from "../components/BookTourButton";
+import { ReputationBadge } from "../components/ReputationBadge";
 import { reviewStatsFor } from "../lib/reviews";
 
 export function BusinessDetail() {
@@ -27,12 +28,12 @@ export function BusinessDetail() {
         {business.type} · {business.city}
         {business.state ? `, ${business.state}` : ""} — {business.country}
       </p>
-      {stats.count > 0 && (
-        <p>
-          ⭐ {stats.avgRating} ({stats.count} {stats.count === 1 ? "avaliação" : "avaliações"}) ·{" "}
-          {stats.recommendPct}% recomendam
-        </p>
-      )}
+      <div style={{ margin: "8px 0" }}>
+        <ReputationBadge avgRating={stats.avgRating} count={stats.count} />
+        {stats.count > 0 && (
+          <span className="muted"> · {stats.recommendPct}% recomendam</span>
+        )}
+      </div>
 
       <div className="detail-block">
         <h3>Sobre</h3>

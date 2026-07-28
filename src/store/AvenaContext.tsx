@@ -6,10 +6,11 @@ import {
   mockExperiences,
   mockMessages,
   mockPeople,
+  mockReviews,
   mockUser,
 } from "../data/mockData";
 
-const STORAGE_KEY = "avena-data-v7";
+const STORAGE_KEY = "avena-data-v8";
 
 interface AvenaData {
   experiences: Experience[];
@@ -42,7 +43,7 @@ function defaults(): AvenaData {
     user: mockUser,
     messages: mockMessages,
     bookings: [],
-    reviews: [],
+    reviews: mockReviews,
   };
 }
 

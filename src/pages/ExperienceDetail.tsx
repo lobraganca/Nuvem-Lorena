@@ -1,16 +1,12 @@
 import { Link, useParams } from "react-router-dom";
 import { useAvena } from "../store/AvenaContext";
-import { categoryEmoji } from "../lib/categories";
-
-const typeEmoji: Record<string, string> = {
-  Agência: "🧭",
-  Guia: "🥾",
-  Restaurante: "🍽️",
-};
+import { categoryEmoji, businessTypeEmoji } from "../lib/categories";
+import { reviewStatsFor } from "../lib/reviews";
+import { ReputationBadge } from "../components/ReputationBadge";
 
 export function ExperienceDetail() {
   const { id } = useParams();
-  const { experiences, people, businesses } = useAvena();
+  const { experiences, people, businesses, reviews } = useAvena();
   const exp = experiences.find((e) => e.id === id);
 
   if (!exp) return <div className="page">Experiência não encontrada.</div>;
@@ -94,20 +90,24 @@ export function ExperienceDetail() {
 
       {localBusinesses.length > 0 && (
         <div className="detail-block">
-          <h3>Passeios, guias e agências em {exp.city}</h3>
+          <h3>Passeios, guias, agências e hotéis em {exp.city}</h3>
           <div className="business-grid">
-            {localBusinesses.map((b) => (
-              <Link to={`/business/${b.id}`} key={b.id} className="business-card">
-                <div className="business-card-top">
-                  <span>{typeEmoji[b.type]}</span>
-                  <span className={`plan-badge plan-badge-${b.planTier.toLowerCase()}`}>
-                    {b.planTier}
-                  </span>
-                </div>
-                <div className="timeline-card-title">{b.name}</div>
-                <div className="muted">{b.type}</div>
-              </Link>
-            ))}
+            {localBusinesses.map((b) => {
+              const stats = reviewStatsFor(reviews, b.id);
+              return (
+                <Link to={`/business/${b.id}`} key={b.id} className="business-card">
+                  <div className="business-card-top">
+                    <span>{businessTypeEmoji[b.type]}</span>
+                    <span className={`plan-badge plan-badge-${b.planTier.toLowerCase()}`}>
+                      {b.planTier}
+                    </span>
+                  </div>
+                  <div className="timeline-card-title">{b.name}</div>
+                  <div className="muted">{b.type}</div>
+                  <ReputationBadge avgRating={stats.avgRating} count={stats.count} />
+                </Link>
+              );
+            })}
           </div>
         </div>
       )}

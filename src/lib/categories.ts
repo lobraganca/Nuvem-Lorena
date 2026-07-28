@@ -1,4 +1,4 @@
-import type { Category } from "../types";
+import type { BusinessType, Category } from "../types";
 
 export const categories: Category[] = [
   "Viagem",
@@ -24,4 +24,13 @@ export const categoryEmoji: Record<Category, string> = {
   Parque: "🌳",
   Cidade: "🏙️",
   Outro: "📍",
+};
+
+export const businessTypes: BusinessType[] = ["Agência", "Guia", "Restaurante", "Hotel"];
+
+export const businessTypeEmoji: Record<BusinessType, string> = {
+  Agência: "🧭",
+  Guia: "🥾",
+  Restaurante: "🍽️",
+  Hotel: "🏨",
 };

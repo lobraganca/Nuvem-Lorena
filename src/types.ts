@@ -37,7 +37,7 @@ export interface Message {
   timestamp: string; // ISO datetime
 }
 
-export type BusinessType = "Agência" | "Guia" | "Restaurante";
+export type BusinessType = "Agência" | "Guia" | "Restaurante" | "Hotel";
 
 export type PlanTier = "Básico" | "Pro" | "Avançado";
 
