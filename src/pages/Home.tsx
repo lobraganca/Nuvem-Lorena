@@ -1,15 +1,31 @@
 import { useMemo, useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useAvena } from "../store/AvenaContext";
 import { MapView } from "../components/MapView";
 import { categories, categoryEmoji } from "../lib/categories";
 import type { Category } from "../types";
 
 export function Home() {
-  const { experiences, people } = useAvena();
+  const { experiences, people, businesses } = useAvena();
+  const navigate = useNavigate();
   const [category, setCategory] = useState<Category | "Todas">("Todas");
   const [personId, setPersonId] = useState<string>("Todas");
   const [year, setYear] = useState<string>("Todos");
+  const [quickSearch, setQuickSearch] = useState("");
+
+  const knownCities = useMemo(
+    () =>
+      Array.from(
+        new Set([...businesses.map((b) => b.city), ...experiences.map((e) => e.city)])
+      ).sort(),
+    [businesses, experiences]
+  );
+
+  function handleQuickSearch(e: React.FormEvent) {
+    e.preventDefault();
+    if (!quickSearch.trim()) return;
+    navigate(`/destination?city=${encodeURIComponent(quickSearch.trim())}`);
+  }
 
   const years = useMemo(
     () =>
@@ -34,6 +50,22 @@ export function Home() {
   return (
     <div className="home">
       <div className="home-map">
+        <form className="quick-search" onSubmit={handleQuickSearch}>
+          <input
+            list="known-cities"
+            value={quickSearch}
+            onChange={(e) => setQuickSearch(e.target.value)}
+            placeholder="🔎 Para onde você vai? Busque passeios rápido"
+          />
+          <datalist id="known-cities">
+            {knownCities.map((city) => (
+              <option key={city} value={city} />
+            ))}
+          </datalist>
+          <button type="submit" className="btn-primary">
+            Buscar
+          </button>
+        </form>
         <MapView experiences={filtered} />
         <Link to="/experience/new" className="fab" title="Nova experiência">
           +

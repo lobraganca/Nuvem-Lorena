@@ -1,13 +1,16 @@
 import { Link, useParams } from "react-router-dom";
 import { useAvena } from "../store/AvenaContext";
 import { BookTourButton } from "../components/BookTourButton";
+import { reviewStatsFor } from "../lib/reviews";
 
 export function BusinessDetail() {
   const { id } = useParams();
-  const { businesses } = useAvena();
+  const { businesses, reviews } = useAvena();
   const business = businesses.find((b) => b.id === id);
 
   if (!business) return <div className="page">Empresa não encontrada.</div>;
+
+  const stats = reviewStatsFor(reviews, business.id);
 
   return (
     <div className="page">
@@ -24,6 +27,12 @@ export function BusinessDetail() {
         {business.type} · {business.city}
         {business.state ? `, ${business.state}` : ""} — {business.country}
       </p>
+      {stats.count > 0 && (
+        <p>
+          ⭐ {stats.avgRating} ({stats.count} {stats.count === 1 ? "avaliação" : "avaliações"}) ·{" "}
+          {stats.recommendPct}% recomendam
+        </p>
+      )}
 
       <div className="detail-block">
         <h3>Sobre</h3>
@@ -51,6 +60,25 @@ export function BusinessDetail() {
                   {t.durationHours !== undefined && ` · ${t.durationHours}h`}
                 </div>
                 <BookTourButton business={business} tour={t} />
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {stats.reviews.length > 0 && (
+        <div className="detail-block">
+          <h3>Avaliações de viajantes</h3>
+          <div className="review-list">
+            {stats.reviews.map((r) => (
+              <div key={r.id} className="review-item">
+                <div className="review-item-top">
+                  <strong>{r.authorName}</strong>
+                  <span>{"⭐".repeat(r.rating)}</span>
+                  <span className="muted">{r.recommends ? "👍 Recomenda" : "👎 Não recomenda"}</span>
+                </div>
+                <div className="muted">{r.tourTitle}</div>
+                <p>{r.comment}</p>
               </div>
             ))}
           </div>

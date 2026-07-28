@@ -79,6 +79,19 @@ export interface Booking {
   commissionAmount: number;
   businessPayout: number;
   createdAt: string; // ISO datetime
+  reviewed?: boolean;
+}
+
+export interface Review {
+  id: string;
+  businessId: string;
+  bookingId: string;
+  tourTitle: string;
+  rating: number; // 1-5
+  comment: string;
+  recommends: boolean;
+  authorName: string;
+  createdAt: string; // ISO datetime
 }
 
 export interface Experience {

@@ -1,7 +1,8 @@
-import { useMemo, useState } from "react";
-import { Link } from "react-router-dom";
+import { useEffect, useMemo, useState } from "react";
+import { Link, useSearchParams } from "react-router-dom";
 import { useAvena } from "../store/AvenaContext";
 import { BookTourButton } from "../components/BookTourButton";
+import { reviewStatsFor } from "../lib/reviews";
 
 const typeEmoji: Record<string, string> = {
   Agência: "🧭",
@@ -10,8 +11,14 @@ const typeEmoji: Record<string, string> = {
 };
 
 export function Destination() {
-  const { businesses, experiences } = useAvena();
-  const [query, setQuery] = useState("");
+  const { businesses, experiences, reviews } = useAvena();
+  const [searchParams] = useSearchParams();
+  const [query, setQuery] = useState(searchParams.get("city") ?? "");
+
+  useEffect(() => {
+    const city = searchParams.get("city");
+    if (city) setQuery(city);
+  }, [searchParams]);
 
   const brBusinesses = businesses.filter((b) => b.country === "Brasil");
   const brExperiences = experiences.filter((e) => e.country === "Brasil");
@@ -65,7 +72,9 @@ export function Destination() {
             {agenciesAndGuides.length === 0 && (
               <p className="muted">Nenhum resultado encontrado ainda para esse destino.</p>
             )}
-            {agenciesAndGuides.map((b) => (
+            {agenciesAndGuides.map((b) => {
+              const stats = reviewStatsFor(reviews, b.id);
+              return (
               <div key={b.id} className="destination-card">
                 <Link to={`/business/${b.id}`} className="business-card-top-link">
                   <div className="business-card-top">
@@ -75,7 +84,10 @@ export function Destination() {
                     </span>
                   </div>
                   <div className="timeline-card-title">{b.name}</div>
-                  <div className="muted">{b.type}</div>
+                  <div className="muted">
+                    {b.type}
+                    {stats.count > 0 && ` · ⭐ ${stats.avgRating} (${stats.count})`}
+                  </div>
                 </Link>
                 {b.tours && b.tours.length > 0 && (
                   <div className="tour-cards">
@@ -92,7 +104,8 @@ export function Destination() {
                   </div>
                 )}
               </div>
-            ))}
+              );
+            })}
           </div>
 
           {restaurants.length > 0 && (
