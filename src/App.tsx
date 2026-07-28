@@ -44,7 +44,7 @@ function AppShell() {
           </>
         )}
         <Link to="/revenue" className="nav-admin-link" title="Painel do dono da plataforma">
-          📊 Receita
+          Receita
         </Link>
       </nav>
       <main className="app-content">

@@ -2,10 +2,10 @@ import { useNavigate } from "react-router-dom";
 import { useAvena } from "../store/AvenaContext";
 
 const FEATURES = [
-  { emoji: "🗺️", title: "Mapa afetivo", text: "Cada pin é uma história vivida — viagens, trilhas, praias, cachoeiras e muito mais." },
-  { emoji: "🧑‍🤝‍🧑", title: "Pessoas", text: "Veja tudo o que você já viveu com cada pessoa: cidades, trilhas, primeiras vezes." },
-  { emoji: "🏆", title: "Coleções", text: "Estados brasileiros, regiões, cachoeiras e praias — acompanhe seu progresso." },
-  { emoji: "🧭", title: "Passeios e guias", text: "Descubra agências, guias e restaurantes verificados no seu destino." },
+  { title: "Mapa afetivo", text: "Cada pin é uma história vivida — viagens, trilhas, praias, cachoeiras e muito mais." },
+  { title: "Pessoas", text: "Veja tudo o que você já viveu com cada pessoa: cidades, trilhas, primeiras vezes." },
+  { title: "Coleções", text: "Estados brasileiros, regiões, cachoeiras e praias — acompanhe seu progresso." },
+  { title: "Passeios e guias", text: "Descubra agências, guias e restaurantes verificados no seu destino." },
 ];
 
 export function Welcome() {
@@ -25,7 +25,7 @@ export function Welcome() {
   return (
     <div className="landing-page">
       <section className="landing-hero">
-        <div className="landing-hero-badge">🇧🇷 Feito para o turismo do Brasil</div>
+        <div className="landing-hero-badge">Feito para o turismo do Brasil</div>
         <h1 className="landing-title">Avena</h1>
         <p className="landing-tagline">
           Um mapa afetivo para colecionar as experiências, pessoas e lugares que
@@ -36,7 +36,6 @@ export function Welcome() {
       <section className="landing-features">
         {FEATURES.map((f) => (
           <div key={f.title} className="landing-feature-card">
-            <div className="account-type-emoji">{f.emoji}</div>
             <h3>{f.title}</h3>
             <p className="muted">{f.text}</p>
           </div>
@@ -49,7 +48,6 @@ export function Welcome() {
 
         <div className="account-type-grid">
           <button type="button" className="account-type-card" onClick={chooseTurista}>
-            <div className="account-type-emoji">🧳</div>
             <h2>Sou turista</h2>
             <p className="muted">
               Colecione suas experiências, monte seu mapa afetivo, converse com
@@ -63,7 +61,6 @@ export function Welcome() {
           </button>
 
           <button type="button" className="account-type-card" onClick={chooseProfissional}>
-            <div className="account-type-emoji">🧭</div>
             <h2>Sou profissional</h2>
             <p className="muted">
               Cadastre sua agência, seu trabalho como guia ou restaurante, publique

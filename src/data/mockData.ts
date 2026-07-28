@@ -3,8 +3,8 @@ import type { Business, Experience, Message, Person, Review, UserProfile } from 
 export const mockUser: UserProfile = {
   name: "Lorena Braganca",
   username: "lobraganca",
-  bio: "Colecionando lugares, pessoas e histórias pelo mundo 🌍✨",
-  avatarColor: "#d97757",
+  bio: "Colecionando lugares, pessoas e histórias pelo Brasil.",
+  avatarColor: "#003b7a",
   isPrivate: false,
   accountType: "turista",
 };

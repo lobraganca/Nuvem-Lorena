@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 import { useAvena } from "../store/AvenaContext";
 import { profileStats } from "../lib/stats";
 import { buildCollections } from "../lib/collections";
-import { categoryEmoji } from "../lib/categories";
+import { categoryColor } from "../lib/categories";
 
 export function Profile() {
   const { experiences, people, user, updateUser } = useAvena();
@@ -63,7 +63,7 @@ export function Profile() {
               {user.name[0]}
             </div>
           )}
-          <span className="ig-avatar-edit">📷</span>
+          <span className="ig-avatar-edit">Editar</span>
         </button>
         <input
           ref={fileInputRef}
@@ -77,10 +77,10 @@ export function Profile() {
           <div className="ig-header-top">
             <h1 className="ig-username">@{user.username}</h1>
             <span className={`privacy-badge ${user.isPrivate ? "privacy-private" : "privacy-public"}`}>
-              {user.isPrivate ? "🔒 Privado" : "🌐 Público"}
+              {user.isPrivate ? "Privado" : "Público"}
             </span>
             <span className="privacy-badge">
-              {user.accountType === "profissional" ? "🧭 Profissional" : "🧳 Turista"}
+              {user.accountType === "profissional" ? "Profissional" : "Turista"}
             </span>
             <button className="btn-outline" onClick={() => setEditing((v) => !v)}>
               {editing ? "Cancelar" : "Editar perfil"}
@@ -134,14 +134,14 @@ export function Profile() {
                 className={`chip ${!isPrivate ? "chip-active" : ""}`}
                 onClick={() => setIsPrivate(false)}
               >
-                🌐 Público
+                Público
               </button>
               <button
                 type="button"
                 className={`chip ${isPrivate ? "chip-active" : ""}`}
                 onClick={() => setIsPrivate(true)}
               >
-                🔒 Privado
+                Privado
               </button>
             </div>
             <p className="muted">
@@ -158,7 +158,7 @@ export function Profile() {
 
       {topPerson && (
         <div className="insight-card">
-          💡 Sua companhia mais frequente é <strong>{topPerson.name}</strong>, com{" "}
+          Sua companhia mais frequente é <strong>{topPerson.name}</strong>, com{" "}
           {topCompany![1]} experiências vividas juntos.
         </div>
       )}
@@ -169,10 +169,13 @@ export function Profile() {
           <p className="muted">Nenhuma experiência publicada ainda.</p>
         )}
         {sortedExperiences.map((exp) => (
-          <Link to={`/experience/${exp.id}`} key={exp.id} className="ig-tile">
-            <span className="ig-tile-emoji">
-              {exp.photos[0] ?? categoryEmoji[exp.category]}
-            </span>
+          <Link
+            to={`/experience/${exp.id}`}
+            key={exp.id}
+            className="ig-tile"
+            style={{ borderTopColor: categoryColor[exp.category] }}
+          >
+            <span className="ig-tile-label">{exp.category}</span>
           </Link>
         ))}
       </div>
@@ -184,7 +187,6 @@ export function Profile() {
           return (
             <div key={c.id} className="collection-card">
               <div className="collection-top">
-                <span>{c.emoji}</span>
                 <span className="muted">
                   {c.achieved}/{c.total}
                 </span>

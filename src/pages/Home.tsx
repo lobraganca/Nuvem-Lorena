@@ -2,7 +2,7 @@ import { useMemo, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAvena } from "../store/AvenaContext";
 import { MapView } from "../components/MapView";
-import { categories, categoryEmoji } from "../lib/categories";
+import { categories, categoryColor } from "../lib/categories";
 import type { Category } from "../types";
 
 export function Home() {
@@ -55,7 +55,7 @@ export function Home() {
             list="known-cities"
             value={quickSearch}
             onChange={(e) => setQuickSearch(e.target.value)}
-            placeholder="🔎 Para onde você vai? Busque passeios rápido"
+            placeholder="Para onde você vai? Busque passeios"
           />
           <datalist id="known-cities">
             {knownCities.map((city) => (
@@ -78,7 +78,7 @@ export function Home() {
             <option value="Todas">Todas categorias</option>
             {categories.map((c) => (
               <option key={c} value={c}>
-                {categoryEmoji[c]} {c}
+                {c}
               </option>
             ))}
           </select>
@@ -105,7 +105,7 @@ export function Home() {
           {sorted.length === 0 && <p className="muted">Nenhuma experiência encontrada.</p>}
           {sorted.map((exp) => (
             <Link to={`/experience/${exp.id}`} key={exp.id} className="timeline-card">
-              <div className="timeline-emoji">{categoryEmoji[exp.category]}</div>
+              <div className="category-dot" style={{ background: categoryColor[exp.category] }} />
               <div>
                 <div className="timeline-card-title">{exp.title}</div>
                 <div className="muted">

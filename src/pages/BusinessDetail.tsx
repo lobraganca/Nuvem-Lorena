@@ -75,8 +75,8 @@ export function BusinessDetail() {
               <div key={r.id} className="review-item">
                 <div className="review-item-top">
                   <strong>{r.authorName}</strong>
-                  <span>{"⭐".repeat(r.rating)}</span>
-                  <span className="muted">{r.recommends ? "👍 Recomenda" : "👎 Não recomenda"}</span>
+                  <span className="star-rating">{"★".repeat(r.rating)}</span>
+                  <span className="muted">{r.recommends ? "Recomenda" : "Não recomenda"}</span>
                 </div>
                 <div className="muted">{r.tourTitle}</div>
                 <p>{r.comment}</p>

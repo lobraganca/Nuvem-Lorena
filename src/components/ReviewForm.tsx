@@ -11,13 +11,13 @@ export function ReviewForm({ booking }: { booking: Booking }) {
   const [done, setDone] = useState(false);
 
   if (booking.reviewed || done) {
-    return <div className="muted">✅ Você já avaliou esta agência.</div>;
+    return <div className="muted">Você já avaliou esta agência.</div>;
   }
 
   if (!open) {
     return (
       <button type="button" className="btn-outline" onClick={() => setOpen(true)}>
-        ⭐ Avaliar agência
+        Avaliar agência
       </button>
     );
   }
@@ -48,7 +48,7 @@ export function ReviewForm({ booking }: { booking: Booking }) {
             className={`star-btn ${n <= rating ? "star-btn-active" : ""}`}
             onClick={() => setRating(n)}
           >
-            ⭐
+            ★
           </button>
         ))}
       </div>
@@ -65,14 +65,14 @@ export function ReviewForm({ booking }: { booking: Booking }) {
           className={`chip ${recommends ? "chip-active" : ""}`}
           onClick={() => setRecommends(true)}
         >
-          👍 Recomendo
+          Recomendo
         </button>
         <button
           type="button"
           className={`chip ${!recommends ? "chip-active" : ""}`}
           onClick={() => setRecommends(false)}
         >
-          👎 Não recomendo
+          Não recomendo
         </button>
       </div>
       <div className="chip-row">

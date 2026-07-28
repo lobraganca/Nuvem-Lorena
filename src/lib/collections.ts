@@ -20,7 +20,6 @@ const BRAZIL_REGIONS = ["Norte", "Nordeste", "Centro-Oeste", "Sudeste", "Sul"];
 export interface Collection {
   id: string;
   title: string;
-  emoji: string;
   achieved: number;
   total: number;
 }
@@ -46,13 +45,13 @@ export function buildCollections(experiences: Experience[]): Collection[] {
   const animals = uniqueValues(experiences.flatMap((e) => e.animalsSeen ?? [])).length;
 
   return [
-    { id: "states", title: "Estados brasileiros", emoji: "🗺️", achieved: brazilStates.length, total: BRAZILIAN_STATES.length },
-    { id: "regions", title: "Regiões do Brasil", emoji: "🇧🇷", achieved: regions.length, total: BRAZIL_REGIONS.length },
-    { id: "waterfalls", title: "Cachoeiras", emoji: "💦", achieved: byCategory("Cachoeira"), total: 30 },
-    { id: "beaches", title: "Praias", emoji: "🏖️", achieved: byCategory("Praia"), total: 50 },
-    { id: "trails", title: "Trilhas", emoji: "🥾", achieved: byCategory("Trilha"), total: 25 },
-    { id: "parks", title: "Parques", emoji: "🌳", achieved: byCategory("Parque"), total: 15 },
-    { id: "museums", title: "Museus", emoji: "🖼️", achieved: byCategory("Museu"), total: 20 },
-    { id: "animals", title: "Animais observados", emoji: "🐋", achieved: animals, total: 20 },
+    { id: "states", title: "Estados brasileiros", achieved: brazilStates.length, total: BRAZILIAN_STATES.length },
+    { id: "regions", title: "Regiões do Brasil", achieved: regions.length, total: BRAZIL_REGIONS.length },
+    { id: "waterfalls", title: "Cachoeiras", achieved: byCategory("Cachoeira"), total: 30 },
+    { id: "beaches", title: "Praias", achieved: byCategory("Praia"), total: 50 },
+    { id: "trails", title: "Trilhas", achieved: byCategory("Trilha"), total: 25 },
+    { id: "parks", title: "Parques", achieved: byCategory("Parque"), total: 15 },
+    { id: "museums", title: "Museus", achieved: byCategory("Museu"), total: 20 },
+    { id: "animals", title: "Animais observados", achieved: animals, total: 20 },
   ];
 }

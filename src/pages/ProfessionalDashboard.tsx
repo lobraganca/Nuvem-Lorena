@@ -76,7 +76,7 @@ export function ProfessionalDashboard() {
 
       {currentPlan && currentPlan.tier !== "Avançado" && (
         <div className="insight-card">
-          💡 Faça upgrade de plano em{" "}
+          Faça upgrade de plano em{" "}
           <Link to="/business">Para empresas</Link> e pague uma taxa menor em
           cada reserva.
         </div>

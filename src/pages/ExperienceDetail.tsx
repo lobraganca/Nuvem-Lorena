@@ -1,6 +1,6 @@
 import { Link, useParams } from "react-router-dom";
 import { useAvena } from "../store/AvenaContext";
-import { categoryEmoji, businessTypeEmoji } from "../lib/categories";
+import { categoryColor } from "../lib/categories";
 import { reviewStatsFor } from "../lib/reviews";
 import { ReputationBadge } from "../components/ReputationBadge";
 
@@ -20,7 +20,8 @@ export function ExperienceDetail() {
         ← Voltar ao mapa
       </Link>
       <h1>
-        {categoryEmoji[exp.category]} {exp.title}
+        <span className="category-dot" style={{ background: categoryColor[exp.category] }} />{" "}
+        {exp.title}
       </h1>
       <p className="muted">
         {exp.locationName}, {exp.city}
@@ -29,7 +30,12 @@ export function ExperienceDetail() {
       </p>
 
       {exp.mood && <p>Humor do dia: {exp.mood}</p>}
-      {exp.rating && <p>Avaliação: {"⭐".repeat(exp.rating)}</p>}
+      {exp.rating && (
+        <p>
+          Avaliação: <span className="star-rating">{"★".repeat(exp.rating)}</span>
+          <span className="star-rating star-rating-empty">{"★".repeat(5 - exp.rating)}</span>
+        </p>
+      )}
       {exp.diary && (
         <div className="detail-block">
           <h3>Diário</h3>
@@ -97,13 +103,12 @@ export function ExperienceDetail() {
               return (
                 <Link to={`/business/${b.id}`} key={b.id} className="business-card">
                   <div className="business-card-top">
-                    <span>{businessTypeEmoji[b.type]}</span>
+                    <span className="business-type-label">{b.type}</span>
                     <span className={`plan-badge plan-badge-${b.planTier.toLowerCase()}`}>
                       {b.planTier}
                     </span>
                   </div>
                   <div className="timeline-card-title">{b.name}</div>
-                  <div className="muted">{b.type}</div>
                   <ReputationBadge avgRating={stats.avgRating} count={stats.count} />
                 </Link>
               );

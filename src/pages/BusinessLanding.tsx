@@ -2,7 +2,6 @@ import { useState } from "react";
 import { Link } from "react-router-dom";
 import { useAvena } from "../store/AvenaContext";
 import { plans } from "../lib/plans";
-import { businessTypeEmoji } from "../lib/categories";
 import { reviewStatsFor } from "../lib/reviews";
 import { ReputationBadge } from "../components/ReputationBadge";
 
@@ -50,7 +49,7 @@ export function BusinessLanding() {
           className={`chip ${sortByReputation ? "chip-active" : ""}`}
           onClick={() => setSortByReputation((v) => !v)}
         >
-          ⭐ Ordenar por reputação
+          Ordenar por reputação
         </button>
       </div>
       <div className="business-grid">
@@ -59,7 +58,7 @@ export function BusinessLanding() {
           return (
             <Link to={`/business/${b.id}`} key={b.id} className="business-card">
               <div className="business-card-top">
-                <span>{businessTypeEmoji[b.type]}</span>
+                <span className="business-type-label">{b.type}</span>
                 <span className={`plan-badge plan-badge-${b.planTier.toLowerCase()}`}>{b.planTier}</span>
               </div>
               <div className="timeline-card-title">{b.name}</div>

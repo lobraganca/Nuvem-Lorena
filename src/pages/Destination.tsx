@@ -4,7 +4,6 @@ import { useAvena } from "../store/AvenaContext";
 import { BookTourButton } from "../components/BookTourButton";
 import { ReputationBadge } from "../components/ReputationBadge";
 import { reviewStatsFor } from "../lib/reviews";
-import { businessTypeEmoji } from "../lib/categories";
 
 export function Destination() {
   const { businesses, experiences, reviews } = useAvena();
@@ -76,13 +75,12 @@ export function Destination() {
                 <div key={b.id} className="destination-card">
                   <Link to={`/business/${b.id}`} className="business-card-top-link">
                     <div className="business-card-top">
-                      <span>{businessTypeEmoji[b.type]}</span>
+                      <span className="business-type-label">{b.type}</span>
                       <span className={`plan-badge plan-badge-${b.planTier.toLowerCase()}`}>
                         {b.planTier}
                       </span>
                     </div>
                     <div className="timeline-card-title">{b.name}</div>
-                    <div className="muted">{b.type}</div>
                     <ReputationBadge avgRating={stats.avgRating} count={stats.count} />
                   </Link>
                   {b.tours && b.tours.length > 0 && (
@@ -113,7 +111,7 @@ export function Destination() {
                   return (
                     <Link to={`/business/${b.id}`} key={b.id} className="business-card">
                       <div className="business-card-top">
-                        <span>🏨</span>
+                        <span className="business-type-label">{b.type}</span>
                         <span className={`plan-badge plan-badge-${b.planTier.toLowerCase()}`}>
                           {b.planTier}
                         </span>
@@ -137,7 +135,7 @@ export function Destination() {
                   return (
                     <Link to={`/business/${b.id}`} key={b.id} className="business-card">
                       <div className="business-card-top">
-                        <span>🍽️</span>
+                        <span className="business-type-label">{b.type}</span>
                         <span className={`plan-badge plan-badge-${b.planTier.toLowerCase()}`}>
                           {b.planTier}
                         </span>

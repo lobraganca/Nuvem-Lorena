@@ -2,7 +2,7 @@ import { Link, useParams } from "react-router-dom";
 import { useAvena } from "../store/AvenaContext";
 import { friendshipStats } from "../lib/stats";
 import { MapView } from "../components/MapView";
-import { categoryEmoji } from "../lib/categories";
+import { categoryColor } from "../lib/categories";
 
 export function PersonProfile() {
   const { id } = useParams();
@@ -27,7 +27,7 @@ export function PersonProfile() {
         </div>
         <h1>{person.name}</h1>
         <Link to={`/messages/${person.id}`} className="btn-outline">
-          💬 Enviar mensagem
+          Enviar mensagem
         </Link>
       </div>
 
@@ -52,7 +52,7 @@ export function PersonProfile() {
         {sorted.length === 0 && <p className="muted">Ainda não vivenciaram experiências juntos.</p>}
         {sorted.map((exp) => (
           <Link to={`/experience/${exp.id}`} key={exp.id} className="timeline-card">
-            <div className="timeline-emoji">{categoryEmoji[exp.category]}</div>
+            <div className="category-dot" style={{ background: categoryColor[exp.category] }} />
             <div>
               <div className="timeline-card-title">{exp.title}</div>
               <div className="muted">
