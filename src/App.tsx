@@ -11,6 +11,7 @@ import { BusinessDetail } from "./pages/BusinessDetail";
 import { Messages } from "./pages/Messages";
 import { Conversation } from "./pages/Conversation";
 import { Destination } from "./pages/Destination";
+import { Bookings } from "./pages/Bookings";
 
 export default function App() {
   return (
@@ -23,6 +24,7 @@ export default function App() {
           <Link to="/destination">Destinos</Link>
           <Link to="/business">Para empresas</Link>
           <Link to="/messages">Mensagens</Link>
+          <Link to="/bookings">Reservas</Link>
           <Link to="/profile">Perfil</Link>
         </nav>
         <main className="app-content">
@@ -38,6 +40,7 @@ export default function App() {
             <Route path="/business/:id" element={<BusinessDetail />} />
             <Route path="/messages" element={<Messages />} />
             <Route path="/messages/:id" element={<Conversation />} />
+            <Route path="/bookings" element={<Bookings />} />
           </Routes>
         </main>
       </div>

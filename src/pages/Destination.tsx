@@ -1,6 +1,7 @@
 import { useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import { useAvena } from "../store/AvenaContext";
+import { BookTourButton } from "../components/BookTourButton";
 
 const typeEmoji: Record<string, string> = {
   Agência: "🧭",
@@ -74,15 +75,18 @@ export function Destination() {
                   <div className="muted">{b.type}</div>
                 </Link>
                 {b.tours && b.tours.length > 0 && (
-                  <ul className="tour-list">
+                  <div className="tour-cards">
                     {b.tours.map((t) => (
-                      <li key={t.id}>
-                        {t.title}
-                        {t.priceFrom !== undefined && ` · a partir de R$ ${t.priceFrom}`}
-                        {t.durationHours !== undefined && ` · ${t.durationHours}h`}
-                      </li>
+                      <div key={t.id} className="tour-card">
+                        <div>{t.title}</div>
+                        <div className="muted">
+                          {t.priceFrom !== undefined && `A partir de R$ ${t.priceFrom}`}
+                          {t.durationHours !== undefined && ` · ${t.durationHours}h`}
+                        </div>
+                        <BookTourButton business={b} tour={t} />
+                      </div>
                     ))}
-                  </ul>
+                  </div>
                 )}
               </div>
             ))}

@@ -61,6 +61,22 @@ export interface Business {
   tours?: Tour[];
 }
 
+export interface Booking {
+  id: string;
+  businessId: string;
+  businessName: string;
+  tourId: string;
+  tourTitle: string;
+  travelDate: string; // ISO date
+  travelers: number;
+  unitPrice: number;
+  totalPrice: number;
+  commissionRate: number;
+  commissionAmount: number;
+  businessPayout: number;
+  createdAt: string; // ISO datetime
+}
+
 export interface Experience {
   id: string;
   title: string;

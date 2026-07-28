@@ -1,6 +1,6 @@
 import { createContext, useContext, useEffect, useMemo, useState } from "react";
 import type { ReactNode } from "react";
-import type { Business, Experience, Message, Person, UserProfile } from "../types";
+import type { Booking, Business, Experience, Message, Person, UserProfile } from "../types";
 import {
   mockBusinesses,
   mockExperiences,
@@ -9,7 +9,7 @@ import {
   mockUser,
 } from "../data/mockData";
 
-const STORAGE_KEY = "avena-data-v4";
+const STORAGE_KEY = "avena-data-v5";
 
 interface AvenaData {
   experiences: Experience[];
@@ -17,6 +17,7 @@ interface AvenaData {
   businesses: Business[];
   user: UserProfile;
   messages: Message[];
+  bookings: Booking[];
 }
 
 interface AvenaContextValue extends AvenaData {
@@ -25,6 +26,7 @@ interface AvenaContextValue extends AvenaData {
   addBusiness: (business: Business) => void;
   updateUser: (user: Partial<UserProfile>) => void;
   sendMessage: (personId: string, text: string) => void;
+  addBooking: (booking: Booking) => void;
 }
 
 const AvenaContext = createContext<AvenaContextValue | null>(null);
@@ -36,6 +38,7 @@ function defaults(): AvenaData {
     businesses: mockBusinesses,
     user: mockUser,
     messages: mockMessages,
+    bookings: [],
   };
 }
 
@@ -83,6 +86,8 @@ export function AvenaProvider({ children }: { children: ReactNode }) {
             },
           ],
         })),
+      addBooking: (booking) =>
+        setData((d) => ({ ...d, bookings: [booking, ...d.bookings] })),
     }),
     [data]
   );

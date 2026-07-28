@@ -1,5 +1,6 @@
 import { Link, useParams } from "react-router-dom";
 import { useAvena } from "../store/AvenaContext";
+import { BookTourButton } from "../components/BookTourButton";
 
 export function BusinessDetail() {
   const { id } = useParams();
@@ -37,6 +38,24 @@ export function BusinessDetail() {
           {business.website ? ` · ${business.website}` : ""}
         </p>
       </div>
+
+      {business.tours && business.tours.length > 0 && (
+        <div className="detail-block">
+          <h3>Passeios disponíveis</h3>
+          <div className="tour-cards">
+            {business.tours.map((t) => (
+              <div key={t.id} className="tour-card">
+                <div className="timeline-card-title">{t.title}</div>
+                <div className="muted">
+                  {t.priceFrom !== undefined && `A partir de R$ ${t.priceFrom}`}
+                  {t.durationHours !== undefined && ` · ${t.durationHours}h`}
+                </div>
+                <BookTourButton business={business} tour={t} />
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
     </div>
   );
 }
