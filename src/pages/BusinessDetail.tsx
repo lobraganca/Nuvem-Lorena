@@ -3,6 +3,7 @@ import { useAvena } from "../store/AvenaContext";
 import { BookTourButton } from "../components/BookTourButton";
 import { ReputationBadge } from "../components/ReputationBadge";
 import { reviewStatsFor } from "../lib/reviews";
+import { cancellationPolicyLabel } from "../lib/cancellation";
 
 export function BusinessDetail() {
   const { id } = useParams();
@@ -59,6 +60,9 @@ export function BusinessDetail() {
                 <div className="muted">
                   {t.priceFrom !== undefined && `A partir de R$ ${t.priceFrom}`}
                   {t.durationHours !== undefined && ` · ${t.durationHours}h`}
+                </div>
+                <div className="muted">
+                  Cancelamento {cancellationPolicyLabel[t.cancellationPolicy ?? "moderada"]}
                 </div>
                 <BookTourButton business={business} tour={t} />
               </div>

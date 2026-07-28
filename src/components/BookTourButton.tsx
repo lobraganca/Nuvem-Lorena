@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAvena } from "../store/AvenaContext";
 import { commissionRateFor } from "../lib/plans";
+import { cancellationPolicyDescription, cancellationPolicyLabel } from "../lib/cancellation";
 import type { Business, Tour } from "../types";
 
 export function BookTourButton({ business, tour }: { business: Business; tour: Tour }) {
@@ -16,6 +17,7 @@ export function BookTourButton({ business, tour }: { business: Business; tour: T
   const commissionRate = commissionRateFor(business.planTier);
   const commissionAmount = Math.round(totalPrice * commissionRate * 100) / 100;
   const businessPayout = Math.round((totalPrice - commissionAmount) * 100) / 100;
+  const cancellationPolicy = tour.cancellationPolicy ?? "moderada";
 
   function confirmBooking(e: React.FormEvent) {
     e.preventDefault();
@@ -33,6 +35,8 @@ export function BookTourButton({ business, tour }: { business: Business; tour: T
       commissionAmount,
       businessPayout,
       createdAt: new Date().toISOString(),
+      status: "confirmada" as const,
+      cancellationPolicy,
     };
     addBooking(booking);
     navigate("/bookings");
@@ -80,6 +84,10 @@ export function BookTourButton({ business, tour }: { business: Business; tour: T
         </div>
         <div className="muted">
           {business.name} recebe: R$ {businessPayout.toLocaleString("pt-BR")}
+        </div>
+        <div className="muted">
+          Cancelamento {cancellationPolicyLabel[cancellationPolicy]}:{" "}
+          {cancellationPolicyDescription[cancellationPolicy]}
         </div>
       </div>
 

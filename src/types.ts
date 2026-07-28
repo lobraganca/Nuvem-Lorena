@@ -41,12 +41,18 @@ export type BusinessType = "Agência" | "Guia" | "Restaurante" | "Hotel";
 
 export type PlanTier = "Básico" | "Pro" | "Avançado";
 
+export type CancellationPolicy =
+  | "flexivel"
+  | "moderada"
+  | "rigida";
+
 export interface Tour {
   id: string;
   title: string;
   description?: string;
   priceFrom?: number;
   durationHours?: number;
+  cancellationPolicy?: CancellationPolicy;
 }
 
 export interface Business {
@@ -65,6 +71,8 @@ export interface Business {
   tours?: Tour[];
 }
 
+export type BookingStatus = "confirmada" | "cancelada";
+
 export interface Booking {
   id: string;
   businessId: string;
@@ -80,6 +88,10 @@ export interface Booking {
   businessPayout: number;
   createdAt: string; // ISO datetime
   reviewed?: boolean;
+  status: BookingStatus;
+  cancellationPolicy: CancellationPolicy;
+  cancelledAt?: string; // ISO datetime
+  refundAmount?: number;
 }
 
 export interface Review {

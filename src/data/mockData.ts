@@ -155,8 +155,8 @@ export const mockBusinesses: Business[] = [
     website: "bluewhaletours.com.br",
     createdAt: "2025-02-10",
     tours: [
-      { id: "t1", title: "Passeio de barco para observação de baleias", priceFrom: 220, durationHours: 4 },
-      { id: "t2", title: "Mergulho na Prainha", priceFrom: 180, durationHours: 3 },
+      { id: "t1", title: "Passeio de barco para observação de baleias", priceFrom: 220, durationHours: 4, cancellationPolicy: "moderada" },
+      { id: "t2", title: "Mergulho na Prainha", priceFrom: 180, durationHours: 3, cancellationPolicy: "rigida" },
     ],
   },
   {
@@ -171,7 +171,7 @@ export const mockBusinesses: Business[] = [
     email: "rafael.guia@gmail.com",
     createdAt: "2025-03-01",
     tours: [
-      { id: "t3", title: "Trilha do Pontal do Atalaia", priceFrom: 90, durationHours: 3 },
+      { id: "t3", title: "Trilha do Pontal do Atalaia", priceFrom: 90, durationHours: 3, cancellationPolicy: "flexivel" },
     ],
   },
   {
@@ -198,8 +198,8 @@ export const mockBusinesses: Business[] = [
     email: "contato@noronhadivers.com.br",
     createdAt: "2025-06-01",
     tours: [
-      { id: "t4", title: "Passeio de barco Baía dos Golfinhos", priceFrom: 250, durationHours: 5 },
-      { id: "t5", title: "Batismo de mergulho", priceFrom: 400, durationHours: 2 },
+      { id: "t4", title: "Passeio de barco Baía dos Golfinhos", priceFrom: 250, durationHours: 5, cancellationPolicy: "moderada" },
+      { id: "t5", title: "Batismo de mergulho", priceFrom: 400, durationHours: 2, cancellationPolicy: "rigida" },
     ],
   },
   {
@@ -213,7 +213,7 @@ export const mockBusinesses: Business[] = [
     country: "Brasil",
     email: "carla.guia@gmail.com",
     createdAt: "2025-06-10",
-    tours: [{ id: "t6", title: "Trilha do Capim-Açu", priceFrom: 120, durationHours: 4 }],
+    tours: [{ id: "t6", title: "Trilha do Capim-Açu", priceFrom: 120, durationHours: 4, cancellationPolicy: "flexivel" }],
   },
   {
     id: "b6",

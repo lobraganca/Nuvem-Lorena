@@ -2,7 +2,12 @@ import { useState } from "react";
 import { Link } from "react-router-dom";
 import { useAvena } from "../store/AvenaContext";
 import { commissionRateFor, plans } from "../lib/plans";
-import type { Tour } from "../types";
+import {
+  cancellationPolicies,
+  cancellationPolicyDescription,
+  cancellationPolicyLabel,
+} from "../lib/cancellation";
+import type { CancellationPolicy, Tour } from "../types";
 
 export function ProfessionalDashboard() {
   const { user, businesses, bookings, addTourToBusiness } = useAvena();
@@ -11,6 +16,7 @@ export function ProfessionalDashboard() {
   const [title, setTitle] = useState("");
   const [priceFrom, setPriceFrom] = useState("");
   const [durationHours, setDurationHours] = useState("");
+  const [cancellationPolicy, setCancellationPolicy] = useState<CancellationPolicy>("moderada");
 
   if (!business) {
     return (
@@ -27,7 +33,9 @@ export function ProfessionalDashboard() {
   }
 
   const myBookings = bookings.filter((b) => b.businessId === business.id);
-  const earnings = myBookings.reduce((sum, b) => sum + b.businessPayout, 0);
+  const earnings = myBookings
+    .filter((b) => b.status === "confirmada")
+    .reduce((sum, b) => sum + b.businessPayout, 0);
   const commissionRate = commissionRateFor(business.planTier);
   const currentPlan = plans.find((p) => p.tier === business.planTier);
 
@@ -39,11 +47,13 @@ export function ProfessionalDashboard() {
       title,
       priceFrom: priceFrom ? Number(priceFrom) : undefined,
       durationHours: durationHours ? Number(durationHours) : undefined,
+      cancellationPolicy,
     };
     addTourToBusiness(business.id, tour);
     setTitle("");
     setPriceFrom("");
     setDurationHours("");
+    setCancellationPolicy("moderada");
   }
 
   return (
@@ -94,6 +104,9 @@ export function ProfessionalDashboard() {
               {t.priceFrom !== undefined && `A partir de R$ ${t.priceFrom}`}
               {t.durationHours !== undefined && ` · ${t.durationHours}h`}
             </div>
+            <div className="muted">
+              Cancelamento {cancellationPolicyLabel[t.cancellationPolicy ?? "moderada"]}
+            </div>
           </div>
         ))}
       </div>
@@ -126,6 +139,22 @@ export function ProfessionalDashboard() {
             />
           </label>
         </div>
+        <fieldset>
+          <legend>Política de cancelamento</legend>
+          <div className="chip-row">
+            {cancellationPolicies.map((p) => (
+              <button
+                type="button"
+                key={p}
+                className={`chip ${cancellationPolicy === p ? "chip-active" : ""}`}
+                onClick={() => setCancellationPolicy(p)}
+              >
+                {cancellationPolicyLabel[p]}
+              </button>
+            ))}
+          </div>
+          <p className="muted">{cancellationPolicyDescription[cancellationPolicy]}</p>
+        </fieldset>
         <button type="submit" className="btn-primary">
           Publicar passeio
         </button>
@@ -138,23 +167,38 @@ export function ProfessionalDashboard() {
         )}
         {myBookings.map((b) => (
           <div key={b.id} className="booking-card">
-            <div className="timeline-card-title">{b.tourTitle}</div>
+            <div className="timeline-card-title">
+              {b.tourTitle}
+              {b.status === "cancelada" && (
+                <span className="privacy-badge" style={{ marginLeft: 8 }}>
+                  Cancelada
+                </span>
+              )}
+            </div>
             <div className="muted">
               {new Date(b.travelDate).toLocaleDateString("pt-BR")} · {b.travelers}{" "}
               {b.travelers === 1 ? "pessoa" : "pessoas"}
             </div>
-            <div className="booking-breakdown">
-              <div className="muted">
-                Total pago: R$ {b.totalPrice.toLocaleString("pt-BR")}
+            {b.status === "cancelada" ? (
+              <div className="booking-breakdown">
+                <div className="muted">
+                  Reembolsado ao viajante: R$ {(b.refundAmount ?? 0).toLocaleString("pt-BR")}
+                </div>
               </div>
-              <div className="muted">
-                Taxa Avena ({Math.round(b.commissionRate * 100)}%): R${" "}
-                {b.commissionAmount.toLocaleString("pt-BR")}
+            ) : (
+              <div className="booking-breakdown">
+                <div className="muted">
+                  Total pago: R$ {b.totalPrice.toLocaleString("pt-BR")}
+                </div>
+                <div className="muted">
+                  Taxa Avena ({Math.round(b.commissionRate * 100)}%): R${" "}
+                  {b.commissionAmount.toLocaleString("pt-BR")}
+                </div>
+                <div>
+                  Você recebe: <strong>R$ {b.businessPayout.toLocaleString("pt-BR")}</strong>
+                </div>
               </div>
-              <div>
-                Você recebe: <strong>R$ {b.businessPayout.toLocaleString("pt-BR")}</strong>
-              </div>
-            </div>
+            )}
           </div>
         ))}
       </div>
