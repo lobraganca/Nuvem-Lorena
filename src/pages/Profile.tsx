@@ -4,6 +4,7 @@ import { useAvena } from "../store/AvenaContext";
 import { profileStats } from "../lib/stats";
 import { buildCollections } from "../lib/collections";
 import { categoryColor } from "../lib/categories";
+import { travelerPlans } from "../lib/plans";
 
 export function Profile() {
   const { experiences, people, user, updateUser } = useAvena();
@@ -177,6 +178,25 @@ export function Profile() {
           >
             <span className="ig-tile-label">{exp.category}</span>
           </Link>
+        ))}
+      </div>
+
+      <h2 className="timeline-title">Seu plano</h2>
+      <div className="plans-grid">
+        {travelerPlans.map((plan) => (
+          <div
+            key={plan.tier}
+            className={`plan-card ${plan.priceMonthly > 0 ? "plan-avançado" : ""}`}
+          >
+            <h3>{plan.tier}</h3>
+            <div className="plan-price">{plan.price}</div>
+            <p className="muted">{plan.tagline}</p>
+            <ul>
+              {plan.features.map((f) => (
+                <li key={f}>{f}</li>
+              ))}
+            </ul>
+          </div>
         ))}
       </div>
 

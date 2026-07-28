@@ -152,6 +152,7 @@ export const mockBusinesses: Business[] = [
     state: "RJ",
     country: "Brasil",
     email: "contato@bluewhaletours.com.br",
+    cadastur: "26.123456.10-4",
     website: "bluewhaletours.com.br",
     createdAt: "2025-02-10",
     tours: [
@@ -169,6 +170,7 @@ export const mockBusinesses: Business[] = [
     state: "RJ",
     country: "Brasil",
     email: "rafael.guia@gmail.com",
+    cadastur: "26.998877.10-2",
     createdAt: "2025-03-01",
     tours: [
       { id: "t3", title: "Trilha do Pontal do Atalaia", priceFrom: 90, durationHours: 3, cancellationPolicy: "flexivel", capacityPerDay: 8 },
@@ -196,6 +198,7 @@ export const mockBusinesses: Business[] = [
     state: "PE",
     country: "Brasil",
     email: "contato@noronhadivers.com.br",
+    cadastur: "26.445566.10-8",
     createdAt: "2025-06-01",
     tours: [
       { id: "t4", title: "Passeio de barco Baía dos Golfinhos", priceFrom: 250, durationHours: 5, cancellationPolicy: "moderada" },
@@ -212,6 +215,7 @@ export const mockBusinesses: Business[] = [
     state: "PE",
     country: "Brasil",
     email: "carla.guia@gmail.com",
+    cadastur: "26.221133.10-9",
     createdAt: "2025-06-10",
     tours: [{ id: "t6", title: "Trilha do Capim-Açu", priceFrom: 120, durationHours: 4, cancellationPolicy: "flexivel" }],
   },
@@ -225,6 +229,7 @@ export const mockBusinesses: Business[] = [
     state: "PE",
     country: "Brasil",
     email: "reservas@vistadomar.com.br",
+    cadastur: "26.554433.10-1",
     createdAt: "2025-05-20",
   },
 ];

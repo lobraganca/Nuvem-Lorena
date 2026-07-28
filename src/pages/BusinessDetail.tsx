@@ -39,6 +39,12 @@ export function BusinessDetail() {
         )}
       </div>
 
+      {business.cadastur && (
+        <div className="cadastur-badge">
+          Cadastur {business.cadastur} — registrado no Ministério do Turismo
+        </div>
+      )}
+
       <div className="detail-block">
         <h3>Sobre</h3>
         <p>{business.description}</p>

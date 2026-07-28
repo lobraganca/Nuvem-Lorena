@@ -70,6 +70,11 @@ export interface Business {
   website?: string;
   createdAt: string; // ISO date
   tours?: Tour[];
+  /**
+   * Cadastur registration number (Ministério do Turismo). Legally required in
+   * Brazil for tour agencies, guides and lodging before selling services.
+   */
+  cadastur?: string;
 }
 
 export type BookingStatus = "confirmada" | "cancelada";

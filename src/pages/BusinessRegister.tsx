@@ -20,11 +20,16 @@ export function BusinessRegister() {
   const [email, setEmail] = useState("");
   const [phone, setPhone] = useState("");
   const [website, setWebsite] = useState("");
+  const [cadastur, setCadastur] = useState("");
+
+  // Cadastur is compulsory for those who actually sell tourism services.
+  const requiresCadastur = type === "Agência" || type === "Guia" || type === "Hotel";
   const [planTier, setPlanTier] = useState<PlanTier>("Básico");
 
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     if (!name || !description || !city || !email) return;
+    if (requiresCadastur && !cadastur) return;
 
     const business: Business = {
       id: crypto.randomUUID(),
@@ -38,6 +43,7 @@ export function BusinessRegister() {
       email,
       phone: phone || undefined,
       website: website || undefined,
+      cadastur: cadastur || undefined,
       createdAt: new Date().toISOString().slice(0, 10),
     };
 
@@ -121,6 +127,21 @@ export function BusinessRegister() {
         <label>
           Site (opcional)
           <input value={website} onChange={(e) => setWebsite(e.target.value)} />
+        </label>
+
+        <label>
+          Cadastur {requiresCadastur ? "" : "(opcional)"}
+          <input
+            value={cadastur}
+            onChange={(e) => setCadastur(e.target.value)}
+            placeholder="Número de registro no Ministério do Turismo"
+            required={requiresCadastur}
+          />
+          <span className="muted">
+            {requiresCadastur
+              ? "Obrigatório por lei para agências, guias e meios de hospedagem venderem serviços de turismo no Brasil."
+              : "Se você tem registro no Ministério do Turismo, informe para ganhar o selo de verificado."}
+          </span>
         </label>
 
         <fieldset>

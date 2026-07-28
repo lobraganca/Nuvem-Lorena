@@ -156,6 +156,18 @@ a {
   justify-content: center;
 }
 
+.cadastur-badge {
+  display: inline-block;
+  margin: 4px 0 8px;
+  padding: 6px 12px;
+  border-radius: 6px;
+  border: 1px solid var(--accent);
+  background: var(--accent-soft);
+  color: var(--text-h);
+  font-size: 13px;
+  font-weight: 600;
+}
+
 .notification-card {
   padding: 16px;
   border-radius: 10px;

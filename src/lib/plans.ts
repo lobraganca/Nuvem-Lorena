@@ -27,8 +27,8 @@ export const plans: PlanDef[] = [
   },
   {
     tier: "Pro",
-    price: "R$ 79/mês",
-    priceMonthly: 79,
+    price: "R$ 39,90/mês",
+    priceMonthly: 39.9,
     tagline: "Para agências, guias e restaurantes que querem crescer",
     features: [
       "Tudo do Básico",
@@ -41,8 +41,8 @@ export const plans: PlanDef[] = [
   },
   {
     tier: "Avançado",
-    price: "R$ 199/mês",
-    priceMonthly: 199,
+    price: "R$ 79/mês",
+    priceMonthly: 79,
     tagline: "Para quem quer prioridade máxima e presença de marca",
     features: [
       "Tudo do Pro",
@@ -52,6 +52,44 @@ export const plans: PlanDef[] = [
       "Menor taxa de reservas do Avena: apenas 7%",
     ],
     commissionRate: 0.07,
+  },
+];
+
+export type TravelerPlanTier = "Explorador" | "Avena Plus";
+
+export interface TravelerPlanDef {
+  tier: TravelerPlanTier;
+  price: string;
+  priceMonthly: number;
+  tagline: string;
+  features: string[];
+}
+
+export const travelerPlans: TravelerPlanDef[] = [
+  {
+    tier: "Explorador",
+    price: "Grátis",
+    priceMonthly: 0,
+    tagline: "Para começar a colecionar suas memórias",
+    features: [
+      "Mapa afetivo com experiências ilimitadas",
+      "Perfil, pessoas e linha do tempo",
+      "Reservar passeios com agências verificadas",
+      "Até 3 fotos por experiência",
+    ],
+  },
+  {
+    tier: "Avena Plus",
+    price: "R$ 9,90/mês",
+    priceMonthly: 9.9,
+    tagline: "Para quem vive muito e quer guardar tudo",
+    features: [
+      "Tudo do Explorador",
+      "Fotos e vídeos ilimitados por experiência",
+      "Retrospectiva anual das suas viagens",
+      "Todas as coleções e estatísticas de amizade",
+      "Insights personalizados sobre seus destinos",
+    ],
   },
 ];
 
