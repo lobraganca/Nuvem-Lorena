@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { useAvena } from "../store/AvenaContext";
 import { plans } from "../lib/plans";
+import { BRAZILIAN_STATES } from "../lib/collections";
 import type { Business, BusinessType, PlanTier } from "../types";
 
 const types: BusinessType[] = ["Agência", "Guia", "Restaurante"];
@@ -16,8 +17,7 @@ export function BusinessRegister() {
   const [type, setType] = useState<BusinessType>("Agência");
   const [description, setDescription] = useState("");
   const [city, setCity] = useState("");
-  const [state, setState] = useState("");
-  const [country, setCountry] = useState("Brasil");
+  const [state, setState] = useState(BRAZILIAN_STATES[0]);
   const [email, setEmail] = useState("");
   const [phone, setPhone] = useState("");
   const [website, setWebsite] = useState("");
@@ -34,8 +34,8 @@ export function BusinessRegister() {
       planTier,
       description,
       city,
-      state: state || undefined,
-      country,
+      state,
+      country: "Brasil",
       email,
       phone: phone || undefined,
       website: website || undefined,
@@ -94,11 +94,17 @@ export function BusinessRegister() {
           </label>
           <label>
             Estado
-            <input value={state} onChange={(e) => setState(e.target.value)} />
+            <select value={state} onChange={(e) => setState(e.target.value)}>
+              {BRAZILIAN_STATES.map((s) => (
+                <option key={s} value={s}>
+                  {s}
+                </option>
+              ))}
+            </select>
           </label>
           <label>
             País
-            <input value={country} onChange={(e) => setCountry(e.target.value)} />
+            <input value="Brasil" disabled />
           </label>
         </div>
 

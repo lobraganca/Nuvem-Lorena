@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAvena } from "../store/AvenaContext";
 import { categories } from "../lib/categories";
+import { BRAZILIAN_STATES } from "../lib/collections";
 import type { Category, Experience } from "../types";
 
 const MOODS = ["😍", "😄", "🥰", "💪", "🤩", "😌", "😢"];
@@ -14,8 +15,7 @@ export function AddExperience() {
   const [category, setCategory] = useState<Category>("Viagem");
   const [locationName, setLocationName] = useState("");
   const [city, setCity] = useState("");
-  const [state, setState] = useState("");
-  const [country, setCountry] = useState("Brasil");
+  const [state, setState] = useState(BRAZILIAN_STATES[0]);
   const [lat, setLat] = useState("");
   const [lng, setLng] = useState("");
   const [date, setDate] = useState(new Date().toISOString().slice(0, 10));
@@ -48,8 +48,8 @@ export function AddExperience() {
       lng: Number(lng),
       locationName,
       city: city || locationName,
-      state: state || undefined,
-      country,
+      state,
+      country: "Brasil",
       date,
       photos: [],
       diary: diary || undefined,
@@ -108,11 +108,17 @@ export function AddExperience() {
           </label>
           <label>
             Estado
-            <input value={state} onChange={(e) => setState(e.target.value)} />
+            <select value={state} onChange={(e) => setState(e.target.value)}>
+              {BRAZILIAN_STATES.map((s) => (
+                <option key={s} value={s}>
+                  {s}
+                </option>
+              ))}
+            </select>
           </label>
           <label>
             País
-            <input value={country} onChange={(e) => setCountry(e.target.value)} />
+            <input value="Brasil" disabled />
           </label>
         </div>
 

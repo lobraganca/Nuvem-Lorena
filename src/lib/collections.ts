@@ -6,6 +6,17 @@ export const BRAZILIAN_STATES = [
   "SP", "SE", "TO",
 ];
 
+const REGION_BY_STATE: Record<string, string> = {
+  AC: "Norte", AP: "Norte", AM: "Norte", PA: "Norte", RO: "Norte", RR: "Norte", TO: "Norte",
+  AL: "Nordeste", BA: "Nordeste", CE: "Nordeste", MA: "Nordeste", PB: "Nordeste",
+  PE: "Nordeste", PI: "Nordeste", RN: "Nordeste", SE: "Nordeste",
+  DF: "Centro-Oeste", GO: "Centro-Oeste", MT: "Centro-Oeste", MS: "Centro-Oeste",
+  ES: "Sudeste", MG: "Sudeste", RJ: "Sudeste", SP: "Sudeste",
+  PR: "Sul", RS: "Sul", SC: "Sul",
+};
+
+const BRAZIL_REGIONS = ["Norte", "Nordeste", "Centro-Oeste", "Sudeste", "Sul"];
+
 export interface Collection {
   id: string;
   title: string;
@@ -25,7 +36,7 @@ export function buildCollections(experiences: Experience[]): Collection[] {
       .map((e) => e.state)
   ).filter((s) => BRAZILIAN_STATES.includes(s));
 
-  const countries = uniqueValues(experiences.map((e) => e.country));
+  const regions = uniqueValues(brazilStates.map((s) => REGION_BY_STATE[s]));
 
   const byCategory = (category: Experience["category"]) =>
     uniqueValues(
@@ -36,7 +47,7 @@ export function buildCollections(experiences: Experience[]): Collection[] {
 
   return [
     { id: "states", title: "Estados brasileiros", emoji: "🗺️", achieved: brazilStates.length, total: BRAZILIAN_STATES.length },
-    { id: "countries", title: "Países", emoji: "🌍", achieved: countries.length, total: 195 },
+    { id: "regions", title: "Regiões do Brasil", emoji: "🇧🇷", achieved: regions.length, total: BRAZIL_REGIONS.length },
     { id: "waterfalls", title: "Cachoeiras", emoji: "💦", achieved: byCategory("Cachoeira"), total: 30 },
     { id: "beaches", title: "Praias", emoji: "🏖️", achieved: byCategory("Praia"), total: 50 },
     { id: "trails", title: "Trilhas", emoji: "🥾", achieved: byCategory("Trilha"), total: 25 },

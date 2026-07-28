@@ -13,15 +13,18 @@ export function Destination() {
   const { businesses, experiences } = useAvena();
   const [query, setQuery] = useState("");
 
+  const brBusinesses = businesses.filter((b) => b.country === "Brasil");
+  const brExperiences = experiences.filter((e) => e.country === "Brasil");
+
   const cities = useMemo(
     () =>
       Array.from(
-        new Set([...businesses.map((b) => b.city), ...experiences.map((e) => e.city)])
+        new Set([...brBusinesses.map((b) => b.city), ...brExperiences.map((e) => e.city)])
       ).sort(),
-    [businesses, experiences]
+    [brBusinesses, brExperiences]
   );
 
-  const matches = businesses.filter((b) =>
+  const matches = brBusinesses.filter((b) =>
     b.city.toLowerCase().includes(query.trim().toLowerCase())
   );
 
@@ -32,8 +35,8 @@ export function Destination() {
     <div className="page page-wide">
       <h1>Para onde você vai?</h1>
       <p className="muted">
-        Busque um destino e veja passeios, guias, agências e restaurantes
-        recomendados pela comunidade.
+        Busque uma cidade brasileira e veja passeios, guias, agências e
+        restaurantes recomendados pela comunidade.
       </p>
 
       <input

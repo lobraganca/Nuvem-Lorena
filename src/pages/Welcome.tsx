@@ -1,6 +1,13 @@
 import { useNavigate } from "react-router-dom";
 import { useAvena } from "../store/AvenaContext";
 
+const FEATURES = [
+  { emoji: "🗺️", title: "Mapa afetivo", text: "Cada pin é uma história vivida — viagens, trilhas, praias, cachoeiras e muito mais." },
+  { emoji: "🧑‍🤝‍🧑", title: "Pessoas", text: "Veja tudo o que você já viveu com cada pessoa: cidades, trilhas, primeiras vezes." },
+  { emoji: "🏆", title: "Coleções", text: "Estados brasileiros, regiões, cachoeiras e praias — acompanhe seu progresso." },
+  { emoji: "🧭", title: "Passeios e guias", text: "Descubra agências, guias e restaurantes verificados no seu destino." },
+];
+
 export function Welcome() {
   const { updateUser } = useAvena();
   const navigate = useNavigate();
@@ -16,39 +23,60 @@ export function Welcome() {
   }
 
   return (
-    <div className="page page-wide welcome-page">
-      <h1>Bem-vindo ao Avena</h1>
-      <p className="muted">Como você quer usar o app?</p>
+    <div className="landing-page">
+      <section className="landing-hero">
+        <div className="landing-hero-badge">🇧🇷 Feito para o turismo do Brasil</div>
+        <h1 className="landing-title">Avena</h1>
+        <p className="landing-tagline">
+          Um mapa afetivo para colecionar as experiências, pessoas e lugares que
+          você viveu pelo Brasil.
+        </p>
+      </section>
 
-      <div className="account-type-grid">
-        <button type="button" className="account-type-card" onClick={chooseTurista}>
-          <div className="account-type-emoji">🧳</div>
-          <h2>Sou turista</h2>
-          <p className="muted">
-            Colecione suas experiências, monte seu mapa afetivo, converse com
-            amigos e reserve passeios direto pelo app.
-          </p>
-          <ul>
-            <li>Registrar experiências e memórias</li>
-            <li>Perfil pessoal e coleções</li>
-            <li>Reservar passeios e falar com guias</li>
-          </ul>
-        </button>
+      <section className="landing-features">
+        {FEATURES.map((f) => (
+          <div key={f.title} className="landing-feature-card">
+            <div className="account-type-emoji">{f.emoji}</div>
+            <h3>{f.title}</h3>
+            <p className="muted">{f.text}</p>
+          </div>
+        ))}
+      </section>
 
-        <button type="button" className="account-type-card" onClick={chooseProfissional}>
-          <div className="account-type-emoji">🧭</div>
-          <h2>Sou profissional</h2>
-          <p className="muted">
-            Cadastre sua agência, seu trabalho como guia ou restaurante, publique
-            passeios e receba reservas de viajantes.
-          </p>
-          <ul>
-            <li>Cadastro de agência, guia ou restaurante</li>
-            <li>Publicar passeios do seu destino</li>
-            <li>Painel de reservas recebidas e ganhos</li>
-          </ul>
-        </button>
-      </div>
+      <section className="page page-wide welcome-page">
+        <h2>Como você quer usar o Avena?</h2>
+        <p className="muted">Escolha o tipo de conta para começar.</p>
+
+        <div className="account-type-grid">
+          <button type="button" className="account-type-card" onClick={chooseTurista}>
+            <div className="account-type-emoji">🧳</div>
+            <h2>Sou turista</h2>
+            <p className="muted">
+              Colecione suas experiências, monte seu mapa afetivo, converse com
+              amigos e reserve passeios direto pelo app.
+            </p>
+            <ul>
+              <li>Registrar experiências e memórias</li>
+              <li>Perfil pessoal e coleções</li>
+              <li>Reservar passeios e falar com guias</li>
+            </ul>
+          </button>
+
+          <button type="button" className="account-type-card" onClick={chooseProfissional}>
+            <div className="account-type-emoji">🧭</div>
+            <h2>Sou profissional</h2>
+            <p className="muted">
+              Cadastre sua agência, seu trabalho como guia ou restaurante, publique
+              passeios e receba reservas de viajantes.
+            </p>
+            <ul>
+              <li>Cadastro de agência, guia ou restaurante</li>
+              <li>Publicar passeios do seu destino</li>
+              <li>Painel de reservas recebidas e ganhos</li>
+            </ul>
+          </button>
+        </div>
+      </section>
     </div>
   );
 }

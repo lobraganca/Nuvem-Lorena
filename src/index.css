@@ -762,8 +762,60 @@ legend {
   background: var(--accent-soft);
 }
 
+.landing-page {
+  width: 100%;
+}
+
+.landing-hero {
+  text-align: center;
+  padding: 80px 20px 50px;
+  background: linear-gradient(180deg, var(--accent-soft), transparent);
+}
+
+.landing-hero-badge {
+  display: inline-block;
+  padding: 6px 16px;
+  border-radius: 999px;
+  border: 1px solid var(--accent);
+  color: var(--accent);
+  font-size: 13px;
+  font-weight: 600;
+  margin-bottom: 20px;
+}
+
+.landing-title {
+  font-size: 56px;
+  letter-spacing: -1.5px;
+  color: var(--accent);
+  margin-bottom: 12px;
+}
+
+.landing-tagline {
+  font-size: 18px;
+  max-width: 560px;
+  margin: 0 auto;
+  color: var(--text-h);
+}
+
+.landing-features {
+  max-width: 1000px;
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 16px;
+  padding: 30px 20px;
+}
+
+.landing-feature-card {
+  padding: 20px;
+  border-radius: 14px;
+  border: 1px solid var(--border);
+  background: var(--bg-alt);
+  text-align: center;
+}
+
 .welcome-page {
-  padding-top: 60px;
+  padding-top: 40px;
   text-align: center;
 }
 
