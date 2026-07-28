@@ -1,8 +1,7 @@
 import { Link, useParams } from "react-router-dom";
 import { useAvena } from "../store/AvenaContext";
 import { categoryColor } from "../lib/categories";
-import { reviewStatsFor } from "../lib/reviews";
-import { ReputationBadge } from "../components/ReputationBadge";
+import { BusinessCard } from "../components/BusinessCard";
 
 export function ExperienceDetail() {
   const { id } = useParams();
@@ -97,22 +96,10 @@ export function ExperienceDetail() {
       {localBusinesses.length > 0 && (
         <div className="detail-block">
           <h3>Passeios, guias, agências e hotéis em {exp.city}</h3>
-          <div className="business-grid">
-            {localBusinesses.map((b) => {
-              const stats = reviewStatsFor(reviews, b.id);
-              return (
-                <Link to={`/business/${b.id}`} key={b.id} className="business-card">
-                  <div className="business-card-top">
-                    <span className="business-type-label">{b.type}</span>
-                    <span className={`plan-badge plan-badge-${b.planTier.toLowerCase()}`}>
-                      {b.planTier}
-                    </span>
-                  </div>
-                  <div className="timeline-card-title">{b.name}</div>
-                  <ReputationBadge avgRating={stats.avgRating} count={stats.count} />
-                </Link>
-              );
-            })}
+          <div className="viator-grid">
+            {localBusinesses.map((b) => (
+              <BusinessCard key={b.id} business={b} reviews={reviews} />
+            ))}
           </div>
         </div>
       )}

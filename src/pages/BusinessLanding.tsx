@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 import { useAvena } from "../store/AvenaContext";
 import { plans } from "../lib/plans";
 import { reviewStatsFor } from "../lib/reviews";
-import { ReputationBadge } from "../components/ReputationBadge";
+import { BusinessCard } from "../components/BusinessCard";
 
 export function BusinessLanding() {
   const { businesses, reviews } = useAvena();
@@ -52,24 +52,10 @@ export function BusinessLanding() {
           Ordenar por reputação
         </button>
       </div>
-      <div className="business-grid">
-        {sorted.map((b) => {
-          const stats = reviewStatsFor(reviews, b.id);
-          return (
-            <Link to={`/business/${b.id}`} key={b.id} className="business-card">
-              <div className="business-card-top">
-                <span className="business-type-label">{b.type}</span>
-                <span className={`plan-badge plan-badge-${b.planTier.toLowerCase()}`}>{b.planTier}</span>
-              </div>
-              <div className="timeline-card-title">{b.name}</div>
-              <div className="muted">
-                {b.type} · {b.city}
-                {b.state ? `, ${b.state}` : ""}
-              </div>
-              <ReputationBadge avgRating={stats.avgRating} count={stats.count} />
-            </Link>
-          );
-        })}
+      <div className="viator-grid">
+        {sorted.map((b) => (
+          <BusinessCard key={b.id} business={b} reviews={reviews} />
+        ))}
       </div>
     </div>
   );

@@ -1,14 +1,18 @@
 import { useEffect, useMemo, useState } from "react";
-import { Link, useSearchParams } from "react-router-dom";
+import { useSearchParams } from "react-router-dom";
 import { useAvena } from "../store/AvenaContext";
-import { BookTourButton } from "../components/BookTourButton";
-import { ReputationBadge } from "../components/ReputationBadge";
-import { reviewStatsFor } from "../lib/reviews";
+import { BusinessCard } from "../components/BusinessCard";
+import type { BusinessType } from "../types";
+
+type Tab = "Todos" | BusinessType;
+
+const TABS: Tab[] = ["Todos", "Agência", "Guia", "Hotel", "Restaurante"];
 
 export function Destination() {
   const { businesses, experiences, reviews } = useAvena();
   const [searchParams] = useSearchParams();
   const [query, setQuery] = useState(searchParams.get("city") ?? "");
+  const [tab, setTab] = useState<Tab>("Todos");
 
   useEffect(() => {
     const city = searchParams.get("city");
@@ -26,130 +30,61 @@ export function Destination() {
     [brBusinesses, brExperiences]
   );
 
-  const matches = brBusinesses.filter((b) =>
-    b.city.toLowerCase().includes(query.trim().toLowerCase())
-  );
-
-  const agenciesAndGuides = matches.filter((b) => b.type === "Agência" || b.type === "Guia");
-  const restaurants = matches.filter((b) => b.type === "Restaurante");
-  const hotels = matches.filter((b) => b.type === "Hotel");
+  const matches = brBusinesses
+    .filter((b) => b.city.toLowerCase().includes(query.trim().toLowerCase()))
+    .filter((b) => tab === "Todos" || b.type === tab);
 
   return (
-    <div className="page page-wide">
-      <h1>Para onde você vai?</h1>
-      <p className="muted">
-        Busque uma cidade brasileira e veja passeios, guias, agências,
-        restaurantes e hotéis recomendados pela comunidade — com a reputação de
-        cada um segundo quem já usou.
-      </p>
-
-      <input
-        className="destination-search"
-        placeholder="Buscar cidade (ex: Arraial do Cabo)"
-        value={query}
-        onChange={(e) => setQuery(e.target.value)}
-      />
-
-      {!query && (
-        <div className="chip-row" style={{ marginTop: 12 }}>
-          {cities.map((city) => (
-            <button key={city} className="chip" onClick={() => setQuery(city)}>
-              {city}
-            </button>
-          ))}
-        </div>
-      )}
+    <div className="viator-hero">
+      <div className="viator-hero-inner">
+        <h1>Passeios, hotéis e restaurantes pelo Brasil</h1>
+        <p className="muted">
+          Busque um destino e reserve com quem já foi avaliado pela comunidade.
+        </p>
+        <input
+          className="destination-search"
+          placeholder="Para onde você vai? (ex: Arraial do Cabo)"
+          value={query}
+          onChange={(e) => setQuery(e.target.value)}
+        />
+        {!query && (
+          <div className="chip-row" style={{ marginTop: 14, justifyContent: "center" }}>
+            {cities.map((city) => (
+              <button key={city} className="chip" onClick={() => setQuery(city)}>
+                {city}
+              </button>
+            ))}
+          </div>
+        )}
+      </div>
 
       {query && (
-        <>
-          <h2 className="timeline-title">
-            Passeios, agências e guias em {query} ({agenciesAndGuides.length})
-          </h2>
-          <div className="business-grid">
-            {agenciesAndGuides.length === 0 && (
-              <p className="muted">Nenhum resultado encontrado ainda para esse destino.</p>
-            )}
-            {agenciesAndGuides.map((b) => {
-              const stats = reviewStatsFor(reviews, b.id);
-              return (
-                <div key={b.id} className="destination-card">
-                  <Link to={`/business/${b.id}`} className="business-card-top-link">
-                    <div className="business-card-top">
-                      <span className="business-type-label">{b.type}</span>
-                      <span className={`plan-badge plan-badge-${b.planTier.toLowerCase()}`}>
-                        {b.planTier}
-                      </span>
-                    </div>
-                    <div className="timeline-card-title">{b.name}</div>
-                    <ReputationBadge avgRating={stats.avgRating} count={stats.count} />
-                  </Link>
-                  {b.tours && b.tours.length > 0 && (
-                    <div className="tour-cards">
-                      {b.tours.map((t) => (
-                        <div key={t.id} className="tour-card">
-                          <div>{t.title}</div>
-                          <div className="muted">
-                            {t.priceFrom !== undefined && `A partir de R$ ${t.priceFrom}`}
-                            {t.durationHours !== undefined && ` · ${t.durationHours}h`}
-                          </div>
-                          <BookTourButton business={b} tour={t} />
-                        </div>
-                      ))}
-                    </div>
-                  )}
-                </div>
-              );
-            })}
+        <div className="page page-wide">
+          <div className="viator-tabs">
+            {TABS.map((t) => (
+              <button
+                key={t}
+                className={`viator-tab ${tab === t ? "viator-tab-active" : ""}`}
+                onClick={() => setTab(t)}
+              >
+                {t === "Todos" ? "Todos" : `${t}s`}
+              </button>
+            ))}
           </div>
 
-          {hotels.length > 0 && (
-            <>
-              <h2 className="timeline-title">Hotéis em {query}</h2>
-              <div className="business-grid">
-                {hotels.map((b) => {
-                  const stats = reviewStatsFor(reviews, b.id);
-                  return (
-                    <Link to={`/business/${b.id}`} key={b.id} className="business-card">
-                      <div className="business-card-top">
-                        <span className="business-type-label">{b.type}</span>
-                        <span className={`plan-badge plan-badge-${b.planTier.toLowerCase()}`}>
-                          {b.planTier}
-                        </span>
-                      </div>
-                      <div className="timeline-card-title">{b.name}</div>
-                      <div className="muted">{b.description}</div>
-                      <ReputationBadge avgRating={stats.avgRating} count={stats.count} />
-                    </Link>
-                  );
-                })}
-              </div>
-            </>
-          )}
+          <h2 className="timeline-title">
+            {matches.length} {matches.length === 1 ? "resultado" : "resultados"} em {query}
+          </h2>
 
-          {restaurants.length > 0 && (
-            <>
-              <h2 className="timeline-title">Restaurantes em {query}</h2>
-              <div className="business-grid">
-                {restaurants.map((b) => {
-                  const stats = reviewStatsFor(reviews, b.id);
-                  return (
-                    <Link to={`/business/${b.id}`} key={b.id} className="business-card">
-                      <div className="business-card-top">
-                        <span className="business-type-label">{b.type}</span>
-                        <span className={`plan-badge plan-badge-${b.planTier.toLowerCase()}`}>
-                          {b.planTier}
-                        </span>
-                      </div>
-                      <div className="timeline-card-title">{b.name}</div>
-                      <div className="muted">{b.description}</div>
-                      <ReputationBadge avgRating={stats.avgRating} count={stats.count} />
-                    </Link>
-                  );
-                })}
-              </div>
-            </>
-          )}
-        </>
+          <div className="viator-grid">
+            {matches.length === 0 && (
+              <p className="muted">Nenhum resultado encontrado ainda para esse destino.</p>
+            )}
+            {matches.map((b) => (
+              <BusinessCard key={b.id} business={b} reviews={reviews} />
+            ))}
+          </div>
+        </div>
       )}
     </div>
   );

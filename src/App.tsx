@@ -36,6 +36,7 @@ function AppShell() {
         </Link>
         {chosen && (
           <>
+            {isProfissional && <Link to="/professional">Painel</Link>}
             <Link to="/destination">Destinos</Link>
             {!isProfissional && <Link to="/business">Para empresas</Link>}
             <Link to="/messages">Mensagens</Link>

@@ -1068,60 +1068,108 @@ legend {
   margin-top: 12px;
 }
 
-.destination-card {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-  padding: 16px;
-  border-radius: 12px;
-  border: 1px solid var(--border);
-  background: var(--bg-alt);
+.viator-hero {
+  width: 100%;
 }
 
-.business-card-top-link {
+.viator-hero-inner {
+  text-align: center;
+  padding: 56px 20px 32px;
+  background: linear-gradient(180deg, var(--accent-soft), transparent);
+}
+
+.viator-hero-inner h1 {
+  font-size: 32px;
+}
+
+.viator-hero-inner .destination-search {
+  max-width: 520px;
+  margin: 16px auto 0;
+}
+
+.viator-tabs {
+  display: flex;
+  gap: 4px;
+  border-bottom: 1px solid var(--border);
+  margin: 8px 0 20px;
+  overflow-x: auto;
+}
+
+.viator-tab {
+  padding: 10px 16px;
+  background: none;
+  border: none;
+  border-bottom: 2px solid transparent;
+  color: var(--text);
+  font-weight: 600;
+  font-size: 14px;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.viator-tab-active {
+  color: var(--accent);
+  border-bottom-color: var(--accent);
+}
+
+.viator-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: 18px;
+}
+
+.viator-card {
+  display: flex;
+  flex-direction: column;
+  border-radius: 10px;
+  border: 1px solid var(--border);
+  background: var(--card-bg);
+  overflow: hidden;
   text-decoration: none;
   color: inherit;
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
+  transition: box-shadow 0.15s, transform 0.15s;
 }
 
-.tour-list {
-  margin: 4px 0 0;
-  padding-left: 18px;
+.viator-card:hover {
+  box-shadow: var(--shadow);
+  transform: translateY(-2px);
+}
+
+.viator-card-media {
+  height: 120px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.viator-card-media-label {
+  color: rgba(255, 255, 255, 0.9);
+  font-weight: 700;
   font-size: 13px;
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
+}
+
+.viator-card-body {
+  padding: 14px;
   display: flex;
   flex-direction: column;
   gap: 4px;
 }
 
-.business-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
-  gap: 14px;
+.viator-card-title {
+  font-weight: 700;
+  color: var(--text-h);
+  font-size: 15px;
 }
 
-.business-card {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-  padding: 16px;
-  border-radius: 12px;
-  border: 1px solid var(--border);
-  background: var(--bg-alt);
-  text-decoration: none;
-  color: inherit;
+.viator-card-price {
+  margin-top: 6px;
+  font-size: 14px;
 }
 
-.business-card:hover {
-  border-color: var(--accent);
-}
-
-.business-card-top {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  font-size: 20px;
+.viator-card-price strong {
+  color: var(--accent);
 }
 
 .business-header {
