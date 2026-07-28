@@ -18,6 +18,7 @@ import { Welcome } from "./pages/Welcome";
 import { ProfessionalDashboard } from "./pages/ProfessionalDashboard";
 import { Notifications } from "./pages/Notifications";
 import { Terms, Privacy } from "./pages/Legal";
+import { CookieBanner, openCookiePreferences } from "./components/CookieBanner";
 import { useNotifications } from "./hooks/useNotifications";
 
 function RootScreen() {
@@ -93,8 +94,12 @@ function AppShell() {
       <footer className="app-footer">
         <Link to="/termos">Termos de Uso</Link>
         <Link to="/privacidade">Política de Privacidade</Link>
+        <button type="button" className="footer-link" onClick={openCookiePreferences}>
+          Preferências de cookies
+        </button>
         <span className="muted">© {new Date().getFullYear()} Avena</span>
       </footer>
+      <CookieBanner />
     </div>
   );
 }
