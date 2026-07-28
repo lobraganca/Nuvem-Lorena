@@ -16,12 +16,27 @@ import { Bookings } from "./pages/Bookings";
 import { Revenue } from "./pages/Revenue";
 import { Welcome } from "./pages/Welcome";
 import { ProfessionalDashboard } from "./pages/ProfessionalDashboard";
+import { Notifications } from "./pages/Notifications";
+import { useNotifications } from "./hooks/useNotifications";
 
 function RootScreen() {
   const { user } = useAvena();
   if (!user.accountType) return <Welcome />;
   if (user.accountType === "profissional") return <ProfessionalDashboard />;
   return <Home />;
+}
+
+function NotificationsLink() {
+  const notifications = useNotifications();
+
+  return (
+    <Link to="/notifications" className="nav-notifications">
+      Notificações
+      {notifications.length > 0 && (
+        <span className="nav-badge">{notifications.length}</span>
+      )}
+    </Link>
+  );
 }
 
 function AppShell() {
@@ -42,6 +57,7 @@ function AppShell() {
             {!isProfissional && <Link to="/business">Para empresas</Link>}
             <Link to="/messages">Mensagens</Link>
             {!isProfissional && <Link to="/bookings">Reservas</Link>}
+            {!isProfissional && <NotificationsLink />}
             <Link to="/profile">Perfil</Link>
           </>
         )}
@@ -65,6 +81,7 @@ function AppShell() {
           <Route path="/messages" element={<Messages />} />
           <Route path="/messages/:id" element={<Conversation />} />
           <Route path="/bookings" element={<Bookings />} />
+          <Route path="/notifications" element={<Notifications />} />
           <Route path="/revenue" element={<Revenue />} />
         </Routes>
       </main>

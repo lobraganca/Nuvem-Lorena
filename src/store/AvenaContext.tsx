@@ -11,7 +11,7 @@ import {
 } from "../data/mockData";
 import { computeRefund } from "../lib/cancellation";
 
-const STORAGE_KEY = "avena-data-v9";
+const STORAGE_KEY = "avena-data-v10";
 
 interface AvenaData {
   experiences: Experience[];
@@ -21,6 +21,7 @@ interface AvenaData {
   messages: Message[];
   bookings: Booking[];
   reviews: Review[];
+  dismissedNotifications: string[];
 }
 
 interface AvenaContextValue extends AvenaData {
@@ -33,6 +34,7 @@ interface AvenaContextValue extends AvenaData {
   addTourToBusiness: (businessId: string, tour: Tour) => void;
   addReview: (review: Review) => void;
   cancelBooking: (bookingId: string) => void;
+  dismissNotification: (notificationId: string) => void;
 }
 
 const AvenaContext = createContext<AvenaContextValue | null>(null);
@@ -46,6 +48,7 @@ function defaults(): AvenaData {
     messages: mockMessages,
     bookings: [],
     reviews: mockReviews,
+    dismissedNotifications: [],
   };
 }
 
@@ -123,6 +126,11 @@ export function AvenaProvider({ children }: { children: ReactNode }) {
               refundAmount,
             };
           }),
+        })),
+      dismissNotification: (notificationId) =>
+        setData((d) => ({
+          ...d,
+          dismissedNotifications: [...d.dismissedNotifications, notificationId],
         })),
     }),
     [data]
