@@ -12,6 +12,7 @@ import { Messages } from "./pages/Messages";
 import { Conversation } from "./pages/Conversation";
 import { Destination } from "./pages/Destination";
 import { Bookings } from "./pages/Bookings";
+import { Revenue } from "./pages/Revenue";
 
 export default function App() {
   return (
@@ -26,6 +27,9 @@ export default function App() {
           <Link to="/messages">Mensagens</Link>
           <Link to="/bookings">Reservas</Link>
           <Link to="/profile">Perfil</Link>
+          <Link to="/revenue" className="nav-admin-link" title="Painel do dono da plataforma">
+            📊 Receita
+          </Link>
         </nav>
         <main className="app-content">
           <Routes>
@@ -41,6 +45,7 @@ export default function App() {
             <Route path="/messages" element={<Messages />} />
             <Route path="/messages/:id" element={<Conversation />} />
             <Route path="/bookings" element={<Bookings />} />
+            <Route path="/revenue" element={<Revenue />} />
           </Routes>
         </main>
       </div>

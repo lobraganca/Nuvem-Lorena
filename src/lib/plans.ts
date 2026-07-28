@@ -5,6 +5,7 @@ export const planTiers: PlanTier[] = ["Básico", "Pro", "Avançado"];
 export interface PlanDef {
   tier: PlanTier;
   price: string;
+  priceMonthly: number;
   tagline: string;
   features: string[];
   commissionRate: number; // fraction of each booking kept by Avena
@@ -14,6 +15,7 @@ export const plans: PlanDef[] = [
   {
     tier: "Básico",
     price: "Grátis",
+    priceMonthly: 0,
     tagline: "Para quem está começando a aparecer no Avena",
     features: [
       "Perfil público com descrição e contato",
@@ -26,6 +28,7 @@ export const plans: PlanDef[] = [
   {
     tier: "Pro",
     price: "R$ 79/mês",
+    priceMonthly: 79,
     tagline: "Para agências, guias e restaurantes que querem crescer",
     features: [
       "Tudo do Básico",
@@ -39,6 +42,7 @@ export const plans: PlanDef[] = [
   {
     tier: "Avançado",
     price: "R$ 199/mês",
+    priceMonthly: 199,
     tagline: "Para quem quer prioridade máxima e presença de marca",
     features: [
       "Tudo do Pro",
@@ -53,4 +57,8 @@ export const plans: PlanDef[] = [
 
 export function commissionRateFor(tier: PlanTier): number {
   return plans.find((p) => p.tier === tier)?.commissionRate ?? 0.15;
+}
+
+export function priceMonthlyFor(tier: PlanTier): number {
+  return plans.find((p) => p.tier === tier)?.priceMonthly ?? 0;
 }
