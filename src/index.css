@@ -4,8 +4,8 @@
   --bg: #ffffff;
   --bg-alt: #f5f6f8;
   --border: #dde1e6;
-  --accent: #003b7a;
-  --accent-soft: rgba(0, 59, 122, 0.08);
+  --accent: #1b2619;
+  --accent-soft: rgba(27, 38, 25, 0.08);
   --card-bg: #ffffff;
   --shadow: rgba(16, 24, 40, 0.08) 0 4px 12px -2px, rgba(16, 24, 40, 0.04) 0 2px 4px -2px;
 
@@ -24,8 +24,8 @@
     --bg: #12151a;
     --bg-alt: #1a1e25;
     --border: #2a2f38;
-    --accent: #4a8fe0;
-    --accent-soft: rgba(74, 143, 224, 0.12);
+    --accent: #8fae7f;
+    --accent-soft: rgba(143, 174, 127, 0.15);
     --card-bg: #1a1e25;
     --shadow: rgba(0, 0, 0, 0.4) 0 4px 12px -2px;
   }
@@ -91,11 +91,16 @@ a {
 }
 
 .brand {
-  font-size: 22px;
-  font-weight: 700;
-  letter-spacing: -0.5px;
-  color: var(--accent);
+  display: flex;
+  align-items: center;
   text-decoration: none;
+}
+
+.brand-logo {
+  height: 32px;
+  width: auto;
+  border-radius: 4px;
+  display: block;
 }
 
 .topbar a {
@@ -927,11 +932,11 @@ legend {
   margin-bottom: 20px;
 }
 
-.landing-title {
-  font-size: 56px;
-  letter-spacing: -1.5px;
-  color: var(--accent);
-  margin-bottom: 12px;
+.landing-logo {
+  height: 64px;
+  width: auto;
+  border-radius: 8px;
+  margin-bottom: 20px;
 }
 
 .landing-tagline {

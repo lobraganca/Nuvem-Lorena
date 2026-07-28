@@ -1,5 +1,6 @@
 import { useNavigate } from "react-router-dom";
 import { useAvena } from "../store/AvenaContext";
+import avenaLogo from "../assets/avena-logo-wordmark.png";
 
 const FEATURES = [
   { title: "Mapa afetivo", text: "Cada pin é uma história vivida — viagens, trilhas, praias, cachoeiras e muito mais." },
@@ -25,8 +26,8 @@ export function Welcome() {
   return (
     <div className="landing-page">
       <section className="landing-hero">
+        <img src={avenaLogo} alt="Avena" className="landing-logo" />
         <div className="landing-hero-badge">Feito para o turismo do Brasil</div>
-        <h1 className="landing-title">Avena</h1>
         <p className="landing-tagline">
           Um mapa afetivo para colecionar as experiências, pessoas e lugares que
           você viveu pelo Brasil.

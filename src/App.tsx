@@ -1,5 +1,6 @@
 import { Link, Route, Routes } from "react-router-dom";
 import { AvenaProvider, useAvena } from "./store/AvenaContext";
+import avenaLogo from "./assets/avena-logo-wordmark.png";
 import { Home } from "./pages/Home";
 import { AddExperience } from "./pages/AddExperience";
 import { ExperienceDetail } from "./pages/ExperienceDetail";
@@ -32,7 +33,7 @@ function AppShell() {
     <div className="app-shell">
       <nav className="topbar">
         <Link to="/" className="brand">
-          Avena
+          <img src={avenaLogo} alt="Avena" className="brand-logo" />
         </Link>
         {chosen && (
           <>
