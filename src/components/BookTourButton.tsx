@@ -4,6 +4,11 @@ import { useAvena } from "../store/AvenaContext";
 import { commissionRateFor } from "../lib/plans";
 import { cancellationPolicyDescription, cancellationPolicyLabel } from "../lib/cancellation";
 import { availabilityFor } from "../lib/availability";
+import {
+  LegalAcceptance,
+  useAcceptLegal,
+  useLegalAccepted,
+} from "./LegalAcceptance";
 import type { Business, Tour } from "../types";
 
 export function BookTourButton({ business, tour }: { business: Business; tour: Tour }) {
@@ -12,6 +17,10 @@ export function BookTourButton({ business, tour }: { business: Business; tour: T
   const [open, setOpen] = useState(false);
   const [travelDate, setTravelDate] = useState(new Date().toISOString().slice(0, 10));
   const [travelers, setTravelers] = useState(1);
+  const [legalChecked, setLegalChecked] = useState(false);
+  const legalAccepted = useLegalAccepted();
+  const acceptLegal = useAcceptLegal();
+  const legalOk = legalAccepted || legalChecked;
 
   const unitPrice = tour.priceFrom ?? 0;
   const totalPrice = unitPrice * travelers;
@@ -25,7 +34,8 @@ export function BookTourButton({ business, tour }: { business: Business; tour: T
 
   function confirmBooking(e: React.FormEvent) {
     e.preventDefault();
-    if (soldOut || exceedsCapacity) return;
+    if (soldOut || exceedsCapacity || !legalOk) return;
+    if (!legalAccepted) acceptLegal();
     const booking = {
       id: crypto.randomUUID(),
       businessId: business.id,
@@ -109,8 +119,14 @@ export function BookTourButton({ business, tour }: { business: Business; tour: T
         </div>
       </div>
 
+      <LegalAcceptance checked={legalChecked} onChange={setLegalChecked} />
+
       <div className="chip-row">
-        <button type="submit" className="btn-primary" disabled={soldOut || exceedsCapacity}>
+        <button
+          type="submit"
+          className="btn-primary"
+          disabled={soldOut || exceedsCapacity || !legalOk}
+        >
           Confirmar reserva
         </button>
         <button type="button" className="btn-outline" onClick={() => setOpen(false)}>

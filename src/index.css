@@ -156,6 +156,65 @@ a {
   justify-content: center;
 }
 
+.app-footer {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  flex-wrap: wrap;
+  padding: 20px 24px;
+  border-top: 1px solid var(--border);
+  background: var(--bg-alt);
+  font-size: 13px;
+}
+
+.app-footer a {
+  color: var(--text);
+}
+
+.legal-page {
+  max-width: 780px;
+}
+
+.legal-intro {
+  margin: 12px 0 8px;
+}
+
+.legal-section {
+  margin-top: 24px;
+}
+
+.legal-section h2 {
+  font-size: 17px;
+  margin-bottom: 8px;
+}
+
+.legal-section p {
+  margin-bottom: 10px;
+}
+
+.legal-footer-links {
+  display: flex;
+  gap: 20px;
+  margin-top: 36px;
+  padding-top: 16px;
+  border-top: 1px solid var(--border);
+  font-size: 14px;
+}
+
+.legal-accept {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  font-size: 13px;
+  line-height: 1.4;
+  cursor: pointer;
+}
+
+.legal-accept input {
+  margin-top: 2px;
+  flex-shrink: 0;
+}
+
 .cadastur-badge {
   display: inline-block;
   margin: 4px 0 8px;

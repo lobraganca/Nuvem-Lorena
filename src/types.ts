@@ -27,6 +27,13 @@ export interface UserProfile {
   isPrivate: boolean;
   accountType?: AccountType;
   ownBusinessId?: string;
+  /**
+   * Version of the Terms/Privacy Policy the user accepted, and when. A bump in
+   * LEGAL_VERSION invalidates the previous acceptance and forces a new one
+   * before the next transaction.
+   */
+  acceptedLegalVersion?: string;
+  acceptedLegalAt?: string; // ISO datetime
 }
 
 export interface Message {

@@ -17,6 +17,7 @@ import { Revenue } from "./pages/Revenue";
 import { Welcome } from "./pages/Welcome";
 import { ProfessionalDashboard } from "./pages/ProfessionalDashboard";
 import { Notifications } from "./pages/Notifications";
+import { Terms, Privacy } from "./pages/Legal";
 import { useNotifications } from "./hooks/useNotifications";
 
 function RootScreen() {
@@ -84,9 +85,16 @@ function AppShell() {
           <Route path="/messages/:id" element={<Conversation />} />
           <Route path="/bookings" element={<Bookings />} />
           <Route path="/notifications" element={<Notifications />} />
+          <Route path="/termos" element={<Terms />} />
+          <Route path="/privacidade" element={<Privacy />} />
           <Route path="/revenue" element={<Revenue />} />
         </Routes>
       </main>
+      <footer className="app-footer">
+        <Link to="/termos">Termos de Uso</Link>
+        <Link to="/privacidade">Política de Privacidade</Link>
+        <span className="muted">© {new Date().getFullYear()} Avena</span>
+      </footer>
     </div>
   );
 }

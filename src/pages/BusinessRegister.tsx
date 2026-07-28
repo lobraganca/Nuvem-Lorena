@@ -4,6 +4,11 @@ import { useAvena } from "../store/AvenaContext";
 import { plans } from "../lib/plans";
 import { BRAZILIAN_STATES } from "../lib/collections";
 import { businessTypes } from "../lib/categories";
+import {
+  LegalAcceptance,
+  useAcceptLegal,
+  useLegalAccepted,
+} from "../components/LegalAcceptance";
 import type { Business, BusinessType, PlanTier } from "../types";
 
 export function BusinessRegister() {
@@ -24,12 +29,19 @@ export function BusinessRegister() {
 
   // Cadastur is compulsory for those who actually sell tourism services.
   const requiresCadastur = type === "Agência" || type === "Guia" || type === "Hotel";
+
+  const [legalChecked, setLegalChecked] = useState(false);
+  const legalAccepted = useLegalAccepted();
+  const acceptLegal = useAcceptLegal();
+  const legalOk = legalAccepted || legalChecked;
   const [planTier, setPlanTier] = useState<PlanTier>("Básico");
 
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     if (!name || !description || !city || !email) return;
     if (requiresCadastur && !cadastur) return;
+    if (!legalOk) return;
+    if (!legalAccepted) acceptLegal();
 
     const business: Business = {
       id: crypto.randomUUID(),
@@ -161,7 +173,9 @@ export function BusinessRegister() {
           </div>
         </fieldset>
 
-        <button type="submit" className="btn-primary">
+        <LegalAcceptance checked={legalChecked} onChange={setLegalChecked} />
+
+        <button type="submit" className="btn-primary" disabled={!legalOk}>
           Concluir cadastro
         </button>
       </form>
