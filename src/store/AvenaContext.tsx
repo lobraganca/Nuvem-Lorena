@@ -3,7 +3,6 @@ import type { ReactNode } from "react";
 import type { Banner, Booking, Boost, Business, BusinessStatus, Experience, Message, MessageThread, PaymentMethod, Person, Review, SupportTicket, SupportTicketSubject, MercadoPagoLink, Tour, Traveler, TravelerActivity, UserProfile, WaitlistEntry, WishlistItem } from "../types";
 import {
   mockBusinesses,
-  mockExperiences,
   mockMessages,
   mockPeople,
   mockReviews,
@@ -16,7 +15,7 @@ import { threadKey } from "../lib/messages";
 import { readStored, storageAvailable, writeStored } from "../lib/safeStorage";
 import { newId } from "../lib/ids";
 
-const STORAGE_KEY = "avena-data-v18";
+const STORAGE_KEY = "avena-data-v19";
 
 interface AvenaData {
   experiences: Experience[];
@@ -103,7 +102,11 @@ const AvenaContext = createContext<AvenaContextValue | null>(null);
 
 function defaults(): AvenaData {
   return {
-    experiences: mockExperiences,
+    // The catalogue starts full and the person's own map starts empty. Seeded
+    // memories showed up under "your latest memories" as if they were theirs,
+    // which is both confusing and a small lie — and it made the first real
+    // memory land in the middle of six strangers' trips.
+    experiences: [],
     people: mockPeople,
     businesses: mockBusinesses,
     user: mockUser,

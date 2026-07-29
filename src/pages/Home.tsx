@@ -4,6 +4,7 @@ import { NotificationBanner } from "../components/NotificationBanner";
 import { PromotedTours } from "../components/PromotedTours";
 import { TrendingSection } from "../components/TrendingSection";
 import { BannerSlot } from "../components/BannerSlot";
+import { AppOffer } from "../components/AppOffer";
 import { effectiveStatus } from "../lib/bookingStatus";
 import { openWishes } from "../lib/wishlist";
 import { categoryColor } from "../lib/categories";
@@ -150,6 +151,8 @@ export function Home() {
           </div>
         </section>
       )}
+
+      <AppOffer />
 
       <PromotedTours />
       <TrendingSection />

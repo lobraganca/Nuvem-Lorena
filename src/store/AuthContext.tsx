@@ -13,7 +13,7 @@ import { readStored, removeStored, writeStored } from "../lib/safeStorage";
 const ACCOUNT_KEY = "avena-account";
 const SESSION_KEY = "avena-session";
 /** Kept in step with AvenaContext: erasing the device has to erase the data. */
-const DATA_KEY = "avena-data-v18";
+const DATA_KEY = "avena-data-v19";
 
 /** Why a sign-in attempt failed, in terms the screen can explain. */
 export type AuthError =

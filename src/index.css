@@ -3551,3 +3551,160 @@ textarea:focus-visible,
   margin: -4px 0 10px;
   max-width: 62ch;
 }
+
+/* ---------------------------------------------------------------------------
+   The one question that starts everything
+   --------------------------------------------------------------------------- */
+
+.first-memory {
+  display: flex;
+  justify-content: center;
+  width: 100%;
+  padding: 36px 20px 60px;
+}
+
+.first-inner {
+  width: 100%;
+  max-width: 620px;
+}
+
+.first-inner h1 {
+  font-size: 27px;
+  text-wrap: balance;
+}
+
+.first-places {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 22px 0 26px;
+}
+
+/* Big, plain targets: the fastest possible answer to "where were you?". */
+.first-place {
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+  padding: 11px 16px;
+  border-radius: 999px;
+  border: 1px solid var(--border);
+  background: var(--card-bg);
+  font: inherit;
+  color: var(--text-h);
+  cursor: pointer;
+}
+
+.first-place:hover {
+  border-color: var(--accent);
+}
+
+.first-place-city {
+  font-weight: 600;
+}
+
+.first-place-state {
+  font-size: 12px;
+  color: var(--text);
+}
+
+.first-escape {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 10px;
+  padding-top: 20px;
+  border-top: 1px solid var(--border);
+}
+
+.first-what {
+  width: 100%;
+  margin: 18px 0;
+  padding: 14px 16px;
+  font: inherit;
+  font-size: 16px;
+  border-radius: 10px;
+  border: 1px solid var(--border);
+  background: var(--bg-alt);
+  color: var(--text-h);
+}
+
+.first-what:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 1px;
+}
+
+.first-save {
+  align-self: stretch;
+  width: 100%;
+  padding: 14px 24px;
+  margin-bottom: 6px;
+}
+
+/* The invitation to install, once there is something to carry. */
+.app-offer {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 18px;
+  border-radius: 12px;
+  border: 1px solid var(--accent);
+  background: var(--accent-soft);
+}
+
+.app-offer .timeline-title {
+  margin-top: 0;
+}
+
+/* Settings: plain rows, nothing to interpret. */
+.settings-group {
+  padding: 20px 0;
+  border-top: 1px solid var(--border);
+}
+
+.settings-group:first-of-type {
+  border-top: none;
+}
+
+.settings-group .timeline-title {
+  margin-top: 0;
+}
+
+.settings-links {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin: 12px 0 14px;
+  align-items: flex-start;
+}
+
+.settings-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin: 12px 0;
+}
+
+.topbar-icon {
+  width: 22px;
+  height: 22px;
+  fill: currentColor;
+  display: block;
+}
+
+.first-filter {
+  width: 100%;
+  max-width: 340px;
+  margin: 20px 0 4px;
+  padding: 12px 16px;
+  font: inherit;
+  border-radius: 999px;
+  border: 1px solid var(--border);
+  background: var(--bg-alt);
+  color: var(--text-h);
+}
+
+.first-filter:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 1px;
+}

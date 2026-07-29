@@ -20,7 +20,7 @@ import { Welcome } from "./pages/Welcome";
 import { ProfessionalDashboard } from "./pages/ProfessionalDashboard";
 import { Notifications } from "./pages/Notifications";
 import { Terms, Privacy } from "./pages/Legal";
-import { CookieBanner, openCookiePreferences } from "./components/CookieBanner";
+import { CookieBanner } from "./components/CookieBanner";
 import { HelpChat } from "./components/HelpChat";
 import { OfflineBanner } from "./components/OfflineBanner";
 import { BottomNav } from "./components/BottomNav";
@@ -34,9 +34,12 @@ import { Wishlist } from "./pages/Wishlist";
 import { TravelerProfile } from "./pages/TravelerProfile";
 import { GetApp } from "./pages/GetApp";
 import { SignIn } from "./pages/SignIn";
+import { FirstMemory } from "./pages/FirstMemory";
+import { Settings } from "./pages/Settings";
 import { NotFound } from "./pages/NotFound";
 import { LanguageSwitcher } from "./components/LanguageSwitcher";
 import { NotificationsBell } from "./components/NotificationsBell";
+import { MessagesBell } from "./components/MessagesBell";
 import { I18nProvider, useT } from "./i18n";
 
 // Loaded on demand *and* only when the build enabled it, so a public build
@@ -48,7 +51,9 @@ const Admin = __ADMIN_ENABLED__
 
 function RootScreen() {
   const { user } = useAvena();
-  if (!user.accountType) return <Welcome />;
+  // Nobody is asked to declare what they are before seeing what the app does:
+  // the first screen asks one question and puts a memory on the map.
+  if (!user.accountType) return <FirstMemory />;
   if (user.accountType === "profissional") return <ProfessionalDashboard />;
   return <Home />;
 }
@@ -78,23 +83,20 @@ function AppShell() {
           <img src={avenaLogo} alt={t("nav.home")} className="brand-logo" />
         </Link>
         <div className="topbar-links">
-          {chosen && (
+          {/* Three, and none of them a tab: the two lists a traveller returns
+              to, and the download page. Everything else lives in Ajustes. */}
+          {chosen && !isProfissional && (
             <>
-              {/* Only what the tab bar does not already carry, so the same
-                  five destinations are not offered twice on the same screen. */}
-              {!isProfissional && <Link to="/bookings">{t("nav.bookings")}</Link>}
-              {!isProfissional && <Link to="/desejos">{t("nav.wishlist")}</Link>}
-              {!isProfissional && <Link to="/business">{t("nav.forBusiness")}</Link>}
-              <Link to="/ajuda">{t("nav.help")}</Link>
+              <Link to="/bookings">{t("nav.bookings")}</Link>
+              <Link to="/desejos">{t("nav.wishlist")}</Link>
             </>
           )}
-          {/* Outside the check on purpose: someone who has not chosen an
-              account type yet is exactly who might want the app. */}
           <Link to="/app" className="topbar-app-link">
             {t("app.navLink")}
           </Link>
         </div>
         <div className="topbar-actions">
+          {chosen && <MessagesBell />}
           <NotificationsBell />
           <LanguageSwitcher />
         </div>
@@ -103,6 +105,7 @@ function AppShell() {
         <Routes>
           <Route path="/" element={<RootScreen />} />
           <Route path="/welcome" element={<Welcome />} />
+          <Route path="/comecar" element={<FirstMemory />} />
           <Route path="/professional" element={<ProfessionalDashboard />} />
           <Route path="/experience/new" element={<AddExperience />} />
           <Route path="/experience/:id/editar" element={<AddExperience />} />
@@ -128,6 +131,7 @@ function AppShell() {
           <Route path="/desejos" element={<Wishlist />} />
           <Route path="/traveler/:id" element={<TravelerProfile />} />
           <Route path="/app" element={<GetApp />} />
+          <Route path="/ajustes" element={<Settings />} />
           {Admin && (
             <Route
               path="/admin"
@@ -144,12 +148,7 @@ function AppShell() {
       <footer className="app-footer">
         <Link to="/termos">{t("footer.terms")}</Link>
         <Link to="/privacidade">{t("footer.privacy")}</Link>
-        <Link to="/ajuda">{t("footer.help")}</Link>
-        <Link to="/meus-dados">{t("footer.myData")}</Link>
-        <Link to="/app">{t("app.navLink")}</Link>
-        <button type="button" className="footer-link" onClick={openCookiePreferences}>
-          {t("footer.cookies")}
-        </button>
+        <Link to="/ajustes">{t("settings.title")}</Link>
         <span className="muted">© {new Date().getFullYear()} Avena</span>
       </footer>
       <CookieBanner />

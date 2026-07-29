@@ -10,19 +10,6 @@ import { fileToStoredPhoto } from "../lib/photos";
 import { ModerationNotice, isPublishable } from "../components/ModerationNotice";
 import { MemoryMap } from "../components/MemoryMap";
 import { useT } from "../i18n";
-import { useAuth } from "../store/AuthContext";
-
-/** Ends the session. The account and the memories stay on the device. */
-function SignOutButton() {
-  const { account, signOut } = useAuth();
-  const t = useT();
-  if (!account) return null;
-  return (
-    <button type="button" className="btn-outline" onClick={signOut}>
-      {t("auth.signOut")}
-    </button>
-  );
-}
 
 export function Profile() {
   const { experiences, people, user, updateUser, bookings } = useAvena();
@@ -107,29 +94,17 @@ export function Profile() {
                 {t("profile.goToDashboard")}
               </Link>
             )}
-            <Link to="/meus-dados" className="btn-outline">
-              {t("profile.myData")}
-            </Link>
-            {/* Two different things, no longer sharing the word "sair":
-                one ends the session, the other goes back to choosing whether
-                you are here as a traveller or as a business. */}
-            <SignOutButton />
-            <Link to="/welcome" className="btn-outline">
-              {t("profile.switchAccount")}
+            {/* Account, app and legal live in Ajustes now. This page is for
+                looking at your own travelling. */}
+            <Link to="/ajustes" className="btn-outline">
+              {t("settings.title")}
             </Link>
           </div>
 
-          {/* On phones the top bar is replaced by the tab bar, so everything
-              that is not a tab has to be reachable from here. */}
+          {/* Only the two lists that belong to the traveller. */}
           <nav className="profile-menu" aria-label={t("nav.moreOptions")}>
             <Link to="/bookings">{t("nav.bookings")}</Link>
             <Link to="/desejos">{t("nav.wishlist")}</Link>
-            <Link to="/notifications">{t("nav.notifications")}</Link>
-            <Link to="/ajuda">{t("footer.help")}</Link>
-            <Link to="/meus-dados">{t("profile.myData")}</Link>
-            <Link to="/business">{t("nav.forBusiness")}</Link>
-            <Link to="/termos">{t("footer.terms")}</Link>
-            <Link to="/privacidade">{t("footer.privacy")}</Link>
           </nav>
 
           <div className="ig-stats-row">

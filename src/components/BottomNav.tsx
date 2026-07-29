@@ -62,10 +62,12 @@ export function BottomNav() {
           { to: "/profile", label: t("nav.profile"), icon: avatarTab },
         ]
       : [
+          // Four, not five. Messages moved to the top bar, where the icon can
+          // carry the same unread count without spending a whole tab on a
+          // screen most people open once a week.
           { to: "/", label: t("nav.start"), icon: homeIcon },
           { to: "/destination", label: t("nav.search"), icon: searchIcon },
           { to: "/feed", label: t("nav.people"), icon: peopleIcon },
-          { to: "/messages", label: t("nav.messages"), icon: messageIcon, badge: unread },
           { to: "/profile", label: t("nav.profile"), icon: avatarTab },
         ];
 
