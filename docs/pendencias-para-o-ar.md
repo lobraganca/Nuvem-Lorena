@@ -211,3 +211,49 @@ tática importa mais:
    [importar-passeios.md](importar-passeios.md).
 3. **Só comissão no começo.** A mensalidade entra quando o volume já justificar
    o desconto na taxa.
+
+## Depois da validação: o que o servidor destrava
+
+Estes itens ficaram esperando de propósito. Não são esquecimento, e nenhum
+deles se resolve no navegador — todos precisam de servidor.
+
+### Documento dos participantes (LGPD)
+
+Hoje a reserva pede **só o nome** de cada pessoa. O documento foi retirado
+porque era dado pessoal de terceiro guardado no celular do viajante, sem
+criptografia, sem prazo de descarte e sem chegar a agência nenhuma.
+
+Para voltar a pedir, é preciso, na ordem:
+
+1. Servidor com banco de dados e criptografia em repouso.
+2. Prazo de retenção definido (ex.: apagar 90 dias depois da viagem).
+3. Caminho para a pessoa pedir exclusão, como manda a LGPD.
+4. Aí sim: `COLLECT_PARTICIPANT_DOCUMENTS = true` em `src/lib/dataCollection.ts`.
+
+Ligar a constante antes disso recria a exposição.
+
+### Cadastur verificado de verdade
+
+O app hoje mostra o número e diz que **a empresa informou** — não que a
+Avena conferiu. Para virar selo de verdade, é preciso consultar o cadastro
+do Ministério do Turismo pelo servidor e guardar a data da consulta. Sem
+isso, manter a ressalva na tela.
+
+### Senha, conta e backup
+
+Conta só existe no aparelho: celular perdido ou formatado = memórias
+perdidas, e senha esquecida só tem a saída de apagar tudo. Servidor resolve
+os três de uma vez — conta na nuvem, recuperação por e-mail, backup
+automático.
+
+### Pagamento
+
+A tela de pagamento avisa que é demonstração. Enquanto não houver endpoint
+recebendo o webhook do Mercado Pago, **nada é vendido de fato** — a reserva
+confirmada é uma promessa. Detalhes em `pagamentos-mercado-pago.md`.
+
+### Denúncia e remoção humana
+
+O filtro de palavras barra o óbvio, mas quem quer ofender contorna
+qualquer lista. Antes de abrir para o público, é preciso um botão de
+denunciar e alguém para analisar.
