@@ -110,6 +110,19 @@ export interface Boost {
   endsAt: string; // ISO datetime
 }
 
+export type DocumentType = "CPF" | "RG" | "Passaporte";
+
+/**
+ * Each person going on the tour. Agencies need the full list by law for
+ * boat manifests, park entry and insurance — not just a headcount.
+ */
+export interface Participant {
+  name: string;
+  documentType: DocumentType;
+  document: string;
+  birthDate?: string; // ISO date
+}
+
 export type BookingStatus = "confirmada" | "cancelada";
 
 export interface Booking {
@@ -120,6 +133,7 @@ export interface Booking {
   tourTitle: string;
   travelDate: string; // ISO date
   travelers: number;
+  participants: Participant[];
   unitPrice: number;
   totalPrice: number;
   commissionRate: number;

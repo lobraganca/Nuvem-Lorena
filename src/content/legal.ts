@@ -8,7 +8,7 @@
  */
 
 /** Alterar a versão obriga todos os usuários a aceitarem novamente. */
-export const LEGAL_VERSION = "1.0";
+export const LEGAL_VERSION = "1.1";
 export const LEGAL_UPDATED_AT = "2026-07-28";
 
 export interface LegalSection {
@@ -158,6 +158,7 @@ export const privacyPolicy: LegalSection[] = [
     paragraphs: [
       "Dados de cadastro: nome, nome de usuário, e-mail, foto de perfil e biografia. No login com Google, recebemos nome, e-mail e foto associados à conta Google.",
       "Dados de Parceiros: razão social ou nome, CNPJ ou CPF, número do Cadastur, endereço, telefone, e-mail e dados bancários para recebimento (estes coletados e tratados pela instituição de pagamento).",
+      "Dados de participantes da reserva: ao reservar para mais pessoas, você informa nome, documento e, opcionalmente, data de nascimento de cada participante. Esses dados são coletados porque a legislação de turismo exige lista de participantes para embarcações, entrada em parques e seguro, e são compartilhados apenas com o Parceiro responsável pelo serviço. Ao informá-los, você declara ter autorização dessas pessoas.",
       "Dados de uso: experiências registradas, localização dos lugares informados, fotos e vídeos, diário, avaliações, pessoas marcadas, reservas, mensagens trocadas e histórico de navegação na plataforma.",
       "Dados de pagamento: processados diretamente pela instituição de pagamento. O Avena recebe apenas o status da transação e os valores, não armazenando número completo de cartão nem CVV.",
       "Dados técnicos: endereço IP, tipo de dispositivo, sistema operacional, identificadores do aplicativo e registros de acesso, mantidos conforme exige o Marco Civil da Internet.",
@@ -175,7 +176,7 @@ export const privacyPolicy: LegalSection[] = [
   {
     title: "4. Com quem compartilhamos",
     paragraphs: [
-      "Com Parceiros: ao reservar, compartilhamos com o Parceiro os dados necessários à prestação do serviço (nome, contato, data e número de participantes).",
+      "Com Parceiros: ao reservar, compartilhamos com o Parceiro os dados necessários à prestação do serviço — nome e contato de quem reservou, data, e nome e documento de cada participante para a lista exigida por lei.",
       "Com a instituição de pagamento: dados necessários ao processamento da cobrança, do split e de eventuais reembolsos.",
       "Com prestadores de tecnologia: hospedagem, banco de dados, envio de e-mails e análise de uso, que tratam os dados sob nossa instrução e com obrigação de confidencialidade.",
       "Com autoridades: mediante requisição legal, ordem judicial ou para defesa de direitos.",

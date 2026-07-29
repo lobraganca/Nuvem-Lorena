@@ -231,6 +231,20 @@ export function ProfessionalDashboard() {
               {new Date(b.travelDate).toLocaleDateString("pt-BR")} · {b.travelers}{" "}
               {b.travelers === 1 ? "pessoa" : "pessoas"}
             </div>
+            {b.status !== "cancelada" && b.participants?.length > 0 && (
+              <div className="participant-list">
+                <strong>Lista de participantes</strong>
+                {b.participants.map((p, i) => (
+                  <div key={i} className="muted">
+                    {p.name} · {p.documentType} {p.document}
+                    {p.birthDate
+                      ? ` · nasc. ${new Date(p.birthDate).toLocaleDateString("pt-BR")}`
+                      : ""}
+                  </div>
+                ))}
+              </div>
+            )}
+
             {b.status === "cancelada" ? (
               <div className="booking-breakdown">
                 <div className="muted">

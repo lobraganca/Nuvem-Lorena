@@ -97,6 +97,17 @@ export function Bookings() {
           )}
         </div>
 
+        {b.participants?.length > 0 && (
+          <div className="participant-list">
+            <strong>Participantes</strong>
+            {b.participants.map((p, i) => (
+              <div key={i} className="muted">
+                {p.name} · {p.documentType} {p.document}
+              </div>
+            ))}
+          </div>
+        )}
+
         <Link to={`/messages/${b.businessId}`} className="btn-outline">
           Falar com {b.businessName}
         </Link>

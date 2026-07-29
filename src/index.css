@@ -1703,3 +1703,43 @@ legend {
   font-weight: 700;
   color: var(--accent);
 }
+
+.participant-row {
+  padding: 12px 0;
+  border-top: 1px solid var(--border);
+}
+
+.participant-row:first-of-type {
+  border-top: none;
+}
+
+.participant-index {
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+  color: var(--text);
+  margin-bottom: 6px;
+}
+
+.participant-error {
+  font-size: 12px;
+  font-weight: 600;
+  color: #b3261e;
+  margin-top: 2px;
+}
+
+.participant-list {
+  margin: 8px 0;
+  padding: 10px 12px;
+  border-radius: 8px;
+  background: var(--bg-alt);
+  border: 1px solid var(--border);
+  font-size: 13px;
+}
+
+.participant-list strong {
+  display: block;
+  margin-bottom: 4px;
+  color: var(--text-h);
+}
