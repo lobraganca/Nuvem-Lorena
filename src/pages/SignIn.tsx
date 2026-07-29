@@ -14,17 +14,20 @@ const ERROR_KEY: Record<AuthError, TranslationKey> = {
   "sem-suporte": "auth.errorNoCrypto",
 };
 
+type Step = "porta" | "entrar" | "criar";
+
 /**
- * The door. Nobody reaches the app without passing through here.
+ * The door, in two steps.
  *
- * It defaults to signing in when the device already has an account, and to
- * creating one when it does not — the common case should need no thought.
+ * The first screen is only the logo and the three ways in — a form is a wall
+ * of fields, and asking someone to read one before they have decided anything
+ * is the fastest way to lose them. The fields come after the choice.
  */
 export function SignIn() {
   const { account, signIn, signUp, continueAsGuest, accountsPossible } = useAuth();
   const t = useT();
 
-  const [mode, setMode] = useState<"entrar" | "criar">(account ? "entrar" : "criar");
+  const [step, setStep] = useState<Step>("porta");
   const [name, setName] = useState("");
   const [email, setEmail] = useState(account?.email ?? "");
   const [password, setPassword] = useState("");
@@ -34,7 +37,13 @@ export function SignIn() {
   );
   const [busy, setBusy] = useState(false);
 
-  const creating = mode === "criar";
+  const creating = step === "criar";
+
+  function go(next: Step) {
+    setStep(next);
+    setError(null);
+    setPassword("");
+  }
 
   async function submit(e: React.FormEvent) {
     e.preventDefault();
@@ -78,110 +87,111 @@ export function SignIn() {
         <img src={avenaLogo} alt="Avena" className="signin-logo" />
         <p className="signin-tagline">{t("auth.tagline")}</p>
 
-        <div className="signin-tabs" role="tablist">
-          <button
-            type="button"
-            role="tab"
-            aria-selected={!creating}
-            className={`signin-tab ${!creating ? "signin-tab-active" : ""}`}
-            onClick={() => {
-              setMode("entrar");
-              setError(null);
-            }}
-          >
-            {t("auth.signIn")}
-          </button>
-          <button
-            type="button"
-            role="tab"
-            aria-selected={creating}
-            className={`signin-tab ${creating ? "signin-tab-active" : ""}`}
-            onClick={() => {
-              setMode("criar");
-              setError(null);
-            }}
-          >
-            {t("auth.createAccount")}
-          </button>
-        </div>
+        {step === "porta" ? (
+          <>
+            <div className="signin-choices">
+              <button
+                type="button"
+                className="btn-primary signin-submit"
+                onClick={() => go("criar")}
+              >
+                {t("auth.createAccount")}
+              </button>
+              <button
+                type="button"
+                className="btn-outline signin-secondary"
+                onClick={() => go("entrar")}
+              >
+                {t("auth.signIn")}
+              </button>
+            </div>
 
-        <form className="signin-form" onSubmit={submit}>
-          {creating && (
-            <label>
-              {t("auth.nameField")}
-              <input
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-                autoComplete="name"
-                required
-              />
-            </label>
-          )}
+            <button type="button" className="signin-quiet" onClick={continueAsGuest}>
+              {t("auth.guest")}
+            </button>
 
-          <label>
-            {t("auth.emailField")}
-            <input
-              type="email"
-              inputMode="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              autoComplete={creating ? "email" : "username"}
-              required
-            />
-          </label>
-
-          <label>
-            {t("auth.passwordField")}
-            <input
-              type={show ? "text" : "password"}
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              autoComplete={creating ? "new-password" : "current-password"}
-              required
-            />
-          </label>
-
-          <button
-            type="button"
-            className="signin-show"
-            onClick={() => setShow((v) => !v)}
-          >
-            {t(show ? "auth.hidePassword" : "auth.showPassword")}
-          </button>
-
-          {creating && <p className="muted signin-hint">{t("auth.passwordHint")}</p>}
-
-          {errorText && (
-            <p className="signin-error" role="alert">
-              {errorText}
+            {/* One line here; the full explanation waits until someone is
+                actually about to create an account. */}
+            <p className="signin-truth">
+              {accountsPossible ? t("auth.localOnlyShort") : t("auth.errorNoCrypto")}
             </p>
-          )}
+          </>
+        ) : (
+          <>
+            <button type="button" className="signin-back" onClick={() => go("porta")}>
+              ← {t("common.back")}
+            </button>
 
-          <button type="submit" className="btn-primary signin-submit" disabled={busy}>
-            {busy
-              ? t("auth.working")
-              : t(creating ? "auth.createAndEnter" : "auth.enter")}
-          </button>
-        </form>
+            <h1 className="signin-title">
+              {t(creating ? "auth.createAccount" : "auth.signIn")}
+            </h1>
 
-        {!creating && account && (
-          <p className="muted signin-hint">
-            {t("auth.noRecovery")}
-          </p>
+            <form className="signin-form" onSubmit={submit}>
+              {creating && (
+                <label>
+                  {t("auth.nameField")}
+                  <input
+                    value={name}
+                    onChange={(e) => setName(e.target.value)}
+                    autoComplete="name"
+                    required
+                  />
+                </label>
+              )}
+
+              <label>
+                {t("auth.emailField")}
+                <input
+                  type="email"
+                  inputMode="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  autoComplete={creating ? "email" : "username"}
+                  required
+                />
+              </label>
+
+              <label>
+                {t("auth.passwordField")}
+                <input
+                  type={show ? "text" : "password"}
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  autoComplete={creating ? "new-password" : "current-password"}
+                  required
+                />
+              </label>
+
+              <button
+                type="button"
+                className="signin-show"
+                onClick={() => setShow((v) => !v)}
+              >
+                {t(show ? "auth.hidePassword" : "auth.showPassword")}
+              </button>
+
+              {creating && <p className="muted signin-hint">{t("auth.passwordHint")}</p>}
+
+              {errorText && (
+                <p className="signin-error" role="alert">
+                  {errorText}
+                </p>
+              )}
+
+              <button type="submit" className="btn-primary signin-submit" disabled={busy}>
+                {busy
+                  ? t("auth.working")
+                  : t(creating ? "auth.createAndEnter" : "auth.enter")}
+              </button>
+            </form>
+
+            {/* Being trusted with someone's memories means saying what this
+                account is, and is not, before they rely on it. */}
+            <p className="signin-truth">
+              {creating ? t("auth.localOnly") : t("auth.noRecovery")}
+            </p>
+          </>
         )}
-
-        <div className="signin-guest">
-          <button type="button" className="btn-outline" onClick={continueAsGuest}>
-            {t("auth.guest")}
-          </button>
-          <p className="muted signin-hint">{t("auth.guestExplain")}</p>
-        </div>
-
-        {/* Saying what this account is — and is not — is the whole point of
-            being trusted with someone's memories. */}
-        <p className="signin-truth">
-          {accountsPossible ? t("auth.localOnly") : t("auth.errorNoCrypto")}
-        </p>
       </div>
     </div>
   );

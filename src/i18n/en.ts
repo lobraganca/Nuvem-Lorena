@@ -548,6 +548,7 @@ export const en: Record<keyof typeof pt, string> = {
   "auth.working": "One moment…",
   "auth.guest": "I just want a look",
   "auth.guestExplain": "You browse without an account. Nothing you do is kept.",
+  "auth.localOnlyShort": "Your account stays on this device only — Avena has no server yet.",
   "auth.localOnly":
     "Your account is kept on this device only, because Avena has no server yet. The password itself is not stored — only a one-way mark of it. On another phone, you start over.",
   "auth.noRecovery":

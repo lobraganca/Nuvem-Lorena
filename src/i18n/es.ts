@@ -550,6 +550,7 @@ export const es: Record<keyof typeof pt, string> = {
   "auth.working": "Un momento…",
   "auth.guest": "Solo quiero echar un vistazo",
   "auth.guestExplain": "Navegas sin cuenta. Nada de lo que hagas se guarda.",
+  "auth.localOnlyShort": "Tu cuenta queda solo en este dispositivo — Avena todavía no tiene servidor.",
   "auth.localOnly":
     "Tu cuenta se guarda solo en este dispositivo, porque Avena todavía no tiene servidor. La contraseña no se guarda — solo una marca suya, que no se puede deshacer. En otro teléfono, empiezas de cero.",
   "auth.noRecovery":

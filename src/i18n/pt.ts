@@ -566,6 +566,7 @@ export const pt = {
   "auth.working": "Um instante…",
   "auth.guest": "Só quero dar uma olhada",
   "auth.guestExplain": "Você navega sem conta. Nada do que fizer fica guardado.",
+  "auth.localOnlyShort": "Sua conta fica só neste aparelho — o Avena ainda não tem servidor.",
   "auth.localOnly": "Sua conta fica guardada só neste aparelho, porque o Avena ainda não tem servidor. A senha não é guardada — só uma marca dela, que não dá para desfazer. Em outro celular, você começa do zero.",
   "auth.noRecovery": "Não há como recuperar essa senha: sem servidor, ninguém pode te mandar um e-mail de redefinição.",
   "auth.errorEmail": "Confira o e-mail — parece faltar alguma coisa.",

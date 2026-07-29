@@ -3107,31 +3107,50 @@ textarea:focus-visible,
   font-size: 14px;
 }
 
-.signin-tabs {
+/* The first screen is three choices and nothing else. */
+.signin-choices {
   display: flex;
-  gap: 4px;
-  padding: 4px;
-  margin-bottom: 20px;
-  border-radius: 999px;
-  background: var(--bg-alt);
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 26px;
 }
 
-.signin-tab {
-  flex: 1;
-  padding: 10px 12px;
+.signin-secondary {
+  align-self: stretch;
+  padding: 13px 24px;
+  font-size: 15px;
+  border-radius: 8px;
+}
+
+.signin-quiet {
+  margin-top: 18px;
+  padding: 8px;
   border: none;
-  border-radius: 999px;
   background: none;
   font: inherit;
-  font-weight: 600;
+  font-size: 14px;
   color: var(--text);
+  text-decoration: underline;
   cursor: pointer;
 }
 
-.signin-tab-active {
-  background: var(--card-bg);
-  color: var(--text-h);
-  box-shadow: var(--shadow);
+.signin-back {
+  display: block;
+  margin: 0 0 12px;
+  padding: 4px 0;
+  border: none;
+  background: none;
+  font: inherit;
+  font-size: 14px;
+  color: var(--text);
+  cursor: pointer;
+  text-align: left;
+}
+
+.signin-title {
+  margin: 0 0 18px;
+  font-size: 20px;
+  text-align: left;
 }
 
 .signin-form {
@@ -3198,20 +3217,12 @@ textarea:focus-visible,
   font-size: 13px;
 }
 
-.signin-guest {
-  margin-top: 22px;
-  padding-top: 18px;
-  border-top: 1px solid var(--border);
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 8px;
-}
-
 /* The plain truth about what this account is, in smaller type but never
    hidden behind a link. */
 .signin-truth {
-  margin: 18px 0 0;
+  margin: 20px 0 0;
+  padding-top: 16px;
+  border-top: 1px solid var(--border);
   font-size: 12px;
   line-height: 1.5;
   color: var(--text);
