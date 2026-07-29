@@ -14,7 +14,14 @@ import { readFileSync, writeFileSync, rmSync, existsSync, readdirSync } from "no
 import { join } from "node:path";
 
 const DIST = "dist";
-const OUT = "avena-app.html";
+
+/**
+ * `--fragment` emits only the page *contents* — style, root and script — with
+ * no doctype, html, head or body. Hosts that wrap the file in their own
+ * document skeleton need that; a file opened from disk needs the full one.
+ */
+const asFragment = process.argv.includes("--fragment");
+const OUT = asFragment ? "avena-app-fragment.html" : "avena-app.html";
 
 console.log("Compilando…");
 rmSync(DIST, { recursive: true, force: true });
@@ -56,6 +63,18 @@ html = html.replace(/<meta property="og:image"[^>]*>/g, "");
 html = html.replace(/<meta name="twitter:image"[^>]*>/g, "");
 html = html.replace(/<link rel="manifest"[^>]*>/g, "");
 html = html.replace(/<link rel="canonical"[^>]*>/g, "");
+
+if (asFragment) {
+  // Keep what carries the app, drop the document wrapper the host supplies.
+  const styles = [...html.matchAll(/<style>[\s\S]*?<\/style>/g)].map((m) => m[0]);
+  const scripts = [...html.matchAll(/<script type="module">[\s\S]*?<\/script>/g)].map(
+    (m) => m[0]
+  );
+  if (styles.length === 0 || scripts.length === 0) {
+    throw new Error("Nada para extrair: o CSS ou o JS não foram embutidos.");
+  }
+  html = [...styles, '<div id="root"></div>', ...scripts].join("\n");
+}
 
 writeFileSync(OUT, html);
 

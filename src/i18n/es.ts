@@ -500,6 +500,8 @@ export const es: Record<keyof typeof pt, string> = {
   "trending.mentionOne": "{count} mención",
   "trending.mentions": "{count} menciones",
 
+  "map.tilesUnavailable": "El mapa necesita conexión a internet para cargar. Tus puntos y todo lo demás siguen funcionando.",
+
   "photos.label": "Fotos",
   "photos.add": "Agregar foto",
   "photos.processing": "Procesando…",

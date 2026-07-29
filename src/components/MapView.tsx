@@ -13,6 +13,7 @@ import { Link } from "react-router-dom";
 import type { Experience } from "../types";
 import { categoryColor } from "../lib/categories";
 import { clusterExperiences, type Cluster } from "../lib/mapClusters";
+import { useT } from "../i18n";
 
 /** A single memory: a solid dot in the category colour, no emoji. */
 function pinIcon(color: string) {
@@ -114,21 +115,36 @@ function ClusterPin({ cluster }: { cluster: Cluster }) {
 }
 
 export function MapView({ experiences }: { experiences: Experience[] }) {
+  // The map tiles are the one thing that cannot be bundled: they come from
+  // OpenStreetMap. When they fail — offline, or on a host that blocks external
+  // images — a silent grey rectangle looks like a broken app, so it says what
+  // happened. The pins keep working either way.
+  const [tilesFailed, setTilesFailed] = useState(false);
+  const t = useT();
+
   return (
-    <MapContainer
-      center={[-14, -51] as [number, number]}
-      zoom={4}
-      scrollWheelZoom
-      className="avena-map"
-      /* Keeps the top-left clear for the search bar overlay. */
-      zoomControl={false}
-    >
-      <ZoomControl position="bottomleft" />
-      <TileLayer
-        attribution="&copy; OpenStreetMap contributors"
-        url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-      />
-      <ClusterLayer experiences={experiences} />
-    </MapContainer>
+    <div className="map-wrap">
+      {tilesFailed && (
+        <p className="map-tiles-note" role="status">
+          {t("map.tilesUnavailable")}
+        </p>
+      )}
+      <MapContainer
+        center={[-14, -51] as [number, number]}
+        zoom={4}
+        scrollWheelZoom
+        className="avena-map"
+        /* Keeps the top-left clear for the search bar overlay. */
+        zoomControl={false}
+      >
+        <ZoomControl position="bottomleft" />
+        <TileLayer
+          attribution="&copy; OpenStreetMap contributors"
+          url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+          eventHandlers={{ tileerror: () => setTilesFailed(true) }}
+        />
+        <ClusterLayer experiences={experiences} />
+      </MapContainer>
+    </div>
   );
 }

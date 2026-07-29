@@ -498,6 +498,8 @@ export const en: Record<keyof typeof pt, string> = {
   "trending.mentionOne": "{count} mention",
   "trending.mentions": "{count} mentions",
 
+  "map.tilesUnavailable": "The map needs an internet connection to load. Your pins and everything else still work.",
+
   "photos.label": "Photos",
   "photos.add": "Add photo",
   "photos.processing": "Processing…",

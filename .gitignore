@@ -31,3 +31,4 @@ dist-ssr
 
 # Gerado por "npm run build:single" — não versionar o bundle.
 avena-app.html
+avena-app-fragment.html

@@ -519,6 +519,8 @@ export const pt = {
   "trending.mentionOne": "{count} menção",
   "trending.mentions": "{count} menções",
 
+  "map.tilesUnavailable": "O mapa precisa de internet para carregar. Seus pins e todo o resto continuam funcionando.",
+
   "photos.label": "Fotos",
   "photos.add": "Adicionar foto",
   "photos.processing": "Processando…",
