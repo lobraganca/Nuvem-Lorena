@@ -4,7 +4,9 @@ import { useAvena } from "../store/AvenaContext";
 import { BusinessCard } from "../components/BusinessCard";
 import { TrendingSection } from "../components/TrendingSection";
 import { PromotedTours } from "../components/PromotedTours";
-import type { BusinessType } from "../types";
+import { buildItinerary, splitIntoDays } from "../lib/itineraries";
+import { accessibilityTags } from "../lib/tourAttributes";
+import type { AccessibilityTag, BusinessType } from "../types";
 
 type Tab = "Todos" | BusinessType;
 
@@ -15,6 +17,7 @@ export function Destination() {
   const [searchParams] = useSearchParams();
   const [query, setQuery] = useState(searchParams.get("city") ?? "");
   const [tab, setTab] = useState<Tab>("Todos");
+  const [access, setAccess] = useState<AccessibilityTag[]>([]);
 
   useEffect(() => {
     const city = searchParams.get("city");
@@ -47,7 +50,23 @@ export function Destination() {
         (b.tours ?? []).some((t) => t.title.toLowerCase().includes(term))
       );
     })
-    .filter((b) => tab === "Todos" || b.type === tab);
+    .filter((b) => tab === "Todos" || b.type === tab)
+    .filter((b) =>
+      access.length === 0
+        ? true
+        : (b.tours ?? []).some((t) =>
+            access.every((a) => (t.accessibility ?? []).includes(a))
+          )
+    );
+
+  // The roteiro follows the same loose matching as the search, so someone who
+  // typed "Arraial" sees the roteiro of Arraial do Cabo instead of nothing.
+  const searchedCity = term
+    ? cities.find((c) => c.toLowerCase() === term) ??
+      cities.find((c) => c.toLowerCase().includes(term))
+    : undefined;
+
+  const itinerary = searchedCity ? buildItinerary(searchedCity, brExperiences) : null;
 
   return (
     <div className="viator-hero">
@@ -94,6 +113,24 @@ export function Destination() {
             ))}
           </div>
 
+          <div className="access-filter">
+            <span className="muted">Acessibilidade:</span>
+            {accessibilityTags.map((a) => (
+              <button
+                key={a}
+                type="button"
+                className={`chip ${access.includes(a) ? "chip-active" : ""}`}
+                onClick={() =>
+                  setAccess((prev) =>
+                    prev.includes(a) ? prev.filter((x) => x !== a) : [...prev, a]
+                  )
+                }
+              >
+                {a}
+              </button>
+            ))}
+          </div>
+
           <h2 className="timeline-title">
             {matches.length} {matches.length === 1 ? "resultado" : "resultados"} em {query}
           </h2>
@@ -106,6 +143,37 @@ export function Destination() {
               <BusinessCard key={b.id} business={b} reviews={reviews} />
             ))}
           </div>
+
+          {itinerary && (
+            <>
+              <h2 className="timeline-title">
+                Roteiro de {itinerary.days}{" "}
+                {itinerary.days === 1 ? "dia" : "dias"} em {itinerary.city}
+              </h2>
+              <p className="muted">
+                Montado a partir de {itinerary.basedOn} experiências que viajantes
+                registraram nesta cidade.
+              </p>
+              <div className="itinerary">
+                {splitIntoDays(itinerary.stops, itinerary.days).map((day, i) => (
+                  <div key={i} className="itinerary-day">
+                    <div className="itinerary-day-title">Dia {i + 1}</div>
+                    {day.map((stop) => (
+                      <div key={stop.locationName} className="itinerary-stop">
+                        <strong>{stop.locationName}</strong>
+                        <span className="muted">
+                          {stop.category}
+                          {stop.timesVisited > 1
+                            ? ` · ${stop.timesVisited} viajantes passaram por aqui`
+                            : ""}
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+                ))}
+              </div>
+            </>
+          )}
         </div>
       )}
     </div>

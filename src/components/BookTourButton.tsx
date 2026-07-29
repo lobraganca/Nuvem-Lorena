@@ -4,6 +4,7 @@ import { useAvena } from "../store/AvenaContext";
 import { commissionRateFor } from "../lib/plans";
 import { cancellationPolicyDescription, cancellationPolicyLabel } from "../lib/cancellation";
 import { availabilityFor } from "../lib/availability";
+import { isInSeason, seasonLabel } from "../lib/tourAttributes";
 import {
   ParticipantFields,
   emptyParticipant,
@@ -18,7 +19,7 @@ import {
 import type { Business, Participant, Tour } from "../types";
 
 export function BookTourButton({ business, tour }: { business: Business; tour: Tour }) {
-  const { addBooking, bookings, user } = useAvena();
+  const { addBooking, bookings, user, waitlist, joinWaitlist } = useAvena();
   const navigate = useNavigate();
   const [open, setOpen] = useState(false);
   const [travelDate, setTravelDate] = useState(new Date().toISOString().slice(0, 10));
@@ -46,6 +47,24 @@ export function BookTourButton({ business, tour }: { business: Business; tour: T
   const cancellationPolicy = tour.cancellationPolicy ?? "moderada";
   const availability = availabilityFor(tour, bookings, travelDate);
   const peopleError = participantsError(participants);
+  const season = seasonLabel(tour.seasonMonths);
+  const offSeason = !isInSeason(tour.seasonMonths, travelDate);
+  const alreadyWaiting = waitlist.some(
+    (w) => w.tourId === tour.id && w.date === travelDate
+  );
+
+  function handleJoinWaitlist() {
+    joinWaitlist({
+      id: crypto.randomUUID(),
+      tourId: tour.id,
+      tourTitle: tour.title,
+      businessId: business.id,
+      businessName: business.name,
+      date: travelDate,
+      people: travelers,
+      createdAt: new Date().toISOString(),
+    });
+  }
   const soldOut = availability.tracked && availability.remaining === 0;
   const exceedsCapacity = availability.tracked && travelers > availability.remaining;
 
@@ -114,6 +133,32 @@ export function BookTourButton({ business, tour }: { business: Business; tour: T
             : `${availability.remaining} de ${availability.capacity} vagas disponíveis nesta data.`}
         </div>
       )}
+      {soldOut && (
+        <div className="waitlist-box">
+          {alreadyWaiting ? (
+            <span className="muted">
+              Você está na lista de espera desta data. Avisamos se abrir vaga.
+            </span>
+          ) : (
+            <>
+              <span className="muted">
+                Podemos avisar você se alguém cancelar nesta data.
+              </span>
+              <button type="button" className="btn-outline" onClick={handleJoinWaitlist}>
+                Avisar se abrir vaga
+              </button>
+            </>
+          )}
+        </div>
+      )}
+
+      {offSeason && season && (
+        <div className="availability-note">
+          Melhor época para este passeio: {season}. Fora da temporada a
+          experiência pode ser diferente do anunciado.
+        </div>
+      )}
+
       {exceedsCapacity && !soldOut && (
         <div className="availability-note availability-none">
           Só restam {availability.remaining} vagas nesta data para o número de pessoas informado.

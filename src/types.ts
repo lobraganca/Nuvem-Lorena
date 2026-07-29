@@ -60,9 +60,22 @@ export type CancellationPolicy =
   | "moderada"
   | "rigida";
 
+export type Difficulty = "Leve" | "Moderada" | "Pesada";
+
+export type AccessibilityTag =
+  | "Cadeirante"
+  | "Mobilidade reduzida"
+  | "Crianças"
+  | "Idosos"
+  | "Não exige natação";
+
 export interface Tour {
   id: string;
   title: string;
+  /** Months (1-12) when this tour is at its best, e.g. whale season. */
+  seasonMonths?: number[];
+  difficulty?: Difficulty;
+  accessibility?: AccessibilityTag[];
   description?: string;
   priceFrom?: number;
   durationHours?: number;
@@ -121,6 +134,19 @@ export interface Participant {
   documentType: DocumentType;
   document: string;
   birthDate?: string; // ISO date
+}
+
+/** Someone waiting for a spot to open on a sold-out date. */
+export interface WaitlistEntry {
+  id: string;
+  tourId: string;
+  tourTitle: string;
+  businessId: string;
+  businessName: string;
+  date: string; // ISO date
+  people: number;
+  createdAt: string;
+  notifiedAt?: string;
 }
 
 export type BookingStatus = "confirmada" | "cancelada";

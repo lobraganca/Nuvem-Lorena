@@ -4,7 +4,8 @@ import {
   cancellationPolicies,
   cancellationPolicyLabel,
 } from "../lib/cancellation";
-import type { CancellationPolicy, Tour } from "../types";
+import { MONTH_NAMES, accessibilityTags, difficulties } from "../lib/tourAttributes";
+import type { AccessibilityTag, CancellationPolicy, Difficulty, Tour } from "../types";
 
 /** Inline edit + delete for a published tour, so a wrong price is fixable. */
 export function EditTour({ businessId, tour }: { businessId: string; tour: Tour }) {
@@ -25,6 +26,21 @@ export function EditTour({ businessId, tour }: { businessId: string; tour: Tour 
   const [cancellationPolicy, setCancellationPolicy] = useState<CancellationPolicy>(
     tour.cancellationPolicy ?? "moderada"
   );
+  const [seasonMonths, setSeasonMonths] = useState<number[]>(tour.seasonMonths ?? []);
+  const [difficulty, setDifficulty] = useState<Difficulty | undefined>(tour.difficulty);
+  const [access, setAccess] = useState<AccessibilityTag[]>(tour.accessibility ?? []);
+
+  function toggleMonth(m: number) {
+    setSeasonMonths((prev) =>
+      prev.includes(m) ? prev.filter((x) => x !== m) : [...prev, m]
+    );
+  }
+
+  function toggleAccess(tag: AccessibilityTag) {
+    setAccess((prev) =>
+      prev.includes(tag) ? prev.filter((x) => x !== tag) : [...prev, tag]
+    );
+  }
 
   function save(e: React.FormEvent) {
     e.preventDefault();
@@ -37,6 +53,9 @@ export function EditTour({ businessId, tour }: { businessId: string; tour: Tour 
       durationHours: durationHours ? Number(durationHours) : undefined,
       capacityPerDay: capacityPerDay ? Number(capacityPerDay) : undefined,
       cancellationPolicy,
+      seasonMonths: seasonMonths.length ? seasonMonths : undefined,
+      difficulty,
+      accessibility: access.length ? access : undefined,
     });
     setOpen(false);
   }
@@ -117,6 +136,54 @@ export function EditTour({ businessId, tour }: { businessId: string; tour: Tour 
           </button>
         ))}
       </div>
+      <fieldset>
+        <legend>Melhor época (opcional)</legend>
+        <div className="chip-row">
+          {MONTH_NAMES.map((name, i) => (
+            <button
+              type="button"
+              key={name}
+              className={`chip ${seasonMonths.includes(i + 1) ? "chip-active" : ""}`}
+              onClick={() => toggleMonth(i + 1)}
+            >
+              {name}
+            </button>
+          ))}
+        </div>
+      </fieldset>
+
+      <fieldset>
+        <legend>Nível de esforço</legend>
+        <div className="chip-row">
+          {difficulties.map((d) => (
+            <button
+              type="button"
+              key={d}
+              className={`chip ${difficulty === d ? "chip-active" : ""}`}
+              onClick={() => setDifficulty(difficulty === d ? undefined : d)}
+            >
+              {d}
+            </button>
+          ))}
+        </div>
+      </fieldset>
+
+      <fieldset>
+        <legend>Acessibilidade</legend>
+        <div className="chip-row">
+          {accessibilityTags.map((t) => (
+            <button
+              type="button"
+              key={t}
+              className={`chip ${access.includes(t) ? "chip-active" : ""}`}
+              onClick={() => toggleAccess(t)}
+            >
+              {t}
+            </button>
+          ))}
+        </div>
+      </fieldset>
+
       <div className="chip-row">
         <button type="submit" className="btn-primary">
           Salvar alterações

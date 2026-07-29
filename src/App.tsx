@@ -21,6 +21,7 @@ import { Notifications } from "./pages/Notifications";
 import { Terms, Privacy } from "./pages/Legal";
 import { CookieBanner, openCookiePreferences } from "./components/CookieBanner";
 import { HelpChat } from "./components/HelpChat";
+import { OfflineBanner } from "./components/OfflineBanner";
 import { useNotifications } from "./hooks/useNotifications";
 
 function RootScreen() {
@@ -50,6 +51,7 @@ function AppShell() {
 
   return (
     <div className="app-shell">
+      <OfflineBanner />
       <nav className="topbar">
         <Link to="/" className="brand">
           <img src={avenaLogo} alt="Avena" className="brand-logo" />

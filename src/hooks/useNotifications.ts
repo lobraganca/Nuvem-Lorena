@@ -3,15 +3,21 @@ import { useAvena } from "../store/AvenaContext";
 import { buildNotifications } from "../lib/notifications";
 
 export function useNotifications() {
-  const { bookings, experiences, businesses, dismissedNotifications } = useAvena();
+  const { bookings, experiences, businesses, dismissedNotifications, waitlist } =
+    useAvena();
 
   return useMemo(() => {
     const businessCityById = new Map(businesses.map((b) => [b.id, b.city]));
+    const toursById = new Map(
+      businesses.flatMap((b) => (b.tours ?? []).map((t) => [t.id, t] as const))
+    );
     return buildNotifications(
       bookings,
       experiences,
       businessCityById,
-      dismissedNotifications
+      dismissedNotifications,
+      waitlist,
+      toursById
     );
-  }, [bookings, experiences, businesses, dismissedNotifications]);
+  }, [bookings, experiences, businesses, dismissedNotifications, waitlist]);
 }

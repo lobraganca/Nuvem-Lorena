@@ -5,6 +5,7 @@ import { ReputationBadge } from "../components/ReputationBadge";
 import { reviewStatsFor } from "../lib/reviews";
 import { cancellationPolicyLabel } from "../lib/cancellation";
 import { availabilityFor } from "../lib/availability";
+import { monthsLeftInSeason, seasonLabel } from "../lib/tourAttributes";
 
 const today = new Date().toISOString().slice(0, 10);
 
@@ -89,7 +90,24 @@ export function BusinessDetail() {
                   </div>
                   <div className="muted">
                     Cancelamento {cancellationPolicyLabel[t.cancellationPolicy ?? "moderada"]}
+                    {t.difficulty ? ` · Esforço ${t.difficulty.toLowerCase()}` : ""}
                   </div>
+                  {seasonLabel(t.seasonMonths) && (
+                    <div className="season-note">
+                      Melhor época: {seasonLabel(t.seasonMonths)}
+                      {monthsLeftInSeason(t.seasonMonths) !== null &&
+                        ` · restam ${monthsLeftInSeason(t.seasonMonths)} ${monthsLeftInSeason(t.seasonMonths) === 1 ? "mês" : "meses"} de temporada`}
+                    </div>
+                  )}
+                  {t.accessibility && t.accessibility.length > 0 && (
+                    <div className="chip-row">
+                      {t.accessibility.map((a) => (
+                        <span key={a} className="access-tag">
+                          {a}
+                        </span>
+                      ))}
+                    </div>
+                  )}
                   {availability.tracked && (
                     <div
                       className={`availability-note ${availability.remaining === 0 ? "availability-none" : ""}`}

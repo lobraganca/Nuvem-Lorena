@@ -4,6 +4,7 @@ import { useNotifications } from "../hooks/useNotifications";
 import type { NotificationKind } from "../lib/notifications";
 
 const kindLabel: Record<NotificationKind, string> = {
+  "vaga-liberada": "Vaga",
   "passeio-hoje": "Hoje",
   avaliar: "Avaliação",
   "registrar-memoria": "Memória",

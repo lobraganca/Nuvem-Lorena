@@ -1,6 +1,6 @@
 import { createContext, useContext, useEffect, useMemo, useState } from "react";
 import type { ReactNode } from "react";
-import type { Booking, Boost, Business, BusinessStatus, Experience, Message, MessageThread, Person, Review, Tour, UserProfile } from "../types";
+import type { Booking, Boost, Business, BusinessStatus, Experience, Message, MessageThread, Person, Review, Tour, UserProfile, WaitlistEntry } from "../types";
 import {
   mockBusinesses,
   mockExperiences,
@@ -11,7 +11,7 @@ import {
 } from "../data/mockData";
 import { computeRefund } from "../lib/cancellation";
 
-const STORAGE_KEY = "avena-data-v13";
+const STORAGE_KEY = "avena-data-v14";
 
 interface AvenaData {
   experiences: Experience[];
@@ -22,6 +22,7 @@ interface AvenaData {
   bookings: Booking[];
   reviews: Review[];
   boosts: Boost[];
+  waitlist: WaitlistEntry[];
   dismissedNotifications: string[];
 }
 
@@ -43,6 +44,8 @@ interface AvenaContextValue extends AvenaData {
   addReview: (review: Review) => void;
   cancelBooking: (bookingId: string) => void;
   addBoost: (boost: Boost) => void;
+  joinWaitlist: (entry: WaitlistEntry) => void;
+  leaveWaitlist: (entryId: string) => void;
   endBoost: (boostId: string) => void;
   setBusinessStatus: (businessId: string, status: BusinessStatus) => void;
   setBusinessVerified: (businessId: string, verified: boolean) => void;
@@ -62,6 +65,7 @@ function defaults(): AvenaData {
     bookings: [],
     reviews: mockReviews,
     boosts: [],
+    waitlist: [],
     dismissedNotifications: [],
   };
 }
@@ -202,6 +206,10 @@ export function AvenaProvider({ children }: { children: ReactNode }) {
           }),
         })),
       addBoost: (boost) => setData((d) => ({ ...d, boosts: [boost, ...d.boosts] })),
+      joinWaitlist: (entry) =>
+        setData((d) => ({ ...d, waitlist: [entry, ...d.waitlist] })),
+      leaveWaitlist: (entryId) =>
+        setData((d) => ({ ...d, waitlist: d.waitlist.filter((w) => w.id !== entryId) })),
       endBoost: (boostId) =>
         setData((d) => ({
           ...d,

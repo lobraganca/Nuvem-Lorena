@@ -1,6 +1,8 @@
-import type { Booking, Experience } from "../types";
+import type { Booking, Experience, Tour, WaitlistEntry } from "../types";
+import { availabilityFor } from "./availability";
 
 export type NotificationKind =
+  | "vaga-liberada"
   | "passeio-hoje"
   | "avaliar"
   | "registrar-memoria";
@@ -53,7 +55,9 @@ export function buildNotifications(
   bookings: Booking[],
   experiences: Experience[],
   businessCityById: Map<string, string>,
-  dismissed: string[] = []
+  dismissed: string[] = [],
+  waitlist: WaitlistEntry[] = [],
+  toursById: Map<string, Tour> = new Map()
 ): AvenaNotification[] {
   const today = todayIso();
   const dismissedSet = new Set(dismissed);
@@ -98,6 +102,26 @@ export function buildNotifications(
         actionLabel: "Registrar experiência",
         actionTo: `/experience/new?booking=${booking.id}`,
         date: booking.travelDate,
+      });
+    }
+  }
+
+  // A cancellation frees seats, so anyone waiting on that date is told.
+  for (const entry of waitlist) {
+    if (entry.date < today) continue;
+    const tour = toursById.get(entry.tourId);
+    if (!tour) continue;
+
+    const availability = availabilityFor(tour, bookings, entry.date);
+    if (availability.tracked && availability.remaining >= entry.people) {
+      notifications.push({
+        id: `vaga-${entry.id}`,
+        kind: "vaga-liberada",
+        title: "Abriu vaga no passeio que você queria",
+        body: `${entry.tourTitle} com ${entry.businessName} tem ${availability.remaining} ${availability.remaining === 1 ? "vaga" : "vagas"} em ${new Date(entry.date).toLocaleDateString("pt-BR")}.`,
+        actionLabel: "Reservar agora",
+        actionTo: `/business/${entry.businessId}`,
+        date: entry.date,
       });
     }
   }
