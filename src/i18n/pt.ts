@@ -121,6 +121,11 @@ export const pt = {
   "business.unclaimedText": "As informações desta empresa foram cadastradas pela equipe do Avena. Ela ainda não assumiu o perfil, então a reserva é feita direto com a agência, pelos contatos acima. Confirme preço e disponibilidade antes de pagar.",
   "business.unclaimed": "Não reivindicado",
 
+  "presence.online": "Online agora",
+  "presence.recent": "Esteve online há {minutes} min",
+  "presence.today": "Esteve online há {hours} h",
+  "presence.away": "Sem atividade recente",
+
   "reputation.none": "Sem avaliações ainda",
   "reputation.few": "Poucas avaliações",
   "reputation.excellent": "Excelente",
@@ -331,6 +336,12 @@ export const pt = {
   "notFound.title": "Página não encontrada",
   "notFound.text": "O endereço que você abriu não existe ou saiu do ar.",
   "notFound.home": "Voltar para o início",
+
+  "moderation.profanity": "Este texto tem palavrão e não pode ser publicado. Reescreva sem xingamento.",
+  "moderation.sexual": "Este texto tem conteúdo sexual e não pode ser publicado no Avena.",
+  "moderation.hate": "Este texto tem termo ofensivo ou discriminatório. Conteúdo assim não é publicado e pode levar à suspensão da conta.",
+  "moderation.threat": "Este texto contém ameaça. Isso não é publicado e pode ser levado às autoridades.",
+  "moderation.criticismIsFine": "Crítica é bem-vinda: você pode dar nota baixa e contar exatamente o que deu errado, desde que sem ofensa.",
 
   "photos.label": "Fotos",
   "photos.add": "Adicionar foto",

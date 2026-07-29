@@ -77,6 +77,8 @@ interface AvenaContextValue extends AvenaData {
   followTraveler: (travelerId: string) => void;
   unfollowTraveler: (travelerId: string) => void;
   setMercadoPagoLink: (businessId: string, link: MercadoPagoLink) => void;
+  /** Records that the agency is using the app right now. */
+  touchBusinessPresence: (businessId: string) => void;
   saveBanner: (banner: Banner) => void;
   removeBanner: (bannerId: string) => void;
 }
@@ -359,6 +361,21 @@ export function AvenaProvider({ children }: { children: ReactNode }) {
             followRequests: (d.user.followRequests ?? []).filter((id) => id !== travelerId),
           },
         })),
+      touchBusinessPresence: (businessId) =>
+        setData((d) => {
+          const business = d.businesses.find((b) => b.id === businessId);
+          if (!business) return d;
+          // Only write when the stored time is stale, otherwise every render
+          // would touch storage.
+          const last = business.lastSeenAt ? new Date(business.lastSeenAt).getTime() : 0;
+          if (Date.now() - last < 60_000) return d;
+          return {
+            ...d,
+            businesses: d.businesses.map((b) =>
+              b.id === businessId ? { ...b, lastSeenAt: new Date().toISOString() } : b
+            ),
+          };
+        }),
       setMercadoPagoLink: (businessId, link) =>
         setData((d) => ({
           ...d,

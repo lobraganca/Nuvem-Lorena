@@ -10,6 +10,7 @@ import {
   useLegalAccepted,
 } from "../components/LegalAcceptance";
 import type { Business, BusinessType, PlanTier } from "../types";
+import { ModerationNotice, isPublishable } from "../components/ModerationNotice";
 
 export function BusinessRegister() {
   const { addBusiness, updateUser } = useAvena();
@@ -39,6 +40,7 @@ export function BusinessRegister() {
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     if (!name || !description || !city || !email) return;
+    if (!isPublishable(`${name} ${description}`)) return;
     if (requiresCadastur && !cadastur) return;
     if (!legalOk) return;
     if (!legalAccepted) acceptLegal();
@@ -175,7 +177,12 @@ export function BusinessRegister() {
 
         <LegalAcceptance checked={legalChecked} onChange={setLegalChecked} />
 
-        <button type="submit" className="btn-primary" disabled={!legalOk}>
+        <ModerationNotice text={`${name} ${description}`} />
+        <button
+          type="submit"
+          className="btn-primary"
+          disabled={!legalOk || !isPublishable(`${name} ${description}`)}
+        >
           Concluir cadastro
         </button>
       </form>

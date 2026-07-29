@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useAvena } from "../store/AvenaContext";
 import type { Booking } from "../types";
+import { ModerationNotice, isPublishable } from "./ModerationNotice";
 
 export function ReviewForm({ booking }: { booking: Booking }) {
   const { addReview, user } = useAvena();
@@ -24,6 +25,7 @@ export function ReviewForm({ booking }: { booking: Booking }) {
 
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
+    if (!isPublishable(comment)) return;
     addReview({
       id: crypto.randomUUID(),
       businessId: booking.businessId,
@@ -59,6 +61,7 @@ export function ReviewForm({ booking }: { booking: Booking }) {
         rows={2}
         required
       />
+      <ModerationNotice text={comment} />
       <div className="chip-row">
         <button
           type="button"
@@ -76,7 +79,11 @@ export function ReviewForm({ booking }: { booking: Booking }) {
         </button>
       </div>
       <div className="chip-row">
-        <button type="submit" className="btn-primary">
+        <button
+          type="submit"
+          className="btn-primary"
+          disabled={!isPublishable(comment)}
+        >
           Enviar avaliação
         </button>
         <button type="button" className="btn-outline" onClick={() => setOpen(false)}>

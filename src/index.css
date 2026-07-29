@@ -2681,3 +2681,46 @@ textarea:focus-visible,
   max-width: 420px;
   margin-bottom: 12px;
 }
+
+.moderation-notice {
+  width: 100%;
+  margin: 6px 0;
+  padding: 10px 12px;
+  border-left: 3px solid #8a1c1c;
+  background: #f6e0e0;
+  color: #8a1c1c;
+  font-size: 14px;
+  border-radius: 0 6px 6px 0;
+}
+
+.moderation-notice .muted {
+  display: block;
+  margin-top: 4px;
+  color: #6b3030;
+  font-size: 13px;
+}
+
+.presence {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  color: var(--text-muted);
+}
+
+.presence-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: currentColor;
+  flex: none;
+}
+
+.presence-online {
+  color: #1b7a33;
+  font-weight: 600;
+}
+
+.presence-recente {
+  color: #7a5b00;
+}

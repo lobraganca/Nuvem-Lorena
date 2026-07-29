@@ -7,6 +7,7 @@ import { cancellationLabelKey } from "../lib/cancellation";
 import { availabilityFor } from "../lib/availability";
 import { monthsLeftInSeason, seasonLabel } from "../lib/tourAttributes";
 import { useT } from "../i18n";
+import { PresenceDot } from "../components/PresenceDot";
 
 const today = new Date().toISOString().slice(0, 10);
 
@@ -30,6 +31,7 @@ export function BusinessDetail() {
         <span className={`plan-badge plan-badge-${business.planTier.toLowerCase()}`}>
           {business.planTier}
         </span>
+        <PresenceDot business={business} />
         <Link to={`/messages/${business.id}`} className="btn-outline">
           {t("business.sendMessage")}
         </Link>

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { useAvena } from "../store/AvenaContext";
 import { commissionRateFor, plans } from "../lib/plans";
@@ -12,6 +12,7 @@ import { activeBoostForTour, boostRevenue } from "../lib/boosts";
 import { bookingStatusLabel, effectiveStatus } from "../lib/bookingStatus";
 import { tourTemplates, type TourTemplate } from "../lib/tourTemplates";
 import { ImportTours } from "../components/ImportTours";
+import { ModerationNotice, isPublishable } from "../components/ModerationNotice";
 import { ConnectMercadoPago } from "../components/ConnectMercadoPago";
 import { BoostTourButton } from "../components/BoostTourButton";
 import { EditTour } from "../components/EditTour";
@@ -21,7 +22,8 @@ import { formatBRL } from "../lib/money";
 const today = new Date().toISOString().slice(0, 10);
 
 export function ProfessionalDashboard() {
-  const { user, businesses, bookings, boosts, addTourToBusiness } = useAvena();
+  const { user, businesses, bookings, boosts, addTourToBusiness, touchBusinessPresence } =
+    useAvena();
   const business = businesses.find((b) => b.id === user.ownBusinessId);
 
   const [title, setTitle] = useState("");
@@ -49,6 +51,14 @@ export function ProfessionalDashboard() {
     setUsedTemplate(template.id);
   }
 
+  // Presence is a side effect of actually being here, not a switch.
+  useEffect(() => {
+    if (!business) return;
+    touchBusinessPresence(business.id);
+    const timer = window.setInterval(() => touchBusinessPresence(business.id), 60_000);
+    return () => window.clearInterval(timer);
+  }, [business, touchBusinessPresence]);
+
   if (!business) {
     return (
       <div className="page">
@@ -74,6 +84,7 @@ export function ProfessionalDashboard() {
   function handleAddTour(e: React.FormEvent) {
     e.preventDefault();
     if (!title || !business) return;
+    if (!isPublishable(`${title} ${description}`)) return;
     const tour: Tour = {
       id: crypto.randomUUID(),
       title,
@@ -263,7 +274,12 @@ export function ProfessionalDashboard() {
           </div>
           <p className="muted">{cancellationPolicyDescription[cancellationPolicy]}</p>
         </fieldset>
-        <button type="submit" className="btn-primary">
+        <ModerationNotice text={`${title} ${description}`} />
+        <button
+          type="submit"
+          className="btn-primary"
+          disabled={!isPublishable(`${title} ${description}`)}
+        >
           Publicar passeio
         </button>
       </form>

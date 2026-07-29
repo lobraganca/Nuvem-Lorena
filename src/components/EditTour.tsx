@@ -6,6 +6,7 @@ import {
 } from "../lib/cancellation";
 import { MONTH_NAMES, accessibilityTags, difficulties } from "../lib/tourAttributes";
 import { PhotoPicker } from "./PhotoPicker";
+import { ModerationNotice, isPublishable } from "./ModerationNotice";
 import type { AccessibilityTag, CancellationPolicy, Difficulty, Tour } from "../types";
 
 /** Inline edit + delete for a published tour, so a wrong price is fixable. */
@@ -47,6 +48,7 @@ export function EditTour({ businessId, tour }: { businessId: string; tour: Tour 
   function save(e: React.FormEvent) {
     e.preventDefault();
     if (!title) return;
+    if (!isPublishable(`${title} ${description}`)) return;
     updateTour(businessId, {
       ...tour,
       title,
@@ -196,7 +198,12 @@ export function EditTour({ businessId, tour }: { businessId: string; tour: Tour 
       </fieldset>
 
       <div className="chip-row">
-        <button type="submit" className="btn-primary">
+        <ModerationNotice text={`${title} ${description}`} />
+        <button
+          type="submit"
+          className="btn-primary"
+          disabled={!isPublishable(`${title} ${description}`)}
+        >
           Salvar alterações
         </button>
         <button type="button" className="btn-outline" onClick={() => setOpen(false)}>

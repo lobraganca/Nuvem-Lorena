@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import { useAvena } from "../store/AvenaContext";
 import type { MessageThread } from "../types";
+import { ModerationNotice, isPublishable } from "../components/ModerationNotice";
 
 export function Conversation() {
   const { id } = useParams();
@@ -31,7 +32,7 @@ export function Conversation() {
 
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    if (!text.trim()) return;
+    if (!text.trim() || !isPublishable(text)) return;
     sendMessage(thread, text.trim());
     setText("");
   }
@@ -82,13 +83,14 @@ export function Conversation() {
         ))}
       </div>
 
+      <ModerationNotice text={text} />
       <form className="chat-input-row" onSubmit={handleSubmit}>
         <input
           value={text}
           onChange={(e) => setText(e.target.value)}
           placeholder="Escreva uma mensagem..."
         />
-        <button type="submit" className="btn-primary">
+        <button type="submit" className="btn-primary" disabled={!isPublishable(text)}>
           Enviar
         </button>
       </form>

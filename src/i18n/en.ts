@@ -112,6 +112,11 @@ export const en: Record<keyof typeof pt, string> = {
   "business.unclaimedText": "This company's details were added by the Avena team. It has not taken over the profile yet, so booking happens directly with the agency using the contacts above. Confirm price and availability before paying.",
   "business.unclaimed": "Not claimed",
 
+  "presence.online": "Online now",
+  "presence.recent": "Online {minutes} min ago",
+  "presence.today": "Online {hours} h ago",
+  "presence.away": "No recent activity",
+
   "reputation.none": "No reviews yet",
   "reputation.few": "Few reviews",
   "reputation.excellent": "Excellent",
@@ -310,6 +315,12 @@ export const en: Record<keyof typeof pt, string> = {
   "notFound.title": "Page not found",
   "notFound.text": "The address you opened does not exist, or is no longer available.",
   "notFound.home": "Back to the start",
+
+  "moderation.profanity": "This text contains profanity and cannot be published. Please rewrite it without swearing.",
+  "moderation.sexual": "This text contains sexual content and cannot be published on Avena.",
+  "moderation.hate": "This text contains an offensive or discriminatory term. Content like this is not published and may lead to account suspension.",
+  "moderation.threat": "This text contains a threat. It will not be published and may be reported to the authorities.",
+  "moderation.criticismIsFine": "Criticism is welcome: you can give a low rating and say exactly what went wrong, as long as it is not abusive.",
 
   "photos.label": "Photos",
   "photos.add": "Add photo",

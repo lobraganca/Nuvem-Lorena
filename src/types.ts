@@ -194,6 +194,12 @@ export interface Business {
    * be a lie the agency never agreed to.
    */
   claimStatus?: ClaimStatus;
+  /**
+   * Last time this agency actually used the app. Presence is derived from it,
+   * never set by hand, so an "online" light cannot be left on while nobody is
+   * there.
+   */
+  lastSeenAt?: string; // ISO datetime
 }
 
 export type ClaimStatus = "reivindicada" | "nao-reivindicada";

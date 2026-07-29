@@ -4,6 +4,7 @@ import { reviewStatsFor } from "../lib/reviews";
 import { businessTypeColor } from "../lib/categories";
 import type { Business, Review } from "../types";
 import { useT } from "../i18n";
+import { PresenceDot } from "./PresenceDot";
 import { formatBRL } from "../lib/money";
 
 function lowestPrice(business: Business): number | undefined {
@@ -52,6 +53,7 @@ export function BusinessCard({
           {business.state ? `, ${business.state}` : ""}
         </div>
         <ReputationBadge avgRating={stats.avgRating} count={stats.count} />
+        <PresenceDot business={business} />
         {price !== undefined && (
           <div className="viator-card-price">
             A partir de <strong>R$ {formatBRL(price)}</strong>

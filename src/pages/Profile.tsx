@@ -7,6 +7,7 @@ import { categoryColor } from "../lib/categories";
 import { travelerPlans } from "../lib/plans";
 import { buildInsights } from "../lib/insights";
 import { fileToStoredPhoto } from "../lib/photos";
+import { ModerationNotice, isPublishable } from "../components/ModerationNotice";
 
 export function Profile() {
   const { experiences, people, user, updateUser, bookings } = useAvena();
@@ -35,8 +36,11 @@ export function Profile() {
       .catch(() => alert("Não foi possível usar esta imagem. Tente outra foto."));
   }
 
+  const profileText = `${name} ${username} ${bio}`;
+
   function saveProfile(e: React.FormEvent) {
     e.preventDefault();
+    if (!isPublishable(profileText)) return;
     updateUser({ name, username, bio, isPrivate });
     setEditing(false);
   }
@@ -174,7 +178,12 @@ export function Profile() {
                 : "Qualquer pessoa na comunidade pode ver seu perfil, mapa e coleções."}
             </p>
           </fieldset>
-          <button type="submit" className="btn-primary">
+          <ModerationNotice text={profileText} />
+          <button
+            type="submit"
+            className="btn-primary"
+            disabled={!isPublishable(profileText)}
+          >
             Salvar
           </button>
         </form>

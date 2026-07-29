@@ -112,6 +112,11 @@ export const es: Record<keyof typeof pt, string> = {
   "business.unclaimedText": "La información de esta empresa fue cargada por el equipo de Avena. Todavía no asumió el perfil, así que la reserva se hace directamente con la agencia por los contactos de arriba. Confirma precio y disponibilidad antes de pagar.",
   "business.unclaimed": "No reclamado",
 
+  "presence.online": "En línea ahora",
+  "presence.recent": "En línea hace {minutes} min",
+  "presence.today": "En línea hace {hours} h",
+  "presence.away": "Sin actividad reciente",
+
   "reputation.none": "Sin reseñas todavía",
   "reputation.few": "Pocas reseñas",
   "reputation.excellent": "Excelente",
@@ -312,6 +317,12 @@ export const es: Record<keyof typeof pt, string> = {
   "notFound.title": "Página no encontrada",
   "notFound.text": "La dirección que abriste no existe o ya no está disponible.",
   "notFound.home": "Volver al inicio",
+
+  "moderation.profanity": "Este texto tiene palabrotas y no puede publicarse. Reescríbelo sin insultos.",
+  "moderation.sexual": "Este texto tiene contenido sexual y no puede publicarse en Avena.",
+  "moderation.hate": "Este texto tiene un término ofensivo o discriminatorio. Ese contenido no se publica y puede llevar a la suspensión de la cuenta.",
+  "moderation.threat": "Este texto contiene una amenaza. No se publica y puede ser informado a las autoridades.",
+  "moderation.criticismIsFine": "La crítica es bienvenida: puedes poner nota baja y contar exactamente qué salió mal, siempre que no sea ofensivo.",
 
   "photos.label": "Fotos",
   "photos.add": "Agregar foto",
