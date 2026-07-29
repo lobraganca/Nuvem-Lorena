@@ -9,9 +9,16 @@ import { VitePWA } from 'vite-plugin-pwa'
  */
 const singleFile = process.env.VITE_SINGLE_FILE === 'true'
 
+/**
+ * Where the site will be served from. GitHub Pages puts a project under
+ * /<repo>/, so the build has to know its own prefix; the real domain serves
+ * from the root and needs nothing set.
+ */
+const basePath = process.env.VITE_BASE_PATH ?? '/'
+
 // https://vite.dev/config/
 export default defineConfig({
-  base: singleFile ? './' : '/',
+  base: singleFile ? './' : basePath,
   build: singleFile
     ? {
         // Everything becomes a data URI, so nothing is fetched from disk.
@@ -42,14 +49,14 @@ export default defineConfig({
         theme_color: '#1b2619',
         background_color: '#ffffff',
         display: 'standalone',
-        start_url: '/',
+        start_url: basePath,
         icons: [
-          { src: '/icon-192.png', sizes: '192x192', type: 'image/png' },
-          { src: '/icon-512.png', sizes: '512x512', type: 'image/png' },
+          { src: `${basePath}icon-192.png`, sizes: '192x192', type: 'image/png' },
+          { src: `${basePath}icon-512.png`, sizes: '512x512', type: 'image/png' },
           // Android crops the icon into its own shape, so the maskable version
           // keeps the logo well inside the safe area.
           {
-            src: '/icon-maskable-512.png',
+            src: `${basePath}icon-maskable-512.png`,
             sizes: '512x512',
             type: 'image/png',
             purpose: 'maskable',

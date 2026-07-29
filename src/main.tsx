@@ -9,9 +9,13 @@ import App from './App.tsx'
 // to answer /destination — so routes live in the URL hash instead.
 const Router = __SINGLE_FILE__ ? HashRouter : BrowserRouter
 
+// On GitHub Pages the site lives under /<repo>/, so every route needs that
+// prefix. Vite bakes the value in; on the real domain it is just "/".
+const basename = __SINGLE_FILE__ ? undefined : import.meta.env.BASE_URL
+
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
-    <Router>
+    <Router basename={basename}>
       <App />
     </Router>
   </StrictMode>,

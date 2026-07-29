@@ -1,0 +1,66 @@
+name: Publicar site de teste
+
+# Publica o Avena no GitHub Pages a cada envio, para existir um endereço na
+# internet que dá para abrir no celular sem baixar arquivo nenhum.
+on:
+  push:
+    branches:
+      - main
+      - claude/avena-travel-memories-app-koj0zy
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# Uma publicação por vez; se chegar outra no meio, a mais nova espera a atual
+# terminar em vez de cancelá-la pela metade.
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - run: npm ci
+
+      - name: Conferir tipos e estilo
+        run: |
+          npm run typecheck
+          npm run lint
+
+      - name: Montar o site
+        # O painel administrativo fica de fora: VITE_ADMIN_ENABLED não é
+        # definido aqui, então o código dele nem entra no pacote publicado.
+        env:
+          VITE_BASE_PATH: /${{ github.event.repository.name }}/
+        run: npm run build
+
+      - name: Responder as rotas internas
+        # O GitHub Pages não conhece /destination nem /desejos. Servindo a
+        # mesma página no 404, quem abre um link direto cai no app, que então
+        # mostra a tela certa.
+        run: cp dist/index.html dist/404.html
+
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: dist
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4
