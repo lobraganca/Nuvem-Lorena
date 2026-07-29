@@ -3,6 +3,7 @@ import { useAvena } from "../store/AvenaContext";
 import { BOOST_PACKAGES, boostDailyPrice, boostPrice } from "../lib/boosts";
 import type { Boost, Business, Tour } from "../types";
 import { formatBRL } from "../lib/money";
+import { newId } from "../lib/ids";
 
 export function BoostTourButton({
   business,
@@ -35,7 +36,7 @@ export function BoostTourButton({
     endsAt.setDate(endsAt.getDate() + days);
 
     addBoost({
-      id: crypto.randomUUID(),
+      id: newId(),
       businessId: business.id,
       businessName: business.name,
       tourId: tour.id,

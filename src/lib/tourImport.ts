@@ -1,4 +1,5 @@
 import type { CancellationPolicy, Difficulty, Tour } from "../types";
+import { newId } from "./ids";
 
 /**
  * Bulk import of tours from a spreadsheet.
@@ -187,7 +188,7 @@ export function parseToursCsv(text: string): ImportResult {
     }
 
     tours.push({
-      id: crypto.randomUUID(),
+      id: newId(),
       title,
       description: cell(indexOf("description")).replace(/^"|"$/g, "") || undefined,
       priceFrom,

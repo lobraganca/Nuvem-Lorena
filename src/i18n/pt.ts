@@ -57,6 +57,8 @@ export const pt = {
     "Você está sem internet. Dá para registrar experiências e ver suas reservas normalmente — o mapa mostra só as áreas já carregadas.",
   "storage.full":
     "O armazenamento deste navegador ficou cheio. Suas últimas alterações não foram salvas. Faça um backup em Perfil › Meus dados e remova algumas fotos.",
+  "storage.blocked":
+    "Este navegador não deixa o Avena guardar nada, então tudo que você fizer aqui some ao fechar a aba. Costuma acontecer ao abrir o arquivo direto do celular ou em aba anônima. Abra pelo endereço do site para que suas memórias fiquem salvas.",
   "storage.open": "Abrir Meus dados",
 
   // --- home -----------------------------------------------------------------

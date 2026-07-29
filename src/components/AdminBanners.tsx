@@ -8,6 +8,7 @@ import {
   placementLabel,
 } from "../lib/banners";
 import type { Banner, BannerKind, BannerPlacement } from "../types";
+import { newId } from "../lib/ids";
 
 const kindLabel: Record<BannerKind, string> = {
   institucional: "Institucional (mensagem da Avena)",
@@ -16,7 +17,7 @@ const kindLabel: Record<BannerKind, string> = {
 
 function emptyBanner(): Banner {
   return {
-    id: crypto.randomUUID(),
+    id: newId(),
     placement: "home-top",
     kind: "institucional",
     title: "",

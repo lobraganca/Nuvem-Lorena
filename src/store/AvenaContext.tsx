@@ -13,6 +13,8 @@ import { mockTravelerActivity, mockTravelers } from "../data/travelers";
 import { computeRefund } from "../lib/cancellation";
 import { canReview } from "../lib/reviewEligibility";
 import { threadKey } from "../lib/messages";
+import { readStored, storageAvailable, writeStored } from "../lib/safeStorage";
+import { newId } from "../lib/ids";
 
 const STORAGE_KEY = "avena-data-v18";
 
@@ -73,10 +75,16 @@ interface AvenaContextValue extends AvenaData {
   /** Replaces everything with a previously exported backup. */
   importData: (json: string) => void;
   /**
-   * True when the browser refused to save — almost always because photos filled
-   * the storage. Until it clears, changes are only in memory.
+   * True when a save failed because the 5 MB quota filled up, almost always
+   * with photos. Until it clears, changes are only in memory.
    */
   storageFull: boolean;
+  /**
+   * True when the browser refuses storage altogether — a page opened from a
+   * file, private browsing, storage blocked in the settings. Nothing will
+   * survive closing the tab, and the app says so rather than pretending.
+   */
+  storageBlocked: boolean;
   /** Follows a public profile, or sends a request to a private one. */
   followTraveler: (travelerId: string) => void;
   unfollowTraveler: (travelerId: string) => void;
@@ -114,7 +122,7 @@ function defaults(): AvenaData {
 }
 
 function loadInitial(): AvenaData {
-  const raw = localStorage.getItem(STORAGE_KEY);
+  const raw = readStored(STORAGE_KEY);
   if (raw) {
     try {
       return { ...defaults(), ...JSON.parse(raw) };
@@ -128,17 +136,16 @@ function loadInitial(): AvenaData {
 export function AvenaProvider({ children }: { children: ReactNode }) {
   const [data, setData] = useState<AvenaData>(loadInitial);
   const [storageFull, setStorageFull] = useState(false);
+  const storageBlocked = !storageAvailable();
 
   useEffect(() => {
-    try {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
-      setStorageFull(false);
-    } catch {
-      // Almost always the 5 MB quota, hit by photos. Saying so plainly beats
-      // losing the person's memories without a word.
-      setStorageFull(true);
-    }
-  }, [data]);
+    // Saying so plainly beats losing the person's memories without a word.
+    // Two different failures land here: the browser refuses storage entirely,
+    // and the 5 MB quota filled up with photos.
+    // A browser that refuses storage is a different message, so it is not
+    // reported here as a full disk.
+    setStorageFull(!writeStored(STORAGE_KEY, JSON.stringify(data)) && !storageBlocked);
+  }, [data, storageBlocked]);
 
   const value = useMemo<AvenaContextValue>(
     () => ({
@@ -162,7 +169,7 @@ export function AvenaProvider({ children }: { children: ReactNode }) {
         );
         if (existing) return existing.id;
 
-        const id = crypto.randomUUID();
+        const id = newId();
         // Dark enough that the white initial on top stays readable.
         const palette = ["#d73a1f", "#1f73db", "#3a833e", "#a647d9", "#966c1e"];
         setData((d) => ({
@@ -200,7 +207,7 @@ export function AvenaProvider({ children }: { children: ReactNode }) {
           messages: [
             ...d.messages,
             {
-              id: crypto.randomUUID(),
+              id: newId(),
               ...thread,
               sender: "me",
               text,
@@ -333,13 +340,13 @@ export function AvenaProvider({ children }: { children: ReactNode }) {
         })),
       openTicket: ({ subject, message, bookingId }) => {
         const ticket: SupportTicket = {
-          id: crypto.randomUUID(),
+          id: newId(),
           subject,
           message,
           bookingId,
           createdAt: new Date().toISOString(),
           status: "aberto",
-          protocol: `AV-${crypto.randomUUID().slice(0, 4).toUpperCase()}`,
+          protocol: `AV-${newId().slice(0, 4).toUpperCase()}`,
         };
         setData((d) => ({ ...d, supportTickets: [ticket, ...d.supportTickets] }));
         return ticket;
@@ -434,8 +441,9 @@ export function AvenaProvider({ children }: { children: ReactNode }) {
       removeBanner: (bannerId) =>
         setData((d) => ({ ...d, banners: d.banners.filter((b) => b.id !== bannerId) })),
       storageFull,
+      storageBlocked,
     }),
-    [data, storageFull]
+    [data, storageFull, storageBlocked]
   );
 
   return <AvenaContext.Provider value={value}>{children}</AvenaContext.Provider>;

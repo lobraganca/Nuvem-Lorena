@@ -52,6 +52,8 @@ export const es: Record<keyof typeof pt, string> = {
     "Estás sin conexión. Puedes registrar experiencias y ver tus reservas igual — el mapa solo muestra las zonas ya cargadas.",
   "storage.full":
     "El almacenamiento de este navegador se llenó. Tus últimos cambios no se guardaron. Haz una copia en Perfil › Mis datos y quita algunas fotos.",
+  "storage.blocked":
+    "Este navegador no deja que Avena guarde nada, así que todo lo que hagas aquí desaparece al cerrar la pestaña. Suele pasar al abrir el archivo directamente o en una pestaña privada. Abre el sitio por su dirección para que tus recuerdos se conserven.",
   "storage.open": "Abrir Mis datos",
 
   "home.searchPlaceholder": "¿A dónde vas? Busca excursiones",

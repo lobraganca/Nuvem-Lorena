@@ -11,6 +11,7 @@ import {
 } from "../components/LegalAcceptance";
 import type { Business, BusinessType, PlanTier } from "../types";
 import { ModerationNotice, isPublishable } from "../components/ModerationNotice";
+import { newId } from "../lib/ids";
 
 export function BusinessRegister() {
   const { addBusiness, updateUser } = useAvena();
@@ -46,7 +47,7 @@ export function BusinessRegister() {
     if (!legalAccepted) acceptLegal();
 
     const business: Business = {
-      id: crypto.randomUUID(),
+      id: newId(),
       name,
       type,
       planTier,

@@ -1,5 +1,6 @@
 import type { Business, BusinessType } from "../types";
 import { BRAZILIAN_STATES } from "./collections";
+import { newId } from "./ids";
 
 /**
  * Bulk import of partner companies, used by the Avena team to seed a city.
@@ -172,7 +173,7 @@ export function parseBusinessesCsv(
     }
 
     businesses.push({
-      id: crypto.randomUUID(),
+      id: newId(),
       name,
       type: type ?? "Agência",
       planTier: "Básico",

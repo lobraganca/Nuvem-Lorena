@@ -7,8 +7,16 @@ import { useT } from "../i18n";
  * a failed save is announced instead of swallowed.
  */
 export function StorageBanner() {
-  const { storageFull } = useAvena();
+  const { storageFull, storageBlocked } = useAvena();
   const t = useT();
+
+  if (storageBlocked) {
+    return (
+      <div className="storage-banner" role="alert">
+        {t("storage.blocked")}
+      </div>
+    );
+  }
 
   if (!storageFull) return null;
 

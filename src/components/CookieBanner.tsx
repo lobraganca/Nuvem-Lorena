@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { useT } from "../i18n";
+import { readStored, removeStored, writeStored } from "../lib/safeStorage";
 
 /**
  * Consent is stored per device (not per account), since it governs what runs
@@ -20,7 +21,7 @@ export interface CookieConsent {
 
 export function readCookieConsent(): CookieConsent | null {
   try {
-    const raw = localStorage.getItem(STORAGE_KEY);
+    const raw = readStored(STORAGE_KEY);
     if (!raw) return null;
     const parsed = JSON.parse(raw) as CookieConsent;
     return parsed.version === CONSENT_VERSION ? parsed : null;
@@ -35,13 +36,13 @@ function saveCookieConsent(analytics: boolean) {
     analytics,
     acceptedAt: new Date().toISOString(),
   };
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(consent));
+  writeStored(STORAGE_KEY, JSON.stringify(consent));
   window.dispatchEvent(new Event("avena-cookie-consent-changed"));
 }
 
 /** Lets other parts of the app (and the footer link) reopen the choice. */
 export function openCookiePreferences() {
-  localStorage.removeItem(STORAGE_KEY);
+  removeStored(STORAGE_KEY);
   window.dispatchEvent(new Event("avena-cookie-consent-changed"));
 }
 

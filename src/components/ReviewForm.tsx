@@ -4,6 +4,7 @@ import type { Booking } from "../types";
 import { ModerationNotice, isPublishable } from "./ModerationNotice";
 import { useT } from "../i18n";
 import { reviewBlockKey, reviewEligibility } from "../lib/reviewEligibility";
+import { newId } from "../lib/ids";
 
 export function ReviewForm({ booking }: { booking: Booking }) {
   const { addReview, user } = useAvena();
@@ -36,7 +37,7 @@ export function ReviewForm({ booking }: { booking: Booking }) {
     e.preventDefault();
     if (!isPublishable(comment) || !eligibility.allowed) return;
     addReview({
-      id: crypto.randomUUID(),
+      id: newId(),
       businessId: booking.businessId,
       bookingId: booking.id,
       tourTitle: booking.tourTitle,

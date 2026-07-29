@@ -18,6 +18,7 @@ import { BoostTourButton } from "../components/BoostTourButton";
 import { EditTour } from "../components/EditTour";
 import type { AccessibilityTag, CancellationPolicy, Difficulty, Tour } from "../types";
 import { formatBRL } from "../lib/money";
+import { newId } from "../lib/ids";
 
 const today = new Date().toISOString().slice(0, 10);
 
@@ -86,7 +87,7 @@ export function ProfessionalDashboard() {
     if (!title || !business) return;
     if (!isPublishable(`${title} ${description}`)) return;
     const tour: Tour = {
-      id: crypto.randomUUID(),
+      id: newId(),
       title,
       description: description || undefined,
       priceFrom: priceFrom ? Number(priceFrom) : undefined,

@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { answerQuestion, suggestedQuestions } from "../lib/assistant";
 import { useT } from "../i18n";
+import { newId } from "../lib/ids";
 
 interface ChatMessage {
   id: string;
@@ -32,8 +33,8 @@ export function HelpChat() {
     const reply = answerQuestion(trimmed);
     setMessages((prev) => [
       ...prev,
-      { id: crypto.randomUUID(), from: "user", text: trimmed },
-      { id: crypto.randomUUID(), from: "avena", text: reply.text },
+      { id: newId(), from: "user", text: trimmed },
+      { id: newId(), from: "avena", text: reply.text },
     ]);
     setInput("");
   }

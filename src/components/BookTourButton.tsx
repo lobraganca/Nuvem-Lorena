@@ -21,6 +21,7 @@ import type { Business, Participant, Tour } from "../types";
 import { formatBRL } from "../lib/money";
 import { useT } from "../i18n";
 import { canReceivePayments } from "../lib/payments/mercadopago";
+import { newId } from "../lib/ids";
 
 export function BookTourButton({ business, tour }: { business: Business; tour: Tour }) {
   const { addBooking, bookings, user, waitlist, joinWaitlist } = useAvena();
@@ -60,7 +61,7 @@ export function BookTourButton({ business, tour }: { business: Business; tour: T
 
   function handleJoinWaitlist() {
     joinWaitlist({
-      id: crypto.randomUUID(),
+      id: newId(),
       tourId: tour.id,
       tourTitle: tour.title,
       businessId: business.id,
@@ -78,7 +79,7 @@ export function BookTourButton({ business, tour }: { business: Business; tour: T
     if (soldOut || exceedsCapacity || !legalOk || peopleError) return;
     if (!legalAccepted) acceptLegal();
     const booking = {
-      id: crypto.randomUUID(),
+      id: newId(),
       businessId: business.id,
       businessName: business.name,
       tourId: tour.id,

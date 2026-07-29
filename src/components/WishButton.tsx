@@ -2,6 +2,7 @@ import { useAvena } from "../store/AvenaContext";
 import { isTourWished } from "../lib/wishlist";
 import { useT } from "../i18n";
 import type { Business, Tour } from "../types";
+import { newId } from "../lib/ids";
 
 /** Puts a published tour on the traveller's want-to-do list, or takes it off. */
 export function WishButton({ business, tour }: { business: Business; tour: Tour }) {
@@ -17,7 +18,7 @@ export function WishButton({ business, tour }: { business: Business; tour: Tour 
       return;
     }
     addWish({
-      id: crypto.randomUUID(),
+      id: newId(),
       title: tour.title,
       city: business.city,
       state: business.state,

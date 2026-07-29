@@ -9,6 +9,7 @@ import { LocationPicker } from "../components/LocationPicker";
 import type { Category, Experience } from "../types";
 import { useT } from "../i18n";
 import { categoryKey } from "../i18n/domain";
+import { newId } from "../lib/ids";
 
 const MOODS = ["😍", "😄", "🥰", "💪", "🤩", "😌", "😢"];
 
@@ -85,7 +86,7 @@ export function AddExperience() {
     }
 
     const exp: Experience = {
-      id: editing?.id ?? crypto.randomUUID(),
+      id: editing?.id ?? newId(),
       title,
       category,
       lat,

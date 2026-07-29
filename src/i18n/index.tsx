@@ -16,12 +16,14 @@ export const LANGUAGES: { code: Lang; label: string; short: string }[] = [
 export type TranslationKey = keyof typeof pt;
 export type Dictionary = Record<TranslationKey, string>;
 
+import { readStored, writeStored } from "../lib/safeStorage";
+
 const dictionaries: Record<Lang, Partial<Dictionary>> = { pt, en, es };
 
 const STORAGE_KEY = "avena-lang";
 
 function detectLanguage(): Lang {
-  const stored = localStorage.getItem(STORAGE_KEY);
+  const stored = readStored(STORAGE_KEY);
   if (stored === "pt" || stored === "en" || stored === "es") return stored;
 
   // A Spanish-speaking visitor should not land on a Portuguese page by default.
@@ -51,7 +53,7 @@ export function I18nProvider({ children }: { children: ReactNode }) {
   const [lang, setLangState] = useState<Lang>(detectLanguage);
 
   useEffect(() => {
-    localStorage.setItem(STORAGE_KEY, lang);
+    writeStored(STORAGE_KEY, lang);
     document.documentElement.lang = lang === "pt" ? "pt-BR" : lang;
   }, [lang]);
 

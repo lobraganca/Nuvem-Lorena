@@ -52,6 +52,8 @@ export const en: Record<keyof typeof pt, string> = {
     "You are offline. You can still record experiences and check your bookings — the map only shows areas already loaded.",
   "storage.full":
     "This browser's storage is full. Your latest changes were not saved. Back up your data in Profile › My data and remove a few photos.",
+  "storage.blocked":
+    "This browser will not let Avena save anything, so whatever you do here disappears when the tab closes. It usually happens when the file is opened directly, or in a private tab. Open the site by its address so your memories are kept.",
   "storage.open": "Open My data",
 
   "home.searchPlaceholder": "Where are you going? Search for tours",
