@@ -1743,3 +1743,78 @@ legend {
   margin-bottom: 4px;
   color: var(--text-h);
 }
+
+.retro-hero {
+  text-align: center;
+  padding: 40px 20px 28px;
+  background: linear-gradient(180deg, var(--accent-soft), transparent);
+  border-radius: 14px;
+  margin-bottom: 24px;
+}
+
+.retro-year {
+  font-size: 56px;
+  font-weight: 800;
+  letter-spacing: -2px;
+  color: var(--accent);
+  line-height: 1;
+}
+
+.retro-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: 12px;
+}
+
+.retro-card {
+  padding: 20px;
+  border-radius: 12px;
+  border: 1px solid var(--border);
+  background: var(--bg-alt);
+  text-align: center;
+  font-size: 13px;
+  color: var(--text);
+}
+
+.retro-card-big {
+  grid-column: span 2;
+  background: var(--accent);
+  color: white;
+  border-color: var(--accent);
+}
+
+.retro-number {
+  font-size: 34px;
+  font-weight: 800;
+  color: var(--accent);
+  line-height: 1.1;
+}
+
+.retro-card-big .retro-number {
+  color: white;
+  font-size: 44px;
+}
+
+.retro-statement {
+  margin-top: 12px;
+  padding: 16px 18px;
+  border-radius: 10px;
+  border: 1px solid var(--border);
+  background: var(--card-bg);
+  font-size: 15px;
+  color: var(--text-h);
+}
+
+.insights-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.insights-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}

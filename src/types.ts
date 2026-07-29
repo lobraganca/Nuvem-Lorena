@@ -175,6 +175,10 @@ export interface Experience {
   rating?: number; // 1-5
   mood?: string;
   peopleIds: string[];
+  /** People invited to add their own photos to this memory. */
+  invitedPersonIds?: string[];
+  /** Booking this memory came from, when it was created from a purchase. */
+  bookingId?: string;
   agency?: string;
   guide?: string;
   animalsSeen?: string[];

@@ -5,27 +5,20 @@ import { profileStats } from "../lib/stats";
 import { buildCollections } from "../lib/collections";
 import { categoryColor } from "../lib/categories";
 import { travelerPlans } from "../lib/plans";
+import { buildInsights } from "../lib/insights";
 
 export function Profile() {
-  const { experiences, people, user, updateUser } = useAvena();
+  const { experiences, people, user, updateUser, bookings } = useAvena();
   const navigate = useNavigate();
   const stats = profileStats(experiences);
   const collections = buildCollections(experiences);
+  const insights = buildInsights(experiences, people, bookings);
   const [editing, setEditing] = useState(false);
   const [name, setName] = useState(user.name);
   const [username, setUsername] = useState(user.username);
   const [bio, setBio] = useState(user.bio);
   const [isPrivate, setIsPrivate] = useState(user.isPrivate);
   const fileInputRef = useRef<HTMLInputElement>(null);
-
-  const companyCounts = new Map<string, number>();
-  for (const exp of experiences) {
-    for (const pid of exp.peopleIds) {
-      companyCounts.set(pid, (companyCounts.get(pid) ?? 0) + 1);
-    }
-  }
-  const topCompany = [...companyCounts.entries()].sort((a, b) => b[1] - a[1])[0];
-  const topPerson = topCompany ? people.find((p) => p.id === topCompany[0]) : undefined;
 
   const sortedExperiences = [...experiences].sort(
     (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()
@@ -170,11 +163,22 @@ export function Profile() {
         </form>
       )}
 
-      {topPerson && (
-        <div className="insight-card">
-          Sua companhia mais frequente é <strong>{topPerson.name}</strong>, com{" "}
-          {topCompany![1]} experiências vividas juntos.
-        </div>
+      {insights.length > 0 && (
+        <>
+          <div className="insights-head">
+            <h2 className="timeline-title">O que o Avena percebeu</h2>
+            <Link to="/retrospectiva" className="btn-outline">
+              Ver retrospectiva do ano
+            </Link>
+          </div>
+          <div className="insights-list">
+            {insights.map((i) => (
+              <div key={i.id} className="insight-card">
+                {i.text}
+              </div>
+            ))}
+          </div>
+        </>
       )}
 
       <h2 className="timeline-title">Publicações</h2>

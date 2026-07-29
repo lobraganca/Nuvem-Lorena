@@ -2,6 +2,7 @@ import { Link, useNavigate, useParams } from "react-router-dom";
 import { useAvena } from "../store/AvenaContext";
 import { categoryColor } from "../lib/categories";
 import { BusinessCard } from "../components/BusinessCard";
+import { InviteToMemory } from "../components/InviteToMemory";
 
 export function ExperienceDetail() {
   const { id } = useParams();
@@ -74,6 +75,8 @@ export function ExperienceDetail() {
           </div>
         </div>
       )}
+
+      <InviteToMemory experience={exp} />
 
       {(exp.agency || exp.guide) && (
         <div className="detail-block">

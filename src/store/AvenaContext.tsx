@@ -30,6 +30,9 @@ interface AvenaContextValue extends AvenaData {
   updateExperience: (exp: Experience) => void;
   deleteExperience: (id: string) => void;
   addPerson: (person: Person) => void;
+  /** Finds a person by name or creates one, returning the id. */
+  ensurePerson: (name: string) => string;
+  inviteToExperience: (experienceId: string, personId: string) => void;
   addBusiness: (business: Business) => void;
   updateUser: (user: Partial<UserProfile>) => void;
   sendMessage: (thread: MessageThread, text: string) => void;
@@ -96,6 +99,38 @@ export function AvenaProvider({ children }: { children: ReactNode }) {
         setData((d) => ({
           ...d,
           experiences: d.experiences.filter((e) => e.id !== id),
+        })),
+      ensurePerson: (name) => {
+        const trimmed = name.trim();
+        const existing = data.people.find(
+          (p) => p.name.toLowerCase() === trimmed.toLowerCase()
+        );
+        if (existing) return existing.id;
+
+        const id = crypto.randomUUID();
+        const palette = ["#e8735f", "#5f9ce8", "#6fbf73", "#c98fe8", "#d9a441"];
+        setData((d) => ({
+          ...d,
+          people: [
+            ...d.people,
+            { id, name: trimmed, avatarColor: palette[d.people.length % palette.length] },
+          ],
+        }));
+        return id;
+      },
+      inviteToExperience: (experienceId, personId) =>
+        setData((d) => ({
+          ...d,
+          experiences: d.experiences.map((e) =>
+            e.id === experienceId
+              ? {
+                  ...e,
+                  invitedPersonIds: Array.from(
+                    new Set([...(e.invitedPersonIds ?? []), personId])
+                  ),
+                }
+              : e
+          ),
         })),
       addPerson: (person) =>
         setData((d) => ({ ...d, people: [...d.people, person] })),

@@ -14,6 +14,7 @@ import { Conversation } from "./pages/Conversation";
 import { Destination } from "./pages/Destination";
 import { Bookings } from "./pages/Bookings";
 import { Admin } from "./pages/Admin";
+import { Retrospective } from "./pages/Retrospective";
 import { Welcome } from "./pages/Welcome";
 import { ProfessionalDashboard } from "./pages/ProfessionalDashboard";
 import { Notifications } from "./pages/Notifications";
@@ -87,6 +88,7 @@ function AppShell() {
           <Route path="/notifications" element={<Notifications />} />
           <Route path="/termos" element={<Terms />} />
           <Route path="/privacidade" element={<Privacy />} />
+          <Route path="/retrospectiva" element={<Retrospective />} />
           <Route path="/admin" element={<Admin />} />
         </Routes>
       </main>

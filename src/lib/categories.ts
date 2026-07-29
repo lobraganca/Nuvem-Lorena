@@ -48,3 +48,16 @@ export const businessTypeColor: Record<BusinessType, string> = {
   Restaurante: "#b45309",
   Hotel: "#7c3aed",
 };
+
+/** Best-effort category guess from a tour title, used to pre-fill a memory. */
+export function categoryForTour(title: string): Category {
+  const t = title.toLowerCase();
+  if (/(baleia|golfinho|ave|animal|fauna)/.test(t)) return "Observação de animais";
+  if (/(trilha|trekking|caminhada)/.test(t)) return "Trilha";
+  if (/(cachoeira|queda)/.test(t)) return "Cachoeira";
+  if (/(praia|ba[ií]a|mergulho|barco|mar)/.test(t)) return "Praia";
+  if (/(museu|hist[oó]ric)/.test(t)) return "Museu";
+  if (/(parque|reserva)/.test(t)) return "Parque";
+  if (/(restaurante|gastron)/.test(t)) return "Restaurante";
+  return "Viagem";
+}

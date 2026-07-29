@@ -1,31 +1,62 @@
 import { useState } from "react";
-import { useNavigate, useParams } from "react-router-dom";
+import { useNavigate, useParams, useSearchParams } from "react-router-dom";
 import { useAvena } from "../store/AvenaContext";
 import { categories } from "../lib/categories";
 import { BRAZILIAN_STATES } from "../lib/collections";
+import { categoryForTour } from "../lib/categories";
 import type { Category, Experience } from "../types";
 
 const MOODS = ["😍", "😄", "🥰", "💪", "🤩", "😌", "😢"];
 
 export function AddExperience() {
-  const { addExperience, updateExperience, experiences, people } = useAvena();
+  const { addExperience, updateExperience, experiences, people, bookings, businesses, ensurePerson } =
+    useAvena();
   const navigate = useNavigate();
   const { id } = useParams();
+  const [searchParams] = useSearchParams();
   const editing = experiences.find((e) => e.id === id);
 
-  const [title, setTitle] = useState(editing?.title ?? "");
-  const [category, setCategory] = useState<Category>(editing?.category ?? "Viagem");
-  const [locationName, setLocationName] = useState(editing?.locationName ?? "");
-  const [city, setCity] = useState(editing?.city ?? "");
-  const [state, setState] = useState(editing?.state ?? BRAZILIAN_STATES[0]);
+  // Coming from a finished booking: everything the purchase already knows is
+  // filled in, so the person only adds photos and the story.
+  const fromBooking = bookings.find((b) => b.id === searchParams.get("booking"));
+  const bookingBusiness = fromBooking
+    ? businesses.find((b) => b.id === fromBooking.businessId)
+    : undefined;
+
+  const seed = editing
+    ? undefined
+    : fromBooking
+      ? {
+          title: fromBooking.tourTitle,
+          date: fromBooking.travelDate,
+          locationName: bookingBusiness?.city ?? "",
+          city: bookingBusiness?.city ?? "",
+          state: bookingBusiness?.state,
+          agency: fromBooking.businessName,
+          category: categoryForTour(fromBooking.tourTitle),
+        }
+      : undefined;
+
+  const [title, setTitle] = useState(editing?.title ?? seed?.title ?? "");
+  const [category, setCategory] = useState<Category>(editing?.category ?? seed?.category ?? "Viagem");
+  const [locationName, setLocationName] = useState(editing?.locationName ?? seed?.locationName ?? "");
+  const [city, setCity] = useState(editing?.city ?? seed?.city ?? "");
+  const [state, setState] = useState(editing?.state ?? seed?.state ?? BRAZILIAN_STATES[0]);
   const [lat, setLat] = useState(editing ? String(editing.lat) : "");
   const [lng, setLng] = useState(editing ? String(editing.lng) : "");
-  const [date, setDate] = useState(editing?.date ?? new Date().toISOString().slice(0, 10));
+  const [date, setDate] = useState(editing?.date ?? seed?.date ?? new Date().toISOString().slice(0, 10));
   const [diary, setDiary] = useState(editing?.diary ?? "");
   const [rating, setRating] = useState(editing?.rating ?? 5);
   const [mood, setMood] = useState(editing?.mood ?? MOODS[0]);
-  const [selectedPeople, setSelectedPeople] = useState<string[]>(editing?.peopleIds ?? []);
-  const [agency, setAgency] = useState(editing?.agency ?? "");
+  const [selectedPeople, setSelectedPeople] = useState<string[]>(() => {
+    if (editing) return editing.peopleIds;
+    if (!fromBooking) return [];
+    // Everyone on the passenger list except the buyer becomes a tagged person.
+    return fromBooking.participants
+      .slice(1)
+      .map((p) => ensurePerson(p.name));
+  });
+  const [agency, setAgency] = useState(editing?.agency ?? seed?.agency ?? "");
   const [guide, setGuide] = useState(editing?.guide ?? "");
   const [animals, setAnimals] = useState(editing?.animalsSeen?.join(", ") ?? "");
   const [restaurants, setRestaurants] = useState(editing?.restaurants?.join(", ") ?? "");
@@ -66,6 +97,7 @@ export function AddExperience() {
         : undefined,
       expenses: expenses ? Number(expenses) : undefined,
       notes: notes || undefined,
+      bookingId: fromBooking?.id ?? editing?.bookingId,
     };
 
     if (editing) {
@@ -80,6 +112,12 @@ export function AddExperience() {
   return (
     <div className="page">
       <h1>{editing ? "Editar experiência" : "Nova experiência"}</h1>
+      {fromBooking && (
+        <div className="insight-card">
+          Preenchemos o que já sabíamos da sua reserva em {fromBooking.businessName}.
+          Confira, ajuste o que quiser e conte como foi.
+        </div>
+      )}
       <form className="experience-form" onSubmit={handleSubmit}>
         <label>
           Título

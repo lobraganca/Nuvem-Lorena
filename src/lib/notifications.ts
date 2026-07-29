@@ -96,7 +96,7 @@ export function buildNotifications(
         title: "Guarde essa memória",
         body: `Você viveu ${booking.tourTitle}. Registre no seu mapa afetivo antes que os detalhes se percam.`,
         actionLabel: "Registrar experiência",
-        actionTo: "/experience/new",
+        actionTo: `/experience/new?booking=${booking.id}`,
         date: booking.travelDate,
       });
     }
