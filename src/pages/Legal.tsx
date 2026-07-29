@@ -6,6 +6,7 @@ import {
   termsOfUse,
   type LegalSection,
 } from "../content/legal";
+import { localeFor, useI18n } from "../i18n";
 
 function LegalDocument({
   title,
@@ -16,16 +17,25 @@ function LegalDocument({
   intro: string;
   sections: LegalSection[];
 }) {
+  const { t, lang } = useI18n();
+
   return (
     <div className="page legal-page">
       <Link to="/" className="back-link">
-        ← Voltar
+        ← {t("common.back")}
       </Link>
       <h1>{title}</h1>
       <p className="muted">
-        Versão {LEGAL_VERSION} · Atualizado em{" "}
-        {new Date(LEGAL_UPDATED_AT).toLocaleDateString("pt-BR")}
+        {t("legal.version", {
+          version: LEGAL_VERSION,
+          date: new Date(LEGAL_UPDATED_AT).toLocaleDateString(localeFor(lang)),
+        })}
       </p>
+      {lang !== "pt" && (
+        <p className="sandbox-warning" role="note">
+          {t("legal.ptNotice")}
+        </p>
+      )}
       <p className="legal-intro">{intro}</p>
 
       {sections.map((section) => (

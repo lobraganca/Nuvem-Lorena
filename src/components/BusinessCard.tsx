@@ -6,6 +6,7 @@ import type { Business, Review } from "../types";
 import { useT } from "../i18n";
 import { PresenceDot } from "./PresenceDot";
 import { formatBRL } from "../lib/money";
+import { businessTypeKey, planTierKey } from "../i18n/domain";
 
 function lowestPrice(business: Business): number | undefined {
   const prices = (business.tours ?? [])
@@ -33,9 +34,9 @@ export function BusinessCard({
         style={cover ? undefined : { background: businessTypeColor[business.type] }}
       >
         {cover && (
-          <img src={cover} alt={`Passeio de ${business.name}`} className="viator-card-img" />
+          <img src={cover} alt={business.name} className="viator-card-img" />
         )}
-        <span className="viator-card-media-label">{business.type}</span>
+        <span className="viator-card-media-label">{t(businessTypeKey[business.type])}</span>
       </div>
       <div className="viator-card-body">
         {business.claimStatus === "nao-reivindicada" ? (
@@ -44,7 +45,7 @@ export function BusinessCard({
           </span>
         ) : (
           <span className={`plan-badge plan-badge-${business.planTier.toLowerCase()}`}>
-            {business.planTier}
+            {t(planTierKey[business.planTier])}
           </span>
         )}
         <div className="viator-card-title">{business.name}</div>

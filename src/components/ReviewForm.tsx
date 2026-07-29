@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useAvena } from "../store/AvenaContext";
 import type { Booking } from "../types";
 import { ModerationNotice, isPublishable } from "./ModerationNotice";
+import { useT } from "../i18n";
 
 export function ReviewForm({ booking }: { booking: Booking }) {
   const { addReview, user } = useAvena();
@@ -10,15 +11,16 @@ export function ReviewForm({ booking }: { booking: Booking }) {
   const [comment, setComment] = useState("");
   const [recommends, setRecommends] = useState(true);
   const [done, setDone] = useState(false);
+  const t = useT();
 
   if (booking.reviewed || done) {
-    return <div className="muted">Você já avaliou esta agência.</div>;
+    return <div className="muted">{t("review.alreadyDone")}</div>;
   }
 
   if (!open) {
     return (
       <button type="button" className="btn-outline" onClick={() => setOpen(true)}>
-        Avaliar agência
+        {t("review.rate")}
       </button>
     );
   }
@@ -57,7 +59,7 @@ export function ReviewForm({ booking }: { booking: Booking }) {
       <textarea
         value={comment}
         onChange={(e) => setComment(e.target.value)}
-        placeholder="Como foi o passeio? Conte para outros viajantes."
+        placeholder={t("review.placeholder")}
         rows={2}
         required
       />
@@ -68,14 +70,14 @@ export function ReviewForm({ booking }: { booking: Booking }) {
           className={`chip ${recommends ? "chip-active" : ""}`}
           onClick={() => setRecommends(true)}
         >
-          Recomendo
+          {t("review.recommend")}
         </button>
         <button
           type="button"
           className={`chip ${!recommends ? "chip-active" : ""}`}
           onClick={() => setRecommends(false)}
         >
-          Não recomendo
+          {t("review.dontRecommend")}
         </button>
       </div>
       <div className="chip-row">
@@ -84,10 +86,10 @@ export function ReviewForm({ booking }: { booking: Booking }) {
           className="btn-primary"
           disabled={!isPublishable(comment)}
         >
-          Enviar avaliação
+          {t("review.send")}
         </button>
         <button type="button" className="btn-outline" onClick={() => setOpen(false)}>
-          Cancelar
+          {t("common.cancel")}
         </button>
       </div>
     </form>

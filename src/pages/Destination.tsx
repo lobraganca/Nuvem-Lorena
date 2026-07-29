@@ -10,6 +10,7 @@ import { accessibilityTags } from "../lib/tourAttributes";
 import { businessMatches, resolveCity, suggestionsFor } from "../lib/search";
 import type { AccessibilityTag, BusinessType } from "../types";
 import { useT } from "../i18n";
+import { accessibilityKey, businessTypePluralKey, categoryKey } from "../i18n/domain";
 
 type Tab = "Todos" | BusinessType;
 
@@ -104,7 +105,7 @@ export function Destination() {
                 className={`viator-tab ${tab === option ? "viator-tab-active" : ""}`}
                 onClick={() => setTab(option)}
               >
-                {option === "Todos" ? t("destination.all") : `${option}s`}
+                {option === "Todos" ? t("destination.all") : t(businessTypePluralKey[option])}
               </button>
             ))}
           </div>
@@ -122,7 +123,7 @@ export function Destination() {
                   )
                 }
               >
-                {a}
+                {t(accessibilityKey[a])}
               </button>
             ))}
           </div>
@@ -187,9 +188,9 @@ export function Destination() {
                       <div key={stop.locationName} className="itinerary-stop">
                         <strong>{stop.locationName}</strong>
                         <span className="muted">
-                          {stop.category}
+                          {t(categoryKey[stop.category])}
                           {stop.timesVisited > 1
-                            ? ` · ${stop.timesVisited} viajantes passaram por aqui`
+                            ? ` · ${t("destination.visitorCount", { count: stop.timesVisited })}`
                             : ""}
                         </span>
                       </div>

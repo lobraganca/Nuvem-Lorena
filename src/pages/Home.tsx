@@ -9,6 +9,7 @@ import { BannerSlot } from "../components/BannerSlot";
 import { categories, categoryColor } from "../lib/categories";
 import { useT } from "../i18n";
 import type { Category } from "../types";
+import { categoryKey } from "../i18n/domain";
 
 export function Home() {
   const { experiences, people, businesses } = useAvena();
@@ -149,7 +150,7 @@ export function Home() {
             <option value="Todas">{t("home.allCategories")}</option>
             {categories.map((c) => (
               <option key={c} value={c}>
-                {c}
+                {t(categoryKey[c])}
               </option>
             ))}
           </select>

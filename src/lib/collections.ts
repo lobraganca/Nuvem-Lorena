@@ -17,9 +17,20 @@ const REGION_BY_STATE: Record<string, string> = {
 
 const BRAZIL_REGIONS = ["Norte", "Nordeste", "Centro-Oeste", "Sudeste", "Sul"];
 
+export type CollectionKey =
+  | "collection.states"
+  | "collection.regions"
+  | "collection.waterfalls"
+  | "collection.beaches"
+  | "collection.trails"
+  | "collection.parks"
+  | "collection.museums"
+  | "collection.animals";
+
 export interface Collection {
   id: string;
-  title: string;
+  /** Translation key; the label is resolved by whoever renders it. */
+  titleKey: CollectionKey;
   achieved: number;
   total: number;
 }
@@ -45,13 +56,13 @@ export function buildCollections(experiences: Experience[]): Collection[] {
   const animals = uniqueValues(experiences.flatMap((e) => e.animalsSeen ?? [])).length;
 
   return [
-    { id: "states", title: "Estados brasileiros", achieved: brazilStates.length, total: BRAZILIAN_STATES.length },
-    { id: "regions", title: "Regiões do Brasil", achieved: regions.length, total: BRAZIL_REGIONS.length },
-    { id: "waterfalls", title: "Cachoeiras", achieved: byCategory("Cachoeira"), total: 30 },
-    { id: "beaches", title: "Praias", achieved: byCategory("Praia"), total: 50 },
-    { id: "trails", title: "Trilhas", achieved: byCategory("Trilha"), total: 25 },
-    { id: "parks", title: "Parques", achieved: byCategory("Parque"), total: 15 },
-    { id: "museums", title: "Museus", achieved: byCategory("Museu"), total: 20 },
-    { id: "animals", title: "Animais observados", achieved: animals, total: 20 },
+    { id: "states", titleKey: "collection.states", achieved: brazilStates.length, total: BRAZILIAN_STATES.length },
+    { id: "regions", titleKey: "collection.regions", achieved: regions.length, total: BRAZIL_REGIONS.length },
+    { id: "waterfalls", titleKey: "collection.waterfalls", achieved: byCategory("Cachoeira"), total: 30 },
+    { id: "beaches", titleKey: "collection.beaches", achieved: byCategory("Praia"), total: 50 },
+    { id: "trails", titleKey: "collection.trails", achieved: byCategory("Trilha"), total: 25 },
+    { id: "parks", titleKey: "collection.parks", achieved: byCategory("Parque"), total: 15 },
+    { id: "museums", titleKey: "collection.museums", achieved: byCategory("Museu"), total: 20 },
+    { id: "animals", titleKey: "collection.animals", achieved: animals, total: 20 },
   ];
 }

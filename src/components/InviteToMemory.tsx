@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useAvena } from "../store/AvenaContext";
 import type { Experience } from "../types";
+import { useT } from "../i18n";
 
 /**
  * Invites the people tagged in a memory to add their own photos to it.
@@ -10,6 +11,7 @@ import type { Experience } from "../types";
  * UI says plainly that it is pending rather than pretending it was sent.
  */
 export function InviteToMemory({ experience }: { experience: Experience }) {
+  const t = useT();
   const { people, inviteToExperience } = useAvena();
   const [copied, setCopied] = useState<string | null>(null);
 
@@ -35,7 +37,7 @@ export function InviteToMemory({ experience }: { experience: Experience }) {
 
   return (
     <div className="detail-block">
-      <h3>Memória compartilhada</h3>
+      <h3>{t("invite.title")}</h3>
       <p className="muted">
         Convide quem estava com você para somar as fotos dessa pessoa ao mesmo
         dia. Cada um guarda o seu ponto de vista, no mesmo lugar.
@@ -49,7 +51,7 @@ export function InviteToMemory({ experience }: { experience: Experience }) {
             onClick={() => share(p.id, p.name)}
           >
             {copied === p.id
-              ? "Link copiado"
+              ? t("invite.copied")
               : invited.has(p.id)
                 ? `${p.name} · convite pendente`
                 : `Convidar ${p.name}`}

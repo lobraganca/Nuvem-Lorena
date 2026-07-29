@@ -1,6 +1,8 @@
 import { Link } from "react-router-dom";
 import { useAvena } from "../store/AvenaContext";
 import type { Message } from "../types";
+import { useT } from "../i18n";
+import { businessTypeKey } from "../i18n/domain";
 
 interface Thread {
   id: string;
@@ -18,11 +20,12 @@ function lastOf(messages: Message[]): Message | undefined {
 
 export function Messages() {
   const { people, businesses, messages } = useAvena();
+  const t = useT();
 
   const personThreads: Thread[] = people.map((p) => ({
     id: p.id,
     name: p.name,
-    subtitle: "Pessoa",
+    subtitle: t("messages.person"),
     avatarColor: p.avatarColor,
     last: lastOf(messages.filter((m) => m.personId === p.id)),
   }));
@@ -34,7 +37,7 @@ export function Messages() {
     .map((b) => ({
       id: b.id,
       name: b.name,
-      subtitle: `${b.type} · ${b.city}`,
+      subtitle: `${t(businessTypeKey[b.type])} · ${b.city}`,
       avatarColor: "var(--accent)",
       last: lastOf(messages.filter((m) => m.businessId === b.id)),
     }));
@@ -47,6 +50,8 @@ export function Messages() {
     });
   }
 
+  const startHint = t("messages.startHint");
+
   function ThreadList({ threads }: { threads: Thread[] }) {
     return (
       <div className="conversation-list">
@@ -58,7 +63,7 @@ export function Messages() {
             <div className="conversation-preview">
               <div className="timeline-card-title">{t.name}</div>
               <div className="muted">
-                {t.last ? t.last.text : "Diga oi e comece a conversa"}
+                {t.last ? t.last.text : startHint}
               </div>
             </div>
           </Link>
@@ -70,24 +75,23 @@ export function Messages() {
   return (
     <div className="page">
       <Link to="/" className="back-link">
-        ← Voltar
+        ← {t("common.back")}
       </Link>
-      <h1>Mensagens</h1>
+      <h1>{t("messages.title")}</h1>
 
       {businessThreads.length > 0 && (
         <>
-          <h2 className="timeline-title">Agências e guias</h2>
+          <h2 className="timeline-title">{t("messages.businesses")}</h2>
           <ThreadList threads={sortThreads(businessThreads)} />
         </>
       )}
 
-      <h2 className="timeline-title">Pessoas</h2>
+      <h2 className="timeline-title">{t("messages.people")}</h2>
       <ThreadList threads={sortThreads(personThreads)} />
 
       {businessThreads.length === 0 && (
         <p className="muted" style={{ marginTop: 20 }}>
-          Para falar com uma agência ou guia, abra a página dele e toque em
-          “Enviar mensagem”.
+          {t("messages.hint")}
         </p>
       )}
     </div>

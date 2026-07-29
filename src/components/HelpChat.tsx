@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { answerQuestion, suggestedQuestions } from "../lib/assistant";
+import { useT } from "../i18n";
 
 interface ChatMessage {
   id: string;
@@ -14,6 +15,7 @@ const GREETING: ChatMessage = {
 };
 
 export function HelpChat() {
+  const t = useT();
   const [open, setOpen] = useState(false);
   const [messages, setMessages] = useState<ChatMessage[]>([GREETING]);
   const [input, setInput] = useState("");
@@ -42,22 +44,22 @@ export function HelpChat() {
         type="button"
         className="help-fab"
         onClick={() => setOpen(true)}
-        aria-label="Abrir ajuda"
+        aria-label={t("help.open")}
       >
-        Ajuda
+        {t("nav.help")}
       </button>
     );
   }
 
   return (
-    <div className="help-chat" role="dialog" aria-label="Assistente do Avena">
+    <div className="help-chat" role="dialog" aria-label={t("help.assistant")}>
       <div className="help-chat-header">
-        <strong>Assistente Avena</strong>
+        <strong>{t("help.assistant")}</strong>
         <button
           type="button"
           className="help-close"
           onClick={() => setOpen(false)}
-          aria-label="Fechar ajuda"
+          aria-label={t("common.close")}
         >
           ×
         </button>
@@ -94,7 +96,7 @@ export function HelpChat() {
         <input
           value={input}
           onChange={(e) => setInput(e.target.value)}
-          placeholder="Escreva sua dúvida..."
+          placeholder={t("help.placeholder")}
         />
         <button type="submit" className="btn-primary">
           Enviar

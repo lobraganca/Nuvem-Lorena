@@ -3,13 +3,15 @@ import { useAvena } from "../store/AvenaContext";
 import { friendshipStats } from "../lib/stats";
 import { MapView } from "../components/MapView";
 import { categoryColor } from "../lib/categories";
+import { useT } from "../i18n";
 
 export function PersonProfile() {
   const { id } = useParams();
   const { people, experiences } = useAvena();
+  const t = useT();
   const person = people.find((p) => p.id === id);
 
-  if (!person) return <div className="page">Pessoa não encontrada.</div>;
+  if (!person) return <div className="page">{t("common.notFound")}</div>;
 
   const stats = friendshipStats(experiences, person.id);
   const sorted = [...stats.shared].sort(
@@ -19,7 +21,7 @@ export function PersonProfile() {
   return (
     <div className="page">
       <Link to="/" className="back-link">
-        ← Voltar ao mapa
+        ← {t("common.backToMap")}
       </Link>
       <div className="person-header">
         <div className="avatar" style={{ background: person.avatarColor }}>
@@ -27,29 +29,29 @@ export function PersonProfile() {
         </div>
         <h1>{person.name}</h1>
         <Link to={`/messages/${person.id}`} className="btn-outline">
-          Enviar mensagem
+          {t("business.sendMessage")}
         </Link>
       </div>
 
       <div className="stats-grid">
-        <Stat label="Experiências juntos" value={stats.total} />
-        <Stat label="Cidades conhecidas" value={stats.cities} />
-        <Stat label="Estados visitados" value={stats.states} />
-        <Stat label="Países visitados" value={stats.countries} />
-        <Stat label="Trilhas feitas" value={stats.trails} />
-        <Stat label="Praias" value={stats.beaches} />
-        <Stat label="Cachoeiras" value={stats.waterfalls} />
-        <Stat label="Avistamentos de animais" value={stats.animalSightings} />
+        <Stat label={t("person.together")} value={stats.total} />
+        <Stat label={t("person.cities")} value={stats.cities} />
+        <Stat label={t("person.states")} value={stats.states} />
+        <Stat label={t("person.countries")} value={stats.countries} />
+        <Stat label={t("person.trails")} value={stats.trails} />
+        <Stat label={t("person.beaches")} value={stats.beaches} />
+        <Stat label={t("person.waterfalls")} value={stats.waterfalls} />
+        <Stat label={t("person.sightings")} value={stats.animalSightings} />
       </div>
 
-      <h2 className="timeline-title">Mapa compartilhado</h2>
+      <h2 className="timeline-title">{t("person.sharedMap")}</h2>
       <div className="person-map">
         <MapView experiences={stats.shared} />
       </div>
 
-      <h2 className="timeline-title">Linha do tempo das aventuras</h2>
+      <h2 className="timeline-title">{t("person.adventureTimeline")}</h2>
       <div className="timeline">
-        {sorted.length === 0 && <p className="muted">Ainda não vivenciaram experiências juntos.</p>}
+        {sorted.length === 0 && <p className="muted">{t("person.noneYet")}</p>}
         {sorted.map((exp) => (
           <Link to={`/experience/${exp.id}`} key={exp.id} className="timeline-card">
             <div

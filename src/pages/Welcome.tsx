@@ -3,17 +3,20 @@ import { useAvena } from "../store/AvenaContext";
 import avenaLogo from "../assets/avena-logo-wordmark.png";
 import { TrendingSection } from "../components/TrendingSection";
 import { PromotedTours } from "../components/PromotedTours";
+import { useT } from "../i18n";
+import type { TranslationKey } from "../i18n";
 
-const FEATURES = [
-  { title: "Mapa afetivo", text: "Cada pin é uma história vivida — viagens, trilhas, praias, cachoeiras e muito mais." },
-  { title: "Pessoas", text: "Veja tudo o que você já viveu com cada pessoa: cidades, trilhas, primeiras vezes." },
-  { title: "Coleções", text: "Estados brasileiros, regiões, cachoeiras e praias — acompanhe seu progresso." },
-  { title: "Passeios e guias", text: "Descubra agências, guias e restaurantes verificados no seu destino." },
+const FEATURES: { title: TranslationKey; text: TranslationKey }[] = [
+  { title: "welcome.feature1Title", text: "welcome.feature1Text" },
+  { title: "welcome.feature2Title", text: "welcome.feature2Text" },
+  { title: "welcome.feature3Title", text: "welcome.feature3Text" },
+  { title: "welcome.feature4Title", text: "welcome.feature4Text" },
 ];
 
 export function Welcome() {
   const { updateUser } = useAvena();
   const navigate = useNavigate();
+  const t = useT();
 
   function chooseTurista() {
     updateUser({ accountType: "turista" });
@@ -29,18 +32,15 @@ export function Welcome() {
     <div className="landing-page">
       <section className="landing-hero">
         <img src={avenaLogo} alt="Avena" className="landing-logo" />
-        <div className="landing-hero-badge">Feito para o turismo do Brasil</div>
-        <p className="landing-tagline">
-          Um mapa afetivo para colecionar as experiências, pessoas e lugares que
-          você viveu pelo Brasil.
-        </p>
+        <div className="landing-hero-badge">{t("welcome.badge")}</div>
+        <p className="landing-tagline">{t("welcome.tagline")}</p>
       </section>
 
       <section className="landing-features">
         {FEATURES.map((f) => (
           <div key={f.title} className="landing-feature-card">
-            <h3>{f.title}</h3>
-            <p className="muted">{f.text}</p>
+            <h3>{t(f.title)}</h3>
+            <p className="muted">{t(f.text)}</p>
           </div>
         ))}
       </section>
@@ -51,33 +51,27 @@ export function Welcome() {
       </section>
 
       <section className="page page-wide welcome-page">
-        <h2>Como você quer usar o Avena?</h2>
-        <p className="muted">Escolha o tipo de conta para começar.</p>
+        <h2>{t("welcome.howToUse")}</h2>
+        <p className="muted">{t("welcome.chooseAccount")}</p>
 
         <div className="account-type-grid">
           <button type="button" className="account-type-card" onClick={chooseTurista}>
-            <h2>Sou turista</h2>
-            <p className="muted">
-              Colecione suas experiências, monte seu mapa afetivo, converse com
-              amigos e reserve passeios direto pelo app.
-            </p>
+            <h2>{t("welcome.imTraveler")}</h2>
+            <p className="muted">{t("welcome.travelerText")}</p>
             <ul>
-              <li>Registrar experiências e memórias</li>
-              <li>Perfil pessoal e coleções</li>
-              <li>Reservar passeios e falar com guias</li>
+              <li>{t("welcome.travelerItem1")}</li>
+              <li>{t("welcome.travelerItem2")}</li>
+              <li>{t("welcome.travelerItem3")}</li>
             </ul>
           </button>
 
           <button type="button" className="account-type-card" onClick={chooseProfissional}>
-            <h2>Sou profissional</h2>
-            <p className="muted">
-              Cadastre sua agência, seu trabalho como guia ou restaurante, publique
-              passeios e receba reservas de viajantes.
-            </p>
+            <h2>{t("welcome.imProfessional")}</h2>
+            <p className="muted">{t("welcome.professionalText")}</p>
             <ul>
-              <li>Cadastro de agência, guia ou restaurante</li>
-              <li>Publicar passeios do seu destino</li>
-              <li>Painel de reservas recebidas e ganhos</li>
+              <li>{t("welcome.professionalItem1")}</li>
+              <li>{t("welcome.professionalItem2")}</li>
+              <li>{t("welcome.professionalItem3")}</li>
             </ul>
           </button>
         </div>

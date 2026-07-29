@@ -8,18 +8,21 @@ import { availabilityFor } from "../lib/availability";
 import { monthsLeftInSeason, seasonLabel } from "../lib/tourAttributes";
 import { useT } from "../i18n";
 import { PresenceDot } from "../components/PresenceDot";
+import { accessibilityKey, businessTypeKey, difficultyKey, planTierKey } from "../i18n/domain";
 
 const today = new Date().toISOString().slice(0, 10);
 
 export function BusinessDetail() {
   const { id } = useParams();
   const { businesses, reviews, bookings } = useAvena();
+  // Every hook runs before the early return: React requires the same hooks in
+  // the same order on every render.
+  const t = useT();
   const business = businesses.find((b) => b.id === id);
 
-  if (!business) return <div className="page">Empresa não encontrada.</div>;
+  if (!business) return <div className="page">{t("common.notFound")}</div>;
 
   const stats = reviewStatsFor(reviews, business.id);
-  const t = useT();
 
   return (
     <div className="page">
@@ -29,7 +32,7 @@ export function BusinessDetail() {
       <div className="business-header">
         <h1>{business.name}</h1>
         <span className={`plan-badge plan-badge-${business.planTier.toLowerCase()}`}>
-          {business.planTier}
+          {t(planTierKey[business.planTier])}
         </span>
         <PresenceDot business={business} />
         <Link to={`/messages/${business.id}`} className="btn-outline">
@@ -37,7 +40,7 @@ export function BusinessDetail() {
         </Link>
       </div>
       <p className="muted">
-        {business.type} · {business.city}
+        {t(businessTypeKey[business.type])} · {business.city}
         {business.state ? `, ${business.state}` : ""} — {business.country}
       </p>
       <div style={{ margin: "8px 0" }}>
@@ -117,7 +120,7 @@ export function BusinessDetail() {
                       policy: t(cancellationLabelKey[tour.cancellationPolicy ?? "moderada"]),
                     })}
                     {tour.difficulty
-                      ? ` · ${t("business.effort", { level: tour.difficulty.toLowerCase() })}`
+                      ? ` · ${t("business.effort", { level: t(difficultyKey[tour.difficulty]).toLowerCase() })}`
                       : ""}
                   </div>
                   {seasonLabel(tour.seasonMonths) && (
@@ -138,7 +141,7 @@ export function BusinessDetail() {
                     <div className="chip-row">
                       {tour.accessibility.map((a) => (
                         <span key={a} className="access-tag">
-                          {a}
+                          {t(accessibilityKey[a])}
                         </span>
                       ))}
                     </div>

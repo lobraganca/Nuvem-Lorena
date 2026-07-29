@@ -7,6 +7,8 @@ import { categoryForTour } from "../lib/categories";
 import { PhotoPicker } from "../components/PhotoPicker";
 import { LocationPicker } from "../components/LocationPicker";
 import type { Category, Experience } from "../types";
+import { useT } from "../i18n";
+import { categoryKey } from "../i18n/domain";
 
 const MOODS = ["😍", "😄", "🥰", "💪", "🤩", "😌", "😢"];
 
@@ -66,6 +68,7 @@ export function AddExperience() {
   const [expenses, setExpenses] = useState(editing?.expenses !== undefined ? String(editing.expenses) : "");
   const [notes, setNotes] = useState(editing?.notes ?? "");
   const [locationError, setLocationError] = useState<string | null>(null);
+  const t = useT();
 
   function togglePerson(id: string) {
     setSelectedPeople((prev) =>
@@ -77,7 +80,7 @@ export function AddExperience() {
     e.preventDefault();
     if (!title || !locationName) return;
     if (lat === null || lng === null) {
-      setLocationError("Toque no mapa para marcar onde essa memória aconteceu.");
+      setLocationError(t("experience.pickOnMap"));
       return;
     }
 
@@ -119,25 +122,24 @@ export function AddExperience() {
 
   return (
     <div className="page">
-      <h1>{editing ? "Editar experiência" : "Nova experiência"}</h1>
+      <h1>{t(editing ? "experience.editTitle" : "experience.newTitle")}</h1>
       {fromBooking && (
         <div className="insight-card">
-          Preenchemos o que já sabíamos da sua reserva em {fromBooking.businessName}.
-          Confira, ajuste o que quiser e conte como foi.
+          {t("experience.fromBooking", { name: fromBooking.businessName })}
         </div>
       )}
       <form className="experience-form" onSubmit={handleSubmit}>
         <label>
-          Título
+          {t("experience.title")}
           <input value={title} onChange={(e) => setTitle(e.target.value)} required />
         </label>
 
         <label>
-          Categoria
+          {t("experience.category")}
           <select value={category} onChange={(e) => setCategory(e.target.value as Category)}>
             {categories.map((c) => (
               <option key={c} value={c}>
-                {c}
+                {t(categoryKey[c])}
               </option>
             ))}
           </select>
@@ -145,22 +147,22 @@ export function AddExperience() {
 
         <div className="form-row">
           <label>
-            Local
+            {t("experience.place")}
             <input value={locationName} onChange={(e) => setLocationName(e.target.value)} required />
           </label>
           <label>
-            Data
+            {t("experience.date")}
             <input type="date" value={date} onChange={(e) => setDate(e.target.value)} required />
           </label>
         </div>
 
         <div className="form-row">
           <label>
-            Cidade
+            {t("experience.city")}
             <input value={city} onChange={(e) => setCity(e.target.value)} />
           </label>
           <label>
-            Estado
+            {t("experience.state")}
             <select value={state} onChange={(e) => setState(e.target.value)}>
               {BRAZILIAN_STATES.map((s) => (
                 <option key={s} value={s}>
@@ -170,13 +172,13 @@ export function AddExperience() {
             </select>
           </label>
           <label>
-            País
+            {t("experience.country")}
             <input value="Brasil" disabled />
           </label>
         </div>
 
         <fieldset>
-          <legend>Onde foi</legend>
+          <legend>{t("experience.whereWasIt")}</legend>
           <LocationPicker
             lat={lat}
             lng={lng}
@@ -193,17 +195,17 @@ export function AddExperience() {
         <PhotoPicker
           photos={photos}
           onChange={setPhotos}
-          hint="As fotos ficam salvas neste aparelho e aparecem na sua memória e na retrospectiva do ano."
+          hint={t("experience.photosHint")}
         />
 
         <label>
-          Diário
+          {t("experience.diary")}
           <textarea value={diary} onChange={(e) => setDiary(e.target.value)} rows={4} />
         </label>
 
         <div className="form-row">
           <label>
-            Avaliação
+            {t("experience.rating")}
             <select value={rating} onChange={(e) => setRating(Number(e.target.value))}>
               {[1, 2, 3, 4, 5].map((n) => (
                 <option key={n} value={n}>
@@ -213,7 +215,7 @@ export function AddExperience() {
             </select>
           </label>
           <label>
-            Humor do dia
+            {t("experience.mood")}
             <select value={mood} onChange={(e) => setMood(e.target.value)}>
               {MOODS.map((m) => (
                 <option key={m} value={m}>
@@ -225,7 +227,7 @@ export function AddExperience() {
         </div>
 
         <fieldset>
-          <legend>Pessoas presentes</legend>
+          <legend>{t("experience.peoplePresent")}</legend>
           <div className="chip-row">
             {people.map((p) => (
               <button
@@ -243,37 +245,37 @@ export function AddExperience() {
 
         <div className="form-row">
           <label>
-            Agência
+            {t("experience.agency")}
             <input value={agency} onChange={(e) => setAgency(e.target.value)} />
           </label>
           <label>
-            Guia
+            {t("experience.guide")}
             <input value={guide} onChange={(e) => setGuide(e.target.value)} />
           </label>
         </div>
 
         <label>
-          Animais observados (separados por vírgula)
+          {t("experience.animals")}
           <input value={animals} onChange={(e) => setAnimals(e.target.value)} />
         </label>
 
         <label>
-          Restaurantes visitados (separados por vírgula)
+          {t("experience.restaurants")}
           <input value={restaurants} onChange={(e) => setRestaurants(e.target.value)} />
         </label>
 
         <label>
-          Gastos (R$, opcional)
+          {t("experience.expenses")}
           <input type="number" value={expenses} onChange={(e) => setExpenses(e.target.value)} />
         </label>
 
         <label>
-          Observações
+          {t("experience.notes")}
           <textarea value={notes} onChange={(e) => setNotes(e.target.value)} rows={2} />
         </label>
 
         <button type="submit" className="btn-primary">
-          {editing ? "Salvar alterações" : "Salvar experiência"}
+          {t(editing ? "common.saveChanges" : "experience.save")}
         </button>
       </form>
     </div>

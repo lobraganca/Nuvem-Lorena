@@ -164,6 +164,24 @@ Pontos de atenção já levantados:
 
 ---
 
+## Idiomas — o que continua em português
+
+Por decisão, não por esquecimento:
+
+- **Termos de Uso e Política de Privacidade.** Valem sob a lei brasileira. Em
+  inglês e espanhol aparece um aviso explicando isso acima do texto.
+- **Painel profissional e painel administrativo.** São lidos por parceiros
+  brasileiros e pela administradora.
+- **Conteúdo escrito pelas pessoas.** Nome e descrição de passeio, avaliação,
+  mensagem. A agência escreve em português e nós não traduzimos por conta
+  própria o texto dela.
+- **Assistente de ajuda.** O chat ainda responde só em português. É a única
+  lacuna que vale fechar depois.
+
+O resto da experiência do viajante está traduzido, incluindo categorias, tipos
+de negócio, níveis de esforço, tags de acessibilidade, nomes de plano e
+coleções — que são guardados em português no banco e traduzidos só na tela.
+
 ## Bloco 7 — Depois do lançamento
 
 - Comunidade de viajantes: os cinco perfis do feed são **dados de demonstração**.

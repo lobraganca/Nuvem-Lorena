@@ -1,5 +1,5 @@
 import type { Booking, Experience, Person } from "../types";
-import { buildCollections } from "./collections";
+import { buildCollections, type CollectionKey } from "./collections";
 import { profileStats } from "./stats";
 
 export interface Retrospective {
@@ -16,7 +16,7 @@ export interface Retrospective {
   topCompanion?: { name: string; count: number };
   bestTrip?: Experience;
   busiestMonth?: { month: string; count: number };
-  completedCollections: string[];
+  completedCollections: CollectionKey[];
   spent: number;
 }
 
@@ -67,7 +67,7 @@ export function buildRetrospective(
 
   const completed = buildCollections(inYear)
     .filter((c) => c.achieved >= c.total)
-    .map((c) => c.title);
+    .map((c) => c.titleKey);
 
   const spent = bookings
     .filter(

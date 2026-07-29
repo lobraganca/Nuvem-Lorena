@@ -5,14 +5,16 @@ import { BusinessCard } from "../components/BusinessCard";
 import { InviteToMemory } from "../components/InviteToMemory";
 import { isImagePhoto } from "../lib/photos";
 import { formatBRL } from "../lib/money";
+import { localeFor, useI18n } from "../i18n";
 
 export function ExperienceDetail() {
   const { id } = useParams();
   const { experiences, people, businesses, reviews, deleteExperience } = useAvena();
   const navigate = useNavigate();
+  const { t, lang } = useI18n();
   const exp = experiences.find((e) => e.id === id);
 
-  if (!exp) return <div className="page">Experiência não encontrada.</div>;
+  if (!exp) return <div className="page">{t("common.notFound")}</div>;
 
   const present = people.filter((p) => exp.peopleIds.includes(p.id));
   const localBusinesses = businesses.filter(
@@ -22,7 +24,7 @@ export function ExperienceDetail() {
   return (
     <div className="page">
       <Link to="/" className="back-link">
-        ← Voltar ao mapa
+        ← {t("common.backToMap")}
       </Link>
       <h1>
         <span
@@ -34,25 +36,25 @@ export function ExperienceDetail() {
       </h1>
       <div className="chip-row" style={{ marginBottom: 8 }}>
         <Link to={`/experience/${exp.id}/editar`} className="btn-outline">
-          Editar
+          {t("common.edit")}
         </Link>
         <button
           type="button"
           className="btn-outline"
           onClick={() => {
-            if (confirm("Excluir esta experiência? Isso não pode ser desfeito.")) {
+            if (confirm(t("experience.confirmDelete"))) {
               deleteExperience(exp.id);
               navigate("/");
             }
           }}
         >
-          Excluir
+          {t("common.delete")}
         </button>
       </div>
       <p className="muted">
         {exp.locationName}, {exp.city}
         {exp.state ? `, ${exp.state}` : ""} — {exp.country} ·{" "}
-        {new Date(exp.date).toLocaleDateString("pt-BR")}
+        {new Date(exp.date).toLocaleDateString(localeFor(lang))}
       </p>
 
       {exp.photos.length > 0 && (
@@ -62,7 +64,7 @@ export function ExperienceDetail() {
               <img
                 key={i}
                 src={photo}
-                alt={`${exp.title} — foto ${i + 1}`}
+                alt={`${exp.title} ${i + 1}`}
                 className="photo-gallery-item"
               />
             ) : (
@@ -74,11 +76,11 @@ export function ExperienceDetail() {
         </div>
       )}
 
-      {exp.mood && <p>Humor do dia: {exp.mood}</p>}
+      {exp.mood && <p>{t("experience.mood")}: {exp.mood}</p>}
       {exp.rating && (
         <p>
-          Avaliação:{" "}
-          <span aria-label={`${exp.rating} de 5 estrelas`}>
+          {t("experience.rating")}:{" "}
+          <span aria-label={t("experience.starsLabel", { n: exp.rating })}>
             <span className="star-rating" aria-hidden="true">
               {"★".repeat(exp.rating)}
             </span>
@@ -90,14 +92,14 @@ export function ExperienceDetail() {
       )}
       {exp.diary && (
         <div className="detail-block">
-          <h3>Diário</h3>
+          <h3>{t("experience.diary")}</h3>
           <p>{exp.diary}</p>
         </div>
       )}
 
       {present.length > 0 && (
         <div className="detail-block">
-          <h3>Pessoas presentes</h3>
+          <h3>{t("experience.peoplePresent")}</h3>
           <div className="chip-row">
             {present.map((p) => (
               <Link key={p.id} to={`/person/${p.id}`} className="chip" style={{ borderColor: p.avatarColor }}>
@@ -112,45 +114,45 @@ export function ExperienceDetail() {
 
       {(exp.agency || exp.guide) && (
         <div className="detail-block">
-          <h3>Agência e guia</h3>
+          <h3>{t("experience.agencyAndGuide")}</h3>
           <p>
-            {exp.agency && <span>Agência: {exp.agency} </span>}
-            {exp.guide && <span>Guia: {exp.guide}</span>}
+            {exp.agency && <span>{t("experience.agency")}: {exp.agency} </span>}
+            {exp.guide && <span>{t("experience.guide")}: {exp.guide}</span>}
           </p>
         </div>
       )}
 
       {exp.animalsSeen && exp.animalsSeen.length > 0 && (
         <div className="detail-block">
-          <h3>Animais observados</h3>
+          <h3>{t("experience.animalsSeen")}</h3>
           <p>{exp.animalsSeen.join(", ")}</p>
         </div>
       )}
 
       {exp.restaurants && exp.restaurants.length > 0 && (
         <div className="detail-block">
-          <h3>Restaurantes</h3>
+          <h3>{t("experience.restaurantsShort")}</h3>
           <p>{exp.restaurants.join(", ")}</p>
         </div>
       )}
 
       {exp.expenses !== undefined && (
         <div className="detail-block">
-          <h3>Gastos</h3>
+          <h3>{t("experience.spending")}</h3>
           <p>R$ {formatBRL(exp.expenses)}</p>
         </div>
       )}
 
       {exp.notes && (
         <div className="detail-block">
-          <h3>Observações</h3>
+          <h3>{t("experience.notes")}</h3>
           <p>{exp.notes}</p>
         </div>
       )}
 
       {localBusinesses.length > 0 && (
         <div className="detail-block">
-          <h3>Passeios, guias, agências e hotéis em {exp.city}</h3>
+          <h3>{t("experience.nearbyBusinesses", { city: exp.city })}</h3>
           <div className="viator-grid">
             {localBusinesses.map((b) => (
               <BusinessCard key={b.id} business={b} reviews={reviews} />

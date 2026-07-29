@@ -2360,7 +2360,9 @@ textarea:focus-visible,
   /* Secondary links are still links people tap with a thumb. */
   .app-footer a,
   .app-footer .footer-link,
-  .back-link {
+  .back-link,
+  .page p a,
+  .retro-statement a {
     min-height: 44px;
     display: inline-flex;
     align-items: center;

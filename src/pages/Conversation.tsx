@@ -3,10 +3,12 @@ import { Link, useParams } from "react-router-dom";
 import { useAvena } from "../store/AvenaContext";
 import type { MessageThread } from "../types";
 import { ModerationNotice, isPublishable } from "../components/ModerationNotice";
+import { localeFor, useI18n } from "../i18n";
 
 export function Conversation() {
   const { id } = useParams();
   const { people, businesses, messages, sendMessage } = useAvena();
+  const { t, lang } = useI18n();
   const [text, setText] = useState("");
 
   const person = people.find((p) => p.id === id);
@@ -40,7 +42,7 @@ export function Conversation() {
   return (
     <div className="page">
       <Link to="/messages" className="back-link">
-        ← Voltar às mensagens
+        ← {t("messages.backToList")}
       </Link>
       <div className="person-header">
         <div className="avatar" style={{ background: avatarColor }}>
@@ -52,7 +54,7 @@ export function Conversation() {
         </div>
         {business && (
           <Link to={`/business/${business.id}`} className="btn-outline">
-            Ver passeios
+            {t("messages.seeTours")}
           </Link>
         )}
       </div>
@@ -61,8 +63,8 @@ export function Conversation() {
         {conversation.length === 0 && (
           <p className="muted">
             {business
-              ? "Nenhuma mensagem ainda. Pergunte sobre horários, o que levar ou condições do passeio."
-              : "Nenhuma mensagem ainda. Diga oi!"}
+              ? t("messages.emptyBusiness")
+              : t("messages.emptyPerson")}
           </p>
         )}
         {conversation.map((m) => (
@@ -72,7 +74,7 @@ export function Conversation() {
           >
             <div>{m.text}</div>
             <div className="chat-timestamp">
-              {new Date(m.timestamp).toLocaleString("pt-BR", {
+              {new Date(m.timestamp).toLocaleString(localeFor(lang), {
                 day: "2-digit",
                 month: "2-digit",
                 hour: "2-digit",
@@ -88,10 +90,10 @@ export function Conversation() {
         <input
           value={text}
           onChange={(e) => setText(e.target.value)}
-          placeholder="Escreva uma mensagem..."
+          placeholder={t("messages.placeholder")}
         />
         <button type="submit" className="btn-primary" disabled={!isPublishable(text)}>
-          Enviar
+          {t("messages.send")}
         </button>
       </form>
     </div>

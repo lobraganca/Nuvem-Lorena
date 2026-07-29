@@ -8,6 +8,7 @@ import { travelerPlans } from "../lib/plans";
 import { buildInsights } from "../lib/insights";
 import { fileToStoredPhoto } from "../lib/photos";
 import { ModerationNotice, isPublishable } from "../components/ModerationNotice";
+import { useT } from "../i18n";
 
 export function Profile() {
   const { experiences, people, user, updateUser, bookings } = useAvena();
@@ -21,6 +22,7 @@ export function Profile() {
   const [bio, setBio] = useState(user.bio);
   const [isPrivate, setIsPrivate] = useState(user.isPrivate);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const t = useT();
 
   const sortedExperiences = [...experiences].sort(
     (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()
@@ -48,7 +50,7 @@ export function Profile() {
   return (
     <div className="page page-wide">
       <Link to="/" className="back-link">
-        ← Voltar ao mapa
+        ← {t("common.backToMap")}
       </Link>
 
       <div className="ig-header">
@@ -56,7 +58,7 @@ export function Profile() {
           type="button"
           className="ig-avatar-btn"
           onClick={() => fileInputRef.current?.click()}
-          title="Alterar foto de perfil"
+          title={t("profile.changePhoto")}
         >
           {user.avatarPhoto ? (
             <img src={user.avatarPhoto} alt={user.name} className="ig-avatar" />
@@ -65,7 +67,7 @@ export function Profile() {
               {user.name[0]}
             </div>
           )}
-          <span className="ig-avatar-edit">Editar</span>
+          <span className="ig-avatar-edit">{t("common.edit")}</span>
         </button>
         <input
           ref={fileInputRef}
@@ -79,59 +81,59 @@ export function Profile() {
           <div className="ig-header-top">
             <h1 className="ig-username">@{user.username}</h1>
             <span className={`privacy-badge ${user.isPrivate ? "privacy-private" : "privacy-public"}`}>
-              {user.isPrivate ? "Privado" : "Público"}
+              {t(user.isPrivate ? "profile.private" : "profile.public")}
             </span>
             <span className="privacy-badge">
-              {user.accountType === "profissional" ? "Profissional" : "Turista"}
+              {t(user.accountType === "profissional" ? "profile.professional" : "profile.tourist")}
             </span>
             <button className="btn-outline" onClick={() => setEditing((v) => !v)}>
-              {editing ? "Cancelar" : "Editar perfil"}
+              {t(editing ? "common.cancel" : "profile.editProfile")}
             </button>
             {user.accountType === "profissional" && (
               <Link to="/professional" className="btn-outline">
-                Ir para o painel profissional
+                {t("profile.goToDashboard")}
               </Link>
             )}
             <Link to="/meus-dados" className="btn-outline">
-              Meus dados e backup
+              {t("profile.myData")}
             </Link>
             <Link to="/welcome" className="btn-outline">
-              Trocar tipo de conta
+              {t("profile.switchAccount")}
             </Link>
             <button
               type="button"
               className="btn-outline"
               onClick={() => {
-                if (confirm("Sair da conta?")) {
+                if (confirm(t("profile.confirmSignOut"))) {
                   updateUser({ accountType: undefined, ownBusinessId: undefined });
                   navigate("/");
                 }
               }}
             >
-              Sair
+              {t("profile.signOut")}
             </button>
           </div>
 
           {/* On phones the top bar is replaced by the tab bar, so everything
               that is not a tab has to be reachable from here. */}
-          <nav className="profile-menu" aria-label="Mais opções">
-            <Link to="/messages">Mensagens</Link>
-            <Link to="/ajuda">Central de ajuda</Link>
-            <Link to="/meus-dados">Meus dados e backup</Link>
-            <Link to="/business">Para empresas</Link>
-            <Link to="/termos">Termos de Uso</Link>
-            <Link to="/privacidade">Privacidade</Link>
+          <nav className="profile-menu" aria-label={t("nav.moreOptions")}>
+            <Link to="/messages">{t("nav.messages")}</Link>
+            <Link to="/ajuda">{t("footer.help")}</Link>
+            <Link to="/meus-dados">{t("profile.myData")}</Link>
+            <Link to="/business">{t("nav.forBusiness")}</Link>
+            <Link to="/termos">{t("footer.terms")}</Link>
+            <Link to="/privacidade">{t("footer.privacy")}</Link>
           </nav>
 
           <div className="ig-stats-row">
             <div>
-              <strong>{stats.total}</strong> <span className="muted">experiências</span>
+              <strong>{stats.total}</strong> <span className="muted">{t("profile.experiences")}</span>
             </div>
             <div>
-              <strong>{stats.cities}</strong> <span className="muted">cidades</span>
+              <strong>{stats.cities}</strong> <span className="muted">{t("profile.cities")}</span>
             </div>
             <div>
-              <strong>{people.length}</strong> <span className="muted">pessoas</span>
+              <strong>{people.length}</strong> <span className="muted">{t("profile.people")}</span>
             </div>
           </div>
 
@@ -143,39 +145,39 @@ export function Profile() {
       {editing && (
         <form className="experience-form ig-edit-form" onSubmit={saveProfile}>
           <label>
-            Nome
+            {t("profile.name")}
             <input value={name} onChange={(e) => setName(e.target.value)} required />
           </label>
           <label>
-            Usuário
+            {t("profile.username")}
             <input value={username} onChange={(e) => setUsername(e.target.value)} required />
           </label>
           <label>
-            Bio
+            {t("profile.bio")}
             <textarea value={bio} onChange={(e) => setBio(e.target.value)} rows={2} />
           </label>
           <fieldset>
-            <legend>Privacidade do perfil</legend>
+            <legend>{t("profile.privacyLegend")}</legend>
             <div className="privacy-toggle">
               <button
                 type="button"
                 className={`chip ${!isPrivate ? "chip-active" : ""}`}
                 onClick={() => setIsPrivate(false)}
               >
-                Público
+                {t("profile.public")}
               </button>
               <button
                 type="button"
                 className={`chip ${isPrivate ? "chip-active" : ""}`}
                 onClick={() => setIsPrivate(true)}
               >
-                Privado
+                {t("profile.private")}
               </button>
             </div>
             <p className="muted">
               {isPrivate
-                ? "Apenas pessoas marcadas em suas experiências podem ver seu perfil e mapa."
-                : "Qualquer pessoa na comunidade pode ver seu perfil, mapa e coleções."}
+                ? t("profile.privateHint")
+                : t("profile.publicHint")}
             </p>
           </fieldset>
           <ModerationNotice text={profileText} />
@@ -184,7 +186,7 @@ export function Profile() {
             className="btn-primary"
             disabled={!isPublishable(profileText)}
           >
-            Salvar
+            {t("common.save")}
           </button>
         </form>
       )}
@@ -192,9 +194,9 @@ export function Profile() {
       {insights.length > 0 && (
         <>
           <div className="insights-head">
-            <h2 className="timeline-title">O que o Avena percebeu</h2>
+            <h2 className="timeline-title">{t("profile.insights")}</h2>
             <Link to="/retrospectiva" className="btn-outline">
-              Ver retrospectiva do ano
+              {t("profile.yearRetrospective")}
             </Link>
           </div>
           <div className="insights-list">
@@ -243,7 +245,7 @@ export function Profile() {
         ))}
       </div>
 
-      <h2 className="timeline-title">Coleções</h2>
+      <h2 className="timeline-title">{t("profile.collections")}</h2>
       <div className="collections-grid">
         {collections.map((c) => {
           const pct = Math.min(100, Math.round((c.achieved / c.total) * 100));
@@ -254,7 +256,7 @@ export function Profile() {
                   {c.achieved}/{c.total}
                 </span>
               </div>
-              <div className="collection-title">{c.title}</div>
+              <div className="collection-title">{t(c.titleKey)}</div>
               <div className="progress-bar">
                 <div className="progress-fill" style={{ width: `${pct}%` }} />
               </div>

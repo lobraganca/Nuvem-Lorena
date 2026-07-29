@@ -5,6 +5,8 @@ import { businessTypeColor } from "../lib/categories";
 import { reviewStatsFor } from "../lib/reviews";
 import { ReputationBadge } from "./ReputationBadge";
 import { formatBRL } from "../lib/money";
+import { useT } from "../i18n";
+import { businessTypeKey } from "../i18n/domain";
 
 /**
  * Paid placements on the traveler's first screen. Every card carries a
@@ -12,6 +14,7 @@ import { formatBRL } from "../lib/money";
  * (art. 36 do Código de Defesa do Consumidor).
  */
 export function PromotedTours({ compact = false }: { compact?: boolean }) {
+  const t = useT();
   const { boosts, businesses, reviews } = useAvena();
   const navigate = useNavigate();
 
@@ -30,7 +33,7 @@ export function PromotedTours({ compact = false }: { compact?: boolean }) {
   if (compact) {
     return (
       <section className="promoted-compact">
-        <h2 className="timeline-title">Em destaque</h2>
+        <h2 className="timeline-title">{t("promoted.title")}</h2>
         {promoted.slice(0, 3).map(({ boost, business, tour }) => (
           <button
             key={boost.id}
@@ -38,14 +41,14 @@ export function PromotedTours({ compact = false }: { compact?: boolean }) {
             className="promoted-compact-card"
             onClick={() => navigate(`/business/${business.id}`)}
           >
-            <div className="promoted-label">Patrocinado</div>
+            <div className="promoted-label">{t("promoted.sponsored")}</div>
             <div className="timeline-card-title">{tour.title}</div>
             <div className="muted">
               {business.name} · {business.city}
             </div>
             {tour.priceFrom !== undefined && (
               <div className="viator-card-price">
-                A partir de <strong>R$ {formatBRL(tour.priceFrom)}</strong>
+                {t("common.from")} <strong>R$ {formatBRL(tour.priceFrom)}</strong>
               </div>
             )}
           </button>
@@ -56,7 +59,7 @@ export function PromotedTours({ compact = false }: { compact?: boolean }) {
 
   return (
     <section className="trending-section">
-      <h2 className="timeline-title">Em destaque</h2>
+      <h2 className="timeline-title">{t("promoted.title")}</h2>
       <div className="viator-grid">
         {promoted.map(({ boost, business, tour }) => {
           const stats = reviewStatsFor(reviews, business.id);
@@ -71,10 +74,10 @@ export function PromotedTours({ compact = false }: { compact?: boolean }) {
                 className="viator-card-media"
                 style={{ background: businessTypeColor[business.type] }}
               >
-                <span className="viator-card-media-label">{business.type}</span>
+                <span className="viator-card-media-label">{t(businessTypeKey[business.type])}</span>
               </div>
               <div className="viator-card-body">
-                <div className="promoted-label">Patrocinado</div>
+                <div className="promoted-label">{t("promoted.sponsored")}</div>
                 <div className="viator-card-title">{tour.title}</div>
                 {tour.description && <div className="muted">{tour.description}</div>}
                 <div className="muted">
@@ -84,7 +87,7 @@ export function PromotedTours({ compact = false }: { compact?: boolean }) {
                 <ReputationBadge avgRating={stats.avgRating} count={stats.count} />
                 {tour.priceFrom !== undefined && (
                   <div className="viator-card-price">
-                    A partir de{" "}
+                    {t("common.from")}{" "}
                     <strong>R$ {formatBRL(tour.priceFrom)}</strong>
                   </div>
                 )}

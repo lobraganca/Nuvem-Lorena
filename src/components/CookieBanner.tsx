@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
+import { useT } from "../i18n";
 
 /**
  * Consent is stored per device (not per account), since it governs what runs
@@ -45,6 +46,7 @@ export function openCookiePreferences() {
 }
 
 export function CookieBanner() {
+  const t = useT();
   const [consent, setConsent] = useState<CookieConsent | null>(() =>
     readCookieConsent()
   );
@@ -63,14 +65,14 @@ export function CookieBanner() {
   }
 
   return (
-    <div className="cookie-banner" role="dialog" aria-label="Preferências de cookies">
+    <div className="cookie-banner" role="dialog" aria-label={t("footer.cookies")}>
       <div className="cookie-banner-text">
-        <strong>Este site usa cookies</strong>
+        <strong>{t("cookies.title")}</strong>
         <p className="muted">
           Usamos cookies essenciais para manter você conectado e o app
           funcionando. Com sua autorização, usamos também cookies de análise
           para entender como o Avena é usado e melhorá-lo. Saiba mais na{" "}
-          <Link to="/privacidade">Política de Privacidade</Link>.
+          <Link to="/privacidade">{t("footer.privacy")}</Link>.
         </p>
       </div>
       <div className="cookie-banner-actions">
