@@ -1,18 +1,35 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import { useAvena } from "../store/AvenaContext";
 import type { MessageThread } from "../types";
 import { ModerationNotice, isPublishable } from "../components/ModerationNotice";
+import { threadKey, unreadThreadKeys } from "../lib/messages";
 import { localeFor, useI18n } from "../i18n";
 
 export function Conversation() {
   const { id } = useParams();
-  const { people, businesses, messages, sendMessage } = useAvena();
+  const { people, businesses, messages, sendMessage, markThreadRead, user } = useAvena();
   const { t, lang } = useI18n();
   const [text, setText] = useState("");
 
   const person = people.find((p) => p.id === id);
   const business = person ? undefined : businesses.find((b) => b.id === id);
+  const exists = Boolean(person || business);
+  const isPerson = Boolean(person);
+
+  // Opening the conversation is what marks it read. The unread check is not an
+  // optimisation: marking writes to the store, which hands back a new
+  // markThreadRead, so an unconditional effect would never settle.
+  const unread = exists && id
+    ? unreadThreadKeys(messages, user.threadReads).includes(
+        threadKey(isPerson ? { personId: id } : { businessId: id })
+      )
+    : false;
+
+  useEffect(() => {
+    if (!unread || !id) return;
+    markThreadRead(isPerson ? { personId: id } : { businessId: id });
+  }, [unread, id, isPerson, markThreadRead]);
 
   if (!person && !business) {
     return <div className="page">Conversa não encontrada.</div>;

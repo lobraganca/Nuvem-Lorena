@@ -2,6 +2,7 @@ import { Link } from "react-router-dom";
 import { useAvena } from "../store/AvenaContext";
 import type { Message } from "../types";
 import { useT } from "../i18n";
+import { unreadThreadKeys } from "../lib/messages";
 import { businessTypeKey } from "../i18n/domain";
 
 interface Thread {
@@ -10,6 +11,7 @@ interface Thread {
   subtitle: string;
   avatarColor: string;
   last?: Message;
+  unread?: boolean;
 }
 
 function lastOf(messages: Message[]): Message | undefined {
@@ -19,8 +21,10 @@ function lastOf(messages: Message[]): Message | undefined {
 }
 
 export function Messages() {
-  const { people, businesses, messages } = useAvena();
+  const { people, businesses, messages, user } = useAvena();
   const t = useT();
+
+  const unread = new Set(unreadThreadKeys(messages, user.threadReads));
 
   const personThreads: Thread[] = people.map((p) => ({
     id: p.id,
@@ -28,6 +32,7 @@ export function Messages() {
     subtitle: t("messages.person"),
     avatarColor: p.avatarColor,
     last: lastOf(messages.filter((m) => m.personId === p.id)),
+    unread: unread.has(`p:${p.id}`),
   }));
 
   // Only businesses you already talked to, so the list stays about
@@ -40,6 +45,7 @@ export function Messages() {
       subtitle: `${t(businessTypeKey[b.type])} · ${b.city}`,
       avatarColor: "var(--accent)",
       last: lastOf(messages.filter((m) => m.businessId === b.id)),
+      unread: unread.has(`b:${b.id}`),
     }));
 
   function sortThreads(threads: Thread[]) {
@@ -51,12 +57,17 @@ export function Messages() {
   }
 
   const startHint = t("messages.startHint");
+  const unreadLabel = t("messages.unread");
 
   function ThreadList({ threads }: { threads: Thread[] }) {
     return (
       <div className="conversation-list">
         {threads.map((t) => (
-          <Link to={`/messages/${t.id}`} key={t.id} className="conversation-row">
+          <Link
+            to={`/messages/${t.id}`}
+            key={t.id}
+            className={`conversation-row ${t.unread ? "conversation-row-unread" : ""}`}
+          >
             <div className="avatar" style={{ background: t.avatarColor }}>
               {t.name[0]}
             </div>
@@ -66,6 +77,7 @@ export function Messages() {
                 {t.last ? t.last.text : startHint}
               </div>
             </div>
+            {t.unread && <span className="conversation-unread-dot" aria-label={unreadLabel} />}
           </Link>
         ))}
       </div>

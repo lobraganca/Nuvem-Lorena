@@ -1,6 +1,7 @@
 import type { ReactElement } from "react";
 import { NavLink } from "react-router-dom";
 import { useAvena } from "../store/AvenaContext";
+import { unreadCount } from "../lib/messages";
 import { useT } from "../i18n";
 
 interface Item {
@@ -8,6 +9,8 @@ interface Item {
   label: string;
   /** Drawn inline so the bar needs no icon font and no network request. */
   icon: ReactElement;
+  /** Number on the corner of the icon, hidden when zero. */
+  badge?: number;
 }
 
 const icon = (path: string) => (
@@ -16,37 +19,54 @@ const icon = (path: string) => (
   </svg>
 );
 
-const mapIcon = icon("M9 3 3 5.5v16L9 19l6 2.5 6-2.5v-16L15 5.5 9 3zm0 2.2 6 2.5v11.1l-6-2.5V5.2z");
+const homeIcon = icon("M12 3 2.5 11.2l1.3 1.5L5 11.7V20a1 1 0 0 0 1 1h4v-6h4v6h4a1 1 0 0 0 1-1v-8.3l1.2 1 1.3-1.5L12 3z");
 const searchIcon = icon("M10.5 3a7.5 7.5 0 1 1-4.7 13.3L3 19.1 1.9 18l2.8-2.8A7.5 7.5 0 0 1 10.5 3zm0 2a5.5 5.5 0 1 0 0 11 5.5 5.5 0 0 0 0-11z");
-const ticketIcon = icon("M3 7a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v3a2 2 0 0 0 0 4v3a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-3a2 2 0 0 0 0-4V7z");
-const personIcon = icon("M12 12a5 5 0 1 0 0-10 5 5 0 0 0 0 10zm0 2c-5 0-9 2.7-9 6v2h18v-2c0-3.3-4-6-9-6z");
+const messageIcon = icon("M12 3c5 0 9 3.4 9 7.7 0 4.2-4 7.6-9 7.6-1 0-2-.1-2.9-.4L4 20.5l1.2-3.4C3.2 15.7 3 13.3 3 10.7 3 6.4 7 3 12 3z");
 const peopleIcon = icon("M8 12a4 4 0 1 0 0-8 4 4 0 0 0 0 8zm8 0a3 3 0 1 0 0-6 3 3 0 0 0 0 6zM2 20v-1c0-3 3-5 6-5s6 2 6 5v1H2zm14 0v-1c0-1.5-.6-2.8-1.5-3.8 3 .3 5.5 2 5.5 4.3V20h-4z");
 const dashboardIcon = icon("M3 3h8v8H3V3zm10 0h8v5h-8V3zM3 13h8v8H3v-8zm10 3h8v5h-8v-5z");
 
 /**
- * Fixed tab bar for phones. A travel app is used standing up, one-handed, so
- * the main destinations cannot live in a strip that scrolls sideways.
+ * Floating tab bar for phones, in the shape people already know from social
+ * apps: the five places you actually go, and nothing else. A travel app is used
+ * standing up and one-handed, so these cannot live in a strip that scrolls.
  */
 export function BottomNav() {
-  const { user } = useAvena();
+  const { user, messages } = useAvena();
   const t = useT();
 
   if (!user.accountType) return null;
+
+  const unread = unreadCount(messages, user.threadReads);
+
+  /** The person's own face is the profile tab, as in every app of this shape. */
+  const avatarTab = (
+    <span
+      className="bottom-nav-avatar"
+      style={
+        user.avatarPhoto
+          ? { backgroundImage: `url(${user.avatarPhoto})` }
+          : { background: user.avatarColor }
+      }
+      aria-hidden="true"
+    >
+      {!user.avatarPhoto && (user.name?.[0] ?? "?")}
+    </span>
+  );
 
   const items: Item[] =
     user.accountType === "profissional"
       ? [
           { to: "/professional", label: t("nav.dashboard"), icon: dashboardIcon },
           { to: "/destination", label: t("nav.search"), icon: searchIcon },
-          { to: "/messages", label: t("nav.messages"), icon: ticketIcon },
-          { to: "/profile", label: t("nav.profile"), icon: personIcon },
+          { to: "/messages", label: t("nav.messages"), icon: messageIcon, badge: unread },
+          { to: "/profile", label: t("nav.profile"), icon: avatarTab },
         ]
       : [
-          { to: "/", label: t("nav.map"), icon: mapIcon },
+          { to: "/", label: t("nav.start"), icon: homeIcon },
           { to: "/destination", label: t("nav.search"), icon: searchIcon },
-          { to: "/feed", label: t("nav.feed"), icon: peopleIcon },
-          { to: "/bookings", label: t("nav.bookings"), icon: ticketIcon },
-          { to: "/profile", label: t("nav.profile"), icon: personIcon },
+          { to: "/feed", label: t("nav.people"), icon: peopleIcon },
+          { to: "/messages", label: t("nav.messages"), icon: messageIcon, badge: unread },
+          { to: "/profile", label: t("nav.profile"), icon: avatarTab },
         ];
 
   return (
@@ -60,8 +80,16 @@ export function BottomNav() {
             `bottom-nav-item ${isActive ? "bottom-nav-item-active" : ""}`
           }
         >
-          <span className="bottom-nav-icon-wrap">{item.icon}</span>
+          <span className="bottom-nav-icon-wrap">
+            {item.icon}
+            {item.badge ? (
+              <span className="nav-badge">{item.badge > 9 ? "9+" : item.badge}</span>
+            ) : null}
+          </span>
           <span className="bottom-nav-label">{item.label}</span>
+          {item.badge ? (
+            <span className="sr-only">{t("nav.unread", { count: item.badge })}</span>
+          ) : null}
         </NavLink>
       ))}
     </nav>

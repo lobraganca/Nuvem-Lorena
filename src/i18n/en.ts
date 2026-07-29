@@ -16,6 +16,9 @@ export const en: Record<keyof typeof pt, string> = {
   "nav.feed": "Following",
   "nav.skipToContent": "Skip to content",
   "nav.home": "Avena — home",
+  "nav.start": "Home",
+  "nav.people": "People",
+  "nav.unread": "{count} unread conversations",
   "nav.main": "Main navigation",
   "nav.moreOptions": "More options",
   "nav.language": "Language",
@@ -277,6 +280,9 @@ export const en: Record<keyof typeof pt, string> = {
   "follow.privateExplain":
     "Only followers {name} accepts can see this profile's experiences and tours.",
   "follow.travelers": "Travellers",
+  "follow.searchPeople": "Search travellers by name, @ or city",
+  "follow.searchResults": "Results",
+  "follow.searchEmpty": "No traveller found for “{term}”.",
   "follow.discoverTitle": "Travellers to follow",
   "follow.discoverSubtitle":
     "Follow people who travel like you and keep up with the tours they are taking.",
@@ -478,6 +484,7 @@ export const en: Record<keyof typeof pt, string> = {
   "collection.animals": "Animals spotted",
   "profile.collections": "Collections",
 
+  "messages.unread": "Unread",
   "messages.startHint": "Say hello and start the conversation",
   "plan.basico": "Basic",
   "plan.pro": "Pro",

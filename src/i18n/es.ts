@@ -16,6 +16,9 @@ export const es: Record<keyof typeof pt, string> = {
   "nav.feed": "Siguiendo",
   "nav.skipToContent": "Saltar al contenido",
   "nav.home": "Avena — página de inicio",
+  "nav.start": "Inicio",
+  "nav.people": "Personas",
+  "nav.unread": "{count} conversaciones sin leer",
   "nav.main": "Navegación principal",
   "nav.moreOptions": "Más opciones",
   "nav.language": "Idioma",
@@ -277,6 +280,9 @@ export const es: Record<keyof typeof pt, string> = {
   "follow.privateExplain":
     "Solo quienes {name} acepta como seguidores ven las experiencias y excursiones de este perfil.",
   "follow.travelers": "Viajeros",
+  "follow.searchPeople": "Buscar viajeros por nombre, @ o ciudad",
+  "follow.searchResults": "Resultados",
+  "follow.searchEmpty": "No se encontró ningún viajero para “{term}”.",
   "follow.discoverTitle": "Viajeros para seguir",
   "follow.discoverSubtitle":
     "Sigue a quienes viajan como tú y entérate de las excursiones que están haciendo.",
@@ -480,6 +486,7 @@ export const es: Record<keyof typeof pt, string> = {
   "collection.animals": "Animales observados",
   "profile.collections": "Colecciones",
 
+  "messages.unread": "Sin leer",
   "messages.startHint": "Saluda y empieza la conversación",
   "plan.basico": "Básico",
   "plan.pro": "Pro",

@@ -38,6 +38,11 @@ export interface UserProfile {
   following?: string[];
   /** Follow requests sent to private profiles, still waiting for an answer. */
   followRequests?: string[];
+  /**
+   * When each conversation was last opened, keyed by thread. Anything the other
+   * side sent after that shows as unread on the tab bar.
+   */
+  threadReads?: Record<string, string>;
 }
 
 /**

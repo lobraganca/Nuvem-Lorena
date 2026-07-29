@@ -12,6 +12,7 @@ import {
 import { mockTravelerActivity, mockTravelers } from "../data/travelers";
 import { computeRefund } from "../lib/cancellation";
 import { canReview } from "../lib/reviewEligibility";
+import { threadKey } from "../lib/messages";
 
 const STORAGE_KEY = "avena-data-v17";
 
@@ -44,6 +45,7 @@ interface AvenaContextValue extends AvenaData {
   addBusiness: (business: Business) => void;
   updateUser: (user: Partial<UserProfile>) => void;
   sendMessage: (thread: MessageThread, text: string) => void;
+  markThreadRead: (thread: MessageThread) => void;
   addBooking: (booking: Booking) => void;
   addTourToBusiness: (businessId: string, tour: Tour) => void;
   updateTour: (businessId: string, tour: Tour) => void;
@@ -204,6 +206,17 @@ export function AvenaProvider({ children }: { children: ReactNode }) {
               timestamp: new Date().toISOString(),
             },
           ],
+        })),
+      markThreadRead: (thread) =>
+        setData((d) => ({
+          ...d,
+          user: {
+            ...d.user,
+            threadReads: {
+              ...(d.user.threadReads ?? {}),
+              [threadKey(thread)]: new Date().toISOString(),
+            },
+          },
         })),
       addBooking: (booking) =>
         setData((d) => ({ ...d, bookings: [booking, ...d.bookings] })),

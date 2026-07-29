@@ -20,6 +20,9 @@ export const pt = {
   "nav.feed": "Seguindo",
   "nav.skipToContent": "Pular para o conteúdo",
   "nav.home": "Avena — página inicial",
+  "nav.start": "Início",
+  "nav.people": "Pessoas",
+  "nav.unread": "{count} conversas não lidas",
   "nav.main": "Navegação principal",
   "nav.moreOptions": "Mais opções",
   "nav.language": "Idioma",
@@ -292,6 +295,9 @@ export const pt = {
   "follow.privateExplain":
     "Só quem {name} aceita como seguidor vê as experiências e os passeios deste perfil.",
   "follow.travelers": "Viajantes",
+  "follow.searchPeople": "Buscar viajantes por nome, @ ou cidade",
+  "follow.searchResults": "Resultados",
+  "follow.searchEmpty": "Nenhum viajante encontrado para “{term}”.",
   "follow.discoverTitle": "Viajantes para seguir",
   "follow.discoverSubtitle":
     "Siga quem viaja parecido com você e acompanhe os passeios que estão fazendo.",
@@ -499,6 +505,7 @@ export const pt = {
   "collection.animals": "Animais observados",
   "profile.collections": "Coleções",
 
+  "messages.unread": "Não lida",
   "messages.startHint": "Diga oi e comece a conversa",
   "plan.basico": "Básico",
   "plan.pro": "Pro",
