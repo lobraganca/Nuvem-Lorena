@@ -7,7 +7,14 @@ import {
   cancellationPolicyLabel,
   computeRefund,
 } from "../lib/cancellation";
+import {
+  bookingStatusHint,
+  bookingStatusLabel,
+  effectiveStatus,
+  minutesLeftToPay,
+} from "../lib/bookingStatus";
 import type { Booking } from "../types";
+import { formatBRL } from "../lib/money";
 
 function CancelBooking({ booking }: { booking: Booking }) {
   const { cancelBooking } = useAvena();
@@ -29,7 +36,7 @@ function CancelBooking({ booking }: { booking: Booking }) {
         {cancellationPolicyDescription[booking.cancellationPolicy]}
       </p>
       <p>
-        Você receberá de volta <strong>R$ {refundAmount.toLocaleString("pt-BR")}</strong> (
+        Você receberá de volta <strong>R$ {formatBRL(refundAmount)}</strong> (
         {refundPct}% do valor pago).
       </p>
       <div className="chip-row">
@@ -54,26 +61,35 @@ export function Bookings() {
 
   // Upcoming first and in chronological order — the next trip is what someone
   // opens this screen to check.
+  const awaiting = bookings
+    .filter((b) => effectiveStatus(b) === "aguardando-pagamento")
+    .sort((a, b) => a.travelDate.localeCompare(b.travelDate));
+
   const upcoming = bookings
-    .filter((b) => b.travelDate >= today && b.status === "confirmada")
+    .filter((b) => b.travelDate >= today && effectiveStatus(b) === "confirmada")
     .sort((a, b) => a.travelDate.localeCompare(b.travelDate));
 
   const past = bookings
-    .filter((b) => b.travelDate < today || b.status === "cancelada")
+    .filter((b) => {
+      const status = effectiveStatus(b);
+      if (status === "aguardando-pagamento") return false;
+      return b.travelDate < today || status === "cancelada" || status === "expirada";
+    })
     .sort((a, b) => b.travelDate.localeCompare(a.travelDate));
 
   function BookingCard({ b }: { b: Booking }) {
+    const status = effectiveStatus(b);
     const isPast = b.travelDate < today;
-    const isCancelled = b.status === "cancelada";
+    const isCancelled = status === "cancelada";
+    const isAwaiting = status === "aguardando-pagamento";
+    const isPaid = status === "confirmada";
     return (
       <div className="booking-card">
         <div className="timeline-card-title">
           {b.tourTitle}
-          {isCancelled && (
-            <span className="privacy-badge" style={{ marginLeft: 8 }}>
-              Cancelada
-            </span>
-          )}
+          <span className={`booking-status booking-status-${status}`}>
+            {bookingStatusLabel[status]}
+          </span>
         </div>
         <div className="muted">
           {b.businessName} · {new Date(b.travelDate).toLocaleDateString("pt-BR")} ·{" "}
@@ -81,18 +97,27 @@ export function Bookings() {
         </div>
         <div className="booking-breakdown">
           <div>
-            Total pago <strong>R$ {b.totalPrice.toLocaleString("pt-BR")}</strong>
+            {isPaid ? "Total pago" : "Valor"}{" "}
+            <strong>R$ {formatBRL(b.totalPrice)}</strong>
           </div>
           <div className="muted">
             Taxa de serviço Avena ({Math.round(b.commissionRate * 100)}%): R${" "}
-            {b.commissionAmount.toLocaleString("pt-BR")}
+            {formatBRL(b.commissionAmount)}
           </div>
           <div className="muted">
-            {b.businessName} recebeu: R$ {b.businessPayout.toLocaleString("pt-BR")}
+            {b.businessName} {isPaid ? "recebeu" : "recebe"}: R${" "}
+            {formatBRL(b.businessPayout)}
           </div>
+          {b.payment && (
+            <div className="muted">
+              Pago via {b.payment.method === "pix" ? "Pix" : "cartão"} ·
+              comprovante {b.payment.reference}
+            </div>
+          )}
+          <div className="muted">{bookingStatusHint[status]}</div>
           {isCancelled && (
             <div className="muted">
-              Reembolsado: R$ {(b.refundAmount ?? 0).toLocaleString("pt-BR")}
+              Reembolsado: R$ {(formatBRL(b.refundAmount ?? 0))}
             </div>
           )}
         </div>
@@ -108,11 +133,29 @@ export function Bookings() {
           </div>
         )}
 
-        <Link to={`/messages/${b.businessId}`} className="btn-outline">
-          Falar com {b.businessName}
-        </Link>
+        <div className="chip-row">
+          <Link to={`/messages/${b.businessId}`} className="btn-outline">
+            Falar com {b.businessName}
+          </Link>
+          <Link to={`/ajuda/novo?reserva=${b.id}`} className="btn-outline">
+            Abrir chamado com a Avena
+          </Link>
+        </div>
 
-        {isCancelled ? null : isPast ? (
+        {isAwaiting && (
+          <Link to={`/pagamento/${b.id}`} className="btn-primary">
+            Pagar e confirmar · faltam {minutesLeftToPay(b)} min
+          </Link>
+        )}
+
+        {status === "expirada" && (
+          <p className="muted">
+            A vaga voltou para o passeio. Você pode reservar de novo na página da
+            agência.
+          </p>
+        )}
+
+        {isCancelled || isAwaiting || status === "expirada" ? null : isPast ? (
           <ReviewForm booking={b} />
         ) : (
           <CancelBooking booking={b} />
@@ -133,6 +176,17 @@ export function Bookings() {
           Nenhuma reserva ainda. Explore os{" "}
           <Link to="/destination">destinos</Link> e feche passeios direto pelo app.
         </p>
+      )}
+
+      {awaiting.length > 0 && (
+        <>
+          <h2 className="timeline-title">Aguardando pagamento</h2>
+          <div className="timeline">
+            {awaiting.map((b) => (
+              <BookingCard key={b.id} b={b} />
+            ))}
+          </div>
+        </>
       )}
 
       {upcoming.length > 0 && (

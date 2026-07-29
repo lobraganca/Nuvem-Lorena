@@ -4,6 +4,7 @@ import { useAvena } from "../store/AvenaContext";
 import { commissionRateFor } from "../lib/plans";
 import { cancellationPolicyDescription, cancellationPolicyLabel } from "../lib/cancellation";
 import { availabilityFor } from "../lib/availability";
+import { PAYMENT_WINDOW_MINUTES, paymentDeadline } from "../lib/bookingStatus";
 import { isInSeason, seasonLabel } from "../lib/tourAttributes";
 import {
   ParticipantFields,
@@ -17,6 +18,7 @@ import {
   useLegalAccepted,
 } from "./LegalAcceptance";
 import type { Business, Participant, Tour } from "../types";
+import { formatBRL } from "../lib/money";
 
 export function BookTourButton({ business, tour }: { business: Business; tour: Tour }) {
   const { addBooking, bookings, user, waitlist, joinWaitlist } = useAvena();
@@ -87,11 +89,13 @@ export function BookTourButton({ business, tour }: { business: Business; tour: T
       commissionAmount,
       businessPayout,
       createdAt: new Date().toISOString(),
-      status: "confirmada" as const,
+      // The seat is held, not sold. Only the payment turns it into a booking.
+      status: "aguardando-pagamento" as const,
+      paymentDueAt: paymentDeadline(),
       cancellationPolicy,
     };
     addBooking(booking);
-    navigate("/bookings");
+    navigate(`/pagamento/${booking.id}`);
   }
 
   if (!open) {
@@ -171,18 +175,22 @@ export function BookTourButton({ business, tour }: { business: Business; tour: T
 
       <div className="booking-breakdown">
         <div>
-          Valor total <strong>R$ {totalPrice.toLocaleString("pt-BR")}</strong>
+          Valor total <strong>R$ {formatBRL(totalPrice)}</strong>
         </div>
         <div className="muted">
           Taxa de serviço Avena ({Math.round(commissionRate * 100)}%): R${" "}
-          {commissionAmount.toLocaleString("pt-BR")}
+          {formatBRL(commissionAmount)}
         </div>
         <div className="muted">
-          {business.name} recebe: R$ {businessPayout.toLocaleString("pt-BR")}
+          {business.name} recebe: R$ {formatBRL(businessPayout)}
         </div>
         <div className="muted">
           Cancelamento {cancellationPolicyLabel[cancellationPolicy]}:{" "}
           {cancellationPolicyDescription[cancellationPolicy]}
+        </div>
+        <div className="muted">
+          A vaga fica reservada por {PAYMENT_WINDOW_MINUTES} minutos até o
+          pagamento. A reserva só é confirmada depois que o pagamento é aprovado.
         </div>
       </div>
 
@@ -194,7 +202,7 @@ export function BookTourButton({ business, tour }: { business: Business; tour: T
           className="btn-primary"
           disabled={soldOut || exceedsCapacity || !legalOk || Boolean(peopleError)}
         >
-          Confirmar reserva
+          Ir para o pagamento
         </button>
         <button type="button" className="btn-outline" onClick={() => setOpen(false)}>
           Cancelar

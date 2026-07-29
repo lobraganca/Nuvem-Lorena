@@ -3,6 +3,7 @@ import { ReputationBadge } from "./ReputationBadge";
 import { reviewStatsFor } from "../lib/reviews";
 import { businessTypeColor } from "../lib/categories";
 import type { Business, Review } from "../types";
+import { formatBRL } from "../lib/money";
 
 function lowestPrice(business: Business): number | undefined {
   const prices = (business.tours ?? [])
@@ -20,13 +21,17 @@ export function BusinessCard({
 }) {
   const stats = reviewStatsFor(reviews, business.id);
   const price = lowestPrice(business);
+  const cover = (business.tours ?? []).flatMap((t) => t.photos ?? [])[0];
 
   return (
     <Link to={`/business/${business.id}`} className="viator-card">
       <div
         className="viator-card-media"
-        style={{ background: businessTypeColor[business.type] }}
+        style={cover ? undefined : { background: businessTypeColor[business.type] }}
       >
+        {cover && (
+          <img src={cover} alt={`Passeio de ${business.name}`} className="viator-card-img" />
+        )}
         <span className="viator-card-media-label">{business.type}</span>
       </div>
       <div className="viator-card-body">
@@ -41,7 +46,7 @@ export function BusinessCard({
         <ReputationBadge avgRating={stats.avgRating} count={stats.count} />
         {price !== undefined && (
           <div className="viator-card-price">
-            A partir de <strong>R$ {price.toLocaleString("pt-BR")}</strong>
+            A partir de <strong>R$ {formatBRL(price)}</strong>
           </div>
         )}
       </div>

@@ -5,6 +5,7 @@ import {
   cancellationPolicyLabel,
 } from "../lib/cancellation";
 import { MONTH_NAMES, accessibilityTags, difficulties } from "../lib/tourAttributes";
+import { PhotoPicker } from "./PhotoPicker";
 import type { AccessibilityTag, CancellationPolicy, Difficulty, Tour } from "../types";
 
 /** Inline edit + delete for a published tour, so a wrong price is fixable. */
@@ -29,6 +30,7 @@ export function EditTour({ businessId, tour }: { businessId: string; tour: Tour 
   const [seasonMonths, setSeasonMonths] = useState<number[]>(tour.seasonMonths ?? []);
   const [difficulty, setDifficulty] = useState<Difficulty | undefined>(tour.difficulty);
   const [access, setAccess] = useState<AccessibilityTag[]>(tour.accessibility ?? []);
+  const [photos, setPhotos] = useState<string[]>(tour.photos ?? []);
 
   function toggleMonth(m: number) {
     setSeasonMonths((prev) =>
@@ -56,6 +58,7 @@ export function EditTour({ businessId, tour }: { businessId: string; tour: Tour 
       seasonMonths: seasonMonths.length ? seasonMonths : undefined,
       difficulty,
       accessibility: access.length ? access : undefined,
+      photos: photos.length ? photos : undefined,
     });
     setOpen(false);
   }
@@ -136,6 +139,14 @@ export function EditTour({ businessId, tour }: { businessId: string; tour: Tour 
           </button>
         ))}
       </div>
+      <PhotoPicker
+        photos={photos}
+        onChange={setPhotos}
+        max={4}
+        label="Fotos do passeio"
+        hint="Viajante nenhum reserva sem ver o lugar. Use fotos reais da experiência."
+      />
+
       <fieldset>
         <legend>Melhor época (opcional)</legend>
         <div className="chip-row">

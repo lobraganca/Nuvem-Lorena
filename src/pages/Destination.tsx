@@ -6,6 +6,7 @@ import { TrendingSection } from "../components/TrendingSection";
 import { PromotedTours } from "../components/PromotedTours";
 import { buildItinerary, splitIntoDays } from "../lib/itineraries";
 import { accessibilityTags } from "../lib/tourAttributes";
+import { businessMatches, resolveCity, suggestionsFor } from "../lib/search";
 import type { AccessibilityTag, BusinessType } from "../types";
 
 type Tab = "Todos" | BusinessType;
@@ -40,16 +41,9 @@ export function Destination() {
 
   // Search matches city, business name or tour title, so someone who heard
   // about a specific guide can find them without knowing the city.
-  const term = query.trim().toLowerCase();
+  const term = query.trim();
   const matches = brBusinesses
-    .filter((b) => {
-      if (!term) return false;
-      return (
-        b.city.toLowerCase().includes(term) ||
-        b.name.toLowerCase().includes(term) ||
-        (b.tours ?? []).some((t) => t.title.toLowerCase().includes(term))
-      );
-    })
+    .filter((b) => businessMatches(b, term))
     .filter((b) => tab === "Todos" || b.type === tab)
     .filter((b) =>
       access.length === 0
@@ -61,10 +55,8 @@ export function Destination() {
 
   // The roteiro follows the same loose matching as the search, so someone who
   // typed "Arraial" sees the roteiro of Arraial do Cabo instead of nothing.
-  const searchedCity = term
-    ? cities.find((c) => c.toLowerCase() === term) ??
-      cities.find((c) => c.toLowerCase().includes(term))
-    : undefined;
+  const searchedCity = resolveCity(cities, term);
+  const suggestions = term && matches.length === 0 ? suggestionsFor(brBusinesses, term) : [];
 
   const itinerary = searchedCity ? buildItinerary(searchedCity, brExperiences) : null;
 
@@ -78,6 +70,8 @@ export function Destination() {
         <input
           className="destination-search"
           placeholder="Destino, agência ou passeio"
+          aria-label="Buscar destino, agência ou passeio"
+          type="search"
           value={query}
           onChange={(e) => setQuery(e.target.value)}
         />
@@ -135,10 +129,36 @@ export function Destination() {
             {matches.length} {matches.length === 1 ? "resultado" : "resultados"} em {query}
           </h2>
 
+          {matches.length === 0 && (
+            <div className="empty-search">
+              <p>
+                Ainda não temos parceiros cadastrados para <strong>{query}</strong>.
+              </p>
+              {suggestions.length > 0 && (
+                <>
+                  <p className="muted">Você quis dizer:</p>
+                  <div className="chip-row">
+                    {suggestions.map((s) => (
+                      <button
+                        key={s.label}
+                        type="button"
+                        className="chip"
+                        onClick={() => setQuery(s.term)}
+                      >
+                        {s.label} <span className="muted">· {s.hint}</span>
+                      </button>
+                    ))}
+                  </div>
+                </>
+              )}
+              <p className="muted">
+                Você também pode buscar pelo estado (por exemplo, RJ ou Minas
+                Gerais) ou pela região (Nordeste, Sul).
+              </p>
+            </div>
+          )}
+
           <div className="viator-grid">
-            {matches.length === 0 && (
-              <p className="muted">Nenhum resultado encontrado ainda para esse destino.</p>
-            )}
             {matches.map((b) => (
               <BusinessCard key={b.id} business={b} reviews={reviews} />
             ))}

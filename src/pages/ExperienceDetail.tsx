@@ -3,6 +3,8 @@ import { useAvena } from "../store/AvenaContext";
 import { categoryColor } from "../lib/categories";
 import { BusinessCard } from "../components/BusinessCard";
 import { InviteToMemory } from "../components/InviteToMemory";
+import { isImagePhoto } from "../lib/photos";
+import { formatBRL } from "../lib/money";
 
 export function ExperienceDetail() {
   const { id } = useParams();
@@ -23,7 +25,11 @@ export function ExperienceDetail() {
         ← Voltar ao mapa
       </Link>
       <h1>
-        <span className="category-dot" style={{ background: categoryColor[exp.category] }} />{" "}
+        <span
+          className="category-dot"
+          style={{ background: categoryColor[exp.category] }}
+          aria-hidden="true"
+        />{" "}
         {exp.title}
       </h1>
       <div className="chip-row" style={{ marginBottom: 8 }}>
@@ -49,11 +55,37 @@ export function ExperienceDetail() {
         {new Date(exp.date).toLocaleDateString("pt-BR")}
       </p>
 
+      {exp.photos.length > 0 && (
+        <div className="photo-gallery">
+          {exp.photos.map((photo, i) =>
+            isImagePhoto(photo) ? (
+              <img
+                key={i}
+                src={photo}
+                alt={`${exp.title} — foto ${i + 1}`}
+                className="photo-gallery-item"
+              />
+            ) : (
+              <span key={i} className="photo-gallery-emoji" aria-hidden="true">
+                {photo}
+              </span>
+            )
+          )}
+        </div>
+      )}
+
       {exp.mood && <p>Humor do dia: {exp.mood}</p>}
       {exp.rating && (
         <p>
-          Avaliação: <span className="star-rating">{"★".repeat(exp.rating)}</span>
-          <span className="star-rating star-rating-empty">{"★".repeat(5 - exp.rating)}</span>
+          Avaliação:{" "}
+          <span aria-label={`${exp.rating} de 5 estrelas`}>
+            <span className="star-rating" aria-hidden="true">
+              {"★".repeat(exp.rating)}
+            </span>
+            <span className="star-rating star-rating-empty" aria-hidden="true">
+              {"★".repeat(5 - exp.rating)}
+            </span>
+          </span>
         </p>
       )}
       {exp.diary && (
@@ -105,7 +137,7 @@ export function ExperienceDetail() {
       {exp.expenses !== undefined && (
         <div className="detail-block">
           <h3>Gastos</h3>
-          <p>R$ {exp.expenses.toLocaleString("pt-BR")}</p>
+          <p>R$ {formatBRL(exp.expenses)}</p>
         </div>
       )}
 

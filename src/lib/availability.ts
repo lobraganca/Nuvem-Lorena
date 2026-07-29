@@ -1,4 +1,5 @@
 import type { Booking, Tour } from "../types";
+import { holdsSeat } from "./bookingStatus";
 
 export interface AvailabilityInfo {
   tracked: boolean;
@@ -16,8 +17,10 @@ export function availabilityFor(
     return { tracked: false, booked: 0, remaining: Infinity };
   }
 
+  // A seat being paid for is as unavailable as one already paid, otherwise two
+  // people could buy the last place at the same time.
   const booked = bookings
-    .filter((b) => b.tourId === tour.id && b.travelDate === date && b.status === "confirmada")
+    .filter((b) => b.tourId === tour.id && b.travelDate === date && holdsSeat(b))
     .reduce((sum, b) => sum + b.travelers, 0);
 
   return {

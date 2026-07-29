@@ -83,6 +83,18 @@ export function BusinessDetail() {
               const availability = availabilityFor(t, bookings, today);
               return (
                 <div key={t.id} className="tour-card">
+                  {t.photos && t.photos.length > 0 && (
+                    <div className="tour-photos">
+                      {t.photos.map((photo, i) => (
+                        <img
+                          key={i}
+                          src={photo}
+                          alt={`${t.title} — foto ${i + 1}`}
+                          className="tour-photo"
+                        />
+                      ))}
+                    </div>
+                  )}
                   <div className="timeline-card-title">{t.title}</div>
                   <div className="muted">
                     {t.priceFrom !== undefined && `A partir de R$ ${t.priceFrom}`}
@@ -133,7 +145,9 @@ export function BusinessDetail() {
               <div key={r.id} className="review-item">
                 <div className="review-item-top">
                   <strong>{r.authorName}</strong>
-                  <span className="star-rating">{"★".repeat(r.rating)}</span>
+                  <span className="star-rating" aria-label={`Nota ${r.rating} de 5`}>
+                    {"★".repeat(r.rating)}
+                  </span>
                   <span className="muted">{r.recommends ? "Recomenda" : "Não recomenda"}</span>
                 </div>
                 <div className="muted">{r.tourTitle}</div>

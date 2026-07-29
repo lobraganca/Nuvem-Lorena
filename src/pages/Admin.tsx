@@ -3,10 +3,25 @@ import { Link } from "react-router-dom";
 import { useAvena } from "../store/AvenaContext";
 import { buildBusinessRows, computeAdminMetrics } from "../lib/admin";
 import { isBoostActive } from "../lib/boosts";
+import type { SupportTicket } from "../types";
+import { formatBRL } from "../lib/money";
 
-type Tab = "Visão geral" | "Empresas" | "Reservas" | "Anúncios" | "Avaliações";
+type Tab =
+  | "Visão geral"
+  | "Empresas"
+  | "Reservas"
+  | "Anúncios"
+  | "Avaliações"
+  | "Chamados";
 
-const TABS: Tab[] = ["Visão geral", "Empresas", "Reservas", "Anúncios", "Avaliações"];
+const TABS: Tab[] = [
+  "Visão geral",
+  "Empresas",
+  "Reservas",
+  "Anúncios",
+  "Avaliações",
+  "Chamados",
+];
 
 function brl(v: number): string {
   return `R$ ${v.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}`;
@@ -340,7 +355,9 @@ export function Admin() {
                 <div key={r.id} className="review-item">
                   <div className="review-item-top">
                     <strong>{r.authorName}</strong>
-                    <span className="star-rating">{"★".repeat(r.rating)}</span>
+                    <span className="star-rating" aria-label={`Nota ${r.rating} de 5`}>
+                      {"★".repeat(r.rating)}
+                    </span>
                     <span className="muted">
                       {r.recommends ? "Recomenda" : "Não recomenda"}
                     </span>
@@ -366,6 +383,111 @@ export function Admin() {
           </div>
         </>
       )}
+
+      {tab === "Chamados" && <SupportTickets />}
     </div>
+  );
+}
+
+/** Where a traveller's complaint about an agency actually lands. */
+function SupportTickets() {
+  const { supportTickets, replyTicket, resolveTicket, bookings } = useAvena();
+  const [drafts, setDrafts] = useState<Record<string, string>>({});
+
+  const open = supportTickets.filter((t) => t.status !== "resolvido");
+  const closed = supportTickets.filter((t) => t.status === "resolvido");
+
+  function Ticket({ ticket }: { ticket: SupportTicket }) {
+    const booking = bookings.find((b) => b.id === ticket.bookingId);
+    return (
+      <div className="booking-card">
+        <div className="timeline-card-title">
+          {ticket.subject}
+          <span className={`booking-status booking-status-${ticket.status}`}>
+            {ticket.status}
+          </span>
+        </div>
+        <div className="muted">
+          Protocolo {ticket.protocol} ·{" "}
+          {new Date(ticket.createdAt).toLocaleString("pt-BR")}
+        </div>
+        {booking && (
+          <div className="muted">
+            Reserva: {booking.tourTitle} — {booking.businessName} · R${" "}
+            {formatBRL(booking.totalPrice)}
+          </div>
+        )}
+        <p>{ticket.message}</p>
+
+        {ticket.reply && (
+          <div className="support-reply">
+            <strong>Resposta enviada</strong>
+            <p>{ticket.reply}</p>
+          </div>
+        )}
+
+        {ticket.status !== "resolvido" && (
+          <>
+            <label>
+              Responder
+              <textarea
+                rows={3}
+                value={drafts[ticket.id] ?? ""}
+                onChange={(e) =>
+                  setDrafts((d) => ({ ...d, [ticket.id]: e.target.value }))
+                }
+              />
+            </label>
+            <div className="chip-row">
+              <button
+                type="button"
+                className="btn-primary"
+                disabled={!(drafts[ticket.id] ?? "").trim()}
+                onClick={() => {
+                  replyTicket(ticket.id, drafts[ticket.id].trim());
+                  setDrafts((d) => ({ ...d, [ticket.id]: "" }));
+                }}
+              >
+                Enviar resposta
+              </button>
+              <button
+                type="button"
+                className="btn-outline"
+                onClick={() => resolveTicket(ticket.id)}
+              >
+                Marcar como resolvido
+              </button>
+            </div>
+          </>
+        )}
+      </div>
+    );
+  }
+
+  return (
+    <>
+      <h2 className="timeline-title">
+        {open.length} {open.length === 1 ? "chamado aberto" : "chamados abertos"}
+      </h2>
+      {supportTickets.length === 0 && (
+        <p className="muted">Nenhum chamado aberto até agora.</p>
+      )}
+      <div className="timeline">
+        {open.map((t) => (
+          <Ticket key={t.id} ticket={t} />
+        ))}
+      </div>
+
+      {closed.length > 0 && (
+        <>
+          <h2 className="timeline-title">Resolvidos</h2>
+          <div className="timeline">
+            {closed.map((t) => (
+              <Ticket key={t.id} ticket={t} />
+            ))}
+          </div>
+        </>
+      )}
+    </>
   );
 }

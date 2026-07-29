@@ -1,4 +1,5 @@
 import type { Booking, Experience, Person } from "../types";
+import { formatBRL } from "../lib/money";
 
 /**
  * Personalised observations derived from what the person actually lived.
@@ -91,7 +92,7 @@ export function buildInsights(
     const spent = confirmed.reduce((s, b) => s + b.totalPrice, 0);
     insights.push({
       id: "reservas",
-      text: `Você fechou ${confirmed.length} passeios pelo Avena, somando R$ ${spent.toLocaleString("pt-BR")}.`,
+      text: `Você fechou ${confirmed.length} passeios pelo Avena, somando R$ ${formatBRL(spent)}.`,
     });
   }
 

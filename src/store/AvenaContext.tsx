@@ -1,6 +1,6 @@
 import { createContext, useContext, useEffect, useMemo, useState } from "react";
 import type { ReactNode } from "react";
-import type { Booking, Boost, Business, BusinessStatus, Experience, Message, MessageThread, Person, Review, Tour, UserProfile, WaitlistEntry } from "../types";
+import type { Booking, Boost, Business, BusinessStatus, Experience, Message, MessageThread, PaymentMethod, Person, Review, SupportTicket, SupportTicketSubject, Tour, UserProfile, WaitlistEntry } from "../types";
 import {
   mockBusinesses,
   mockExperiences,
@@ -11,7 +11,7 @@ import {
 } from "../data/mockData";
 import { computeRefund } from "../lib/cancellation";
 
-const STORAGE_KEY = "avena-data-v14";
+const STORAGE_KEY = "avena-data-v15";
 
 interface AvenaData {
   experiences: Experience[];
@@ -24,6 +24,7 @@ interface AvenaData {
   boosts: Boost[];
   waitlist: WaitlistEntry[];
   dismissedNotifications: string[];
+  supportTickets: SupportTicket[];
 }
 
 interface AvenaContextValue extends AvenaData {
@@ -51,6 +52,23 @@ interface AvenaContextValue extends AvenaData {
   setBusinessVerified: (businessId: string, verified: boolean) => void;
   removeReview: (reviewId: string) => void;
   dismissNotification: (notificationId: string) => void;
+  payBooking: (bookingId: string, method: PaymentMethod) => void;
+  openTicket: (input: {
+    subject: SupportTicketSubject;
+    message: string;
+    bookingId?: string;
+  }) => SupportTicket;
+  replyTicket: (ticketId: string, reply: string) => void;
+  resolveTicket: (ticketId: string) => void;
+  /** Everything the person has, as a JSON string they can save somewhere safe. */
+  exportData: () => string;
+  /** Replaces everything with a previously exported backup. */
+  importData: (json: string) => void;
+  /**
+   * Set when the browser refused to save — almost always because photos filled
+   * the storage. Until it clears, changes are only in memory.
+   */
+  storageError: string | null;
 }
 
 const AvenaContext = createContext<AvenaContextValue | null>(null);
@@ -67,6 +85,7 @@ function defaults(): AvenaData {
     boosts: [],
     waitlist: [],
     dismissedNotifications: [],
+    supportTickets: [],
   };
 }
 
@@ -84,9 +103,19 @@ function loadInitial(): AvenaData {
 
 export function AvenaProvider({ children }: { children: ReactNode }) {
   const [data, setData] = useState<AvenaData>(loadInitial);
+  const [storageError, setStorageError] = useState<string | null>(null);
 
   useEffect(() => {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+    try {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+      setStorageError(null);
+    } catch {
+      // Almost always the 5 MB quota, hit by photos. Saying so plainly beats
+      // losing the person's memories without a word.
+      setStorageError(
+        "O armazenamento deste navegador ficou cheio. Suas últimas alterações não foram salvas. Faça um backup em Perfil › Meus dados e remova algumas fotos."
+      );
+    }
   }, [data]);
 
   const value = useMemo<AvenaContextValue>(
@@ -243,8 +272,64 @@ export function AvenaProvider({ children }: { children: ReactNode }) {
           ...d,
           dismissedNotifications: [...d.dismissedNotifications, notificationId],
         })),
+      payBooking: (bookingId, method) =>
+        setData((d) => ({
+          ...d,
+          bookings: d.bookings.map((b) =>
+            b.id === bookingId
+              ? {
+                  ...b,
+                  status: "confirmada",
+                  payment: {
+                    method,
+                    paidAt: new Date().toISOString(),
+                    reference: `AV${b.id.slice(0, 8).toUpperCase()}`,
+                  },
+                }
+              : b
+          ),
+        })),
+      openTicket: ({ subject, message, bookingId }) => {
+        const ticket: SupportTicket = {
+          id: crypto.randomUUID(),
+          subject,
+          message,
+          bookingId,
+          createdAt: new Date().toISOString(),
+          status: "aberto",
+          protocol: `AV-${crypto.randomUUID().slice(0, 4).toUpperCase()}`,
+        };
+        setData((d) => ({ ...d, supportTickets: [ticket, ...d.supportTickets] }));
+        return ticket;
+      },
+      replyTicket: (ticketId, reply) =>
+        setData((d) => ({
+          ...d,
+          supportTickets: d.supportTickets.map((t) =>
+            t.id === ticketId
+              ? { ...t, reply, repliedAt: new Date().toISOString(), status: "respondido" }
+              : t
+          ),
+        })),
+      resolveTicket: (ticketId) =>
+        setData((d) => ({
+          ...d,
+          supportTickets: d.supportTickets.map((t) =>
+            t.id === ticketId ? { ...t, status: "resolvido" } : t
+          ),
+        })),
+      exportData: () => JSON.stringify({ version: STORAGE_KEY, data }, null, 2),
+      importData: (json) => {
+        const parsed = JSON.parse(json);
+        const incoming = parsed?.data ?? parsed;
+        if (!incoming || typeof incoming !== "object" || !Array.isArray(incoming.experiences)) {
+          throw new Error("Este arquivo não parece ser um backup do Avena.");
+        }
+        setData({ ...defaults(), ...incoming });
+      },
+      storageError,
     }),
-    [data]
+    [data, storageError]
   );
 
   return <AvenaContext.Provider value={value}>{children}</AvenaContext.Provider>;

@@ -52,7 +52,11 @@ export function PersonProfile() {
         {sorted.length === 0 && <p className="muted">Ainda não vivenciaram experiências juntos.</p>}
         {sorted.map((exp) => (
           <Link to={`/experience/${exp.id}`} key={exp.id} className="timeline-card">
-            <div className="category-dot" style={{ background: categoryColor[exp.category] }} />
+            <div
+              className="category-dot"
+              style={{ background: categoryColor[exp.category] }}
+              aria-hidden="true"
+            />
             <div>
               <div className="timeline-card-title">{exp.title}</div>
               <div className="muted">

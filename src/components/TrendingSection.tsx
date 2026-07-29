@@ -3,6 +3,7 @@ import { useAvena } from "../store/AvenaContext";
 import { topPlaces, topTours } from "../lib/trending";
 import { ReputationBadge } from "./ReputationBadge";
 import { businessTypeColor } from "../lib/categories";
+import { formatBRL } from "../lib/money";
 
 export function TrendingSection() {
   const { businesses, bookings, reviews, experiences } = useAvena();
@@ -46,7 +47,7 @@ export function TrendingSection() {
                   <ReputationBadge avgRating={avgRating} count={reviewCount} />
                   {tour.priceFrom !== undefined && (
                     <div className="viator-card-price">
-                      A partir de <strong>R$ {tour.priceFrom.toLocaleString("pt-BR")}</strong>
+                      A partir de <strong>R$ {formatBRL(tour.priceFrom)}</strong>
                     </div>
                   )}
                 </div>

@@ -6,6 +6,7 @@ import { buildCollections } from "../lib/collections";
 import { categoryColor } from "../lib/categories";
 import { travelerPlans } from "../lib/plans";
 import { buildInsights } from "../lib/insights";
+import { fileToStoredPhoto } from "../lib/photos";
 
 export function Profile() {
   const { experiences, people, user, updateUser, bookings } = useAvena();
@@ -27,9 +28,11 @@ export function Profile() {
   function handlePhotoChange(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
     if (!file) return;
-    const reader = new FileReader();
-    reader.onload = () => updateUser({ avatarPhoto: reader.result as string });
-    reader.readAsDataURL(file);
+    // Routed through the same resizer as memories, so a 5 MB selfie cannot
+    // fill the storage on its own.
+    fileToStoredPhoto(file)
+      .then((photo) => updateUser({ avatarPhoto: photo }))
+      .catch(() => alert("Não foi possível usar esta imagem. Tente outra foto."));
   }
 
   function saveProfile(e: React.FormEvent) {
@@ -85,6 +88,9 @@ export function Profile() {
                 Ir para o painel profissional
               </Link>
             )}
+            <Link to="/meus-dados" className="btn-outline">
+              Meus dados e backup
+            </Link>
             <Link to="/welcome" className="btn-outline">
               Trocar tipo de conta
             </Link>
@@ -101,6 +107,17 @@ export function Profile() {
               Sair
             </button>
           </div>
+
+          {/* On phones the top bar is replaced by the tab bar, so everything
+              that is not a tab has to be reachable from here. */}
+          <nav className="profile-menu" aria-label="Mais opções">
+            <Link to="/messages">Mensagens</Link>
+            <Link to="/ajuda">Central de ajuda</Link>
+            <Link to="/meus-dados">Meus dados e backup</Link>
+            <Link to="/business">Para empresas</Link>
+            <Link to="/termos">Termos de Uso</Link>
+            <Link to="/privacidade">Privacidade</Link>
+          </nav>
 
           <div className="ig-stats-row">
             <div>

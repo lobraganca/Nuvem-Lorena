@@ -22,6 +22,11 @@ import { Terms, Privacy } from "./pages/Legal";
 import { CookieBanner, openCookiePreferences } from "./components/CookieBanner";
 import { HelpChat } from "./components/HelpChat";
 import { OfflineBanner } from "./components/OfflineBanner";
+import { BottomNav } from "./components/BottomNav";
+import { StorageBanner } from "./components/StorageBanner";
+import { Payment } from "./pages/Payment";
+import { Support } from "./pages/Support";
+import { MyData } from "./pages/MyData";
 import { useNotifications } from "./hooks/useNotifications";
 
 function RootScreen() {
@@ -51,10 +56,14 @@ function AppShell() {
 
   return (
     <div className="app-shell">
+      <a href="#conteudo" className="skip-link">
+        Pular para o conteúdo
+      </a>
       <OfflineBanner />
-      <nav className="topbar">
+      <StorageBanner />
+      <nav className="topbar" aria-label="Navegação principal">
         <Link to="/" className="brand">
-          <img src={avenaLogo} alt="Avena" className="brand-logo" />
+          <img src={avenaLogo} alt="Avena — página inicial" className="brand-logo" />
         </Link>
         <div className="topbar-links">
           {chosen && (
@@ -65,12 +74,13 @@ function AppShell() {
               <Link to="/messages">Mensagens</Link>
               {!isProfissional && <Link to="/bookings">Reservas</Link>}
               {!isProfissional && <NotificationsLink />}
+              <Link to="/ajuda">Ajuda</Link>
               <Link to="/profile">Perfil</Link>
             </>
           )}
         </div>
       </nav>
-      <main className="app-content">
+      <main className="app-content" id="conteudo">
         <Routes>
           <Route path="/" element={<RootScreen />} />
           <Route path="/welcome" element={<Welcome />} />
@@ -91,12 +101,18 @@ function AppShell() {
           <Route path="/termos" element={<Terms />} />
           <Route path="/privacidade" element={<Privacy />} />
           <Route path="/retrospectiva" element={<Retrospective />} />
+          <Route path="/pagamento/:id" element={<Payment />} />
+          <Route path="/ajuda" element={<Support />} />
+          <Route path="/ajuda/novo" element={<Support />} />
+          <Route path="/meus-dados" element={<MyData />} />
           <Route path="/admin" element={<Admin />} />
         </Routes>
       </main>
       <footer className="app-footer">
         <Link to="/termos">Termos de Uso</Link>
         <Link to="/privacidade">Política de Privacidade</Link>
+        <Link to="/ajuda">Central de ajuda</Link>
+        <Link to="/meus-dados">Meus dados</Link>
         <button type="button" className="footer-link" onClick={openCookiePreferences}>
           Preferências de cookies
         </button>
@@ -104,6 +120,7 @@ function AppShell() {
       </footer>
       <CookieBanner />
       <HelpChat />
+      <BottomNav />
     </div>
   );
 }

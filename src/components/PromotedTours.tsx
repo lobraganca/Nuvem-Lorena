@@ -4,6 +4,7 @@ import { activeBoosts } from "../lib/boosts";
 import { businessTypeColor } from "../lib/categories";
 import { reviewStatsFor } from "../lib/reviews";
 import { ReputationBadge } from "./ReputationBadge";
+import { formatBRL } from "../lib/money";
 
 /**
  * Paid placements on the traveler's first screen. Every card carries a
@@ -44,7 +45,7 @@ export function PromotedTours({ compact = false }: { compact?: boolean }) {
             </div>
             {tour.priceFrom !== undefined && (
               <div className="viator-card-price">
-                A partir de <strong>R$ {tour.priceFrom.toLocaleString("pt-BR")}</strong>
+                A partir de <strong>R$ {formatBRL(tour.priceFrom)}</strong>
               </div>
             )}
           </button>
@@ -84,7 +85,7 @@ export function PromotedTours({ compact = false }: { compact?: boolean }) {
                 {tour.priceFrom !== undefined && (
                   <div className="viator-card-price">
                     A partir de{" "}
-                    <strong>R$ {tour.priceFrom.toLocaleString("pt-BR")}</strong>
+                    <strong>R$ {formatBRL(tour.priceFrom)}</strong>
                   </div>
                 )}
               </div>

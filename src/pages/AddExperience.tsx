@@ -4,6 +4,8 @@ import { useAvena } from "../store/AvenaContext";
 import { categories } from "../lib/categories";
 import { BRAZILIAN_STATES } from "../lib/collections";
 import { categoryForTour } from "../lib/categories";
+import { PhotoPicker } from "../components/PhotoPicker";
+import { LocationPicker } from "../components/LocationPicker";
 import type { Category, Experience } from "../types";
 
 const MOODS = ["😍", "😄", "🥰", "💪", "🤩", "😌", "😢"];
@@ -42,8 +44,9 @@ export function AddExperience() {
   const [locationName, setLocationName] = useState(editing?.locationName ?? seed?.locationName ?? "");
   const [city, setCity] = useState(editing?.city ?? seed?.city ?? "");
   const [state, setState] = useState(editing?.state ?? seed?.state ?? BRAZILIAN_STATES[0]);
-  const [lat, setLat] = useState(editing ? String(editing.lat) : "");
-  const [lng, setLng] = useState(editing ? String(editing.lng) : "");
+  const [lat, setLat] = useState<number | null>(editing?.lat ?? null);
+  const [lng, setLng] = useState<number | null>(editing?.lng ?? null);
+  const [photos, setPhotos] = useState<string[]>(editing?.photos ?? []);
   const [date, setDate] = useState(editing?.date ?? seed?.date ?? new Date().toISOString().slice(0, 10));
   const [diary, setDiary] = useState(editing?.diary ?? "");
   const [rating, setRating] = useState(editing?.rating ?? 5);
@@ -62,6 +65,7 @@ export function AddExperience() {
   const [restaurants, setRestaurants] = useState(editing?.restaurants?.join(", ") ?? "");
   const [expenses, setExpenses] = useState(editing?.expenses !== undefined ? String(editing.expenses) : "");
   const [notes, setNotes] = useState(editing?.notes ?? "");
+  const [locationError, setLocationError] = useState<string | null>(null);
 
   function togglePerson(id: string) {
     setSelectedPeople((prev) =>
@@ -71,20 +75,24 @@ export function AddExperience() {
 
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    if (!title || !locationName || !lat || !lng) return;
+    if (!title || !locationName) return;
+    if (lat === null || lng === null) {
+      setLocationError("Toque no mapa para marcar onde essa memória aconteceu.");
+      return;
+    }
 
     const exp: Experience = {
       id: editing?.id ?? crypto.randomUUID(),
       title,
       category,
-      lat: Number(lat),
-      lng: Number(lng),
+      lat,
+      lng,
       locationName,
       city: city || locationName,
       state,
       country: "Brasil",
       date,
-      photos: editing?.photos ?? [],
+      photos,
       diary: diary || undefined,
       rating,
       mood,
@@ -167,16 +175,26 @@ export function AddExperience() {
           </label>
         </div>
 
-        <div className="form-row">
-          <label>
-            Latitude
-            <input value={lat} onChange={(e) => setLat(e.target.value)} placeholder="-22.9661" required />
-          </label>
-          <label>
-            Longitude
-            <input value={lng} onChange={(e) => setLng(e.target.value)} placeholder="-42.0278" required />
-          </label>
-        </div>
+        <fieldset>
+          <legend>Onde foi</legend>
+          <LocationPicker
+            lat={lat}
+            lng={lng}
+            category={category}
+            onPick={(newLat, newLng) => {
+              setLat(newLat);
+              setLng(newLng);
+              setLocationError(null);
+            }}
+          />
+          {locationError && <p className="form-error">{locationError}</p>}
+        </fieldset>
+
+        <PhotoPicker
+          photos={photos}
+          onChange={setPhotos}
+          hint="As fotos ficam salvas neste aparelho e aparecem na sua memória e na retrospectiva do ano."
+        />
 
         <label>
           Diário

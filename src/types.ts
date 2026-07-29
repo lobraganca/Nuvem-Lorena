@@ -81,6 +81,8 @@ export interface Tour {
   durationHours?: number;
   cancellationPolicy?: CancellationPolicy;
   capacityPerDay?: number; // max travelers per departure date; undefined = not tracked
+  /** Photos of the tour itself. Nobody books a boat trip without seeing the water. */
+  photos?: string[];
 }
 
 /** Set by the Avena admin; suspended businesses disappear from public listings. */
@@ -149,7 +151,24 @@ export interface WaitlistEntry {
   notifiedAt?: string;
 }
 
-export type BookingStatus = "confirmada" | "cancelada";
+/**
+ * A booking is only "confirmada" after the payment clears. Until then the seat
+ * is held but not sold, which is what the agency's manifest has to reflect.
+ */
+export type BookingStatus =
+  | "aguardando-pagamento"
+  | "confirmada"
+  | "expirada"
+  | "cancelada";
+
+export type PaymentMethod = "pix" | "cartao";
+
+export interface Payment {
+  method: PaymentMethod;
+  paidAt: string; // ISO datetime
+  /** Reference the traveller can quote when contacting support. */
+  reference: string;
+}
 
 export interface Booking {
   id: string;
@@ -171,6 +190,37 @@ export interface Booking {
   cancellationPolicy: CancellationPolicy;
   cancelledAt?: string; // ISO datetime
   refundAmount?: number;
+  /** Set once the payment clears; absent while the booking is awaiting payment. */
+  payment?: Payment;
+  /** Deadline for paying. After it passes the seat goes back to the pool. */
+  paymentDueAt?: string; // ISO datetime
+}
+
+export type SupportTicketStatus = "aberto" | "respondido" | "resolvido";
+
+export type SupportTicketSubject =
+  | "Problema com uma reserva"
+  | "Cobrança ou reembolso"
+  | "Agência ou guia não compareceu"
+  | "Denúncia de conteúdo"
+  | "Minha conta e meus dados"
+  | "Outro assunto";
+
+/**
+ * A traveller's channel to Avena itself, separate from the direct chat with the
+ * agency — because the complaint is often about the agency.
+ */
+export interface SupportTicket {
+  id: string;
+  subject: SupportTicketSubject;
+  message: string;
+  bookingId?: string;
+  createdAt: string; // ISO datetime
+  status: SupportTicketStatus;
+  reply?: string;
+  repliedAt?: string;
+  /** Short code the person can quote, e.g. AV-4F2C. */
+  protocol: string;
 }
 
 export interface Review {

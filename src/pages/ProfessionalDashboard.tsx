@@ -9,9 +9,11 @@ import {
 } from "../lib/cancellation";
 import { availabilityFor } from "../lib/availability";
 import { activeBoostForTour, boostRevenue } from "../lib/boosts";
+import { bookingStatusLabel, effectiveStatus } from "../lib/bookingStatus";
 import { BoostTourButton } from "../components/BoostTourButton";
 import { EditTour } from "../components/EditTour";
 import type { CancellationPolicy, Tour } from "../types";
+import { formatBRL } from "../lib/money";
 
 const today = new Date().toISOString().slice(0, 10);
 
@@ -88,7 +90,7 @@ export function ProfessionalDashboard() {
           <div className="stat-label">Reservas recebidas</div>
         </div>
         <div className="stat-card">
-          <div className="stat-value">R$ {earnings.toLocaleString("pt-BR")}</div>
+          <div className="stat-value">R$ {formatBRL(earnings)}</div>
           <div className="stat-label">Ganhos líquidos</div>
         </div>
         <div className="stat-card">
@@ -97,7 +99,7 @@ export function ProfessionalDashboard() {
         </div>
         <div className="stat-card">
           <div className="stat-value">
-            R$ {boostSpend.toLocaleString("pt-BR")}
+            R$ {formatBRL(boostSpend)}
           </div>
           <div className="stat-label">Investido em destaque</div>
         </div>
@@ -221,16 +223,20 @@ export function ProfessionalDashboard() {
           <div key={b.id} className="booking-card">
             <div className="timeline-card-title">
               {b.tourTitle}
-              {b.status === "cancelada" && (
-                <span className="privacy-badge" style={{ marginLeft: 8 }}>
-                  Cancelada
-                </span>
-              )}
+              <span className={`booking-status booking-status-${effectiveStatus(b)}`}>
+                {bookingStatusLabel[effectiveStatus(b)]}
+              </span>
             </div>
             <div className="muted">
               {new Date(b.travelDate).toLocaleDateString("pt-BR")} · {b.travelers}{" "}
               {b.travelers === 1 ? "pessoa" : "pessoas"}
             </div>
+            {effectiveStatus(b) === "aguardando-pagamento" && (
+              <p className="muted">
+                Vaga reservada, pagamento ainda não aprovado. Só entre na lista de
+                embarque depois da confirmação.
+              </p>
+            )}
             {b.status !== "cancelada" && b.participants?.length > 0 && (
               <div className="participant-list">
                 <strong>Lista de participantes</strong>
@@ -248,20 +254,20 @@ export function ProfessionalDashboard() {
             {b.status === "cancelada" ? (
               <div className="booking-breakdown">
                 <div className="muted">
-                  Reembolsado ao viajante: R$ {(b.refundAmount ?? 0).toLocaleString("pt-BR")}
+                  Reembolsado ao viajante: R$ {(formatBRL(b.refundAmount ?? 0))}
                 </div>
               </div>
             ) : (
               <div className="booking-breakdown">
                 <div className="muted">
-                  Total pago: R$ {b.totalPrice.toLocaleString("pt-BR")}
+                  Total pago: R$ {formatBRL(b.totalPrice)}
                 </div>
                 <div className="muted">
                   Taxa Avena ({Math.round(b.commissionRate * 100)}%): R${" "}
-                  {b.commissionAmount.toLocaleString("pt-BR")}
+                  {formatBRL(b.commissionAmount)}
                 </div>
                 <div>
-                  Você recebe: <strong>R$ {b.businessPayout.toLocaleString("pt-BR")}</strong>
+                  Você recebe: <strong>R$ {formatBRL(b.businessPayout)}</strong>
                 </div>
               </div>
             )}

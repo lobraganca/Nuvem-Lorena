@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useAvena } from "../store/AvenaContext";
 import { BOOST_PACKAGES, boostDailyPrice, boostPrice } from "../lib/boosts";
 import type { Boost, Business, Tour } from "../types";
+import { formatBRL } from "../lib/money";
 
 export function BoostTourButton({
   business,
@@ -77,11 +78,11 @@ export function BoostTourButton({
 
       <div className="booking-breakdown">
         <div className="muted">
-          R$ {daily.toLocaleString("pt-BR")} por dia no plano {business.planTier}
+          R$ {formatBRL(daily)} por dia no plano {business.planTier}
         </div>
         <div>
           Total por {days} dias:{" "}
-          <strong>R$ {total.toLocaleString("pt-BR")}</strong>
+          <strong>R$ {formatBRL(total)}</strong>
         </div>
         {business.planTier !== "Avançado" && (
           <div className="muted">

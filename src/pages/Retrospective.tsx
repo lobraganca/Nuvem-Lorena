@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Link } from "react-router-dom";
 import { useAvena } from "../store/AvenaContext";
 import { availableYears, buildRetrospective } from "../lib/retrospective";
+import { formatBRL } from "../lib/money";
 
 export function Retrospective() {
   const { experiences, people, bookings } = useAvena();
@@ -114,7 +115,7 @@ export function Retrospective() {
 
           {r.spent > 0 && (
             <div className="retro-statement">
-              Você investiu <strong>R$ {r.spent.toLocaleString("pt-BR")}</strong> em
+              Você investiu <strong>R$ {formatBRL(r.spent)}</strong> em
               passeios reservados pelo Avena.
             </div>
           )}
