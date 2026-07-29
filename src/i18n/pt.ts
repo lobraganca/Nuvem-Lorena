@@ -117,6 +117,10 @@ export const pt = {
   "business.noSpotsToday": "Sem vagas hoje",
 
   // --- reputation -----------------------------------------------------------
+  "business.unclaimedTitle": "Perfil ainda não reivindicado",
+  "business.unclaimedText": "As informações desta empresa foram cadastradas pela equipe do Avena. Ela ainda não assumiu o perfil, então a reserva é feita direto com a agência, pelos contatos acima. Confirme preço e disponibilidade antes de pagar.",
+  "business.unclaimed": "Não reivindicado",
+
   "reputation.none": "Sem avaliações ainda",
   "reputation.few": "Poucas avaliações",
   "reputation.excellent": "Excelente",

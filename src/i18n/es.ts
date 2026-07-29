@@ -108,6 +108,10 @@ export const es: Record<keyof typeof pt, string> = {
   "business.spotsToday": "{remaining} de {capacity} cupos hoy",
   "business.noSpotsToday": "Sin cupos hoy",
 
+  "business.unclaimedTitle": "Perfil aún no reclamado",
+  "business.unclaimedText": "La información de esta empresa fue cargada por el equipo de Avena. Todavía no asumió el perfil, así que la reserva se hace directamente con la agencia por los contactos de arriba. Confirma precio y disponibilidad antes de pagar.",
+  "business.unclaimed": "No reclamado",
+
   "reputation.none": "Sin reseñas todavía",
   "reputation.few": "Pocas reseñas",
   "reputation.excellent": "Excelente",

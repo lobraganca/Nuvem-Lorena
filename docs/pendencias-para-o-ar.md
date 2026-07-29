@@ -189,6 +189,7 @@ tática importa mais:
 1. **Comece por uma cidade só**, com oferta completa, em vez do Brasil inteiro
    com dois passeios por destino.
 2. **Cadastre você mesma**, com autorização da agência, e entregue o perfil
-   pronto. É para isso que serve a importação em lote.
+   pronto. As ferramentas estão em Admin › Cadastro — ver
+   [importar-passeios.md](importar-passeios.md).
 3. **Só comissão no começo.** A mensalidade entra quando o volume já justificar
    o desconto na taxa.

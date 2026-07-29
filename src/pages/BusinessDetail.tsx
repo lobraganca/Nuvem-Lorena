@@ -51,6 +51,13 @@ export function BusinessDetail() {
         </div>
       )}
 
+      {business.claimStatus === "nao-reivindicada" && (
+        <div className="insight-card">
+          <strong>{t("business.unclaimedTitle")}</strong>
+          <p className="muted">{t("business.unclaimedText")}</p>
+        </div>
+      )}
+
       {business.verified && (
         <div className="cadastur-badge">
           {t("business.verified")}

@@ -2667,3 +2667,17 @@ textarea:focus-visible,
   font-size: 13px;
   margin: 0;
 }
+
+.plan-badge-unclaimed {
+  background: var(--bg-alt);
+  color: var(--text-muted);
+  border: 1px dashed var(--border);
+}
+
+.admin-select {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  max-width: 420px;
+  margin-bottom: 12px;
+}

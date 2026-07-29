@@ -188,7 +188,15 @@ export interface Business {
    * there is nowhere to send the money, so the tour cannot be sold in-app.
    */
   mercadoPago?: MercadoPagoLink;
+  /**
+   * Profiles created by the Avena team to seed a city start unclaimed. The
+   * traveller is told so, because presenting them as signed-up partners would
+   * be a lie the agency never agreed to.
+   */
+  claimStatus?: ClaimStatus;
 }
+
+export type ClaimStatus = "reivindicada" | "nao-reivindicada";
 
 export interface MercadoPagoLink {
   connected: boolean;

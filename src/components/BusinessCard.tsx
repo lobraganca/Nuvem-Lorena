@@ -3,6 +3,7 @@ import { ReputationBadge } from "./ReputationBadge";
 import { reviewStatsFor } from "../lib/reviews";
 import { businessTypeColor } from "../lib/categories";
 import type { Business, Review } from "../types";
+import { useT } from "../i18n";
 import { formatBRL } from "../lib/money";
 
 function lowestPrice(business: Business): number | undefined {
@@ -21,7 +22,8 @@ export function BusinessCard({
 }) {
   const stats = reviewStatsFor(reviews, business.id);
   const price = lowestPrice(business);
-  const cover = (business.tours ?? []).flatMap((t) => t.photos ?? [])[0];
+  const cover = (business.tours ?? []).flatMap((tour) => tour.photos ?? [])[0];
+  const t = useT();
 
   return (
     <Link to={`/business/${business.id}`} className="viator-card">
@@ -35,9 +37,15 @@ export function BusinessCard({
         <span className="viator-card-media-label">{business.type}</span>
       </div>
       <div className="viator-card-body">
-        <span className={`plan-badge plan-badge-${business.planTier.toLowerCase()}`}>
-          {business.planTier}
-        </span>
+        {business.claimStatus === "nao-reivindicada" ? (
+          <span className="plan-badge plan-badge-unclaimed">
+            {t("business.unclaimed")}
+          </span>
+        ) : (
+          <span className={`plan-badge plan-badge-${business.planTier.toLowerCase()}`}>
+            {business.planTier}
+          </span>
+        )}
         <div className="viator-card-title">{business.name}</div>
         <div className="muted">
           {business.city}

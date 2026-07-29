@@ -4,6 +4,7 @@ import { useAvena } from "../store/AvenaContext";
 import { buildBusinessRows, computeAdminMetrics } from "../lib/admin";
 import { isBoostActive } from "../lib/boosts";
 import { AdminBanners } from "../components/AdminBanners";
+import { AdminImport } from "../components/AdminImport";
 import type { SupportTicket } from "../types";
 import { formatBRL } from "../lib/money";
 
@@ -14,7 +15,8 @@ type Tab =
   | "Anúncios"
   | "Avaliações"
   | "Chamados"
-  | "Banners";
+  | "Banners"
+  | "Cadastro";
 
 const TABS: Tab[] = [
   "Visão geral",
@@ -24,6 +26,7 @@ const TABS: Tab[] = [
   "Avaliações",
   "Chamados",
   "Banners",
+  "Cadastro",
 ];
 
 function brl(v: number): string {
@@ -390,6 +393,8 @@ export function Admin() {
       {tab === "Chamados" && <SupportTickets />}
 
       {tab === "Banners" && <AdminBanners />}
+
+      {tab === "Cadastro" && <AdminImport />}
     </div>
   );
 }
