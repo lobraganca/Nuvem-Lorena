@@ -33,11 +33,9 @@ dist-ssr
 avena-app.html
 avena-app-fragment.html
 
-# Screenshots e scripts de verificação ficam fora do repositório.
-web-*.png
-nav-*.png
-app-*.png
-desktop-*.png
-celular-*.png
-*.mjs
-!scripts/*.mjs
+# Screenshots e scripts de verificação ficam fora do repositório. A barra no
+# início prende a regra à raiz, então as imagens de src/ e public/ continuam
+# versionadas — só o que eu largo aqui para conferir é que fica de fora.
+/*.png
+/*.html
+/*.mjs
