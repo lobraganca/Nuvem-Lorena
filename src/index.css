@@ -6,6 +6,9 @@
   --border: #dde1e6;
   --accent: #1b2619;
   --accent-soft: rgba(27, 38, 25, 0.08);
+  /* Text that sits ON the accent fill. It cannot be hardcoded to white: in
+     dark mode the accent is a light sage, and white on it is unreadable. */
+  --on-accent: #ffffff;
   --card-bg: #ffffff;
   --shadow: rgba(16, 24, 40, 0.08) 0 4px 12px -2px, rgba(16, 24, 40, 0.04) 0 2px 4px -2px;
 
@@ -28,6 +31,7 @@
     --border: #2a2f38;
     --accent: #8fae7f;
     --accent-soft: rgba(143, 174, 127, 0.15);
+    --on-accent: #11150f;
     --card-bg: #1a1e25;
     --shadow: rgba(0, 0, 0, 0.4) 0 4px 12px -2px;
   }
@@ -144,7 +148,7 @@ a {
 
 .nav-badge {
   background: var(--accent);
-  color: white;
+  color: var(--on-accent);
   font-size: 11px;
   font-weight: 700;
   min-width: 18px;
@@ -492,7 +496,7 @@ a {
 
 .reputation-score {
   background: var(--accent);
-  color: white;
+  color: var(--on-accent);
   font-weight: 700;
   padding: 2px 8px;
   border-radius: 6px;
@@ -544,7 +548,7 @@ a {
   height: 56px;
   border-radius: 50%;
   background: var(--accent);
-  color: white;
+  color: var(--on-accent);
   font-size: 28px;
   display: flex;
   align-items: center;
@@ -701,7 +705,7 @@ legend {
   border-radius: 6px;
   border: none;
   background: var(--accent);
-  color: white;
+  color: var(--on-accent);
   font-weight: 600;
   cursor: pointer;
   font-size: 15px;
@@ -874,7 +878,7 @@ legend {
 .chat-bubble-me {
   align-self: flex-end;
   background: var(--accent);
-  color: white;
+  color: var(--on-accent);
   border-bottom-right-radius: 4px;
 }
 
@@ -940,7 +944,7 @@ legend {
   left: 50%;
   transform: translateX(-50%);
   background: var(--accent);
-  color: white;
+  color: var(--on-accent);
   border-radius: 4px;
   padding: 2px 8px;
   white-space: nowrap;
@@ -1423,7 +1427,10 @@ legend {
 }
 
 .viator-card-media-label {
-  color: rgba(255, 255, 255, 0.9);
+  /* Full white, plus a shadow: the label also sits over photos, where the
+     background is whatever the photo happens to be. */
+  color: #fff;
+  text-shadow: 0 1px 3px rgb(0 0 0 / 60%);
   font-weight: 700;
   font-size: 13px;
   text-transform: uppercase;
@@ -1509,7 +1516,7 @@ legend {
 
 .plan-badge-avançado {
   background: var(--accent);
-  color: white;
+  color: var(--on-accent);
   border-color: var(--accent);
 }
 
@@ -1590,7 +1597,7 @@ legend {
   border-radius: 999px;
   border: none;
   background: var(--accent);
-  color: white;
+  color: var(--on-accent);
   font: inherit;
   font-weight: 600;
   cursor: pointer;
@@ -1800,7 +1807,7 @@ legend {
 .retro-card-big {
   grid-column: span 2;
   background: var(--accent);
-  color: white;
+  color: var(--on-accent);
   border-color: var(--accent);
 }
 
@@ -1812,7 +1819,7 @@ legend {
 }
 
 .retro-card-big .retro-number {
-  color: white;
+  color: var(--on-accent);
   font-size: 44px;
 }
 
@@ -1843,7 +1850,7 @@ legend {
 .offline-banner {
   padding: 10px 20px;
   background: var(--accent);
-  color: white;
+  color: var(--on-accent);
   font-size: 13px;
   text-align: center;
 }
@@ -1926,7 +1933,7 @@ legend {
   z-index: 1000;
   padding: 12px 20px;
   background: var(--accent);
-  color: #fff;
+  color: var(--on-accent);
   border-radius: 0 0 8px 0;
 }
 
@@ -1981,7 +1988,7 @@ textarea:focus-visible,
   height: var(--cluster-size, 34px);
   border-radius: 50%;
   background: var(--accent);
-  color: #fff;
+  color: var(--on-accent);
   font-weight: 700;
   font-size: 13px;
   border: 3px solid #fff;
@@ -2265,51 +2272,158 @@ textarea:focus-visible,
 }
 
 /* ---------------------------------------------------------------------------
-   Bottom navigation (phones only)
+   Tab bar — the five main destinations, on phone and on desktop alike
    --------------------------------------------------------------------------- */
 
+/* A floating pill rather than a full-width strip: it reads as a control
+   sitting above the page, and the rounded ends keep the outer tabs away from
+   the screen corners, where thumbs are least accurate. The same bar serves the
+   desktop, where there is room to show the labels beside the icons. */
 .bottom-nav {
-  display: none;
+  position: fixed;
+  left: 50%;
+  bottom: calc(10px + env(safe-area-inset-bottom));
+  transform: translateX(-50%);
+  z-index: 950;
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  width: max-content;
+  max-width: calc(100% - 20px);
+  padding: 5px;
+  border-radius: 999px;
+  background: var(--card-bg);
+  border: 1px solid var(--border);
+  box-shadow: 0 6px 24px rgb(0 0 0 / 18%);
+}
+
+.bottom-nav-item {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-width: 56px;
+  min-height: 48px;
+  padding: 0 14px;
+  border-radius: 999px;
+  text-decoration: none;
+  color: var(--text);
+  transition: background-color 0.18s ease, color 0.18s ease;
+}
+
+.bottom-nav-item:hover {
+  background: var(--bg-alt);
+}
+
+.bottom-nav-item:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+.bottom-nav-item-active {
+  color: var(--text-h);
+  background: var(--accent-soft);
+}
+
+.bottom-nav-item-active:hover {
+  background: var(--accent-soft);
+}
+
+.bottom-nav-icon-wrap {
+  position: relative;
+  display: block;
+}
+
+.bottom-nav-icon {
+  width: 26px;
+  height: 26px;
+  fill: currentColor;
+  display: block;
+}
+
+.bottom-nav-avatar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  background-size: cover;
+  background-position: center;
+  color: #fff;
+  font-size: 12px;
+  font-weight: 700;
+  box-shadow: 0 0 0 2px transparent;
+  transition: box-shadow 0.18s ease;
+}
+
+/* On the profile tab the ring, not a fill, marks the selection. */
+.bottom-nav-item-active .bottom-nav-avatar {
+  box-shadow: 0 0 0 2px var(--accent);
+}
+
+.bottom-nav .nav-badge {
+  position: absolute;
+  top: -5px;
+  right: -7px;
+  min-width: 16px;
+  height: 16px;
+  padding: 0 4px;
+  border-radius: 999px;
+  background: #c81e4f;
+  color: #fff;
+  font-size: 10px;
+  font-weight: 700;
+  line-height: 16px;
+  text-align: center;
+  box-shadow: 0 0 0 2px var(--card-bg);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .bottom-nav-item,
+  .bottom-nav-avatar {
+    transition: none;
+  }
+}
+
+/* Desktop has room for the words, so the icons stop having to carry the
+   meaning on their own. */
+@media (min-width: 801px) {
+  .bottom-nav-label {
+    font-size: 14px;
+    font-weight: 600;
+    white-space: nowrap;
+  }
+}
+
+/* The bar floats over the page, so the page has to end above it. */
+.app-content {
+  padding-bottom: 78px;
+}
+
+.app-footer {
+  padding-bottom: 86px;
+}
+
+.help-fab,
+.help-chat {
+  bottom: 86px;
+}
+
+/* The cookie banner must sit above the tab bar, not on top of it. */
+.cookie-banner {
+  bottom: calc(78px + env(safe-area-inset-bottom));
+}
+
+/* The map fills the screen minus the top bar; the bar floats over it. */
+.home {
+  height: calc(100svh - 57px);
 }
 
 @media (max-width: 800px) {
-  /* A floating pill rather than a full-width strip: it reads as a control
-     sitting above the page, and the rounded ends keep the outer tabs away
-     from the screen corners, where thumbs are least accurate. */
-  .bottom-nav {
-    position: fixed;
-    left: 50%;
-    bottom: calc(10px + env(safe-area-inset-bottom));
-    transform: translateX(-50%);
-    z-index: 950;
-    display: flex;
-    align-items: center;
-    gap: 2px;
-    width: max-content;
-    max-width: calc(100% - 20px);
-    padding: 5px;
-    border-radius: 999px;
-    background: var(--card-bg);
-    border: 1px solid var(--border);
-    box-shadow: 0 6px 24px rgb(0 0 0 / 18%);
-  }
-
-  .bottom-nav-item {
-    position: relative;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    min-width: 56px;
-    min-height: 48px;
-    padding: 0 14px;
-    border-radius: 999px;
-    text-decoration: none;
-    color: var(--text-muted);
-    transition: background-color 0.18s ease, color 0.18s ease;
-  }
-
-  /* The label is for screen readers and for the selected tab only: five words
-     across a pill would wrap, and the icons carry the meaning. */
+  /* Five words across a pill would wrap, so on a phone the label is left to
+     screen readers and the icons carry the meaning. */
   .bottom-nav-label {
     position: absolute;
     width: 1px;
@@ -2319,87 +2433,6 @@ textarea:focus-visible,
     overflow: hidden;
     clip-path: inset(50%);
     white-space: nowrap;
-  }
-
-  .bottom-nav-item-active {
-    color: var(--text-h);
-    background: var(--accent-soft);
-  }
-
-  .bottom-nav-icon-wrap {
-    position: relative;
-    display: block;
-  }
-
-  .bottom-nav-icon {
-    width: 26px;
-    height: 26px;
-    fill: currentColor;
-    display: block;
-  }
-
-  .bottom-nav-avatar {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 26px;
-    height: 26px;
-    border-radius: 50%;
-    background-size: cover;
-    background-position: center;
-    color: #fff;
-    font-size: 12px;
-    font-weight: 700;
-    box-shadow: 0 0 0 2px transparent;
-    transition: box-shadow 0.18s ease;
-  }
-
-  /* On the profile tab the ring, not a fill, marks the selection. */
-  .bottom-nav-item-active .bottom-nav-avatar {
-    box-shadow: 0 0 0 2px var(--accent);
-  }
-
-  .bottom-nav .nav-badge {
-    position: absolute;
-    top: -5px;
-    right: -7px;
-    min-width: 16px;
-    height: 16px;
-    padding: 0 4px;
-    border-radius: 999px;
-    background: #e0245e;
-    color: #fff;
-    font-size: 10px;
-    font-weight: 700;
-    line-height: 16px;
-    text-align: center;
-    box-shadow: 0 0 0 2px var(--card-bg);
-  }
-
-  @media (prefers-reduced-motion: reduce) {
-    .bottom-nav-item,
-    .bottom-nav-avatar {
-      transition: none;
-    }
-  }
-
-  /* The tab bar floats over the page, so the page has to end above it. */
-  .app-content {
-    padding-bottom: 78px;
-  }
-
-  .app-footer {
-    padding-bottom: 86px;
-  }
-
-  .help-fab,
-  .help-chat {
-    bottom: 86px;
-  }
-
-  /* The cookie banner must sit above the tab bar, not on top of it. */
-  .cookie-banner {
-    bottom: calc(78px + env(safe-area-inset-bottom));
   }
 
   .fab {
@@ -2434,6 +2467,7 @@ textarea:focus-visible,
     display: none;
   }
 }
+
 
 .profile-menu {
   display: flex;

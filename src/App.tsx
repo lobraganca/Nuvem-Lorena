@@ -69,15 +69,12 @@ function AppShell() {
         <div className="topbar-links">
           {chosen && (
             <>
-              {isProfissional && <Link to="/professional">{t("nav.dashboard")}</Link>}
-              <Link to="/destination">{t("nav.destinations")}</Link>
-              {!isProfissional && <Link to="/feed">{t("nav.feed")}</Link>}
+              {/* Only what the tab bar does not already carry, so the same
+                  five destinations are not offered twice on the same screen. */}
+              {!isProfissional && <Link to="/bookings">{t("nav.bookings")}</Link>}
               {!isProfissional && <Link to="/desejos">{t("nav.wishlist")}</Link>}
               {!isProfissional && <Link to="/business">{t("nav.forBusiness")}</Link>}
-              <Link to="/messages">{t("nav.messages")}</Link>
-              {!isProfissional && <Link to="/bookings">{t("nav.bookings")}</Link>}
               <Link to="/ajuda">{t("nav.help")}</Link>
-              <Link to="/profile">{t("nav.profile")}</Link>
             </>
           )}
         </div>

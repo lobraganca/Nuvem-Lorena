@@ -14,7 +14,7 @@ import { computeRefund } from "../lib/cancellation";
 import { canReview } from "../lib/reviewEligibility";
 import { threadKey } from "../lib/messages";
 
-const STORAGE_KEY = "avena-data-v17";
+const STORAGE_KEY = "avena-data-v18";
 
 interface AvenaData {
   experiences: Experience[];
@@ -163,7 +163,8 @@ export function AvenaProvider({ children }: { children: ReactNode }) {
         if (existing) return existing.id;
 
         const id = crypto.randomUUID();
-        const palette = ["#e8735f", "#5f9ce8", "#6fbf73", "#c98fe8", "#d9a441"];
+        // Dark enough that the white initial on top stays readable.
+        const palette = ["#d73a1f", "#1f73db", "#3a833e", "#a647d9", "#966c1e"];
         setData((d) => ({
           ...d,
           people: [

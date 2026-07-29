@@ -42,11 +42,15 @@ export const categoryColor: Record<Category, string> = {
 
 export const businessTypes: BusinessType[] = ["Agência", "Guia", "Restaurante", "Hotel"];
 
+/**
+ * Cover colour for a business with no photo yet. Dark enough that the white
+ * type label on top of it stays readable.
+ */
 export const businessTypeColor: Record<BusinessType, string> = {
-  Agência: "#2563eb",
-  Guia: "#65a30d",
-  Restaurante: "#b45309",
-  Hotel: "#7c3aed",
+  Agência: "#1d4ed8",
+  Guia: "#3f6212",
+  Restaurante: "#9a3412",
+  Hotel: "#6d28d9",
 };
 
 /** Best-effort category guess from a tour title, used to pre-fill a memory. */

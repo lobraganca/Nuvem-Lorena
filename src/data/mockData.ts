@@ -26,10 +26,10 @@ export const mockMessages: Message[] = [
 ];
 
 export const mockPeople: Person[] = [
-  { id: "p1", name: "Cecília", avatarColor: "#e8735f" },
-  { id: "p2", name: "Felipe", avatarColor: "#5f9ce8" },
-  { id: "p3", name: "Marina", avatarColor: "#6fbf73" },
-  { id: "p4", name: "Bruno", avatarColor: "#c98fe8" },
+  { id: "p1", name: "Cecília", avatarColor: "#d73a1f" },
+  { id: "p2", name: "Felipe", avatarColor: "#1f73db" },
+  { id: "p3", name: "Marina", avatarColor: "#3a833e" },
+  { id: "p4", name: "Bruno", avatarColor: "#a647d9" },
 ];
 
 export const mockExperiences: Experience[] = [
