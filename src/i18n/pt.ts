@@ -558,6 +558,9 @@ export const pt = {
   "wish.registerMemory": "Registrar como memória",
 
   "auth.tagline": "Seu mapa afetivo de viagens pelo Brasil.",
+  "auth.fromBrazil": "Do Brasil",
+  "auth.invite": "Um convite ao turismo consciente: viaje devagar, escolha quem cuida do lugar e leve de volta histórias, não só fotos.",
+  "auth.experiences": "Experiências que ficam",
   "auth.signIn": "Entrar",
   "auth.createAccount": "Criar conta",
   "auth.nameField": "Seu nome",

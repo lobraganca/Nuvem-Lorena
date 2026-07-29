@@ -3069,80 +3069,180 @@ textarea:focus-visible,
    The door: sign in, create an account, or look around
    --------------------------------------------------------------------------- */
 
+/* This screen deliberately keeps one look in both themes: it is the deep green
+   of the wordmark, and a light version of it would be a different brand. The
+   tokens are scoped here so nothing else in the app inherits them. */
 .signin-page {
+  --door-green: #16211a;
+  --door-green-deep: #0d150f;
+  --door-ink: #f2ebdb;
+  --door-soft: #b3bfb0;
+  --door-sand: #cbb994;
+  --door-line: rgb(242 235 219 / 18%);
+
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
   min-height: 100svh;
-  padding: 24px 16px;
-  background: linear-gradient(180deg, var(--accent-soft), transparent 340px);
+  padding: 28px 20px calc(28px + env(safe-area-inset-bottom));
+  background:
+    radial-gradient(120% 80% at 50% 0%, #1e2c22 0%, transparent 60%),
+    linear-gradient(180deg, var(--door-green) 0%, var(--door-green-deep) 100%);
+  color: var(--door-ink);
 }
 
 .signin-lang {
   align-self: flex-end;
-  margin-bottom: 8px;
+  margin-bottom: 20px;
+}
+
+/* The language select is an app-coloured control; on this green it has to be
+   the page's own quiet outline instead. */
+.signin-lang select {
+  background: transparent;
+  color: var(--door-ink);
+  border: 1px solid var(--door-line);
+  border-radius: 999px;
+  padding: 7px 12px;
+  font: inherit;
+  font-size: 13px;
+}
+
+.signin-lang select option {
+  color: #16211a;
+  background: #f2ebdb;
 }
 
 .signin-card {
   width: 100%;
-  max-width: 420px;
-  padding: 28px 24px 24px;
-  border-radius: 16px;
-  border: 1px solid var(--border);
-  background: var(--card-bg);
-  box-shadow: var(--shadow);
+  max-width: 400px;
   text-align: center;
 }
 
-.signin-logo {
-  height: 44px;
-  width: auto;
-  border-radius: 6px;
+/* Typeset, not the logo file: a serif set wide reads as the wordmark does,
+   and carries no rectangle of its own onto the green. */
+.signin-wordmark {
+  margin: 0;
+  font-family: Georgia, "Times New Roman", "Nimbus Roman", serif;
+  font-weight: 400;
+  font-size: clamp(52px, 17vw, 72px);
+  line-height: 1;
+  letter-spacing: 0.02em;
+  color: var(--door-ink);
+}
+
+.signin-from {
+  margin: 12px 0 0;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.34em;
+  text-transform: uppercase;
+  color: var(--door-sand);
+}
+
+/* A hairline under the name, the width of a word — the only ornament. */
+.signin-from::after {
+  content: "";
+  display: block;
+  width: 44px;
+  height: 1px;
+  margin: 18px auto 0;
+  background: var(--door-line);
+}
+
+.signin-invite {
+  margin: 22px 0 0;
+  font-size: 15px;
+  line-height: 1.6;
+  color: var(--door-ink);
+}
+
+.signin-experiences {
+  margin: 14px 0 0;
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: 17px;
+  font-style: italic;
+  color: var(--door-sand);
 }
 
 .signin-tagline {
-  margin: 10px 0 22px;
-  color: var(--text);
+  margin: 8px 0 22px;
   font-size: 14px;
+  color: var(--door-soft);
 }
 
-/* The first screen is three choices and nothing else. */
 .signin-choices {
   display: flex;
   flex-direction: column;
   gap: 10px;
-  margin-top: 26px;
+  margin-top: 30px;
+}
+
+/* On this ground the filled button is the sand, not the app's green. */
+.signin-page .btn-primary {
+  background: var(--door-ink);
+  color: var(--door-green);
+  border: 1px solid var(--door-ink);
+}
+
+.signin-page .btn-primary:disabled {
+  background: transparent;
+  color: var(--door-soft);
+  border-color: var(--door-line);
+}
+
+.signin-page .btn-outline {
+  background: transparent;
+  color: var(--door-ink);
+  border: 1px solid var(--door-line);
+}
+
+.signin-page .btn-outline:hover {
+  border-color: var(--door-ink);
+}
+
+.signin-submit {
+  align-self: stretch;
+  padding: 14px 24px;
+  border-radius: 999px;
+  font-size: 15px;
 }
 
 .signin-secondary {
   align-self: stretch;
-  padding: 13px 24px;
+  padding: 14px 24px;
+  border-radius: 999px;
   font-size: 15px;
-  border-radius: 8px;
+  font-weight: 600;
 }
 
 .signin-quiet {
-  margin-top: 18px;
+  margin-top: 20px;
   padding: 8px;
   border: none;
   background: none;
   font: inherit;
   font-size: 14px;
-  color: var(--text);
+  color: var(--door-soft);
   text-decoration: underline;
+  text-underline-offset: 3px;
   cursor: pointer;
+}
+
+.signin-quiet:hover {
+  color: var(--door-ink);
 }
 
 .signin-back {
   display: block;
-  margin: 0 0 12px;
+  margin: 0 0 14px;
   padding: 4px 0;
   border: none;
   background: none;
   font: inherit;
   font-size: 14px;
-  color: var(--text);
+  color: var(--door-soft);
   cursor: pointer;
   text-align: left;
 }
@@ -3151,6 +3251,7 @@ textarea:focus-visible,
   margin: 0 0 18px;
   font-size: 20px;
   text-align: left;
+  color: var(--door-ink);
 }
 
 .signin-form {
@@ -3166,20 +3267,24 @@ textarea:focus-visible,
   gap: 6px;
   font-size: 13px;
   font-weight: 600;
-  color: var(--text-h);
+  color: var(--door-ink);
 }
 
 .signin-form input {
   font: inherit;
-  padding: 12px 14px;
-  border-radius: 8px;
-  border: 1px solid var(--border);
-  background: var(--bg-alt);
-  color: var(--text-h);
+  padding: 13px 14px;
+  border-radius: 10px;
+  border: 1px solid var(--door-line);
+  background: rgb(0 0 0 / 22%);
+  color: var(--door-ink);
+}
+
+.signin-form input::placeholder {
+  color: var(--door-soft);
 }
 
 .signin-form input:focus-visible {
-  outline: 2px solid var(--accent);
+  outline: 2px solid var(--door-sand);
   outline-offset: 1px;
 }
 
@@ -3190,15 +3295,15 @@ textarea:focus-visible,
   background: none;
   font: inherit;
   font-size: 13px;
-  color: var(--text);
+  color: var(--door-soft);
   text-decoration: underline;
+  text-underline-offset: 3px;
   cursor: pointer;
 }
 
-.signin-submit {
-  align-self: stretch;
-  margin-top: 4px;
-  padding: 13px 24px;
+.signin-page .signin-hint,
+.signin-page .muted {
+  color: var(--door-soft);
 }
 
 .signin-hint {
@@ -3211,21 +3316,21 @@ textarea:focus-visible,
   margin: 0;
   padding: 10px 12px;
   border-radius: 8px;
-  border: 1px solid #f3c2bd;
-  background: #fdecea;
-  color: #8c1d18;
+  border: 1px solid rgb(255 145 130 / 45%);
+  background: rgb(255 105 90 / 14%);
+  color: #ffcfc7;
   font-size: 13px;
 }
 
 /* The plain truth about what this account is, in smaller type but never
    hidden behind a link. */
 .signin-truth {
-  margin: 20px 0 0;
-  padding-top: 16px;
-  border-top: 1px solid var(--border);
+  margin: 26px 0 0;
+  padding-top: 18px;
+  border-top: 1px solid var(--door-line);
   font-size: 12px;
-  line-height: 1.5;
-  color: var(--text);
+  line-height: 1.55;
+  color: var(--door-soft);
   text-align: left;
 }
 

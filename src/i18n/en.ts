@@ -539,6 +539,10 @@ export const en: Record<keyof typeof pt, string> = {
   "wish.registerMemory": "Record as a memory",
 
   "auth.tagline": "Your affective map of travels across Brazil.",
+  "auth.fromBrazil": "From Brazil",
+  "auth.invite":
+    "An invitation to conscious tourism: travel slowly, choose those who care for the place, and take back stories, not only photos.",
+  "auth.experiences": "Experiences that stay with you",
   "auth.signIn": "Sign in",
   "auth.createAccount": "Create account",
   "auth.nameField": "Your name",

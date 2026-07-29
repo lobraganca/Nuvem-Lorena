@@ -541,6 +541,10 @@ export const es: Record<keyof typeof pt, string> = {
   "wish.registerMemory": "Registrar como recuerdo",
 
   "auth.tagline": "Tu mapa afectivo de viajes por Brasil.",
+  "auth.fromBrazil": "De Brasil",
+  "auth.invite":
+    "Una invitación al turismo consciente: viaja despacio, elige a quien cuida del lugar y llévate historias, no solo fotos.",
+  "auth.experiences": "Experiencias que se quedan",
   "auth.signIn": "Entrar",
   "auth.createAccount": "Crear cuenta",
   "auth.nameField": "Tu nombre",

@@ -4,7 +4,6 @@ import { isValidEmail, passwordProblem } from "../lib/auth";
 import { LanguageSwitcher } from "../components/LanguageSwitcher";
 import { useT } from "../i18n";
 import type { TranslationKey } from "../i18n";
-import avenaLogo from "../assets/avena-logo-wordmark.png";
 
 const ERROR_KEY: Record<AuthError, TranslationKey> = {
   "sem-conta": "auth.errorNoAccount",
@@ -84,11 +83,16 @@ export function SignIn() {
       </div>
 
       <div className="signin-card">
-        <img src={avenaLogo} alt="Avena" className="signin-logo" />
-        <p className="signin-tagline">{t("auth.tagline")}</p>
+        {/* The name is typeset rather than the logo image: the wordmark carries
+            its own dark box, which would sit as a rectangle on this green. */}
+        <h1 className="signin-wordmark">avena</h1>
+        <p className="signin-from">{t("auth.fromBrazil")}</p>
 
         {step === "porta" ? (
           <>
+            <p className="signin-invite">{t("auth.invite")}</p>
+            <p className="signin-experiences">{t("auth.experiences")}</p>
+
             <div className="signin-choices">
               <button
                 type="button"
@@ -118,6 +122,7 @@ export function SignIn() {
           </>
         ) : (
           <>
+            <p className="signin-tagline">{t("auth.tagline")}</p>
             <button type="button" className="signin-back" onClick={() => go("porta")}>
               ← {t("common.back")}
             </button>
