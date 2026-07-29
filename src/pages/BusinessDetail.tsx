@@ -71,9 +71,15 @@ export function BusinessDetail() {
       )}
 
       {business.cadastur && (
-        <div className="cadastur-badge">
-          {t("business.cadastur", { number: business.cadastur })}
-        </div>
+        <>
+          <div className="cadastur-badge">
+            {t("business.cadastur", { number: business.cadastur })}
+          </div>
+          {/* The badge used to say "registered with the Ministry of Tourism",
+              which reads as a check Avena never made. Saying who provided the
+              number costs one line and keeps the platform honest. */}
+          <p className="muted cadastur-note">{t("business.cadasturUnverified")}</p>
+        </>
       )}
 
       <div className="detail-block">

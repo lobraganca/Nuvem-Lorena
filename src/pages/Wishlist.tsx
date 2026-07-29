@@ -1,23 +1,25 @@
 import { Link } from "react-router-dom";
 import { useAvena } from "../store/AvenaContext";
 import { BannerSlot } from "../components/BannerSlot";
-import { doneWishes, openWishes } from "../lib/wishlist";
+import { doneWishes, isWishGone, openWishes } from "../lib/wishlist";
 import { formatBRL } from "../lib/money";
 import { localeFor, useI18n } from "../i18n";
 import type { WishlistItem } from "../types";
 
 export function Wishlist() {
-  const { wishlist, removeWish, toggleWishDone } = useAvena();
+  const { wishlist, businesses, removeWish, toggleWishDone } = useAvena();
   const { t, lang } = useI18n();
 
   const open = openWishes(wishlist);
   const done = doneWishes(wishlist);
 
   function WishCard({ wish }: { wish: WishlistItem }) {
+    const gone = isWishGone(wish, businesses);
+
     return (
       <div className="booking-card">
         <div className="timeline-card-title">
-          <Link to={`/business/${wish.businessId}`}>{wish.title}</Link>
+          {gone ? wish.title : <Link to={`/business/${wish.businessId}`}>{wish.title}</Link>}
           {wish.doneAt && (
             <span className="booking-status booking-status-confirmada">
               {t("wish.doneLabel")}
@@ -29,17 +31,29 @@ export function Wishlist() {
           {[
             wish.businessName,
             wish.city && `${wish.city}${wish.state ? `, ${wish.state}` : ""}`,
-            wish.priceFrom !== undefined &&
+            // The price goes away with the tour: quoting one that is no longer
+            // for sale is worse than quoting none.
+            !gone && wish.priceFrom !== undefined &&
               `${t("common.from")} R$ ${formatBRL(wish.priceFrom)}`,
           ]
             .filter(Boolean)
             .join(" · ")}
         </div>
 
+        {gone && <p className="availability-none">{t("wish.gone")}</p>}
+
         <div className="chip-row">
-          {!wish.doneAt && (
+          {!wish.doneAt && !gone && (
             <Link to={`/business/${wish.businessId}`} className="btn-primary">
               {t("wish.seeTour")}
+            </Link>
+          )}
+          {gone && (
+            <Link
+              to={`/destination?city=${encodeURIComponent(wish.city ?? "")}`}
+              className="btn-primary"
+            >
+              {t("wish.goneSearch")}
             </Link>
           )}
           {!wish.doneAt && (

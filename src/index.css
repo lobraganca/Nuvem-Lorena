@@ -3545,3 +3545,9 @@ textarea:focus-visible,
 .signin-danger:hover {
   color: #ffd6cf;
 }
+
+/* The line under the Cadastur badge saying who provided the number. */
+.cadastur-note {
+  margin: -4px 0 10px;
+  max-width: 62ch;
+}

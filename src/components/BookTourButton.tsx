@@ -20,15 +20,20 @@ import {
 import type { Business, Participant, Tour } from "../types";
 import { formatBRL } from "../lib/money";
 import { useT } from "../i18n";
+import type { TranslationKey } from "../i18n";
 import { canReceivePayments } from "../lib/payments/mercadopago";
 import { newId } from "../lib/ids";
+
+/** No tour in this catalogue takes a group bigger than this in one booking. */
+const MAX_GROUP = 30;
 
 export function BookTourButton({ business, tour }: { business: Business; tour: Tour }) {
   const { addBooking, bookings, user, waitlist, joinWaitlist } = useAvena();
   const navigate = useNavigate();
   const [open, setOpen] = useState(false);
   const t = useT();
-  const [travelDate, setTravelDate] = useState(new Date().toISOString().slice(0, 10));
+  const today = new Date().toISOString().slice(0, 10);
+  const [travelDate, setTravelDate] = useState(today);
   const [travelers, setTravelers] = useState(1);
   // The buyer is participant 1, pre-filled with the account name.
   const [participants, setParticipants] = useState<Participant[]>([
@@ -36,7 +41,11 @@ export function BookTourButton({ business, tour }: { business: Business; tour: T
   ]);
 
   function changeTravelers(count: number) {
-    const safe = Math.max(1, count);
+    // The upper bound is the tour's own capacity when it declares one, and a
+    // sane group size otherwise. Without it the form happily quoted 9999
+    // people and two million reais.
+    const ceiling = tour.capacityPerDay ?? MAX_GROUP;
+    const safe = Math.min(Math.max(1, count || 1), ceiling);
     setTravelers(safe);
     setParticipants((prev) => resizeParticipants(prev, safe));
   }
@@ -74,9 +83,30 @@ export function BookTourButton({ business, tour }: { business: Business; tour: T
   const soldOut = availability.tracked && availability.remaining === 0;
   const exceedsCapacity = availability.tracked && travelers > availability.remaining;
 
+  const dateInPast = travelDate < today;
+
+  /**
+   * The one reason the booking cannot go through right now, or null. Returning
+   * the message rather than a boolean keeps the button and the explanation from
+   * ever disagreeing.
+   */
+  const blocked: TranslationKey | null = soldOut
+    ? "booking.blockedSoldOut"
+    : exceedsCapacity
+      ? "booking.blockedCapacity"
+      : dateInPast
+        ? "booking.blockedPastDate"
+        : peopleError
+          ? null // Already shown in full, with the participant number.
+          : !legalOk
+            ? "booking.blockedLegal"
+            : null;
+
+  const canSubmit = !soldOut && !exceedsCapacity && !dateInPast && !peopleError && legalOk;
+
   function confirmBooking(e: React.FormEvent) {
     e.preventDefault();
-    if (soldOut || exceedsCapacity || !legalOk || peopleError) return;
+    if (soldOut || exceedsCapacity || !legalOk || peopleError || dateInPast) return;
     if (!legalAccepted) acceptLegal();
     const booking = {
       id: newId(),
@@ -128,6 +158,7 @@ export function BookTourButton({ business, tour }: { business: Business; tour: T
           <input
             type="date"
             value={travelDate}
+            min={today}
             onChange={(e) => setTravelDate(e.target.value)}
             required
           />
@@ -137,6 +168,7 @@ export function BookTourButton({ business, tour }: { business: Business; tour: T
           <input
             type="number"
             min={1}
+            max={tour.capacityPerDay ?? MAX_GROUP}
             value={travelers}
             onChange={(e) => changeTravelers(Number(e.target.value))}
             required
@@ -218,11 +250,18 @@ export function BookTourButton({ business, tour }: { business: Business; tour: T
 
       <LegalAcceptance checked={legalChecked} onChange={setLegalChecked} />
 
+      {/* A disabled button with no explanation reads as a broken app. */}
+      {blocked && (
+        <div className="availability-none" role="status">
+          {t(blocked)}
+        </div>
+      )}
+
       <div className="chip-row">
         <button
           type="submit"
           className="btn-primary"
-          disabled={soldOut || exceedsCapacity || !legalOk || Boolean(peopleError)}
+          disabled={!canSubmit}
         >
           {t("booking.goToPayment")}
         </button>

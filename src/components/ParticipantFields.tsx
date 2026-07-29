@@ -1,4 +1,5 @@
 import { documentError, documentTypes, formatCPF } from "../lib/documents";
+import { COLLECT_PARTICIPANT_DOCUMENTS } from "../lib/dataCollection";
 import { useT } from "../i18n";
 import type { TranslationKey } from "../i18n";
 import type { DocumentType, Participant } from "../types";
@@ -34,6 +35,15 @@ export function participantsError(
 ): ParticipantsError | null {
   for (const [i, p] of participants.entries()) {
     if (!p.name.trim()) return { key: "participants.nameRequired", index: i + 1 };
+  }
+
+  if (!COLLECT_PARTICIPANT_DOCUMENTS) {
+    // Names still have to be distinct, so a list of "Maria" three times does
+    // not reach the guide.
+    return null;
+  }
+
+  for (const [i, p] of participants.entries()) {
     const docError = documentError(p.documentType, p.document);
     if (docError) return { key: docError, index: i + 1 };
   }
@@ -63,7 +73,11 @@ export function ParticipantFields({
   return (
     <fieldset>
       <legend>{t("booking.participants")}</legend>
-      <p className="muted">{t("booking.participantsWhy")}</p>
+      <p className="muted">
+        {COLLECT_PARTICIPANT_DOCUMENTS
+          ? t("booking.participantsWhy")
+          : t("booking.participantsNamesOnly")}
+      </p>
 
       {participants.map((p, i) => {
         const docError = p.document ? documentError(p.documentType, p.document) : null;
@@ -83,51 +97,53 @@ export function ParticipantFields({
                 required
               />
             </label>
-            <div className="form-row">
-              <label>
-                {t("participants.docType")}
-                <select
-                  value={p.documentType}
-                  onChange={(e) =>
-                    update(i, {
-                      documentType: e.target.value as DocumentType,
-                      document: "",
-                    })
-                  }
-                >
-                  {documentTypes.map((t) => (
-                    <option key={t} value={t}>
-                      {t}
-                    </option>
-                  ))}
-                </select>
-              </label>
-              <label>
-                {t("participants.document")}
-                <input
-                  value={p.document}
-                  onChange={(e) =>
-                    update(i, {
-                      document:
-                        p.documentType === "CPF"
-                          ? formatCPF(e.target.value)
-                          : e.target.value,
-                    })
-                  }
-                  placeholder={p.documentType === "CPF" ? "000.000.000-00" : t("participants.docNumber")}
-                  required
-                />
-                {docError && <span className="participant-error">{t(docError)}</span>}
-              </label>
-              <label>
-                {t("participants.birthDate")}
-                <input
-                  type="date"
-                  value={p.birthDate ?? ""}
-                  onChange={(e) => update(i, { birthDate: e.target.value || undefined })}
-                />
-              </label>
-            </div>
+            {COLLECT_PARTICIPANT_DOCUMENTS && (
+              <div className="form-row">
+                <label>
+                  {t("participants.docType")}
+                  <select
+                    value={p.documentType}
+                    onChange={(e) =>
+                      update(i, {
+                        documentType: e.target.value as DocumentType,
+                        document: "",
+                      })
+                    }
+                  >
+                    {documentTypes.map((t) => (
+                      <option key={t} value={t}>
+                        {t}
+                      </option>
+                    ))}
+                  </select>
+                </label>
+                <label>
+                  {t("participants.document")}
+                  <input
+                    value={p.document}
+                    onChange={(e) =>
+                      update(i, {
+                        document:
+                          p.documentType === "CPF"
+                            ? formatCPF(e.target.value)
+                            : e.target.value,
+                      })
+                    }
+                    placeholder={p.documentType === "CPF" ? "000.000.000-00" : t("participants.docNumber")}
+                    required
+                  />
+                  {docError && <span className="participant-error">{t(docError)}</span>}
+                </label>
+                <label>
+                  {t("participants.birthDate")}
+                  <input
+                    type="date"
+                    value={p.birthDate ?? ""}
+                    onChange={(e) => update(i, { birthDate: e.target.value || undefined })}
+                  />
+                </label>
+              </div>
+            )}
           </div>
         );
       })}

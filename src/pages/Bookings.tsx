@@ -9,10 +9,11 @@ import {
   computeRefund,
 } from "../lib/cancellation";
 import { effectiveStatus, minutesLeftToPay } from "../lib/bookingStatus";
-import { canReview } from "../lib/reviewEligibility";
+import { reviewEligibility, type ReviewBlockReason } from "../lib/reviewEligibility";
 import type { Booking } from "../types";
 import { formatBRL } from "../lib/money";
 import { useT } from "../i18n";
+import type { TranslationKey } from "../i18n";
 
 function CancelBooking({ booking }: { booking: Booking }) {
   const { cancelBooking } = useAvena();
@@ -53,6 +54,15 @@ function CancelBooking({ booking }: { booking: Booking }) {
   );
 }
 
+/** Why the review form is not there, in words the traveller can act on. */
+const REVIEW_BLOCK_KEY: Record<ReviewBlockReason, TranslationKey> = {
+  "nao-pagou": "review.blockedNotPaid",
+  cancelada: "review.blockedCancelled",
+  expirada: "review.blockedExpired",
+  "ainda-nao-foi": "review.blockedNotYet",
+  "ja-avaliou": "review.alreadyDone",
+};
+
 export function Bookings() {
   const { bookings } = useAvena();
   const t = useT();
@@ -82,6 +92,7 @@ export function Bookings() {
     const isCancelled = status === "cancelada";
     const isAwaiting = status === "aguardando-pagamento";
     const isPaid = status === "confirmada";
+    const eligibility = reviewEligibility(b);
     return (
       <div className="booking-card">
         <div className="timeline-card-title">
@@ -156,7 +167,14 @@ export function Bookings() {
           <p className="muted">{t("bookings.expiredNote")}</p>
         )}
 
-        {canReview(b) && <ReviewForm booking={b} />}
+
+        {/* Either the form, or the reason there is no form. A control that
+            silently is not there teaches the person that the app is broken. */}
+        {eligibility.allowed ? (
+          <ReviewForm booking={b} />
+        ) : (
+          <p className="muted">{t(REVIEW_BLOCK_KEY[eligibility.reason])}</p>
+        )}
         {isPaid && !isPast && <CancelBooking booking={b} />}
       </div>
     );

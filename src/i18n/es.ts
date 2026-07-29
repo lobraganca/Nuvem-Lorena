@@ -129,8 +129,10 @@ export const es: Record<keyof typeof pt, string> = {
   "business.recommendPct": "{pct}% lo recomiendan",
   "business.suspended": "Esta empresa está suspendida y no recibe nuevas reservas.",
   "business.verified": "Verificada por Avena — documentación comprobada",
-  "business.cadastur":
-    "Cadastur {number} — registrada en el Ministerio de Turismo de Brasil",
+  "business.cadastur": "Cadastur {number}",
+  "business.cadasturUnverified":
+    "Número informado por la empresa. Avena todavía no lo verifica ante el Ministerio de Turismo — confírmalo en el sitio del Cadastur antes de cerrar.",
+  "business.cadasturFormat": "El Cadastur tiene el formato 26.123456.10-4.",
   "business.recommends": "Lo recomienda",
   "business.doesNotRecommend": "No lo recomienda",
   "business.bestSeason": "Mejor época: {season}",
@@ -189,6 +191,11 @@ export const es: Record<keyof typeof pt, string> = {
   "booking.date": "Fecha",
   "booking.travelers": "Personas",
   "booking.goToPayment": "Ir al pago",
+  "booking.blockedSoldOut":
+    "No hay lugares en esa fecha. Elige otro día o entra en la lista de espera.",
+  "booking.blockedCapacity": "Son más personas que los lugares de esa fecha.",
+  "booking.blockedPastDate": "Elige una fecha de hoy en adelante.",
+  "booking.blockedLegal": "Acepta los Términos de Uso para continuar.",
   "booking.total": "Total",
   "booking.serviceFee": "Tarifa de servicio Avena ({pct}%): R$ {amount}",
   "booking.businessReceives": "{name} recibe: R$ {amount}",
@@ -206,6 +213,8 @@ export const es: Record<keyof typeof pt, string> = {
   "booking.waitlistJoined":
     "Estás en la lista de espera de esta fecha. Te avisamos si se libera un cupo.",
   "booking.participants": "Quiénes participan",
+  "booking.participantsNamesOnly":
+    "El nombre de cada persona, como figura en su documento. El documento en sí lo verifica la agencia al embarcar — Avena no guarda el número de nadie.",
   "booking.participantsWhy":
     "La agencia necesita el nombre y documento de cada persona para la lista de embarque, la entrada a parques y el seguro.",
 
@@ -531,6 +540,8 @@ export const es: Record<keyof typeof pt, string> = {
   "wish.countOne": "1 en tu lista",
   "wish.empty":
     "Tu lista está vacía. Abre la página de una empresa y toca “Quiero hacerlo” en el paseo que te gustó.",
+  "wish.gone": "Este paseo ya no se ofrece. La empresa puede haberlo retirado o cerrado la temporada.",
+  "wish.goneSearch": "Ver otros en ese destino",
   "wish.doneTitle": "Ya realizados",
   "wish.doneLabel": "Realizado",
   "wish.doneOn": "Marcado como realizado el {date}",

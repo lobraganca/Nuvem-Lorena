@@ -61,3 +61,14 @@ export function documentError(
   if (type !== "CPF" && !isValidDocument(type, value)) return "participants.docTooShort";
   return null;
 }
+
+/**
+ * Cadastur numbers look like 26.123456.10-4. Checking the shape catches a typo
+ * before it reaches a traveller's screen; it does NOT prove the registration
+ * exists. Only the Ministry's own register can do that, and until the app
+ * consults it, the number is what the business told us — which is exactly what
+ * the interface has to say.
+ */
+export function cadasturLooksValid(value: string): boolean {
+  return /^\d{2}\.\d{6}\.\d{2}-\d$/.test(value.trim());
+}

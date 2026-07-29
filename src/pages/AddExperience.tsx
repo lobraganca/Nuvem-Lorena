@@ -10,6 +10,7 @@ import type { Category, Experience } from "../types";
 import { useT } from "../i18n";
 import { categoryKey } from "../i18n/domain";
 import { newId } from "../lib/ids";
+import { ModerationNotice, isPublishable } from "../components/ModerationNotice";
 
 const MOODS = ["😍", "😄", "🥰", "💪", "🤩", "😌", "😢"];
 
@@ -77,9 +78,18 @@ export function AddExperience() {
     );
   }
 
+  /**
+   * What other people will read. The diary is left out on purpose: it is
+   * private, and nobody should have their own words refused in their own
+   * notebook. Title and place are not private — they show in the feed of
+   * whoever follows you and on your profile grid.
+   */
+  const publicText = `${title} ${locationName} ${city} ${notes}`;
+
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     if (!title || !locationName) return;
+    if (!isPublishable(publicText)) return;
     if (lat === null || lng === null) {
       setLocationError(t("experience.pickOnMap"));
       return;
@@ -275,7 +285,13 @@ export function AddExperience() {
           <textarea value={notes} onChange={(e) => setNotes(e.target.value)} rows={2} />
         </label>
 
-        <button type="submit" className="btn-primary">
+        <ModerationNotice text={publicText} />
+
+        <button
+          type="submit"
+          className="btn-primary"
+          disabled={!isPublishable(publicText)}
+        >
           {t(editing ? "common.saveChanges" : "experience.save")}
         </button>
       </form>

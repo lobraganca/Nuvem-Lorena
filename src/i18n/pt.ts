@@ -138,7 +138,9 @@ export const pt = {
   "business.suspended":
     "Esta empresa está suspensa e não está recebendo novas reservas.",
   "business.verified": "Verificada pelo Avena — documentação conferida",
-  "business.cadastur": "Cadastur {number} — registrado no Ministério do Turismo",
+  "business.cadastur": "Cadastur {number}",
+  "business.cadasturUnverified": "Número informado pela empresa. A Avena ainda não confere junto ao Ministério do Turismo — confirme no site do Cadastur antes de fechar.",
+  "business.cadasturFormat": "O Cadastur tem o formato 26.123456.10-4.",
   "business.recommends": "Recomenda",
   "business.doesNotRecommend": "Não recomenda",
   "business.bestSeason": "Melhor época: {season}",
@@ -199,6 +201,10 @@ export const pt = {
   "booking.date": "Data",
   "booking.travelers": "Pessoas",
   "booking.goToPayment": "Ir para o pagamento",
+  "booking.blockedSoldOut": "Não há vagas nessa data. Escolha outro dia ou entre na lista de espera.",
+  "booking.blockedCapacity": "São mais pessoas do que as vagas dessa data.",
+  "booking.blockedPastDate": "Escolha uma data de hoje em diante.",
+  "booking.blockedLegal": "Aceite os Termos de Uso para continuar.",
   "booking.total": "Valor total",
   "booking.serviceFee": "Taxa de serviço Avena ({pct}%): R$ {amount}",
   "booking.businessReceives": "{name} recebe: R$ {amount}",
@@ -216,6 +222,7 @@ export const pt = {
   "booking.waitlistJoined":
     "Você está na lista de espera desta data. Avisamos se abrir vaga.",
   "booking.participants": "Quem vai participar",
+  "booking.participantsNamesOnly": "O nome de cada pessoa, como está no documento. O documento em si a agência confere no embarque — o Avena não guarda CPF de ninguém.",
   "booking.participantsWhy":
     "A agência precisa do nome e documento de cada pessoa para lista de embarque, entrada em parques e seguro.",
 
@@ -548,6 +555,8 @@ export const pt = {
   "wish.count": "{count} na sua lista",
   "wish.countOne": "1 na sua lista",
   "wish.empty": "Sua lista está vazia. Abra a página de uma empresa e toque em “Quero fazer” no passeio que te interessou.",
+  "wish.gone": "Este passeio saiu do ar. A empresa pode ter tirado da lista ou encerrado a temporada.",
+  "wish.goneSearch": "Ver outros nesse destino",
   "wish.doneTitle": "Já realizados",
   "wish.doneLabel": "Realizado",
   "wish.doneOn": "Marcado como realizado em {date}",

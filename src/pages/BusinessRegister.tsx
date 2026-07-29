@@ -12,6 +12,7 @@ import {
 import type { Business, BusinessType, PlanTier } from "../types";
 import { ModerationNotice, isPublishable } from "../components/ModerationNotice";
 import { newId } from "../lib/ids";
+import { cadasturLooksValid } from "../lib/documents";
 
 export function BusinessRegister() {
   const { addBusiness, updateUser } = useAvena();
@@ -43,6 +44,7 @@ export function BusinessRegister() {
     if (!name || !description || !city || !email) return;
     if (!isPublishable(`${name} ${description}`)) return;
     if (requiresCadastur && !cadastur) return;
+    if (cadastur && !cadasturLooksValid(cadastur)) return;
     if (!legalOk) return;
     if (!legalAccepted) acceptLegal();
 
@@ -149,14 +151,19 @@ export function BusinessRegister() {
           <input
             value={cadastur}
             onChange={(e) => setCadastur(e.target.value)}
-            placeholder="Número de registro no Ministério do Turismo"
+            placeholder="26.123456.10-4"
             required={requiresCadastur}
           />
           <span className="muted">
             {requiresCadastur
               ? "Obrigatório por lei para agências, guias e meios de hospedagem venderem serviços de turismo no Brasil."
-              : "Se você tem registro no Ministério do Turismo, informe para ganhar o selo de verificado."}
+              : "Se você tem registro no Ministério do Turismo, informe aqui."}
           </span>
+          {cadastur && !cadasturLooksValid(cadastur) && (
+            <span className="availability-none">
+              O Cadastur tem o formato 26.123456.10-4.
+            </span>
+          )}
         </label>
 
         <fieldset>

@@ -129,8 +129,10 @@ export const en: Record<keyof typeof pt, string> = {
   "business.recommendPct": "{pct}% recommend",
   "business.suspended": "This business is suspended and is not taking new bookings.",
   "business.verified": "Verified by Avena — documents checked",
-  "business.cadastur":
-    "Cadastur {number} — registered with the Brazilian Ministry of Tourism",
+  "business.cadastur": "Cadastur {number}",
+  "business.cadasturUnverified":
+    "Number provided by the business. Avena does not yet check it against the Ministry of Tourism — confirm it on the Cadastur site before you commit.",
+  "business.cadasturFormat": "A Cadastur number looks like 26.123456.10-4.",
   "business.recommends": "Recommends",
   "business.doesNotRecommend": "Does not recommend",
   "business.bestSeason": "Best season: {season}",
@@ -189,6 +191,11 @@ export const en: Record<keyof typeof pt, string> = {
   "booking.date": "Date",
   "booking.travelers": "People",
   "booking.goToPayment": "Continue to payment",
+  "booking.blockedSoldOut":
+    "No spots on that date. Pick another day or join the waiting list.",
+  "booking.blockedCapacity": "That is more people than the spots left on that date.",
+  "booking.blockedPastDate": "Pick a date from today onwards.",
+  "booking.blockedLegal": "Accept the Terms of Use to continue.",
   "booking.total": "Total",
   "booking.serviceFee": "Avena service fee ({pct}%): R$ {amount}",
   "booking.businessReceives": "{name} receives: R$ {amount}",
@@ -205,6 +212,8 @@ export const en: Record<keyof typeof pt, string> = {
   "booking.waitlistJoined":
     "You are on the waiting list for this date. We will let you know if a spot opens.",
   "booking.participants": "Who is going",
+  "booking.participantsNamesOnly":
+    "Each person's name, as it appears on their ID. The document itself is checked by the agency at boarding — Avena stores nobody's ID number.",
   "booking.participantsWhy":
     "The agency needs each person's name and ID for boarding lists, park entry and insurance.",
 
@@ -529,6 +538,8 @@ export const en: Record<keyof typeof pt, string> = {
   "wish.countOne": "1 on your list",
   "wish.empty":
     "Your list is empty. Open a business page and tap “I want to do this” on the tour you liked.",
+  "wish.gone": "This tour is no longer offered. The business may have taken it down or closed the season.",
+  "wish.goneSearch": "See others in that destination",
   "wish.doneTitle": "Already done",
   "wish.doneLabel": "Done",
   "wish.doneOn": "Marked as done on {date}",

@@ -1,4 +1,4 @@
-import type { WishlistItem } from "../types";
+import type { Business, WishlistItem } from "../types";
 
 /** A wish is "open" until the traveller says they did it. */
 export function openWishes(wishlist: WishlistItem[]): WishlistItem[] {
@@ -57,4 +57,18 @@ export function wantedTours(wishlist: WishlistItem[]): WantedTour[] {
   return [...byTour.values()].sort(
     (a, b) => b.wishes - a.wishes || a.title.localeCompare(b.title)
   );
+}
+
+/**
+ * True when the tour behind a wish is no longer on offer — taken down by the
+ * business, or the business itself suspended.
+ *
+ * A wish that points at nothing has to say so. Left silent it shows a price
+ * that is not for sale and leads to a page with no way to book, which reads as
+ * a broken app rather than as a tour that ended.
+ */
+export function isWishGone(wish: WishlistItem, businesses: Business[]): boolean {
+  const business = businesses.find((b) => b.id === wish.businessId);
+  if (!business || business.status === "suspensa") return true;
+  return !(business.tours ?? []).some((tour) => tour.id === wish.tourId);
 }
