@@ -247,17 +247,19 @@ export interface Participant {
  * yet, and refusing to record that would throw away the most useful signal the
  * platform can collect about where to prospect next.
  */
+/**
+ * A tour the traveller marked as "quero fazer". It always points at a tour
+ * published by a registered business — there is no free-form wish.
+ */
 export interface WishlistItem {
   id: string;
+  tourId: string;
+  businessId: string;
+  /** Copied from the tour so the list still reads if the tour is taken down. */
   title: string;
+  businessName: string;
   city?: string;
   state?: string;
-  category?: Category;
-  note?: string;
-  /** Set when the wish came from a tour published on Avena. */
-  tourId?: string;
-  businessId?: string;
-  businessName?: string;
   priceFrom?: number;
   createdAt: string; // ISO datetime
   /** Set when the traveller marks it as done. */

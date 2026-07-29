@@ -1,4 +1,4 @@
-import type { Business, WishlistItem } from "../types";
+import type { WishlistItem } from "../types";
 
 /** A wish is "open" until the traveller says they did it. */
 export function openWishes(wishlist: WishlistItem[]): WishlistItem[] {
@@ -17,60 +17,44 @@ export function isTourWished(wishlist: WishlistItem[], tourId: string): boolean 
   return wishlist.some((w) => w.tourId === tourId && !w.doneAt);
 }
 
-/** Partners already on Avena in the city of a wish, so it can be acted on. */
-export function partnersForWish(
-  wish: WishlistItem,
-  businesses: Business[]
-): Business[] {
-  if (!wish.city) return [];
-  const city = wish.city.toLowerCase();
-  return businesses.filter(
-    (b) => b.status !== "suspensa" && b.city.toLowerCase() === city
-  );
-}
-
-export interface WantedDestination {
-  city: string;
+export interface WantedTour {
+  tourId: string;
+  title: string;
+  businessId: string;
+  businessName: string;
+  city?: string;
   state?: string;
   wishes: number;
-  /** How many partners Avena already has there. */
-  partners: number;
 }
 
 /**
- * Where travellers want to go, and whether Avena has anyone to sell it.
+ * The published tours travellers marked as "quero fazer", most wanted first.
  *
- * A city with many wishes and no partner is the clearest prospecting list the
- * platform can produce: demand that already exists and nobody to serve it.
+ * Every wish points at a tour that already exists in a business record, so this
+ * measures interest in the catalogue as it stands — which partner to push, which
+ * date to open — not demand for places nobody sells yet.
  */
-export function wantedDestinations(
-  wishlist: WishlistItem[],
-  businesses: Business[]
-): WantedDestination[] {
-  const byCity = new Map<string, WantedDestination>();
+export function wantedTours(wishlist: WishlistItem[]): WantedTour[] {
+  const byTour = new Map<string, WantedTour>();
 
   for (const wish of wishlist) {
-    if (!wish.city) continue;
-    const key = wish.city.toLowerCase();
-    const existing = byCity.get(key);
+    const existing = byTour.get(wish.tourId);
     if (existing) {
       existing.wishes += 1;
-    } else {
-      byCity.set(key, {
-        city: wish.city,
-        state: wish.state,
-        wishes: 1,
-        partners: businesses.filter(
-          (b) => b.status !== "suspensa" && b.city.toLowerCase() === key
-        ).length,
-      });
+      continue;
     }
+    byTour.set(wish.tourId, {
+      tourId: wish.tourId,
+      title: wish.title,
+      businessId: wish.businessId,
+      businessName: wish.businessName,
+      city: wish.city,
+      state: wish.state,
+      wishes: 1,
+    });
   }
 
-  return [...byCity.values()].sort((a, b) => {
-    // Unserved demand first: that is where a new partner is worth the most.
-    if (a.partners === 0 && b.partners > 0) return -1;
-    if (b.partners === 0 && a.partners > 0) return 1;
-    return b.wishes - a.wishes;
-  });
+  return [...byTour.values()].sort(
+    (a, b) => b.wishes - a.wishes || a.title.localeCompare(b.title)
+  );
 }

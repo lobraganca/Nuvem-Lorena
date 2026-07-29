@@ -13,7 +13,7 @@ import { mockTravelerActivity, mockTravelers } from "../data/travelers";
 import { computeRefund } from "../lib/cancellation";
 import { canReview } from "../lib/reviewEligibility";
 
-const STORAGE_KEY = "avena-data-v16";
+const STORAGE_KEY = "avena-data-v17";
 
 interface AvenaData {
   experiences: Experience[];

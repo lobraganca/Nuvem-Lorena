@@ -1,7 +1,7 @@
 import { useRef, useState } from "react";
 import { useAvena } from "../store/AvenaContext";
 import { ImportTours } from "./ImportTours";
-import { wantedDestinations } from "../lib/wishlist";
+import { wantedTours } from "../lib/wishlist";
 import {
   BUSINESS_CSV_TEMPLATE,
   parseBusinessesCsv,
@@ -54,61 +54,46 @@ export function AdminImport() {
   }
 
   const unclaimed = businesses.filter((b) => b.claimStatus === "nao-reivindicada");
-  const wanted = wantedDestinations(wishlist, businesses);
-  const unserved = wanted.filter((w) => w.partners === 0);
+  const wanted = wantedTours(wishlist);
 
   return (
     <>
-      <h2 className="timeline-title">Onde os viajantes querem ir</h2>
+      <h2 className="timeline-title">Passeios que os viajantes querem fazer</h2>
       <p className="muted">
-        Vem das listas de “Quero fazer”. Cidade com desejo e sem parceiro é
-        demanda que já existe e ninguém para atender — a melhor lista de
-        prospecção que a plataforma consegue produzir sozinha.
+        Vem das listas de “Quero fazer”. Mostra qual passeio já cadastrado está
+        juntando interesse — bom motivo para pedir à empresa mais datas, ou para
+        avisar quem marcou quando abrir vaga.
       </p>
       {wanted.length === 0 ? (
         <p className="muted">
-          Ninguém adicionou destinos à lista de desejos ainda.
+          Ninguém marcou passeios como “quero fazer” ainda.
         </p>
       ) : (
         <div className="table-wrap">
           <table className="admin-table">
             <thead>
               <tr>
+                <th>Passeio</th>
+                <th>Empresa</th>
                 <th>Cidade</th>
-                <th>Desejos</th>
-                <th>Parceiros</th>
-                <th>Situação</th>
+                <th>Quem quer</th>
               </tr>
             </thead>
             <tbody>
               {wanted.map((w) => (
-                <tr key={w.city}>
+                <tr key={w.tourId}>
+                  <td>{w.title}</td>
+                  <td>{w.businessName}</td>
                   <td>
-                    {w.city}
-                    {w.state ? `, ${w.state}` : ""}
+                    {w.city ?? "—"}
+                    {w.city && w.state ? `, ${w.state}` : ""}
                   </td>
                   <td>{w.wishes}</td>
-                  <td>{w.partners}</td>
-                  <td>
-                    {w.partners === 0 ? (
-                      <span className="admin-flag">Sem parceiro</span>
-                    ) : (
-                      <span className="muted">atendida</span>
-                    )}
-                  </td>
                 </tr>
               ))}
             </tbody>
           </table>
         </div>
-      )}
-      {unserved.length > 0 && (
-        <p className="muted">
-          {unserved.length === 1
-            ? "1 cidade com procura e nenhum parceiro."
-            : `${unserved.length} cidades com procura e nenhum parceiro.`}{" "}
-          Comece por elas.
-        </p>
       )}
 
       <h2 className="timeline-title">Cadastrar empresas em lote</h2>
