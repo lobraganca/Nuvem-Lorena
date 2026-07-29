@@ -1,6 +1,6 @@
 import { createContext, useContext, useEffect, useMemo, useState } from "react";
 import type { ReactNode } from "react";
-import type { Booking, Business, Experience, Message, Person, Review, Tour, UserProfile } from "../types";
+import type { Booking, Boost, Business, Experience, Message, Person, Review, Tour, UserProfile } from "../types";
 import {
   mockBusinesses,
   mockExperiences,
@@ -11,7 +11,7 @@ import {
 } from "../data/mockData";
 import { computeRefund } from "../lib/cancellation";
 
-const STORAGE_KEY = "avena-data-v10";
+const STORAGE_KEY = "avena-data-v11";
 
 interface AvenaData {
   experiences: Experience[];
@@ -21,6 +21,7 @@ interface AvenaData {
   messages: Message[];
   bookings: Booking[];
   reviews: Review[];
+  boosts: Boost[];
   dismissedNotifications: string[];
 }
 
@@ -34,6 +35,7 @@ interface AvenaContextValue extends AvenaData {
   addTourToBusiness: (businessId: string, tour: Tour) => void;
   addReview: (review: Review) => void;
   cancelBooking: (bookingId: string) => void;
+  addBoost: (boost: Boost) => void;
   dismissNotification: (notificationId: string) => void;
 }
 
@@ -48,6 +50,7 @@ function defaults(): AvenaData {
     messages: mockMessages,
     bookings: [],
     reviews: mockReviews,
+    boosts: [],
     dismissedNotifications: [],
   };
 }
@@ -127,6 +130,7 @@ export function AvenaProvider({ children }: { children: ReactNode }) {
             };
           }),
         })),
+      addBoost: (boost) => setData((d) => ({ ...d, boosts: [boost, ...d.boosts] })),
       dismissNotification: (notificationId) =>
         setData((d) => ({
           ...d,

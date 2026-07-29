@@ -1,9 +1,10 @@
 import { Link } from "react-router-dom";
 import { useAvena } from "../store/AvenaContext";
 import { plans, priceMonthlyFor } from "../lib/plans";
+import { boostRevenue } from "../lib/boosts";
 
 export function Revenue() {
-  const { businesses, bookings } = useAvena();
+  const { businesses, bookings, boosts } = useAvena();
 
   const byTier = plans.map((plan) => {
     const count = businesses.filter((b) => b.planTier === plan.tier).length;
@@ -15,7 +16,8 @@ export function Revenue() {
   const commissionTotal = bookings.reduce((sum, b) => sum + b.commissionAmount, 0);
   const bookingsVolume = bookings.reduce((sum, b) => sum + b.totalPrice, 0);
 
-  const totalRevenue = mrr + commissionTotal;
+  const adsTotal = boostRevenue(boosts);
+  const totalRevenue = mrr + commissionTotal + adsTotal;
 
   return (
     <div className="page page-wide">
@@ -24,8 +26,8 @@ export function Revenue() {
       </Link>
       <h1>Receita da plataforma</h1>
       <p className="muted">
-        Visão geral de quanto o Avena fatura com assinaturas de empresas e com a
-        taxa de serviço cobrada em cada reserva fechada pelo app.
+        Visão geral de quanto o Avena fatura com assinaturas de empresas, com a
+        taxa de serviço das reservas e com anúncios em destaque.
       </p>
 
       <div className="stats-grid">
@@ -36,6 +38,10 @@ export function Revenue() {
         <div className="stat-card">
           <div className="stat-value">R$ {commissionTotal.toLocaleString("pt-BR")}</div>
           <div className="stat-label">Comissões de reservas</div>
+        </div>
+        <div className="stat-card">
+          <div className="stat-value">R$ {adsTotal.toLocaleString("pt-BR")}</div>
+          <div className="stat-label">Anúncios em destaque</div>
         </div>
         <div className="stat-card">
           <div className="stat-value">R$ {totalRevenue.toLocaleString("pt-BR")}</div>

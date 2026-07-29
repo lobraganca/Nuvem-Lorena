@@ -84,6 +84,19 @@ export interface Business {
   cadastur?: string;
 }
 
+/** A paid promotion that lifts a tour onto the traveler's first screen. */
+export interface Boost {
+  id: string;
+  businessId: string;
+  businessName: string;
+  tourId: string;
+  tourTitle: string;
+  days: number;
+  pricePaid: number;
+  startsAt: string; // ISO datetime
+  endsAt: string; // ISO datetime
+}
+
 export type BookingStatus = "confirmada" | "cancelada";
 
 export interface Booking {

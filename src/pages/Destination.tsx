@@ -3,6 +3,7 @@ import { useSearchParams } from "react-router-dom";
 import { useAvena } from "../store/AvenaContext";
 import { BusinessCard } from "../components/BusinessCard";
 import { TrendingSection } from "../components/TrendingSection";
+import { PromotedTours } from "../components/PromotedTours";
 import type { BusinessType } from "../types";
 
 type Tab = "Todos" | BusinessType;
@@ -61,6 +62,7 @@ export function Destination() {
 
       {!query && (
         <div className="page page-wide">
+          <PromotedTours />
           <TrendingSection />
         </div>
       )}

@@ -8,16 +8,19 @@ import {
   cancellationPolicyLabel,
 } from "../lib/cancellation";
 import { availabilityFor } from "../lib/availability";
+import { activeBoostForTour, boostRevenue } from "../lib/boosts";
+import { BoostTourButton } from "../components/BoostTourButton";
 import type { CancellationPolicy, Tour } from "../types";
 
 const today = new Date().toISOString().slice(0, 10);
 
 export function ProfessionalDashboard() {
-  const { user, businesses, bookings, addTourToBusiness } = useAvena();
+  const { user, businesses, bookings, boosts, addTourToBusiness } = useAvena();
   const business = businesses.find((b) => b.id === user.ownBusinessId);
 
   const [title, setTitle] = useState("");
   const [priceFrom, setPriceFrom] = useState("");
+  const [description, setDescription] = useState("");
   const [durationHours, setDurationHours] = useState("");
   const [capacityPerDay, setCapacityPerDay] = useState("");
   const [cancellationPolicy, setCancellationPolicy] = useState<CancellationPolicy>("moderada");
@@ -42,6 +45,7 @@ export function ProfessionalDashboard() {
     .reduce((sum, b) => sum + b.businessPayout, 0);
   const commissionRate = commissionRateFor(business.planTier);
   const currentPlan = plans.find((p) => p.tier === business.planTier);
+  const boostSpend = boostRevenue(boosts.filter((b) => b.businessId === business.id));
 
   function handleAddTour(e: React.FormEvent) {
     e.preventDefault();
@@ -49,6 +53,7 @@ export function ProfessionalDashboard() {
     const tour: Tour = {
       id: crypto.randomUUID(),
       title,
+      description: description || undefined,
       priceFrom: priceFrom ? Number(priceFrom) : undefined,
       durationHours: durationHours ? Number(durationHours) : undefined,
       capacityPerDay: capacityPerDay ? Number(capacityPerDay) : undefined,
@@ -56,6 +61,7 @@ export function ProfessionalDashboard() {
     };
     addTourToBusiness(business.id, tour);
     setTitle("");
+    setDescription("");
     setPriceFrom("");
     setDurationHours("");
     setCapacityPerDay("");
@@ -87,6 +93,12 @@ export function ProfessionalDashboard() {
         <div className="stat-card">
           <div className="stat-value">{Math.round(commissionRate * 100)}%</div>
           <div className="stat-label">Taxa Avena no seu plano</div>
+        </div>
+        <div className="stat-card">
+          <div className="stat-value">
+            R$ {boostSpend.toLocaleString("pt-BR")}
+          </div>
+          <div className="stat-label">Investido em destaque</div>
         </div>
       </div>
 
@@ -120,6 +132,11 @@ export function ProfessionalDashboard() {
                   ? `Vagas hoje: ${availability.remaining}/${availability.capacity}`
                   : "Vagas ilimitadas"}
               </div>
+              <BoostTourButton
+                business={business}
+                tour={t}
+                activeBoost={activeBoostForTour(boosts, t.id)}
+              />
             </div>
           );
         })}
@@ -133,6 +150,15 @@ export function ProfessionalDashboard() {
             onChange={(e) => setTitle(e.target.value)}
             placeholder="Nome do passeio"
             required
+          />
+        </label>
+        <label>
+          Descrição do anúncio
+          <textarea
+            value={description}
+            onChange={(e) => setDescription(e.target.value)}
+            rows={2}
+            placeholder="O que o viajante vai viver nesse passeio?"
           />
         </label>
         <div className="form-row">

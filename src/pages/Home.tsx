@@ -3,6 +3,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { useAvena } from "../store/AvenaContext";
 import { MapView } from "../components/MapView";
 import { NotificationBanner } from "../components/NotificationBanner";
+import { PromotedTours } from "../components/PromotedTours";
 import { categories, categoryColor } from "../lib/categories";
 import type { Category } from "../types";
 
@@ -75,6 +76,7 @@ export function Home() {
 
       <aside className="home-sidebar">
         <NotificationBanner />
+        <PromotedTours compact />
         <div className="filters">
           <select value={category} onChange={(e) => setCategory(e.target.value as Category | "Todas")}>
             <option value="Todas">Todas categorias</option>

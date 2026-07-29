@@ -171,6 +171,51 @@ a {
   color: var(--text);
 }
 
+.promoted-label {
+  display: inline-block;
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
+  color: var(--text);
+  border: 1px solid var(--border);
+  border-radius: 3px;
+  padding: 1px 6px;
+  margin-bottom: 2px;
+  align-self: flex-start;
+}
+
+.promoted-compact {
+  margin-bottom: 16px;
+}
+
+.promoted-compact-card {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 2px;
+  width: 100%;
+  text-align: left;
+  font: inherit;
+  color: inherit;
+  cursor: pointer;
+  padding: 12px;
+  margin-bottom: 8px;
+  border-radius: 10px;
+  border: 1px solid var(--border);
+  background: var(--bg-alt);
+}
+
+.promoted-compact-card:hover {
+  border-color: var(--accent);
+}
+
+.boost-active {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--accent);
+}
+
 .footer-link {
   background: none;
   border: none;
