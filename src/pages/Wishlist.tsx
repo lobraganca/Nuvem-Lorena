@@ -77,7 +77,7 @@ export function Wishlist() {
   return (
     <div className="page">
       <Link to="/" className="back-link">
-        ← {t("common.backToMap")}
+        ← {t("common.backHome")}
       </Link>
       <h1>{t("wish.title")}</h1>
       <p className="muted">{t("wish.subtitle")}</p>

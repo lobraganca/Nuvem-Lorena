@@ -24,7 +24,7 @@ export function ExperienceDetail() {
   return (
     <div className="page">
       <Link to="/" className="back-link">
-        ← {t("common.backToMap")}
+        ← {t("common.backHome")}
       </Link>
       <h1>
         <span

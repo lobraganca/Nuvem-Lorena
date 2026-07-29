@@ -52,7 +52,7 @@ export function GetApp() {
       </section>
 
       <p className="muted">
-        <Link to="/">{t("common.backToMap")}</Link>
+        <Link to="/">{t("common.backHome")}</Link>
       </p>
     </div>
   );

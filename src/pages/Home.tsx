@@ -1,200 +1,158 @@
-import { useMemo, useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 import { useAvena } from "../store/AvenaContext";
-import { MapView } from "../components/MapView";
 import { NotificationBanner } from "../components/NotificationBanner";
 import { PromotedTours } from "../components/PromotedTours";
 import { TrendingSection } from "../components/TrendingSection";
 import { BannerSlot } from "../components/BannerSlot";
-import { categories, categoryColor } from "../lib/categories";
-import { useT } from "../i18n";
-import type { Category } from "../types";
-import { categoryKey } from "../i18n/domain";
+import { effectiveStatus } from "../lib/bookingStatus";
+import { openWishes } from "../lib/wishlist";
+import { categoryColor } from "../lib/categories";
+import { localeFor, useI18n } from "../i18n";
 
+/**
+ * The home screen: what is yours, and what is next.
+ *
+ * It used to be the map with the search on top of it and the filters beside
+ * it — three different jobs fighting for the same screen. The map moved to the
+ * profile, where you go to look at where you have been, and searching has its
+ * own tab. What is left here is the part that changes: your next trips, your
+ * last memories, what you still want to do.
+ */
 export function Home() {
-  const { experiences, people, businesses } = useAvena();
-  const navigate = useNavigate();
-  const t = useT();
-  const [category, setCategory] = useState<Category | "Todas">("Todas");
-  const [personId, setPersonId] = useState<string>("Todas");
-  const [year, setYear] = useState<string>("Todos");
-  const [quickSearch, setQuickSearch] = useState("");
+  const { experiences, bookings, businesses, wishlist, user } = useAvena();
+  const { t, lang } = useI18n();
 
-  const knownCities = useMemo(
-    () =>
-      Array.from(
-        new Set([...businesses.map((b) => b.city), ...experiences.map((e) => e.city)])
-      ).sort(),
-    [businesses, experiences]
-  );
+  const upcoming = bookings
+    .filter((b) => {
+      const status = effectiveStatus(b);
+      return (
+        (status === "confirmada" || status === "aguardando-pagamento") &&
+        b.travelDate >= new Date().toISOString().slice(0, 10)
+      );
+    })
+    .sort((a, b) => a.travelDate.localeCompare(b.travelDate));
 
-  function handleQuickSearch(e: React.FormEvent) {
-    e.preventDefault();
-    if (!quickSearch.trim()) return;
-    navigate(`/destination?city=${encodeURIComponent(quickSearch.trim())}`);
-  }
+  const recent = [...experiences]
+    .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
+    .slice(0, 4);
 
-  const years = useMemo(
-    () =>
-      Array.from(
-        new Set(experiences.map((e) => new Date(e.date).getFullYear()))
-      ).sort((a, b) => b - a),
-    [experiences]
-  );
+  const wishes = openWishes(wishlist).slice(0, 3);
+  const firstName = user.name?.split(" ")[0] ?? "";
 
-  const filtered = experiences.filter((e) => {
-    if (category !== "Todas" && e.category !== category) return false;
-    if (personId !== "Todas" && !e.peopleIds.includes(personId)) return false;
-    if (year !== "Todos" && new Date(e.date).getFullYear() !== Number(year))
-      return false;
-    return true;
-  });
+  return (
+    <div className="page page-wide home-feed">
+      <NotificationBanner />
+      <BannerSlot placement="home-top" />
 
-  const sorted = [...filtered].sort(
-    (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()
-  );
+      <header className="home-hello">
+        <h1>{firstName ? t("home.helloName", { name: firstName }) : t("home.hello")}</h1>
+        <p className="muted">{t("home.helloText")}</p>
+        <Link to="/experience/new" className="btn-primary">
+          {t("home.registerMemory")}
+        </Link>
+      </header>
 
-  // A brand-new traveller has an empty map, and an empty map sells nothing and
-  // explains nothing. Until the first memory exists, the home screen is the
-  // discovery screen instead.
-  if (experiences.length === 0) {
-    return (
-      <div className="home-empty">
-        <section className="home-empty-hero">
-          <h1>{t("home.emptyTitle")}</h1>
-          <p>{t("home.emptyText")}</p>
-          <form className="quick-search" onSubmit={handleQuickSearch}>
-            <input
-              list="known-cities"
-              value={quickSearch}
-              onChange={(e) => setQuickSearch(e.target.value)}
-              placeholder={t("home.searchPlaceholder")}
-              aria-label={t("home.searchLabel")}
-            />
-            <datalist id="known-cities">
-              {knownCities.map((city) => (
-                <option key={city} value={city} />
-              ))}
-            </datalist>
-            <button type="submit" className="btn-primary">
-              {t("home.search")}
-            </button>
-          </form>
-          <div className="chip-row">
-            {knownCities.slice(0, 6).map((city) => (
-              <button
-                key={city}
-                type="button"
-                className="chip"
-                onClick={() => navigate(`/destination?city=${encodeURIComponent(city)}`)}
-              >
-                {city}
-              </button>
+      {upcoming.length > 0 && (
+        <section>
+          <h2 className="timeline-title">{t("home.upcoming")}</h2>
+          <div className="timeline">
+            {upcoming.map((booking) => {
+              const business = businesses.find((b) => b.id === booking.businessId);
+              const status = effectiveStatus(booking);
+              return (
+                <Link to="/bookings" key={booking.id} className="timeline-card">
+                  <div>
+                    <div className="timeline-card-title">{booking.tourTitle}</div>
+                    <div className="muted">
+                      {new Date(`${booking.travelDate}T12:00:00`).toLocaleDateString(
+                        localeFor(lang)
+                      )}
+                      {business ? ` · ${business.name}` : ""}
+                    </div>
+                  </div>
+                  {status === "aguardando-pagamento" && (
+                    <span className="booking-status booking-status-aguardando-pagamento">
+                      {t("home.toPay")}
+                    </span>
+                  )}
+                </Link>
+              );
+            })}
+          </div>
+        </section>
+      )}
+
+      {recent.length > 0 && (
+        <section>
+          <div className="home-section-head">
+            <h2 className="timeline-title">{t("home.recentMemories")}</h2>
+            <Link to="/profile" className="home-section-link">
+              {t("home.seeMap")}
+            </Link>
+          </div>
+          <div className="timeline">
+            {recent.map((exp) => (
+              <Link to={`/experience/${exp.id}`} key={exp.id} className="timeline-card">
+                <div
+                  className="category-dot"
+                  style={{ background: categoryColor[exp.category] }}
+                  aria-hidden="true"
+                />
+                <div>
+                  <div className="timeline-card-title">{exp.title}</div>
+                  <div className="muted">
+                    {exp.locationName} ·{" "}
+                    {new Date(exp.date).toLocaleDateString(localeFor(lang))}
+                  </div>
+                </div>
+              </Link>
             ))}
           </div>
         </section>
+      )}
 
-        <div className="page page-wide">
-          <BannerSlot placement="home-top" />
-          <PromotedTours />
-          <TrendingSection />
+      {/* Nothing registered yet: say what this app is for, once, and give the
+          one action that starts everything. */}
+      {experiences.length === 0 && (
+        <section className="empty-cta">
+          <h2>{t("home.emptyCtaTitle")}</h2>
+          <p className="muted">{t("home.emptyCtaText")}</p>
+          <Link to="/experience/new" className="btn-primary">
+            {t("home.emptyCtaButton")}
+          </Link>
+        </section>
+      )}
 
-          <div className="empty-cta">
-            <h2>{t("home.emptyCtaTitle")}</h2>
-            <p className="muted">{t("home.emptyCtaText")}</p>
-            <Link to="/experience/new" className="btn-primary">
-              {t("home.emptyCtaButton")}
+      {wishes.length > 0 && (
+        <section>
+          <div className="home-section-head">
+            <h2 className="timeline-title">{t("nav.wishlist")}</h2>
+            <Link to="/desejos" className="home-section-link">
+              {t("home.seeAll")}
             </Link>
           </div>
-        </div>
-      </div>
-    );
-  }
-
-  return (
-    <div className="home">
-      <div className="home-map">
-        <form className="quick-search" onSubmit={handleQuickSearch}>
-          <input
-            list="known-cities"
-            value={quickSearch}
-            onChange={(e) => setQuickSearch(e.target.value)}
-            placeholder={t("home.searchPlaceholder")}
-            aria-label={t("home.searchLabel")}
-          />
-          <datalist id="known-cities">
-            {knownCities.map((city) => (
-              <option key={city} value={city} />
-            ))}
-          </datalist>
-          <button type="submit" className="btn-primary">
-            {t("home.search")}
-          </button>
-        </form>
-        <MapView experiences={filtered} />
-        <Link
-          to="/experience/new"
-          className="fab"
-          title={t("home.newExperience")}
-          aria-label={t("home.newExperience")}
-        >
-          +
-        </Link>
-      </div>
-
-      <aside className="home-sidebar">
-        <NotificationBanner />
-        <BannerSlot placement="home-top" />
-        <div className="filters">
-          <select value={category} onChange={(e) => setCategory(e.target.value as Category | "Todas")}>
-            <option value="Todas">{t("home.allCategories")}</option>
-            {categories.map((c) => (
-              <option key={c} value={c}>
-                {t(categoryKey[c])}
-              </option>
-            ))}
-          </select>
-          <select value={personId} onChange={(e) => setPersonId(e.target.value)}>
-            <option value="Todas">{t("home.allPeople")}</option>
-            {people.map((p) => (
-              <option key={p.id} value={p.id}>
-                {p.name}
-              </option>
-            ))}
-          </select>
-          <select value={year} onChange={(e) => setYear(e.target.value)}>
-            <option value="Todos">{t("home.allYears")}</option>
-            {years.map((y) => (
-              <option key={y} value={y}>
-                {y}
-              </option>
-            ))}
-          </select>
-        </div>
-
-        <h2 className="timeline-title">{t("home.timeline")}</h2>
-        <div className="timeline">
-          {sorted.length === 0 && <p className="muted">{t("home.noExperiences")}</p>}
-          {sorted.map((exp) => (
-            <Link to={`/experience/${exp.id}`} key={exp.id} className="timeline-card">
-              <div
-                className="category-dot"
-                style={{ background: categoryColor[exp.category] }}
-                aria-hidden="true"
-              />
-              <div>
-                <div className="timeline-card-title">{exp.title}</div>
-                <div className="muted">
-                  {exp.locationName} · {new Date(exp.date).toLocaleDateString("pt-BR")}
+          <div className="timeline">
+            {wishes.map((wish) => (
+              <Link
+                to={`/business/${wish.businessId}`}
+                key={wish.id}
+                className="timeline-card"
+              >
+                <div>
+                  <div className="timeline-card-title">{wish.title}</div>
+                  <div className="muted">
+                    {wish.businessName}
+                    {wish.city ? ` · ${wish.city}` : ""}
+                  </div>
                 </div>
-              </div>
-            </Link>
-          ))}
-        </div>
+              </Link>
+            ))}
+          </div>
+        </section>
+      )}
 
-        {/* Organic trending only — paid placements stay off the personal map. */}
-        <TrendingSection />
-      </aside>
+      <PromotedTours />
+      <TrendingSection />
     </div>
   );
 }

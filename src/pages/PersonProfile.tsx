@@ -21,7 +21,7 @@ export function PersonProfile() {
   return (
     <div className="page">
       <Link to="/" className="back-link">
-        ← {t("common.backToMap")}
+        ← {t("common.backHome")}
       </Link>
       <div className="person-header">
         <div className="avatar" style={{ background: person.avatarColor }}>

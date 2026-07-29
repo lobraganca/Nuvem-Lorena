@@ -3241,3 +3241,88 @@ textarea:focus-visible,
   font-size: 13px;
   text-align: center;
 }
+
+/* ---------------------------------------------------------------------------
+   Home: your trips, your memories, what you still want
+   --------------------------------------------------------------------------- */
+
+.home-feed {
+  display: flex;
+  flex-direction: column;
+  gap: 26px;
+}
+
+.home-hello h1 {
+  margin-bottom: 4px;
+}
+
+.home-hello .btn-primary {
+  margin-top: 14px;
+}
+
+.home-section-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.home-section-head .timeline-title {
+  margin-top: 0;
+}
+
+.home-section-link {
+  font-size: 13px;
+  color: var(--text);
+  white-space: nowrap;
+}
+
+/* A card that carries a status chip needs the chip pushed to the far end. */
+.home-feed .timeline-card {
+  justify-content: space-between;
+}
+
+/* The affective map, on the profile. */
+.memory-map {
+  margin-top: 28px;
+  padding-top: 20px;
+  border-top: 1px solid var(--border);
+}
+
+.memory-map-head .timeline-title {
+  margin-top: 0;
+}
+
+.memory-map-filters {
+  flex-direction: row;
+  flex-wrap: wrap;
+  margin-bottom: 14px;
+}
+
+.memory-map-filters select {
+  flex: 1;
+  min-width: 140px;
+}
+
+.memory-map-canvas {
+  height: 380px;
+  border-radius: 12px;
+  border: 1px solid var(--border);
+  overflow: hidden;
+}
+
+.memory-map-empty {
+  margin-top: 28px;
+  padding-top: 20px;
+  border-top: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 12px;
+}
+
+@media (max-width: 800px) {
+  .memory-map-canvas {
+    height: 300px;
+  }
+}

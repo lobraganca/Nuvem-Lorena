@@ -8,6 +8,7 @@ import { travelerPlans } from "../lib/plans";
 import { buildInsights } from "../lib/insights";
 import { fileToStoredPhoto } from "../lib/photos";
 import { ModerationNotice, isPublishable } from "../components/ModerationNotice";
+import { MemoryMap } from "../components/MemoryMap";
 import { useT } from "../i18n";
 import { useAuth } from "../store/AuthContext";
 
@@ -62,7 +63,7 @@ export function Profile() {
   return (
     <div className="page page-wide">
       <Link to="/" className="back-link">
-        ← {t("common.backToMap")}
+        ← {t("common.back")}
       </Link>
 
       <div className="ig-header">
@@ -214,6 +215,10 @@ export function Profile() {
           </div>
         </>
       )}
+
+      {/* Where you have been, on the profile — the screen you open to look
+          back, not the one you open to do something. */}
+      <MemoryMap />
 
       <h2 className="timeline-title">Publicações</h2>
       <div className="ig-grid">
