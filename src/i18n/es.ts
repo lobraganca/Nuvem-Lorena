@@ -261,8 +261,6 @@ export const es: Record<keyof typeof pt, string> = {
   "profile.editProfile": "Editar perfil",
   "profile.myData": "Mis datos y copia de seguridad",
   "profile.switchAccount": "Cambiar tipo de cuenta",
-  "profile.signOut": "Salir",
-  "profile.confirmSignOut": "¿Salir de la cuenta?",
   "profile.public": "Público",
   "profile.private": "Privado",
   "profile.tourist": "Viajero",
@@ -536,6 +534,41 @@ export const es: Record<keyof typeof pt, string> = {
   "wish.seeTour": "Ver el paseo",
   "wish.browseTours": "Buscar paseos",
   "wish.registerMemory": "Registrar como recuerdo",
+
+  "auth.tagline": "Tu mapa afectivo de viajes por Brasil.",
+  "auth.signIn": "Entrar",
+  "auth.createAccount": "Crear cuenta",
+  "auth.nameField": "Tu nombre",
+  "auth.emailField": "Correo",
+  "auth.passwordField": "Contraseña",
+  "auth.showPassword": "Mostrar contraseña",
+  "auth.hidePassword": "Ocultar contraseña",
+  "auth.passwordHint":
+    "Al menos 8 caracteres. Una frase que solo tú recuerdas vale más que una palabra difícil.",
+  "auth.createAndEnter": "Crear cuenta y entrar",
+  "auth.enter": "Entrar",
+  "auth.working": "Un momento…",
+  "auth.guest": "Solo quiero echar un vistazo",
+  "auth.guestExplain": "Navegas sin cuenta. Nada de lo que hagas se guarda.",
+  "auth.localOnly":
+    "Tu cuenta se guarda solo en este dispositivo, porque Avena todavía no tiene servidor. La contraseña no se guarda — solo una marca suya, que no se puede deshacer. En otro teléfono, empiezas de cero.",
+  "auth.noRecovery":
+    "Esta contraseña no se puede recuperar: sin servidor, nadie puede enviarte un correo de restablecimiento.",
+  "auth.errorEmail": "Revisa el correo — parece que falta algo.",
+  "auth.errorShort": "La contraseña necesita al menos 8 caracteres.",
+  "auth.errorNoDigit": "Agrega un número, o usa una contraseña más larga.",
+  "auth.errorNoAccount": "Todavía no hay cuenta en este dispositivo. Crea una al lado.",
+  "auth.errorWrongPassword": "Contraseña incorrecta.",
+  "auth.errorOtherEmail": "Este dispositivo tiene una cuenta con otro correo.",
+  "auth.errorAlreadyExists":
+    "Ya hay una cuenta en este dispositivo. Entra con ella, o sal de ella primero.",
+  "auth.errorNoCrypto":
+    "Este navegador no puede proteger una contraseña aquí — suele pasar al abrir el archivo directamente. Abre el sitio por su dirección para crear tu cuenta.",
+  "auth.signOut": "Salir de la cuenta",
+  "auth.signedInAs": "Entraste como {email}.",
+  "auth.guestBanner":
+    "Solo estás mirando, sin cuenta. Nada de lo que hagas aquí se guardará.",
+  "auth.guestCreate": "Crear una cuenta",
 
   "app.title": "Lleva Avena contigo",
   "app.subtitle": "Descarga la aplicación y ten tu mapa afectivo en el bolsillo, incluso sin internet.",

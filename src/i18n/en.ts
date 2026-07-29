@@ -261,8 +261,6 @@ export const en: Record<keyof typeof pt, string> = {
   "profile.editProfile": "Edit profile",
   "profile.myData": "My data and backup",
   "profile.switchAccount": "Switch account type",
-  "profile.signOut": "Sign out",
-  "profile.confirmSignOut": "Sign out of this account?",
   "profile.public": "Public",
   "profile.private": "Private",
   "profile.tourist": "Traveller",
@@ -534,6 +532,41 @@ export const en: Record<keyof typeof pt, string> = {
   "wish.seeTour": "See the tour",
   "wish.browseTours": "Browse tours",
   "wish.registerMemory": "Record as a memory",
+
+  "auth.tagline": "Your affective map of travels across Brazil.",
+  "auth.signIn": "Sign in",
+  "auth.createAccount": "Create account",
+  "auth.nameField": "Your name",
+  "auth.emailField": "E-mail",
+  "auth.passwordField": "Password",
+  "auth.showPassword": "Show password",
+  "auth.hidePassword": "Hide password",
+  "auth.passwordHint":
+    "At least 8 characters. A phrase only you remember beats a hard word.",
+  "auth.createAndEnter": "Create account and enter",
+  "auth.enter": "Enter",
+  "auth.working": "One moment…",
+  "auth.guest": "I just want a look",
+  "auth.guestExplain": "You browse without an account. Nothing you do is kept.",
+  "auth.localOnly":
+    "Your account is kept on this device only, because Avena has no server yet. The password itself is not stored — only a one-way mark of it. On another phone, you start over.",
+  "auth.noRecovery":
+    "This password cannot be recovered: with no server, nobody can send you a reset e-mail.",
+  "auth.errorEmail": "Check the e-mail — something seems to be missing.",
+  "auth.errorShort": "The password needs at least 8 characters.",
+  "auth.errorNoDigit": "Add a number, or use a longer password.",
+  "auth.errorNoAccount": "There is no account on this device yet. Create one instead.",
+  "auth.errorWrongPassword": "Wrong password.",
+  "auth.errorOtherEmail": "This device has an account with a different e-mail.",
+  "auth.errorAlreadyExists":
+    "There is already an account on this device. Sign in with it, or sign out of it first.",
+  "auth.errorNoCrypto":
+    "This browser cannot protect a password here — it usually happens when the file is opened directly. Open the site by its address to create your account.",
+  "auth.signOut": "Sign out",
+  "auth.signedInAs": "You are signed in as {email}.",
+  "auth.guestBanner":
+    "You are just looking, with no account. Nothing you do here will be kept.",
+  "auth.guestCreate": "Create an account",
 
   "app.title": "Take Avena with you",
   "app.subtitle": "Download the app and carry your affective map in your pocket, with or without a signal.",

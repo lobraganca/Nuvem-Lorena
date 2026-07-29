@@ -3064,3 +3064,169 @@ textarea:focus-visible,
 .get-app-step li {
   margin-bottom: 6px;
 }
+
+/* ---------------------------------------------------------------------------
+   The door: sign in, create an account, or look around
+   --------------------------------------------------------------------------- */
+
+.signin-page {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 100svh;
+  padding: 24px 16px;
+  background: linear-gradient(180deg, var(--accent-soft), transparent 340px);
+}
+
+.signin-lang {
+  align-self: flex-end;
+  margin-bottom: 8px;
+}
+
+.signin-card {
+  width: 100%;
+  max-width: 420px;
+  padding: 28px 24px 24px;
+  border-radius: 16px;
+  border: 1px solid var(--border);
+  background: var(--card-bg);
+  box-shadow: var(--shadow);
+  text-align: center;
+}
+
+.signin-logo {
+  height: 44px;
+  width: auto;
+  border-radius: 6px;
+}
+
+.signin-tagline {
+  margin: 10px 0 22px;
+  color: var(--text);
+  font-size: 14px;
+}
+
+.signin-tabs {
+  display: flex;
+  gap: 4px;
+  padding: 4px;
+  margin-bottom: 20px;
+  border-radius: 999px;
+  background: var(--bg-alt);
+}
+
+.signin-tab {
+  flex: 1;
+  padding: 10px 12px;
+  border: none;
+  border-radius: 999px;
+  background: none;
+  font: inherit;
+  font-weight: 600;
+  color: var(--text);
+  cursor: pointer;
+}
+
+.signin-tab-active {
+  background: var(--card-bg);
+  color: var(--text-h);
+  box-shadow: var(--shadow);
+}
+
+.signin-form {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  text-align: left;
+}
+
+.signin-form label {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-h);
+}
+
+.signin-form input {
+  font: inherit;
+  padding: 12px 14px;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  background: var(--bg-alt);
+  color: var(--text-h);
+}
+
+.signin-form input:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 1px;
+}
+
+.signin-show {
+  align-self: flex-start;
+  padding: 0;
+  border: none;
+  background: none;
+  font: inherit;
+  font-size: 13px;
+  color: var(--text);
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+.signin-submit {
+  align-self: stretch;
+  margin-top: 4px;
+  padding: 13px 24px;
+}
+
+.signin-hint {
+  margin: 0;
+  font-size: 12px;
+  line-height: 1.45;
+}
+
+.signin-error {
+  margin: 0;
+  padding: 10px 12px;
+  border-radius: 8px;
+  border: 1px solid #f3c2bd;
+  background: #fdecea;
+  color: #8c1d18;
+  font-size: 13px;
+}
+
+.signin-guest {
+  margin-top: 22px;
+  padding-top: 18px;
+  border-top: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+}
+
+/* The plain truth about what this account is, in smaller type but never
+   hidden behind a link. */
+.signin-truth {
+  margin: 18px 0 0;
+  font-size: 12px;
+  line-height: 1.5;
+  color: var(--text);
+  text-align: left;
+}
+
+.guest-banner {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 9px 16px;
+  background: var(--accent-soft);
+  color: var(--text-h);
+  font-size: 13px;
+  text-align: center;
+}

@@ -1,6 +1,7 @@
 import { Suspense, lazy } from "react";
 import { Link, Route, Routes } from "react-router-dom";
 import { AvenaProvider, useAvena } from "./store/AvenaContext";
+import { AuthProvider, useAuth } from "./store/AuthContext";
 import avenaLogo from "./assets/avena-logo-wordmark.png";
 import { Home } from "./pages/Home";
 import { AddExperience } from "./pages/AddExperience";
@@ -24,6 +25,7 @@ import { HelpChat } from "./components/HelpChat";
 import { OfflineBanner } from "./components/OfflineBanner";
 import { BottomNav } from "./components/BottomNav";
 import { StorageBanner } from "./components/StorageBanner";
+import { GuestBanner } from "./components/GuestBanner";
 import { Payment } from "./pages/Payment";
 import { Support } from "./pages/Support";
 import { MyData } from "./pages/MyData";
@@ -31,6 +33,7 @@ import { Feed } from "./pages/Feed";
 import { Wishlist } from "./pages/Wishlist";
 import { TravelerProfile } from "./pages/TravelerProfile";
 import { GetApp } from "./pages/GetApp";
+import { SignIn } from "./pages/SignIn";
 import { NotFound } from "./pages/NotFound";
 import { LanguageSwitcher } from "./components/LanguageSwitcher";
 import { NotificationsBell } from "./components/NotificationsBell";
@@ -52,7 +55,13 @@ function RootScreen() {
 
 function AppShell() {
   const { user } = useAvena();
+  const { signedIn } = useAuth();
   const t = useT();
+
+  // Nobody reaches the app without passing the door. Rendering the sign-in
+  // screen in place of the whole shell — rather than redirecting — means there
+  // is no address to type past it.
+  if (!signedIn) return <SignIn />;
   const isProfissional = user.accountType === "profissional";
   const chosen = Boolean(user.accountType);
 
@@ -63,6 +72,7 @@ function AppShell() {
       </a>
       <OfflineBanner />
       <StorageBanner />
+      <GuestBanner />
       <nav className="topbar" aria-label={t("nav.main")}>
         <Link to="/" className="brand">
           <img src={avenaLogo} alt={t("nav.home")} className="brand-logo" />
@@ -152,9 +162,11 @@ function AppShell() {
 export default function App() {
   return (
     <I18nProvider>
-      <AvenaProvider>
-        <AppShell />
-      </AvenaProvider>
+      <AuthProvider>
+        <AvenaProvider>
+          <AppShell />
+        </AvenaProvider>
+      </AuthProvider>
     </I18nProvider>
   );
 }

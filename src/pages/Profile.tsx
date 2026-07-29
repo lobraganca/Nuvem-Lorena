@@ -1,5 +1,5 @@
 import { useRef, useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 import { useAvena } from "../store/AvenaContext";
 import { profileStats } from "../lib/stats";
 import { buildCollections } from "../lib/collections";
@@ -9,10 +9,22 @@ import { buildInsights } from "../lib/insights";
 import { fileToStoredPhoto } from "../lib/photos";
 import { ModerationNotice, isPublishable } from "../components/ModerationNotice";
 import { useT } from "../i18n";
+import { useAuth } from "../store/AuthContext";
+
+/** Ends the session. The account and the memories stay on the device. */
+function SignOutButton() {
+  const { account, signOut } = useAuth();
+  const t = useT();
+  if (!account) return null;
+  return (
+    <button type="button" className="btn-outline" onClick={signOut}>
+      {t("auth.signOut")}
+    </button>
+  );
+}
 
 export function Profile() {
   const { experiences, people, user, updateUser, bookings } = useAvena();
-  const navigate = useNavigate();
   const stats = profileStats(experiences);
   const collections = buildCollections(experiences);
   const insights = buildInsights(experiences, people, bookings);
@@ -97,21 +109,13 @@ export function Profile() {
             <Link to="/meus-dados" className="btn-outline">
               {t("profile.myData")}
             </Link>
+            {/* Two different things, no longer sharing the word "sair":
+                one ends the session, the other goes back to choosing whether
+                you are here as a traveller or as a business. */}
+            <SignOutButton />
             <Link to="/welcome" className="btn-outline">
               {t("profile.switchAccount")}
             </Link>
-            <button
-              type="button"
-              className="btn-outline"
-              onClick={() => {
-                if (confirm(t("profile.confirmSignOut"))) {
-                  updateUser({ accountType: undefined, ownBusinessId: undefined });
-                  navigate("/");
-                }
-              }}
-            >
-              {t("profile.signOut")}
-            </button>
           </div>
 
           {/* On phones the top bar is replaced by the tab bar, so everything
