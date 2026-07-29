@@ -14,6 +14,19 @@ export const cancellationPolicyDescription: Record<CancellationPolicy, string> =
   rigida: "Reembolso total até 7 dias antes; depois disso, sem reembolso.",
 };
 
+/** Translation keys for the screens a traveller sees in any language. */
+export const cancellationLabelKey = {
+  flexivel: "cancel.flexivel",
+  moderada: "cancel.moderada",
+  rigida: "cancel.rigida",
+} as const;
+
+export const cancellationDescriptionKey = {
+  flexivel: "cancel.flexivelText",
+  moderada: "cancel.moderadaText",
+  rigida: "cancel.rigidaText",
+} as const;
+
 const MIN_DAYS_FOR_FULL_REFUND: Record<CancellationPolicy, number> = {
   flexivel: 1,
   moderada: 3,

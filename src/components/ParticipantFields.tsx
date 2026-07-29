@@ -1,5 +1,13 @@
 import { documentError, documentTypes, formatCPF } from "../lib/documents";
+import { useT } from "../i18n";
+import type { TranslationKey } from "../i18n";
 import type { DocumentType, Participant } from "../types";
+
+/** A validation failure, as a key plus the participant it refers to. */
+export interface ParticipantsError {
+  key: TranslationKey;
+  index: number;
+}
 
 export function emptyParticipant(): Participant {
   return { name: "", documentType: "CPF", document: "" };
@@ -21,16 +29,18 @@ export function resizeParticipants(
   ];
 }
 
-export function participantsError(participants: Participant[]): string | null {
+export function participantsError(
+  participants: Participant[]
+): ParticipantsError | null {
   for (const [i, p] of participants.entries()) {
-    if (!p.name.trim()) return `Informe o nome do participante ${i + 1}`;
+    if (!p.name.trim()) return { key: "participants.nameRequired", index: i + 1 };
     const docError = documentError(p.documentType, p.document);
-    if (docError) return `${docError} do participante ${i + 1}`;
+    if (docError) return { key: docError, index: i + 1 };
   }
 
   const documents = participants.map((p) => p.document.replace(/\D/g, ""));
   if (new Set(documents).size !== documents.length) {
-    return "Há documentos repetidos entre os participantes";
+    return { key: "participants.duplicateDocs", index: 0 };
   }
   return null;
 }
@@ -42,6 +52,8 @@ export function ParticipantFields({
   participants: Participant[];
   onChange: (participants: Participant[]) => void;
 }) {
+  const t = useT();
+
   function update(index: number, patch: Partial<Participant>) {
     onChange(
       participants.map((p, i) => (i === index ? { ...p, ...patch } : p))
@@ -50,31 +62,30 @@ export function ParticipantFields({
 
   return (
     <fieldset>
-      <legend>Quem vai participar</legend>
-      <p className="muted">
-        A agência precisa do nome e documento de cada pessoa para lista de
-        embarque, entrada em parques e seguro.
-      </p>
+      <legend>{t("booking.participants")}</legend>
+      <p className="muted">{t("booking.participantsWhy")}</p>
 
       {participants.map((p, i) => {
         const docError = p.document ? documentError(p.documentType, p.document) : null;
         return (
           <div key={i} className="participant-row">
             <div className="participant-index">
-              {i === 0 ? "Responsável pela reserva" : `Participante ${i + 1}`}
+              {i === 0
+                ? t("participants.leadBooker")
+                : t("participants.number", { n: i + 1 })}
             </div>
             <label>
-              Nome completo
+              {t("participants.fullName")}
               <input
                 value={p.name}
                 onChange={(e) => update(i, { name: e.target.value })}
-                placeholder="Como está no documento"
+                placeholder={t("participants.asOnDocument")}
                 required
               />
             </label>
             <div className="form-row">
               <label>
-                Tipo
+                {t("participants.docType")}
                 <select
                   value={p.documentType}
                   onChange={(e) =>
@@ -92,7 +103,7 @@ export function ParticipantFields({
                 </select>
               </label>
               <label>
-                Documento
+                {t("participants.document")}
                 <input
                   value={p.document}
                   onChange={(e) =>
@@ -103,13 +114,13 @@ export function ParticipantFields({
                           : e.target.value,
                     })
                   }
-                  placeholder={p.documentType === "CPF" ? "000.000.000-00" : "Número"}
+                  placeholder={p.documentType === "CPF" ? "000.000.000-00" : t("participants.docNumber")}
                   required
                 />
-                {docError && <span className="participant-error">{docError}</span>}
+                {docError && <span className="participant-error">{t(docError)}</span>}
               </label>
               <label>
-                Nascimento (opcional)
+                {t("participants.birthDate")}
                 <input
                   type="date"
                   value={p.birthDate ?? ""}

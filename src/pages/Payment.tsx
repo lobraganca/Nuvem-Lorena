@@ -1,14 +1,10 @@
 import { useState } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import { useAvena } from "../store/AvenaContext";
-import {
-  bookingStatusHint,
-  bookingStatusLabel,
-  effectiveStatus,
-  minutesLeftToPay,
-} from "../lib/bookingStatus";
+import { effectiveStatus, minutesLeftToPay } from "../lib/bookingStatus";
 import type { PaymentMethod } from "../types";
 import { formatBRL } from "../lib/money";
+import { localeFor, useI18n } from "../i18n";
 
 const methodLabel: Record<PaymentMethod, string> = {
   pix: "Pix",
@@ -21,15 +17,16 @@ export function Payment() {
   const { bookings, payBooking } = useAvena();
   const [method, setMethod] = useState<PaymentMethod>("pix");
   const [processing, setProcessing] = useState(false);
+  const { t, lang } = useI18n();
 
   const booking = bookings.find((b) => b.id === id);
 
   if (!booking) {
     return (
       <div className="page">
-        <h1>Reserva não encontrada</h1>
+        <h1>{t("payment.notFound")}</h1>
         <Link to="/bookings" className="btn-outline">
-          Ver minhas reservas
+          {t("payment.seeBookings")}
         </Link>
       </div>
     );
@@ -50,15 +47,12 @@ export function Payment() {
   return (
     <div className="page">
       <Link to="/bookings" className="back-link">
-        ← Minhas reservas
+        ← {t("payment.myBookings")}
       </Link>
-      <h1>Pagamento</h1>
+      <h1>{t("payment.title")}</h1>
 
       <div className="sandbox-warning" role="note">
-        <strong>Ambiente de demonstração.</strong> Nenhuma cobrança é feita e
-        nenhum dado de cartão é solicitado ou armazenado. Na versão de produção
-        esta tela leva ao provedor de pagamento, que divide o valor entre a
-        agência e a Avena automaticamente.
+        <strong>{t("payment.demoTitle")}</strong> {t("payment.demoText")}
       </div>
 
       <div className="booking-card">
@@ -71,14 +65,19 @@ export function Payment() {
         </div>
         <div className="booking-breakdown">
           <div>
-            Valor total <strong>R$ {formatBRL(booking.totalPrice)}</strong>
+            {t("booking.total")} <strong>R$ {formatBRL(booking.totalPrice)}</strong>
           </div>
           <div className="muted">
-            Taxa de serviço Avena: R$ {formatBRL(booking.commissionAmount)}
+            {t("booking.serviceFee", {
+              pct: Math.round(booking.commissionRate * 100),
+              amount: formatBRL(booking.commissionAmount),
+            })}
           </div>
           <div className="muted">
-            {booking.businessName} recebe: R${" "}
-            {formatBRL(booking.businessPayout)}
+            {t("booking.businessReceives", {
+              name: booking.businessName,
+              amount: formatBRL(booking.businessPayout),
+            })}
           </div>
         </div>
       </div>
@@ -86,13 +85,12 @@ export function Payment() {
       {status === "aguardando-pagamento" && (
         <>
           <p className="availability-note">
-            {bookingStatusHint[status]} Você tem{" "}
-            {minutesLeft === 1 ? "1 minuto" : `${minutesLeft} minutos`} para
-            concluir antes que a vaga volte para o passeio.
+            {t(`statusHint.${status}`)}{" "}
+            {t("payment.timeLeft", { minutes: minutesLeft })}
           </p>
 
           <fieldset>
-            <legend>Forma de pagamento</legend>
+            <legend>{t("payment.method")}</legend>
             <div className="chip-row">
               {(Object.keys(methodLabel) as PaymentMethod[]).map((m) => (
                 <button
@@ -102,7 +100,7 @@ export function Payment() {
                   onClick={() => setMethod(m)}
                   aria-pressed={method === m}
                 >
-                  {methodLabel[m]}
+                  {t(m === "pix" ? "payment.pix" : "payment.card")}
                 </button>
               ))}
             </div>
@@ -114,24 +112,27 @@ export function Payment() {
             onClick={pay}
             disabled={processing}
           >
-            {processing ? "Processando…" : `Pagar R$ ${formatBRL(booking.totalPrice)}`}
+            {processing
+              ? t("payment.processing")
+              : t("payment.pay", { amount: formatBRL(booking.totalPrice) })}
           </button>
         </>
       )}
 
       {status === "confirmada" && (
         <p className="availability-note">
-          Pagamento aprovado em{" "}
-          {booking.payment
-            ? new Date(booking.payment.paidAt).toLocaleString("pt-BR")
-            : "—"}
-          . Comprovante {booking.payment?.reference}.
+          {t("payment.approved", {
+            date: booking.payment
+              ? new Date(booking.payment.paidAt).toLocaleString(localeFor(lang))
+              : "—",
+            reference: booking.payment?.reference ?? "—",
+          })}
         </p>
       )}
 
       {(status === "expirada" || status === "cancelada") && (
         <p className="availability-note availability-none">
-          {bookingStatusLabel[status]}. {bookingStatusHint[status]}
+          {t(`status.${status}`)}. {t(`statusHint.${status}`)}
         </p>
       )}
     </div>

@@ -10,9 +10,11 @@ import {
 import { availabilityFor } from "../lib/availability";
 import { activeBoostForTour, boostRevenue } from "../lib/boosts";
 import { bookingStatusLabel, effectiveStatus } from "../lib/bookingStatus";
+import { tourTemplates, type TourTemplate } from "../lib/tourTemplates";
+import { ImportTours } from "../components/ImportTours";
 import { BoostTourButton } from "../components/BoostTourButton";
 import { EditTour } from "../components/EditTour";
-import type { CancellationPolicy, Tour } from "../types";
+import type { AccessibilityTag, CancellationPolicy, Difficulty, Tour } from "../types";
 import { formatBRL } from "../lib/money";
 
 const today = new Date().toISOString().slice(0, 10);
@@ -27,6 +29,24 @@ export function ProfessionalDashboard() {
   const [durationHours, setDurationHours] = useState("");
   const [capacityPerDay, setCapacityPerDay] = useState("");
   const [cancellationPolicy, setCancellationPolicy] = useState<CancellationPolicy>("moderada");
+  const [difficulty, setDifficulty] = useState<Difficulty | undefined>();
+  const [accessibility, setAccessibility] = useState<AccessibilityTag[] | undefined>();
+  const [seasonMonths, setSeasonMonths] = useState<number[] | undefined>();
+  const [usedTemplate, setUsedTemplate] = useState<string | null>(null);
+
+  /** Fills the form from a template so the agency only corrects the price. */
+  function applyTemplate(template: TourTemplate) {
+    const v = template.values;
+    setTitle(v.title);
+    setDescription(v.description ?? "");
+    setDurationHours(v.durationHours !== undefined ? String(v.durationHours) : "");
+    setCapacityPerDay(v.capacityPerDay !== undefined ? String(v.capacityPerDay) : "");
+    setCancellationPolicy(v.cancellationPolicy ?? "moderada");
+    setDifficulty(v.difficulty);
+    setAccessibility(v.accessibility);
+    setSeasonMonths(v.seasonMonths);
+    setUsedTemplate(template.id);
+  }
 
   if (!business) {
     return (
@@ -61,6 +81,9 @@ export function ProfessionalDashboard() {
       durationHours: durationHours ? Number(durationHours) : undefined,
       capacityPerDay: capacityPerDay ? Number(capacityPerDay) : undefined,
       cancellationPolicy,
+      difficulty,
+      accessibility,
+      seasonMonths,
     };
     addTourToBusiness(business.id, tour);
     setTitle("");
@@ -69,6 +92,10 @@ export function ProfessionalDashboard() {
     setDurationHours("");
     setCapacityPerDay("");
     setCancellationPolicy("moderada");
+    setDifficulty(undefined);
+    setAccessibility(undefined);
+    setSeasonMonths(undefined);
+    setUsedTemplate(null);
   }
 
   return (
@@ -146,7 +173,31 @@ export function ProfessionalDashboard() {
         })}
       </div>
 
+      <ImportTours businessId={business.id} />
+
       <form className="experience-form tour-add-form" onSubmit={handleAddTour}>
+        <fieldset>
+          <legend>Comece por um modelo pronto</legend>
+          <p className="muted">
+            Escolha o mais parecido com o seu passeio: preenchemos descrição,
+            duração, vagas e política de cancelamento. Você só corrige o que for
+            diferente e coloca o preço.
+          </p>
+          <div className="chip-row">
+            {tourTemplates.map((template) => (
+              <button
+                type="button"
+                key={template.id}
+                className={`chip ${usedTemplate === template.id ? "chip-active" : ""}`}
+                onClick={() => applyTemplate(template)}
+                title={template.hint}
+              >
+                {template.label}
+              </button>
+            ))}
+          </div>
+        </fieldset>
+
         <label>
           Novo passeio
           <input

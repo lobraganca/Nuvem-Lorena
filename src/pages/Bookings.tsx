@@ -2,29 +2,27 @@ import { useState } from "react";
 import { Link } from "react-router-dom";
 import { useAvena } from "../store/AvenaContext";
 import { ReviewForm } from "../components/ReviewForm";
+import { BannerSlot } from "../components/BannerSlot";
 import {
-  cancellationPolicyDescription,
-  cancellationPolicyLabel,
+  cancellationDescriptionKey,
+  cancellationLabelKey,
   computeRefund,
 } from "../lib/cancellation";
-import {
-  bookingStatusHint,
-  bookingStatusLabel,
-  effectiveStatus,
-  minutesLeftToPay,
-} from "../lib/bookingStatus";
+import { effectiveStatus, minutesLeftToPay } from "../lib/bookingStatus";
 import type { Booking } from "../types";
 import { formatBRL } from "../lib/money";
+import { useT } from "../i18n";
 
 function CancelBooking({ booking }: { booking: Booking }) {
   const { cancelBooking } = useAvena();
+  const t = useT();
   const [confirming, setConfirming] = useState(false);
   const { refundAmount, refundPct } = computeRefund(booking);
 
   if (!confirming) {
     return (
       <button type="button" className="btn-outline" onClick={() => setConfirming(true)}>
-        Cancelar reserva
+        {t("bookings.cancel")}
       </button>
     );
   }
@@ -32,23 +30,22 @@ function CancelBooking({ booking }: { booking: Booking }) {
   return (
     <div className="booking-form">
       <p className="muted">
-        Política {cancellationPolicyLabel[booking.cancellationPolicy]}:{" "}
-        {cancellationPolicyDescription[booking.cancellationPolicy]}
+        {t("business.cancellation", {
+          policy: t(cancellationLabelKey[booking.cancellationPolicy]),
+        })}
+        : {t(cancellationDescriptionKey[booking.cancellationPolicy])}
       </p>
-      <p>
-        Você receberá de volta <strong>R$ {formatBRL(refundAmount)}</strong> (
-        {refundPct}% do valor pago).
-      </p>
+      <p>{t("bookings.refundAmount", { amount: formatBRL(refundAmount), pct: refundPct })}</p>
       <div className="chip-row">
         <button
           type="button"
           className="btn-primary"
           onClick={() => cancelBooking(booking.id)}
         >
-          Confirmar cancelamento
+          {t("bookings.confirmCancel")}
         </button>
         <button type="button" className="btn-outline" onClick={() => setConfirming(false)}>
-          Voltar
+          {t("common.back")}
         </button>
       </div>
     </div>
@@ -57,6 +54,7 @@ function CancelBooking({ booking }: { booking: Booking }) {
 
 export function Bookings() {
   const { bookings } = useAvena();
+  const t = useT();
   const today = new Date().toISOString().slice(0, 10);
 
   // Upcoming first and in chronological order — the next trip is what someone
@@ -88,7 +86,7 @@ export function Bookings() {
         <div className="timeline-card-title">
           {b.tourTitle}
           <span className={`booking-status booking-status-${status}`}>
-            {bookingStatusLabel[status]}
+            {t(`status.${status}`)}
           </span>
         </div>
         <div className="muted">
@@ -97,27 +95,32 @@ export function Bookings() {
         </div>
         <div className="booking-breakdown">
           <div>
-            {isPaid ? "Total pago" : "Valor"}{" "}
-            <strong>R$ {formatBRL(b.totalPrice)}</strong>
+            {t("booking.total")} <strong>R$ {formatBRL(b.totalPrice)}</strong>
           </div>
           <div className="muted">
-            Taxa de serviço Avena ({Math.round(b.commissionRate * 100)}%): R${" "}
-            {formatBRL(b.commissionAmount)}
+            {t("booking.serviceFee", {
+              pct: Math.round(b.commissionRate * 100),
+              amount: formatBRL(b.commissionAmount),
+            })}
           </div>
           <div className="muted">
-            {b.businessName} {isPaid ? "recebeu" : "recebe"}: R${" "}
-            {formatBRL(b.businessPayout)}
+            {t(isPaid ? "booking.businessReceived" : "booking.businessReceives", {
+              name: b.businessName,
+              amount: formatBRL(b.businessPayout),
+            })}
           </div>
           {b.payment && (
             <div className="muted">
-              Pago via {b.payment.method === "pix" ? "Pix" : "cartão"} ·
-              comprovante {b.payment.reference}
+              {t("bookings.paidVia", {
+                method: t(b.payment.method === "pix" ? "payment.pix" : "payment.card"),
+                reference: b.payment.reference,
+              })}
             </div>
           )}
-          <div className="muted">{bookingStatusHint[status]}</div>
+          <div className="muted">{t(`statusHint.${status}`)}</div>
           {isCancelled && (
             <div className="muted">
-              Reembolsado: R$ {(formatBRL(b.refundAmount ?? 0))}
+              {t("bookings.refunded", { amount: formatBRL(b.refundAmount ?? 0) })}
             </div>
           )}
         </div>
@@ -135,24 +138,21 @@ export function Bookings() {
 
         <div className="chip-row">
           <Link to={`/messages/${b.businessId}`} className="btn-outline">
-            Falar com {b.businessName}
+            {t("bookings.talkTo", { name: b.businessName })}
           </Link>
           <Link to={`/ajuda/novo?reserva=${b.id}`} className="btn-outline">
-            Abrir chamado com a Avena
+            {t("bookings.openTicket")}
           </Link>
         </div>
 
         {isAwaiting && (
           <Link to={`/pagamento/${b.id}`} className="btn-primary">
-            Pagar e confirmar · faltam {minutesLeftToPay(b)} min
+            {t("bookings.payNow", { minutes: minutesLeftToPay(b) })}
           </Link>
         )}
 
         {status === "expirada" && (
-          <p className="muted">
-            A vaga voltou para o passeio. Você pode reservar de novo na página da
-            agência.
-          </p>
+          <p className="muted">{t("bookings.expiredNote")}</p>
         )}
 
         {isCancelled || isAwaiting || status === "expirada" ? null : isPast ? (
@@ -167,20 +167,19 @@ export function Bookings() {
   return (
     <div className="page">
       <Link to="/" className="back-link">
-        ← Voltar ao mapa
+        ← {t("common.backToMap")}
       </Link>
-      <h1>Minhas reservas</h1>
+      <h1>{t("bookings.title")}</h1>
+
+      <BannerSlot placement="bookings-top" />
 
       {bookings.length === 0 && (
-        <p className="muted">
-          Nenhuma reserva ainda. Explore os{" "}
-          <Link to="/destination">destinos</Link> e feche passeios direto pelo app.
-        </p>
+        <p className="muted">{t("bookings.empty")}</p>
       )}
 
       {awaiting.length > 0 && (
         <>
-          <h2 className="timeline-title">Aguardando pagamento</h2>
+          <h2 className="timeline-title">{t("bookings.awaiting")}</h2>
           <div className="timeline">
             {awaiting.map((b) => (
               <BookingCard key={b.id} b={b} />
@@ -191,7 +190,7 @@ export function Bookings() {
 
       {upcoming.length > 0 && (
         <>
-          <h2 className="timeline-title">Próximas</h2>
+          <h2 className="timeline-title">{t("bookings.upcoming")}</h2>
           <div className="timeline">
             {upcoming.map((b) => (
               <BookingCard key={b.id} b={b} />
@@ -202,7 +201,7 @@ export function Bookings() {
 
       {past.length > 0 && (
         <>
-          <h2 className="timeline-title">Anteriores</h2>
+          <h2 className="timeline-title">{t("bookings.past")}</h2>
           <div className="timeline">
             {past.map((b) => (
               <BookingCard key={b.id} b={b} />

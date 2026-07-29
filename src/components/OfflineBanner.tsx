@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { useT } from "../i18n";
 
 /**
  * The app keeps working offline — everything is stored on the device — so this
@@ -6,6 +7,7 @@ import { useEffect, useState } from "react";
  */
 export function OfflineBanner() {
   const [offline, setOffline] = useState(!navigator.onLine);
+  const t = useT();
 
   useEffect(() => {
     const goOffline = () => setOffline(true);
@@ -21,9 +23,6 @@ export function OfflineBanner() {
   if (!offline) return null;
 
   return (
-    <div className="offline-banner">
-      Você está sem internet. Dá para registrar experiências e ver suas reservas
-      normalmente — o mapa mostra só as áreas já carregadas.
-    </div>
+    <div className="offline-banner">{t("offline.message")}</div>
   );
 }

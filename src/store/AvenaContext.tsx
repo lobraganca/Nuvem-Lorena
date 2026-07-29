@@ -1,6 +1,6 @@
 import { createContext, useContext, useEffect, useMemo, useState } from "react";
 import type { ReactNode } from "react";
-import type { Booking, Boost, Business, BusinessStatus, Experience, Message, MessageThread, PaymentMethod, Person, Review, SupportTicket, SupportTicketSubject, Tour, UserProfile, WaitlistEntry } from "../types";
+import type { Banner, Booking, Boost, Business, BusinessStatus, Experience, Message, MessageThread, PaymentMethod, Person, Review, SupportTicket, SupportTicketSubject, Tour, Traveler, TravelerActivity, UserProfile, WaitlistEntry } from "../types";
 import {
   mockBusinesses,
   mockExperiences,
@@ -9,9 +9,10 @@ import {
   mockReviews,
   mockUser,
 } from "../data/mockData";
+import { mockTravelerActivity, mockTravelers } from "../data/travelers";
 import { computeRefund } from "../lib/cancellation";
 
-const STORAGE_KEY = "avena-data-v15";
+const STORAGE_KEY = "avena-data-v16";
 
 interface AvenaData {
   experiences: Experience[];
@@ -25,6 +26,9 @@ interface AvenaData {
   waitlist: WaitlistEntry[];
   dismissedNotifications: string[];
   supportTickets: SupportTicket[];
+  travelers: Traveler[];
+  travelerActivity: TravelerActivity[];
+  banners: Banner[];
 }
 
 interface AvenaContextValue extends AvenaData {
@@ -65,10 +69,15 @@ interface AvenaContextValue extends AvenaData {
   /** Replaces everything with a previously exported backup. */
   importData: (json: string) => void;
   /**
-   * Set when the browser refused to save — almost always because photos filled
+   * True when the browser refused to save — almost always because photos filled
    * the storage. Until it clears, changes are only in memory.
    */
-  storageError: string | null;
+  storageFull: boolean;
+  /** Follows a public profile, or sends a request to a private one. */
+  followTraveler: (travelerId: string) => void;
+  unfollowTraveler: (travelerId: string) => void;
+  saveBanner: (banner: Banner) => void;
+  removeBanner: (bannerId: string) => void;
 }
 
 const AvenaContext = createContext<AvenaContextValue | null>(null);
@@ -86,6 +95,9 @@ function defaults(): AvenaData {
     waitlist: [],
     dismissedNotifications: [],
     supportTickets: [],
+    travelers: mockTravelers,
+    travelerActivity: mockTravelerActivity,
+    banners: [],
   };
 }
 
@@ -103,18 +115,16 @@ function loadInitial(): AvenaData {
 
 export function AvenaProvider({ children }: { children: ReactNode }) {
   const [data, setData] = useState<AvenaData>(loadInitial);
-  const [storageError, setStorageError] = useState<string | null>(null);
+  const [storageFull, setStorageFull] = useState(false);
 
   useEffect(() => {
     try {
       localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
-      setStorageError(null);
+      setStorageFull(false);
     } catch {
       // Almost always the 5 MB quota, hit by photos. Saying so plainly beats
       // losing the person's memories without a word.
-      setStorageError(
-        "O armazenamento deste navegador ficou cheio. Suas últimas alterações não foram salvas. Faça um backup em Perfil › Meus dados e remova algumas fotos."
-      );
+      setStorageFull(true);
     }
   }, [data]);
 
@@ -323,13 +333,43 @@ export function AvenaProvider({ children }: { children: ReactNode }) {
         const parsed = JSON.parse(json);
         const incoming = parsed?.data ?? parsed;
         if (!incoming || typeof incoming !== "object" || !Array.isArray(incoming.experiences)) {
-          throw new Error("Este arquivo não parece ser um backup do Avena.");
+          // A code, not a sentence: the wording belongs to the translated UI.
+          throw new Error("invalid-backup");
         }
         setData({ ...defaults(), ...incoming });
       },
-      storageError,
+      followTraveler: (travelerId) =>
+        setData((d) => {
+          const traveler = d.travelers.find((tr) => tr.id === travelerId);
+          if (!traveler) return d;
+          // A private profile has to accept first, so following it only files
+          // a request — the feed stays empty until then.
+          const field = traveler.isPrivate ? "followRequests" : "following";
+          const current = d.user[field] ?? [];
+          if (current.includes(travelerId)) return d;
+          return { ...d, user: { ...d.user, [field]: [...current, travelerId] } };
+        }),
+      unfollowTraveler: (travelerId) =>
+        setData((d) => ({
+          ...d,
+          user: {
+            ...d.user,
+            following: (d.user.following ?? []).filter((id) => id !== travelerId),
+            followRequests: (d.user.followRequests ?? []).filter((id) => id !== travelerId),
+          },
+        })),
+      saveBanner: (banner) =>
+        setData((d) => ({
+          ...d,
+          banners: d.banners.some((b) => b.id === banner.id)
+            ? d.banners.map((b) => (b.id === banner.id ? banner : b))
+            : [banner, ...d.banners],
+        })),
+      removeBanner: (bannerId) =>
+        setData((d) => ({ ...d, banners: d.banners.filter((b) => b.id !== bannerId) })),
+      storageFull,
     }),
-    [data, storageError]
+    [data, storageFull]
   );
 
   return <AvenaContext.Provider value={value}>{children}</AvenaContext.Provider>;

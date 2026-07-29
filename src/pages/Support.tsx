@@ -2,6 +2,8 @@ import { useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 import { useAvena } from "../store/AvenaContext";
 import type { SupportTicketSubject } from "../types";
+import { localeFor, useI18n } from "../i18n";
+import type { TranslationKey } from "../i18n";
 
 const subjects: SupportTicketSubject[] = [
   "Problema com uma reserva",
@@ -12,11 +14,18 @@ const subjects: SupportTicketSubject[] = [
   "Outro assunto",
 ];
 
-const statusLabel = {
-  aberto: "Aberto",
-  respondido: "Respondido",
-  resolvido: "Resolvido",
-} as const;
+/**
+ * The stored subject stays in Portuguese because it is the value the admin
+ * panel filters on; only what the traveller reads is translated.
+ */
+const subjectKey: Record<SupportTicketSubject, TranslationKey> = {
+  "Problema com uma reserva": "support.subject.booking",
+  "Cobrança ou reembolso": "support.subject.billing",
+  "Agência ou guia não compareceu": "support.subject.noShow",
+  "Denúncia de conteúdo": "support.subject.report",
+  "Minha conta e meus dados": "support.subject.account",
+  "Outro assunto": "support.subject.other",
+};
 
 export function Support() {
   const { supportTickets, openTicket, bookings } = useAvena();
@@ -27,6 +36,7 @@ export function Support() {
   const [message, setMessage] = useState("");
   const [bookingId, setBookingId] = useState(searchParams.get("reserva") ?? "");
   const [protocol, setProtocol] = useState<string | null>(null);
+  const { t, lang } = useI18n();
 
   function submit(e: React.FormEvent) {
     e.preventDefault();
@@ -43,32 +53,27 @@ export function Support() {
   return (
     <div className="page">
       <Link to="/" className="back-link">
-        ← Voltar
+        ← {t("common.back")}
       </Link>
-      <h1>Central de ajuda</h1>
-      <p className="muted">
-        Este canal fala com a Avena, não com a agência. Use quando o problema for
-        com a reserva, com a cobrança ou com o próprio atendimento de quem te
-        vendeu o passeio.
-      </p>
+      <h1>{t("support.title")}</h1>
+      <p className="muted">{t("support.subtitle")}</p>
 
       {protocol && (
         <div className="insight-card" role="status">
-          Chamado aberto com o protocolo <strong>{protocol}</strong>. Guarde esse
-          número: ele identifica o seu caso em qualquer contato.
+          {t("support.protocolCreated", { protocol })}
         </div>
       )}
 
       <form className="booking-form" onSubmit={submit}>
         <label>
-          Assunto
+          {t("support.subject")}
           <select
             value={subject}
             onChange={(e) => setSubject(e.target.value as SupportTicketSubject)}
           >
             {subjects.map((s) => (
               <option key={s} value={s}>
-                {s}
+                {t(subjectKey[s])}
               </option>
             ))}
           </select>
@@ -76,12 +81,12 @@ export function Support() {
 
         {bookings.length > 0 && (
           <label>
-            Reserva relacionada (opcional)
+            {t("support.relatedBooking")}
             <select value={bookingId} onChange={(e) => setBookingId(e.target.value)}>
-              <option value="">Nenhuma</option>
+              <option value="">{t("support.none")}</option>
               {bookings.map((b) => (
                 <option key={b.id} value={b.id}>
-                  {b.tourTitle} — {new Date(b.travelDate).toLocaleDateString("pt-BR")}
+                  {b.tourTitle} — {new Date(b.travelDate).toLocaleDateString(localeFor(lang))}
                 </option>
               ))}
             </select>
@@ -89,44 +94,46 @@ export function Support() {
         )}
 
         <label>
-          O que aconteceu
+          {t("support.whatHappened")}
           <textarea
             value={message}
             onChange={(e) => setMessage(e.target.value)}
             rows={5}
             required
             minLength={10}
-            placeholder="Conte com o máximo de detalhes: datas, valores e o que já tentou resolver com a agência."
+            placeholder={t("support.placeholder")}
           />
         </label>
 
         <button type="submit" className="btn-primary" disabled={message.trim().length < 10}>
-          Abrir chamado
+          {t("support.open")}
         </button>
       </form>
 
-      <h2 className="timeline-title">Meus chamados</h2>
+      <h2 className="timeline-title">{t("support.myTickets")}</h2>
       {supportTickets.length === 0 && (
-        <p className="muted">Você ainda não abriu nenhum chamado.</p>
+        <p className="muted">{t("support.noTickets")}</p>
       )}
       <div className="timeline">
-        {supportTickets.map((t) => (
-          <div key={t.id} className="booking-card">
+        {supportTickets.map((ticket) => (
+          <div key={ticket.id} className="booking-card">
             <div className="timeline-card-title">
-              {t.subject}
-              <span className={`booking-status booking-status-${t.status}`}>
-                {statusLabel[t.status]}
+              {t(subjectKey[ticket.subject])}
+              <span className={`booking-status booking-status-${ticket.status}`}>
+                {t(`support.status.${ticket.status}`)}
               </span>
             </div>
             <div className="muted">
-              Protocolo {t.protocol} · aberto em{" "}
-              {new Date(t.createdAt).toLocaleDateString("pt-BR")}
+              {t("support.protocolOpened", {
+                protocol: ticket.protocol,
+                date: new Date(ticket.createdAt).toLocaleDateString(localeFor(lang)),
+              })}
             </div>
-            <p>{t.message}</p>
-            {t.reply && (
+            <p>{ticket.message}</p>
+            {ticket.reply && (
               <div className="support-reply">
-                <strong>Resposta da Avena</strong>
-                <p>{t.reply}</p>
+                <strong>{t("support.reply")}</strong>
+                <p>{ticket.reply}</p>
               </div>
             )}
           </div>

@@ -2,6 +2,7 @@ import { Link } from "react-router-dom";
 import { useAvena } from "../store/AvenaContext";
 import { useNotifications } from "../hooks/useNotifications";
 import type { NotificationKind } from "../lib/notifications";
+import { useT } from "../i18n";
 
 const kindLabel: Record<NotificationKind, string> = {
   "vaga-liberada": "Vaga",
@@ -13,23 +14,18 @@ const kindLabel: Record<NotificationKind, string> = {
 export function Notifications() {
   const { dismissNotification } = useAvena();
   const notifications = useNotifications();
+  const t = useT();
 
   return (
     <div className="page">
       <Link to="/" className="back-link">
-        ← Voltar
+        ← {t("common.back")}
       </Link>
-      <h1>Notificações</h1>
-      <p className="muted">
-        O Avena avisa quando um passeio acontece, quando é hora de avaliar quem
-        te atendeu e quando vale registrar a memória no seu mapa.
-      </p>
+      <h1>{t("notifications.title")}</h1>
+      <p className="muted">{t("notifications.subtitle")}</p>
 
       {notifications.length === 0 && (
-        <p className="muted" style={{ marginTop: 20 }}>
-          Nenhuma notificação por enquanto. Assim que um passeio seu terminar,
-          ele aparece aqui.
-        </p>
+        <p className="muted" style={{ marginTop: 20 }}>{t("notifications.empty")}</p>
       )}
 
       <div className="timeline" style={{ marginTop: 20 }}>
@@ -52,7 +48,7 @@ export function Notifications() {
                 className="btn-outline"
                 onClick={() => dismissNotification(n.id)}
               >
-                Dispensar
+                {t("notifications.dismiss")}
               </button>
             </div>
           </div>

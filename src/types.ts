@@ -34,6 +34,79 @@ export interface UserProfile {
    */
   acceptedLegalVersion?: string;
   acceptedLegalAt?: string; // ISO datetime
+  /** Ids of travelers this account follows. */
+  following?: string[];
+  /** Follow requests sent to private profiles, still waiting for an answer. */
+  followRequests?: string[];
+}
+
+/**
+ * Another traveler on the platform.
+ *
+ * Until the backend exists these come from seed data, which is why the feed
+ * says so out loud instead of pretending there is a live community.
+ */
+export interface Traveler {
+  id: string;
+  name: string;
+  username: string;
+  bio: string;
+  avatarColor: string;
+  isPrivate: boolean;
+  homeCity: string;
+  homeState: string;
+  /** Ids of travelers this profile follows back, used for "follows you". */
+  follows?: string[];
+}
+
+/**
+ * Where a banner can appear. Fixed slots rather than free placement, so a
+ * banner can never land in the middle of a checkout or a legal notice.
+ */
+export type BannerPlacement =
+  | "home-top"
+  | "destination-top"
+  | "feed-top"
+  | "bookings-top";
+
+export type BannerKind = "institucional" | "publicidade";
+
+export interface Banner {
+  id: string;
+  placement: BannerPlacement;
+  /**
+   * Institutional banners are Avena's own message; advertising is a third
+   * party's and is labelled as such, which CDC art. 36 requires.
+   */
+  kind: BannerKind;
+  title: string;
+  text: string;
+  /** Optional image, stored like every other photo: a downscaled data URL. */
+  image?: string;
+  linkUrl?: string;
+  linkLabel?: string;
+  active: boolean;
+  startsAt?: string; // ISO date
+  endsAt?: string; // ISO date
+  /** Set for the built-in responsible-tourism banner, whose text is translated. */
+  translationKey?: "responsible";
+}
+
+export type ActivityKind = "memoria" | "reserva";
+
+/** Something a followed traveler did, shown in the feed. */
+export interface TravelerActivity {
+  id: string;
+  travelerId: string;
+  kind: ActivityKind;
+  title: string;
+  place: string;
+  city: string;
+  state?: string;
+  date: string; // ISO date
+  category?: Category;
+  businessId?: string;
+  businessName?: string;
 }
 
 /** A conversation thread is with either a person or a business, never both. */

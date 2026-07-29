@@ -1,4 +1,5 @@
 import { reputationFor } from "../lib/reviews";
+import { useT } from "../i18n";
 
 export function ReputationBadge({
   avgRating,
@@ -7,10 +8,13 @@ export function ReputationBadge({
   avgRating: number;
   count: number;
 }) {
+  const t = useT();
   const reputation = reputationFor(avgRating, count);
 
   if (count === 0) {
-    return <span className="reputation-badge reputation-empty">Sem avaliações ainda</span>;
+    return (
+      <span className="reputation-badge reputation-empty">{t("reputation.none")}</span>
+    );
   }
 
   return (
@@ -19,10 +23,10 @@ export function ReputationBadge({
       <span
         className={`reputation-label ${reputation.provisional ? "reputation-provisional" : ""}`}
       >
-        {reputation.label}
+        {t(reputation.labelKey)}
       </span>
       <span className="muted">
-        ({count} {count === 1 ? "avaliação" : "avaliações"})
+        ({count} {t(count === 1 ? "common.review" : "common.reviews")})
       </span>
     </span>
   );

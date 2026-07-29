@@ -46,9 +46,18 @@ export function isValidDocument(type: DocumentType, value: string): boolean {
   return onlyDigits(trimmed).length >= 5 || trimmed.length >= 5;
 }
 
-export function documentError(type: DocumentType, value: string): string | null {
-  if (!value.trim()) return "Informe o documento";
-  if (type === "CPF" && !isValidCPF(value)) return "CPF inválido";
-  if (type !== "CPF" && !isValidDocument(type, value)) return "Documento muito curto";
+export type DocumentErrorKey =
+  | "participants.docRequired"
+  | "participants.cpfInvalid"
+  | "participants.docTooShort";
+
+/** Returns a translation key so the message follows the chosen language. */
+export function documentError(
+  type: DocumentType,
+  value: string
+): DocumentErrorKey | null {
+  if (!value.trim()) return "participants.docRequired";
+  if (type === "CPF" && !isValidCPF(value)) return "participants.cpfInvalid";
+  if (type !== "CPF" && !isValidDocument(type, value)) return "participants.docTooShort";
   return null;
 }

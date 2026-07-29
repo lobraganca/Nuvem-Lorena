@@ -19,25 +19,34 @@ export function reviewStatsFor(reviews: Review[], businessId: string) {
  */
 export const MIN_REVIEWS_FOR_LABEL = 3;
 
-export function reputationLabel(avgRating: number): string {
-  if (avgRating === 0) return "Sem avaliações";
-  if (avgRating >= 4.5) return "Excelente";
-  if (avgRating >= 4) return "Muito bom";
-  if (avgRating >= 3) return "Bom";
-  if (avgRating >= 2) return "Regular";
-  return "Ruim";
+export type ReputationKey =
+  | "reputation.none"
+  | "reputation.few"
+  | "reputation.excellent"
+  | "reputation.veryGood"
+  | "reputation.good"
+  | "reputation.average"
+  | "reputation.poor";
+
+export function reputationLabelKey(avgRating: number): ReputationKey {
+  if (avgRating === 0) return "reputation.none";
+  if (avgRating >= 4.5) return "reputation.excellent";
+  if (avgRating >= 4) return "reputation.veryGood";
+  if (avgRating >= 3) return "reputation.good";
+  if (avgRating >= 2) return "reputation.average";
+  return "reputation.poor";
 }
 
 export interface Reputation {
-  label: string;
+  labelKey: ReputationKey;
   /** True when there are too few reviews for the average to mean anything. */
   provisional: boolean;
 }
 
 export function reputationFor(avgRating: number, count: number): Reputation {
-  if (count === 0) return { label: "Sem avaliações ainda", provisional: true };
+  if (count === 0) return { labelKey: "reputation.none", provisional: true };
   if (count < MIN_REVIEWS_FOR_LABEL) {
-    return { label: "Poucas avaliações", provisional: true };
+    return { labelKey: "reputation.few", provisional: true };
   }
-  return { label: reputationLabel(avgRating), provisional: false };
+  return { labelKey: reputationLabelKey(avgRating), provisional: false };
 }

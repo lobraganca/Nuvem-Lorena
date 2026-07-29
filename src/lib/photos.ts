@@ -17,13 +17,23 @@ const JPEG_QUALITY = 0.72;
 /** Rough localStorage ceiling in browsers, used to warn before we hit it. */
 export const STORAGE_BUDGET_BYTES = 5 * 1024 * 1024;
 
-export class PhotoError extends Error {}
+/** Carries a translation key so the message can be shown in any language. */
+export type PhotoErrorKey = "photos.notAnImage" | "photos.readError";
+
+export class PhotoError extends Error {
+  messageKey: PhotoErrorKey;
+
+  constructor(messageKey: PhotoErrorKey) {
+    super(messageKey);
+    this.messageKey = messageKey;
+  }
+}
 
 function loadImage(dataUrl: string): Promise<HTMLImageElement> {
   return new Promise((resolve, reject) => {
     const img = new Image();
     img.onload = () => resolve(img);
-    img.onerror = () => reject(new PhotoError("Não foi possível ler esta imagem."));
+    img.onerror = () => reject(new PhotoError("photos.readError"));
     img.src = dataUrl;
   });
 }
@@ -32,7 +42,7 @@ function readFile(file: File): Promise<string> {
   return new Promise((resolve, reject) => {
     const reader = new FileReader();
     reader.onload = () => resolve(reader.result as string);
-    reader.onerror = () => reject(new PhotoError("Não foi possível abrir o arquivo."));
+    reader.onerror = () => reject(new PhotoError("photos.readError"));
     reader.readAsDataURL(file);
   });
 }
@@ -43,7 +53,7 @@ function readFile(file: File): Promise<string> {
  */
 export async function fileToStoredPhoto(file: File): Promise<string> {
   if (!file.type.startsWith("image/")) {
-    throw new PhotoError("Escolha um arquivo de imagem (JPG, PNG ou HEIC).");
+    throw new PhotoError("photos.notAnImage");
   }
 
   const original = await readFile(file);
@@ -57,7 +67,7 @@ export async function fileToStoredPhoto(file: File): Promise<string> {
   canvas.width = width;
   canvas.height = height;
   const ctx = canvas.getContext("2d");
-  if (!ctx) throw new PhotoError("Seu navegador não conseguiu processar a imagem.");
+  if (!ctx) throw new PhotoError("photos.readError");
 
   // A white base keeps transparent PNGs from turning black once encoded as JPEG.
   ctx.fillStyle = "#ffffff";

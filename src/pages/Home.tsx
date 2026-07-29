@@ -5,12 +5,15 @@ import { MapView } from "../components/MapView";
 import { NotificationBanner } from "../components/NotificationBanner";
 import { PromotedTours } from "../components/PromotedTours";
 import { TrendingSection } from "../components/TrendingSection";
+import { BannerSlot } from "../components/BannerSlot";
 import { categories, categoryColor } from "../lib/categories";
+import { useT } from "../i18n";
 import type { Category } from "../types";
 
 export function Home() {
   const { experiences, people, businesses } = useAvena();
   const navigate = useNavigate();
+  const t = useT();
   const [category, setCategory] = useState<Category | "Todas">("Todas");
   const [personId, setPersonId] = useState<string>("Todas");
   const [year, setYear] = useState<string>("Todos");
@@ -57,19 +60,15 @@ export function Home() {
     return (
       <div className="home-empty">
         <section className="home-empty-hero">
-          <h1>Comece a colecionar suas viagens</h1>
-          <p>
-            O Avena guarda no mapa cada lugar que você viveu — com fotos, com
-            quem estava junto e com o que valeu a pena — e mostra os passeios,
-            guias e restaurantes de quem já foi avaliado pela comunidade.
-          </p>
+          <h1>{t("home.emptyTitle")}</h1>
+          <p>{t("home.emptyText")}</p>
           <form className="quick-search" onSubmit={handleQuickSearch}>
             <input
               list="known-cities"
               value={quickSearch}
               onChange={(e) => setQuickSearch(e.target.value)}
-              placeholder="Para onde você vai? Busque passeios"
-              aria-label="Buscar destino"
+              placeholder={t("home.searchPlaceholder")}
+              aria-label={t("home.searchLabel")}
             />
             <datalist id="known-cities">
               {knownCities.map((city) => (
@@ -77,7 +76,7 @@ export function Home() {
               ))}
             </datalist>
             <button type="submit" className="btn-primary">
-              Buscar
+              {t("home.search")}
             </button>
           </form>
           <div className="chip-row">
@@ -95,17 +94,15 @@ export function Home() {
         </section>
 
         <div className="page page-wide">
+          <BannerSlot placement="home-top" />
           <PromotedTours />
           <TrendingSection />
 
           <div className="empty-cta">
-            <h2>Já viajou antes?</h2>
-            <p className="muted">
-              Registre uma viagem que você já fez e ela vira o primeiro pin do
-              seu mapa afetivo.
-            </p>
+            <h2>{t("home.emptyCtaTitle")}</h2>
+            <p className="muted">{t("home.emptyCtaText")}</p>
             <Link to="/experience/new" className="btn-primary">
-              Registrar minha primeira memória
+              {t("home.emptyCtaButton")}
             </Link>
           </div>
         </div>
@@ -121,7 +118,8 @@ export function Home() {
             list="known-cities"
             value={quickSearch}
             onChange={(e) => setQuickSearch(e.target.value)}
-            placeholder="Para onde você vai? Busque passeios"
+            placeholder={t("home.searchPlaceholder")}
+            aria-label={t("home.searchLabel")}
           />
           <datalist id="known-cities">
             {knownCities.map((city) => (
@@ -129,15 +127,15 @@ export function Home() {
             ))}
           </datalist>
           <button type="submit" className="btn-primary">
-            Buscar
+            {t("home.search")}
           </button>
         </form>
         <MapView experiences={filtered} />
         <Link
           to="/experience/new"
           className="fab"
-          title="Nova experiência"
-          aria-label="Registrar nova experiência"
+          title={t("home.newExperience")}
+          aria-label={t("home.newExperience")}
         >
           +
         </Link>
@@ -145,9 +143,10 @@ export function Home() {
 
       <aside className="home-sidebar">
         <NotificationBanner />
+        <BannerSlot placement="home-top" />
         <div className="filters">
           <select value={category} onChange={(e) => setCategory(e.target.value as Category | "Todas")}>
-            <option value="Todas">Todas categorias</option>
+            <option value="Todas">{t("home.allCategories")}</option>
             {categories.map((c) => (
               <option key={c} value={c}>
                 {c}
@@ -155,7 +154,7 @@ export function Home() {
             ))}
           </select>
           <select value={personId} onChange={(e) => setPersonId(e.target.value)}>
-            <option value="Todas">Todas pessoas</option>
+            <option value="Todas">{t("home.allPeople")}</option>
             {people.map((p) => (
               <option key={p.id} value={p.id}>
                 {p.name}
@@ -163,7 +162,7 @@ export function Home() {
             ))}
           </select>
           <select value={year} onChange={(e) => setYear(e.target.value)}>
-            <option value="Todos">Todos anos</option>
+            <option value="Todos">{t("home.allYears")}</option>
             {years.map((y) => (
               <option key={y} value={y}>
                 {y}
@@ -172,9 +171,9 @@ export function Home() {
           </select>
         </div>
 
-        <h2 className="timeline-title">Linha do tempo</h2>
+        <h2 className="timeline-title">{t("home.timeline")}</h2>
         <div className="timeline">
-          {sorted.length === 0 && <p className="muted">Nenhuma experiência encontrada.</p>}
+          {sorted.length === 0 && <p className="muted">{t("home.noExperiences")}</p>}
           {sorted.map((exp) => (
             <Link to={`/experience/${exp.id}`} key={exp.id} className="timeline-card">
               <div

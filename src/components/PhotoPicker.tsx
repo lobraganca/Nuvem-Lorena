@@ -7,6 +7,7 @@ import {
   formatBytes,
   isImagePhoto,
 } from "../lib/photos";
+import { useT } from "../i18n";
 
 interface Props {
   photos: string[];
@@ -25,12 +26,13 @@ export function PhotoPicker({
   photos,
   onChange,
   max = MAX_PHOTOS_PER_EXPERIENCE,
-  label = "Fotos",
+  label,
   hint,
 }: Props) {
   const inputRef = useRef<HTMLInputElement>(null);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const t = useT();
 
   const remaining = max - photos.length;
   const totalBytes = photos.filter(isImagePhoto).reduce((sum, p) => sum + dataUrlBytes(p), 0);
@@ -46,9 +48,7 @@ export function PhotoPicker({
       try {
         added.push(await fileToStoredPhoto(file));
       } catch (err) {
-        setError(
-          err instanceof PhotoError ? err.message : "Não foi possível adicionar esta foto."
-        );
+        setError(err instanceof PhotoError ? t(err.messageKey) : t("photos.readError"));
       }
     }
     if (added.length) onChange([...photos, ...added]);
@@ -63,14 +63,14 @@ export function PhotoPicker({
 
   return (
     <fieldset className="photo-picker">
-      <legend>{label}</legend>
+      <legend>{label ?? t("photos.label")}</legend>
       {hint && <p className="muted photo-picker-hint">{hint}</p>}
 
       <div className="photo-grid">
         {photos.map((photo, i) => (
           <div key={i} className="photo-thumb">
             {isImagePhoto(photo) ? (
-              <img src={photo} alt={`Foto ${i + 1}`} />
+              <img src={photo} alt={t("photos.removeOne", { n: i + 1 })} />
             ) : (
               <span className="photo-thumb-emoji" aria-hidden="true">
                 {photo}
@@ -80,9 +80,9 @@ export function PhotoPicker({
               type="button"
               className="photo-remove"
               onClick={() => remove(i)}
-              aria-label={`Remover foto ${i + 1}`}
+              aria-label={t("photos.removeOne", { n: i + 1 })}
             >
-              Remover
+              {t("common.remove")}
             </button>
           </div>
         ))}
@@ -94,7 +94,7 @@ export function PhotoPicker({
             onClick={() => inputRef.current?.click()}
             disabled={busy}
           >
-            {busy ? "Processando…" : "Adicionar foto"}
+            {busy ? t("photos.processing") : t("photos.add")}
           </button>
         )}
       </div>
@@ -106,15 +106,14 @@ export function PhotoPicker({
         multiple
         hidden
         onChange={handleFiles}
-        aria-label="Escolher fotos"
+        aria-label={t("photos.add")}
       />
 
       {error && <p className="form-error">{error}</p>}
 
       <p className="muted photo-picker-hint">
-        {photos.length} de {max} fotos
-        {totalBytes > 0 && ` · ${formatBytes(totalBytes)}`}. As imagens são
-        reduzidas automaticamente para caber no seu aparelho.
+        {t("photos.count", { count: photos.length, max })}
+        {totalBytes > 0 && ` · ${formatBytes(totalBytes)}`}. {t("photos.autoResized")}
       </p>
     </fieldset>
   );

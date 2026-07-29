@@ -27,7 +27,11 @@ import { StorageBanner } from "./components/StorageBanner";
 import { Payment } from "./pages/Payment";
 import { Support } from "./pages/Support";
 import { MyData } from "./pages/MyData";
-import { useNotifications } from "./hooks/useNotifications";
+import { Feed } from "./pages/Feed";
+import { TravelerProfile } from "./pages/TravelerProfile";
+import { LanguageSwitcher } from "./components/LanguageSwitcher";
+import { NotificationsBell } from "./components/NotificationsBell";
+import { I18nProvider, useT } from "./i18n";
 
 function RootScreen() {
   const { user } = useAvena();
@@ -36,48 +40,40 @@ function RootScreen() {
   return <Home />;
 }
 
-function NotificationsLink() {
-  const notifications = useNotifications();
-
-  return (
-    <Link to="/notifications" className="nav-notifications">
-      Notificações
-      {notifications.length > 0 && (
-        <span className="nav-badge">{notifications.length}</span>
-      )}
-    </Link>
-  );
-}
-
 function AppShell() {
   const { user } = useAvena();
+  const t = useT();
   const isProfissional = user.accountType === "profissional";
   const chosen = Boolean(user.accountType);
 
   return (
     <div className="app-shell">
       <a href="#conteudo" className="skip-link">
-        Pular para o conteúdo
+        {t("nav.skipToContent")}
       </a>
       <OfflineBanner />
       <StorageBanner />
-      <nav className="topbar" aria-label="Navegação principal">
+      <nav className="topbar" aria-label={t("nav.main")}>
         <Link to="/" className="brand">
-          <img src={avenaLogo} alt="Avena — página inicial" className="brand-logo" />
+          <img src={avenaLogo} alt={t("nav.home")} className="brand-logo" />
         </Link>
         <div className="topbar-links">
           {chosen && (
             <>
-              {isProfissional && <Link to="/professional">Painel</Link>}
-              <Link to="/destination">Destinos</Link>
-              {!isProfissional && <Link to="/business">Para empresas</Link>}
-              <Link to="/messages">Mensagens</Link>
-              {!isProfissional && <Link to="/bookings">Reservas</Link>}
-              {!isProfissional && <NotificationsLink />}
-              <Link to="/ajuda">Ajuda</Link>
-              <Link to="/profile">Perfil</Link>
+              {isProfissional && <Link to="/professional">{t("nav.dashboard")}</Link>}
+              <Link to="/destination">{t("nav.destinations")}</Link>
+              {!isProfissional && <Link to="/feed">{t("nav.feed")}</Link>}
+              {!isProfissional && <Link to="/business">{t("nav.forBusiness")}</Link>}
+              <Link to="/messages">{t("nav.messages")}</Link>
+              {!isProfissional && <Link to="/bookings">{t("nav.bookings")}</Link>}
+              <Link to="/ajuda">{t("nav.help")}</Link>
+              <Link to="/profile">{t("nav.profile")}</Link>
             </>
           )}
+        </div>
+        <div className="topbar-actions">
+          <NotificationsBell />
+          <LanguageSwitcher />
         </div>
       </nav>
       <main className="app-content" id="conteudo">
@@ -105,16 +101,18 @@ function AppShell() {
           <Route path="/ajuda" element={<Support />} />
           <Route path="/ajuda/novo" element={<Support />} />
           <Route path="/meus-dados" element={<MyData />} />
+          <Route path="/feed" element={<Feed />} />
+          <Route path="/traveler/:id" element={<TravelerProfile />} />
           <Route path="/admin" element={<Admin />} />
         </Routes>
       </main>
       <footer className="app-footer">
-        <Link to="/termos">Termos de Uso</Link>
-        <Link to="/privacidade">Política de Privacidade</Link>
-        <Link to="/ajuda">Central de ajuda</Link>
-        <Link to="/meus-dados">Meus dados</Link>
+        <Link to="/termos">{t("footer.terms")}</Link>
+        <Link to="/privacidade">{t("footer.privacy")}</Link>
+        <Link to="/ajuda">{t("footer.help")}</Link>
+        <Link to="/meus-dados">{t("footer.myData")}</Link>
         <button type="button" className="footer-link" onClick={openCookiePreferences}>
-          Preferências de cookies
+          {t("footer.cookies")}
         </button>
         <span className="muted">© {new Date().getFullYear()} Avena</span>
       </footer>
@@ -127,8 +125,10 @@ function AppShell() {
 
 export default function App() {
   return (
-    <AvenaProvider>
-      <AppShell />
-    </AvenaProvider>
+    <I18nProvider>
+      <AvenaProvider>
+        <AppShell />
+      </AvenaProvider>
+    </I18nProvider>
   );
 }

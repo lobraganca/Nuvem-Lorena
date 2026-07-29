@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import { useAvena } from "../store/AvenaContext";
 import { buildBusinessRows, computeAdminMetrics } from "../lib/admin";
 import { isBoostActive } from "../lib/boosts";
+import { AdminBanners } from "../components/AdminBanners";
 import type { SupportTicket } from "../types";
 import { formatBRL } from "../lib/money";
 
@@ -12,7 +13,8 @@ type Tab =
   | "Reservas"
   | "Anúncios"
   | "Avaliações"
-  | "Chamados";
+  | "Chamados"
+  | "Banners";
 
 const TABS: Tab[] = [
   "Visão geral",
@@ -21,6 +23,7 @@ const TABS: Tab[] = [
   "Anúncios",
   "Avaliações",
   "Chamados",
+  "Banners",
 ];
 
 function brl(v: number): string {
@@ -385,6 +388,8 @@ export function Admin() {
       )}
 
       {tab === "Chamados" && <SupportTickets />}
+
+      {tab === "Banners" && <AdminBanners />}
     </div>
   );
 }

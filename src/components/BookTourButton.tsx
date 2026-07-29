@@ -2,7 +2,7 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAvena } from "../store/AvenaContext";
 import { commissionRateFor } from "../lib/plans";
-import { cancellationPolicyDescription, cancellationPolicyLabel } from "../lib/cancellation";
+import { cancellationDescriptionKey, cancellationLabelKey } from "../lib/cancellation";
 import { availabilityFor } from "../lib/availability";
 import { PAYMENT_WINDOW_MINUTES, paymentDeadline } from "../lib/bookingStatus";
 import { isInSeason, seasonLabel } from "../lib/tourAttributes";
@@ -19,11 +19,13 @@ import {
 } from "./LegalAcceptance";
 import type { Business, Participant, Tour } from "../types";
 import { formatBRL } from "../lib/money";
+import { useT } from "../i18n";
 
 export function BookTourButton({ business, tour }: { business: Business; tour: Tour }) {
   const { addBooking, bookings, user, waitlist, joinWaitlist } = useAvena();
   const navigate = useNavigate();
   const [open, setOpen] = useState(false);
+  const t = useT();
   const [travelDate, setTravelDate] = useState(new Date().toISOString().slice(0, 10));
   const [travelers, setTravelers] = useState(1);
   // The buyer is participant 1, pre-filled with the account name.
@@ -101,7 +103,7 @@ export function BookTourButton({ business, tour }: { business: Business; tour: T
   if (!open) {
     return (
       <button type="button" className="btn-outline" onClick={() => setOpen(true)}>
-        Reservar
+        {t("booking.book")}
       </button>
     );
   }
@@ -110,7 +112,7 @@ export function BookTourButton({ business, tour }: { business: Business; tour: T
     <form className="booking-form" onSubmit={confirmBooking}>
       <div className="form-row">
         <label>
-          Data
+          {t("booking.date")}
           <input
             type="date"
             value={travelDate}
@@ -119,7 +121,7 @@ export function BookTourButton({ business, tour }: { business: Business; tour: T
           />
         </label>
         <label>
-          Pessoas
+          {t("booking.travelers")}
           <input
             type="number"
             min={1}
@@ -133,23 +135,22 @@ export function BookTourButton({ business, tour }: { business: Business; tour: T
       {availability.tracked && (
         <div className={`availability-note ${soldOut ? "availability-none" : ""}`}>
           {soldOut
-            ? "Sem vagas disponíveis nesta data."
-            : `${availability.remaining} de ${availability.capacity} vagas disponíveis nesta data.`}
+            ? t("booking.soldOut")
+            : t("booking.spotsAvailable", {
+                remaining: availability.remaining,
+                capacity: availability.capacity ?? 0,
+              })}
         </div>
       )}
       {soldOut && (
         <div className="waitlist-box">
           {alreadyWaiting ? (
-            <span className="muted">
-              Você está na lista de espera desta data. Avisamos se abrir vaga.
-            </span>
+            <span className="muted">{t("booking.waitlistJoined")}</span>
           ) : (
             <>
-              <span className="muted">
-                Podemos avisar você se alguém cancelar nesta data.
-              </span>
+              <span className="muted">{t("booking.waitlistOffer")}</span>
               <button type="button" className="btn-outline" onClick={handleJoinWaitlist}>
-                Avisar se abrir vaga
+                {t("booking.waitlistJoin")}
               </button>
             </>
           )}
@@ -158,39 +159,48 @@ export function BookTourButton({ business, tour }: { business: Business; tour: T
 
       {offSeason && season && (
         <div className="availability-note">
-          Melhor época para este passeio: {season}. Fora da temporada a
-          experiência pode ser diferente do anunciado.
+          {t("booking.offSeason", { season: season ?? "" })}
         </div>
       )}
 
       {exceedsCapacity && !soldOut && (
         <div className="availability-note availability-none">
-          Só restam {availability.remaining} vagas nesta data para o número de pessoas informado.
+          {t("booking.onlyLeft", { remaining: availability.remaining })}
         </div>
       )}
 
       <ParticipantFields participants={participants} onChange={setParticipants} />
 
-      {peopleError && <div className="availability-none">{peopleError}</div>}
+      {peopleError && (
+        <div className="availability-none">
+          {t(peopleError.key, { n: peopleError.index })}
+        </div>
+      )}
 
       <div className="booking-breakdown">
         <div>
-          Valor total <strong>R$ {formatBRL(totalPrice)}</strong>
+          {t("booking.total")} <strong>R$ {formatBRL(totalPrice)}</strong>
         </div>
         <div className="muted">
-          Taxa de serviço Avena ({Math.round(commissionRate * 100)}%): R${" "}
-          {formatBRL(commissionAmount)}
+          {t("booking.serviceFee", {
+            pct: Math.round(commissionRate * 100),
+            amount: formatBRL(commissionAmount),
+          })}
         </div>
         <div className="muted">
-          {business.name} recebe: R$ {formatBRL(businessPayout)}
+          {t("booking.businessReceives", {
+            name: business.name,
+            amount: formatBRL(businessPayout),
+          })}
         </div>
         <div className="muted">
-          Cancelamento {cancellationPolicyLabel[cancellationPolicy]}:{" "}
-          {cancellationPolicyDescription[cancellationPolicy]}
+          {t("business.cancellation", {
+            policy: t(cancellationLabelKey[cancellationPolicy]),
+          })}
+          : {t(cancellationDescriptionKey[cancellationPolicy])}
         </div>
         <div className="muted">
-          A vaga fica reservada por {PAYMENT_WINDOW_MINUTES} minutos até o
-          pagamento. A reserva só é confirmada depois que o pagamento é aprovado.
+          {t("booking.holdNotice", { minutes: PAYMENT_WINDOW_MINUTES })}
         </div>
       </div>
 
@@ -202,10 +212,10 @@ export function BookTourButton({ business, tour }: { business: Business; tour: T
           className="btn-primary"
           disabled={soldOut || exceedsCapacity || !legalOk || Boolean(peopleError)}
         >
-          Ir para o pagamento
+          {t("booking.goToPayment")}
         </button>
         <button type="button" className="btn-outline" onClick={() => setOpen(false)}>
-          Cancelar
+          {t("common.cancel")}
         </button>
       </div>
     </form>
