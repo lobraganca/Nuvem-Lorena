@@ -8,10 +8,11 @@ export function TrendingSection() {
   const { businesses, bookings, reviews, experiences } = useAvena();
   const navigate = useNavigate();
 
-  const tours = topTours(businesses, bookings, reviews, 4);
+  const visible = businesses.filter((b) => b.status !== "suspensa");
+  const tours = topTours(visible, bookings, reviews, 4);
   const places = topPlaces(
     experiences.filter((e) => e.country === "Brasil"),
-    businesses.filter((b) => b.country === "Brasil"),
+    visible.filter((b) => b.country === "Brasil"),
     6
   );
 

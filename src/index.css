@@ -1660,3 +1660,46 @@ legend {
   padding: 9px 14px;
   font-size: 14px;
 }
+
+.admin-hint {
+  font-size: 11px;
+  margin-top: 4px;
+}
+
+.admin-note {
+  margin-top: 24px;
+  font-size: 13px;
+}
+
+.admin-plan-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 12px;
+  margin-top: 12px;
+}
+
+.admin-row-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.admin-flag {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+  padding: 3px 9px;
+  border-radius: 4px;
+  background: #fdecea;
+  color: #b3261e;
+  border: 1px solid #f3c2bd;
+}
+
+.admin-active {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--accent);
+}

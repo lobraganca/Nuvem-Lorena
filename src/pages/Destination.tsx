@@ -21,7 +21,10 @@ export function Destination() {
     if (city) setQuery(city);
   }, [searchParams]);
 
-  const brBusinesses = businesses.filter((b) => b.country === "Brasil");
+  // Suspended businesses are hidden from travelers everywhere.
+  const brBusinesses = businesses.filter(
+    (b) => b.country === "Brasil" && b.status !== "suspensa"
+  );
   const brExperiences = experiences.filter((e) => e.country === "Brasil");
 
   const cities = useMemo(

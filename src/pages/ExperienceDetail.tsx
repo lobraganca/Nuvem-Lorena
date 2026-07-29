@@ -12,7 +12,9 @@ export function ExperienceDetail() {
   if (!exp) return <div className="page">Experiência não encontrada.</div>;
 
   const present = people.filter((p) => exp.peopleIds.includes(p.id));
-  const localBusinesses = businesses.filter((b) => b.city === exp.city);
+  const localBusinesses = businesses.filter(
+    (b) => b.city === exp.city && b.status !== "suspensa"
+  );
 
   return (
     <div className="page">

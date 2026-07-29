@@ -9,7 +9,7 @@ export function BusinessLanding() {
   const { businesses, reviews } = useAvena();
   const [sortByReputation, setSortByReputation] = useState(false);
 
-  const sorted = [...businesses].sort((a, b) => {
+  const sorted = [...businesses.filter((b) => b.status !== "suspensa")].sort((a, b) => {
     if (!sortByReputation) return 0;
     return reviewStatsFor(reviews, b.id).avgRating - reviewStatsFor(reviews, a.id).avgRating;
   });

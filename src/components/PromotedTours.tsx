@@ -16,7 +16,9 @@ export function PromotedTours({ compact = false }: { compact?: boolean }) {
 
   const promoted = activeBoosts(boosts)
     .map((boost) => {
-      const business = businesses.find((b) => b.id === boost.businessId);
+      const business = businesses.find(
+        (b) => b.id === boost.businessId && b.status !== "suspensa"
+      );
       const tour = business?.tours?.find((t) => t.id === boost.tourId);
       return business && tour ? { boost, business, tour } : null;
     })

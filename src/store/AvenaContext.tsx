@@ -1,6 +1,6 @@
 import { createContext, useContext, useEffect, useMemo, useState } from "react";
 import type { ReactNode } from "react";
-import type { Booking, Boost, Business, Experience, Message, MessageThread, Person, Review, Tour, UserProfile } from "../types";
+import type { Booking, Boost, Business, BusinessStatus, Experience, Message, MessageThread, Person, Review, Tour, UserProfile } from "../types";
 import {
   mockBusinesses,
   mockExperiences,
@@ -11,7 +11,7 @@ import {
 } from "../data/mockData";
 import { computeRefund } from "../lib/cancellation";
 
-const STORAGE_KEY = "avena-data-v12";
+const STORAGE_KEY = "avena-data-v13";
 
 interface AvenaData {
   experiences: Experience[];
@@ -40,6 +40,10 @@ interface AvenaContextValue extends AvenaData {
   addReview: (review: Review) => void;
   cancelBooking: (bookingId: string) => void;
   addBoost: (boost: Boost) => void;
+  endBoost: (boostId: string) => void;
+  setBusinessStatus: (businessId: string, status: BusinessStatus) => void;
+  setBusinessVerified: (businessId: string, verified: boolean) => void;
+  removeReview: (reviewId: string) => void;
   dismissNotification: (notificationId: string) => void;
 }
 
@@ -163,6 +167,34 @@ export function AvenaProvider({ children }: { children: ReactNode }) {
           }),
         })),
       addBoost: (boost) => setData((d) => ({ ...d, boosts: [boost, ...d.boosts] })),
+      endBoost: (boostId) =>
+        setData((d) => ({
+          ...d,
+          // Ending a boost expires it now rather than deleting it, so the
+          // revenue it generated stays in the books.
+          boosts: d.boosts.map((b) =>
+            b.id === boostId ? { ...b, endsAt: new Date().toISOString() } : b
+          ),
+        })),
+      setBusinessStatus: (businessId, status) =>
+        setData((d) => ({
+          ...d,
+          businesses: d.businesses.map((b) =>
+            b.id === businessId ? { ...b, status } : b
+          ),
+        })),
+      setBusinessVerified: (businessId, verified) =>
+        setData((d) => ({
+          ...d,
+          businesses: d.businesses.map((b) =>
+            b.id === businessId ? { ...b, verified } : b
+          ),
+        })),
+      removeReview: (reviewId) =>
+        setData((d) => ({
+          ...d,
+          reviews: d.reviews.filter((r) => r.id !== reviewId),
+        })),
       dismissNotification: (notificationId) =>
         setData((d) => ({
           ...d,

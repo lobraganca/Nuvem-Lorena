@@ -70,8 +70,14 @@ export interface Tour {
   capacityPerDay?: number; // max travelers per departure date; undefined = not tracked
 }
 
+/** Set by the Avena admin; suspended businesses disappear from public listings. */
+export type BusinessStatus = "ativa" | "suspensa";
+
 export interface Business {
   id: string;
+  status?: BusinessStatus;
+  /** Verified by the admin after checking the Cadastur registration. */
+  verified?: boolean;
   name: string;
   type: BusinessType;
   planTier: PlanTier;

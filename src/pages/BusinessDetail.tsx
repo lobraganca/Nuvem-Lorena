@@ -42,6 +42,18 @@ export function BusinessDetail() {
         )}
       </div>
 
+      {business.status === "suspensa" && (
+        <div className="insight-card">
+          Esta empresa está suspensa e não está recebendo novas reservas.
+        </div>
+      )}
+
+      {business.verified && (
+        <div className="cadastur-badge">
+          Verificada pelo Avena — documentação conferida
+        </div>
+      )}
+
       {business.cadastur && (
         <div className="cadastur-badge">
           Cadastur {business.cadastur} — registrado no Ministério do Turismo
