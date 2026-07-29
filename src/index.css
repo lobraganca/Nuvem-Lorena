@@ -2395,6 +2395,12 @@ textarea:focus-visible,
     font-weight: 600;
     white-space: nowrap;
   }
+
+  /* On a wide screen the map fills the height, which drops the "add a memory"
+     button right behind the tab bar. Lift it clear. */
+  .fab {
+    bottom: 86px;
+  }
 }
 
 /* The bar floats over the page, so the page has to end above it. */
