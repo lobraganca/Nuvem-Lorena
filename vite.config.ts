@@ -2,16 +2,34 @@ import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 import { VitePWA } from 'vite-plugin-pwa'
 
+/**
+ * The single-file build produces one self-contained .html: every asset inlined,
+ * no service worker, routes in the hash. It is for looking at the app without
+ * a server — a real deploy uses the normal build.
+ */
+const singleFile = process.env.VITE_SINGLE_FILE === 'true'
+
 // https://vite.dev/config/
 export default defineConfig({
+  base: singleFile ? './' : '/',
+  build: singleFile
+    ? {
+        // Everything becomes a data URI, so nothing is fetched from disk.
+        assetsInlineLimit: Number.MAX_SAFE_INTEGER,
+        cssCodeSplit: false,
+        rollupOptions: { output: { inlineDynamicImports: true } },
+      }
+    : {},
   // Baked in as a literal so the admin branch — and the module it imports — is
   // removed from a public build instead of merely being unreachable in it.
   define: {
     __ADMIN_ENABLED__: JSON.stringify(process.env.VITE_ADMIN_ENABLED === 'true'),
+    __SINGLE_FILE__: JSON.stringify(singleFile),
   },
   plugins: [
     react(),
-    VitePWA({
+    // A service worker cannot register from a file:// page.
+    ...(singleFile ? [] : [VitePWA({
       registerType: 'autoUpdate',
       includeAssets: ['favicon.png', 'og-avena.png'],
       manifest: {
@@ -54,6 +72,6 @@ export default defineConfig({
           },
         ],
       },
-    }),
+    })]),
   ],
 })

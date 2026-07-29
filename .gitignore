@@ -28,3 +28,6 @@ dist-ssr
 .env
 .env.*
 !.env.example
+
+# Gerado por "npm run build:single" — não versionar o bundle.
+avena-app.html
