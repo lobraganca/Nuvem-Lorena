@@ -32,3 +32,12 @@ dist-ssr
 # Gerado por "npm run build:single" — não versionar o bundle.
 avena-app.html
 avena-app-fragment.html
+
+# Screenshots e scripts de verificação ficam fora do repositório.
+web-*.png
+nav-*.png
+app-*.png
+desktop-*.png
+celular-*.png
+*.mjs
+!scripts/*.mjs
