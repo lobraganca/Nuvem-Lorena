@@ -580,6 +580,27 @@ export const es: Record<keyof typeof pt, string> = {
     "Solo estás mirando, sin cuenta. Nada de lo que hagas aquí se guardará.",
   "auth.guestCreate": "Crear una cuenta",
 
+  "door.experiencesTitle": "Experiencias, no solo destinos",
+  "door.experiencesText":
+    "Cada lugar por donde pasaste se vuelve un recuerdo con fecha, foto e historia — un mapa que existe solo porque tú estuviste allí. Y cuando quieras vivir algo nuevo, los paseos vienen de gente registrada, que conoce el lugar por dentro.",
+  "door.experiencesA": "Registra lo que viviste, con foto y lugar en el mapa",
+  "door.experiencesB": "Reserva paseos con guías y agencias del Cadastur",
+  "door.experiencesC": "Guarda lo que todavía quieres hacer, para cuando se pueda",
+  "door.peopleTitle": "Las personas que encontramos por el camino",
+  "door.peopleText":
+    "Un buen viaje casi nunca es solo el lugar. Es el guía que mostró el sendero que no está en el mapa, la dueña de la posada que guardó el desayuno, quien estaba a tu lado al atardecer. Aquí esas personas quedan registradas junto al recuerdo — y puedes seguir a otros viajeros y ver por dónde andan.",
+  "door.ecosystemTitle": "Por qué formar parte",
+  "door.forTravelers": "Para quien viaja",
+  "door.forTravelersText":
+    "Encuentras a quien cuida del lugar, con reseñas de quien realmente hizo el paseo — solo reseña quien fue. Tus recuerdos quedan en tu mapa, y no perdidos entre miles de fotos.",
+  "door.forBusiness": "Para quien recibe",
+  "door.forBusinessText":
+    "Guías, agencias, posadas y restaurantes aparecen ante quien ya está buscando ese destino, con página propia, paseos, fechas y reserva. Sin intermediarios que se lleven el contacto del cliente.",
+  "door.togetherTitle": "Turismo que devuelve",
+  "door.togetherText":
+    "Cuanto más gente registra lo que vivió, más fácil le resulta al siguiente elegir bien — y más se encuentran los pequeños, que hacen que el turismo suceda de verdad.",
+  "door.closingTitle": "Empieza por tu primer lugar",
+
   "app.title": "Lleva Avena contigo",
   "app.subtitle": "Descarga la aplicación y ten tu mapa afectivo en el bolsillo, incluso sin internet.",
   "app.subtitleSoon":

@@ -3083,12 +3083,14 @@ textarea:focus-visible,
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
+  /* Centred while the page is only the door; once the story sits below it,
+     the content flows from the top instead of fighting for the middle. */
+  justify-content: safe center;
   min-height: 100svh;
   padding: 28px 20px calc(28px + env(safe-area-inset-bottom));
   background:
-    radial-gradient(120% 80% at 50% 0%, #1e2c22 0%, transparent 60%),
-    linear-gradient(180deg, var(--door-green) 0%, var(--door-green-deep) 100%);
+    radial-gradient(120% 60% at 50% 0%, #1e2c22 0%, transparent 55%),
+    linear-gradient(180deg, var(--door-green) 0%, var(--door-green-deep) 70%, #0b120d 100%);
   color: var(--door-ink);
 }
 
@@ -3332,6 +3334,109 @@ textarea:focus-visible,
   line-height: 1.55;
   color: var(--door-soft);
   text-align: left;
+}
+
+/* ---------------------------------------------------------------------------
+   Below the door: what Avena is, before anyone is asked to sign anything
+   --------------------------------------------------------------------------- */
+
+.door-below {
+  width: 100%;
+  max-width: 640px;
+  margin-top: 64px;
+}
+
+.door-section {
+  padding: 34px 0;
+  border-top: 1px solid var(--door-line);
+}
+
+.door-section:first-child {
+  border-top: none;
+}
+
+.door-section h2 {
+  margin: 0 0 14px;
+  font-size: 22px;
+  font-weight: 600;
+  line-height: 1.25;
+  color: var(--door-ink);
+  text-wrap: balance;
+}
+
+.door-section h3 {
+  margin: 0 0 8px;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--door-sand);
+}
+
+.door-section p {
+  margin: 0;
+  font-size: 15px;
+  line-height: 1.7;
+  color: var(--door-soft);
+}
+
+/* The one place a serif returns, to echo the name at the top. */
+.door-serif {
+  font-family: Georgia, "Times New Roman", serif;
+  font-weight: 400;
+  font-style: italic;
+  font-size: 26px;
+  color: var(--door-sand);
+}
+
+.door-list {
+  margin: 18px 0 0;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.door-list li {
+  position: relative;
+  padding-left: 20px;
+  font-size: 15px;
+  line-height: 1.55;
+  color: var(--door-ink);
+}
+
+/* A small mark rather than a bullet: these are three things you can do, not
+   a list to count through. */
+.door-list li::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0.62em;
+  width: 8px;
+  height: 1px;
+  background: var(--door-sand);
+}
+
+.door-columns {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+  gap: 26px;
+  margin-top: 6px;
+}
+
+.door-closing,
+.door-final {
+  text-align: center;
+}
+
+.door-final .signin-choices {
+  max-width: 340px;
+  margin-inline: auto;
+}
+
+.door-final {
+  padding-bottom: 12px;
 }
 
 .guest-banner {

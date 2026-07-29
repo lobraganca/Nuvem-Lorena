@@ -578,6 +578,27 @@ export const en: Record<keyof typeof pt, string> = {
     "You are just looking, with no account. Nothing you do here will be kept.",
   "auth.guestCreate": "Create an account",
 
+  "door.experiencesTitle": "Experiences, not just destinations",
+  "door.experiencesText":
+    "Every place you passed through becomes a memory with a date, a photo and a story — a map that exists only because you were there. And when you want to live something new, the tours come from registered people who know the place from the inside.",
+  "door.experiencesA": "Record what you lived, with a photo and a place on the map",
+  "door.experiencesB": "Book tours with guides and agencies registered with Cadastur",
+  "door.experiencesC": "Keep what you still want to do, for when the time comes",
+  "door.peopleTitle": "The people we meet along the way",
+  "door.peopleText":
+    "A good trip is almost never about the place alone. It is the guide who showed you the trail that is not on any map, the owner who kept breakfast for you, whoever stood beside you at sunset. Here those people are recorded alongside the memory — and you can follow other travellers and see where they are going.",
+  "door.ecosystemTitle": "Why be part of it",
+  "door.forTravelers": "For those who travel",
+  "door.forTravelersText":
+    "You find the people who care for the place, rated by those who actually went — only they can review. Your memories live on your map, instead of getting lost in the camera roll.",
+  "door.forBusiness": "For those who welcome",
+  "door.forBusinessText":
+    "Guides, agencies, inns and restaurants appear to people already looking for that destination, with their own page, tours, dates and booking. No middleman walking off with the customer's contact.",
+  "door.togetherTitle": "Tourism that gives back",
+  "door.togetherText":
+    "The more people record what they lived, the easier it becomes for the next one to choose well — and the more the small operators, who make tourism actually happen, get found.",
+  "door.closingTitle": "Start with your first place",
+
   "app.title": "Take Avena with you",
   "app.subtitle": "Download the app and carry your affective map in your pocket, with or without a signal.",
   "app.subtitleSoon":

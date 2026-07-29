@@ -76,6 +76,25 @@ export function SignIn() {
           ? t(ERROR_KEY[error])
           : null;
 
+  const choices = (
+    <div className="signin-choices">
+      <button
+        type="button"
+        className="btn-primary signin-submit"
+        onClick={() => go("criar")}
+      >
+        {t("auth.createAccount")}
+      </button>
+      <button
+        type="button"
+        className="btn-outline signin-secondary"
+        onClick={() => go("entrar")}
+      >
+        {t("auth.signIn")}
+      </button>
+    </div>
+  );
+
   return (
     <div className="signin-page">
       <div className="signin-lang">
@@ -93,22 +112,7 @@ export function SignIn() {
             <p className="signin-invite">{t("auth.invite")}</p>
             <p className="signin-experiences">{t("auth.experiences")}</p>
 
-            <div className="signin-choices">
-              <button
-                type="button"
-                className="btn-primary signin-submit"
-                onClick={() => go("criar")}
-              >
-                {t("auth.createAccount")}
-              </button>
-              <button
-                type="button"
-                className="btn-outline signin-secondary"
-                onClick={() => go("entrar")}
-              >
-                {t("auth.signIn")}
-              </button>
-            </div>
+            {choices}
 
             <button type="button" className="signin-quiet" onClick={continueAsGuest}>
               {t("auth.guest")}
@@ -198,6 +202,54 @@ export function SignIn() {
           </>
         )}
       </div>
+
+      {step === "porta" && (
+        <div className="door-below">
+          <section className="door-section">
+            <h2>{t("door.experiencesTitle")}</h2>
+            <p>{t("door.experiencesText")}</p>
+            <ul className="door-list">
+              <li>{t("door.experiencesA")}</li>
+              <li>{t("door.experiencesB")}</li>
+              <li>{t("door.experiencesC")}</li>
+            </ul>
+          </section>
+
+          <section className="door-section">
+            <h2>{t("door.peopleTitle")}</h2>
+            <p>{t("door.peopleText")}</p>
+          </section>
+
+          <section className="door-section">
+            <h2>{t("door.ecosystemTitle")}</h2>
+            <div className="door-columns">
+              <div className="door-column">
+                <h3>{t("door.forTravelers")}</h3>
+                <p>{t("door.forTravelersText")}</p>
+              </div>
+              <div className="door-column">
+                <h3>{t("door.forBusiness")}</h3>
+                <p>{t("door.forBusinessText")}</p>
+              </div>
+            </div>
+          </section>
+
+          <section className="door-section door-closing">
+            <h2 className="door-serif">{t("door.togetherTitle")}</h2>
+            <p>{t("door.togetherText")}</p>
+          </section>
+
+          {/* The buttons again at the end: someone who read this far should
+              not have to scroll back up to act on it. */}
+          <section className="door-section door-final">
+            <h2 className="door-serif">{t("door.closingTitle")}</h2>
+            {choices}
+            <button type="button" className="signin-quiet" onClick={continueAsGuest}>
+              {t("auth.guest")}
+            </button>
+          </section>
+        </div>
+      )}
     </div>
   );
 }
