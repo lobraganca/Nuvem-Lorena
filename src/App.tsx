@@ -30,6 +30,7 @@ import { MyData } from "./pages/MyData";
 import { Feed } from "./pages/Feed";
 import { Wishlist } from "./pages/Wishlist";
 import { TravelerProfile } from "./pages/TravelerProfile";
+import { GetApp } from "./pages/GetApp";
 import { NotFound } from "./pages/NotFound";
 import { LanguageSwitcher } from "./components/LanguageSwitcher";
 import { NotificationsBell } from "./components/NotificationsBell";
@@ -77,6 +78,11 @@ function AppShell() {
               <Link to="/ajuda">{t("nav.help")}</Link>
             </>
           )}
+          {/* Outside the check on purpose: someone who has not chosen an
+              account type yet is exactly who might want the app. */}
+          <Link to="/app" className="topbar-app-link">
+            {t("app.navLink")}
+          </Link>
         </div>
         <div className="topbar-actions">
           <NotificationsBell />
@@ -111,6 +117,7 @@ function AppShell() {
           <Route path="/feed" element={<Feed />} />
           <Route path="/desejos" element={<Wishlist />} />
           <Route path="/traveler/:id" element={<TravelerProfile />} />
+          <Route path="/app" element={<GetApp />} />
           {Admin && (
             <Route
               path="/admin"
@@ -129,6 +136,7 @@ function AppShell() {
         <Link to="/privacidade">{t("footer.privacy")}</Link>
         <Link to="/ajuda">{t("footer.help")}</Link>
         <Link to="/meus-dados">{t("footer.myData")}</Link>
+        <Link to="/app">{t("app.navLink")}</Link>
         <button type="button" className="footer-link" onClick={openCookiePreferences}>
           {t("footer.cookies")}
         </button>

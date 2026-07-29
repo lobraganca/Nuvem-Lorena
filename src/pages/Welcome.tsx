@@ -3,6 +3,8 @@ import { useAvena } from "../store/AvenaContext";
 import avenaLogo from "../assets/avena-logo-wordmark.png";
 import { TrendingSection } from "../components/TrendingSection";
 import { PromotedTours } from "../components/PromotedTours";
+import { StoreBadges } from "../components/StoreBadges";
+import { anyStoreLive } from "../lib/appStores";
 import { useT } from "../i18n";
 import type { TranslationKey } from "../i18n";
 
@@ -43,6 +45,13 @@ export function Welcome() {
             <p className="muted">{t(f.text)}</p>
           </div>
         ))}
+      </section>
+
+      <section className="landing-stores">
+        <p className="muted">
+          {anyStoreLive() ? t("app.subtitle") : t("app.subtitleSoon")}
+        </p>
+        <StoreBadges />
       </section>
 
       <section className="page page-wide">

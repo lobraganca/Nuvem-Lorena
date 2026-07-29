@@ -535,6 +535,29 @@ export const es: Record<keyof typeof pt, string> = {
   "wish.browseTours": "Buscar paseos",
   "wish.registerMemory": "Registrar como recuerdo",
 
+  "app.title": "Lleva Avena contigo",
+  "app.subtitle": "Descarga la aplicación y ten tu mapa afectivo en el bolsillo, incluso sin internet.",
+  "app.subtitleSoon":
+    "La aplicación está en camino a las tiendas. Mientras tanto, puedes instalar Avena en la pantalla de inicio de tu teléfono — funciona igual.",
+  "app.comingSoon": "Muy pronto en",
+  "app.playTop": "Disponible en",
+  "app.appleTop": "Descárgalo en el",
+  "app.downloadOn": "Descargar en {store}",
+  "app.notPublishedNote":
+    "En cuanto se publique, los botones de arriba llevarán directo a la tienda.",
+  "app.installTitle": "Instálala ahora, sin tienda",
+  "app.installText":
+    "Avena se abre a pantalla completa y sigue funcionando sin internet una vez instalada. Toma diez segundos.",
+  "app.androidTitle": "En Android",
+  "app.androidStep1": "Abre avenaapp.com.br en Chrome.",
+  "app.androidStep2": "Toca los tres puntos en la esquina superior derecha.",
+  "app.androidStep3": "Elige “Instalar aplicación” o “Añadir a la pantalla de inicio”.",
+  "app.iosTitle": "En iPhone",
+  "app.iosStep1": "Abre avenaapp.com.br en Safari.",
+  "app.iosStep2": "Toca el botón de compartir, abajo en el centro.",
+  "app.iosStep3": "Desplázate y elige “Añadir a pantalla de inicio”.",
+  "app.navLink": "Descargar la app",
+
   "photos.label": "Fotos",
   "photos.add": "Agregar foto",
   "photos.processing": "Procesando…",

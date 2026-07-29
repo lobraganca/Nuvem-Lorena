@@ -533,6 +533,29 @@ export const en: Record<keyof typeof pt, string> = {
   "wish.browseTours": "Browse tours",
   "wish.registerMemory": "Record as a memory",
 
+  "app.title": "Take Avena with you",
+  "app.subtitle": "Download the app and carry your affective map in your pocket, with or without a signal.",
+  "app.subtitleSoon":
+    "The app is on its way to the stores. In the meantime you can install Avena on your phone's home screen — it works the same.",
+  "app.comingSoon": "Coming soon to",
+  "app.playTop": "Get it on",
+  "app.appleTop": "Download on the",
+  "app.downloadOn": "Download on {store}",
+  "app.notPublishedNote":
+    "As soon as it is published, the buttons above will take you straight to the store.",
+  "app.installTitle": "Install it now, no store needed",
+  "app.installText":
+    "Avena opens full screen and keeps working without a signal once installed. It takes ten seconds.",
+  "app.androidTitle": "On Android",
+  "app.androidStep1": "Open avenaapp.com.br in Chrome.",
+  "app.androidStep2": "Tap the three dots in the top right corner.",
+  "app.androidStep3": "Choose “Install app” or “Add to home screen”.",
+  "app.iosTitle": "On iPhone",
+  "app.iosStep1": "Open avenaapp.com.br in Safari.",
+  "app.iosStep2": "Tap the share button at the bottom centre.",
+  "app.iosStep3": "Scroll and choose “Add to Home Screen”.",
+  "app.navLink": "Get the app",
+
   "photos.label": "Photos",
   "photos.add": "Add photo",
   "photos.processing": "Processing…",
