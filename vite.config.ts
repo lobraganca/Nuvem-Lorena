@@ -4,6 +4,11 @@ import { VitePWA } from 'vite-plugin-pwa'
 
 // https://vite.dev/config/
 export default defineConfig({
+  // Baked in as a literal so the admin branch — and the module it imports — is
+  // removed from a public build instead of merely being unreachable in it.
+  define: {
+    __ADMIN_ENABLED__: JSON.stringify(process.env.VITE_ADMIN_ENABLED === 'true'),
+  },
   plugins: [
     react(),
     VitePWA({

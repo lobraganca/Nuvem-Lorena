@@ -305,6 +305,10 @@ export const es: Record<keyof typeof pt, string> = {
   "participants.docTooShort": "El documento es muy corto",
   "participants.duplicateDocs": "Hay documentos repetidos entre los participantes",
 
+  "notFound.title": "Página no encontrada",
+  "notFound.text": "La dirección que abriste no existe o ya no está disponible.",
+  "notFound.home": "Volver al inicio",
+
   "photos.label": "Fotos",
   "photos.add": "Agregar foto",
   "photos.processing": "Procesando…",

@@ -9,21 +9,25 @@ Atualizado em 29/07/2026. Domínio: avenaapp.com.br
 
 ## Bloco 0 — Antes de qualquer usuário real
 
-Estes três impedem o lançamento. Não são melhorias; são coisas que, do jeito
-que estão, causam dano.
+Estes impedem o lançamento. Não são melhorias; são coisas que, do jeito que
+estão, causam dano. O primeiro já foi resolvido para o estágio atual.
 
-### 0.1 O painel administrativo está aberto
+### 0.1 Painel administrativo — resolvido para o estágio atual
 
-**Qualquer pessoa que digitar `/admin` vê o faturamento, todas as reservas com
-nome e documento dos participantes, e pode suspender empresas.**
+**Feito:** o painel só existe se o site for compilado com
+`VITE_ADMIN_ENABLED=true`. No build público ele não entra no pacote, e
+`avenaapp.com.br/admin` cai na página "não encontrada".
 
-Não existe login nesta versão, então não havia onde prender a permissão. Assim
-que houver autenticação (item 1.2), a rota `/admin` precisa exigir um usuário
-com papel de administrador — verificado **no servidor**, não só escondendo o
-link no menu.
+**Correção de uma anotação anterior:** eu havia escrito aqui que o painel
+mostrava nome e documento dos participantes. Isso estava errado — conferi o
+código. Ele expõe faturamento, reservas com valores, e-mails de empresas,
+avaliações e mensagens de chamados, além de poder suspender empresas. Sério,
+mas documentos de participantes aparecem só para a agência e para quem comprou.
 
-Enquanto isso: não divulgue o endereço e não publique a demonstração num
-domínio público com dados reais.
+**Ainda falta**, quando houver login: papel de administrador no banco,
+verificação **no servidor** a cada ação, regras por linha, registro de quem fez
+o quê e segundo fator na sua conta. Detalhes e as duas formas de acessar o
+painel hoje: [painel-administrativo.md](painel-administrativo.md).
 
 ### 0.2 Os dados vivem só no navegador
 
@@ -49,7 +53,8 @@ para começar.
 ### 1.2 Autenticação
 - Login por e-mail e senha e **login pelo Google** (você pediu isso lá atrás).
 - Papéis: turista, profissional, administradora.
-- Proteger `/admin` e o painel profissional no servidor.
+- Proteger `/admin` e o painel profissional **no servidor** — ver
+  [painel-administrativo.md](painel-administrativo.md).
 
 ### 1.3 Migrar os dados do navegador para o banco
 As tabelas saem direto dos tipos em `src/types.ts`: experiences, people,

@@ -303,6 +303,10 @@ export const en: Record<keyof typeof pt, string> = {
   "participants.docTooShort": "ID number is too short",
   "participants.duplicateDocs": "Two participants have the same ID number",
 
+  "notFound.title": "Page not found",
+  "notFound.text": "The address you opened does not exist, or is no longer available.",
+  "notFound.home": "Back to the start",
+
   "photos.label": "Photos",
   "photos.add": "Add photo",
   "photos.processing": "Processing…",

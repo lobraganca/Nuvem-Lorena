@@ -324,6 +324,10 @@ export const pt = {
   "participants.docTooShort": "Documento muito curto",
   "participants.duplicateDocs": "Há documentos repetidos entre os participantes",
 
+  "notFound.title": "Página não encontrada",
+  "notFound.text": "O endereço que você abriu não existe ou saiu do ar.",
+  "notFound.home": "Voltar para o início",
+
   "photos.label": "Fotos",
   "photos.add": "Adicionar foto",
   "photos.processing": "Processando…",

@@ -1,3 +1,4 @@
+import { Suspense, lazy } from "react";
 import { Link, Route, Routes } from "react-router-dom";
 import { AvenaProvider, useAvena } from "./store/AvenaContext";
 import avenaLogo from "./assets/avena-logo-wordmark.png";
@@ -13,7 +14,6 @@ import { Messages } from "./pages/Messages";
 import { Conversation } from "./pages/Conversation";
 import { Destination } from "./pages/Destination";
 import { Bookings } from "./pages/Bookings";
-import { Admin } from "./pages/Admin";
 import { Retrospective } from "./pages/Retrospective";
 import { Welcome } from "./pages/Welcome";
 import { ProfessionalDashboard } from "./pages/ProfessionalDashboard";
@@ -29,9 +29,17 @@ import { Support } from "./pages/Support";
 import { MyData } from "./pages/MyData";
 import { Feed } from "./pages/Feed";
 import { TravelerProfile } from "./pages/TravelerProfile";
+import { NotFound } from "./pages/NotFound";
 import { LanguageSwitcher } from "./components/LanguageSwitcher";
 import { NotificationsBell } from "./components/NotificationsBell";
 import { I18nProvider, useT } from "./i18n";
+
+// Loaded on demand *and* only when the build enabled it, so a public build
+// ships no administration code at all — there is nothing to find in the bundle
+// and nothing to reach by guessing the address.
+const Admin = __ADMIN_ENABLED__
+  ? lazy(() => import("./pages/Admin").then((m) => ({ default: m.Admin })))
+  : null;
 
 function RootScreen() {
   const { user } = useAvena();
@@ -103,7 +111,17 @@ function AppShell() {
           <Route path="/meus-dados" element={<MyData />} />
           <Route path="/feed" element={<Feed />} />
           <Route path="/traveler/:id" element={<TravelerProfile />} />
-          <Route path="/admin" element={<Admin />} />
+          {Admin && (
+            <Route
+              path="/admin"
+              element={
+                <Suspense fallback={<div className="page">…</div>}>
+                  <Admin />
+                </Suspense>
+              }
+            />
+          )}
+          <Route path="*" element={<NotFound />} />
         </Routes>
       </main>
       <footer className="app-footer">

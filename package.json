@@ -7,7 +7,9 @@
     "dev": "vite",
     "build": "tsc -b && vite build",
     "lint": "oxlint",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "dev:admin": "VITE_ADMIN_ENABLED=true vite",
+    "build:admin": "VITE_ADMIN_ENABLED=true tsc -b && VITE_ADMIN_ENABLED=true vite build"
   },
   "dependencies": {
     "date-fns": "^4.4.0",
