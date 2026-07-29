@@ -19,6 +19,7 @@ import { ProfessionalDashboard } from "./pages/ProfessionalDashboard";
 import { Notifications } from "./pages/Notifications";
 import { Terms, Privacy } from "./pages/Legal";
 import { CookieBanner, openCookiePreferences } from "./components/CookieBanner";
+import { HelpChat } from "./components/HelpChat";
 import { useNotifications } from "./hooks/useNotifications";
 
 function RootScreen() {
@@ -100,6 +101,7 @@ function AppShell() {
         <span className="muted">© {new Date().getFullYear()} Avena</span>
       </footer>
       <CookieBanner />
+      <HelpChat />
     </div>
   );
 }
