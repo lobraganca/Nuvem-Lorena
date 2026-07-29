@@ -28,6 +28,7 @@ import { Payment } from "./pages/Payment";
 import { Support } from "./pages/Support";
 import { MyData } from "./pages/MyData";
 import { Feed } from "./pages/Feed";
+import { Wishlist } from "./pages/Wishlist";
 import { TravelerProfile } from "./pages/TravelerProfile";
 import { NotFound } from "./pages/NotFound";
 import { LanguageSwitcher } from "./components/LanguageSwitcher";
@@ -71,6 +72,7 @@ function AppShell() {
               {isProfissional && <Link to="/professional">{t("nav.dashboard")}</Link>}
               <Link to="/destination">{t("nav.destinations")}</Link>
               {!isProfissional && <Link to="/feed">{t("nav.feed")}</Link>}
+              {!isProfissional && <Link to="/desejos">{t("nav.wishlist")}</Link>}
               {!isProfissional && <Link to="/business">{t("nav.forBusiness")}</Link>}
               <Link to="/messages">{t("nav.messages")}</Link>
               {!isProfissional && <Link to="/bookings">{t("nav.bookings")}</Link>}
@@ -110,6 +112,7 @@ function AppShell() {
           <Route path="/ajuda/novo" element={<Support />} />
           <Route path="/meus-dados" element={<MyData />} />
           <Route path="/feed" element={<Feed />} />
+          <Route path="/desejos" element={<Wishlist />} />
           <Route path="/traveler/:id" element={<TravelerProfile />} />
           {Admin && (
             <Route

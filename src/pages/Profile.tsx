@@ -117,6 +117,7 @@ export function Profile() {
           {/* On phones the top bar is replaced by the tab bar, so everything
               that is not a tab has to be reachable from here. */}
           <nav className="profile-menu" aria-label={t("nav.moreOptions")}>
+            <Link to="/desejos">{t("nav.wishlist")}</Link>
             <Link to="/messages">{t("nav.messages")}</Link>
             <Link to="/ajuda">{t("footer.help")}</Link>
             <Link to="/meus-dados">{t("profile.myData")}</Link>

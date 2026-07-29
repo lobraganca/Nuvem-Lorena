@@ -8,6 +8,7 @@ import { availabilityFor } from "../lib/availability";
 import { monthsLeftInSeason, seasonLabel } from "../lib/tourAttributes";
 import { useT } from "../i18n";
 import { PresenceDot } from "../components/PresenceDot";
+import { WishButton } from "../components/WishButton";
 import { accessibilityKey, businessTypeKey, difficultyKey, planTierKey } from "../i18n/domain";
 
 const today = new Date().toISOString().slice(0, 10);
@@ -158,6 +159,9 @@ export function BusinessDetail() {
                           })}
                     </div>
                   )}
+                  <div className="chip-row">
+                    <WishButton business={business} tour={tour} />
+                  </div>
                   <BookTourButton business={business} tour={tour} />
                 </div>
               );

@@ -1,6 +1,6 @@
 import { createContext, useContext, useEffect, useMemo, useState } from "react";
 import type { ReactNode } from "react";
-import type { Banner, Booking, Boost, Business, BusinessStatus, Experience, Message, MessageThread, PaymentMethod, Person, Review, SupportTicket, SupportTicketSubject, MercadoPagoLink, Tour, Traveler, TravelerActivity, UserProfile, WaitlistEntry } from "../types";
+import type { Banner, Booking, Boost, Business, BusinessStatus, Experience, Message, MessageThread, PaymentMethod, Person, Review, SupportTicket, SupportTicketSubject, MercadoPagoLink, Tour, Traveler, TravelerActivity, UserProfile, WaitlistEntry, WishlistItem } from "../types";
 import {
   mockBusinesses,
   mockExperiences,
@@ -30,6 +30,7 @@ interface AvenaData {
   travelers: Traveler[];
   travelerActivity: TravelerActivity[];
   banners: Banner[];
+  wishlist: WishlistItem[];
 }
 
 interface AvenaContextValue extends AvenaData {
@@ -80,6 +81,10 @@ interface AvenaContextValue extends AvenaData {
   setMercadoPagoLink: (businessId: string, link: MercadoPagoLink) => void;
   /** Records that the agency is using the app right now. */
   touchBusinessPresence: (businessId: string) => void;
+  addWish: (wish: WishlistItem) => void;
+  removeWish: (wishId: string) => void;
+  /** Marks a wish as done, or undoes that. */
+  toggleWishDone: (wishId: string) => void;
   saveBanner: (banner: Banner) => void;
   removeBanner: (bannerId: string) => void;
 }
@@ -102,6 +107,7 @@ function defaults(): AvenaData {
     travelers: mockTravelers,
     travelerActivity: mockTravelerActivity,
     banners: [],
+    wishlist: [],
   };
 }
 
@@ -390,6 +396,18 @@ export function AvenaProvider({ children }: { children: ReactNode }) {
           ...d,
           businesses: d.businesses.map((b) =>
             b.id === businessId ? { ...b, mercadoPago: link } : b
+          ),
+        })),
+      addWish: (wish) => setData((d) => ({ ...d, wishlist: [wish, ...d.wishlist] })),
+      removeWish: (wishId) =>
+        setData((d) => ({ ...d, wishlist: d.wishlist.filter((w) => w.id !== wishId) })),
+      toggleWishDone: (wishId) =>
+        setData((d) => ({
+          ...d,
+          wishlist: d.wishlist.map((w) =>
+            w.id === wishId
+              ? { ...w, doneAt: w.doneAt ? undefined : new Date().toISOString() }
+              : w
           ),
         })),
       saveBanner: (banner) =>

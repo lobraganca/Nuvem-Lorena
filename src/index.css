@@ -1294,6 +1294,19 @@ legend {
   width: 100%;
 }
 
+/* Same stacking as the experience form; without it the label sits beside its
+   own field and the form reads as broken. The checkbox label opts out, since
+   there the box belongs next to the text. */
+.booking-form label:not(.legal-accept) {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-h);
+  flex: 1;
+}
+
 .booking-form .form-row label {
   font-size: 12px;
 }
@@ -2765,4 +2778,11 @@ textarea:focus-visible,
   border-radius: 4px;
   padding: 2px 6px;
   white-space: nowrap;
+}
+
+.wish-btn-on {
+  background: var(--accent-soft);
+  border-color: var(--accent);
+  color: var(--text-h);
+  font-weight: 600;
 }

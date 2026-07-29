@@ -67,7 +67,8 @@ export type BannerPlacement =
   | "home-top"
   | "destination-top"
   | "feed-top"
-  | "bookings-top";
+  | "bookings-top"
+  | "wishlist-top";
 
 export type BannerKind = "institucional" | "publicidade";
 
@@ -235,6 +236,32 @@ export interface Participant {
   documentType: DocumentType;
   document: string;
   birthDate?: string; // ISO date
+}
+
+/**
+ * Something the traveller wants to do.
+ *
+ * The map holds where you have been; this holds where you want to go. It takes
+ * two kinds of entry: a tour published on Avena, and a plain wish like "see the
+ * Pantanal" — because people want to go to places that have no partner here
+ * yet, and refusing to record that would throw away the most useful signal the
+ * platform can collect about where to prospect next.
+ */
+export interface WishlistItem {
+  id: string;
+  title: string;
+  city?: string;
+  state?: string;
+  category?: Category;
+  note?: string;
+  /** Set when the wish came from a tour published on Avena. */
+  tourId?: string;
+  businessId?: string;
+  businessName?: string;
+  priceFrom?: number;
+  createdAt: string; // ISO datetime
+  /** Set when the traveller marks it as done. */
+  doneAt?: string;
 }
 
 /** Someone waiting for a spot to open on a sold-out date. */

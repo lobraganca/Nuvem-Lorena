@@ -1,6 +1,7 @@
 import { useRef, useState } from "react";
 import { useAvena } from "../store/AvenaContext";
 import { ImportTours } from "./ImportTours";
+import { wantedDestinations } from "../lib/wishlist";
 import {
   BUSINESS_CSV_TEMPLATE,
   parseBusinessesCsv,
@@ -13,7 +14,7 @@ import {
  * the agency itself takes them over.
  */
 export function AdminImport() {
-  const { businesses, addBusiness } = useAvena();
+  const { businesses, addBusiness, wishlist } = useAvena();
   const inputRef = useRef<HTMLInputElement>(null);
   const [pasted, setPasted] = useState("");
   const [result, setResult] = useState<BusinessImportResult | null>(null);
@@ -53,9 +54,63 @@ export function AdminImport() {
   }
 
   const unclaimed = businesses.filter((b) => b.claimStatus === "nao-reivindicada");
+  const wanted = wantedDestinations(wishlist, businesses);
+  const unserved = wanted.filter((w) => w.partners === 0);
 
   return (
     <>
+      <h2 className="timeline-title">Onde os viajantes querem ir</h2>
+      <p className="muted">
+        Vem das listas de “Quero fazer”. Cidade com desejo e sem parceiro é
+        demanda que já existe e ninguém para atender — a melhor lista de
+        prospecção que a plataforma consegue produzir sozinha.
+      </p>
+      {wanted.length === 0 ? (
+        <p className="muted">
+          Ninguém adicionou destinos à lista de desejos ainda.
+        </p>
+      ) : (
+        <div className="table-wrap">
+          <table className="admin-table">
+            <thead>
+              <tr>
+                <th>Cidade</th>
+                <th>Desejos</th>
+                <th>Parceiros</th>
+                <th>Situação</th>
+              </tr>
+            </thead>
+            <tbody>
+              {wanted.map((w) => (
+                <tr key={w.city}>
+                  <td>
+                    {w.city}
+                    {w.state ? `, ${w.state}` : ""}
+                  </td>
+                  <td>{w.wishes}</td>
+                  <td>{w.partners}</td>
+                  <td>
+                    {w.partners === 0 ? (
+                      <span className="admin-flag">Sem parceiro</span>
+                    ) : (
+                      <span className="muted">atendida</span>
+                    )}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
+      {unserved.length > 0 && (
+        <p className="muted">
+          {unserved.length === 1
+            ? "1 cidade com procura e nenhum parceiro."
+            : `${unserved.length} cidades com procura e nenhum parceiro.`}{" "}
+          Comece por elas.
+        </p>
+      )}
+
       <h2 className="timeline-title">Cadastrar empresas em lote</h2>
       <p className="muted">
         Use para montar o catálogo de uma cidade antes de ter agência cadastrada.

@@ -5,6 +5,7 @@ export const bannerPlacements: BannerPlacement[] = [
   "destination-top",
   "feed-top",
   "bookings-top",
+  "wishlist-top",
 ];
 
 export const placementLabel: Record<BannerPlacement, string> = {
@@ -12,6 +13,7 @@ export const placementLabel: Record<BannerPlacement, string> = {
   "destination-top": "Topo da busca de destinos",
   "feed-top": "Topo do feed de quem você segue",
   "bookings-top": "Topo das minhas reservas",
+  "wishlist-top": "Topo da lista de desejos",
 };
 
 /**
