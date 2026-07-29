@@ -9,6 +9,7 @@ import {
   computeRefund,
 } from "../lib/cancellation";
 import { effectiveStatus, minutesLeftToPay } from "../lib/bookingStatus";
+import { canReview } from "../lib/reviewEligibility";
 import type { Booking } from "../types";
 import { formatBRL } from "../lib/money";
 import { useT } from "../i18n";
@@ -155,11 +156,8 @@ export function Bookings() {
           <p className="muted">{t("bookings.expiredNote")}</p>
         )}
 
-        {isCancelled || isAwaiting || status === "expirada" ? null : isPast ? (
-          <ReviewForm booking={b} />
-        ) : (
-          <CancelBooking booking={b} />
-        )}
+        {canReview(b) && <ReviewForm booking={b} />}
+        {isPaid && !isPast && <CancelBooking booking={b} />}
       </div>
     );
   }

@@ -3,6 +3,7 @@ import { useAvena } from "../store/AvenaContext";
 import type { Booking } from "../types";
 import { ModerationNotice, isPublishable } from "./ModerationNotice";
 import { useT } from "../i18n";
+import { reviewBlockKey, reviewEligibility } from "../lib/reviewEligibility";
 
 export function ReviewForm({ booking }: { booking: Booking }) {
   const { addReview, user } = useAvena();
@@ -13,8 +14,14 @@ export function ReviewForm({ booking }: { booking: Booking }) {
   const [done, setDone] = useState(false);
   const t = useT();
 
-  if (booking.reviewed || done) {
+  const eligibility = reviewEligibility(booking);
+
+  if (done || booking.reviewed) {
     return <div className="muted">{t("review.alreadyDone")}</div>;
+  }
+
+  if (!eligibility.allowed) {
+    return <div className="muted">{t(reviewBlockKey[eligibility.reason])}</div>;
   }
 
   if (!open) {
@@ -27,7 +34,7 @@ export function ReviewForm({ booking }: { booking: Booking }) {
 
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    if (!isPublishable(comment)) return;
+    if (!isPublishable(comment) || !eligibility.allowed) return;
     addReview({
       id: crypto.randomUUID(),
       businessId: booking.businessId,

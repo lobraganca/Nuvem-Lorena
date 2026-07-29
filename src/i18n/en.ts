@@ -500,6 +500,13 @@ export const en: Record<keyof typeof pt, string> = {
 
   "map.tilesUnavailable": "The map needs an internet connection to load. Your pins and everything else still work.",
 
+  "review.blockedNotPaid": "Only someone who paid through Avena can review this tour.",
+  "review.blockedCancelled": "This booking was cancelled, so it cannot be reviewed.",
+  "review.blockedExpired": "This booking expired unpaid, so it cannot be reviewed.",
+  "review.blockedNotYet": "You will be able to review once the tour has happened.",
+  "review.verified": "Verified review",
+  "review.verifiedHint": "Only travellers who booked and paid here can review, and only after the tour has happened.",
+
   "photos.label": "Photos",
   "photos.add": "Add photo",
   "photos.processing": "Processing…",

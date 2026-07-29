@@ -2752,3 +2752,17 @@ textarea:focus-visible,
   color: var(--text-muted);
   text-align: center;
 }
+
+/* Every review is tied to a paid, completed booking — worth saying so. */
+.verified-review {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: #1b5e20;
+  background: #e6f2e6;
+  border: 1px solid #b6d7b6;
+  border-radius: 4px;
+  padding: 2px 6px;
+  white-space: nowrap;
+}

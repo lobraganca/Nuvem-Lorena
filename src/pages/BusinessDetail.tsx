@@ -169,11 +169,13 @@ export function BusinessDetail() {
       {stats.reviews.length > 0 && (
         <div className="detail-block">
           <h3>{t("business.travelerReviews")}</h3>
+          <p className="muted">{t("review.verifiedHint")}</p>
           <div className="review-list">
             {stats.reviews.map((r) => (
               <div key={r.id} className="review-item">
                 <div className="review-item-top">
                   <strong>{r.authorName}</strong>
+                  <span className="verified-review">{t("review.verified")}</span>
                   <span className="star-rating" aria-label={`Nota ${r.rating} de 5`}>
                     {"★".repeat(r.rating)}
                   </span>

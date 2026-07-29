@@ -502,6 +502,13 @@ export const es: Record<keyof typeof pt, string> = {
 
   "map.tilesUnavailable": "El mapa necesita conexión a internet para cargar. Tus puntos y todo lo demás siguen funcionando.",
 
+  "review.blockedNotPaid": "Solo quien pagó por Avena puede evaluar esta excursión.",
+  "review.blockedCancelled": "Esta reserva fue cancelada, así que no genera evaluación.",
+  "review.blockedExpired": "Esta reserva venció sin pago, así que no genera evaluación.",
+  "review.blockedNotYet": "Podrás evaluar después de que la excursión ocurra.",
+  "review.verified": "Evaluación verificada",
+  "review.verifiedHint": "Solo evalúa quien reservó y pagó la excursión aquí, después de que ocurrió.",
+
   "photos.label": "Fotos",
   "photos.add": "Agregar foto",
   "photos.processing": "Procesando…",

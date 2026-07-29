@@ -521,6 +521,13 @@ export const pt = {
 
   "map.tilesUnavailable": "O mapa precisa de internet para carregar. Seus pins e todo o resto continuam funcionando.",
 
+  "review.blockedNotPaid": "Só quem pagou pelo Avena pode avaliar este passeio.",
+  "review.blockedCancelled": "Esta reserva foi cancelada, então não gera avaliação.",
+  "review.blockedExpired": "Esta reserva expirou sem pagamento, então não gera avaliação.",
+  "review.blockedNotYet": "Você poderá avaliar depois que o passeio acontecer.",
+  "review.verified": "Avaliação verificada",
+  "review.verifiedHint": "Só avalia quem reservou e pagou o passeio por aqui, depois que ele aconteceu.",
+
   "photos.label": "Fotos",
   "photos.add": "Adicionar foto",
   "photos.processing": "Processando…",

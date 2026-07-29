@@ -81,6 +81,42 @@ sobre uma viagem?** Se puder, deixe fora.
 
 ---
 
+## Quem pode avaliar
+
+**Só quem fez o passeio pela plataforma.** Para o botão de avaliar aparecer, a
+reserva precisa cumprir, ao mesmo tempo:
+
+1. ter sido **paga** — reserva aguardando pagamento não avalia;
+2. ter uma **data que já passou** — avaliação escrita antes do passeio não diz
+   nada sobre como o dia foi;
+3. **não estar cancelada nem expirada**;
+4. **não ter sido avaliada** ainda — uma reserva, uma avaliação.
+
+A regra mora em `src/lib/reviewEligibility.ts`, não dentro de uma tela, e é
+aplicada **duas vezes**: a tela não desenha o formulário quando não cabe, e a
+função que grava recusa qualquer avaliação sem uma reserva elegível por trás.
+Isso importa porque uma condição escrita só no JSX se perde na primeira
+refatoração.
+
+Cada motivo de bloqueio tem sua própria mensagem, para o viajante entender por
+que não pode avaliar em vez de achar que o botão sumiu.
+
+### Isso é argumento de venda, não só regra
+
+A página da empresa diz em voz alta: *"Só avalia quem reservou e pagou o passeio
+por aqui, depois que ele aconteceu"*, e cada avaliação leva o selo **Avaliação
+verificada**. É o que separa essas notas das de qualquer site onde qualquer um
+escreve — aqui, toda nota tem uma reserva paga e uma data por trás.
+
+### Limite honesto
+
+Enquanto os dados vivem no navegador, quem controla o aparelho pode editar o
+que está guardado. A trava impede o caminho normal e qualquer erro de
+programação futuro; ela não substitui o servidor. Com backend, a mesma função
+roda no servidor antes de gravar — e aí passa a valer contra qualquer um.
+
+---
+
 ## Status online do profissional
 
 O viajante vê um ponto verde e "Online agora" quando a agência está usando o

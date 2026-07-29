@@ -11,6 +11,7 @@ import {
 } from "../data/mockData";
 import { mockTravelerActivity, mockTravelers } from "../data/travelers";
 import { computeRefund } from "../lib/cancellation";
+import { canReview } from "../lib/reviewEligibility";
 
 const STORAGE_KEY = "avena-data-v16";
 
@@ -226,13 +227,21 @@ export function AvenaProvider({ children }: { children: ReactNode }) {
           ),
         })),
       addReview: (review) =>
-        setData((d) => ({
-          ...d,
-          reviews: [review, ...d.reviews],
-          bookings: d.bookings.map((b) =>
-            b.id === review.bookingId ? { ...b, reviewed: true } : b
-          ),
-        })),
+        setData((d) => {
+          // The rule is enforced here, not only where the form is drawn: a
+          // review only exists if a paid, finished, not-yet-reviewed booking
+          // backs it. Anything else is silently refused rather than published.
+          const booking = d.bookings.find((b) => b.id === review.bookingId);
+          if (!booking || !canReview(booking)) return d;
+
+          return {
+            ...d,
+            reviews: [review, ...d.reviews],
+            bookings: d.bookings.map((b) =>
+              b.id === review.bookingId ? { ...b, reviewed: true } : b
+            ),
+          };
+        }),
       cancelBooking: (bookingId) =>
         setData((d) => ({
           ...d,
