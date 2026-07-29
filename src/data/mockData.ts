@@ -154,6 +154,7 @@ export const mockBusinesses: Business[] = [
     cadastur: "26.123456.10-4",
     website: "bluewhaletours.com.br",
     createdAt: "2025-02-10",
+    mercadoPago: { connected: true, accountLabel: "conta de demonstração" },
     tours: [
       { id: "t1", title: "Passeio de barco para observação de baleias", priceFrom: 220, durationHours: 4, cancellationPolicy: "moderada", capacityPerDay: 12 },
       { id: "t2", title: "Mergulho na Prainha", priceFrom: 180, durationHours: 3, cancellationPolicy: "rigida", capacityPerDay: 6 },
@@ -171,6 +172,7 @@ export const mockBusinesses: Business[] = [
     email: "rafael.guia@gmail.com",
     cadastur: "26.998877.10-2",
     createdAt: "2025-03-01",
+    mercadoPago: { connected: true, accountLabel: "conta de demonstração" },
     tours: [
       { id: "t3", title: "Trilha do Pontal do Atalaia", priceFrom: 90, durationHours: 3, cancellationPolicy: "flexivel", capacityPerDay: 8 },
     ],
@@ -186,6 +188,7 @@ export const mockBusinesses: Business[] = [
     country: "Brasil",
     email: "contato@casadoouvidor.com.br",
     createdAt: "2025-04-15",
+    mercadoPago: { connected: true, accountLabel: "conta de demonstração" },
   },
   {
     id: "b4",
@@ -199,6 +202,7 @@ export const mockBusinesses: Business[] = [
     email: "contato@noronhadivers.com.br",
     cadastur: "26.445566.10-8",
     createdAt: "2025-06-01",
+    mercadoPago: { connected: true, accountLabel: "conta de demonstração" },
     tours: [
       { id: "t4", title: "Passeio de barco Baía dos Golfinhos", priceFrom: 250, durationHours: 5, cancellationPolicy: "moderada" },
       { id: "t5", title: "Batismo de mergulho", priceFrom: 400, durationHours: 2, cancellationPolicy: "rigida" },
@@ -216,6 +220,7 @@ export const mockBusinesses: Business[] = [
     email: "carla.guia@gmail.com",
     cadastur: "26.221133.10-9",
     createdAt: "2025-06-10",
+    mercadoPago: { connected: true, accountLabel: "conta de demonstração" },
     tours: [{ id: "t6", title: "Trilha do Capim-Açu", priceFrom: 120, durationHours: 4, cancellationPolicy: "flexivel" }],
   },
   {
@@ -230,6 +235,7 @@ export const mockBusinesses: Business[] = [
     email: "reservas@vistadomar.com.br",
     cadastur: "26.554433.10-1",
     createdAt: "2025-05-20",
+    mercadoPago: { connected: true, accountLabel: "conta de demonstração" },
   },
 ];
 

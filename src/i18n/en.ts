@@ -139,6 +139,8 @@ export const en: Record<keyof typeof pt, string> = {
   "booking.participantsWhy":
     "The agency needs each person's name and ID for boarding lists, park entry and insurance.",
 
+  "booking.noPaymentAccount": "{name} has not enabled in-app payments yet. Contact the agency directly to book this tour.",
+
   "payment.title": "Payment",
   "payment.myBookings": "My bookings",
   "payment.demoTitle": "Demonstration environment.",
@@ -152,6 +154,7 @@ export const en: Record<keyof typeof pt, string> = {
   "payment.timeLeft":
     "You have {minutes} minutes to finish before the spot returns to the tour.",
   "payment.approved": "Payment approved on {date}. Receipt {reference}.",
+  "payment.checkoutFailed": "We could not open the payment right now. Try again in a moment; your spot is held until the deadline.",
   "payment.notFound": "Booking not found",
   "payment.seeBookings": "See my bookings",
 

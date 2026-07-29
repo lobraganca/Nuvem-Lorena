@@ -12,6 +12,7 @@ import { activeBoostForTour, boostRevenue } from "../lib/boosts";
 import { bookingStatusLabel, effectiveStatus } from "../lib/bookingStatus";
 import { tourTemplates, type TourTemplate } from "../lib/tourTemplates";
 import { ImportTours } from "../components/ImportTours";
+import { ConnectMercadoPago } from "../components/ConnectMercadoPago";
 import { BoostTourButton } from "../components/BoostTourButton";
 import { EditTour } from "../components/EditTour";
 import type { AccessibilityTag, CancellationPolicy, Difficulty, Tour } from "../types";
@@ -172,6 +173,8 @@ export function ProfessionalDashboard() {
           );
         })}
       </div>
+
+      <ConnectMercadoPago business={business} />
 
       <ImportTours businessId={business.id} />
 

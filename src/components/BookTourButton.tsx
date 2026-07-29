@@ -20,6 +20,7 @@ import {
 import type { Business, Participant, Tour } from "../types";
 import { formatBRL } from "../lib/money";
 import { useT } from "../i18n";
+import { canReceivePayments } from "../lib/payments/mercadopago";
 
 export function BookTourButton({ business, tour }: { business: Business; tour: Tour }) {
   const { addBooking, bookings, user, waitlist, joinWaitlist } = useAvena();
@@ -98,6 +99,16 @@ export function BookTourButton({ business, tour }: { business: Business; tour: T
     };
     addBooking(booking);
     navigate(`/pagamento/${booking.id}`);
+  }
+
+  // An agency with no payment account has nowhere to receive the money, so the
+  // booking is blocked rather than taken and left unpayable.
+  if (!canReceivePayments(business)) {
+    return (
+      <div className="availability-note availability-none">
+        {t("booking.noPaymentAccount", { name: business.name })}
+      </div>
+    );
   }
 
   if (!open) {

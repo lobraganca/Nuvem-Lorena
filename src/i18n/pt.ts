@@ -151,6 +151,8 @@ export const pt = {
     "A agência precisa do nome e documento de cada pessoa para lista de embarque, entrada em parques e seguro.",
 
   // --- payment --------------------------------------------------------------
+  "booking.noPaymentAccount": "{name} ainda não ativou o recebimento pelo app. Fale direto com a agência para reservar este passeio.",
+
   "payment.title": "Pagamento",
   "payment.myBookings": "Minhas reservas",
   "payment.demoTitle": "Ambiente de demonstração.",
@@ -164,6 +166,7 @@ export const pt = {
   "payment.timeLeft":
     "Você tem {minutes} minutos para concluir antes que a vaga volte para o passeio.",
   "payment.approved": "Pagamento aprovado em {date}. Comprovante {reference}.",
+  "payment.checkoutFailed": "Não conseguimos abrir o pagamento agora. Tente de novo em instantes; sua vaga continua reservada até o fim do prazo.",
   "payment.notFound": "Reserva não encontrada",
   "payment.seeBookings": "Ver minhas reservas",
 

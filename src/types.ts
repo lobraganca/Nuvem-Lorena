@@ -183,6 +183,18 @@ export interface Business {
    * Brazil for tour agencies, guides and lodging before selling services.
    */
   cadastur?: string;
+  /**
+   * Whether this agency connected its own Mercado Pago account. Without it
+   * there is nowhere to send the money, so the tour cannot be sold in-app.
+   */
+  mercadoPago?: MercadoPagoLink;
+}
+
+export interface MercadoPagoLink {
+  connected: boolean;
+  connectedAt?: string; // ISO datetime
+  /** Shown back to the agency so it can confirm it linked the right account. */
+  accountLabel?: string;
 }
 
 /** A paid promotion that lifts a tour onto the traveler's first screen. */

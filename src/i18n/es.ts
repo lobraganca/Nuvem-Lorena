@@ -140,6 +140,8 @@ export const es: Record<keyof typeof pt, string> = {
   "booking.participantsWhy":
     "La agencia necesita el nombre y documento de cada persona para la lista de embarque, la entrada a parques y el seguro.",
 
+  "booking.noPaymentAccount": "{name} todavía no activó el cobro por la app. Habla directamente con la agencia para reservar esta excursión.",
+
   "payment.title": "Pago",
   "payment.myBookings": "Mis reservas",
   "payment.demoTitle": "Entorno de demostración.",
@@ -153,6 +155,7 @@ export const es: Record<keyof typeof pt, string> = {
   "payment.timeLeft":
     "Tienes {minutes} minutos para terminar antes de que el cupo vuelva a la excursión.",
   "payment.approved": "Pago aprobado el {date}. Comprobante {reference}.",
+  "payment.checkoutFailed": "No pudimos abrir el pago ahora. Inténtalo de nuevo en un momento; tu cupo sigue reservado hasta el plazo.",
   "payment.notFound": "Reserva no encontrada",
   "payment.seeBookings": "Ver mis reservas",
 

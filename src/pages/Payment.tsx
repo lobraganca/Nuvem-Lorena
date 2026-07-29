@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import { useAvena } from "../store/AvenaContext";
 import { effectiveStatus, minutesLeftToPay } from "../lib/bookingStatus";
+import { PAYMENTS_ENABLED, createCheckout } from "../lib/payments/mercadopago";
 import type { PaymentMethod } from "../types";
 import { formatBRL } from "../lib/money";
 import { localeFor, useI18n } from "../i18n";
@@ -17,6 +18,7 @@ export function Payment() {
   const { bookings, payBooking } = useAvena();
   const [method, setMethod] = useState<PaymentMethod>("pix");
   const [processing, setProcessing] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   const { t, lang } = useI18n();
 
   const booking = bookings.find((b) => b.id === id);
@@ -35,9 +37,25 @@ export function Payment() {
   const status = effectiveStatus(booking);
   const minutesLeft = minutesLeftToPay(booking);
 
-  function pay() {
+  async function pay() {
     setProcessing(true);
-    // Stands in for the redirect to the payment provider. Nothing is charged.
+    setError(null);
+
+    if (PAYMENTS_ENABLED) {
+      try {
+        // The backend creates the preference with the agency's token and
+        // Avena's commission as marketplace_fee; the browser only follows.
+        const session = await createCheckout(booking!);
+        window.location.href = session.initPoint;
+      } catch {
+        setError(t("payment.checkoutFailed"));
+        setProcessing(false);
+      }
+      return;
+    }
+
+    // No payment backend configured: stands in for the redirect, charging
+    // nothing, so the rest of the flow can still be walked through.
     window.setTimeout(() => {
       payBooking(booking!.id, method);
       navigate("/bookings");
@@ -51,9 +69,11 @@ export function Payment() {
       </Link>
       <h1>{t("payment.title")}</h1>
 
-      <div className="sandbox-warning" role="note">
-        <strong>{t("payment.demoTitle")}</strong> {t("payment.demoText")}
-      </div>
+      {!PAYMENTS_ENABLED && (
+        <div className="sandbox-warning" role="note">
+          <strong>{t("payment.demoTitle")}</strong> {t("payment.demoText")}
+        </div>
+      )}
 
       <div className="booking-card">
         <div className="timeline-card-title">{booking.tourTitle}</div>
@@ -105,6 +125,8 @@ export function Payment() {
               ))}
             </div>
           </fieldset>
+
+          {error && <p className="form-error">{error}</p>}
 
           <button
             type="button"

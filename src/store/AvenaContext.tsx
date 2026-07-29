@@ -1,6 +1,6 @@
 import { createContext, useContext, useEffect, useMemo, useState } from "react";
 import type { ReactNode } from "react";
-import type { Banner, Booking, Boost, Business, BusinessStatus, Experience, Message, MessageThread, PaymentMethod, Person, Review, SupportTicket, SupportTicketSubject, Tour, Traveler, TravelerActivity, UserProfile, WaitlistEntry } from "../types";
+import type { Banner, Booking, Boost, Business, BusinessStatus, Experience, Message, MessageThread, PaymentMethod, Person, Review, SupportTicket, SupportTicketSubject, MercadoPagoLink, Tour, Traveler, TravelerActivity, UserProfile, WaitlistEntry } from "../types";
 import {
   mockBusinesses,
   mockExperiences,
@@ -76,6 +76,7 @@ interface AvenaContextValue extends AvenaData {
   /** Follows a public profile, or sends a request to a private one. */
   followTraveler: (travelerId: string) => void;
   unfollowTraveler: (travelerId: string) => void;
+  setMercadoPagoLink: (businessId: string, link: MercadoPagoLink) => void;
   saveBanner: (banner: Banner) => void;
   removeBanner: (bannerId: string) => void;
 }
@@ -357,6 +358,13 @@ export function AvenaProvider({ children }: { children: ReactNode }) {
             following: (d.user.following ?? []).filter((id) => id !== travelerId),
             followRequests: (d.user.followRequests ?? []).filter((id) => id !== travelerId),
           },
+        })),
+      setMercadoPagoLink: (businessId, link) =>
+        setData((d) => ({
+          ...d,
+          businesses: d.businesses.map((b) =>
+            b.id === businessId ? { ...b, mercadoPago: link } : b
+          ),
         })),
       saveBanner: (banner) =>
         setData((d) => ({
