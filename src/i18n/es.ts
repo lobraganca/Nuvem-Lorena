@@ -574,6 +574,8 @@ export const es: Record<keyof typeof pt, string> = {
     "Ya hay una cuenta en este dispositivo. Entra con ella, o sal de ella primero.",
   "auth.errorNoCrypto":
     "Este navegador no puede proteger una contraseña aquí — suele pasar al abrir el archivo directamente. Abre el sitio por su dirección para crear tu cuenta.",
+  "auth.reset": "Olvidé la contraseña y quiero empezar de nuevo",
+  "auth.resetConfirm": "Esto borra la cuenta y TODO lo guardado en este dispositivo: recuerdos, fotos, reservas y listas. No se puede deshacer ni recuperar. ¿Estás segura?",
   "auth.signOut": "Salir de la cuenta",
   "auth.signedInAs": "Entraste como {email}.",
   "auth.guestBanner":

@@ -3536,3 +3536,12 @@ textarea:focus-visible,
     height: 300px;
   }
 }
+
+/* Destructive, so it does not look like the other quiet links. */
+.signin-danger {
+  color: #ffb4a8;
+}
+
+.signin-danger:hover {
+  color: #ffd6cf;
+}

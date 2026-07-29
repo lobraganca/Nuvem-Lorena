@@ -585,6 +585,8 @@ export const pt = {
   "auth.errorOtherEmail": "Este aparelho tem conta com outro e-mail.",
   "auth.errorAlreadyExists": "Já existe uma conta neste aparelho. Entre com ela, ou saia dela primeiro.",
   "auth.errorNoCrypto": "Este navegador não consegue proteger uma senha aqui — costuma acontecer ao abrir o arquivo direto. Abra pelo endereço do site para criar sua conta.",
+  "auth.reset": "Esqueci a senha e quero recomeçar",
+  "auth.resetConfirm": "Isto apaga a conta e TUDO que está guardado neste aparelho: memórias, fotos, reservas e listas. Não há como desfazer nem recuperar. Tem certeza?",
   "auth.signOut": "Sair da conta",
   "auth.signedInAs": "Você entrou como {email}.",
   "auth.guestBanner": "Você está só olhando, sem conta. Nada do que fizer aqui será guardado.",

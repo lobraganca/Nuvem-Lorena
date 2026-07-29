@@ -572,6 +572,8 @@ export const en: Record<keyof typeof pt, string> = {
     "There is already an account on this device. Sign in with it, or sign out of it first.",
   "auth.errorNoCrypto":
     "This browser cannot protect a password here — it usually happens when the file is opened directly. Open the site by its address to create your account.",
+  "auth.reset": "I forgot the password and want to start over",
+  "auth.resetConfirm": "This erases the account and EVERYTHING kept on this device: memories, photos, bookings and lists. There is no undo and no recovery. Are you sure?",
   "auth.signOut": "Sign out",
   "auth.signedInAs": "You are signed in as {email}.",
   "auth.guestBanner":

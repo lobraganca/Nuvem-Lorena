@@ -12,6 +12,8 @@ import { readStored, removeStored, writeStored } from "../lib/safeStorage";
 
 const ACCOUNT_KEY = "avena-account";
 const SESSION_KEY = "avena-session";
+/** Kept in step with AvenaContext: erasing the device has to erase the data. */
+const DATA_KEY = "avena-data-v18";
 
 /** Why a sign-in attempt failed, in terms the screen can explain. */
 export type AuthError =
@@ -37,6 +39,8 @@ interface AuthValue {
   continueAsGuest: () => void;
   /** False when the browser cannot hash a password, so accounts are impossible. */
   accountsPossible: boolean;
+  /** Erases the account and all data on this device. There is no undo. */
+  resetDevice: () => void;
 }
 
 const AuthContext = createContext<AuthValue | null>(null);
@@ -64,8 +68,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     async ({ name, email, password }) => {
       if (!canHashPasswords()) return "sem-suporte";
       const normalized = normalizeEmail(email);
-      const existing = loadAccount();
-      if (existing && existing.email !== normalized) return "ja-existe";
+
+      // Any existing account blocks a new one, including one with the same
+      // e-mail. Allowing a same-e-mail sign-up was a password reset that
+      // proved nothing: anyone holding the phone could read the address off
+      // the sign-in field, type a new password and walk into the memories.
+      if (loadAccount()) return "ja-existe";
 
       const salt = newSalt();
       const created: Account = {
@@ -104,6 +112,21 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setSession(null);
   }, []);
 
+  /**
+   * The only honest way out of a forgotten password with no server: erase the
+   * account and everything on this device, and start over. It cannot recover
+   * the memories — nothing can — but it must never hand them to whoever asks.
+   */
+  const resetDevice = useCallback(() => {
+    removeStored(ACCOUNT_KEY);
+    removeStored(SESSION_KEY);
+    removeStored(DATA_KEY);
+    setAccount(null);
+    setSession(null);
+    // The store keeps the erased data in memory, so the app has to start clean.
+    window.location.reload();
+  }, []);
+
   const continueAsGuest = useCallback(() => {
     writeStored(SESSION_KEY, "visitante");
     setSession("visitante");
@@ -119,8 +142,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       signOut,
       continueAsGuest,
       accountsPossible,
+      resetDevice,
     }),
-    [account, session, signUp, signIn, signOut, continueAsGuest, accountsPossible]
+    [account, session, signUp, signIn, signOut, continueAsGuest, accountsPossible, resetDevice]
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

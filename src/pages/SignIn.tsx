@@ -23,7 +23,8 @@ type Step = "porta" | "entrar" | "criar";
  * is the fastest way to lose them. The fields come after the choice.
  */
 export function SignIn() {
-  const { account, signIn, signUp, continueAsGuest, accountsPossible } = useAuth();
+  const { account, signIn, signUp, continueAsGuest, accountsPossible, resetDevice } =
+    useAuth();
   const t = useT();
 
   const [step, setStep] = useState<Step>("porta");
@@ -199,6 +200,21 @@ export function SignIn() {
             <p className="signin-truth">
               {creating ? t("auth.localOnly") : t("auth.noRecovery")}
             </p>
+
+            {/* A forgotten password used to be a locked door with no handle.
+                This is the only honest way out: erase and start over. It is
+                destructive, so it asks first and says exactly what it loses. */}
+            {!creating && account && (
+              <button
+                type="button"
+                className="signin-quiet signin-danger"
+                onClick={() => {
+                  if (confirm(t("auth.resetConfirm"))) resetDevice();
+                }}
+              >
+                {t("auth.reset")}
+              </button>
+            )}
           </>
         )}
       </div>
