@@ -3,7 +3,7 @@
 Tudo o que ficou para depois, reunido num lugar só. A ordem importa: os itens
 de cada bloco dependem do bloco anterior.
 
-Atualizado em 29/07/2026.
+Atualizado em 29/07/2026. Domínio: avenaapp.com.br
 
 ---
 
@@ -150,10 +150,12 @@ Pontos de atenção já levantados:
 
 ## Bloco 6 — Publicação
 
-- Domínio próprio.
-- Hospedagem do site (Vercel ou Netlify servem; ambos com plano gratuito).
+- ~~Domínio próprio~~ — **avenaapp.com.br já registrado.**
+- Hospedagem, DNS, e-mails no domínio e a lista de endereços que os serviços
+  vão pedir: passo a passo em [publicacao.md](publicacao.md).
 - Variáveis de ambiente em produção — ver `.env.example`.
-- HTTPS (vem automático nesses serviços).
+- HTTPS vem automático na Vercel e na Netlify.
+- Renovação anual do `.com.br` no registro.br, com renovação automática ligada.
 
 ---
 

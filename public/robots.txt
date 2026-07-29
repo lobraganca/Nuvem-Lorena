@@ -1,0 +1,20 @@
+# As telas internas dependem de login e de dados da pessoa: não há o que
+# indexar nelas, e o painel administrativo não deve aparecer em buscador algum.
+User-agent: *
+Allow: /$
+Allow: /destination
+Allow: /business
+Allow: /termos
+Allow: /privacidade
+Disallow: /admin
+Disallow: /profile
+Disallow: /meus-dados
+Disallow: /bookings
+Disallow: /pagamento
+Disallow: /messages
+Disallow: /ajuda
+Disallow: /experience
+Disallow: /traveler
+Disallow: /feed
+
+Sitemap: https://avenaapp.com.br/sitemap.xml

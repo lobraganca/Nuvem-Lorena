@@ -8,9 +8,10 @@ export default defineConfig({
     react(),
     VitePWA({
       registerType: 'autoUpdate',
-      includeAssets: ['favicon.png'],
+      includeAssets: ['favicon.png', 'og-avena.png'],
       manifest: {
-        name: 'Avena',
+        id: 'https://avenaapp.com.br/',
+        name: 'Avena — passeios e o seu mapa de viagens',
         short_name: 'Avena',
         description:
           'Um mapa afetivo para colecionar as experiências, pessoas e lugares que você viveu pelo Brasil.',
@@ -20,8 +21,16 @@ export default defineConfig({
         display: 'standalone',
         start_url: '/',
         icons: [
-          { src: '/favicon.png', sizes: '256x256', type: 'image/png' },
-          { src: '/favicon.png', sizes: '512x512', type: 'image/png', purpose: 'any maskable' },
+          { src: '/icon-192.png', sizes: '192x192', type: 'image/png' },
+          { src: '/icon-512.png', sizes: '512x512', type: 'image/png' },
+          // Android crops the icon into its own shape, so the maskable version
+          // keeps the logo well inside the safe area.
+          {
+            src: '/icon-maskable-512.png',
+            sizes: '512x512',
+            type: 'image/png',
+            purpose: 'maskable',
+          },
         ],
       },
       workbox: {
