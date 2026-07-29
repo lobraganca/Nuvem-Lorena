@@ -25,6 +25,11 @@ export function Revenue() {
         ← Voltar ao mapa
       </Link>
       <h1>Receita da plataforma</h1>
+      <div className="insight-card">
+        Tela interna do Avena. Ainda não há login, então este endereço fica
+        acessível a quem souber a URL — precisa ser protegido por autenticação
+        de administrador antes de ir ao ar.
+      </div>
       <p className="muted">
         Visão geral de quanto o Avena fatura com assinaturas de empresas, com a
         taxa de serviço das reservas e com anúncios em destaque.

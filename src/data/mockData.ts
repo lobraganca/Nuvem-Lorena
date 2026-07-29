@@ -6,7 +6,6 @@ export const mockUser: UserProfile = {
   bio: "Colecionando lugares, pessoas e histórias pelo Brasil.",
   avatarColor: "#003b7a",
   isPrivate: false,
-  accountType: "turista",
 };
 
 export const mockMessages: Message[] = [

@@ -10,6 +10,7 @@ import {
 import { availabilityFor } from "../lib/availability";
 import { activeBoostForTour, boostRevenue } from "../lib/boosts";
 import { BoostTourButton } from "../components/BoostTourButton";
+import { EditTour } from "../components/EditTour";
 import type { CancellationPolicy, Tour } from "../types";
 
 const today = new Date().toISOString().slice(0, 10);
@@ -137,6 +138,7 @@ export function ProfessionalDashboard() {
                 tour={t}
                 activeBoost={activeBoostForTour(boosts, t.id)}
               />
+              <EditTour businessId={business.id} tour={t} />
             </div>
           );
         })}

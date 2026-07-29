@@ -1,11 +1,12 @@
-import { Link, useParams } from "react-router-dom";
+import { Link, useNavigate, useParams } from "react-router-dom";
 import { useAvena } from "../store/AvenaContext";
 import { categoryColor } from "../lib/categories";
 import { BusinessCard } from "../components/BusinessCard";
 
 export function ExperienceDetail() {
   const { id } = useParams();
-  const { experiences, people, businesses, reviews } = useAvena();
+  const { experiences, people, businesses, reviews, deleteExperience } = useAvena();
+  const navigate = useNavigate();
   const exp = experiences.find((e) => e.id === id);
 
   if (!exp) return <div className="page">Experiência não encontrada.</div>;
@@ -22,6 +23,23 @@ export function ExperienceDetail() {
         <span className="category-dot" style={{ background: categoryColor[exp.category] }} />{" "}
         {exp.title}
       </h1>
+      <div className="chip-row" style={{ marginBottom: 8 }}>
+        <Link to={`/experience/${exp.id}/editar`} className="btn-outline">
+          Editar
+        </Link>
+        <button
+          type="button"
+          className="btn-outline"
+          onClick={() => {
+            if (confirm("Excluir esta experiência? Isso não pode ser desfeito.")) {
+              deleteExperience(exp.id);
+              navigate("/");
+            }
+          }}
+        >
+          Excluir
+        </button>
+      </div>
       <p className="muted">
         {exp.locationName}, {exp.city}
         {exp.state ? `, ${exp.state}` : ""} — {exp.country} ·{" "}

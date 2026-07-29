@@ -27,6 +27,9 @@ export function BusinessDetail() {
         <span className={`plan-badge plan-badge-${business.planTier.toLowerCase()}`}>
           {business.planTier}
         </span>
+        <Link to={`/messages/${business.id}`} className="btn-outline">
+          Enviar mensagem
+        </Link>
       </div>
       <p className="muted">
         {business.type} · {business.city}

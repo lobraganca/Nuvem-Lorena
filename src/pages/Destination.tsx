@@ -32,8 +32,18 @@ export function Destination() {
     [brBusinesses, brExperiences]
   );
 
+  // Search matches city, business name or tour title, so someone who heard
+  // about a specific guide can find them without knowing the city.
+  const term = query.trim().toLowerCase();
   const matches = brBusinesses
-    .filter((b) => b.city.toLowerCase().includes(query.trim().toLowerCase()))
+    .filter((b) => {
+      if (!term) return false;
+      return (
+        b.city.toLowerCase().includes(term) ||
+        b.name.toLowerCase().includes(term) ||
+        (b.tours ?? []).some((t) => t.title.toLowerCase().includes(term))
+      );
+    })
     .filter((b) => tab === "Todos" || b.type === tab);
 
   return (
@@ -41,11 +51,11 @@ export function Destination() {
       <div className="viator-hero-inner">
         <h1>Passeios, hotéis e restaurantes pelo Brasil</h1>
         <p className="muted">
-          Busque um destino e reserve com quem já foi avaliado pela comunidade.
+          Busque por cidade, nome da agência ou do passeio e reserve com quem já foi avaliado pela comunidade.
         </p>
         <input
           className="destination-search"
-          placeholder="Para onde você vai? (ex: Arraial do Cabo)"
+          placeholder="Destino, agência ou passeio"
           value={query}
           onChange={(e) => setQuery(e.target.value)}
         />

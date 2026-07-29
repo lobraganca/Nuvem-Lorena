@@ -1,6 +1,6 @@
 import { createContext, useContext, useEffect, useMemo, useState } from "react";
 import type { ReactNode } from "react";
-import type { Booking, Boost, Business, Experience, Message, Person, Review, Tour, UserProfile } from "../types";
+import type { Booking, Boost, Business, Experience, Message, MessageThread, Person, Review, Tour, UserProfile } from "../types";
 import {
   mockBusinesses,
   mockExperiences,
@@ -11,7 +11,7 @@ import {
 } from "../data/mockData";
 import { computeRefund } from "../lib/cancellation";
 
-const STORAGE_KEY = "avena-data-v11";
+const STORAGE_KEY = "avena-data-v12";
 
 interface AvenaData {
   experiences: Experience[];
@@ -27,12 +27,16 @@ interface AvenaData {
 
 interface AvenaContextValue extends AvenaData {
   addExperience: (exp: Experience) => void;
+  updateExperience: (exp: Experience) => void;
+  deleteExperience: (id: string) => void;
   addPerson: (person: Person) => void;
   addBusiness: (business: Business) => void;
   updateUser: (user: Partial<UserProfile>) => void;
-  sendMessage: (personId: string, text: string) => void;
+  sendMessage: (thread: MessageThread, text: string) => void;
   addBooking: (booking: Booking) => void;
   addTourToBusiness: (businessId: string, tour: Tour) => void;
+  updateTour: (businessId: string, tour: Tour) => void;
+  removeTour: (businessId: string, tourId: string) => void;
   addReview: (review: Review) => void;
   cancelBooking: (bookingId: string) => void;
   addBoost: (boost: Boost) => void;
@@ -79,20 +83,30 @@ export function AvenaProvider({ children }: { children: ReactNode }) {
       ...data,
       addExperience: (exp) =>
         setData((d) => ({ ...d, experiences: [exp, ...d.experiences] })),
+      updateExperience: (exp) =>
+        setData((d) => ({
+          ...d,
+          experiences: d.experiences.map((e) => (e.id === exp.id ? exp : e)),
+        })),
+      deleteExperience: (id) =>
+        setData((d) => ({
+          ...d,
+          experiences: d.experiences.filter((e) => e.id !== id),
+        })),
       addPerson: (person) =>
         setData((d) => ({ ...d, people: [...d.people, person] })),
       addBusiness: (business) =>
         setData((d) => ({ ...d, businesses: [business, ...d.businesses] })),
       updateUser: (user) =>
         setData((d) => ({ ...d, user: { ...d.user, ...user } })),
-      sendMessage: (personId, text) =>
+      sendMessage: (thread, text) =>
         setData((d) => ({
           ...d,
           messages: [
             ...d.messages,
             {
               id: crypto.randomUUID(),
-              personId,
+              ...thread,
               sender: "me",
               text,
               timestamp: new Date().toISOString(),
@@ -106,6 +120,24 @@ export function AvenaProvider({ children }: { children: ReactNode }) {
           ...d,
           businesses: d.businesses.map((b) =>
             b.id === businessId ? { ...b, tours: [...(b.tours ?? []), tour] } : b
+          ),
+        })),
+      updateTour: (businessId, tour) =>
+        setData((d) => ({
+          ...d,
+          businesses: d.businesses.map((b) =>
+            b.id === businessId
+              ? { ...b, tours: (b.tours ?? []).map((t) => (t.id === tour.id ? tour : t)) }
+              : b
+          ),
+        })),
+      removeTour: (businessId, tourId) =>
+        setData((d) => ({
+          ...d,
+          businesses: d.businesses.map((b) =>
+            b.id === businessId
+              ? { ...b, tours: (b.tours ?? []).filter((t) => t.id !== tourId) }
+              : b
           ),
         })),
       addReview: (review) =>

@@ -1,5 +1,5 @@
 import { useRef, useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useAvena } from "../store/AvenaContext";
 import { profileStats } from "../lib/stats";
 import { buildCollections } from "../lib/collections";
@@ -8,6 +8,7 @@ import { travelerPlans } from "../lib/plans";
 
 export function Profile() {
   const { experiences, people, user, updateUser } = useAvena();
+  const navigate = useNavigate();
   const stats = profileStats(experiences);
   const collections = buildCollections(experiences);
   const [editing, setEditing] = useState(false);
@@ -94,6 +95,18 @@ export function Profile() {
             <Link to="/welcome" className="btn-outline">
               Trocar tipo de conta
             </Link>
+            <button
+              type="button"
+              className="btn-outline"
+              onClick={() => {
+                if (confirm("Sair da conta?")) {
+                  updateUser({ accountType: undefined, ownBusinessId: undefined });
+                  navigate("/");
+                }
+              }}
+            >
+              Sair
+            </button>
           </div>
 
           <div className="ig-stats-row">

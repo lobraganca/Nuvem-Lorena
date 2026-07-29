@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { useAvena } from "../store/AvenaContext";
 import { categories } from "../lib/categories";
 import { BRAZILIAN_STATES } from "../lib/collections";
@@ -8,27 +8,29 @@ import type { Category, Experience } from "../types";
 const MOODS = ["😍", "😄", "🥰", "💪", "🤩", "😌", "😢"];
 
 export function AddExperience() {
-  const { addExperience, people } = useAvena();
+  const { addExperience, updateExperience, experiences, people } = useAvena();
   const navigate = useNavigate();
+  const { id } = useParams();
+  const editing = experiences.find((e) => e.id === id);
 
-  const [title, setTitle] = useState("");
-  const [category, setCategory] = useState<Category>("Viagem");
-  const [locationName, setLocationName] = useState("");
-  const [city, setCity] = useState("");
-  const [state, setState] = useState(BRAZILIAN_STATES[0]);
-  const [lat, setLat] = useState("");
-  const [lng, setLng] = useState("");
-  const [date, setDate] = useState(new Date().toISOString().slice(0, 10));
-  const [diary, setDiary] = useState("");
-  const [rating, setRating] = useState(5);
-  const [mood, setMood] = useState(MOODS[0]);
-  const [selectedPeople, setSelectedPeople] = useState<string[]>([]);
-  const [agency, setAgency] = useState("");
-  const [guide, setGuide] = useState("");
-  const [animals, setAnimals] = useState("");
-  const [restaurants, setRestaurants] = useState("");
-  const [expenses, setExpenses] = useState("");
-  const [notes, setNotes] = useState("");
+  const [title, setTitle] = useState(editing?.title ?? "");
+  const [category, setCategory] = useState<Category>(editing?.category ?? "Viagem");
+  const [locationName, setLocationName] = useState(editing?.locationName ?? "");
+  const [city, setCity] = useState(editing?.city ?? "");
+  const [state, setState] = useState(editing?.state ?? BRAZILIAN_STATES[0]);
+  const [lat, setLat] = useState(editing ? String(editing.lat) : "");
+  const [lng, setLng] = useState(editing ? String(editing.lng) : "");
+  const [date, setDate] = useState(editing?.date ?? new Date().toISOString().slice(0, 10));
+  const [diary, setDiary] = useState(editing?.diary ?? "");
+  const [rating, setRating] = useState(editing?.rating ?? 5);
+  const [mood, setMood] = useState(editing?.mood ?? MOODS[0]);
+  const [selectedPeople, setSelectedPeople] = useState<string[]>(editing?.peopleIds ?? []);
+  const [agency, setAgency] = useState(editing?.agency ?? "");
+  const [guide, setGuide] = useState(editing?.guide ?? "");
+  const [animals, setAnimals] = useState(editing?.animalsSeen?.join(", ") ?? "");
+  const [restaurants, setRestaurants] = useState(editing?.restaurants?.join(", ") ?? "");
+  const [expenses, setExpenses] = useState(editing?.expenses !== undefined ? String(editing.expenses) : "");
+  const [notes, setNotes] = useState(editing?.notes ?? "");
 
   function togglePerson(id: string) {
     setSelectedPeople((prev) =>
@@ -41,7 +43,7 @@ export function AddExperience() {
     if (!title || !locationName || !lat || !lng) return;
 
     const exp: Experience = {
-      id: crypto.randomUUID(),
+      id: editing?.id ?? crypto.randomUUID(),
       title,
       category,
       lat: Number(lat),
@@ -51,7 +53,7 @@ export function AddExperience() {
       state,
       country: "Brasil",
       date,
-      photos: [],
+      photos: editing?.photos ?? [],
       diary: diary || undefined,
       rating,
       mood,
@@ -66,13 +68,18 @@ export function AddExperience() {
       notes: notes || undefined,
     };
 
-    addExperience(exp);
-    navigate("/");
+    if (editing) {
+      updateExperience(exp);
+      navigate(`/experience/${exp.id}`);
+    } else {
+      addExperience(exp);
+      navigate("/");
+    }
   }
 
   return (
     <div className="page">
-      <h1>Nova experiência</h1>
+      <h1>{editing ? "Editar experiência" : "Nova experiência"}</h1>
       <form className="experience-form" onSubmit={handleSubmit}>
         <label>
           Título
@@ -210,7 +217,7 @@ export function AddExperience() {
         </label>
 
         <button type="submit" className="btn-primary">
-          Salvar experiência
+          {editing ? "Salvar alterações" : "Salvar experiência"}
         </button>
       </form>
     </div>

@@ -36,12 +36,19 @@ export interface UserProfile {
   acceptedLegalAt?: string; // ISO datetime
 }
 
+/** A conversation thread is with either a person or a business, never both. */
 export interface Message {
   id: string;
-  personId: string; // the other party in the conversation
+  personId?: string;
+  businessId?: string;
   sender: "me" | "them";
   text: string;
   timestamp: string; // ISO datetime
+}
+
+export interface MessageThread {
+  personId?: string;
+  businessId?: string;
 }
 
 export type BusinessType = "Agência" | "Guia" | "Restaurante" | "Hotel";

@@ -50,10 +50,65 @@ function CancelBooking({ booking }: { booking: Booking }) {
 
 export function Bookings() {
   const { bookings } = useAvena();
-  const sorted = [...bookings].sort(
-    (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
-  );
   const today = new Date().toISOString().slice(0, 10);
+
+  // Upcoming first and in chronological order — the next trip is what someone
+  // opens this screen to check.
+  const upcoming = bookings
+    .filter((b) => b.travelDate >= today && b.status === "confirmada")
+    .sort((a, b) => a.travelDate.localeCompare(b.travelDate));
+
+  const past = bookings
+    .filter((b) => b.travelDate < today || b.status === "cancelada")
+    .sort((a, b) => b.travelDate.localeCompare(a.travelDate));
+
+  function BookingCard({ b }: { b: Booking }) {
+    const isPast = b.travelDate < today;
+    const isCancelled = b.status === "cancelada";
+    return (
+      <div className="booking-card">
+        <div className="timeline-card-title">
+          {b.tourTitle}
+          {isCancelled && (
+            <span className="privacy-badge" style={{ marginLeft: 8 }}>
+              Cancelada
+            </span>
+          )}
+        </div>
+        <div className="muted">
+          {b.businessName} · {new Date(b.travelDate).toLocaleDateString("pt-BR")} ·{" "}
+          {b.travelers} {b.travelers === 1 ? "pessoa" : "pessoas"}
+        </div>
+        <div className="booking-breakdown">
+          <div>
+            Total pago <strong>R$ {b.totalPrice.toLocaleString("pt-BR")}</strong>
+          </div>
+          <div className="muted">
+            Taxa de serviço Avena ({Math.round(b.commissionRate * 100)}%): R${" "}
+            {b.commissionAmount.toLocaleString("pt-BR")}
+          </div>
+          <div className="muted">
+            {b.businessName} recebeu: R$ {b.businessPayout.toLocaleString("pt-BR")}
+          </div>
+          {isCancelled && (
+            <div className="muted">
+              Reembolsado: R$ {(b.refundAmount ?? 0).toLocaleString("pt-BR")}
+            </div>
+          )}
+        </div>
+
+        <Link to={`/messages/${b.businessId}`} className="btn-outline">
+          Falar com {b.businessName}
+        </Link>
+
+        {isCancelled ? null : isPast ? (
+          <ReviewForm booking={b} />
+        ) : (
+          <CancelBooking booking={b} />
+        )}
+      </div>
+    );
+  }
 
   return (
     <div className="page">
@@ -62,58 +117,34 @@ export function Bookings() {
       </Link>
       <h1>Minhas reservas</h1>
 
-      {sorted.length === 0 && (
+      {bookings.length === 0 && (
         <p className="muted">
           Nenhuma reserva ainda. Explore os{" "}
           <Link to="/destination">destinos</Link> e feche passeios direto pelo app.
         </p>
       )}
 
-      <div className="timeline">
-        {sorted.map((b) => {
-          const isPast = b.travelDate < today;
-          const isCancelled = b.status === "cancelada";
-          return (
-            <div key={b.id} className="booking-card">
-              <div className="timeline-card-title">
-                {b.tourTitle}
-                {isCancelled && (
-                  <span className="privacy-badge" style={{ marginLeft: 8 }}>
-                    Cancelada
-                  </span>
-                )}
-              </div>
-              <div className="muted">
-                {b.businessName} · {new Date(b.travelDate).toLocaleDateString("pt-BR")} ·{" "}
-                {b.travelers} {b.travelers === 1 ? "pessoa" : "pessoas"}
-              </div>
-              <div className="booking-breakdown">
-                <div>
-                  Total pago <strong>R$ {b.totalPrice.toLocaleString("pt-BR")}</strong>
-                </div>
-                <div className="muted">
-                  Taxa de serviço Avena ({Math.round(b.commissionRate * 100)}%): R${" "}
-                  {b.commissionAmount.toLocaleString("pt-BR")}
-                </div>
-                <div className="muted">
-                  {b.businessName} recebeu: R$ {b.businessPayout.toLocaleString("pt-BR")}
-                </div>
-                {isCancelled && (
-                  <div className="muted">
-                    Reembolsado: R$ {(b.refundAmount ?? 0).toLocaleString("pt-BR")}
-                  </div>
-                )}
-              </div>
+      {upcoming.length > 0 && (
+        <>
+          <h2 className="timeline-title">Próximas</h2>
+          <div className="timeline">
+            {upcoming.map((b) => (
+              <BookingCard key={b.id} b={b} />
+            ))}
+          </div>
+        </>
+      )}
 
-              {isCancelled ? null : isPast ? (
-                <ReviewForm booking={b} />
-              ) : (
-                <CancelBooking booking={b} />
-              )}
-            </div>
-          );
-        })}
-      </div>
+      {past.length > 0 && (
+        <>
+          <h2 className="timeline-title">Anteriores</h2>
+          <div className="timeline">
+            {past.map((b) => (
+              <BookingCard key={b.id} b={b} />
+            ))}
+          </div>
+        </>
+      )}
     </div>
   );
 }

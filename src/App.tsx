@@ -65,9 +65,6 @@ function AppShell() {
               <Link to="/profile">Perfil</Link>
             </>
           )}
-          <Link to="/revenue" className="nav-admin-link" title="Painel do dono da plataforma">
-            Receita
-          </Link>
         </div>
       </nav>
       <main className="app-content">
@@ -76,6 +73,7 @@ function AppShell() {
           <Route path="/welcome" element={<Welcome />} />
           <Route path="/professional" element={<ProfessionalDashboard />} />
           <Route path="/experience/new" element={<AddExperience />} />
+          <Route path="/experience/:id/editar" element={<AddExperience />} />
           <Route path="/experience/:id" element={<ExperienceDetail />} />
           <Route path="/person/:id" element={<PersonProfile />} />
           <Route path="/profile" element={<Profile />} />
