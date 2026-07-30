@@ -1,4 +1,5 @@
-import { Link } from "react-router-dom";
+import { useMemo, useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
 import { useAvena } from "../store/AvenaContext";
 import { NotificationBanner } from "../components/NotificationBanner";
 import { PromotedTours } from "../components/PromotedTours";
@@ -6,22 +7,36 @@ import { TrendingSection } from "../components/TrendingSection";
 import { BannerSlot } from "../components/BannerSlot";
 import { AppOffer } from "../components/AppOffer";
 import { effectiveStatus } from "../lib/bookingStatus";
-import { openWishes } from "../lib/wishlist";
-import { categoryColor } from "../lib/categories";
 import { localeFor, useI18n } from "../i18n";
+import { businessTypePluralKey } from "../i18n/domain";
+import type { BusinessType } from "../types";
+
+const TYPES: BusinessType[] = ["Agência", "Guia", "Hotel", "Restaurante"];
 
 /**
- * The home screen: what is yours, and what is next.
+ * The home screen: where are you going, and what is there.
  *
- * It used to be the map with the search on top of it and the filters beside
- * it — three different jobs fighting for the same screen. The map moved to the
- * profile, where you go to look at where you have been, and searching has its
- * own tab. What is left here is the part that changes: your next trips, your
- * last memories, what you still want to do.
+ * The app is a marketplace first now. Someone arriving wants to say where they
+ * are going and see what they can hire there — the way you open a delivery app
+ * and it asks for your address. The travelling diary did not disappear, it
+ * moved to the profile, where you go to look back rather than to buy.
  */
 export function Home() {
-  const { experiences, bookings, businesses, wishlist, user } = useAvena();
+  const { businesses, experiences, bookings } = useAvena();
   const { t, lang } = useI18n();
+  const navigate = useNavigate();
+  const [query, setQuery] = useState("");
+
+  const cities = useMemo(() => {
+    const live = businesses.filter((b) => b.status !== "suspensa");
+    const counts = new Map<string, { city: string; state?: string; count: number }>();
+    for (const b of live) {
+      const found = counts.get(b.city);
+      if (found) found.count += 1;
+      else counts.set(b.city, { city: b.city, state: b.state, count: 1 });
+    }
+    return [...counts.values()].sort((a, b) => b.count - a.count);
+  }, [businesses]);
 
   const upcoming = bookings
     .filter((b) => {
@@ -33,129 +48,127 @@ export function Home() {
     })
     .sort((a, b) => a.travelDate.localeCompare(b.travelDate));
 
-  const recent = [...experiences]
-    .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
-    .slice(0, 4);
-
-  const wishes = openWishes(wishlist).slice(0, 3);
-  const firstName = user.name?.split(" ")[0] ?? "";
+  function search(e: React.FormEvent) {
+    e.preventDefault();
+    const term = query.trim();
+    navigate(term ? `/destination?city=${encodeURIComponent(term)}` : "/destination");
+  }
 
   return (
-    <div className="page page-wide home-feed">
-      <NotificationBanner />
-      <BannerSlot placement="home-top" />
+    <div className="market-home">
+      {/* The question the whole app is organised around. */}
+      <section className="market-hero">
+        <h1>{t("market.title")}</h1>
+        <p className="muted">{t("market.subtitle")}</p>
+        <form className="market-search" onSubmit={search}>
+          <input
+            list="market-cities"
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+            placeholder={t("market.placeholder")}
+            aria-label={t("market.placeholder")}
+          />
+          <datalist id="market-cities">
+            {cities.map((c) => (
+              <option key={c.city} value={c.city} />
+            ))}
+          </datalist>
+          <button type="submit" className="btn-primary">
+            {t("market.search")}
+          </button>
+        </form>
+      </section>
 
-      <header className="home-hello">
-        <h1>{firstName ? t("home.helloName", { name: firstName }) : t("home.hello")}</h1>
-        <p className="muted">{t("home.helloText")}</p>
-        <Link to="/experience/new" className="btn-primary">
-          {t("home.registerMemory")}
-        </Link>
-      </header>
+      <div className="page page-wide market-body">
+        <NotificationBanner />
+        <BannerSlot placement="home-top" />
 
-      {upcoming.length > 0 && (
+        {/* What you can hire, before you have picked anywhere. */}
         <section>
-          <h2 className="timeline-title">{t("home.upcoming")}</h2>
-          <div className="timeline">
-            {upcoming.map((booking) => {
-              const business = businesses.find((b) => b.id === booking.businessId);
-              const status = effectiveStatus(booking);
-              return (
+          <h2 className="timeline-title">{t("market.services")}</h2>
+          <div className="market-types">
+            {TYPES.map((type) => (
+              <Link
+                key={type}
+                to={`/destination?type=${encodeURIComponent(type)}`}
+                className="market-type"
+              >
+                {t(businessTypePluralKey[type])}
+              </Link>
+            ))}
+          </div>
+        </section>
+
+        <section>
+          <h2 className="timeline-title">{t("market.destinations")}</h2>
+          <div className="market-cities">
+            {cities.map((c) => (
+              <Link
+                key={c.city}
+                to={`/destination?city=${encodeURIComponent(c.city)}`}
+                className="market-city"
+              >
+                <span className="market-city-name">{c.city}</span>
+                <span className="muted">
+                  {c.state ? `${c.state} · ` : ""}
+                  {c.count === 1
+                    ? t("market.onePartner")
+                    : t("market.partners", { count: c.count })}
+                </span>
+              </Link>
+            ))}
+          </div>
+        </section>
+
+        {upcoming.length > 0 && (
+          <section>
+            <h2 className="timeline-title">{t("home.upcoming")}</h2>
+            <div className="timeline">
+              {upcoming.map((booking) => (
                 <Link to="/bookings" key={booking.id} className="timeline-card">
                   <div>
                     <div className="timeline-card-title">{booking.tourTitle}</div>
                     <div className="muted">
                       {new Date(`${booking.travelDate}T12:00:00`).toLocaleDateString(
                         localeFor(lang)
-                      )}
-                      {business ? ` · ${business.name}` : ""}
+                      )}{" "}
+                      · {booking.businessName}
                     </div>
                   </div>
-                  {status === "aguardando-pagamento" && (
+                  {effectiveStatus(booking) === "aguardando-pagamento" && (
                     <span className="booking-status booking-status-aguardando-pagamento">
                       {t("home.toPay")}
                     </span>
                   )}
                 </Link>
-              );
-            })}
-          </div>
-        </section>
-      )}
+              ))}
+            </div>
+          </section>
+        )}
 
-      {recent.length > 0 && (
-        <section>
-          <div className="home-section-head">
-            <h2 className="timeline-title">{t("home.recentMemories")}</h2>
-            <Link to="/profile" className="home-section-link">
+        <PromotedTours />
+        <TrendingSection />
+
+        {/* The diary, as an invitation rather than as the main event. */}
+        <section className="market-memories">
+          <h2 className="timeline-title">{t("market.memoriesTitle")}</h2>
+          <p className="muted">
+            {experiences.length === 0
+              ? t("market.memoriesEmpty")
+              : t("market.memoriesCount", { count: experiences.length })}
+          </p>
+          <div className="chip-row">
+            <Link to="/experience/new" className="btn-outline">
+              {t("home.registerMemory")}
+            </Link>
+            <Link to="/profile" className="btn-outline">
               {t("home.seeMap")}
             </Link>
           </div>
-          <div className="timeline">
-            {recent.map((exp) => (
-              <Link to={`/experience/${exp.id}`} key={exp.id} className="timeline-card">
-                <div
-                  className="category-dot"
-                  style={{ background: categoryColor[exp.category] }}
-                  aria-hidden="true"
-                />
-                <div>
-                  <div className="timeline-card-title">{exp.title}</div>
-                  <div className="muted">
-                    {exp.locationName} ·{" "}
-                    {new Date(exp.date).toLocaleDateString(localeFor(lang))}
-                  </div>
-                </div>
-              </Link>
-            ))}
-          </div>
         </section>
-      )}
 
-      {/* Nothing registered yet: say what this app is for, once, and give the
-          one action that starts everything. */}
-      {experiences.length === 0 && (
-        <section className="empty-cta">
-          <h2>{t("home.emptyCtaTitle")}</h2>
-          <p className="muted">{t("home.emptyCtaText")}</p>
-          <Link to="/experience/new" className="btn-primary">
-            {t("home.emptyCtaButton")}
-          </Link>
-        </section>
-      )}
-
-      {wishes.length > 0 && (
-        <section>
-          <div className="home-section-head">
-            <h2 className="timeline-title">{t("nav.wishlist")}</h2>
-            <Link to="/desejos" className="home-section-link">
-              {t("home.seeAll")}
-            </Link>
-          </div>
-          <div className="timeline">
-            {wishes.map((wish) => (
-              <Link
-                to={`/business/${wish.businessId}`}
-                key={wish.id}
-                className="timeline-card"
-              >
-                <div>
-                  <div className="timeline-card-title">{wish.title}</div>
-                  <div className="muted">
-                    {wish.businessName}
-                    {wish.city ? ` · ${wish.city}` : ""}
-                  </div>
-                </div>
-              </Link>
-            ))}
-          </div>
-        </section>
-      )}
-
-      <AppOffer />
-
-      <PromotedTours />
-      <TrendingSection />
+        <AppOffer />
+      </div>
     </div>
   );
 }

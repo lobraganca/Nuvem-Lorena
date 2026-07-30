@@ -4,7 +4,7 @@ import { useAvena } from "../store/AvenaContext";
 import { profileStats } from "../lib/stats";
 import { buildCollections } from "../lib/collections";
 import { categoryColor } from "../lib/categories";
-import { travelerPlans } from "../lib/plans";
+import { serviceFeePercent } from "../lib/pricing";
 import { buildInsights } from "../lib/insights";
 import { fileToStoredPhoto } from "../lib/photos";
 import { ModerationNotice, isPublishable } from "../components/ModerationNotice";
@@ -103,8 +103,8 @@ export function Profile() {
 
           {/* Only the two lists that belong to the traveller. */}
           <nav className="profile-menu" aria-label={t("nav.moreOptions")}>
-            <Link to="/bookings">{t("nav.bookings")}</Link>
             <Link to="/desejos">{t("nav.wishlist")}</Link>
+            <Link to="/feed">{t("nav.people")}</Link>
           </nav>
 
           <div className="ig-stats-row">
@@ -212,24 +212,10 @@ export function Profile() {
         ))}
       </div>
 
-      <h2 className="timeline-title">Seu plano</h2>
-      <div className="plans-grid">
-        {travelerPlans.map((plan) => (
-          <div
-            key={plan.tier}
-            className={`plan-card ${plan.priceMonthly > 0 ? "plan-avançado" : ""}`}
-          >
-            <h3>{plan.tier}</h3>
-            <div className="plan-price">{plan.price}</div>
-            <p className="muted">{plan.tagline}</p>
-            <ul>
-              {plan.features.map((f) => (
-                <li key={f}>{f}</li>
-              ))}
-            </ul>
-          </div>
-        ))}
-      </div>
+      {/* No traveller plan, on purpose: nothing monthly, and the fee only
+          exists on a booking they chose to make. */}
+      <h2 className="timeline-title">{t("profile.whatYouPay")}</h2>
+      <p className="muted">{t("profile.whatYouPayText", { pct: serviceFeePercent() })}</p>
 
       <h2 className="timeline-title">{t("profile.collections")}</h2>
       <div className="collections-grid">

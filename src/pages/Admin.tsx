@@ -278,8 +278,8 @@ export function Admin() {
                   </div>
                   <div className="booking-breakdown">
                     <div className="muted">
-                      {brl(b.totalPrice)} · comissão {brl(b.commissionAmount)} (
-                      {Math.round(b.commissionRate * 100)}%) · repasse{" "}
+                      {brl(b.totalPrice)} · taxa {brl(b.serviceFee)} (
+                      {Math.round(b.serviceFeeRate * 100)}%) · repasse{" "}
                       {brl(b.businessPayout)}
                     </div>
                     {b.status === "cancelada" && (

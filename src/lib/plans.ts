@@ -8,9 +8,15 @@ export interface PlanDef {
   priceMonthly: number;
   tagline: string;
   features: string[];
-  commissionRate: number; // fraction of each booking kept by Avena
 }
 
+/**
+ * What a business pays to be on Avena.
+ *
+ * This is the joining fee, and it is the whole of what the business pays:
+ * nothing is deducted from a booking, so the price advertised is the price
+ * received. The traveller's side is in `pricing.ts`.
+ */
 export const plans: PlanDef[] = [
   {
     tier: "Básico",
@@ -21,9 +27,8 @@ export const plans: PlanDef[] = [
       "Perfil público com descrição e contato",
       "Aparece nas experiências onde foi marcado",
       "Até 3 fotos no perfil",
-      "Reservas pelo app com taxa de 15%",
+      "Recebe reservas pelo app",
     ],
-    commissionRate: 0.15,
   },
   {
     tier: "Pro",
@@ -35,9 +40,8 @@ export const plans: PlanDef[] = [
       "Destaque nos resultados de busca",
       "Estatísticas de visualizações e avaliações",
       "Fotos e vídeos ilimitados",
-      "Reservas pelo app com taxa reduzida de 10%",
+      "Recebe reservas pelo app",
     ],
-    commissionRate: 0.1,
   },
   {
     tier: "Avançado",
@@ -49,53 +53,17 @@ export const plans: PlanDef[] = [
       "Selo de verificado",
       "Prioridade no mapa e nas recomendações da comunidade",
       "Relatórios avançados de audiência",
-      "Menor taxa de reservas do Avena: apenas 7%",
-    ],
-    commissionRate: 0.07,
-  },
-];
-
-export type TravelerPlanTier = "Explorador" | "Avena Plus";
-
-export interface TravelerPlanDef {
-  tier: TravelerPlanTier;
-  price: string;
-  priceMonthly: number;
-  tagline: string;
-  features: string[];
-}
-
-export const travelerPlans: TravelerPlanDef[] = [
-  {
-    tier: "Explorador",
-    price: "Grátis",
-    priceMonthly: 0,
-    tagline: "Para começar a colecionar suas memórias",
-    features: [
-      "Mapa afetivo com experiências ilimitadas",
-      "Perfil, pessoas e linha do tempo",
-      "Reservar passeios com agências verificadas",
-      "Até 3 fotos por experiência",
-    ],
-  },
-  {
-    tier: "Avena Plus",
-    price: "R$ 9,90/mês",
-    priceMonthly: 9.9,
-    tagline: "Para quem vive muito e quer guardar tudo",
-    features: [
-      "Tudo do Explorador",
-      "Fotos e vídeos ilimitados por experiência",
-      "Retrospectiva anual das suas viagens",
-      "Todas as coleções e estatísticas de amizade",
-      "Insights personalizados sobre seus destinos",
+      "Recebe reservas pelo app",
     ],
   },
 ];
 
-export function commissionRateFor(tier: PlanTier): number {
-  return plans.find((p) => p.tier === tier)?.commissionRate ?? 0.15;
-}
+/**
+ * The traveller has no plan and no monthly fee — on purpose. What they pay is
+ * the service fee on a booking they chose to make, and nothing when they are
+ * only keeping memories.
+ */
+export const TRAVELER_PAYS_NOTHING_MONTHLY = true;
 
 export function priceMonthlyFor(tier: PlanTier): number {
   return plans.find((p) => p.tier === tier)?.priceMonthly ?? 0;

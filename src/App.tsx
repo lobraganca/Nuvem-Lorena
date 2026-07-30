@@ -87,7 +87,7 @@ function AppShell() {
               to, and the download page. Everything else lives in Ajustes. */}
           {chosen && !isProfissional && (
             <>
-              <Link to="/bookings">{t("nav.bookings")}</Link>
+              <Link to="/feed">{t("nav.people")}</Link>
               <Link to="/desejos">{t("nav.wishlist")}</Link>
             </>
           )}

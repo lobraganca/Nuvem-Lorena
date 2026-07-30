@@ -70,6 +70,19 @@ export const en: Record<keyof typeof pt, string> = {
   "home.recentMemories": "Your latest memories",
   "home.seeMap": "See on the map",
   "home.seeAll": "See all",
+  "market.title": "Where are you going?",
+  "market.subtitle":
+    "Name the destination and see who takes you: tours, guides, places to stay and where to eat.",
+  "market.placeholder": "City or region",
+  "market.search": "Search",
+  "market.services": "What you need",
+  "market.destinations": "Destinations with partners",
+  "market.partners": "{count} partners",
+  "market.onePartner": "1 partner",
+  "market.memoriesTitle": "And what you have already lived",
+  "market.memoriesEmpty":
+    "Every trip you record becomes a point on your map — yours alone, and for good.",
+  "market.memoriesCount": "You have {count} places kept on your map.",
   "map.title": "Your affective map",
   "map.subtitle": "{count} places you have kept.",
   "map.empty": "Your map starts with the first memory you record.",
@@ -197,7 +210,9 @@ export const en: Record<keyof typeof pt, string> = {
   "booking.blockedPastDate": "Pick a date from today onwards.",
   "booking.blockedLegal": "Accept the Terms of Use to continue.",
   "booking.total": "Total",
+  "booking.tourPrice": "Tour",
   "booking.serviceFee": "Avena service fee ({pct}%): R$ {amount}",
+  "booking.feeExplain": "The fee is added on top of the tour price — the business receives the full price it advertised.",
   "booking.businessReceives": "{name} receives: R$ {amount}",
   "booking.businessReceived": "{name} received: R$ {amount}",
   "booking.holdNotice":
@@ -496,6 +511,8 @@ export const en: Record<keyof typeof pt, string> = {
   "collection.parks": "Parks",
   "collection.museums": "Museums",
   "collection.animals": "Animals spotted",
+  "profile.whatYouPay": "What you pay",
+  "profile.whatYouPayText": "Nothing. There is no monthly fee on Avena for travellers. When you book a tour through the app, a {pct}% service fee is added to the price — and only then.",
   "profile.collections": "Collections",
 
   "messages.unread": "Unread",

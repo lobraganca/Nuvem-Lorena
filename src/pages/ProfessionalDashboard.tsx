@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { useAvena } from "../store/AvenaContext";
-import { commissionRateFor, plans } from "../lib/plans";
+import { plans } from "../lib/plans";
 import {
   cancellationPolicies,
   cancellationPolicyDescription,
@@ -78,7 +78,6 @@ export function ProfessionalDashboard() {
   const earnings = myBookings
     .filter((b) => b.status === "confirmada")
     .reduce((sum, b) => sum + b.businessPayout, 0);
-  const commissionRate = commissionRateFor(business.planTier);
   const currentPlan = plans.find((p) => p.tier === business.planTier);
   const boostSpend = boostRevenue(boosts.filter((b) => b.businessId === business.id));
 
@@ -134,8 +133,8 @@ export function ProfessionalDashboard() {
           <div className="stat-label">Ganhos líquidos</div>
         </div>
         <div className="stat-card">
-          <div className="stat-value">{Math.round(commissionRate * 100)}%</div>
-          <div className="stat-label">Taxa Avena no seu plano</div>
+          <div className="stat-value">{currentPlan?.price ?? "—"}</div>
+          <div className="stat-label">Sua adesão</div>
         </div>
         <div className="stat-card">
           <div className="stat-value">
@@ -331,14 +330,12 @@ export function ProfessionalDashboard() {
             ) : (
               <div className="booking-breakdown">
                 <div className="muted">
-                  Total pago: R$ {formatBRL(b.totalPrice)}
-                </div>
-                <div className="muted">
-                  Taxa Avena ({Math.round(b.commissionRate * 100)}%): R${" "}
-                  {formatBRL(b.commissionAmount)}
+                  O viajante pagou R$ {formatBRL(b.totalPrice)}, dos quais R${" "}
+                  {formatBRL(b.serviceFee)} são a taxa de serviço do Avena.
                 </div>
                 <div>
-                  Você recebe: <strong>R$ {formatBRL(b.businessPayout)}</strong>
+                  Você recebe: <strong>R$ {formatBRL(b.businessPayout)}</strong>{" "}
+                  <span className="muted">— o preço cheio que você anunciou.</span>
                 </div>
               </div>
             )}

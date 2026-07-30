@@ -313,9 +313,14 @@ export interface Booking {
   travelers: number;
   participants: Participant[];
   unitPrice: number;
+  /** Price of the tour times the travellers, before Avena's fee. */
+  subtotal: number;
+  /** Avena's service fee, paid by the traveller on top of the subtotal. */
+  serviceFeeRate: number;
+  serviceFee: number;
+  /** What the traveller pays: subtotal plus the fee. */
   totalPrice: number;
-  commissionRate: number;
-  commissionAmount: number;
+  /** What the business receives — the whole advertised price. */
   businessPayout: number;
   createdAt: string; // ISO datetime
   reviewed?: boolean;

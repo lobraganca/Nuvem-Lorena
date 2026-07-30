@@ -111,8 +111,8 @@ export function Bookings() {
           </div>
           <div className="muted">
             {t("booking.serviceFee", {
-              pct: Math.round(b.commissionRate * 100),
-              amount: formatBRL(b.commissionAmount),
+              pct: Math.round(b.serviceFeeRate * 100),
+              amount: formatBRL(b.serviceFee),
             })}
           </div>
           <div className="muted">

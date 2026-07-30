@@ -3708,3 +3708,131 @@ textarea:focus-visible,
   outline: 2px solid var(--accent);
   outline-offset: 1px;
 }
+
+/* ---------------------------------------------------------------------------
+   Marketplace home: where are you going, and what is there
+   --------------------------------------------------------------------------- */
+
+.market-home {
+  width: 100%;
+}
+
+.market-hero {
+  padding: 44px 20px 32px;
+  text-align: center;
+  background: linear-gradient(180deg, var(--accent-soft), transparent);
+}
+
+.market-hero h1 {
+  font-size: 30px;
+  text-wrap: balance;
+}
+
+.market-hero .muted {
+  max-width: 46ch;
+  margin: 0 auto;
+}
+
+.market-search {
+  display: flex;
+  gap: 8px;
+  max-width: 520px;
+  margin: 20px auto 0;
+}
+
+.market-search input {
+  flex: 1;
+  min-width: 0;
+  font: inherit;
+  padding: 14px 18px;
+  border-radius: 999px;
+  border: 1px solid var(--border);
+  background: var(--card-bg);
+  color: var(--text-h);
+  box-shadow: var(--shadow);
+}
+
+.market-search input:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 1px;
+}
+
+.market-search .btn-primary {
+  align-self: auto;
+  border-radius: 999px;
+  padding: 14px 24px;
+}
+
+.market-body {
+  display: flex;
+  flex-direction: column;
+  gap: 26px;
+}
+
+/* The four things you can hire, as the first choice after the destination. */
+.market-types {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 10px;
+}
+
+.market-type {
+  padding: 18px 16px;
+  border-radius: 12px;
+  border: 1px solid var(--border);
+  background: var(--card-bg);
+  color: var(--text-h);
+  font-weight: 600;
+  text-decoration: none;
+  text-align: center;
+}
+
+.market-type:hover {
+  border-color: var(--accent);
+}
+
+.market-cities {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  gap: 10px;
+}
+
+.market-city {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 14px 16px;
+  border-radius: 10px;
+  border: 1px solid var(--border);
+  background: var(--bg-alt);
+  color: inherit;
+  text-decoration: none;
+}
+
+.market-city:hover {
+  border-color: var(--accent);
+}
+
+.market-city-name {
+  font-weight: 600;
+  color: var(--text-h);
+}
+
+.market-memories {
+  padding: 18px;
+  border-radius: 12px;
+  border: 1px solid var(--border);
+  background: var(--bg-alt);
+}
+
+.market-memories .timeline-title {
+  margin-top: 0;
+}
+
+/* The line the traveller actually pays, set apart from the parts. */
+.booking-total {
+  padding-top: 6px;
+  margin-top: 4px;
+  border-top: 1px solid var(--border);
+  font-size: 16px;
+}

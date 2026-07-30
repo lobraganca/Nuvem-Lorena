@@ -70,6 +70,19 @@ export const es: Record<keyof typeof pt, string> = {
   "home.recentMemories": "Tus últimos recuerdos",
   "home.seeMap": "Ver en el mapa",
   "home.seeAll": "Ver todo",
+  "market.title": "¿A dónde vas?",
+  "market.subtitle":
+    "Di el destino y mira quién te lleva: paseos, guías, alojamiento y dónde comer.",
+  "market.placeholder": "Ciudad o región",
+  "market.search": "Buscar",
+  "market.services": "Qué necesitas",
+  "market.destinations": "Destinos con socios",
+  "market.partners": "{count} socios",
+  "market.onePartner": "1 socio",
+  "market.memoriesTitle": "Y lo que ya viviste",
+  "market.memoriesEmpty":
+    "Cada viaje que registres se vuelve un punto en tu mapa — solo tuyo, y para siempre.",
+  "market.memoriesCount": "Tienes {count} lugares guardados en tu mapa.",
   "map.title": "Tu mapa afectivo",
   "map.subtitle": "{count} lugares que has guardado.",
   "map.empty": "Tu mapa empieza con el primer recuerdo que registres.",
@@ -197,7 +210,9 @@ export const es: Record<keyof typeof pt, string> = {
   "booking.blockedPastDate": "Elige una fecha de hoy en adelante.",
   "booking.blockedLegal": "Acepta los Términos de Uso para continuar.",
   "booking.total": "Total",
+  "booking.tourPrice": "Paseo",
   "booking.serviceFee": "Tarifa de servicio Avena ({pct}%): R$ {amount}",
+  "booking.feeExplain": "La tarifa se suma al valor del paseo — la empresa recibe el precio completo que anunció.",
   "booking.businessReceives": "{name} recibe: R$ {amount}",
   "booking.businessReceived": "{name} recibió: R$ {amount}",
   "booking.holdNotice":
@@ -498,6 +513,8 @@ export const es: Record<keyof typeof pt, string> = {
   "collection.parks": "Parques",
   "collection.museums": "Museos",
   "collection.animals": "Animales observados",
+  "profile.whatYouPay": "Cuánto pagas",
+  "profile.whatYouPayText": "Nada. No hay mensualidad en Avena para quien viaja. Cuando reservas un paseo por la app, se suma una tarifa de servicio del {pct}% al valor — y solo en ese momento.",
   "profile.collections": "Colecciones",
 
   "messages.unread": "Sin leer",

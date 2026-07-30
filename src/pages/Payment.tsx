@@ -84,14 +84,17 @@ export function Payment() {
           {booking.travelers === 1 ? "pessoa" : "pessoas"}
         </div>
         <div className="booking-breakdown">
-          <div>
-            {t("booking.total")} <strong>R$ {formatBRL(booking.totalPrice)}</strong>
+          <div className="muted">
+            {t("booking.tourPrice")} R$ {formatBRL(booking.subtotal)}
           </div>
           <div className="muted">
             {t("booking.serviceFee", {
-              pct: Math.round(booking.commissionRate * 100),
-              amount: formatBRL(booking.commissionAmount),
+              pct: Math.round(booking.serviceFeeRate * 100),
+              amount: formatBRL(booking.serviceFee),
             })}
+          </div>
+          <div className="booking-total">
+            {t("booking.total")} <strong>R$ {formatBRL(booking.totalPrice)}</strong>
           </div>
           <div className="muted">
             {t("booking.businessReceives", {

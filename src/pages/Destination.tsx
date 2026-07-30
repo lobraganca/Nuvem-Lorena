@@ -27,6 +27,10 @@ export function Destination() {
   useEffect(() => {
     const city = searchParams.get("city");
     if (city) setQuery(city);
+    // Arriving from "what you need" on the home screen lands on that tab
+    // already filtered, instead of on everything.
+    const type = searchParams.get("type");
+    if (type && TABS.includes(type as Tab)) setTab(type as Tab);
   }, [searchParams]);
 
   // Suspended businesses are hidden from travelers everywhere.
@@ -59,6 +63,8 @@ export function Destination() {
 
   // The roteiro follows the same loose matching as the search, so someone who
   // typed "Arraial" sees the roteiro of Arraial do Cabo instead of nothing.
+  const filtering = Boolean(term) || tab !== "Todos";
+
   const searchedCity = resolveCity(cities, term);
   const suggestions = term && matches.length === 0 ? suggestionsFor(brBusinesses, term) : [];
 
@@ -77,7 +83,7 @@ export function Destination() {
           value={query}
           onChange={(e) => setQuery(e.target.value)}
         />
-        {!query && (
+        {!filtering && (
           <div className="chip-row" style={{ marginTop: 14, justifyContent: "center" }}>
             {cities.map((city) => (
               <button key={city} className="chip" onClick={() => setQuery(city)}>
@@ -88,7 +94,7 @@ export function Destination() {
         )}
       </div>
 
-      {!query && (
+      {!filtering && (
         <div className="page page-wide">
           <BannerSlot placement="destination-top" />
           <PromotedTours />
@@ -96,7 +102,7 @@ export function Destination() {
         </div>
       )}
 
-      {query && (
+      {filtering && (
         <div className="page page-wide">
           <div className="viator-tabs">
             {TABS.map((option) => (

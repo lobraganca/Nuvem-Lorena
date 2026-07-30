@@ -59,7 +59,7 @@ export function computeAdminMetrics(
 
   // Commission is only earned on bookings that were not cancelled.
   const commissionTotal =
-    Math.round(confirmed.reduce((s, b) => s + b.commissionAmount, 0) * 100) / 100;
+    Math.round(confirmed.reduce((s, b) => s + b.serviceFee, 0) * 100) / 100;
   const gmv = Math.round(confirmed.reduce((s, b) => s + b.totalPrice, 0) * 100) / 100;
   const refundedTotal =
     Math.round(cancelled.reduce((s, b) => s + (b.refundAmount ?? 0), 0) * 100) / 100;
@@ -131,7 +131,7 @@ export function buildBusinessRows(
         bookings: own.length,
         gmv: Math.round(own.reduce((s, b) => s + b.totalPrice, 0) * 100) / 100,
         commission:
-          Math.round(own.reduce((s, b) => s + b.commissionAmount, 0) * 100) / 100,
+          Math.round(own.reduce((s, b) => s + b.serviceFee, 0) * 100) / 100,
         adSpend: boostRevenue(boosts.filter((b) => b.businessId === business.id)),
         avgRating: stats.avgRating,
         reviewCount: stats.count,

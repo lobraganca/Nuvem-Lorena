@@ -22,7 +22,7 @@ const icon = (path: string) => (
 const homeIcon = icon("M12 3 2.5 11.2l1.3 1.5L5 11.7V20a1 1 0 0 0 1 1h4v-6h4v6h4a1 1 0 0 0 1-1v-8.3l1.2 1 1.3-1.5L12 3z");
 const searchIcon = icon("M10.5 3a7.5 7.5 0 1 1-4.7 13.3L3 19.1 1.9 18l2.8-2.8A7.5 7.5 0 0 1 10.5 3zm0 2a5.5 5.5 0 1 0 0 11 5.5 5.5 0 0 0 0-11z");
 const messageIcon = icon("M12 3c5 0 9 3.4 9 7.7 0 4.2-4 7.6-9 7.6-1 0-2-.1-2.9-.4L4 20.5l1.2-3.4C3.2 15.7 3 13.3 3 10.7 3 6.4 7 3 12 3z");
-const peopleIcon = icon("M8 12a4 4 0 1 0 0-8 4 4 0 0 0 0 8zm8 0a3 3 0 1 0 0-6 3 3 0 0 0 0 6zM2 20v-1c0-3 3-5 6-5s6 2 6 5v1H2zm14 0v-1c0-1.5-.6-2.8-1.5-3.8 3 .3 5.5 2 5.5 4.3V20h-4z");
+const ticketIcon = icon("M3 7a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v3a2 2 0 0 0 0 4v3a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-3a2 2 0 0 0 0-4V7z");
 const dashboardIcon = icon("M3 3h8v8H3V3zm10 0h8v5h-8V3zM3 13h8v8H3v-8zm10 3h8v5h-8v-5z");
 
 /**
@@ -67,7 +67,7 @@ export function BottomNav() {
           // screen most people open once a week.
           { to: "/", label: t("nav.start"), icon: homeIcon },
           { to: "/destination", label: t("nav.search"), icon: searchIcon },
-          { to: "/feed", label: t("nav.people"), icon: peopleIcon },
+          { to: "/bookings", label: t("nav.bookings"), icon: ticketIcon },
           { to: "/profile", label: t("nav.profile"), icon: avatarTab },
         ];
 

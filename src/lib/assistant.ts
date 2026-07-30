@@ -1,4 +1,5 @@
-import { plans, travelerPlans } from "./plans";
+import { plans } from "./plans";
+import { serviceFeePercent } from "./pricing";
 import { cancellationPolicyDescription, cancellationPolicyLabel } from "./cancellation";
 import { BOOST_PACKAGES, boostDailyPrice } from "./boosts";
 import { cancellationPolicies } from "./cancellation";
@@ -36,25 +37,20 @@ export const intents: Intent[] = [
     id: "planos-empresa",
     keywords: ["plano", "mensalidade", "assinatura", "quanto custa", "valor do plano"],
     answer: () =>
-      "Planos para agências, guias, hotéis e restaurantes:\n\n" +
-      plans
-        .map(
-          (p) =>
-            `• ${p.tier} — ${p.price} · taxa de ${Math.round(p.commissionRate * 100)}% por reserva`
-        )
-        .join("\n") +
-      "\n\nPara viajantes:\n" +
-      travelerPlans.map((p) => `• ${p.tier} — ${p.price}`).join("\n"),
+      "Planos de adesão para agências, guias, hotéis e restaurantes:\n\n" +
+      plans.map((p) => `• ${p.tier} — ${p.price}`).join("\n") +
+      "\n\nNada é descontado das suas reservas: o preço que você anuncia é o " +
+      "que você recebe.\n\nPara o viajante não há mensalidade nenhuma.",
   },
   {
     id: "comissao",
     keywords: ["comiss", "taxa", "quanto o avena", "porcentagem", "quanto voces cobram"],
     answer: () =>
-      "A taxa de serviço do Avena sai do valor da reserva e depende do plano da empresa:\n\n" +
-      plans
-        .map((p) => `• ${p.tier}: ${Math.round(p.commissionRate * 100)}%`)
-        .join("\n") +
-      "\n\nO valor aparece detalhado antes de você confirmar a reserva: total pago, taxa do Avena e quanto a empresa recebe.",
+      `A taxa de serviço do Avena é de ${serviceFeePercent()}% e é somada ao ` +
+      "valor do passeio, paga por quem reserva.\n\nA empresa recebe o preço " +
+      "cheio que anunciou — nada sai dela. O que a empresa paga é a adesão " +
+      "mensal do plano.\n\nOs três valores aparecem separados antes de você " +
+      "confirmar: passeio, taxa de serviço e total.",
   },
   {
     id: "reservar",

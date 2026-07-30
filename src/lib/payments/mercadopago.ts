@@ -72,7 +72,7 @@ export function buildPreference(
         currency_id: "BRL",
       },
     ],
-    marketplace_fee: booking.commissionAmount,
+    marketplace_fee: booking.serviceFee,
     // Lets the webhook find the booking again without trusting anything the
     // browser sends back.
     external_reference: booking.id,

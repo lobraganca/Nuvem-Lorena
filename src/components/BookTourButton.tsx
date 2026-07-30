@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAvena } from "../store/AvenaContext";
-import { commissionRateFor } from "../lib/plans";
+import { SERVICE_FEE_RATE, bookingTotals, serviceFeePercent } from "../lib/pricing";
 import { cancellationDescriptionKey, cancellationLabelKey } from "../lib/cancellation";
 import { availabilityFor } from "../lib/availability";
 import { PAYMENT_WINDOW_MINUTES, paymentDeadline } from "../lib/bookingStatus";
@@ -55,10 +55,8 @@ export function BookTourButton({ business, tour }: { business: Business; tour: T
   const legalOk = legalAccepted || legalChecked;
 
   const unitPrice = tour.priceFrom ?? 0;
-  const totalPrice = unitPrice * travelers;
-  const commissionRate = commissionRateFor(business.planTier);
-  const commissionAmount = Math.round(totalPrice * commissionRate * 100) / 100;
-  const businessPayout = Math.round((totalPrice - commissionAmount) * 100) / 100;
+  const totals = bookingTotals(unitPrice, travelers);
+
   const cancellationPolicy = tour.cancellationPolicy ?? "moderada";
   const availability = availabilityFor(tour, bookings, travelDate);
   const peopleError = participantsError(participants);
@@ -118,10 +116,11 @@ export function BookTourButton({ business, tour }: { business: Business; tour: T
       travelers,
       participants,
       unitPrice,
-      totalPrice,
-      commissionRate,
-      commissionAmount,
-      businessPayout,
+      subtotal: totals.subtotal,
+      serviceFeeRate: SERVICE_FEE_RATE,
+      serviceFee: totals.fee,
+      totalPrice: totals.total,
+      businessPayout: totals.businessReceives,
       createdAt: new Date().toISOString(),
       // The seat is held, not sold. Only the payment turns it into a booking.
       status: "aguardando-pagamento" as const,
@@ -223,18 +222,23 @@ export function BookTourButton({ business, tour }: { business: Business; tour: T
 
       <div className="booking-breakdown">
         <div>
-          {t("booking.total")} <strong>R$ {formatBRL(totalPrice)}</strong>
+          {t("booking.tourPrice")} <strong>R$ {formatBRL(totals.subtotal)}</strong>
         </div>
         <div className="muted">
           {t("booking.serviceFee", {
-            pct: Math.round(commissionRate * 100),
-            amount: formatBRL(commissionAmount),
+            pct: serviceFeePercent(),
+            amount: formatBRL(totals.fee),
           })}
+        </div>
+        {/* The total is the line that matters, so it is the one in bold and
+            the last one before the button. */}
+        <div className="booking-total">
+          {t("booking.total")} <strong>R$ {formatBRL(totals.total)}</strong>
         </div>
         <div className="muted">
           {t("booking.businessReceives", {
             name: business.name,
-            amount: formatBRL(businessPayout),
+            amount: formatBRL(totals.businessReceives),
           })}
         </div>
         <div className="muted">
