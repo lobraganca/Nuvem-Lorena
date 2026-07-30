@@ -43,14 +43,20 @@ export const categoryColor: Record<Category, string> = {
 export const businessTypes: BusinessType[] = ["Agência", "Guia", "Restaurante", "Hotel"];
 
 /**
- * Cover colour for a business with no photo yet. Dark enough that the white
- * type label on top of it stays readable.
+ * Cover colour for a business with no photo yet.
+ *
+ * Four earth tones from the brand's own world — forest, olive, taupe,
+ * terracotta — rather than the saturated blue, green, orange and purple that
+ * were there before. On a page built from deep green and cream, a royal blue
+ * card is the loudest thing on the screen and belongs to nobody.
+ *
+ * All four clear 6:1 against the white label they carry.
  */
 export const businessTypeColor: Record<BusinessType, string> = {
-  Agência: "#1d4ed8",
-  Guia: "#3f6212",
-  Restaurante: "#9a3412",
-  Hotel: "#6d28d9",
+  Agência: "#2f4131",
+  Guia: "#55672f",
+  Restaurante: "#7a3a2b",
+  Hotel: "#5a4a3a",
 };
 
 /** Best-effort category guess from a tour title, used to pre-fill a memory. */

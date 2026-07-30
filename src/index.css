@@ -1,18 +1,26 @@
 :root {
-  --text: #5c6672;
-  --text-h: #14181f;
-  --bg: #ffffff;
-  --bg-alt: #f5f6f8;
-  --border: #dde1e6;
+  /* The palette comes from the wordmark: a deep green and the cream of its
+     letters. The neutrals are warmed towards that cream rather than left as
+     blue-grey, so nothing on the page looks borrowed from another brand. */
+  --text: #5f6259;
+  --text-h: #171c16;
+  --bg: #fbfaf6;
+  --bg-alt: #f2f1ea;
+  --border: #e2e0d5;
   --accent: #1b2619;
-  --accent-soft: rgba(27, 38, 25, 0.08);
+  --accent-soft: rgba(27, 38, 25, 0.07);
+  /* The sand of the logo lettering, for small marks that should not shout. */
+  --sand: #a08a5b;
   /* Text that sits ON the accent fill. It cannot be hardcoded to white: in
      dark mode the accent is a light sage, and white on it is unreadable. */
-  --on-accent: #ffffff;
+  --on-accent: #f4efe2;
   --card-bg: #ffffff;
-  --shadow: rgba(16, 24, 40, 0.08) 0 4px 12px -2px, rgba(16, 24, 40, 0.04) 0 2px 4px -2px;
+  --shadow: rgba(23, 28, 22, 0.07) 0 4px 14px -3px, rgba(23, 28, 22, 0.04) 0 2px 5px -2px;
 
   --sans: system-ui, "Segoe UI", Roboto, sans-serif;
+  /* Headings echo the wordmark; running text stays a plain sans, because a
+     serif at 15px on a phone is elegance bought with legibility. */
+  --serif: Georgia, "Times New Roman", "Nimbus Roman", serif;
   /* Unitless so large headings scale their own line box instead of
      inheriting a fixed px value computed from the root font size. */
   font: 15px/1.45 var(--sans);
@@ -24,16 +32,19 @@
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --text: #a3adba;
-    --text-h: #f0f2f5;
-    --bg: #12151a;
-    --bg-alt: #1a1e25;
-    --border: #2a2f38;
-    --accent: #8fae7f;
-    --accent-soft: rgba(143, 174, 127, 0.15);
+    --text: #a8b0a2;
+    --text-h: #f1efe6;
+    /* The dark theme is the inside of the wordmark's green, not a neutral
+       black — the same world with the lights off. */
+    --bg: #12170f;
+    --bg-alt: #1a2017;
+    --border: #2c3428;
+    --accent: #a9c398;
+    --accent-soft: rgba(169, 195, 152, 0.14);
+    --sand: #cbb994;
     --on-accent: #11150f;
-    --card-bg: #1a1e25;
-    --shadow: rgba(0, 0, 0, 0.4) 0 4px 12px -2px;
+    --card-bg: #1a2017;
+    --shadow: rgba(0, 0, 0, 0.45) 0 4px 14px -3px;
   }
 }
 
@@ -58,13 +69,22 @@ h3 {
   color: var(--text-h);
 }
 
+h1,
+h2 {
+  font-family: var(--serif);
+  font-weight: 400;
+  letter-spacing: -0.01em;
+}
+
 h1 {
-  font-size: 28px;
+  font-size: 30px;
+  line-height: 1.2;
   margin: 0 0 8px;
+  text-wrap: balance;
 }
 
 h2 {
-  font-size: 18px;
+  font-size: 21px;
   margin: 0;
 }
 
@@ -701,8 +721,8 @@ legend {
 
 .btn-primary {
   align-self: flex-start;
-  padding: 10px 24px;
-  border-radius: 6px;
+  padding: 11px 26px;
+  border-radius: 999px;
   border: none;
   background: var(--accent);
   color: var(--on-accent);
@@ -3724,7 +3744,7 @@ textarea:focus-visible,
 }
 
 .market-hero h1 {
-  font-size: 30px;
+  font-size: clamp(28px, 8vw, 38px);
   text-wrap: balance;
 }
 

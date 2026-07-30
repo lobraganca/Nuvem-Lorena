@@ -115,12 +115,6 @@ export function Bookings() {
               amount: formatBRL(b.serviceFee),
             })}
           </div>
-          <div className="muted">
-            {t(isPaid ? "booking.businessReceived" : "booking.businessReceives", {
-              name: b.businessName,
-              amount: formatBRL(b.businessPayout),
-            })}
-          </div>
           {b.payment && (
             <div className="muted">
               {t("bookings.paidVia", {

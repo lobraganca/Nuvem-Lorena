@@ -239,12 +239,6 @@ export function BookTourButton({ business, tour }: { business: Business; tour: T
             someone slipped in. */}
         <div className="muted">{t("booking.feeExplain")}</div>
         <div className="muted">
-          {t("booking.businessReceives", {
-            name: business.name,
-            amount: formatBRL(totals.businessReceives),
-          })}
-        </div>
-        <div className="muted">
           {t("business.cancellation", {
             policy: t(cancellationLabelKey[cancellationPolicy]),
           })}

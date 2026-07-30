@@ -96,12 +96,6 @@ export function Payment() {
           <div className="booking-total">
             {t("booking.total")} <strong>R$ {formatBRL(booking.totalPrice)}</strong>
           </div>
-          <div className="muted">
-            {t("booking.businessReceives", {
-              name: booking.businessName,
-              amount: formatBRL(booking.businessPayout),
-            })}
-          </div>
         </div>
       </div>
 
