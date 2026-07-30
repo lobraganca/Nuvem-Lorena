@@ -219,7 +219,7 @@ export const pt = {
   "booking.total": "Valor total",
   "booking.tourPrice": "Passeio",
   "booking.serviceFee": "Taxa de serviço Avena ({pct}%): R$ {amount}",
-  "booking.feeExplain": "A taxa é somada ao valor do passeio — a empresa recebe o preço cheio que anunciou.",
+  "booking.feeExplain": "A taxa mantém o Avena no ar: o cadastro dos parceiros, o registro da sua reserva e o canal de ajuda. A empresa recebe o preço cheio que anunciou.",
   "booking.businessReceives": "{name} recebe: R$ {amount}",
   "booking.businessReceived": "{name} recebeu: R$ {amount}",
   "booking.holdNotice":

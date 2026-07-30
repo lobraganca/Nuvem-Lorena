@@ -212,7 +212,7 @@ export const en: Record<keyof typeof pt, string> = {
   "booking.total": "Total",
   "booking.tourPrice": "Tour",
   "booking.serviceFee": "Avena service fee ({pct}%): R$ {amount}",
-  "booking.feeExplain": "The fee is added on top of the tour price — the business receives the full price it advertised.",
+  "booking.feeExplain": "The fee keeps Avena running: the partner register, the record of your booking and the help channel. The business receives the full price it advertised.",
   "booking.businessReceives": "{name} receives: R$ {amount}",
   "booking.businessReceived": "{name} received: R$ {amount}",
   "booking.holdNotice":

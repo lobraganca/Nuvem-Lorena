@@ -16,6 +16,21 @@
  */
 export const SERVICE_FEE_RATE = 0.1;
 
+/**
+ * What a business pays to join, on top of whatever plan it picks.
+ *
+ * Zero during the launch, and that is a decision rather than an omission: a
+ * two-sided marketplace with no travellers on it yet cannot ask an agency to
+ * pay for entry — they would be buying a shop with no street. Once there is
+ * real movement this becomes a real number, and the partners who came first
+ * keep the waiver, which is the only fair way to treat the people who took the
+ * risk of being early.
+ */
+export const JOINING_FEE = 0;
+
+/** True while joining is free, so the page says so instead of showing "R$ 0". */
+export const LAUNCH_WAIVER = JOINING_FEE === 0;
+
 export interface BookingTotals {
   /** The tour price times the number of travellers. */
   subtotal: number;

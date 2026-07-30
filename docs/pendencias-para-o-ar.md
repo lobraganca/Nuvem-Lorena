@@ -257,3 +257,38 @@ confirmada é uma promessa. Detalhes em `pagamentos-mercado-pago.md`.
 O filtro de palavras barra o óbvio, mas quem quer ofender contorna
 qualquer lista. Antes de abrir para o público, é preciso um botão de
 denunciar e alguém para analisar.
+
+## Decisões de preço, e por que foram essas
+
+Lorena deixou a escolha comigo. Ficou assim, e tudo mora em
+`src/lib/pricing.ts` — trocar um número lá muda o app inteiro.
+
+### Taxa de serviço: 10%, paga pelo viajante, somada ao preço
+
+Viator e GetYourGuide cobram 20% a 30%, escondidos dentro do repasse do
+operador. O Airbnb cobra cerca de 14% do hóspede. Dez por cento fica bem
+abaixo de todos, e número redondo passa mais confiança que 8,7%.
+
+O custo dessa escolha é a visibilidade: taxa que aparece é taxa que o
+viajante pode questionar. Por isso a tela de reserva **explica o que a taxa
+paga** logo abaixo do valor, em vez de só nomeá-la. A explicação diz apenas
+o que é verdade hoje — cadastro dos parceiros, registro da reserva e canal
+de ajuda. Nada de "garantia" ou "seguro", que não existem.
+
+Se a conversão sofrer, o caminho de volta é curto: descontar da agência,
+como era antes, ou dividir entre os dois lados.
+
+### Adesão: zero durante o lançamento
+
+Isto é decisão, não esquecimento. Marketplace de dois lados sem viajante
+não pode cobrar entrada de agência — ela estaria comprando loja em rua sem
+movimento. Cobrar antes de haver demanda é o jeito mais rápido de não ter
+oferta nenhuma, e sem oferta não há demanda.
+
+Quando houver movimento real, `JOINING_FEE` vira um número. **Os parceiros
+que entraram no lançamento mantêm a isenção** — é a única forma justa de
+tratar quem correu o risco de ser primeiro.
+
+Os planos pagos (Pro e Avançado) continuam existindo, mas como **opcionais
+de visibilidade**, não como pedágio: no plano gratuito a empresa recebe
+reserva do mesmo jeito. A página para empresas diz isso com essas palavras.

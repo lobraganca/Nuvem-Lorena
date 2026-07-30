@@ -235,6 +235,9 @@ export function BookTourButton({ business, tour }: { business: Business; tour: T
         <div className="booking-total">
           {t("booking.total")} <strong>R$ {formatBRL(totals.total)}</strong>
         </div>
+        {/* A visible fee needs a reason next to it, or it reads as a surcharge
+            someone slipped in. */}
+        <div className="muted">{t("booking.feeExplain")}</div>
         <div className="muted">
           {t("booking.businessReceives", {
             name: business.name,

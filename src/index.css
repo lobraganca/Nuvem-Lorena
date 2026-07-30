@@ -3836,3 +3836,21 @@ textarea:focus-visible,
   border-top: 1px solid var(--border);
   font-size: 16px;
 }
+
+/* What a business pays, stated before the plan cards rather than inside them. */
+.pricing-note {
+  padding: 18px;
+  margin-bottom: 16px;
+  border-radius: 12px;
+  border: 1px solid var(--accent);
+  background: var(--accent-soft);
+}
+
+.pricing-note p {
+  margin: 0 0 10px;
+  line-height: 1.6;
+}
+
+.pricing-note p:last-child {
+  margin-bottom: 0;
+}
