@@ -167,8 +167,42 @@ export interface Tour {
 /** Set by the Avena admin; suspended businesses disappear from public listings. */
 export type BusinessStatus = "ativa" | "suspensa";
 
+/** Who is legally responsible for the service: a company or a person. */
+export type LegalKind = "juridica" | "fisica";
+
+/**
+ * What a payment provider needs before it can pay anyone.
+ *
+ * These are the fields Mercado Pago (or any acquirer) asks for when opening a
+ * receiving account, and the same ones the Receita Federal ties an invoice to.
+ * Collected once, on the partner site, and never on the traveller's phone.
+ */
+export interface LegalDetails {
+  kind: LegalKind;
+  /** Company name on the CNPJ card, or the person's full name. */
+  legalName: string;
+  /** CNPJ for a company, CPF for a sole trader. */
+  document: string;
+  /** Optional for most tourism services. */
+  stateRegistration?: string;
+  tradeName?: string;
+  cep: string;
+  address: string;
+  addressExtra?: string;
+  district: string;
+  city: string;
+  state: string;
+  /** Who signs for the company. For a person, themselves. */
+  representative: string;
+  representativeCpf: string;
+  businessEmail: string;
+  businessPhone: string;
+}
+
 export interface Business {
   id: string;
+  /** Filled on the partner site; absent for profiles imported by the team. */
+  legal?: LegalDetails;
   status?: BusinessStatus;
   /** Verified by the admin after checking the Cadastur registration. */
   verified?: boolean;

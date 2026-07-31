@@ -72,3 +72,62 @@ export function documentError(
 export function cadasturLooksValid(value: string): boolean {
   return /^\d{2}\.\d{6}\.\d{2}-\d$/.test(value.trim());
 }
+
+/** 00.000.000/0000-00 while the person types. */
+export function formatCNPJ(value: string): string {
+  const digits = onlyDigits(value).slice(0, 14);
+  return digits
+    .replace(/^(\d{2})(\d)/, "$1.$2")
+    .replace(/^(\d{2})\.(\d{3})(\d)/, "$1.$2.$3")
+    .replace(/\.(\d{3})(\d)/, ".$1/$2")
+    .replace(/(\d{4})(\d)/, "$1-$2");
+}
+
+/**
+ * Validates the two CNPJ check digits, the same way the Receita Federal does.
+ * Catches a typo before it reaches a payment provider and fails there, where
+ * the error message will mean nothing to the person who typed it.
+ */
+export function isValidCNPJ(value: string): boolean {
+  const digits = onlyDigits(value);
+  if (digits.length !== 14) return false;
+  if (/^(\d)\1{13}$/.test(digits)) return false;
+
+  const check = (length: number): number => {
+    let weight = length - 7;
+    let sum = 0;
+    for (let i = 0; i < length; i++) {
+      sum += Number(digits[i]) * weight;
+      weight -= 1;
+      if (weight < 2) weight = 9;
+    }
+    const rest = sum % 11;
+    return rest < 2 ? 0 : 11 - rest;
+  };
+
+  return check(12) === Number(digits[12]) && check(13) === Number(digits[13]);
+}
+
+/** 00000-000 while the person types. */
+export function formatCEP(value: string): string {
+  const digits = onlyDigits(value).slice(0, 8);
+  return digits.replace(/^(\d{5})(\d)/, "$1-$2");
+}
+
+export function isValidCEP(value: string): boolean {
+  return onlyDigits(value).length === 8;
+}
+
+/** (00) 00000-0000 while the person types. */
+export function formatPhone(value: string): string {
+  const digits = onlyDigits(value).slice(0, 11);
+  if (digits.length <= 10) {
+    return digits.replace(/^(\d{2})(\d)/, "($1) $2").replace(/(\d{4})(\d)/, "$1-$2");
+  }
+  return digits.replace(/^(\d{2})(\d)/, "($1) $2").replace(/(\d{5})(\d)/, "$1-$2");
+}
+
+export function isValidPhone(value: string): boolean {
+  const digits = onlyDigits(value);
+  return digits.length === 10 || digits.length === 11;
+}
