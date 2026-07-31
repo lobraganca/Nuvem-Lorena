@@ -3,13 +3,18 @@
 O domínio já é seu. Este documento é o caminho do registro.br até o site no ar.
 
 **Antes de apontar o domínio, leia o Bloco 0 de
-[pendencias-para-o-ar.md](pendencias-para-o-ar.md).** Hoje `/admin` está aberto
-para qualquer pessoa que digitar o endereço. Publicar num domínio real, com
-dados reais, antes de resolver isso, expõe faturamento e documentos de
-participantes.
+[pendencias-para-o-ar.md](pendencias-para-o-ar.md).**
 
-Para publicar **uma demonstração** — para mostrar a sócio, investidor ou
-agência — não há problema, desde que os dados sejam os de exemplo.
+O painel administrativo já não é mais um impedimento: ele só entra no pacote se
+o site for compilado com `VITE_ADMIN_ENABLED=true`, e o build público não é. O
+que continua valendo é que **não há servidor**: cada visitante tem uma cópia
+isolada do app no próprio navegador, ninguém paga nada de verdade, e as contas
+não existem fora do aparelho de quem as criou.
+
+Ou seja: publicar hoje coloca no ar um **site de demonstração no seu domínio**.
+Isso é legítimo e útil — serve para mostrar a sócio, investidor, agência e
+guia, e para começar a aparecer no Google. O que não dá para fazer ainda é
+receber dinheiro nem prometer a alguém que os dados dela ficam guardados.
 
 ---
 
@@ -83,6 +88,11 @@ VITE_PAYMENTS_ENABLED=false
 
 Deixe em `false` enquanto o backend de pagamento não existir. A tela de
 pagamento continua avisando que nada é cobrado.
+
+Não cadastre `VITE_SMS_ENDPOINT` enquanto não houver servidor de SMS. Sem ela,
+a confirmação de telefone roda em modo de teste, mostra o código na tela e
+grava a conta como confirmada "em teste" — que é o comportamento honesto. Com
+ela apontando para um endereço que não responde, o cadastro trava sem saída.
 
 **Nunca** cadastre aqui uma variável com `VITE_` que contenha segredo: tudo com
 esse prefixo é embutido no site e qualquer visitante consegue ler.
