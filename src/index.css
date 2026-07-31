@@ -4,8 +4,14 @@
      blue-grey, so nothing on the page looks borrowed from another brand. */
   --text: #5f6259;
   --text-h: #171c16;
-  --bg: #f4f3ee;
-  --bg-alt: #f2f1ea;
+  /* White, plain. The cream it replaced belonged to the wordmark, but on a
+     phone full of photos it read as a page that had yellowed. The warmth
+     stays where it belongs: in the green, the sand and the type. */
+  --bg: #ffffff;
+  /* Not white, or the surfaces that mark a second level — rails, filled rows,
+     empty states — would dissolve into the page. Barely tinted towards the
+     cream, so it reads as a surface rather than as a grey box. */
+  --bg-alt: #f6f5f1;
   --border: #e2e0d5;
   --accent: #1b2619;
   --accent-soft: rgba(27, 38, 25, 0.07);
