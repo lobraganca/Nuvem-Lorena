@@ -4366,3 +4366,183 @@ textarea:focus-visible,
   color: var(--accent);
   box-shadow: var(--shadow);
 }
+
+/* ---- A porta: a promessa em três linhas, e as lojas ---- */
+
+/* Set large and broken by hand into three lines, like the page it was drawn
+   from. `balance` is deliberately not used: the break is the composition. */
+.door-hero-title {
+  margin: 26px 0 0;
+  font-family: Georgia, "Times New Roman", "Nimbus Roman", serif;
+  font-weight: 400;
+  font-size: clamp(30px, 8.5vw, 42px);
+  line-height: 1.12;
+  letter-spacing: -0.01em;
+  color: var(--door-ink);
+}
+
+/* The one line carried in sand. Bold and coloured together, so it still reads
+   as the emphasis for anyone who cannot tell the two colours apart. */
+.door-hero-accent {
+  font-weight: 700;
+  color: var(--door-sand);
+}
+
+.door-hero-sub {
+  margin: 26px 0 0;
+  font-size: 14px;
+  color: var(--door-soft);
+}
+
+.door-hero-stores {
+  display: flex;
+  justify-content: center;
+  margin-top: 4px;
+}
+
+/* Centred and side by side here, rather than left-aligned as in the page. */
+.door-hero-stores .store-badges {
+  justify-content: center;
+  margin: 12px 0 0;
+}
+
+.door-hero-stores .store-badge {
+  min-width: 0;
+  flex: 1 1 150px;
+  max-width: 190px;
+}
+
+/* ---- Confirmação do telefone ---- */
+
+.phone-verify {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  margin-top: 26px;
+  text-align: left;
+}
+
+.phone-verify h2 {
+  /* Stated, not inherited: the global heading colour is the app's dark ink,
+     which on this green is unreadable. */
+  color: var(--door-ink);
+  margin: 0;
+  font-family: Georgia, "Times New Roman", serif;
+  font-weight: 400;
+  font-size: 24px;
+  text-align: center;
+}
+
+.phone-verify > .muted {
+  margin: 0;
+  text-align: center;
+}
+
+.phone-verify label {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-size: 13px;
+  color: var(--door-soft);
+}
+
+/* The +55 sits inside the field's own outline, so the country code reads as
+   part of the number rather than as a separate thing to fill in. */
+.phone-field {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding-left: 12px;
+  border: 1px solid var(--door-line);
+  border-radius: 12px;
+  background: rgb(255 255 255 / 6%);
+}
+
+.phone-country {
+  font-size: 16px;
+  color: var(--door-soft);
+}
+
+.phone-field input {
+  flex: 1;
+  min-width: 0;
+  padding: 13px 12px 13px 0;
+  border: 0;
+  background: none;
+  color: var(--door-ink);
+  font: inherit;
+  font-size: 16px;
+}
+
+.phone-field input:focus {
+  outline: none;
+}
+
+.phone-field:focus-within {
+  border-color: var(--door-sand);
+}
+
+/* Wide letter spacing and a big size: six digits copied from an SMS are read
+   back one at a time, and a cramped field makes that hard to check. */
+.phone-code {
+  padding: 14px 12px;
+  border: 1px solid var(--door-line);
+  border-radius: 12px;
+  background: rgb(255 255 255 / 6%);
+  color: var(--door-ink);
+  font: inherit;
+  font-size: 26px;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.5em;
+  text-align: center;
+}
+
+.phone-code:focus {
+  outline: none;
+  border-color: var(--door-sand);
+}
+
+.phone-code-label {
+  align-items: center;
+}
+
+/* Marked as test on purpose, and never styled as a success: this code proves
+   nothing until the server sends it. */
+.phone-testcode {
+  margin: 0;
+  padding: 10px 12px;
+  border: 1px dashed var(--door-sand);
+  border-radius: 12px;
+  text-align: center;
+  font-size: 14px;
+  color: var(--door-sand);
+}
+
+.phone-testcode strong {
+  font-size: 20px;
+  letter-spacing: 0.24em;
+  font-variant-numeric: tabular-nums;
+}
+
+.phone-actions {
+  display: flex;
+  justify-content: center;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.phone-actions button:disabled {
+  opacity: 0.5;
+}
+
+/* "Google Play" broke over two lines inside the narrower door badge, which
+   turned the pill into a block. The name never wraps. */
+.door-hero-stores .store-badge-name,
+.door-hero-stores .store-badge-top {
+  white-space: nowrap;
+}
+
+.door-hero-stores .store-badge {
+  padding: 9px 14px;
+  gap: 8px;
+}

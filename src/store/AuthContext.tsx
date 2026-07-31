@@ -41,6 +41,18 @@ interface AuthValue {
   accountsPossible: boolean;
   /** Erases the account and all data on this device. There is no undo. */
   resetDevice: () => void;
+  /** True while the account still owes a confirmed phone number. */
+  needsPhone: boolean;
+  /** Records a number the person just confirmed. */
+  setVerifiedPhone: (phone: string, level: "servidor" | "teste") => void;
+  /**
+   * Puts the question off until the next visit. Deliberately not stored: it
+   * comes back, which is the pressure to confirm, without ever locking someone
+   * out of an account they already made.
+   */
+  postponePhone: () => void;
+  /** Brings the phone screen back, for someone who put it off. */
+  askForPhone: () => void;
 }
 
 const AuthContext = createContext<AuthValue | null>(null);
@@ -127,6 +139,25 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     window.location.reload();
   }, []);
 
+  const [phonePostponed, setPhonePostponed] = useState(false);
+
+  const setVerifiedPhone = useCallback<AuthValue["setVerifiedPhone"]>((phone, level) => {
+    setAccount((current) => {
+      if (!current) return current;
+      const updated: Account = {
+        ...current,
+        phone,
+        phoneVerifiedBy: level,
+        phoneVerifiedAt: new Date().toISOString(),
+      };
+      writeStored(ACCOUNT_KEY, JSON.stringify(updated));
+      return updated;
+    });
+  }, []);
+
+  const postponePhone = useCallback(() => setPhonePostponed(true), []);
+  const askForPhone = useCallback(() => setPhonePostponed(false), []);
+
   const continueAsGuest = useCallback(() => {
     writeStored(SESSION_KEY, "visitante");
     setSession("visitante");
@@ -143,8 +174,26 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       continueAsGuest,
       accountsPossible,
       resetDevice,
+      needsPhone:
+        session === "conta" && account !== null && !account.phoneVerifiedAt && !phonePostponed,
+      setVerifiedPhone,
+      postponePhone,
+      askForPhone,
     }),
-    [account, session, signUp, signIn, signOut, continueAsGuest, accountsPossible, resetDevice]
+    [
+      account,
+      session,
+      signUp,
+      signIn,
+      signOut,
+      continueAsGuest,
+      accountsPossible,
+      resetDevice,
+      phonePostponed,
+      setVerifiedPhone,
+      postponePhone,
+      askForPhone,
+    ]
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

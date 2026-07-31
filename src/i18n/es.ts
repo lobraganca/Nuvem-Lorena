@@ -621,6 +621,14 @@ export const es: Record<keyof typeof pt, string> = {
     "Solo estás mirando, sin cuenta. Nada de lo que hagas aquí se guardará.",
   "auth.guestCreate": "Crear una cuenta",
 
+  "door.heroLineA": "El Brasil que solo",
+  "door.heroLineB": "quien vive allí",
+  "door.heroLineC": "sabe mostrar",
+  "door.heroDownload": "¡Descárgalo ahora en tu dispositivo!",
+  "door.heroDownloadSoon": "Pronto en las tiendas. Por ahora, úsalo en el navegador.",
+  "profile.phone": "Teléfono",
+  "profile.phoneConfirm": "Confirmar mi teléfono",
+  "profile.phoneTest": "Confirmado en modo de prueba — hazlo de nuevo cuando el SMS esté activo.",
   "door.experiencesTitle": "Experiencias, no solo destinos",
   "door.experiencesText":
     "Cada lugar por donde pasaste se vuelve un recuerdo con fecha, foto e historia — un mapa que existe solo porque tú estuviste allí. Y cuando quieras vivir algo nuevo, los paseos vienen de gente registrada, que conoce el lugar por dentro.",

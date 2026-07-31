@@ -38,6 +38,8 @@ import { FirstMemory } from "./pages/FirstMemory";
 import { NotFound } from "./pages/NotFound";
 import { LanguageSwitcher } from "./components/LanguageSwitcher";
 import { NotificationsBell } from "./components/NotificationsBell";
+import { PhoneVerification } from "./components/PhoneVerification";
+import { hasSmsServer } from "./lib/phoneVerification";
 import { I18nProvider, useT } from "./i18n";
 
 // Loaded on demand *and* only when the build enabled it, so a public build
@@ -58,13 +60,32 @@ function RootScreen() {
 
 function AppShell() {
   const { user } = useAvena();
-  const { signedIn } = useAuth();
+  const { signedIn, needsPhone, setVerifiedPhone, postponePhone } = useAuth();
   const t = useT();
 
   // Nobody reaches the app without passing the door. Rendering the sign-in
   // screen in place of the whole shell — rather than redirecting — means there
   // is no address to type past it.
   if (!signedIn) return <SignIn />;
+
+  // Same reasoning as the door: rendering the screen in place of the shell,
+  // rather than redirecting, means there is no address that skips it.
+  if (needsPhone) {
+    return (
+      <div className="signin-page">
+        <div className="signin-card">
+          <h1 className="signin-wordmark">avena</h1>
+          <PhoneVerification
+            onVerified={setVerifiedPhone}
+            // Optional while there is no server to send the SMS. The day the
+            // server exists this goes away and the number becomes required.
+            onSkip={hasSmsServer() ? undefined : postponePhone}
+          />
+        </div>
+      </div>
+    );
+  }
+
   const isProfissional = user.accountType === "profissional";
   const chosen = Boolean(user.accountType);
 

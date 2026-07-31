@@ -8,6 +8,7 @@ import { SettingsRow, rowIcon } from "../components/SettingsRow";
 import { LanguageSwitcher } from "../components/LanguageSwitcher";
 import { openCookiePreferences } from "../components/CookieBanner";
 import { partnerSignupUrl } from "../lib/partnerSite";
+import { formatPhone } from "../lib/documents";
 import { useT } from "../i18n";
 
 /**
@@ -21,7 +22,7 @@ import { useT } from "../i18n";
  */
 export function Profile() {
   const { user, updateUser } = useAvena();
-  const { account, signOut } = useAuth();
+  const { account, signOut, askForPhone } = useAuth();
   const [editing, setEditing] = useState(false);
   const [name, setName] = useState(user.name);
   const [username, setUsername] = useState(user.username);
@@ -39,6 +40,11 @@ export function Profile() {
     fileToStoredPhoto(file)
       .then((photo) => updateUser({ avatarPhoto: photo }))
       .catch(() => alert("Não foi possível usar esta imagem. Tente outra foto."));
+  }
+
+  /** +5511999998888 back into the shape a Brazilian reads. */
+  function readablePhone(stored: string) {
+    return `+55 ${formatPhone(stored.replace(/^\+55/, ""))}`;
   }
 
   const profileText = `${name} ${username} ${bio}`;
@@ -107,6 +113,24 @@ export function Profile() {
           label={t(editing ? "common.cancel" : "profile.editProfile")}
         />
         <SettingsRow to="/meus-dados" icon={rowIcon.person} label={t("profile.myData")} />
+        {account && (
+          <div className="settings-row settings-row-static">
+            <span className="row-icon" aria-hidden="true">
+              {rowIcon.phone}
+            </span>
+            <span className="row-label">{t("profile.phone")}</span>
+            <span className="muted">
+              {account.phone ? readablePhone(account.phone) : "—"}
+            </span>
+          </div>
+        )}
+        {account && !account.phone && (
+          <SettingsRow
+            onClick={askForPhone}
+            icon={rowIcon.phone}
+            label={t("profile.phoneConfirm")}
+          />
+        )}
         <SettingsRow to="/desejos" icon={rowIcon.star} label={t("nav.wishlist")} />
         <SettingsRow to="/feed" icon={rowIcon.map} label={t("nav.people")} />
       </div>

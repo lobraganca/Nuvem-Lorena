@@ -2,6 +2,8 @@ import { useState } from "react";
 import { useAuth, type AuthError } from "../store/AuthContext";
 import { isValidEmail, passwordProblem } from "../lib/auth";
 import { LanguageSwitcher } from "../components/LanguageSwitcher";
+import { StoreBadges } from "../components/StoreBadges";
+import { anyStoreLive } from "../lib/appStores";
 import { useT } from "../i18n";
 import type { TranslationKey } from "../i18n";
 
@@ -110,8 +112,23 @@ export function SignIn() {
 
         {step === "porta" ? (
           <>
+            {/* The promise, set large and broken across three lines with the
+                middle one carried in sand — the one line that says what this
+                is for. */}
+            <h2 className="door-hero-title">
+              {t("door.heroLineA")}{" "}
+              <span className="door-hero-accent">{t("door.heroLineB")}</span>{" "}
+              {t("door.heroLineC")}
+            </h2>
             <p className="signin-invite">{t("auth.invite")}</p>
             <p className="signin-experiences">{t("auth.experiences")}</p>
+
+            <p className="door-hero-sub">
+              {anyStoreLive() ? t("door.heroDownload") : t("door.heroDownloadSoon")}
+            </p>
+            <div className="door-hero-stores">
+              <StoreBadges />
+            </div>
 
             {choices}
 

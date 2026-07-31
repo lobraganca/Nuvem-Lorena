@@ -17,6 +17,15 @@ export interface Account {
   passwordHash: string;
   salt: string;
   createdAt: string;
+  /** Confirmed number, in +55DDNNNNNNNNN. Absent until the person confirms. */
+  phone?: string;
+  /**
+   * How it was confirmed. "servidor" means an SMS the browser never saw;
+   * "teste" means the code was made on this device, which proves nothing and
+   * has to be redone once the server exists.
+   */
+  phoneVerifiedBy?: "servidor" | "teste";
+  phoneVerifiedAt?: string;
 }
 
 /** Password hashing needs Web Crypto, which a page opened from a file lacks. */
