@@ -61,7 +61,7 @@ O resto deste documento usa a Vercel. Na Netlify os passos são equivalentes.
 Na Vercel, em **Settings › Domains**, adicione `avenaapp.com.br` e também
 `www.avenaapp.com.br`. Ela mostra os registros a criar.
 
-No **registro.br**, em "Editar zona DNS" do seu domínio:
+Depois, no painel de DNS de quem registrou o domínio:
 
 | Tipo | Nome | Valor |
 |---|---|---|
@@ -69,6 +69,30 @@ No **registro.br**, em "Editar zona DNS" do seu domínio:
 | CNAME | `www` | o endereço `.vercel-dns.com` que ela indicar |
 
 Copie os valores da tela da Vercel — não de um tutorial antigo, eles mudam.
+
+### Na GoDaddy
+
+**My Products › o domínio › DNS › Manage DNS.** A lista de registros aparece
+ali. Três armadilhas, nesta ordem de importância:
+
+1. **Já existe um registro `A` no nome `@`**, apontando para um IP da própria
+   GoDaddy (é a página "este domínio está estacionado"). Ele tem de ser
+   **editado** para o IP da Vercel, não duplicado. Dois registros `A` no mesmo
+   nome mandam metade das visitas para a página de estacionamento — e o erro
+   aparece de forma intermitente, que é o pior jeito de descobrir.
+2. **Não use "Forwarding" (redirecionamento).** É um atalho que a GoDaddy
+   oferece na mesma tela e que parece resolver, mas ele serve a página por
+   dentro de um quadro, quebra o HTTPS do endereço final e atrapalha o Google.
+   O caminho certo é o registro `A` acima.
+3. **Se houver um registro `CNAME` chamado `www`** apontando para
+   `@` ou para a GoDaddy, edite-o para o endereço `.vercel-dns.com`.
+
+O TTL padrão é uma hora; baixar para dez minutos antes de mexer faz a mudança
+valer mais rápido, e depois pode voltar ao padrão.
+
+### No registro.br
+
+Em **"Editar zona DNS"** do domínio, os mesmos dois registros da tabela acima.
 
 **Prazo:** a mudança de DNS leva de alguns minutos a algumas horas para valer
 no mundo todo. É normal o site aparecer para você e ainda não para outra
