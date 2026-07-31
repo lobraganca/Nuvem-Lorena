@@ -113,6 +113,12 @@ VITE_PAYMENTS_ENABLED=false
 Deixe em `false` enquanto o backend de pagamento não existir. A tela de
 pagamento continua avisando que nada é cobrado.
 
+**Não cadastre `VITE_BASE_PATH` na Vercel.** Ela existe só para o site de teste
+no GitHub Pages, que serve o app dentro de `/Nuvem-Lorena/`. No domínio próprio
+o app fica na raiz. Se essa variável for definida lá, o site sobe, a página
+abre em branco e o navegador procura os arquivos numa pasta que não existe —
+sem nenhuma mensagem de erro que explique o motivo.
+
 Não cadastre `VITE_SMS_ENDPOINT` enquanto não houver servidor de SMS. Sem ela,
 a confirmação de telefone roda em modo de teste, mostra o código na tela e
 grava a conta como confirmada "em teste" — que é o comportamento honesto. Com
