@@ -1,7 +1,8 @@
 import { useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { useAvena } from "../store/AvenaContext";
-import { plans } from "../lib/plans";
+import { DEFAULT_PLAN } from "../lib/plans";
+import { serviceFeePercent } from "../lib/pricing";
 import { BRAZILIAN_STATES } from "../lib/collections";
 import { businessTypes, cadasturRequired } from "../lib/categories";
 import {
@@ -9,7 +10,7 @@ import {
   useAcceptLegal,
   useLegalAccepted,
 } from "../components/LegalAcceptance";
-import type { Business, BusinessType, LegalDetails, PlanTier } from "../types";
+import type { Business, BusinessType, LegalDetails } from "../types";
 import { ModerationNotice, isPublishable } from "../components/ModerationNotice";
 import { newId } from "../lib/ids";
 import { cadasturLooksValid, formatPhone } from "../lib/documents";
@@ -43,7 +44,6 @@ export function BusinessRegister() {
   const legalAccepted = useLegalAccepted();
   const acceptLegal = useAcceptLegal();
   const legalOk = legalAccepted || legalChecked;
-  const [planTier, setPlanTier] = useState<PlanTier>("Básico");
   const [legal, setLegal] = useState<LegalDetails>(emptyLegalDetails);
   const [step, setStep] = useState<1 | 2>(1);
   const [problem, setProblem] = useState<string | null>(null);
@@ -87,7 +87,7 @@ export function BusinessRegister() {
       id: newId(),
       name,
       type,
-      planTier,
+      planTier: DEFAULT_PLAN,
       description,
       city,
       state,
@@ -218,22 +218,15 @@ export function BusinessRegister() {
           )}
         </label>
 
-        <fieldset>
-          <legend>Escolha seu plano</legend>
-          <div className="plan-picker">
-            {plans.map((plan) => (
-              <button
-                type="button"
-                key={plan.tier}
-                className={`plan-option ${planTier === plan.tier ? "plan-option-active" : ""}`}
-                onClick={() => setPlanTier(plan.tier)}
-              >
-                <strong>{plan.tier}</strong>
-                <span className="muted">{plan.price}</span>
-              </button>
-            ))}
-          </div>
-        </fieldset>
+        {/* No plan to choose: entering costs nothing. The picker that used to
+            be here offered paid tiers that carry the verified seal and
+            priority in results — things that are worth nothing the moment
+            anyone can switch them on for themselves. */}
+        <p className="muted">
+          Cadastrar é gratuito e não há mensalidade. O Avena cobra uma taxa de
+          serviço de {serviceFeePercent()}%, somada ao preço pelo viajante que
+          reserva — você recebe o valor que anunciou, inteiro.
+        </p>
 
         <ModerationNotice text={`${name} ${description}`} />
         <button

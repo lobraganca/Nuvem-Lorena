@@ -1,10 +1,9 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import { useAvena } from "../store/AvenaContext";
-import { plans } from "../lib/plans";
 import { reviewStatsFor } from "../lib/reviews";
 import { BusinessCard } from "../components/BusinessCard";
-import { JOINING_FEE, LAUNCH_WAIVER, serviceFeePercent } from "../lib/pricing";
+import { serviceFeePercent } from "../lib/pricing";
 import { partnerSignupUrl } from "../lib/partnerSite";
 
 export function BusinessLanding() {
@@ -47,14 +46,9 @@ export function BusinessLanding() {
       <h2 className="timeline-title">Quanto custa estar no Avena</h2>
       <div className="pricing-note">
         <p>
-          <strong>
-            {LAUNCH_WAIVER
-              ? "A adesão é gratuita para os primeiros parceiros."
-              : `Adesão: R$ ${JOINING_FEE.toFixed(2).replace(".", ",")}.`}
-          </strong>{" "}
-          {LAUNCH_WAIVER
-            ? "O Avena está começando e ainda tem poucos viajantes — não seria justo cobrar entrada por uma vitrine que ainda está enchendo. Quem entrar agora mantém a isenção depois."
-            : "Cobrada uma vez, na entrada."}
+          <strong>Cadastrar é gratuito, e não há mensalidade.</strong> Você
+          entra, publica seus passeios e recebe reservas sem pagar nada por
+          isso.
         </p>
         <p>
           <strong>Nada é descontado das suas reservas.</strong> O preço que você
@@ -63,23 +57,10 @@ export function BusinessLanding() {
           aparece separada na tela dele antes de confirmar.
         </p>
         <p className="muted">
-          Os planos abaixo são opcionais: servem para aparecer mais, não para
-          poder vender. No plano gratuito você recebe reservas do mesmo jeito.
+          O Avena se sustenta dessa taxa e dos anúncios em destaque, que são
+          opcionais e sempre marcados como patrocinados. Se um dia existir um
+          plano pago, ele será para aparecer mais — nunca para poder vender.
         </p>
-      </div>
-      <div className="plans-grid">
-        {plans.map((plan) => (
-          <div key={plan.tier} className={`plan-card plan-${plan.tier.toLowerCase()}`}>
-            <h3>{plan.tier}</h3>
-            <div className="plan-price">{plan.price}</div>
-            <p className="muted">{plan.tagline}</p>
-            <ul>
-              {plan.features.map((f) => (
-                <li key={f}>{f}</li>
-              ))}
-            </ul>
-          </div>
-        ))}
       </div>
 
       <div className="business-list-header">

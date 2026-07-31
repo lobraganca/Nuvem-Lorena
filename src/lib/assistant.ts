@@ -1,4 +1,4 @@
-import { plans } from "./plans";
+import { DEFAULT_PLAN } from "./plans";
 import { serviceFeePercent } from "./pricing";
 import { cancellationPolicyDescription, cancellationPolicyLabel } from "./cancellation";
 import { BOOST_PACKAGES, boostDailyPrice } from "./boosts";
@@ -37,10 +37,12 @@ export const intents: Intent[] = [
     id: "planos-empresa",
     keywords: ["plano", "mensalidade", "assinatura", "quanto custa", "valor do plano"],
     answer: () =>
-      "Planos de adesão para agências, guias, hotéis e restaurantes:\n\n" +
-      plans.map((p) => `• ${p.tier} — ${p.price}`).join("\n") +
-      "\n\nNada é descontado das suas reservas: o preço que você anuncia é o " +
-      "que você recebe.\n\nPara o viajante não há mensalidade nenhuma.",
+      "Cadastrar agência, guia, experiência, hotel ou restaurante é " +
+      "gratuito, e não há mensalidade.\n\nO Avena cobra uma taxa de serviço " +
+      `de ${serviceFeePercent()}%, somada ao preço pelo viajante que reserva. ` +
+      "Nada é descontado de você: o preço que anuncia é o que recebe.\n\n" +
+      "Para o viajante também não há mensalidade — ele só paga a taxa quando " +
+      "reserva alguma coisa.",
   },
   {
     id: "comissao",
@@ -96,11 +98,9 @@ export const intents: Intent[] = [
     answer: () =>
       "Se você tem conta profissional, pode destacar um passeio na primeira tela dos viajantes.\n\nNo painel, clique em “Turbinar anúncio”, escolha " +
       BOOST_PACKAGES.join(", ") +
-      " dias e confirme. O preço por dia depende do seu plano:\n\n" +
-      plans
-        .map((p) => `• ${p.tier}: R$ ${brl(boostDailyPrice(p.tier))}/dia`)
-        .join("\n") +
-      "\n\nAnúncios em destaque aparecem sempre marcados como “Patrocinado”.",
+      ` dias e confirme. Custa R$ ${brl(boostDailyPrice(DEFAULT_PLAN))} por ` +
+      "dia.\n\nAnúncios em destaque aparecem sempre marcados como " +
+      "“Patrocinado”.",
   },
   {
     id: "experiencia",

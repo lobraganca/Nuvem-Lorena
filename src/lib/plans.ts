@@ -11,11 +11,19 @@ export interface PlanDef {
 }
 
 /**
- * What a business pays to be on Avena.
+ * The tiers a business can be on.
  *
- * This is the joining fee, and it is the whole of what the business pays:
- * nothing is deducted from a booking, so the price advertised is the price
- * received. The traveller's side is in `pricing.ts`.
+ * Nobody pays to join. Every business that signs up enters on Básico, which is
+ * free and always was; Pro and Avançado are not for sale — they describe what
+ * a paid tier would give, for the day there is one, and until then they can
+ * only be granted by the admin. That distinction matters: the seal of
+ * "verificado" and the priority in results are the two things that would be
+ * worthless the moment anyone could switch them on for themselves.
+ *
+ * So what does Avena live on? The service fee the traveller pays on a booking,
+ * in `pricing.ts`, plus the promoted listings in `boosts.ts`. Nothing is
+ * deducted from the business: the price it advertises is the price it
+ * receives.
  */
 export const plans: PlanDef[] = [
   {
@@ -32,8 +40,8 @@ export const plans: PlanDef[] = [
   },
   {
     tier: "Pro",
-    price: "R$ 39,90/mês",
-    priceMonthly: 39.9,
+    price: "Ainda não disponível",
+    priceMonthly: 0,
     tagline: "Para agências, guias e restaurantes que querem crescer",
     features: [
       "Tudo do Básico",
@@ -45,8 +53,8 @@ export const plans: PlanDef[] = [
   },
   {
     tier: "Avançado",
-    price: "R$ 79/mês",
-    priceMonthly: 79,
+    price: "Ainda não disponível",
+    priceMonthly: 0,
     tagline: "Para quem quer prioridade máxima e presença de marca",
     features: [
       "Tudo do Pro",
@@ -68,3 +76,9 @@ export const TRAVELER_PAYS_NOTHING_MONTHLY = true;
 export function priceMonthlyFor(tier: PlanTier): number {
   return plans.find((p) => p.tier === tier)?.priceMonthly ?? 0;
 }
+
+/** The tier every new business starts on: free, and the only one on offer. */
+export const DEFAULT_PLAN: PlanTier = "Básico";
+
+/** True while joining costs nothing, which is the decision for the launch. */
+export const PLANS_FOR_SALE = false;

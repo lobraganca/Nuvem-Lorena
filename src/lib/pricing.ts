@@ -1,10 +1,17 @@
 /**
  * How Avena makes money, in one place.
  *
- * Two sources, and neither is a subscription for the traveller:
+ * Two sources, and neither is a subscription — for the traveller or for the
+ * business:
  *
- * 1. The business pays a joining fee to be on the platform (see `plans`).
- * 2. The traveller pays a service fee on top of each booking.
+ * 1. The traveller pays a service fee on top of each booking.
+ * 2. A business can pay to promote a listing (see `boosts.ts`), which is
+ *    optional and always labelled as sponsored.
+ *
+ * Joining costs the business nothing. That is Lorena's decision, and it is
+ * also the only one that works at this size: a marketplace with no travellers
+ * on it yet cannot charge an agency for entry — they would be buying a shop
+ * with no street.
  *
  * This is the opposite of what the app did before, where the fee was deducted
  * from the agency's payout. Now the agency receives the full price it
@@ -17,18 +24,15 @@
 export const SERVICE_FEE_RATE = 0.1;
 
 /**
- * What a business pays to join, on top of whatever plan it picks.
+ * What a business pays to join: nothing.
  *
- * Zero during the launch, and that is a decision rather than an omission: a
- * two-sided marketplace with no travellers on it yet cannot ask an agency to
- * pay for entry — they would be buying a shop with no street. Once there is
- * real movement this becomes a real number, and the partners who came first
- * keep the waiver, which is the only fair way to treat the people who took the
- * risk of being early.
+ * Kept as a named constant rather than deleted, because the day this changes
+ * it has to change in one place, and because a screen that wants to say "free"
+ * should read it from here instead of hard-coding the word.
  */
 export const JOINING_FEE = 0;
 
-/** True while joining is free, so the page says so instead of showing "R$ 0". */
+/** True while joining is free. */
 export const LAUNCH_WAIVER = JOINING_FEE === 0;
 
 export interface BookingTotals {

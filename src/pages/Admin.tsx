@@ -91,9 +91,16 @@ export function Admin() {
         <>
           <h2 className="timeline-title">Receita</h2>
           <div className="stats-grid">
-            <Stat label="Receita total" value={brl(m.totalRevenue)} hint="Assinaturas + comissões + anúncios" />
-            <Stat label="Assinaturas (MRR)" value={brl(m.mrr)} hint="Recorrente por mês" />
-            <Stat label="Comissões" value={brl(m.commissionTotal)} hint="Só de reservas não canceladas" />
+            <Stat
+              label="Receita total"
+              value={brl(m.totalRevenue)}
+              hint="Taxa de serviço + anúncios. Cadastrar é gratuito."
+            />
+            <Stat
+              label="Taxa de serviço"
+              value={brl(m.commissionTotal)}
+              hint="Só de reservas não canceladas"
+            />
             <Stat label="Anúncios" value={brl(m.adsTotal)} />
           </div>
 
@@ -117,6 +124,8 @@ export function Admin() {
             <Stat label="Verificadas" value={String(m.businessesVerified)} />
           </div>
 
+          {/* A headcount per tier. Everyone signs up on Básico; Pro and
+              Avançado only exist where you granted them. */}
           <div className="admin-plan-grid">
             {m.planBreakdown.map((p) => (
               <div key={p.tier} className="collection-card">
@@ -124,10 +133,8 @@ export function Admin() {
                   <span className={`plan-badge plan-badge-${p.tier.toLowerCase()}`}>
                     {p.tier}
                   </span>
-                  <span className="muted">{p.count} empresas</span>
                 </div>
-                <div className="collection-title">{brl(p.mrr)}/mês</div>
-                <div className="muted">{brl(p.priceMonthly)} por empresa</div>
+                <div className="collection-title">{p.count} empresas</div>
               </div>
             ))}
           </div>

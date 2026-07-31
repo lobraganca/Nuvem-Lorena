@@ -7,8 +7,6 @@ import { reviewStatsFor } from "./reviews";
 export interface PlanBreakdown {
   tier: PlanTier;
   count: number;
-  priceMonthly: number;
-  mrr: number;
 }
 
 export interface AdminMetrics {
@@ -18,7 +16,6 @@ export interface AdminMetrics {
   businessesVerified: number;
   withoutCadastur: number;
   planBreakdown: PlanBreakdown[];
-  mrr: number;
   commissionTotal: number;
   adsTotal: number;
   totalRevenue: number;
@@ -42,18 +39,13 @@ export function computeAdminMetrics(
   const suspended = businesses.filter((b) => b.status === "suspensa");
   const active = businesses.filter((b) => b.status !== "suspensa");
 
-  const planBreakdown: PlanBreakdown[] = plans.map((plan) => {
-    // Suspended businesses are not billed, so they do not count toward MRR.
-    const count = active.filter((b) => b.planTier === plan.tier).length;
-    return {
-      tier: plan.tier,
-      count,
-      priceMonthly: plan.priceMonthly,
-      mrr: Math.round(count * plan.priceMonthly * 100) / 100,
-    };
-  });
-
-  const mrr = planBreakdown.reduce((sum, p) => sum + p.mrr, 0);
+  // A headcount per tier, not a bill. Joining is free, so multiplying these
+  // by a monthly price produced revenue that nobody was ever charged — and it
+  // was the first number on the first screen of this panel.
+  const planBreakdown: PlanBreakdown[] = plans.map((plan) => ({
+    tier: plan.tier,
+    count: active.filter((b) => b.planTier === plan.tier).length,
+  }));
 
   const confirmed = bookings.filter((b) => b.status === "confirmada");
   const cancelled = bookings.filter((b) => b.status === "cancelada");
@@ -78,10 +70,9 @@ export function computeAdminMetrics(
       (b) => !b.cadastur && cadasturRequired(b.type)
     ).length,
     planBreakdown,
-    mrr,
     commissionTotal,
     adsTotal,
-    totalRevenue: Math.round((mrr + commissionTotal + adsTotal) * 100) / 100,
+    totalRevenue: Math.round((commissionTotal + adsTotal) * 100) / 100,
     bookingsTotal: bookings.length,
     bookingsConfirmed: confirmed.length,
     bookingsCancelled: cancelled.length,
