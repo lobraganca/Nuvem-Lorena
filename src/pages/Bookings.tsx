@@ -13,6 +13,7 @@ import { reviewEligibility, type ReviewBlockReason } from "../lib/reviewEligibil
 import type { Booking } from "../types";
 import { formatBRL } from "../lib/money";
 import { useT } from "../i18n";
+import { MemoryMap } from "../components/MemoryMap";
 import type { TranslationKey } from "../i18n";
 
 function CancelBooking({ booking }: { booking: Booking }) {
@@ -219,6 +220,18 @@ export function Bookings() {
           </div>
         </>
       )}
+
+      {/* Where you have been belongs with where you are going: both are your
+          travelling, and neither is a setting. */}
+      <div className="trips-memories">
+        <div className="explore-head">
+          <h2 className="timeline-title">{t("market.memoriesTitle")}</h2>
+          <Link to="/experience/new" className="explore-more">
+            {t("home.registerMemory")}
+          </Link>
+        </div>
+        <MemoryMap />
+      </div>
     </div>
   );
 }

@@ -35,7 +35,6 @@ import { TravelerProfile } from "./pages/TravelerProfile";
 import { GetApp } from "./pages/GetApp";
 import { SignIn } from "./pages/SignIn";
 import { FirstMemory } from "./pages/FirstMemory";
-import { Settings } from "./pages/Settings";
 import { NotFound } from "./pages/NotFound";
 import { LanguageSwitcher } from "./components/LanguageSwitcher";
 import { NotificationsBell } from "./components/NotificationsBell";
@@ -124,7 +123,6 @@ function AppShell() {
           <Route path="/desejos" element={<Wishlist />} />
           <Route path="/traveler/:id" element={<TravelerProfile />} />
           <Route path="/app" element={<GetApp />} />
-          <Route path="/ajustes" element={<Settings />} />
           {Admin && (
             <Route
               path="/admin"
@@ -141,7 +139,7 @@ function AppShell() {
       <footer className="app-footer">
         <Link to="/termos">{t("footer.terms")}</Link>
         <Link to="/privacidade">{t("footer.privacy")}</Link>
-        <Link to="/ajustes">{t("settings.title")}</Link>
+        <Link to="/profile">{t("nav.profile")}</Link>
         <span className="muted">© {new Date().getFullYear()} Avena</span>
       </footer>
       <CookieBanner />

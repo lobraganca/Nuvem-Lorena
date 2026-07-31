@@ -1,21 +1,26 @@
 import { useRef, useState } from "react";
-import { Link } from "react-router-dom";
 import { useAvena } from "../store/AvenaContext";
-import { profileStats } from "../lib/stats";
-import { buildCollections } from "../lib/collections";
-import { categoryColor } from "../lib/categories";
-import { serviceFeePercent } from "../lib/pricing";
-import { buildInsights } from "../lib/insights";
+import { useAuth } from "../store/AuthContext";
 import { fileToStoredPhoto } from "../lib/photos";
+import { serviceFeePercent } from "../lib/pricing";
 import { ModerationNotice, isPublishable } from "../components/ModerationNotice";
-import { MemoryMap } from "../components/MemoryMap";
+import { SettingsRow, rowIcon } from "../components/SettingsRow";
+import { LanguageSwitcher } from "../components/LanguageSwitcher";
+import { openCookiePreferences } from "../components/CookieBanner";
 import { useT } from "../i18n";
 
+/**
+ * The profile: who you are, and everything about the account.
+ *
+ * It used to be this and the travelling as well — the map, the memories, the
+ * collections, the plan cards — six sections deep, which made the one thing
+ * people open a profile for hardest to find. The travelling moved to Viagens.
+ * What is left reads as rows, the shape every app of this kind uses, because
+ * a list of settings is scanned rather than read.
+ */
 export function Profile() {
-  const { experiences, people, user, updateUser, bookings } = useAvena();
-  const stats = profileStats(experiences);
-  const collections = buildCollections(experiences);
-  const insights = buildInsights(experiences, people, bookings);
+  const { user, updateUser } = useAvena();
+  const { account, signOut } = useAuth();
   const [editing, setEditing] = useState(false);
   const [name, setName] = useState(user.name);
   const [username, setUsername] = useState(user.username);
@@ -24,15 +29,9 @@ export function Profile() {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const t = useT();
 
-  const sortedExperiences = [...experiences].sort(
-    (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()
-  );
-
   function handlePhotoChange(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
     if (!file) return;
-    // Routed through the same resizer as memories, so a 5 MB selfie cannot
-    // fill the storage on its own.
     fileToStoredPhoto(file)
       .then((photo) => updateUser({ avatarPhoto: photo }))
       .catch(() => alert("Não foi possível usar esta imagem. Tente outra foto."));
@@ -48,26 +47,28 @@ export function Profile() {
   }
 
   return (
-    <div className="page page-wide">
-      <Link to="/" className="back-link">
-        ← {t("common.back")}
-      </Link>
-
-      <div className="ig-header">
+    <div className="page profile-page">
+      <div className="profile-card">
         <button
           type="button"
-          className="ig-avatar-btn"
+          className="profile-avatar-btn"
           onClick={() => fileInputRef.current?.click()}
           title={t("profile.changePhoto")}
         >
           {user.avatarPhoto ? (
-            <img src={user.avatarPhoto} alt={user.name} className="ig-avatar" />
+            <img src={user.avatarPhoto} alt={user.name} className="profile-avatar" />
           ) : (
-            <div className="ig-avatar ig-avatar-fallback" style={{ background: user.avatarColor }}>
-              {user.name[0]}
-            </div>
+            <span
+              className="profile-avatar profile-avatar-fallback"
+              style={{ background: user.avatarColor }}
+            >
+              {user.name
+                .split(" ")
+                .slice(0, 2)
+                .map((w) => w[0])
+                .join("")}
+            </span>
           )}
-          <span className="ig-avatar-edit">{t("common.edit")}</span>
         </button>
         <input
           ref={fileInputRef}
@@ -76,52 +77,29 @@ export function Profile() {
           hidden
           onChange={handlePhotoChange}
         />
+        <h1>{user.name}</h1>
+        {account && <p className="muted">{account.email}</p>}
+      </div>
 
-        <div className="ig-header-info">
-          <div className="ig-header-top">
-            <h1 className="ig-username">@{user.username}</h1>
-            <span className={`privacy-badge ${user.isPrivate ? "privacy-private" : "privacy-public"}`}>
-              {t(user.isPrivate ? "profile.private" : "profile.public")}
-            </span>
-            <span className="privacy-badge">
-              {t(user.accountType === "profissional" ? "profile.professional" : "profile.tourist")}
-            </span>
-            <button className="btn-outline" onClick={() => setEditing((v) => !v)}>
-              {t(editing ? "common.cancel" : "profile.editProfile")}
-            </button>
-            {user.accountType === "profissional" && (
-              <Link to="/professional" className="btn-outline">
-                {t("profile.goToDashboard")}
-              </Link>
-            )}
-            {/* Account, app and legal live in Ajustes now. This page is for
-                looking at your own travelling. */}
-            <Link to="/ajustes" className="btn-outline">
-              {t("settings.title")}
-            </Link>
-          </div>
-
-          {/* Only the two lists that belong to the traveller. */}
-          <nav className="profile-menu" aria-label={t("nav.moreOptions")}>
-            <Link to="/desejos">{t("nav.wishlist")}</Link>
-            <Link to="/feed">{t("nav.people")}</Link>
-          </nav>
-
-          <div className="ig-stats-row">
-            <div>
-              <strong>{stats.total}</strong> <span className="muted">{t("profile.experiences")}</span>
-            </div>
-            <div>
-              <strong>{stats.cities}</strong> <span className="muted">{t("profile.cities")}</span>
-            </div>
-            <div>
-              <strong>{people.length}</strong> <span className="muted">{t("profile.people")}</span>
-            </div>
-          </div>
-
-          <div className="ig-name">{user.name}</div>
-          <div className="ig-bio">{user.bio}</div>
+      {user.accountType === "profissional" ? (
+        <div className="settings-group-rows">
+          <SettingsRow to="/professional" icon={rowIcon.store} label={t("profile.goToDashboard")} />
         </div>
+      ) : (
+        <div className="settings-group-rows">
+          <SettingsRow to="/business" icon={rowIcon.store} label={t("profile.announce")} />
+        </div>
+      )}
+
+      <div className="settings-group-rows">
+        <SettingsRow
+          onClick={() => setEditing((v) => !v)}
+          icon={rowIcon.person}
+          label={t(editing ? "common.cancel" : "profile.editProfile")}
+        />
+        <SettingsRow to="/meus-dados" icon={rowIcon.person} label={t("profile.myData")} />
+        <SettingsRow to="/desejos" icon={rowIcon.star} label={t("nav.wishlist")} />
+        <SettingsRow to="/feed" icon={rowIcon.map} label={t("nav.people")} />
       </div>
 
       {editing && (
@@ -157,9 +135,7 @@ export function Profile() {
               </button>
             </div>
             <p className="muted">
-              {isPrivate
-                ? t("profile.privateHint")
-                : t("profile.publicHint")}
+              {isPrivate ? t("profile.privateHint") : t("profile.publicHint")}
             </p>
           </fieldset>
           <ModerationNotice text={profileText} />
@@ -173,82 +149,42 @@ export function Profile() {
         </form>
       )}
 
-      {insights.length > 0 && (
-        <>
-          <div className="insights-head">
-            <h2 className="timeline-title">{t("profile.insights")}</h2>
-            <Link to="/retrospectiva" className="btn-outline">
-              {t("profile.yearRetrospective")}
-            </Link>
-          </div>
-          <div className="insights-list">
-            {insights.map((i) => (
-              <div key={i.id} className="insight-card">
-                {i.text}
-              </div>
-            ))}
-          </div>
-        </>
+      <h2 className="settings-section">{t("settings.payments")}</h2>
+      <div className="settings-group-rows">
+        <div className="settings-note">
+          {t("profile.whatYouPayText", { pct: serviceFeePercent() })}
+        </div>
+      </div>
+
+      <h2 className="settings-section">{t("settings.app")}</h2>
+      <div className="settings-group-rows">
+        <div className="settings-row settings-row-static">
+          <span className="row-icon" aria-hidden="true">
+            {rowIcon.phone}
+          </span>
+          <span className="row-label">{t("language.title")}</span>
+          <LanguageSwitcher />
+        </div>
+        <SettingsRow to="/app" icon={rowIcon.phone} label={t("app.navLink")} />
+        <SettingsRow to="/ajuda" icon={rowIcon.help} label={t("footer.help")} />
+        <SettingsRow
+          onClick={openCookiePreferences}
+          icon={rowIcon.shield}
+          label={t("footer.cookies")}
+        />
+      </div>
+
+      <h2 className="settings-section">{t("settings.legal")}</h2>
+      <div className="settings-group-rows">
+        <SettingsRow to="/termos" icon={rowIcon.shield} label={t("footer.terms")} />
+        <SettingsRow to="/privacidade" icon={rowIcon.lock} label={t("footer.privacy")} />
+      </div>
+
+      {account && (
+        <div className="settings-group-rows">
+          <SettingsRow onClick={signOut} icon={rowIcon.exit} label={t("auth.signOut")} danger />
+        </div>
       )}
-
-      {/* Where you have been, on the profile — the screen you open to look
-          back, not the one you open to do something. */}
-      <MemoryMap />
-
-      <h2 className="timeline-title">Publicações</h2>
-      <div className="ig-grid">
-        {sortedExperiences.length === 0 && (
-          <p className="muted">Nenhuma experiência publicada ainda.</p>
-        )}
-        {sortedExperiences.map((exp) => (
-          <Link
-            to={`/experience/${exp.id}`}
-            key={exp.id}
-            className="ig-tile"
-            style={{ borderTopColor: categoryColor[exp.category] }}
-          >
-            <span className="ig-tile-label">{exp.category}</span>
-          </Link>
-        ))}
-      </div>
-
-      {/* No traveller plan, on purpose: nothing monthly, and the fee only
-          exists on a booking they chose to make. */}
-      <h2 className="timeline-title">{t("profile.whatYouPay")}</h2>
-      <p className="muted">{t("profile.whatYouPayText", { pct: serviceFeePercent() })}</p>
-
-      <h2 className="timeline-title">{t("profile.collections")}</h2>
-      <div className="collections-grid">
-        {collections.map((c) => {
-          const pct = Math.min(100, Math.round((c.achieved / c.total) * 100));
-          return (
-            <div key={c.id} className="collection-card">
-              <div className="collection-top">
-                <span className="muted">
-                  {c.achieved}/{c.total}
-                </span>
-              </div>
-              <div className="collection-title">{t(c.titleKey)}</div>
-              <div className="progress-bar">
-                <div className="progress-fill" style={{ width: `${pct}%` }} />
-              </div>
-              <div className="muted">{pct}% concluído</div>
-            </div>
-          );
-        })}
-      </div>
-
-      <h2 className="timeline-title">Pessoas</h2>
-      <div className="people-grid">
-        {people.map((p) => (
-          <Link key={p.id} to={`/person/${p.id}`} className="person-card">
-            <div className="avatar" style={{ background: p.avatarColor }}>
-              {p.name[0]}
-            </div>
-            <div>{p.name}</div>
-          </Link>
-        ))}
-      </div>
     </div>
   );
 }

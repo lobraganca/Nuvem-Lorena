@@ -17,15 +17,19 @@ export function BusinessLanding() {
 
   return (
     <div className="page page-wide">
-      <h1>Para empresas</h1>
-      <p className="muted">
-        Cadastre sua agência, seu trabalho como guia, restaurante ou hotel e
-        apareça para viajantes que estão vivendo experiências perto de você.
-      </p>
-
-      <Link to="/business/new" className="btn-primary" style={{ marginTop: 16, display: "inline-block" }}>
-        Cadastrar minha empresa
-      </Link>
+      {/* The pitch first, and the action under it, before any table of plans. */}
+      <section className="announce-hero">
+        <h1>
+          É simples anunciar no <span className="announce-brand">Avena</span>
+        </h1>
+        <p className="muted">
+          Em poucos passos, sua agência, seu trabalho como guia, sua pousada ou
+          seu restaurante aparece para quem já está procurando esse destino.
+        </p>
+        <Link to="/business/new" className="btn-primary announce-start">
+          Começar agora
+        </Link>
+      </section>
 
       <h2 className="timeline-title">Quanto custa estar no Avena</h2>
       <div className="pricing-note">

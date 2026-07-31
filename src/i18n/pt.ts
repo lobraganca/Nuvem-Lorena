@@ -659,6 +659,8 @@ export const pt = {
   "app.offerText": "Você já tem {count} lugares guardados. No aplicativo eles abrem em tela cheia e funcionam sem internet.",
   "app.offerButton": "Ver como baixar",
   "app.offerDismiss": "Agora não",
+  "settings.payments": "Pagamento",
+  "profile.announce": "Anuncie seu negócio",
   "settings.title": "Ajustes",
   "settings.account": "Conta",
   "settings.app": "Aplicativo",

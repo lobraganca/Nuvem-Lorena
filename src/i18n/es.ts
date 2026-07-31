@@ -659,6 +659,8 @@ export const es: Record<keyof typeof pt, string> = {
     "Ya tienes {count} lugares guardados. En la aplicación se abren a pantalla completa y funcionan sin internet.",
   "app.offerButton": "Ver cómo instalar",
   "app.offerDismiss": "Ahora no",
+  "settings.payments": "Pago",
+  "profile.announce": "Anuncia tu negocio",
   "settings.title": "Ajustes",
   "settings.account": "Cuenta",
   "settings.app": "Aplicación",

@@ -657,6 +657,8 @@ export const en: Record<keyof typeof pt, string> = {
     "You already have {count} places kept. In the app they open full screen and work without a signal.",
   "app.offerButton": "See how to install",
   "app.offerDismiss": "Not now",
+  "settings.payments": "Payment",
+  "profile.announce": "List your business",
   "settings.title": "Settings",
   "settings.account": "Account",
   "settings.app": "App",
