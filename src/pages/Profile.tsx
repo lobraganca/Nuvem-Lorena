@@ -7,6 +7,7 @@ import { ModerationNotice, isPublishable } from "../components/ModerationNotice"
 import { SettingsRow, rowIcon } from "../components/SettingsRow";
 import { LanguageSwitcher } from "../components/LanguageSwitcher";
 import { openCookiePreferences } from "../components/CookieBanner";
+import { partnerSignupUrl } from "../lib/partnerSite";
 import { useT } from "../i18n";
 
 /**
@@ -28,6 +29,9 @@ export function Profile() {
   const [isPrivate, setIsPrivate] = useState(user.isPrivate);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const t = useT();
+  // Inside the installed app this leaves for the website, so the store takes
+  // no cut of what a partner pays to join.
+  const partnerUrl = partnerSignupUrl();
 
   function handlePhotoChange(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
@@ -87,7 +91,12 @@ export function Profile() {
         </div>
       ) : (
         <div className="settings-group-rows">
-          <SettingsRow to="/business" icon={rowIcon.store} label={t("profile.announce")} />
+          <SettingsRow
+            to={partnerUrl ? undefined : "/business"}
+            href={partnerUrl ?? undefined}
+            icon={rowIcon.store}
+            label={t("profile.announce")}
+          />
         </div>
       )}
 

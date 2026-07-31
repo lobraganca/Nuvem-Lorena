@@ -5,10 +5,12 @@ import { plans } from "../lib/plans";
 import { reviewStatsFor } from "../lib/reviews";
 import { BusinessCard } from "../components/BusinessCard";
 import { JOINING_FEE, LAUNCH_WAIVER, serviceFeePercent } from "../lib/pricing";
+import { partnerSignupUrl } from "../lib/partnerSite";
 
 export function BusinessLanding() {
   const { businesses, reviews } = useAvena();
   const [sortByReputation, setSortByReputation] = useState(false);
+  const partnerUrl = partnerSignupUrl();
 
   const sorted = [...businesses.filter((b) => b.status !== "suspensa")].sort((a, b) => {
     if (!sortByReputation) return 0;
@@ -26,9 +28,20 @@ export function BusinessLanding() {
           Em poucos passos, sua agência, seu trabalho como guia, sua pousada ou
           seu restaurante aparece para quem já está procurando esse destino.
         </p>
-        <Link to="/business/new" className="btn-primary announce-start">
-          Começar agora
-        </Link>
+        {partnerUrl ? (
+          <a
+            className="btn-primary announce-start"
+            href={partnerUrl}
+            target="_blank"
+            rel="noreferrer"
+          >
+            Começar agora
+          </a>
+        ) : (
+          <Link to="/business/new" className="btn-primary announce-start">
+            Começar agora
+          </Link>
+        )}
       </section>
 
       <h2 className="timeline-title">Quanto custa estar no Avena</h2>

@@ -7,12 +7,15 @@ import { Link } from "react-router-dom";
  */
 export function SettingsRow({
   to,
+  href,
   onClick,
   icon,
   label,
   danger,
 }: {
   to?: string;
+  /** An address outside the app; opens in the browser, in a new tab. */
+  href?: string;
   onClick?: () => void;
   icon: ReactNode;
   label: string;
@@ -38,6 +41,14 @@ export function SettingsRow({
   );
 
   const className = `settings-row ${danger ? "settings-row-danger" : ""}`;
+
+  if (href) {
+    return (
+      <a className={className} href={href} target="_blank" rel="noreferrer">
+        {inside}
+      </a>
+    );
+  }
 
   if (to) {
     return (

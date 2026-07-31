@@ -292,3 +292,39 @@ tratar quem correu o risco de ser primeiro.
 Os planos pagos (Pro e Avançado) continuam existindo, mas como **opcionais
 de visibilidade**, não como pedágio: no plano gratuito a empresa recebe
 reserva do mesmo jeito. A página para empresas diz isso com essas palavras.
+
+## Cadastro de parceiro fora do app
+
+O botão "Anuncie seu negócio" está preparado para levar a uma página da web
+em vez de abrir uma tela dentro do aplicativo. Hoje ele continua interno,
+porque `PARTNER_SITE_URL` em `src/lib/partnerSite.ts` está vazio. Basta
+preencher com o endereço do site de parceiros — por exemplo
+`https://avenaapp.com.br/parceiros` — e ele passa a abrir no navegador.
+
+### Por que isso importa, e é dinheiro
+
+**Apple e Google cobram de 15% a 30% de tudo que é vendido dentro de um
+aplicativo.** A taxa de adesão que a agência paga é exatamente esse tipo de
+venda. Se o parceiro se cadastra e paga dentro do app, a loja fica com uma
+fatia. Levando para o site, você fica com o valor inteiro.
+
+É o que todo marketplace desse formato faz: o lado de quem compra fica no
+app, o lado de quem vende fica no site.
+
+**Cuidado com a regra da Apple:** não basta abrir o link. As diretrizes
+proíbem "direcionar" o usuário para pagar fora quando o item é consumido
+dentro do app. O caminho seguro é o cadastro de empresa ser um fluxo
+separado, de conta de negócio — que é o que já é aqui. Vale confirmar as
+regras vigentes antes de submeter, porque elas mudam.
+
+### O segundo motivo
+
+Cadastrar empresa significa Cadastur, documentos, fotos e conta de
+recebimento. É trabalho de computador, não de celular.
+
+### O comportamento hoje
+
+- **No navegador:** continua tudo dentro do site, sem quicar a pessoa para
+  fora à toa.
+- **No app instalado:** abre o site de parceiros no navegador, quando o
+  endereço estiver configurado.
