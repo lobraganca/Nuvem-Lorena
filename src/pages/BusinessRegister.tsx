@@ -24,6 +24,7 @@ export function BusinessRegister() {
   const { addBusiness, updateUser } = useAvena();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
+  /** Só muda a frase de apoio no topo; não decide mais nada. */
   const isOnboarding = searchParams.get("onboarding") === "1";
 
   const [name, setName] = useState("");
@@ -102,15 +103,18 @@ export function BusinessRegister() {
 
     addBusiness(business);
 
-    if (isOnboarding) {
-      // The account type goes with it. Without this line the dashboard opened
-      // once and then the app went back to the traveller's tabs on the next
-      // visit, with no way to reach the business again.
-      updateUser({ ownBusinessId: business.id, accountType: "profissional" });
-      navigate("/professional");
-    } else {
-      navigate(`/business/${business.id}`);
-    }
+    // Whoever fills this form is the owner, and goes to the panel — no matter
+    // which door they came through.
+    //
+    // This used to depend on "?onboarding=1" in the address, which only the
+    // old welcome screen added. Anyone arriving the normal way (Perfil →
+    // Anuncie seu negócio → Começar agora) registered a company and was
+    // dropped on its public page as a mere visitor: still a traveller, no
+    // panel, no way to publish a tour or set the meeting point, and no path
+    // back to the company they had just created. The company existed and its
+    // owner could not touch it.
+    updateUser({ ownBusinessId: business.id, accountType: "profissional" });
+    navigate("/professional");
   }
 
   return (

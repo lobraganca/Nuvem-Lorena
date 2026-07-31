@@ -687,9 +687,20 @@ a {
   flex: 1;
 }
 
+/* Side by side while there is room, stacked when there is not.
+   Without the wrap, three fields of 200px in a row pushed the whole page
+   past the width of a phone — and a page that scrolls sideways feels broken
+   even when every field works. `min-width: 0` is what actually lets a flex
+   item shrink; without it they refuse to, and the wrap never happens. */
 .form-row {
   display: flex;
+  flex-wrap: wrap;
   gap: 12px;
+}
+
+.form-row > label {
+  flex: 1 1 180px;
+  min-width: 0;
 }
 
 fieldset {
@@ -2045,6 +2056,10 @@ textarea:focus-visible,
   width: 100%;
   border-radius: 8px;
   border: 1px solid var(--border);
+  /* Leaflet lays its tiles out beyond the frame while panning. Without this
+     they push the page sideways, which on a phone reads as a broken screen —
+     and the rounded corners never showed either. */
+  overflow: hidden;
 }
 
 /* ---------------------------------------------------------------------------
