@@ -32,6 +32,11 @@ export default defineConfig({
   define: {
     __ADMIN_ENABLED__: JSON.stringify(process.env.VITE_ADMIN_ENABLED === 'true'),
     __SINGLE_FILE__: JSON.stringify(singleFile),
+    // Which build this is. Shown in the profile so "it did not change" can be
+    // answered with a fact instead of a guess.
+    __BUILD_ID__: JSON.stringify(
+      (process.env.GITHUB_SHA ?? '').slice(0, 7) || 'local'
+    ),
   },
   plugins: [
     react(),

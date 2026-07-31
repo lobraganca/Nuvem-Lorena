@@ -218,6 +218,10 @@ export function Profile() {
           <SettingsRow onClick={signOut} icon={rowIcon.exit} label={t("auth.signOut")} danger />
         </div>
       )}
+
+      {/* So "it did not change" can be checked instead of guessed: this is the
+          build the phone is actually running. */}
+      <p className="muted build-id">Versão {__BUILD_ID__}</p>
     </div>
   );
 }

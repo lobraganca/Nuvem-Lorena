@@ -4552,3 +4552,11 @@ textarea:focus-visible,
   padding: 9px 14px;
   gap: 8px;
 }
+
+/* The build mark: present for whoever goes looking, invisible to everyone else. */
+.build-id {
+  margin: 24px 0 8px;
+  text-align: center;
+  font-size: 12px;
+  opacity: 0.6;
+}

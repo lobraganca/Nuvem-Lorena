@@ -47,5 +47,27 @@ export function startOverIfAsked() {
     // the in-memory copy, which is all there is in that case.
   }
 
+  // The stored copy of the app goes too. Without this, "start over" cleared
+  // the data but the phone kept answering with the build it had saved, so the
+  // screens were still the old ones — which looks exactly like a fix that
+  // never arrived.
+  void discardInstalledCopy();
+
   window.history.replaceState({}, "", window.location.pathname);
+}
+
+async function discardInstalledCopy() {
+  try {
+    if ("serviceWorker" in navigator) {
+      const workers = await navigator.serviceWorker.getRegistrations();
+      await Promise.all(workers.map((w) => w.unregister()));
+    }
+    if ("caches" in window) {
+      const names = await caches.keys();
+      await Promise.all(names.map((n) => caches.delete(n)));
+    }
+  } catch {
+    // Nothing to undo: at worst the phone keeps the copy it had, which is the
+    // behaviour before this existed.
+  }
 }
