@@ -18,6 +18,7 @@ import { BoostTourButton } from "../components/BoostTourButton";
 import { EditTour } from "../components/EditTour";
 import type { AccessibilityTag, CancellationPolicy, Difficulty, Tour } from "../types";
 import { formatBRL } from "../lib/money";
+import { MeetingPointEditor } from "../components/MeetingPointEditor";
 import { newId } from "../lib/ids";
 
 const today = new Date().toISOString().slice(0, 10);
@@ -151,6 +152,8 @@ export function ProfessionalDashboard() {
           cada reserva.
         </div>
       )}
+
+      <MeetingPointEditor business={business} />
 
       <h2 className="timeline-title">Meus passeios</h2>
       <div className="tour-cards">

@@ -48,6 +48,8 @@ interface AvenaContextValue extends AvenaData {
   sendMessage: (thread: MessageThread, text: string) => void;
   markThreadRead: (thread: MessageThread) => void;
   addBooking: (booking: Booking) => void;
+  /** Edits fields of a business the person owns. */
+  updateBusiness: (businessId: string, patch: Partial<Business>) => void;
   addTourToBusiness: (businessId: string, tour: Tour) => void;
   updateTour: (businessId: string, tour: Tour) => void;
   removeTour: (businessId: string, tourId: string) => void;
@@ -231,6 +233,13 @@ export function AvenaProvider({ children }: { children: ReactNode }) {
         })),
       addBooking: (booking) =>
         setData((d) => ({ ...d, bookings: [booking, ...d.bookings] })),
+      updateBusiness: (businessId, patch) =>
+        setData((d) => ({
+          ...d,
+          businesses: d.businesses.map((b) =>
+            b.id === businessId ? { ...b, ...patch } : b
+          ),
+        })),
       addTourToBusiness: (businessId, tour) =>
         setData((d) => ({
           ...d,

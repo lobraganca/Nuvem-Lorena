@@ -218,6 +218,17 @@ export interface Business {
   city: string;
   state?: string;
   country: string;
+  /**
+   * Street address, public, for the traveller to find the place. Separate from
+   * the address in `legal`, which belongs to whoever answers for the company
+   * and is not shown to anyone.
+   */
+  address?: string;
+  /** Exact spot on the map. Without it a route is a guess at the address. */
+  lat?: number;
+  lng?: number;
+  /** "Em frente ao quiosque 3", "no portão do parque" — said in words. */
+  meetingPoint?: string;
   email: string;
   phone?: string;
   website?: string;

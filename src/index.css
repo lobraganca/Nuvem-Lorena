@@ -4570,3 +4570,51 @@ textarea:focus-visible,
   font-size: 12px;
   opacity: 0.6;
 }
+
+/* ---- Onde encontrar: mapa do ponto de encontro ---- */
+
+.meeting-point {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin: 26px 0;
+}
+
+.meeting-note {
+  margin: 0;
+  font-weight: 600;
+  color: var(--text-h);
+}
+
+.meeting-map {
+  height: 220px;
+  border-radius: 14px;
+  overflow: hidden;
+  /* Leaflet paints its own panes; without this the corners stay square. */
+  isolation: isolate;
+}
+
+/* A drop, not a dot: this pin means "here", and it is the only one on the map. */
+.meeting-pin {
+  display: block;
+  width: 22px;
+  height: 22px;
+  border-radius: 50% 50% 50% 0;
+  transform: rotate(-45deg);
+  background: var(--accent);
+  border: 2px solid var(--card-bg);
+  box-shadow: 0 2px 6px rgb(0 0 0 / 35%);
+}
+
+.meeting-go {
+  align-self: flex-start;
+  text-decoration: none;
+  text-align: center;
+}
+
+@media (max-width: 800px) {
+  /* The thumb reaches the full width on a phone. */
+  .meeting-go {
+    align-self: stretch;
+  }
+}

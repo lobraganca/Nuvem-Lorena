@@ -9,6 +9,7 @@ import { monthsLeftInSeason, seasonLabel } from "../lib/tourAttributes";
 import { useT } from "../i18n";
 import { PresenceDot } from "../components/PresenceDot";
 import { WishButton } from "../components/WishButton";
+import { MeetingPoint } from "../components/MeetingPoint";
 import { accessibilityKey, businessTypeKey, difficultyKey, planTierKey } from "../i18n/domain";
 
 const today = new Date().toISOString().slice(0, 10);
@@ -95,6 +96,8 @@ export function BusinessDetail() {
           {business.website ? ` · ${business.website}` : ""}
         </p>
       </div>
+
+      <MeetingPoint business={business} />
 
       {business.tours && business.tours.length > 0 && (
         <div className="detail-block">
