@@ -169,6 +169,16 @@ export function ProfessionalDashboard() {
                 {t.priceFrom !== undefined && `A partir de R$ ${t.priceFrom}`}
                 {t.durationHours !== undefined && ` · ${t.durationHours}h`}
               </div>
+              {/* Said here, in the panel, because the agency is the only one
+                  who can fix it — and on the public page all the traveller
+                  sees is a tour that cannot be booked, with no reason given
+                  that helps anybody. */}
+              {!t.priceFrom && (
+                <div className="availability-note availability-none">
+                  Sem preço, este passeio não recebe reservas. Toque em editar e
+                  informe o valor por pessoa.
+                </div>
+              )}
               <div className="muted">
                 Cancelamento {cancellationPolicyLabel[t.cancellationPolicy ?? "moderada"]}
               </div>

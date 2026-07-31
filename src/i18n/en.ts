@@ -246,6 +246,7 @@ export const en: Record<keyof typeof pt, string> = {
     "The agency needs each person's name and ID for boarding lists, park entry and insurance.",
 
   "booking.noPaymentAccount": "{name} has not enabled in-app payments yet. Contact the agency directly to book this tour.",
+  "booking.noPrice": "This tour has no price yet. Message the business to ask about cost and dates.",
 
   "payment.title": "Payment",
   "payment.myBookings": "My bookings",

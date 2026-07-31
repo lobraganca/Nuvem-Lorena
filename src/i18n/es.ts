@@ -247,6 +247,7 @@ export const es: Record<keyof typeof pt, string> = {
     "La agencia necesita el nombre y documento de cada persona para la lista de embarque, la entrada a parques y el seguro.",
 
   "booking.noPaymentAccount": "{name} todavía no activó el cobro por la app. Habla directamente con la agencia para reservar esta excursión.",
+  "booking.noPrice": "Esta excursión aún no tiene precio. Escribe a la empresa para saber el valor y las fechas.",
 
   "payment.title": "Pago",
   "payment.myBookings": "Mis reservas",

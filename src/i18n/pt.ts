@@ -254,6 +254,7 @@ export const pt = {
 
   // --- payment --------------------------------------------------------------
   "booking.noPaymentAccount": "{name} ainda não ativou o recebimento pelo app. Fale direto com a agência para reservar este passeio.",
+  "booking.noPrice": "Este passeio ainda não tem preço definido. Fale com a empresa para saber o valor e as datas.",
 
   "payment.title": "Pagamento",
   "payment.myBookings": "Minhas reservas",

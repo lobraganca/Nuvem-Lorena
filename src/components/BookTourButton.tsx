@@ -131,6 +131,21 @@ export function BookTourButton({ business, tour }: { business: Business; tour: T
     navigate(`/pagamento/${booking.id}`);
   }
 
+  // A tour with no price is not for sale.
+  //
+  // Without this, the booking went through at zero: the traveller got a
+  // confirmed seat for nothing and the agency got a sale of R$ 0,00 — and the
+  // likeliest way to reach it is the ordinary one, an agency that published
+  // the tour and left the price for later. The seat is worth more than the
+  // convenience of taking the booking anyway.
+  if (!tour.priceFrom || tour.priceFrom <= 0) {
+    return (
+      <div className="availability-note">
+        {t("booking.noPrice")}
+      </div>
+    );
+  }
+
   // An agency with no payment account has nowhere to receive the money, so the
   // booking is blocked rather than taken and left unpayable.
   if (!canReceivePayments(business)) {
