@@ -34,7 +34,9 @@ export function BottomNav() {
   const { user, messages } = useAvena();
   const t = useT();
 
-  if (!user.accountType) return null;
+  // No gate here any more. It used to hide until an account type was chosen,
+  // which is what made the first-trip question a wall: no tabs, no way out.
+  // This only renders inside the app shell, which already requires the door.
 
   const unread = unreadCount(messages, user.threadReads);
 

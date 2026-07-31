@@ -1,4 +1,4 @@
-import { Suspense, lazy } from "react";
+import { Suspense, lazy, useEffect } from "react";
 import { Link, Route, Routes } from "react-router-dom";
 import { AvenaProvider, useAvena } from "./store/AvenaContext";
 import { AuthProvider, useAuth } from "./store/AuthContext";
@@ -50,10 +50,17 @@ const Admin = __ADMIN_ENABLED__
   : null;
 
 function RootScreen() {
-  const { user } = useAvena();
-  // Nobody is asked to declare what they are before seeing what the app does:
-  // the first screen asks one question and puts a memory on the map.
-  if (!user.accountType) return <FirstMemory />;
+  const { user, updateUser } = useAvena();
+
+  // The app opens on what it is for: choosing where to go. It used to open on
+  // "where was your last trip?", which asked people to look backwards before
+  // they had seen anything, and — worse — held the whole app behind the
+  // answer, since the tab bar only appears once this is set. Recording a
+  // memory is still there, in Viagens, where someone goes looking for it.
+  useEffect(() => {
+    if (!user.accountType) updateUser({ accountType: "turista" });
+  }, [user.accountType, updateUser]);
+
   if (user.accountType === "profissional") return <ProfessionalDashboard />;
   return <Home />;
 }

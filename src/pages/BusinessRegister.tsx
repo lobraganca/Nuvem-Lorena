@@ -102,7 +102,10 @@ export function BusinessRegister() {
     addBusiness(business);
 
     if (isOnboarding) {
-      updateUser({ ownBusinessId: business.id });
+      // The account type goes with it. Without this line the dashboard opened
+      // once and then the app went back to the traveller's tabs on the next
+      // visit, with no way to reach the business again.
+      updateUser({ ownBusinessId: business.id, accountType: "profissional" });
       navigate("/professional");
     } else {
       navigate(`/business/${business.id}`);
