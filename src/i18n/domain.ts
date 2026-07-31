@@ -33,6 +33,7 @@ export const categoryKey: Record<Category, TranslationKey> = {
 export const businessTypeKey: Record<BusinessType, TranslationKey> = {
   Agência: "businessType.agencia",
   Guia: "businessType.guia",
+  Experiência: "businessType.experiencia",
   Restaurante: "businessType.restaurante",
   Hotel: "businessType.hotel",
 };
@@ -41,6 +42,7 @@ export const businessTypeKey: Record<BusinessType, TranslationKey> = {
 export const businessTypePluralKey: Record<BusinessType, TranslationKey> = {
   Agência: "businessType.agenciaPlural",
   Guia: "businessType.guiaPlural",
+  Experiência: "businessType.experienciaPlural",
   Restaurante: "businessType.restaurantePlural",
   Hotel: "businessType.hotelPlural",
 };

@@ -117,6 +117,10 @@ function AppShell() {
           </Link>
         </div>
         <div className="topbar-actions">
+          {/* Help lives in the bar that is always on screen. It used to float
+              over the bottom-right corner, where it landed on top of the
+              cards and beside the tab bar. */}
+          <HelpChat />
           <NotificationsBell />
           <LanguageSwitcher />
         </div>
@@ -171,7 +175,6 @@ function AppShell() {
         <span className="muted">© {new Date().getFullYear()} Avena</span>
       </footer>
       <CookieBanner />
-      <HelpChat />
       <BottomNav />
     </div>
   );

@@ -130,7 +130,12 @@ export interface MessageThread {
   businessId?: string;
 }
 
-export type BusinessType = "Agência" | "Guia" | "Restaurante" | "Hotel";
+export type BusinessType =
+  | "Agência"
+  | "Guia"
+  | "Experiência"
+  | "Restaurante"
+  | "Hotel";
 
 export type PlanTier = "Básico" | "Pro" | "Avançado";
 

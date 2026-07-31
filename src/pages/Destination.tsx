@@ -14,7 +14,7 @@ import { accessibilityKey, businessTypePluralKey, categoryKey } from "../i18n/do
 
 type Tab = "Todos" | BusinessType;
 
-const TABS: Tab[] = ["Todos", "Agência", "Guia", "Hotel", "Restaurante"];
+const TABS: Tab[] = ["Todos", "Agência", "Guia", "Experiência", "Hotel", "Restaurante"];
 
 export function Destination() {
   const { businesses, experiences, reviews } = useAvena();

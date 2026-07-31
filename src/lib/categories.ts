@@ -40,21 +40,47 @@ export const categoryColor: Record<Category, string> = {
   Outro: "#6b7280",
 };
 
-export const businessTypes: BusinessType[] = ["Agência", "Guia", "Restaurante", "Hotel"];
+export const businessTypes: BusinessType[] = [
+  "Agência",
+  "Guia",
+  "Experiência",
+  "Restaurante",
+  "Hotel",
+];
+
+/**
+ * Who has to hold a Cadastur registration to sell here.
+ *
+ * The law binds it to the activity, not to the word on the sign: agencies,
+ * guides and lodging are prestadores de serviços turísticos and cannot sell
+ * without it. A restaurant is not one. An experience sits in between — a
+ * cooking class or a workshop is not a regulated tourism service, while
+ * guiding people through a place is, and whoever does that registers as Guia
+ * or Agência. So it is asked for, not demanded, and the screen says why.
+ *
+ * One function because there were two copies of this rule — the registration
+ * form and the admin check — and they disagreed.
+ */
+export function cadasturRequired(type: BusinessType): boolean {
+  return type === "Agência" || type === "Guia" || type === "Hotel";
+}
 
 /**
  * Cover colour for a business with no photo yet.
  *
- * Four earth tones from the brand's own world — forest, olive, taupe,
+ * Earth tones from the brand's own world — forest, olive, taupe,
  * terracotta — rather than the saturated blue, green, orange and purple that
  * were there before. On a page built from deep green and cream, a royal blue
  * card is the loudest thing on the screen and belongs to nobody.
  *
- * All four clear 6:1 against the white label they carry.
+ * All of them clear 6:1 against the white label they carry.
  */
 export const businessTypeColor: Record<BusinessType, string> = {
   Agência: "#2f4131",
   Guia: "#55672f",
+  /* A fifth earth tone, deeper than the guide's olive so the two do not read
+     as the same card at a glance. */
+  Experiência: "#3f5546",
   Restaurante: "#7a3a2b",
   Hotel: "#5a4a3a",
 };

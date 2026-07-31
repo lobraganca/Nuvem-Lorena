@@ -40,14 +40,26 @@ export function HelpChat() {
   }
 
   if (!open) {
+    // A mark rather than a word: it sits in the top bar next to the bell and
+    // the language, where a pill saying "Ajuda" would push the logo off a
+    // narrow phone.
     return (
       <button
         type="button"
         className="help-fab"
         onClick={() => setOpen(true)}
         aria-label={t("help.open")}
+        title={t("nav.help")}
       >
-        {t("nav.help")}
+        <svg viewBox="0 0 24 24" aria-hidden="true">
+          <path
+            d="M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18zm0-4v.01M9.5 9.5a2.5 2.5 0 1 1 3.3 2.4c-.5.2-.8.7-.8 1.2v.4"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="1.8"
+            strokeLinecap="round"
+          />
+        </svg>
       </button>
     );
   }

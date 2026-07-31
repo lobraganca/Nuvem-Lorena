@@ -1618,31 +1618,40 @@ legend {
   }
 }
 
+/* In the top bar now, in the shape of the controls beside it. */
 .help-fab {
-  position: fixed;
-  right: 20px;
-  bottom: 20px;
-  z-index: 900;
-  padding: 10px 20px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  padding: 0;
   border-radius: 999px;
   border: none;
-  background: var(--accent);
-  color: var(--on-accent);
-  font: inherit;
-  font-weight: 600;
+  background: none;
+  color: var(--text-h);
   cursor: pointer;
-  box-shadow: var(--shadow);
 }
 
+.help-fab svg {
+  width: 24px;
+  height: 24px;
+}
+
+.help-fab:hover {
+  background: var(--accent-soft);
+}
+
+/* Hangs from the bar it was opened from, clear of the tab bar at the bottom. */
 .help-chat {
   position: fixed;
-  right: 20px;
-  bottom: 20px;
+  right: 12px;
+  top: 64px;
   z-index: 900;
   width: 360px;
   max-width: calc(100vw - 32px);
   height: 480px;
-  max-height: calc(100svh - 100px);
+  max-height: calc(100svh - 160px);
   display: flex;
   flex-direction: column;
   border-radius: 12px;
@@ -2447,9 +2456,10 @@ textarea:focus-visible,
   padding-bottom: 86px;
 }
 
-.help-fab,
+/* The panel used to sit above the tab bar; it now hangs from the top instead,
+   so its height is what has to stay clear of the tabs. */
 .help-chat {
-  bottom: 86px;
+  max-height: calc(100svh - 160px);
 }
 
 /* The cookie banner must sit above the tab bar, not on top of it. */

@@ -3,7 +3,7 @@ import { useNavigate, useSearchParams } from "react-router-dom";
 import { useAvena } from "../store/AvenaContext";
 import { plans } from "../lib/plans";
 import { BRAZILIAN_STATES } from "../lib/collections";
-import { businessTypes } from "../lib/categories";
+import { businessTypes, cadasturRequired } from "../lib/categories";
 import {
   LegalAcceptance,
   useAcceptLegal,
@@ -35,8 +35,9 @@ export function BusinessRegister() {
   const [website, setWebsite] = useState("");
   const [cadastur, setCadastur] = useState("");
 
-  // Cadastur is compulsory for those who actually sell tourism services.
-  const requiresCadastur = type === "Agência" || type === "Guia" || type === "Hotel";
+  // One rule, shared with the admin check, so the form and the review cannot
+  // disagree about who may sell without a Cadastur.
+  const requiresCadastur = cadasturRequired(type);
 
   const [legalChecked, setLegalChecked] = useState(false);
   const legalAccepted = useLegalAccepted();
@@ -206,7 +207,9 @@ export function BusinessRegister() {
           <span className="muted">
             {requiresCadastur
               ? "Obrigatório por lei para agências, guias e meios de hospedagem venderem serviços de turismo no Brasil."
-              : "Se você tem registro no Ministério do Turismo, informe aqui."}
+              : type === "Experiência"
+                ? "Opcional para oficinas, aulas e vivências. Mas se a experiência inclui conduzir pessoas por trilhas, rios ou cidades, isso é serviço de guia: cadastre-se como Guia, onde o Cadastur é exigido."
+                : "Se você tem registro no Ministério do Turismo, informe aqui."}
           </span>
           {cadastur && !cadasturLooksValid(cadastur) && (
             <span className="availability-none">

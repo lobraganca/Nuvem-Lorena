@@ -1,3 +1,4 @@
+import { cadasturRequired } from "./categories";
 import type { Booking, Boost, Business, PlanTier, Review } from "../types";
 import { plans } from "./plans";
 import { activeBoosts, boostRevenue } from "./boosts";
@@ -74,7 +75,7 @@ export function computeAdminMetrics(
     businessesSuspended: suspended.length,
     businessesVerified: businesses.filter((b) => b.verified).length,
     withoutCadastur: businesses.filter(
-      (b) => !b.cadastur && b.type !== "Restaurante"
+      (b) => !b.cadastur && cadasturRequired(b.type)
     ).length,
     planBreakdown,
     mrr,
@@ -119,7 +120,7 @@ export function buildBusinessRows(
         (b) => b.businessId === business.id && b.status === "confirmada"
       );
       const stats = reviewStatsFor(reviews, business.id);
-      const requiresCadastur = business.type !== "Restaurante";
+      const requiresCadastur = cadasturRequired(business.type);
 
       const flags: string[] = [];
       if (requiresCadastur && !business.cadastur) flags.push("Sem Cadastur");
