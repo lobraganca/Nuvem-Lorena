@@ -39,7 +39,6 @@ import { Settings } from "./pages/Settings";
 import { NotFound } from "./pages/NotFound";
 import { LanguageSwitcher } from "./components/LanguageSwitcher";
 import { NotificationsBell } from "./components/NotificationsBell";
-import { MessagesBell } from "./components/MessagesBell";
 import { I18nProvider, useT } from "./i18n";
 
 // Loaded on demand *and* only when the build enabled it, so a public build
@@ -83,20 +82,14 @@ function AppShell() {
           <img src={avenaLogo} alt={t("nav.home")} className="brand-logo" />
         </Link>
         <div className="topbar-links">
-          {/* Three, and none of them a tab: the two lists a traveller returns
-              to, and the download page. Everything else lives in Ajustes. */}
-          {chosen && !isProfissional && (
-            <>
-              <Link to="/feed">{t("nav.people")}</Link>
-              <Link to="/desejos">{t("nav.wishlist")}</Link>
-            </>
-          )}
+          {/* The tabs carry the destinations now; the bar keeps what they do
+              not: the people you follow, and the download page. */}
+          {chosen && !isProfissional && <Link to="/feed">{t("nav.people")}</Link>}
           <Link to="/app" className="topbar-app-link">
             {t("app.navLink")}
           </Link>
         </div>
         <div className="topbar-actions">
-          {chosen && <MessagesBell />}
           <NotificationsBell />
           <LanguageSwitcher />
         </div>

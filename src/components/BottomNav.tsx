@@ -19,7 +19,7 @@ const icon = (path: string) => (
   </svg>
 );
 
-const homeIcon = icon("M12 3 2.5 11.2l1.3 1.5L5 11.7V20a1 1 0 0 0 1 1h4v-6h4v6h4a1 1 0 0 0 1-1v-8.3l1.2 1 1.3-1.5L12 3z");
+const heartIcon = icon("M12 20.7 4.3 13a5 5 0 0 1 7.1-7l.6.6.6-.6a5 5 0 1 1 7.1 7L12 20.7z");
 const searchIcon = icon("M10.5 3a7.5 7.5 0 1 1-4.7 13.3L3 19.1 1.9 18l2.8-2.8A7.5 7.5 0 0 1 10.5 3zm0 2a5.5 5.5 0 1 0 0 11 5.5 5.5 0 0 0 0-11z");
 const messageIcon = icon("M12 3c5 0 9 3.4 9 7.7 0 4.2-4 7.6-9 7.6-1 0-2-.1-2.9-.4L4 20.5l1.2-3.4C3.2 15.7 3 13.3 3 10.7 3 6.4 7 3 12 3z");
 const ticketIcon = icon("M3 7a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v3a2 2 0 0 0 0 4v3a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-3a2 2 0 0 0 0-4V7z");
@@ -65,9 +65,11 @@ export function BottomNav() {
           // Four, not five. Messages moved to the top bar, where the icon can
           // carry the same unread count without spending a whole tab on a
           // screen most people open once a week.
-          { to: "/", label: t("nav.start"), icon: homeIcon },
-          { to: "/destination", label: t("nav.search"), icon: searchIcon },
-          { to: "/bookings", label: t("nav.bookings"), icon: ticketIcon },
+          // Five, labelled, the shape of every app people already use.
+          { to: "/", label: t("nav.explore"), icon: searchIcon },
+          { to: "/desejos", label: t("nav.favourites"), icon: heartIcon },
+          { to: "/bookings", label: t("nav.trips"), icon: ticketIcon },
+          { to: "/messages", label: t("nav.messages"), icon: messageIcon, badge: unread },
           { to: "/profile", label: t("nav.profile"), icon: avatarTab },
         ];
 
