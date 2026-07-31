@@ -18,10 +18,10 @@
  * advertised, and the fee is added to what the traveller pays — which is why
  * the booking screen shows it as its own line rather than burying it.
  *
- * The rate below is a placeholder until Lorena sets the real one. Changing this
- * number changes every quote in the app, so it lives here and nowhere else.
+ * The rate is Lorena's: 5% to start. Changing this number changes every quote
+ * in the app, so it lives here and nowhere else.
  */
-export const SERVICE_FEE_RATE = 0.1;
+export const SERVICE_FEE_RATE = 0.05;
 
 /**
  * What a business pays to join: nothing.
