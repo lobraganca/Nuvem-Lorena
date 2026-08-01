@@ -5254,3 +5254,45 @@ textarea:focus-visible,
 .search-when input[type="number"] {
   width: 88px;
 }
+
+/* Ordenar e teto de preço, acima da lista. */
+.search-sort {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: 12px;
+  margin: 4px 0 16px;
+}
+
+.search-sort label {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-size: 12px;
+  color: var(--text);
+}
+
+.search-sort select,
+.search-sort input {
+  padding: 9px 12px;
+  border-radius: 12px;
+  border: 1px solid var(--border);
+  background: var(--card-bg);
+  color: var(--text-h);
+  font: inherit;
+  font-size: 14px;
+}
+
+.search-sort input {
+  width: 120px;
+}
+
+.results-map {
+  margin: 4px 0 18px;
+}
+
+.results-map-canvas {
+  height: 240px;
+  border-radius: 16px;
+  overflow: hidden;
+}

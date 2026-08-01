@@ -90,3 +90,35 @@ export const DAY_STATE_LABEL: Record<DayState, string> = {
   lotado: "Esgotado nesta data",
   passada: "Data já passada",
 };
+
+/**
+ * O preço de um dia.
+ *
+ * Três degraus, do mais específico para o mais geral: alta temporada, fim de
+ * semana, preço normal. A ordem importa — um sábado de janeiro numa casa de
+ * praia é caro por ser janeiro, não por ser sábado, e a conta tem de chegar
+ * ao maior dos dois em vez de ao último que o código olhou.
+ */
+export function priceForDate(tour: Tour, date: string): number {
+  const base = tour.priceFrom ?? 0;
+  const mes = Number(date.slice(5, 7));
+  const dia = weekdayOf(date);
+  const fimDeSemana = dia === 5 || dia === 6 || dia === 0;
+
+  if (tour.highSeasonPrice && tour.highSeasonMonths?.includes(mes)) {
+    return tour.highSeasonPrice;
+  }
+  if (tour.weekendPrice && fimDeSemana) return tour.weekendPrice;
+  return base;
+}
+
+/** A soma das diárias de uma estadia, dia a dia — cada noite tem o seu preço. */
+export function stayPrice(tour: Tour, checkIn: string, checkOut: string): number {
+  let total = 0;
+  let dia = checkIn;
+  while (dia < checkOut) {
+    total += priceForDate(tour, dia);
+    dia = addDays(dia, 1);
+  }
+  return Math.round(total * 100) / 100;
+}

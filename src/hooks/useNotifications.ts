@@ -3,7 +3,7 @@ import { useAvena } from "../store/AvenaContext";
 import { buildNotifications } from "../lib/notifications";
 
 export function useNotifications() {
-  const { bookings, experiences, businesses, dismissedNotifications, waitlist } =
+  const { bookings, experiences, businesses, dismissedNotifications, waitlist, user } =
     useAvena();
 
   return useMemo(() => {
@@ -17,7 +17,8 @@ export function useNotifications() {
       businessCityById,
       dismissedNotifications,
       waitlist,
-      toursById
+      toursById,
+      user.accountType === "profissional" ? user.ownBusinessId : undefined
     );
-  }, [bookings, experiences, businesses, dismissedNotifications, waitlist]);
+  }, [bookings, experiences, businesses, dismissedNotifications, waitlist, user]);
 }

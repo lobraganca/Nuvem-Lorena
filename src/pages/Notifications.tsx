@@ -9,6 +9,7 @@ const kindLabel: Record<NotificationKind, string> = {
   "passeio-hoje": "Hoje",
   avaliar: "Avaliação",
   "registrar-memoria": "Memória",
+  "reserva-recebida": "Reserva",
 };
 
 export function Notifications() {

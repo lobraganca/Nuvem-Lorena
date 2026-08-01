@@ -25,7 +25,7 @@ import { canReceivePayments } from "../lib/payments/mercadopago";
 import { newId } from "../lib/ids";
 import { isStay, nextDay, nightsBetween, stayProblem } from "../lib/stays";
 import { AvailabilityCalendar } from "./AvailabilityCalendar";
-import { DAY_STATE_LABEL, dayState } from "../lib/calendar";
+import { DAY_STATE_LABEL, dayState, priceForDate, stayPrice } from "../lib/calendar";
 
 /** No tour in this catalogue takes a group bigger than this in one booking. */
 const MAX_GROUP = 30;
@@ -68,10 +68,18 @@ export function BookTourButton({ business, tour }: { business: Business; tour: T
 
   const stay = isStay(tour);
   const nights = stay ? nightsBetween(travelDate, checkOut) : 0;
-  const unitPrice = tour.priceFrom ?? 0;
+  // O preço do dia escolhido, e não o "a partir de": fim de semana e alta
+  // temporada valem aqui, senão o número da vitrine e o da cobrança divergem.
+  const unitPrice = stay
+    ? nights > 0
+      ? stayPrice(tour, travelDate, checkOut) / nights
+      : priceForDate(tour, travelDate)
+    : priceForDate(tour, travelDate);
   // A house is counted in nights and a tour in people. Multiplying a rental by
   // the number of guests would bill a family several times over.
-  const totals = bookingTotals(unitPrice, stay ? nights : travelers);
+  const totals = stay
+    ? bookingTotals(nights > 0 ? stayPrice(tour, travelDate, checkOut) / nights : 0, nights)
+    : bookingTotals(unitPrice, travelers);
   const stayError = stay ? stayProblem(tour, travelDate, checkOut, travelers) : null;
 
   const cancellationPolicy = tour.cancellationPolicy ?? "moderada";
@@ -253,7 +261,8 @@ export function BookTourButton({ business, tour }: { business: Business; tour: T
       {stay && nights > 0 && (
         <div className="availability-note">
           {nights} {nights === 1 ? "noite" : "noites"} · R$ {formatBRL(unitPrice)} por
-          noite
+          noite{" "}
+          {tour.weekendPrice || tour.highSeasonPrice ? "(média das diárias)" : ""}
         </div>
       )}
 

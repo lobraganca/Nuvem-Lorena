@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { useSearchParams } from "react-router-dom";
+import { Link, useSearchParams } from "react-router-dom";
 import { useAvena } from "../store/AvenaContext";
 import { BusinessCard } from "../components/BusinessCard";
 import { TrendingSection } from "../components/TrendingSection";
@@ -15,6 +15,9 @@ import { TourCard } from "../components/TourCard";
 import { adsFor } from "../lib/ads";
 import { dayState, isBookable, todayISO } from "../lib/calendar";
 import { holdsSeat } from "../lib/bookingStatus";
+import { reviewStatsFor } from "../lib/reviews";
+import { MapContainer, Marker, Popup, TileLayer } from "react-leaflet";
+import { divIcon } from "leaflet";
 import { isStay } from "../lib/stays";
 import { accessibilityKey, businessTypePluralKey, categoryKey } from "../i18n/domain";
 
@@ -32,6 +35,8 @@ export function Destination() {
   const hoje = todayISO();
   const [quando, setQuando] = useState(searchParams.get("data") ?? "");
   const [quantos, setQuantos] = useState(Number(searchParams.get("pessoas")) || 1);
+  const [ordem, setOrdem] = useState<"relevancia" | "preco" | "nota">("relevancia");
+  const [tetoPreco, setTetoPreco] = useState("");
 
   useEffect(() => {
     const city = searchParams.get("city");
@@ -122,7 +127,35 @@ export function Destination() {
     });
   }
 
-  const comVaga = matches.filter(temVaga);
+  /** O menor preço publicado por uma empresa, para ordenar e para o teto. */
+  function menorPreco(b: Business): number {
+    const precos = (b.tours ?? [])
+      .map((t) => t.priceFrom)
+      .filter((x): x is number => x !== undefined);
+    return precos.length ? Math.min(...precos) : Infinity;
+  }
+
+  const comVaga = matches
+    .filter(temVaga)
+    .filter((b) => !tetoPreco || menorPreco(b) <= Number(tetoPreco))
+    .sort((a, b) => {
+      if (ordem === "preco") return menorPreco(a) - menorPreco(b);
+      if (ordem === "nota") {
+        // Sem avaliação nenhuma a empresa vai para o fim em vez de para o
+        // topo: zero avaliações não é nota máxima, e ordenar por nota tem de
+        // premiar quem tem histórico.
+        const na = reviewStatsFor(reviews, a.id);
+        const nb = reviewStatsFor(reviews, b.id);
+        if (nb.count === 0 && na.count === 0) return 0;
+        if (nb.count === 0) return -1;
+        if (na.count === 0) return 1;
+        return nb.avgRating - na.avgRating;
+      }
+      return 0;
+    });
+
+  /** Só quem marcou o ponto entra no mapa. */
+  const noMapa = comVaga.filter((b) => b.lat != null && b.lng != null);
 
   return (
     <div className="viator-hero">
@@ -253,6 +286,31 @@ export function Destination() {
               Rotulados porque a lei exige (CDC art. 36) e porque uma lista em
               que não se sabe o que é anúncio deixa de valer para os dois
               lados. */}
+          <div className="search-sort">
+            <label>
+              Ordenar
+              <select
+                value={ordem}
+                onChange={(e) => setOrdem(e.target.value as typeof ordem)}
+              >
+                <option value="relevancia">Mais relevantes</option>
+                <option value="preco">Menor preço</option>
+                <option value="nota">Melhor avaliados</option>
+              </select>
+            </label>
+            <label>
+              Até R$
+              <input
+                type="number"
+                min={0}
+                step={50}
+                value={tetoPreco}
+                onChange={(e) => setTetoPreco(e.target.value)}
+                placeholder="sem limite"
+              />
+            </label>
+          </div>
+
           {sponsored.length > 0 && (
             <div className="sponsored-block">
               <p className="sponsored-label">Patrocinado</p>
@@ -261,6 +319,42 @@ export function Destination() {
                   <TourCard key={ad.id} business={business} tour={tour} />
                 ))}
               </div>
+            </div>
+          )}
+
+          {/* O mapa dos resultados. Escolher hospedagem é meio geográfico:
+              "perto da praia" e "longe de tudo" não se leem numa lista. Só
+              aparece quando alguém marcou o ponto — um mapa vazio é pior que
+              nenhum. */}
+          {noMapa.length > 0 && (
+            <div className="results-map">
+              <MapContainer
+                center={[noMapa[0].lat as number, noMapa[0].lng as number]}
+                zoom={12}
+                scrollWheelZoom={false}
+                className="results-map-canvas"
+              >
+                <TileLayer
+                  attribution="&copy; OpenStreetMap contributors"
+                  url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+                />
+                {noMapa.map((b) => (
+                  <Marker
+                    key={b.id}
+                    position={[b.lat as number, b.lng as number]}
+                    icon={divIcon({
+                      html: `<span class="meeting-pin"></span>`,
+                      className: "",
+                      iconSize: [26, 26],
+                      iconAnchor: [13, 26],
+                    })}
+                  >
+                    <Popup>
+                      <Link to={`/business/${b.id}`}>{b.name}</Link>
+                    </Popup>
+                  </Marker>
+                ))}
+              </MapContainer>
             </div>
           )}
 

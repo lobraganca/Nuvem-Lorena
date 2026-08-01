@@ -199,6 +199,16 @@ export interface Tour {
   blockedDates?: string[];
   /** Dias da semana em que não há saída. Domingo é 0. */
   closedWeekdays?: number[];
+  /**
+   * Preço de sexta, sábado e domingo, quando é diferente. Numa casa de
+   * temporada o fim de semana é o produto; cobrar o mesmo dos dois é onde o
+   * ano inteiro de lucro se perde.
+   */
+  weekendPrice?: number;
+  /** Preço nos meses de alta. Vale sobre o de fim de semana quando os dois se aplicam. */
+  highSeasonPrice?: number;
+  /** Meses (1-12) considerados alta temporada para o preço. */
+  highSeasonMonths?: number[];
 }
 
 /** Set by the Avena admin; suspended businesses disappear from public listings. */

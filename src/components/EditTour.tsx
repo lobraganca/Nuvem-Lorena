@@ -32,6 +32,15 @@ export function EditTour({ businessId, tour }: { businessId: string; tour: Tour 
   const [difficulty, setDifficulty] = useState<Difficulty | undefined>(tour.difficulty);
   const [access, setAccess] = useState<AccessibilityTag[]>(tour.accessibility ?? []);
   const [photos, setPhotos] = useState<string[]>(tour.photos ?? []);
+  const [weekendPrice, setWeekendPrice] = useState(
+    tour.weekendPrice !== undefined ? String(tour.weekendPrice) : ""
+  );
+  const [highSeasonPrice, setHighSeasonPrice] = useState(
+    tour.highSeasonPrice !== undefined ? String(tour.highSeasonPrice) : ""
+  );
+  const [highSeasonMonths, setHighSeasonMonths] = useState<number[]>(
+    tour.highSeasonMonths ?? []
+  );
   const [included, setIncluded] = useState(tour.included ?? "");
   const [bring, setBring] = useState(tour.bring ?? "");
   const [departureTimes, setDepartureTimes] = useState(tour.departureTimes ?? "");
@@ -64,6 +73,9 @@ export function EditTour({ businessId, tour }: { businessId: string; tour: Tour 
       durationHours: durationHours ? Number(durationHours) : undefined,
       capacityPerDay: capacityPerDay ? Number(capacityPerDay) : undefined,
       cancellationPolicy,
+      weekendPrice: weekendPrice ? Number(weekendPrice) : undefined,
+      highSeasonPrice: highSeasonPrice ? Number(highSeasonPrice) : undefined,
+      highSeasonMonths: highSeasonMonths.length ? highSeasonMonths : undefined,
       included: included.trim() || undefined,
       bring: bring.trim() || undefined,
       departureTimes: departureTimes.trim() || undefined,
@@ -153,6 +165,53 @@ export function EditTour({ businessId, tour }: { businessId: string; tour: Tour 
           </button>
         ))}
       </div>
+      {/* Preço não é um número só. Numa casa de temporada, o fim de semana é
+          o produto — cobrar o mesmo dos dois é onde o ano inteiro de lucro se
+          perde. */}
+      <div className="form-row">
+        <label>
+          Preço de fim de semana (R$)
+          <input
+            type="number"
+            value={weekendPrice}
+            onChange={(e) => setWeekendPrice(e.target.value)}
+            placeholder="igual ao normal"
+          />
+        </label>
+        <label>
+          Preço na alta temporada (R$)
+          <input
+            type="number"
+            value={highSeasonPrice}
+            onChange={(e) => setHighSeasonPrice(e.target.value)}
+            placeholder="igual ao normal"
+          />
+        </label>
+      </div>
+
+      <fieldset>
+        <legend>Meses de alta temporada</legend>
+        <div className="chip-row">
+          {MONTH_NAMES.map((nome, i) => (
+            <button
+              type="button"
+              key={nome}
+              className={`chip ${highSeasonMonths.includes(i + 1) ? "chip-active" : ""}`}
+              onClick={() =>
+                setHighSeasonMonths((prev) =>
+                  prev.includes(i + 1)
+                    ? prev.filter((m) => m !== i + 1)
+                    : [...prev, i + 1]
+                )
+              }
+              aria-pressed={highSeasonMonths.includes(i + 1)}
+            >
+              {nome}
+            </button>
+          ))}
+        </div>
+      </fieldset>
+
       {/* O que a pessoa pergunta por mensagem quando não está escrito — e
           quando não pergunta, some. */}
       <label>

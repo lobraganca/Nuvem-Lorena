@@ -12,7 +12,10 @@ export function NotificationsBell() {
   const notifications = useNotifications();
   const t = useT();
 
-  if (user.accountType !== "turista") return null;
+  // O sino serve aos dois: o viajante recebe lembrete de passeio, a agência
+  // recebe aviso de reserva. Antes ele sumia para quem recebe — justamente
+  // quem tem algo a perder por não olhar.
+  if (!user.accountType) return null;
 
   const count = notifications.length;
 

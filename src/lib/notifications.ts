@@ -5,7 +5,8 @@ export type NotificationKind =
   | "vaga-liberada"
   | "passeio-hoje"
   | "avaliar"
-  | "registrar-memoria";
+  | "registrar-memoria"
+  | "reserva-recebida";
 
 export interface AvenaNotification {
   id: string;
@@ -57,11 +58,56 @@ export function buildNotifications(
   businessCityById: Map<string, string>,
   dismissed: string[] = [],
   waitlist: WaitlistEntry[] = [],
-  toursById: Map<string, Tour> = new Map()
+  toursById: Map<string, Tour> = new Map(),
+  /** A empresa de quem está olhando, quando é uma conta profissional. */
+  ownBusinessId?: string
 ): AvenaNotification[] {
   const today = todayIso();
   const dismissedSet = new Set(dismissed);
   const notifications: AvenaNotification[] = [];
+
+  // Do lado de quem recebe: reserva nova, e a que está para acontecer.
+  //
+  // Faltava inteiro — a agência só descobria uma reserva entrando no painel,
+  // e uma reserva que ninguém viu é uma pessoa esperando no cais.
+  if (ownBusinessId) {
+    for (const booking of bookings) {
+      if (booking.businessId !== ownBusinessId) continue;
+      if (booking.status === "cancelada" || booking.status === "expirada") continue;
+
+      if (booking.status === "confirmada" && booking.travelDate >= today) {
+        notifications.push({
+          id: `recebida-${booking.id}`,
+          kind: "reserva-recebida",
+          title:
+            booking.travelDate === today
+              ? "Você recebe gente hoje"
+              : "Nova reserva confirmada",
+          body: `${booking.tourTitle} · ${new Date(
+            booking.travelDate
+          ).toLocaleDateString("pt-BR")} · ${booking.travelers} ${
+            booking.travelers === 1 ? "pessoa" : "pessoas"
+          }`,
+          actionLabel: "Ver no painel",
+          actionTo: "/professional",
+          date: booking.travelDate,
+        });
+      }
+
+      if (booking.status === "aguardando-pagamento") {
+        notifications.push({
+          id: `pendente-${booking.id}`,
+          kind: "reserva-recebida",
+          title: "Vaga reservada, pagamento pendente",
+          body: `${booking.tourTitle}. Não conte com esta vaga até a confirmação.`,
+          actionLabel: "Ver no painel",
+          actionTo: "/professional",
+          date: booking.travelDate,
+        });
+      }
+    }
+    return notifications.filter((n) => !dismissedSet.has(n.id));
+  }
 
   for (const booking of bookings) {
     if (booking.status !== "confirmada") continue;
