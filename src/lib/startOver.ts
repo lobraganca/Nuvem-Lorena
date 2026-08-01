@@ -11,7 +11,7 @@
  * them, which is why it is a deliberate address and not a button. It also
  * strips itself out of the URL, so a reload does not wipe the fresh start.
  */
-import { removeStored } from "./safeStorage";
+import { readStored, removeStored } from "./safeStorage";
 
 /** Every key the app writes. Kept together so nothing survives by omission. */
 const ALL_KEYS = [
@@ -35,6 +35,36 @@ export function startOverIfAsked() {
   const hashQuery = window.location.hash.split("?")[1] ?? "";
   const inHash = new URLSearchParams(hashQuery).get(FLAG);
   if (inSearch !== "1" && inHash !== "1") return;
+
+  /*
+   * Confirmar antes de apagar.
+   *
+   * Isto existia para eu poder testar do zero, e virou uma arma: bastava
+   * mandar "olha o Avena: <endereço>/?recomecar=1" para alguém, e abrir o
+   * link apagava as memórias, as reservas e a conta dessa pessoa — sem aviso,
+   * sem pergunta, sem desfazer. Um link que destrói dados ao ser aberto é a
+   * definição de armadilha, e não importa que a intenção fosse boa.
+   *
+   * A pergunta só aparece quando há o que perder. Num aparelho vazio ela
+   * seria só um obstáculo entre a pessoa e o app.
+   */
+  const temDados = ALL_KEYS.some((k) => {
+    const valor = readStored(k);
+    return Boolean(valor) && valor !== "{}" && valor !== "[]";
+  });
+
+  if (temDados) {
+    const certeza = window.confirm(
+      "Este link apaga TUDO o que está guardado neste aparelho: conta, " +
+        "memórias, reservas e listas. Não há como desfazer nem recuperar.\n\n" +
+        "Se você não pediu isso, toque em Cancelar — nada será apagado."
+    );
+    if (!certeza) {
+      // O endereço é limpo do mesmo jeito, para um F5 não repetir a pergunta.
+      window.history.replaceState({}, "", window.location.pathname);
+      return;
+    }
+  }
 
   for (const key of ALL_KEYS) removeStored(key);
   try {

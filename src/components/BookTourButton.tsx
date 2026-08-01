@@ -19,6 +19,7 @@ import {
 } from "./LegalAcceptance";
 import type { Business, Participant, Tour } from "../types";
 import { formatBRL } from "../lib/money";
+import { freeCancellationUntil } from "../lib/cancellation";
 import { useT } from "../i18n";
 import type { TranslationKey } from "../i18n";
 import { canReceivePayments } from "../lib/payments/mercadopago";
@@ -107,6 +108,9 @@ export function BookTourButton({ business, tour }: { business: Business; tour: T
   const exceedsCapacity = availability.tracked && travelers > availability.remaining;
 
   const dateInPast = travelDate < today;
+  // A regra dita como data, e não como "3 dias antes": a conta de cabeça é
+  // onde a pessoa erra, e o erro só aparece quando ela tenta cancelar.
+  const cancelaGratisAte = freeCancellationUntil(travelDate, cancellationPolicy);
 
   // O calendário do dono manda: data fechada por ele não é vendida, mesmo com
   // vaga sobrando.
@@ -329,6 +333,14 @@ export function BookTourButton({ business, tour }: { business: Business; tour: T
       {peopleError && (
         <div className="availability-none">
           {t(peopleError.key, { n: peopleError.index })}
+        </div>
+      )}
+
+      {cancelaGratisAte && (
+        <div className="availability-note">
+          Cancelamento grátis até{" "}
+          {new Date(cancelaGratisAte + "T12:00:00").toLocaleDateString("pt-BR")} —
+          depois disso vale a política {t(cancellationLabelKey[cancellationPolicy])}.
         </div>
       )}
 

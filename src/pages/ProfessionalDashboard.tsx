@@ -29,7 +29,7 @@ import { newId } from "../lib/ids";
 const today = new Date().toISOString().slice(0, 10);
 
 export function ProfessionalDashboard() {
-  const { user, businesses, bookings, boosts, addTourToBusiness, touchBusinessPresence } =
+  const { user, businesses, bookings, boosts, addTourToBusiness, updateTour, touchBusinessPresence } =
     useAvena();
   const business = businesses.find((b) => b.id === user.ownBusinessId);
 
@@ -180,6 +180,13 @@ export function ProfessionalDashboard() {
 
       <BusinessEditor business={business} />
 
+      {/* Ver a própria página como o viajante vê. Quem publica não enxerga o
+          que publicou: o painel mostra campos, e a decisão de reservar
+          acontece na outra tela. */}
+      <Link to={`/business/${business.id}`} className="btn-outline">
+        Ver minha página como o viajante vê
+      </Link>
+
       <MeetingPointEditor business={business} />
 
       <h2 className="timeline-title">Meus passeios</h2>
@@ -229,6 +236,22 @@ export function ProfessionalDashboard() {
                   ? `Vagas hoje: ${availability.remaining}/${availability.capacity}`
                   : "Vagas ilimitadas"}
               </div>
+              {/* Pausar em vez de apagar. Um passeio fora de temporada some
+                  da busca sem levar junto as avaliações e o histórico — que é
+                  o que apagar e recriar destrói. */}
+              <button
+                type="button"
+                className="btn-outline"
+                onClick={() => updateTour(business.id, { ...t, paused: !t.paused })}
+              >
+                {t.paused ? "Voltar a anunciar" : "Pausar anúncio"}
+              </button>
+              {t.paused && (
+                <div className="availability-note">
+                  Pausado: não aparece na busca. As reservas já feitas continuam
+                  valendo.
+                </div>
+              )}
               <BoostTourButton tour={t} />
               <EditTour businessId={business.id} tour={t} />
               <TourCalendarEditor businessId={business.id} tour={t} />

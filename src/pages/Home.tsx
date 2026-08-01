@@ -41,7 +41,12 @@ export function Home() {
   const listings = useMemo(() => {
     const all: { business: Business; tour: Tour }[] = [];
     for (const business of live) {
-      for (const tour of business.tours ?? []) all.push({ business, tour });
+      for (const tour of business.tours ?? []) {
+        // Pausado não aparece para quem procura. Continua existindo para o
+        // dono, com as reservas e a nota — pausar não é apagar.
+        if (tour.paused) continue;
+        all.push({ business, tour });
+      }
     }
     return all;
   }, [live]);

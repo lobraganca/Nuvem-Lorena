@@ -5346,3 +5346,50 @@ textarea:focus-visible,
   white-space: nowrap;
   color: var(--text-h);
 }
+
+
+/* ---- Alvos que o polegar erra ----
+
+   Encontrados varrendo o app numa tela de 360px, que é o celular comum aqui.
+   Quarenta e quatro pixels é o mínimo que se acerta sem olhar; abaixo disso a
+   pessoa toca duas vezes, erra, e culpa o app — com razão. */
+
+.explore-more,
+.timeline-title + a,
+.tour-seller-more {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  padding: 0 4px;
+}
+
+/* O botão de mensagem herdava a altura do texto. */
+.detail-block .btn-outline,
+.booking-guest .btn-outline {
+  min-height: 44px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Os botões de zoom do mapa vêm do Leaflet com 30px. */
+.leaflet-control-zoom a {
+  width: 44px !important;
+  height: 44px !important;
+  line-height: 44px !important;
+  font-size: 20px !important;
+}
+
+/* A ficha de cidade na tela inicial estourava a largura: o nome não quebrava
+   e o cartão não podia encolher. */
+.city-chip {
+  min-width: 0;
+  max-width: 100%;
+}
+
+.city-chip-name {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}

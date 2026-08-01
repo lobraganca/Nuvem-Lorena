@@ -59,3 +59,25 @@ export function computeRefund(booking: Booking): {
   const refundAmount = Math.round(booking.totalPrice * (refundPct / 100) * 100) / 100;
   return { refundAmount, refundPct };
 }
+
+
+/**
+ * Até quando dá para cancelar sem perder nada, como data.
+ *
+ * "Reembolso total até 3 dias antes" obriga a pessoa a fazer a conta na
+ * cabeça, e ela faz errado. "Cancelamento grátis até 12 de setembro" é a
+ * mesma regra dita de um jeito que se decide em cima.
+ */
+export function freeCancellationUntil(
+  travelDate: string,
+  policy: CancellationPolicy
+): string | null {
+  const dias = policy === "flexivel" ? 1 : policy === "moderada" ? 3 : null;
+  if (dias === null) return null;
+  const [y, m, d] = travelDate.split("-").map(Number);
+  const data = new Date(y, m - 1, d, 12);
+  data.setDate(data.getDate() - dias);
+  return `${data.getFullYear()}-${String(data.getMonth() + 1).padStart(2, "0")}-${String(
+    data.getDate()
+  ).padStart(2, "0")}`;
+}

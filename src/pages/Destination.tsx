@@ -114,7 +114,7 @@ export function Destination() {
    */
   function temVaga(b: Business): boolean {
     if (!quando && quantos <= 1) return true;
-    return (b.tours ?? []).some((tour) => {
+    return (b.tours ?? []).filter((t) => !t.paused).some((tour) => {
       // O tamanho do grupo vale sempre, com data ou sem. Antes ele só era
       // conferido quando havia data escolhida, então pedir lugar para
       // quarenta pessoas devolvia a lista inteira — e a pessoa descobria o

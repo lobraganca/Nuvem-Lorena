@@ -125,7 +125,7 @@ export function BusinessDetail() {
               página só: quem queria um passeio tinha de achá-lo no meio dos
               outros seis e depois desviar deles. */}
           <div className="card-rail">
-            {business.tours.map((tour) => (
+            {business.tours.filter((tour) => !tour.paused).map((tour) => (
               <TourCard key={tour.id} business={business} tour={tour} />
             ))}
           </div>

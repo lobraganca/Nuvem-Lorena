@@ -195,6 +195,11 @@ export interface Tour {
   languages?: string;
   /** Quantas pessoas vão juntas. Diferente de capacidade por dia. */
   groupSize?: number;
+  /**
+   * Fora do ar por vontade do dono. O passeio continua existindo, com as
+   * reservas e o histórico; ele só não aparece para quem procura.
+   */
+  paused?: boolean;
   /** Datas fechadas pelo dono, "AAAA-MM-DD". Ver lib/calendar.ts. */
   blockedDates?: string[];
   /** Dias da semana em que não há saída. Domingo é 0. */
