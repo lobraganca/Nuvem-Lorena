@@ -5409,3 +5409,59 @@ textarea:focus-visible,
   outline: 2px solid var(--accent);
   outline-offset: -2px;
 }
+
+/* A tela de "confirme seu e-mail".
+   Ela substitui o formulário inteiro depois do cadastro: quem acabou de criar
+   a conta precisa de uma resposta do tamanho do gesto que fez, e não de uma
+   linha cinza embaixo de campos que já não servem para nada. */
+.confirm-email {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  align-items: center;
+  text-align: center;
+  padding: 8px 0 4px;
+}
+
+.confirm-email-mark {
+  font-size: 44px;
+  line-height: 1;
+}
+
+.confirm-email-title {
+  margin: 0;
+  font-size: 1.5rem;
+}
+
+/* O endereço em destaque porque é onde o erro de digitação aparece: quem
+   escreveu "gmial" descobre aqui, e não depois de dez minutos esperando. */
+.confirm-email-address {
+  margin: 0;
+  font-weight: 600;
+  word-break: break-all;
+}
+
+.confirm-email-text {
+  margin: 0;
+  opacity: 0.85;
+}
+
+.confirm-email-steps {
+  margin: 0;
+  padding-left: 20px;
+  text-align: left;
+  line-height: 1.7;
+  align-self: stretch;
+}
+
+.confirm-email-spam,
+.confirm-email-ok {
+  margin: 0;
+  font-size: 0.9rem;
+  opacity: 0.8;
+}
+
+.confirm-email-ok {
+  opacity: 1;
+  font-weight: 600;
+}

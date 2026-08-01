@@ -64,6 +64,8 @@ interface AuthValue {
    * porque não é falha: é o próximo passo, e a tela precisa dizer isso.
    */
   awaitingEmail: boolean;
+  /** Sai da tela de confirmação — para quem errou o endereço e quer refazer. */
+  clearAwaitingEmail: () => void;
   /**
    * Manda o e-mail de redefinição. Só existe com servidor — sem ele, ninguém
    * pode mandar e-mail nenhum, e prometer isso seria mentira.
@@ -111,6 +113,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const [loadingSession, setLoadingSession] = useState(onServer);
   const [awaitingEmail, setAwaitingEmail] = useState(false);
+  const clearAwaitingEmail = useCallback(() => setAwaitingEmail(false), []);
 
   /**
    * Retoma a sessão guardada e acompanha as trocas.
@@ -289,6 +292,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       onServer,
       loadingSession,
       awaitingEmail,
+      clearAwaitingEmail,
       requestPasswordReset,
       resetDevice,
       needsPhone:
@@ -308,6 +312,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       onServer,
       loadingSession,
       awaitingEmail,
+      clearAwaitingEmail,
       requestPasswordReset,
       resetDevice,
       phonePostponed,

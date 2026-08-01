@@ -3,6 +3,7 @@ import { useAuth, type AuthError } from "../store/AuthContext";
 import { isValidEmail, passwordProblem } from "../lib/auth";
 import { LanguageSwitcher } from "../components/LanguageSwitcher";
 import { StoreBadges } from "../components/StoreBadges";
+import { ConfirmEmail } from "./ConfirmEmail";
 import { anyStoreLive } from "../lib/appStores";
 import { useT } from "../i18n";
 import type { TranslationKey } from "../i18n";
@@ -37,6 +38,7 @@ export function SignIn() {
     resetDevice,
     onServer,
     awaitingEmail,
+    clearAwaitingEmail,
     requestPasswordReset,
   } = useAuth();
   const t = useT();
@@ -110,6 +112,26 @@ export function SignIn() {
       </button>
     </div>
   );
+
+  // A confirmação toma a tela inteira, no lugar do formulário. O formulário não
+  // tem mais nada a fazer: a conta já existe, e o próximo passo é na caixa de
+  // entrada da pessoa.
+  if (awaitingEmail) {
+    return (
+      <div className="signin-page">
+        <div className="signin-card">
+          <h1 className="signin-wordmark">avena</h1>
+          <ConfirmEmail
+            email={email}
+            onBack={() => {
+              clearAwaitingEmail();
+              go("criar");
+            }}
+          />
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="signin-page">
@@ -228,15 +250,6 @@ export function SignIn() {
                   : t(creating ? "auth.createAndEnter" : "auth.enter")}
               </button>
             </form>
-
-            {/* A conta foi criada e falta abrir o e-mail. Não é erro, é o
-                próximo passo — e sem dizer isso a pessoa fica olhando uma tela
-                que não mudou, achando que o cadastro não funcionou. */}
-            {awaitingEmail && (
-              <p className="signin-truth" role="status">
-                {t("auth.checkEmail", { email })}
-              </p>
-            )}
 
             {/* Being trusted with someone's memories means saying what this
                 account is, and is not, before they rely on it. */}

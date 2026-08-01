@@ -161,6 +161,28 @@ export async function remoteResetPassword(email: string): Promise<boolean> {
   }
 }
 
+/**
+ * Manda de novo o e-mail de confirmação.
+ *
+ * Existe porque o primeiro e-mail se perde: cai no spam, a pessoa fecha a aba,
+ * o link expira. Sem um botão para reenviar, a única saída seria criar outra
+ * conta com outro endereço — e aí o cadastro fica com duas contas pela metade.
+ */
+export async function remoteResendConfirmation(email: string): Promise<boolean> {
+  const db = supabase();
+  if (!db) return false;
+  try {
+    const { error } = await db.auth.resend({
+      type: "signup",
+      email: email.trim().toLowerCase(),
+      options: { emailRedirectTo: window.location.href },
+    });
+    return !error;
+  } catch {
+    return false;
+  }
+}
+
 /** Guarda o telefone confirmado junto da conta, no servidor. */
 export async function remoteSetPhone(
   phone: string,
