@@ -48,7 +48,7 @@ export function TourCard({ business, tour }: { business: Business; tour: Tour })
   return (
     <Link to={`/tour/${business.id}/${tour.id}`} className="listing-card">
       <div
-        className="listing-card-media"
+        className={`listing-card-media ${photo ? "" : "listing-card-media-empty"}`}
         style={photo ? undefined : { background: businessTypeColor[business.type] }}
       >
         {photo && <img src={photo} alt={tour.title} className="listing-card-img" />}

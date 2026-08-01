@@ -4,10 +4,12 @@
      blue-grey, so nothing on the page looks borrowed from another brand. */
   --text: #5f6259;
   --text-h: #171c16;
-  /* White, plain. The cream it replaced belonged to the wordmark, but on a
-     phone full of photos it read as a page that had yellowed. The warmth
-     stays where it belongs: in the green, the sand and the type. */
-  --bg: #ffffff;
+  /* Um branco que recua um passo, para o branco puro dos cartões ficar à
+     frente dele. É daqui que vem a leveza da referência: não é a página que
+     é branca, são os cartões — e a diferença entre os dois é o que dispensa
+     borda, sombra pesada e traço para separar as coisas. Ainda lê como
+     branco; só não compete com o conteúdo. */
+  --bg: #f7f7f5;
   /* Not white, or the surfaces that mark a second level — rails, filled rows,
      empty states — would dissolve into the page. Barely tinted towards the
      cream, so it reads as a surface rather than as a grey box. */
@@ -21,7 +23,7 @@
      dark mode the accent is a light sage, and white on it is unreadable. */
   --on-accent: #f4efe2;
   --card-bg: #ffffff;
-  --shadow: rgba(23, 28, 22, 0.07) 0 4px 14px -3px, rgba(23, 28, 22, 0.04) 0 2px 5px -2px;
+  --shadow: rgba(23, 28, 22, 0.05) 0 2px 10px -2px, rgba(23, 28, 22, 0.03) 0 1px 3px -1px;
 
   --sans: system-ui, "Segoe UI", Roboto, sans-serif;
   /* Headings echo the wordmark; running text stays a plain sans, because a
@@ -2698,8 +2700,13 @@ textarea:focus-visible,
 .banner {
   display: flex;
   gap: 16px;
-  border-radius: 12px;
-  border: 1px solid var(--border);
+  border-radius: 18px;
+  /* Cartão branco sobre o fundo, como os outros, em vez de uma caixa com
+     traço em volta — a borda é o que fazia este bloco pesar mais do que o
+     recado que ele carrega. */
+  border: none;
+  background: var(--card-bg);
+  box-shadow: var(--shadow);
   overflow: hidden;
   background: var(--card-bg);
 }
@@ -3492,10 +3499,12 @@ textarea:focus-visible,
   align-items: center;
   justify-content: center;
   gap: 10px;
-  padding: 9px 16px;
-  background: var(--accent-soft);
-  color: var(--text-h);
-  font-size: 13px;
+  padding: 8px 16px;
+  background: var(--card-bg);
+  border-bottom: 1px solid var(--border);
+  color: var(--text);
+  font-size: 12.5px;
+  line-height: 1.4;
   text-align: center;
 }
 
@@ -3962,27 +3971,36 @@ textarea:focus-visible,
 .explore-filter {
   display: inline-flex;
   align-items: center;
-  gap: 8px;
+  gap: 7px;
   flex: none;
-  padding: 11px 18px;
+  padding: 9px 15px;
   border: none;
   border-radius: 999px;
   background: transparent;
   font: inherit;
-  font-weight: 600;
+  font-size: 14px;
+  /* 500 e não 600: em negrito, seis filtros lado a lado pesam mais que os
+     passeios que eles filtram. */
+  font-weight: 500;
   color: var(--text);
   cursor: pointer;
   white-space: nowrap;
 }
 
 .explore-filter svg {
-  width: 19px;
-  height: 19px;
+  width: 17px;
+  height: 17px;
+  opacity: 0.65;
+}
+
+.explore-filter-on svg {
+  opacity: 1;
 }
 
 .explore-filter-on {
   background: var(--accent);
   color: var(--on-accent);
+  font-weight: 600;
 }
 
 .explore-body {
@@ -4008,9 +4026,10 @@ textarea:focus-visible,
 .explore-head h2 {
   margin: 0;
   font-family: var(--sans);
-  font-weight: 700;
-  font-size: 21px;
-  letter-spacing: -0.01em;
+  font-weight: 600;
+  font-size: 18px;
+  letter-spacing: -0.015em;
+  text-wrap: balance;
 }
 
 .explore-more {
@@ -4027,6 +4046,11 @@ textarea:focus-visible,
   margin: 0 -16px;
   overflow-x: auto;
   scroll-snap-type: x mandatory;
+  /* Sem isto o primeiro cartão encostava na borda esquerda da tela. O snap
+     alinha o cartão ao início da área de rolagem, e a área de rolagem ignora
+     o padding — então o navegador rolava o trilho em exatamente os 16px do
+     recuo. `scroll-padding` é o que ensina o snap a respeitá-lo. */
+  scroll-padding-left: 16px;
   scrollbar-width: none;
 }
 
@@ -4042,7 +4066,7 @@ textarea:focus-visible,
   flex: none;
   width: 250px;
   scroll-snap-align: start;
-  border-radius: 18px;
+  border-radius: 20px;
   background: var(--card-bg);
   box-shadow: var(--shadow);
   overflow: hidden;
@@ -4054,6 +4078,15 @@ textarea:focus-visible,
   position: relative;
   height: 168px;
   flex: none;
+}
+
+/* Sem foto, um degradê claro da própria cor em vez de um bloco chapado e
+   escuro: o cartão continua sendo um cartão e não um buraco na página. */
+.listing-card-media-empty::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(160deg, rgb(255 255 255 / 55%), rgb(255 255 255 / 12%));
 }
 
 .listing-card-img {
@@ -4096,8 +4129,8 @@ textarea:focus-visible,
 .listing-card-body {
   display: flex;
   flex-direction: column;
-  gap: 6px;
-  padding: 14px 16px 16px;
+  gap: 5px;
+  padding: 13px 15px 16px;
 }
 
 .listing-card-place {
@@ -4115,9 +4148,11 @@ textarea:focus-visible,
 }
 
 .listing-card-title {
-  font-size: 16px;
-  font-weight: 700;
-  line-height: 1.3;
+  font-size: 15.5px;
+  /* 600, não 700: o nome do passeio é o que se lê, mas não precisa gritar
+     acima da foto que está logo em cima dele. */
+  font-weight: 600;
+  line-height: 1.35;
   color: var(--text-h);
   /* Two lines, then an ellipsis: a card in a rail cannot grow. */
   display: -webkit-box;
@@ -4141,7 +4176,7 @@ textarea:focus-visible,
 
 .listing-card-new {
   font-size: 12px;
-  font-weight: 700;
+  font-weight: 600;
   color: var(--text-h);
 }
 
