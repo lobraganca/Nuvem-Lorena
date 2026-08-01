@@ -1,22 +1,17 @@
 import { Link, useParams } from "react-router-dom";
 import { useAvena } from "../store/AvenaContext";
-import { BookTourButton } from "../components/BookTourButton";
 import { ReputationBadge } from "../components/ReputationBadge";
 import { reviewStatsFor } from "../lib/reviews";
-import { cancellationLabelKey } from "../lib/cancellation";
-import { availabilityFor } from "../lib/availability";
-import { monthsLeftInSeason, seasonLabel } from "../lib/tourAttributes";
 import { useT } from "../i18n";
 import { PresenceDot } from "../components/PresenceDot";
-import { WishButton } from "../components/WishButton";
 import { MeetingPoint } from "../components/MeetingPoint";
-import { accessibilityKey, businessTypeKey, difficultyKey, planTierKey } from "../i18n/domain";
+import { TourCard } from "../components/TourCard";
+import { businessTypeKey, planTierKey } from "../i18n/domain";
 
-const today = new Date().toISOString().slice(0, 10);
 
 export function BusinessDetail() {
   const { id } = useParams();
-  const { businesses, reviews, bookings } = useAvena();
+  const { businesses, reviews } = useAvena();
   // Every hook runs before the early return: React requires the same hooks in
   // the same order on every render.
   const t = useT();
@@ -102,79 +97,15 @@ export function BusinessDetail() {
       {business.tours && business.tours.length > 0 && (
         <div className="detail-block">
           <h3>{t("business.tours")}</h3>
-          <div className="tour-cards">
-            {business.tours.map((tour) => {
-              const availability = availabilityFor(tour, bookings, today);
-              return (
-                <div key={tour.id} className="tour-card">
-                  {tour.photos && tour.photos.length > 0 && (
-                    <div className="tour-photos">
-                      {tour.photos.map((photo, i) => (
-                        <img
-                          key={i}
-                          src={photo}
-                          alt={`${tour.title} ${i + 1}`}
-                          className="tour-photo"
-                        />
-                      ))}
-                    </div>
-                  )}
-                  <div className="timeline-card-title">{tour.title}</div>
-                  <div className="muted">
-                    {tour.priceFrom !== undefined &&
-                      `${t("common.from")} R$ ${tour.priceFrom}`}
-                    {tour.durationHours !== undefined && ` · ${tour.durationHours}h`}
-                  </div>
-                  <div className="muted">
-                    {t("business.cancellation", {
-                      policy: t(cancellationLabelKey[tour.cancellationPolicy ?? "moderada"]),
-                    })}
-                    {tour.difficulty
-                      ? ` · ${t("business.effort", { level: t(difficultyKey[tour.difficulty]).toLowerCase() })}`
-                      : ""}
-                  </div>
-                  {seasonLabel(tour.seasonMonths) && (
-                    <div className="season-note">
-                      {t("business.bestSeason", {
-                        season: seasonLabel(tour.seasonMonths) ?? "",
-                      })}
-                      {monthsLeftInSeason(tour.seasonMonths) !== null &&
-                        ` · ${t(
-                          monthsLeftInSeason(tour.seasonMonths) === 1
-                            ? "business.seasonLeftOne"
-                            : "business.seasonLeft",
-                          { count: monthsLeftInSeason(tour.seasonMonths) ?? 0 }
-                        )}`}
-                    </div>
-                  )}
-                  {tour.accessibility && tour.accessibility.length > 0 && (
-                    <div className="chip-row">
-                      {tour.accessibility.map((a) => (
-                        <span key={a} className="access-tag">
-                          {t(accessibilityKey[a])}
-                        </span>
-                      ))}
-                    </div>
-                  )}
-                  {availability.tracked && (
-                    <div
-                      className={`availability-note ${availability.remaining === 0 ? "availability-none" : ""}`}
-                    >
-                      {availability.remaining === 0
-                        ? t("business.noSpotsToday")
-                        : t("business.spotsToday", {
-                            remaining: availability.remaining,
-                            capacity: availability.capacity ?? 0,
-                          })}
-                    </div>
-                  )}
-                  <div className="chip-row">
-                    <WishButton business={business} tour={tour} />
-                  </div>
-                  <BookTourButton business={business} tour={tour} />
-                </div>
-              );
-            })}
+          {/* Cartões que levam à página do passeio. O que estava aqui era
+              cada passeio aberto por inteiro — preço, vagas, temporada,
+              acessibilidade e um formulário de reserva — empilhados numa
+              página só: quem queria um passeio tinha de achá-lo no meio dos
+              outros seis e depois desviar deles. */}
+          <div className="card-rail">
+            {business.tours.map((tour) => (
+              <TourCard key={tour.id} business={business} tour={tour} />
+            ))}
           </div>
         </div>
       )}

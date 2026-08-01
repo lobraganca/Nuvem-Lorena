@@ -4714,3 +4714,118 @@ textarea:focus-visible,
   background: var(--card-bg);
   color: var(--text-h);
 }
+
+/* ---- A página de um passeio ---- */
+
+.tour-page {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.tour-hero {
+  position: relative;
+  border-radius: 18px;
+  overflow: hidden;
+  aspect-ratio: 4 / 3;
+  background: var(--bg-alt);
+}
+
+.tour-hero-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+/* Sem foto ainda: o mesmo retângulo, na cor da marca, em vez de um buraco
+   branco que faz a página parecer meio carregada. */
+.tour-hero-empty {
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(160deg, #2f4131, #55672f);
+}
+
+.tour-hero-wish {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+}
+
+.tour-title {
+  margin: 6px 0 0;
+  font-size: clamp(24px, 6vw, 30px);
+  line-height: 1.2;
+  text-wrap: balance;
+}
+
+.tour-place {
+  margin: 0;
+  color: var(--text);
+}
+
+.tour-price-row {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+}
+
+.tour-price {
+  font-size: 24px;
+  font-variant-numeric: tabular-nums;
+  color: var(--text-h);
+}
+
+.tour-facts {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.tour-fact {
+  padding: 5px 12px;
+  border-radius: 999px;
+  background: var(--bg-alt);
+  font-size: 13px;
+}
+
+.tour-description {
+  margin: 4px 0;
+  line-height: 1.6;
+}
+
+.tour-book {
+  margin: 6px 0;
+}
+
+.tour-seller-card {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 16px;
+  border-radius: 16px;
+  background: var(--card-bg);
+  box-shadow: var(--shadow);
+  text-decoration: none;
+  color: inherit;
+}
+
+.tour-seller-head {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 17px;
+  color: var(--text-h);
+}
+
+.tour-seller-more {
+  margin-top: 4px;
+  font-size: 14px;
+  color: var(--sand);
+}
+
+/* O trilho horizontal já existe para a busca; aqui ele guarda o resto do que
+   a mesma empresa oferece. */
+.tour-others .card-rail {
+  margin-top: 4px;
+}

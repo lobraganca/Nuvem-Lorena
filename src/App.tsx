@@ -11,6 +11,7 @@ import { Profile } from "./pages/Profile";
 import { BusinessLanding } from "./pages/BusinessLanding";
 import { BusinessRegister } from "./pages/BusinessRegister";
 import { BusinessDetail } from "./pages/BusinessDetail";
+import { TourDetail } from "./pages/TourDetail";
 import { Messages } from "./pages/Messages";
 import { Conversation } from "./pages/Conversation";
 import { Destination } from "./pages/Destination";
@@ -140,6 +141,7 @@ function AppShell() {
           <Route path="/business" element={<BusinessLanding />} />
           <Route path="/business/new" element={<BusinessRegister />} />
           <Route path="/business/:id" element={<BusinessDetail />} />
+          <Route path="/tour/:businessId/:tourId" element={<TourDetail />} />
           <Route path="/messages" element={<Messages />} />
           <Route path="/messages/:id" element={<Conversation />} />
           <Route path="/bookings" element={<Bookings />} />
