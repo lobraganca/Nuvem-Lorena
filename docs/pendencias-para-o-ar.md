@@ -3,7 +3,26 @@
 Tudo o que ficou para depois, reunido num lugar só. A ordem importa: os itens
 de cada bloco dependem do bloco anterior.
 
-Atualizado em 29/07/2026. Domínio: avenaapp.com.br
+Atualizado em 01/08/2026. Domínio: avenaapp.com.br
+
+---
+
+## O que decide tudo: são dois lançamentos, não um
+
+**1. O site de demonstração no seu domínio.** Bonito, navegável, com dados de
+exemplo. Serve para mostrar a agência, guia, sócio e investidor, e para começar
+a existir no Google. **Não depende de nada além de você.** Um dia de trabalho,
+quase todo esperando o DNS.
+
+**2. O Avena operando de verdade** — gente criando conta, agências recebendo
+reserva, dinheiro entrando. Depende do servidor e das pendências abaixo.
+
+Publicar o primeiro não atrapalha o segundo, e ajuda: as primeiras conversas
+com agências ficam muito mais fáceis com um endereço para mostrar.
+
+**Uma regra que não se quebra:** enquanto for demonstração, a tela tem de dizer
+que é. O app já diz — na reserva, no pagamento, na confirmação de telefone e
+nos anúncios. Não remova esses avisos antes de o servidor existir.
 
 ---
 
@@ -34,6 +53,14 @@ painel hoje: [painel-administrativo.md](painel-administrativo.md).
 Sem banco e sem login, cada pessoa que abre o app tem uma cópia isolada que
 some se ela limpar o navegador. A tela "Meus dados" ameniza com backup em
 arquivo, mas ninguém deveria confiar memórias de viagem a isso.
+
+**Medido em 01/08/2026:** o navegador guarda cerca de **5 MB** por site, e uma
+foto de celular comprimida tem 200 a 500 KB. Cabem de dez a vinte fotos no app
+inteiro, somando memórias, passeios e perfis. Não é ajustável — é limite do
+navegador, e é o primeiro teto que uma agência com fotos vai bater.
+
+O esquema do banco e as regras de acesso já estão prontos e testados em
+`supabase/migrations/`. Ver [banco-de-dados.md](banco-de-dados.md).
 
 ### 0.3 Nenhum pagamento é real
 
@@ -90,7 +117,7 @@ servidor chamar a API de reembolso. **Confirme na documentação atual como a
 taxa do marketplace se comporta num reembolso parcial** e escreva a regra nos
 Termos antes do primeiro caso.
 
-### 2.4 Cobrança das mensalidades
+### 2.4 Cobrança dos anúncios
 Pro R$ 39,90 e Avançado R$ 79,00 para agências; Avena Plus R$ 9,90 para
 viajantes. Assinatura recorrente é um produto separado do split — no Mercado
 Pago é outra API.
