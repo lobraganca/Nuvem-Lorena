@@ -1,6 +1,27 @@
 import { createContext, useContext, useEffect, useMemo, useState } from "react";
 import type { ReactNode } from "react";
-import type { Banner, Booking, Boost, Business, BusinessStatus, Experience, Message, MessageThread, PaymentMethod, Person, Review, SupportTicket, SupportTicketSubject, MercadoPagoLink, Tour, Traveler, TravelerActivity, UserProfile, WaitlistEntry, WishlistItem } from "../types";
+import type {
+  Banner,
+  Booking,
+  Boost,
+  Business,
+  BusinessStatus,
+  Experience,
+  Message,
+  MessageThread,
+  PaymentMethod,
+  Person,
+  Review,
+  SupportTicket,
+  SupportTicketSubject,
+  MercadoPagoLink,
+  Tour,
+  Traveler,
+  TravelerActivity,
+  UserProfile,
+  WaitlistEntry,
+  WishlistItem,
+} from "../types";
 import {
   mockBusinesses,
   mockMessages,
@@ -14,6 +35,18 @@ import { canReview } from "../lib/reviewEligibility";
 import { threadKey } from "../lib/messages";
 import { readStored, storageAvailable, writeStored } from "../lib/safeStorage";
 import { newId } from "../lib/ids";
+import { hasDatabase } from "../lib/supabase";
+import {
+  deleteTour as remoteDeleteTour,
+  pullCatalogo,
+  pushBooking,
+  pushBookingStatus,
+  pushBusiness,
+  pushBusinessPatch,
+  pushReview,
+  pushReviewReply,
+  pushTour,
+} from "../lib/remote/catalog";
 
 const STORAGE_KEY = "avena-data-v19";
 
@@ -145,10 +178,49 @@ function loadInitial(): AvenaData {
   return defaults();
 }
 
+/**
+ * Há banco nesta versão do site?
+ *
+ * Constante do módulo, e não estado: o valor vem de uma variável decidida na
+ * hora de publicar e não muda enquanto a página está aberta. Lida uma vez, ela
+ * pode ser usada dentro dos mutadores sem entrar em nenhuma lista de
+ * dependências.
+ */
+const naNuvem = hasDatabase();
+
 export function AvenaProvider({ children }: { children: ReactNode }) {
   const [data, setData] = useState<AvenaData>(loadInitial);
   const [storageFull, setStorageFull] = useState(false);
   const storageBlocked = !storageAvailable();
+
+  /**
+   * Traz do servidor o que é compartilhado entre pessoas.
+   *
+   * Empresas, passeios, reservas e avaliações passam a vir de fora. O resto —
+   * memórias de viagem, lista de desejos, quem a pessoa segue — continua no
+   * aparelho por enquanto, e some daqui quando for a vez dele.
+   *
+   * A vitrine de demonstração é substituída, não somada: com banco, quem abre
+   * o app vê as empresas que existem de verdade. Se ainda não houver nenhuma,
+   * vê a tela de "ainda não há empresas por aqui", que já foi escrita para
+   * este momento e é mais honesta do que seis agências inventadas.
+   */
+  useEffect(() => {
+    if (!naNuvem) return;
+    let vivo = true;
+    pullCatalogo().then((remoto) => {
+      if (!vivo || !remoto) return;
+      setData((d) => ({
+        ...d,
+        businesses: remoto.businesses,
+        bookings: remoto.bookings,
+        reviews: remoto.reviews,
+      }));
+    });
+    return () => {
+      vivo = false;
+    };
+  }, []);
 
   useEffect(() => {
     // Saying so plainly beats losing the person's memories without a word.
@@ -156,7 +228,9 @@ export function AvenaProvider({ children }: { children: ReactNode }) {
     // and the 5 MB quota filled up with photos.
     // A browser that refuses storage is a different message, so it is not
     // reported here as a full disk.
-    setStorageFull(!writeStored(STORAGE_KEY, JSON.stringify(data)) && !storageBlocked);
+    setStorageFull(
+      !writeStored(STORAGE_KEY, JSON.stringify(data)) && !storageBlocked,
+    );
   }, [data, storageBlocked]);
 
   const value = useMemo<AvenaContextValue>(
@@ -177,7 +251,7 @@ export function AvenaProvider({ children }: { children: ReactNode }) {
       ensurePerson: (name) => {
         const trimmed = name.trim();
         const existing = data.people.find(
-          (p) => p.name.toLowerCase() === trimmed.toLowerCase()
+          (p) => p.name.toLowerCase() === trimmed.toLowerCase(),
         );
         if (existing) return existing.id;
 
@@ -188,7 +262,11 @@ export function AvenaProvider({ children }: { children: ReactNode }) {
           ...d,
           people: [
             ...d.people,
-            { id, name: trimmed, avatarColor: palette[d.people.length % palette.length] },
+            {
+              id,
+              name: trimmed,
+              avatarColor: palette[d.people.length % palette.length],
+            },
           ],
         }));
         return id;
@@ -201,16 +279,23 @@ export function AvenaProvider({ children }: { children: ReactNode }) {
               ? {
                   ...e,
                   invitedPersonIds: Array.from(
-                    new Set([...(e.invitedPersonIds ?? []), personId])
+                    new Set([...(e.invitedPersonIds ?? []), personId]),
                   ),
                 }
-              : e
+              : e,
           ),
         })),
       addPerson: (person) =>
         setData((d) => ({ ...d, people: [...d.people, person] })),
-      addBusiness: (business) =>
-        setData((d) => ({ ...d, businesses: [business, ...d.businesses] })),
+      addBusiness: (business) => {
+        setData((d) => ({ ...d, businesses: [business, ...d.businesses] }));
+        // A tela não espera o servidor: a empresa aparece na hora e a gravação
+        // segue por baixo. Se o servidor recusar, o aviso vai para o console e
+        // a próxima leitura corrige — nunca uma tela travada esperando rede.
+        if (naNuvem) void pushBusiness(business);
+        if (naNuvem)
+          for (const t of business.tours ?? []) void pushTour(business.id, t);
+      },
       updateUser: (user) =>
         setData((d) => ({ ...d, user: { ...d.user, ...user } })),
       sendMessage: (thread, text) =>
@@ -238,49 +323,70 @@ export function AvenaProvider({ children }: { children: ReactNode }) {
             },
           },
         })),
-      addBooking: (booking) =>
-        setData((d) => ({ ...d, bookings: [booking, ...d.bookings] })),
-      updateBusiness: (businessId, patch) =>
+      addBooking: (booking) => {
+        setData((d) => ({ ...d, bookings: [booking, ...d.bookings] }));
+        // O momento que dá sentido ao resto: a reserva deixa de existir só no
+        // aparelho de quem reservou e passa a existir para a agência também.
+        if (naNuvem) void pushBooking(booking);
+      },
+      updateBusiness: (businessId, patch) => {
         setData((d) => ({
           ...d,
           businesses: d.businesses.map((b) =>
-            b.id === businessId ? { ...b, ...patch } : b
+            b.id === businessId ? { ...b, ...patch } : b,
           ),
-        })),
-      addTourToBusiness: (businessId, tour) =>
-        setData((d) => ({
-          ...d,
-          businesses: d.businesses.map((b) =>
-            b.id === businessId ? { ...b, tours: [...(b.tours ?? []), tour] } : b
-          ),
-        })),
-      updateTour: (businessId, tour) =>
+        }));
+        if (naNuvem) void pushBusinessPatch(businessId, patch);
+      },
+      addTourToBusiness: (businessId, tour) => {
+        if (naNuvem) void pushTour(businessId, tour);
         setData((d) => ({
           ...d,
           businesses: d.businesses.map((b) =>
             b.id === businessId
-              ? { ...b, tours: (b.tours ?? []).map((t) => (t.id === tour.id ? tour : t)) }
-              : b
+              ? { ...b, tours: [...(b.tours ?? []), tour] }
+              : b,
           ),
-        })),
-      removeTour: (businessId, tourId) =>
+        }));
+      },
+      updateTour: (businessId, tour) => {
+        if (naNuvem) void pushTour(businessId, tour);
+        setData((d) => ({
+          ...d,
+          businesses: d.businesses.map((b) =>
+            b.id === businessId
+              ? {
+                  ...b,
+                  tours: (b.tours ?? []).map((t) =>
+                    t.id === tour.id ? tour : t,
+                  ),
+                }
+              : b,
+          ),
+        }));
+      },
+      removeTour: (businessId, tourId) => {
+        if (naNuvem) void remoteDeleteTour(tourId);
         setData((d) => ({
           ...d,
           businesses: d.businesses.map((b) =>
             b.id === businessId
               ? { ...b, tours: (b.tours ?? []).filter((t) => t.id !== tourId) }
-              : b
+              : b,
           ),
-        })),
-      replyToReview: (reviewId, reply) =>
+        }));
+      },
+      replyToReview: (reviewId, reply) => {
+        if (naNuvem) void pushReviewReply(reviewId, reply);
         setData((d) => ({
           ...d,
           reviews: d.reviews.map((r) =>
             r.id === reviewId
               ? { ...r, reply, repliedAt: new Date().toISOString() }
-              : r
+              : r,
           ),
-        })),
+        }));
+      },
       addReview: (review) =>
         setData((d) => {
           // The rule is enforced here, not only where the form is drawn: a
@@ -289,11 +395,20 @@ export function AvenaProvider({ children }: { children: ReactNode }) {
           const booking = d.bookings.find((b) => b.id === review.bookingId);
           if (!booking || !canReview(booking)) return d;
 
+          // Depois da checagem, e não antes: a avaliação sem reserva por trás
+          // não pode nem chegar ao servidor. O banco recusaria de novo, pela
+          // política em 0002 — as duas travas são de propósito, porque quem
+          // chamar a API direto não passa por esta aqui.
+          if (naNuvem) {
+            void pushReview(review);
+            void pushBookingStatus(review.bookingId, { reviewed: true });
+          }
+
           return {
             ...d,
             reviews: [review, ...d.reviews],
             bookings: d.bookings.map((b) =>
-              b.id === review.bookingId ? { ...b, reviewed: true } : b
+              b.id === review.bookingId ? { ...b, reviewed: true } : b,
             ),
           };
         }),
@@ -303,15 +418,25 @@ export function AvenaProvider({ children }: { children: ReactNode }) {
           bookings: d.bookings.map((b) => {
             if (b.id !== bookingId) return b;
             const { refundAmount } = computeRefund(b);
-            return {
-              ...b,
-              status: "cancelada",
-              cancelledAt: new Date().toISOString(),
-              refundAmount,
-            };
+            const cancelledAt = new Date().toISOString();
+            if (naNuvem) {
+              void pushBookingStatus(bookingId, {
+                status: "cancelada",
+                cancelledAt,
+                refundAmount,
+              });
+            }
+            return { ...b, status: "cancelada", cancelledAt, refundAmount };
           }),
         })),
-      declineBooking: (bookingId, reason) =>
+      declineBooking: (bookingId, reason) => {
+        if (naNuvem) {
+          void pushBookingStatus(bookingId, {
+            status: "cancelada",
+            cancelledAt: new Date().toISOString(),
+            declineReason: reason,
+          });
+        }
         setData((d) => ({
           ...d,
           bookings: d.bookings.map((b) =>
@@ -327,37 +452,46 @@ export function AvenaProvider({ children }: { children: ReactNode }) {
                   refundAmount: b.totalPrice,
                   declineReason: reason,
                 }
-              : b
+              : b,
           ),
-        })),
-      addBoost: (boost) => setData((d) => ({ ...d, boosts: [boost, ...d.boosts] })),
+        }));
+      },
+      addBoost: (boost) =>
+        setData((d) => ({ ...d, boosts: [boost, ...d.boosts] })),
       joinWaitlist: (entry) =>
         setData((d) => ({ ...d, waitlist: [entry, ...d.waitlist] })),
       leaveWaitlist: (entryId) =>
-        setData((d) => ({ ...d, waitlist: d.waitlist.filter((w) => w.id !== entryId) })),
+        setData((d) => ({
+          ...d,
+          waitlist: d.waitlist.filter((w) => w.id !== entryId),
+        })),
       endBoost: (boostId) =>
         setData((d) => ({
           ...d,
           // Ending a boost expires it now rather than deleting it, so the
           // revenue it generated stays in the books.
           boosts: d.boosts.map((b) =>
-            b.id === boostId ? { ...b, endsAt: new Date().toISOString() } : b
+            b.id === boostId ? { ...b, endsAt: new Date().toISOString() } : b,
           ),
         })),
-      setBusinessStatus: (businessId, status) =>
+      setBusinessStatus: (businessId, status) => {
+        if (naNuvem) void pushBusinessPatch(businessId, { status });
         setData((d) => ({
           ...d,
           businesses: d.businesses.map((b) =>
-            b.id === businessId ? { ...b, status } : b
+            b.id === businessId ? { ...b, status } : b,
           ),
-        })),
-      setBusinessVerified: (businessId, verified) =>
+        }));
+      },
+      setBusinessVerified: (businessId, verified) => {
+        if (naNuvem) void pushBusinessPatch(businessId, { verified });
         setData((d) => ({
           ...d,
           businesses: d.businesses.map((b) =>
-            b.id === businessId ? { ...b, verified } : b
+            b.id === businessId ? { ...b, verified } : b,
           ),
-        })),
+        }));
+      },
       removeReview: (reviewId) =>
         setData((d) => ({
           ...d,
@@ -368,7 +502,9 @@ export function AvenaProvider({ children }: { children: ReactNode }) {
           ...d,
           dismissedNotifications: [...d.dismissedNotifications, notificationId],
         })),
-      payBooking: (bookingId, method) =>
+      payBooking: (bookingId, method) => {
+        if (naNuvem)
+          void pushBookingStatus(bookingId, { status: "confirmada" });
         setData((d) => ({
           ...d,
           bookings: d.bookings.map((b) =>
@@ -382,9 +518,10 @@ export function AvenaProvider({ children }: { children: ReactNode }) {
                     reference: `AV${b.id.slice(0, 8).toUpperCase()}`,
                   },
                 }
-              : b
+              : b,
           ),
-        })),
+        }));
+      },
       openTicket: ({ subject, message, bookingId }) => {
         const ticket: SupportTicket = {
           id: newId(),
@@ -395,7 +532,10 @@ export function AvenaProvider({ children }: { children: ReactNode }) {
           status: "aberto",
           protocol: `AV-${newId().slice(0, 4).toUpperCase()}`,
         };
-        setData((d) => ({ ...d, supportTickets: [ticket, ...d.supportTickets] }));
+        setData((d) => ({
+          ...d,
+          supportTickets: [ticket, ...d.supportTickets],
+        }));
         return ticket;
       },
       replyTicket: (ticketId, reply) =>
@@ -403,22 +543,31 @@ export function AvenaProvider({ children }: { children: ReactNode }) {
           ...d,
           supportTickets: d.supportTickets.map((t) =>
             t.id === ticketId
-              ? { ...t, reply, repliedAt: new Date().toISOString(), status: "respondido" }
-              : t
+              ? {
+                  ...t,
+                  reply,
+                  repliedAt: new Date().toISOString(),
+                  status: "respondido",
+                }
+              : t,
           ),
         })),
       resolveTicket: (ticketId) =>
         setData((d) => ({
           ...d,
           supportTickets: d.supportTickets.map((t) =>
-            t.id === ticketId ? { ...t, status: "resolvido" } : t
+            t.id === ticketId ? { ...t, status: "resolvido" } : t,
           ),
         })),
       exportData: () => JSON.stringify({ version: STORAGE_KEY, data }, null, 2),
       importData: (json) => {
         const parsed = JSON.parse(json);
         const incoming = parsed?.data ?? parsed;
-        if (!incoming || typeof incoming !== "object" || !Array.isArray(incoming.experiences)) {
+        if (
+          !incoming ||
+          typeof incoming !== "object" ||
+          !Array.isArray(incoming.experiences)
+        ) {
           // A code, not a sentence: the wording belongs to the translated UI.
           throw new Error("invalid-backup");
         }
@@ -433,15 +582,22 @@ export function AvenaProvider({ children }: { children: ReactNode }) {
           const field = traveler.isPrivate ? "followRequests" : "following";
           const current = d.user[field] ?? [];
           if (current.includes(travelerId)) return d;
-          return { ...d, user: { ...d.user, [field]: [...current, travelerId] } };
+          return {
+            ...d,
+            user: { ...d.user, [field]: [...current, travelerId] },
+          };
         }),
       unfollowTraveler: (travelerId) =>
         setData((d) => ({
           ...d,
           user: {
             ...d.user,
-            following: (d.user.following ?? []).filter((id) => id !== travelerId),
-            followRequests: (d.user.followRequests ?? []).filter((id) => id !== travelerId),
+            following: (d.user.following ?? []).filter(
+              (id) => id !== travelerId,
+            ),
+            followRequests: (d.user.followRequests ?? []).filter(
+              (id) => id !== travelerId,
+            ),
           },
         })),
       touchBusinessPresence: (businessId) =>
@@ -450,12 +606,16 @@ export function AvenaProvider({ children }: { children: ReactNode }) {
           if (!business) return d;
           // Only write when the stored time is stale, otherwise every render
           // would touch storage.
-          const last = business.lastSeenAt ? new Date(business.lastSeenAt).getTime() : 0;
+          const last = business.lastSeenAt
+            ? new Date(business.lastSeenAt).getTime()
+            : 0;
           if (Date.now() - last < 60_000) return d;
           return {
             ...d,
             businesses: d.businesses.map((b) =>
-              b.id === businessId ? { ...b, lastSeenAt: new Date().toISOString() } : b
+              b.id === businessId
+                ? { ...b, lastSeenAt: new Date().toISOString() }
+                : b,
             ),
           };
         }),
@@ -463,19 +623,26 @@ export function AvenaProvider({ children }: { children: ReactNode }) {
         setData((d) => ({
           ...d,
           businesses: d.businesses.map((b) =>
-            b.id === businessId ? { ...b, mercadoPago: link } : b
+            b.id === businessId ? { ...b, mercadoPago: link } : b,
           ),
         })),
-      addWish: (wish) => setData((d) => ({ ...d, wishlist: [wish, ...d.wishlist] })),
+      addWish: (wish) =>
+        setData((d) => ({ ...d, wishlist: [wish, ...d.wishlist] })),
       removeWish: (wishId) =>
-        setData((d) => ({ ...d, wishlist: d.wishlist.filter((w) => w.id !== wishId) })),
+        setData((d) => ({
+          ...d,
+          wishlist: d.wishlist.filter((w) => w.id !== wishId),
+        })),
       toggleWishDone: (wishId) =>
         setData((d) => ({
           ...d,
           wishlist: d.wishlist.map((w) =>
             w.id === wishId
-              ? { ...w, doneAt: w.doneAt ? undefined : new Date().toISOString() }
-              : w
+              ? {
+                  ...w,
+                  doneAt: w.doneAt ? undefined : new Date().toISOString(),
+                }
+              : w,
           ),
         })),
       saveBanner: (banner) =>
@@ -486,14 +653,19 @@ export function AvenaProvider({ children }: { children: ReactNode }) {
             : [banner, ...d.banners],
         })),
       removeBanner: (bannerId) =>
-        setData((d) => ({ ...d, banners: d.banners.filter((b) => b.id !== bannerId) })),
+        setData((d) => ({
+          ...d,
+          banners: d.banners.filter((b) => b.id !== bannerId),
+        })),
       storageFull,
       storageBlocked,
     }),
-    [data, storageFull, storageBlocked]
+    [data, storageFull, storageBlocked],
   );
 
-  return <AvenaContext.Provider value={value}>{children}</AvenaContext.Provider>;
+  return (
+    <AvenaContext.Provider value={value}>{children}</AvenaContext.Provider>
+  );
 }
 
 export function useAvena() {
