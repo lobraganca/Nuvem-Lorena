@@ -473,6 +473,11 @@ export interface Review {
   recommends: boolean;
   authorName: string;
   createdAt: string; // ISO datetime
+  /** Tour this review is about, so a page can show its own reviews. */
+  tourId?: string;
+  /** The business's answer, in public, under the review. */
+  reply?: string;
+  repliedAt?: string; // ISO datetime
 }
 
 export interface Experience {

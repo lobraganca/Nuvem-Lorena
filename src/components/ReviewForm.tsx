@@ -41,6 +41,7 @@ export function ReviewForm({ booking }: { booking: Booking }) {
       businessId: booking.businessId,
       bookingId: booking.id,
       tourTitle: booking.tourTitle,
+      tourId: booking.tourId,
       rating,
       comment,
       recommends,

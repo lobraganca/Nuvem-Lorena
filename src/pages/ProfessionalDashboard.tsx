@@ -1,7 +1,6 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { useAvena } from "../store/AvenaContext";
-import { plans } from "../lib/plans";
 import {
   cancellationPolicies,
   cancellationPolicyDescription,
@@ -20,6 +19,8 @@ import { TourCalendarEditor } from "../components/TourCalendarEditor";
 import type { AccessibilityTag, CancellationPolicy, Difficulty, Tour } from "../types";
 import { formatBRL } from "../lib/money";
 import { MeetingPointEditor } from "../components/MeetingPointEditor";
+import { BusinessEditor } from "../components/BusinessEditor";
+import { BusinessReviews } from "../components/BusinessReviews";
 import { SettingsRow, rowIcon } from "../components/SettingsRow";
 import { newId } from "../lib/ids";
 
@@ -88,7 +89,6 @@ export function ProfessionalDashboard() {
   const earnings = myBookings
     .filter((b) => b.status === "confirmada")
     .reduce((sum, b) => sum + b.businessPayout, 0);
-  const currentPlan = plans.find((p) => p.tier === business.planTier);
   const boostSpend = adRevenue(boosts.filter((b) => b.businessId === business.id));
 
   function handleAddTour(e: React.FormEvent) {
@@ -152,7 +152,7 @@ export function ProfessionalDashboard() {
           <div className="stat-label">Ganhos líquidos</div>
         </div>
         <div className="stat-card">
-          <div className="stat-value">{currentPlan?.price ?? "—"}</div>
+          <div className="stat-value">Grátis</div>
           <div className="stat-label">Sua adesão</div>
         </div>
         <div className="stat-card">
@@ -163,17 +163,20 @@ export function ProfessionalDashboard() {
         </div>
       </div>
 
-      {currentPlan && currentPlan.tier !== "Avançado" && (
-        <div className="insight-card">
-          Faça upgrade de plano em{" "}
-          <Link to="/business">Para empresas</Link> e pague uma taxa menor em
-          cada reserva.
-        </div>
-      )}
+      {/* Onde ficava um convite para "fazer upgrade de plano e pagar uma taxa
+          menor em cada reserva": duas coisas que deixaram de ser verdade.
+          Não há plano à venda, e nada é descontado da agência — quem paga a
+          taxa é o viajante, por cima. */}
+      <div className="insight-card">
+        Você recebe o preço cheio que anunciou. A taxa de serviço do Avena é
+        paga pelo viajante, por cima do valor, e aparece separada na tela dele.
+      </div>
 
       <div className="settings-group-rows">
         <SettingsRow to="/anuncios" icon={rowIcon.star} label="Anúncios" />
       </div>
+
+      <BusinessEditor business={business} />
 
       <MeetingPointEditor business={business} />
 
@@ -347,6 +350,8 @@ export function ProfessionalDashboard() {
         </button>
       </form>
 
+      <BusinessReviews businessId={business.id} />
+
       <h2 className="timeline-title">Reservas recebidas</h2>
       <div className="timeline">
         {myBookings.length === 0 && (
@@ -361,9 +366,32 @@ export function ProfessionalDashboard() {
               </span>
             </div>
             <div className="muted">
-              {new Date(b.travelDate).toLocaleDateString("pt-BR")} · {b.travelers}{" "}
-              {b.travelers === 1 ? "pessoa" : "pessoas"}
+              {b.checkOut ? (
+                <>
+                  {new Date(b.travelDate).toLocaleDateString("pt-BR")} a{" "}
+                  {new Date(b.checkOut).toLocaleDateString("pt-BR")} · {b.nights}{" "}
+                  {b.nights === 1 ? "noite" : "noites"} · {b.travelers}{" "}
+                  {b.travelers === 1 ? "hóspede" : "hóspedes"}
+                </>
+              ) : (
+                <>
+                  {new Date(b.travelDate).toLocaleDateString("pt-BR")} · {b.travelers}{" "}
+                  {b.travelers === 1 ? "pessoa" : "pessoas"}
+                </>
+              )}
             </div>
+
+            {/* Quem reservou, em cima e por extenso. Chegava um número na tela
+                e nada mais: a primeira coisa que se faz ao receber uma reserva
+                é falar com a pessoa. */}
+            {b.participants?.[0]?.name && (
+              <div className="booking-guest">
+                <strong>{b.participants[0].name}</strong>
+                <Link to={`/messages/${business.id}`} className="btn-outline">
+                  Falar com o viajante
+                </Link>
+              </div>
+            )}
             {effectiveStatus(b) === "aguardando-pagamento" && (
               <p className="muted">
                 Vaga reservada, pagamento ainda não aprovado. Só entre na lista de
@@ -399,6 +427,14 @@ export function ProfessionalDashboard() {
                 <div>
                   Você recebe: <strong>R$ {formatBRL(b.businessPayout)}</strong>{" "}
                   <span className="muted">— o preço cheio que você anunciou.</span>
+                </div>
+                {/* Quando o dinheiro cai. Faltava, e para quem vive disso é a
+                    linha mais importante da tela. Dito como é hoje, sem
+                    inventar prazo: o repasse é do Mercado Pago, não nosso. */}
+                <div className="muted">
+                  {effectiveStatus(b) === "confirmada"
+                    ? "O valor cai direto na sua conta do Mercado Pago, no prazo que ele pratica para a forma de pagamento escolhida — Pix costuma ser no mesmo dia, cartão em até 30 dias. O Avena não retém nada no meio."
+                    : "Nada é repassado enquanto o pagamento não for aprovado."}
                 </div>
               </div>
             )}

@@ -58,6 +58,9 @@ export function TourDetail() {
   const monthsLeft = monthsLeftInSeason(tour.seasonMonths);
   const others = (business.tours ?? []).filter((x) => x.id !== tour.id);
   const fotos = tour.photos ?? [];
+  const desteTour = reviews
+    .filter((r) => r.tourId === tour.id)
+    .sort((a, b) => b.createdAt.localeCompare(a.createdAt));
 
   return (
     <div className="page tour-page">
@@ -194,6 +197,42 @@ export function TourDetail() {
       </div>
 
       <MeetingPoint business={business} />
+
+      {/* As avaliações deste passeio, não as da agência inteira. Quem quer
+          saber se o passeio de baleias vale a pena não se serve da nota média
+          de uma empresa que também aluga caiaque. */}
+      <section className="tour-reviews">
+        <h2 className="timeline-title">
+          O que disse quem foi ({desteTour.length})
+        </h2>
+        {desteTour.length === 0 ? (
+          <p className="muted">
+            Ainda não há avaliações deste passeio. Só avalia quem foi, então as
+            primeiras aparecem depois das primeiras saídas.
+          </p>
+        ) : (
+          <div className="timeline">
+            {desteTour.slice(0, 5).map((r) => (
+              <div key={r.id} className="booking-card">
+                <div className="timeline-card-title">
+                  {"★".repeat(r.rating)}
+                  {"☆".repeat(5 - r.rating)}
+                </div>
+                <div className="muted">
+                  {r.authorName} · {new Date(r.createdAt).toLocaleDateString("pt-BR")}
+                </div>
+                {r.comment && <p>{r.comment}</p>}
+                {r.reply && (
+                  <div className="review-reply">
+                    <strong>Resposta de {business.name}</strong>
+                    <p>{r.reply}</p>
+                  </div>
+                )}
+              </div>
+            ))}
+          </div>
+        )}
+      </section>
 
       {/* A agência, depois do passeio — quem vende importa, mas não é o que a
           pessoa veio ver. */}

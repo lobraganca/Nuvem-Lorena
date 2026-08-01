@@ -8,11 +8,14 @@ import { BannerSlot } from "../components/BannerSlot";
 import { buildItinerary, splitIntoDays } from "../lib/itineraries";
 import { accessibilityTags } from "../lib/tourAttributes";
 import { cityFromTerm, businessMatches, resolveCity, suggestionsFor } from "../lib/search";
-import type { AccessibilityTag, BusinessType } from "../types";
+import type { AccessibilityTag, Business, BusinessType } from "../types";
 import { useT } from "../i18n";
 import { BackLink } from "../components/BackLink";
 import { TourCard } from "../components/TourCard";
 import { adsFor } from "../lib/ads";
+import { dayState, isBookable, todayISO } from "../lib/calendar";
+import { holdsSeat } from "../lib/bookingStatus";
+import { isStay } from "../lib/stays";
 import { accessibilityKey, businessTypePluralKey, categoryKey } from "../i18n/domain";
 
 type Tab = "Todos" | BusinessType;
@@ -20,12 +23,15 @@ type Tab = "Todos" | BusinessType;
 const TABS: Tab[] = ["Todos", "Agência", "Guia", "Experiência", "Temporada", "Hotel", "Restaurante"];
 
 export function Destination() {
-  const { businesses, experiences, reviews, boosts } = useAvena();
+  const { businesses, experiences, reviews, boosts, bookings } = useAvena();
   const t = useT();
   const [searchParams] = useSearchParams();
   const [query, setQuery] = useState(searchParams.get("city") ?? "");
   const [tab, setTab] = useState<Tab>("Todos");
   const [access, setAccess] = useState<AccessibilityTag[]>([]);
+  const hoje = todayISO();
+  const [quando, setQuando] = useState(searchParams.get("data") ?? "");
+  const [quantos, setQuantos] = useState(Number(searchParams.get("pessoas")) || 1);
 
   useEffect(() => {
     const city = searchParams.get("city");
@@ -96,6 +102,28 @@ export function Destination() {
 
   const itinerary = searchedCity ? buildItinerary(searchedCity, brExperiences) : null;
 
+  /**
+   * Com data escolhida, a lista guarda só quem tem lugar naquele dia para
+   * aquele tanto de gente. Uma empresa sem nenhum passeio disponível não
+   * aparece — mostrar e só contar o não lá dentro é o que fazia perder tempo.
+   */
+  function temVaga(b: Business): boolean {
+    if (!quando) return true;
+    return (b.tours ?? []).some((tour) => {
+      const vendidas = bookings
+        .filter((x) => x.tourId === tour.id && x.travelDate === quando && holdsSeat(x))
+        .reduce((sum, x) => sum + x.travelers, 0);
+      if (!isBookable(dayState(tour, quando, vendidas, hoje))) return false;
+      if (tour.capacityPerDay !== undefined && tour.capacityPerDay - vendidas < quantos)
+        return false;
+      if (isStay(tour) && tour.maxGuests !== undefined && tour.maxGuests < quantos)
+        return false;
+      return true;
+    });
+  }
+
+  const comVaga = matches.filter(temVaga);
+
   return (
     <div className="viator-hero">
       <div className="viator-hero-inner">
@@ -110,6 +138,35 @@ export function Destination() {
           value={query}
           onChange={(e) => setQuery(e.target.value)}
         />
+        {/* Quando e para quantos. Sem isto, a pessoa abria três passeios, um
+            por um, para descobrir qual tinha vaga no dia 15 — e a casa de
+            temporada só revelava a estadia mínima no fim do caminho. */}
+        <div className="search-when">
+          <label>
+            Quando
+            <input
+              type="date"
+              value={quando}
+              min={hoje}
+              onChange={(e) => setQuando(e.target.value)}
+            />
+          </label>
+          <label>
+            Pessoas
+            <input
+              type="number"
+              min={1}
+              value={quantos}
+              onChange={(e) => setQuantos(Math.max(1, Number(e.target.value) || 1))}
+            />
+          </label>
+          {quando && (
+            <button type="button" className="chip" onClick={() => setQuando("")}>
+              Limpar data
+            </button>
+          )}
+        </div>
+
         {!filtering && (
           <div className="chip-row" style={{ marginTop: 14, justifyContent: "center" }}>
             {cities.map((city) => (
@@ -162,13 +219,13 @@ export function Destination() {
           </div>
 
           <h2 className="timeline-title">
-            {t(matches.length === 1 ? "destination.resultsOne" : "destination.results", {
-              count: matches.length,
+            {t(comVaga.length === 1 ? "destination.resultsOne" : "destination.results", {
+              count: comVaga.length,
               query,
             })}
           </h2>
 
-          {matches.length === 0 && (
+          {comVaga.length === 0 && (
             <div className="empty-search">
               <p>{t("destination.noResults", { query })}</p>
               {suggestions.length > 0 && (
@@ -208,7 +265,7 @@ export function Destination() {
           )}
 
           <div className="viator-grid">
-            {matches.map((b) => (
+            {comVaga.map((b) => (
               <BusinessCard key={b.id} business={b} reviews={reviews} />
             ))}
           </div>

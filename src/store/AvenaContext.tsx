@@ -54,6 +54,8 @@ interface AvenaContextValue extends AvenaData {
   updateTour: (businessId: string, tour: Tour) => void;
   removeTour: (businessId: string, tourId: string) => void;
   addReview: (review: Review) => void;
+  /** A resposta pública da empresa a uma avaliação. */
+  replyToReview: (reviewId: string, reply: string) => void;
   cancelBooking: (bookingId: string) => void;
   addBoost: (boost: Boost) => void;
   joinWaitlist: (entry: WaitlistEntry) => void;
@@ -263,6 +265,15 @@ export function AvenaProvider({ children }: { children: ReactNode }) {
             b.id === businessId
               ? { ...b, tours: (b.tours ?? []).filter((t) => t.id !== tourId) }
               : b
+          ),
+        })),
+      replyToReview: (reviewId, reply) =>
+        setData((d) => ({
+          ...d,
+          reviews: d.reviews.map((r) =>
+            r.id === reviewId
+              ? { ...r, reply, repliedAt: new Date().toISOString() }
+              : r
           ),
         })),
       addReview: (review) =>
