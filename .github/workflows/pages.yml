@@ -43,7 +43,34 @@ jobs:
         # definido aqui, então o código dele nem entra no pacote publicado.
         env:
           VITE_BASE_PATH: /${{ github.event.repository.name }}/
+          # As duas do Supabase que podem ir para o site. A chave publicável é
+          # pública por definição — ela fica dentro do JavaScript que qualquer
+          # visitante baixa, e isso não é falha: tudo o que ela faz passa pelas
+          # políticas em supabase/migrations/0002_seguranca.sql.
+          #
+          # Vêm de variáveis do repositório para que trocar de projeto no
+          # Supabase não exija mexer neste arquivo. Se estiverem vazias, o site
+          # publica sem banco e volta a guardar tudo no navegador — que é o
+          # comportamento certo para um site sem servidor, e não um erro.
+          #
+          # A chave service_role NUNCA entra aqui. Ela ignora todas as regras
+          # do banco, e qualquer coisa neste arquivo vai parar no site.
+          # O valor à direita do || é o projeto atual, para o site de teste
+          # funcionar sem depender de ninguém lembrar de cadastrar variável.
+          # Cadastrando as duas em Settings > Secrets and variables > Actions >
+          # Variables, elas passam à frente destas e este arquivo não muda.
+          VITE_SUPABASE_URL: ${{ vars.VITE_SUPABASE_URL || 'https://wkuwwzcucsxonhsblkmc.supabase.co' }}
+          VITE_SUPABASE_ANON_KEY: ${{ vars.VITE_SUPABASE_ANON_KEY || 'sb_publishable_WHR3zOoMSxWVSVosA4xmkQ_edIju99P' }}
         run: npm run build
+
+      - name: Conferir se o banco entrou no pacote
+        # Sem isto, um erro de digitação no nome da variável publica um site
+        # que parece funcionar e guarda tudo só no navegador — a falha some, e
+        # só aparece quando uma agência reclama que a reserva não chegou.
+        run: |
+          grep -rq "supabase.co" dist/assets/*.js \
+            && echo "Banco ligado no site publicado." \
+            || { echo "ERRO: o endereço do banco não entrou no pacote."; exit 1; }
 
       - name: Responder as rotas internas
         # O GitHub Pages não conhece /destination nem /desejos. Servindo a
