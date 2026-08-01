@@ -24,6 +24,8 @@ import type { TranslationKey } from "../i18n";
 import { canReceivePayments } from "../lib/payments/mercadopago";
 import { newId } from "../lib/ids";
 import { isStay, nextDay, nightsBetween, stayProblem } from "../lib/stays";
+import { AvailabilityCalendar } from "./AvailabilityCalendar";
+import { DAY_STATE_LABEL, dayState } from "../lib/calendar";
 
 /** No tour in this catalogue takes a group bigger than this in one booking. */
 const MAX_GROUP = 30;
@@ -98,12 +100,25 @@ export function BookTourButton({ business, tour }: { business: Business; tour: T
 
   const dateInPast = travelDate < today;
 
+  // O calendário do dono manda: data fechada por ele não é vendida, mesmo com
+  // vaga sobrando.
+  const estadoDoDia = dayState(
+    tour,
+    travelDate,
+    availability.tracked ? availability.booked : 0,
+    today
+  );
+  const dayBlocked =
+    estadoDoDia === "bloqueada" || estadoDoDia === "fechado" ? estadoDoDia : null;
+
   /**
    * The one reason the booking cannot go through right now, or null. Returning
    * the message rather than a boolean keeps the button and the explanation from
    * ever disagreeing.
    */
-  const blocked: TranslationKey | null = stayError
+  const blocked: TranslationKey | null = dayBlocked
+    ? null // Dito em português logo acima, com o motivo.
+    : stayError
     ? null // Shown in full, with the number of nights or of beds.
     : soldOut
     ? "booking.blockedSoldOut"
@@ -118,12 +133,18 @@ export function BookTourButton({ business, tour }: { business: Business; tour: T
             : null;
 
   const canSubmit =
-    !soldOut && !exceedsCapacity && !dateInPast && !peopleError && !stayError && legalOk;
+    !soldOut &&
+    !exceedsCapacity &&
+    !dateInPast &&
+    !peopleError &&
+    !stayError &&
+    !dayBlocked &&
+    legalOk;
 
   function confirmBooking(e: React.FormEvent) {
     e.preventDefault();
     if (soldOut || exceedsCapacity || !legalOk || peopleError || dateInPast) return;
-    if (stayError) return;
+    if (stayError || dayBlocked) return;
     if (!legalAccepted) acceptLegal();
     const booking = {
       id: newId(),
@@ -237,6 +258,25 @@ export function BookTourButton({ business, tour }: { business: Business; tour: T
       )}
 
       {stayError && <div className="availability-note availability-none">{stayError}</div>}
+
+      {/* O calendário mostra o que existe, em vez de a pessoa tentar uma data,
+          levar não, e tentar outra. O campo acima continua, porque quem já
+          sabe a data digita mais rápido do que navega. */}
+      <AvailabilityCalendar
+        tour={tour}
+        bookings={bookings}
+        selected={travelDate}
+        onPick={(d) => {
+          setTravelDate(d);
+          if (stay && d >= checkOut) setCheckOut(nextDay(d));
+        }}
+      />
+
+      {dayBlocked && (
+        <div className="availability-note availability-none">
+          {DAY_STATE_LABEL[dayBlocked]}
+        </div>
+      )}
 
       {availability.tracked && (
         <div className={`availability-note ${soldOut ? "availability-none" : ""}`}>

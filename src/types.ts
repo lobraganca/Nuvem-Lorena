@@ -195,6 +195,10 @@ export interface Tour {
   languages?: string;
   /** Quantas pessoas vão juntas. Diferente de capacidade por dia. */
   groupSize?: number;
+  /** Datas fechadas pelo dono, "AAAA-MM-DD". Ver lib/calendar.ts. */
+  blockedDates?: string[];
+  /** Dias da semana em que não há saída. Domingo é 0. */
+  closedWeekdays?: number[];
 }
 
 /** Set by the Avena admin; suspended businesses disappear from public listings. */

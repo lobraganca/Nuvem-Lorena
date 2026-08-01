@@ -5080,3 +5080,101 @@ textarea:focus-visible,
   margin: 0;
   color: var(--text-h);
 }
+
+/* ---- Calendário ---- */
+
+.calendar {
+  padding: 14px;
+  border-radius: 16px;
+  background: var(--card-bg);
+  box-shadow: var(--shadow);
+}
+
+.calendar-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 10px;
+}
+
+.calendar-nav {
+  min-width: 40px;
+  min-height: 40px;
+  border: none;
+  border-radius: 999px;
+  background: var(--bg-alt);
+  color: var(--text-h);
+  font: inherit;
+  font-size: 17px;
+  cursor: pointer;
+}
+
+.calendar-nav:disabled {
+  opacity: 0.35;
+  cursor: default;
+}
+
+.calendar-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 4px;
+}
+
+.calendar-weekday {
+  padding-bottom: 4px;
+  font-size: 11px;
+  text-align: center;
+  color: var(--text);
+}
+
+.calendar-day {
+  min-height: 40px;
+  border: none;
+  border-radius: 10px;
+  background: var(--bg-alt);
+  color: var(--text-h);
+  font: inherit;
+  font-size: 14px;
+  font-variant-numeric: tabular-nums;
+  cursor: pointer;
+}
+
+/* Indisponível não é só apagado: quem enxerga pouco contraste precisa do
+   traço para saber que o dia está fora. */
+.calendar-day-bloqueada,
+.calendar-day-fechado,
+.calendar-day-lotado {
+  color: var(--text);
+  opacity: 0.45;
+  text-decoration: line-through;
+}
+
+.calendar-day-passada {
+  opacity: 0.25;
+  cursor: default;
+}
+
+.calendar-day-on {
+  background: var(--accent);
+  color: var(--on-accent);
+  font-weight: 700;
+}
+
+.calendar-legend {
+  margin: 10px 0 0;
+  font-size: 12.5px;
+  color: var(--text);
+}
+
+.tour-calendar-editor {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-top: 12px;
+}
+
+.tour-calendar-editor h4 {
+  margin: 0;
+  font-size: 15px;
+}

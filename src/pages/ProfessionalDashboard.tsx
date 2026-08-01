@@ -16,6 +16,7 @@ import { ModerationNotice, isPublishable } from "../components/ModerationNotice"
 import { ConnectMercadoPago } from "../components/ConnectMercadoPago";
 import { BoostTourButton } from "../components/BoostTourButton";
 import { EditTour } from "../components/EditTour";
+import { TourCalendarEditor } from "../components/TourCalendarEditor";
 import type { AccessibilityTag, CancellationPolicy, Difficulty, Tour } from "../types";
 import { formatBRL } from "../lib/money";
 import { MeetingPointEditor } from "../components/MeetingPointEditor";
@@ -210,6 +211,7 @@ export function ProfessionalDashboard() {
               </div>
               <BoostTourButton tour={t} />
               <EditTour businessId={business.id} tour={t} />
+              <TourCalendarEditor businessId={business.id} tour={t} />
             </div>
           );
         })}
