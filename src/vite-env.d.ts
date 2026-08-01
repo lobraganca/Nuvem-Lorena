@@ -1,6 +1,18 @@
 /// <reference types="vite/client" />
 /// <reference types="vite-plugin-pwa/client" />
 
+interface ImportMetaEnv {
+  /** Endereço do projeto no Supabase. Público. Ver src/lib/supabase.ts. */
+  readonly VITE_SUPABASE_URL?: string;
+  /** Chave publicável do Supabase. Pública por definição — a proteção real
+      são as políticas em supabase/migrations/0002_seguranca.sql. */
+  readonly VITE_SUPABASE_ANON_KEY?: string;
+}
+
+interface ImportMeta {
+  readonly env: ImportMetaEnv;
+}
+
 /** Replaced at build time by vite.config.ts. See src/lib/adminAccess.ts. */
 declare const __ADMIN_ENABLED__: boolean;
 
