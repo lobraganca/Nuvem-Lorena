@@ -96,6 +96,18 @@ create table public.businesses (
   website text,
   cadastur text,
 
+  -- Onde encontrar. Público: é o que o viajante precisa no dia.
+  address text,
+  lat double precision,
+  lng double precision,
+  meeting_point text,
+
+  -- A conta de recebimento. O token do vendedor NÃO mora aqui — ele fica no
+  -- servidor, fora do alcance de qualquer consulta do navegador.
+  mercado_pago_connected boolean not null default false,
+  mercado_pago_label text,
+  mercado_pago_connected_at timestamptz,
+
   -- Só a administradora escreve estes dois. O selo de verificado vale
   -- exatamente o quanto for difícil de obter.
   status text not null default 'ativa' check (status in ('ativa', 'suspensa')),
@@ -148,6 +160,35 @@ create table public.tours (
     check (cancellation_policy in ('flexivel', 'moderada', 'rigida')),
   capacity_per_day integer check (capacity_per_day is null or capacity_per_day > 0),
   photos text[] not null default '{}',
+
+  -- Em que o preço é contado. Errar isto não é arredondamento: multiplica uma
+  -- diária pelo número de hóspedes.
+  pricing_unit text not null default 'pessoa'
+    check (pricing_unit in ('pessoa', 'diaria')),
+  max_guests integer check (max_guests is null or max_guests > 0),
+  min_nights integer check (min_nights is null or min_nights > 0),
+
+  -- O que a pessoa pergunta por mensagem quando não está escrito.
+  included text,
+  bring text,
+  departure_times text,
+  languages text,
+  group_size integer check (group_size is null or group_size > 0),
+
+  -- Fora do ar por vontade do dono: continua existindo, com reservas e
+  -- avaliações, e só não aparece para quem procura.
+  paused boolean not null default false,
+
+  -- A agenda. Datas como texto AAAA-MM-DD, e não `date[]`: é assim que o app
+  -- as compara, e converter nas duas pontas é onde entra o erro de fuso.
+  blocked_dates text[] not null default '{}',
+  closed_weekdays smallint[] not null default '{}',
+
+  -- Preço não é um número só.
+  weekend_price numeric(10,2),
+  high_season_price numeric(10,2),
+  high_season_months smallint[] not null default '{}',
+
   created_at timestamptz not null default now()
 );
 
@@ -170,6 +211,13 @@ create table public.bookings (
   unit_price numeric(10,2) not null,
 
   travel_date date not null,
+  -- Saída, só para estadia por diária. `nights` é guardado em vez de calculado
+  -- porque o comprovante tem de continuar dizendo o que foi vendido, mesmo que
+  -- a regra de contagem mude depois.
+  check_out date check (check_out is null or check_out > travel_date),
+  nights integer check (nights is null or nights > 0),
+  pricing_unit text not null default 'pessoa'
+    check (pricing_unit in ('pessoa', 'diaria')),
   travelers integer not null check (travelers > 0),
 
   subtotal numeric(10,2) not null,
@@ -184,6 +232,8 @@ create table public.bookings (
   payment_due_at timestamptz,
   cancelled_at timestamptz,
   refund_amount numeric(10,2),
+  -- Preenchido quando quem não pôde foi a empresa. Reembolso integral.
+  decline_reason text,
   reviewed boolean not null default false,
   created_at timestamptz not null default now()
 );
@@ -259,15 +309,22 @@ create table public.reviews (
   id uuid primary key default gen_random_uuid(),
   booking_id uuid not null unique references public.bookings on delete cascade,
   business_id uuid not null references public.businesses on delete cascade,
+  -- De qual passeio: quem quer saber do passeio de baleias não se serve da
+  -- nota média de uma empresa que também aluga caiaque.
+  tour_id uuid references public.tours on delete set null,
   author_id uuid not null references public.profiles on delete cascade,
   tour_title text not null,
   rating smallint not null check (rating between 1 and 5),
   comment text not null default '',
   recommends boolean not null default true,
+  -- A resposta pública da empresa. Sem edição e sem apagar, como a avaliação.
+  reply text,
+  replied_at timestamptz,
   created_at timestamptz not null default now()
 );
 
 create index on public.reviews (business_id);
+create index on public.reviews (tour_id);
 
 create table public.messages (
   id uuid primary key default gen_random_uuid(),
@@ -307,6 +364,10 @@ create table public.boosts (
   id uuid primary key default gen_random_uuid(),
   business_id uuid not null references public.businesses on delete cascade,
   tour_id uuid not null references public.tours on delete cascade,
+  -- Onde aparece, e para qual cidade foi comprado.
+  placement text not null default 'cidade'
+    check (placement in ('cidade', 'inicio')),
+  city text,
   days integer not null check (days > 0),
   price_paid numeric(10,2) not null,
   starts_at timestamptz not null,

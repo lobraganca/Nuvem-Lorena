@@ -1,5 +1,11 @@
 -- Papel sem privilégio, como o do visitante autenticado no Supabase.
-create role autenticado nologin;
+-- Papéis do Postgres pertencem ao servidor inteiro, não ao banco: recriar o
+-- banco de teste não apaga o papel, e rodar o teste duas vezes dava erro.
+do $$ begin
+  if not exists (select 1 from pg_roles where rolname = 'autenticado') then
+    create role autenticado nologin;
+  end if;
+end $$;
 grant usage on schema public to autenticado;
 grant all on all tables in schema public to autenticado;
 grant execute on all functions in schema public to autenticado;
