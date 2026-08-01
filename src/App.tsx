@@ -31,6 +31,7 @@ import { HelpChat } from "./components/HelpChat";
 import { OfflineBanner } from "./components/OfflineBanner";
 import { BottomNav } from "./components/BottomNav";
 import { StorageBanner } from "./components/StorageBanner";
+import { SaveFailureBanner } from "./components/SaveFailureBanner";
 import { GuestBanner } from "./components/GuestBanner";
 import { Payment } from "./pages/Payment";
 import { Support } from "./pages/Support";
@@ -149,6 +150,7 @@ function AppShell() {
       </a>
       <OfflineBanner />
       <StorageBanner />
+      <SaveFailureBanner />
       <GuestBanner />
       <nav className="topbar" aria-label={t("nav.main")}>
         <Link to="/" className="brand">

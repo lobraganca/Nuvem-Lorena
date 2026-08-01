@@ -35,12 +35,45 @@ export interface Catalogo {
 }
 
 /**
- * Erro de leitura vira lista vazia e um aviso no console, nunca uma tela
- * quebrada: um passeio que não carregou é uma vitrine mais pobre, e uma
- * exceção não tratada é um app que não abre.
+ * Erro de leitura vira lista vazia e um aviso, nunca uma tela quebrada: um
+ * passeio que não carregou é uma vitrine mais pobre, e uma exceção não tratada
+ * é um app que não abre.
  */
 function aviso(onde: string, erro: unknown): void {
   console.warn(`[avena] falha ao ${onde}:`, erro);
+}
+
+/** Quem quer ser avisado quando uma gravação não chegou ao servidor. */
+type Ouvinte = (mensagem: string) => void;
+let ouvinte: Ouvinte | null = null;
+
+/**
+ * Registra quem mostra o aviso na tela.
+ *
+ * Isto nasceu de um erro caro. O banco recusava "Temporada" como tipo de
+ * empresa, e a recusa ia só para o console: a casa aparecia cadastrada na
+ * tela, porque a tela mostra o que está na memória, e no banco não existia
+ * nada. Sumiria ao trocar de aparelho, e nenhuma viajante a encontraria — e a
+ * dona não teria como desconfiar.
+ *
+ * Gravação que falha em silêncio é pior do que gravação que dá erro: a pessoa
+ * segue a vida achando que está tudo certo.
+ */
+export function aoFalharGravacao(cb: Ouvinte | null): void {
+  ouvinte = cb;
+}
+
+/** Avisa o console e a pessoa. */
+function falhouGravar(oque: string, erro: unknown): void {
+  aviso(`salvar ${oque}`, erro);
+  const detalhe =
+    erro && typeof erro === "object" && "message" in erro
+      ? String((erro as { message: unknown }).message)
+      : "";
+  ouvinte?.(
+    `Não conseguimos salvar ${oque} no servidor. O que você vê nesta tela ainda não está guardado.` +
+      (detalhe ? ` (${detalhe})` : "")
+  );
 }
 
 export async function pullCatalogo(): Promise<Catalogo | null> {
@@ -106,7 +139,7 @@ export async function pushBusiness(b: Business): Promise<void> {
   const { error } = await db
     .from("businesses")
     .upsert(businessParaLinha(b, dono));
-  if (error) aviso("salvar a empresa", error);
+  if (error) falhouGravar("a empresa", error);
 }
 
 /**
@@ -163,21 +196,21 @@ export async function pushBusinessPatch(
     .from("businesses")
     .update(parcial)
     .eq("id", businessId);
-  if (error) aviso("atualizar a empresa", error);
+  if (error) falhouGravar("as alterações da empresa", error);
 }
 
 export async function pushTour(businessId: string, t: Tour): Promise<void> {
   const db = supabase();
   if (!db) return;
   const { error } = await db.from("tours").upsert(tourParaLinha(businessId, t));
-  if (error) aviso("salvar o passeio", error);
+  if (error) falhouGravar("o anúncio", error);
 }
 
 export async function deleteTour(tourId: string): Promise<void> {
   const db = supabase();
   if (!db) return;
   const { error } = await db.from("tours").delete().eq("id", tourId);
-  if (error) aviso("apagar o passeio", error);
+  if (error) falhouGravar("a remoção do anúncio", error);
 }
 
 export async function pushBooking(b: Booking): Promise<void> {
@@ -187,7 +220,7 @@ export async function pushBooking(b: Booking): Promise<void> {
   const { error } = await db
     .from("bookings")
     .upsert(bookingParaLinha(b, viajante));
-  if (error) aviso("salvar a reserva", error);
+  if (error) falhouGravar("a reserva", error);
 }
 
 /**
@@ -218,7 +251,7 @@ export async function pushBookingStatus(
   if (Object.keys(linha).length === 0) return;
 
   const { error } = await db.from("bookings").update(linha).eq("id", bookingId);
-  if (error) aviso("atualizar a reserva", error);
+  if (error) falhouGravar("a mudança na reserva", error);
 }
 
 export async function pushReview(r: Review): Promise<void> {
@@ -226,7 +259,7 @@ export async function pushReview(r: Review): Promise<void> {
   const autor = await meuId();
   if (!db || !autor) return;
   const { error } = await db.from("reviews").insert(reviewParaLinha(r, autor));
-  if (error) aviso("salvar a avaliação", error);
+  if (error) falhouGravar("a avaliação", error);
 }
 
 export async function pushReviewReply(
@@ -239,5 +272,5 @@ export async function pushReviewReply(
     .from("reviews")
     .update({ reply, replied_at: new Date().toISOString() })
     .eq("id", reviewId);
-  if (error) aviso("responder a avaliação", error);
+  if (error) falhouGravar("a resposta à avaliação", error);
 }

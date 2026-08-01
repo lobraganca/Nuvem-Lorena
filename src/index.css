@@ -5465,3 +5465,29 @@ textarea:focus-visible,
   opacity: 1;
   font-weight: 600;
 }
+
+/* O aviso de gravação que não chegou ao servidor.
+   Vermelho e no topo porque não é informação: é trabalho da pessoa em risco
+   de se perder, e ela precisa saber antes de fechar a aba. */
+.save-failure {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 16px;
+  background: #7a1f1f;
+  color: #fff;
+  font-size: 0.9rem;
+  line-height: 1.4;
+}
+
+.save-failure button {
+  flex-shrink: 0;
+  border: 1px solid rgba(255, 255, 255, 0.6);
+  background: transparent;
+  color: inherit;
+  border-radius: 999px;
+  padding: 6px 14px;
+  cursor: pointer;
+  min-height: 32px;
+}
