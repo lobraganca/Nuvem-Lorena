@@ -41,6 +41,18 @@ export function TourDetail() {
   const business = businesses.find((b) => b.id === businessId);
   const tour = business?.tours?.find((x) => x.id === tourId);
 
+  // Antes de qualquer return: um hook chamado depois de uma saída antecipada
+  // roda em ordens diferentes conforme o passeio exista ou não, e o React
+  // quebra ao navegar de um passeio válido para um endereço inválido.
+  usePageMeta(
+    tour?.title,
+    tour && business
+      ? `${tour.title} em ${business.city} com ${business.name}.${
+          tour.priceFrom ? ` A partir de R$ ${tour.priceFrom}.` : ""
+        }`
+      : undefined
+  );
+
   if (!business || !tour) {
     return (
       <div className="page">
@@ -54,12 +66,6 @@ export function TourDetail() {
   }
 
   const stay = isStay(tour);
-  usePageMeta(
-    tour.title,
-    `${tour.title} em ${business.city} com ${business.name}.${
-      tour.priceFrom ? ` A partir de R$ ${tour.priceFrom}.` : ""
-    }`
-  );
 
   const stats = reviewStatsFor(reviews, business.id);
   const availability = availabilityFor(tour, bookings, today);
