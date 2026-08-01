@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import { useAvena } from "../store/AvenaContext";
 import { effectiveStatus } from "../lib/bookingStatus";
 import { formatBRL } from "../lib/money";
+import { SERVICE_FEE_RATE } from "../lib/pricing";
 import { SettingsRow, rowIcon } from "../components/SettingsRow";
 
 const today = new Date().toISOString().slice(0, 10);
@@ -150,8 +151,15 @@ export function ProfessionalDashboard() {
       </div>
 
       <div className="settings-group-rows">
+        {/* Antes dizia "o preço cheio, e a taxa é paga pelo viajante, por
+            cima" — que é verdade e não explica nada. Com números a frase se
+            entende de primeira, e é a pergunta que toda agência faz antes de
+            se cadastrar: quanto sobra para mim? */}
         <div className="settings-note">
-          Você recebe o preço cheio. A taxa é paga pelo viajante, por cima.
+          Se você anuncia R$ 100, você recebe R$ 100. O viajante paga R${" "}
+          {formatBRL(100 * (1 + SERVICE_FEE_RATE))} — os R${" "}
+          {formatBRL(100 * SERVICE_FEE_RATE)} são a taxa do Avena, cobrada dele,
+          e não descontada de você.
         </div>
       </div>
     </div>
