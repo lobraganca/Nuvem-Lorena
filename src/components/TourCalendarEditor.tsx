@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { useAvena } from "../store/AvenaContext";
 import { AvailabilityCalendar } from "./AvailabilityCalendar";
 import { WEEKDAY_NAMES } from "../lib/calendar";
@@ -22,9 +23,7 @@ export function TourCalendarEditor({
   tour: Tour;
 }) {
   const { bookings, updateTour } = useAvena();
-  const bloqueadas = tour.blockedDates ?? [];
-  const fechados = tour.closedWeekdays ?? [];
-
+  const [aberta, setAberta] = useState(false);
   function alternarData(date: string) {
     const proximas = bloqueadas.includes(date)
       ? bloqueadas.filter((d) => d !== date)
@@ -45,9 +44,31 @@ export function TourCalendarEditor({
     });
   }
 
+  const fechados = tour.closedWeekdays ?? [];
+  const bloqueadas = tour.blockedDates ?? [];
+
+  if (!aberta) {
+    // Recolhida por padrão: um calendário aberto por passeio empilhava quatro
+    // meses na mesma tela e enterrava a lista. O resumo diz se há algo
+    // fechado, que é a única coisa que se precisa saber de relance.
+    return (
+      <button type="button" className="btn-outline" onClick={() => setAberta(true)}>
+        Agenda
+        {fechados.length || bloqueadas.length
+          ? ` · ${fechados.length + bloqueadas.length} fechados`
+          : ""}
+      </button>
+    );
+  }
+
   return (
     <div className="tour-calendar-editor">
-      <h4>Agenda de {tour.title}</h4>
+      <div className="explore-head">
+        <h4>Agenda de {tour.title}</h4>
+        <button type="button" className="explore-more" onClick={() => setAberta(false)}>
+          Fechar
+        </button>
+      </div>
 
       <fieldset>
         <legend>Dias em que não há saída</legend>

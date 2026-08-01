@@ -19,6 +19,11 @@ import { Bookings } from "./pages/Bookings";
 import { Retrospective } from "./pages/Retrospective";
 import { Welcome } from "./pages/Welcome";
 import { ProfessionalDashboard } from "./pages/ProfessionalDashboard";
+import { ProfessionalTours } from "./pages/ProfessionalTours";
+import { ProfessionalBookings } from "./pages/ProfessionalBookings";
+import { ProfessionalPayouts } from "./pages/ProfessionalPayouts";
+import { ProfessionalReviews } from "./pages/ProfessionalReviews";
+import { ProfessionalBusiness } from "./pages/ProfessionalBusiness";
 import { Notifications } from "./pages/Notifications";
 import { Terms, Privacy } from "./pages/Legal";
 import { CookieBanner } from "./components/CookieBanner";
@@ -133,6 +138,11 @@ function AppShell() {
           <Route path="/welcome" element={<Welcome />} />
           <Route path="/comecar" element={<FirstMemory />} />
           <Route path="/professional" element={<ProfessionalDashboard />} />
+          <Route path="/professional/passeios" element={<ProfessionalTours />} />
+          <Route path="/professional/reservas" element={<ProfessionalBookings />} />
+          <Route path="/professional/extrato" element={<ProfessionalPayouts />} />
+          <Route path="/professional/avaliacoes" element={<ProfessionalReviews />} />
+          <Route path="/professional/empresa" element={<ProfessionalBusiness />} />
           <Route path="/experience/new" element={<AddExperience />} />
           <Route path="/experience/:id/editar" element={<AddExperience />} />
           <Route path="/experience/:id" element={<ExperienceDetail />} />
