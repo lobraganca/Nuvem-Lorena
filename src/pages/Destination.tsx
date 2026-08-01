@@ -7,9 +7,10 @@ import { PromotedTours } from "../components/PromotedTours";
 import { BannerSlot } from "../components/BannerSlot";
 import { buildItinerary, splitIntoDays } from "../lib/itineraries";
 import { accessibilityTags } from "../lib/tourAttributes";
-import { businessMatches, resolveCity, suggestionsFor } from "../lib/search";
+import { cityFromTerm, businessMatches, resolveCity, suggestionsFor } from "../lib/search";
 import type { AccessibilityTag, BusinessType } from "../types";
 import { useT } from "../i18n";
+import { BackLink } from "../components/BackLink";
 import { accessibilityKey, businessTypePluralKey, categoryKey } from "../i18n/domain";
 
 type Tab = "Todos" | BusinessType;
@@ -50,8 +51,15 @@ export function Destination() {
   // Search matches city, business name or tour title, so someone who heard
   // about a specific guide can find them without knowing the city.
   const term = query.trim();
+  // Quando o que foi digitado nomeia uma cidade, a lista é daquela cidade e de
+  // mais nada. Fora isso — nome de agência, nome de passeio — a busca continua
+  // ampla, que é como se encontra um guia de quem se ouviu falar.
+  const cidadeBuscada = term ? cityFromTerm(brBusinesses, term) : null;
+
   const matches = brBusinesses
-    .filter((b) => businessMatches(b, term))
+    .filter((b) =>
+      cidadeBuscada ? b.city === cidadeBuscada : businessMatches(b, term)
+    )
     .filter((b) => tab === "Todos" || b.type === tab)
     .filter((b) =>
       access.length === 0
@@ -73,6 +81,7 @@ export function Destination() {
   return (
     <div className="viator-hero">
       <div className="viator-hero-inner">
+        <BackLink />
         <h1>{t("destination.title")}</h1>
         <p className="muted">{t("destination.subtitle")}</p>
         <input

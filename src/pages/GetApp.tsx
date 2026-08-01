@@ -2,6 +2,7 @@ import { Link } from "react-router-dom";
 import { StoreBadges } from "../components/StoreBadges";
 import { anyStoreLive } from "../lib/appStores";
 import { useT } from "../i18n";
+import { BackLink } from "../components/BackLink";
 import avenaLogo from "../assets/avena-logo-wordmark.png";
 
 /**
@@ -15,6 +16,7 @@ export function GetApp() {
 
   return (
     <div className="page page-wide get-app">
+      <BackLink />
       <section className="get-app-hero">
         <img src={avenaLogo} alt="Avena" className="get-app-logo" />
         <h1>{t("app.title")}</h1>

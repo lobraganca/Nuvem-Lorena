@@ -1,3 +1,4 @@
+import { BackLink } from "../components/BackLink";
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import { useAvena } from "../store/AvenaContext";
@@ -18,6 +19,7 @@ export function BusinessLanding() {
 
   return (
     <div className="page page-wide">
+      <BackLink />
       {/* The pitch first, and the action under it, before any table of plans. */}
       <section className="announce-hero">
         <h1>

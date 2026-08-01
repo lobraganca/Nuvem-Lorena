@@ -1,3 +1,4 @@
+import { BackLink } from "../components/BackLink";
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import { useAvena } from "../store/AvenaContext";
@@ -87,6 +88,7 @@ export function Feed() {
 
   return (
     <div className="page page-wide">
+      <BackLink />
       <h1>{t("follow.feedTitle")}</h1>
       <p className="muted">{t("follow.feedSubtitle")}</p>
 

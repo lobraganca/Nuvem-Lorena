@@ -60,6 +60,21 @@ function tolerance(term: string): number {
   return 3;
 }
 
+/**
+ * Palavras que ligam a frase e não dizem nada sobre o lugar.
+ *
+ * Elas ficam de fora da comparação por aproximação, e o motivo é um caso real:
+ * quem procurava "Paraty" recebia uma agência de Arraial do Cabo, porque o
+ * passeio se chamava "barco **para** observação de baleias" e "para" está a
+ * dois toques de "Paraty". A busca dizia "1 resultado em Paraty" e mostrava
+ * outra cidade — pior do que não achar nada.
+ */
+const LIGACOES = new Set([
+  "a", "as", "o", "os", "de", "do", "da", "dos", "das", "e", "em", "no", "na",
+  "nos", "nas", "por", "para", "com", "sem", "ao", "aos", "um", "uma", "que",
+  "the", "of", "in", "for", "and",
+]);
+
 /** True when the term is contained in the text, or is a near-miss of a word in it. */
 export function looselyMatches(text: string, term: string): boolean {
   const haystack = normalize(text);
@@ -70,7 +85,15 @@ export function looselyMatches(text: string, term: string): boolean {
   const allowed = tolerance(needle);
   return haystack
     .split(/[\s,·-]+/)
-    .some((word) => word.length >= 3 && editDistance(word, needle) <= allowed);
+    .some(
+      (word) =>
+        word.length >= 3 &&
+        !LIGACOES.has(word) &&
+        // Perto no comprimento, além de perto nas letras: sem isto, uma
+        // palavra curta continua "quase igual" a um nome comprido.
+        Math.abs(word.length - needle.length) <= allowed &&
+        editDistance(word, needle) <= allowed
+    );
 }
 
 /** Every text about a business that a person might reasonably type. */
@@ -85,6 +108,25 @@ function searchableFields(business: Business): string[] {
     business.type,
     ...(business.tours ?? []).map((t) => t.title),
   ].filter(Boolean);
+}
+
+/**
+ * A cidade que o termo nomeia, entre as que existem no Avena, ou null.
+ *
+ * Serve para a busca por lugar ser uma busca por lugar: quem digita "Paraty"
+ * quer o que há em Paraty, e um passeio de outra cidade cujo nome por acaso
+ * lembra a palavra não é resposta — é ruído que faz a pessoa desconfiar da
+ * lista inteira.
+ */
+export function cityFromTerm(businesses: Business[], term: string): string | null {
+  const needle = normalize(term);
+  if (needle.length < 3) return null;
+  const cidades = [...new Set(businesses.map((b) => b.city))];
+  // Igual primeiro; só depois o quase-igual, para "Paraty" nunca cair numa
+  // cidade parecida quando a exata existe.
+  const exata = cidades.find((c) => normalize(c) === needle);
+  if (exata) return exata;
+  return cidades.find((c) => looselyMatches(c, term)) ?? null;
 }
 
 export function businessMatches(business: Business, term: string): boolean {
