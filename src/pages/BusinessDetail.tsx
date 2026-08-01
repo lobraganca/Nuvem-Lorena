@@ -2,6 +2,7 @@ import { Link, useParams } from "react-router-dom";
 import { useAvena } from "../store/AvenaContext";
 import { ReputationBadge } from "../components/ReputationBadge";
 import { reviewStatsFor } from "../lib/reviews";
+import { usePageMeta } from "../hooks/usePageMeta";
 import { useT } from "../i18n";
 import { PresenceDot } from "../components/PresenceDot";
 import { MeetingPoint } from "../components/MeetingPoint";
@@ -21,6 +22,8 @@ export function BusinessDetail() {
   // Contato direto só para quem já reservou. Ver lib/contactVisibility.ts.
   const mostrarContato = business ? canSeeContact(business, bookings) : false;
   const tempoDeResposta = business ? responseTimeFor(messages, business.id) : null;
+  usePageMeta(business?.name, business?.description);
+
 
   if (!business) return <div className="page">{t("common.notFound")}</div>;
 

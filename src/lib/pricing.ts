@@ -54,14 +54,21 @@ export interface BookingTotals {
  * guests instead of the nights is a bill several times too big, so the caller
  * has to say which — there is no sensible default that is safe for both.
  */
+/** Ao centavo. Em ponto flutuante, 0,10 × 3 dá 0,30000000000000004. */
+function centavos(valor: number): number {
+  return Math.round(valor * 100) / 100;
+}
+
 export function bookingTotals(unitPrice: number, quantity: number): BookingTotals {
-  const subtotal = unitPrice * Math.max(1, quantity);
-  // Rounded to the cent, so the three lines on screen always add up.
-  const fee = Math.round(subtotal * SERVICE_FEE_RATE * 100) / 100;
+  // Arredondado aqui também, e não só na taxa: o subtotal entra no total, no
+  // repasse e no reembolso, e um resto de centésimo que sobrevive a essas três
+  // contas acaba aparecendo como "R$ 462,00000000000006" na tela de alguém.
+  const subtotal = centavos(unitPrice * Math.max(1, quantity));
+  const fee = centavos(subtotal * SERVICE_FEE_RATE);
   return {
     subtotal,
     fee,
-    total: subtotal + fee,
+    total: centavos(subtotal + fee),
     businessReceives: subtotal,
   };
 }

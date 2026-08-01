@@ -1,5 +1,5 @@
 import { Suspense, lazy, useEffect } from "react";
-import { Link, Route, Routes } from "react-router-dom";
+import { Link, Route, Routes, useLocation } from "react-router-dom";
 import { AvenaProvider, useAvena } from "./store/AvenaContext";
 import { AuthProvider, useAuth } from "./store/AuthContext";
 import avenaLogo from "./assets/avena-logo-wordmark.png";
@@ -72,6 +72,28 @@ function RootScreen() {
   return <Home />;
 }
 
+/**
+ * Ao trocar de tela, o foco vai para o conteúdo.
+ *
+ * Num app de uma página só o navegador não recarrega nada, então o foco fica
+ * onde estava — no link que foi tocado, ou no corpo da página. Para quem usa
+ * leitor de tela isso significa que mudar de tela não anuncia nada: a pessoa
+ * toca em "Reservar", a tela inteira troca, e a voz continua no mesmo lugar.
+ * Para quem navega por teclado, a próxima tabulação recomeça do topo do site.
+ *
+ * `preventScroll` porque a rolagem já é tratada abaixo, e sem isso a página
+ * daria um salto ao focar.
+ */
+function FocoNaTroca() {
+  const { pathname } = useLocation();
+  useEffect(() => {
+    const alvo = document.getElementById("conteudo");
+    alvo?.focus({ preventScroll: true });
+    window.scrollTo({ top: 0 });
+  }, [pathname]);
+  return null;
+}
+
 function AppShell() {
   const { user } = useAvena();
   const { signedIn, needsPhone, setVerifiedPhone, postponePhone } = useAuth();
@@ -132,7 +154,10 @@ function AppShell() {
           <LanguageSwitcher />
         </div>
       </nav>
-      <main className="app-content" id="conteudo">
+      <FocoNaTroca />
+      {/* tabIndex -1: o main recebe foco por código, mas não entra na ordem
+          de tabulação de quem navega por teclado. */}
+      <main className="app-content" id="conteudo" tabIndex={-1}>
         <Routes>
           <Route path="/" element={<RootScreen />} />
           <Route path="/welcome" element={<Welcome />} />

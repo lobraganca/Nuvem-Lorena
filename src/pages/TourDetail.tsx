@@ -15,6 +15,7 @@ import { isStay } from "../lib/stays";
 import { formatBRL } from "../lib/money";
 import { accessibilityKey, businessTypeKey, difficultyKey } from "../i18n/domain";
 import { responseTimeFor, responseTimeLabel } from "../lib/responseTime";
+import { usePageMeta } from "../hooks/usePageMeta";
 import { useT } from "../i18n";
 
 /**
@@ -53,6 +54,13 @@ export function TourDetail() {
   }
 
   const stay = isStay(tour);
+  usePageMeta(
+    tour.title,
+    `${tour.title} em ${business.city} com ${business.name}.${
+      tour.priceFrom ? ` A partir de R$ ${tour.priceFrom}.` : ""
+    }`
+  );
+
   const stats = reviewStatsFor(reviews, business.id);
   const availability = availabilityFor(tour, bookings, today);
   const season = seasonLabel(tour.seasonMonths);
