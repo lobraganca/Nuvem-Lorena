@@ -14,6 +14,7 @@ import { monthsLeftInSeason, seasonLabel } from "../lib/tourAttributes";
 import { isStay } from "../lib/stays";
 import { formatBRL } from "../lib/money";
 import { accessibilityKey, businessTypeKey, difficultyKey } from "../i18n/domain";
+import { responseTimeFor, responseTimeLabel } from "../lib/responseTime";
 import { useT } from "../i18n";
 
 /**
@@ -32,7 +33,7 @@ import { useT } from "../i18n";
  */
 export function TourDetail() {
   const { businessId, tourId } = useParams();
-  const { businesses, bookings, reviews } = useAvena();
+  const { businesses, bookings, reviews, messages } = useAvena();
   const t = useT();
   const today = new Date().toISOString().slice(0, 10);
 
@@ -58,6 +59,7 @@ export function TourDetail() {
   const monthsLeft = monthsLeftInSeason(tour.seasonMonths);
   const others = (business.tours ?? []).filter((x) => x.id !== tour.id);
   const fotos = tour.photos ?? [];
+  const tempoDeResposta = responseTimeFor(messages, business.id);
   const desteTour = reviews
     .filter((r) => r.tourId === tour.id)
     .sort((a, b) => b.createdAt.localeCompare(a.createdAt));
@@ -248,6 +250,9 @@ export function TourDetail() {
             {business.state ? `, ${business.state}` : ""}
           </div>
           <ReputationBadge avgRating={stats.avgRating} count={stats.count} />
+          {tempoDeResposta && (
+            <span className="muted">{responseTimeLabel(tempoDeResposta)}</span>
+          )}
           {business.description && <p className="muted">{business.description}</p>}
           <span className="tour-seller-more">Ver a página da empresa →</span>
         </Link>

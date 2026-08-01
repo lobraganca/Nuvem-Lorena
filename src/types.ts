@@ -440,6 +440,8 @@ export interface Booking {
   cancellationPolicy: CancellationPolicy;
   cancelledAt?: string; // ISO datetime
   refundAmount?: number;
+  /** Set when it was the business that could not honour the booking. */
+  declineReason?: string;
   /** Set once the payment clears; absent while the booking is awaiting payment. */
   payment?: Payment;
   /** Deadline for paying. After it passes the seat goes back to the pool. */

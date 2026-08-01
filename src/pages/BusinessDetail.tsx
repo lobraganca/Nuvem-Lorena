@@ -7,18 +7,20 @@ import { PresenceDot } from "../components/PresenceDot";
 import { MeetingPoint } from "../components/MeetingPoint";
 import { TourCard } from "../components/TourCard";
 import { canSeeContact } from "../lib/contactVisibility";
+import { responseTimeFor, responseTimeLabel } from "../lib/responseTime";
 import { businessTypeKey, planTierKey } from "../i18n/domain";
 
 
 export function BusinessDetail() {
   const { id } = useParams();
-  const { businesses, reviews, bookings } = useAvena();
+  const { businesses, reviews, bookings, messages } = useAvena();
   // Every hook runs before the early return: React requires the same hooks in
   // the same order on every render.
   const t = useT();
   const business = businesses.find((b) => b.id === id);
   // Contato direto só para quem já reservou. Ver lib/contactVisibility.ts.
   const mostrarContato = business ? canSeeContact(business, bookings) : false;
+  const tempoDeResposta = business ? responseTimeFor(messages, business.id) : null;
 
   if (!business) return <div className="page">{t("common.notFound")}</div>;
 
@@ -107,6 +109,10 @@ export function BusinessDetail() {
           </>
         )}
       </div>
+
+      {tempoDeResposta && (
+        <p className="muted">{responseTimeLabel(tempoDeResposta)}</p>
+      )}
 
       <MeetingPoint business={business} />
 

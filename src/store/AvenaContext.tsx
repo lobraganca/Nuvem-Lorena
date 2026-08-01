@@ -57,6 +57,11 @@ interface AvenaContextValue extends AvenaData {
   /** A resposta pública da empresa a uma avaliação. */
   replyToReview: (reviewId: string, reply: string) => void;
   cancelBooking: (bookingId: string) => void;
+  /**
+   * A empresa recusa uma reserva que não vai conseguir atender.
+   * Diferente de cancelar: o reembolso é sempre integral.
+   */
+  declineBooking: (bookingId: string, reason: string) => void;
   addBoost: (boost: Boost) => void;
   joinWaitlist: (entry: WaitlistEntry) => void;
   leaveWaitlist: (entryId: string) => void;
@@ -305,6 +310,25 @@ export function AvenaProvider({ children }: { children: ReactNode }) {
               refundAmount,
             };
           }),
+        })),
+      declineBooking: (bookingId, reason) =>
+        setData((d) => ({
+          ...d,
+          bookings: d.bookings.map((b) =>
+            b.id === bookingId
+              ? {
+                  ...b,
+                  status: "cancelada",
+                  cancelledAt: new Date().toISOString(),
+                  // Integral, sempre, e sem olhar a política de cancelamento.
+                  // A política existe para quando quem desiste é o viajante;
+                  // aqui quem não pôde foi a empresa, e cobrar multa de alguém
+                  // por um "não" que não foi dele é indefensável.
+                  refundAmount: b.totalPrice,
+                  declineReason: reason,
+                }
+              : b
+          ),
         })),
       addBoost: (boost) => setData((d) => ({ ...d, boosts: [boost, ...d.boosts] })),
       joinWaitlist: (entry) =>

@@ -5296,3 +5296,53 @@ textarea:focus-visible,
   border-radius: 16px;
   overflow: hidden;
 }
+
+/* ---- Extrato ---- */
+
+.payout-statement {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 14px;
+  border-radius: 16px;
+  background: var(--card-bg);
+  box-shadow: var(--shadow);
+}
+
+.payout-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+  margin-top: 12px;
+  padding-bottom: 6px;
+  border-bottom: 1px solid var(--border);
+  font-size: 13px;
+  color: var(--text);
+}
+
+.payout-head:first-child {
+  margin-top: 0;
+}
+
+.payout-head strong {
+  font-size: 17px;
+  color: var(--text-h);
+  font-variant-numeric: tabular-nums;
+}
+
+.payout-row {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 7px 0;
+  font-size: 14px;
+}
+
+/* Números alinhados à direita e com largura fixa por dígito: é assim que uma
+   coluna de valores se confere de cima a baixo. */
+.payout-value {
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+  color: var(--text-h);
+}

@@ -183,6 +183,16 @@ export function Bookings() {
           </Link>
         )}
 
+        {b.declineReason && (
+          <p className="availability-note availability-none">
+            {/* O motivo vem escrito pela empresa e pode ou não terminar em
+                ponto. Emendar a frase seguinte sem olhar produzia "esta
+                data.. O valor". */}
+            A empresa não pôde atender: {b.declineReason.replace(/[.\s]+$/, "")}. O
+            valor foi devolvido integralmente, inclusive a taxa de serviço.
+          </p>
+        )}
+
         {status === "expirada" && (
           <p className="muted">{t("bookings.expiredNote")}</p>
         )}

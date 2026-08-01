@@ -21,6 +21,8 @@ import { formatBRL } from "../lib/money";
 import { MeetingPointEditor } from "../components/MeetingPointEditor";
 import { BusinessEditor } from "../components/BusinessEditor";
 import { BusinessReviews } from "../components/BusinessReviews";
+import { DeclineBooking } from "../components/DeclineBooking";
+import { PayoutStatement } from "../components/PayoutStatement";
 import { SettingsRow, rowIcon } from "../components/SettingsRow";
 import { newId } from "../lib/ids";
 
@@ -204,6 +206,21 @@ export function ProfessionalDashboard() {
                   informe o valor por pessoa.
                 </div>
               )}
+              {/* Foto não é enfeite: é o que faz alguém tocar no cartão. Um
+                  anúncio sem foto ocupa lugar na busca e não converte. */}
+              {(t.photos?.length ?? 0) === 0 ? (
+                <div className="availability-note availability-none">
+                  Sem foto. Este passeio aparece como um retângulo vazio na
+                  busca — quase ninguém toca. Adicione ao menos uma.
+                </div>
+              ) : (
+                (t.photos?.length ?? 0) < 3 && (
+                  <div className="availability-note">
+                    {t.photos?.length === 1 ? "Uma foto" : "Duas fotos"}. Três ou
+                    mais é o que costuma dar à pessoa confiança para reservar.
+                  </div>
+                )
+              )}
               <div className="muted">
                 Cancelamento {cancellationPolicyLabel[t.cancellationPolicy ?? "moderada"]}
               </div>
@@ -350,6 +367,8 @@ export function ProfessionalDashboard() {
         </button>
       </form>
 
+      <PayoutStatement businessId={business.id} />
+
       <BusinessReviews businessId={business.id} />
 
       <h2 className="timeline-title">Reservas recebidas</h2>
@@ -412,11 +431,18 @@ export function ProfessionalDashboard() {
               </div>
             )}
 
+            {b.status !== "cancelada" &&
+              b.travelDate >= today &&
+              effectiveStatus(b) !== "expirada" && <DeclineBooking booking={b} />}
+
             {b.status === "cancelada" ? (
               <div className="booking-breakdown">
                 <div className="muted">
                   Reembolsado ao viajante: R$ {(formatBRL(b.refundAmount ?? 0))}
                 </div>
+                {b.declineReason && (
+                  <div className="muted">Você recusou: {b.declineReason}</div>
+                )}
               </div>
             ) : (
               <div className="booking-breakdown">
