@@ -38,6 +38,13 @@ export function ProfessionalDashboard() {
   const [accessibility, setAccessibility] = useState<AccessibilityTag[] | undefined>();
   const [seasonMonths, setSeasonMonths] = useState<number[] | undefined>();
   const [usedTemplate, setUsedTemplate] = useState<string | null>(null);
+  const [maxGuests, setMaxGuests] = useState("");
+  const [minNights, setMinNights] = useState("");
+
+  // A house is rented by the night; everything else is sold by the person.
+  // Derived from what the business said it is, rather than asked again, so the
+  // two can never disagree.
+  const rental = business?.type === "Temporada";
 
   /** Fills the form from a template so the agency only corrects the price. */
   function applyTemplate(template: TourTemplate) {
@@ -97,10 +104,19 @@ export function ProfessionalDashboard() {
       difficulty,
       accessibility,
       seasonMonths,
+      ...(rental
+        ? {
+            pricingUnit: "diaria" as const,
+            maxGuests: maxGuests ? Number(maxGuests) : undefined,
+            minNights: minNights ? Number(minNights) : undefined,
+          }
+        : {}),
     };
     addTourToBusiness(business.id, tour);
     setTitle("");
     setDescription("");
+    setMaxGuests("");
+    setMinNights("");
     setPriceFrom("");
     setDurationHours("");
     setCapacityPerDay("");
@@ -226,11 +242,11 @@ export function ProfessionalDashboard() {
         </fieldset>
 
         <label>
-          Novo passeio
+          {rental ? "Novo anúncio" : "Novo passeio"}
           <input
             value={title}
             onChange={(e) => setTitle(e.target.value)}
-            placeholder="Nome do passeio"
+            placeholder={rental ? "Ex.: Casa com vista para a serra" : "Nome do passeio"}
             required
           />
         </label>
@@ -240,36 +256,67 @@ export function ProfessionalDashboard() {
             value={description}
             onChange={(e) => setDescription(e.target.value)}
             rows={2}
-            placeholder="O que o viajante vai viver nesse passeio?"
+            placeholder={
+              rental
+                ? "Quantos quartos, o que tem por perto, o que está incluído."
+                : "O que o viajante vai viver nesse passeio?"
+            }
           />
         </label>
         <div className="form-row">
           <label>
-            Preço a partir de (R$)
+            {rental ? "Preço por noite (R$)" : "Preço a partir de (R$)"}
             <input
               type="number"
               value={priceFrom}
               onChange={(e) => setPriceFrom(e.target.value)}
             />
           </label>
-          <label>
-            Duração (horas)
-            <input
-              type="number"
-              value={durationHours}
-              onChange={(e) => setDurationHours(e.target.value)}
-            />
-          </label>
-          <label>
-            Vagas por dia (opcional)
-            <input
-              type="number"
-              min={1}
-              value={capacityPerDay}
-              onChange={(e) => setCapacityPerDay(e.target.value)}
-              placeholder="Deixe em branco para ilimitado"
-            />
-          </label>
+
+          {rental ? (
+            <>
+              <label>
+                Acomoda até (pessoas)
+                <input
+                  type="number"
+                  min={1}
+                  value={maxGuests}
+                  onChange={(e) => setMaxGuests(e.target.value)}
+                />
+              </label>
+              <label>
+                Estadia mínima (noites)
+                <input
+                  type="number"
+                  min={1}
+                  value={minNights}
+                  onChange={(e) => setMinNights(e.target.value)}
+                  placeholder="1"
+                />
+              </label>
+            </>
+          ) : (
+            <>
+              <label>
+                Duração (horas)
+                <input
+                  type="number"
+                  value={durationHours}
+                  onChange={(e) => setDurationHours(e.target.value)}
+                />
+              </label>
+              <label>
+                Vagas por dia (opcional)
+                <input
+                  type="number"
+                  min={1}
+                  value={capacityPerDay}
+                  onChange={(e) => setCapacityPerDay(e.target.value)}
+                  placeholder="Deixe em branco para ilimitado"
+                />
+              </label>
+            </>
+          )}
         </div>
         <fieldset>
           <legend>Política de cancelamento</legend>
@@ -293,7 +340,7 @@ export function ProfessionalDashboard() {
           className="btn-primary"
           disabled={!isPublishable(`${title} ${description}`)}
         >
-          Publicar passeio
+          {rental ? "Publicar anúncio" : "Publicar passeio"}
         </button>
       </form>
 

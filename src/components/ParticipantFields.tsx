@@ -58,9 +58,12 @@ export function participantsError(
 export function ParticipantFields({
   participants,
   onChange,
+  stay,
 }: {
   participants: Participant[];
   onChange: (participants: Participant[]) => void;
+  /** A rental asks for whoever answers for the stay, not for every guest. */
+  stay?: boolean;
 }) {
   const t = useT();
 
@@ -72,11 +75,13 @@ export function ParticipantFields({
 
   return (
     <fieldset>
-      <legend>{t("booking.participants")}</legend>
+      <legend>{stay ? "Responsável pela estadia" : t("booking.participants")}</legend>
       <p className="muted">
-        {COLLECT_PARTICIPANT_DOCUMENTS
-          ? t("booking.participantsWhy")
-          : t("booking.participantsNamesOnly")}
+        {stay
+          ? "Quem responde pela reserva. Os dados dos demais hóspedes o anfitrião recolhe na chegada."
+          : COLLECT_PARTICIPANT_DOCUMENTS
+            ? t("booking.participantsWhy")
+            : t("booking.participantsNamesOnly")}
       </p>
 
       {participants.map((p, i) => {

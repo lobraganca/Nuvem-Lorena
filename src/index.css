@@ -4633,3 +4633,84 @@ textarea:focus-visible,
     align-self: stretch;
   }
 }
+
+/* ---- Pix ---- */
+
+.pix-panel {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  margin: 16px 0;
+  padding: 18px;
+  border-radius: 16px;
+  background: var(--bg-alt);
+}
+
+/* O QR fica sobre branco sempre, inclusive no tema escuro: câmera de celular
+   lê mal um código invertido. */
+.pix-qr {
+  width: 220px;
+  height: 220px;
+  padding: 10px;
+  border-radius: 12px;
+  background: #fff;
+}
+
+/* No lugar do código, enquanto não há servidor. Tracejado e sem nada que se
+   pareça com um QR, para não haver o que apontar a câmera. */
+.pix-placeholder {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  width: 220px;
+  height: 220px;
+  border: 2px dashed var(--border);
+  border-radius: 12px;
+  color: var(--text);
+  text-align: center;
+  padding: 12px;
+}
+
+.pix-placeholder span {
+  font-weight: 600;
+}
+
+.pix-placeholder small {
+  font-size: 12px;
+  opacity: 0.75;
+}
+
+.pix-amount {
+  margin: 0;
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--text-h);
+  font-variant-numeric: tabular-nums;
+}
+
+.pix-code-label {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-size: 13px;
+}
+
+/* Monoespaçado e quebrando em qualquer ponto: o BR Code é uma linha só de
+   duzentos e tantos caracteres, e quem copia à mão precisa enxergar o fim. */
+.pix-code {
+  width: 100%;
+  font-family: ui-monospace, "SF Mono", Menlo, monospace;
+  font-size: 12px;
+  line-height: 1.4;
+  word-break: break-all;
+  resize: none;
+  padding: 10px;
+  border-radius: 10px;
+  border: 1px solid var(--border);
+  background: var(--card-bg);
+  color: var(--text-h);
+}

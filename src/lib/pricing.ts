@@ -46,8 +46,16 @@ export interface BookingTotals {
   businessReceives: number;
 }
 
-export function bookingTotals(unitPrice: number, travelers: number): BookingTotals {
-  const subtotal = unitPrice * Math.max(1, travelers);
+/**
+ * What the traveller pays.
+ *
+ * `quantity` is what the price is counted in: the number of people for a tour,
+ * the number of nights for a house. A rental multiplied by the number of
+ * guests instead of the nights is a bill several times too big, so the caller
+ * has to say which — there is no sensible default that is safe for both.
+ */
+export function bookingTotals(unitPrice: number, quantity: number): BookingTotals {
+  const subtotal = unitPrice * Math.max(1, quantity);
   // Rounded to the cent, so the three lines on screen always add up.
   const fee = Math.round(subtotal * SERVICE_FEE_RATE * 100) / 100;
   return {

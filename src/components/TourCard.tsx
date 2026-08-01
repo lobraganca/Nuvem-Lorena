@@ -3,6 +3,7 @@ import { useAvena } from "../store/AvenaContext";
 import { isTourWished } from "../lib/wishlist";
 import { businessTypeColor } from "../lib/categories";
 import { formatBRL } from "../lib/money";
+import { isStay } from "../lib/stays";
 import { newId } from "../lib/ids";
 import { useT } from "../i18n";
 import type { Business, Tour } from "../types";
@@ -78,7 +79,9 @@ export function TourCard({ business, tour }: { business: Business; tour: Tour })
         <div className="listing-card-foot">
           <span className="listing-card-price">
             {tour.priceFrom !== undefined
-              ? t("card.perPerson", { price: formatBRL(tour.priceFrom) })
+              ? t(isStay(tour) ? "card.perNight" : "card.perPerson", {
+                  price: formatBRL(tour.priceFrom),
+                })
               : t("card.askPrice")}
           </span>
           {isNew && <span className="listing-card-new">{t("card.new")}</span>}

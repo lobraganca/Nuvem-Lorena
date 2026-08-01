@@ -134,6 +134,7 @@ export type BusinessType =
   | "Agência"
   | "Guia"
   | "Experiência"
+  | "Temporada"
   | "Restaurante"
   | "Hotel";
 
@@ -153,9 +154,24 @@ export type AccessibilityTag =
   | "Idosos"
   | "Não exige natação";
 
+/**
+ * What the price is counted in.
+ *
+ * A boat trip is priced per person; a house is priced per night, no matter how
+ * many people sleep in it. Getting this wrong is not a rounding error — it
+ * multiplies a rental by the number of guests.
+ */
+export type PricingUnit = "pessoa" | "diaria";
+
 export interface Tour {
   id: string;
   title: string;
+  /** Defaults to "pessoa" when absent, which is what every existing tour is. */
+  pricingUnit?: PricingUnit;
+  /** Only for a rental: how many people the place sleeps. */
+  maxGuests?: number;
+  /** Only for a rental: the shortest stay accepted. */
+  minNights?: number;
   /** Months (1-12) when this tour is at its best, e.g. whale season. */
   seasonMonths?: number[];
   difficulty?: Difficulty;
@@ -359,7 +375,13 @@ export interface Booking {
   businessName: string;
   tourId: string;
   tourTitle: string;
-  travelDate: string; // ISO date
+  travelDate: string; // ISO date — for a rental, the check-in
+  /** Check-out. Only for a stay priced per night. */
+  checkOut?: string; // ISO date
+  /** Nights between check-in and check-out. Absent for a per-person booking. */
+  nights?: number;
+  /** How the price was counted, copied so the receipt still explains itself. */
+  pricingUnit?: PricingUnit;
   travelers: number;
   participants: Participant[];
   unitPrice: number;

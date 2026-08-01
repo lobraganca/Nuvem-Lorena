@@ -23,6 +23,7 @@ import { useT } from "../i18n";
 import type { TranslationKey } from "../i18n";
 import { canReceivePayments } from "../lib/payments/mercadopago";
 import { newId } from "../lib/ids";
+import { isStay, nextDay, nightsBetween, stayProblem } from "../lib/stays";
 
 /** No tour in this catalogue takes a group bigger than this in one booking. */
 const MAX_GROUP = 30;
@@ -34,6 +35,8 @@ export function BookTourButton({ business, tour }: { business: Business; tour: T
   const t = useT();
   const today = new Date().toISOString().slice(0, 10);
   const [travelDate, setTravelDate] = useState(today);
+  /** Only used by a rental; harmless for a tour. */
+  const [checkOut, setCheckOut] = useState(() => nextDay(today));
   const [travelers, setTravelers] = useState(1);
   // The buyer is participant 1, pre-filled with the account name.
   const [participants, setParticipants] = useState<Participant[]>([
@@ -44,18 +47,30 @@ export function BookTourButton({ business, tour }: { business: Business; tour: T
     // The upper bound is the tour's own capacity when it declares one, and a
     // sane group size otherwise. Without it the form happily quoted 9999
     // people and two million reais.
-    const ceiling = tour.capacityPerDay ?? MAX_GROUP;
+    const ceiling = isStay(tour)
+      ? (tour.maxGuests ?? MAX_GROUP)
+      : (tour.capacityPerDay ?? MAX_GROUP);
     const safe = Math.min(Math.max(1, count || 1), ceiling);
     setTravelers(safe);
-    setParticipants((prev) => resizeParticipants(prev, safe));
+    // A tour needs the name of everyone boarding — the manifest, the insurance
+    // and the park entry are per person. A house does not: whoever rents it
+    // answers for the stay, and the host takes the guests' details at check-in,
+    // which is when the law asks for them. Demanding six full names before a
+    // booking is friction that buys nothing.
+    setParticipants((prev) => resizeParticipants(prev, isStay(tour) ? 1 : safe));
   }
   const [legalChecked, setLegalChecked] = useState(false);
   const legalAccepted = useLegalAccepted();
   const acceptLegal = useAcceptLegal();
   const legalOk = legalAccepted || legalChecked;
 
+  const stay = isStay(tour);
+  const nights = stay ? nightsBetween(travelDate, checkOut) : 0;
   const unitPrice = tour.priceFrom ?? 0;
-  const totals = bookingTotals(unitPrice, travelers);
+  // A house is counted in nights and a tour in people. Multiplying a rental by
+  // the number of guests would bill a family several times over.
+  const totals = bookingTotals(unitPrice, stay ? nights : travelers);
+  const stayError = stay ? stayProblem(tour, travelDate, checkOut, travelers) : null;
 
   const cancellationPolicy = tour.cancellationPolicy ?? "moderada";
   const availability = availabilityFor(tour, bookings, travelDate);
@@ -88,7 +103,9 @@ export function BookTourButton({ business, tour }: { business: Business; tour: T
    * the message rather than a boolean keeps the button and the explanation from
    * ever disagreeing.
    */
-  const blocked: TranslationKey | null = soldOut
+  const blocked: TranslationKey | null = stayError
+    ? null // Shown in full, with the number of nights or of beds.
+    : soldOut
     ? "booking.blockedSoldOut"
     : exceedsCapacity
       ? "booking.blockedCapacity"
@@ -100,11 +117,13 @@ export function BookTourButton({ business, tour }: { business: Business; tour: T
             ? "booking.blockedLegal"
             : null;
 
-  const canSubmit = !soldOut && !exceedsCapacity && !dateInPast && !peopleError && legalOk;
+  const canSubmit =
+    !soldOut && !exceedsCapacity && !dateInPast && !peopleError && !stayError && legalOk;
 
   function confirmBooking(e: React.FormEvent) {
     e.preventDefault();
     if (soldOut || exceedsCapacity || !legalOk || peopleError || dateInPast) return;
+    if (stayError) return;
     if (!legalAccepted) acceptLegal();
     const booking = {
       id: newId(),
@@ -113,6 +132,7 @@ export function BookTourButton({ business, tour }: { business: Business; tour: T
       tourId: tour.id,
       tourTitle: tour.title,
       travelDate,
+      ...(stay ? { checkOut, nights, pricingUnit: "diaria" as const } : {}),
       travelers,
       participants,
       unitPrice,
@@ -168,27 +188,55 @@ export function BookTourButton({ business, tour }: { business: Business; tour: T
     <form className="booking-form" onSubmit={confirmBooking}>
       <div className="form-row">
         <label>
-          {t("booking.date")}
+          {stay ? "Entrada" : t("booking.date")}
           <input
             type="date"
             value={travelDate}
             min={today}
-            onChange={(e) => setTravelDate(e.target.value)}
+            onChange={(e) => {
+              setTravelDate(e.target.value);
+              // Check-out follows check-in when it would otherwise be left in
+              // the past — the commonest way to end up with a stay of −3 nights.
+              if (stay && e.target.value >= checkOut) setCheckOut(nextDay(e.target.value));
+            }}
             required
           />
         </label>
+
+        {stay && (
+          <label>
+            Saída
+            <input
+              type="date"
+              value={checkOut}
+              min={nextDay(travelDate)}
+              onChange={(e) => setCheckOut(e.target.value)}
+              required
+            />
+          </label>
+        )}
+
         <label>
-          {t("booking.travelers")}
+          {stay ? "Hóspedes" : t("booking.travelers")}
           <input
             type="number"
             min={1}
-            max={tour.capacityPerDay ?? MAX_GROUP}
+            max={stay ? (tour.maxGuests ?? MAX_GROUP) : (tour.capacityPerDay ?? MAX_GROUP)}
             value={travelers}
             onChange={(e) => changeTravelers(Number(e.target.value))}
             required
           />
         </label>
       </div>
+
+      {stay && nights > 0 && (
+        <div className="availability-note">
+          {nights} {nights === 1 ? "noite" : "noites"} · R$ {formatBRL(unitPrice)} por
+          noite
+        </div>
+      )}
+
+      {stayError && <div className="availability-note availability-none">{stayError}</div>}
 
       {availability.tracked && (
         <div className={`availability-note ${soldOut ? "availability-none" : ""}`}>
@@ -227,7 +275,7 @@ export function BookTourButton({ business, tour }: { business: Business; tour: T
         </div>
       )}
 
-      <ParticipantFields participants={participants} onChange={setParticipants} />
+      <ParticipantFields participants={participants} onChange={setParticipants} stay={stay} />
 
       {peopleError && (
         <div className="availability-none">
@@ -237,7 +285,10 @@ export function BookTourButton({ business, tour }: { business: Business; tour: T
 
       <div className="booking-breakdown">
         <div>
-          {t("booking.tourPrice")} <strong>R$ {formatBRL(totals.subtotal)}</strong>
+          {stay
+            ? `${nights} ${nights === 1 ? "noite" : "noites"}`
+            : t("booking.tourPrice")}{" "}
+          <strong>R$ {formatBRL(totals.subtotal)}</strong>
         </div>
         <div className="muted">
           {t("booking.serviceFee", {

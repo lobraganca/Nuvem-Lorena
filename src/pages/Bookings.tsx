@@ -103,8 +103,23 @@ export function Bookings() {
           </span>
         </div>
         <div className="muted">
-          {b.businessName} · {new Date(b.travelDate).toLocaleDateString("pt-BR")} ·{" "}
-          {b.travelers} {b.travelers === 1 ? "pessoa" : "pessoas"}
+          {b.businessName} ·{" "}
+          {b.checkOut ? (
+            // A stay is two dates and a number of nights. Showing only the
+            // check-in, as this did, hides the half of the booking that says
+            // when the person has to leave.
+            <>
+              {new Date(b.travelDate).toLocaleDateString("pt-BR")} a{" "}
+              {new Date(b.checkOut).toLocaleDateString("pt-BR")} · {b.nights}{" "}
+              {b.nights === 1 ? "noite" : "noites"} · {b.travelers}{" "}
+              {b.travelers === 1 ? "hóspede" : "hóspedes"}
+            </>
+          ) : (
+            <>
+              {new Date(b.travelDate).toLocaleDateString("pt-BR")} · {b.travelers}{" "}
+              {b.travelers === 1 ? "pessoa" : "pessoas"}
+            </>
+          )}
         </div>
         <div className="booking-breakdown">
           <div>

@@ -83,6 +83,7 @@ function parseType(raw: string): BusinessType | undefined {
   if (value.startsWith("agen")) return "Agência";
   if (value.startsWith("guia")) return "Guia";
   if (value.startsWith("experi")) return "Experiência";
+  if (value.startsWith("tempor") || value.startsWith("alug")) return "Temporada";
   if (value.startsWith("restaur")) return "Restaurante";
   if (value.startsWith("hot") || value.startsWith("pous")) return "Hotel";
   return undefined;

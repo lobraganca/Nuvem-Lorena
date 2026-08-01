@@ -5,6 +5,7 @@ import { effectiveStatus, minutesLeftToPay } from "../lib/bookingStatus";
 import { PAYMENTS_ENABLED, createCheckout } from "../lib/payments/mercadopago";
 import type { PaymentMethod } from "../types";
 import { formatBRL } from "../lib/money";
+import { PixPanel } from "../components/PixPanel";
 import { localeFor, useI18n } from "../i18n";
 
 const methodLabel: Record<PaymentMethod, string> = {
@@ -122,6 +123,12 @@ export function Payment() {
               ))}
             </div>
           </fieldset>
+
+          {/* O Pix tem tela própria: código, contagem e a espera pela
+              confirmação. O cartão sai daqui para o provedor. */}
+          {method === "pix" && (
+            <PixPanel booking={booking} onPaid={() => payBooking(booking.id, "pix")} />
+          )}
 
           {error && <p className="form-error">{error}</p>}
 

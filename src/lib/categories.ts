@@ -44,6 +44,7 @@ export const businessTypes: BusinessType[] = [
   "Agência",
   "Guia",
   "Experiência",
+  "Temporada",
   "Restaurante",
   "Hotel",
 ];
@@ -81,6 +82,7 @@ export const businessTypeColor: Record<BusinessType, string> = {
   /* A fifth earth tone, deeper than the guide's olive so the two do not read
      as the same card at a glance. */
   Experiência: "#3f5546",
+  Temporada: "#6b5a3e",
   Restaurante: "#7a3a2b",
   Hotel: "#5a4a3a",
 };

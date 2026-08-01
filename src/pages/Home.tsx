@@ -12,7 +12,7 @@ import type { Business, BusinessType, Tour } from "../types";
 
 type Filter = "Tudo" | BusinessType;
 
-const FILTERS: Filter[] = ["Tudo", "Agência", "Guia", "Experiência", "Hotel", "Restaurante"];
+const FILTERS: Filter[] = ["Tudo", "Agência", "Guia", "Experiência", "Temporada", "Hotel", "Restaurante"];
 
 /** The mark next to each filter, drawn inline so nothing is fetched for it. */
 const FILTER_ICON: Record<Filter, string> = {
@@ -20,6 +20,7 @@ const FILTER_ICON: Record<Filter, string> = {
   Agência: "M3 18l7-13 4 7 3-4 4 10z",
   Guia: "M9 3 3 5.5v16L9 19l6 2.5 6-2.5v-16L15 5.5 9 3z",
   Experiência: "M12 3.5l2.6 5.4 5.9.8-4.3 4.1 1 5.9-5.2-2.8-5.2 2.8 1-5.9L3.5 9.7l5.9-.8z",
+  Temporada: "M4 20V10l8-6 8 6v10h-5v-5H9v5zM9 13h2m2 0h2",
   Hotel: "M4 20V9l8-5 8 5v11h-6v-6h-4v6z",
   Restaurante: "M7 3v8a2 2 0 0 0 2 2v8M7 3v5m3-5v5M17 3c-1.5 2-2 4-2 7h2v11",
 };
