@@ -2,7 +2,7 @@ import { Link, useParams } from "react-router-dom";
 import { useAvena } from "../store/AvenaContext";
 import { BackLink } from "../components/BackLink";
 import { BookTourButton } from "../components/BookTourButton";
-import { WishButton } from "../components/WishButton";
+import { TourActions } from "../components/TourActions";
 import { ReputationBadge } from "../components/ReputationBadge";
 import { PresenceDot } from "../components/PresenceDot";
 import { MeetingPoint } from "../components/MeetingPoint";
@@ -69,10 +69,11 @@ export function TourDetail() {
         ) : (
           <div className="tour-hero-empty" aria-hidden="true" />
         )}
-        <div className="tour-hero-wish">
-          <WishButton business={business} tour={tour} />
-        </div>
       </div>
+
+      {/* Guardar, mandar para quem vai junto, perguntar. Em linha e visíveis:
+          são os três gestos que vêm antes de decidir. */}
+      <TourActions business={business} tour={tour} />
 
       <h1 className="tour-title">{tour.title}</h1>
 
