@@ -4829,3 +4829,72 @@ textarea:focus-visible,
 .tour-others .card-rail {
   margin-top: 4px;
 }
+
+/* ---- Anúncios ---- */
+
+.ad-products {
+  display: grid;
+  gap: 10px;
+}
+
+.ad-product {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 14px;
+  border-radius: 14px;
+  border: 1px solid var(--border);
+  background: var(--card-bg);
+  text-align: left;
+  font: inherit;
+  color: inherit;
+  cursor: pointer;
+}
+
+.ad-product-on {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 1px var(--accent);
+}
+
+.ad-product-price {
+  font-weight: 600;
+  color: var(--text-h);
+  font-variant-numeric: tabular-nums;
+}
+
+.ad-total,
+.ad-summary {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 14px 16px;
+  border-radius: 14px;
+  background: var(--bg-alt);
+}
+
+.ad-total strong {
+  font-size: 22px;
+  font-variant-numeric: tabular-nums;
+}
+
+.ads-page {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+/* O bloco patrocinado da busca. A etiqueta vem antes dos cartões e não dentro
+   deles: quem passa os olhos lê o rótulo uma vez e entende o bloco inteiro. */
+.sponsored-block {
+  margin: 8px 0 18px;
+}
+
+.sponsored-label {
+  margin: 0 0 6px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--text);
+}

@@ -283,17 +283,31 @@ export interface MercadoPagoLink {
   accountLabel?: string;
 }
 
-/** A paid promotion that lifts a tour onto the traveler's first screen. */
+/**
+ * A paid promotion: the one thing a business pays Avena for.
+ *
+ * See `lib/ads.ts` for what is being bought and what it costs.
+ */
 export interface Boost {
   id: string;
   businessId: string;
   businessName: string;
   tourId: string;
   tourTitle: string;
+  /** Where it shows. Absent on the ones created before there were placements. */
+  placement?: "cidade" | "inicio";
+  /** The city the ad was bought for, copied so it survives the business moving. */
+  city?: string;
   days: number;
   pricePaid: number;
   startsAt: string; // ISO datetime
   endsAt: string; // ISO datetime
+  /**
+   * When the ad was paid for. Until it is set the ad exists but does not show
+   * — contracting is not the same as paying, and only one of them buys a place
+   * ahead of everyone who did not pay.
+   */
+  paidAt?: string; // ISO datetime
 }
 
 export type DocumentType = "CPF" | "RG" | "Passaporte";

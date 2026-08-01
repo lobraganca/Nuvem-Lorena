@@ -1,6 +1,6 @@
 import { useNavigate } from "react-router-dom";
 import { useAvena } from "../store/AvenaContext";
-import { activeBoosts } from "../lib/boosts";
+import { adsFor } from "../lib/ads";
 import { businessTypeColor } from "../lib/categories";
 import { reviewStatsFor } from "../lib/reviews";
 import { ReputationBadge } from "./ReputationBadge";
@@ -18,7 +18,7 @@ export function PromotedTours({ compact = false }: { compact?: boolean }) {
   const { boosts, businesses, reviews } = useAvena();
   const navigate = useNavigate();
 
-  const promoted = activeBoosts(boosts)
+  const promoted = adsFor(boosts, "inicio")
     .map((boost) => {
       const business = businesses.find(
         (b) => b.id === boost.businessId && b.status !== "suspensa"

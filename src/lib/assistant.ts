@@ -1,7 +1,6 @@
-import { DEFAULT_PLAN } from "./plans";
 import { serviceFeePercent } from "./pricing";
 import { cancellationPolicyDescription, cancellationPolicyLabel } from "./cancellation";
-import { BOOST_PACKAGES, boostDailyPrice } from "./boosts";
+import { AD_PACKAGES, AD_PRODUCTS } from "./ads";
 import { cancellationPolicies } from "./cancellation";
 
 /**
@@ -96,11 +95,13 @@ export const intents: Intent[] = [
     priority: 2,
     keywords: ["turbin", "anunci", "destaqu", "patrocin", "divulg", "impulsion"],
     answer: () =>
-      "Se você tem conta profissional, pode destacar um passeio na primeira tela dos viajantes.\n\nNo painel, clique em “Turbinar anúncio”, escolha " +
-      BOOST_PACKAGES.join(", ") +
-      ` dias e confirme. Custa R$ ${brl(boostDailyPrice(DEFAULT_PLAN))} por ` +
-      "dia.\n\nAnúncios em destaque aparecem sempre marcados como " +
-      "“Patrocinado”.",
+      "Cadastrar é gratuito. O que se paga é posição: aparecer antes de " +
+      "quem não pagou.\n\nNo painel, em Anúncios, escolha o passeio e onde " +
+      "ele aparece:\n\n" +
+      AD_PRODUCTS.map((p) => `• ${p.label} — R$ ${brl(p.dailyPrice)} por dia. ${p.who}`).join("\n") +
+      `\n\nPeríodos: ${AD_PACKAGES.join(", ")} dias.\n\nTodo anúncio aparece ` +
+      "marcado como “Patrocinado”, e há um limite de quantos cabem por tela — " +
+      "uma lista só de anúncios não vale para ninguém.",
   },
   {
     id: "experiencia",

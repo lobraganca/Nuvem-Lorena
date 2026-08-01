@@ -1,7 +1,7 @@
 import { cadasturRequired } from "./categories";
 import type { Booking, Boost, Business, PlanTier, Review } from "../types";
 import { plans } from "./plans";
-import { activeBoosts, boostRevenue } from "./boosts";
+import { adRevenue, liveAds } from "./ads";
 import { reviewStatsFor } from "./reviews";
 
 export interface PlanBreakdown {
@@ -57,7 +57,7 @@ export function computeAdminMetrics(
   const refundedTotal =
     Math.round(cancelled.reduce((s, b) => s + (b.refundAmount ?? 0), 0) * 100) / 100;
 
-  const adsTotal = boostRevenue(boosts);
+  const adsTotal = adRevenue(boosts);
 
   const ratingSum = reviews.reduce((s, r) => s + r.rating, 0);
 
@@ -79,7 +79,7 @@ export function computeAdminMetrics(
     gmv,
     refundedTotal,
     effectiveRate: gmv > 0 ? Math.round((commissionTotal / gmv) * 1000) / 10 : 0,
-    activeBoostsCount: activeBoosts(boosts).length,
+    activeBoostsCount: liveAds(boosts).length,
     reviewsTotal: reviews.length,
     avgRatingPlatform: reviews.length
       ? Math.round((ratingSum / reviews.length) * 10) / 10
@@ -124,7 +124,7 @@ export function buildBusinessRows(
         gmv: Math.round(own.reduce((s, b) => s + b.totalPrice, 0) * 100) / 100,
         commission:
           Math.round(own.reduce((s, b) => s + b.serviceFee, 0) * 100) / 100,
-        adSpend: boostRevenue(boosts.filter((b) => b.businessId === business.id)),
+        adSpend: adRevenue(boosts.filter((b) => b.businessId === business.id)),
         avgRating: stats.avgRating,
         reviewCount: stats.count,
         flags,

@@ -11,6 +11,8 @@ import { cityFromTerm, businessMatches, resolveCity, suggestionsFor } from "../l
 import type { AccessibilityTag, BusinessType } from "../types";
 import { useT } from "../i18n";
 import { BackLink } from "../components/BackLink";
+import { TourCard } from "../components/TourCard";
+import { adsFor } from "../lib/ads";
 import { accessibilityKey, businessTypePluralKey, categoryKey } from "../i18n/domain";
 
 type Tab = "Todos" | BusinessType;
@@ -18,7 +20,7 @@ type Tab = "Todos" | BusinessType;
 const TABS: Tab[] = ["Todos", "Agência", "Guia", "Experiência", "Temporada", "Hotel", "Restaurante"];
 
 export function Destination() {
-  const { businesses, experiences, reviews } = useAvena();
+  const { businesses, experiences, reviews, boosts } = useAvena();
   const t = useT();
   const [searchParams] = useSearchParams();
   const [query, setQuery] = useState(searchParams.get("city") ?? "");
@@ -75,6 +77,22 @@ export function Destination() {
 
   const searchedCity = resolveCity(cities, term);
   const suggestions = term && matches.length === 0 ? suggestionsFor(brBusinesses, term) : [];
+
+  /**
+   * Os anúncios da cidade procurada. Só quando há cidade: um patrocinado no
+   * topo de uma busca por nome de agência é anúncio no lugar errado, e o
+   * anunciante pagou por quem está escolhendo destino.
+   */
+  const sponsored = (cidadeBuscada ? adsFor(boosts, "cidade") : [])
+    .filter((ad) => ad.city === cidadeBuscada)
+    .map((ad) => {
+      const business = brBusinesses.find(
+        (b) => b.id === ad.businessId && b.status !== "suspensa"
+      );
+      const tour = business?.tours?.find((x) => x.id === ad.tourId);
+      return business && tour ? { ad, business, tour } : null;
+    })
+    .filter((x): x is NonNullable<typeof x> => x !== null);
 
   const itinerary = searchedCity ? buildItinerary(searchedCity, brExperiences) : null;
 
@@ -171,6 +189,21 @@ export function Destination() {
                 </>
               )}
               <p className="muted">{t("destination.searchHint")}</p>
+            </div>
+          )}
+
+          {/* Patrocinados da cidade buscada, antes da lista e separados dela.
+              Rotulados porque a lei exige (CDC art. 36) e porque uma lista em
+              que não se sabe o que é anúncio deixa de valer para os dois
+              lados. */}
+          {sponsored.length > 0 && (
+            <div className="sponsored-block">
+              <p className="sponsored-label">Patrocinado</p>
+              <div className="card-rail">
+                {sponsored.map(({ ad, business, tour }) => (
+                  <TourCard key={ad.id} business={business} tour={tour} />
+                ))}
+              </div>
             </div>
           )}
 

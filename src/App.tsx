@@ -34,6 +34,7 @@ import { Feed } from "./pages/Feed";
 import { Wishlist } from "./pages/Wishlist";
 import { TravelerProfile } from "./pages/TravelerProfile";
 import { GetApp } from "./pages/GetApp";
+import { Ads } from "./pages/Ads";
 import { SignIn } from "./pages/SignIn";
 import { FirstMemory } from "./pages/FirstMemory";
 import { NotFound } from "./pages/NotFound";
@@ -156,6 +157,7 @@ function AppShell() {
           <Route path="/feed" element={<Feed />} />
           <Route path="/desejos" element={<Wishlist />} />
           <Route path="/traveler/:id" element={<TravelerProfile />} />
+          <Route path="/anuncios" element={<Ads />} />
           <Route path="/app" element={<GetApp />} />
           {Admin && (
             <Route

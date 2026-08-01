@@ -8,7 +8,7 @@ import {
   cancellationPolicyLabel,
 } from "../lib/cancellation";
 import { availabilityFor } from "../lib/availability";
-import { activeBoostForTour, boostRevenue } from "../lib/boosts";
+import { adRevenue } from "../lib/ads";
 import { bookingStatusLabel, effectiveStatus } from "../lib/bookingStatus";
 import { tourTemplates, type TourTemplate } from "../lib/tourTemplates";
 import { ImportTours } from "../components/ImportTours";
@@ -19,6 +19,7 @@ import { EditTour } from "../components/EditTour";
 import type { AccessibilityTag, CancellationPolicy, Difficulty, Tour } from "../types";
 import { formatBRL } from "../lib/money";
 import { MeetingPointEditor } from "../components/MeetingPointEditor";
+import { SettingsRow, rowIcon } from "../components/SettingsRow";
 import { newId } from "../lib/ids";
 
 const today = new Date().toISOString().slice(0, 10);
@@ -87,7 +88,7 @@ export function ProfessionalDashboard() {
     .filter((b) => b.status === "confirmada")
     .reduce((sum, b) => sum + b.businessPayout, 0);
   const currentPlan = plans.find((p) => p.tier === business.planTier);
-  const boostSpend = boostRevenue(boosts.filter((b) => b.businessId === business.id));
+  const boostSpend = adRevenue(boosts.filter((b) => b.businessId === business.id));
 
   function handleAddTour(e: React.FormEvent) {
     e.preventDefault();
@@ -169,6 +170,10 @@ export function ProfessionalDashboard() {
         </div>
       )}
 
+      <div className="settings-group-rows">
+        <SettingsRow to="/anuncios" icon={rowIcon.star} label="Anúncios" />
+      </div>
+
       <MeetingPointEditor business={business} />
 
       <h2 className="timeline-title">Meus passeios</h2>
@@ -203,11 +208,7 @@ export function ProfessionalDashboard() {
                   ? `Vagas hoje: ${availability.remaining}/${availability.capacity}`
                   : "Vagas ilimitadas"}
               </div>
-              <BoostTourButton
-                business={business}
-                tour={t}
-                activeBoost={activeBoostForTour(boosts, t.id)}
-              />
+              <BoostTourButton tour={t} />
               <EditTour businessId={business.id} tour={t} />
             </div>
           );
