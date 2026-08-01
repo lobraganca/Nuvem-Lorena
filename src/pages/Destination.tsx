@@ -113,15 +113,26 @@ export function Destination() {
    * aparece — mostrar e só contar o não lá dentro é o que fazia perder tempo.
    */
   function temVaga(b: Business): boolean {
-    if (!quando) return true;
+    if (!quando && quantos <= 1) return true;
     return (b.tours ?? []).some((tour) => {
+      // O tamanho do grupo vale sempre, com data ou sem. Antes ele só era
+      // conferido quando havia data escolhida, então pedir lugar para
+      // quarenta pessoas devolvia a lista inteira — e a pessoa descobria o
+      // "não cabe" uma página adiante, uma empresa de cada vez.
+      if (isStay(tour) && tour.maxGuests !== undefined && tour.maxGuests < quantos)
+        return false;
+      if (!isStay(tour) && tour.groupSize !== undefined && tour.groupSize < quantos)
+        return false;
+      if (tour.capacityPerDay !== undefined && tour.capacityPerDay < quantos)
+        return false;
+
+      if (!quando) return true;
+
       const vendidas = bookings
         .filter((x) => x.tourId === tour.id && x.travelDate === quando && holdsSeat(x))
         .reduce((sum, x) => sum + x.travelers, 0);
       if (!isBookable(dayState(tour, quando, vendidas, hoje))) return false;
       if (tour.capacityPerDay !== undefined && tour.capacityPerDay - vendidas < quantos)
-        return false;
-      if (isStay(tour) && tour.maxGuests !== undefined && tour.maxGuests < quantos)
         return false;
       return true;
     });
@@ -260,8 +271,62 @@ export function Destination() {
 
           {comVaga.length === 0 && (
             <div className="empty-search">
-              <p>{t("destination.noResults", { query })}</p>
-              {suggestions.length > 0 && (
+              {/* Três vazios diferentes, e dizer o errado é pior que não dizer
+                  nada: "ainda não temos parceiros aqui" para uma cidade que
+                  tem parceiros — só não naquele dia — manda a pessoa embora de
+                  um lugar onde ela seria atendida na semana seguinte. */}
+              {matches.length > 0 ? (
+                <>
+                  <p>
+                    <strong>
+                      {matches.length === 1
+                        ? "A empresa daqui não tem lugar"
+                        : `As ${matches.length} empresas daqui não têm lugar`}{" "}
+                      {quando
+                        ? `em ${new Date(quando + "T12:00:00").toLocaleDateString("pt-BR")}`
+                        : `para ${quantos} ${quantos === 1 ? "pessoa" : "pessoas"}`}
+                      .
+                    </strong>
+                  </p>
+                  <p className="muted">
+                    Existe gente cadastrada em {cidadeBuscada ?? query} — é a data
+                    ou o tamanho do grupo que não fecha. Tente outro dia.
+                  </p>
+                  <div className="chip-row">
+                    {quando && (
+                      <button type="button" className="chip" onClick={() => setQuando("")}>
+                        Ver todas as datas
+                      </button>
+                    )}
+                    {quantos > 1 && (
+                      <button type="button" className="chip" onClick={() => setQuantos(1)}>
+                        Ver para uma pessoa
+                      </button>
+                    )}
+                    {tetoPreco && (
+                      <button type="button" className="chip" onClick={() => setTetoPreco("")}>
+                        Tirar o limite de preço
+                      </button>
+                    )}
+                  </div>
+                </>
+              ) : (
+                <>
+                  <p>
+                    <strong>Que pena — ainda não temos ninguém em {query}.</strong>
+                  </p>
+                  <p className="muted">
+                    O Avena está começando, e cada cidade entra quando uma
+                    agência, um guia ou um anfitrião de lá se cadastra. Se você
+                    conhece alguém que recebe bem em {query}, o convite é o que
+                    faz esta busca deixar de ser vazia.
+                  </p>
+                  <Link to="/business" className="btn-outline">
+                    Como cadastrar uma empresa
+                  </Link>
+                </>
+              )}
+              {matches.length === 0 && suggestions.length > 0 && (
                 <>
                   <p className="muted">{t("destination.didYouMean")}</p>
                   <div className="chip-row">
@@ -278,7 +343,9 @@ export function Destination() {
                   </div>
                 </>
               )}
-              <p className="muted">{t("destination.searchHint")}</p>
+              {matches.length === 0 && (
+                <p className="muted">{t("destination.searchHint")}</p>
+              )}
             </div>
           )}
 
