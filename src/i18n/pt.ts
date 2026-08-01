@@ -132,8 +132,7 @@ export const pt = {
   "welcome.professionalItem3": "Painel de reservas recebidas e ganhos",
 
   "destination.title": "Passeios, hotéis e restaurantes pelo Brasil",
-  "destination.subtitle":
-    "Busque por cidade, nome da agência ou do passeio e reserve com quem já foi avaliado pela comunidade.",
+  "destination.subtitle": "Por cidade, agência ou passeio.",
   "destination.placeholder": "Destino, agência ou passeio",
   "destination.searchLabel": "Buscar destino, agência ou passeio",
   "destination.all": "Todos",
@@ -162,7 +161,7 @@ export const pt = {
     "Esta empresa está suspensa e não está recebendo novas reservas.",
   "business.verified": "Verificada pelo Avena — documentação conferida",
   "business.cadastur": "Cadastur {number}",
-  "business.cadasturUnverified": "Número informado pela empresa. A Avena ainda não confere junto ao Ministério do Turismo — confirme no site do Cadastur antes de fechar.",
+  "business.cadasturUnverified": "Informado pela empresa, ainda não conferido pelo Avena.",
   "business.cadasturFormat": "O Cadastur tem o formato 26.123456.10-4.",
   "business.recommends": "Recomenda",
   "business.doesNotRecommend": "Não recomenda",
@@ -235,7 +234,7 @@ export const pt = {
   "booking.total": "Valor total",
   "booking.tourPrice": "Passeio",
   "booking.serviceFee": "Taxa de serviço Avena ({pct}%): R$ {amount}",
-  "booking.feeExplain": "A taxa mantém o Avena no ar: o cadastro dos parceiros, o registro da sua reserva e o canal de ajuda. A empresa recebe o preço cheio que anunciou.",
+  "booking.feeExplain": "A taxa mantém o Avena no ar. A empresa recebe o preço cheio.",
   "booking.businessReceives": "{name} recebe: R$ {amount}",
   "booking.businessReceived": "{name} recebeu: R$ {amount}",
   "booking.holdNotice":
@@ -251,7 +250,7 @@ export const pt = {
   "booking.waitlistJoined":
     "Você está na lista de espera desta data. Avisamos se abrir vaga.",
   "booking.participants": "Quem vai participar",
-  "booking.participantsNamesOnly": "O nome de cada pessoa, como está no documento. O documento em si a agência confere no embarque — o Avena não guarda CPF de ninguém.",
+  "booking.participantsNamesOnly": "Nome de cada pessoa, como no documento.",
   "booking.participantsWhy":
     "A agência precisa do nome e documento de cada pessoa para lista de embarque, entrada em parques e seguro.",
 
@@ -546,7 +545,7 @@ export const pt = {
   "collection.museums": "Museus",
   "collection.animals": "Animais observados",
   "profile.whatYouPay": "Quanto você paga",
-  "profile.whatYouPayText": "Nada. Não há mensalidade no Avena para quem viaja. Quando você reserva um passeio pelo app, uma taxa de serviço de {pct}% é somada ao valor — e só nesse momento.",
+  "profile.whatYouPayText": "Sem mensalidade. Você paga {pct}% de taxa só quando reserva.",
   "profile.collections": "Coleções",
 
   "messages.unread": "Não lida",
@@ -713,8 +712,7 @@ export const pt = {
 
   // --- banners --------------------------------------------------------------
   "banner.responsibleTitle": "O Avena é a favor do turismo responsável",
-  "banner.responsibleText":
-    "Respeite a natureza, a cultura e as comunidades que recebem você. Prefira guias registrados no Cadastur, não alimente nem toque em animais silvestres e leve seu lixo de volta.",
+  "banner.responsibleText": "Respeite a natureza e quem recebe você. Prefira guias do Cadastur.",
   "banner.learnMore": "Saiba mais",
   "banner.advertisement": "Publicidade",
 

@@ -152,14 +152,13 @@ export function ProfessionalTours() {
                   anúncio sem foto ocupa lugar na busca e não converte. */}
               {(t.photos?.length ?? 0) === 0 ? (
                 <div className="availability-note availability-none">
-                  Sem foto. Este passeio aparece como um retângulo vazio na
-                  busca — quase ninguém toca. Adicione ao menos uma.
+                  Sem foto — quase ninguém toca. Adicione ao menos uma.
                 </div>
               ) : (
                 (t.photos?.length ?? 0) < 3 && (
                   <div className="availability-note">
-                    {t.photos?.length === 1 ? "Uma foto" : "Duas fotos"}. Três ou
-                    mais é o que costuma dar à pessoa confiança para reservar.
+                    {t.photos?.length === 1 ? "Uma foto" : "Duas fotos"}. Três
+                    convencem mais.
                   </div>
                 )
               )}
@@ -183,8 +182,7 @@ export function ProfessionalTours() {
               </button>
               {t.paused && (
                 <div className="availability-note">
-                  Pausado: não aparece na busca. As reservas já feitas continuam
-                  valendo.
+                  Pausado — fora da busca. As reservas feitas valem.
                 </div>
               )}
               <BoostTourButton tour={t} />

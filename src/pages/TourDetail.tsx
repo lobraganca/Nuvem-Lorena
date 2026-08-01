@@ -208,10 +208,7 @@ export function TourDetail() {
           O que disse quem foi ({desteTour.length})
         </h2>
         {desteTour.length === 0 ? (
-          <p className="muted">
-            Ainda não há avaliações deste passeio. Só avalia quem foi, então as
-            primeiras aparecem depois das primeiras saídas.
-          </p>
+          <p className="muted">Sem avaliações ainda — só avalia quem foi.</p>
         ) : (
           <div className="timeline">
             {desteTour.slice(0, 5).map((r) => (

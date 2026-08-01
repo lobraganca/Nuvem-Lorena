@@ -95,8 +95,7 @@ export function ProfessionalDashboard() {
           )}
           {semFoto > 0 && (
             <>
-              {semFoto === 1 ? "Um passeio está" : `${semFoto} passeios estão`} sem
-              foto, e quase ninguém toca neles.
+              {semFoto === 1 ? "Um passeio" : `${semFoto} passeios`} sem foto.
             </>
           )}{" "}
           <Link to="/professional/passeios">Resolver</Link>
@@ -152,8 +151,7 @@ export function ProfessionalDashboard() {
 
       <div className="settings-group-rows">
         <div className="settings-note">
-          Você recebe o preço cheio que anunciou. A taxa de serviço do Avena é
-          paga pelo viajante, por cima do valor.
+          Você recebe o preço cheio. A taxa é paga pelo viajante, por cima.
         </div>
       </div>
     </div>

@@ -127,8 +127,7 @@ export const en: Record<keyof typeof pt, string> = {
   "welcome.professionalItem3": "Dashboard of bookings and earnings",
 
   "destination.title": "Tours, hotels and restaurants across Brazil",
-  "destination.subtitle":
-    "Search by city, agency or tour name and book with providers the community has reviewed.",
+  "destination.subtitle": "By city, agency or tour.",
   "destination.placeholder": "Destination, agency or tour",
   "destination.searchLabel": "Search destination, agency or tour",
   "destination.all": "All",
@@ -155,8 +154,7 @@ export const en: Record<keyof typeof pt, string> = {
   "business.suspended": "This business is suspended and is not taking new bookings.",
   "business.verified": "Verified by Avena — documents checked",
   "business.cadastur": "Cadastur {number}",
-  "business.cadasturUnverified":
-    "Number provided by the business. Avena does not yet check it against the Ministry of Tourism — confirm it on the Cadastur site before you commit.",
+  "business.cadasturUnverified": "Given by the business, not yet checked by Avena.",
   "business.cadasturFormat": "A Cadastur number looks like 26.123456.10-4.",
   "business.recommends": "Recommends",
   "business.doesNotRecommend": "Does not recommend",
@@ -228,7 +226,7 @@ export const en: Record<keyof typeof pt, string> = {
   "booking.total": "Total",
   "booking.tourPrice": "Tour",
   "booking.serviceFee": "Avena service fee ({pct}%): R$ {amount}",
-  "booking.feeExplain": "The fee keeps Avena running: the partner register, the record of your booking and the help channel. The business receives the full price it advertised.",
+  "booking.feeExplain": "The fee keeps Avena running. The business gets the full price.",
   "booking.businessReceives": "{name} receives: R$ {amount}",
   "booking.businessReceived": "{name} received: R$ {amount}",
   "booking.holdNotice":
@@ -529,7 +527,7 @@ export const en: Record<keyof typeof pt, string> = {
   "collection.museums": "Museums",
   "collection.animals": "Animals spotted",
   "profile.whatYouPay": "What you pay",
-  "profile.whatYouPayText": "Nothing. There is no monthly fee on Avena for travellers. When you book a tour through the app, a {pct}% service fee is added to the price — and only then.",
+  "profile.whatYouPayText": "No subscription. You pay a {pct}% fee only when you book.",
   "profile.collections": "Collections",
 
   "messages.unread": "Unread",
@@ -713,8 +711,7 @@ export const en: Record<keyof typeof pt, string> = {
   "photos.readError": "This image could not be read.",
 
   "banner.responsibleTitle": "Avena stands for responsible tourism",
-  "banner.responsibleText":
-    "Respect the nature, the culture and the communities that welcome you. Choose registered guides, never feed or touch wild animals, and take your rubbish back with you.",
+  "banner.responsibleText": "Respect nature and the people who host you. Choose Cadastur guides.",
   "banner.learnMore": "Learn more",
   "banner.advertisement": "Advertisement",
 

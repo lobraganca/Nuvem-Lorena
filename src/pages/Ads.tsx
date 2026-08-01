@@ -93,8 +93,7 @@ export function Ads() {
       <BackLink />
       <h1>Anúncios</h1>
       <p className="muted">
-        Aparecer no Avena é gratuito. O anúncio compra <strong>posição</strong>:
-        seu passeio antes dos outros, sempre marcado como patrocinado.
+        O anúncio compra posição. Aparecer é gratuito.
       </p>
 
       {tours.length === 0 ? (
@@ -118,10 +117,9 @@ export function Ads() {
 
           {alreadyRunning && (
             <p className="availability-note">
-              Este passeio já está em destaque até{" "}
-              {new Date(alreadyRunning.endsAt).toLocaleDateString("pt-BR")}. Um novo
-              anúncio começa hoje e corre junto — o que costuma ser dinheiro
-              gasto duas vezes pelo mesmo lugar.
+              Já em destaque até{" "}
+              {new Date(alreadyRunning.endsAt).toLocaleDateString("pt-BR")}. Um
+              novo anúncio corre junto e paga duas vezes pelo mesmo lugar.
             </p>
           )}
 
@@ -175,10 +173,7 @@ export function Ads() {
           {done && <p className="availability-note">{done}</p>}
 
           {!PAYMENTS_ENABLED && (
-            <p className="muted">
-              Ambiente de demonstração: nenhuma cobrança é feita. Quando o
-              pagamento estiver ligado, o anúncio só entra no ar depois de pago.
-            </p>
+            <p className="muted">Demonstração: nada é cobrado.</p>
           )}
         </>
       )}
@@ -209,10 +204,7 @@ export function Ads() {
       {/* Sem uma promessa de resultado ao lado do valor gasto: o Avena não mede
           cliques nem visitas ainda, e um número inventado aqui seria a coisa
           mais cara desta tela. */}
-      <p className="muted">
-        Ainda não medimos quantas pessoas viram ou tocaram no anúncio. Quando
-        isso existir, aparece aqui — até lá, não invento número.
-      </p>
+      <p className="muted">Ainda não medimos visualizações.</p>
     </div>
   );
 }

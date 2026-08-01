@@ -98,11 +98,7 @@ export function BusinessDetail() {
           </p>
         ) : (
           <>
-            <p className="muted">
-              O telefone e o e-mail aparecem aqui assim que você reservar. Até
-              lá, fale com a empresa pelo próprio Avena — a resposta fica
-              guardada junto da sua reserva.
-            </p>
+            <p className="muted">Contato liberado depois da reserva.</p>
             <Link to={`/messages/${business.id}`} className="btn-outline">
               {t("business.sendMessage")}
             </Link>

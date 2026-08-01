@@ -4098,6 +4098,10 @@ textarea:focus-visible,
   position: absolute;
   inset: 0;
   background: linear-gradient(160deg, rgb(255 255 255 / 55%), rgb(255 255 255 / 12%));
+  /* Enfeite não recebe toque. Sem isto, esta camada cobria o coração e comia
+     o clique: em todo cartão sem foto — que hoje são todos — favoritar
+     simplesmente não funcionava, sem nenhum sinal de erro. */
+  pointer-events: none;
 }
 
 .listing-card-img {
@@ -4109,6 +4113,7 @@ textarea:focus-visible,
 
 .listing-card-heart {
   position: absolute;
+  z-index: 1;
   top: 10px;
   right: 10px;
   display: flex;
