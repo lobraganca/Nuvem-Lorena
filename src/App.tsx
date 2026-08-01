@@ -96,8 +96,25 @@ function FocoNaTroca() {
 
 function AppShell() {
   const { user } = useAvena();
-  const { signedIn, needsPhone, setVerifiedPhone, postponePhone } = useAuth();
+  const { signedIn, loadingSession, needsPhone, setVerifiedPhone, postponePhone } =
+    useAuth();
   const t = useT();
+
+  // Ler a sessão do servidor leva um instante. Sem esta espera, quem já estava
+  // dentro vê a tela de entrada piscar antes do app aparecer — e a impressão é
+  // a pior possível: a de ter sido desconectado.
+  if (loadingSession) {
+    return (
+      <div className="signin-page">
+        <div className="signin-card">
+          <h1 className="signin-wordmark">avena</h1>
+          <p className="signin-truth" role="status">
+            {t("auth.working")}
+          </p>
+        </div>
+      </div>
+    );
+  }
 
   // Nobody reaches the app without passing the door. Rendering the sign-in
   // screen in place of the whole shell — rather than redirecting — means there

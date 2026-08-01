@@ -1,4 +1,4 @@
-import { createContext, useCallback, useContext, useMemo, useState } from "react";
+import { createContext, useCallback, useContext, useEffect, useMemo, useState } from "react";
 import type { ReactNode } from "react";
 import {
   canHashPasswords,
@@ -8,6 +8,16 @@ import {
   verifyPassword,
   type Account,
 } from "../lib/auth";
+import { hasDatabase } from "../lib/supabase";
+import {
+  onRemoteAuthChange,
+  remoteResetPassword,
+  remoteSession,
+  remoteSetPhone,
+  remoteSignIn,
+  remoteSignOut,
+  remoteSignUp,
+} from "../lib/authRemote";
 import { readStored, removeStored, writeStored } from "../lib/safeStorage";
 
 const ACCOUNT_KEY = "avena-account";
@@ -21,7 +31,13 @@ export type AuthError =
   | "senha-errada"
   | "email-diferente"
   | "ja-existe"
-  | "sem-suporte";
+  | "sem-suporte"
+  // Só acontecem com banco: e-mail ou senha que não conferem (sem dizer qual,
+  // para a tela não virar uma lista de quem tem conta), e-mail ainda não
+  // confirmado, e o servidor fora de alcance.
+  | "credenciais"
+  | "confirme-email"
+  | "rede";
 
 interface AuthValue {
   account: Account | null;
@@ -39,6 +55,20 @@ interface AuthValue {
   continueAsGuest: () => void;
   /** False when the browser cannot hash a password, so accounts are impossible. */
   accountsPossible: boolean;
+  /** True quando a conta vive no servidor: vale em qualquer aparelho. */
+  onServer: boolean;
+  /** True enquanto a sessão guardada ainda está sendo lida do servidor. */
+  loadingSession: boolean;
+  /**
+   * A conta foi criada e falta confirmar o e-mail. Existe separado do erro
+   * porque não é falha: é o próximo passo, e a tela precisa dizer isso.
+   */
+  awaitingEmail: boolean;
+  /**
+   * Manda o e-mail de redefinição. Só existe com servidor — sem ele, ninguém
+   * pode mandar e-mail nenhum, e prometer isso seria mentira.
+   */
+  requestPasswordReset: ((email: string) => Promise<boolean>) | null;
   /** Erases the account and all data on this device. There is no undo. */
   resetDevice: () => void;
   /** True while the account still owes a confirmed phone number. */
@@ -74,10 +104,69 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     return stored === "conta" || stored === "visitante" ? stored : null;
   });
 
-  const accountsPossible = canHashPasswords();
+  const onServer = hasDatabase();
+  // Com servidor, a hora de criar a conta é do Supabase, e o navegador não
+  // precisa saber derivar chave nenhuma.
+  const accountsPossible = onServer || canHashPasswords();
+
+  const [loadingSession, setLoadingSession] = useState(onServer);
+  const [awaitingEmail, setAwaitingEmail] = useState(false);
+
+  /**
+   * Retoma a sessão guardada e acompanha as trocas.
+   *
+   * Sem isto, fechar a aba e voltar jogaria a pessoa na porta de entrada mesmo
+   * com a sessão válida — e o token, que se renova sozinho de tempos em
+   * tempos, passaria despercebido.
+   */
+  useEffect(() => {
+    if (!onServer) return;
+    let vivo = true;
+
+    remoteSession().then((conta) => {
+      if (!vivo) return;
+      if (conta) {
+        setAccount(conta);
+        setSession("conta");
+      }
+      setLoadingSession(false);
+    });
+
+    const cancelar = onRemoteAuthChange((conta) => {
+      if (!vivo) return;
+      setAccount(conta);
+      // Só derruba a sessão de quem estava com conta: quem entrou como
+      // visitante não tem sessão no servidor e não pode ser expulso por isso.
+      setSession((atual) => (conta ? "conta" : atual === "conta" ? null : atual));
+    });
+
+    return () => {
+      vivo = false;
+      cancelar();
+    };
+  }, [onServer]);
 
   const signUp = useCallback<AuthValue["signUp"]>(
     async ({ name, email, password }) => {
+      if (onServer) {
+        const { error, account: criada, needsEmail } = await remoteSignUp({
+          name,
+          email,
+          password,
+        });
+        if (error) return error === "senha-fraca" ? "sem-suporte" : error;
+        setAwaitingEmail(needsEmail);
+        // Com confirmação por e-mail ligada, a conta existe mas ainda não
+        // entra. Abrir o app aqui seria deixar passar quem não provou o
+        // endereço.
+        if (needsEmail) return null;
+        if (criada) {
+          setAccount(criada);
+          setSession("conta");
+        }
+        return null;
+      }
+
       if (!canHashPasswords()) return "sem-suporte";
       const normalized = normalizeEmail(email);
 
@@ -101,10 +190,23 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       setSession("conta");
       return null;
     },
-    []
+    [onServer]
   );
 
   const signIn = useCallback<AuthValue["signIn"]>(async ({ email, password }) => {
+    if (onServer) {
+      const { error, account: entrou } = await remoteSignIn({ email, password });
+      // "senha-fraca" só faz sentido ao criar conta; ao entrar, uma senha que
+      // não serve é simplesmente uma senha que não confere.
+      if (error) return error === "senha-fraca" ? "credenciais" : error;
+      if (entrou) {
+        setAccount(entrou);
+        setSession("conta");
+        setAwaitingEmail(false);
+      }
+      return null;
+    }
+
     const stored = loadAccount();
     if (!stored) return "sem-conta";
     if (stored.email !== normalizeEmail(email)) return "email-diferente";
@@ -115,14 +217,22 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setAccount(stored);
     setSession("conta");
     return null;
-  }, []);
+  }, [onServer]);
 
   const signOut = useCallback(() => {
     // Only the session ends. The account and the person's memories stay on the
     // device, so signing out is never a way to lose them by accident.
     removeStored(SESSION_KEY);
     setSession(null);
-  }, []);
+    if (onServer) void remoteSignOut();
+  }, [onServer]);
+
+  // Sem servidor não existe e-mail de redefinição, e a tela precisa saber
+  // disso para não oferecer um botão que não faz nada.
+  const requestPasswordReset = useMemo(
+    () => (onServer ? (email: string) => remoteResetPassword(email) : null),
+    [onServer]
+  );
 
   /**
    * The only honest way out of a forgotten password with no server: erase the
@@ -142,6 +252,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [phonePostponed, setPhonePostponed] = useState(false);
 
   const setVerifiedPhone = useCallback<AuthValue["setVerifiedPhone"]>((phone, level) => {
+    // Com servidor o número acompanha a conta, não o aparelho: quem confirmou
+    // no celular não é perguntado de novo ao entrar pelo computador.
+    if (onServer) void remoteSetPhone(phone, level);
     setAccount((current) => {
       if (!current) return current;
       const updated: Account = {
@@ -153,7 +266,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       writeStored(ACCOUNT_KEY, JSON.stringify(updated));
       return updated;
     });
-  }, []);
+  }, [onServer]);
 
   const postponePhone = useCallback(() => setPhonePostponed(true), []);
   const askForPhone = useCallback(() => setPhonePostponed(false), []);
@@ -173,6 +286,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       signOut,
       continueAsGuest,
       accountsPossible,
+      onServer,
+      loadingSession,
+      awaitingEmail,
+      requestPasswordReset,
       resetDevice,
       needsPhone:
         session === "conta" && account !== null && !account.phoneVerifiedAt && !phonePostponed,
@@ -188,6 +305,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       signOut,
       continueAsGuest,
       accountsPossible,
+      onServer,
+      loadingSession,
+      awaitingEmail,
+      requestPasswordReset,
       resetDevice,
       phonePostponed,
       setVerifiedPhone,

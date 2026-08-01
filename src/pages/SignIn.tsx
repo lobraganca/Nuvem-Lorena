@@ -13,6 +13,9 @@ const ERROR_KEY: Record<AuthError, TranslationKey> = {
   "email-diferente": "auth.errorOtherEmail",
   "ja-existe": "auth.errorAlreadyExists",
   "sem-suporte": "auth.errorNoCrypto",
+  credenciais: "auth.errorCredentials",
+  "confirme-email": "auth.errorConfirmEmail",
+  rede: "auth.errorNetwork",
 };
 
 type Step = "porta" | "entrar" | "criar";
@@ -25,9 +28,19 @@ type Step = "porta" | "entrar" | "criar";
  * is the fastest way to lose them. The fields come after the choice.
  */
 export function SignIn() {
-  const { account, signIn, signUp, continueAsGuest, accountsPossible, resetDevice } =
-    useAuth();
+  const {
+    account,
+    signIn,
+    signUp,
+    continueAsGuest,
+    accountsPossible,
+    resetDevice,
+    onServer,
+    awaitingEmail,
+    requestPasswordReset,
+  } = useAuth();
   const t = useT();
+  const [resetSent, setResetSent] = useState(false);
 
   const [step, setStep] = useState<Step>("porta");
   const [name, setName] = useState("");
@@ -139,7 +152,11 @@ export function SignIn() {
             {/* One line here; the full explanation waits until someone is
                 actually about to create an account. */}
             <p className="signin-truth">
-              {accountsPossible ? t("auth.localOnlyShort") : t("auth.errorNoCrypto")}
+              {!accountsPossible
+                ? t("auth.errorNoCrypto")
+                : onServer
+                  ? t("auth.serverAccount")
+                  : t("auth.localOnlyShort")}
             </p>
           </>
         ) : (
@@ -212,16 +229,61 @@ export function SignIn() {
               </button>
             </form>
 
+            {/* A conta foi criada e falta abrir o e-mail. Não é erro, é o
+                próximo passo — e sem dizer isso a pessoa fica olhando uma tela
+                que não mudou, achando que o cadastro não funcionou. */}
+            {awaitingEmail && (
+              <p className="signin-truth" role="status">
+                {t("auth.checkEmail", { email })}
+              </p>
+            )}
+
             {/* Being trusted with someone's memories means saying what this
                 account is, and is not, before they rely on it. */}
             <p className="signin-truth">
-              {creating ? t("auth.localOnly") : t("auth.noRecovery")}
+              {onServer
+                ? t(creating ? "auth.serverAccountLong" : "auth.serverAccount")
+                : creating
+                  ? t("auth.localOnly")
+                  : t("auth.noRecovery")}
             </p>
+
+            {/* Com servidor, esquecer a senha deixa de ser porta trancada: o
+                link chega por e-mail. A resposta é a mesma exista ou não a
+                conta, para a tela não virar uma lista de quem se cadastrou. */}
+            {!creating && requestPasswordReset && (
+              <>
+                <button
+                  type="button"
+                  className="signin-quiet"
+                  onClick={async () => {
+                    if (!isValidEmail(email)) {
+                      setError("email-invalido");
+                      return;
+                    }
+                    const ok = await requestPasswordReset(email);
+                    // Só afirma que o link foi enviado quando o servidor
+                    // confirmou. Sem isso, uma queda de conexão faria a tela
+                    // mandar a pessoa esperar um e-mail que nunca sairá.
+                    if (ok) setResetSent(true);
+                    else setError("rede");
+                  }}
+                >
+                  {t("auth.forgot")}
+                </button>
+                {resetSent && (
+                  <p className="signin-truth" role="status">
+                    {t("auth.resetSent")}
+                  </p>
+                )}
+              </>
+            )}
 
             {/* A forgotten password used to be a locked door with no handle.
                 This is the only honest way out: erase and start over. It is
-                destructive, so it asks first and says exactly what it loses. */}
-            {!creating && account && (
+                destructive, so it asks first and says exactly what it loses.
+                Sem servidor apenas — com ele, o caminho é o e-mail acima. */}
+            {!creating && !onServer && account && (
               <button
                 type="button"
                 className="signin-quiet signin-danger"
