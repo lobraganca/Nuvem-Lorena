@@ -183,6 +183,18 @@ export interface Tour {
   capacityPerDay?: number; // max travelers per departure date; undefined = not tracked
   /** Photos of the tour itself. Nobody books a boat trip without seeing the water. */
   photos?: string[];
+  /**
+   * O que a pessoa precisa saber antes de reservar, e que hoje ela pergunta
+   * por mensagem — quando pergunta. Um passeio de R$ 220 sem estas respostas
+   * perde para um de R$ 260 que as tem.
+   */
+  included?: string;
+  bring?: string;
+  /** "08:00", ou várias: "08:00 e 14:00". Texto, porque a realidade varia. */
+  departureTimes?: string;
+  languages?: string;
+  /** Quantas pessoas vão juntas. Diferente de capacidade por dia. */
+  groupSize?: number;
 }
 
 /** Set by the Avena admin; suspended businesses disappear from public listings. */

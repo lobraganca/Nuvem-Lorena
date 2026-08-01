@@ -5019,3 +5019,64 @@ textarea:focus-visible,
 .booking-meeting p {
   margin: 0;
 }
+
+/* ---- Galeria e ficha do passeio ---- */
+
+.tour-gallery {
+  display: flex;
+  gap: 8px;
+  border-radius: 18px;
+  overflow: hidden;
+  aspect-ratio: 4 / 3;
+  background: var(--bg-alt);
+}
+
+/* Com mais de uma foto vira trilho: a primeira cheia, as outras espiando ao
+   lado — é o espiar que faz arrastar. */
+.tour-gallery-many {
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  scrollbar-width: none;
+}
+
+.tour-gallery-many::-webkit-scrollbar {
+  display: none;
+}
+
+.tour-gallery-many .tour-hero-img {
+  flex: none;
+  width: 88%;
+  scroll-snap-align: start;
+  border-radius: 18px;
+}
+
+.tour-gallery-count {
+  margin: 6px 0 0;
+  font-size: 13px;
+  color: var(--text);
+}
+
+/* A ficha: rótulo à esquerda, resposta à direita, alinhados numa coluna só
+   para o olho descer pela lista sem reler os rótulos. */
+.tour-details {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 8px 16px;
+  margin: 6px 0;
+  padding: 16px;
+  border-radius: 16px;
+  background: var(--card-bg);
+  box-shadow: var(--shadow);
+}
+
+.tour-details dt {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text);
+  white-space: nowrap;
+}
+
+.tour-details dd {
+  margin: 0;
+  color: var(--text-h);
+}

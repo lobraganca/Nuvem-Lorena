@@ -32,6 +32,13 @@ export function EditTour({ businessId, tour }: { businessId: string; tour: Tour 
   const [difficulty, setDifficulty] = useState<Difficulty | undefined>(tour.difficulty);
   const [access, setAccess] = useState<AccessibilityTag[]>(tour.accessibility ?? []);
   const [photos, setPhotos] = useState<string[]>(tour.photos ?? []);
+  const [included, setIncluded] = useState(tour.included ?? "");
+  const [bring, setBring] = useState(tour.bring ?? "");
+  const [departureTimes, setDepartureTimes] = useState(tour.departureTimes ?? "");
+  const [languages, setLanguages] = useState(tour.languages ?? "");
+  const [groupSize, setGroupSize] = useState(
+    tour.groupSize !== undefined ? String(tour.groupSize) : ""
+  );
 
   function toggleMonth(m: number) {
     setSeasonMonths((prev) =>
@@ -57,6 +64,11 @@ export function EditTour({ businessId, tour }: { businessId: string; tour: Tour 
       durationHours: durationHours ? Number(durationHours) : undefined,
       capacityPerDay: capacityPerDay ? Number(capacityPerDay) : undefined,
       cancellationPolicy,
+      included: included.trim() || undefined,
+      bring: bring.trim() || undefined,
+      departureTimes: departureTimes.trim() || undefined,
+      languages: languages.trim() || undefined,
+      groupSize: groupSize ? Number(groupSize) : undefined,
       seasonMonths: seasonMonths.length ? seasonMonths : undefined,
       difficulty,
       accessibility: access.length ? access : undefined,
@@ -141,6 +153,57 @@ export function EditTour({ businessId, tour }: { businessId: string; tour: Tour 
           </button>
         ))}
       </div>
+      {/* O que a pessoa pergunta por mensagem quando não está escrito — e
+          quando não pergunta, some. */}
+      <label>
+        O que está incluído
+        <textarea
+          value={included}
+          onChange={(e) => setIncluded(e.target.value)}
+          rows={2}
+          placeholder="Ex.: guia, equipamento de mergulho, água e fruta"
+        />
+      </label>
+
+      <label>
+        O que levar
+        <textarea
+          value={bring}
+          onChange={(e) => setBring(e.target.value)}
+          rows={2}
+          placeholder="Ex.: protetor solar, roupa de banho, tênis fechado"
+        />
+      </label>
+
+      <div className="form-row">
+        <label>
+          Horários de saída
+          <input
+            value={departureTimes}
+            onChange={(e) => setDepartureTimes(e.target.value)}
+            placeholder="08:00 e 14:00"
+          />
+        </label>
+        <label>
+          Idiomas
+          <input
+            value={languages}
+            onChange={(e) => setLanguages(e.target.value)}
+            placeholder="Português e inglês"
+          />
+        </label>
+        <label>
+          Tamanho do grupo
+          <input
+            type="number"
+            min={1}
+            value={groupSize}
+            onChange={(e) => setGroupSize(e.target.value)}
+            placeholder="Ex.: 12"
+          />
+        </label>
+      </div>
+
       <PhotoPicker
         photos={photos}
         onChange={setPhotos}

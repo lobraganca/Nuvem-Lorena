@@ -57,19 +57,26 @@ export function TourDetail() {
   const season = seasonLabel(tour.seasonMonths);
   const monthsLeft = monthsLeftInSeason(tour.seasonMonths);
   const others = (business.tours ?? []).filter((x) => x.id !== tour.id);
-  const photo = tour.photos?.[0];
+  const fotos = tour.photos ?? [];
 
   return (
     <div className="page tour-page">
       <BackLink />
 
-      <div className="tour-hero">
-        {photo ? (
-          <img src={photo} alt={tour.title} className="tour-hero-img" />
+      {/* Galeria: a primeira foto ocupa a tela e as outras seguem ao lado.
+          Uma foto só nunca vendeu um passeio de barco nem uma casa. */}
+      <div className={`tour-gallery ${fotos.length > 1 ? "tour-gallery-many" : ""}`}>
+        {fotos.length > 0 ? (
+          fotos.map((f, i) => (
+            <img key={i} src={f} alt={`${tour.title} ${i + 1}`} className="tour-hero-img" />
+          ))
         ) : (
           <div className="tour-hero-empty" aria-hidden="true" />
         )}
       </div>
+      {fotos.length > 1 && (
+        <p className="tour-gallery-count">{fotos.length} fotos · arraste para ver</p>
+      )}
 
       {/* Guardar, mandar para quem vai junto, perguntar. Em linha e visíveis:
           são os três gestos que vêm antes de decidir. */}
@@ -114,6 +121,42 @@ export function TourDetail() {
       </div>
 
       {tour.description && <p className="tour-description">{tour.description}</p>}
+
+      {(tour.included || tour.bring || tour.departureTimes || tour.languages ||
+        tour.groupSize !== undefined) && (
+        <dl className="tour-details">
+          {tour.departureTimes && (
+            <>
+              <dt>Saídas</dt>
+              <dd>{tour.departureTimes}</dd>
+            </>
+          )}
+          {tour.groupSize !== undefined && (
+            <>
+              <dt>Grupo</dt>
+              <dd>até {tour.groupSize} pessoas</dd>
+            </>
+          )}
+          {tour.languages && (
+            <>
+              <dt>Idiomas</dt>
+              <dd>{tour.languages}</dd>
+            </>
+          )}
+          {tour.included && (
+            <>
+              <dt>Incluído</dt>
+              <dd>{tour.included}</dd>
+            </>
+          )}
+          {tour.bring && (
+            <>
+              <dt>Leve</dt>
+              <dd>{tour.bring}</dd>
+            </>
+          )}
+        </dl>
+      )}
 
       {season && (
         <p className="season-note">
