@@ -29,11 +29,52 @@ Para fazer split você precisa de três coisas além da conta:
 
 ## Passo 1 — Sua conta
 
-- Use uma conta **empresarial, com CNPJ**. Conta pessoa física complica o
-  recebimento, a emissão de nota e a comprovação de receita.
-- Se ainda não tem CNPJ, isso vem antes de tudo. Um contador resolve em poucos
-  dias e é pré-requisito para praticamente todo o resto (contrato com agências,
-  nota fiscal da mensalidade, conta empresarial).
+O recomendado é conta **empresarial, com CNPJ**. Mas dá para começar como
+**pessoa física**, e vale entender o que muda, porque a diferença não é
+técnica — é fiscal e de credibilidade.
+
+### Recebendo como pessoa física
+
+**Funciona.** O Mercado Pago aceita conta de pessoa física, e o split
+(marketplace) reparte para uma conta PF como reparte para uma PJ. Do lado do
+código não muda nada: o app manda o mesmo pedido e o servidor usa a mesma
+chave. Nenhuma tela do Avena precisa ser alterada.
+
+**O que muda de verdade:**
+
+| | Pessoa física | CNPJ |
+|---|---|---|
+| Imposto sobre a sua taxa | IRPF, carnê-leão mensal, alíquota até 27,5% | Simples Nacional, a partir de 6% |
+| Nota fiscal da taxa | Não emite | Emite |
+| Contrato com agência | Assinado por você, pessoa | Assinado pela empresa |
+| Termos de Uso | Seu nome e CPF na tela | Razão social e CNPJ |
+| Limites e análise do Mercado Pago | Mais apertados | Mais folgados |
+
+**A conta que decide.** A taxa é 5%. Numa reserva de R$ 220, você recebe
+R$ 11. Como pessoa física, até R$ 3,03 disso vira imposto na faixa mais alta;
+como CNPJ no Simples, cerca de R$ 0,66. Na escala de dez reservas por mês a
+diferença é irrelevante e não justifica esperar; na de mil por mês, ela paga o
+contador muitas vezes.
+
+**Três coisas para confirmar antes**, e nenhuma delas eu tenho como verificar
+por você:
+
+1. **Com o Mercado Pago**, se a aplicação de marketplace/split pode ser criada
+   por conta PF e quais os limites. A política deles muda, e o que vale é o que
+   eles disserem hoje.
+2. **Com um contador**, o carnê-leão e se um MEI resolveria. MEI sai no mesmo
+   dia, custa cerca de R$ 70 por mês e dá CNPJ — **mas a lista de ocupações do
+   MEI é fechada, e intermediação de negócios pode não estar nela**. Não afirme
+   que dá antes de perguntar.
+3. **Se você vai emitir nota fiscal da taxa.** Sem CNPJ, não emite. Algumas
+   agências pedem, e isso pode custar parceiros.
+
+### A recomendação
+
+Comece como pessoa física se isso for o que destrava as primeiras reservas
+reais — a validação vale mais do que a economia fiscal nesse volume. Abra o
+CNPJ em paralelo, não depois: ele leva dias, e migrar a conta do Mercado Pago
+mais tarde é trabalho de uma tarde, não um recomeço.
 
 ## Passo 2 — Criar a aplicação
 

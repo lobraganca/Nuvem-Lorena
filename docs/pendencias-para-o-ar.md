@@ -101,9 +101,12 @@ existe continua útil — economiza banda e custo.
 
 ## Bloco 2 — Dinheiro
 
-### 2.1 CNPJ e conta empresarial
-Pré-requisito de quase tudo: nota fiscal, contrato com agências, conta do
-Mercado Pago empresarial, comprovação de receita.
+### 2.1 CNPJ, ou pessoa física no começo
+Dá para receber como pessoa física e começar antes do CNPJ — o split do
+Mercado Pago reparte para uma conta PF do mesmo jeito, e nenhuma tela do app
+muda. O que muda é imposto (IRPF até 27,5% contra ~6% no Simples), nota fiscal
+(PF não emite) e credibilidade com as agências. Comparação e o que confirmar
+antes: [pagamentos-mercado-pago.md](pagamentos-mercado-pago.md).
 
 ### 2.2 Split de pagamento
 Passo a passo completo em [pagamentos-mercado-pago.md](pagamentos-mercado-pago.md).
