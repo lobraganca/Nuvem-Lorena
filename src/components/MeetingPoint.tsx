@@ -16,7 +16,7 @@ import type { Business } from "../types";
  */
 
 /** Google Maps directions, which every phone opens — app if installed, site if not. */
-function directionsUrl(business: Business): string {
+export function directionsUrl(business: Business): string {
   const label = [business.meetingPoint, business.address, business.name]
     .filter(Boolean)
     .join(", ");

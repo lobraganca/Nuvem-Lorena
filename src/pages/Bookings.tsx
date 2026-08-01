@@ -14,6 +14,7 @@ import type { Booking } from "../types";
 import { formatBRL } from "../lib/money";
 import { useT } from "../i18n";
 import { MemoryMap } from "../components/MemoryMap";
+import { directionsUrl } from "../components/MeetingPoint";
 import type { TranslationKey } from "../i18n";
 
 function CancelBooking({ booking }: { booking: Booking }) {
@@ -65,7 +66,7 @@ const REVIEW_BLOCK_KEY: Record<ReviewBlockReason, TranslationKey> = {
 };
 
 export function Bookings() {
-  const { bookings } = useAvena();
+  const { bookings, businesses, cancelBooking } = useAvena();
   const t = useT();
   const today = new Date().toISOString().slice(0, 10);
 
@@ -86,6 +87,15 @@ export function Bookings() {
       return b.travelDate < today || status === "cancelada" || status === "expirada";
     })
     .sort((a, b) => b.travelDate.localeCompare(a.travelDate));
+
+  /** A empresa da reserva, quando ela tem onde encontrar. */
+  function local(b: Booking) {
+    const empresa = businesses.find((x) => x.id === b.businessId);
+    if (!empresa) return null;
+    return empresa.meetingPoint || empresa.address || empresa.lat != null
+      ? empresa
+      : null;
+  }
 
   function BookingCard({ b }: { b: Booking }) {
     const status = effectiveStatus(b);
@@ -178,6 +188,31 @@ export function Bookings() {
         )}
 
 
+        {/* Onde encontrar, aqui dentro.
+
+            A informação existia só na página da empresa. Quem pagou e chega na
+            manhã do passeio não vai lembrar de qual página era: ela precisa
+            estar dentro da reserva, que é o que se abre naquela hora. */}
+        {!isPast && local(b) && (
+          <div className="booking-meeting">
+            <strong>Onde encontrar</strong>
+            {local(b)!.meetingPoint && <p>{local(b)!.meetingPoint}</p>}
+            {local(b)!.address && (
+              <p className="muted">
+                {local(b)!.address} — {local(b)!.city}
+              </p>
+            )}
+            <a
+              className="btn-outline"
+              href={directionsUrl(local(b)!)}
+              target="_blank"
+              rel="noreferrer"
+            >
+              Como chegar
+            </a>
+          </div>
+        )}
+
         {/* Either the form, or the reason there is no form. A control that
             silently is not there teaches the person that the app is broken. */}
         {eligibility.allowed ? (
@@ -186,6 +221,19 @@ export function Bookings() {
           <p className="muted">{t(REVIEW_BLOCK_KEY[eligibility.reason])}</p>
         )}
         {isPaid && !isPast && <CancelBooking booking={b} />}
+        {/* Sem pagamento não há reembolso a calcular, então desistir é um
+            toque só. Antes, quem se arrependia tinha de esperar a reserva
+            expirar — e a vaga ficava presa nesse tempo, sem que o viajante
+            nem a agência pudessem liberá-la. */}
+        {status === "aguardando-pagamento" && (
+          <button
+            type="button"
+            className="btn-outline"
+            onClick={() => cancelBooking(b.id)}
+          >
+            Desistir da reserva
+          </button>
+        )}
       </div>
     );
   }

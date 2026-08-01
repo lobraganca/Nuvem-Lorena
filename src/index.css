@@ -5002,3 +5002,20 @@ textarea:focus-visible,
   fill: var(--accent);
   stroke: var(--accent);
 }
+
+/* Onde encontrar, dentro da reserva. Destacado do resto do cartão, porque na
+   manhã do passeio é a única linha que importa. */
+.booking-meeting {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 6px;
+  margin: 12px 0;
+  padding: 14px;
+  border-radius: 14px;
+  background: var(--bg-alt);
+}
+
+.booking-meeting p {
+  margin: 0;
+}

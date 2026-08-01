@@ -6,16 +6,19 @@ import { useT } from "../i18n";
 import { PresenceDot } from "../components/PresenceDot";
 import { MeetingPoint } from "../components/MeetingPoint";
 import { TourCard } from "../components/TourCard";
+import { canSeeContact } from "../lib/contactVisibility";
 import { businessTypeKey, planTierKey } from "../i18n/domain";
 
 
 export function BusinessDetail() {
   const { id } = useParams();
-  const { businesses, reviews } = useAvena();
+  const { businesses, reviews, bookings } = useAvena();
   // Every hook runs before the early return: React requires the same hooks in
   // the same order on every render.
   const t = useT();
   const business = businesses.find((b) => b.id === id);
+  // Contato direto só para quem já reservou. Ver lib/contactVisibility.ts.
+  const mostrarContato = business ? canSeeContact(business, bookings) : false;
 
   if (!business) return <div className="page">{t("common.notFound")}</div>;
 
@@ -85,11 +88,24 @@ export function BusinessDetail() {
 
       <div className="detail-block">
         <h3>{t("business.contact")}</h3>
-        <p>
-          {business.email}
-          {business.phone ? ` · ${business.phone}` : ""}
-          {business.website ? ` · ${business.website}` : ""}
-        </p>
+        {mostrarContato ? (
+          <p>
+            {business.email}
+            {business.phone ? ` · ${business.phone}` : ""}
+            {business.website ? ` · ${business.website}` : ""}
+          </p>
+        ) : (
+          <>
+            <p className="muted">
+              O telefone e o e-mail aparecem aqui assim que você reservar. Até
+              lá, fale com a empresa pelo próprio Avena — a resposta fica
+              guardada junto da sua reserva.
+            </p>
+            <Link to={`/messages/${business.id}`} className="btn-outline">
+              {t("business.sendMessage")}
+            </Link>
+          </>
+        )}
       </div>
 
       <MeetingPoint business={business} />
