@@ -69,8 +69,16 @@ export function startOverIfAsked() {
   for (const key of ALL_KEYS) removeStored(key);
   try {
     // Anything else this app wrote, including keys added later.
+    //
+    // O prefixo "sb-" entrou junto quando as contas passaram a viver no
+    // servidor: a sessão do Supabase se guarda sob esse nome, não sob
+    // "avena", e sem apagá-la o "recomeçar" limpava tudo e o app entrava
+    // sozinho de novo, com a mesma conta. Quem queria rever a tela de entrada
+    // via o app aberto — exatamente o que o endereço promete evitar.
     for (const key of Object.keys(window.localStorage)) {
-      if (key.startsWith("avena")) window.localStorage.removeItem(key);
+      if (key.startsWith("avena") || key.startsWith("sb-")) {
+        window.localStorage.removeItem(key);
+      }
     }
   } catch {
     // Storage is unavailable; the removeStored calls above already covered
