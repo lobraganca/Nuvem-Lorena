@@ -1,0 +1,196 @@
+/* Identidade visual "Busca Itabirito": navy escuro + dourado (destaque/CTA) +
+   teal (secundária) + branco (texto sobre fundo escuro). */
+:root {
+  --color-bg: #0b1d33;
+  --color-bg-soft: #0f2438;
+  --color-surface: #12293f;
+  --color-primary-gold: #f4c542;
+  --color-primary-gold-dark: #c99a3e;
+  --color-accent-teal: #4fbf9f;
+  --color-accent-teal-dark: #3fa98a;
+  --color-text: #ffffff;
+  --color-text-muted: #b7c4d4;
+  --color-border: rgba(255, 255, 255, 0.12);
+  --radius: 14px;
+  --font-sans: "Segoe UI", Inter, system-ui, -apple-system, sans-serif;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  background: var(--color-bg);
+  color: var(--color-text);
+  font-family: var(--font-sans);
+}
+
+a {
+  color: var(--color-accent-teal);
+}
+
+button {
+  font-family: inherit;
+}
+
+.container {
+  max-width: 960px;
+  margin: 0 auto;
+  padding: 0 20px;
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 20px 0;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.logo {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  text-decoration: none;
+}
+
+.logo-mark {
+  width: 34px;
+  height: 34px;
+  border-radius: 10px;
+  background: var(--color-bg-soft);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.logo-wordmark {
+  display: flex;
+  flex-direction: column;
+  line-height: 1;
+}
+
+.logo-wordmark .brand {
+  font-size: 1.15rem;
+  font-weight: 400;
+  color: var(--color-text);
+  letter-spacing: 0.02em;
+}
+
+.logo-wordmark .city {
+  font-size: 0.6rem;
+  font-weight: 600;
+  letter-spacing: 0.18em;
+  color: var(--color-accent-teal);
+  text-transform: uppercase;
+}
+
+.nav {
+  display: flex;
+  gap: 16px;
+  align-items: center;
+  font-size: 0.92rem;
+}
+
+.btn {
+  border: none;
+  border-radius: 999px;
+  padding: 10px 18px;
+  font-size: 0.92rem;
+  font-weight: 600;
+  cursor: pointer;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.btn-gold {
+  background: linear-gradient(135deg, var(--color-primary-gold), var(--color-primary-gold-dark));
+  color: #241a02;
+}
+
+.btn-teal {
+  background: var(--color-accent-teal);
+  color: #06231b;
+}
+
+.btn-outline {
+  background: transparent;
+  border: 1px solid var(--color-border);
+  color: var(--color-text);
+}
+
+.btn:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+
+.card {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius);
+  padding: 20px;
+}
+
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 0.72rem;
+  font-weight: 700;
+  padding: 3px 9px;
+  border-radius: 999px;
+}
+
+.badge-verified {
+  background: rgba(79, 191, 159, 0.15);
+  color: var(--color-accent-teal);
+  border: 1px solid rgba(79, 191, 159, 0.4);
+}
+
+.badge-boosted {
+  background: rgba(244, 197, 66, 0.15);
+  color: var(--color-primary-gold);
+  border: 1px solid rgba(244, 197, 66, 0.4);
+}
+
+input,
+select,
+textarea {
+  background: var(--color-bg-soft);
+  border: 1px solid var(--color-border);
+  color: var(--color-text);
+  border-radius: 10px;
+  padding: 10px 12px;
+  font-size: 0.95rem;
+  width: 100%;
+}
+
+input::placeholder,
+textarea::placeholder {
+  color: var(--color-text-muted);
+}
+
+.muted {
+  color: var(--color-text-muted);
+}
+
+.grid {
+  display: grid;
+  gap: 16px;
+}
+
+.footer {
+  border-top: 1px solid var(--color-border);
+  margin-top: 60px;
+  padding: 30px 0;
+  color: var(--color-text-muted);
+  font-size: 0.85rem;
+}
+
+.stars {
+  color: var(--color-primary-gold);
+  letter-spacing: 2px;
+}
