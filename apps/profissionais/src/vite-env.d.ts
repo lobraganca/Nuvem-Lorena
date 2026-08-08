@@ -9,3 +9,6 @@ interface ImportMetaEnv {
 interface ImportMeta {
   readonly env: ImportMetaEnv
 }
+
+/** Carimbo da versão publicada, injetado pelo vite.config.ts. */
+declare const __VERSAO__: string;

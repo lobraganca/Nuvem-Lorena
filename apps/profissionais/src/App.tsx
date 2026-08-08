@@ -112,6 +112,7 @@ function Footer() {
             Enviar sugestão
           </button>
         </p>
+        <p style={{ marginTop: 6, fontSize: "0.8rem", opacity: 0.75 }}>Versão de {__VERSAO__}</p>
         <p style={{ marginTop: 6 }}>
           Dúvidas ou pedidos sobre seus dados: <a href={`mailto:${CONTATO_EMAIL}`}>{CONTATO_EMAIL}</a>
         </p>

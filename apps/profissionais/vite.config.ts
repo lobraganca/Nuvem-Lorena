@@ -3,7 +3,27 @@ import react from '@vitejs/plugin-react'
 import { VitePWA } from 'vite-plugin-pwa'
 
 // https://vite.dev/config/
+/**
+ * Carimbo da versão publicada, mostrado no rodapé do app.
+ *
+ * Existe por um motivo prático: sem ele, não há como saber se o aparelho de
+ * quem está do outro lado carregou a versão nova ou uma guardada de antes —
+ * e um app que fica guardado no celular erra isso com frequência. Sem essa
+ * informação, uma correção que já foi publicada e uma que não pegou parecem
+ * exatamente a mesma coisa.
+ */
+const CARIMBO = new Date().toLocaleString("pt-BR", {
+  timeZone: "America/Sao_Paulo",
+  day: "2-digit",
+  month: "2-digit",
+  hour: "2-digit",
+  minute: "2-digit",
+});
+
 export default defineConfig({
+  define: {
+    __VERSAO__: JSON.stringify(CARIMBO),
+  },
   plugins: [
     react(),
     VitePWA({
