@@ -2,6 +2,7 @@ import { useEffect, useState, type ReactNode } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { Logo } from "./Logo";
 import { useAuth } from "../lib/useAuth";
+import { signOut } from "../lib/auth";
 import { isAdmin } from "../lib/admin";
 
 function IconSearch() {
@@ -80,10 +81,22 @@ function NavItem({
   );
 }
 
-function Header() {
+/**
+ * O "Sair da conta" existia só no fim da tela de Perfil — dois toques e uma
+ * rolagem de distância de quem estivesse em qualquer outra tela. Sair é uma
+ * ação que a pessoa procura com pressa (emprestou o celular, usou o de
+ * outro), e procurar não pode fazer parte dela. Agora fica no cabeçalho,
+ * visível de qualquer lugar, mas discreto para não competir com a marca.
+ */
+function Header({ logado }: { logado: boolean }) {
   return (
     <header className="container header">
       <Logo size="md" />
+      {logado && (
+        <button type="button" className="header-sair" onClick={() => signOut()}>
+          Sair
+        </button>
+      )}
     </header>
   );
 }
@@ -128,7 +141,7 @@ export function AppShell({ children }: { children: ReactNode }) {
 
   return (
     <>
-      {!isWelcome && <Header />}
+      {!isWelcome && <Header logado={!!user} />}
       <div className={isWelcome ? undefined : "app-content"}>{children}</div>
       {isWelcome ? null : (
       <nav className="bottom-nav">

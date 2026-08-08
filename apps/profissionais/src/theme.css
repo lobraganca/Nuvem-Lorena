@@ -1142,3 +1142,21 @@ textarea::placeholder {
   background: var(--color-danger);
   color: #ffffff;
 }
+
+/* "Sair" no cabeçalho: alcançável de qualquer tela, sem disputar com a marca. */
+.header-sair {
+  background: none;
+  border: 1px solid var(--color-border-strong);
+  border-radius: 999px;
+  padding: 8px 16px;
+  font: inherit;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--color-text-muted);
+  cursor: pointer;
+}
+
+.header-sair:hover {
+  border-color: var(--color-danger);
+  color: var(--color-danger);
+}
