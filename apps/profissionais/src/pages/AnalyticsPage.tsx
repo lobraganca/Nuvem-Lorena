@@ -8,7 +8,8 @@ import {
   countLeadEvents,
   type ProfessionalWithRating,
 } from "../lib/professionals";
-import { startSubscriptionCheckout, PRICES } from "../lib/payments";
+import { startSubscriptionCheckout, startAnnualCheckout, annualPrice, PRICES } from "../lib/payments";
+import { BottomSheet } from "../components/BottomSheet";
 
 /**
  * Tela de estatísticas do anúncio — só acessível ao dono e só quando o
@@ -21,8 +22,9 @@ export function AnalyticsPage() {
   const [professional, setProfessional] = useState<ProfessionalWithRating | null>(null);
   const [views, setViews] = useState<number | null>(null);
   const [leads, setLeads] = useState<number | null>(null);
-  const [checkoutLoading, setCheckoutLoading] = useState(false);
+  const [checkoutLoading, setCheckoutLoading] = useState<"monthly" | "annual" | null>(null);
   const [message, setMessage] = useState("");
+  const [planSheetOpen, setPlanSheetOpen] = useState(false);
 
   useEffect(() => {
     if (!id) return;
@@ -35,9 +37,9 @@ export function AnalyticsPage() {
     countLeadEvents(professional.id).then(setLeads);
   }, [professional]);
 
-  async function handleSubscribe() {
+  async function handleSubscribeMonthly() {
     if (!id) return;
-    setCheckoutLoading(true);
+    setCheckoutLoading("monthly");
     setMessage("");
     try {
       const { initPoint } = await startSubscriptionCheckout(id, "plus");
@@ -45,7 +47,23 @@ export function AnalyticsPage() {
     } catch (err) {
       setMessage(err instanceof Error ? err.message : "Não foi possível iniciar o checkout do Mercado Pago.");
     } finally {
-      setCheckoutLoading(false);
+      setCheckoutLoading(null);
+      setPlanSheetOpen(false);
+    }
+  }
+
+  async function handleSubscribeAnnual() {
+    if (!id) return;
+    setCheckoutLoading("annual");
+    setMessage("");
+    try {
+      const { initPoint } = await startAnnualCheckout(id, "plus");
+      window.location.href = initPoint;
+    } catch (err) {
+      setMessage(err instanceof Error ? err.message : "Não foi possível iniciar o checkout do Mercado Pago.");
+    } finally {
+      setCheckoutLoading(null);
+      setPlanSheetOpen(false);
     }
   }
 
@@ -76,16 +94,44 @@ export function AnalyticsPage() {
               (leads) ele gerou e acompanhar sua avaliação média em um só lugar.
             </p>
             {message && <p style={{ color: "var(--color-danger)" }}>{message}</p>}
-            <button className="btn btn-gold" onClick={handleSubscribe} disabled={checkoutLoading}>
-              {checkoutLoading
-                ? "Abrindo checkout…"
-                : `Assinar Empresa Plus — R$ ${PRICES.plus.amount.toFixed(2).replace(".", ",")}/mês`}
+            <button className="btn btn-gold" onClick={() => setPlanSheetOpen(true)} disabled={checkoutLoading !== null}>
+              {`Assinar Empresa Plus — a partir de R$ ${PRICES.plus.amount.toFixed(2).replace(".", ",")}/mês`}
             </button>
           </div>
         )}
         <p style={{ marginTop: 20 }}>
           <Link to="/painel">Voltar ao painel</Link>
         </p>
+
+        {planSheetOpen && (
+          <BottomSheet
+            title="Assinar Empresa Plus"
+            subtitle="Escolha a forma de pagamento: mensal recorrente (só cartão) ou anual à vista com Pix, cartão ou boleto."
+            onClose={() => setPlanSheetOpen(false)}
+          >
+            <div style={{ display: "grid", gap: 14 }}>
+              <div className="card" style={{ display: "grid", gap: 8 }}>
+                <strong>Mensal recorrente — R$ {PRICES.plus.amount.toFixed(2).replace(".", ",")}/mês</strong>
+                <span className="muted" style={{ fontSize: "0.85rem" }}>
+                  Cobrança automática todo mês no cartão de crédito.
+                </span>
+                <button className="btn btn-teal btn-block" disabled={checkoutLoading === "monthly"} onClick={handleSubscribeMonthly}>
+                  {checkoutLoading === "monthly" ? "Abrindo checkout…" : "Assinar mensal"}
+                </button>
+              </div>
+              <div className="card" style={{ display: "grid", gap: 8 }}>
+                <strong>Anual à vista — R$ {annualPrice("plus").toFixed(2).replace(".", ",")}/ano (economize 20%)</strong>
+                <span className="muted" style={{ fontSize: "0.85rem" }}>
+                  Pagamento único — equivalente a R$ {(annualPrice("plus") / 12).toFixed(2).replace(".", ",")}/mês. Aceita Pix,
+                  cartão ou boleto.
+                </span>
+                <button className="btn btn-gold btn-block" disabled={checkoutLoading === "annual"} onClick={handleSubscribeAnnual}>
+                  {checkoutLoading === "annual" ? "Abrindo checkout…" : "Assinar anual"}
+                </button>
+              </div>
+            </div>
+          </BottomSheet>
+        )}
       </div>
     );
   }

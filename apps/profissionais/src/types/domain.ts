@@ -1,5 +1,6 @@
 export type SubscriptionType = "verification" | "boost" | "plus";
 export type SubscriptionStatus = "pending" | "authorized" | "active" | "paused" | "cancelled";
+export type BillingCycle = "monthly" | "annual";
 
 export type ContactMode = "whatsapp_livre" | "pay_per_lead";
 
@@ -96,6 +97,16 @@ export interface Report {
   created_at: string;
 }
 
+export type SuggestionStatus = "new" | "reviewed";
+
+export interface Suggestion {
+  id: string;
+  user_id: string | null;
+  message: string;
+  status: SuggestionStatus;
+  created_at: string;
+}
+
 export const REPORT_REASONS = [
   "Informação falsa",
   "Golpe/fraude",
@@ -110,6 +121,7 @@ export interface Subscription {
   mercadopago_subscription_id: string | null;
   status: SubscriptionStatus;
   current_period_end: string | null;
+  billing_cycle: BillingCycle;
   created_at: string;
 }
 

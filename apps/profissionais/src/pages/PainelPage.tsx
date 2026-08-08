@@ -11,8 +11,15 @@ import {
   updateContactMode,
   getMySponsorships,
 } from "../lib/professionals";
-import { startSubscriptionCheckout, startCreditsCheckout, startSponsorshipCheckout, PRICES } from "../lib/payments";
-import { CATEGORIES, CITIES, DEFAULT_CITY, CREDIT_PACKS, SPONSORSHIP_PLANS, type CategorySponsorship, type ContactMode, type LeadCredits, type Professional } from "../types/domain";
+import {
+  startSubscriptionCheckout,
+  startAnnualCheckout,
+  startCreditsCheckout,
+  startSponsorshipCheckout,
+  annualPrice,
+  PRICES,
+} from "../lib/payments";
+import { CATEGORIES, CITIES, DEFAULT_CITY, CREDIT_PACKS, SPONSORSHIP_PLANS, type CategorySponsorship, type ContactMode, type LeadCredits, type Professional, type SubscriptionType } from "../types/domain";
 import { formatDocument, isValidDocument } from "../lib/documents";
 import { uploadProfessionalPhoto } from "../lib/storage";
 import { BottomSheet } from "../components/BottomSheet";
@@ -62,6 +69,7 @@ export function PainelPage() {
   const [sponsorSheetFor, setSponsorSheetFor] = useState<Professional | null>(null);
   const [sponsorDays, setSponsorDays] = useState<number>(SPONSORSHIP_PLANS[0].days);
   const [mySponsorships, setMySponsorships] = useState<Record<string, CategorySponsorship[]>>({});
+  const [planSheetFor, setPlanSheetFor] = useState<{ professional: Professional; type: SubscriptionType } | null>(null);
 
   const isEditing = !!form.id;
 
@@ -195,8 +203,8 @@ export function PainelPage() {
     }
   }
 
-  async function handleSubscribe(professionalId: string, type: "verification" | "boost" | "plus") {
-    setCheckoutLoading(`${professionalId}:${type}`);
+  async function handleSubscribeMonthly(professionalId: string, type: SubscriptionType) {
+    setCheckoutLoading(`${professionalId}:${type}:monthly`);
     setMessage("");
     try {
       const { initPoint } = await startSubscriptionCheckout(professionalId, type);
@@ -205,6 +213,21 @@ export function PainelPage() {
       setMessage(err instanceof Error ? err.message : "Não foi possível iniciar o checkout do Mercado Pago.");
     } finally {
       setCheckoutLoading(null);
+      setPlanSheetFor(null);
+    }
+  }
+
+  async function handleSubscribeAnnual(professionalId: string, type: SubscriptionType) {
+    setCheckoutLoading(`${professionalId}:${type}:annual`);
+    setMessage("");
+    try {
+      const { initPoint } = await startAnnualCheckout(professionalId, type);
+      window.location.href = initPoint;
+    } catch (err) {
+      setMessage(err instanceof Error ? err.message : "Não foi possível iniciar o checkout do Mercado Pago.");
+    } finally {
+      setCheckoutLoading(null);
+      setPlanSheetFor(null);
     }
   }
 
@@ -257,31 +280,31 @@ export function PainelPage() {
                   </button>
                   <button
                     className="btn btn-teal"
-                    disabled={checkoutLoading === `${p.id}:verification` || verified}
-                    onClick={() => handleSubscribe(p.id, "verification")}
+                    disabled={verified}
+                    onClick={() => setPlanSheetFor({ professional: p, type: "verification" })}
                   >
                     {verified
                       ? "Selo ativo"
-                      : `Assinar selo de verificação — R$ ${PRICES.verification.amount.toFixed(2).replace(".", ",")}/mês`}
+                      : `Assinar selo de verificação — a partir de R$ ${PRICES.verification.amount.toFixed(2).replace(".", ",")}/mês`}
                   </button>
                   <button
                     className="btn btn-gold"
-                    disabled={checkoutLoading === `${p.id}:boost` || boosted}
-                    onClick={() => handleSubscribe(p.id, "boost")}
+                    disabled={boosted}
+                    onClick={() => setPlanSheetFor({ professional: p, type: "boost" })}
                   >
                     {boosted
                       ? "Anúncio turbinado"
-                      : `Turbinar anúncio — R$ ${PRICES.boost.amount.toFixed(2).replace(".", ",")}/mês`}
+                      : `Turbinar anúncio — a partir de R$ ${PRICES.boost.amount.toFixed(2).replace(".", ",")}/mês`}
                   </button>
                   {p.entity_type === "pj" && (
                     <button
                       className="btn btn-outline"
-                      disabled={checkoutLoading === `${p.id}:plus` || plusActive}
-                      onClick={() => handleSubscribe(p.id, "plus")}
+                      disabled={plusActive}
+                      onClick={() => setPlanSheetFor({ professional: p, type: "plus" })}
                     >
                       {plusActive
                         ? "Empresa Plus ativo"
-                        : `Assinar Empresa Plus — R$ ${PRICES.plus.amount.toFixed(2).replace(".", ",")}/mês`}
+                        : `Assinar Empresa Plus — a partir de R$ ${PRICES.plus.amount.toFixed(2).replace(".", ",")}/mês`}
                     </button>
                   )}
                   {plusActive && (
@@ -463,6 +486,50 @@ export function PainelPage() {
           </div>
         </form>
       </section>
+
+      {planSheetFor && (
+        <BottomSheet
+          title={`Assinar ${PRICES[planSheetFor.type].label.toLowerCase()}`}
+          subtitle="Escolha a forma de pagamento: mensal recorrente (só cartão) ou anual à vista com Pix, cartão ou boleto."
+          onClose={() => setPlanSheetFor(null)}
+        >
+          <div style={{ display: "grid", gap: 14 }}>
+            <div className="card" style={{ display: "grid", gap: 8 }}>
+              <strong>Mensal recorrente — R$ {PRICES[planSheetFor.type].amount.toFixed(2).replace(".", ",")}/mês</strong>
+              <span className="muted" style={{ fontSize: "0.85rem" }}>
+                Cobrança automática todo mês no cartão de crédito.
+              </span>
+              <button
+                className="btn btn-teal btn-block"
+                disabled={checkoutLoading === `${planSheetFor.professional.id}:${planSheetFor.type}:monthly`}
+                onClick={() => handleSubscribeMonthly(planSheetFor.professional.id, planSheetFor.type)}
+              >
+                {checkoutLoading === `${planSheetFor.professional.id}:${planSheetFor.type}:monthly`
+                  ? "Abrindo checkout…"
+                  : "Assinar mensal"}
+              </button>
+            </div>
+            <div className="card" style={{ display: "grid", gap: 8 }}>
+              <strong>
+                Anual à vista — R$ {annualPrice(planSheetFor.type).toFixed(2).replace(".", ",")}/ano (economize 20%)
+              </strong>
+              <span className="muted" style={{ fontSize: "0.85rem" }}>
+                Pagamento único — equivalente a R$ {(annualPrice(planSheetFor.type) / 12).toFixed(2).replace(".", ",")}/mês.
+                Aceita Pix, cartão ou boleto.
+              </span>
+              <button
+                className="btn btn-gold btn-block"
+                disabled={checkoutLoading === `${planSheetFor.professional.id}:${planSheetFor.type}:annual`}
+                onClick={() => handleSubscribeAnnual(planSheetFor.professional.id, planSheetFor.type)}
+              >
+                {checkoutLoading === `${planSheetFor.professional.id}:${planSheetFor.type}:annual`
+                  ? "Abrindo checkout…"
+                  : "Assinar anual"}
+              </button>
+            </div>
+          </div>
+        </BottomSheet>
+      )}
 
       {sponsorSheetFor && (
         <BottomSheet

@@ -34,6 +34,26 @@ export async function startSubscriptionCheckout(
 }
 
 /**
+ * Alternativa ao plano mensal: plano anual à vista (Checkout Pro, não
+ * recorrente) das 3 assinaturas — 20% de desconto sobre 12x o valor
+ * mensal, aceita Pix/cartão/boleto automaticamente (diferente do mensal,
+ * que só aceita cartão via preapproval).
+ */
+export async function startAnnualCheckout(
+  professionalId: string,
+  type: SubscriptionType
+): Promise<{ initPoint: string }> {
+  const client = supabase();
+  if (!client) throw new Error("Banco de dados não configurado.");
+  const { data, error } = await client.functions.invoke("mercadopago-create-annual-payment", {
+    body: { professionalId, type },
+  });
+  if (error) throw error;
+  if (!data?.initPoint) throw new Error("Resposta inesperada do checkout do Mercado Pago.");
+  return { initPoint: data.initPoint as string };
+}
+
+/**
  * Compra avulsa (Checkout Pro, não recorrente) de um pacote de créditos de
  * contato para o modo "pagar por contato".
  */
@@ -72,3 +92,12 @@ export const PRICES = {
   plus: { label: "Empresa Plus", amount: 29.9, period: "mensal" as const },
   leadCreditCents: 290, // R$2,90 por lead (crédito de contato avulso)
 };
+
+/**
+ * Preço do plano anual à vista (20% de desconto sobre 12x o mensal) das 3
+ * assinaturas — mesmo cálculo feito no servidor (mercadopago-create-annual-
+ * payment), replicado aqui só para exibir o valor na tela antes do checkout.
+ */
+export function annualPrice(type: SubscriptionType): number {
+  return Number((PRICES[type].amount * 12 * 0.8).toFixed(2));
+}
