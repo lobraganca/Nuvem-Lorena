@@ -163,7 +163,21 @@ export function HomePage() {
     <div className="container">
       {showTour && <TourGuide steps={TOUR_STEPS} onFinish={finishTour} />}
 
-      <section style={{ padding: "40px 0 24px", textAlign: "center" }}>
+      {/* Quem chega aqui vem procurar alguém — mas parte de quem procura
+          também presta serviço, e essa pessoa não tem por que descobrir
+          sozinha que existe um Painel no rodapé. O convite fica no alto,
+          numa faixa fina: visível de primeira, sem disputar espaço com a
+          busca, que continua sendo o assunto principal da tela. */}
+      <Link to="/painel" className="cta-anunciar">
+        <span>
+          <strong>Você presta serviço?</strong> Cadastre-se e apareça nas buscas — é grátis.
+        </span>
+        <span className="cta-anunciar-seta" aria-hidden="true">
+          →
+        </span>
+      </Link>
+
+      <section style={{ padding: "24px 0", textAlign: "center" }}>
         <h1 style={{ fontSize: "clamp(1.5rem, 6.2vw, 2rem)", lineHeight: 1.2, marginBottom: 10 }}>
           Quem você procura hoje, em {DEFAULT_CITY}
         </h1>
