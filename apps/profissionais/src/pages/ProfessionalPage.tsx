@@ -165,10 +165,16 @@ export function ProfessionalPage() {
   async function submitReview(e: React.FormEvent) {
     e.preventDefault();
     if (!user || !id || !cpf) return;
+    // Nota baixa sem nenhuma etiqueta é um desabafo, não uma avaliação: não
+    // diz ao profissional o que corrigir nem a quem lê o que esperar. Só
+    // aqui a etiqueta é obrigatória — de 3 estrelas para cima, a nota basta.
+    if (rating <= 2 && selectedTags.length === 0) {
+      setError("Marque pelo menos o que deu errado, para a crítica ser útil a quem lê e a quem recebe.");
+      return;
+    }
     setSaving(true);
     setError("");
     try {
-      // Nem etiqueta nem comentário são obrigatórios: só a nota basta.
       const payload = { rating, tags: selectedTags, comment: comment.trim() };
       if (editingReviewId) {
         await updateReview(editingReviewId, payload);
@@ -362,7 +368,11 @@ export function ProfessionalPage() {
       </div>
 
       <section style={{ marginTop: 32 }}>
-        <h2>Avaliações</h2>
+        <h2>Avaliações da vizinhança</h2>
+        <p className="muted" style={{ margin: "0 0 16px", fontSize: "0.88rem" }}>
+          Quem trabalha aqui depende da fama que constrói aqui. Se o serviço foi bom, sua avaliação é a melhor
+          propaganda que essa pessoa vai ter.
+        </p>
 
         {topTags.length > 0 && (
           <div style={{ margin: "0 0 18px" }}>
@@ -441,6 +451,21 @@ export function ProfessionalPage() {
                   ))}
                 </div>
               </div>
+
+              {rating <= 2 && (
+                <div className="review-care">
+                  <strong>Antes de enviar</strong>
+                  <p>
+                    Do outro lado tem um vizinho seu, não uma empresa grande. Se ainda dá para resolver, chamar
+                    no WhatsApp costuma funcionar melhor que uma nota baixa.
+                  </p>
+                  <p>
+                    Se preferir avaliar mesmo assim, tudo bem — só marque <strong>o que</strong> deu errado. Uma
+                    crítica específica ajuda ele a melhorar e ajuda quem vier depois; uma nota baixa sem
+                    explicação só machuca.
+                  </p>
+                </div>
+              )}
 
               <div>
                 <p style={{ margin: "0 0 8px", fontWeight: 600 }}>{tagsPromptForRating(rating)}</p>

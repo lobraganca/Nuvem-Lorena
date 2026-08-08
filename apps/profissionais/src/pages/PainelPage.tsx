@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import { useAuth } from "../lib/useAuth";
 import {
   getMyProfessionals,
+  countRecentProfileViews,
   isCurrentlyBoosted,
   isCurrentlyVerified,
   isCurrentlyPlusActive,
@@ -59,6 +60,8 @@ const NAME_MAX_LENGTH = 80;
 export function PainelPage() {
   const { user, loading } = useAuth();
   const [mine, setMine] = useState<Professional[]>([]);
+  /** Visualizações dos últimos 30 dias por anúncio — grátis para todo anunciante. */
+  const [views30, setViews30] = useState<Record<string, number>>({});
   const [form, setForm] = useState<FormState>(EMPTY);
   const [photoFile, setPhotoFile] = useState<File | null>(null);
   const [photoPreview, setPhotoPreview] = useState<string | null>(null);
@@ -156,6 +159,17 @@ export function PainelPage() {
     setPhotoFile(file);
     setPhotoPreview(file ? URL.createObjectURL(file) : null);
   }
+
+  useEffect(() => {
+    if (mine.length === 0) return;
+    let active = true;
+    Promise.all(mine.map((p) => countRecentProfileViews(p.id).then((n) => [p.id, n] as const))).then((pares) => {
+      if (active) setViews30(Object.fromEntries(pares));
+    });
+    return () => {
+      active = false;
+    };
+  }, [mine]);
 
   async function handleSave(e: React.FormEvent) {
     e.preventDefault();
@@ -292,6 +306,10 @@ export function PainelPage() {
                   </div>
                 </div>
                 <p className="muted">{p.category} · {p.city}</p>
+                <p className="views-line">
+                  <strong>{views30[p.id] ?? 0}</strong>{" "}
+                  {(views30[p.id] ?? 0) === 1 ? "pessoa viu" : "pessoas viram"} seu anúncio nos últimos 30 dias
+                </p>
                 {p.entity_type === "pj" && p.responsible_name && (
                   <p className="muted" style={{ margin: "4px 0" }}>Responsável: {p.responsible_name}</p>
                 )}

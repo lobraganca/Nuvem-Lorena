@@ -20,6 +20,10 @@ const FEATURES = [
     title: "Selo de verificação",
     text: "Quem assina o selo teve o cadastro conferido (documento, foto e responsável). É um sinal de compromisso — não uma garantia do serviço.",
   },
+  {
+    title: "Aqui a gente torce junto",
+    text: "Quem anuncia aqui é vizinho, não uma empresa de fora. Avaliação boa vira trabalho; crítica, quando precisa existir, vem específica e sem humilhação.",
+  },
 ];
 
 /**
@@ -54,6 +58,22 @@ export function BoasVindasPage() {
         </p>
       </section>
 
+      {/* A escolha vem antes de qualquer explicação: quem abriu o app já sabe
+          se quer contratar ou ser encontrado, e fazer essa pessoa rolar por
+          quatro cartões de texto para chegar ao botão é atrapalhar. Quem não
+          sabe continua rolando e encontra a explicação logo abaixo. */}
+      <section className="welcome-choice">
+        <button type="button" className="welcome-choice-btn welcome-choice-primary" onClick={escolherCliente}>
+          <span className="welcome-choice-label">Quero contratar</span>
+          <span className="welcome-choice-hint">Achar quem faz o serviço que preciso</span>
+        </button>
+
+        <button type="button" className="welcome-choice-btn" onClick={escolherProfissional}>
+          <span className="welcome-choice-label">Quero ser encontrado</span>
+          <span className="welcome-choice-hint">Sou profissional ou empresa daqui</span>
+        </button>
+      </section>
+
       <section className="welcome-features">
         {FEATURES.map((f) => (
           <div key={f.title} className="card welcome-feature-card">
@@ -63,37 +83,6 @@ export function BoasVindasPage() {
             </p>
           </div>
         ))}
-      </section>
-
-      <section className="welcome-choice">
-        <h2 style={{ marginBottom: 4 }}>Como você quer começar?</h2>
-        <p className="muted" style={{ marginTop: 0 }}>
-          Dá para mudar depois — isso só define onde o app abre agora.
-        </p>
-
-        <div className="welcome-choice-grid">
-          <button type="button" className="card welcome-choice-card" onClick={escolherCliente}>
-            <h3>Quero contratar</h3>
-            <p className="muted">Procurar quem faz o serviço que preciso.</p>
-            <ul>
-              <li>Buscar por categoria e cidade</li>
-              <li>Ver avaliações e etiquetas</li>
-              <li>Chamar no WhatsApp ou salvar nos favoritos</li>
-            </ul>
-            <span className="welcome-choice-cta">Ver profissionais →</span>
-          </button>
-
-          <button type="button" className="card welcome-choice-card" onClick={escolherProfissional}>
-            <h3>Quero ser encontrado</h3>
-            <p className="muted">Sou profissional ou empresa e quero anunciar.</p>
-            <ul>
-              <li>Anúncio grátis, como pessoa física ou jurídica</li>
-              <li>Selo de verificação e destaque na busca</li>
-              <li>Responder às avaliações que receber</li>
-            </ul>
-            <span className="welcome-choice-cta">Criar meu anúncio →</span>
-          </button>
-        </div>
       </section>
 
       <section className="welcome-footnote">

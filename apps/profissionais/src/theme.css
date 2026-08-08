@@ -1,24 +1,36 @@
-/* Identidade visual "Busca Itabirito": navy escuro + dourado (destaque/CTA) +
-   teal (secundária) + branco (texto sobre fundo escuro). */
-/* A paleta segue a logo: navy profundo, um dourado quente e branco. O teal
-   sobrou de uma versão anterior da marca (que tinha um ícone de pessoa em
-   verde-água) e não existe mais no wordmark — ficou só onde é semântico, no
-   WhatsApp, onde ler como "verde" ajuda em vez de brigar com a identidade. */
+/* Identidade visual "Busca Itabirito": fundo branco, tinta navy da marca e
+   dourado como única cor de destaque. O verde sobrou só no botão do WhatsApp,
+   onde ler como "verde" ajuda em vez de brigar com a identidade. */
 :root {
-  --color-bg: #0a1a2f;
-  --color-bg-soft: #0e2138;
-  --color-surface: #102542;
-  --color-surface-raised: #142c4c;
-  --color-primary-gold: #e2af6b;
-  --color-primary-gold-soft: #f0c68f;
-  --color-primary-gold-dark: #c8924c;
-  --color-accent-teal: #4fbf9f;
-  --color-accent-teal-dark: #3fa98a;
-  --color-text: #ffffff;
-  --color-text-muted: #9fb0c4;
-  --color-border: rgba(255, 255, 255, 0.08);
-  --color-border-strong: rgba(255, 255, 255, 0.16);
-  --color-danger: #e0665e;
+  --color-bg: #ffffff;
+  --color-bg-soft: #f4f6f9;
+  --color-surface: #ffffff;
+  --color-surface-raised: #f9fafc;
+
+  /* O navy da marca virou a cor da tinta: títulos, texto e o wordmark. */
+  --color-navy: #0a1a2f;
+
+  /* Dourado em duas forças, e não por capricho: sobre branco, o dourado
+     claro tem contraste de ~2:1 — serve de preenchimento (botão, selo), mas
+     como texto seria ilegível. O `deep` é a versão que passa em contraste e
+     é a única usada em link/ícone/rótulo. */
+  --color-primary-gold: #d99f4e;
+  --color-primary-gold-soft: #eec18a;
+  --color-primary-gold-deep: #8a5f1f;
+  /* Meio-termo para o wordmark: dourado ainda dourado, mas legível em corpo
+     pequeno sobre branco. */
+  --color-gold-mid: #b8863b;
+
+  /* Verde só no WhatsApp; escurecido para aguentar texto branco em cima. */
+  --color-accent-teal: #12805f;
+
+  --color-text: #0a1a2f;
+  --color-text-muted: #5b6b7f;
+  --color-border: #e4e9f0;
+  --color-border-strong: #cdd6e2;
+  --color-danger: #c0392b;
+  --shadow-card: 0 1px 2px rgba(10, 26, 47, 0.04), 0 8px 24px rgba(10, 26, 47, 0.06);
+  --shadow-raised: 0 12px 32px rgba(10, 26, 47, 0.12);
   --radius: 16px;
   --radius-lg: 22px;
   --font-sans: Inter, "Segoe UI", system-ui, -apple-system, sans-serif;
@@ -37,7 +49,7 @@ body {
 }
 
 a {
-  color: var(--color-primary-gold);
+  color: var(--color-primary-gold-deep);
 }
 
 button {
@@ -54,7 +66,10 @@ button {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 18px 0;
+  /* Só vertical: o recuo lateral vem do .container na mesma tag, e um
+     `padding` completo aqui o sobrescrevia — a logo encostava na borda. */
+  padding-top: 18px;
+  padding-bottom: 18px;
   border-bottom: 1px solid var(--color-border);
 }
 
@@ -84,7 +99,7 @@ button {
 /* Altura e espessura calibradas para o A desenhado ficar do mesmo tamanho e
    do mesmo peso das letras ao lado — senão ele lê como um acento solto. */
 .logo-apex {
-  color: var(--color-primary-gold);
+  color: var(--color-gold-mid);
   width: 0.68em;
   height: 0.76em;
   margin-left: 0.04em;
@@ -92,7 +107,7 @@ button {
 }
 
 .logo-city {
-  color: var(--color-primary-gold);
+  color: var(--color-gold-mid);
   font-weight: 400;
   text-transform: uppercase;
 }
@@ -150,12 +165,12 @@ button {
 
 .btn-gold {
   background: linear-gradient(135deg, var(--color-primary-gold-soft), var(--color-primary-gold));
-  color: #2a1c06;
+  color: var(--color-navy);
 }
 
 .btn-teal {
   background: var(--color-accent-teal);
-  color: #06231b;
+  color: #ffffff;
 }
 
 .btn-outline {
@@ -174,6 +189,7 @@ button {
   border: 1px solid var(--color-border);
   border-radius: var(--radius);
   padding: 22px;
+  box-shadow: var(--shadow-card);
 }
 
 /* Antes cada etiqueta tinha a sua cor, e um card com selo + destaque + tipo
@@ -191,9 +207,9 @@ button {
 }
 
 .badge-verified {
-  background: rgba(226, 175, 107, 0.14);
-  color: var(--color-primary-gold);
-  border: 1px solid rgba(226, 175, 107, 0.42);
+  background: #fdf4e6;
+  color: var(--color-primary-gold-deep);
+  border: 1px solid #ecd6b0;
 }
 
 .badge-boosted {
@@ -206,7 +222,7 @@ button {
    texto, não na cor — as duas são igualmente legítimas. */
 .badge-entity-pf,
 .badge-entity-pj {
-  background: rgba(255, 255, 255, 0.05);
+  background: var(--color-bg-soft);
   color: var(--color-text-muted);
   border: 1px solid var(--color-border);
 }
@@ -263,9 +279,9 @@ button:focus-visible,
 }
 
 .btn-danger-soft {
-  background: rgba(224, 102, 94, 0.14);
+  background: #fdeceb;
   color: var(--color-danger);
-  border: 1px solid rgba(224, 102, 94, 0.35);
+  border: 1px solid #f3c9c5;
 }
 
 /* Radio buttons customizados: círculo com preenchimento na cor de destaque quando selecionado */
@@ -352,7 +368,7 @@ textarea::placeholder {
   font-size: 2rem;
   line-height: 1;
   cursor: pointer;
-  color: rgba(255, 255, 255, 0.22);
+  color: #d3dae4;
 }
 
 .star-btn-on {
@@ -386,7 +402,7 @@ textarea::placeholder {
 .chip-selected {
   background: linear-gradient(135deg, var(--color-primary-gold), var(--color-primary-gold-dark));
   border-color: transparent;
-  color: #241a02;
+  color: var(--color-navy);
 }
 
 /* Chip só de leitura (etiquetas já enviadas, resumo do profissional). */
@@ -401,8 +417,8 @@ textarea::placeholder {
 
 /* Resumo agregado ("Pontual (12)") no topo das avaliações. */
 .chip-tally {
-  background: rgba(79, 191, 159, 0.14);
-  border-color: rgba(79, 191, 159, 0.35);
+  background: #fdf4e6;
+  border-color: #e0bd85;
   color: var(--color-accent-teal);
 }
 
@@ -429,6 +445,7 @@ textarea::placeholder {
   height: var(--bottom-nav-height);
   background: var(--color-surface);
   border-top: 1px solid var(--color-border);
+  box-shadow: 0 -2px 16px rgba(10, 26, 47, 0.06);
   padding-bottom: env(safe-area-inset-bottom);
 }
 
@@ -483,7 +500,7 @@ textarea::placeholder {
   justify-content: center;
   font-size: 1.8rem;
   font-weight: 700;
-  color: #12293f;
+  color: var(--color-navy);
   background: linear-gradient(135deg, var(--color-primary-gold), var(--color-accent-teal));
 }
 
@@ -538,7 +555,7 @@ textarea::placeholder {
 .sheet-overlay {
   position: fixed;
   inset: 0;
-  background: rgba(5, 12, 22, 0.6);
+  background: rgba(10, 26, 47, 0.45);
   z-index: 100;
   display: flex;
   align-items: flex-end;
@@ -555,6 +572,7 @@ textarea::placeholder {
   overflow-y: auto;
   padding: 22px 20px calc(28px + env(safe-area-inset-bottom));
   position: relative;
+  box-shadow: var(--shadow-raised);
   animation: sheet-up 0.2s ease-out;
 }
 
@@ -639,47 +657,55 @@ textarea::placeholder {
   font-size: 1rem;
 }
 
-.welcome-choice-grid {
+/* Os dois caminhos do app, logo no topo: pílulas grandes e arredondadas,
+   com alvo de toque generoso. */
+.welcome-choice {
   display: grid;
-  gap: 14px;
-  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
-  margin-top: 16px;
+  gap: 12px;
+  margin-bottom: 44px;
 }
 
-.welcome-choice-card {
-  text-align: left;
-  color: inherit;
+.welcome-choice-btn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+  width: 100%;
+  padding: 18px 24px;
+  border-radius: 999px;
+  border: 1px solid var(--color-border-strong);
+  background: var(--color-surface);
+  color: var(--color-text);
   font: inherit;
   cursor: pointer;
-  border: 1px solid var(--color-border);
-  transition: border-color 0.15s ease, transform 0.15s ease;
+  box-shadow: var(--shadow-card);
+  transition: transform 0.15s ease, box-shadow 0.15s ease, filter 0.15s ease;
 }
 
-.welcome-choice-card:hover,
-.welcome-choice-card:focus-visible {
-  border-color: var(--color-primary-gold);
+.welcome-choice-btn:hover,
+.welcome-choice-btn:focus-visible {
   transform: translateY(-2px);
+  box-shadow: var(--shadow-raised);
 }
 
-.welcome-choice-card h3 {
-  margin: 0 0 4px;
+.welcome-choice-primary {
+  background: linear-gradient(135deg, var(--color-primary-gold-soft), var(--color-primary-gold));
+  border-color: transparent;
+  color: var(--color-navy);
 }
 
-.welcome-choice-card ul {
-  margin: 12px 0 0;
-  padding-left: 18px;
+.welcome-choice-label {
+  font-size: 1.05rem;
+  font-weight: 700;
+}
+
+.welcome-choice-hint {
+  font-size: 0.82rem;
   color: var(--color-text-muted);
-  font-size: 0.9rem;
-  display: grid;
-  gap: 4px;
 }
 
-.welcome-choice-cta {
-  display: inline-block;
-  margin-top: 14px;
-  color: var(--color-primary-gold);
-  font-weight: 600;
-  font-size: 0.9rem;
+.welcome-choice-primary .welcome-choice-hint {
+  color: rgba(10, 26, 47, 0.72);
 }
 
 .welcome-footnote {
@@ -700,7 +726,7 @@ textarea::placeholder {
 .tour-spotlight {
   position: fixed;
   border-radius: 12px;
-  box-shadow: 0 0 0 9999px rgba(4, 12, 22, 0.82);
+  box-shadow: 0 0 0 9999px rgba(10, 26, 47, 0.7);
   border: 2px solid var(--color-primary-gold);
   pointer-events: none;
   transition: top 0.2s ease, left 0.2s ease, width 0.2s ease, height 0.2s ease;
@@ -709,7 +735,7 @@ textarea::placeholder {
 .tour-dim {
   position: fixed;
   inset: 0;
-  background: rgba(4, 12, 22, 0.82);
+  background: rgba(10, 26, 47, 0.7);
 }
 
 .tour-card {
@@ -721,7 +747,7 @@ textarea::placeholder {
   border: 1px solid var(--color-border);
   border-radius: 16px;
   padding: 18px;
-  box-shadow: 0 18px 40px rgba(0, 0, 0, 0.45);
+  box-shadow: var(--shadow-raised);
 }
 
 .tour-card:focus {
@@ -763,4 +789,59 @@ textarea::placeholder {
   color: var(--color-text-muted);
   text-decoration: underline;
   cursor: pointer;
+}
+
+/* Contador de gente com o app aberto agora (Realtime Presence). */
+.online-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 14px;
+  padding: 6px 14px;
+  border-radius: 999px;
+  background: var(--color-bg-soft);
+  border: 1px solid var(--color-border);
+  color: var(--color-text-muted);
+  font-size: 0.82rem;
+  font-weight: 600;
+}
+
+.online-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--color-accent-teal);
+  box-shadow: 0 0 0 3px rgba(18, 128, 95, 0.16);
+}
+
+/* Quantas pessoas viram o anúncio nos últimos 30 dias (painel do anunciante) */
+.views-line {
+  margin: 8px 0 0;
+  font-size: 0.88rem;
+  color: var(--color-text-muted);
+}
+
+.views-line strong {
+  color: var(--color-primary-gold-deep);
+  font-size: 1.05rem;
+}
+
+/* Recado de tom antes de uma avaliação negativa. Âmbar, não vermelho: é um
+   convite a ser específico, não um alarme de erro. */
+.review-care {
+  background: #fdf7ec;
+  border: 1px solid #ecd6b0;
+  border-radius: 14px;
+  padding: 14px 16px;
+  font-size: 0.88rem;
+  line-height: 1.5;
+}
+
+.review-care strong {
+  color: var(--color-primary-gold-deep);
+}
+
+.review-care p {
+  margin: 6px 0 0;
+  color: var(--color-text-muted);
 }

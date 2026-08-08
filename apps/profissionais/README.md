@@ -15,10 +15,16 @@ segredo do lado do servidor).
 
 ## Identidade visual
 
-- Fundo navy profundo (`--color-bg: #0A1A2F`).
-- Dourado quente (`--color-primary-gold: #E2AF6B`) como **única** cor de
-  destaque — CTAs, links, selo de verificação, item ativo da navegação.
-- Branco para o texto; cinza-azulado (`--color-text-muted`) para o secundário.
+- **Fundo branco.** O navy da marca virou a cor da tinta (`--color-navy`):
+  títulos, texto e o wordmark.
+- Dourado como **única** cor de destaque, em duas forças e não por capricho:
+  sobre branco o dourado claro (`--color-primary-gold`) tem contraste de
+  ~2:1 — serve de preenchimento (botão, selo), mas como texto seria
+  ilegível. O `--color-primary-gold-deep` é a versão que passa em contraste
+  e é a única usada em link, ícone e rótulo.
+- Cinza-azulado (`--color-text-muted`) para o texto secundário.
+- Cards se separam do fundo por sombra suave (`--shadow-card`), não por
+  borda pesada.
 - O teal só sobrevive onde é semântico (botão do WhatsApp, onde ler como
   "verde" ajuda). A versão anterior da marca tinha um ícone de pessoa em
   verde-água e o teal era cor secundária de tudo; com a logo nova ele saiu do
@@ -31,6 +37,42 @@ segredo do lado do servidor).
   `em` para escalar junto com o texto), e "ITABIRITO" abaixo em dourado com
   entreletra larga. Os ícones do PWA em `public/` repetem esse A em dourado
   sobre navy. Os tokens de cor ficam em `src/theme.css`.
+
+## Cultura: valorizar quem é da cidade
+
+O app é sobre gente que mora na mesma cidade de quem contrata, e isso muda o
+desenho em pontos concretos — não é só texto de marketing:
+
+- A tela de início abre com **os dois caminhos** ("Quero contratar" / "Quero
+  ser encontrado") antes de qualquer explicação, e um dos cartões diz, sem
+  rodeio, que quem anuncia ali é vizinho.
+- O título da busca é "Contrate quem é daqui", com o motivo logo abaixo:
+  cada serviço fechado é dinheiro que fica na cidade.
+- A seção de avaliações se chama **"Avaliações da vizinhança"** e lembra que
+  avaliação boa é a melhor propaganda que aquela pessoa vai ter.
+- **Nota 1 ou 2 abre um recado antes do envio**: sugere resolver no WhatsApp
+  primeiro, e explica que crítica específica ajuda enquanto nota baixa sem
+  explicação só machuca.
+- Nessas notas, **marcar ao menos uma etiqueta passa a ser obrigatório**
+  (`ProfessionalPage.submitReview`). É a única obrigatoriedade do formulário:
+  de 3 estrelas para cima a nota sozinha basta. A ideia não é dificultar a
+  crítica — é impedir o drive-by de uma estrela sem dizer o que houve, que
+  não ensina nada a quem recebe nem a quem lê.
+
+## Pessoas online e visualizações
+
+- **Quantas pessoas estão com o app aberto** aparece na busca, via Realtime
+  Presence do Supabase (`src/lib/presence.ts`): cada aba entra num canal e se
+  anuncia; quem fecha some sozinho, sem tabela, cron de limpeza ou heartbeat
+  escrito à mão. Nenhum dado pessoal trafega — só uma chave aleatória por
+  aba. Sem banco configurado o hook devolve `null` e a tela simplesmente não
+  mostra nada, em vez de piscar "0 pessoas".
+- **Visualizações dos últimos 30 dias** aparecem em cada anúncio do painel
+  (`countRecentProfileViews`), e são **grátis para todo anunciante**. Saber
+  que 40 pessoas viram o anúncio no último mês é o que faz alguém entender
+  que o cadastro está valendo a pena; trancar isso atrás de assinatura
+  afastaria justamente quem ainda está decidindo se fica. O Empresa Plus
+  continua valendo pelo resto — histórico completo, leads e evolução.
 
 ## Primeiro acesso: tela de início e tour
 

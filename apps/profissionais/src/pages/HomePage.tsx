@@ -15,6 +15,7 @@ import { hasDatabase } from "../lib/supabase";
 import { FavoriteButton } from "../components/FavoriteButton";
 import { TourGuide, type TourStep } from "../components/TourGuide";
 import { hasSeenWelcome, markTourSeen, shouldRunTour } from "../lib/onboarding";
+import { useOnlineCount } from "../lib/presence";
 
 /**
  * Passos do tour de primeiro acesso. Cada um aponta para um pedaço real da
@@ -60,6 +61,7 @@ export function HomePage() {
   const [sponsorship, setSponsorship] = useState<(CategorySponsorship & { professional: Professional }) | null>(null);
   // Quem nunca viu a tela de início é mandado para lá antes da busca.
   const [redirectToWelcome] = useState(() => !hasSeenWelcome());
+  const online = useOnlineCount();
 
   // Debounce (~400ms) do texto digitado antes de disparar a busca, para não
   // gerar uma query por tecla.
@@ -135,10 +137,19 @@ export function HomePage() {
       {showTour && <TourGuide steps={TOUR_STEPS} onFinish={finishTour} />}
 
       <section style={{ padding: "40px 0 24px", textAlign: "center" }}>
-        <h1 style={{ fontSize: "2rem", marginBottom: 8 }}>
-          Encontre profissionais de confiança em {DEFAULT_CITY}
+        <h1 style={{ fontSize: "clamp(1.5rem, 6.2vw, 2rem)", lineHeight: 1.2, marginBottom: 10 }}>
+          Contrate quem é daqui, em {DEFAULT_CITY}
         </h1>
-        <p className="muted">Avaliações reais, selo de verificação e busca por categoria e cidade.</p>
+        <p className="muted">
+          Cada serviço fechado por aqui é dinheiro que fica na cidade. Encontre pelo nome, pela categoria ou
+          pela avaliação de quem já contratou.
+        </p>
+        {online !== null && online > 0 && (
+          <p className="online-pill">
+            <span className="online-dot" aria-hidden="true" />
+            {online === 1 ? "1 pessoa navegando agora" : `${online} pessoas navegando agora`}
+          </p>
+        )}
         {!hasDatabase() && (
           <p className="badge badge-boosted" style={{ marginTop: 12 }}>
             Ambiente de demonstração — configure VITE_SUPABASE_URL/ANON_KEY para dados reais
@@ -193,7 +204,7 @@ export function HomePage() {
             textDecoration: "none",
             color: "inherit",
             border: "1px solid var(--color-primary-gold)",
-            background: "linear-gradient(135deg, rgba(244,197,66,0.14), var(--color-surface))",
+            background: "linear-gradient(135deg, #fdf4e6, var(--color-surface))",
           }}
         >
           {sponsorship.professional.photo_url ? (

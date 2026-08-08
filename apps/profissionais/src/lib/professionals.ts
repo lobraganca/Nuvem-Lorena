@@ -425,3 +425,25 @@ export async function countProfileViews(professionalId: string): Promise<number>
     .eq("professional_id", professionalId);
   return count ?? 0;
 }
+
+/**
+ * Visualizações dos últimos 30 dias.
+ *
+ * Diferente do total acima, esta contagem é **grátis para todo anunciante**,
+ * não só para quem assina o Plus: saber que 40 pessoas viram seu anúncio no
+ * último mês é o que faz alguém entender que o cadastro está valendo a pena.
+ * Trancar isso atrás de uma assinatura afastaria justamente quem ainda está
+ * decidindo se fica. O Plus continua valendo pelo resto (histórico completo,
+ * leads, evolução).
+ */
+export async function countRecentProfileViews(professionalId: string, days = 30): Promise<number> {
+  const client = supabase();
+  if (!client) return 0;
+  const since = new Date(Date.now() - days * 24 * 60 * 60 * 1000).toISOString();
+  const { count } = await client
+    .from("profile_views")
+    .select("id", { count: "exact", head: true })
+    .eq("professional_id", professionalId)
+    .gte("viewed_at", since);
+  return count ?? 0;
+}

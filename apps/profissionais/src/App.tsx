@@ -98,7 +98,7 @@ function Footer() {
               border: "none",
               padding: 0,
               font: "inherit",
-              color: "var(--color-accent-teal)",
+              color: "var(--color-primary-gold-deep)",
               textDecoration: "underline",
               cursor: "pointer",
             }}
