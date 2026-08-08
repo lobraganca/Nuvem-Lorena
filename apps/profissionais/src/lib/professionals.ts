@@ -3,12 +3,19 @@ import type { Favorite, Professional, Review } from "../types/domain";
 
 export type SortOption = "relevance" | "rating" | "reviews";
 
+export const DEFAULT_PAGE_SIZE = 20;
+
 export interface SearchFilters {
   city?: string;
   category?: string;
   text?: string;
   minRating?: number;
   sort?: SortOption;
+  /** Para paginação incremental: página 0-based. Padrão 20 por página. */
+  page?: number;
+  pageSize?: number;
+  /** Admin: incluir/filtrar por suspensos. Sem efeito na busca pública (que já filtra via RLS). */
+  onlySuspended?: boolean;
 }
 
 export interface ProfessionalWithRating extends Professional {
@@ -16,23 +23,46 @@ export interface ProfessionalWithRating extends Professional {
   review_count: number;
 }
 
+/** Selo de verificação só conta se `verified` estiver true E não tiver expirado. */
+export function isCurrentlyVerified(p: Pick<Professional, "verified" | "verified_until">): boolean {
+  return !!p.verified && (!p.verified_until || new Date(p.verified_until) > new Date());
+}
+
+/** Anúncio turbinado só conta se `boosted` estiver true E não tiver expirado. */
+export function isCurrentlyBoosted(p: Pick<Professional, "boosted" | "boosted_until">): boolean {
+  return !!p.boosted && (!p.boosted_until || new Date(p.boosted_until) > new Date());
+}
+
 /**
  * Busca profissionais com filtros de cidade/categoria/texto, ordenando
  * anúncios turbinados primeiro (e, dentro de cada grupo, os mais novos).
  * Sem banco configurado, devolve uma lista vazia — as telas tratam isso como
  * "nenhum resultado" em vez de quebrar.
+ *
+ * Leitura pública usa a view `professionals_public` (sem a coluna
+ * `document`, que é CPF/CNPJ do anunciante — não deve vazar em leitura
+ * pública, ver migration 0012).
  */
 export async function searchProfessionals(filters: SearchFilters): Promise<ProfessionalWithRating[]> {
   const client = supabase();
   if (!client) return [];
 
-  let query = client.from("professionals").select("*").order("boosted", { ascending: false }).order("created_at", { ascending: false });
+  const page = filters.page ?? 0;
+  const pageSize = filters.pageSize ?? DEFAULT_PAGE_SIZE;
+
+  let query = client
+    .from("professionals_public")
+    .select("*")
+    .order("boosted", { ascending: false })
+    .order("created_at", { ascending: false })
+    .range(page * pageSize, page * pageSize + pageSize - 1);
 
   if (filters.city) query = query.eq("city", filters.city);
   if (filters.category) query = query.eq("category", filters.category);
   if (filters.text) {
     query = query.or(`name.ilike.%${filters.text}%,bio.ilike.%${filters.text}%`);
   }
+  if (filters.onlySuspended) query = query.eq("suspended", true);
 
   const { data, error } = await query;
   if (error || !data) return [];
@@ -73,7 +103,7 @@ async function fetchRatingsMap(client: NonNullable<ReturnType<typeof supabase>>,
 export async function getProfessional(id: string): Promise<ProfessionalWithRating | null> {
   const client = supabase();
   if (!client) return null;
-  const { data, error } = await client.from("professionals").select("*").eq("id", id).single();
+  const { data, error } = await client.from("professionals_public").select("*").eq("id", id).single();
   if (error || !data) return null;
   const ratings = await fetchRatingsMap(client, [id]);
   return { ...data, average_rating: ratings[id]?.average_rating ?? null, review_count: ratings[id]?.review_count ?? 0 };
@@ -153,13 +183,24 @@ export async function isDocumentBanned(document: string): Promise<boolean> {
   return !!data;
 }
 
+/**
+ * Cria ou atualiza um anúncio. Em update (input.id presente), remove
+ * `photo_url` do payload quando ele não foi explicitamente informado (ex:
+ * `undefined`), para não sobrescrever a foto já salva com `null` só porque o
+ * usuário editou outros campos sem trocar a foto — quem chama deve passar
+ * `photo_url: null` explicitamente só se realmente quiser apagar a foto.
+ */
 export async function upsertProfessional(input: Partial<Professional> & { owner_id: string }): Promise<Professional> {
   const client = supabase();
   if (!client) throw new Error("Banco de dados não configurado.");
   if (input.document && (await isDocumentBanned(input.document))) {
     throw new Error("Este CPF/CNPJ está impedido de se cadastrar na plataforma.");
   }
-  const { data, error } = await client.from("professionals").upsert(input).select().single();
+  const payload = { ...input };
+  if (payload.id && payload.photo_url === undefined) {
+    delete payload.photo_url;
+  }
+  const { data, error } = await client.from("professionals").upsert(payload).select().single();
   if (error) throw error;
   return data;
 }
@@ -169,6 +210,7 @@ export async function reportProfessional(input: {
   reporter_id: string | null;
   reason: string;
   details: string;
+  fingerprint?: string | null;
 }) {
   const client = supabase();
   if (!client) throw new Error("Banco de dados não configurado.");
@@ -177,6 +219,7 @@ export async function reportProfessional(input: {
     reporter_id: input.reporter_id,
     reason: input.reason,
     details: input.details || null,
+    reporter_fingerprint: input.fingerprint || null,
   });
   if (error) throw error;
 }
@@ -196,7 +239,7 @@ export async function getFavoriteProfessionals(userId: string): Promise<Professi
   const { data: favs } = await client.from("favorites").select("professional_id").eq("user_id", userId);
   const ids = (favs ?? []).map((f: { professional_id: string }) => f.professional_id);
   if (ids.length === 0) return [];
-  const { data, error } = await client.from("professionals").select("*").in("id", ids);
+  const { data, error } = await client.from("professionals_public").select("*").in("id", ids);
   if (error || !data) return [];
   const ratings = await fetchRatingsMap(client, data.map((p) => p.id));
   return data.map((p) => ({
