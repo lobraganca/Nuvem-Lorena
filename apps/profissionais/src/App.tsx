@@ -114,7 +114,11 @@ function Footer() {
             Enviar sugestão
           </button>
         </p>
-        <p style={{ marginTop: 6, fontSize: "0.8rem", opacity: 0.75 }}>Versão de {__VERSAO__}</p>
+        {/* O carimbo mostra a hora da construção; o "d" identifica a leva
+            que trouxe o endereço único, o aviso de erro de login e a tela de
+            diagnóstico. Sem um marcador visível, "não funcionou" e "não
+            chegou" continuam parecendo a mesma coisa. */}
+        <p style={{ marginTop: 6, fontSize: "0.8rem", opacity: 0.75 }}>Versão d {__VERSAO__}</p>
         <p style={{ marginTop: 6 }}>
           Dúvidas ou pedidos sobre seus dados: <a href={`mailto:${CONTATO_EMAIL}`}>{CONTATO_EMAIL}</a>
         </p>
