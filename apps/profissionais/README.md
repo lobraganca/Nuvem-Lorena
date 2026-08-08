@@ -80,11 +80,17 @@ Migrations em `supabase/migrations/`:
   para `pf`, logo para `pj`) e `responsible_name` (nome do responsável pela
   empresa, obrigatório só para `pj`).
 - `0007_denuncias.sql` — tabela `reports` (canal de denúncias de anúncios).
-  RLS permite `insert` público (inclusive sem login) e **não** tem policy de
-  `select` pública — hoje só quem acessa o banco diretamente (painel do
-  Supabase ou `service_role`) vê as denúncias. Construir um painel admin
-  para revisar/mudar `status` (`pending`/`reviewed`/`dismissed`) é um próximo
-  passo, não implementado ainda.
+  RLS permite `insert` público (inclusive sem login) e não tem policy de
+  `select` pública — denúncias não são um dado público.
+- `0008_admins.sql` — tabela `admins` (marca quem enxerga o painel
+  administrativo em `/admin`) e as policies de `select`/`update` de `reports`
+  para quem estiver nela. Ver seção "Painel administrativo" abaixo.
+- `0009_suspensao_e_bloqueio.sql` — `professionals.suspended` /
+  `suspended_reason` (tirar anúncio do ar pelo painel admin) e a mudança na
+  policy pública de `select` de `professionals` para esconder suspensos do
+  público; tabela `document_bans` (CPF/CNPJ bloqueados para novo cadastro)
+  e a função `public.check_document_banned` (RPC `security definer` usada
+  no cadastro, sem expor a lista de bloqueados).
 
 ### Storage — fotos/logos dos anúncios
 
@@ -116,6 +122,70 @@ No painel do Supabase: **Authentication → Providers → Google**, habilite e
 configure o Client ID/Secret do Google Cloud, com a URL de callback que o
 próprio Supabase mostra na tela. Nenhuma mudança de código é necessária além
 disso — `src/lib/auth.ts` já chama `signInWithOAuth({ provider: "google" })`.
+
+## Painel administrativo
+
+Rota `/admin` (não aparece no menu público) mostra hoje:
+
+- **Denúncias** (`reports`) — motivo, detalhes, profissional denunciado
+  (com link para o perfil público) e botões para marcar como "Revisada" ou
+  "Descartada". Denúncias pendentes ficam destacadas com a cor dourada do
+  tema.
+- **Profissionais cadastrados** — lista com filtro rápido por cidade e
+  categoria.
+- **Tirar anúncio do ar** — direto de uma denúncia ou da lista geral, o
+  admin pode suspender um anúncio (`professionals.suspended = true` +
+  `suspended_reason`). Um anúncio suspenso some da busca e do perfil
+  público (a policy pública de `select` em `professionals` passou a exigir
+  `suspended = false`); o dono continua vendo o próprio anúncio (para saber
+  o que houve) e admins veem tudo. Dá para reativar a qualquer momento.
+- **Bloquear novo cadastro pelo mesmo documento** — ao suspender, o admin
+  pode escolher "tirar do ar e bloquear cadastro": o CPF/CNPJ daquele
+  anúncio vai para `document_bans`. Novos cadastros (`upsertProfessional`
+  em `src/lib/professionals.ts`) checam esse bloqueio antes de salvar,
+  via a função Postgres `security definer` `public.check_document_banned`
+  (RPC) — a tabela `document_bans` em si não tem select público, só a
+  função expõe "está bloqueado ou não" sem vazar a lista inteira.
+- **Aviso por e-mail ao dono** — ao suspender, o painel chama a Edge
+  Function `notify-suspension`, que busca o e-mail do dono
+  (`auth.users.email`, via `service_role`) e envia o aviso usando a API da
+  [Resend](https://resend.com). A suspensão em si **não depende** do
+  e-mail funcionar: se `RESEND_API_KEY` não estiver configurada, ou o
+  envio falhar, a function loga o problema e responde `sent: false` sem
+  quebrar o fluxo — o painel mostra se o e-mail foi confirmado ou não.
+
+  Para configurar o envio de e-mail:
+
+  1. Crie uma conta gratuita em https://resend.com.
+  2. Verifique um domínio (ou use o domínio de teste da Resend para testar).
+  3. Gere uma API key em **API Keys → Create API Key**.
+  4. `supabase secrets set RESEND_API_KEY=re_xxx`
+  5. `supabase secrets set RESEND_FROM_EMAIL="Busca Itabirito <avisos@seudominio.com>"`
+  6. `supabase functions deploy notify-suspension`
+
+O projeto não tem sistema de roles — "ser admin" é simplesmente ter uma
+linha na tabela `admins` (`0008_admins.sql`). Não existe fluxo de
+auto-promoção nem UI para isso de propósito: a tabela não tem nenhuma
+policy pública de select/insert/update, só `service_role` ou acesso direto
+ao Supabase Studio conseguem mexer nela. Para promover um usuário a admin,
+depois do primeiro login dele no app:
+
+1. Pegue o `id` do usuário em **Authentication → Users** no painel do
+   Supabase (é o mesmo `id` de `public.profiles`).
+2. Rode no **SQL Editor** do Supabase:
+
+   ```sql
+   insert into public.admins (user_id) values ('<uuid-do-usuario>');
+   ```
+
+Para remover o acesso, `delete from public.admins where user_id = '<uuid>';`.
+
+Próximos passos possíveis (não implementados): gestão manual de
+assinaturas/verificação (marcar `verified`/`boosted` sem depender do
+webhook do Mercado Pago), histórico/auditoria de ações do admin, desbloqueio
+de documento pela UI (hoje é `delete from public.document_bans where
+document = '...'` direto no banco) e um sistema de roles mais rico se o
+time de admins crescer.
 
 ## Mercado Pago — modelo de monetização implementado
 

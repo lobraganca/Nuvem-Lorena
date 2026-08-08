@@ -28,6 +28,8 @@ export interface Professional {
   verified_until: string | null;
   boosted: boolean;
   boosted_until: string | null;
+  suspended: boolean; // tirado do ar pelo painel admin (denúncia procedente ou violação das regras)
+  suspended_reason: string | null;
   created_at: string;
 }
 

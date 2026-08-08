@@ -4,6 +4,7 @@ import { HomePage } from "./pages/HomePage";
 import { ProfessionalPage } from "./pages/ProfessionalPage";
 import { LoginPage } from "./pages/LoginPage";
 import { PainelPage } from "./pages/PainelPage";
+import { AdminPage } from "./pages/AdminPage";
 import { TermosPage } from "./pages/TermosPage";
 import { useAuth } from "./lib/useAuth";
 import { signOut } from "./lib/auth";
@@ -58,6 +59,7 @@ export default function App() {
         <Route path="/profissional/:id" element={<ProfessionalPage />} />
         <Route path="/login" element={<LoginPage />} />
         <Route path="/painel" element={<PainelPage />} />
+        <Route path="/admin" element={<AdminPage />} />
         <Route path="/termos" element={<TermosPage />} />
       </Routes>
       <Footer />

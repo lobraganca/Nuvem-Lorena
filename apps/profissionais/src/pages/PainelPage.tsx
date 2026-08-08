@@ -7,7 +7,10 @@ import { CATEGORIES, CITIES, DEFAULT_CITY, type Professional } from "../types/do
 import { formatDocument, isValidDocument } from "../lib/documents";
 import { uploadProfessionalPhoto } from "../lib/storage";
 
-const EMPTY: Omit<Professional, "id" | "created_at" | "verified" | "verified_until" | "boosted" | "boosted_until"> = {
+const EMPTY: Omit<
+  Professional,
+  "id" | "created_at" | "verified" | "verified_until" | "boosted" | "boosted_until" | "suspended" | "suspended_reason"
+> = {
   owner_id: "",
   name: "",
   category: CATEGORIES[0],

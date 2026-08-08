@@ -85,9 +85,25 @@ export async function getMyProfessionals(ownerId: string): Promise<Professional[
   return data ?? [];
 }
 
+/**
+ * Checa (via RPC `check_document_banned`, função security definer — não há
+ * select público em `document_bans`) se o CPF/CNPJ informado está bloqueado
+ * por causa de um cadastro removido anteriormente pelo admin.
+ */
+export async function isDocumentBanned(document: string): Promise<boolean> {
+  const client = supabase();
+  if (!client) return false;
+  const { data, error } = await client.rpc("check_document_banned", { doc: document });
+  if (error) return false;
+  return !!data;
+}
+
 export async function upsertProfessional(input: Partial<Professional> & { owner_id: string }): Promise<Professional> {
   const client = supabase();
   if (!client) throw new Error("Banco de dados não configurado.");
+  if (input.document && (await isDocumentBanned(input.document))) {
+    throw new Error("Este CPF/CNPJ está impedido de se cadastrar na plataforma.");
+  }
   const { data, error } = await client.from("professionals").upsert(input).select().single();
   if (error) throw error;
   return data;
