@@ -132,7 +132,37 @@ export async function getReviews(professionalId: string): Promise<Review[]> {
   return data ?? [];
 }
 
-export async function addReview(input: { professional_id: string; user_id: string; rating: number; comment: string }) {
+/**
+ * Conta quantas vezes cada etiqueta foi dada ao profissional, para o resumo
+ * de reputação no topo das avaliações (`Pontual (12)` `Preço justo (8)`).
+ * É calculado no client a partir das reviews já carregadas — não vale a pena
+ * uma view SQL só para isso, já que a página sempre baixa a lista inteira.
+ */
+export function aggregateReviewTags(reviews: Review[], limit = 5): { tag: string; count: number }[] {
+  const counts = new Map<string, number>();
+  for (const review of reviews) {
+    for (const tag of review.tags ?? []) {
+      counts.set(tag, (counts.get(tag) ?? 0) + 1);
+    }
+  }
+  return [...counts.entries()]
+    .map(([tag, count]) => ({ tag, count }))
+    .sort((a, b) => b.count - a.count || a.tag.localeCompare(b.tag, "pt-BR"))
+    .slice(0, limit);
+}
+
+/**
+ * Cria (ou substitui, via unique `professional_id,user_id`) a avaliação do
+ * usuário. `comment` e `tags` podem vir vazios — só a nota é obrigatória,
+ * que é o ponto do formulário de etiquetas rápidas.
+ */
+export async function addReview(input: {
+  professional_id: string;
+  user_id: string;
+  rating: number;
+  tags: string[];
+  comment: string;
+}) {
   const client = supabase();
   if (!client) throw new Error("Banco de dados não configurado.");
   const { error } = await client.from("reviews").upsert(input, { onConflict: "professional_id,user_id" });
@@ -148,8 +178,12 @@ export async function addReview(input: { professional_id: string; user_id: strin
   }
 }
 
-/** Autor edita a própria avaliação (rating/comment). RLS garante que só o autor pode. */
-export async function updateReview(reviewId: string, input: { rating: number; comment: string }) {
+/**
+ * Autor edita a própria avaliação (rating/tags/comment). RLS garante que só
+ * o autor pode dar update, e o trigger `reviews_valida_campos_update`
+ * (migrations 0011/0020) garante que ele só mexe nesses três campos.
+ */
+export async function updateReview(reviewId: string, input: { rating: number; tags: string[]; comment: string }) {
   const client = supabase();
   if (!client) throw new Error("Banco de dados não configurado.");
   const { error } = await client.from("reviews").update(input).eq("id", reviewId);

@@ -73,10 +73,67 @@ export interface Review {
   professional_id: string;
   user_id: string;
   rating: number; // 1-5
-  comment: string;
+  /** Etiquetas rápidas tocadas pelo avaliador (ver `tagsForRating`). Pode ser vazio. */
+  tags: string[];
+  comment: string; // opcional na prática: string vazia quando a pessoa só tocou nas etiquetas
   reply: string | null; // resposta do dono do anúncio
   replied_at: string | null;
   created_at: string;
+}
+
+/**
+ * Etiquetas rápidas da avaliação (modelo 99/Uber): a pessoa avalia tocando
+ * em opções prontas, sem precisar escrever nada. São as mesmas para todas as
+ * categorias de propósito — texto genérico o bastante para servir de
+ * encanador a manicure, e um conjunto único mantém a agregação por
+ * profissional comparável.
+ */
+export const POSITIVE_REVIEW_TAGS: string[] = [
+  "Pontual",
+  "Preço justo",
+  "Educado",
+  "Serviço bem feito",
+  "Caprichoso",
+  "Explicou tudo direitinho",
+  "Deixou tudo limpo",
+];
+
+export const NEGATIVE_REVIEW_TAGS: string[] = [
+  "Atrasou",
+  "Cobrou mais que o combinado",
+  "Não terminou o serviço",
+  "Mal educado",
+  "Difícil de falar",
+  "Serviço mal feito",
+  "Deixou sujeira",
+];
+
+/**
+ * Nota 3 é uma avaliação mediana ("teve coisa boa e coisa ruim"), então
+ * mostra um conjunto misto: as 4 qualidades e os 4 problemas mais comuns.
+ */
+export const MIXED_REVIEW_TAGS: string[] = [
+  ...POSITIVE_REVIEW_TAGS.slice(0, 4),
+  ...NEGATIVE_REVIEW_TAGS.slice(0, 4),
+];
+
+/**
+ * Etiquetas oferecidas para uma nota: 4-5 mostra qualidades, 1-2 mostra
+ * problemas, 3 mostra o conjunto misto. A UI usa isso tanto para renderizar
+ * os chips quanto para descartar etiquetas que deixaram de fazer sentido
+ * quando a pessoa troca a nota.
+ */
+export function tagsForRating(rating: number): string[] {
+  if (rating >= 4) return POSITIVE_REVIEW_TAGS;
+  if (rating <= 2) return NEGATIVE_REVIEW_TAGS;
+  return MIXED_REVIEW_TAGS;
+}
+
+/** Título curto acima das etiquetas, que muda de tom conforme a nota. */
+export function tagsPromptForRating(rating: number): string {
+  if (rating >= 4) return "O que foi bom?";
+  if (rating <= 2) return "O que deu errado?";
+  return "O que você achou?";
 }
 
 export interface Favorite {
