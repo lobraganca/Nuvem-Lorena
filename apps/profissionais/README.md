@@ -70,6 +70,38 @@ Migrations em `supabase/migrations/`:
   dono do anúncio enxerga/cria as próprias `subscriptions`. A confirmação de
   pagamento (marcar `verified`/`boosted`) é feita pela Edge Function do
   webhook usando a `service_role` key, que ignora RLS por desenho.
+- `0003_cpf_avaliacao.sql` / `0004_exige_cpf_para_avaliar.sql` — CPF do
+  avaliador (associado ao `profile`, exigido para avaliar).
+- `0005_pessoa_fisica_juridica.sql` — `professionals.entity_type` (`pf`/`pj`),
+  `document` (CPF ou CNPJ do anunciante — **diferente** do CPF de avaliação
+  em `profiles.cpf`) e `company_name` (razão social/nome fantasia, só
+  relevante para `pj`).
+- `0006_foto_e_responsavel.sql` — `professionals.photo_url` (foto de rosto
+  para `pf`, logo para `pj`) e `responsible_name` (nome do responsável pela
+  empresa, obrigatório só para `pj`).
+- `0007_denuncias.sql` — tabela `reports` (canal de denúncias de anúncios).
+  RLS permite `insert` público (inclusive sem login) e **não** tem policy de
+  `select` pública — hoje só quem acessa o banco diretamente (painel do
+  Supabase ou `service_role`) vê as denúncias. Construir um painel admin
+  para revisar/mudar `status` (`pending`/`reviewed`/`dismissed`) é um próximo
+  passo, não implementado ainda.
+
+### Storage — fotos/logos dos anúncios
+
+O upload de foto de rosto (pessoa física) ou logo (pessoa jurídica) usa o
+Supabase Storage, que **não** pode ser criado via migration SQL. Antes de
+usar em produção, crie o bucket manualmente uma única vez:
+
+1. No painel do Supabase: **Storage → New bucket**.
+2. Nome exatamente `professional-photos` (constante `PROFESSIONAL_PHOTOS_BUCKET`
+   em `src/lib/storage.ts`).
+3. Marque como **Public bucket** (a URL pública é salva em
+   `professionals.photo_url` e usada direto no `<img>` dos cards/perfil).
+4. Não é necessária nenhuma policy adicional de leitura (bucket público já
+   resolve); para permitir upload pelo usuário logado, garanta que exista uma
+   policy de `INSERT` no Storage liberando `authenticated` no bucket
+   `professional-photos` (padrão do Supabase ao marcar o bucket como
+   público com upload autenticado).
 
 Para aplicar num projeto Supabase novo:
 
@@ -217,5 +249,6 @@ npm run cap:sync
   pequena, com Itabirito como padrão — trocar/ampliar é só editar o array.
 - Confirmação de pagamento via webhook está esqueletada, não conectada de
   ponta a ponta (ver seção acima).
-- Sem upload de foto de perfil do profissional (fica para uma v2).
 - Sem paginação na listagem de busca.
+- Canal de denúncias (`reports`) não tem painel admin ainda — revisão hoje é
+  manual, direto no banco (ver seção "Banco de dados" acima).

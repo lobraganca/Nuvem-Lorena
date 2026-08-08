@@ -62,14 +62,45 @@ export function HomePage() {
             p.phone && p.verified ? `https://wa.me/${p.phone.replace(/\D/g, "")}` : null;
           return (
             <Link key={p.id} to={`/profissional/${p.id}`} className="card" style={{ textDecoration: "none", color: "inherit" }}>
-              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "start" }}>
-                <h3 style={{ margin: 0 }}>{p.name}</h3>
-                {p.boosted && <span className="badge badge-boosted">Destaque</span>}
+              <div style={{ display: "flex", gap: 12, alignItems: "start" }}>
+                {p.photo_url ? (
+                  <img
+                    src={p.photo_url}
+                    alt=""
+                    style={{
+                      width: 56,
+                      height: 56,
+                      objectFit: "cover",
+                      borderRadius: p.entity_type === "pj" ? 10 : "50%",
+                      border: "1px solid var(--color-border)",
+                      flexShrink: 0,
+                    }}
+                  />
+                ) : (
+                  <div
+                    className="avatar-fallback"
+                    style={{ borderRadius: p.entity_type === "pj" ? 10 : "50%" }}
+                  >
+                    {p.entity_type === "pj" ? "🏢" : "👤"}
+                  </div>
+                )}
+                <div style={{ flex: 1 }}>
+                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "start" }}>
+                    <h3 style={{ margin: 0 }}>{p.name}</h3>
+                    {p.boosted && <span className="badge badge-boosted">Destaque</span>}
+                  </div>
+                  <p className="muted" style={{ margin: "4px 0" }}>
+                    {p.category} · {p.city}
+                  </p>
+                  <span className={p.entity_type === "pj" ? "badge badge-entity-pj" : "badge badge-entity-pf"}>
+                    {p.entity_type === "pj" ? "Empresa" : "Profissional autônomo"}
+                  </span>
+                  {p.entity_type === "pj" && p.responsible_name && (
+                    <p className="muted" style={{ margin: "4px 0 0", fontSize: "0.82rem" }}>Responsável: {p.responsible_name}</p>
+                  )}
+                </div>
               </div>
-              <p className="muted" style={{ margin: "4px 0" }}>
-                {p.category} · {p.city}
-              </p>
-              {p.verified && <span className="badge badge-verified">✓ Verificado</span>}
+              {p.verified && <span className="badge badge-verified" style={{ marginTop: 8 }}>✓ Verificado</span>}
               <p style={{ marginTop: 10 }}>
                 {p.average_rating ? (
                   <span className="stars">{"★".repeat(Math.round(p.average_rating))}</span>

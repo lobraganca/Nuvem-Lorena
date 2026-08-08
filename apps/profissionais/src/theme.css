@@ -156,6 +156,32 @@ button {
   border: 1px solid rgba(244, 197, 66, 0.4);
 }
 
+/* Distinção pessoa física (autônomo) x pessoa jurídica (empresa), com as
+   mesmas cores do tema — teal para pf, dourado (mais neutro) para pj. */
+.badge-entity-pf {
+  background: rgba(79, 191, 159, 0.12);
+  color: var(--color-accent-teal);
+  border: 1px solid rgba(79, 191, 159, 0.35);
+}
+
+.badge-entity-pj {
+  background: rgba(183, 196, 212, 0.14);
+  color: var(--color-text-muted);
+  border: 1px solid var(--color-border);
+}
+
+.avatar-fallback {
+  width: 56px;
+  height: 56px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--color-bg-soft);
+  border: 1px solid var(--color-border);
+  font-size: 1.4rem;
+  flex-shrink: 0;
+}
+
 input,
 select,
 textarea {

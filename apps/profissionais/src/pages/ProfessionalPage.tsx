@@ -1,9 +1,10 @@
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
-import { getProfessional, getReviews, addReview, type ProfessionalWithRating } from "../lib/professionals";
+import { Link } from "react-router-dom";
+import { getProfessional, getReviews, addReview, reportProfessional, type ProfessionalWithRating } from "../lib/professionals";
 import { getProfile, saveCpf } from "../lib/profiles";
-import { formatCpf, isValidCpf } from "../lib/cpf";
-import type { Review } from "../types/domain";
+import { formatCpf, isValidCpf } from "../lib/documents";
+import { REPORT_REASONS, type Review } from "../types/domain";
 import { useAuth } from "../lib/useAuth";
 
 export function ProfessionalPage() {
@@ -18,6 +19,12 @@ export function ProfessionalPage() {
   const [cpf, setCpf] = useState<string | null>(null);
   const [cpfInput, setCpfInput] = useState("");
   const [cpfLoading, setCpfLoading] = useState(true);
+  const [reportOpen, setReportOpen] = useState(false);
+  const [reportReason, setReportReason] = useState<string>(REPORT_REASONS[0]);
+  const [reportDetails, setReportDetails] = useState("");
+  const [reportSaving, setReportSaving] = useState(false);
+  const [reportSent, setReportSent] = useState(false);
+  const [reportError, setReportError] = useState("");
 
   async function load() {
     if (!id) return;
@@ -79,6 +86,27 @@ export function ProfessionalPage() {
     }
   }
 
+  async function submitReport(e: React.FormEvent) {
+    e.preventDefault();
+    if (!id) return;
+    setReportSaving(true);
+    setReportError("");
+    try {
+      await reportProfessional({
+        professional_id: id,
+        reporter_id: user?.id ?? null,
+        reason: reportReason,
+        details: reportDetails,
+      });
+      setReportSent(true);
+      setReportDetails("");
+    } catch (err) {
+      setReportError(err instanceof Error ? err.message : "Não foi possível enviar a denúncia.");
+    } finally {
+      setReportSaving(false);
+    }
+  }
+
   if (!professional) {
     return (
       <div className="container">
@@ -97,12 +125,41 @@ export function ProfessionalPage() {
   return (
     <div className="container" style={{ paddingTop: 32 }}>
       <div className="card">
-        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "start" }}>
-          <div>
-            <h1 style={{ margin: 0 }}>{professional.name}</h1>
-            <p className="muted">
-              {professional.category} · {professional.city}
-            </p>
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "start", gap: 16 }}>
+          <div style={{ display: "flex", gap: 14, alignItems: "start" }}>
+            {professional.photo_url ? (
+              <img
+                src={professional.photo_url}
+                alt=""
+                style={{
+                  width: 72,
+                  height: 72,
+                  objectFit: "cover",
+                  borderRadius: professional.entity_type === "pj" ? 12 : "50%",
+                  border: "1px solid var(--color-border)",
+                  flexShrink: 0,
+                }}
+              />
+            ) : (
+              <div
+                className="avatar-fallback"
+                style={{ width: 72, height: 72, fontSize: "1.8rem", borderRadius: professional.entity_type === "pj" ? 12 : "50%" }}
+              >
+                {professional.entity_type === "pj" ? "🏢" : "👤"}
+              </div>
+            )}
+            <div>
+              <h1 style={{ margin: 0 }}>{professional.name}</h1>
+              <p className="muted">
+                {professional.category} · {professional.city}
+              </p>
+              <span className={professional.entity_type === "pj" ? "badge badge-entity-pj" : "badge badge-entity-pf"}>
+                {professional.entity_type === "pj" ? "Empresa" : "Profissional autônomo"}
+              </span>
+              {professional.entity_type === "pj" && professional.responsible_name && (
+                <p className="muted" style={{ margin: "4px 0 0", fontSize: "0.85rem" }}>Responsável: {professional.responsible_name}</p>
+              )}
+            </div>
           </div>
           <div style={{ display: "flex", gap: 8 }}>
             {professional.verified && <span className="badge badge-verified">✓ Verificado</span>}
@@ -189,6 +246,49 @@ export function ProfessionalPage() {
           ))}
         </div>
       </section>
+
+      <section style={{ marginTop: 32 }}>
+        {!reportOpen && !reportSent && (
+          <button className="btn btn-outline" onClick={() => setReportOpen(true)} style={{ fontSize: "0.82rem" }}>
+            Denunciar este anúncio
+          </button>
+        )}
+        {reportSent && <p className="muted">Denúncia enviada. Obrigado — vamos analisar este anúncio.</p>}
+        {reportOpen && !reportSent && (
+          <form className="card" onSubmit={submitReport} style={{ display: "grid", gap: 10, maxWidth: 420 }}>
+            <p className="muted" style={{ margin: 0 }}>
+              Encontrou algo errado neste anúncio (informação falsa, golpe/fraude, conteúdo ofensivo)? Conte
+              pra gente.
+            </p>
+            <select value={reportReason} onChange={(e) => setReportReason(e.target.value)}>
+              {REPORT_REASONS.map((r) => (
+                <option key={r} value={r}>
+                  {r}
+                </option>
+              ))}
+            </select>
+            <textarea
+              placeholder="Detalhes (opcional)"
+              value={reportDetails}
+              onChange={(e) => setReportDetails(e.target.value)}
+              rows={3}
+            />
+            {reportError && <p style={{ color: "#e0665e" }}>{reportError}</p>}
+            <div style={{ display: "flex", gap: 10 }}>
+              <button className="btn btn-gold" type="submit" disabled={reportSaving}>
+                {reportSaving ? "Enviando…" : "Enviar denúncia"}
+              </button>
+              <button className="btn btn-outline" type="button" onClick={() => setReportOpen(false)}>
+                Cancelar
+              </button>
+            </div>
+          </form>
+        )}
+      </section>
+
+      <p className="muted" style={{ marginTop: 24, fontSize: "0.8rem" }}>
+        Ao contratar, você concorda com os <Link to="/termos">Termos de Uso</Link> da plataforma.
+      </p>
     </div>
   );
 }

@@ -4,6 +4,7 @@ import { HomePage } from "./pages/HomePage";
 import { ProfessionalPage } from "./pages/ProfessionalPage";
 import { LoginPage } from "./pages/LoginPage";
 import { PainelPage } from "./pages/PainelPage";
+import { TermosPage } from "./pages/TermosPage";
 import { useAuth } from "./lib/useAuth";
 import { signOut } from "./lib/auth";
 
@@ -40,6 +41,9 @@ function Footer() {
           Busca Itabirito — marketplace de profissionais por cidade. Selo de verificação por R$ 10,90/mês,
           pago via Mercado Pago.
         </p>
+        <p style={{ marginTop: 6 }}>
+          <Link to="/termos">Termos de Uso</Link>
+        </p>
       </div>
     </footer>
   );
@@ -54,6 +58,7 @@ export default function App() {
         <Route path="/profissional/:id" element={<ProfessionalPage />} />
         <Route path="/login" element={<LoginPage />} />
         <Route path="/painel" element={<PainelPage />} />
+        <Route path="/termos" element={<TermosPage />} />
       </Routes>
       <Footer />
     </>

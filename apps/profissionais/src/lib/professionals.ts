@@ -92,3 +92,20 @@ export async function upsertProfessional(input: Partial<Professional> & { owner_
   if (error) throw error;
   return data;
 }
+
+export async function reportProfessional(input: {
+  professional_id: string;
+  reporter_id: string | null;
+  reason: string;
+  details: string;
+}) {
+  const client = supabase();
+  if (!client) throw new Error("Banco de dados não configurado.");
+  const { error } = await client.from("reports").insert({
+    professional_id: input.professional_id,
+    reporter_id: input.reporter_id,
+    reason: input.reason,
+    details: input.details || null,
+  });
+  if (error) throw error;
+}

@@ -9,6 +9,8 @@ export interface Profile {
   created_at: string;
 }
 
+export type EntityType = "pf" | "pj";
+
 export interface Professional {
   id: string;
   owner_id: string; // profiles.id do dono do anúncio
@@ -17,6 +19,11 @@ export interface Professional {
   city: string;
   bio: string;
   phone: string; // whatsapp
+  entity_type: EntityType; // "pf" = profissional autônomo, "pj" = empresa
+  document: string | null; // CPF (pf) ou CNPJ (pj) do anunciante
+  company_name: string | null; // razão social/nome fantasia, só relevante para pj
+  photo_url: string | null; // foto de rosto (pf) ou logo (pj)
+  responsible_name: string | null; // nome do responsável pela empresa, obrigatório só para pj
   verified: boolean;
   verified_until: string | null;
   boosted: boolean;
@@ -32,6 +39,25 @@ export interface Review {
   comment: string;
   created_at: string;
 }
+
+export type ReportStatus = "pending" | "reviewed" | "dismissed";
+
+export interface Report {
+  id: string;
+  professional_id: string;
+  reporter_id: string | null;
+  reason: string;
+  details: string | null;
+  status: ReportStatus;
+  created_at: string;
+}
+
+export const REPORT_REASONS = [
+  "Informação falsa",
+  "Golpe/fraude",
+  "Conteúdo ofensivo",
+  "Outro",
+] as const;
 
 export interface Subscription {
   id: string;
