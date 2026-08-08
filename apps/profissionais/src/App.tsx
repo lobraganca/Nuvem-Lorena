@@ -19,6 +19,7 @@ import { AnalyticsPage } from "./pages/AnalyticsPage";
 import { useAuth } from "./lib/useAuth";
 import { sendSuggestion } from "./lib/suggestions";
 import { AvisoDeDados } from "./components/AvisoDeDados";
+import { RetomarDestinoLogin } from "./components/RetomarDestinoLogin";
 import { CONTATO_EMAIL } from "./config";
 
 /**
@@ -125,6 +126,7 @@ export default function App() {
     <>
       <SplashScreen />
       <AppShell>
+      <RetomarDestinoLogin />
       <Routes>
         <Route path="/" element={<HomePage />} />
         <Route path="/inicio" element={<BoasVindasPage />} />

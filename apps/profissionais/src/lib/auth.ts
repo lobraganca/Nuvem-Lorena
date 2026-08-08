@@ -7,6 +7,38 @@ import type { Session, User } from "@supabase/supabase-js";
  * para a própria origem — em produção, cadastre a URL de callback no console
  * do Google Cloud e no Supabase.
  */
+/**
+ * Onde a pessoa estava quando pediu para entrar.
+ *
+ * O `redirectTo` do OAuth só é respeitado se a URL estiver na lista de
+ * endereços permitidos do projeto Supabase; fora dela, o Supabase devolve
+ * todo mundo na raiz do site, calado. Ou seja: uma configuração no painel
+ * decidia se a pessoa voltava para o Painel ou para a busca.
+ *
+ * Guardar o destino no próprio aparelho tira essa decisão do meio: o app
+ * volta para onde a pessoa estava mesmo quando o retorno cai na raiz.
+ */
+const CHAVE_DESTINO = "busca-itabirito-destino-login";
+
+export function guardarDestinoLogin(caminho: string): void {
+  try {
+    window.localStorage.setItem(CHAVE_DESTINO, caminho);
+  } catch {
+    /* sem armazenamento, resta o redirectTo — melhor do que quebrar o login */
+  }
+}
+
+/** Lê e apaga o destino: ele vale para uma volta só. */
+export function consumirDestinoLogin(): string | null {
+  try {
+    const destino = window.localStorage.getItem(CHAVE_DESTINO);
+    if (destino) window.localStorage.removeItem(CHAVE_DESTINO);
+    return destino;
+  } catch {
+    return null;
+  }
+}
+
 export async function signInWithGoogle(voltarPara?: string): Promise<void> {
   const client = supabase();
   if (!client) throw new Error("Banco de dados não configurado (VITE_SUPABASE_URL/ANON_KEY ausentes).");
@@ -14,6 +46,7 @@ export async function signInWithGoogle(voltarPara?: string): Promise<void> {
   // clicava em "Quero ser encontrado" e entrava com a conta reaparecia na
   // tela de busca, sem o formulário do anúncio e sem entender o que tinha
   // acontecido — a impressão é de que o login deu errado.
+  if (voltarPara) guardarDestinoLogin(voltarPara);
   const destino = voltarPara ? new URL(voltarPara, window.location.origin).toString() : window.location.origin;
   const { error } = await client.auth.signInWithOAuth({
     provider: "google",
