@@ -12,6 +12,30 @@ const TOUR_KEY = "busca-itabirito-tour-visto";
 /** Marcador de "rode o tour assim que a busca abrir" (some depois de rodar). */
 const TOUR_PENDING_KEY = "busca-itabirito-tour-pendente";
 
+/**
+ * A tela de início usa `sessionStorage`, não `localStorage`: quem abre o
+ * domínio passa por ela **toda vez**, mas navegar dentro do app na mesma
+ * visita não joga a pessoa de volta para lá a cada toque em "Buscar".
+ *
+ * O tour continua no `localStorage` — ele ensina a usar o app, e repetir a
+ * cada visita seria estorvo, não ajuda.
+ */
+function sessionGet(key: string): string | null {
+  try {
+    return window.sessionStorage.getItem(key);
+  } catch {
+    return null;
+  }
+}
+
+function sessionSet(key: string, value: string) {
+  try {
+    window.sessionStorage.setItem(key, value);
+  } catch {
+    /* storage bloqueado */
+  }
+}
+
 function safeGet(key: string): string | null {
   try {
     return window.localStorage.getItem(key);
@@ -39,11 +63,11 @@ function safeRemove(key: string) {
 }
 
 export function hasSeenWelcome(): boolean {
-  return safeGet(WELCOME_KEY) === "1";
+  return sessionGet(WELCOME_KEY) === "1";
 }
 
 export function markWelcomeSeen() {
-  safeSet(WELCOME_KEY, "1");
+  sessionSet(WELCOME_KEY, "1");
 }
 
 /** Pedido explícito de tour (feito ao escolher "quero contratar"). */
@@ -62,6 +86,11 @@ export function markTourSeen() {
 
 /** Usado pelo Perfil para rever a apresentação do zero. */
 export function resetOnboarding() {
+  try {
+    window.sessionStorage.removeItem(WELCOME_KEY);
+  } catch {
+    /* storage bloqueado */
+  }
   safeRemove(WELCOME_KEY);
   safeRemove(TOUR_KEY);
   safeRemove(TOUR_PENDING_KEY);

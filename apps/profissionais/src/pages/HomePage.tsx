@@ -157,39 +157,53 @@ export function HomePage() {
         )}
       </section>
 
-      <div
-        className="card"
-        data-tour="filtros"
-        style={{ display: "grid", gap: 12, gridTemplateColumns: "repeat(auto-fit, minmax(160px, 1fr))" }}
-      >
-        <select value={city} onChange={(e) => setCity(e.target.value)}>
-          <option value="">Todas as cidades</option>
-          {CITIES.map((c) => (
-            <option key={c} value={c}>
-              {c}
-            </option>
-          ))}
-        </select>
-        <select value={category} onChange={(e) => setCategory(e.target.value)}>
-          <option value="">Todas as categorias</option>
-          {CATEGORIES.map((c) => (
-            <option key={c} value={c}>
-              {c}
-            </option>
-          ))}
-        </select>
-        <input placeholder="Digite um nome ou o que precisa" value={text} onChange={(e) => setText(e.target.value)} />
-        <select value={minRating} onChange={(e) => setMinRating(Number(e.target.value))}>
-          <option value={0}>Qualquer nota</option>
-          <option value={4}>4+ estrelas</option>
-          <option value={3}>3+ estrelas</option>
-          <option value={2}>2+ estrelas</option>
-        </select>
-        <select value={sort} onChange={(e) => setSort(e.target.value as SortOption)}>
-          <option value="relevance">Mais relevante</option>
-          <option value="rating">Melhor avaliado</option>
-          <option value="reviews">Mais avaliações</option>
-        </select>
+      <div className="search-block" data-tour="filtros">
+        {/* A busca por texto é o que a maioria vem fazer: campo largo, alto e
+            com contorno visível, sozinho na primeira linha. Os filtros descem
+            para baixo — servem para refinar, não para começar. */}
+        <div className="search-field">
+          <svg className="search-icon" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+            <circle cx="11" cy="11" r="7" stroke="currentColor" strokeWidth="2" />
+            <line x1="16.5" y1="16.5" x2="21" y2="21" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+          </svg>
+          <input
+            className="search-input"
+            placeholder="O que você precisa? Ex: eletricista"
+            value={text}
+            onChange={(e) => setText(e.target.value)}
+            aria-label="Buscar profissional por nome ou serviço"
+          />
+        </div>
+
+        <div className="filter-grid">
+          <select value={city} onChange={(e) => setCity(e.target.value)} aria-label="Cidade">
+            <option value="">Todas as cidades</option>
+            {CITIES.map((c) => (
+              <option key={c} value={c}>
+                {c}
+              </option>
+            ))}
+          </select>
+          <select value={category} onChange={(e) => setCategory(e.target.value)} aria-label="Categoria">
+            <option value="">Todas as categorias</option>
+            {CATEGORIES.map((c) => (
+              <option key={c} value={c}>
+                {c}
+              </option>
+            ))}
+          </select>
+          <select value={minRating} onChange={(e) => setMinRating(Number(e.target.value))} aria-label="Nota mínima">
+            <option value={0}>Qualquer nota</option>
+            <option value={4}>4+ estrelas</option>
+            <option value={3}>3+ estrelas</option>
+            <option value={2}>2+ estrelas</option>
+          </select>
+          <select value={sort} onChange={(e) => setSort(e.target.value as SortOption)} aria-label="Ordenar por">
+            <option value="relevance">Mais relevante</option>
+            <option value="rating">Melhor avaliado</option>
+            <option value="reviews">Mais avaliações</option>
+          </select>
+        </div>
       </div>
 
       {sponsorship && (

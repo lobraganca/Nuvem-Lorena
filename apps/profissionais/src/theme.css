@@ -1042,3 +1042,58 @@ textarea::placeholder {
   padding: 7px 14px;
   font-size: 0.82rem;
 }
+
+/* --- Bloco de busca: campo de texto em destaque, filtros abaixo --- */
+
+.search-block {
+  display: grid;
+  gap: 12px;
+  margin-top: 4px;
+}
+
+.search-field {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.search-icon {
+  position: absolute;
+  left: 16px;
+  width: 20px;
+  height: 20px;
+  color: var(--color-primary);
+  pointer-events: none;
+}
+
+/* O campo antes se confundia com o fundo: mesma cor clara, borda quase
+   invisível. Agora tem fundo branco, contorno firme e sombra própria — é o
+   primeiro elemento que a pessoa enxerga na tela. */
+.search-input {
+  padding: 16px 18px 16px 46px;
+  font-size: 1rem;
+  background: var(--color-surface);
+  border: 1.5px solid var(--color-border-strong);
+  border-radius: 999px;
+  box-shadow: var(--shadow-card);
+}
+
+.search-input:focus {
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 4px rgba(18, 48, 94, 0.12);
+}
+
+.search-input::placeholder {
+  color: var(--color-text-muted);
+}
+
+.filter-grid {
+  display: grid;
+  gap: 10px;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+}
+
+.filter-grid select {
+  font-size: 0.9rem;
+  padding: 12px 14px;
+}
