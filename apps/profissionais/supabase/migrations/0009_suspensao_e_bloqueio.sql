@@ -12,15 +12,18 @@ alter table public.professionals
 -- admin via policy própria).
 drop policy if exists "profissionais são públicos para leitura" on public.professionals;
 
+drop policy if exists "profissionais não suspensos são públicos para leitura" on public.professionals;
 create policy "profissionais não suspensos são públicos para leitura"
   on public.professionals for select
   using (suspended = false);
 
+drop policy if exists "dono vê o próprio anúncio mesmo suspenso" on public.professionals;
 create policy "dono vê o próprio anúncio mesmo suspenso"
   on public.professionals for select
   to authenticated
   using (auth.uid() = owner_id);
 
+drop policy if exists "admin vê qualquer anúncio, inclusive suspenso" on public.professionals;
 create policy "admin vê qualquer anúncio, inclusive suspenso"
   on public.professionals for select
   to authenticated
@@ -29,6 +32,7 @@ create policy "admin vê qualquer anúncio, inclusive suspenso"
   );
 
 -- admin também precisa poder suspender/reativar (mudar suspended/suspended_reason).
+drop policy if exists "admin suspende/reativa anúncios" on public.professionals;
 create policy "admin suspende/reativa anúncios"
   on public.professionals for update
   to authenticated
@@ -51,6 +55,7 @@ alter table public.document_bans enable row level security;
 -- Sem select/insert público de propósito — só quem está em `admins` mexe
 -- diretamente na tabela (mesmo padrão de `admins`). A checagem no cadastro
 -- é feita via função security definer abaixo, não por select direto.
+drop policy if exists "admin vê a lista de documentos bloqueados" on public.document_bans;
 create policy "admin vê a lista de documentos bloqueados"
   on public.document_bans for select
   to authenticated
@@ -58,6 +63,7 @@ create policy "admin vê a lista de documentos bloqueados"
     exists (select 1 from public.admins a where a.user_id = auth.uid())
   );
 
+drop policy if exists "admin bloqueia um documento" on public.document_bans;
 create policy "admin bloqueia um documento"
   on public.document_bans for insert
   to authenticated
@@ -65,6 +71,7 @@ create policy "admin bloqueia um documento"
     exists (select 1 from public.admins a where a.user_id = auth.uid())
   );
 
+drop policy if exists "admin desbloqueia um documento" on public.document_bans;
 create policy "admin desbloqueia um documento"
   on public.document_bans for delete
   to authenticated

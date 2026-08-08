@@ -37,12 +37,14 @@ alter table public.contact_requests enable row level security;
 
 -- Qualquer visitante pode pedir contato, com ou sem login: exigir conta aqui
 -- só afastaria quem está com pressa de resolver um problema em casa.
+drop policy if exists "qualquer pessoa pede contato" on public.contact_requests;
 create policy "qualquer pessoa pede contato"
   on public.contact_requests for insert
   with check (true);
 
 -- Só o dono do anúncio lê e atualiza os pedidos que recebeu. Não há policy de
 -- leitura pública: são dados de contato de terceiros.
+drop policy if exists "dono vê os pedidos do próprio anúncio" on public.contact_requests;
 create policy "dono vê os pedidos do próprio anúncio"
   on public.contact_requests for select
   to authenticated
@@ -54,6 +56,7 @@ create policy "dono vê os pedidos do próprio anúncio"
     )
   );
 
+drop policy if exists "dono atualiza os pedidos do próprio anúncio" on public.contact_requests;
 create policy "dono atualiza os pedidos do próprio anúncio"
   on public.contact_requests for update
   to authenticated

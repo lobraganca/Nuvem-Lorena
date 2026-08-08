@@ -3,6 +3,7 @@
 
 drop policy if exists "usuário autenticado avalia" on public.reviews;
 
+drop policy if exists "usuário autenticado com CPF avalia" on public.reviews;
 create policy "usuário autenticado com CPF avalia"
   on public.reviews for insert
   to authenticated

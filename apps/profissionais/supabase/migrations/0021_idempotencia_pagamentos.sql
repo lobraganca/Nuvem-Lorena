@@ -27,21 +27,29 @@ alter table public.processed_payments enable row level security;
 -- perde uma das compras se dois pagamentos forem confirmados ao mesmo tempo.
 -- Só o webhook (service_role) chama esta função — por isso não há grant para
 -- anon/authenticated, ao contrário de `consume_lead_credit`.
-create or replace function public.add_lead_credits(professional_id uuid, amount integer)
+-- Os parâmetros levam prefixo `p_` porque `on conflict (professional_id)` não
+-- aceita qualificação de tabela: com um parâmetro de mesmo nome, o Postgres
+-- não sabe se a coluna do conflito é a coluna ou a variável, e recusa a
+-- chamada inteira em tempo de execução.
+-- `create or replace function` não consegue trocar o NOME de um parâmetro
+-- (só o corpo), então uma versão anterior já aplicada bloquearia esta. Drop
+-- antes resolve, e é inofensivo: a função não guarda estado.
+drop function if exists public.add_lead_credits(uuid, integer);
+create function public.add_lead_credits(p_professional_id uuid, p_amount integer)
 returns void
 language plpgsql
 security definer
 set search_path = public
 as $$
 begin
-  if amount is null or amount <= 0 then
+  if p_amount is null or p_amount <= 0 then
     raise exception 'amount deve ser positivo';
   end if;
 
   insert into public.lead_credits (professional_id, balance)
-  values (add_lead_credits.professional_id, add_lead_credits.amount)
+  values (p_professional_id, p_amount)
   on conflict (professional_id) do update
-    set balance = public.lead_credits.balance + add_lead_credits.amount,
+    set balance = public.lead_credits.balance + p_amount,
         updated_at = now();
 end;
 $$;

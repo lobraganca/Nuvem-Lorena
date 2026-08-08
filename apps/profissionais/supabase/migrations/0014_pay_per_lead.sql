@@ -4,13 +4,13 @@
 -- "pay_per_lead" (cada clique no WhatsApp consome 1 crédito pré-pago).
 
 alter table public.professionals
-  add column contact_mode text not null default 'whatsapp_livre'
+  add column if not exists contact_mode text not null default 'whatsapp_livre'
     check (contact_mode in ('whatsapp_livre', 'pay_per_lead'));
 
 -- Saldo de créditos pré-pagos por profissional. Preço por lead configurável
 -- por linha para permitir promoções futuras sem migração nova; hoje sempre
 -- criado com o preço padrão (R$2,90 = 290 centavos).
-create table public.lead_credits (
+create table if not exists public.lead_credits (
   professional_id uuid primary key references public.professionals(id) on delete cascade,
   balance integer not null default 0,
   price_per_lead_cents integer not null default 290,
@@ -20,7 +20,7 @@ create table public.lead_credits (
 -- Um registro por clique no WhatsApp que consumiu (ou tentou consumir) um
 -- crédito. `charged` fica true quando o crédito foi de fato debitado —
 -- mantido para permitir, no futuro, registrar tentativas sem saldo.
-create table public.lead_events (
+create table if not exists public.lead_events (
   id uuid primary key default gen_random_uuid(),
   professional_id uuid not null references public.professionals(id) on delete cascade,
   user_id uuid references public.profiles(id) on delete set null,
@@ -28,7 +28,7 @@ create table public.lead_events (
   charged boolean not null default true
 );
 
-create index lead_events_professional_id_idx on public.lead_events (professional_id);
+create index if not exists lead_events_professional_id_idx on public.lead_events (professional_id);
 
 alter table public.lead_credits enable row level security;
 alter table public.lead_events enable row level security;
@@ -37,6 +37,7 @@ alter table public.lead_events enable row level security;
 -- público — o saldo é criado/incrementado pela Edge Function de compra de
 -- créditos (service_role) e decrementado pela função `consume_lead_credit`
 -- abaixo (security definer, chamada via RPC pelo próprio dono do contato).
+drop policy if exists "dono vê os créditos do seu anúncio" on public.lead_credits;
 create policy "dono vê os créditos do seu anúncio"
   on public.lead_credits for select
   to authenticated
@@ -51,6 +52,7 @@ create policy "dono vê os créditos do seu anúncio"
 -- lead_events: só o dono do anúncio vê os próprios leads. Insert é feito
 -- exclusivamente pela função `consume_lead_credit` (security definer), não
 -- há policy pública de insert.
+drop policy if exists "dono vê os leads do seu anúncio" on public.lead_events;
 create policy "dono vê os leads do seu anúncio"
   on public.lead_events for select
   to authenticated
@@ -98,7 +100,11 @@ grant execute on function public.consume_lead_credit(uuid) to anon, authenticate
 -- Atualiza a view pública de professionals para incluir o novo contact_mode
 -- (necessário para a ProfessionalPage decidir se mostra/esconde o botão de
 -- WhatsApp sem precisar de outra query).
-create or replace view public.professionals_public as
+-- `create or replace view` só consegue ACRESCENTAR coluna no fim: inserir
+-- `contact_mode` antes de `created_at` faria o Postgres tentar renomear a
+-- coluna existente, e ele recusa. Por isso drop + create.
+drop view if exists public.professionals_public;
+create view public.professionals_public as
 select
   id, owner_id, name, category, city, bio, phone, entity_type,
   company_name, photo_url, responsible_name,

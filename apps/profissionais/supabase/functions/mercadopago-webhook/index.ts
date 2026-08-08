@@ -236,8 +236,8 @@ async function applyPaymentEffect(admin: Admin, paymentId: string, payment: any)
     // grava de volta" perderia uma das compras se dois pagamentos fossem
     // confirmados ao mesmo tempo.
     const { error } = await admin.rpc("add_lead_credits", {
-      professional_id: professionalId,
-      amount: quantity,
+      p_professional_id: professionalId,
+      p_amount: quantity,
     });
     if (error) throw error;
     return;

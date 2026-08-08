@@ -7,5 +7,5 @@
 -- anúncio precisa comprar de novo ao expirar.
 
 alter table public.subscriptions
-  add column billing_cycle text not null default 'monthly'
+  add column if not exists billing_cycle text not null default 'monthly'
     check (billing_cycle in ('monthly', 'annual'));

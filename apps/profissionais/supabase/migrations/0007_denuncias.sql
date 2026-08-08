@@ -18,6 +18,7 @@ alter table public.reports enable row level security;
 -- Qualquer um pode denunciar, inclusive sem estar logado (o golpe pode
 -- atingir alguém que nem conseguiu logar ainda). Sem policy de select
 -- pública de propósito — denúncias não são um dado público.
+drop policy if exists "qualquer um pode denunciar um anúncio" on public.reports;
 create policy "qualquer um pode denunciar um anúncio"
   on public.reports for insert
   with check (true);

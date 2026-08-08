@@ -122,31 +122,37 @@ alter table public.reviews enable row level security;
 alter table public.subscriptions enable row level security;
 
 -- profiles: qualquer um lê (nome/avatar são públicos), só o dono edita o seu.
+drop policy if exists "profiles são públicos para leitura" on public.profiles;
 create policy "profiles são públicos para leitura"
   on public.profiles for select
   using (true);
 
+drop policy if exists "usuário edita o próprio profile" on public.profiles;
 create policy "usuário edita o próprio profile"
   on public.profiles for update
   using (auth.uid() = id);
 
 -- professionals: leitura pública (é um marketplace de busca); só o dono
 -- autenticado cria/edita/apaga o seu próprio anúncio.
+drop policy if exists "profissionais são públicos para leitura" on public.professionals;
 create policy "profissionais são públicos para leitura"
   on public.professionals for select
   using (true);
 
+drop policy if exists "usuário cria seu próprio anúncio" on public.professionals;
 create policy "usuário cria seu próprio anúncio"
   on public.professionals for insert
   to authenticated
   with check (auth.uid() = owner_id);
 
+drop policy if exists "dono edita o próprio anúncio" on public.professionals;
 create policy "dono edita o próprio anúncio"
   on public.professionals for update
   to authenticated
   using (auth.uid() = owner_id)
   with check (auth.uid() = owner_id);
 
+drop policy if exists "dono apaga o próprio anúncio" on public.professionals;
 create policy "dono apaga o próprio anúncio"
   on public.professionals for delete
   to authenticated
@@ -155,21 +161,25 @@ create policy "dono apaga o próprio anúncio"
 -- reviews: leitura pública; só usuário autenticado cria a sua própria
 -- avaliação (um review por usuário por profissional, ver unique no schema);
 -- só o autor edita/apaga a própria avaliação.
+drop policy if exists "avaliações são públicas para leitura" on public.reviews;
 create policy "avaliações são públicas para leitura"
   on public.reviews for select
   using (true);
 
+drop policy if exists "usuário autenticado avalia" on public.reviews;
 create policy "usuário autenticado avalia"
   on public.reviews for insert
   to authenticated
   with check (auth.uid() = user_id);
 
+drop policy if exists "autor edita a própria avaliação" on public.reviews;
 create policy "autor edita a própria avaliação"
   on public.reviews for update
   to authenticated
   using (auth.uid() = user_id)
   with check (auth.uid() = user_id);
 
+drop policy if exists "autor apaga a própria avaliação" on public.reviews;
 create policy "autor apaga a própria avaliação"
   on public.reviews for delete
   to authenticated
@@ -179,6 +189,7 @@ create policy "autor apaga a própria avaliação"
 -- dele. Escritas de confirmação de pagamento (marcar active/verified/boosted)
 -- são feitas pela Edge Function do webhook usando a service_role key, que
 -- ignora RLS — por isso não existe policy pública de update aqui.
+drop policy if exists "dono vê as assinaturas do seu anúncio" on public.subscriptions;
 create policy "dono vê as assinaturas do seu anúncio"
   on public.subscriptions for select
   to authenticated
@@ -190,6 +201,7 @@ create policy "dono vê as assinaturas do seu anúncio"
     )
   );
 
+drop policy if exists "dono inicia assinatura para o seu anúncio" on public.subscriptions;
 create policy "dono inicia assinatura para o seu anúncio"
   on public.subscriptions for insert
   to authenticated
@@ -226,6 +238,7 @@ create unique index if not exists profiles_cpf_key
 
 drop policy if exists "usuário autenticado avalia" on public.reviews;
 
+drop policy if exists "usuário autenticado com CPF avalia" on public.reviews;
 create policy "usuário autenticado com CPF avalia"
   on public.reviews for insert
   to authenticated
@@ -296,6 +309,7 @@ alter table public.reports enable row level security;
 -- Qualquer um pode denunciar, inclusive sem estar logado (o golpe pode
 -- atingir alguém que nem conseguiu logar ainda). Sem policy de select
 -- pública de propósito — denúncias não são um dado público.
+drop policy if exists "qualquer um pode denunciar um anúncio" on public.reports;
 create policy "qualquer um pode denunciar um anúncio"
   on public.reports for insert
   with check (true);
@@ -320,6 +334,7 @@ alter table public.admins enable row level security;
 -- Isso evita que qualquer usuário autenticado se auto-promova a admin.
 
 -- reports: admin pode ler e mudar o status (pending -> reviewed/dismissed).
+drop policy if exists "admin vê as denúncias" on public.reports;
 create policy "admin vê as denúncias"
   on public.reports for select
   to authenticated
@@ -327,6 +342,7 @@ create policy "admin vê as denúncias"
     exists (select 1 from public.admins a where a.user_id = auth.uid())
   );
 
+drop policy if exists "admin atualiza o status da denúncia" on public.reports;
 create policy "admin atualiza o status da denúncia"
   on public.reports for update
   to authenticated
@@ -355,15 +371,18 @@ alter table public.professionals
 -- admin via policy própria).
 drop policy if exists "profissionais são públicos para leitura" on public.professionals;
 
+drop policy if exists "profissionais não suspensos são públicos para leitura" on public.professionals;
 create policy "profissionais não suspensos são públicos para leitura"
   on public.professionals for select
   using (suspended = false);
 
+drop policy if exists "dono vê o próprio anúncio mesmo suspenso" on public.professionals;
 create policy "dono vê o próprio anúncio mesmo suspenso"
   on public.professionals for select
   to authenticated
   using (auth.uid() = owner_id);
 
+drop policy if exists "admin vê qualquer anúncio, inclusive suspenso" on public.professionals;
 create policy "admin vê qualquer anúncio, inclusive suspenso"
   on public.professionals for select
   to authenticated
@@ -372,6 +391,7 @@ create policy "admin vê qualquer anúncio, inclusive suspenso"
   );
 
 -- admin também precisa poder suspender/reativar (mudar suspended/suspended_reason).
+drop policy if exists "admin suspende/reativa anúncios" on public.professionals;
 create policy "admin suspende/reativa anúncios"
   on public.professionals for update
   to authenticated
@@ -394,6 +414,7 @@ alter table public.document_bans enable row level security;
 -- Sem select/insert público de propósito — só quem está em `admins` mexe
 -- diretamente na tabela (mesmo padrão de `admins`). A checagem no cadastro
 -- é feita via função security definer abaixo, não por select direto.
+drop policy if exists "admin vê a lista de documentos bloqueados" on public.document_bans;
 create policy "admin vê a lista de documentos bloqueados"
   on public.document_bans for select
   to authenticated
@@ -401,6 +422,7 @@ create policy "admin vê a lista de documentos bloqueados"
     exists (select 1 from public.admins a where a.user_id = auth.uid())
   );
 
+drop policy if exists "admin bloqueia um documento" on public.document_bans;
 create policy "admin bloqueia um documento"
   on public.document_bans for insert
   to authenticated
@@ -408,6 +430,7 @@ create policy "admin bloqueia um documento"
     exists (select 1 from public.admins a where a.user_id = auth.uid())
   );
 
+drop policy if exists "admin desbloqueia um documento" on public.document_bans;
 create policy "admin desbloqueia um documento"
   on public.document_bans for delete
   to authenticated
@@ -444,6 +467,7 @@ alter table public.reviews
 -- seu profissional. A policy de update já existente ("autor edita a própria
 -- avaliação") continua valendo para o autor editar rating/comment; esta é
 -- adicional, para o dono responder.
+drop policy if exists "dono do anúncio responde a avaliação" on public.reviews;
 create policy "dono do anúncio responde a avaliação"
   on public.reviews for update
   to authenticated
@@ -474,16 +498,19 @@ create index if not exists favorites_professional_idx on public.favorites (profe
 
 alter table public.favorites enable row level security;
 
+drop policy if exists "usuário vê os próprios favoritos" on public.favorites;
 create policy "usuário vê os próprios favoritos"
   on public.favorites for select
   to authenticated
   using (auth.uid() = user_id);
 
+drop policy if exists "usuário favorita um profissional" on public.favorites;
 create policy "usuário favorita um profissional"
   on public.favorites for insert
   to authenticated
   with check (auth.uid() = user_id);
 
+drop policy if exists "usuário remove o próprio favorito" on public.favorites;
 create policy "usuário remove o próprio favorito"
   on public.favorites for delete
   to authenticated
@@ -569,7 +596,13 @@ create trigger reviews_valida_campos_update_trigger
 -- (RLS `auth.uid() = id`/`owner_id`) ou é admin.
 
 -- professionals_public: todas as colunas exceto `document`.
-create or replace view public.professionals_public as
+--
+-- drop + create, e não `create or replace`: migrations posteriores acrescentam
+-- colunas a esta view, e ao re-executar o script do zero o `create or replace`
+-- tentaria REMOVER essas colunas — o Postgres recusa. Vale a mesma regra
+-- sempre que uma view muda de formato mais adiante.
+drop view if exists public.professionals_public;
+create view public.professionals_public as
 select
   id, owner_id, name, category, city, bio, phone, entity_type,
   company_name, photo_url, responsible_name,
@@ -592,6 +625,7 @@ grant select on public.profiles_public to anon, authenticated;
 -- nome/avatar de outros usuários passa a ser feita via `profiles_public`.
 drop policy if exists "profiles são públicos para leitura" on public.profiles;
 
+drop policy if exists "usuário lê o próprio profile" on public.profiles;
 create policy "usuário lê o próprio profile"
   on public.profiles for select
   to authenticated
@@ -627,13 +661,13 @@ create unique index if not exists reports_reporter_professional_pending_uidx
 -- "pay_per_lead" (cada clique no WhatsApp consome 1 crédito pré-pago).
 
 alter table public.professionals
-  add column contact_mode text not null default 'whatsapp_livre'
+  add column if not exists contact_mode text not null default 'whatsapp_livre'
     check (contact_mode in ('whatsapp_livre', 'pay_per_lead'));
 
 -- Saldo de créditos pré-pagos por profissional. Preço por lead configurável
 -- por linha para permitir promoções futuras sem migração nova; hoje sempre
 -- criado com o preço padrão (R$2,90 = 290 centavos).
-create table public.lead_credits (
+create table if not exists public.lead_credits (
   professional_id uuid primary key references public.professionals(id) on delete cascade,
   balance integer not null default 0,
   price_per_lead_cents integer not null default 290,
@@ -643,7 +677,7 @@ create table public.lead_credits (
 -- Um registro por clique no WhatsApp que consumiu (ou tentou consumir) um
 -- crédito. `charged` fica true quando o crédito foi de fato debitado —
 -- mantido para permitir, no futuro, registrar tentativas sem saldo.
-create table public.lead_events (
+create table if not exists public.lead_events (
   id uuid primary key default gen_random_uuid(),
   professional_id uuid not null references public.professionals(id) on delete cascade,
   user_id uuid references public.profiles(id) on delete set null,
@@ -651,7 +685,7 @@ create table public.lead_events (
   charged boolean not null default true
 );
 
-create index lead_events_professional_id_idx on public.lead_events (professional_id);
+create index if not exists lead_events_professional_id_idx on public.lead_events (professional_id);
 
 alter table public.lead_credits enable row level security;
 alter table public.lead_events enable row level security;
@@ -660,6 +694,7 @@ alter table public.lead_events enable row level security;
 -- público — o saldo é criado/incrementado pela Edge Function de compra de
 -- créditos (service_role) e decrementado pela função `consume_lead_credit`
 -- abaixo (security definer, chamada via RPC pelo próprio dono do contato).
+drop policy if exists "dono vê os créditos do seu anúncio" on public.lead_credits;
 create policy "dono vê os créditos do seu anúncio"
   on public.lead_credits for select
   to authenticated
@@ -674,6 +709,7 @@ create policy "dono vê os créditos do seu anúncio"
 -- lead_events: só o dono do anúncio vê os próprios leads. Insert é feito
 -- exclusivamente pela função `consume_lead_credit` (security definer), não
 -- há policy pública de insert.
+drop policy if exists "dono vê os leads do seu anúncio" on public.lead_events;
 create policy "dono vê os leads do seu anúncio"
   on public.lead_events for select
   to authenticated
@@ -721,7 +757,11 @@ grant execute on function public.consume_lead_credit(uuid) to anon, authenticate
 -- Atualiza a view pública de professionals para incluir o novo contact_mode
 -- (necessário para a ProfessionalPage decidir se mostra/esconde o botão de
 -- WhatsApp sem precisar de outra query).
-create or replace view public.professionals_public as
+-- `create or replace view` só consegue ACRESCENTAR coluna no fim: inserir
+-- `contact_mode` antes de `created_at` faria o Postgres tentar renomear a
+-- coluna existente, e ele recusa. Por isso drop + create.
+drop view if exists public.professionals_public;
+create view public.professionals_public as
 select
   id, owner_id, name, category, city, bio, phone, entity_type,
   company_name, photo_url, responsible_name,
@@ -748,7 +788,7 @@ grant select on public.lead_credits_public to anon, authenticated;
 -- para aparecer em destaque no topo da busca quando alguém filtra por uma
 -- categoria (e cidade) específica, por um período determinado.
 
-create table public.category_sponsorships (
+create table if not exists public.category_sponsorships (
   id uuid primary key default gen_random_uuid(),
   professional_id uuid not null references public.professionals(id) on delete cascade,
   category text not null,
@@ -760,19 +800,21 @@ create table public.category_sponsorships (
   created_at timestamptz not null default now()
 );
 
-create index category_sponsorships_lookup_idx
+create index if not exists category_sponsorships_lookup_idx
   on public.category_sponsorships (category, city, status, ends_at);
 
 alter table public.category_sponsorships enable row level security;
 
 -- Leitura pública só de patrocínios ativos e ainda dentro do período — é o
 -- que a HomePage consulta para decidir se mostra o banner.
+drop policy if exists "patrocínios ativos são públicos para leitura" on public.category_sponsorships;
 create policy "patrocínios ativos são públicos para leitura"
   on public.category_sponsorships for select
   using (status = 'active' and ends_at > now());
 
 -- Dono do anúncio vê todos os próprios patrocínios (inclusive
 -- pending/expired, para o painel mostrar o histórico).
+drop policy if exists "dono vê os próprios patrocínios" on public.category_sponsorships;
 create policy "dono vê os próprios patrocínios"
   on public.category_sponsorships for select
   to authenticated
@@ -786,6 +828,7 @@ create policy "dono vê os próprios patrocínios"
 
 -- Dono inicia o patrocínio do próprio anúncio (fica "pending" até a
 -- confirmação de pagamento, seguindo o mesmo padrão esqueleto do webhook).
+drop policy if exists "dono cria patrocínio para o próprio anúncio" on public.category_sponsorships;
 create policy "dono cria patrocínio para o próprio anúncio"
   on public.category_sponsorships for insert
   to authenticated
@@ -807,28 +850,29 @@ create policy "dono cria patrocínio para o próprio anúncio"
 -- avaliações). Mesmo padrão de expiração de verified/boosted.
 
 alter table public.professionals
-  add column plus_active boolean not null default false,
-  add column plus_until timestamptz;
+  add column if not exists plus_active boolean not null default false,
+  add column if not exists plus_until timestamptz;
 
 -- subscriptions.type só aceitava 'verification'/'boost' — amplia para o
 -- novo tipo de assinatura recorrente do Plus.
-alter table public.subscriptions drop constraint subscriptions_type_check;
+alter table public.subscriptions drop constraint if exists subscriptions_type_check;
 alter table public.subscriptions add constraint subscriptions_type_check check (type in ('verification', 'boost', 'plus'));
 
 -- Contagem de visualizações de perfil, sem dados pessoais — só o registro
 -- de "alguém abriu esta página" para alimentar o analytics do Plus.
-create table public.profile_views (
+create table if not exists public.profile_views (
   id uuid primary key default gen_random_uuid(),
   professional_id uuid not null references public.professionals(id) on delete cascade,
   viewed_at timestamptz not null default now()
 );
 
-create index profile_views_professional_id_idx on public.profile_views (professional_id);
+create index if not exists profile_views_professional_id_idx on public.profile_views (professional_id);
 
 alter table public.profile_views enable row level security;
 
 -- Só o dono do anúncio lê as próprias visualizações (é o dado que alimenta
 -- a tela de analytics do Plus).
+drop policy if exists "dono vê as visualizações do próprio anúncio" on public.profile_views;
 create policy "dono vê as visualizações do próprio anúncio"
   on public.profile_views for select
   to authenticated
@@ -843,13 +887,16 @@ create policy "dono vê as visualizações do próprio anúncio"
 -- Insert é público (qualquer visita à página do profissional gera o
 -- registro, inclusive sem login) — é só uma contagem, sem vínculo com
 -- usuário.
+drop policy if exists "qualquer visita registra uma visualização" on public.profile_views;
 create policy "qualquer visita registra uma visualização"
   on public.profile_views for insert
   with check (true);
 
 -- Atualiza a view pública de professionals para incluir plus_active/
 -- plus_until (o painel usa para decidir se mostra a tela de analytics).
-create or replace view public.professionals_public as
+-- Mesmo motivo da 0014: a lista de colunas muda no meio, então drop + create.
+drop view if exists public.professionals_public;
+create view public.professionals_public as
 select
   id, owner_id, name, category, city, bio, phone, entity_type,
   company_name, photo_url, responsible_name,
@@ -873,7 +920,7 @@ grant select on public.professionals_public to anon, authenticated;
 -- anúncio precisa comprar de novo ao expirar.
 
 alter table public.subscriptions
-  add column billing_cycle text not null default 'monthly'
+  add column if not exists billing_cycle text not null default 'monthly'
     check (billing_cycle in ('monthly', 'annual'));
 
 -- ═══════════════════════════════════════════════════════════════
@@ -897,12 +944,14 @@ alter table public.suggestions enable row level security;
 
 -- Qualquer um pode enviar uma sugestão, inclusive sem estar logado. Quando
 -- logado, o client captura o user_id automaticamente (não é obrigatório).
+drop policy if exists "qualquer um pode enviar uma sugestão" on public.suggestions;
 create policy "qualquer um pode enviar uma sugestão"
   on public.suggestions for insert
   with check (true);
 
 -- Sem policy de select pública de propósito — só admin lê (mesmo padrão de
 -- `reports`).
+drop policy if exists "admin vê as sugestões" on public.suggestions;
 create policy "admin vê as sugestões"
   on public.suggestions for select
   to authenticated
@@ -910,6 +959,7 @@ create policy "admin vê as sugestões"
     exists (select 1 from public.admins a where a.user_id = auth.uid())
   );
 
+drop policy if exists "admin atualiza o status da sugestão" on public.suggestions;
 create policy "admin atualiza o status da sugestão"
   on public.suggestions for update
   to authenticated
@@ -948,8 +998,8 @@ create policy "admin atualiza o status da sugestão"
 --     liberando o aviso do ciclo seguinte.
 
 alter table public.subscriptions
-  add column auto_renew boolean not null default true,
-  add column renewal_notified_at timestamptz;
+  add column if not exists auto_renew boolean not null default true,
+  add column if not exists renewal_notified_at timestamptz;
 
 -- Backfill: antes desta migration, TODA linha anual era o plano à vista
 -- (pagamento único via checkout/preferences) — nenhuma renovava sozinha.
@@ -959,7 +1009,7 @@ update public.subscriptions
 
 -- Índice para a varredura diária do cron (planos anuais à vista ativos,
 -- ainda sem aviso enviado neste ciclo).
-create index subscriptions_renovacao_idx
+create index if not exists subscriptions_renovacao_idx
   on public.subscriptions (billing_cycle, auto_renew, status, current_period_end);
 
 -- ═══════════════════════════════════════════════════════════════
@@ -1085,21 +1135,29 @@ alter table public.processed_payments enable row level security;
 -- perde uma das compras se dois pagamentos forem confirmados ao mesmo tempo.
 -- Só o webhook (service_role) chama esta função — por isso não há grant para
 -- anon/authenticated, ao contrário de `consume_lead_credit`.
-create or replace function public.add_lead_credits(professional_id uuid, amount integer)
+-- Os parâmetros levam prefixo `p_` porque `on conflict (professional_id)` não
+-- aceita qualificação de tabela: com um parâmetro de mesmo nome, o Postgres
+-- não sabe se a coluna do conflito é a coluna ou a variável, e recusa a
+-- chamada inteira em tempo de execução.
+-- `create or replace function` não consegue trocar o NOME de um parâmetro
+-- (só o corpo), então uma versão anterior já aplicada bloquearia esta. Drop
+-- antes resolve, e é inofensivo: a função não guarda estado.
+drop function if exists public.add_lead_credits(uuid, integer);
+create function public.add_lead_credits(p_professional_id uuid, p_amount integer)
 returns void
 language plpgsql
 security definer
 set search_path = public
 as $$
 begin
-  if amount is null or amount <= 0 then
+  if p_amount is null or p_amount <= 0 then
     raise exception 'amount deve ser positivo';
   end if;
 
   insert into public.lead_credits (professional_id, balance)
-  values (add_lead_credits.professional_id, add_lead_credits.amount)
+  values (p_professional_id, p_amount)
   on conflict (professional_id) do update
-    set balance = public.lead_credits.balance + add_lead_credits.amount,
+    set balance = public.lead_credits.balance + p_amount,
         updated_at = now();
 end;
 $$;
@@ -1149,12 +1207,14 @@ alter table public.contact_requests enable row level security;
 
 -- Qualquer visitante pode pedir contato, com ou sem login: exigir conta aqui
 -- só afastaria quem está com pressa de resolver um problema em casa.
+drop policy if exists "qualquer pessoa pede contato" on public.contact_requests;
 create policy "qualquer pessoa pede contato"
   on public.contact_requests for insert
   with check (true);
 
 -- Só o dono do anúncio lê e atualiza os pedidos que recebeu. Não há policy de
 -- leitura pública: são dados de contato de terceiros.
+drop policy if exists "dono vê os pedidos do próprio anúncio" on public.contact_requests;
 create policy "dono vê os pedidos do próprio anúncio"
   on public.contact_requests for select
   to authenticated
@@ -1166,6 +1226,7 @@ create policy "dono vê os pedidos do próprio anúncio"
     )
   );
 
+drop policy if exists "dono atualiza os pedidos do próprio anúncio" on public.contact_requests;
 create policy "dono atualiza os pedidos do próprio anúncio"
   on public.contact_requests for update
   to authenticated

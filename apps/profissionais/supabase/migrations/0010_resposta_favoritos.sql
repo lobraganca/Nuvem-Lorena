@@ -9,6 +9,7 @@ alter table public.reviews
 -- seu profissional. A policy de update já existente ("autor edita a própria
 -- avaliação") continua valendo para o autor editar rating/comment; esta é
 -- adicional, para o dono responder.
+drop policy if exists "dono do anúncio responde a avaliação" on public.reviews;
 create policy "dono do anúncio responde a avaliação"
   on public.reviews for update
   to authenticated
@@ -39,16 +40,19 @@ create index if not exists favorites_professional_idx on public.favorites (profe
 
 alter table public.favorites enable row level security;
 
+drop policy if exists "usuário vê os próprios favoritos" on public.favorites;
 create policy "usuário vê os próprios favoritos"
   on public.favorites for select
   to authenticated
   using (auth.uid() = user_id);
 
+drop policy if exists "usuário favorita um profissional" on public.favorites;
 create policy "usuário favorita um profissional"
   on public.favorites for insert
   to authenticated
   with check (auth.uid() = user_id);
 
+drop policy if exists "usuário remove o próprio favorito" on public.favorites;
 create policy "usuário remove o próprio favorito"
   on public.favorites for delete
   to authenticated

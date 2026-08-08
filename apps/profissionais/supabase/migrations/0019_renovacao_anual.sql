@@ -22,8 +22,8 @@
 --     liberando o aviso do ciclo seguinte.
 
 alter table public.subscriptions
-  add column auto_renew boolean not null default true,
-  add column renewal_notified_at timestamptz;
+  add column if not exists auto_renew boolean not null default true,
+  add column if not exists renewal_notified_at timestamptz;
 
 -- Backfill: antes desta migration, TODA linha anual era o plano à vista
 -- (pagamento único via checkout/preferences) — nenhuma renovava sozinha.
@@ -33,5 +33,5 @@ update public.subscriptions
 
 -- Índice para a varredura diária do cron (planos anuais à vista ativos,
 -- ainda sem aviso enviado neste ciclo).
-create index subscriptions_renovacao_idx
+create index if not exists subscriptions_renovacao_idx
   on public.subscriptions (billing_cycle, auto_renew, status, current_period_end);

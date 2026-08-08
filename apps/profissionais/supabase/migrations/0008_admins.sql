@@ -14,6 +14,7 @@ alter table public.admins enable row level security;
 -- Isso evita que qualquer usuário autenticado se auto-promova a admin.
 
 -- reports: admin pode ler e mudar o status (pending -> reviewed/dismissed).
+drop policy if exists "admin vê as denúncias" on public.reports;
 create policy "admin vê as denúncias"
   on public.reports for select
   to authenticated
@@ -21,6 +22,7 @@ create policy "admin vê as denúncias"
     exists (select 1 from public.admins a where a.user_id = auth.uid())
   );
 
+drop policy if exists "admin atualiza o status da denúncia" on public.reports;
 create policy "admin atualiza o status da denúncia"
   on public.reports for update
   to authenticated

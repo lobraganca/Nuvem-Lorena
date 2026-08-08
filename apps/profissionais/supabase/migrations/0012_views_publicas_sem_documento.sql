@@ -8,7 +8,13 @@
 -- (RLS `auth.uid() = id`/`owner_id`) ou é admin.
 
 -- professionals_public: todas as colunas exceto `document`.
-create or replace view public.professionals_public as
+--
+-- drop + create, e não `create or replace`: migrations posteriores acrescentam
+-- colunas a esta view, e ao re-executar o script do zero o `create or replace`
+-- tentaria REMOVER essas colunas — o Postgres recusa. Vale a mesma regra
+-- sempre que uma view muda de formato mais adiante.
+drop view if exists public.professionals_public;
+create view public.professionals_public as
 select
   id, owner_id, name, category, city, bio, phone, entity_type,
   company_name, photo_url, responsible_name,
@@ -31,6 +37,7 @@ grant select on public.profiles_public to anon, authenticated;
 -- nome/avatar de outros usuários passa a ser feita via `profiles_public`.
 drop policy if exists "profiles são públicos para leitura" on public.profiles;
 
+drop policy if exists "usuário lê o próprio profile" on public.profiles;
 create policy "usuário lê o próprio profile"
   on public.profiles for select
   to authenticated
