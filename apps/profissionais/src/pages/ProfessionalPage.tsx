@@ -10,6 +10,8 @@ import {
   replyToReview,
   reportProfessional,
   getFavoriteIds,
+  isCurrentlyBoosted,
+  isCurrentlyVerified,
   type ProfessionalWithRating,
 } from "../lib/professionals";
 import { getProfile, saveCpf } from "../lib/profiles";
@@ -18,6 +20,16 @@ import { REPORT_REASONS, type Review } from "../types/domain";
 import { useAuth } from "../lib/useAuth";
 import { FavoriteButton } from "../components/FavoriteButton";
 import { BottomSheet } from "../components/BottomSheet";
+
+/**
+ * Chave de localStorage usada como trava anti-spam best-effort para
+ * denúncias anônimas (sem login): não impede um usuário decidido de limpar
+ * o localStorage e denunciar de novo, mas reduz spam casual do mesmo
+ * navegador. Ver limitação documentada no README.
+ */
+function reportedKey(professionalId: string) {
+  return `busca-itabirito-denunciado-${professionalId}`;
+}
 
 export function ProfessionalPage() {
   const { id } = useParams<{ id: string }>();
@@ -43,6 +55,8 @@ export function ProfessionalPage() {
   const [isFavorite, setIsFavorite] = useState(false);
   const [replyDrafts, setReplyDrafts] = useState<Record<string, string>>({});
   const [replySavingId, setReplySavingId] = useState<string | null>(null);
+  const [deleteConfirmId, setDeleteConfirmId] = useState<string | null>(null);
+  const [alreadyReportedLocally, setAlreadyReportedLocally] = useState(false);
 
   async function load() {
     if (!id) return;
@@ -54,6 +68,11 @@ export function ProfessionalPage() {
   useEffect(() => {
     load();
     // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [id]);
+
+  useEffect(() => {
+    if (!id) return;
+    setAlreadyReportedLocally(!!window.localStorage.getItem(reportedKey(id)));
   }, [id]);
 
   useEffect(() => {
@@ -136,14 +155,17 @@ export function ProfessionalPage() {
     setReviewSheetOpen(false);
   }
 
-  async function removeReview(reviewId: string) {
-    if (!confirm("Excluir esta avaliação?")) return;
+  async function confirmRemoveReview() {
+    if (!deleteConfirmId) return;
+    const reviewId = deleteConfirmId;
     try {
       await deleteReview(reviewId);
       if (editingReviewId === reviewId) cancelEditReview();
       await load();
     } catch (err) {
       setError(err instanceof Error ? err.message : "Não foi possível excluir a avaliação.");
+    } finally {
+      setDeleteConfirmId(null);
     }
   }
 
@@ -173,10 +195,19 @@ export function ProfessionalPage() {
         reason: reportReason,
         details: reportDetails,
       });
+      if (!user) {
+        window.localStorage.setItem(reportedKey(id), "1");
+        setAlreadyReportedLocally(true);
+      }
       setReportSent(true);
       setReportDetails("");
     } catch (err) {
-      setReportError(err instanceof Error ? err.message : "Não foi possível enviar a denúncia.");
+      const code = (err as { code?: string } | null)?.code;
+      if (code === "23505") {
+        setReportError("Você já tem uma denúncia em aberto para este anúncio.");
+      } else {
+        setReportError(err instanceof Error ? err.message : "Não foi possível enviar a denúncia.");
+      }
     } finally {
       setReportSaving(false);
     }
@@ -192,10 +223,9 @@ export function ProfessionalPage() {
     );
   }
 
-  const whatsappLink =
-    professional.phone && professional.verified
-      ? `https://wa.me/${professional.phone.replace(/\D/g, "")}`
-      : null;
+  const verified = isCurrentlyVerified(professional);
+  const boosted = isCurrentlyBoosted(professional);
+  const whatsappLink = professional.phone && verified ? `https://wa.me/${professional.phone.replace(/\D/g, "")}` : null;
 
   return (
     <div className="container" style={{ paddingTop: 32 }}>
@@ -205,7 +235,7 @@ export function ProfessionalPage() {
             {professional.photo_url ? (
               <img
                 src={professional.photo_url}
-                alt=""
+                alt={professional.name}
                 style={{
                   width: 72,
                   height: 72,
@@ -237,8 +267,8 @@ export function ProfessionalPage() {
             </div>
           </div>
           <div style={{ display: "flex", gap: 8, alignItems: "start" }}>
-            {professional.verified && <span className="badge badge-verified">✓ Verificado</span>}
-            {professional.boosted && <span className="badge badge-boosted">Destaque</span>}
+            {verified && <span className="badge badge-verified">✓ Verificado</span>}
+            {boosted && <span className="badge badge-boosted">Destaque</span>}
             <FavoriteButton professionalId={professional.id} initialFavorited={isFavorite} size="large" />
           </div>
         </div>
@@ -332,6 +362,23 @@ export function ProfessionalPage() {
           </BottomSheet>
         )}
 
+        {deleteConfirmId && (
+          <BottomSheet
+            title="Excluir avaliação"
+            subtitle="Essa ação não pode ser desfeita."
+            onClose={() => setDeleteConfirmId(null)}
+          >
+            <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
+              <button className="btn btn-outline" onClick={() => setDeleteConfirmId(null)}>
+                Cancelar
+              </button>
+              <button className="btn btn-gold" onClick={confirmRemoveReview}>
+                Excluir avaliação
+              </button>
+            </div>
+          </BottomSheet>
+        )}
+
         <div className="grid">
           {reviews.length === 0 && <p className="muted">Nenhuma avaliação ainda.</p>}
           {reviews.map((r) => {
@@ -353,7 +400,7 @@ export function ProfessionalPage() {
                       <button
                         className="btn btn-outline"
                         style={{ fontSize: "0.75rem", padding: "4px 8px" }}
-                        onClick={() => removeReview(r.id)}
+                        onClick={() => setDeleteConfirmId(r.id)}
                       >
                         Excluir
                       </button>
@@ -400,7 +447,12 @@ export function ProfessionalPage() {
       </section>
 
       <section style={{ marginTop: 32 }}>
-        {!reportOpen && !reportSent && (
+        {!reportOpen && !reportSent && !user && alreadyReportedLocally && (
+          <p className="muted" style={{ fontSize: "0.82rem" }}>
+            Você já denunciou este anúncio neste navegador. Entre com sua conta para denunciar de novo se necessário.
+          </p>
+        )}
+        {!reportOpen && !reportSent && (!alreadyReportedLocally || !!user) && (
           <button className="btn btn-outline" onClick={() => setReportOpen(true)} style={{ fontSize: "0.82rem" }}>
             Denunciar este anúncio
           </button>

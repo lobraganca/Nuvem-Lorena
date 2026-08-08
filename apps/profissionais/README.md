@@ -91,6 +91,33 @@ Migrations em `supabase/migrations/`:
   público; tabela `document_bans` (CPF/CNPJ bloqueados para novo cadastro)
   e a função `public.check_document_banned` (RPC `security definer` usada
   no cadastro, sem expor a lista de bloqueados).
+- `0010_resposta_favoritos.sql` — resposta do dono do anúncio a uma
+  avaliação (`reviews.reply`/`replied_at`) e a tabela `favorites`.
+- `0011_trigger_reviews_campo_restrito.sql` — a policy de update de
+  `reviews` do dono do anúncio (0010) liberava, no papel, a linha inteira —
+  então nada impedia reescrever `rating`/`comment` via API direta em vez de
+  só responder. Este trigger `BEFORE UPDATE` valida campo a campo: o autor
+  da avaliação só pode mudar `rating`/`comment` (não `reply`/`replied_at`);
+  o dono do anúncio só pode mudar `reply`/`replied_at` (nunca `rating`/
+  `comment`), com `replied_at = now()` setado automaticamente. RLS continua
+  controlando quem pode dar update; o trigger controla o quê.
+- `0012_views_publicas_sem_documento.sql` — fecha exposição de dados
+  sensíveis: cria as views `professionals_public` (todas as colunas de
+  `professionals` exceto `document`, o CPF/CNPJ do anunciante) e
+  `profiles_public` (`id`, `full_name`, `avatar_url`, `created_at`, sem
+  `cpf`); troca a policy pública de `select` de `profiles` para só permitir
+  ao próprio dono ler a própria linha (`auth.uid() = id`) — leitura de nome/
+  avatar de terceiros deve usar `profiles_public`. Toda leitura pública de
+  profissionais no client (`searchProfessionals`, `getProfessional`,
+  `getFavoriteProfessionals`) passou a usar `professionals_public`;
+  `getMyProfessionals` (painel do dono) e o painel admin continuam lendo a
+  tabela `professionals` direto, porque o dono/admin pode ver o próprio
+  documento.
+- `0013_rate_limit_denuncias.sql` — coluna opcional
+  `reports.reporter_fingerprint` e um índice único parcial
+  `(professional_id, reporter_id) where reporter_id is not null and status =
+  'pending'`, impedindo um mesmo usuário logado de abrir mais de uma
+  denúncia pendente para o mesmo anúncio.
 
 ### Storage — fotos/logos dos anúncios
 
@@ -325,6 +352,18 @@ npm run cap:sync
   pequena, com Itabirito como padrão — trocar/ampliar é só editar o array.
 - Confirmação de pagamento via webhook está esqueletada, não conectada de
   ponta a ponta (ver seção acima).
-- Sem paginação na listagem de busca.
-- Canal de denúncias (`reports`) não tem painel admin ainda — revisão hoje é
-  manual, direto no banco (ver seção "Banco de dados" acima).
+- **Paginação da busca/listagem admin** é incremental simples (`limit`/
+  `offset` via `page`/`pageSize` em `searchProfessionals`, botão "Carregar
+  mais"), não infinite scroll automático nem cursor-based.
+- **Anti-abuso de denúncias é best-effort, não é segurança forte:**
+  - Denunciante logado: bloqueado por um índice único parcial no banco (não
+    dá para abrir duas denúncias pendentes para o mesmo anúncio) — isso é
+    real e não pode ser burlado pelo client.
+  - Denunciante anônimo (sem login): a única trava é uma chave no
+    `localStorage` do navegador (`busca-itabirito-denunciado-<id>`). Isso
+    reduz spam casual do mesmo navegador, mas **não impede** alguém de
+    limpar o localStorage, usar aba anônima ou outro navegador/dispositivo
+    para denunciar de novo. Não há rate limit de IP nem CAPTCHA — se abuso
+    real acontecer, a mitigação natural seria adicionar isso no backend
+    (Edge Function na frente do insert, por exemplo), não implementado
+    nesta versão.
