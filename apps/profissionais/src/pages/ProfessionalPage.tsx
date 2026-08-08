@@ -17,6 +17,7 @@ import { formatCpf, isValidCpf } from "../lib/documents";
 import { REPORT_REASONS, type Review } from "../types/domain";
 import { useAuth } from "../lib/useAuth";
 import { FavoriteButton } from "../components/FavoriteButton";
+import { BottomSheet } from "../components/BottomSheet";
 
 export function ProfessionalPage() {
   const { id } = useParams<{ id: string }>();
@@ -37,6 +38,8 @@ export function ProfessionalPage() {
   const [reportSent, setReportSent] = useState(false);
   const [reportError, setReportError] = useState("");
   const [editingReviewId, setEditingReviewId] = useState<string | null>(null);
+  const [cpfSheetOpen, setCpfSheetOpen] = useState(false);
+  const [reviewSheetOpen, setReviewSheetOpen] = useState(false);
   const [isFavorite, setIsFavorite] = useState(false);
   const [replyDrafts, setReplyDrafts] = useState<Record<string, string>>({});
   const [replySavingId, setReplySavingId] = useState<string | null>(null);
@@ -86,6 +89,7 @@ export function ProfessionalPage() {
       const digits = cpfInput.replace(/\D/g, "");
       await saveCpf(user.id, digits);
       setCpf(digits);
+      setCpfSheetOpen(false);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Não foi possível salvar o CPF.");
     } finally {
@@ -107,6 +111,7 @@ export function ProfessionalPage() {
       setComment("");
       setRating(5);
       setEditingReviewId(null);
+      setReviewSheetOpen(false);
       await load();
     } catch (err) {
       setError(err instanceof Error ? err.message : "Não foi possível salvar a avaliação.");
@@ -120,6 +125,7 @@ export function ProfessionalPage() {
     setRating(r.rating);
     setComment(r.comment);
     setError("");
+    setReviewSheetOpen(true);
   }
 
   function cancelEditReview() {
@@ -127,6 +133,7 @@ export function ProfessionalPage() {
     setRating(5);
     setComment("");
     setError("");
+    setReviewSheetOpen(false);
   }
 
   async function removeReview(reviewId: string) {
@@ -261,56 +268,68 @@ export function ProfessionalPage() {
         {!user && <p className="muted">Faça login com sua conta Google para avaliar este profissional.</p>}
 
         {user && !cpfLoading && !cpf && (
-          <form className="card" onSubmit={confirmCpf} style={{ display: "grid", gap: 10, marginBottom: 20 }}>
-            <p className="muted" style={{ margin: 0 }}>
-              Para avaliar, confirme seu CPF. Ele fica associado à sua conta Google e é usado só para evitar
-              avaliações falsas — não aparece publicamente.
-            </p>
-            <input
-              placeholder="000.000.000-00"
-              value={cpfInput}
-              onChange={(e) => setCpfInput(formatCpf(e.target.value))}
-              inputMode="numeric"
-              maxLength={14}
-            />
-            {error && <p style={{ color: "#e0665e" }}>{error}</p>}
-            <button className="btn btn-gold" type="submit" disabled={saving}>
-              {saving ? "Confirmando…" : "Confirmar CPF"}
-            </button>
-          </form>
+          <button className="btn btn-gold" onClick={() => setCpfSheetOpen(true)} style={{ marginBottom: 20 }}>
+            Confirmar CPF para avaliar
+          </button>
         )}
 
-        {user && cpf && (
-          <form className="card" onSubmit={submitReview} style={{ display: "grid", gap: 10, marginBottom: 20 }}>
-            {editingReviewId && <p className="muted" style={{ margin: 0 }}>Editando sua avaliação</p>}
-            <label>
-              Nota
-              <select value={rating} onChange={(e) => setRating(Number(e.target.value))}>
-                {[5, 4, 3, 2, 1].map((n) => (
-                  <option key={n} value={n}>
-                    {n} estrela{n > 1 ? "s" : ""}
-                  </option>
-                ))}
-              </select>
-            </label>
-            <textarea
-              placeholder="Conte como foi o atendimento"
-              value={comment}
-              onChange={(e) => setComment(e.target.value)}
-              rows={3}
-            />
-            {error && <p style={{ color: "#e0665e" }}>{error}</p>}
-            <div style={{ display: "flex", gap: 10 }}>
-              <button className="btn btn-gold" type="submit" disabled={saving}>
+        {user && cpf && !editingReviewId && (
+          <button className="btn btn-gold" onClick={() => setReviewSheetOpen(true)} style={{ marginBottom: 20 }}>
+            Enviar avaliação
+          </button>
+        )}
+
+        {cpfSheetOpen && (
+          <BottomSheet
+            title="Confirmar CPF"
+            subtitle="Ele fica associado à sua conta Google e é usado só para evitar avaliações falsas — não aparece publicamente."
+            onClose={() => setCpfSheetOpen(false)}
+          >
+            <form onSubmit={confirmCpf} style={{ display: "grid", gap: 14 }}>
+              <input
+                placeholder="000.000.000-00"
+                value={cpfInput}
+                onChange={(e) => setCpfInput(formatCpf(e.target.value))}
+                inputMode="numeric"
+                maxLength={14}
+              />
+              {error && <p style={{ color: "var(--color-danger)" }}>{error}</p>}
+              <button className="btn btn-gold btn-block" type="submit" disabled={saving}>
+                {saving ? "Confirmando…" : "Confirmar CPF"}
+              </button>
+            </form>
+          </BottomSheet>
+        )}
+
+        {reviewSheetOpen && (
+          <BottomSheet
+            title={editingReviewId ? "Editar avaliação" : "Enviar avaliação"}
+            subtitle="Conte como foi sua experiência com este profissional."
+            onClose={cancelEditReview}
+          >
+            <form onSubmit={submitReview} style={{ display: "grid", gap: 14 }}>
+              <label>
+                Nota
+                <select value={rating} onChange={(e) => setRating(Number(e.target.value))}>
+                  {[5, 4, 3, 2, 1].map((n) => (
+                    <option key={n} value={n}>
+                      {n} estrela{n > 1 ? "s" : ""}
+                    </option>
+                  ))}
+                </select>
+              </label>
+              <textarea
+                placeholder="Conte como foi o atendimento"
+                value={comment}
+                onChange={(e) => setComment(e.target.value)}
+                rows={3}
+              />
+              {error && <p style={{ color: "var(--color-danger)" }}>{error}</p>}
+              <button className="btn btn-gold btn-block" type="submit" disabled={saving}>
                 {saving ? "Enviando…" : editingReviewId ? "Salvar alterações" : "Enviar avaliação"}
               </button>
-              {editingReviewId && (
-                <button className="btn btn-outline" type="button" onClick={cancelEditReview}>
-                  Cancelar
-                </button>
-              )}
-            </div>
-          </form>
+            </form>
+          </BottomSheet>
         )}
 
         <div className="grid">
@@ -388,34 +407,31 @@ export function ProfessionalPage() {
         )}
         {reportSent && <p className="muted">Denúncia enviada. Obrigado — vamos analisar este anúncio.</p>}
         {reportOpen && !reportSent && (
-          <form className="card" onSubmit={submitReport} style={{ display: "grid", gap: 10, maxWidth: 420 }}>
-            <p className="muted" style={{ margin: 0 }}>
-              Encontrou algo errado neste anúncio (informação falsa, golpe/fraude, conteúdo ofensivo)? Conte
-              pra gente.
-            </p>
-            <select value={reportReason} onChange={(e) => setReportReason(e.target.value)}>
-              {REPORT_REASONS.map((r) => (
-                <option key={r} value={r}>
-                  {r}
-                </option>
-              ))}
-            </select>
-            <textarea
-              placeholder="Detalhes (opcional)"
-              value={reportDetails}
-              onChange={(e) => setReportDetails(e.target.value)}
-              rows={3}
-            />
-            {reportError && <p style={{ color: "#e0665e" }}>{reportError}</p>}
-            <div style={{ display: "flex", gap: 10 }}>
-              <button className="btn btn-gold" type="submit" disabled={reportSaving}>
+          <BottomSheet
+            title="Denunciar este anúncio"
+            subtitle="Encontrou algo errado (informação falsa, golpe/fraude, conteúdo ofensivo)? Conte pra gente."
+            onClose={() => setReportOpen(false)}
+          >
+            <form onSubmit={submitReport} style={{ display: "grid", gap: 14 }}>
+              <select value={reportReason} onChange={(e) => setReportReason(e.target.value)}>
+                {REPORT_REASONS.map((r) => (
+                  <option key={r} value={r}>
+                    {r}
+                  </option>
+                ))}
+              </select>
+              <textarea
+                placeholder="Detalhes (opcional)"
+                value={reportDetails}
+                onChange={(e) => setReportDetails(e.target.value)}
+                rows={3}
+              />
+              {reportError && <p style={{ color: "var(--color-danger)" }}>{reportError}</p>}
+              <button className="btn btn-gold btn-block" type="submit" disabled={reportSaving}>
                 {reportSaving ? "Enviando…" : "Enviar denúncia"}
               </button>
-              <button className="btn btn-outline" type="button" onClick={() => setReportOpen(false)}>
-                Cancelar
-              </button>
-            </div>
-          </form>
+            </form>
+          </BottomSheet>
         )}
       </section>
 

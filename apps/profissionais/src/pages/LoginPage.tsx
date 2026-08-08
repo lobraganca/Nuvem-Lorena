@@ -22,7 +22,7 @@ export function LoginPage() {
         Entrar com Google
       </button>
       {!hasDatabase() && <p className="muted" style={{ marginTop: 10 }}>Configure VITE_SUPABASE_URL/ANON_KEY e o provider Google no Supabase para habilitar o login.</p>}
-      {error && <p style={{ color: "#e0665e", marginTop: 10 }}>{error}</p>}
+      {error && <p style={{ color: "var(--color-danger)", marginTop: 10 }}>{error}</p>}
     </div>
   );
 }

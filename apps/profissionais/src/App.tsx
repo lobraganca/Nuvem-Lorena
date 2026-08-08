@@ -1,5 +1,6 @@
 import { Routes, Route, Link } from "react-router-dom";
 import { Logo } from "./components/Logo";
+import { AppShell } from "./components/AppShell";
 import { HomePage } from "./pages/HomePage";
 import { ProfessionalPage } from "./pages/ProfessionalPage";
 import { LoginPage } from "./pages/LoginPage";
@@ -8,33 +9,7 @@ import { AdminPage } from "./pages/AdminPage";
 import { TermosPage } from "./pages/TermosPage";
 import { ComoFuncionaPage } from "./pages/ComoFuncionaPage";
 import { FavoritosPage } from "./pages/FavoritosPage";
-import { useAuth } from "./lib/useAuth";
-import { signOut } from "./lib/auth";
-
-function Header() {
-  const { user } = useAuth();
-  return (
-    <header className="container header">
-      <Logo />
-      <nav className="nav">
-        <Link to="/">Buscar</Link>
-        {user ? (
-          <>
-            <Link to="/favoritos">Favoritos</Link>
-            <Link to="/painel">Painel</Link>
-            <button className="btn btn-outline" onClick={() => signOut()}>
-              Sair
-            </button>
-          </>
-        ) : (
-          <Link className="btn btn-gold" to="/login">
-            Entrar
-          </Link>
-        )}
-      </nav>
-    </header>
-  );
-}
+import { PerfilPage } from "./pages/PerfilPage";
 
 function Footer() {
   return (
@@ -55,8 +30,7 @@ function Footer() {
 
 export default function App() {
   return (
-    <>
-      <Header />
+    <AppShell>
       <Routes>
         <Route path="/" element={<HomePage />} />
         <Route path="/profissional/:id" element={<ProfessionalPage />} />
@@ -66,8 +40,9 @@ export default function App() {
         <Route path="/termos" element={<TermosPage />} />
         <Route path="/como-funciona" element={<ComoFuncionaPage />} />
         <Route path="/favoritos" element={<FavoritosPage />} />
+        <Route path="/perfil" element={<PerfilPage />} />
       </Routes>
       <Footer />
-    </>
+    </AppShell>
   );
 }
