@@ -10,12 +10,14 @@
   /* O navy da marca virou a cor da tinta: títulos, texto e o wordmark. */
   --color-navy: #0a1a2f;
 
-  /* Azul é a cor de ação: botões, links, item ativo, foco. Duas forças
-     porque o claro é para preencher (botão com texto branco em cima) e o
-     escuro é para escrever sobre branco, onde precisa passar em contraste. */
-  --color-primary: #1b4f9c;
-  --color-primary-soft: #2c6bc4;
-  --color-primary-deep: #123c78;
+  /* Azul marinho é a cor de ação: botões, links, item ativo, foco. Três
+     forças porque o `soft` só existe para dar um leve volume ao gradiente do
+     botão (sem ele, o azul marinho chapado fica pesado), o `primary` é o
+     preenchimento com texto branco em cima, e o `deep` é para escrever sobre
+     branco. */
+  --color-primary: #12305e;
+  --color-primary-soft: #1c4480;
+  --color-primary-deep: #16406f;
 
   /* O dourado sai das ações e fica só onde é identidade: o A do wordmark e o
      selo de verificação — que é literalmente um selo, e ganha por não se
