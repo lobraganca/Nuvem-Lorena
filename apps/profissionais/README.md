@@ -133,6 +133,12 @@ Migrations em `supabase/migrations/`:
   (contagem de visualizações de perfil, sem dado pessoal, insert público);
   amplia `subscriptions.type` para aceitar `'plus'`; `professionals_public`
   atualizada com `plus_active`/`plus_until`.
+- `0017_assinatura_anual.sql` — `subscriptions.billing_cycle`
+  (`'monthly'`/`'annual'`), para diferenciar a assinatura recorrente mensal
+  do plano anual à vista com desconto (ver seção "Fontes de renda").
+- `0018_sugestoes.sql` — tabela `suggestions` (canal de sugestões gerais
+  sobre a plataforma, ver seção "Sugestões dos usuários"); insert público
+  (não exige login), leitura restrita a admin (mesmo padrão de `reports`).
 
 ### Storage — fotos/logos dos anúncios
 
@@ -173,6 +179,15 @@ Rota `/admin` (não aparece no menu público) mostra hoje:
   (com link para o perfil público) e botões para marcar como "Revisada" ou
   "Descartada". Denúncias pendentes ficam destacadas com a cor dourada do
   tema.
+- **Sugestões dos usuários** (`suggestions`) — canal de feedback geral
+  sobre a plataforma (ideias, categorias que faltam etc), diferente das
+  denúncias (que são sobre um anúncio específico). Qualquer visitante pode
+  enviar (link "Enviar sugestão" no rodapé, presente em qualquer página,
+  sem exigir login — quando logado, o `user_id` é capturado
+  automaticamente). O admin vê a mensagem, a data e o status (`new`/
+  `reviewed`), com botão para marcar como revisada. Leitura é restrita a
+  admin via RLS (mesma policy reaproveitada de `reports`, checando a tabela
+  `admins`) — não há select público em `suggestions`.
 - **Profissionais cadastrados** — lista com filtro rápido por cidade e
   categoria.
 - **Tirar anúncio do ar** — direto de uma denúncia ou da lista geral, o
@@ -237,42 +252,62 @@ time de admins crescer.
 
 ## Mercado Pago — modelo de monetização implementado
 
-Duas assinaturas recorrentes mensais por profissional:
+Três assinaturas recorrentes por profissional, cada uma com **duas formas de
+pagamento** à escolha do dono do anúncio (BottomSheet no painel/analytics):
 
-- **Selo de verificação** — R$ 10,90/mês (`type: "verification"`).
-- **Turbinar anúncio** — destaque na listagem, ordenado antes dos demais
-  (`type: "boost"`).
+- **Selo de verificação** — R$ 10,90/mês, ou R$ 104,64/ano à vista
+  (`type: "verification"`).
+- **Turbinar anúncio** — destaque na listagem, ordenado antes dos demais —
+  R$ 19,90/mês, ou R$ 191,04/ano à vista (`type: "boost"`).
+- **Empresa Plus** (analytics, só `entity_type = 'pj'`) — R$ 29,90/mês, ou
+  R$ 287,04/ano à vista (`type: "plus"`).
 
-Fluxo:
+O valor anual é **20% de desconto sobre 12x o valor mensal**, sempre
+arredondado para 2 casas decimais (ex: 10,90 × 12 × 0,8 = 104,64).
 
-1. No painel (`/painel`), o dono do anúncio clica em "Assinar selo" ou
-   "Turbinar anúncio".
-2. O frontend chama `startSubscriptionCheckout` (`src/lib/payments.ts`), que
-   invoca a Edge Function `mercadopago-create-subscription`.
-3. Essa function (rodando no servidor, com `MP_ACCESS_TOKEN`) cria uma
-   **preapproval** (assinatura recorrente) na API do Mercado Pago, salva uma
-   linha `pending` em `subscriptions` e devolve o `init_point` — o frontend
-   redireciona o usuário para lá para autorizar o pagamento.
-4. **TODO / esqueleto documentado:** `mercadopago-webhook`
-   (`supabase/functions/mercadopago-webhook/index.ts`) já recebe as
-   notificações do Mercado Pago e tem, comentado e explicado passo a passo, o
-   que falta para: consultar o status real da preapproval, localizar a
-   assinatura pelo `external_reference`, e então marcar
-   `professionals.verified = true` / `professionals.boosted = true` (com as
-   respectivas datas de validade) e `subscriptions.status = 'active'`. Isso
-   foi deixado como esqueleto porque validar assinatura/segurança do webhook
-   e o cálculo exato de `current_period_end` merece ser feito com a conta real
-   do Mercado Pago em mãos — mas toda a criação da assinatura já funciona.
-5. Ao expirar (`verified_until`/`boosted_until` no passado), a listagem deixa
-   de considerar o profissional como verificado/turbinado — hoje isso é uma
-   checagem simples de data; um cron/Edge Function agendada para "desligar"
-   badges vencidos é um próximo passo natural, não implementado ainda.
+**Por que duas formas de pagamento diferentes:** a API do Mercado Pago não
+aceita Pix em `preapproval` (assinatura recorrente) no Brasil — só cartão de
+crédito. Por isso:
+
+- **Mensal recorrente** → `POST /preapproval`, cobrança automática todo mês,
+  **só cartão de crédito**. Edge Functions `mercadopago-create-subscription`
+  (verification/boost) e `mercadopago-create-plus-subscription` (plus).
+- **Anual à vista** → `POST /checkout/preferences` (Checkout Pro, pagamento
+  avulso — não recorrente, não renova sozinho), aceita **Pix, cartão ou
+  boleto automaticamente**, sem configuração extra. Edge Function
+  `mercadopago-create-annual-payment` (as 3 assinaturas). Como não renova
+  sozinho, o dono do anúncio precisa comprar de novo no ano seguinte para
+  manter o benefício ativo — isso é intencional para este MVP (não há
+  cobrança recorrente por Pix hoje).
+
+Fluxo (mensal, exemplo do selo — turbinar/plus seguem o mesmo padrão):
+
+1. No painel (`/painel`) ou em `/analytics/:id` (caso do Plus), o dono clica
+   em "Assinar selo" e escolhe, no BottomSheet, entre mensal e anual.
+2. **Mensal:** o frontend chama `startSubscriptionCheckout`
+   (`src/lib/payments.ts`), que invoca `mercadopago-create-subscription` —
+   cria a `preapproval`, salva uma linha `pending` (`billing_cycle:
+   'monthly'`) em `subscriptions` e devolve o `init_point`.
+   **Anual:** o frontend chama `startAnnualCheckout`, que invoca
+   `mercadopago-create-annual-payment` — cria a `preference` com o preço
+   anual já calculado, salva uma linha `pending` (`billing_cycle: 'annual'`)
+   em `subscriptions` e devolve o `init_point`. Em ambos, o usuário é
+   redirecionado ao `init_point` para pagar.
+3. `mercadopago-webhook` (`supabase/functions/mercadopago-webhook/index.ts`)
+   recebe a notificação do Mercado Pago e confirma o pagamento — ver seção
+   seguinte para o detalhe de como ele distingue os dois formatos de evento.
+4. Ao expirar (`verified_until`/`boosted_until`/`plus_until` no passado), a
+   listagem deixa de considerar o profissional como verificado/turbinado/
+   plus — é uma checagem simples de data (`isCurrentlyVerified`/
+   `isCurrentlyBoosted`/`isCurrentlyPlusActive` em `src/lib/professionals.ts`),
+   sem precisar de nenhum cron para "desligar" o badge.
 
 Deploy das functions:
 
 ```bash
 supabase functions deploy mercadopago-create-subscription
 supabase functions deploy mercadopago-create-plus-subscription
+supabase functions deploy mercadopago-create-annual-payment
 supabase functions deploy mercadopago-buy-credits
 supabase functions deploy mercadopago-sponsor-category
 supabase functions deploy mercadopago-webhook
@@ -284,25 +319,67 @@ E cadastre a URL do webhook
 (`https://<projeto>.functions.supabase.co/mercadopago-webhook`) no painel do
 Mercado Pago.
 
+## Webhook — como cada evento é confirmado
+
+`mercadopago-webhook` trata os **dois formatos de notificação diferentes**
+que o Mercado Pago manda, nunca confiando cegamente no corpo do webhook
+(pode ser forjado) — sempre revalida consultando a API do Mercado Pago com
+`MP_ACCESS_TOKEN`:
+
+- `type: "subscription_preapproval"` (ou `topic: "preapproval"`, dependendo
+  de como foi configurado no painel do Mercado Pago) — usado pelas **3
+  assinaturas mensais recorrentes**. Consulta `GET /preapproval/{id}`; se
+  `status === "authorized"`, marca `subscriptions.status = 'active'` (+
+  `current_period_end` = agora + 1 mês) e, em `professionals`, o campo
+  correspondente (`verified`/`verified_until`, `boosted`/`boosted_until`,
+  `plus_active`/`plus_until`) com validade de 1 mês. Se `status` virar
+  `cancelled`/`paused`, só reflete em `subscriptions.status` — o
+  `verified`/`boosted`/`plus_active` cai sozinho quando `..._until` expira.
+- `type: "payment"` — usado por **todos os pagamentos avulsos** via Checkout
+  Pro: créditos de contato, patrocínio de categoria e os 3 planos anuais à
+  vista. Consulta `GET /v1/payments/{id}`; se `status === "approved"`, lê o
+  prefixo do `external_reference`:
+  - `credits:<professionalId>:<quantity>` → upsert somando `quantity` ao
+    saldo em `lead_credits`.
+  - `sponsor:<sponsorshipId>` → marca `category_sponsorships.status =
+    'active'` e grava `mercadopago_payment_id` (um job/cron separado para
+    marcar `'expired'` quando `ends_at` passar não está incluído).
+  - `annual:<professionalId>:<type>` → mesmo efeito da preapproval
+    autorizada, mas com validade de **1 ano** (`..._until` = agora + 1 ano)
+    e a linha `pending` em `subscriptions` (`billing_cycle: 'annual'`) vira
+    `active`.
+- Qualquer outro `type`/`topic` não reconhecido é ignorado (responde 200
+  vazio). Falha de rede/parse ao consultar a API do Mercado Pago é
+  capturada (try/catch) e logada com `console.error`, sem derrubar a
+  function — o webhook sempre responde 200 rapidamente, mesmo em erro
+  interno, para não sofrer reenvio agressivo do Mercado Pago.
+
 ## Fontes de renda
 
 O app tem hoje **5 fontes de renda**, todas cobradas via Mercado Pago
 (assinatura recorrente via `preapproval`, ou cobrança avulsa via
-`checkout/preferences` — Checkout Pro):
+`checkout/preferences` — Checkout Pro), com o webhook confirmando
+automaticamente todas elas:
 
-| Fonte | Preço | Tipo de cobrança | Edge Function |
+| Fonte | Mensal (cartão) | Anual à vista (Pix/cartão/boleto) | Edge Function |
 |---|---|---|---|
-| Selo de verificação | R$ 10,90/mês | Recorrente (preapproval) | `mercadopago-create-subscription` |
-| Turbinar anúncio (destaque) | R$ 19,90/mês | Recorrente (preapproval) | `mercadopago-create-subscription` |
-| Pagar por contato (pay-per-lead) | R$ 2,90/lead (pacotes de 10/25/50 créditos) | Avulsa (preference) | `mercadopago-buy-credits` |
-| Banner de categoria patrocinada | R$ 29,90 (7 dias) / R$ 49,90 (15 dias) / R$ 79,90 (30 dias) | Avulsa (preference) | `mercadopago-sponsor-category` |
-| Empresa Plus (analytics, só `pj`) | R$ 29,90/mês | Recorrente (preapproval) | `mercadopago-create-plus-subscription` |
+| Selo de verificação | R$ 10,90/mês | R$ 104,64/ano (equiv. R$ 8,72/mês) | `mercadopago-create-subscription` / `mercadopago-create-annual-payment` |
+| Turbinar anúncio (destaque) | R$ 19,90/mês | R$ 191,04/ano (equiv. R$ 15,92/mês) | `mercadopago-create-subscription` / `mercadopago-create-annual-payment` |
+| Empresa Plus (analytics, só `pj`) | R$ 29,90/mês | R$ 287,04/ano (equiv. R$ 23,92/mês) | `mercadopago-create-plus-subscription` / `mercadopago-create-annual-payment` |
+| Pagar por contato (pay-per-lead) | — | R$ 2,90/lead (pacotes de 10/25/50 créditos), Pix/cartão/boleto | `mercadopago-buy-credits` |
+| Banner de categoria patrocinada | — | R$ 29,90 (7 dias) / R$ 49,90 (15 dias) / R$ 79,90 (30 dias), Pix/cartão/boleto | `mercadopago-sponsor-category` |
+
+**Pix funciona em todo pagamento avulso** (créditos, patrocínio e os 3
+planos anuais) **mas não no plano mensal recorrente** — não é uma limitação
+do app, é a própria API do Mercado Pago que não aceita Pix em `preapproval`
+no Brasil.
 
 Como cada uma funciona:
 
-- **Selo de verificação / Turbinar anúncio** — já documentado acima:
-  assinatura recorrente, controla `professionals.verified`/`boosted` (+
-  `_until`).
+- **Selo de verificação / Turbinar anúncio / Empresa Plus** — já
+  documentado acima: mensal recorrente ou anual à vista, ambos confirmados
+  pelo webhook, controlando `professionals.verified`/`boosted`/
+  `plus_active` (+ `_until`).
 - **Pagar por contato** — alternativa ao WhatsApp livre. O dono escolhe o
   modo em `/painel` (`professionals.contact_mode`); no modo
   `pay_per_lead`, cada clique em "Chamar no WhatsApp" na página do
@@ -318,34 +395,30 @@ Como cada uma funciona:
   a `HomePage` mostra um banner dourado acima da lista sempre que a busca
   estiver filtrada por aquela categoria (sem filtro de categoria, não
   aparece banner).
-- **Empresa Plus** — assinatura recorrente adicional, só oferecida a
-  anúncios `entity_type = 'pj'` (`mercadopago-create-plus-subscription`).
-  Com `plus_active` ativo, `/analytics/:id` mostra visualizações de perfil
-  (`profile_views`, incrementado a cada `getProfessional`, best-effort),
-  total de leads (`lead_events`, só relevante se o modo pay-per-lead também
-  estiver ativo — senão mostra "N/A") e a avaliação média/contagem que já
-  existiam.
+- **Empresa Plus** — com `plus_active` ativo, `/analytics/:id` mostra
+  visualizações de perfil (`profile_views`, incrementado a cada
+  `getProfessional`, best-effort), total de leads (`lead_events`, só
+  relevante se o modo pay-per-lead também estiver ativo — senão mostra
+  "N/A") e a avaliação média/contagem que já existiam.
 
-**Confirmação de pagamento — todas dependem do webhook.** Igual ao selo e
-ao turbinar anúncio, a criação da cobrança (assinatura ou preferência)
-já funciona de ponta a ponta, mas a confirmação de pagamento das **3 novas
-Edge Functions também fica esqueleto/best-effort**, seguindo o mesmo padrão
-documentado em `mercadopago-webhook`: hoje o webhook recebe a notificação
-do Mercado Pago e só loga; falta implementar, para cada `external_reference`
-novo, o tratamento correspondente:
+**TODO / não incluído neste MVP:** nada renova automaticamente o plano
+anual — ao expirar, o dono precisa comprar de novo (sem cobrança recorrente
+por Pix disponível na API do Mercado Pago hoje); um lembrete por e-mail
+próximo ao vencimento do plano anual seria um próximo passo natural, não
+implementado.
 
-- `credits:<professionalId>:<quantity>` → upsert somando `quantity` ao
-  saldo em `lead_credits`.
-- `sponsor:<sponsorshipId>` → marcar `category_sponsorships.status =
-  'active'` (e, à parte, um job/cron para marcar `'expired'` quando
-  `ends_at` passar — não incluído).
-- `<professionalId>:plus` → mesmo tratamento do selo/boost, mas setando
-  `professionals.plus_active`/`plus_until`.
+## Sugestões dos usuários
 
-Até esse trecho ser implementado, os pagamentos dessas 3 fontes de renda
-são cobrados normalmente no Mercado Pago, mas **não** liberam o benefício
-automaticamente — precisa ser feito manualmente (ou completando o TODO) até
-o webhook ir para produção.
+Canal simples de feedback geral sobre a plataforma (ideias, "poderia ter
+tal categoria" etc) — diferente do canal de denúncias (`reports`), que é
+sobre um anúncio específico. Link "Enviar sugestão" no rodapé do app
+(`src/App.tsx`), acessível em qualquer página, sem exigir login: abre um
+`BottomSheet` com um textarea e o botão "Enviar" (`sendSuggestion` em
+`src/lib/suggestions.ts`). Quando o usuário está logado, o `user_id` é
+capturado automaticamente; anônimo, fica `null`. Sem policy de select
+pública em `suggestions` — só admin lê (mesma policy reaproveitada de
+`reports`), na aba "Sugestões dos usuários" do painel `/admin` (ver seção
+"Painel administrativo" acima).
 
 ## PWA
 
