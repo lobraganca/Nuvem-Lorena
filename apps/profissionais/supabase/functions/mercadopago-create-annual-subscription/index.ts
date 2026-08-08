@@ -1,27 +1,27 @@
-// Edge Function: cria uma preferência de pagamento avulso (Checkout Pro, NÃO
-// recorrente) no Mercado Pago para a alternativa "plano anual à vista" das
-// 3 assinaturas recorrentes (selo de verificação, turbinar anúncio, Empresa
-// Plus). Diferente de `mercadopago-create-subscription`/
-// `mercadopago-create-plus-subscription` (que usam `/preapproval`, só
-// cartão), este fluxo aceita Pix/cartão/boleto automaticamente, com 20% de
-// desconto sobre 12x o valor mensal.
+// Edge Function: cria uma assinatura ANUAL RECORRENTE (preapproval com
+// `auto_recurring.frequency = 12` / `frequency_type = "months"`) no Mercado
+// Pago para as 3 assinaturas do app (selo de verificação, turbinar anúncio,
+// Empresa Plus), com 20% de desconto sobre 12x o valor mensal.
 //
-// Este é o único caminho de assinatura que NÃO renova sozinho: Pix e boleto
-// não têm débito automático na API do Mercado Pago. Quem quer o anual
-// renovando sozinho usa `mercadopago-create-annual-subscription` (preapproval
-// de 12 meses, cartão). Para que este caminho não dependa da memória do
-// dono do anúncio, a Edge Function agendada `renew-annual-plans` roda 1x/dia,
-// acha os planos vencendo em até 7 dias, já gera a nova cobrança com esta
-// mesma lógica e manda o link por e-mail.
+// Diferença para as outras functions de cobrança anual/mensal:
+//   - `mercadopago-create-subscription` / `mercadopago-create-plus-subscription`
+//     → preapproval de 1 mês (cartão, cobra todo mês).
+//   - ESTA function → preapproval de 12 meses (cartão, cobra todo ano
+//     sozinha). É recorrência de verdade: o dono não precisa fazer nada.
+//   - `mercadopago-create-annual-payment` → pagamento ÚNICO via
+//     checkout/preferences (aceita Pix/boleto, mas NÃO renova sozinho; a
+//     renovação é avisada por e-mail pela function agendada
+//     `renew-annual-plans`).
 //
-// A confirmação do pagamento (marcar verified/boosted/plus_active com
-// `..._until` de 1 ano) é feita pelo `mercadopago-webhook`, tratando
-// `external_reference = "annual:<professionalId>:<type>"`.
+// `external_reference` = "<professionalId>:<type>:annual" — o sufixo
+// `:annual` é o que faz o `mercadopago-webhook` dar validade de 1 ano em vez
+// de 1 mês ao autorizar a preapproval (o formato mensal continua sendo
+// "<professionalId>:<type>", sem sufixo).
 //
 // Variáveis de ambiente exigidas (configure com `supabase secrets set`):
 //   MP_ACCESS_TOKEN, SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY, PUBLIC_APP_URL
 //
-// Deploy: supabase functions deploy mercadopago-create-annual-payment
+// Deploy: supabase functions deploy mercadopago-create-annual-subscription
 
 // deno-lint-ignore-file no-explicit-any
 import { createClient } from "jsr:@supabase/supabase-js@2";
@@ -31,8 +31,8 @@ const SUPABASE_URL = Deno.env.get("SUPABASE_URL") ?? "";
 const SUPABASE_SERVICE_ROLE_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "";
 const PUBLIC_APP_URL = Deno.env.get("PUBLIC_APP_URL") ?? "http://localhost:5173";
 
-// Mesmos preços mensais das outras 2 Edge Functions de assinatura — o anual
-// é sempre 12x o mensal com 20% de desconto.
+// Mesmos preços mensais das outras Edge Functions de assinatura — o anual é
+// sempre 12x o mensal com 20% de desconto.
 const MONTHLY_PRICES: Record<string, number> = {
   verification: 10.9,
   boost: 19.9,
@@ -101,51 +101,46 @@ Deno.serve(async (req) => {
 
     const price = annualPrice(type);
 
-    // Cria a preferência de pagamento avulso (Checkout Pro) no Mercado Pago.
-    const mpResponse = await fetch("https://api.mercadopago.com/checkout/preferences", {
+    // Assinatura recorrente ANUAL: o Mercado Pago cobra o cartão sozinho a
+    // cada 12 meses, sem ação do dono do anúncio.
+    // Docs: https://www.mercadopago.com.br/developers/pt/reference/subscriptions/_preapproval/post
+    const mpResponse = await fetch("https://api.mercadopago.com/preapproval", {
       method: "POST",
       headers: {
         Authorization: `Bearer ${MP_ACCESS_TOKEN}`,
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        items: [
-          {
-            title: `Busca Itabirito — ${LABELS[type]} (${professional.name}) — plano anual, pagamento único, com 20% de desconto`,
-            quantity: 1,
-            unit_price: price,
-            currency_id: "BRL",
-          },
-        ],
-        back_urls: {
-          success: `${PUBLIC_APP_URL}/painel`,
-          failure: `${PUBLIC_APP_URL}/painel`,
-          pending: `${PUBLIC_APP_URL}/painel`,
+        reason: `Busca Itabirito — ${LABELS[type]} (${professional.name}) — plano anual com 20% de desconto, renovação automática`,
+        auto_recurring: {
+          frequency: 12,
+          frequency_type: "months",
+          transaction_amount: price,
+          currency_id: "BRL",
         },
-        auto_return: "approved",
-        external_reference: `annual:${professionalId}:${type}`,
-        payer: { email: user.email },
+        back_url: `${PUBLIC_APP_URL}/painel`,
+        external_reference: `${professionalId}:${type}:annual`,
+        payer_email: user.email,
       }),
     });
 
     const mpData = await mpResponse.json();
     if (!mpResponse.ok) {
-      return new Response(JSON.stringify({ error: "Falha ao criar pagamento no Mercado Pago.", details: mpData }), {
+      return new Response(JSON.stringify({ error: "Falha ao criar assinatura no Mercado Pago.", details: mpData }), {
         status: 502,
       });
     }
 
-    // Registra a assinatura anual como "pending" — o webhook a confirma
-    // depois (marcando verified/boosted/plus_active com `..._until` de 1 ano).
-    // `auto_renew: false` porque este caminho é pagamento ÚNICO (Pix/boleto
-    // não têm débito automático): é exatamente esta marcação que faz a
-    // function agendada `renew-annual-plans` avisar o dono por e-mail, com o
-    // link da nova cobrança, quando o plano estiver perto de vencer.
+    // Registra a assinatura como "pending" — o webhook a confirma depois
+    // (marcando `..._until` de 1 ano quando a preapproval ficar authorized).
+    // `auto_renew: true` porque o Mercado Pago renova sozinho: esta linha
+    // NUNCA deve receber o e-mail de aviso do `renew-annual-plans`.
     await admin.from("subscriptions").insert({
       professional_id: professionalId,
       type,
+      mercadopago_subscription_id: mpData.id,
       billing_cycle: "annual",
-      auto_renew: false,
+      auto_renew: true,
       status: "pending",
     });
 
