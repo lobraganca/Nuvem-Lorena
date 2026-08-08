@@ -1,3 +1,9 @@
 node_modules
 dist
 .env.local
+
+# Projetos nativos gerados pelo Capacitor (npx cap add android/ios).
+# Não versionamos: são gerados a partir de capacitor.config.ts + dist/
+# sempre que alguém rodar os comandos do README, seção "Publicação nas lojas".
+android
+ios

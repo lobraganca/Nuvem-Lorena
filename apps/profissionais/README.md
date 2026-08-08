@@ -131,6 +131,86 @@ E cadastre a URL do webhook
 (`https://<projeto>.functions.supabase.co/mercadopago-webhook`) no painel do
 Mercado Pago.
 
+## PWA
+
+O app já é um PWA de verdade (instalável, com ícone e splash básicos, e
+funciona offline para o "shell" estático):
+
+- `public/manifest.json` — nome, cores do tema (navy `#0B1D33`) e ícones.
+- `public/icon-192.png`, `public/icon-512.png`, `public/icon-maskable-512.png`
+  e `public/apple-touch-icon.png` — **placeholders** gerados a partir da
+  mesma lupa/silhueta do favicon do `index.html`, só para o app ser
+  instalável desde já. **Troque esses 4 arquivos pelos ícones finais da
+  logo oficial quando ela existir** (mantenha os mesmos nomes/tamanhos, ou
+  ajuste os caminhos em `public/manifest.json` e no `<link rel="apple-touch-icon">`
+  do `index.html`).
+- Service worker registrado via `vite-plugin-pwa` (`vite.config.ts`), gerado
+  automaticamente no `npm run build` (`dist/sw.js`). Ele faz cache só do
+  shell (HTML/CSS/JS/ícones do build) — **não** cacheia respostas do
+  Supabase (busca, login, avaliações), que sempre vão direto pra rede.
+
+## Publicação nas lojas (futuro)
+
+O app não está publicado nas lojas ainda — isso é trabalho para depois. O
+que já está pronto nesta branch é só a base técnica:
+
+**Já pronto:**
+- PWA completo (manifest, ícones placeholder, service worker) — ver seção
+  acima. Já dá pra "Adicionar à tela inicial" no Android/iOS hoje.
+- Capacitor configurado (`capacitor.config.ts`, `appId: com.buscaitabirito.app`)
+  e as dependências `@capacitor/core`, `@capacitor/cli`, `@capacitor/android`
+  e `@capacitor/ios` já instaladas em `package.json`.
+- Script `npm run cap:sync` (builda o web app e sincroniza com os projetos
+  nativos, quando eles existirem).
+
+**O que falta antes de publicar de verdade:**
+- Gerar os projetos nativos Android/iOS (comandos abaixo) — eles **não**
+  foram gerados nesta branch de propósito, para não versionar projetos
+  nativos grandes sem necessidade agora.
+- Trocar os 4 ícones placeholder pelos ícones/splash screen oficiais da
+  marca (a logo real ainda não existe — ver `src/components/Logo.tsx`).
+- Conta de desenvolvedor **Google Play** (taxa única de US$ 25).
+- Conta de desenvolvedor **Apple Developer Program** (US$ 99/ano).
+- Ajustar a política de pagamento in-app da Apple: hoje o selo de
+  verificação e o "turbinar anúncio" são cobrados via Mercado Pago fora do
+  app. Para publicar na App Store, assinaturas recorrentes desse tipo
+  normalmente precisam passar pelo **In-App Purchase** da Apple (guideline
+  3.1.1) — vale revisar com calma se o modelo se qualifica para alguma
+  exceção (ex.: "reader apps"/serviços prestados fora do app) ou se vai
+  precisar de um fluxo de assinatura via StoreKit em paralelo ao Mercado
+  Pago só para a versão iOS. O Google Play é mais flexível quanto a isso,
+  mas vale revisar a Payments Policy também.
+
+**Passo a passo para quando for publicar:**
+
+```bash
+# 1. Gerar os projetos nativos (roda uma vez, dentro de apps/profissionais)
+npm run build
+npx cap add android
+npx cap add ios       # só é possível/necessário numa máquina Mac
+npx cap sync
+
+# 2. Sempre que o código mudar, antes de testar/publicar de novo:
+npm run cap:sync
+```
+
+- **Android**: abra a pasta `android/` gerada no **Android Studio**
+  (`npx cap open android` depois de instalado o CLI do Capacitor com esse
+  comando disponível, ou abra manualmente). De lá, gere o APK/AAB assinado
+  e suba no Google Play Console.
+- **iOS**: abra a pasta `ios/` gerada no **Xcode** (`npx cap open ios`,
+  só funciona em macOS). De lá, configure o signing com a conta Apple
+  Developer e envie pelo Xcode/Transporter para o App Store Connect.
+
+**Pré-requisitos:**
+- Android Studio instalado (qualquer SO) para gerar/testar/assinar o app
+  Android.
+- Xcode instalado — só existe para macOS — para gerar/testar/assinar o app
+  iOS. Sem um Mac (físico ou na nuvem), não dá pra publicar na App Store.
+- Contas de desenvolvedor ativas nas duas lojas (valores acima).
+- Ícones e splash screen finais da marca prontos antes de submeter (as
+  lojas rejeitam apps com ícone placeholder óbvio).
+
 ## O que é mock/simplificado neste MVP
 
 - Lista de cidades (`CITIES` em `src/types/domain.ts`) é uma lista fixa
