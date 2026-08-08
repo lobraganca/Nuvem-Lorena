@@ -26,12 +26,19 @@
 // --- Tratamento por external_reference -------------------------------
 //
 // `subscription_preapproval` com status "authorized" — external_reference
-// no formato "<professionalId>:<type>" (type = verification|boost|plus):
-//   - subscriptions: status='active', current_period_end = agora + 1 mês,
+// em UM DOS DOIS formatos (type = verification|boost|plus):
+//   - "<professionalId>:<type>"         → assinatura MENSAL (preapproval de
+//     1 mês) — "..._until" = agora + 1 mês.
+//   - "<professionalId>:<type>:annual"  → assinatura ANUAL RECORRENTE
+//     (preapproval de 12 meses, criada por
+//     `mercadopago-create-annual-subscription`) — "..._until" = agora + 1
+//     ano. Se o sufixo faltar (preapproval antiga), cai no `billing_cycle`
+//     já gravado na linha de `subscriptions`; sem os dois, assume mensal.
+//   - subscriptions: status='active', current_period_end = mesma data,
 //     localizada por mercadopago_subscription_id.
 //   - professionals: marca o campo correspondente
 //     (verified/verified_until, boosted/boosted_until, plus_active/
-//     plus_until) com "..._until" = agora + 1 mês.
+//     plus_until).
 // status "cancelled"/"paused": só reflete em subscriptions.status — o
 // verified/boosted/plus_active cai sozinho quando "..._until" expira (ver
 // isCurrentlyVerified/isCurrentlyBoosted/isCurrentlyPlusActive no client).
@@ -43,10 +50,20 @@
 //   - "sponsor:<sponsorshipId>": category_sponsorships vira status='active',
 //     grava mercadopago_payment_id.
 //   - "annual:<professionalId>:<type>": plano anual à vista (pagamento
-//     único, 20% off) — mesmo efeito da preapproval authorized, mas
-//     "..._until" = agora + 1 ano, e a linha em subscriptions (mais recente
-//     pending do profissional+type+billing_cycle='annual') vira
-//     status='active', current_period_end = agora + 1 ano.
+//     único, 20% off, Pix/cartão/boleto) — mesmo efeito da preapproval
+//     authorized, mas "..._until" = agora + 1 ano. A linha em subscriptions
+//     (mais recente pending do profissional+type+billing_cycle='annual')
+//     vira status='active'; se não houver pending, é o pagamento de uma
+//     RENOVAÇÃO avisada por `renew-annual-plans` (que não cria linha nova),
+//     e a linha 'active' existente é estendida. Em qualquer caso,
+//     `renewal_notified_at` volta a null, liberando o aviso do ciclo
+//     seguinte.
+//   - "<professionalId>:<type>" / "<professionalId>:<type>:annual" (sem
+//     prefixo conhecido): é a COBRANÇA RECORRENTE de uma preapproval — o
+//     Mercado Pago manda um `payment` a cada renovação, com o mesmo
+//     external_reference da assinatura. Empurra "..._until" +1 mês (mensal)
+//     ou +1 ano (anual); sem isso a assinatura seria cobrada de novo mas o
+//     benefício expiraria no fim do primeiro período.
 
 // deno-lint-ignore-file no-explicit-any
 import { createClient } from "jsr:@supabase/supabase-js@2";
@@ -91,17 +108,43 @@ async function handlePreapproval(admin: Admin, preapprovalId: string) {
     return;
   }
   const preapproval = await resp.json();
-  const [professionalId, type] = String(preapproval.external_reference ?? "").split(":");
+  // Aceita os DOIS formatos de external_reference de preapproval:
+  //   "<professionalId>:<type>"          → mensal (formato original)
+  //   "<professionalId>:<type>:annual"   → anual recorrente (preapproval de
+  //                                        12 meses)
+  const [professionalId, type, cycleSuffix] = String(preapproval.external_reference ?? "").split(":");
   if (!professionalId || !type || !isSubscriptionType(type)) {
     console.error("mercadopago-webhook: external_reference inválido em preapproval", preapproval.external_reference);
     return;
   }
 
   if (preapproval.status === "authorized") {
-    const until = addMonths(new Date(), 1).toISOString();
+    // O sufixo do external_reference é a fonte primária; se ele vier vazio
+    // (preapproval antiga, criada antes do plano anual), cai no
+    // `billing_cycle` já gravado em subscriptions. Sem os dois, assume
+    // mensal — o comportamento que sempre existiu.
+    let isAnnual = cycleSuffix === "annual";
+    if (!isAnnual) {
+      const { data: existing } = await admin
+        .from("subscriptions")
+        .select("billing_cycle")
+        .eq("mercadopago_subscription_id", preapprovalId)
+        .maybeSingle();
+      isAnnual = existing?.billing_cycle === "annual";
+    }
+
+    const now = new Date();
+    const until = (isAnnual ? addYears(now, 1) : addMonths(now, 1)).toISOString();
     await admin
       .from("subscriptions")
-      .update({ status: "active", current_period_end: until })
+      .update({
+        status: "active",
+        current_period_end: until,
+        billing_cycle: isAnnual ? "annual" : "monthly",
+        auto_renew: true,
+        // Preapproval renova sozinha: nunca há aviso de renovação pendente.
+        renewal_notified_at: null,
+      })
       .eq("mercadopago_subscription_id", preapprovalId);
     await admin
       .from("professionals")
@@ -199,20 +242,81 @@ async function handlePayment(admin: Admin, paymentId: string) {
       .limit(1)
       .maybeSingle();
 
+    // `renewal_notified_at: null` zera o controle de aviso para o próximo
+    // ciclo: o `renew-annual-plans` volta a poder avisar quando este novo
+    // ano estiver perto de vencer.
+    const confirmed = {
+      status: "active",
+      current_period_end: until,
+      mercadopago_subscription_id: String(paymentId),
+      auto_renew: false,
+      renewal_notified_at: null,
+    };
+
     if (pending) {
-      await admin
-        .from("subscriptions")
-        .update({ status: "active", current_period_end: until, mercadopago_subscription_id: String(paymentId) })
-        .eq("id", pending.id);
+      await admin.from("subscriptions").update(confirmed).eq("id", pending.id);
+      return;
+    }
+
+    // Sem linha pending: é o pagamento de uma RENOVAÇÃO gerada pelo cron
+    // `renew-annual-plans` (que não cria linha nova, só avisa por e-mail com
+    // o link). Estende a linha ativa existente em vez de duplicá-la.
+    const { data: activeRow } = await admin
+      .from("subscriptions")
+      .select("id")
+      .eq("professional_id", professionalId)
+      .eq("type", type)
+      .eq("billing_cycle", "annual")
+      .eq("status", "active")
+      .order("created_at", { ascending: false })
+      .limit(1)
+      .maybeSingle();
+
+    if (activeRow) {
+      await admin.from("subscriptions").update(confirmed).eq("id", activeRow.id);
     } else {
       await admin.from("subscriptions").insert({
         professional_id: professionalId,
         type,
         billing_cycle: "annual",
-        status: "active",
-        current_period_end: until,
-        mercadopago_subscription_id: String(paymentId),
+        ...confirmed,
       });
+    }
+    return;
+  }
+
+  // Cobrança RECORRENTE de uma preapproval (mensal ou anual): o Mercado Pago
+  // manda um evento `payment` a cada renovação, carregando o mesmo
+  // external_reference da preapproval ("<id>:<type>" ou "<id>:<type>:annual").
+  // Sem tratar isso, a assinatura seria cobrada de novo mas o benefício
+  // expiraria — a renovação precisa empurrar o "..._until" para frente.
+  const parts = ref.split(":");
+  if ((parts.length === 2 || parts.length === 3) && isSubscriptionType(parts[1])) {
+    const [professionalId, type, cycleSuffix] = parts;
+    const isAnnual = cycleSuffix === "annual";
+    const now = new Date();
+    const until = (isAnnual ? addYears(now, 1) : addMonths(now, 1)).toISOString();
+
+    await admin
+      .from("professionals")
+      .update(professionalFieldsFor(type, until))
+      .eq("id", professionalId);
+
+    const { data: row } = await admin
+      .from("subscriptions")
+      .select("id")
+      .eq("professional_id", professionalId)
+      .eq("type", type)
+      .eq("billing_cycle", isAnnual ? "annual" : "monthly")
+      .order("created_at", { ascending: false })
+      .limit(1)
+      .maybeSingle();
+
+    if (row) {
+      await admin
+        .from("subscriptions")
+        .update({ status: "active", current_period_end: until, auto_renew: true })
+        .eq("id", row.id);
     }
     return;
   }
