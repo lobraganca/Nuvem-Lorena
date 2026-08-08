@@ -1,6 +1,8 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { useAuth } from "../lib/useAuth";
+import { signInWithGoogle } from "../lib/auth";
+import { hasDatabase } from "../lib/supabase";
 import {
   getMyProfessionals,
   countRecentProfileViews,
@@ -72,6 +74,16 @@ export function PainelPage() {
   /** Pedidos de contato por anúncio (quem deixou o número pedindo retorno). */
   const [pedidos, setPedidos] = useState<Record<string, ContactRequest[]>>({});
   const [mostrarArquivados, setMostrarArquivados] = useState(false);
+  const [loginError, setLoginError] = useState("");
+
+  async function handleGoogleLogin() {
+    setLoginError("");
+    try {
+      await signInWithGoogle();
+    } catch (err) {
+      setLoginError(err instanceof Error ? err.message : "Não foi possível abrir o login do Google.");
+    }
+  }
   const [form, setForm] = useState<FormState>(EMPTY);
   const [photoFile, setPhotoFile] = useState<File | null>(null);
   const [photoPreview, setPhotoPreview] = useState<string | null>(null);
@@ -315,10 +327,32 @@ export function PainelPage() {
   }
 
   if (loading) return <div className="container" style={{ paddingTop: 40 }}>Carregando…</div>;
+  // Sem conta, esta tela era um beco sem saída: avisava que precisava
+  // entrar e não oferecia como. Quem chega aqui veio de "Quero ser
+  // encontrado" — está a um toque de anunciar, e é isso que a tela tem que
+  // entregar.
   if (!user) {
     return (
-      <div className="container" style={{ paddingTop: 40 }}>
-        <p>Entre na sua conta para cuidar do seu anúncio.</p>
+      <div className="container" style={{ maxWidth: 460, paddingTop: 48, textAlign: "center" }}>
+        <div className="card">
+          <h1 style={{ marginTop: 0, fontSize: "1.5rem" }}>Vamos criar seu anúncio</h1>
+          <p className="muted">
+            Entre com sua conta Google — é a mesma que você já usa no celular. Não precisa criar senha nova nem
+            preencher cadastro agora.
+          </p>
+          <button
+            className="btn btn-primary btn-block"
+            style={{ marginTop: 20 }}
+            onClick={handleGoogleLogin}
+            disabled={!hasDatabase()}
+          >
+            Entrar com Google
+          </button>
+          {loginError && <p style={{ color: "var(--color-danger)", marginTop: 12 }}>{loginError}</p>}
+          <p className="muted" style={{ marginTop: 18, fontSize: "0.85rem" }}>
+            Anunciar é grátis. O selo de verificação e o destaque na busca são opcionais, e você decide depois.
+          </p>
+        </div>
       </div>
     );
   }
