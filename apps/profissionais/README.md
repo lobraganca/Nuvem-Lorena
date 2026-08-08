@@ -103,6 +103,16 @@ duas chaves distintas de propósito: a tela de início é vista uma vez, e o
 tour só roda para quem foi pela busca. Em **Perfil → "Rever apresentação do
 app"** as duas são zeradas.
 
+## Configuração inicial (Supabase, Google, Mercado Pago)
+
+Passo a passo detalhado, do zero até o app com dados reais:
+**[CONFIGURACAO.md](./CONFIGURACAO.md)**.
+
+Atalho importante que vive lá: as 23 migrations já vêm concatenadas em
+`supabase/banco-completo.sql`, para montar o banco colando **um arquivo só**
+no SQL Editor em vez de 23 na ordem certa. Esse arquivo é gerado — depois de
+criar qualquer migration nova, rode `npm run sql:unico` para atualizá-lo.
+
 ## Como rodar localmente
 
 ```bash
