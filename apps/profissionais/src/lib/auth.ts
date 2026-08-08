@@ -1,5 +1,6 @@
 import { supabase } from "./supabase";
 import type { Session, User } from "@supabase/supabase-js";
+import { origemCanonica } from "./enderecoCanonico";
 
 /**
  * Login via Google, usando o provider OAuth "google" já habilitado no
@@ -88,7 +89,8 @@ export async function signInWithGoogle(voltarPara?: string): Promise<void> {
   // tela de busca, sem o formulário do anúncio e sem entender o que tinha
   // acontecido — a impressão é de que o login deu errado.
   if (voltarPara) guardarDestinoLogin(voltarPara);
-  const destino = voltarPara ? new URL(voltarPara, window.location.origin).toString() : window.location.origin;
+  const origem = origemCanonica();
+  const destino = voltarPara ? new URL(voltarPara, origem).toString() : origem;
   const { error } = await client.auth.signInWithOAuth({
     provider: "google",
     options: { redirectTo: destino },

@@ -20,6 +20,7 @@ import { useAuth } from "./lib/useAuth";
 import { sendSuggestion } from "./lib/suggestions";
 import { AvisoDeDados } from "./components/AvisoDeDados";
 import { RetomarDestinoLogin } from "./components/RetomarDestinoLogin";
+import { AvisoErroLogin } from "./components/AvisoErroLogin";
 import { CONTATO_EMAIL } from "./config";
 
 /**
@@ -128,6 +129,7 @@ export default function App() {
       <SplashScreen />
       <AppShell>
       <RetomarDestinoLogin />
+      <AvisoErroLogin />
       <Routes>
         <Route path="/" element={<HomePage />} />
         <Route path="/inicio" element={<BoasVindasPage />} />
