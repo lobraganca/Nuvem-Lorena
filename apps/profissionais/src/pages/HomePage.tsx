@@ -1,22 +1,31 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { CATEGORIES, CITIES, DEFAULT_CITY } from "../types/domain";
-import { searchProfessionals, type ProfessionalWithRating } from "../lib/professionals";
+import { searchProfessionals, type ProfessionalWithRating, type SortOption } from "../lib/professionals";
 import { hasDatabase } from "../lib/supabase";
+import { FavoriteButton } from "../components/FavoriteButton";
 
 export function HomePage() {
   const [city, setCity] = useState<string>(DEFAULT_CITY);
   const [category, setCategory] = useState<string>("");
   const [text, setText] = useState<string>("");
+  const [minRating, setMinRating] = useState<number>(0);
+  const [sort, setSort] = useState<SortOption>("relevance");
   const [results, setResults] = useState<ProfessionalWithRating[]>([]);
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     setLoading(true);
-    searchProfessionals({ city: city || undefined, category: category || undefined, text: text || undefined })
+    searchProfessionals({
+      city: city || undefined,
+      category: category || undefined,
+      text: text || undefined,
+      minRating: minRating || undefined,
+      sort,
+    })
       .then(setResults)
       .finally(() => setLoading(false));
-  }, [city, category, text]);
+  }, [city, category, text, minRating, sort]);
 
   return (
     <div className="container">
@@ -50,6 +59,17 @@ export function HomePage() {
           ))}
         </select>
         <input placeholder="Buscar por nome ou palavra-chave" value={text} onChange={(e) => setText(e.target.value)} />
+        <select value={minRating} onChange={(e) => setMinRating(Number(e.target.value))}>
+          <option value={0}>Qualquer nota</option>
+          <option value={4}>4+ estrelas</option>
+          <option value={3}>3+ estrelas</option>
+          <option value={2}>2+ estrelas</option>
+        </select>
+        <select value={sort} onChange={(e) => setSort(e.target.value as SortOption)}>
+          <option value="relevance">Mais relevante</option>
+          <option value="rating">Melhor avaliado</option>
+          <option value="reviews">Mais avaliações</option>
+        </select>
       </div>
 
       <div className="grid" style={{ marginTop: 24, gridTemplateColumns: "repeat(auto-fill, minmax(260px, 1fr))" }}>
@@ -85,9 +105,12 @@ export function HomePage() {
                   </div>
                 )}
                 <div style={{ flex: 1 }}>
-                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "start" }}>
+                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "start", gap: 8 }}>
                     <h3 style={{ margin: 0 }}>{p.name}</h3>
-                    {p.boosted && <span className="badge badge-boosted">Destaque</span>}
+                    <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+                      {p.boosted && <span className="badge badge-boosted">Destaque</span>}
+                      <FavoriteButton professionalId={p.id} />
+                    </div>
                   </div>
                   <p className="muted" style={{ margin: "4px 0" }}>
                     {p.category} · {p.city}

@@ -163,6 +163,12 @@ Rota `/admin` (não aparece no menu público) mostra hoje:
   5. `supabase secrets set RESEND_FROM_EMAIL="Busca Itabirito <avisos@seudominio.com>"`
   6. `supabase functions deploy notify-suspension`
 
+  O mesmo Resend configurado acima também é usado pela Edge Function
+  `notify-new-review` (`supabase functions deploy notify-new-review`), que
+  avisa o dono do anúncio por e-mail quando ele recebe uma avaliação nova.
+  É chamada pelo client logo após `addReview` dar certo, de forma
+  best-effort — se falhar, a avaliação já foi salva normalmente.
+
 O projeto não tem sistema de roles — "ser admin" é simplesmente ter uma
 linha na tabela `admins` (`0008_admins.sql`). Não existe fluxo de
 auto-promoção nem UI para isso de propósito: a tabela não tem nenhuma

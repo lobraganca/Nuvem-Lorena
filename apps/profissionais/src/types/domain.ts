@@ -39,6 +39,14 @@ export interface Review {
   user_id: string;
   rating: number; // 1-5
   comment: string;
+  reply: string | null; // resposta do dono do anúncio
+  replied_at: string | null;
+  created_at: string;
+}
+
+export interface Favorite {
+  user_id: string;
+  professional_id: string;
   created_at: string;
 }
 

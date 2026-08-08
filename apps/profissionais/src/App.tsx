@@ -6,6 +6,8 @@ import { LoginPage } from "./pages/LoginPage";
 import { PainelPage } from "./pages/PainelPage";
 import { AdminPage } from "./pages/AdminPage";
 import { TermosPage } from "./pages/TermosPage";
+import { ComoFuncionaPage } from "./pages/ComoFuncionaPage";
+import { FavoritosPage } from "./pages/FavoritosPage";
 import { useAuth } from "./lib/useAuth";
 import { signOut } from "./lib/auth";
 
@@ -18,6 +20,7 @@ function Header() {
         <Link to="/">Buscar</Link>
         {user ? (
           <>
+            <Link to="/favoritos">Favoritos</Link>
             <Link to="/painel">Painel</Link>
             <button className="btn btn-outline" onClick={() => signOut()}>
               Sair
@@ -43,7 +46,7 @@ function Footer() {
           pago via Mercado Pago.
         </p>
         <p style={{ marginTop: 6 }}>
-          <Link to="/termos">Termos de Uso</Link>
+          <Link to="/termos">Termos de Uso</Link> · <Link to="/como-funciona">Como funciona</Link>
         </p>
       </div>
     </footer>
@@ -61,6 +64,8 @@ export default function App() {
         <Route path="/painel" element={<PainelPage />} />
         <Route path="/admin" element={<AdminPage />} />
         <Route path="/termos" element={<TermosPage />} />
+        <Route path="/como-funciona" element={<ComoFuncionaPage />} />
+        <Route path="/favoritos" element={<FavoritosPage />} />
       </Routes>
       <Footer />
     </>

@@ -1,10 +1,14 @@
 import { supabase } from "./supabase";
-import type { Professional, Review } from "../types/domain";
+import type { Favorite, Professional, Review } from "../types/domain";
+
+export type SortOption = "relevance" | "rating" | "reviews";
 
 export interface SearchFilters {
   city?: string;
   category?: string;
   text?: string;
+  minRating?: number;
+  sort?: SortOption;
 }
 
 export interface ProfessionalWithRating extends Professional {
@@ -34,11 +38,26 @@ export async function searchProfessionals(filters: SearchFilters): Promise<Profe
   if (error || !data) return [];
 
   const ratings = await fetchRatingsMap(client, data.map((p) => p.id));
-  return data.map((p) => ({
+  let results = data.map((p) => ({
     ...p,
     average_rating: ratings[p.id]?.average_rating ?? null,
     review_count: ratings[p.id]?.review_count ?? 0,
   }));
+
+  if (filters.minRating) {
+    const min = filters.minRating;
+    results = results.filter((p) => (p.average_rating ?? 0) >= min);
+  }
+
+  if (filters.sort === "rating") {
+    results = [...results].sort((a, b) => (b.average_rating ?? 0) - (a.average_rating ?? 0));
+  } else if (filters.sort === "reviews") {
+    results = [...results].sort((a, b) => b.review_count - a.review_count);
+  }
+  // "relevance" (padrão) mantém a ordenação já vinda do banco: turbinados
+  // primeiro, depois mais recentes.
+
+  return results;
 }
 
 async function fetchRatingsMap(client: NonNullable<ReturnType<typeof supabase>>, ids: string[]) {
@@ -75,6 +94,42 @@ export async function addReview(input: { professional_id: string; user_id: strin
   const client = supabase();
   if (!client) throw new Error("Banco de dados não configurado.");
   const { error } = await client.from("reviews").upsert(input, { onConflict: "professional_id,user_id" });
+  if (error) throw error;
+  // Aviso ao dono do anúncio é best-effort: nunca deve derrubar o fluxo de
+  // avaliação se a Edge Function falhar ou não estiver configurada.
+  try {
+    await client.functions.invoke("notify-new-review", {
+      body: { professionalId: input.professional_id, rating: input.rating },
+    });
+  } catch {
+    // silenciosamente ignorado — avaliação já foi salva.
+  }
+}
+
+/** Autor edita a própria avaliação (rating/comment). RLS garante que só o autor pode. */
+export async function updateReview(reviewId: string, input: { rating: number; comment: string }) {
+  const client = supabase();
+  if (!client) throw new Error("Banco de dados não configurado.");
+  const { error } = await client.from("reviews").update(input).eq("id", reviewId);
+  if (error) throw error;
+}
+
+/** Autor apaga a própria avaliação. RLS garante que só o autor pode. */
+export async function deleteReview(reviewId: string) {
+  const client = supabase();
+  if (!client) throw new Error("Banco de dados não configurado.");
+  const { error } = await client.from("reviews").delete().eq("id", reviewId);
+  if (error) throw error;
+}
+
+/** Dono do anúncio responde a uma avaliação recebida. RLS garante que só o dono pode. */
+export async function replyToReview(reviewId: string, reply: string) {
+  const client = supabase();
+  if (!client) throw new Error("Banco de dados não configurado.");
+  const { error } = await client
+    .from("reviews")
+    .update({ reply, replied_at: new Date().toISOString() })
+    .eq("id", reviewId);
   if (error) throw error;
 }
 
@@ -123,5 +178,48 @@ export async function reportProfessional(input: {
     reason: input.reason,
     details: input.details || null,
   });
+  if (error) throw error;
+}
+
+/** Lista os ids dos profissionais favoritados pelo usuário logado. */
+export async function getFavoriteIds(userId: string): Promise<Set<string>> {
+  const client = supabase();
+  if (!client) return new Set();
+  const { data } = await client.from("favorites").select("professional_id").eq("user_id", userId);
+  return new Set((data ?? []).map((f: { professional_id: string }) => f.professional_id));
+}
+
+/** Lista os profissionais favoritados pelo usuário logado, com rating. */
+export async function getFavoriteProfessionals(userId: string): Promise<ProfessionalWithRating[]> {
+  const client = supabase();
+  if (!client) return [];
+  const { data: favs } = await client.from("favorites").select("professional_id").eq("user_id", userId);
+  const ids = (favs ?? []).map((f: { professional_id: string }) => f.professional_id);
+  if (ids.length === 0) return [];
+  const { data, error } = await client.from("professionals").select("*").in("id", ids);
+  if (error || !data) return [];
+  const ratings = await fetchRatingsMap(client, data.map((p) => p.id));
+  return data.map((p) => ({
+    ...p,
+    average_rating: ratings[p.id]?.average_rating ?? null,
+    review_count: ratings[p.id]?.review_count ?? 0,
+  }));
+}
+
+export async function addFavorite(userId: string, professionalId: string) {
+  const client = supabase();
+  if (!client) throw new Error("Banco de dados não configurado.");
+  const { error } = await client.from("favorites").insert({ user_id: userId, professional_id: professionalId });
+  if (error) throw error;
+}
+
+export async function removeFavorite(userId: string, professionalId: string) {
+  const client = supabase();
+  if (!client) throw new Error("Banco de dados não configurado.");
+  const { error } = await client
+    .from("favorites")
+    .delete()
+    .eq("user_id", userId)
+    .eq("professional_id", professionalId);
   if (error) throw error;
 }

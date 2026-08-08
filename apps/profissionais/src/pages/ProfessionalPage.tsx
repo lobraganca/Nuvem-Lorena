@@ -1,11 +1,22 @@
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import { Link } from "react-router-dom";
-import { getProfessional, getReviews, addReview, reportProfessional, type ProfessionalWithRating } from "../lib/professionals";
+import {
+  getProfessional,
+  getReviews,
+  addReview,
+  updateReview,
+  deleteReview,
+  replyToReview,
+  reportProfessional,
+  getFavoriteIds,
+  type ProfessionalWithRating,
+} from "../lib/professionals";
 import { getProfile, saveCpf } from "../lib/profiles";
 import { formatCpf, isValidCpf } from "../lib/documents";
 import { REPORT_REASONS, type Review } from "../types/domain";
 import { useAuth } from "../lib/useAuth";
+import { FavoriteButton } from "../components/FavoriteButton";
 
 export function ProfessionalPage() {
   const { id } = useParams<{ id: string }>();
@@ -25,6 +36,10 @@ export function ProfessionalPage() {
   const [reportSaving, setReportSaving] = useState(false);
   const [reportSent, setReportSent] = useState(false);
   const [reportError, setReportError] = useState("");
+  const [editingReviewId, setEditingReviewId] = useState<string | null>(null);
+  const [isFavorite, setIsFavorite] = useState(false);
+  const [replyDrafts, setReplyDrafts] = useState<Record<string, string>>({});
+  const [replySavingId, setReplySavingId] = useState<string | null>(null);
 
   async function load() {
     if (!id) return;
@@ -49,6 +64,14 @@ export function ProfessionalPage() {
       .then((profile) => setCpf(profile?.cpf ?? null))
       .finally(() => setCpfLoading(false));
   }, [user]);
+
+  useEffect(() => {
+    if (!user || !id) {
+      setIsFavorite(false);
+      return;
+    }
+    getFavoriteIds(user.id).then((ids) => setIsFavorite(ids.has(id)));
+  }, [user, id]);
 
   async function confirmCpf(e: React.FormEvent) {
     e.preventDefault();
@@ -76,13 +99,58 @@ export function ProfessionalPage() {
     setSaving(true);
     setError("");
     try {
-      await addReview({ professional_id: id, user_id: user.id, rating, comment });
+      if (editingReviewId) {
+        await updateReview(editingReviewId, { rating, comment });
+      } else {
+        await addReview({ professional_id: id, user_id: user.id, rating, comment });
+      }
       setComment("");
+      setRating(5);
+      setEditingReviewId(null);
       await load();
     } catch (err) {
       setError(err instanceof Error ? err.message : "Não foi possível salvar a avaliação.");
     } finally {
       setSaving(false);
+    }
+  }
+
+  function startEditReview(r: Review) {
+    setEditingReviewId(r.id);
+    setRating(r.rating);
+    setComment(r.comment);
+    setError("");
+  }
+
+  function cancelEditReview() {
+    setEditingReviewId(null);
+    setRating(5);
+    setComment("");
+    setError("");
+  }
+
+  async function removeReview(reviewId: string) {
+    if (!confirm("Excluir esta avaliação?")) return;
+    try {
+      await deleteReview(reviewId);
+      if (editingReviewId === reviewId) cancelEditReview();
+      await load();
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Não foi possível excluir a avaliação.");
+    }
+  }
+
+  async function submitReply(reviewId: string) {
+    const reply = (replyDrafts[reviewId] ?? "").trim();
+    if (!reply) return;
+    setReplySavingId(reviewId);
+    try {
+      await replyToReview(reviewId, reply);
+      await load();
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Não foi possível salvar a resposta.");
+    } finally {
+      setReplySavingId(null);
     }
   }
 
@@ -161,9 +229,10 @@ export function ProfessionalPage() {
               )}
             </div>
           </div>
-          <div style={{ display: "flex", gap: 8 }}>
+          <div style={{ display: "flex", gap: 8, alignItems: "start" }}>
             {professional.verified && <span className="badge badge-verified">✓ Verificado</span>}
             {professional.boosted && <span className="badge badge-boosted">Destaque</span>}
+            <FavoriteButton professionalId={professional.id} initialFavorited={isFavorite} size="large" />
           </div>
         </div>
         <p style={{ marginTop: 16 }}>{professional.bio || "Sem descrição."}</p>
@@ -213,6 +282,7 @@ export function ProfessionalPage() {
 
         {user && cpf && (
           <form className="card" onSubmit={submitReview} style={{ display: "grid", gap: 10, marginBottom: 20 }}>
+            {editingReviewId && <p className="muted" style={{ margin: 0 }}>Editando sua avaliação</p>}
             <label>
               Nota
               <select value={rating} onChange={(e) => setRating(Number(e.target.value))}>
@@ -230,20 +300,83 @@ export function ProfessionalPage() {
               rows={3}
             />
             {error && <p style={{ color: "#e0665e" }}>{error}</p>}
-            <button className="btn btn-gold" type="submit" disabled={saving}>
-              {saving ? "Enviando…" : "Enviar avaliação"}
-            </button>
+            <div style={{ display: "flex", gap: 10 }}>
+              <button className="btn btn-gold" type="submit" disabled={saving}>
+                {saving ? "Enviando…" : editingReviewId ? "Salvar alterações" : "Enviar avaliação"}
+              </button>
+              {editingReviewId && (
+                <button className="btn btn-outline" type="button" onClick={cancelEditReview}>
+                  Cancelar
+                </button>
+              )}
+            </div>
           </form>
         )}
 
         <div className="grid">
           {reviews.length === 0 && <p className="muted">Nenhuma avaliação ainda.</p>}
-          {reviews.map((r) => (
-            <div key={r.id} className="card">
-              <span className="stars">{"★".repeat(r.rating)}</span>
-              <p style={{ margin: "6px 0 0" }}>{r.comment}</p>
-            </div>
-          ))}
+          {reviews.map((r) => {
+            const isOwnReview = user?.id === r.user_id;
+            const isOwner = user?.id === professional.owner_id;
+            return (
+              <div key={r.id} className="card">
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "start", gap: 8 }}>
+                  <span className="stars">{"★".repeat(r.rating)}</span>
+                  {isOwnReview && (
+                    <div style={{ display: "flex", gap: 8 }}>
+                      <button
+                        className="btn btn-outline"
+                        style={{ fontSize: "0.75rem", padding: "4px 8px" }}
+                        onClick={() => startEditReview(r)}
+                      >
+                        Editar
+                      </button>
+                      <button
+                        className="btn btn-outline"
+                        style={{ fontSize: "0.75rem", padding: "4px 8px" }}
+                        onClick={() => removeReview(r.id)}
+                      >
+                        Excluir
+                      </button>
+                    </div>
+                  )}
+                </div>
+                <p style={{ margin: "6px 0 0" }}>{r.comment}</p>
+
+                {r.reply && (
+                  <div
+                    style={{
+                      marginTop: 10,
+                      paddingLeft: 12,
+                      borderLeft: "2px solid var(--color-accent-teal)",
+                    }}
+                  >
+                    <p className="muted" style={{ margin: 0, fontSize: "0.78rem" }}>Resposta do profissional</p>
+                    <p style={{ margin: "4px 0 0" }}>{r.reply}</p>
+                  </div>
+                )}
+
+                {isOwner && !r.reply && (
+                  <div style={{ marginTop: 10, display: "grid", gap: 6 }}>
+                    <textarea
+                      placeholder="Responder a esta avaliação"
+                      rows={2}
+                      value={replyDrafts[r.id] ?? ""}
+                      onChange={(e) => setReplyDrafts((d) => ({ ...d, [r.id]: e.target.value }))}
+                    />
+                    <button
+                      className="btn btn-outline"
+                      style={{ fontSize: "0.8rem", justifySelf: "start" }}
+                      onClick={() => submitReply(r.id)}
+                      disabled={replySavingId === r.id}
+                    >
+                      {replySavingId === r.id ? "Enviando…" : "Responder"}
+                    </button>
+                  </div>
+                )}
+              </div>
+            );
+          })}
         </div>
       </section>
 
