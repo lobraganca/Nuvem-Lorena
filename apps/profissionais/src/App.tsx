@@ -12,6 +12,7 @@ import { PainelPage } from "./pages/PainelPage";
 import { AdminPage } from "./pages/AdminPage";
 import { TermosPage } from "./pages/TermosPage";
 import { PrivacidadePage } from "./pages/PrivacidadePage";
+import { DiagnosticoPage } from "./pages/DiagnosticoPage";
 import { ComoFuncionaPage } from "./pages/ComoFuncionaPage";
 import { FavoritosPage } from "./pages/FavoritosPage";
 import { PerfilPage } from "./pages/PerfilPage";
@@ -139,6 +140,8 @@ export default function App() {
         <Route path="/admin" element={<AdminPage />} />
         <Route path="/termos" element={<TermosPage />} />
         <Route path="/privacidade" element={<PrivacidadePage />} />
+        {/* Sem link em lugar nenhum: existe para depurar login a distancia. */}
+        <Route path="/diagnostico" element={<DiagnosticoPage />} />
         <Route path="/como-funciona" element={<ComoFuncionaPage />} />
         <Route path="/favoritos" element={<FavoritosPage />} />
         <Route path="/perfil" element={<PerfilPage />} />
