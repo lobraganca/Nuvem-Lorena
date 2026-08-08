@@ -87,6 +87,13 @@ function professionalFieldsFor(type: SubscriptionType, until: string) {
   return { plus_active: true, plus_until: until };
 }
 
+/** Coluna de validade em `professionals` correspondente a cada assinatura. */
+const UNTIL_FIELD: Record<SubscriptionType, string> = {
+  verification: "verified_until",
+  boost: "boosted_until",
+  plus: "plus_until",
+};
+
 function addMonths(date: Date, months: number): Date {
   const d = new Date(date);
   d.setMonth(d.getMonth() + months);
@@ -97,6 +104,27 @@ function addYears(date: Date, years: number): Date {
   const d = new Date(date);
   d.setFullYear(d.getFullYear() + years);
   return d;
+}
+
+/**
+ * Calcula a nova validade do benefício SOMANDO ao tempo que ainda resta, e
+ * não a partir de agora. Importa na renovação: a cobrança do plano anual à
+ * vista é gerada 7 dias antes de vencer, então quem paga assim que recebe o
+ * e-mail perderia esses dias se a conta partisse de `now()`. Se o benefício
+ * já venceu (ou nunca existiu), conta a partir de agora.
+ */
+async function nextUntil(
+  admin: Admin,
+  professionalId: string,
+  type: SubscriptionType,
+  isAnnual: boolean
+): Promise<string> {
+  const field = UNTIL_FIELD[type];
+  const { data } = await admin.from("professionals").select(field).eq("id", professionalId).maybeSingle();
+  const currentRaw = (data as any)?.[field];
+  const current = currentRaw ? new Date(currentRaw) : null;
+  const base = current && current.getTime() > Date.now() ? current : new Date();
+  return (isAnnual ? addYears(base, 1) : addMonths(base, 1)).toISOString();
 }
 
 async function handlePreapproval(admin: Admin, preapprovalId: string) {
@@ -133,8 +161,7 @@ async function handlePreapproval(admin: Admin, preapprovalId: string) {
       isAnnual = existing?.billing_cycle === "annual";
     }
 
-    const now = new Date();
-    const until = (isAnnual ? addYears(now, 1) : addMonths(now, 1)).toISOString();
+    const until = await nextUntil(admin, professionalId, type, isAnnual);
     await admin
       .from("subscriptions")
       .update({
@@ -169,6 +196,33 @@ async function handlePayment(admin: Admin, paymentId: string) {
   const payment = await resp.json();
   if (payment.status !== "approved") return;
 
+  // IDEMPOTÊNCIA: o Mercado Pago manda mais de uma notificação para o mesmo
+  // pagamento (payment.created, payment.updated e reenvios). Sem esta trava,
+  // a compra de créditos — que SOMA ao saldo — daria crédito em dobro.
+  // Reserva o id antes de aplicar qualquer efeito; se já estiver reservado,
+  // este evento é repetido e não deve fazer nada.
+  const { error: claimError } = await admin.from("processed_payments").insert({ payment_id: String(paymentId) });
+  if (claimError?.code === "23505") {
+    console.log("mercadopago-webhook: pagamento já processado, ignorando duplicata:", paymentId);
+    return;
+  }
+  if (claimError) {
+    // Falha inesperada na trava (ex.: migration 0021 ainda não aplicada).
+    // Segue processando mesmo assim: deixar de creditar um pagamento já pago
+    // é pior que o risco de duplicata — mas loga alto para ser corrigido.
+    console.error("mercadopago-webhook: não foi possível registrar idempotência", paymentId, claimError);
+  }
+
+  try {
+    await applyPaymentEffect(admin, paymentId, payment);
+  } catch (err) {
+    // Desfaz a reserva para que o reenvio do Mercado Pago possa tentar de novo.
+    await admin.from("processed_payments").delete().eq("payment_id", String(paymentId));
+    throw err;
+  }
+}
+
+async function applyPaymentEffect(admin: Admin, paymentId: string, payment: any) {
   const ref: string = String(payment.external_reference ?? "");
 
   if (ref.startsWith("credits:")) {
@@ -178,28 +232,14 @@ async function handlePayment(admin: Admin, paymentId: string) {
       console.error("mercadopago-webhook: external_reference de créditos inválido", ref);
       return;
     }
-    const { data: existing } = await admin
-      .from("lead_credits")
-      .select("professional_id")
-      .eq("professional_id", professionalId)
-      .maybeSingle();
-    if (existing) {
-      // Supabase-js não faz "balance = balance + X" via update simples (não
-      // há upsert incremental client-side) — como é uma compra avulsa (não
-      // um clique concorrente como em consume_lead_credit), a janela de
-      // corrida é aceitável para o padrão simples do resto do app.
-      const { data: current } = await admin
-        .from("lead_credits")
-        .select("balance")
-        .eq("professional_id", professionalId)
-        .single();
-      await admin
-        .from("lead_credits")
-        .update({ balance: (current?.balance ?? 0) + quantity, updated_at: new Date().toISOString() })
-        .eq("professional_id", professionalId);
-    } else {
-      await admin.from("lead_credits").insert({ professional_id: professionalId, balance: quantity });
-    }
+    // Soma atômica no banco (RPC security definer): o "lê saldo, soma aqui,
+    // grava de volta" perderia uma das compras se dois pagamentos fossem
+    // confirmados ao mesmo tempo.
+    const { error } = await admin.rpc("add_lead_credits", {
+      professional_id: professionalId,
+      amount: quantity,
+    });
+    if (error) throw error;
     return;
   }
 
@@ -222,7 +262,7 @@ async function handlePayment(admin: Admin, paymentId: string) {
       console.error("mercadopago-webhook: external_reference anual inválido", ref);
       return;
     }
-    const until = addYears(new Date(), 1).toISOString();
+    const until = await nextUntil(admin, professionalId, type, true);
     await admin
       .from("professionals")
       .update(professionalFieldsFor(type, until))
@@ -294,8 +334,7 @@ async function handlePayment(admin: Admin, paymentId: string) {
   if ((parts.length === 2 || parts.length === 3) && isSubscriptionType(parts[1])) {
     const [professionalId, type, cycleSuffix] = parts;
     const isAnnual = cycleSuffix === "annual";
-    const now = new Date();
-    const until = (isAnnual ? addYears(now, 1) : addMonths(now, 1)).toISOString();
+    const until = await nextUntil(admin, professionalId, type, isAnnual);
 
     await admin
       .from("professionals")

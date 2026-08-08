@@ -156,6 +156,11 @@ Migrations em `supabase/migrations/`:
   (junto com `rating`/`comment`) e no conjunto que **o dono do anúncio**
   não pode mudar. Sem essa parte, editar uma avaliação com etiquetas
   falharia em runtime. Ver seção "Avaliação por toque" abaixo.
+- `0021_idempotencia_pagamentos.sql` — tabela `processed_payments` (livro de
+  eventos de pagamento já processados, para o Mercado Pago não creditar duas
+  vezes ao reenviar a mesma notificação) e a função `add_lead_credits`
+  (soma atômica de créditos de contato, só para a `service_role` do webhook).
+  Ver "Idempotência" na seção do webhook.
 
 ### Avaliação por toque (etiquetas rápidas)
 
@@ -420,6 +425,27 @@ que o Mercado Pago manda, nunca confiando cegamente no corpo do webhook
   capturada (try/catch) e logada com `console.error`, sem derrubar a
   function — o webhook sempre responde 200 rapidamente, mesmo em erro
   interno, para não sofrer reenvio agressivo do Mercado Pago.
+
+### Idempotência (por que o mesmo pagamento não conta duas vezes)
+
+O Mercado Pago envia **mais de uma notificação para o mesmo pagamento**
+(`payment.created`, `payment.updated` e reenvios automáticos), todas com o
+mesmo `data.id`. Antes de aplicar qualquer efeito, o webhook reserva esse id
+na tabela `processed_payments` (migration `0021`); se o id já estiver
+reservado, o evento é uma duplicata e é ignorado. Se o processamento falhar
+no meio, a reserva é desfeita para que o reenvio do Mercado Pago consiga
+tentar de novo.
+
+Isso é o que impede a compra de créditos de contato — o único fluxo que
+**soma** ao estado, em vez de gravar um valor final — de creditar em dobro. A
+soma em si é feita pela função `add_lead_credits` (`security definer`, sem
+`grant` para `anon`/`authenticated`), atômica no banco, para não perder uma
+compra quando dois pagamentos são confirmados ao mesmo tempo.
+
+Pela mesma razão, a validade (`..._until`) é calculada **somando ao tempo que
+ainda resta**, não a partir de `now()`: a cobrança da renovação anual é gerada
+7 dias antes do vencimento, e quem paga assim que recebe o e-mail perderia
+esses dias se a conta partisse de agora.
 
 ## Fontes de renda
 

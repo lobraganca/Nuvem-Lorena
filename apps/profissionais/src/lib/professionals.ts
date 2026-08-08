@@ -1,5 +1,5 @@
 import { supabase } from "./supabase";
-import type { CategorySponsorship, Favorite, LeadCredits, Professional, Review } from "../types/domain";
+import type { CategorySponsorship, LeadCredits, Professional, Review } from "../types/domain";
 
 export type SortOption = "relevance" | "rating" | "reviews";
 
