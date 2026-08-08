@@ -58,8 +58,7 @@ export function HomePage() {
           <p className="muted">Nenhum profissional encontrado com esses filtros ainda.</p>
         )}
         {results.map((p) => {
-          const whatsappLink =
-            p.phone && p.verified ? `https://wa.me/${p.phone.replace(/\D/g, "")}` : null;
+          const whatsappLink = p.phone ? `https://wa.me/${p.phone.replace(/\D/g, "")}` : null;
           return (
             <Link key={p.id} to={`/profissional/${p.id}`} className="card" style={{ textDecoration: "none", color: "inherit" }}>
               <div style={{ display: "flex", justifyContent: "space-between", alignItems: "start" }}>
