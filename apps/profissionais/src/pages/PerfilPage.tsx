@@ -64,7 +64,7 @@ export function PerfilPage() {
           <h1 style={{ marginTop: 0 }}>Entrar</h1>
           <p className="muted">Use sua conta Google para buscar, avaliar e anunciar seus serviços.</p>
           <button
-            className="btn btn-gold btn-block"
+            className="btn btn-primary btn-block"
             style={{ marginTop: 20 }}
             onClick={handleGoogleLogin}
             disabled={!hasDatabase()}

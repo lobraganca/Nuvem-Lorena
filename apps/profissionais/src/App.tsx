@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Routes, Route, Link, useLocation } from "react-router-dom";
 import { Logo } from "./components/Logo";
 import { AppShell } from "./components/AppShell";
+import { SplashScreen } from "./components/SplashScreen";
 import { BottomSheet } from "./components/BottomSheet";
 import { HomePage } from "./pages/HomePage";
 import { BoasVindasPage } from "./pages/BoasVindasPage";
@@ -63,7 +64,7 @@ function SuggestionSheet({ onClose }: { onClose: () => void }) {
             rows={4}
           />
           {error && <p style={{ color: "var(--color-danger)", margin: 0 }}>{error}</p>}
-          <button className="btn btn-gold btn-block" onClick={handleSend} disabled={sending}>
+          <button className="btn btn-primary btn-block" onClick={handleSend} disabled={sending}>
             {sending ? "Enviando…" : "Enviar"}
           </button>
         </div>
@@ -98,7 +99,7 @@ function Footer() {
               border: "none",
               padding: 0,
               font: "inherit",
-              color: "var(--color-primary-gold-deep)",
+              color: "var(--color-primary-deep)",
               textDecoration: "underline",
               cursor: "pointer",
             }}
@@ -114,7 +115,9 @@ function Footer() {
 
 export default function App() {
   return (
-    <AppShell>
+    <>
+      <SplashScreen />
+      <AppShell>
       <Routes>
         <Route path="/" element={<HomePage />} />
         <Route path="/inicio" element={<BoasVindasPage />} />
@@ -129,6 +132,7 @@ export default function App() {
         <Route path="/analytics/:id" element={<AnalyticsPage />} />
       </Routes>
       <Footer />
-    </AppShell>
+      </AppShell>
+    </>
   );
 }

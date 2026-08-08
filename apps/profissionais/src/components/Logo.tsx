@@ -45,9 +45,20 @@ export function Logo({ city = DEFAULT_CITY, size = "sm" }: { city?: string; size
  * Mesmo wordmark sem o link, para a tela de início — onde ele é o próprio
  * assunto da tela, não um caminho de volta para a home.
  */
-export function LogoMark({ city = DEFAULT_CITY }: { city?: string }) {
+export function LogoMark({
+  city = DEFAULT_CITY,
+  variant = "default",
+}: {
+  city?: string;
+  /** "onBlue" inverte as cores para a marca aparecer sobre o azul da abertura. */
+  variant?: "default" | "onBlue";
+}) {
   return (
-    <div className="logo logo-lg" role="img" aria-label={`Busca ${city}`}>
+    <div
+      className={`logo logo-lg${variant === "onBlue" ? " logo-on-blue" : ""}`}
+      role="img"
+      aria-label={`Busca ${city}`}
+    >
       <span className="logo-brand" aria-hidden="true">
         <span className="logo-letters">BUSC</span>
         <ApexA className="logo-apex" />

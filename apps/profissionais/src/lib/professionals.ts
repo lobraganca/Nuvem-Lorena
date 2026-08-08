@@ -1,5 +1,12 @@
 import { supabase } from "./supabase";
-import type { CategorySponsorship, LeadCredits, Professional, Review } from "../types/domain";
+import type {
+  CategorySponsorship,
+  ContactRequest,
+  ContactRequestStatus,
+  LeadCredits,
+  Professional,
+  Review,
+} from "../types/domain";
 
 export type SortOption = "relevance" | "rating" | "reviews";
 
@@ -446,4 +453,58 @@ export async function countRecentProfileViews(professionalId: string, days = 30)
     .eq("professional_id", professionalId)
     .gte("viewed_at", since);
   return count ?? 0;
+}
+
+// --- Pedidos de contato ----------------------------------------------------
+
+/**
+ * O caminho inverso do WhatsApp: em vez de a pessoa correr atrás, ela deixa o
+ * número e pede para ser chamada. Não exige login de propósito — quem está
+ * com um cano estourado em casa não vai criar conta antes de pedir ajuda.
+ */
+export async function requestContact(input: {
+  professional_id: string;
+  requester_id: string | null;
+  name: string;
+  phone: string;
+  message: string;
+}): Promise<void> {
+  const client = supabase();
+  if (!client) throw new Error("Banco de dados não configurado.");
+  const { error } = await client.from("contact_requests").insert(input);
+  if (error) throw error;
+}
+
+/** Pedidos recebidos por um anúncio. Arquivados ficam de fora por padrão. */
+export async function getContactRequests(
+  professionalId: string,
+  { includeArchived = false } = {}
+): Promise<ContactRequest[]> {
+  const client = supabase();
+  if (!client) return [];
+  let query = client
+    .from("contact_requests")
+    .select("*")
+    .eq("professional_id", professionalId)
+    .order("created_at", { ascending: false });
+  if (!includeArchived) query = query.neq("status", "archived");
+  const { data } = await query;
+  return data ?? [];
+}
+
+export async function updateContactRequestStatus(
+  requestId: string,
+  status: ContactRequestStatus
+): Promise<void> {
+  const client = supabase();
+  if (!client) throw new Error("Banco de dados não configurado.");
+  const { error } = await client
+    .from("contact_requests")
+    .update({
+      status,
+      // Guarda quando o retorno aconteceu; voltar para "novo" limpa a marca.
+      contacted_at: status === "contacted" ? new Date().toISOString() : null,
+    })
+    .eq("id", requestId);
+  if (error) throw error;
 }

@@ -10,16 +10,20 @@
   /* O navy da marca virou a cor da tinta: títulos, texto e o wordmark. */
   --color-navy: #0a1a2f;
 
-  /* Dourado em duas forças, e não por capricho: sobre branco, o dourado
-     claro tem contraste de ~2:1 — serve de preenchimento (botão, selo), mas
-     como texto seria ilegível. O `deep` é a versão que passa em contraste e
-     é a única usada em link/ícone/rótulo. */
-  --color-primary-gold: #d99f4e;
-  --color-primary-gold-soft: #eec18a;
-  --color-primary-gold-deep: #8a5f1f;
-  /* Meio-termo para o wordmark: dourado ainda dourado, mas legível em corpo
-     pequeno sobre branco. */
+  /* Azul é a cor de ação: botões, links, item ativo, foco. Duas forças
+     porque o claro é para preencher (botão com texto branco em cima) e o
+     escuro é para escrever sobre branco, onde precisa passar em contraste. */
+  --color-primary: #1b4f9c;
+  --color-primary-soft: #2c6bc4;
+  --color-primary-deep: #123c78;
+
+  /* O dourado sai das ações e fica só onde é identidade: o A do wordmark e o
+     selo de verificação — que é literalmente um selo, e ganha por não se
+     confundir com nada clicável. */
   --color-gold-mid: #b8863b;
+  --color-gold-deep: #8a5f1f;
+  --color-gold-tint: #fdf4e6;
+  --color-gold-line: #ecd6b0;
 
   /* Verde só no WhatsApp; escurecido para aguentar texto branco em cima. */
   --color-accent-teal: #12805f;
@@ -49,7 +53,7 @@ body {
 }
 
 a {
-  color: var(--color-primary-gold-deep);
+  color: var(--color-primary-deep);
 }
 
 button {
@@ -82,12 +86,18 @@ button {
   line-height: 1;
 }
 
+/* Texto corrido, e não flex, por causa do A: num flex row, `flex-end`
+   encosta a base do SVG no fundo da linha — e o fundo da caixa do texto
+   inclui o espaço do descendente (o vão do g, do p, do q). As letras BUSC
+   apoiam na linha de base, que fica acima disso, então o A desenhado ficava
+   pendurado mais embaixo que as letras. Em fluxo inline com
+   `vertical-align: baseline`, a base do SVG cai exatamente na linha de base,
+   como a de qualquer letra. */
 .logo-brand {
-  display: flex;
-  align-items: flex-end;
   color: var(--color-text);
   font-weight: 300;
   letter-spacing: 0.1em;
+  white-space: nowrap;
 }
 
 /* O A é um desenho, não uma letra: precisa da mesma entreletra das outras e
@@ -100,10 +110,11 @@ button {
    do mesmo peso das letras ao lado — senão ele lê como um acento solto. */
 .logo-apex {
   color: var(--color-gold-mid);
+  display: inline-block;
+  vertical-align: baseline;
   width: 0.68em;
-  height: 0.76em;
-  margin-left: 0.04em;
-  margin-bottom: -0.02em;
+  height: 0.72em;
+  margin-left: 0.02em;
 }
 
 .logo-city {
@@ -163,8 +174,8 @@ button {
   transform: translateY(1px);
 }
 
-.btn-gold {
-  background: linear-gradient(135deg, var(--color-primary-gold-soft), var(--color-primary-gold));
+.btn-primary {
+  background: linear-gradient(135deg, var(--color-primary-soft), var(--color-primary));
   color: var(--color-navy);
 }
 
@@ -207,9 +218,9 @@ button {
 }
 
 .badge-verified {
-  background: #fdf4e6;
-  color: var(--color-primary-gold-deep);
-  border: 1px solid #ecd6b0;
+  background: var(--color-gold-tint);
+  color: var(--color-gold-deep);
+  border: 1px solid var(--color-gold-line);
 }
 
 .badge-boosted {
@@ -256,7 +267,7 @@ input:focus,
 select:focus,
 textarea:focus {
   outline: none;
-  border-color: var(--color-primary-gold);
+  border-color: var(--color-primary);
 }
 
 /* Sem isto, quem navega por teclado não enxerga onde está — o :focus-visible
@@ -264,7 +275,7 @@ textarea:focus {
 a:focus-visible,
 button:focus-visible,
 [tabindex]:focus-visible {
-  outline: 2px solid var(--color-primary-gold);
+  outline: 2px solid var(--color-primary);
   outline-offset: 2px;
   border-radius: 6px;
 }
@@ -312,7 +323,7 @@ button:focus-visible,
 }
 
 .radio-option input[type="radio"]:checked {
-  border-color: var(--color-primary-gold);
+  border-color: var(--color-primary);
 }
 
 .radio-option input[type="radio"]:checked::after {
@@ -320,7 +331,7 @@ button:focus-visible,
   position: absolute;
   inset: 3px;
   border-radius: 50%;
-  background: linear-gradient(135deg, var(--color-primary-gold), var(--color-primary-gold-dark));
+  background: linear-gradient(135deg, var(--color-primary-soft), var(--color-primary));
 }
 
 input::placeholder,
@@ -346,7 +357,7 @@ textarea::placeholder {
 }
 
 .stars {
-  color: var(--color-primary-gold);
+  color: var(--color-primary);
   letter-spacing: 2px;
 }
 
@@ -372,7 +383,7 @@ textarea::placeholder {
 }
 
 .star-btn-on {
-  color: var(--color-primary-gold);
+  color: var(--color-primary);
 }
 
 /* Etiquetas rápidas (chips). Quebram linha naturalmente no mobile. */
@@ -400,7 +411,7 @@ textarea::placeholder {
 }
 
 .chip-selected {
-  background: linear-gradient(135deg, var(--color-primary-gold), var(--color-primary-gold-dark));
+  background: linear-gradient(135deg, var(--color-primary-soft), var(--color-primary));
   border-color: transparent;
   color: var(--color-navy);
 }
@@ -476,7 +487,7 @@ textarea::placeholder {
 }
 
 .bottom-nav-item.active {
-  color: var(--color-primary-gold);
+  color: var(--color-primary);
 }
 
 @media (min-width: 860px) {
@@ -501,7 +512,7 @@ textarea::placeholder {
   font-size: 1.8rem;
   font-weight: 700;
   color: var(--color-navy);
-  background: linear-gradient(135deg, var(--color-primary-gold), var(--color-accent-teal));
+  background: linear-gradient(135deg, var(--color-primary), var(--color-primary-deep));
 }
 
 .settings-group-title {
@@ -689,9 +700,9 @@ textarea::placeholder {
 }
 
 .welcome-choice-primary {
-  background: linear-gradient(135deg, var(--color-primary-gold-soft), var(--color-primary-gold));
+  background: linear-gradient(135deg, var(--color-primary-soft), var(--color-primary));
   border-color: transparent;
-  color: var(--color-navy);
+  color: #ffffff;
 }
 
 .welcome-choice-label {
@@ -705,7 +716,7 @@ textarea::placeholder {
 }
 
 .welcome-choice-primary .welcome-choice-hint {
-  color: rgba(10, 26, 47, 0.72);
+  color: rgba(255, 255, 255, 0.85);
 }
 
 .welcome-footnote {
@@ -727,7 +738,7 @@ textarea::placeholder {
   position: fixed;
   border-radius: 12px;
   box-shadow: 0 0 0 9999px rgba(10, 26, 47, 0.7);
-  border: 2px solid var(--color-primary-gold);
+  border: 2px solid var(--color-primary);
   pointer-events: none;
   transition: top 0.2s ease, left 0.2s ease, width 0.2s ease, height 0.2s ease;
 }
@@ -759,7 +770,7 @@ textarea::placeholder {
   font-size: 0.78rem;
   letter-spacing: 0.08em;
   text-transform: uppercase;
-  color: var(--color-primary-gold);
+  color: var(--color-primary);
 }
 
 .tour-title {
@@ -822,7 +833,7 @@ textarea::placeholder {
 }
 
 .views-line strong {
-  color: var(--color-primary-gold-deep);
+  color: var(--color-primary-deep);
   font-size: 1.05rem;
 }
 
@@ -838,10 +849,191 @@ textarea::placeholder {
 }
 
 .review-care strong {
-  color: var(--color-primary-gold-deep);
+  color: var(--color-primary-deep);
 }
 
 .review-care p {
   margin: 6px 0 0;
   color: var(--color-text-muted);
+}
+
+/* --- Abertura do app --- */
+
+.splash {
+  position: fixed;
+  inset: 0;
+  z-index: 2000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(160deg, var(--color-primary), var(--color-navy));
+  animation: splash-in 0.2s ease-out;
+}
+
+.splash-out {
+  animation: splash-out 0.26s ease-in forwards;
+}
+
+/* Sobre o azul da abertura a marca inverte: letras brancas, A e cidade em
+   dourado claro — o dourado escuro do tema claro sumiria no fundo. */
+.logo-on-blue .logo-brand {
+  color: #ffffff;
+}
+
+.logo-on-blue .logo-apex,
+.logo-on-blue .logo-city {
+  color: #eec18a;
+}
+
+@keyframes splash-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes splash-out {
+  from { opacity: 1; }
+  to { opacity: 0; }
+}
+
+/* Bloco de canais de contato no formulário do anúncio */
+.contact-fields {
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius);
+  padding: 16px;
+  display: grid;
+  gap: 10px;
+  margin: 0;
+}
+
+.contact-fields legend {
+  padding: 0 6px;
+  font-weight: 600;
+  font-size: 0.9rem;
+}
+
+/* Card de profissional na busca: cantos bem arredondados e um convite claro
+   a entrar. Os contatos ficam só dentro do perfil — é o clique aqui que
+   registra a visita e vira o número que o profissional vê no painel. */
+.card-pro {
+  border-radius: var(--radius-lg);
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.card-pro:hover,
+.card-pro:focus-visible {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-raised);
+}
+
+.card-cta {
+  display: inline-block;
+  margin-top: 12px;
+  color: var(--color-primary-deep);
+  font-weight: 600;
+  font-size: 0.88rem;
+}
+
+/* Canais de contato no perfil do profissional */
+.contact-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 14px;
+}
+
+.contact-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 9px 14px;
+  border-radius: 999px;
+  border: 1px solid var(--color-border-strong);
+  background: var(--color-surface);
+  color: var(--color-text);
+  text-decoration: none;
+  font-size: 0.88rem;
+  font-weight: 600;
+}
+
+.contact-chip:hover {
+  border-color: var(--color-primary);
+}
+
+/* Pedidos de contato recebidos, no painel do profissional */
+.requests {
+  margin-top: 14px;
+  padding-top: 14px;
+  border-top: 1px solid var(--color-border);
+}
+
+.requests-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+
+.requests-badge {
+  margin-left: 8px;
+  padding: 2px 9px;
+  border-radius: 999px;
+  background: var(--color-primary);
+  color: #fff;
+  font-size: 0.7rem;
+}
+
+.requests-toggle {
+  background: none;
+  border: none;
+  padding: 0;
+  font: inherit;
+  font-size: 0.82rem;
+  color: var(--color-primary-deep);
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+.requests-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 10px;
+}
+
+.request {
+  border: 1px solid var(--color-border);
+  border-radius: 14px;
+  padding: 12px 14px;
+  background: var(--color-surface-raised);
+  font-size: 0.9rem;
+}
+
+.request-new {
+  border-color: var(--color-primary);
+  background: var(--color-surface);
+}
+
+.request-tag {
+  margin-left: 8px;
+  font-size: 0.74rem;
+  color: var(--color-text-muted);
+}
+
+.request-msg {
+  margin: 6px 0 0;
+  font-size: 0.86rem;
+}
+
+.request-actions {
+  display: flex;
+  gap: 8px;
+  margin-top: 10px;
+  flex-wrap: wrap;
+}
+
+.request-actions .btn {
+  padding: 7px 14px;
+  font-size: 0.82rem;
 }

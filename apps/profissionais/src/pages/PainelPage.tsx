@@ -4,6 +4,8 @@ import { useAuth } from "../lib/useAuth";
 import {
   getMyProfessionals,
   countRecentProfileViews,
+  getContactRequests,
+  updateContactRequestStatus,
   isCurrentlyBoosted,
   isCurrentlyVerified,
   isCurrentlyPlusActive,
@@ -21,7 +23,7 @@ import {
   annualPrice,
   PRICES,
 } from "../lib/payments";
-import { CATEGORIES, CITIES, DEFAULT_CITY, CREDIT_PACKS, SPONSORSHIP_PLANS, type CategorySponsorship, type ContactMode, type LeadCredits, type Professional, type SubscriptionType } from "../types/domain";
+import { CATEGORIES, CITIES, DEFAULT_CITY, CREDIT_PACKS, SPONSORSHIP_PLANS, type CategorySponsorship, type ContactMode, type ContactRequest, type ContactRequestStatus, type LeadCredits, type Professional, type SubscriptionType } from "../types/domain";
 import { formatDocument, isValidDocument } from "../lib/documents";
 import { uploadProfessionalPhoto } from "../lib/storage";
 import { BottomSheet } from "../components/BottomSheet";
@@ -48,6 +50,10 @@ const EMPTY: FormState = {
   city: DEFAULT_CITY,
   bio: "",
   phone: "",
+  whatsapp: "",
+  email: "",
+  instagram: "",
+  linkedin: "",
   entity_type: "pf",
   document: "",
   company_name: "",
@@ -62,6 +68,9 @@ export function PainelPage() {
   const [mine, setMine] = useState<Professional[]>([]);
   /** Visualizações dos últimos 30 dias por anúncio — grátis para todo anunciante. */
   const [views30, setViews30] = useState<Record<string, number>>({});
+  /** Pedidos de contato por anúncio (quem deixou o número pedindo retorno). */
+  const [pedidos, setPedidos] = useState<Record<string, ContactRequest[]>>({});
+  const [mostrarArquivados, setMostrarArquivados] = useState(false);
   const [form, setForm] = useState<FormState>(EMPTY);
   const [photoFile, setPhotoFile] = useState<File | null>(null);
   const [photoPreview, setPhotoPreview] = useState<string | null>(null);
@@ -141,6 +150,10 @@ export function PainelPage() {
       city: p.city,
       bio: p.bio,
       phone: p.phone,
+      whatsapp: p.whatsapp ?? "",
+      email: p.email ?? "",
+      instagram: p.instagram ?? "",
+      linkedin: p.linkedin ?? "",
       entity_type: p.entity_type,
       document: p.document ? formatDocument(p.document, p.entity_type) : "",
       company_name: p.company_name ?? "",
@@ -170,6 +183,35 @@ export function PainelPage() {
       active = false;
     };
   }, [mine]);
+
+  async function carregarPedidos() {
+    const pares = await Promise.all(
+      mine.map((p) =>
+        getContactRequests(p.id, { includeArchived: mostrarArquivados }).then((lista) => [p.id, lista] as const)
+      )
+    );
+    setPedidos(Object.fromEntries(pares));
+  }
+
+  useEffect(() => {
+    if (mine.length === 0) return;
+    let active = true;
+    Promise.all(
+      mine.map((p) =>
+        getContactRequests(p.id, { includeArchived: mostrarArquivados }).then((lista) => [p.id, lista] as const)
+      )
+    ).then((pares) => {
+      if (active) setPedidos(Object.fromEntries(pares));
+    });
+    return () => {
+      active = false;
+    };
+  }, [mine, mostrarArquivados]);
+
+  async function marcarPedido(requestId: string, status: ContactRequestStatus) {
+    await updateContactRequestStatus(requestId, status);
+    await carregarPedidos();
+  }
 
   async function handleSave(e: React.FormEvent) {
     e.preventDefault();
@@ -270,7 +312,7 @@ export function PainelPage() {
   if (!user) {
     return (
       <div className="container" style={{ paddingTop: 40 }}>
-        <p>Você precisa entrar para acessar o painel do profissional.</p>
+        <p>Entre na sua conta para cuidar do seu anúncio.</p>
       </div>
     );
   }
@@ -284,7 +326,7 @@ export function PainelPage() {
 
       <section style={{ marginTop: 24 }}>
         <h2>Meus anúncios</h2>
-        {mine.length === 0 && <p className="muted">Você ainda não tem um anúncio. Cadastre abaixo.</p>}
+        {mine.length === 0 && <p className="muted">Você ainda não tem anúncio. Preencha aí embaixo que em dois minutos você aparece na busca.</p>}
         <div className="grid">
           {mine.map((p) => {
             const verified = isCurrentlyVerified(p);
@@ -313,6 +355,60 @@ export function PainelPage() {
                 {p.entity_type === "pj" && p.responsible_name && (
                   <p className="muted" style={{ margin: "4px 0" }}>Responsável: {p.responsible_name}</p>
                 )}
+                {(() => {
+                  const lista = pedidos[p.id] ?? [];
+                  const novos = lista.filter((r) => r.status === "new").length;
+                  return (
+                    <div className="requests">
+                      <div className="requests-head">
+                        <strong>
+                          Pedidos de contato{novos > 0 && <span className="requests-badge">{novos} novo{novos > 1 ? "s" : ""}</span>}
+                        </strong>
+                        <button type="button" className="requests-toggle" onClick={() => setMostrarArquivados((v) => !v)}>
+                          {mostrarArquivados ? "Esconder arquivados" : "Ver arquivados"}
+                        </button>
+                      </div>
+
+                      {lista.length === 0 ? (
+                        <p className="muted" style={{ margin: 0, fontSize: "0.88rem" }}>
+                          Ninguém pediu retorno ainda. Quando alguém deixar o número, ele aparece aqui.
+                        </p>
+                      ) : (
+                        <ul className="requests-list">
+                          {lista.map((r) => (
+                            <li key={r.id} className={r.status === "new" ? "request request-new" : "request"}>
+                              <div>
+                                <strong>{r.name}</strong>{" "}
+                                <a href={`tel:${r.phone.replace(/\D/g, "")}`}>{r.phone}</a>
+                                {r.status === "contacted" && <span className="request-tag">já retornado</span>}
+                                {r.status === "archived" && <span className="request-tag">arquivado</span>}
+                              </div>
+                              {r.message && <p className="muted request-msg">{r.message}</p>}
+                              <div className="request-actions">
+                                {r.status !== "contacted" && (
+                                  <button type="button" className="btn btn-outline" onClick={() => marcarPedido(r.id, "contacted")}>
+                                    Já falei com essa pessoa
+                                  </button>
+                                )}
+                                {r.status !== "archived" && (
+                                  <button type="button" className="btn btn-outline" onClick={() => marcarPedido(r.id, "archived")}>
+                                    Arquivar
+                                  </button>
+                                )}
+                                {r.status === "archived" && (
+                                  <button type="button" className="btn btn-outline" onClick={() => marcarPedido(r.id, "new")}>
+                                    Desarquivar
+                                  </button>
+                                )}
+                              </div>
+                            </li>
+                          ))}
+                        </ul>
+                      )}
+                    </div>
+                  );
+                })()}
+
                 <div style={{ display: "flex", gap: 10, marginTop: 10, flexWrap: "wrap" }}>
                   <button className="btn btn-outline" onClick={() => startEdit(p)}>
                     Editar
@@ -327,7 +423,7 @@ export function PainelPage() {
                       : `Assinar selo de verificação — a partir de R$ ${PRICES.verification.amount.toFixed(2).replace(".", ",")}/mês`}
                   </button>
                   <button
-                    className="btn btn-gold"
+                    className="btn btn-primary"
                     disabled={boosted}
                     onClick={() => setPlanSheetFor({ professional: p, type: "boost" })}
                   >
@@ -500,8 +596,39 @@ export function PainelPage() {
               </option>
             ))}
           </select>
-          <textarea placeholder="Bio / descrição do serviço" value={form.bio} onChange={(e) => setForm({ ...form, bio: e.target.value })} rows={3} />
-          <input placeholder="WhatsApp (com DDD)" value={form.phone} onChange={(e) => setForm({ ...form, phone: e.target.value })} />
+          <textarea placeholder="Conte o que você faz, com suas palavras" value={form.bio} onChange={(e) => setForm({ ...form, bio: e.target.value })} rows={3} />
+          <fieldset className="contact-fields">
+            <legend>Como querem falar com você</legend>
+            <p className="muted" style={{ margin: "0 0 10px", fontSize: "0.85rem" }}>
+              Preencha o que fizer sentido. Só aparece no seu anúncio o que você escrever aqui.
+            </p>
+            <input
+              placeholder="Telefone com DDD"
+              value={form.phone}
+              onChange={(e) => setForm({ ...form, phone: e.target.value })}
+            />
+            <input
+              placeholder="WhatsApp com DDD"
+              value={form.whatsapp ?? ""}
+              onChange={(e) => setForm({ ...form, whatsapp: e.target.value })}
+            />
+            <input
+              type="email"
+              placeholder="E-mail"
+              value={form.email ?? ""}
+              onChange={(e) => setForm({ ...form, email: e.target.value })}
+            />
+            <input
+              placeholder="Instagram (@seuperfil)"
+              value={form.instagram ?? ""}
+              onChange={(e) => setForm({ ...form, instagram: e.target.value })}
+            />
+            <input
+              placeholder="LinkedIn (link do perfil)"
+              value={form.linkedin ?? ""}
+              onChange={(e) => setForm({ ...form, linkedin: e.target.value })}
+            />
+          </fieldset>
 
           <label style={{ display: "flex", alignItems: "center", gap: 8, fontSize: "0.88rem" }}>
             <input
@@ -514,7 +641,7 @@ export function PainelPage() {
           </label>
 
           <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
-            <button className="btn btn-gold" type="submit" disabled={saving}>
+            <button className="btn btn-primary" type="submit" disabled={saving}>
               {saving ? "Salvando…" : isEditing ? "Salvar alterações" : "Salvar anúncio"}
             </button>
             {isEditing && (
@@ -557,7 +684,7 @@ export function PainelPage() {
                 {(annualPrice(planSheetFor.type) / 12).toFixed(2).replace(".", ",")}/mês. Só cartão de crédito.
               </span>
               <button
-                className="btn btn-gold btn-block"
+                className="btn btn-primary btn-block"
                 disabled={checkoutLoading === `${planSheetFor.professional.id}:${planSheetFor.type}:annual-card`}
                 onClick={() => handleSubscribeAnnualCard(planSheetFor.professional.id, planSheetFor.type)}
               >
@@ -603,7 +730,7 @@ export function PainelPage() {
               ))}
             </select>
             <button
-              className="btn btn-gold btn-block"
+              className="btn btn-primary btn-block"
               disabled={checkoutLoading === `${sponsorSheetFor.id}:sponsor`}
               onClick={() => handleSponsor(sponsorSheetFor)}
             >

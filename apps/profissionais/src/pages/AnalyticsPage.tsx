@@ -121,7 +121,7 @@ export function AnalyticsPage() {
               (leads) ele gerou e acompanhar sua avaliação média em um só lugar.
             </p>
             {message && <p style={{ color: "var(--color-danger)" }}>{message}</p>}
-            <button className="btn btn-gold" onClick={() => setPlanSheetOpen(true)} disabled={checkoutLoading !== null}>
+            <button className="btn btn-primary" onClick={() => setPlanSheetOpen(true)} disabled={checkoutLoading !== null}>
               {`Assinar Empresa Plus — a partir de R$ ${PRICES.plus.amount.toFixed(2).replace(".", ",")}/mês`}
             </button>
           </div>
@@ -153,7 +153,7 @@ export function AnalyticsPage() {
                   Só cartão de crédito.
                 </span>
                 <button
-                  className="btn btn-gold btn-block"
+                  className="btn btn-primary btn-block"
                   disabled={checkoutLoading === "annual-card"}
                   onClick={handleSubscribeAnnualCard}
                 >
@@ -189,7 +189,7 @@ export function AnalyticsPage() {
       <div className="grid" style={{ marginTop: 24, gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))" }}>
         <div className="card">
           <p className="muted" style={{ margin: 0, fontSize: "0.8rem" }}>Visualizações de perfil</p>
-          <p style={{ margin: "6px 0 0", fontSize: "2rem", fontWeight: 700, color: "var(--color-primary-gold)" }}>
+          <p style={{ margin: "6px 0 0", fontSize: "2rem", fontWeight: 700, color: "var(--color-primary)" }}>
             {views ?? "…"}
           </p>
         </div>
@@ -197,7 +197,7 @@ export function AnalyticsPage() {
           <p className="muted" style={{ margin: 0, fontSize: "0.8rem" }}>
             Leads / contatos {professional.contact_mode !== "pay_per_lead" && "(ative pagar por contato para contar)"}
           </p>
-          <p style={{ margin: "6px 0 0", fontSize: "2rem", fontWeight: 700, color: "var(--color-primary-gold)" }}>
+          <p style={{ margin: "6px 0 0", fontSize: "2rem", fontWeight: 700, color: "var(--color-primary)" }}>
             {professional.contact_mode === "pay_per_lead" ? leads ?? "…" : "N/A"}
           </p>
         </div>

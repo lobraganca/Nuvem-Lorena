@@ -120,7 +120,7 @@ export function TourGuide({ steps, onFinish }: { steps: TourStep[]; onFinish: ()
           <button type="button" className="tour-skip" onClick={onFinish}>
             Pular
           </button>
-          <button type="button" className="btn btn-gold" onClick={next}>
+          <button type="button" className="btn btn-primary" onClick={next}>
             {isLast ? "Começar a usar" : "Próximo"}
           </button>
         </div>

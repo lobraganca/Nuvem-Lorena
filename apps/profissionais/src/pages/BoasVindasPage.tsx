@@ -5,16 +5,16 @@ import { markWelcomeSeen, requestTour } from "../lib/onboarding";
 
 const FEATURES = [
   {
-    title: "Quem atende perto de você",
+    title: "Tem gente boa aqui do lado",
     text: `Encanador, eletricista, professor particular, manicure — de autônomos a empresas de ${DEFAULT_CITY} e região, num lugar só.`,
   },
   {
-    title: "Avaliação de quem contratou",
+    title: "Quem já chamou conta como foi",
     text: "Só quem tem conta e CPF confirmado avalia. Em vez de escrever um texto, a pessoa toca em estrelas e etiquetas — leva segundos.",
   },
   {
-    title: "Contato direto",
-    text: "Sem intermediário e sem leilão de orçamento: o telefone está ali, e quem tem selo abre o WhatsApp num toque.",
+    title: "Fale direto com a pessoa",
+    text: "Sem intermediário e sem leilão de orçamento: o contato está ali, é só chamar.",
   },
   {
     title: "Selo de verificação",
@@ -54,7 +54,7 @@ export function BoasVindasPage() {
       <section className="welcome-hero">
         <LogoMark />
         <p className="welcome-tagline">
-          O profissional certo de {DEFAULT_CITY}, com avaliação de quem já contratou.
+          Precisa de um serviço? Aqui você acha quem faz — e vê o que os vizinhos acharam.
         </p>
       </section>
 
@@ -64,13 +64,13 @@ export function BoasVindasPage() {
           sabe continua rolando e encontra a explicação logo abaixo. */}
       <section className="welcome-choice">
         <button type="button" className="welcome-choice-btn welcome-choice-primary" onClick={escolherCliente}>
-          <span className="welcome-choice-label">Quero contratar</span>
-          <span className="welcome-choice-hint">Achar quem faz o serviço que preciso</span>
+          <span className="welcome-choice-label">Quero contratar alguém</span>
+          <span className="welcome-choice-hint">Estou precisando de um serviço</span>
         </button>
 
         <button type="button" className="welcome-choice-btn" onClick={escolherProfissional}>
           <span className="welcome-choice-label">Quero ser encontrado</span>
-          <span className="welcome-choice-hint">Sou profissional ou empresa daqui</span>
+          <span className="welcome-choice-hint">Trabalho com isso e quero aparecer</span>
         </button>
       </section>
 

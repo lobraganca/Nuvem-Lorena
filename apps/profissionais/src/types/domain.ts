@@ -21,7 +21,11 @@ export interface Professional {
   category: string;
   city: string;
   bio: string;
-  phone: string; // whatsapp
+  phone: string; // telefone para ligação
+  whatsapp: string | null;
+  email: string | null;
+  instagram: string | null; // @usuario ou URL
+  linkedin: string | null; // URL do perfil
   entity_type: EntityType; // "pf" = profissional autônomo, "pj" = empresa
   document: string | null; // CPF (pf) ou CNPJ (pj) do anunciante
   company_name: string | null; // razão social/nome fantasia, só relevante para pj
@@ -140,6 +144,21 @@ export interface Favorite {
   user_id: string;
   professional_id: string;
   created_at: string;
+}
+
+export type ContactRequestStatus = "new" | "contacted" | "archived";
+
+/** Pedido de contato: o cliente deixa o número e pede para ser chamado. */
+export interface ContactRequest {
+  id: string;
+  professional_id: string;
+  requester_id: string | null;
+  name: string;
+  phone: string;
+  message: string;
+  status: ContactRequestStatus;
+  created_at: string;
+  contacted_at: string | null;
 }
 
 export type ReportStatus = "pending" | "reviewed" | "dismissed";

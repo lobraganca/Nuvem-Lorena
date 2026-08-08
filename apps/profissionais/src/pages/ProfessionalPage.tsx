@@ -15,6 +15,7 @@ import {
   hasLeadBalance,
   consumeLeadCredit,
   aggregateReviewTags,
+  requestContact,
   type ProfessionalWithRating,
 } from "../lib/professionals";
 import { getProfile, saveCpf } from "../lib/profiles";
@@ -63,6 +64,13 @@ export function ProfessionalPage() {
   const [alreadyReportedLocally, setAlreadyReportedLocally] = useState(false);
   const [leadBalanceAvailable, setLeadBalanceAvailable] = useState(false);
   const [contactLoading, setContactLoading] = useState(false);
+  const [contactSheetOpen, setContactSheetOpen] = useState(false);
+  const [reqName, setReqName] = useState("");
+  const [reqPhone, setReqPhone] = useState("");
+  const [reqMessage, setReqMessage] = useState("");
+  const [reqSaving, setReqSaving] = useState(false);
+  const [reqSent, setReqSent] = useState(false);
+  const [reqError, setReqError] = useState("");
 
   async function load() {
     if (!id) return;
@@ -243,6 +251,31 @@ export function ProfessionalPage() {
     }
   }
 
+  async function submitContactRequest(e: React.FormEvent) {
+    e.preventDefault();
+    if (!id) return;
+    if (!reqName.trim() || reqPhone.replace(/\D/g, "").length < 10) {
+      setReqError("Precisamos do seu nome e de um telefone com DDD para a pessoa retornar.");
+      return;
+    }
+    setReqSaving(true);
+    setReqError("");
+    try {
+      await requestContact({
+        professional_id: id,
+        requester_id: user?.id ?? null,
+        name: reqName.trim(),
+        phone: reqPhone.trim(),
+        message: reqMessage.trim(),
+      });
+      setReqSent(true);
+    } catch (err) {
+      setReqError(err instanceof Error ? err.message : "Não conseguimos enviar seu pedido agora.");
+    } finally {
+      setReqSaving(false);
+    }
+  }
+
   async function submitReport(e: React.FormEvent) {
     e.preventDefault();
     if (!id) return;
@@ -277,7 +310,7 @@ export function ProfessionalPage() {
     return (
       <div className="container">
         <p className="muted" style={{ marginTop: 40 }}>
-          Profissional não encontrado (ou banco de dados de demonstração sem dados ainda).
+          Não encontramos esse anúncio. Ele pode ter saído do ar.
         </p>
       </div>
     );
@@ -289,8 +322,13 @@ export function ProfessionalPage() {
   const topTags = aggregateReviewTags(reviews);
   const payPerLead = professional.contact_mode === "pay_per_lead";
   const whatsappBlocked = payPerLead && !leadBalanceAvailable;
-  const whatsappLink =
-    professional.phone && verified && !whatsappBlocked ? `https://wa.me/${professional.phone.replace(/\D/g, "")}` : null;
+  const zap = professional.whatsapp || professional.phone;
+  const whatsappLink = zap && verified && !whatsappBlocked ? `https://wa.me/${zap.replace(/\D/g, "")}` : null;
+  const instagramUrl = professional.instagram
+    ? professional.instagram.startsWith("http")
+      ? professional.instagram
+      : `https://instagram.com/${professional.instagram.replace(/^@/, "")}`
+    : null;
 
   return (
     <div className="container" style={{ paddingTop: 32 }}>
@@ -337,7 +375,7 @@ export function ProfessionalPage() {
             <FavoriteButton professionalId={professional.id} initialFavorited={isFavorite} size="large" />
           </div>
         </div>
-        <p style={{ marginTop: 16 }}>{professional.bio || "Sem descrição."}</p>
+        <p style={{ marginTop: 16 }}>{professional.bio || "Essa pessoa ainda não escreveu sobre o trabalho dela."}</p>
         <p>
           {professional.average_rating ? (
             <>
@@ -346,25 +384,55 @@ export function ProfessionalPage() {
               <span className="muted">({professional.review_count} avaliações)</span>
             </>
           ) : (
-            <span className="muted">Ainda sem avaliações</span>
+            <span className="muted">Ainda ninguém avaliou — pode ser você o primeiro</span>
           )}
         </p>
-        {whatsappLink ? (
-          <a
-            className="btn btn-teal"
-            href={whatsappLink}
-            target="_blank"
-            rel="noreferrer"
-            onClick={handleWhatsappClick}
-            aria-disabled={contactLoading}
-          >
-            {contactLoading ? "Abrindo…" : "Chamar no WhatsApp"}
-          </a>
-        ) : whatsappBlocked ? (
-          <p className="muted">Este profissional está sem créditos de contato no momento.</p>
-        ) : (
-          professional.phone && <p className="muted">Telefone: {professional.phone}</p>
-        )}
+        <div className="contact-list">
+          {whatsappLink && (
+            <a
+              className="btn btn-teal"
+              href={whatsappLink}
+              target="_blank"
+              rel="noreferrer"
+              onClick={handleWhatsappClick}
+              aria-disabled={contactLoading}
+            >
+              {contactLoading ? "Abrindo…" : "Chamar no WhatsApp"}
+            </a>
+          )}
+          {whatsappBlocked && (
+            <p className="muted" style={{ width: "100%", margin: 0 }}>
+              O WhatsApp deste anúncio está indisponível agora. Dá para ligar ou pedir que retornem.
+            </p>
+          )}
+          {professional.phone && (
+            <a className="contact-chip" href={`tel:${professional.phone.replace(/\D/g, "")}`}>
+              <span aria-hidden="true">📞</span> {professional.phone}
+            </a>
+          )}
+          {professional.email && (
+            <a className="contact-chip" href={`mailto:${professional.email}`}>
+              <span aria-hidden="true">✉️</span> {professional.email}
+            </a>
+          )}
+          {instagramUrl && (
+            <a className="contact-chip" href={instagramUrl} target="_blank" rel="noreferrer">
+              <span aria-hidden="true">📷</span> Instagram
+            </a>
+          )}
+          {professional.linkedin && (
+            <a className="contact-chip" href={professional.linkedin} target="_blank" rel="noreferrer">
+              <span aria-hidden="true">💼</span> LinkedIn
+            </a>
+          )}
+        </div>
+
+        <button className="btn btn-primary btn-block" style={{ marginTop: 14 }} onClick={() => setContactSheetOpen(true)}>
+          Peça para {professional.name.split(" ")[0]} te chamar
+        </button>
+        <p className="muted" style={{ margin: "8px 0 0", fontSize: "0.84rem" }}>
+          Sem tempo de ligar agora? Deixe seu número que a pessoa retorna.
+        </p>
       </div>
 
       <section style={{ marginTop: 32 }}>
@@ -389,16 +457,16 @@ export function ProfessionalPage() {
           </div>
         )}
 
-        {!user && <p className="muted">Faça login com sua conta Google para avaliar este profissional.</p>}
+        {!user && <p className="muted">Entre com sua conta Google para deixar sua avaliação.</p>}
 
         {user && !cpfLoading && !cpf && (
-          <button className="btn btn-gold" onClick={() => setCpfSheetOpen(true)} style={{ marginBottom: 20 }}>
+          <button className="btn btn-primary" onClick={() => setCpfSheetOpen(true)} style={{ marginBottom: 20 }}>
             Confirmar CPF para avaliar
           </button>
         )}
 
         {user && cpf && !editingReviewId && (
-          <button className="btn btn-gold" onClick={() => setReviewSheetOpen(true)} style={{ marginBottom: 20 }}>
+          <button className="btn btn-primary" onClick={() => setReviewSheetOpen(true)} style={{ marginBottom: 20 }}>
             Enviar avaliação
           </button>
         )}
@@ -418,7 +486,7 @@ export function ProfessionalPage() {
                 maxLength={14}
               />
               {error && <p style={{ color: "var(--color-danger)" }}>{error}</p>}
-              <button className="btn btn-gold btn-block" type="submit" disabled={saving}>
+              <button className="btn btn-primary btn-block" type="submit" disabled={saving}>
                 {saving ? "Confirmando…" : "Confirmar CPF"}
               </button>
             </form>
@@ -428,13 +496,13 @@ export function ProfessionalPage() {
         {reviewSheetOpen && (
           <BottomSheet
             title={editingReviewId ? "Editar avaliação" : "Enviar avaliação"}
-            subtitle="Toque nas estrelas e nas etiquetas que combinam. Não precisa escrever nada."
+            subtitle="Toque nas estrelas e no que combina. Não precisa escrever nada."
             onClose={cancelEditReview}
           >
             <form onSubmit={submitReview} style={{ display: "grid", gap: 16 }}>
               <div>
                 <p className="muted" style={{ margin: "0 0 6px", fontSize: "0.85rem" }}>
-                  Sua nota
+                  Que nota você dá?
                 </p>
                 <div className="star-picker" role="group" aria-label="Nota de 1 a 5 estrelas">
                   {[1, 2, 3, 4, 5].map((n) => (
@@ -488,19 +556,72 @@ export function ProfessionalPage() {
               </div>
 
               <label style={{ display: "grid", gap: 6, fontSize: "0.85rem" }} className="muted">
-                Quer escrever algo? (opcional)
+                Quer contar mais alguma coisa? (opcional)
                 <textarea
-                  placeholder="Conte como foi o atendimento"
+                  placeholder="Como foi o atendimento?"
                   value={comment}
                   onChange={(e) => setComment(e.target.value)}
                   rows={3}
                 />
               </label>
               {error && <p style={{ color: "var(--color-danger)" }}>{error}</p>}
-              <button className="btn btn-gold btn-block" type="submit" disabled={saving}>
+              <button className="btn btn-primary btn-block" type="submit" disabled={saving}>
                 {saving ? "Enviando…" : editingReviewId ? "Salvar alterações" : "Enviar avaliação"}
               </button>
             </form>
+          </BottomSheet>
+        )}
+
+        {contactSheetOpen && (
+          <BottomSheet
+            title={reqSent ? "Pedido enviado" : `Peça para ${professional.name.split(" ")[0]} te chamar`}
+            subtitle={
+              reqSent
+                ? undefined
+                : "Deixe seu nome e telefone. A pessoa vê o pedido no painel dela e retorna quando puder."
+            }
+            onClose={() => {
+              setContactSheetOpen(false);
+              setReqSent(false);
+            }}
+          >
+            {reqSent ? (
+              <div style={{ display: "grid", gap: 12 }}>
+                <p style={{ margin: 0 }}>
+                  Prontinho — seu recado chegou. Agora é aguardar o retorno; se for urgente, ligar costuma ser
+                  mais rápido.
+                </p>
+                <button
+                  className="btn btn-primary btn-block"
+                  onClick={() => {
+                    setContactSheetOpen(false);
+                    setReqSent(false);
+                  }}
+                >
+                  Fechar
+                </button>
+              </div>
+            ) : (
+              <form onSubmit={submitContactRequest} style={{ display: "grid", gap: 12 }}>
+                <input placeholder="Seu nome" value={reqName} onChange={(e) => setReqName(e.target.value)} />
+                <input
+                  placeholder="Seu telefone com DDD"
+                  inputMode="tel"
+                  value={reqPhone}
+                  onChange={(e) => setReqPhone(e.target.value)}
+                />
+                <textarea
+                  placeholder="O que você precisa? (opcional)"
+                  rows={3}
+                  value={reqMessage}
+                  onChange={(e) => setReqMessage(e.target.value)}
+                />
+                {reqError && <p style={{ color: "var(--color-danger)", margin: 0 }}>{reqError}</p>}
+                <button className="btn btn-primary btn-block" type="submit" disabled={reqSaving}>
+                  {reqSaving ? "Enviando…" : "Enviar meu contato"}
+                </button>
+              </form>
+            )}
           </BottomSheet>
         )}
 
@@ -514,7 +635,7 @@ export function ProfessionalPage() {
               <button className="btn btn-outline" onClick={() => setDeleteConfirmId(null)}>
                 Cancelar
               </button>
-              <button className="btn btn-gold" onClick={confirmRemoveReview}>
+              <button className="btn btn-primary" onClick={confirmRemoveReview}>
                 Excluir avaliação
               </button>
             </div>
@@ -522,7 +643,7 @@ export function ProfessionalPage() {
         )}
 
         <div className="grid">
-          {reviews.length === 0 && <p className="muted">Nenhuma avaliação ainda.</p>}
+          {reviews.length === 0 && <p className="muted">Ainda não tem avaliação por aqui. Se você já chamou essa pessoa, conta pra gente como foi.</p>}
           {reviews.map((r) => {
             const isOwnReview = user?.id === r.user_id;
             const isOwner = user?.id === professional.owner_id;
@@ -631,7 +752,7 @@ export function ProfessionalPage() {
                 rows={3}
               />
               {reportError && <p style={{ color: "var(--color-danger)" }}>{reportError}</p>}
-              <button className="btn btn-gold btn-block" type="submit" disabled={reportSaving}>
+              <button className="btn btn-primary btn-block" type="submit" disabled={reportSaving}>
                 {reportSaving ? "Enviando…" : "Enviar denúncia"}
               </button>
             </form>

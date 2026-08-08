@@ -229,7 +229,7 @@ export function AdminPage() {
               className="card"
               style={
                 r.status === "pending"
-                  ? { border: "1px solid var(--color-primary-gold)" }
+                  ? { border: "1px solid var(--color-primary)" }
                   : undefined
               }
             >
@@ -245,7 +245,7 @@ export function AdminPage() {
                   className="badge"
                   style={
                     r.status === "pending"
-                      ? { color: "var(--color-primary-gold)", borderColor: "var(--color-primary-gold)" }
+                      ? { color: "var(--color-primary)", borderColor: "var(--color-primary)" }
                       : { color: "var(--color-accent-teal)", borderColor: "var(--color-accent-teal)" }
                   }
                 >
@@ -280,7 +280,7 @@ export function AdminPage() {
 
               {r.professional_suspended ? (
                 <div style={{ marginTop: 10 }}>
-                  <span className="badge" style={{ color: "var(--color-primary-gold)", borderColor: "var(--color-primary-gold)" }}>
+                  <span className="badge" style={{ color: "var(--color-primary)", borderColor: "var(--color-primary)" }}>
                     Anúncio fora do ar
                   </span>{" "}
                   <button
@@ -308,7 +308,7 @@ export function AdminPage() {
                       Tirar anúncio do ar
                     </button>
                     <button
-                      className="btn btn-gold"
+                      className="btn btn-primary"
                       disabled={suspending === r.professional_id}
                       onClick={() => handleSuspend(r.professional_id, true)}
                     >
@@ -330,14 +330,14 @@ export function AdminPage() {
             <div
               key={s.id}
               className="card"
-              style={s.status === "new" ? { border: "1px solid var(--color-primary-gold)" } : undefined}
+              style={s.status === "new" ? { border: "1px solid var(--color-primary)" } : undefined}
             >
               <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
                 <span
                   className="badge"
                   style={
                     s.status === "new"
-                      ? { color: "var(--color-primary-gold)", borderColor: "var(--color-primary-gold)" }
+                      ? { color: "var(--color-primary)", borderColor: "var(--color-primary)" }
                       : { color: "var(--color-accent-teal)", borderColor: "var(--color-accent-teal)" }
                   }
                 >
@@ -401,7 +401,7 @@ export function AdminPage() {
             <div
               key={p.id}
               className="card"
-              style={p.suspended ? { border: "1px solid var(--color-primary-gold)" } : undefined}
+              style={p.suspended ? { border: "1px solid var(--color-primary)" } : undefined}
             >
               <div style={{ display: "flex", justifyContent: "space-between" }}>
                 <Link to={`/profissional/${p.id}`}>
@@ -411,7 +411,7 @@ export function AdminPage() {
                   {verified && <span className="badge badge-verified">✓ Verificado</span>}
                   {boosted && <span className="badge badge-boosted">Destaque</span>}
                   {p.suspended && (
-                    <span className="badge" style={{ color: "var(--color-primary-gold)", borderColor: "var(--color-primary-gold)" }}>
+                    <span className="badge" style={{ color: "var(--color-primary)", borderColor: "var(--color-primary)" }}>
                       Fora do ar
                     </span>
                   )}
@@ -440,7 +440,7 @@ export function AdminPage() {
                     <button className="btn btn-outline" disabled={suspending === p.id} onClick={() => handleSuspend(p.id, false)}>
                       Tirar do ar
                     </button>
-                    <button className="btn btn-gold" disabled={suspending === p.id} onClick={() => handleSuspend(p.id, true)}>
+                    <button className="btn btn-primary" disabled={suspending === p.id} onClick={() => handleSuspend(p.id, true)}>
                       Tirar do ar e bloquear cadastro
                     </button>
                   </div>
@@ -453,7 +453,7 @@ export function AdminPage() {
         {!prosLoading && prosHasMore && (
           <div style={{ textAlign: "center", marginTop: 16 }}>
             <button className="btn btn-outline" onClick={loadMorePros} disabled={prosLoadingMore}>
-              {prosLoadingMore ? "Carregando…" : "Carregar mais"}
+              {prosLoadingMore ? "Carregando…" : "Ver mais profissionais"}
             </button>
           </div>
         )}

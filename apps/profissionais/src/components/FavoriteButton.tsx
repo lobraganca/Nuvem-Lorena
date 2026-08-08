@@ -48,7 +48,7 @@ export function FavoriteButton({ professionalId, initialFavorited = false, size 
         fontSize: size === "large" ? "1.1rem" : "0.9rem",
         padding: size === "large" ? "8px 14px" : "4px 10px",
         lineHeight: 1,
-        color: favorited ? "var(--color-primary-gold)" : undefined,
+        color: favorited ? "var(--color-primary)" : undefined,
       }}
     >
       {favorited ? "♥" : "♡"}

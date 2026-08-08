@@ -138,7 +138,7 @@ export function HomePage() {
 
       <section style={{ padding: "40px 0 24px", textAlign: "center" }}>
         <h1 style={{ fontSize: "clamp(1.5rem, 6.2vw, 2rem)", lineHeight: 1.2, marginBottom: 10 }}>
-          Contrate quem é daqui, em {DEFAULT_CITY}
+          Quem você procura hoje, em {DEFAULT_CITY}
         </h1>
         <p className="muted">
           Cada serviço fechado por aqui é dinheiro que fica na cidade. Encontre pelo nome, pela categoria ou
@@ -178,7 +178,7 @@ export function HomePage() {
             </option>
           ))}
         </select>
-        <input placeholder="Buscar por nome ou palavra-chave" value={text} onChange={(e) => setText(e.target.value)} />
+        <input placeholder="Digite um nome ou o que precisa" value={text} onChange={(e) => setText(e.target.value)} />
         <select value={minRating} onChange={(e) => setMinRating(Number(e.target.value))}>
           <option value={0}>Qualquer nota</option>
           <option value={4}>4+ estrelas</option>
@@ -203,8 +203,8 @@ export function HomePage() {
             alignItems: "center",
             textDecoration: "none",
             color: "inherit",
-            border: "1px solid var(--color-primary-gold)",
-            background: "linear-gradient(135deg, #fdf4e6, var(--color-surface))",
+            border: "1px solid var(--color-primary)",
+            background: "linear-gradient(135deg, var(--color-gold-tint), var(--color-surface))",
           }}
         >
           {sponsorship.professional.photo_url ? (
@@ -235,7 +235,7 @@ export function HomePage() {
               {sponsorship.professional.category} · {sponsorship.professional.city}
             </p>
           </div>
-          <span className="btn btn-gold">Ver perfil</span>
+          <span className="btn btn-primary">Ver perfil</span>
         </Link>
       )}
 
@@ -246,14 +246,13 @@ export function HomePage() {
       >
         {loading && <p className="muted">Buscando…</p>}
         {!loading && results.length === 0 && (
-          <p className="muted">Nenhum profissional encontrado com esses filtros ainda.</p>
+          <p className="muted">Não achamos ninguém com esses filtros. Tente outra categoria ou tire o filtro de nota.</p>
         )}
         {results.map((p) => {
           const verified = isCurrentlyVerified(p);
           const boosted = isCurrentlyBoosted(p);
-          const whatsappLink = p.phone && verified ? `https://wa.me/${p.phone.replace(/\D/g, "")}` : null;
           return (
-            <Link key={p.id} to={`/profissional/${p.id}`} className="card" style={{ textDecoration: "none", color: "inherit" }}>
+            <Link key={p.id} to={`/profissional/${p.id}`} className="card card-pro" style={{ textDecoration: "none", color: "inherit" }}>
               <div style={{ display: "flex", gap: 12, alignItems: "start" }}>
                 {p.photo_url ? (
                   <img
@@ -304,24 +303,7 @@ export function HomePage() {
                 )}{" "}
                 {p.review_count > 0 && <span className="muted">({p.review_count})</span>}
               </p>
-              {whatsappLink ? (
-                <a
-                  className="btn btn-teal"
-                  style={{ marginTop: 10 }}
-                  href={whatsappLink}
-                  target="_blank"
-                  rel="noreferrer"
-                  onClick={(e) => e.stopPropagation()}
-                >
-                  Chamar no WhatsApp
-                </a>
-              ) : (
-                p.phone && (
-                  <p className="muted" style={{ marginTop: 10 }}>
-                    Telefone: {p.phone}
-                  </p>
-                )
-              )}
+              <span className="card-cta">Ver contatos e avaliações →</span>
             </Link>
           );
         })}
@@ -330,7 +312,7 @@ export function HomePage() {
       {!loading && hasMore && (
         <div style={{ textAlign: "center", marginTop: 24 }}>
           <button className="btn btn-outline" onClick={loadMore} disabled={loadingMore}>
-            {loadingMore ? "Carregando…" : "Carregar mais"}
+            {loadingMore ? "Carregando…" : "Ver mais profissionais"}
           </button>
         </div>
       )}
