@@ -259,6 +259,24 @@ export async function upsertProfessional(input: Partial<Professional> & { owner_
   return data;
 }
 
+/**
+ * Apaga um anúncio do dono logado.
+ *
+ * Quem decide se pode é o banco: a policy de delete exige que `owner_id` seja
+ * quem está pedindo, então mandar o id de um anúncio alheio não apaga nada —
+ * a checagem não depende de a tela ter escondido o botão.
+ *
+ * O efeito em cascata vem do schema: avaliações, favoritos, créditos e
+ * pedidos de contato referenciam o anúncio e caem junto. É por isso que a
+ * tela pede confirmação — some também a reputação construída.
+ */
+export async function deleteProfessional(id: string): Promise<void> {
+  const client = supabase();
+  if (!client) throw new Error("Sem conexão com o banco.");
+  const { error } = await client.from("professionals").delete().eq("id", id);
+  if (error) throw error;
+}
+
 export async function reportProfessional(input: {
   professional_id: string;
   reporter_id: string | null;

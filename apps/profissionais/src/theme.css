@@ -1314,3 +1314,23 @@ textarea::placeholder {
 .whats-pendente .btn {
   flex: none;
 }
+
+/* Botão de ação destrutiva. Vermelho só na borda e no texto quando é o
+   caminho secundário (o "Excluir anúncio" no meio dos outros), e cheio
+   quando é a confirmação final — ali a pessoa já decidiu, e o botão precisa
+   ser inconfundível. */
+.btn-perigo {
+  border-color: var(--color-danger);
+  color: var(--color-danger);
+  background: transparent;
+}
+
+.btn.btn-perigo.btn-block {
+  background: var(--color-danger);
+  border-color: var(--color-danger);
+  color: #fff;
+}
+
+.btn-perigo:disabled {
+  opacity: 0.6;
+}

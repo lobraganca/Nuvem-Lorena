@@ -12,6 +12,7 @@ import {
   isCurrentlyVerified,
   isCurrentlyPlusActive,
   upsertProfessional,
+  deleteProfessional,
   getLeadCredits,
   updateContactMode,
   getMySponsorships,
@@ -150,6 +151,9 @@ export function PainelPage() {
   const [planSheetFor, setPlanSheetFor] = useState<{ professional: Professional; type: SubscriptionType } | null>(null);
   /** Anúncio cujo WhatsApp está sendo confirmado por código. */
   const [confirmandoWhats, setConfirmandoWhats] = useState<Professional | null>(null);
+  /** Anúncio que a pessoa pediu para excluir — a confirmação abre em folha. */
+  const [excluindoAnuncio, setExcluindoAnuncio] = useState<Professional | null>(null);
+  const [excluindo, setExcluindo] = useState(false);
 
   const isEditing = !!form.id;
 
@@ -550,6 +554,9 @@ export function PainelPage() {
                 <div style={{ display: "flex", gap: 10, marginTop: 10, flexWrap: "wrap" }}>
                   <button className="btn btn-outline" onClick={() => startEdit(p)}>
                     Editar
+                  </button>
+                  <button className="btn btn-outline btn-perigo" onClick={() => setExcluindoAnuncio(p)}>
+                    Excluir anúncio
                   </button>
                   <button
                     className="btn btn-teal"
@@ -966,6 +973,54 @@ export function PainelPage() {
           </div>
         </form>
       </section>
+
+      {excluindoAnuncio && (
+        <BottomSheet
+          title="Excluir este anúncio?"
+          subtitle="Some da busca na hora, e não dá para desfazer."
+          onClose={() => setExcluindoAnuncio(null)}
+        >
+          <div style={{ display: "grid", gap: 14 }}>
+            <p style={{ margin: 0 }}>
+              <strong>{excluindoAnuncio.name}</strong>
+            </p>
+            {/* Dito antes, não depois: as avaliações são o que a pessoa levou
+                meses para juntar, e recriar o anúncio não as traz de volta. */}
+            <p className="muted" style={{ margin: 0, fontSize: "0.88rem" }}>
+              Junto com o anúncio saem as avaliações que você recebeu, os favoritos de quem te guardou e os
+              pedidos de contato. Isso não volta, nem criando o anúncio de novo.
+            </p>
+            {formMessage && erroAoSalvar && <p className="form-erro">{formMessage}</p>}
+            <button
+              className="btn btn-perigo btn-block"
+              disabled={excluindo}
+              onClick={async () => {
+                setExcluindo(true);
+                setErroAoSalvar(false);
+                setFormMessage("");
+                try {
+                  await deleteProfessional(excluindoAnuncio.id);
+                  setExcluindoAnuncio(null);
+                  if (user) setMine(await getMyProfessionals(user.id));
+                  // Se o anúncio apagado estava aberto para edição, o
+                  // formulário ficaria editando algo que não existe mais.
+                  if (form.id === excluindoAnuncio.id) resetForm();
+                } catch (err) {
+                  setErroAoSalvar(true);
+                  setFormMessage(mensagemDeErro(err, "Não foi possível excluir o anúncio."));
+                } finally {
+                  setExcluindo(false);
+                }
+              }}
+            >
+              {excluindo ? "Excluindo…" : "Sim, excluir"}
+            </button>
+            <button type="button" className="btn btn-outline btn-block" onClick={() => setExcluindoAnuncio(null)}>
+              Manter anúncio
+            </button>
+          </div>
+        </BottomSheet>
+      )}
 
       {confirmandoWhats && (
         <ConfirmarWhatsApp
