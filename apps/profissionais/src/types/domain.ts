@@ -27,6 +27,11 @@ export interface Professional {
   email: string | null;
   instagram: string | null; // @usuario ou URL
   linkedin: string | null; // URL do perfil
+  /** Endereço de atendimento. Opcional: quem atende na casa do cliente deixa vazio. */
+  cep: string | null;
+  street: string | null;
+  street_number: string | null;
+  neighborhood: string | null;
   entity_type: EntityType; // "pf" = profissional autônomo, "pj" = empresa
   document: string | null; // CPF (pf) ou CNPJ (pj) do anunciante
   company_name: string | null; // razão social/nome fantasia, só relevante para pj

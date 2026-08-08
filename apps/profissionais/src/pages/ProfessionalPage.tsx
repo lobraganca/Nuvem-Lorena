@@ -366,6 +366,19 @@ export function ProfessionalPage() {
               <p className="muted">
                 {professional.category} · {professional.city}
               </p>
+              {/* Endereço só existe para quem tem ponto fixo. Quando existe,
+                  é informação de primeira ordem — decide se dá para ir a pé. */}
+              {(professional.street || professional.neighborhood) && (
+                <p className="muted" style={{ margin: "2px 0 0", fontSize: "0.88rem" }}>
+                  📍{" "}
+                  {[
+                    [professional.street, professional.street_number].filter(Boolean).join(", "),
+                    professional.neighborhood,
+                  ]
+                    .filter(Boolean)
+                    .join(" — ")}
+                </p>
+              )}
               {(professional.categories?.length ?? 0) > 1 && (
                 <div className="chip-list" style={{ margin: "6px 0" }}>
                   {professional.categories.map((c) => (

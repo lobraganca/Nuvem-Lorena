@@ -29,6 +29,7 @@ import { CATEGORIES, CITIES, DEFAULT_CITY, CREDIT_PACKS, MAX_CATEGORIES, MAX_CAT
 import { formatDocument, isValidDocument } from "../lib/documents";
 import { uploadProfessionalPhoto } from "../lib/storage";
 import { formatPhone, isValidPhone } from "../lib/phone";
+import { buscarCep, formatCep } from "../lib/cep";
 import { BottomSheet } from "../components/BottomSheet";
 import { ConfirmarWhatsApp } from "../components/ConfirmarWhatsApp";
 
@@ -52,8 +53,12 @@ type FormState = Omit<
 const EMPTY: FormState = {
   owner_id: "",
   name: "",
-  category: CATEGORIES[0],
-  categories: [CATEGORIES[0]],
+  // Nada vem marcado. Antes o primeiro serviço da lista já vinha escolhido,
+  // e quem não reparasse publicava um anúncio de encanador sem nunca ter
+  // dito que é encanador — um valor padrão aqui não é conveniência, é uma
+  // resposta colocada na boca da pessoa.
+  category: "",
+  categories: [],
   city: DEFAULT_CITY,
   bio: "",
   phone: "",
@@ -66,6 +71,10 @@ const EMPTY: FormState = {
   company_name: "",
   photo_url: null,
   responsible_name: "",
+  cep: "",
+  street: "",
+  street_number: "",
+  neighborhood: "",
 };
 
 const NAME_MAX_LENGTH = 80;
@@ -222,6 +231,10 @@ export function PainelPage() {
       company_name: p.company_name ?? "",
       photo_url: p.photo_url,
       responsible_name: p.responsible_name ?? "",
+      cep: p.cep ?? "",
+      street: p.street ?? "",
+      street_number: p.street_number ?? "",
+      neighborhood: p.neighborhood ?? "",
     });
     setPhotoFile(null);
     setPhotoPreview(null);
@@ -833,6 +846,56 @@ export function PainelPage() {
             ))}
           </select>
           <textarea placeholder="Conte o que você faz, com suas palavras" value={form.bio} onChange={(e) => setForm({ ...form, bio: e.target.value })} rows={3} />
+          <fieldset className="contact-fields">
+            <legend>Onde você atende</legend>
+            <p className="muted" style={{ margin: "0 0 10px", fontSize: "0.85rem" }}>
+              Só preencha se você tem ponto fixo — salão, oficina, loja. Quem atende na casa do cliente pode
+              deixar em branco: nada aqui é obrigatório, e o que você escrever <strong>aparece no seu
+              anúncio</strong>.
+            </p>
+            <input
+              placeholder="CEP"
+              value={form.cep ?? ""}
+              inputMode="numeric"
+              maxLength={9}
+              onChange={async (e) => {
+                const cep = formatCep(e.target.value);
+                setForm((f) => ({ ...f, cep }));
+                // Oito dígitos é o sinal de que terminou de digitar — não há
+                // botão de buscar, e não deve haver: um passo a mais aqui é
+                // um passo que a pessoa esquece.
+                if (cep.replace(/\D/g, "").length === 8) {
+                  const encontrado = await buscarCep(cep);
+                  if (encontrado) {
+                    setForm((f) => ({
+                      ...f,
+                      street: encontrado.street || f.street,
+                      neighborhood: encontrado.neighborhood || f.neighborhood,
+                      // A cidade do anúncio segue o CEP quando ele responde,
+                      // porque é ela que decide em qual busca a pessoa cai.
+                      city: encontrado.city || f.city,
+                    }));
+                  }
+                }
+              }}
+            />
+            <input
+              placeholder="Rua"
+              value={form.street ?? ""}
+              onChange={(e) => setForm({ ...form, street: e.target.value })}
+            />
+            <input
+              placeholder="Número"
+              value={form.street_number ?? ""}
+              onChange={(e) => setForm({ ...form, street_number: e.target.value })}
+            />
+            <input
+              placeholder="Bairro"
+              value={form.neighborhood ?? ""}
+              onChange={(e) => setForm({ ...form, neighborhood: e.target.value })}
+            />
+          </fieldset>
+
           <fieldset className="contact-fields">
             <legend>Como querem falar com você</legend>
             <p className="muted" style={{ margin: "0 0 10px", fontSize: "0.85rem" }}>
