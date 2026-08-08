@@ -1104,3 +1104,15 @@ textarea::placeholder {
   flex-shrink: 0;
   vertical-align: middle;
 }
+
+/* Marca no cabeçalho: maior que a do rodapé, para ser a âncora visual da
+   tela e um alvo de toque confortável. */
+.logo-md .logo-brand {
+  font-size: 1.7rem;
+}
+
+.logo-md .logo-city {
+  font-size: 0.66rem;
+  letter-spacing: 0.42em;
+  padding-left: 0.42em;
+}

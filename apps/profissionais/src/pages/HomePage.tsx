@@ -1,9 +1,10 @@
 import { useEffect, useState } from "react";
 import { Link, Navigate } from "react-router-dom";
-import { CATEGORIES, CITIES, DEFAULT_CITY } from "../types/domain";
+import { CATEGORIES, DEFAULT_CITY } from "../types/domain";
 import {
   DEFAULT_PAGE_SIZE,
   getActiveSponsorship,
+  getCidadesComAnuncio,
   isCurrentlyBoosted,
   isCurrentlyVerified,
   searchProfessionals,
@@ -47,7 +48,8 @@ const TOUR_STEPS: TourStep[] = [
 ];
 
 export function HomePage() {
-  const [city, setCity] = useState<string>(DEFAULT_CITY);
+  const [city, setCity] = useState<string>("");
+  const [cidades, setCidades] = useState<string[]>([]);
   const [category, setCategory] = useState<string>("");
   const [text, setText] = useState<string>("");
   const [debouncedText, setDebouncedText] = useState<string>("");
@@ -63,6 +65,10 @@ export function HomePage() {
   // Quem nunca viu a tela de início é mandado para lá antes da busca.
   const [redirectToWelcome] = useState(() => !hasSeenWelcome());
   const online = useOnlineCount();
+
+  useEffect(() => {
+    getCidadesComAnuncio().then(setCidades);
+  }, []);
 
   // Debounce (~400ms) do texto digitado antes de disparar a busca, para não
   // gerar uma query por tecla.
@@ -179,7 +185,7 @@ export function HomePage() {
         <div className="filter-grid">
           <select value={city} onChange={(e) => setCity(e.target.value)} aria-label="Cidade">
             <option value="">Todas as cidades</option>
-            {CITIES.map((c) => (
+            {cidades.map((c) => (
               <option key={c} value={c}>
                 {c}
               </option>

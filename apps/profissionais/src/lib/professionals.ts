@@ -509,3 +509,27 @@ export async function updateContactRequestStatus(
     .eq("id", requestId);
   if (error) throw error;
 }
+
+/**
+ * Cidades que realmente têm anúncio publicado.
+ *
+ * O filtro da busca usava uma lista fixa no código, então oferecia cidades
+ * vizinhas onde ninguém anunciou ainda — quem escolhesse uma delas via uma
+ * tela vazia sem entender por quê. Aqui a lista nasce dos cadastros: só
+ * aparece cidade onde há alguém para encontrar.
+ *
+ * O formulário do anúncio continua com a lista fixa, e tem que ser assim:
+ * lá a pessoa precisa poder escolher uma cidade que ainda não existe na base
+ * — é ela quem estreia a cidade.
+ */
+export async function getCidadesComAnuncio(): Promise<string[]> {
+  const client = supabase();
+  if (!client) return [];
+  const { data } = await client.from("professionals_public").select("city");
+  if (!data) return [];
+  const unicas = new Set<string>();
+  for (const linha of data) {
+    if (linha.city) unicas.add(linha.city as string);
+  }
+  return [...unicas].sort((a, b) => a.localeCompare(b, "pt-BR"));
+}

@@ -83,7 +83,7 @@ function NavItem({
 function Header() {
   return (
     <header className="container header">
-      <Logo />
+      <Logo size="md" />
     </header>
   );
 }

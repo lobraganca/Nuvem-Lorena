@@ -27,9 +27,12 @@ function ApexA({ className }: { className?: string }) {
  * O `aria-label` no link carrega o nome inteiro porque o A é um desenho, não
  * uma letra — sem isso um leitor de tela anunciaria "BUSC".
  */
-export function Logo({ city = DEFAULT_CITY, size = "sm" }: { city?: string; size?: "sm" | "lg" }) {
+export function Logo({ city = DEFAULT_CITY, size = "sm" }: { city?: string; size?: "sm" | "md" | "lg" }) {
   return (
-    <Link to="/" className={`logo logo-${size}`} aria-label={`Busca ${city}`}>
+    // Leva para a tela inicial, não para a busca: tocar na marca é o gesto de
+    // "voltar ao começo", e é lá que estão as duas portas do app (contratar
+    // ou anunciar).
+    <Link to="/inicio" className={`logo logo-${size}`} aria-label={`Busca ${city} — ir para a tela inicial`}>
       <span className="logo-brand" aria-hidden="true">
         <span className="logo-letters">BUSC</span>
         <ApexA className="logo-apex" />
