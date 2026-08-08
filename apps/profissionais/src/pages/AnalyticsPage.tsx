@@ -8,7 +8,13 @@ import {
   countLeadEvents,
   type ProfessionalWithRating,
 } from "../lib/professionals";
-import { startSubscriptionCheckout, startAnnualCheckout, annualPrice, PRICES } from "../lib/payments";
+import {
+  startSubscriptionCheckout,
+  startAnnualSubscriptionCheckout,
+  startAnnualCheckout,
+  annualPrice,
+  PRICES,
+} from "../lib/payments";
 import { BottomSheet } from "../components/BottomSheet";
 
 /**
@@ -22,7 +28,7 @@ export function AnalyticsPage() {
   const [professional, setProfessional] = useState<ProfessionalWithRating | null>(null);
   const [views, setViews] = useState<number | null>(null);
   const [leads, setLeads] = useState<number | null>(null);
-  const [checkoutLoading, setCheckoutLoading] = useState<"monthly" | "annual" | null>(null);
+  const [checkoutLoading, setCheckoutLoading] = useState<"monthly" | "annual-card" | "annual-pix" | null>(null);
   const [message, setMessage] = useState("");
   const [planSheetOpen, setPlanSheetOpen] = useState(false);
 
@@ -52,9 +58,30 @@ export function AnalyticsPage() {
     }
   }
 
-  async function handleSubscribeAnnual() {
+  /** Anual no cartão: preapproval de 12 meses — renova sozinho todo ano. */
+  async function handleSubscribeAnnualCard() {
     if (!id) return;
-    setCheckoutLoading("annual");
+    setCheckoutLoading("annual-card");
+    setMessage("");
+    try {
+      const { initPoint } = await startAnnualSubscriptionCheckout(id, "plus");
+      window.location.href = initPoint;
+    } catch (err) {
+      setMessage(err instanceof Error ? err.message : "Não foi possível iniciar o checkout do Mercado Pago.");
+    } finally {
+      setCheckoutLoading(null);
+      setPlanSheetOpen(false);
+    }
+  }
+
+  /**
+   * Anual no Pix/boleto: pagamento único — a renovação é avisada por e-mail
+   * pela Edge Function agendada `renew-annual-plans`, mas depende de o dono
+   * pagar o link.
+   */
+  async function handleSubscribeAnnualOneTime() {
+    if (!id) return;
+    setCheckoutLoading("annual-pix");
     setMessage("");
     try {
       const { initPoint } = await startAnnualCheckout(id, "plus");
@@ -106,27 +133,45 @@ export function AnalyticsPage() {
         {planSheetOpen && (
           <BottomSheet
             title="Assinar Empresa Plus"
-            subtitle="Escolha a forma de pagamento: mensal recorrente (só cartão) ou anual à vista com Pix, cartão ou boleto."
+            subtitle="Três formas de pagar. As duas do cartão renovam sozinhas; no Pix/boleto a gente avisa por e-mail quando estiver perto de vencer."
             onClose={() => setPlanSheetOpen(false)}
           >
             <div style={{ display: "grid", gap: 14 }}>
               <div className="card" style={{ display: "grid", gap: 8 }}>
-                <strong>Mensal recorrente — R$ {PRICES.plus.amount.toFixed(2).replace(".", ",")}/mês</strong>
+                <strong>Mensal no cartão — R$ {PRICES.plus.amount.toFixed(2).replace(".", ",")}/mês</strong>
                 <span className="muted" style={{ fontSize: "0.85rem" }}>
-                  Cobrança automática todo mês no cartão de crédito.
+                  Renova automaticamente: o Mercado Pago cobra o cartão todo mês, até você cancelar.
                 </span>
                 <button className="btn btn-teal btn-block" disabled={checkoutLoading === "monthly"} onClick={handleSubscribeMonthly}>
-                  {checkoutLoading === "monthly" ? "Abrindo checkout…" : "Assinar mensal"}
+                  {checkoutLoading === "monthly" ? "Abrindo checkout…" : "Assinar mensal no cartão"}
                 </button>
               </div>
               <div className="card" style={{ display: "grid", gap: 8 }}>
-                <strong>Anual à vista — R$ {annualPrice("plus").toFixed(2).replace(".", ",")}/ano (economize 20%)</strong>
+                <strong>Anual no cartão — R$ {annualPrice("plus").toFixed(2).replace(".", ",")}/ano, 20% off</strong>
                 <span className="muted" style={{ fontSize: "0.85rem" }}>
-                  Pagamento único — equivalente a R$ {(annualPrice("plus") / 12).toFixed(2).replace(".", ",")}/mês. Aceita Pix,
-                  cartão ou boleto.
+                  Renova automaticamente todo ano — equivalente a R$ {(annualPrice("plus") / 12).toFixed(2).replace(".", ",")}/mês.
+                  Só cartão de crédito.
                 </span>
-                <button className="btn btn-gold btn-block" disabled={checkoutLoading === "annual"} onClick={handleSubscribeAnnual}>
-                  {checkoutLoading === "annual" ? "Abrindo checkout…" : "Assinar anual"}
+                <button
+                  className="btn btn-gold btn-block"
+                  disabled={checkoutLoading === "annual-card"}
+                  onClick={handleSubscribeAnnualCard}
+                >
+                  {checkoutLoading === "annual-card" ? "Abrindo checkout…" : "Assinar anual no cartão"}
+                </button>
+              </div>
+              <div className="card" style={{ display: "grid", gap: 8 }}>
+                <strong>Anual no Pix/boleto — R$ {annualPrice("plus").toFixed(2).replace(".", ",")}/ano, 20% off</strong>
+                <span className="muted" style={{ fontSize: "0.85rem" }}>
+                  Pagamento único: Pix e boleto não permitem cobrança automática. Quando estiver perto de vencer,
+                  mandamos um e-mail com o link já pronto para você renovar.
+                </span>
+                <button
+                  className="btn btn-outline btn-block"
+                  disabled={checkoutLoading === "annual-pix"}
+                  onClick={handleSubscribeAnnualOneTime}
+                >
+                  {checkoutLoading === "annual-pix" ? "Abrindo checkout…" : "Pagar anual no Pix/boleto"}
                 </button>
               </div>
             </div>

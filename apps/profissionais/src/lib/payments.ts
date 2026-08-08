@@ -34,10 +34,32 @@ export async function startSubscriptionCheckout(
 }
 
 /**
- * Alternativa ao plano mensal: plano anual à vista (Checkout Pro, não
- * recorrente) das 3 assinaturas — 20% de desconto sobre 12x o valor
- * mensal, aceita Pix/cartão/boleto automaticamente (diferente do mensal,
- * que só aceita cartão via preapproval).
+ * Plano ANUAL RECORRENTE no cartão — `preapproval` com frequência de 12
+ * meses: o Mercado Pago cobra o cartão sozinho todo ano, com 20% de desconto
+ * sobre 12x o mensal. É o caminho anual que renova de verdade, sem ação do
+ * dono do anúncio (Edge Function `mercadopago-create-annual-subscription`).
+ */
+export async function startAnnualSubscriptionCheckout(
+  professionalId: string,
+  type: SubscriptionType
+): Promise<{ initPoint: string }> {
+  const client = supabase();
+  if (!client) throw new Error("Banco de dados não configurado.");
+  const { data, error } = await client.functions.invoke("mercadopago-create-annual-subscription", {
+    body: { professionalId, type },
+  });
+  if (error) throw error;
+  if (!data?.initPoint) throw new Error("Resposta inesperada do checkout do Mercado Pago.");
+  return { initPoint: data.initPoint as string };
+}
+
+/**
+ * Plano anual à vista (Checkout Pro, pagamento único) das 3 assinaturas —
+ * mesmo preço do anual recorrente (20% de desconto sobre 12x o mensal), mas
+ * aceitando Pix/cartão/boleto, que não têm débito automático na API do
+ * Mercado Pago. Por isso NÃO renova sozinho: perto do vencimento, a Edge
+ * Function agendada `renew-annual-plans` gera a nova cobrança e manda o link
+ * por e-mail ao dono do anúncio.
  */
 export async function startAnnualCheckout(
   professionalId: string,

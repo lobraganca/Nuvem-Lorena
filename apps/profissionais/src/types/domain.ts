@@ -122,6 +122,15 @@ export interface Subscription {
   status: SubscriptionStatus;
   current_period_end: string | null;
   billing_cycle: BillingCycle;
+  /**
+   * true quando o Mercado Pago cobra sozinho (mensal ou anual via
+   * `preapproval`, no cartão); false no plano anual à vista no Pix/boleto,
+   * que é pagamento único — esse é o caminho que recebe o e-mail de aviso da
+   * Edge Function agendada `renew-annual-plans`.
+   */
+  auto_renew: boolean;
+  /** Quando o aviso de renovação deste ciclo foi enviado (null = ainda não). */
+  renewal_notified_at: string | null;
   created_at: string;
 }
 
