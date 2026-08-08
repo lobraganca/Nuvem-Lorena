@@ -10,6 +10,7 @@ import { TermosPage } from "./pages/TermosPage";
 import { ComoFuncionaPage } from "./pages/ComoFuncionaPage";
 import { FavoritosPage } from "./pages/FavoritosPage";
 import { PerfilPage } from "./pages/PerfilPage";
+import { AnalyticsPage } from "./pages/AnalyticsPage";
 
 function Footer() {
   return (
@@ -41,6 +42,7 @@ export default function App() {
         <Route path="/como-funciona" element={<ComoFuncionaPage />} />
         <Route path="/favoritos" element={<FavoritosPage />} />
         <Route path="/perfil" element={<PerfilPage />} />
+        <Route path="/analytics/:id" element={<AnalyticsPage />} />
       </Routes>
       <Footer />
     </AppShell>

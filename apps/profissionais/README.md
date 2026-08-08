@@ -118,6 +118,21 @@ Migrations em `supabase/migrations/`:
   `(professional_id, reporter_id) where reporter_id is not null and status =
   'pending'`, impedindo um mesmo usuário logado de abrir mais de uma
   denúncia pendente para o mesmo anúncio.
+- `0014_pay_per_lead.sql` — `professionals.contact_mode`
+  (`whatsapp_livre`/`pay_per_lead`), tabelas `lead_credits` (saldo de
+  créditos pré-pagos por profissional) e `lead_events` (histórico de
+  cliques no WhatsApp que consumiram crédito); função `security definer`
+  `public.consume_lead_credit` (RPC, decremento atômico do saldo); views
+  `lead_credits_public` (só expõe se há saldo, não o valor) e
+  `professionals_public` atualizada com `contact_mode`.
+- `0015_patrocinio_categoria.sql` — tabela `category_sponsorships` (banner
+  de categoria patrocinada, com `status`/`ends_at`); leitura pública
+  restrita a patrocínios `status = 'active'` e `ends_at > now()`.
+- `0016_empresa_plus.sql` — `professionals.plus_active`/`plus_until`
+  (mesmo padrão de `verified`/`boosted`), tabela `profile_views`
+  (contagem de visualizações de perfil, sem dado pessoal, insert público);
+  amplia `subscriptions.type` para aceitar `'plus'`; `professionals_public`
+  atualizada com `plus_active`/`plus_until`.
 
 ### Storage — fotos/logos dos anúncios
 
@@ -257,6 +272,9 @@ Deploy das functions:
 
 ```bash
 supabase functions deploy mercadopago-create-subscription
+supabase functions deploy mercadopago-create-plus-subscription
+supabase functions deploy mercadopago-buy-credits
+supabase functions deploy mercadopago-sponsor-category
 supabase functions deploy mercadopago-webhook
 supabase secrets set MP_ACCESS_TOKEN=seu_access_token_de_producao
 supabase secrets set PUBLIC_APP_URL=https://seu-dominio.com
@@ -265,6 +283,69 @@ supabase secrets set PUBLIC_APP_URL=https://seu-dominio.com
 E cadastre a URL do webhook
 (`https://<projeto>.functions.supabase.co/mercadopago-webhook`) no painel do
 Mercado Pago.
+
+## Fontes de renda
+
+O app tem hoje **5 fontes de renda**, todas cobradas via Mercado Pago
+(assinatura recorrente via `preapproval`, ou cobrança avulsa via
+`checkout/preferences` — Checkout Pro):
+
+| Fonte | Preço | Tipo de cobrança | Edge Function |
+|---|---|---|---|
+| Selo de verificação | R$ 10,90/mês | Recorrente (preapproval) | `mercadopago-create-subscription` |
+| Turbinar anúncio (destaque) | R$ 19,90/mês | Recorrente (preapproval) | `mercadopago-create-subscription` |
+| Pagar por contato (pay-per-lead) | R$ 2,90/lead (pacotes de 10/25/50 créditos) | Avulsa (preference) | `mercadopago-buy-credits` |
+| Banner de categoria patrocinada | R$ 29,90 (7 dias) / R$ 49,90 (15 dias) / R$ 79,90 (30 dias) | Avulsa (preference) | `mercadopago-sponsor-category` |
+| Empresa Plus (analytics, só `pj`) | R$ 29,90/mês | Recorrente (preapproval) | `mercadopago-create-plus-subscription` |
+
+Como cada uma funciona:
+
+- **Selo de verificação / Turbinar anúncio** — já documentado acima:
+  assinatura recorrente, controla `professionals.verified`/`boosted` (+
+  `_until`).
+- **Pagar por contato** — alternativa ao WhatsApp livre. O dono escolhe o
+  modo em `/painel` (`professionals.contact_mode`); no modo
+  `pay_per_lead`, cada clique em "Chamar no WhatsApp" na página do
+  profissional chama a RPC `consume_lead_credit` (decremento atômico,
+  evita saldo negativo em cliques concorrentes) **antes** de abrir o link —
+  se não houver saldo, o botão vira o aviso "Este profissional está sem
+  créditos de contato no momento". O saldo é comprado em pacotes
+  (`mercadopago-buy-credits`, Checkout Pro).
+- **Banner de categoria patrocinada** — o dono compra um período (7/15/30
+  dias) de destaque para a categoria do próprio anúncio
+  (`mercadopago-sponsor-category`, Checkout Pro). Enquanto a linha em
+  `category_sponsorships` estiver `status = 'active'` e dentro do período,
+  a `HomePage` mostra um banner dourado acima da lista sempre que a busca
+  estiver filtrada por aquela categoria (sem filtro de categoria, não
+  aparece banner).
+- **Empresa Plus** — assinatura recorrente adicional, só oferecida a
+  anúncios `entity_type = 'pj'` (`mercadopago-create-plus-subscription`).
+  Com `plus_active` ativo, `/analytics/:id` mostra visualizações de perfil
+  (`profile_views`, incrementado a cada `getProfessional`, best-effort),
+  total de leads (`lead_events`, só relevante se o modo pay-per-lead também
+  estiver ativo — senão mostra "N/A") e a avaliação média/contagem que já
+  existiam.
+
+**Confirmação de pagamento — todas dependem do webhook.** Igual ao selo e
+ao turbinar anúncio, a criação da cobrança (assinatura ou preferência)
+já funciona de ponta a ponta, mas a confirmação de pagamento das **3 novas
+Edge Functions também fica esqueleto/best-effort**, seguindo o mesmo padrão
+documentado em `mercadopago-webhook`: hoje o webhook recebe a notificação
+do Mercado Pago e só loga; falta implementar, para cada `external_reference`
+novo, o tratamento correspondente:
+
+- `credits:<professionalId>:<quantity>` → upsert somando `quantity` ao
+  saldo em `lead_credits`.
+- `sponsor:<sponsorshipId>` → marcar `category_sponsorships.status =
+  'active'` (e, à parte, um job/cron para marcar `'expired'` quando
+  `ends_at` passar — não incluído).
+- `<professionalId>:plus` → mesmo tratamento do selo/boost, mas setando
+  `professionals.plus_active`/`plus_until`.
+
+Até esse trecho ser implementado, os pagamentos dessas 3 fontes de renda
+são cobrados normalmente no Mercado Pago, mas **não** liberam o benefício
+automaticamente — precisa ser feito manualmente (ou completando o TODO) até
+o webhook ir para produção.
 
 ## PWA
 

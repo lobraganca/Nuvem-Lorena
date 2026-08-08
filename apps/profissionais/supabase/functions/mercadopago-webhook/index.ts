@@ -23,6 +23,23 @@
 //        derrubar o verified/boosted no professional quando expirar.
 // 5. Sempre responder 200 rapidamente — o Mercado Pago reenvia em caso de
 //    erro/timeout.
+//
+// Este mesmo esqueleto também cobre as 3 novas fontes de renda avulsas
+// (pagamentos via `checkout/preferences`, não preapproval):
+//   - `external_reference = "credits:<professionalId>:<quantity>"` (compra
+//     de créditos de contato, ver mercadopago-buy-credits): ao confirmar o
+//     pagamento (`GET /v1/payments/{id}`, status "approved"), fazer upsert
+//     em `lead_credits` somando `quantity` ao saldo.
+//   - `external_reference = "sponsor:<sponsorshipId>"` (patrocínio de
+//     categoria, ver mercadopago-sponsor-category): ao confirmar, marcar a
+//     linha em `category_sponsorships` com `status = 'active'`. Um job
+//     separado (não incluído neste app ainda) deve marcar `status =
+//     'expired'` quando `ends_at` passar.
+//   - `external_reference = "<professionalId>:plus"` (Empresa Plus, ver
+//     mercadopago-create-plus-subscription): mesmo tratamento do selo/boost,
+//     mas setando `professionals.plus_active`/`plus_until`.
+// Nenhum desses três fluxos está implementado abaixo — todos ficam no mesmo
+// estado "best-effort/esqueleto" documentado aqui, igual ao selo/boost.
 
 // deno-lint-ignore-file no-explicit-any
 import { createClient } from "jsr:@supabase/supabase-js@2";
