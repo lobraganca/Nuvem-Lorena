@@ -55,6 +55,8 @@ npm run build
 |---|---|
 | `MP_ACCESS_TOKEN` | **Access token do Mercado Pago.** Nunca deve aparecer no código nem no bundle do frontend — é usado só dentro das Edge Functions para chamar a API do Mercado Pago |
 | `PUBLIC_APP_URL` | URL pública do app, usada como `back_url` do checkout |
+| `RESEND_API_KEY` | API key da [Resend](https://resend.com), usada pelos e-mails transacionais (`notify-suspension`, `notify-new-review` e o aviso de renovação do plano anual em `renew-annual-plans`). Sem ela, as functions logam e seguem sem quebrar |
+| `RESEND_FROM_EMAIL` | Remetente verificado na Resend (ex: `"Busca Itabirito <avisos@seudominio.com>"`) |
 | `SUPABASE_URL` / `SUPABASE_SERVICE_ROLE_KEY` | Injetadas automaticamente pelo Supabase ao rodar/publicar as functions |
 
 ## Banco de dados (Supabase)
@@ -139,6 +141,13 @@ Migrations em `supabase/migrations/`:
 - `0018_sugestoes.sql` — tabela `suggestions` (canal de sugestões gerais
   sobre a plataforma, ver seção "Sugestões dos usuários"); insert público
   (não exige login), leitura restrita a admin (mesmo padrão de `reports`).
+- `0019_renovacao_anual.sql` — `subscriptions.auto_renew` (true quando o
+  Mercado Pago cobra sozinho — mensal ou anual via `preapproval`; false no
+  anual à vista no Pix/boleto) e `subscriptions.renewal_notified_at` (quando
+  o aviso de renovação deste ciclo foi enviado, para o cron não reenviar o
+  e-mail todo dia; o webhook zera ao confirmar o pagamento). Faz backfill de
+  `auto_renew = false` nas linhas anuais existentes — antes desta migration,
+  toda linha anual era pagamento único. Ver seção "Fontes de renda".
 
 ### Storage — fotos/logos dos anúncios
 
@@ -252,50 +261,52 @@ time de admins crescer.
 
 ## Mercado Pago — modelo de monetização implementado
 
-Três assinaturas recorrentes por profissional, cada uma com **duas formas de
-pagamento** à escolha do dono do anúncio (BottomSheet no painel/analytics):
+Três assinaturas por profissional, cada uma com **três formas de pagamento**
+à escolha do dono do anúncio (BottomSheet no painel/analytics):
 
-- **Selo de verificação** — R$ 10,90/mês, ou R$ 104,64/ano à vista
+- **Selo de verificação** — R$ 10,90/mês, ou R$ 104,64/ano
   (`type: "verification"`).
 - **Turbinar anúncio** — destaque na listagem, ordenado antes dos demais —
-  R$ 19,90/mês, ou R$ 191,04/ano à vista (`type: "boost"`).
+  R$ 19,90/mês, ou R$ 191,04/ano (`type: "boost"`).
 - **Empresa Plus** (analytics, só `entity_type = 'pj'`) — R$ 29,90/mês, ou
-  R$ 287,04/ano à vista (`type: "plus"`).
+  R$ 287,04/ano (`type: "plus"`).
 
 O valor anual é **20% de desconto sobre 12x o valor mensal**, sempre
 arredondado para 2 casas decimais (ex: 10,90 × 12 × 0,8 = 104,64).
 
-**Por que duas formas de pagamento diferentes:** a API do Mercado Pago não
-aceita Pix em `preapproval` (assinatura recorrente) no Brasil — só cartão de
-crédito. Por isso:
+**Por que três formas de pagamento diferentes:** a API do Mercado Pago só
+faz débito automático com **cartão de crédito** (`preapproval`) — Pix e
+boleto não têm cobrança recorrente no Brasil. Por isso:
 
-- **Mensal recorrente** → `POST /preapproval`, cobrança automática todo mês,
-  **só cartão de crédito**. Edge Functions `mercadopago-create-subscription`
-  (verification/boost) e `mercadopago-create-plus-subscription` (plus).
-- **Anual à vista** → `POST /checkout/preferences` (Checkout Pro, pagamento
-  avulso — não recorrente, não renova sozinho), aceita **Pix, cartão ou
-  boleto automaticamente**, sem configuração extra. Edge Function
-  `mercadopago-create-annual-payment` (as 3 assinaturas). Como não renova
-  sozinho, o dono do anúncio precisa comprar de novo no ano seguinte para
-  manter o benefício ativo — isso é intencional para este MVP (não há
-  cobrança recorrente por Pix hoje).
+| Caminho | Endpoint do Mercado Pago | Renova sozinho? | Meios de pagamento | Edge Function |
+|---|---|---|---|---|
+| **Mensal no cartão** | `POST /preapproval` (`frequency: 1, frequency_type: "months"`) | **Sim**, todo mês | Só cartão | `mercadopago-create-subscription` (verification/boost), `mercadopago-create-plus-subscription` (plus) |
+| **Anual no cartão** | `POST /preapproval` (`frequency: 12, frequency_type: "months"`) | **Sim**, todo ano | Só cartão | `mercadopago-create-annual-subscription` |
+| **Anual no Pix/boleto** | `POST /checkout/preferences` (Checkout Pro, pagamento único) | **Não** — mas o app avisa por e-mail com a cobrança pronta 7 dias antes de vencer | Pix, cartão ou boleto | `mercadopago-create-annual-payment` + `renew-annual-plans` (agendada) |
 
-Fluxo (mensal, exemplo do selo — turbinar/plus seguem o mesmo padrão):
+O `external_reference` distingue os caminhos:
+
+- `"<professionalId>:<type>"` — preapproval **mensal** (formato original).
+- `"<professionalId>:<type>:annual"` — preapproval **anual recorrente**.
+- `"annual:<professionalId>:<type>"` — **pagamento único** anual (Checkout
+  Pro), inclusive quando gerado pela renovação automatizada.
+
+Fluxo (exemplo do selo — turbinar/plus seguem o mesmo padrão):
 
 1. No painel (`/painel`) ou em `/analytics/:id` (caso do Plus), o dono clica
-   em "Assinar selo" e escolhe, no BottomSheet, entre mensal e anual.
-2. **Mensal:** o frontend chama `startSubscriptionCheckout`
-   (`src/lib/payments.ts`), que invoca `mercadopago-create-subscription` —
-   cria a `preapproval`, salva uma linha `pending` (`billing_cycle:
-   'monthly'`) em `subscriptions` e devolve o `init_point`.
-   **Anual:** o frontend chama `startAnnualCheckout`, que invoca
-   `mercadopago-create-annual-payment` — cria a `preference` com o preço
-   anual já calculado, salva uma linha `pending` (`billing_cycle: 'annual'`)
-   em `subscriptions` e devolve o `init_point`. Em ambos, o usuário é
-   redirecionado ao `init_point` para pagar.
+   em "Assinar selo" e escolhe, no BottomSheet, entre os três caminhos — o
+   texto de cada card deixa explícito quem renova sozinho e quem depende de
+   pagar o link avisado por e-mail.
+2. O frontend chama a função correspondente em `src/lib/payments.ts`
+   (`startSubscriptionCheckout`, `startAnnualSubscriptionCheckout` ou
+   `startAnnualCheckout`), que invoca a Edge Function da tabela acima. Ela
+   cria a `preapproval`/`preference` no Mercado Pago, salva uma linha
+   `pending` em `subscriptions` (com `billing_cycle` e `auto_renew`
+   corretos) e devolve o `init_point`, para onde o usuário é redirecionado.
 3. `mercadopago-webhook` (`supabase/functions/mercadopago-webhook/index.ts`)
    recebe a notificação do Mercado Pago e confirma o pagamento — ver seção
-   seguinte para o detalhe de como ele distingue os dois formatos de evento.
+   seguinte para o detalhe de como ele distingue os formatos de evento e as
+   validades de 1 mês / 1 ano.
 4. Ao expirar (`verified_until`/`boosted_until`/`plus_until` no passado), a
    listagem deixa de considerar o profissional como verificado/turbinado/
    plus — é uma checagem simples de data (`isCurrentlyVerified`/
@@ -307,10 +318,12 @@ Deploy das functions:
 ```bash
 supabase functions deploy mercadopago-create-subscription
 supabase functions deploy mercadopago-create-plus-subscription
+supabase functions deploy mercadopago-create-annual-subscription
 supabase functions deploy mercadopago-create-annual-payment
 supabase functions deploy mercadopago-buy-credits
 supabase functions deploy mercadopago-sponsor-category
 supabase functions deploy mercadopago-webhook
+supabase functions deploy renew-annual-plans
 supabase secrets set MP_ACCESS_TOKEN=seu_access_token_de_producao
 supabase secrets set PUBLIC_APP_URL=https://seu-dominio.com
 ```
@@ -327,27 +340,43 @@ que o Mercado Pago manda, nunca confiando cegamente no corpo do webhook
 `MP_ACCESS_TOKEN`:
 
 - `type: "subscription_preapproval"` (ou `topic: "preapproval"`, dependendo
-  de como foi configurado no painel do Mercado Pago) — usado pelas **3
-  assinaturas mensais recorrentes**. Consulta `GET /preapproval/{id}`; se
-  `status === "authorized"`, marca `subscriptions.status = 'active'` (+
-  `current_period_end` = agora + 1 mês) e, em `professionals`, o campo
+  de como foi configurado no painel do Mercado Pago) — usado pelas
+  assinaturas **recorrentes no cartão**, mensais e anuais. Consulta
+  `GET /preapproval/{id}`; se `status === "authorized"`, marca
+  `subscriptions.status = 'active'` e, em `professionals`, o campo
   correspondente (`verified`/`verified_until`, `boosted`/`boosted_until`,
-  `plus_active`/`plus_until`) com validade de 1 mês. Se `status` virar
-  `cancelled`/`paused`, só reflete em `subscriptions.status` — o
-  `verified`/`boosted`/`plus_active` cai sozinho quando `..._until` expira.
+  `plus_active`/`plus_until`). A **validade depende do ciclo**: o
+  `external_reference` no formato `"<id>:<type>:annual"` vale **1 ano**; sem
+  o sufixo (`"<id>:<type>"`, formato mensal original) vale **1 mês**. Se o
+  sufixo faltar em uma preapproval antiga, o webhook cai no `billing_cycle`
+  já gravado na linha de `subscriptions`; sem os dois, assume mensal — o
+  comportamento que sempre existiu. Se `status` virar `cancelled`/`paused`,
+  só reflete em `subscriptions.status` — o `verified`/`boosted`/
+  `plus_active` cai sozinho quando `..._until` expira.
 - `type: "payment"` — usado por **todos os pagamentos avulsos** via Checkout
-  Pro: créditos de contato, patrocínio de categoria e os 3 planos anuais à
-  vista. Consulta `GET /v1/payments/{id}`; se `status === "approved"`, lê o
-  prefixo do `external_reference`:
+  Pro: créditos de contato, patrocínio de categoria e o plano anual no
+  Pix/boleto. Consulta `GET /v1/payments/{id}`; se `status === "approved"`,
+  lê o prefixo do `external_reference`:
   - `credits:<professionalId>:<quantity>` → upsert somando `quantity` ao
     saldo em `lead_credits`.
   - `sponsor:<sponsorshipId>` → marca `category_sponsorships.status =
-    'active'` e grava `mercadopago_payment_id` (um job/cron separado para
-    marcar `'expired'` quando `ends_at` passar não está incluído).
+    'active'` e grava `mercadopago_payment_id` (a virada para `'expired'`
+    quando `ends_at` passa é feita pela function agendada
+    `renew-annual-plans`, ver "Fontes de renda").
   - `annual:<professionalId>:<type>` → mesmo efeito da preapproval
-    autorizada, mas com validade de **1 ano** (`..._until` = agora + 1 ano)
-    e a linha `pending` em `subscriptions` (`billing_cycle: 'annual'`) vira
-    `active`.
+    autorizada, mas com validade de **1 ano** (`..._until` = agora + 1 ano).
+    A linha `pending` mais recente em `subscriptions` (`billing_cycle:
+    'annual'`) vira `active`; **se não houver `pending`**, é o pagamento de
+    uma renovação avisada por e-mail (o cron não cria linha nova), e a linha
+    `active` existente é estendida em vez de duplicada. Nos dois casos,
+    `renewal_notified_at` volta a `null`, liberando o aviso do ciclo
+    seguinte.
+  - `"<id>:<type>"` / `"<id>:<type>:annual"` (sem prefixo conhecido) → é a
+    **cobrança recorrente de uma preapproval**: o Mercado Pago manda um
+    `payment` a cada renovação, carregando o mesmo `external_reference` da
+    assinatura. O webhook empurra `..._until` +1 mês (mensal) ou +1 ano
+    (anual). Sem isso a assinatura seria cobrada de novo mas o benefício
+    expiraria no fim do primeiro período.
 - Qualquer outro `type`/`topic` não reconhecido é ignorado (responde 200
   vazio). Falha de rede/parse ao consultar a API do Mercado Pago é
   capturada (try/catch) e logada com `console.error`, sem derrubar a
@@ -361,25 +390,42 @@ O app tem hoje **5 fontes de renda**, todas cobradas via Mercado Pago
 `checkout/preferences` — Checkout Pro), com o webhook confirmando
 automaticamente todas elas:
 
-| Fonte | Mensal (cartão) | Anual à vista (Pix/cartão/boleto) | Edge Function |
-|---|---|---|---|
-| Selo de verificação | R$ 10,90/mês | R$ 104,64/ano (equiv. R$ 8,72/mês) | `mercadopago-create-subscription` / `mercadopago-create-annual-payment` |
-| Turbinar anúncio (destaque) | R$ 19,90/mês | R$ 191,04/ano (equiv. R$ 15,92/mês) | `mercadopago-create-subscription` / `mercadopago-create-annual-payment` |
-| Empresa Plus (analytics, só `pj`) | R$ 29,90/mês | R$ 287,04/ano (equiv. R$ 23,92/mês) | `mercadopago-create-plus-subscription` / `mercadopago-create-annual-payment` |
-| Pagar por contato (pay-per-lead) | — | R$ 2,90/lead (pacotes de 10/25/50 créditos), Pix/cartão/boleto | `mercadopago-buy-credits` |
-| Banner de categoria patrocinada | — | R$ 29,90 (7 dias) / R$ 49,90 (15 dias) / R$ 79,90 (30 dias), Pix/cartão/boleto | `mercadopago-sponsor-category` |
+Cada uma das 3 assinaturas tem **3 caminhos de pagamento** — dois renovam
+sozinhos (cartão), um depende do usuário pagar de novo (Pix/boleto), mas com
+a cobrança e o aviso gerados automaticamente:
 
-**Pix funciona em todo pagamento avulso** (créditos, patrocínio e os 3
-planos anuais) **mas não no plano mensal recorrente** — não é uma limitação
-do app, é a própria API do Mercado Pago que não aceita Pix em `preapproval`
-no Brasil.
+| Fonte | Mensal no cartão (renova sozinho) | Anual no cartão (renova sozinho) | Anual no Pix/boleto (**não** renova sozinho — avisamos por e-mail) |
+|---|---|---|---|
+| Selo de verificação | R$ 10,90/mês | R$ 104,64/ano (equiv. R$ 8,72/mês) | R$ 104,64/ano |
+| Turbinar anúncio (destaque) | R$ 19,90/mês | R$ 191,04/ano (equiv. R$ 15,92/mês) | R$ 191,04/ano |
+| Empresa Plus (analytics, só `pj`) | R$ 29,90/mês | R$ 287,04/ano (equiv. R$ 23,92/mês) | R$ 287,04/ano |
+
+Edge Function de cada coluna: `mercadopago-create-subscription`
+(verification/boost) e `mercadopago-create-plus-subscription` (plus) para o
+mensal; `mercadopago-create-annual-subscription` para o anual no cartão;
+`mercadopago-create-annual-payment` (+ `renew-annual-plans`) para o anual no
+Pix/boleto.
+
+As outras 2 fontes de renda são cobranças avulsas, sem recorrência nenhuma:
+
+| Fonte | Preço | Edge Function |
+|---|---|---|
+| Pagar por contato (pay-per-lead) | R$ 2,90/lead (pacotes de 10/25/50 créditos), Pix/cartão/boleto | `mercadopago-buy-credits` |
+| Banner de categoria patrocinada | R$ 29,90 (7 dias) / R$ 49,90 (15 dias) / R$ 79,90 (30 dias), Pix/cartão/boleto | `mercadopago-sponsor-category` |
+
+**Pix funciona em todo pagamento avulso** (créditos, patrocínio e o anual à
+vista) **mas nunca em cobrança recorrente** — não é uma limitação do app, é
+a própria API do Mercado Pago que não aceita Pix em `preapproval` no Brasil.
+É exatamente por isso que o anual no Pix/boleto existe separado do anual no
+cartão.
 
 Como cada uma funciona:
 
 - **Selo de verificação / Turbinar anúncio / Empresa Plus** — já
-  documentado acima: mensal recorrente ou anual à vista, ambos confirmados
-  pelo webhook, controlando `professionals.verified`/`boosted`/
-  `plus_active` (+ `_until`).
+  documentado acima: mensal no cartão, anual no cartão (ambos `preapproval`,
+  débito automático de verdade) ou anual no Pix/boleto (pagamento único),
+  todos confirmados pelo webhook, controlando `professionals.verified`/
+  `boosted`/`plus_active` (+ `_until`).
 - **Pagar por contato** — alternativa ao WhatsApp livre. O dono escolhe o
   modo em `/painel` (`professionals.contact_mode`); no modo
   `pay_per_lead`, cada clique em "Chamar no WhatsApp" na página do
@@ -401,11 +447,81 @@ Como cada uma funciona:
   relevante se o modo pay-per-lead também estiver ativo — senão mostra
   "N/A") e a avaliação média/contagem que já existiam.
 
-**TODO / não incluído neste MVP:** nada renova automaticamente o plano
-anual — ao expirar, o dono precisa comprar de novo (sem cobrança recorrente
-por Pix disponível na API do Mercado Pago hoje); um lembrete por e-mail
-próximo ao vencimento do plano anual seria um próximo passo natural, não
-implementado.
+### Rotina diária (`renew-annual-plans`) — renovação do anual e faxina
+
+Uma única Edge Function agendada faz as duas tarefas periódicas do app:
+
+1. **Aviso de renovação do plano anual no Pix/boleto.** Varre
+   `subscriptions` com `billing_cycle = 'annual'`, `auto_renew = false`,
+   `status = 'active'` e `renewal_notified_at is null`, e para cada plano
+   cujo `verified_until`/`boosted_until`/`plus_until` vence nos **próximos 7
+   dias**: cria uma nova preferência de pagamento no Mercado Pago (mesmo
+   `external_reference` `annual:<id>:<type>` do fluxo normal, então o webhook
+   confirma a renovação sem nenhum código especial) e manda um e-mail via
+   Resend ao dono do anúncio com o **link já pronto** e a data de
+   vencimento. Só então grava `renewal_notified_at = now()` — se o e-mail
+   falhar, o cron tenta de novo amanhã em vez de deixar o dono sem aviso.
+   O webhook zera `renewal_notified_at` ao confirmar o pagamento, liberando
+   o aviso do ciclo seguinte. Planos vencidos há mais de 7 dias são
+   ignorados (plano abandonado — o dono pode simplesmente assinar de novo no
+   painel). Quem paga no cartão (`auto_renew = true`) nunca entra nessa
+   varredura: o Mercado Pago cobra sozinho.
+2. **Expiração dos patrocínios de categoria.** Marca
+   `category_sponsorships.status = 'expired'` onde `ends_at < now()` e o
+   status ainda é `'active'` (era um TODO conhecido). A leitura pública já
+   filtrava por `ends_at > now()`, então isso é higiene de dados/painel, não
+   fechamento de brecha.
+
+Sem `RESEND_API_KEY` configurada, a function **não quebra**: loga o aviso,
+pula os e-mails (sem marcar ninguém como avisado, para o aviso sair assim
+que a chave for configurada) e ainda assim expira os patrocínios vencidos —
+mesmo padrão de `notify-suspension`.
+
+Só quem apresenta a `service_role` key no header `Authorization` consegue
+disparar a rotina; nenhum usuário final a chama.
+
+**Como agendar (pg_cron + pg_net, direto no SQL Editor do Supabase).**
+Rode uma vez, trocando `<projeto>` pela ref do seu projeto e
+`<SERVICE_ROLE_KEY>` pela service role key (Settings → API):
+
+```sql
+-- Extensões necessárias (uma vez por projeto).
+create extension if not exists pg_cron with schema extensions;
+create extension if not exists pg_net with schema extensions;
+
+-- Roda todo dia às 12:00 UTC (09:00 no horário de Brasília).
+select cron.schedule(
+  'renovacao-anual-diaria',
+  '0 12 * * *',
+  $$
+  select net.http_post(
+    url := 'https://<projeto>.functions.supabase.co/renew-annual-plans',
+    headers := jsonb_build_object(
+      'Content-Type', 'application/json',
+      'Authorization', 'Bearer <SERVICE_ROLE_KEY>'
+    ),
+    body := '{}'::jsonb
+  );
+  $$
+);
+```
+
+Para conferir/remover o agendamento:
+
+```sql
+select * from cron.job;                        -- lista os jobs
+select * from cron.job_run_details             -- histórico de execuções
+  order by start_time desc limit 20;
+select cron.unschedule('renovacao-anual-diaria');
+```
+
+Para testar na mão, sem esperar o cron:
+
+```bash
+curl -X POST https://<projeto>.functions.supabase.co/renew-annual-plans \
+  -H "Authorization: Bearer <SERVICE_ROLE_KEY>"
+# → {"expiredSponsorships":0,"notified":0}
+```
 
 ## Sugestões dos usuários
 
@@ -504,8 +620,12 @@ npm run cap:sync
 
 - Lista de cidades (`CITIES` em `src/types/domain.ts`) é uma lista fixa
   pequena, com Itabirito como padrão — trocar/ampliar é só editar o array.
-- Confirmação de pagamento via webhook está esqueletada, não conectada de
-  ponta a ponta (ver seção acima).
+- Confirmação de pagamento via webhook já está fechada para todos os fluxos
+  (ver "Webhook — como cada evento é confirmado"), mas **não valida
+  assinatura/HMAC do Mercado Pago** — a proteção é revalidar todo evento
+  contra a API do Mercado Pago com o `MP_ACCESS_TOKEN`, o que impede um
+  webhook forjado de liberar benefício, mas não impede um terceiro de
+  disparar processamento repetido de eventos legítimos.
 - **Paginação da busca/listagem admin** é incremental simples (`limit`/
   `offset` via `page`/`pageSize` em `searchProfessionals`, botão "Carregar
   mais"), não infinite scroll automático nem cursor-based.
