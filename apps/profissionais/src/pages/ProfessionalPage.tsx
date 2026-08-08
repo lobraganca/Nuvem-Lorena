@@ -14,11 +14,12 @@ import {
   isCurrentlyVerified,
   hasLeadBalance,
   consumeLeadCredit,
+  aggregateReviewTags,
   type ProfessionalWithRating,
 } from "../lib/professionals";
 import { getProfile, saveCpf } from "../lib/profiles";
 import { formatCpf, isValidCpf } from "../lib/documents";
-import { REPORT_REASONS, type Review } from "../types/domain";
+import { REPORT_REASONS, tagsForRating, tagsPromptForRating, type Review } from "../types/domain";
 import { useAuth } from "../lib/useAuth";
 import { FavoriteButton } from "../components/FavoriteButton";
 import { BottomSheet } from "../components/BottomSheet";
@@ -39,6 +40,7 @@ export function ProfessionalPage() {
   const [professional, setProfessional] = useState<ProfessionalWithRating | null>(null);
   const [reviews, setReviews] = useState<Review[]>([]);
   const [rating, setRating] = useState(5);
+  const [selectedTags, setSelectedTags] = useState<string[]>([]);
   const [comment, setComment] = useState("");
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
@@ -144,18 +146,37 @@ export function ProfessionalPage() {
     }
   }
 
+  /**
+   * Trocar a nota troca o conjunto de etiquetas oferecido (qualidades para
+   * nota alta, problemas para nota baixa), então as etiquetas já marcadas
+   * que não existem no conjunto novo são descartadas — senão daria para
+   * enviar "Atrasou" numa avaliação 5 estrelas.
+   */
+  function changeRating(next: number) {
+    setRating(next);
+    const allowed = tagsForRating(next);
+    setSelectedTags((tags) => tags.filter((t) => allowed.includes(t)));
+  }
+
+  function toggleTag(tag: string) {
+    setSelectedTags((tags) => (tags.includes(tag) ? tags.filter((t) => t !== tag) : [...tags, tag]));
+  }
+
   async function submitReview(e: React.FormEvent) {
     e.preventDefault();
     if (!user || !id || !cpf) return;
     setSaving(true);
     setError("");
     try {
+      // Nem etiqueta nem comentário são obrigatórios: só a nota basta.
+      const payload = { rating, tags: selectedTags, comment: comment.trim() };
       if (editingReviewId) {
-        await updateReview(editingReviewId, { rating, comment });
+        await updateReview(editingReviewId, payload);
       } else {
-        await addReview({ professional_id: id, user_id: user.id, rating, comment });
+        await addReview({ professional_id: id, user_id: user.id, ...payload });
       }
       setComment("");
+      setSelectedTags([]);
       setRating(5);
       setEditingReviewId(null);
       setReviewSheetOpen(false);
@@ -170,6 +191,10 @@ export function ProfessionalPage() {
   function startEditReview(r: Review) {
     setEditingReviewId(r.id);
     setRating(r.rating);
+    // Só pré-seleciona etiquetas que ainda pertencem ao conjunto da nota
+    // salva (protege contra etiquetas antigas removidas da lista).
+    const allowed = tagsForRating(r.rating);
+    setSelectedTags((r.tags ?? []).filter((t) => allowed.includes(t)));
     setComment(r.comment);
     setError("");
     setReviewSheetOpen(true);
@@ -178,6 +203,7 @@ export function ProfessionalPage() {
   function cancelEditReview() {
     setEditingReviewId(null);
     setRating(5);
+    setSelectedTags([]);
     setComment("");
     setError("");
     setReviewSheetOpen(false);
@@ -253,6 +279,8 @@ export function ProfessionalPage() {
 
   const verified = isCurrentlyVerified(professional);
   const boosted = isCurrentlyBoosted(professional);
+  // Resumo de reputação: as etiquetas mais recebidas por este profissional.
+  const topTags = aggregateReviewTags(reviews);
   const payPerLead = professional.contact_mode === "pay_per_lead";
   const whatsappBlocked = payPerLead && !leadBalanceAvailable;
   const whatsappLink =
@@ -335,6 +363,22 @@ export function ProfessionalPage() {
 
       <section style={{ marginTop: 32 }}>
         <h2>Avaliações</h2>
+
+        {topTags.length > 0 && (
+          <div style={{ margin: "0 0 18px" }}>
+            <p className="muted" style={{ margin: "0 0 8px", fontSize: "0.82rem" }}>
+              O que as pessoas mais falam
+            </p>
+            <div className="chip-list">
+              {topTags.map(({ tag, count }) => (
+                <span key={tag} className="chip chip-sm chip-static chip-tally">
+                  {tag} <span className="chip-count">({count})</span>
+                </span>
+              ))}
+            </div>
+          </div>
+        )}
+
         {!user && <p className="muted">Faça login com sua conta Google para avaliar este profissional.</p>}
 
         {user && !cpfLoading && !cpf && (
@@ -374,26 +418,59 @@ export function ProfessionalPage() {
         {reviewSheetOpen && (
           <BottomSheet
             title={editingReviewId ? "Editar avaliação" : "Enviar avaliação"}
-            subtitle="Conte como foi sua experiência com este profissional."
+            subtitle="Toque nas estrelas e nas etiquetas que combinam. Não precisa escrever nada."
             onClose={cancelEditReview}
           >
-            <form onSubmit={submitReview} style={{ display: "grid", gap: 14 }}>
-              <label>
-                Nota
-                <select value={rating} onChange={(e) => setRating(Number(e.target.value))}>
-                  {[5, 4, 3, 2, 1].map((n) => (
-                    <option key={n} value={n}>
-                      {n} estrela{n > 1 ? "s" : ""}
-                    </option>
+            <form onSubmit={submitReview} style={{ display: "grid", gap: 16 }}>
+              <div>
+                <p className="muted" style={{ margin: "0 0 6px", fontSize: "0.85rem" }}>
+                  Sua nota
+                </p>
+                <div className="star-picker" role="group" aria-label="Nota de 1 a 5 estrelas">
+                  {[1, 2, 3, 4, 5].map((n) => (
+                    <button
+                      key={n}
+                      type="button"
+                      className={n <= rating ? "star-btn star-btn-on" : "star-btn"}
+                      onClick={() => changeRating(n)}
+                      aria-label={`${n} estrela${n > 1 ? "s" : ""}`}
+                      aria-pressed={rating === n}
+                    >
+                      ★
+                    </button>
                   ))}
-                </select>
+                </div>
+              </div>
+
+              <div>
+                <p style={{ margin: "0 0 8px", fontWeight: 600 }}>{tagsPromptForRating(rating)}</p>
+                <div className="chip-list">
+                  {tagsForRating(rating).map((tag) => {
+                    const selected = selectedTags.includes(tag);
+                    return (
+                      <button
+                        key={tag}
+                        type="button"
+                        className={selected ? "chip chip-selected" : "chip"}
+                        aria-pressed={selected}
+                        onClick={() => toggleTag(tag)}
+                      >
+                        {tag}
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+
+              <label style={{ display: "grid", gap: 6, fontSize: "0.85rem" }} className="muted">
+                Quer escrever algo? (opcional)
+                <textarea
+                  placeholder="Conte como foi o atendimento"
+                  value={comment}
+                  onChange={(e) => setComment(e.target.value)}
+                  rows={3}
+                />
               </label>
-              <textarea
-                placeholder="Conte como foi o atendimento"
-                value={comment}
-                onChange={(e) => setComment(e.target.value)}
-                rows={3}
-              />
               {error && <p style={{ color: "var(--color-danger)" }}>{error}</p>}
               <button className="btn btn-gold btn-block" type="submit" disabled={saving}>
                 {saving ? "Enviando…" : editingReviewId ? "Salvar alterações" : "Enviar avaliação"}
@@ -447,7 +524,17 @@ export function ProfessionalPage() {
                     </div>
                   )}
                 </div>
-                <p style={{ margin: "6px 0 0" }}>{r.comment}</p>
+                {(r.tags ?? []).length > 0 && (
+                  <div className="chip-list" style={{ marginTop: 8 }}>
+                    {(r.tags ?? []).map((tag) => (
+                      <span key={tag} className="chip chip-sm chip-static">
+                        {tag}
+                      </span>
+                    ))}
+                  </div>
+                )}
+
+                {r.comment?.trim() && <p style={{ margin: "8px 0 0" }}>{r.comment}</p>}
 
                 {r.reply && (
                   <div
