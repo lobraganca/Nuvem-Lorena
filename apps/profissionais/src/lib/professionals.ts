@@ -270,6 +270,21 @@ export async function upsertProfessional(input: Partial<Professional> & { owner_
  * pedidos de contato referenciam o anúncio e caem junto. É por isso que a
  * tela pede confirmação — some também a reputação construída.
  */
+/**
+ * Liga e desliga a pausa do próprio anúncio.
+ *
+ * Separado de `upsertProfessional` porque é um gesto de um toque, e não a
+ * gravação de um formulário: mandar o anúncio inteiro de volta ao banco só
+ * para mudar um booleano abriria espaço para sobrescrever, com dados velhos
+ * da tela, algo que mudou no meio do caminho.
+ */
+export async function setProfessionalPaused(id: string, paused: boolean): Promise<void> {
+  const client = supabase();
+  if (!client) throw new Error("Sem conexão com o banco.");
+  const { error } = await client.from("professionals").update({ paused }).eq("id", id);
+  if (error) throw error;
+}
+
 export async function deleteProfessional(id: string): Promise<void> {
   const client = supabase();
   if (!client) throw new Error("Sem conexão com o banco.");

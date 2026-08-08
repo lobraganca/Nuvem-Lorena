@@ -18,3 +18,20 @@ do $$ begin
   if not exists (select 1 from pg_roles where rolname='anon') then create role anon nologin; end if;
   if not exists (select 1 from pg_roles where rolname='authenticated') then create role authenticated nologin; end if;
 end $$;
+
+-- Mínimo do Storage: as políticas das fotos (migration 0026) escrevem em
+-- `storage.objects` e usam `storage.foldername`. Sem este armário, o schema
+-- completo não roda fora do Supabase — e um teste que não roda inteiro deixa
+-- de valer como teste.
+create schema if not exists storage;
+create table if not exists storage.objects (
+  id uuid primary key default gen_random_uuid(),
+  bucket_id text,
+  name text,
+  owner uuid
+);
+alter table storage.objects enable row level security;
+create or replace function storage.foldername(name text)
+returns text[] language sql immutable as $$
+  select string_to_array(name, '/')
+$$;
