@@ -118,7 +118,7 @@ function Footer() {
             que trouxe o endereço único, o aviso de erro de login e a tela de
             diagnóstico. Sem um marcador visível, "não funcionou" e "não
             chegou" continuam parecendo a mesma coisa. */}
-        <p style={{ marginTop: 6, fontSize: "0.8rem", opacity: 0.75 }}>Versão f {__VERSAO__}</p>
+        <p style={{ marginTop: 6, fontSize: "0.8rem", opacity: 0.75 }}>Versão g {__VERSAO__}</p>
         <p style={{ marginTop: 6 }}>
           Dúvidas ou pedidos sobre seus dados: <a href={`mailto:${CONTATO_EMAIL}`}>{CONTATO_EMAIL}</a>
         </p>
