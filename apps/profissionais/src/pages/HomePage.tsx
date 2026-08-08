@@ -57,26 +57,42 @@ export function HomePage() {
         {!loading && results.length === 0 && (
           <p className="muted">Nenhum profissional encontrado com esses filtros ainda.</p>
         )}
-        {results.map((p) => (
-          <Link key={p.id} to={`/profissional/${p.id}`} className="card" style={{ textDecoration: "none", color: "inherit" }}>
-            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "start" }}>
-              <h3 style={{ margin: 0 }}>{p.name}</h3>
-              {p.boosted && <span className="badge badge-boosted">Destaque</span>}
-            </div>
-            <p className="muted" style={{ margin: "4px 0" }}>
-              {p.category} · {p.city}
-            </p>
-            {p.verified && <span className="badge badge-verified">✓ Verificado</span>}
-            <p style={{ marginTop: 10 }}>
-              {p.average_rating ? (
-                <span className="stars">{"★".repeat(Math.round(p.average_rating))}</span>
-              ) : (
-                <span className="muted">Sem avaliações</span>
-              )}{" "}
-              {p.review_count > 0 && <span className="muted">({p.review_count})</span>}
-            </p>
-          </Link>
-        ))}
+        {results.map((p) => {
+          const whatsappLink =
+            p.phone && p.verified ? `https://wa.me/${p.phone.replace(/\D/g, "")}` : null;
+          return (
+            <Link key={p.id} to={`/profissional/${p.id}`} className="card" style={{ textDecoration: "none", color: "inherit" }}>
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "start" }}>
+                <h3 style={{ margin: 0 }}>{p.name}</h3>
+                {p.boosted && <span className="badge badge-boosted">Destaque</span>}
+              </div>
+              <p className="muted" style={{ margin: "4px 0" }}>
+                {p.category} · {p.city}
+              </p>
+              {p.verified && <span className="badge badge-verified">✓ Verificado</span>}
+              <p style={{ marginTop: 10 }}>
+                {p.average_rating ? (
+                  <span className="stars">{"★".repeat(Math.round(p.average_rating))}</span>
+                ) : (
+                  <span className="muted">Sem avaliações</span>
+                )}{" "}
+                {p.review_count > 0 && <span className="muted">({p.review_count})</span>}
+              </p>
+              {whatsappLink && (
+                <a
+                  className="btn btn-teal"
+                  style={{ marginTop: 10 }}
+                  href={whatsappLink}
+                  target="_blank"
+                  rel="noreferrer"
+                  onClick={(e) => e.stopPropagation()}
+                >
+                  Chamar no WhatsApp
+                </a>
+              )}
+            </Link>
+          );
+        })}
       </div>
     </div>
   );
