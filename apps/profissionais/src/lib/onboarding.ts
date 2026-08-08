@@ -62,12 +62,24 @@ function safeRemove(key: string) {
   }
 }
 
+/**
+ * Marca em memória, não em storage nenhum.
+ *
+ * `sessionStorage` sobrevive ao recarregar a aba, então quem apertava F5 (ou
+ * puxava a tela para baixo no celular) continuava caindo direto na busca — a
+ * tela de início só reaparecia ao abrir uma aba nova. Uma variável de módulo
+ * zera a cada carregamento da página, que é exatamente o que "toda vez que
+ * alguém entrar no domínio" quer dizer, e ao mesmo tempo sobrevive à
+ * navegação interna: tocar em "Buscar" não devolve a pessoa para o início.
+ */
+let jaPassouNestaCarga = false;
+
 export function hasSeenWelcome(): boolean {
-  return sessionGet(WELCOME_KEY) === "1";
+  return jaPassouNestaCarga;
 }
 
 export function markWelcomeSeen() {
-  sessionSet(WELCOME_KEY, "1");
+  jaPassouNestaCarga = true;
 }
 
 /** Pedido explícito de tour (feito ao escolher "quero contratar"). */
@@ -86,11 +98,7 @@ export function markTourSeen() {
 
 /** Usado pelo Perfil para rever a apresentação do zero. */
 export function resetOnboarding() {
-  try {
-    window.sessionStorage.removeItem(WELCOME_KEY);
-  } catch {
-    /* storage bloqueado */
-  }
+  jaPassouNestaCarga = false;
   safeRemove(WELCOME_KEY);
   safeRemove(TOUR_KEY);
   safeRemove(TOUR_PENDING_KEY);

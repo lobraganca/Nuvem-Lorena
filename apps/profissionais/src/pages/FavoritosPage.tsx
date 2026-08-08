@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
+import { VerifiedBadge } from "../components/VerifiedBadge";
 import { getFavoriteProfessionals, type ProfessionalWithRating } from "../lib/professionals";
 import { FavoriteButton } from "../components/FavoriteButton";
 import { useAuth } from "../lib/useAuth";
@@ -71,7 +72,7 @@ export function FavoritosPage() {
                   </p>
                 </div>
               </div>
-              {p.verified && <span className="badge badge-verified" style={{ marginTop: 8 }}>✓ Verificado</span>}
+              {p.verified && <VerifiedBadge />}
               <p style={{ marginTop: 10 }}>
                 {p.average_rating ? (
                   <span className="stars">{"★".repeat(Math.round(p.average_rating))}</span>

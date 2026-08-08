@@ -24,6 +24,7 @@ import { REPORT_REASONS, tagsForRating, tagsPromptForRating, type Review } from 
 import { useAuth } from "../lib/useAuth";
 import { FavoriteButton } from "../components/FavoriteButton";
 import { BottomSheet } from "../components/BottomSheet";
+import { VerifiedBadge } from "../components/VerifiedBadge";
 
 /**
  * Chave de localStorage usada como trava anti-spam best-effort para
@@ -357,7 +358,10 @@ export function ProfessionalPage() {
               </div>
             )}
             <div>
-              <h1 style={{ margin: 0 }}>{professional.name}</h1>
+              <h1 style={{ margin: 0, display: "flex", alignItems: "center", gap: 8 }}>
+                {professional.name}
+                {verified && <VerifiedBadge size={22} />}
+              </h1>
               <p className="muted">
                 {professional.category} · {professional.city}
               </p>
@@ -379,7 +383,6 @@ export function ProfessionalPage() {
             </div>
           </div>
           <div style={{ display: "flex", gap: 8, alignItems: "start" }}>
-            {verified && <span className="badge badge-verified">✓ Verificado</span>}
             {boosted && <span className="badge badge-boosted">Destaque</span>}
             <FavoriteButton professionalId={professional.id} initialFavorited={isFavorite} size="large" />
           </div>

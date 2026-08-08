@@ -13,6 +13,7 @@ import {
 import type { CategorySponsorship, Professional } from "../types/domain";
 import { hasDatabase } from "../lib/supabase";
 import { FavoriteButton } from "../components/FavoriteButton";
+import { VerifiedBadge } from "../components/VerifiedBadge";
 import { TourGuide, type TourStep } from "../components/TourGuide";
 import { hasSeenWelcome, markTourSeen, shouldRunTour } from "../lib/onboarding";
 import { useOnlineCount } from "../lib/presence";
@@ -291,7 +292,10 @@ export function HomePage() {
                 )}
                 <div style={{ flex: 1 }}>
                   <div style={{ display: "flex", justifyContent: "space-between", alignItems: "start", gap: 8 }}>
-                    <h3 style={{ margin: 0 }}>{p.name}</h3>
+                    <h3 style={{ margin: 0, display: "flex", alignItems: "center", gap: 6 }}>
+                      {p.name}
+                      {verified && <VerifiedBadge />}
+                    </h3>
                     <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
                       {boosted && <span className="badge badge-boosted">Destaque</span>}
                       <FavoriteButton professionalId={p.id} />
@@ -309,7 +313,6 @@ export function HomePage() {
                   )}
                 </div>
               </div>
-              {verified && <span className="badge badge-verified" style={{ marginTop: 8 }}>✓ Verificado</span>}
               <p style={{ marginTop: 10 }}>
                 {p.average_rating ? (
                   <span className="stars">{"★".repeat(Math.round(p.average_rating))}</span>

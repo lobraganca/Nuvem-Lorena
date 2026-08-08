@@ -1097,3 +1097,10 @@ textarea::placeholder {
   font-size: 0.9rem;
   padding: 12px 14px;
 }
+
+/* Selo de verificação ao lado do nome */
+.verified-badge {
+  color: var(--color-primary);
+  flex-shrink: 0;
+  vertical-align: middle;
+}

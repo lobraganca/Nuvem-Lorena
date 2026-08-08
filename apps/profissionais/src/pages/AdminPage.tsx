@@ -408,7 +408,7 @@ export function AdminPage() {
                   <strong>{p.name}</strong>
                 </Link>
                 <div style={{ display: "flex", gap: 6 }}>
-                  {verified && <span className="badge badge-verified">✓ Verificado</span>}
+                  {verified && <span className="badge badge-verified">Selo ativo</span>}
                   {boosted && <span className="badge badge-boosted">Destaque</span>}
                   {p.suspended && (
                     <span className="badge" style={{ color: "var(--color-primary)", borderColor: "var(--color-primary)" }}>

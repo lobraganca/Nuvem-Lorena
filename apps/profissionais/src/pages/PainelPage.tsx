@@ -383,7 +383,7 @@ export function PainelPage() {
                     <span className={p.entity_type === "pj" ? "badge badge-entity-pj" : "badge badge-entity-pf"}>
                       {p.entity_type === "pj" ? "Empresa" : "Autônomo"}
                     </span>
-                    {verified && <span className="badge badge-verified">✓ Verificado</span>}
+                    {verified && <span className="badge badge-verified">Selo ativo</span>}
                     {boosted && <span className="badge badge-boosted">Destaque</span>}
                   </div>
                 </div>
