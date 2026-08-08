@@ -1,0 +1,46 @@
+# Publica o Busca Itabirito chamando o Deploy Hook da Vercel.
+#
+# A integração automática entre GitHub e Vercel parou de entregar eventos
+# neste repositório: nem os envios do agente nem os commits feitos pela dona
+# do repositório geram deploy, embora a Vercel construa perfeitamente quando
+# o gatilho é chamado à mão. Depender de alguém abrir um link a cada
+# publicação é frágil — esquece-se, e o site fica velho sem ninguém notar.
+#
+# Aqui o próprio GitHub chama o gatilho. É o mesmo endereço que funciona no
+# navegador, agora disparado por quem já está presente no momento do envio.
+#
+# O endereço fica em `secrets.VERCEL_DEPLOY_HOOK`, não no arquivo: quem tem
+# esse link pode disparar publicações do projeto à vontade, e um repositório
+# público exporia isso a qualquer um.
+
+name: Publicar Busca Itabirito
+
+on:
+  push:
+    branches:
+      - claude/professional-search-app-duqnk8
+    # Só o app dos profissionais. Mudanças na pasta do Avena não têm por que
+    # republicar este site.
+    paths:
+      - "apps/profissionais/**"
+      - ".github/workflows/publicar-busca-itabirito.yml"
+  # Permite disparar à mão pela aba Actions, sem precisar de commit.
+  workflow_dispatch:
+
+jobs:
+  disparar:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Chamar o Deploy Hook da Vercel
+        env:
+          HOOK: ${{ secrets.VERCEL_DEPLOY_HOOK }}
+        run: |
+          if [ -z "$HOOK" ]; then
+            echo "O segredo VERCEL_DEPLOY_HOOK não está configurado."
+            echo "Crie em: Settings > Secrets and variables > Actions > New repository secret."
+            exit 1
+          fi
+          # -f faz o passo falhar quando a Vercel responde com erro, em vez
+          # de fingir sucesso e deixar o site velho no ar sem aviso.
+          resposta=$(curl -sS -f -X POST "$HOOK")
+          echo "Resposta da Vercel: $resposta"
