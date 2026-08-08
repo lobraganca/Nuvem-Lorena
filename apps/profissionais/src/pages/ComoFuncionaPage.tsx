@@ -17,9 +17,10 @@ export function ComoFuncionaPage() {
         <h2 style={{ margin: 0 }}>Como avaliar</h2>
         <p className="muted" style={{ margin: 0 }}>
           Para avaliar um profissional é preciso entrar com sua conta Google e confirmar seu CPF (ele não
-          aparece publicamente — serve só para reduzir avaliações falsas). Depois disso, você pode dar uma
-          nota de 1 a 5 estrelas e escrever um comentário. Você pode editar ou apagar sua própria avaliação a
-          qualquer momento.
+          aparece publicamente — serve só para reduzir avaliações falsas). Depois disso é rápido:{" "}
+          <strong>você não precisa escrever nada</strong>. Toque de 1 a 5 estrelas e, se quiser, marque
+          etiquetas prontas como "Pontual" ou "Preço justo" (elas mudam conforme a nota). O comentário em
+          texto é opcional. Você pode editar ou apagar sua própria avaliação a qualquer momento.
         </p>
       </div>
 

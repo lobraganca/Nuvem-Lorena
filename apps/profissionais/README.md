@@ -102,7 +102,9 @@ Migrations em `supabase/migrations/`:
   da avaliação só pode mudar `rating`/`comment` (não `reply`/`replied_at`);
   o dono do anúncio só pode mudar `reply`/`replied_at` (nunca `rating`/
   `comment`), com `replied_at = now()` setado automaticamente. RLS continua
-  controlando quem pode dar update; o trigger controla o quê.
+  controlando quem pode dar update; o trigger controla o quê. **Atenção ao
+  mexer em `reviews`:** como o trigger lista os campos um a um, toda coluna
+  nova precisa entrar nessa conta — foi o que a `0020` fez com `tags`.
 - `0012_views_publicas_sem_documento.sql` — fecha exposição de dados
   sensíveis: cria as views `professionals_public` (todas as colunas de
   `professionals` exceto `document`, o CPF/CNPJ do anunciante) e
@@ -148,6 +150,42 @@ Migrations em `supabase/migrations/`:
   e-mail todo dia; o webhook zera ao confirmar o pagamento). Faz backfill de
   `auto_renew = false` nas linhas anuais existentes — antes desta migration,
   toda linha anual era pagamento único. Ver seção "Fontes de renda".
+- `0020_etiquetas_avaliacao.sql` — `reviews.tags` (`text[]`, default `'{}'`)
+  para as etiquetas rápidas da avaliação, e a atualização do trigger de
+  0011: `tags` entra no conjunto de campos que **o autor** pode mudar
+  (junto com `rating`/`comment`) e no conjunto que **o dono do anúncio**
+  não pode mudar. Sem essa parte, editar uma avaliação com etiquetas
+  falharia em runtime. Ver seção "Avaliação por toque" abaixo.
+
+### Avaliação por toque (etiquetas rápidas)
+
+O formulário de avaliação segue o modelo de app de corrida (99/Uber): **a
+pessoa não precisa escrever nada**. O fluxo, todo dentro do `BottomSheet`
+da página do profissional:
+
+1. **Nota** — 5 estrelas tocáveis (`.star-picker`/`.star-btn` em
+   `theme.css`), cada uma um `<button>` com `aria-label` ("3 estrelas").
+2. **Etiquetas rápidas** — chips de múltipla escolha, nenhuma obrigatória.
+   O conjunto **muda com a nota**: `POSITIVE_REVIEW_TAGS` para 4-5,
+   `NEGATIVE_REVIEW_TAGS` para 1-2 e `MIXED_REVIEW_TAGS` (as 4 qualidades +
+   os 4 problemas mais comuns) para a nota 3 — ver `tagsForRating` em
+   `src/types/domain.ts`. Ao trocar a nota, as etiquetas já marcadas que não
+   pertencem ao conjunto novo são descartadas, para não sobrar um "Atrasou"
+   preso numa avaliação de 5 estrelas.
+3. **Comentário** — continua existindo, mas é opcional e discreto ("Quer
+   escrever algo? (opcional)"). Enviar só com a nota funciona.
+
+As etiquetas são as mesmas para todas as categorias de propósito: texto
+genérico o bastante para servir de encanador a manicure, e um conjunto único
+mantém a agregação comparável entre profissionais. Mudar a lista é editar os
+arrays em `src/types/domain.ts` — não exige migração, porque a coluna é
+`text[]` livre (a migration só limita a quantidade por linha).
+
+No topo da seção de avaliações, `aggregateReviewTags` (em
+`src/lib/professionals.ts`) conta as etiquetas mais recebidas pelo
+profissional e mostra as 5 mais frequentes com a contagem (`Pontual (12)`).
+É calculado no client a partir das reviews já carregadas — a página baixa a
+lista inteira de qualquer jeito, então não vale uma view SQL só para isso.
 
 ### Storage — fotos/logos dos anúncios
 
