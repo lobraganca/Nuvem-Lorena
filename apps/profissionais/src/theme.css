@@ -545,3 +545,192 @@ textarea::placeholder {
     border-radius: 18px;
   }
 }
+
+/* --- Tela de início (primeiro acesso) --- */
+
+.welcome-page {
+  max-width: 960px;
+  margin: 0 auto;
+  padding: 0 20px 40px;
+}
+
+.welcome-hero {
+  text-align: center;
+  padding: 48px 0 32px;
+}
+
+.welcome-mark {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 96px;
+  height: 96px;
+  border-radius: 50%;
+  background: var(--color-bg-soft);
+  border: 1px solid var(--color-border);
+}
+
+.welcome-title {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  margin: 18px 0 10px;
+}
+
+.welcome-title .brand {
+  font-size: 2.4rem;
+  font-weight: 300;
+  letter-spacing: 0.02em;
+  line-height: 1;
+}
+
+.welcome-title .city {
+  font-size: 0.85rem;
+  letter-spacing: 0.42em;
+  color: var(--color-accent-teal);
+  padding-left: 0.42em;
+}
+
+.welcome-tagline {
+  color: var(--color-text-muted);
+  max-width: 30rem;
+  margin: 0 auto;
+}
+
+.welcome-features {
+  display: grid;
+  gap: 14px;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  margin-bottom: 40px;
+}
+
+.welcome-feature-card h3 {
+  font-size: 1rem;
+}
+
+.welcome-choice-grid {
+  display: grid;
+  gap: 14px;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  margin-top: 16px;
+}
+
+.welcome-choice-card {
+  text-align: left;
+  color: inherit;
+  font: inherit;
+  cursor: pointer;
+  border: 1px solid var(--color-border);
+  transition: border-color 0.15s ease, transform 0.15s ease;
+}
+
+.welcome-choice-card:hover,
+.welcome-choice-card:focus-visible {
+  border-color: var(--color-primary-gold);
+  transform: translateY(-2px);
+}
+
+.welcome-choice-card h3 {
+  margin: 0 0 4px;
+}
+
+.welcome-choice-card ul {
+  margin: 12px 0 0;
+  padding-left: 18px;
+  color: var(--color-text-muted);
+  font-size: 0.9rem;
+  display: grid;
+  gap: 4px;
+}
+
+.welcome-choice-cta {
+  display: inline-block;
+  margin-top: 14px;
+  color: var(--color-primary-gold);
+  font-weight: 600;
+  font-size: 0.9rem;
+}
+
+.welcome-footnote {
+  margin-top: 40px;
+  text-align: center;
+  font-size: 0.85rem;
+}
+
+/* --- Tour guiado de primeiro acesso --- */
+
+.tour-root {
+  position: fixed;
+  inset: 0;
+  z-index: 1200;
+}
+
+/* O "buraco" é a sombra gigante em volta da caixa do elemento destacado. */
+.tour-spotlight {
+  position: fixed;
+  border-radius: 12px;
+  box-shadow: 0 0 0 9999px rgba(4, 12, 22, 0.82);
+  border: 2px solid var(--color-primary-gold);
+  pointer-events: none;
+  transition: top 0.2s ease, left 0.2s ease, width 0.2s ease, height 0.2s ease;
+}
+
+.tour-dim {
+  position: fixed;
+  inset: 0;
+  background: rgba(4, 12, 22, 0.82);
+}
+
+.tour-card {
+  position: fixed;
+  left: 50%;
+  transform: translateX(-50%);
+  width: min(420px, calc(100vw - 32px));
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: 16px;
+  padding: 18px;
+  box-shadow: 0 18px 40px rgba(0, 0, 0, 0.45);
+}
+
+.tour-card:focus {
+  outline: none;
+}
+
+.tour-progress {
+  margin: 0 0 6px;
+  font-size: 0.78rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--color-accent-teal);
+}
+
+.tour-title {
+  margin: 0 0 6px;
+  font-size: 1.1rem;
+}
+
+.tour-text {
+  margin: 0 0 16px;
+  color: var(--color-text-muted);
+  font-size: 0.92rem;
+}
+
+.tour-actions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.tour-skip {
+  background: none;
+  border: none;
+  padding: 8px;
+  font: inherit;
+  font-size: 0.9rem;
+  color: var(--color-text-muted);
+  text-decoration: underline;
+  cursor: pointer;
+}

@@ -1,10 +1,11 @@
 import { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../lib/useAuth";
 import { signInWithGoogle, signOut } from "../lib/auth";
 import { hasDatabase } from "../lib/supabase";
 import { getProfile } from "../lib/profiles";
 import { isAdmin } from "../lib/admin";
+import { resetOnboarding } from "../lib/onboarding";
 import type { Profile } from "../types/domain";
 
 function initials(name: string | null, email: string | null | undefined): string {
@@ -30,6 +31,7 @@ function SettingsItem({ to, icon, label }: { to: string; icon: string; label: st
 
 export function PerfilPage() {
   const { user, loading } = useAuth();
+  const navigate = useNavigate();
   const [profile, setProfile] = useState<Profile | null>(null);
   const [admin, setAdmin] = useState(false);
   const [error, setError] = useState("");
@@ -109,6 +111,22 @@ export function PerfilPage() {
       <div className="settings-list">
         <SettingsItem to="/termos" icon="📄" label="Termos de uso" />
         <SettingsItem to="/como-funciona" icon="ℹ️" label="Como funciona" />
+        <button
+          type="button"
+          className="settings-item"
+          onClick={() => {
+            resetOnboarding();
+            navigate("/inicio");
+          }}
+        >
+          <span className="settings-icon" aria-hidden="true">
+            🧭
+          </span>
+          <span>Rever apresentação do app</span>
+          <span className="settings-arrow" aria-hidden="true">
+            ›
+          </span>
+        </button>
         {admin && <SettingsItem to="/admin" icon="🛡️" label="Painel administrativo" />}
       </div>
 

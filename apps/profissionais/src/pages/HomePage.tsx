@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, Navigate } from "react-router-dom";
 import { CATEGORIES, CITIES, DEFAULT_CITY } from "../types/domain";
 import {
   DEFAULT_PAGE_SIZE,
@@ -13,9 +13,36 @@ import {
 import type { CategorySponsorship, Professional } from "../types/domain";
 import { hasDatabase } from "../lib/supabase";
 import { FavoriteButton } from "../components/FavoriteButton";
-import { BottomSheet } from "../components/BottomSheet";
+import { TourGuide, type TourStep } from "../components/TourGuide";
+import { hasSeenWelcome, markTourSeen, shouldRunTour } from "../lib/onboarding";
 
-const ONBOARDING_KEY = "busca-itabirito-onboarding-visto";
+/**
+ * Passos do tour de primeiro acesso. Cada um aponta para um pedaço real da
+ * tela (`data-tour`) — se o elemento não estiver visível, o passo vira um
+ * cartão centralizado e o texto ainda se sustenta sozinho.
+ */
+const TOUR_STEPS: TourStep[] = [
+  {
+    target: "filtros",
+    title: "Comece pela categoria",
+    text: `Escolha o serviço e a cidade. Dá para refinar por nota mínima e ordenar por melhor avaliado — em ${DEFAULT_CITY} ou nas cidades vizinhas.`,
+  },
+  {
+    target: "resultados",
+    title: "Quem aparece aqui",
+    text: "Autônomos e empresas na mesma lista, com a nota e as etiquetas que receberam. O selo ✓ Verificado indica cadastro conferido — é um sinal de compromisso, não uma garantia do serviço.",
+  },
+  {
+    target: "nav-favoritos",
+    title: "Guarde para depois",
+    text: "O coração salva o profissional nos seus favoritos, para você não perder o contato de quem atendeu bem.",
+  },
+  {
+    target: "nav-painel",
+    title: "Você também presta serviço?",
+    text: "No Painel você cria seu próprio anúncio, como pessoa física ou empresa. É grátis — o selo e o destaque são opcionais.",
+  },
+];
 
 export function HomePage() {
   const [city, setCity] = useState<string>(DEFAULT_CITY);
@@ -29,8 +56,10 @@ export function HomePage() {
   const [page, setPage] = useState(0);
   const [hasMore, setHasMore] = useState(false);
   const [loadingMore, setLoadingMore] = useState(false);
-  const [showOnboarding, setShowOnboarding] = useState(false);
+  const [showTour, setShowTour] = useState(false);
   const [sponsorship, setSponsorship] = useState<(CategorySponsorship & { professional: Professional }) | null>(null);
+  // Quem nunca viu a tela de início é mandado para lá antes da busca.
+  const [redirectToWelcome] = useState(() => !hasSeenWelcome());
 
   // Debounce (~400ms) do texto digitado antes de disparar a busca, para não
   // gerar uma query por tecla.
@@ -39,16 +68,16 @@ export function HomePage() {
     return () => clearTimeout(t);
   }, [text]);
 
+  // O tour só roda depois que a busca já tem o que mostrar — apontar para uma
+  // lista vazia não ensinaria nada.
   useEffect(() => {
-    if (typeof window === "undefined") return;
-    if (!window.localStorage.getItem(ONBOARDING_KEY)) {
-      setShowOnboarding(true);
-    }
-  }, []);
+    if (loading) return;
+    if (shouldRunTour()) setShowTour(true);
+  }, [loading]);
 
-  function dismissOnboarding() {
-    window.localStorage.setItem(ONBOARDING_KEY, "1");
-    setShowOnboarding(false);
+  function finishTour() {
+    markTourSeen();
+    setShowTour(false);
   }
 
   useEffect(() => {
@@ -99,27 +128,11 @@ export function HomePage() {
     }
   }
 
+  if (redirectToWelcome) return <Navigate to="/inicio" replace />;
+
   return (
     <div className="container">
-      {showOnboarding && (
-        <BottomSheet title="Bem-vindo ao Busca Itabirito" onClose={dismissOnboarding}>
-          <ul style={{ margin: "0 0 16px", paddingLeft: 20, display: "grid", gap: 8 }}>
-            <li>Encontre profissionais de confiança em Itabirito e região, com avaliações reais de quem já contratou.</li>
-            <li>
-              O selo <strong>✓ Verificado</strong> indica que o profissional assinou a verificação da plataforma — não é uma
-              garantia de qualidade do serviço.
-            </li>
-            <li>
-              Somos só uma plataforma de intermediação: a contratação, o combinado e o pagamento são diretamente entre você e o
-              profissional. Veja os <Link to="/termos" onClick={dismissOnboarding}>Termos de Uso</Link>.
-            </li>
-            <li>Encontrou algo suspeito? Dá para denunciar um anúncio direto na página dele.</li>
-          </ul>
-          <button className="btn btn-gold btn-block" onClick={dismissOnboarding}>
-            Entendi
-          </button>
-        </BottomSheet>
-      )}
+      {showTour && <TourGuide steps={TOUR_STEPS} onFinish={finishTour} />}
 
       <section style={{ padding: "40px 0 24px", textAlign: "center" }}>
         <h1 style={{ fontSize: "2rem", marginBottom: 8 }}>
@@ -133,7 +146,11 @@ export function HomePage() {
         )}
       </section>
 
-      <div className="card" style={{ display: "grid", gap: 12, gridTemplateColumns: "repeat(auto-fit, minmax(160px, 1fr))" }}>
+      <div
+        className="card"
+        data-tour="filtros"
+        style={{ display: "grid", gap: 12, gridTemplateColumns: "repeat(auto-fit, minmax(160px, 1fr))" }}
+      >
         <select value={city} onChange={(e) => setCity(e.target.value)}>
           <option value="">Todas as cidades</option>
           {CITIES.map((c) => (
@@ -211,7 +228,11 @@ export function HomePage() {
         </Link>
       )}
 
-      <div className="grid" style={{ marginTop: 24, gridTemplateColumns: "repeat(auto-fill, minmax(260px, 1fr))" }}>
+      <div
+        className="grid"
+        data-tour="resultados"
+        style={{ marginTop: 24, gridTemplateColumns: "repeat(auto-fill, minmax(260px, 1fr))" }}
+      >
         {loading && <p className="muted">Buscando…</p>}
         {!loading && results.length === 0 && (
           <p className="muted">Nenhum profissional encontrado com esses filtros ainda.</p>

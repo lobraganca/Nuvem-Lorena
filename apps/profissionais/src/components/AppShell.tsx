@@ -58,9 +58,22 @@ function IconUser() {
   );
 }
 
-function NavItem({ to, label, icon, active }: { to: string; label: string; icon: ReactNode; active: boolean }) {
+function NavItem({
+  to,
+  label,
+  icon,
+  active,
+  tour,
+}: {
+  to: string;
+  label: string;
+  icon: ReactNode;
+  active: boolean;
+  /** Marca este item como alvo de um passo do tour de primeiro acesso. */
+  tour?: string;
+}) {
   return (
-    <Link to={to} className={`bottom-nav-item${active ? " active" : ""}`}>
+    <Link to={to} className={`bottom-nav-item${active ? " active" : ""}`} data-tour={tour}>
       {icon}
       <span>{label}</span>
     </Link>
@@ -105,15 +118,33 @@ export function AppShell({ children }: { children: ReactNode }) {
     ? { to: "/admin", label: "Admin", icon: <IconFlag /> }
     : { to: "/como-funciona", label: "Como funciona", icon: <IconInfo /> };
 
+  // A tela de início vem antes de qualquer escolha: mostrar a barra de
+  // navegação ali seria oferecer cinco caminhos justamente na tela cujo
+  // trabalho é perguntar qual deles a pessoa quer.
+  const isWelcome = path === "/inicio";
+
   return (
     <>
-      <Header />
-      <div className="app-content">{children}</div>
+      {!isWelcome && <Header />}
+      <div className={isWelcome ? undefined : "app-content"}>{children}</div>
+      {isWelcome ? null : (
       <nav className="bottom-nav">
         <NavItem to="/" label="Buscar" icon={<IconSearch />} active={path === "/"} />
-        <NavItem to="/favoritos" label="Favoritos" icon={<IconHeart />} active={path.startsWith("/favoritos")} />
+        <NavItem
+          to="/favoritos"
+          label="Favoritos"
+          icon={<IconHeart />}
+          active={path.startsWith("/favoritos")}
+          tour="nav-favoritos"
+        />
         <NavItem to={thirdItem.to} label={thirdItem.label} icon={thirdItem.icon} active={path.startsWith(thirdItem.to)} />
-        <NavItem to="/painel" label="Painel" icon={<IconBriefcase />} active={path.startsWith("/painel")} />
+        <NavItem
+          to="/painel"
+          label="Painel"
+          icon={<IconBriefcase />}
+          active={path.startsWith("/painel")}
+          tour="nav-painel"
+        />
         <NavItem
           to={user ? "/perfil" : "/login"}
           label="Perfil"
@@ -121,6 +152,7 @@ export function AppShell({ children }: { children: ReactNode }) {
           active={path.startsWith("/perfil") || path === "/login"}
         />
       </nav>
+      )}
     </>
   );
 }

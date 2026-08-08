@@ -1,9 +1,10 @@
 import { useState } from "react";
-import { Routes, Route, Link } from "react-router-dom";
+import { Routes, Route, Link, useLocation } from "react-router-dom";
 import { Logo } from "./components/Logo";
 import { AppShell } from "./components/AppShell";
 import { BottomSheet } from "./components/BottomSheet";
 import { HomePage } from "./pages/HomePage";
+import { BoasVindasPage } from "./pages/BoasVindasPage";
 import { ProfessionalPage } from "./pages/ProfessionalPage";
 import { LoginPage } from "./pages/LoginPage";
 import { PainelPage } from "./pages/PainelPage";
@@ -73,6 +74,12 @@ function SuggestionSheet({ onClose }: { onClose: () => void }) {
 
 function Footer() {
   const [suggestionOpen, setSuggestionOpen] = useState(false);
+  const { pathname } = useLocation();
+
+  // A tela de início já se fecha com o próprio rodapé de texto legal — o
+  // rodapé do app ali só repetiria os mesmos links.
+  if (pathname === "/inicio") return null;
+
   return (
     <footer className="footer">
       <div className="container">
@@ -110,6 +117,7 @@ export default function App() {
     <AppShell>
       <Routes>
         <Route path="/" element={<HomePage />} />
+        <Route path="/inicio" element={<BoasVindasPage />} />
         <Route path="/profissional/:id" element={<ProfessionalPage />} />
         <Route path="/login" element={<LoginPage />} />
         <Route path="/painel" element={<PainelPage />} />

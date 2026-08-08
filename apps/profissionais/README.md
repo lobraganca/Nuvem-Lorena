@@ -24,6 +24,35 @@ segredo do lado do servidor).
   como placeholder da logo (`src/components/Logo.tsx`) até o PNG oficial ser
   fornecido. Os tokens de cor ficam em `src/theme.css`.
 
+## Primeiro acesso: tela de início e tour
+
+Quem abre o app pela primeira vez não cai na busca — cai em `/inicio`
+(`src/pages/BoasVindasPage.tsx`), no mesmo espírito da tela de boas-vindas do
+Avena: logo, o que o app faz em quatro cartões, e a pergunta que separa as
+duas pessoas que chegam aqui querendo coisas opostas — **"Quero contratar"**
+(vai para a busca) e **"Quero ser encontrado"** (vai direto para o painel de
+anúncio). Sem isso, o profissional teria que descobrir sozinho onde se
+cadastra, no meio de uma tela feita para quem procura.
+
+Nessa tela o header e a barra de navegação inferior somem de propósito:
+oferecer cinco caminhos justamente na tela cujo trabalho é perguntar qual
+deles a pessoa quer seria trabalhar contra ela.
+
+Quem escolhe "Quero contratar" recebe, na busca, o **tour guiado**
+(`src/components/TourGuide.tsx`): a tela escurece, o passo atual recorta um
+elemento real (filtros, resultados, Favoritos, Painel) e explica para que
+serve. O recorte é feito com `box-shadow` em volta da caixa medida do
+elemento, então o buraco acompanha o elemento de verdade em vez de uma
+posição chutada; se o alvo não estiver na tela, o passo vira um cartão
+centralizado e o texto continua se sustentando sozinho. Os alvos são marcados
+com `data-tour="..."` no JSX.
+
+O estado fica no `localStorage`, isolado em `src/lib/onboarding.ts` (com
+`try/catch` para não quebrar em navegação anônima com storage bloqueado). São
+duas chaves distintas de propósito: a tela de início é vista uma vez, e o
+tour só roda para quem foi pela busca. Em **Perfil → "Rever apresentação do
+app"** as duas são zeradas.
+
 ## Como rodar localmente
 
 ```bash
