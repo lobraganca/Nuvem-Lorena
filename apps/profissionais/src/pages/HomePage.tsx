@@ -18,6 +18,7 @@ import { FavoriteButton } from "../components/FavoriteButton";
 import { VerifiedBadge } from "../components/VerifiedBadge";
 import { TourGuide, type TourStep } from "../components/TourGuide";
 import { hasSeenWelcome, markTourSeen, shouldRunTour } from "../lib/onboarding";
+import { temDestinoLogin } from "../lib/auth";
 import { useOnlineCount } from "../lib/presence";
 
 /**
@@ -78,7 +79,11 @@ export function HomePage() {
       window.location.hash.includes("access_token") ||
       window.location.hash.includes("error") ||
       window.location.search.includes("code=");
-    return !voltandoDoLogin && !hasSeenWelcome();
+    // `temDestinoLogin` cobre o caso que o teste do endereço não cobre: o
+    // Supabase pode já ter limpado o token da URL antes desta tela montar, e
+    // aí a volta do login parece uma visita comum — a pessoa era mandada para
+    // a tela de início em vez do painel, e o login parecia não ter funcionado.
+    return !voltandoDoLogin && !temDestinoLogin() && !hasSeenWelcome();
   });
   const online = useOnlineCount();
 

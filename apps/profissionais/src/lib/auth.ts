@@ -20,23 +20,64 @@ import type { Session, User } from "@supabase/supabase-js";
  */
 const CHAVE_DESTINO = "busca-itabirito-destino-login";
 
+/**
+ * O destino vale por 10 minutos.
+ *
+ * Quem abre o login e desiste no meio deixaria um destino guardado para
+ * sempre — e ele silencia a tela de início em toda visita seguinte, porque
+ * ela não redireciona ninguém enquanto houver login em andamento. Um login
+ * que não terminou em 10 minutos não vai terminar.
+ */
+const VALIDADE_MS = 10 * 60 * 1000;
+
 export function guardarDestinoLogin(caminho: string): void {
   try {
-    window.localStorage.setItem(CHAVE_DESTINO, caminho);
+    window.localStorage.setItem(CHAVE_DESTINO, JSON.stringify({ caminho, em: Date.now() }));
   } catch {
     /* sem armazenamento, resta o redirectTo — melhor do que quebrar o login */
   }
 }
 
-/** Lê e apaga o destino: ele vale para uma volta só. */
-export function consumirDestinoLogin(): string | null {
+/**
+ * Existe um login em andamento? Diferente de `consumirDestinoLogin`, não
+ * apaga nada — serve para outras telas saberem que não devem redirecionar
+ * ninguém no meio da volta do Google.
+ */
+export function temDestinoLogin(): boolean {
+  return lerDestino() !== null;
+}
+
+function lerDestino(): string | null {
   try {
-    const destino = window.localStorage.getItem(CHAVE_DESTINO);
-    if (destino) window.localStorage.removeItem(CHAVE_DESTINO);
-    return destino;
+    const bruto = window.localStorage.getItem(CHAVE_DESTINO);
+    if (!bruto) return null;
+    const { caminho, em } = JSON.parse(bruto) as { caminho?: string; em?: number };
+    if (!caminho || !em || Date.now() - em > VALIDADE_MS) {
+      window.localStorage.removeItem(CHAVE_DESTINO);
+      return null;
+    }
+    return caminho;
   } catch {
+    // Formato antigo ou storage bloqueado: descarta em vez de travar a tela
+    // de início para sempre.
+    try {
+      window.localStorage.removeItem(CHAVE_DESTINO);
+    } catch {
+      /* nada a fazer */
+    }
     return null;
   }
+}
+
+/** Lê e apaga o destino: ele vale para uma volta só. */
+export function consumirDestinoLogin(): string | null {
+  const destino = lerDestino();
+  try {
+    window.localStorage.removeItem(CHAVE_DESTINO);
+  } catch {
+    /* storage bloqueado */
+  }
+  return destino;
 }
 
 export async function signInWithGoogle(voltarPara?: string): Promise<void> {
