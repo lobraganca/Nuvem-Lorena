@@ -28,6 +28,7 @@ import {
 import { CATEGORIES, CITIES, DEFAULT_CITY, CREDIT_PACKS, MAX_CATEGORIES, MAX_CATEGORIA_LEN, normalizarCategoria, SPONSORSHIP_PLANS, type CategorySponsorship, type ContactMode, type ContactRequest, type ContactRequestStatus, type LeadCredits, type Professional, type SubscriptionType } from "../types/domain";
 import { formatDocument, isValidDocument } from "../lib/documents";
 import { uploadProfessionalPhoto } from "../lib/storage";
+import { formatPhone, isValidPhone } from "../lib/phone";
 import { BottomSheet } from "../components/BottomSheet";
 
 type FormState = Omit<
@@ -66,6 +67,39 @@ const EMPTY: FormState = {
 
 const NAME_MAX_LENGTH = 80;
 
+/**
+ * Transforma o que o Supabase devolve em uma frase que a pessoa possa agir.
+ *
+ * O erro do Supabase não é um `Error` — é um objeto solto com `message`,
+ * `code` e `hint`. O código escrevia `err instanceof Error ? err.message :
+ * "Erro ao salvar."`, então **todo** erro real do banco caía no genérico:
+ * a pessoa via "Erro ao salvar" sem nunca descobrir o que faltava.
+ *
+ * Os três casos traduzidos aqui são os que aparecem na prática, e nenhum
+ * deles se resolve lendo o texto original em inglês.
+ */
+function mensagemDeErro(err: unknown, padrao: string): string {
+  const bruto =
+    typeof err === "object" && err !== null && "message" in err
+      ? String((err as { message: unknown }).message)
+      : "";
+
+  if (!bruto) return padrao;
+
+  // Bucket de fotos ainda não criado no projeto Supabase.
+  if (/bucket not found/i.test(bruto)) {
+    return "O espaço das fotos ainda não foi criado no Supabase (Storage → New bucket → professional-photos, público). Enquanto isso, o anúncio de empresa salva sem logo.";
+  }
+  // Política de segurança barrou a gravação.
+  if (/row-level security|violates row-level/i.test(bruto)) {
+    return "O banco recusou a gravação por segurança. Saia da conta, entre de novo e tente outra vez.";
+  }
+  if (/duplicate key/i.test(bruto)) {
+    return "Já existe um anúncio com esses dados.";
+  }
+  return `${padrao} (${bruto})`;
+}
+
 export function PainelPage() {
   const { user, loading } = useAuth();
   const [mine, setMine] = useState<Professional[]>([]);
@@ -93,6 +127,10 @@ export function PainelPage() {
   const [saving, setSaving] = useState(false);
   const [checkoutLoading, setCheckoutLoading] = useState<string | null>(null);
   const [message, setMessage] = useState("");
+  /** Distingue "deu errado" de "deu certo" — os dois usam a mesma linha de texto. */
+  const [erroAoSalvar, setErroAoSalvar] = useState(false);
+  /** Mensagem do formulário do anúncio — separada da do topo, que é dos pagamentos. */
+  const [formMessage, setFormMessage] = useState("");
   const [leadCreditsByProfessional, setLeadCreditsByProfessional] = useState<Record<string, LeadCredits | null>>({});
   const [sponsorSheetFor, setSponsorSheetFor] = useState<Professional | null>(null);
   const [sponsorDays, setSponsorDays] = useState<number>(SPONSORSHIP_PLANS[0].days);
@@ -151,6 +189,8 @@ export function PainelPage() {
 
   function resetForm() {
     setForm(EMPTY);
+    setFormMessage("");
+    setErroAoSalvar(false);
     setPhotoFile(null);
     setPhotoPreview(null);
     setAcceptedTerms(false);
@@ -165,8 +205,10 @@ export function PainelPage() {
       categories: p.categories?.length ? p.categories : [p.category],
       city: p.city,
       bio: p.bio,
-      phone: p.phone,
-      whatsapp: p.whatsapp ?? "",
+      // Anúncios salvos antes da máscara existir têm o telefone em qualquer
+      // formato; ao abrir para editar, já aparecem no formato novo.
+      phone: formatPhone(p.phone),
+      whatsapp: p.whatsapp ? formatPhone(p.whatsapp) : "",
       email: p.email ?? "",
       instagram: p.instagram ?? "",
       linkedin: p.linkedin ?? "",
@@ -232,26 +274,45 @@ export function PainelPage() {
   async function handleSave(e: React.FormEvent) {
     e.preventDefault();
     if (!user) return;
-    setMessage("");
+    setFormMessage("");
+    setErroAoSalvar(false);
 
+    /** Interrompe o salvamento com um motivo escrito ao lado do botão. */
+    function falha(texto: string) {
+      setErroAoSalvar(true);
+      setFormMessage(texto);
+    }
+
+    if (!form.name.trim()) {
+      falha("Escreva o nome que vai aparecer no anúncio.");
+      return;
+    }
     if (form.categories.length === 0) {
-      setMessage("Marque pelo menos um serviço que você faz.");
+      falha("Marque pelo menos um serviço que você faz.");
+      return;
+    }
+    if (!isValidPhone(form.phone)) {
+      falha("Informe um telefone com DDD, no formato (31) 99999-9999.");
+      return;
+    }
+    if (form.whatsapp && !isValidPhone(form.whatsapp)) {
+      falha("O WhatsApp está incompleto. Use o formato (31) 99999-9999.");
       return;
     }
     if (form.document && !isValidDocument(form.document, form.entity_type)) {
-      setMessage(form.entity_type === "pj" ? "CNPJ inválido. Confira os números digitados." : "CPF inválido. Confira os números digitados.");
+      falha(form.entity_type === "pj" ? "CNPJ inválido. Confira os números digitados." : "CPF inválido. Confira os números digitados.");
       return;
     }
     if (form.entity_type === "pf" && !photoFile && !form.photo_url) {
-      setMessage("Envie uma foto de rosto para publicar o anúncio de pessoa física.");
+      falha("Envie uma foto de rosto para publicar o anúncio de pessoa física.");
       return;
     }
     if (form.entity_type === "pj" && !form.responsible_name?.trim()) {
-      setMessage("Informe o nome do responsável pela empresa.");
+      falha("Informe o nome do responsável pela empresa.");
       return;
     }
     if (!acceptedTerms) {
-      setMessage("Para publicar, é preciso concordar com os Termos de Uso.");
+      falha("Para publicar, é preciso concordar com os Termos de Uso.");
       return;
     }
 
@@ -272,9 +333,10 @@ export function PainelPage() {
       const wasEditing = isEditing;
       resetForm();
       setMine(await getMyProfessionals(user.id));
-      setMessage(wasEditing ? "Anúncio atualizado." : "Anúncio salvo.");
+      setFormMessage(wasEditing ? "Anúncio atualizado." : "Anúncio salvo.");
     } catch (err) {
-      setMessage(err instanceof Error ? err.message : "Erro ao salvar.");
+      setErroAoSalvar(true);
+      setFormMessage(mensagemDeErro(err, "Não foi possível salvar o anúncio."));
     } finally {
       setSaving(false);
     }
@@ -747,14 +809,18 @@ export function PainelPage() {
               Preencha o que fizer sentido. Só aparece no seu anúncio o que você escrever aqui.
             </p>
             <input
-              placeholder="Telefone com DDD"
+              placeholder="Telefone: (31) 99999-9999"
               value={form.phone}
-              onChange={(e) => setForm({ ...form, phone: e.target.value })}
+              inputMode="tel"
+              maxLength={15}
+              onChange={(e) => setForm({ ...form, phone: formatPhone(e.target.value) })}
             />
             <input
-              placeholder="WhatsApp com DDD"
+              placeholder="WhatsApp: (31) 99999-9999"
               value={form.whatsapp ?? ""}
-              onChange={(e) => setForm({ ...form, whatsapp: e.target.value })}
+              inputMode="tel"
+              maxLength={15}
+              onChange={(e) => setForm({ ...form, whatsapp: formatPhone(e.target.value) })}
             />
             <input
               type="email"
@@ -783,6 +849,17 @@ export function PainelPage() {
             />
             Li e concordo com os <Link to="/termos" target="_blank" rel="noreferrer">Termos de Uso</Link>
           </label>
+
+          {/* O aviso de erro só existia no topo da página, a uma tela inteira
+              de distância do botão. Quem clicava em Salvar via a tela não
+              mudar e concluía que o app não salva — o motivo estava escrito,
+              fora do campo de visão. Agora ele aparece aqui, colado no botão
+              que a pessoa acabou de apertar. */}
+          {formMessage && (
+            <p className={erroAoSalvar ? "form-erro" : "form-aviso"} role="status">
+              {formMessage}
+            </p>
+          )}
 
           <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
             <button className="btn btn-primary" type="submit" disabled={saving}>

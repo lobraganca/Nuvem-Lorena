@@ -1160,3 +1160,27 @@ textarea::placeholder {
   border-color: var(--color-danger);
   color: var(--color-danger);
 }
+
+/* Aviso do formulário do anúncio, mostrado ao lado do botão de salvar.
+   Erro e confirmação usam a mesma linha, então a cor é o que diz qual dos
+   dois é — vermelho pede ação, verde só confirma. */
+.form-erro,
+.form-aviso {
+  margin: 0;
+  padding: 10px 12px;
+  border-radius: 12px;
+  font-size: 0.9rem;
+  line-height: 1.35;
+}
+
+.form-erro {
+  color: var(--color-danger);
+  background: #fdeceb;
+  border: 1px solid #f3c6c2;
+}
+
+.form-aviso {
+  color: #1c6b3f;
+  background: #eaf6ef;
+  border: 1px solid #c3e4d1;
+}

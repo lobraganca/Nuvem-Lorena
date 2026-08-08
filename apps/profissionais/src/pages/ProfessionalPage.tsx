@@ -25,6 +25,7 @@ import { useAuth } from "../lib/useAuth";
 import { FavoriteButton } from "../components/FavoriteButton";
 import { BottomSheet } from "../components/BottomSheet";
 import { VerifiedBadge } from "../components/VerifiedBadge";
+import { formatPhone } from "../lib/phone";
 
 /**
  * Chave de localStorage usada como trava anti-spam best-effort para
@@ -419,7 +420,7 @@ export function ProfessionalPage() {
           )}
           {professional.phone && (
             <a className="contact-chip" href={`tel:${professional.phone.replace(/\D/g, "")}`}>
-              <span aria-hidden="true">📞</span> {professional.phone}
+              <span aria-hidden="true">📞</span> {formatPhone(professional.phone)}
             </a>
           )}
           {professional.email && (
@@ -617,10 +618,11 @@ export function ProfessionalPage() {
               <form onSubmit={submitContactRequest} style={{ display: "grid", gap: 12 }}>
                 <input placeholder="Seu nome" value={reqName} onChange={(e) => setReqName(e.target.value)} />
                 <input
-                  placeholder="Seu telefone com DDD"
+                  placeholder="Seu telefone: (31) 99999-9999"
                   inputMode="tel"
+                  maxLength={15}
                   value={reqPhone}
-                  onChange={(e) => setReqPhone(e.target.value)}
+                  onChange={(e) => setReqPhone(formatPhone(e.target.value))}
                 />
                 <textarea
                   placeholder="O que você precisa? (opcional)"
