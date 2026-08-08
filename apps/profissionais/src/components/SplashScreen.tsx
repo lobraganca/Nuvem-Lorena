@@ -24,6 +24,11 @@ export function SplashScreen() {
     return jaViu || menosMovimento ? "gone" : "in";
   });
 
+  // Lista de dependências vazia de propósito. Com `[phase]`, a troca para
+  // "out" disparava a limpeza do efeito, que cancelava o cronômetro do
+  // "gone" — a tela ficava invisível (opacidade 0) mas continuava por cima
+  // de tudo, com z-index 2000, engolindo todo toque no app. Aqui o efeito
+  // roda uma vez e a limpeza só acontece ao desmontar.
   useEffect(() => {
     if (phase !== "in") return;
     try {
@@ -37,7 +42,8 @@ export function SplashScreen() {
       clearTimeout(sair);
       clearTimeout(fim);
     };
-  }, [phase]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   if (phase === "gone") return null;
 

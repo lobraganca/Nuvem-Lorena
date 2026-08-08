@@ -872,8 +872,11 @@ textarea::placeholder {
   animation: splash-in 0.2s ease-out;
 }
 
+/* Enquanto some, deixa de interceptar toques: mesmo que algo prenda a tela
+   no DOM, ela nunca mais bloqueia o app. */
 .splash-out {
   animation: splash-out 0.26s ease-in forwards;
+  pointer-events: none;
 }
 
 /* Sobre o azul da abertura a marca inverte: letras brancas, A e cidade em
