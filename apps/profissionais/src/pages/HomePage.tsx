@@ -284,7 +284,8 @@ export function HomePage() {
                     </div>
                   </div>
                   <p className="muted" style={{ margin: "4px 0" }}>
-                    {p.category} · {p.city}
+                    {p.category}
+                    {(p.categories?.length ?? 0) > 1 && ` +${p.categories.length - 1}`} · {p.city}
                   </p>
                   <span className={p.entity_type === "pj" ? "badge badge-entity-pj" : "badge badge-entity-pf"}>
                     {p.entity_type === "pj" ? "Empresa" : "Profissional autônomo"}

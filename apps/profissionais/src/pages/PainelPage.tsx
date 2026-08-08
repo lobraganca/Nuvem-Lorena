@@ -23,7 +23,7 @@ import {
   annualPrice,
   PRICES,
 } from "../lib/payments";
-import { CATEGORIES, CITIES, DEFAULT_CITY, CREDIT_PACKS, SPONSORSHIP_PLANS, type CategorySponsorship, type ContactMode, type ContactRequest, type ContactRequestStatus, type LeadCredits, type Professional, type SubscriptionType } from "../types/domain";
+import { CATEGORIES, CITIES, DEFAULT_CITY, CREDIT_PACKS, MAX_CATEGORIES, SPONSORSHIP_PLANS, type CategorySponsorship, type ContactMode, type ContactRequest, type ContactRequestStatus, type LeadCredits, type Professional, type SubscriptionType } from "../types/domain";
 import { formatDocument, isValidDocument } from "../lib/documents";
 import { uploadProfessionalPhoto } from "../lib/storage";
 import { BottomSheet } from "../components/BottomSheet";
@@ -47,6 +47,7 @@ const EMPTY: FormState = {
   owner_id: "",
   name: "",
   category: CATEGORIES[0],
+  categories: [CATEGORIES[0]],
   city: DEFAULT_CITY,
   bio: "",
   phone: "",
@@ -147,6 +148,7 @@ export function PainelPage() {
       owner_id: p.owner_id,
       name: p.name,
       category: p.category,
+      categories: p.categories?.length ? p.categories : [p.category],
       city: p.city,
       bio: p.bio,
       phone: p.phone,
@@ -218,6 +220,10 @@ export function PainelPage() {
     if (!user) return;
     setMessage("");
 
+    if (form.categories.length === 0) {
+      setMessage("Marque pelo menos um serviço que você faz.");
+      return;
+    }
     if (form.document && !isValidDocument(form.document, form.entity_type)) {
       setMessage(form.entity_type === "pj" ? "CNPJ inválido. Confira os números digitados." : "CPF inválido. Confira os números digitados.");
       return;
@@ -582,13 +588,38 @@ export function PainelPage() {
             )}
           </label>
 
-          <select value={form.category} onChange={(e) => setForm({ ...form, category: e.target.value })}>
-            {CATEGORIES.map((c) => (
-              <option key={c} value={c}>
-                {c}
-              </option>
-            ))}
-          </select>
+          <fieldset className="contact-fields">
+            <legend>O que você faz</legend>
+            <p className="muted" style={{ margin: "0 0 10px", fontSize: "0.85rem" }}>
+              Marque tudo o que você atende — até {MAX_CATEGORIES}. Quem faz encanamento e elétrica aparece nas
+              duas buscas, sem precisar de dois anúncios. A primeira marcada é a que aparece em destaque.
+            </p>
+            <div className="chip-list">
+              {CATEGORIES.map((c) => {
+                const marcada = form.categories.includes(c);
+                const cheio = form.categories.length >= MAX_CATEGORIES;
+                return (
+                  <button
+                    key={c}
+                    type="button"
+                    className={marcada ? "chip chip-selected" : "chip"}
+                    aria-pressed={marcada}
+                    disabled={!marcada && cheio}
+                    onClick={() => {
+                      const lista = marcada
+                        ? form.categories.filter((x) => x !== c)
+                        : [...form.categories, c];
+                      // A principal é sempre a primeira da lista; se ela sair,
+                      // a seguinte assume — o anúncio nunca fica sem destaque.
+                      setForm({ ...form, categories: lista, category: lista[0] ?? "" });
+                    }}
+                  >
+                    {c}
+                  </button>
+                );
+              })}
+            </div>
+          </fieldset>
           <select value={form.city} onChange={(e) => setForm({ ...form, city: e.target.value })}>
             {CITIES.map((c) => (
               <option key={c} value={c}>

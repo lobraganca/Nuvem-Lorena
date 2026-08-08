@@ -70,7 +70,8 @@ export async function searchProfessionals(filters: SearchFilters): Promise<Profe
     .range(page * pageSize, page * pageSize + pageSize - 1);
 
   if (filters.city) query = query.eq("city", filters.city);
-  if (filters.category) query = query.eq("category", filters.category);
+  // Casa com qualquer um dos serviços do anúncio, não só o principal.
+  if (filters.category) query = query.contains("categories", [filters.category]);
   if (filters.text) {
     query = query.or(`name.ilike.%${filters.text}%,bio.ilike.%${filters.text}%`);
   }

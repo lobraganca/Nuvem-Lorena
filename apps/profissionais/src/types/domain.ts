@@ -18,7 +18,8 @@ export interface Professional {
   id: string;
   owner_id: string; // profiles.id do dono do anúncio
   name: string;
-  category: string;
+  category: string; // categoria principal (destaque no card, usada no patrocínio)
+  categories: string[]; // todos os serviços que a pessoa oferece — é o que a busca consulta
   city: string;
   bio: string;
   phone: string; // telefone para ligação
@@ -63,7 +64,8 @@ export type SponsorshipStatus = "pending" | "active" | "expired";
 export interface CategorySponsorship {
   id: string;
   professional_id: string;
-  category: string;
+  category: string; // categoria principal (destaque no card, usada no patrocínio)
+  categories: string[]; // todos os serviços que a pessoa oferece — é o que a busca consulta
   city: string;
   starts_at: string;
   ends_at: string;
@@ -239,6 +241,9 @@ export const SPONSORSHIP_PLANS = [
   { days: 15, amount: 49.9 },
   { days: 30, amount: 79.9 },
 ] as const;
+
+/** Teto de serviços por anúncio: quem marca tudo não está dizendo nada. */
+export const MAX_CATEGORIES = 5;
 
 /** Pacotes de créditos disponíveis para compra no modo "pagar por contato". */
 export const CREDIT_PACKS = [10, 25, 50] as const;

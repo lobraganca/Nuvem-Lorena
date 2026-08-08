@@ -361,6 +361,15 @@ export function ProfessionalPage() {
               <p className="muted">
                 {professional.category} · {professional.city}
               </p>
+              {(professional.categories?.length ?? 0) > 1 && (
+                <div className="chip-list" style={{ margin: "6px 0" }}>
+                  {professional.categories.map((c) => (
+                    <span key={c} className="chip chip-static chip-sm">
+                      {c}
+                    </span>
+                  ))}
+                </div>
+              )}
               <span className={professional.entity_type === "pj" ? "badge badge-entity-pj" : "badge badge-entity-pf"}>
                 {professional.entity_type === "pj" ? "Empresa" : "Profissional autônomo"}
               </span>
