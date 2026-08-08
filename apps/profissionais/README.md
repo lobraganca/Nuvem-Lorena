@@ -15,14 +15,22 @@ segredo do lado do servidor).
 
 ## Identidade visual
 
-- Fundo navy escuro (`--color-bg: #0B1D33`).
-- Dourado (`--color-primary-gold`) como cor de destaque/CTA — botões de
-  "assinar selo" e "turbinar anúncio".
-- Teal (`--color-accent-teal`) como cor secundária — selo de verificado,
-  links, WhatsApp.
-- Wordmark "busca" em branco + "ITABIRITO" em teal, com letter-spacing largo,
-  como placeholder da logo (`src/components/Logo.tsx`) até o PNG oficial ser
-  fornecido. Os tokens de cor ficam em `src/theme.css`.
+- Fundo navy profundo (`--color-bg: #0A1A2F`).
+- Dourado quente (`--color-primary-gold: #E2AF6B`) como **única** cor de
+  destaque — CTAs, links, selo de verificação, item ativo da navegação.
+- Branco para o texto; cinza-azulado (`--color-text-muted`) para o secundário.
+- O teal só sobrevive onde é semântico (botão do WhatsApp, onde ler como
+  "verde" ajuda). A versão anterior da marca tinha um ícone de pessoa em
+  verde-água e o teal era cor secundária de tudo; com a logo nova ele saiu do
+  wordmark, e mantê-lo em selo/etiquetas deixaria cada card parecendo um
+  semáforo. Hoje só o selo de verificação — a informação que pesa na decisão —
+  é colorido; destaque e tipo de pessoa são neutros.
+- Wordmark: "BUSCA" em branco com o **A final em dourado, desenhado sem
+  travessão** (duas hastes que se encontram no ápice — nenhuma fonte comum
+  entrega isso, então é um SVG em `src/components/Logo.tsx` dimensionado em
+  `em` para escalar junto com o texto), e "ITABIRITO" abaixo em dourado com
+  entreletra larga. Os ícones do PWA em `public/` repetem esse A em dourado
+  sobre navy. Os tokens de cor ficam em `src/theme.css`.
 
 ## Primeiro acesso: tela de início e tour
 

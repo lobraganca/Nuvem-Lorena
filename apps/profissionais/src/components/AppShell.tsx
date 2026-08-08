@@ -116,7 +116,10 @@ export function AppShell({ children }: { children: ReactNode }) {
   const path = location.pathname;
   const thirdItem = admin
     ? { to: "/admin", label: "Admin", icon: <IconFlag /> }
-    : { to: "/como-funciona", label: "Como funciona", icon: <IconInfo /> };
+    : // "Como funciona" quebrava em duas linhas e invadia os itens vizinhos
+      // na barra de cinco colunas — no rodapé o rótulo precisa caber numa
+      // linha só.
+      { to: "/como-funciona", label: "Guia", icon: <IconInfo /> };
 
   // A tela de início vem antes de qualquer escolha: mostrar a barra de
   // navegação ali seria oferecer cinco caminhos justamente na tela cujo
