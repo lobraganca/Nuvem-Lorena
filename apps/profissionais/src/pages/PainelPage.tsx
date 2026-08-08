@@ -1,16 +1,18 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { useAuth } from "../lib/useAuth";
-import { getMyProfessionals, upsertProfessional } from "../lib/professionals";
+import { getMyProfessionals, isCurrentlyBoosted, isCurrentlyVerified, upsertProfessional } from "../lib/professionals";
 import { startSubscriptionCheckout, PRICES } from "../lib/payments";
 import { CATEGORIES, CITIES, DEFAULT_CITY, type Professional } from "../types/domain";
 import { formatDocument, isValidDocument } from "../lib/documents";
 import { uploadProfessionalPhoto } from "../lib/storage";
 
-const EMPTY: Omit<
+type FormState = Omit<
   Professional,
   "id" | "created_at" | "verified" | "verified_until" | "boosted" | "boosted_until" | "suspended" | "suspended_reason"
-> = {
+> & { id?: string };
+
+const EMPTY: FormState = {
   owner_id: "",
   name: "",
   category: CATEGORIES[0],
@@ -24,16 +26,20 @@ const EMPTY: Omit<
   responsible_name: "",
 };
 
+const NAME_MAX_LENGTH = 80;
+
 export function PainelPage() {
   const { user, loading } = useAuth();
   const [mine, setMine] = useState<Professional[]>([]);
-  const [form, setForm] = useState(EMPTY);
+  const [form, setForm] = useState<FormState>(EMPTY);
   const [photoFile, setPhotoFile] = useState<File | null>(null);
   const [photoPreview, setPhotoPreview] = useState<string | null>(null);
   const [acceptedTerms, setAcceptedTerms] = useState(false);
   const [saving, setSaving] = useState(false);
   const [checkoutLoading, setCheckoutLoading] = useState<string | null>(null);
   const [message, setMessage] = useState("");
+
+  const isEditing = !!form.id;
 
   useEffect(() => {
     if (user) getMyProfessionals(user.id).then(setMine);
@@ -44,6 +50,28 @@ export function PainelPage() {
     setPhotoFile(null);
     setPhotoPreview(null);
     setAcceptedTerms(false);
+  }
+
+  function startEdit(p: Professional) {
+    setForm({
+      id: p.id,
+      owner_id: p.owner_id,
+      name: p.name,
+      category: p.category,
+      city: p.city,
+      bio: p.bio,
+      phone: p.phone,
+      entity_type: p.entity_type,
+      document: p.document ? formatDocument(p.document, p.entity_type) : "",
+      company_name: p.company_name ?? "",
+      photo_url: p.photo_url,
+      responsible_name: p.responsible_name ?? "",
+    });
+    setPhotoFile(null);
+    setPhotoPreview(null);
+    setAcceptedTerms(true);
+    setMessage("");
+    window.scrollTo({ top: document.body.scrollHeight, behavior: "smooth" });
   }
 
   function handlePhotoChange(e: React.ChangeEvent<HTMLInputElement>) {
@@ -88,9 +116,10 @@ export function PainelPage() {
         responsible_name: form.entity_type === "pj" ? form.responsible_name || null : null,
         photo_url: photoUrl,
       });
+      const wasEditing = isEditing;
       resetForm();
       setMine(await getMyProfessionals(user.id));
-      setMessage("Anúncio salvo.");
+      setMessage(wasEditing ? "Anúncio atualizado." : "Anúncio salvo.");
     } catch (err) {
       setMessage(err instanceof Error ? err.message : "Erro ao salvar.");
     } finally {
@@ -131,49 +160,56 @@ export function PainelPage() {
         <h2>Meus anúncios</h2>
         {mine.length === 0 && <p className="muted">Você ainda não tem um anúncio. Cadastre abaixo.</p>}
         <div className="grid">
-          {mine.map((p) => (
-            <div key={p.id} className="card">
-              <div style={{ display: "flex", justifyContent: "space-between" }}>
-                <strong>{p.name}</strong>
-                <div style={{ display: "flex", gap: 6 }}>
-                  <span className={p.entity_type === "pj" ? "badge badge-entity-pj" : "badge badge-entity-pf"}>
-                    {p.entity_type === "pj" ? "Empresa" : "Autônomo"}
-                  </span>
-                  {p.verified && <span className="badge badge-verified">✓ Verificado</span>}
-                  {p.boosted && <span className="badge badge-boosted">Destaque</span>}
+          {mine.map((p) => {
+            const verified = isCurrentlyVerified(p);
+            const boosted = isCurrentlyBoosted(p);
+            return (
+              <div key={p.id} className="card">
+                <div style={{ display: "flex", justifyContent: "space-between" }}>
+                  <strong>{p.name}</strong>
+                  <div style={{ display: "flex", gap: 6 }}>
+                    <span className={p.entity_type === "pj" ? "badge badge-entity-pj" : "badge badge-entity-pf"}>
+                      {p.entity_type === "pj" ? "Empresa" : "Autônomo"}
+                    </span>
+                    {verified && <span className="badge badge-verified">✓ Verificado</span>}
+                    {boosted && <span className="badge badge-boosted">Destaque</span>}
+                  </div>
+                </div>
+                <p className="muted">{p.category} · {p.city}</p>
+                {p.entity_type === "pj" && p.responsible_name && (
+                  <p className="muted" style={{ margin: "4px 0" }}>Responsável: {p.responsible_name}</p>
+                )}
+                <div style={{ display: "flex", gap: 10, marginTop: 10, flexWrap: "wrap" }}>
+                  <button className="btn btn-outline" onClick={() => startEdit(p)}>
+                    Editar
+                  </button>
+                  <button
+                    className="btn btn-teal"
+                    disabled={checkoutLoading === `${p.id}:verification` || verified}
+                    onClick={() => handleSubscribe(p.id, "verification")}
+                  >
+                    {verified
+                      ? "Selo ativo"
+                      : `Assinar selo de verificação — R$ ${PRICES.verification.amount.toFixed(2).replace(".", ",")}/mês`}
+                  </button>
+                  <button
+                    className="btn btn-gold"
+                    disabled={checkoutLoading === `${p.id}:boost` || boosted}
+                    onClick={() => handleSubscribe(p.id, "boost")}
+                  >
+                    {boosted
+                      ? "Anúncio turbinado"
+                      : `Turbinar anúncio — R$ ${PRICES.boost.amount.toFixed(2).replace(".", ",")}/mês`}
+                  </button>
                 </div>
               </div>
-              <p className="muted">{p.category} · {p.city}</p>
-              {p.entity_type === "pj" && p.responsible_name && (
-                <p className="muted" style={{ margin: "4px 0" }}>Responsável: {p.responsible_name}</p>
-              )}
-              <div style={{ display: "flex", gap: 10, marginTop: 10, flexWrap: "wrap" }}>
-                <button
-                  className="btn btn-teal"
-                  disabled={checkoutLoading === `${p.id}:verification` || p.verified}
-                  onClick={() => handleSubscribe(p.id, "verification")}
-                >
-                  {p.verified
-                    ? "Selo ativo"
-                    : `Assinar selo de verificação — R$ ${PRICES.verification.amount.toFixed(2).replace(".", ",")}/mês`}
-                </button>
-                <button
-                  className="btn btn-gold"
-                  disabled={checkoutLoading === `${p.id}:boost` || p.boosted}
-                  onClick={() => handleSubscribe(p.id, "boost")}
-                >
-                  {p.boosted
-                    ? "Anúncio turbinado"
-                    : `Turbinar anúncio — R$ ${PRICES.boost.amount.toFixed(2).replace(".", ",")}/mês`}
-                </button>
-              </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
       </section>
 
       <section style={{ marginTop: 32 }}>
-        <h2>Cadastrar / editar anúncio</h2>
+        <h2>{isEditing ? "Editar anúncio" : "Cadastrar anúncio"}</h2>
         <form className="card" onSubmit={handleSave} style={{ display: "grid", gap: 12 }}>
           <div style={{ display: "flex", gap: 16 }}>
             <label style={{ display: "flex", alignItems: "center", gap: 6 }}>
@@ -203,6 +239,7 @@ export function PainelPage() {
             value={form.name}
             onChange={(e) => setForm({ ...form, name: e.target.value })}
             required
+            maxLength={NAME_MAX_LENGTH}
           />
 
           {isPj && (
@@ -235,7 +272,7 @@ export function PainelPage() {
             {(photoPreview || form.photo_url) && (
               <img
                 src={photoPreview || form.photo_url || undefined}
-                alt="Pré-visualização"
+                alt={form.name ? `Pré-visualização de ${form.name}` : "Pré-visualização"}
                 style={{ width: 96, height: 96, objectFit: "cover", borderRadius: isPj ? 10 : "50%", border: "1px solid var(--color-border)" }}
               />
             )}
@@ -268,9 +305,16 @@ export function PainelPage() {
             Li e concordo com os <Link to="/termos" target="_blank" rel="noreferrer">Termos de Uso</Link>
           </label>
 
-          <button className="btn btn-gold" type="submit" disabled={saving}>
-            {saving ? "Salvando…" : "Salvar anúncio"}
-          </button>
+          <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
+            <button className="btn btn-gold" type="submit" disabled={saving}>
+              {saving ? "Salvando…" : isEditing ? "Salvar alterações" : "Salvar anúncio"}
+            </button>
+            {isEditing && (
+              <button type="button" className="btn btn-outline" onClick={resetForm} disabled={saving}>
+                Cancelar edição
+              </button>
+            )}
+          </div>
         </form>
       </section>
     </div>
