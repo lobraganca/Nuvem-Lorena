@@ -8,6 +8,7 @@ import { isAdmin } from "../lib/admin";
 import { resetOnboarding } from "../lib/onboarding";
 import { excluirMinhaConta } from "../lib/account";
 import { BottomSheet } from "../components/BottomSheet";
+import { InstalarApp } from "../components/InstalarApp";
 import type { Profile } from "../types/domain";
 
 function initials(name: string | null, email: string | null | undefined): string {
@@ -68,7 +69,7 @@ export function PerfilPage() {
   async function handleGoogleLogin() {
     setError("");
     try {
-      await signInWithGoogle();
+      await signInWithGoogle("/perfil");
     } catch (err) {
       setError(err instanceof Error ? err.message : "Não foi possível iniciar o login.");
     }
@@ -122,6 +123,7 @@ export function PerfilPage() {
 
       <p className="settings-group-title">Meus anúncios</p>
       <div className="settings-list">
+        <InstalarApp />
         <SettingsItem to="/painel" icon="📋" label="Meus anúncios" />
         <SettingsItem to="/favoritos" icon="❤️" label="Meus favoritos" />
       </div>

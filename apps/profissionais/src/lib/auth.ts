@@ -7,12 +7,17 @@ import type { Session, User } from "@supabase/supabase-js";
  * para a própria origem — em produção, cadastre a URL de callback no console
  * do Google Cloud e no Supabase.
  */
-export async function signInWithGoogle(): Promise<void> {
+export async function signInWithGoogle(voltarPara?: string): Promise<void> {
   const client = supabase();
   if (!client) throw new Error("Banco de dados não configurado (VITE_SUPABASE_URL/ANON_KEY ausentes).");
+  // Sem `voltarPara`, o Google devolvia todo mundo na raiz do site. Quem
+  // clicava em "Quero ser encontrado" e entrava com a conta reaparecia na
+  // tela de busca, sem o formulário do anúncio e sem entender o que tinha
+  // acontecido — a impressão é de que o login deu errado.
+  const destino = voltarPara ? new URL(voltarPara, window.location.origin).toString() : window.location.origin;
   const { error } = await client.auth.signInWithOAuth({
     provider: "google",
-    options: { redirectTo: window.location.origin },
+    options: { redirectTo: destino },
   });
   if (error) throw error;
 }

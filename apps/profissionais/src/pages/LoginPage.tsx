@@ -8,7 +8,7 @@ export function LoginPage() {
   async function handleGoogleLogin() {
     setError("");
     try {
-      await signInWithGoogle();
+      await signInWithGoogle("/perfil");
     } catch (err) {
       setError(err instanceof Error ? err.message : "Não foi possível iniciar o login.");
     }
@@ -21,6 +21,9 @@ export function LoginPage() {
       <button className="btn btn-primary" style={{ width: "100%", justifyContent: "center", marginTop: 20 }} onClick={handleGoogleLogin} disabled={!hasDatabase()}>
         Entrar com Google
       </button>
+      <p className="muted" style={{ marginTop: 12, fontSize: "0.85rem" }}>
+        Você continua conectado neste aparelho — só sai quando tocar em <strong>Sair</strong>.
+      </p>
       {!hasDatabase() && <p className="muted" style={{ marginTop: 10 }}>Configure VITE_SUPABASE_URL/ANON_KEY e o provider Google no Supabase para habilitar o login.</p>}
       {error && <p style={{ color: "var(--color-danger)", marginTop: 10 }}>{error}</p>}
     </div>

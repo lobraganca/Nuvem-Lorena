@@ -113,7 +113,7 @@ export function PainelPage() {
   async function handleGoogleLogin() {
     setLoginError("");
     try {
-      await signInWithGoogle();
+      await signInWithGoogle("/painel");
     } catch (err) {
       setLoginError(err instanceof Error ? err.message : "Não foi possível abrir o login do Google.");
     }

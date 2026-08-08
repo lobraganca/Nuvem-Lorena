@@ -54,7 +54,7 @@ export function BoasVindasPage() {
       <section className="welcome-hero">
         <LogoMark />
         <p className="welcome-tagline">
-          Precisa de um serviço? Aqui você acha quem faz — e vê o que os vizinhos acharam.
+          Encontre quem faz, aqui perto, com a opinião de quem já contratou.
         </p>
       </section>
 

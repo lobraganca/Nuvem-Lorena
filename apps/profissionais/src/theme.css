@@ -69,6 +69,13 @@ button {
 }
 
 .header {
+  /* Fixa no topo: a logo e o botão Sair sumiam assim que a pessoa rolava a
+     busca, e voltar a eles exigia rolar a página inteira de volta. Numa tela
+     de celular, o topo tem que continuar acessível de onde a pessoa estiver. */
+  position: sticky;
+  top: 0;
+  z-index: 45;
+  background: var(--color-surface);
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -492,12 +499,24 @@ textarea::placeholder {
   color: var(--color-primary);
 }
 
+/* No computador a barra deixava de existir e o app ficava sem navegação
+   nenhuma — quem entrava pelo notebook não achava Favoritos nem Painel. Ela
+   continua, só que como uma ilha centralizada, do tamanho do conteúdo, em
+   vez de uma faixa de ponta a ponta na tela larga. */
 @media (min-width: 860px) {
   .bottom-nav {
-    display: none;
-  }
-  .app-content {
+    left: 50%;
+    right: auto;
+    transform: translateX(-50%);
+    bottom: 18px;
+    width: min(560px, calc(100% - 40px));
+    border: 1px solid var(--color-border);
+    border-radius: 999px;
+    box-shadow: 0 8px 28px rgba(10, 26, 47, 0.14);
     padding-bottom: 0;
+  }
+  .bottom-nav-item {
+    font-size: 0.74rem;
   }
 }
 
