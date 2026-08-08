@@ -52,9 +52,10 @@ export function ProfessionalPage() {
     );
   }
 
-  const whatsappLink = professional.phone
-    ? `https://wa.me/${professional.phone.replace(/\D/g, "")}`
-    : null;
+  const whatsappLink =
+    professional.phone && professional.verified
+      ? `https://wa.me/${professional.phone.replace(/\D/g, "")}`
+      : null;
 
   return (
     <div className="container" style={{ paddingTop: 32 }}>
@@ -83,10 +84,12 @@ export function ProfessionalPage() {
             <span className="muted">Ainda sem avaliações</span>
           )}
         </p>
-        {whatsappLink && (
+        {whatsappLink ? (
           <a className="btn btn-teal" href={whatsappLink} target="_blank" rel="noreferrer">
             Chamar no WhatsApp
           </a>
+        ) : (
+          professional.phone && <p className="muted">Telefone: {professional.phone}</p>
         )}
       </div>
 

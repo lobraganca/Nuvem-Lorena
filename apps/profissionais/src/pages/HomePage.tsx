@@ -58,7 +58,8 @@ export function HomePage() {
           <p className="muted">Nenhum profissional encontrado com esses filtros ainda.</p>
         )}
         {results.map((p) => {
-          const whatsappLink = p.phone ? `https://wa.me/${p.phone.replace(/\D/g, "")}` : null;
+          const whatsappLink =
+            p.phone && p.verified ? `https://wa.me/${p.phone.replace(/\D/g, "")}` : null;
           return (
             <Link key={p.id} to={`/profissional/${p.id}`} className="card" style={{ textDecoration: "none", color: "inherit" }}>
               <div style={{ display: "flex", justifyContent: "space-between", alignItems: "start" }}>
@@ -77,7 +78,7 @@ export function HomePage() {
                 )}{" "}
                 {p.review_count > 0 && <span className="muted">({p.review_count})</span>}
               </p>
-              {whatsappLink && (
+              {whatsappLink ? (
                 <a
                   className="btn btn-teal"
                   style={{ marginTop: 10 }}
@@ -88,6 +89,12 @@ export function HomePage() {
                 >
                   Chamar no WhatsApp
                 </a>
+              ) : (
+                p.phone && (
+                  <p className="muted" style={{ marginTop: 10 }}>
+                    Telefone: {p.phone}
+                  </p>
+                )
               )}
             </Link>
           );
