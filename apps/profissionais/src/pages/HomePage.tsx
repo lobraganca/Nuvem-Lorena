@@ -62,8 +62,22 @@ export function HomePage() {
   const [loadingMore, setLoadingMore] = useState(false);
   const [showTour, setShowTour] = useState(false);
   const [sponsorship, setSponsorship] = useState<(CategorySponsorship & { professional: Professional }) | null>(null);
-  // Quem nunca viu a tela de início é mandado para lá antes da busca.
-  const [redirectToWelcome] = useState(() => !hasSeenWelcome());
+  // Quem nunca viu a tela de início é mandado para lá antes da busca —
+  // EXCETO quando esta carga é a volta do login.
+  //
+  // O Google devolve a pessoa para cá com o token pendurado no endereço
+  // (#access_token=... ou ?code=...). O Supabase lê isso e cria a sessão,
+  // mas leva um instante. Um `Navigate` disparado antes disso troca a URL e
+  // leva o token junto: a pessoa entrava no Google, voltava, e o app estava
+  // deslogado — sem erro nenhum na tela, o que é pior.
+  const [redirectToWelcome] = useState(() => {
+    if (typeof window === "undefined") return false;
+    const voltandoDoLogin =
+      window.location.hash.includes("access_token") ||
+      window.location.hash.includes("error") ||
+      window.location.search.includes("code=");
+    return !voltandoDoLogin && !hasSeenWelcome();
+  });
   const online = useOnlineCount();
 
   useEffect(() => {
