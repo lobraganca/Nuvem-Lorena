@@ -1,0 +1,162 @@
+import { Link } from "react-router-dom";
+import { CIDADE_SEDE, CONTATO_EMAIL, NOME_PLATAFORMA, VERSAO_DOCUMENTOS } from "../config";
+
+/**
+ * Política de Privacidade — documento exigido pela LGPD, separado dos Termos
+ * de Uso de propósito: os Termos dizem o que a plataforma faz e não faz; este
+ * diz o que ela sabe sobre a pessoa e o que ela pode exigir de volta.
+ *
+ * O texto é escrito para ser lido por quem não é advogado. A lei não pede
+ * juridiquês — pede informação "clara, adequada e ostensiva" (art. 9º), e um
+ * documento que ninguém entende não cumpre isso, por mais completo que seja.
+ */
+export function PrivacidadePage() {
+  return (
+    <div className="container" style={{ paddingTop: 32, paddingBottom: 60 }}>
+      <h1>Política de Privacidade</h1>
+      <p className="muted" style={{ marginTop: -8 }}>Última atualização: {VERSAO_DOCUMENTOS}</p>
+
+      <div className="card" style={{ display: "grid", gap: 16 }}>
+        <p>
+          Esta política explica quais dados o <strong>{NOME_PLATAFORMA}</strong> coleta, por que coleta, com
+          quem compartilha e o que você pode exigir a respeito deles. Ela segue a Lei Geral de Proteção de
+          Dados (Lei 13.709/2018).
+        </p>
+
+        <h2>Quem é o responsável pelos seus dados</h2>
+        <p>
+          O {NOME_PLATAFORMA} é operado por uma pessoa física, com sede em {CIDADE_SEDE}. Para qualquer
+          assunto relacionado a dados pessoais — inclusive os pedidos descritos mais abaixo — o canal é{" "}
+          <a href={`mailto:${CONTATO_EMAIL}`}>{CONTATO_EMAIL}</a>.
+        </p>
+
+        <h2>O que coletamos</h2>
+        <p>
+          <strong>De quem entra para buscar:</strong> nome, e-mail e foto da conta Google usada no login. Se
+          você avaliar alguém, também o CPF — ele serve para impedir que uma mesma pessoa crie várias contas
+          para inflar ou destruir a reputação de um profissional. <strong>O CPF nunca aparece para
+          ninguém</strong> além de você e da administração da plataforma.
+        </p>
+        <p>
+          <strong>De quem anuncia:</strong> além do acima, os dados do anúncio — nome ou razão social, foto de
+          rosto ou logo, telefone, WhatsApp, e-mail, redes sociais, cidade, serviços oferecidos, descrição, CPF
+          ou CNPJ e, no caso de empresa, o nome do responsável.
+        </p>
+        <p>
+          <strong>De uso:</strong> quantas vezes seu anúncio foi aberto nos últimos 30 dias, pedidos de contato
+          recebidos e registros técnicos necessários para o app funcionar e para investigar abusos.
+        </p>
+        <p>
+          <strong>Não coletamos</strong> sua localização em tempo real, sua lista de contatos, nem dados de
+          cartão: quando há pagamento, quem processa é o Mercado Pago, e os dados do cartão não passam pela
+          plataforma.
+        </p>
+
+        <h2 id="anuncio-publico">O que fica visível para todo mundo</h2>
+        <p>
+          Publicar um anúncio é tornar público, para qualquer pessoa na internet — inclusive quem não tem conta
+          aqui —, os seguintes dados: <strong>nome, foto ou logo, cidade, serviços, descrição, telefone,
+          WhatsApp, e-mail e redes sociais que você preencher</strong>, além das avaliações que receber.
+        </p>
+        <p>
+          <strong>Ficam fora:</strong> seu CPF, seu CNPJ e o seu e-mail de login. Eles existem no cadastro, mas
+          são invisíveis na busca e no perfil público.
+        </p>
+        <p>
+          Preencha apenas os contatos que você quer receber. Um campo em branco simplesmente não aparece no seu
+          anúncio.
+        </p>
+
+        <h2>Por que coletamos (base legal)</h2>
+        <ul style={{ margin: 0, paddingLeft: 20, display: "grid", gap: 8 }}>
+          <li>
+            <strong>Para executar o serviço que você pediu</strong> — mostrar seu anúncio, permitir que te
+            encontrem e te chamem. Sem esses dados não existe anúncio.
+          </li>
+          <li>
+            <strong>Para cumprir obrigações legais</strong> — guardar registros de acesso, como exige o Marco
+            Civil da Internet.
+          </li>
+          <li>
+            <strong>Por interesse legítimo</strong> — impedir fraude, cadastro em nome de terceiros e
+            avaliações falsas. É por isso que pedimos CPF, foto de rosto e confirmação do WhatsApp.
+          </li>
+          <li>
+            <strong>Com o seu consentimento</strong> — quando houver algo além disso, perguntamos antes.
+          </li>
+        </ul>
+
+        <h2>Com quem compartilhamos</h2>
+        <p>
+          Só com quem é necessário para o app existir, e apenas no mínimo necessário:{" "}
+          <strong>Supabase</strong> (banco de dados e login), <strong>Vercel</strong> (hospedagem),{" "}
+          <strong>Google</strong> (login) e <strong>Mercado Pago</strong> (pagamentos, apenas para quem
+          assina). <strong>Não vendemos seus dados</strong> e não os cedemos para publicidade de terceiros.
+        </p>
+
+        <h2>Por quanto tempo guardamos</h2>
+        <p>
+          Enquanto sua conta existir. Se você apagar a conta, apagamos o cadastro, os anúncios, as avaliações e
+          os favoritos. Duas exceções, e é justo você saber delas: os <strong>registros de acesso</strong>, que
+          a lei manda guardar por seis meses, e os <strong>pedidos de contato que você enviou a
+          profissionais</strong> — eles continuam no painel de quem recebeu, sem ligação com a sua conta,
+          porque são o trabalho daquela pessoa, não o seu histórico.
+        </p>
+
+        <h2>Seus direitos</h2>
+        <p>Você pode, a qualquer momento e sem justificar:</p>
+        <ul style={{ margin: 0, paddingLeft: 20, display: "grid", gap: 8 }}>
+          <li>
+            <strong>Ver e baixar seus dados</strong> — em <Link to="/perfil">Perfil</Link>, em "Baixar meus
+            dados", sem precisar pedir a ninguém.
+          </li>
+          <li>
+            <strong>Corrigir</strong> qualquer informação, editando o anúncio ou o perfil.
+          </li>
+          <li>
+            <strong>Apagar a conta</strong> — em <Link to="/perfil">Perfil</Link>, em "Excluir minha conta". É
+            imediato e definitivo.
+          </li>
+          <li>
+            <strong>Saber com quem compartilhamos</strong> e revogar consentimentos, escrevendo para{" "}
+            <a href={`mailto:${CONTATO_EMAIL}`}>{CONTATO_EMAIL}</a>.
+          </li>
+        </ul>
+        <p>
+          Respondemos os pedidos enviados por e-mail em até <strong>15 dias</strong>. Se você achar que seus
+          direitos não foram respeitados, pode reclamar à ANPD (Autoridade Nacional de Proteção de Dados).
+        </p>
+
+        <h2>Cookies e armazenamento no aparelho</h2>
+        <p>
+          Não usamos cookies de publicidade nem rastreamento de terceiros. O app guarda no seu próprio aparelho
+          apenas o necessário para funcionar: a sua sessão de login (para você não precisar entrar de novo) e
+          preferências como "já vi a apresentação". Nada disso é enviado a anunciantes.
+        </p>
+
+        <h2>Crianças e adolescentes</h2>
+        <p>
+          A plataforma é para maiores de 18 anos. Se soubermos de um cadastro de menor de idade, ele será
+          removido.
+        </p>
+
+        <h2>Segurança</h2>
+        <p>
+          Os dados ficam em servidores com acesso restrito, e o banco é protegido por regras que impedem uma
+          pessoa de ler os dados de outra. Nenhum sistema é infalível: se acontecer um incidente que possa te
+          causar risco, avisaremos você e a ANPD, como manda a lei.
+        </p>
+
+        <h2>Mudanças nesta política</h2>
+        <p>
+          Se este texto mudar de forma relevante, avisamos no app. A data no alto da página sempre indica a
+          versão vigente.
+        </p>
+
+        <p>
+          Veja também os <Link to="/termos">Termos de Uso</Link>.
+        </p>
+      </div>
+    </div>
+  );
+}

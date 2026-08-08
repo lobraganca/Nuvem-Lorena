@@ -30,6 +30,7 @@ import { formatDocument, isValidDocument } from "../lib/documents";
 import { uploadProfessionalPhoto } from "../lib/storage";
 import { formatPhone, isValidPhone } from "../lib/phone";
 import { BottomSheet } from "../components/BottomSheet";
+import { ConfirmarWhatsApp } from "../components/ConfirmarWhatsApp";
 
 type FormState = Omit<
   Professional,
@@ -37,6 +38,8 @@ type FormState = Omit<
   | "created_at"
   | "verified"
   | "verified_until"
+  | "whatsapp_verified"
+  | "whatsapp_verified_at"
   | "boosted"
   | "boosted_until"
   | "suspended"
@@ -136,6 +139,8 @@ export function PainelPage() {
   const [sponsorDays, setSponsorDays] = useState<number>(SPONSORSHIP_PLANS[0].days);
   const [mySponsorships, setMySponsorships] = useState<Record<string, CategorySponsorship[]>>({});
   const [planSheetFor, setPlanSheetFor] = useState<{ professional: Professional; type: SubscriptionType } | null>(null);
+  /** Anúncio cujo WhatsApp está sendo confirmado por código. */
+  const [confirmandoWhats, setConfirmandoWhats] = useState<Professional | null>(null);
 
   const isEditing = !!form.id;
 
@@ -456,6 +461,22 @@ export function PainelPage() {
                   <strong>{views30[p.id] ?? 0}</strong>{" "}
                   {(views30[p.id] ?? 0) === 1 ? "pessoa viu" : "pessoas viram"} seu anúncio nos últimos 30 dias
                 </p>
+                {/* A confirmação do número fica no card, e não escondida nas
+                    configurações: é o que separa um anúncio de um número
+                    qualquer digitado, e quem anuncia precisa ver que falta. */}
+                {p.whatsapp_verified ? (
+                  <p className="whats-ok">✓ WhatsApp confirmado</p>
+                ) : (
+                  <div className="whats-pendente">
+                    <p>
+                      <strong>Confirme seu WhatsApp.</strong> Quem procura confia mais em número confirmado — e
+                      isso impede que outra pessoa anuncie usando o seu.
+                    </p>
+                    <button type="button" className="btn btn-outline" onClick={() => setConfirmandoWhats(p)}>
+                      Confirmar agora
+                    </button>
+                  </div>
+                )}
                 {p.entity_type === "pj" && p.responsible_name && (
                   <p className="muted" style={{ margin: "4px 0" }}>Responsável: {p.responsible_name}</p>
                 )}
@@ -520,7 +541,16 @@ export function PainelPage() {
                   <button
                     className="btn btn-teal"
                     disabled={verified}
-                    onClick={() => setPlanSheetFor({ professional: p, type: "verification" })}
+                    onClick={() => {
+                      // O selo diz a quem contrata que aquele anúncio passou
+                      // por alguma checagem. Vendê-lo a um número que ninguém
+                      // confirmou esvaziaria justamente o que ele promete.
+                      if (!p.whatsapp_verified) {
+                        setConfirmandoWhats(p);
+                        return;
+                      }
+                      setPlanSheetFor({ professional: p, type: "verification" });
+                    }}
                   >
                     {verified
                       ? "Selo ativo"
@@ -873,6 +903,18 @@ export function PainelPage() {
           </div>
         </form>
       </section>
+
+      {confirmandoWhats && (
+        <ConfirmarWhatsApp
+          professionalId={confirmandoWhats.id}
+          numero={confirmandoWhats.whatsapp || confirmandoWhats.phone}
+          onClose={() => setConfirmandoWhats(null)}
+          onConfirmado={async () => {
+            setConfirmandoWhats(null);
+            if (user) setMine(await getMyProfessionals(user.id));
+          }}
+        />
+      )}
 
       {planSheetFor && (
         <BottomSheet

@@ -438,6 +438,13 @@ export function ProfessionalPage() {
               <span aria-hidden="true">💼</span> LinkedIn
             </a>
           )}
+          {professional.whatsapp_verified && (
+            /* Quem contrata é quem precisa dessa informação: diz que o número
+               ali embaixo foi confirmado pela própria pessoa, por código. */
+            <span className="whats-ok" title="O dono do anúncio confirmou este número por código">
+              ✓ WhatsApp confirmado
+            </span>
+          )}
         </div>
 
         <button className="btn btn-primary btn-block" style={{ marginTop: 14 }} onClick={() => setContactSheetOpen(true)}>

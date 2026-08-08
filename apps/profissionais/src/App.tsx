@@ -11,12 +11,15 @@ import { LoginPage } from "./pages/LoginPage";
 import { PainelPage } from "./pages/PainelPage";
 import { AdminPage } from "./pages/AdminPage";
 import { TermosPage } from "./pages/TermosPage";
+import { PrivacidadePage } from "./pages/PrivacidadePage";
 import { ComoFuncionaPage } from "./pages/ComoFuncionaPage";
 import { FavoritosPage } from "./pages/FavoritosPage";
 import { PerfilPage } from "./pages/PerfilPage";
 import { AnalyticsPage } from "./pages/AnalyticsPage";
 import { useAuth } from "./lib/useAuth";
 import { sendSuggestion } from "./lib/suggestions";
+import { AvisoDeDados } from "./components/AvisoDeDados";
+import { CONTATO_EMAIL } from "./config";
 
 /**
  * BottomSheet acessível de qualquer lugar do app (link no rodapé) para
@@ -90,7 +93,8 @@ function Footer() {
           pago via Mercado Pago.
         </p>
         <p style={{ marginTop: 6 }}>
-          <Link to="/termos">Termos de Uso</Link> · <Link to="/como-funciona">Como funciona</Link> ·{" "}
+          <Link to="/termos">Termos de Uso</Link> · <Link to="/privacidade">Privacidade</Link> ·{" "}
+          <Link to="/como-funciona">Como funciona</Link> ·{" "}
           <button
             type="button"
             onClick={() => setSuggestionOpen(true)}
@@ -106,6 +110,9 @@ function Footer() {
           >
             Enviar sugestão
           </button>
+        </p>
+        <p style={{ marginTop: 6 }}>
+          Dúvidas ou pedidos sobre seus dados: <a href={`mailto:${CONTATO_EMAIL}`}>{CONTATO_EMAIL}</a>
         </p>
       </div>
       {suggestionOpen && <SuggestionSheet onClose={() => setSuggestionOpen(false)} />}
@@ -126,6 +133,7 @@ export default function App() {
         <Route path="/painel" element={<PainelPage />} />
         <Route path="/admin" element={<AdminPage />} />
         <Route path="/termos" element={<TermosPage />} />
+        <Route path="/privacidade" element={<PrivacidadePage />} />
         <Route path="/como-funciona" element={<ComoFuncionaPage />} />
         <Route path="/favoritos" element={<FavoritosPage />} />
         <Route path="/perfil" element={<PerfilPage />} />
@@ -133,6 +141,7 @@ export default function App() {
       </Routes>
       <Footer />
       </AppShell>
+      <AvisoDeDados />
     </>
   );
 }

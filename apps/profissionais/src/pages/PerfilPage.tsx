@@ -9,6 +9,7 @@ import { resetOnboarding } from "../lib/onboarding";
 import { excluirMinhaConta } from "../lib/account";
 import { BottomSheet } from "../components/BottomSheet";
 import { InstalarApp } from "../components/InstalarApp";
+import { baixarMeusDados } from "../lib/meusDados";
 import type { Profile } from "../types/domain";
 
 function initials(name: string | null, email: string | null | undefined): string {
@@ -42,6 +43,7 @@ export function PerfilPage() {
   const [textoConfirmacao, setTextoConfirmacao] = useState("");
   const [excluindo, setExcluindo] = useState(false);
   const [erroExclusao, setErroExclusao] = useState("");
+  const [baixando, setBaixando] = useState(false);
 
   async function handleExcluirConta() {
     setExcluindo(true);
@@ -131,6 +133,34 @@ export function PerfilPage() {
       <p className="settings-group-title">Dados e segurança</p>
       <div className="settings-list">
         <SettingsItem to="/termos" icon="📄" label="Termos de uso" />
+        <SettingsItem to="/privacidade" icon="🔒" label="Política de privacidade" />
+        {/* Direito de acesso da LGPD resolvido em um toque: pedir por e-mail
+            e esperar 15 dias é o mínimo legal, não o certo, quando o dado
+            está a uma consulta de distância. */}
+        <button
+          type="button"
+          className="settings-item"
+          disabled={baixando}
+          onClick={async () => {
+            setBaixando(true);
+            setError("");
+            try {
+              await baixarMeusDados(user.id, user.email ?? undefined);
+            } catch (err) {
+              setError(err instanceof Error ? err.message : "Não foi possível gerar o arquivo.");
+            } finally {
+              setBaixando(false);
+            }
+          }}
+        >
+          <span className="settings-icon" aria-hidden="true">
+            ⬇️
+          </span>
+          <span>{baixando ? "Preparando…" : "Baixar meus dados"}</span>
+          <span className="settings-arrow" aria-hidden="true">
+            ›
+          </span>
+        </button>
         <SettingsItem to="/como-funciona" icon="ℹ️" label="Como funciona" />
         <button
           type="button"

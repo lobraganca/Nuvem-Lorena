@@ -1236,3 +1236,81 @@ textarea::placeholder {
 .cta-anunciar:active {
   background: var(--color-border);
 }
+
+/* Aviso de dados (LGPD), fixo no rodapé. Fica acima da barra de navegação
+   para não cobri-la, e some assim que a pessoa confirma que leu. */
+.aviso-dados {
+  position: fixed;
+  left: 12px;
+  right: 12px;
+  bottom: calc(var(--bottom-nav-height) + 12px);
+  z-index: 60;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  max-width: 720px;
+  margin: 0 auto;
+  padding: 14px 16px;
+  border-radius: 16px;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  box-shadow: 0 10px 30px rgba(10, 26, 47, 0.16);
+}
+
+.aviso-dados p {
+  margin: 0;
+  flex: 1 1 260px;
+  font-size: 0.86rem;
+  line-height: 1.4;
+  color: var(--color-text-muted);
+}
+
+.aviso-dados .btn {
+  flex: none;
+  padding: 8px 18px;
+}
+
+@media (min-width: 860px) {
+  .aviso-dados {
+    bottom: calc(var(--bottom-nav-height) + 24px);
+  }
+}
+
+/* Confirmação do WhatsApp: o estado confirmado é discreto (é o normal
+   esperado), e o pendente é um convite visível — quem anuncia precisa
+   perceber que falta, sem que a tela pareça um erro. */
+.whats-ok {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin: 6px 0 0;
+  font-size: 0.84rem;
+  font-weight: 600;
+  color: #1c6b3f;
+}
+
+.whats-pendente {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin: 10px 0 0;
+  padding: 12px 14px;
+  border-radius: 14px;
+  background: var(--color-bg-soft);
+  border: 1px dashed var(--color-border);
+}
+
+.whats-pendente p {
+  margin: 0;
+  flex: 1 1 220px;
+  font-size: 0.86rem;
+  line-height: 1.4;
+  color: var(--color-text-muted);
+}
+
+.whats-pendente .btn {
+  flex: none;
+}

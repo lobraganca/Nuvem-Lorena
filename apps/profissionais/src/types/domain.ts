@@ -32,6 +32,9 @@ export interface Professional {
   company_name: string | null; // razão social/nome fantasia, só relevante para pj
   photo_url: string | null; // foto de rosto (pf) ou logo (pj)
   responsible_name: string | null; // nome do responsável pela empresa, obrigatório só para pj
+  /** Posse do número confirmada por código enviado no WhatsApp. */
+  whatsapp_verified: boolean;
+  whatsapp_verified_at: string | null;
   verified: boolean;
   verified_until: string | null;
   boosted: boolean;
