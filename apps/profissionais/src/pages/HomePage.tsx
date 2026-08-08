@@ -1,9 +1,10 @@
 import { useEffect, useState } from "react";
 import { Link, Navigate } from "react-router-dom";
-import { CATEGORIES, DEFAULT_CITY } from "../types/domain";
+import { DEFAULT_CITY } from "../types/domain";
 import {
   DEFAULT_PAGE_SIZE,
   getActiveSponsorship,
+  getCategoriasComAnuncio,
   getCidadesComAnuncio,
   isCurrentlyBoosted,
   isCurrentlyVerified,
@@ -51,6 +52,7 @@ export function HomePage() {
   const [city, setCity] = useState<string>("");
   const [cidades, setCidades] = useState<string[]>([]);
   const [category, setCategory] = useState<string>("");
+  const [categorias, setCategorias] = useState<string[]>([]);
   const [text, setText] = useState<string>("");
   const [debouncedText, setDebouncedText] = useState<string>("");
   const [minRating, setMinRating] = useState<number>(0);
@@ -82,6 +84,10 @@ export function HomePage() {
 
   useEffect(() => {
     getCidadesComAnuncio().then(setCidades);
+    // O filtro de serviços vem dos cadastros, não da lista fixa do código:
+    // quem escreveu o próprio ofício no anúncio precisa ser encontrável por
+    // ele, e serviço sem ninguém anunciando só levaria a uma tela vazia.
+    getCategoriasComAnuncio().then(setCategorias);
   }, []);
 
   // Debounce (~400ms) do texto digitado antes de disparar a busca, para não
@@ -206,8 +212,8 @@ export function HomePage() {
             ))}
           </select>
           <select value={category} onChange={(e) => setCategory(e.target.value)} aria-label="Categoria">
-            <option value="">Todas as categorias</option>
-            {CATEGORIES.map((c) => (
+            <option value="">Todos os serviços</option>
+            {categorias.map((c) => (
               <option key={c} value={c}>
                 {c}
               </option>

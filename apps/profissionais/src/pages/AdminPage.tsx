@@ -12,13 +12,14 @@ import {
 } from "../lib/admin";
 import {
   DEFAULT_PAGE_SIZE,
+  getCategoriasComAnuncio,
   isCurrentlyBoosted,
   isCurrentlyVerified,
   searchProfessionals,
   type ProfessionalWithRating,
 } from "../lib/professionals";
 import { listSuggestions, updateSuggestionStatus } from "../lib/suggestions";
-import { CATEGORIES, CITIES, type Suggestion, type SuggestionStatus } from "../types/domain";
+import { CITIES, type Suggestion, type SuggestionStatus } from "../types/domain";
 
 const STATUS_LABEL: Record<ReportStatus, string> = {
   pending: "Pendente",
@@ -48,6 +49,10 @@ export function AdminPage() {
   const [prosHasMore, setProsHasMore] = useState(false);
   const [cityFilter, setCityFilter] = useState("");
   const [categoryFilter, setCategoryFilter] = useState("");
+  // Mesma regra da busca pública: os serviços do filtro vêm dos cadastros,
+  // então os ofícios escritos à mão pelos anunciantes também são filtráveis
+  // aqui — sem isso, moderar um deles exigiria rolar a lista inteira.
+  const [categorias, setCategorias] = useState<string[]>([]);
   const [onlySuspended, setOnlySuspended] = useState(false);
 
   const [suspending, setSuspending] = useState<string | null>(null);
@@ -63,6 +68,7 @@ export function AdminPage() {
   }
 
   async function refreshAll() {
+    getCategoriasComAnuncio().then(setCategorias);
     setReports(await listReports());
     setSuggestions(await listSuggestions());
     const data = await fetchPros(0);
@@ -376,8 +382,8 @@ export function AdminPage() {
             ))}
           </select>
           <select value={categoryFilter} onChange={(e) => handleFilter(cityFilter, e.target.value, onlySuspended)}>
-            <option value="">Todas as categorias</option>
-            {CATEGORIES.map((c) => (
+            <option value="">Todos os serviços</option>
+            {categorias.map((c) => (
               <option key={c} value={c}>
                 {c}
               </option>

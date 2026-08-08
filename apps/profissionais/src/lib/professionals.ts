@@ -533,3 +533,29 @@ export async function getCidadesComAnuncio(): Promise<string[]> {
   }
   return [...unicas].sort((a, b) => a.localeCompare(b, "pt-BR"));
 }
+
+/**
+ * Serviços que realmente têm alguém anunciando.
+ *
+ * Mesma regra das cidades, e agora com um motivo a mais: quem não se encontra
+ * na lista sugerida escreve o próprio serviço no anúncio. Se o filtro
+ * continuasse preso à lista fixa do código, esse serviço escrito à mão
+ * existiria no cadastro e não existiria na busca — a pessoa pagaria para ficar
+ * invisível.
+ *
+ * Lê `categories` (a lista completa do anúncio), não `category`: quem faz
+ * encanamento e elétrica tem que aparecer nos dois filtros.
+ */
+export async function getCategoriasComAnuncio(): Promise<string[]> {
+  const client = supabase();
+  if (!client) return [];
+  const { data } = await client.from("professionals_public").select("categories");
+  if (!data) return [];
+  const unicas = new Set<string>();
+  for (const linha of data) {
+    for (const c of (linha.categories as string[] | null) ?? []) {
+      if (c) unicas.add(c);
+    }
+  }
+  return [...unicas].sort((a, b) => a.localeCompare(b, "pt-BR"));
+}

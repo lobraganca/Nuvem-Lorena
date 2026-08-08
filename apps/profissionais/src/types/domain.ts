@@ -212,23 +212,112 @@ export interface Subscription {
   created_at: string;
 }
 
+/**
+ * Serviços sugeridos no formulário do anúncio.
+ *
+ * É uma lista de atalhos, não uma grade fechada: quem não se encontra aqui
+ * escreve o próprio serviço no campo "Outro". Uma lista curta obrigava gente
+ * de ofício real ("Costureira", "Soldador", "Confeiteira") a se esconder atrás
+ * de "Outros", e ninguém procura por "Outros" na busca.
+ *
+ * A ordem é por proximidade de assunto — casa e obra primeiro, depois beleza,
+ * saúde, ensino, festas, transporte e serviços de escritório —, porque a
+ * pessoa varre os chips com o olho e desiste antes de ler quinze palavras
+ * soltas.
+ */
 export const CATEGORIES = [
+  // Casa e obra
   "Encanador",
   "Eletricista",
   "Pedreiro",
-  "Diarista",
   "Pintor",
   "Marceneiro",
-  "Jardineiro",
+  "Serralheiro",
+  "Vidraceiro",
+  "Gesseiro",
+  "Marido de aluguel",
+  "Montador de móveis",
   "Chaveiro",
+  "Jardineiro",
+  "Piscineiro",
+  "Dedetizador",
+  "Diarista",
+  "Passadeira",
+  "Cuidador de idosos",
+  "Babá",
+  // Técnica e conserto
   "Técnico em informática",
-  "Manicure",
+  "Técnico em celulares",
+  "Refrigeração e ar-condicionado",
+  "Conserto de eletrodomésticos",
+  "Mecânico",
+  "Borracheiro",
+  "Lavagem de carros",
+  "Funilaria e pintura automotiva",
+  // Beleza e bem-estar
   "Cabeleireiro",
+  "Barbeiro",
+  "Manicure",
+  "Depilação",
+  "Maquiadora",
+  "Estética e sobrancelhas",
+  "Massagista",
   "Personal trainer",
+  "Nutricionista",
+  "Fisioterapeuta",
+  "Psicólogo",
+  // Ensino
   "Professor particular",
+  "Professor de inglês",
+  "Professor de música",
+  "Reforço escolar",
+  // Festas e imagem
   "Fotógrafo",
-  "Outros",
+  "Filmagem",
+  "Confeiteira",
+  "Salgadeira",
+  "Cozinheira",
+  "Buffet e festas",
+  "DJ e som",
+  "Decoração de festas",
+  // Costura e artesanato
+  "Costureira",
+  "Sapateiro",
+  "Tapeceiro",
+  "Artesanato",
+  // Transporte
+  "Frete e mudanças",
+  "Motorista",
+  "Motoboy",
+  // Escritório e serviços
+  "Contador",
+  "Advogado",
+  "Corretor de imóveis",
+  "Designer gráfico",
+  "Social media",
+  "Costura de uniformes",
+  "Segurança e portaria",
+  "Veterinário",
+  "Banho e tosa",
 ] as const;
+
+/**
+ * Deixa um serviço escrito à mão no mesmo formato dos sugeridos.
+ *
+ * Sem isto, "eletricista", "ELETRICISTA" e " Eletricista " virariam três
+ * categorias diferentes no filtro da busca — que é montado a partir dos
+ * cadastros. Espaços sobrando somem, a primeira letra sobe, e o resto do
+ * texto é preservado como a pessoa escreveu (nomes próprios e siglas não
+ * podem ser achatados).
+ */
+export function normalizarCategoria(texto: string): string {
+  const limpo = texto.replace(/\s+/g, " ").trim();
+  if (!limpo) return "";
+  return limpo.charAt(0).toLocaleUpperCase("pt-BR") + limpo.slice(1);
+}
+
+/** Limite do serviço escrito à mão: um ofício, não uma descrição do anúncio. */
+export const MAX_CATEGORIA_LEN = 32;
 
 /**
  * Cidade padrão do produto hoje ("Busca Itabirito"). A modelagem já guarda a
