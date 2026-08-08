@@ -1,6 +1,8 @@
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import { getProfessional, getReviews, addReview, type ProfessionalWithRating } from "../lib/professionals";
+import { getProfile, saveCpf } from "../lib/profiles";
+import { formatCpf, isValidCpf } from "../lib/cpf";
 import type { Review } from "../types/domain";
 import { useAuth } from "../lib/useAuth";
 
@@ -13,6 +15,9 @@ export function ProfessionalPage() {
   const [comment, setComment] = useState("");
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
+  const [cpf, setCpf] = useState<string | null>(null);
+  const [cpfInput, setCpfInput] = useState("");
+  const [cpfLoading, setCpfLoading] = useState(true);
 
   async function load() {
     if (!id) return;
@@ -26,9 +31,41 @@ export function ProfessionalPage() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [id]);
 
+  useEffect(() => {
+    if (!user) {
+      setCpf(null);
+      setCpfLoading(false);
+      return;
+    }
+    setCpfLoading(true);
+    getProfile(user.id)
+      .then((profile) => setCpf(profile?.cpf ?? null))
+      .finally(() => setCpfLoading(false));
+  }, [user]);
+
+  async function confirmCpf(e: React.FormEvent) {
+    e.preventDefault();
+    if (!user) return;
+    setError("");
+    if (!isValidCpf(cpfInput)) {
+      setError("CPF inválido. Confira os números digitados.");
+      return;
+    }
+    setSaving(true);
+    try {
+      const digits = cpfInput.replace(/\D/g, "");
+      await saveCpf(user.id, digits);
+      setCpf(digits);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Não foi possível salvar o CPF.");
+    } finally {
+      setSaving(false);
+    }
+  }
+
   async function submitReview(e: React.FormEvent) {
     e.preventDefault();
-    if (!user || !id) return;
+    if (!user || !id || !cpf) return;
     setSaving(true);
     setError("");
     try {
@@ -95,7 +132,29 @@ export function ProfessionalPage() {
 
       <section style={{ marginTop: 32 }}>
         <h2>Avaliações</h2>
-        {user ? (
+        {!user && <p className="muted">Faça login com sua conta Google para avaliar este profissional.</p>}
+
+        {user && !cpfLoading && !cpf && (
+          <form className="card" onSubmit={confirmCpf} style={{ display: "grid", gap: 10, marginBottom: 20 }}>
+            <p className="muted" style={{ margin: 0 }}>
+              Para avaliar, confirme seu CPF. Ele fica associado à sua conta Google e é usado só para evitar
+              avaliações falsas — não aparece publicamente.
+            </p>
+            <input
+              placeholder="000.000.000-00"
+              value={cpfInput}
+              onChange={(e) => setCpfInput(formatCpf(e.target.value))}
+              inputMode="numeric"
+              maxLength={14}
+            />
+            {error && <p style={{ color: "#e0665e" }}>{error}</p>}
+            <button className="btn btn-gold" type="submit" disabled={saving}>
+              {saving ? "Confirmando…" : "Confirmar CPF"}
+            </button>
+          </form>
+        )}
+
+        {user && cpf && (
           <form className="card" onSubmit={submitReview} style={{ display: "grid", gap: 10, marginBottom: 20 }}>
             <label>
               Nota
@@ -118,8 +177,6 @@ export function ProfessionalPage() {
               {saving ? "Enviando…" : "Enviar avaliação"}
             </button>
           </form>
-        ) : (
-          <p className="muted">Faça login para avaliar este profissional.</p>
         )}
 
         <div className="grid">

@@ -5,6 +5,7 @@ export interface Profile {
   id: string; // = auth.users.id
   full_name: string | null;
   avatar_url: string | null;
+  cpf: string | null; // exigido para poder avaliar, ligado à conta Google do login
   created_at: string;
 }
 
