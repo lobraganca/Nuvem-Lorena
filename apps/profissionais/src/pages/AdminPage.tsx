@@ -10,7 +10,13 @@ import {
   type ReportStatus,
   type ReportWithProfessional,
 } from "../lib/admin";
-import { searchProfessionals, type ProfessionalWithRating } from "../lib/professionals";
+import {
+  DEFAULT_PAGE_SIZE,
+  isCurrentlyBoosted,
+  isCurrentlyVerified,
+  searchProfessionals,
+  type ProfessionalWithRating,
+} from "../lib/professionals";
 import { CATEGORIES, CITIES } from "../types/domain";
 
 const STATUS_LABEL: Record<ReportStatus, string> = {
@@ -29,15 +35,44 @@ export function AdminPage() {
 
   const [pros, setPros] = useState<ProfessionalWithRating[]>([]);
   const [prosLoading, setProsLoading] = useState(false);
+  const [prosLoadingMore, setProsLoadingMore] = useState(false);
+  const [prosPage, setProsPage] = useState(0);
+  const [prosHasMore, setProsHasMore] = useState(false);
   const [cityFilter, setCityFilter] = useState("");
   const [categoryFilter, setCategoryFilter] = useState("");
+  const [onlySuspended, setOnlySuspended] = useState(false);
 
   const [suspending, setSuspending] = useState<string | null>(null);
   const [reasonDraft, setReasonDraft] = useState<Record<string, string>>({});
 
+  async function fetchPros(page: number) {
+    return searchProfessionals({
+      city: cityFilter || undefined,
+      category: categoryFilter || undefined,
+      onlySuspended: onlySuspended || undefined,
+      page,
+    });
+  }
+
   async function refreshAll() {
     setReports(await listReports());
-    setPros(await searchProfessionals({ city: cityFilter || undefined, category: categoryFilter || undefined }));
+    const data = await fetchPros(0);
+    setPros(data);
+    setProsPage(0);
+    setProsHasMore(data.length === DEFAULT_PAGE_SIZE);
+  }
+
+  async function loadMorePros() {
+    const nextPage = prosPage + 1;
+    setProsLoadingMore(true);
+    try {
+      const data = await fetchPros(nextPage);
+      setPros((prev) => [...prev, ...data]);
+      setProsPage(nextPage);
+      setProsHasMore(data.length === DEFAULT_PAGE_SIZE);
+    } finally {
+      setProsLoadingMore(false);
+    }
   }
 
   async function handleSuspend(professionalId: string, banDoc: boolean) {
@@ -87,18 +122,30 @@ export function AdminPage() {
       setAdmin(ok);
       if (ok) {
         setReports(await listReports());
-        setPros(await searchProfessionals({}));
+        const data = await searchProfessionals({ page: 0 });
+        setPros(data);
+        setProsPage(0);
+        setProsHasMore(data.length === DEFAULT_PAGE_SIZE);
       }
       setChecking(false);
     });
   }, [user]);
 
-  async function handleFilter(city: string, category: string) {
+  async function handleFilter(city: string, category: string, suspendedOnly: boolean) {
     setCityFilter(city);
     setCategoryFilter(category);
+    setOnlySuspended(suspendedOnly);
     setProsLoading(true);
     try {
-      setPros(await searchProfessionals({ city: city || undefined, category: category || undefined }));
+      const data = await searchProfessionals({
+        city: city || undefined,
+        category: category || undefined,
+        onlySuspended: suspendedOnly || undefined,
+        page: 0,
+      });
+      setPros(data);
+      setProsPage(0);
+      setProsHasMore(data.length === DEFAULT_PAGE_SIZE);
     } finally {
       setProsLoading(false);
     }
@@ -255,8 +302,8 @@ export function AdminPage() {
       <section style={{ marginTop: 32 }}>
         <h2>Profissionais cadastrados</h2>
         <p className="muted">{pros.length} anúncio{pros.length !== 1 ? "s" : ""} {prosLoading ? "(atualizando…)" : ""}</p>
-        <div className="card" style={{ display: "flex", gap: 10, flexWrap: "wrap", marginBottom: 16 }}>
-          <select value={cityFilter} onChange={(e) => handleFilter(e.target.value, categoryFilter)}>
+        <div className="card" style={{ display: "flex", gap: 10, flexWrap: "wrap", marginBottom: 16, alignItems: "center" }}>
+          <select value={cityFilter} onChange={(e) => handleFilter(e.target.value, categoryFilter, onlySuspended)}>
             <option value="">Todas as cidades</option>
             {CITIES.map((c) => (
               <option key={c} value={c}>
@@ -264,7 +311,7 @@ export function AdminPage() {
               </option>
             ))}
           </select>
-          <select value={categoryFilter} onChange={(e) => handleFilter(cityFilter, e.target.value)}>
+          <select value={categoryFilter} onChange={(e) => handleFilter(cityFilter, e.target.value, onlySuspended)}>
             <option value="">Todas as categorias</option>
             {CATEGORIES.map((c) => (
               <option key={c} value={c}>
@@ -272,9 +319,21 @@ export function AdminPage() {
               </option>
             ))}
           </select>
+          <label style={{ display: "flex", alignItems: "center", gap: 6, fontSize: "0.88rem" }}>
+            <input
+              type="checkbox"
+              style={{ width: "auto" }}
+              checked={onlySuspended}
+              onChange={(e) => handleFilter(cityFilter, categoryFilter, e.target.checked)}
+            />
+            Somente suspensos
+          </label>
         </div>
         <div className="grid">
-          {pros.map((p) => (
+          {pros.map((p) => {
+            const verified = isCurrentlyVerified(p);
+            const boosted = isCurrentlyBoosted(p);
+            return (
             <div
               key={p.id}
               className="card"
@@ -285,8 +344,8 @@ export function AdminPage() {
                   <strong>{p.name}</strong>
                 </Link>
                 <div style={{ display: "flex", gap: 6 }}>
-                  {p.verified && <span className="badge badge-verified">✓ Verificado</span>}
-                  {p.boosted && <span className="badge badge-boosted">Destaque</span>}
+                  {verified && <span className="badge badge-verified">✓ Verificado</span>}
+                  {boosted && <span className="badge badge-boosted">Destaque</span>}
                   {p.suspended && (
                     <span className="badge" style={{ color: "var(--color-primary-gold)", borderColor: "var(--color-primary-gold)" }}>
                       Fora do ar
@@ -324,8 +383,16 @@ export function AdminPage() {
                 </div>
               )}
             </div>
-          ))}
+            );
+          })}
         </div>
+        {!prosLoading && prosHasMore && (
+          <div style={{ textAlign: "center", marginTop: 16 }}>
+            <button className="btn btn-outline" onClick={loadMorePros} disabled={prosLoadingMore}>
+              {prosLoadingMore ? "Carregando…" : "Carregar mais"}
+            </button>
+          </div>
+        )}
       </section>
     </div>
   );
