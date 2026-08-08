@@ -6,6 +6,8 @@ import { hasDatabase } from "../lib/supabase";
 import { getProfile } from "../lib/profiles";
 import { isAdmin } from "../lib/admin";
 import { resetOnboarding } from "../lib/onboarding";
+import { excluirMinhaConta } from "../lib/account";
+import { BottomSheet } from "../components/BottomSheet";
 import type { Profile } from "../types/domain";
 
 function initials(name: string | null, email: string | null | undefined): string {
@@ -35,6 +37,23 @@ export function PerfilPage() {
   const [profile, setProfile] = useState<Profile | null>(null);
   const [admin, setAdmin] = useState(false);
   const [error, setError] = useState("");
+  const [confirmarExclusao, setConfirmarExclusao] = useState(false);
+  const [textoConfirmacao, setTextoConfirmacao] = useState("");
+  const [excluindo, setExcluindo] = useState(false);
+  const [erroExclusao, setErroExclusao] = useState("");
+
+  async function handleExcluirConta() {
+    setExcluindo(true);
+    setErroExclusao("");
+    try {
+      await excluirMinhaConta();
+      // Depois de apagar, não há para onde voltar dentro da conta.
+      window.location.href = "/inicio";
+    } catch (err) {
+      setErroExclusao(err instanceof Error ? err.message : "Não foi possível apagar a conta.");
+      setExcluindo(false);
+    }
+  }
 
   useEffect(() => {
     if (!user) {
@@ -137,6 +156,71 @@ export function PerfilPage() {
       >
         Sair da conta
       </button>
+
+      {/* Separado de "Sair da conta" por espaço e por peso visual: são ações
+          vizinhas com consequências muito diferentes, e trocar uma pela outra
+          por engano seria irreversível. */}
+      <button
+        type="button"
+        className="link-perigo"
+        onClick={() => {
+          setTextoConfirmacao("");
+          setErroExclusao("");
+          setConfirmarExclusao(true);
+        }}
+      >
+        Excluir minha conta
+      </button>
+
+      {confirmarExclusao && (
+        <BottomSheet
+          title="Excluir minha conta"
+          subtitle="Esta ação não tem volta."
+          onClose={() => setConfirmarExclusao(false)}
+        >
+          <div style={{ display: "grid", gap: 14 }}>
+            <p style={{ margin: 0 }}>Vão ser apagados para sempre:</p>
+            <ul style={{ margin: 0, paddingLeft: 20, display: "grid", gap: 6 }} className="muted">
+              <li>seus anúncios e as avaliações que você recebeu neles</li>
+              <li>as avaliações que você escreveu sobre outros profissionais</li>
+              <li>seus favoritos e seu cadastro</li>
+            </ul>
+            <p className="muted" style={{ margin: 0, fontSize: "0.86rem" }}>
+              Os pedidos de contato que você enviou continuam com os profissionais, sem o vínculo com a sua
+              conta — eles precisam do seu recado para poder te retornar.
+            </p>
+            <p className="muted" style={{ margin: 0, fontSize: "0.86rem" }}>
+              Se você tem assinatura ativa, cancele antes pelo Mercado Pago: apagar a conta aqui não cancela a
+              cobrança lá.
+            </p>
+
+            <label style={{ display: "grid", gap: 6, fontSize: "0.88rem" }}>
+              Para confirmar, escreva <strong>EXCLUIR</strong> abaixo:
+              <input
+                value={textoConfirmacao}
+                onChange={(e) => setTextoConfirmacao(e.target.value.toUpperCase())}
+                placeholder="EXCLUIR"
+                autoComplete="off"
+              />
+            </label>
+
+            {erroExclusao && <p style={{ color: "var(--color-danger)", margin: 0 }}>{erroExclusao}</p>}
+
+            <div style={{ display: "grid", gap: 10 }}>
+              <button
+                className="btn btn-danger-forte btn-block"
+                disabled={textoConfirmacao !== "EXCLUIR" || excluindo}
+                onClick={handleExcluirConta}
+              >
+                {excluindo ? "Apagando…" : "Apagar minha conta para sempre"}
+              </button>
+              <button className="btn btn-outline btn-block" onClick={() => setConfirmarExclusao(false)}>
+                Cancelar
+              </button>
+            </div>
+          </div>
+        </BottomSheet>
+      )}
     </div>
   );
 }

@@ -38,6 +38,33 @@ segredo do lado do servidor).
   entreletra larga. Os ícones do PWA em `public/` repetem esse A em dourado
   sobre navy. Os tokens de cor ficam em `src/theme.css`.
 
+## Excluir a conta
+
+`Perfil → Excluir minha conta` apaga a conta e o que estava pendurado nela.
+Existe por dois motivos: é direito da pessoa (LGPD), e a Apple recusa app que
+deixa criar conta sem deixar apagar — sem isso a publicação na loja não passa.
+
+Quem executa é a Edge Function `delete-account`, e tem que ser no servidor:
+apagar um usuário exige a `service_role` key, que nunca pode chegar ao
+navegador. O app manda só o token de quem está logado, e a função apaga o dono
+desse token — não há como pedir a exclusão da conta alheia.
+
+O efeito em cascata vem do banco: `profiles.id` referencia `auth.users` com
+`on delete cascade`, e anúncios, avaliações, favoritos e créditos referenciam
+`profiles` do mesmo jeito.
+
+**Exceção deliberada:** os pedidos de contato que a pessoa enviou continuam
+existindo, com `requester_id` virando null. O profissional do outro lado
+precisa do nome e telefone de quem o chamou para poder retornar — apagar isso
+quebraria o trabalho dele, não a privacidade dela.
+
+A tela exige escrever "EXCLUIR" antes de liberar o botão, e o link fica
+visualmente discreto, separado de "Sair da conta": são ações vizinhas com
+consequências muito diferentes.
+
+**Depende de deploy:** `supabase functions deploy delete-account`. Sem isso o
+botão mostra um erro em vez de apagar.
+
 ## Cultura: valorizar quem é da cidade
 
 O app é sobre gente que mora na mesma cidade de quem contrata, e isso muda o

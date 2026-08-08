@@ -1116,3 +1116,29 @@ textarea::placeholder {
   letter-spacing: 0.42em;
   padding-left: 0.42em;
 }
+
+/* Excluir conta: discreto na lista, forte só depois de confirmado. Não pode
+   competir com "Sair da conta" — são ações vizinhas de consequências bem
+   diferentes. */
+.link-perigo {
+  display: block;
+  width: 100%;
+  margin-top: 16px;
+  padding: 10px;
+  background: none;
+  border: none;
+  font: inherit;
+  font-size: 0.88rem;
+  color: var(--color-text-muted);
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+.link-perigo:hover {
+  color: var(--color-danger);
+}
+
+.btn-danger-forte {
+  background: var(--color-danger);
+  color: #ffffff;
+}
