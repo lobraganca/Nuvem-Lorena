@@ -12,7 +12,7 @@ import {
   type SortOption,
 } from "../lib/professionals";
 import type { CategorySponsorship, Professional } from "../types/domain";
-import { hasDatabase } from "../lib/supabase";
+import { hasDatabase, problemaDeConfiguracao } from "../lib/supabase";
 import { FavoriteButton } from "../components/FavoriteButton";
 import { VerifiedBadge } from "../components/VerifiedBadge";
 import { TourGuide, type TourStep } from "../components/TourGuide";
@@ -172,8 +172,8 @@ export function HomePage() {
           </p>
         )}
         {!hasDatabase() && (
-          <p className="badge badge-boosted" style={{ marginTop: 12 }}>
-            Ambiente de demonstração — configure VITE_SUPABASE_URL/ANON_KEY para dados reais
+          <p className="badge badge-boosted" style={{ marginTop: 12, whiteSpace: "normal", textAlign: "left" }}>
+            Sem conexão com o banco: {problemaDeConfiguracao()}
           </p>
         )}
       </section>
