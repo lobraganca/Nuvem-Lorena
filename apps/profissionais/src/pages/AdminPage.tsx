@@ -17,12 +17,18 @@ import {
   searchProfessionals,
   type ProfessionalWithRating,
 } from "../lib/professionals";
-import { CATEGORIES, CITIES } from "../types/domain";
+import { listSuggestions, updateSuggestionStatus } from "../lib/suggestions";
+import { CATEGORIES, CITIES, type Suggestion, type SuggestionStatus } from "../types/domain";
 
 const STATUS_LABEL: Record<ReportStatus, string> = {
   pending: "Pendente",
   reviewed: "Revisada",
   dismissed: "Descartada",
+};
+
+const SUGGESTION_STATUS_LABEL: Record<SuggestionStatus, string> = {
+  new: "Nova",
+  reviewed: "Revisada",
 };
 
 export function AdminPage() {
@@ -32,6 +38,8 @@ export function AdminPage() {
   const [reports, setReports] = useState<ReportWithProfessional[]>([]);
   const [updating, setUpdating] = useState<string | null>(null);
   const [message, setMessage] = useState("");
+  const [suggestions, setSuggestions] = useState<Suggestion[]>([]);
+  const [updatingSuggestion, setUpdatingSuggestion] = useState<string | null>(null);
 
   const [pros, setPros] = useState<ProfessionalWithRating[]>([]);
   const [prosLoading, setProsLoading] = useState(false);
@@ -56,6 +64,7 @@ export function AdminPage() {
 
   async function refreshAll() {
     setReports(await listReports());
+    setSuggestions(await listSuggestions());
     const data = await fetchPros(0);
     setPros(data);
     setProsPage(0);
@@ -122,6 +131,7 @@ export function AdminPage() {
       setAdmin(ok);
       if (ok) {
         setReports(await listReports());
+        setSuggestions(await listSuggestions());
         const data = await searchProfessionals({ page: 0 });
         setPros(data);
         setProsPage(0);
@@ -161,6 +171,19 @@ export function AdminPage() {
       setMessage(err instanceof Error ? err.message : "Erro ao atualizar denúncia.");
     } finally {
       setUpdating(null);
+    }
+  }
+
+  async function handleSuggestionReviewed(suggestionId: string) {
+    setUpdatingSuggestion(suggestionId);
+    setMessage("");
+    try {
+      await updateSuggestionStatus(suggestionId, "reviewed");
+      setSuggestions(await listSuggestions());
+    } catch (err) {
+      setMessage(err instanceof Error ? err.message : "Erro ao atualizar sugestão.");
+    } finally {
+      setUpdatingSuggestion(null);
     }
   }
 
@@ -293,6 +316,47 @@ export function AdminPage() {
                     </button>
                   </div>
                 </div>
+              )}
+            </div>
+          ))}
+        </div>
+      </section>
+
+      <section style={{ marginTop: 32 }}>
+        <h2>Sugestões dos usuários</h2>
+        {suggestions.length === 0 && <p className="muted">Nenhuma sugestão recebida ainda.</p>}
+        <div className="grid">
+          {suggestions.map((s) => (
+            <div
+              key={s.id}
+              className="card"
+              style={s.status === "new" ? { border: "1px solid var(--color-primary-gold)" } : undefined}
+            >
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                <span
+                  className="badge"
+                  style={
+                    s.status === "new"
+                      ? { color: "var(--color-primary-gold)", borderColor: "var(--color-primary-gold)" }
+                      : { color: "var(--color-accent-teal)", borderColor: "var(--color-accent-teal)" }
+                  }
+                >
+                  {SUGGESTION_STATUS_LABEL[s.status]}
+                </span>
+                <span className="muted" style={{ fontSize: "0.85rem" }}>
+                  {new Date(s.created_at).toLocaleString("pt-BR")}
+                </span>
+              </div>
+              <p style={{ margin: "8px 0 4px" }}>{s.message}</p>
+              {s.status === "new" && (
+                <button
+                  className="btn btn-teal"
+                  style={{ marginTop: 8 }}
+                  disabled={updatingSuggestion === s.id}
+                  onClick={() => handleSuggestionReviewed(s.id)}
+                >
+                  Marcar como revisada
+                </button>
               )}
             </div>
           ))}
