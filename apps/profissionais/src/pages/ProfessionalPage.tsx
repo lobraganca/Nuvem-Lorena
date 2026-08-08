@@ -12,6 +12,8 @@ import {
   getFavoriteIds,
   isCurrentlyBoosted,
   isCurrentlyVerified,
+  hasLeadBalance,
+  consumeLeadCredit,
   type ProfessionalWithRating,
 } from "../lib/professionals";
 import { getProfile, saveCpf } from "../lib/profiles";
@@ -57,6 +59,8 @@ export function ProfessionalPage() {
   const [replySavingId, setReplySavingId] = useState<string | null>(null);
   const [deleteConfirmId, setDeleteConfirmId] = useState<string | null>(null);
   const [alreadyReportedLocally, setAlreadyReportedLocally] = useState(false);
+  const [leadBalanceAvailable, setLeadBalanceAvailable] = useState(false);
+  const [contactLoading, setContactLoading] = useState(false);
 
   async function load() {
     if (!id) return;
@@ -69,6 +73,30 @@ export function ProfessionalPage() {
     load();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [id]);
+
+  useEffect(() => {
+    if (!professional || professional.contact_mode !== "pay_per_lead") {
+      setLeadBalanceAvailable(false);
+      return;
+    }
+    hasLeadBalance(professional.id).then(setLeadBalanceAvailable);
+  }, [professional]);
+
+  async function handleWhatsappClick(e: React.MouseEvent<HTMLAnchorElement>) {
+    if (!professional || professional.contact_mode !== "pay_per_lead") return;
+    e.preventDefault();
+    setContactLoading(true);
+    try {
+      const ok = await consumeLeadCredit(professional.id);
+      if (!ok) {
+        setLeadBalanceAvailable(false);
+        return;
+      }
+      window.open(`https://wa.me/${professional.phone.replace(/\D/g, "")}`, "_blank", "noreferrer");
+    } finally {
+      setContactLoading(false);
+    }
+  }
 
   useEffect(() => {
     if (!id) return;
@@ -225,7 +253,10 @@ export function ProfessionalPage() {
 
   const verified = isCurrentlyVerified(professional);
   const boosted = isCurrentlyBoosted(professional);
-  const whatsappLink = professional.phone && verified ? `https://wa.me/${professional.phone.replace(/\D/g, "")}` : null;
+  const payPerLead = professional.contact_mode === "pay_per_lead";
+  const whatsappBlocked = payPerLead && !leadBalanceAvailable;
+  const whatsappLink =
+    professional.phone && verified && !whatsappBlocked ? `https://wa.me/${professional.phone.replace(/\D/g, "")}` : null;
 
   return (
     <div className="container" style={{ paddingTop: 32 }}>
@@ -285,9 +316,18 @@ export function ProfessionalPage() {
           )}
         </p>
         {whatsappLink ? (
-          <a className="btn btn-teal" href={whatsappLink} target="_blank" rel="noreferrer">
-            Chamar no WhatsApp
+          <a
+            className="btn btn-teal"
+            href={whatsappLink}
+            target="_blank"
+            rel="noreferrer"
+            onClick={handleWhatsappClick}
+            aria-disabled={contactLoading}
+          >
+            {contactLoading ? "Abrindo…" : "Chamar no WhatsApp"}
           </a>
+        ) : whatsappBlocked ? (
+          <p className="muted">Este profissional está sem créditos de contato no momento.</p>
         ) : (
           professional.phone && <p className="muted">Telefone: {professional.phone}</p>
         )}

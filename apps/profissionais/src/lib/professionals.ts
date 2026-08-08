@@ -1,5 +1,5 @@
 import { supabase } from "./supabase";
-import type { Favorite, Professional, Review } from "../types/domain";
+import type { CategorySponsorship, Favorite, LeadCredits, Professional, Review } from "../types/domain";
 
 export type SortOption = "relevance" | "rating" | "reviews";
 
@@ -31,6 +31,11 @@ export function isCurrentlyVerified(p: Pick<Professional, "verified" | "verified
 /** Anúncio turbinado só conta se `boosted` estiver true E não tiver expirado. */
 export function isCurrentlyBoosted(p: Pick<Professional, "boosted" | "boosted_until">): boolean {
   return !!p.boosted && (!p.boosted_until || new Date(p.boosted_until) > new Date());
+}
+
+/** Empresa Plus só conta se `plus_active` estiver true E não tiver expirado. */
+export function isCurrentlyPlusActive(p: Pick<Professional, "plus_active" | "plus_until">): boolean {
+  return !!p.plus_active && (!p.plus_until || new Date(p.plus_until) > new Date());
 }
 
 /**
@@ -106,6 +111,13 @@ export async function getProfessional(id: string): Promise<ProfessionalWithRatin
   const { data, error } = await client.from("professionals_public").select("*").eq("id", id).single();
   if (error || !data) return null;
   const ratings = await fetchRatingsMap(client, [id]);
+  // Registra a visualização de perfil (alimenta o analytics do Empresa
+  // Plus) de forma best-effort: nunca deve derrubar a página se falhar.
+  try {
+    await client.from("profile_views").insert({ professional_id: id });
+  } catch {
+    // silenciosamente ignorado — a página já carregou normalmente.
+  }
   return { ...data, average_rating: ratings[id]?.average_rating ?? null, review_count: ratings[id]?.review_count ?? 0 };
 }
 
@@ -265,4 +277,117 @@ export async function removeFavorite(userId: string, professionalId: string) {
     .eq("user_id", userId)
     .eq("professional_id", professionalId);
   if (error) throw error;
+}
+
+// --- Pagamento por contato (pay-per-lead) ---------------------------------
+
+/** Saldo de créditos de contato do próprio anúncio (só o dono enxerga). */
+export async function getLeadCredits(professionalId: string): Promise<LeadCredits | null> {
+  const client = supabase();
+  if (!client) return null;
+  const { data } = await client.from("lead_credits").select("*").eq("professional_id", professionalId).maybeSingle();
+  return data ?? null;
+}
+
+/**
+ * Se `contact_mode = 'pay_per_lead'`, indica publicamente (sem expor o
+ * saldo exato) se há créditos disponíveis — usado para habilitar/esconder o
+ * botão de WhatsApp na página do profissional.
+ */
+export async function hasLeadBalance(professionalId: string): Promise<boolean> {
+  const client = supabase();
+  if (!client) return false;
+  const { data } = await client
+    .from("lead_credits_public")
+    .select("has_balance")
+    .eq("professional_id", professionalId)
+    .maybeSingle();
+  return !!data?.has_balance;
+}
+
+/**
+ * Tenta consumir 1 crédito de contato antes de abrir o link do WhatsApp
+ * (RPC `security definer`, evita condição de corrida). Retorna true se
+ * conseguiu debitar (o profissional tinha saldo), false caso contrário.
+ */
+export async function consumeLeadCredit(professionalId: string): Promise<boolean> {
+  const client = supabase();
+  if (!client) return false;
+  const { data, error } = await client.rpc("consume_lead_credit", { professional_id: professionalId });
+  if (error) return false;
+  return !!data;
+}
+
+/** Total de leads (contatos cobrados) já gerados para o anúncio — analytics do Plus. */
+export async function countLeadEvents(professionalId: string): Promise<number> {
+  const client = supabase();
+  if (!client) return 0;
+  const { count } = await client
+    .from("lead_events")
+    .select("id", { count: "exact", head: true })
+    .eq("professional_id", professionalId);
+  return count ?? 0;
+}
+
+export async function updateContactMode(professionalId: string, contactMode: Professional["contact_mode"]) {
+  const client = supabase();
+  if (!client) throw new Error("Banco de dados não configurado.");
+  const { error } = await client.from("professionals").update({ contact_mode: contactMode }).eq("id", professionalId);
+  if (error) throw error;
+}
+
+// --- Banner de categoria patrocinada --------------------------------------
+
+/** Patrocínio ativo (status='active' e dentro do período) para uma categoria+cidade, se houver. */
+export async function getActiveSponsorship(
+  category: string,
+  city: string
+): Promise<(CategorySponsorship & { professional: Professional }) | null> {
+  const client = supabase();
+  if (!client) return null;
+  const { data, error } = await client
+    .from("category_sponsorships")
+    .select("*")
+    .eq("category", category)
+    .eq("city", city)
+    .eq("status", "active")
+    .gt("ends_at", new Date().toISOString())
+    .order("created_at", { ascending: false })
+    .limit(1)
+    .maybeSingle();
+  if (error || !data) return null;
+  // `professionals_public` não tem FK conhecida por embedding do
+  // PostgREST (é uma view), então busca o profissional numa segunda query.
+  const { data: professional } = await client
+    .from("professionals_public")
+    .select("*")
+    .eq("id", data.professional_id)
+    .maybeSingle();
+  if (!professional) return null;
+  return { ...(data as CategorySponsorship), professional: professional as Professional };
+}
+
+/** Histórico de patrocínios do próprio anúncio, para o painel do profissional. */
+export async function getMySponsorships(professionalId: string): Promise<CategorySponsorship[]> {
+  const client = supabase();
+  if (!client) return [];
+  const { data } = await client
+    .from("category_sponsorships")
+    .select("*")
+    .eq("professional_id", professionalId)
+    .order("created_at", { ascending: false });
+  return data ?? [];
+}
+
+// --- Empresa Plus (analytics) ---------------------------------------------
+
+/** Total de visualizações de perfil já registradas — analytics do Plus. */
+export async function countProfileViews(professionalId: string): Promise<number> {
+  const client = supabase();
+  if (!client) return 0;
+  const { count } = await client
+    .from("profile_views")
+    .select("id", { count: "exact", head: true })
+    .eq("professional_id", professionalId);
+  return count ?? 0;
 }

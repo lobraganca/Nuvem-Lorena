@@ -1,5 +1,7 @@
-export type SubscriptionType = "verification" | "boost";
+export type SubscriptionType = "verification" | "boost" | "plus";
 export type SubscriptionStatus = "pending" | "authorized" | "active" | "paused" | "cancelled";
+
+export type ContactMode = "whatsapp_livre" | "pay_per_lead";
 
 export interface Profile {
   id: string; // = auth.users.id
@@ -30,6 +32,38 @@ export interface Professional {
   boosted_until: string | null;
   suspended: boolean; // tirado do ar pelo painel admin (denúncia procedente ou violação das regras)
   suspended_reason: string | null;
+  contact_mode: ContactMode; // "whatsapp_livre" (grátis) ou "pay_per_lead" (cobra crédito por contato)
+  plus_active: boolean; // plano Empresa Plus (analytics), só para entity_type "pj"
+  plus_until: string | null;
+  created_at: string;
+}
+
+export interface LeadCredits {
+  professional_id: string;
+  balance: number;
+  price_per_lead_cents: number;
+  updated_at: string;
+}
+
+export interface LeadEvent {
+  id: string;
+  professional_id: string;
+  user_id: string | null;
+  created_at: string;
+  charged: boolean;
+}
+
+export type SponsorshipStatus = "pending" | "active" | "expired";
+
+export interface CategorySponsorship {
+  id: string;
+  professional_id: string;
+  category: string;
+  city: string;
+  starts_at: string;
+  ends_at: string;
+  mercadopago_payment_id: string | null;
+  status: SponsorshipStatus;
   created_at: string;
 }
 
@@ -102,6 +136,16 @@ export const CATEGORIES = [
  * cidade por profissional em texto livre para permitir expandir para outras
  * cidades sem migração de schema — a busca simplesmente filtra por esse campo.
  */
+/** Pacotes de duração do banner de categoria patrocinada, com preço fixo por período. */
+export const SPONSORSHIP_PLANS = [
+  { days: 7, amount: 29.9 },
+  { days: 15, amount: 49.9 },
+  { days: 30, amount: 79.9 },
+] as const;
+
+/** Pacotes de créditos disponíveis para compra no modo "pagar por contato". */
+export const CREDIT_PACKS = [10, 25, 50] as const;
+
 export const DEFAULT_CITY = "Itabirito";
 
 export const CITIES = [DEFAULT_CITY, "Ouro Preto", "Belo Horizonte", "Congonhas"] as const;

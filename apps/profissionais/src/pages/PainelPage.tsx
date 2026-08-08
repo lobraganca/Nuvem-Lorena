@@ -1,15 +1,35 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { useAuth } from "../lib/useAuth";
-import { getMyProfessionals, isCurrentlyBoosted, isCurrentlyVerified, upsertProfessional } from "../lib/professionals";
-import { startSubscriptionCheckout, PRICES } from "../lib/payments";
-import { CATEGORIES, CITIES, DEFAULT_CITY, type Professional } from "../types/domain";
+import {
+  getMyProfessionals,
+  isCurrentlyBoosted,
+  isCurrentlyVerified,
+  isCurrentlyPlusActive,
+  upsertProfessional,
+  getLeadCredits,
+  updateContactMode,
+  getMySponsorships,
+} from "../lib/professionals";
+import { startSubscriptionCheckout, startCreditsCheckout, startSponsorshipCheckout, PRICES } from "../lib/payments";
+import { CATEGORIES, CITIES, DEFAULT_CITY, CREDIT_PACKS, SPONSORSHIP_PLANS, type CategorySponsorship, type ContactMode, type LeadCredits, type Professional } from "../types/domain";
 import { formatDocument, isValidDocument } from "../lib/documents";
 import { uploadProfessionalPhoto } from "../lib/storage";
+import { BottomSheet } from "../components/BottomSheet";
 
 type FormState = Omit<
   Professional,
-  "id" | "created_at" | "verified" | "verified_until" | "boosted" | "boosted_until" | "suspended" | "suspended_reason"
+  | "id"
+  | "created_at"
+  | "verified"
+  | "verified_until"
+  | "boosted"
+  | "boosted_until"
+  | "suspended"
+  | "suspended_reason"
+  | "contact_mode"
+  | "plus_active"
+  | "plus_until"
 > & { id?: string };
 
 const EMPTY: FormState = {
@@ -38,12 +58,60 @@ export function PainelPage() {
   const [saving, setSaving] = useState(false);
   const [checkoutLoading, setCheckoutLoading] = useState<string | null>(null);
   const [message, setMessage] = useState("");
+  const [leadCreditsByProfessional, setLeadCreditsByProfessional] = useState<Record<string, LeadCredits | null>>({});
+  const [sponsorSheetFor, setSponsorSheetFor] = useState<Professional | null>(null);
+  const [sponsorDays, setSponsorDays] = useState<number>(SPONSORSHIP_PLANS[0].days);
+  const [mySponsorships, setMySponsorships] = useState<Record<string, CategorySponsorship[]>>({});
 
   const isEditing = !!form.id;
 
   useEffect(() => {
     if (user) getMyProfessionals(user.id).then(setMine);
   }, [user]);
+
+  useEffect(() => {
+    mine.forEach((p) => {
+      getLeadCredits(p.id).then((credits) => setLeadCreditsByProfessional((prev) => ({ ...prev, [p.id]: credits })));
+      getMySponsorships(p.id).then((list) => setMySponsorships((prev) => ({ ...prev, [p.id]: list })));
+    });
+  }, [mine]);
+
+  async function handleContactModeChange(professionalId: string, mode: ContactMode) {
+    setMessage("");
+    try {
+      await updateContactMode(professionalId, mode);
+      setMine((prev) => prev.map((p) => (p.id === professionalId ? { ...p, contact_mode: mode } : p)));
+    } catch (err) {
+      setMessage(err instanceof Error ? err.message : "Não foi possível atualizar o modo de contato.");
+    }
+  }
+
+  async function handleBuyCredits(professionalId: string, quantity: number) {
+    setCheckoutLoading(`${professionalId}:credits`);
+    setMessage("");
+    try {
+      const { initPoint } = await startCreditsCheckout(professionalId, quantity);
+      window.location.href = initPoint;
+    } catch (err) {
+      setMessage(err instanceof Error ? err.message : "Não foi possível iniciar a compra de créditos.");
+    } finally {
+      setCheckoutLoading(null);
+    }
+  }
+
+  async function handleSponsor(professional: Professional) {
+    setCheckoutLoading(`${professional.id}:sponsor`);
+    setMessage("");
+    try {
+      const { initPoint } = await startSponsorshipCheckout(professional.id, professional.category, professional.city, sponsorDays);
+      window.location.href = initPoint;
+    } catch (err) {
+      setMessage(err instanceof Error ? err.message : "Não foi possível iniciar o patrocínio de categoria.");
+    } finally {
+      setCheckoutLoading(null);
+      setSponsorSheetFor(null);
+    }
+  }
 
   function resetForm() {
     setForm(EMPTY);
@@ -127,7 +195,7 @@ export function PainelPage() {
     }
   }
 
-  async function handleSubscribe(professionalId: string, type: "verification" | "boost") {
+  async function handleSubscribe(professionalId: string, type: "verification" | "boost" | "plus") {
     setCheckoutLoading(`${professionalId}:${type}`);
     setMessage("");
     try {
@@ -163,6 +231,10 @@ export function PainelPage() {
           {mine.map((p) => {
             const verified = isCurrentlyVerified(p);
             const boosted = isCurrentlyBoosted(p);
+            const plusActive = isCurrentlyPlusActive(p);
+            const credits = leadCreditsByProfessional[p.id];
+            const sponsorships = mySponsorships[p.id] ?? [];
+            const activeSponsorship = sponsorships.find((s) => s.status === "active" && new Date(s.ends_at) > new Date());
             return (
               <div key={p.id} className="card">
                 <div style={{ display: "flex", justifyContent: "space-between" }}>
@@ -201,6 +273,80 @@ export function PainelPage() {
                       ? "Anúncio turbinado"
                       : `Turbinar anúncio — R$ ${PRICES.boost.amount.toFixed(2).replace(".", ",")}/mês`}
                   </button>
+                  {p.entity_type === "pj" && (
+                    <button
+                      className="btn btn-outline"
+                      disabled={checkoutLoading === `${p.id}:plus` || plusActive}
+                      onClick={() => handleSubscribe(p.id, "plus")}
+                    >
+                      {plusActive
+                        ? "Empresa Plus ativo"
+                        : `Assinar Empresa Plus — R$ ${PRICES.plus.amount.toFixed(2).replace(".", ",")}/mês`}
+                    </button>
+                  )}
+                  {plusActive && (
+                    <Link className="btn btn-outline" to={`/analytics/${p.id}`}>
+                      Ver estatísticas
+                    </Link>
+                  )}
+                </div>
+
+                <div style={{ marginTop: 16, paddingTop: 12, borderTop: "1px solid var(--color-border)" }}>
+                  <p style={{ margin: "0 0 6px", fontWeight: 600, fontSize: "0.85rem" }}>Modo de contato</p>
+                  <div style={{ display: "flex", gap: 16, flexWrap: "wrap", marginBottom: 8 }}>
+                    <label style={{ display: "flex", alignItems: "center", gap: 6, fontSize: "0.85rem" }}>
+                      <input
+                        type="radio"
+                        name={`contact-mode-${p.id}`}
+                        checked={p.contact_mode === "whatsapp_livre"}
+                        onChange={() => handleContactModeChange(p.id, "whatsapp_livre")}
+                        style={{ width: "auto" }}
+                      />
+                      WhatsApp livre (grátis, ilimitado)
+                    </label>
+                    <label style={{ display: "flex", alignItems: "center", gap: 6, fontSize: "0.85rem" }}>
+                      <input
+                        type="radio"
+                        name={`contact-mode-${p.id}`}
+                        checked={p.contact_mode === "pay_per_lead"}
+                        onChange={() => handleContactModeChange(p.id, "pay_per_lead")}
+                        style={{ width: "auto" }}
+                      />
+                      Pagar por contato (R$ {(PRICES.leadCreditCents / 100).toFixed(2).replace(".", ",")}/lead)
+                    </label>
+                  </div>
+                  {p.contact_mode === "pay_per_lead" && (
+                    <div style={{ display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap" }}>
+                      <span className="muted" style={{ fontSize: "0.85rem" }}>
+                        Saldo atual: <strong>{credits?.balance ?? 0}</strong> crédito(s)
+                      </span>
+                      {CREDIT_PACKS.map((qty) => (
+                        <button
+                          key={qty}
+                          className="btn btn-outline"
+                          style={{ fontSize: "0.78rem", padding: "4px 8px" }}
+                          disabled={checkoutLoading === `${p.id}:credits`}
+                          onClick={() => handleBuyCredits(p.id, qty)}
+                        >
+                          Comprar {qty} créditos — R$ {((PRICES.leadCreditCents / 100) * qty).toFixed(2).replace(".", ",")}
+                        </button>
+                      ))}
+                    </div>
+                  )}
+                </div>
+
+                <div style={{ marginTop: 16, paddingTop: 12, borderTop: "1px solid var(--color-border)" }}>
+                  <p style={{ margin: "0 0 6px", fontWeight: 600, fontSize: "0.85rem" }}>Categoria patrocinada</p>
+                  {activeSponsorship ? (
+                    <p className="muted" style={{ fontSize: "0.85rem" }}>
+                      Patrocínio ativo em "{activeSponsorship.category}" até{" "}
+                      {new Date(activeSponsorship.ends_at).toLocaleDateString("pt-BR")}.
+                    </p>
+                  ) : (
+                    <button className="btn btn-outline" style={{ fontSize: "0.85rem" }} onClick={() => setSponsorSheetFor(p)}>
+                      Patrocinar categoria "{p.category}"
+                    </button>
+                  )}
                 </div>
               </div>
             );
@@ -317,6 +463,31 @@ export function PainelPage() {
           </div>
         </form>
       </section>
+
+      {sponsorSheetFor && (
+        <BottomSheet
+          title={`Patrocinar categoria "${sponsorSheetFor.category}"`}
+          subtitle="Seu anúncio aparece em destaque no topo da busca quando alguém filtrar por essa categoria em sua cidade, pelo período escolhido."
+          onClose={() => setSponsorSheetFor(null)}
+        >
+          <div style={{ display: "grid", gap: 14 }}>
+            <select value={sponsorDays} onChange={(e) => setSponsorDays(Number(e.target.value))}>
+              {SPONSORSHIP_PLANS.map((plan) => (
+                <option key={plan.days} value={plan.days}>
+                  {plan.days} dias — R$ {plan.amount.toFixed(2).replace(".", ",")}
+                </option>
+              ))}
+            </select>
+            <button
+              className="btn btn-gold btn-block"
+              disabled={checkoutLoading === `${sponsorSheetFor.id}:sponsor`}
+              onClick={() => handleSponsor(sponsorSheetFor)}
+            >
+              {checkoutLoading === `${sponsorSheetFor.id}:sponsor` ? "Abrindo checkout…" : "Ir para pagamento"}
+            </button>
+          </div>
+        </BottomSheet>
+      )}
     </div>
   );
 }
