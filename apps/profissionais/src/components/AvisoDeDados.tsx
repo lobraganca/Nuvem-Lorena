@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 
 const CHAVE = "busca-itabirito-aviso-dados";
 
@@ -17,6 +17,7 @@ const CHAVE = "busca-itabirito-aviso-dados";
  * pede sem impedir a pessoa de usar o app.
  */
 export function AvisoDeDados() {
+  const { pathname } = useLocation();
   const [visivel, setVisivel] = useState(() => {
     if (typeof window === "undefined") return false;
     try {
@@ -28,7 +29,14 @@ export function AvisoDeDados() {
     }
   });
 
-  if (!visivel) return null;
+  // Só na busca — e lendo a rota pelo router, não por `window.location`:
+  // dentro de um app de página única o endereço muda sem recarregar, e o
+  // aviso continuava colado na tela seguinte.
+  //
+  // Antes ele acompanhava a pessoa por todas as telas, e no perfil do
+  // profissional chegava a cobrir o botão de contato: o aviso de privacidade
+  // atrapalhando justamente o ato que o app existe para permitir.
+  if (!visivel || pathname !== "/") return null;
 
   function aceitar() {
     try {

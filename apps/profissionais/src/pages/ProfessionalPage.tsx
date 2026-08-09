@@ -33,6 +33,19 @@ import { formatPhone } from "../lib/phone";
  * o localStorage e denunciar de novo, mas reduz spam casual do mesmo
  * navegador. Ver limitação documentada no README.
  */
+/**
+ * Como chamar quem anuncia, no meio de uma frase.
+ *
+ * Pessoa física atende pelo primeiro nome. Empresa, não: cortar "Elétrica
+ * Souza" no primeiro espaço produz "Fale com Elétrica", que soa como erro do
+ * app e deixa o anúncio com cara de amador — exatamente o oposto do que ele
+ * está tentando comprar ali.
+ */
+function comoChamar(p: { name: string; entity_type: string }): string {
+  if (p.entity_type === "pj") return p.name;
+  return p.name.trim().split(" ")[0];
+}
+
 function reportedKey(professionalId: string) {
   return `busca-itabirito-denunciado-${professionalId}`;
 }
@@ -481,14 +494,14 @@ export function ProfessionalPage() {
 
         {contatoFacilitado ? (
           <button className="btn btn-primary btn-block" style={{ marginTop: 14 }} onClick={() => setContactSheetOpen(true)}>
-            Peça para {professional.name.split(" ")[0]} te chamar
+            Peça para {comoChamar(professional)} te chamar
           </button>
         ) : (
           /* Sem assinatura, o caminho é o telefone acima. Dito em uma linha,
              sem tom de bloqueio: quem lê é o cliente, e a mensagem não pode
              soar como se o profissional estivesse devendo algo. */
           <p className="muted" style={{ marginTop: 14, fontSize: "0.86rem", textAlign: "center" }}>
-            Fale com {professional.name.split(" ")[0]} pelo telefone acima.
+            Fale com {comoChamar(professional)} pelo telefone acima.
           </p>
         )}
 
@@ -516,9 +529,14 @@ export function ProfessionalPage() {
         >
           {copiado ? "Link copiado ✓" : "Indicar para alguém"}
         </button>
-        <p className="muted" style={{ margin: "8px 0 0", fontSize: "0.84rem" }}>
-          Sem tempo de ligar agora? Deixe seu número que a pessoa retorna.
-        </p>
+        {contatoFacilitado && (
+          /* Só quando o botão de pedir retorno existe. Sem a assinatura ele
+             não aparece, e esta frase ficava sozinha prometendo uma coisa que
+             não estava em lugar nenhum da tela. */
+          <p className="muted" style={{ margin: "8px 0 0", fontSize: "0.84rem" }}>
+            Sem tempo de ligar agora? Deixe seu número que a pessoa retorna.
+          </p>
+        )}
       </div>
 
       <section style={{ marginTop: 32 }}>
@@ -660,7 +678,7 @@ export function ProfessionalPage() {
 
         {contactSheetOpen && (
           <BottomSheet
-            title={reqSent ? "Pedido enviado" : `Peça para ${professional.name.split(" ")[0]} te chamar`}
+            title={reqSent ? "Pedido enviado" : `Peça para ${comoChamar(professional)} te chamar`}
             subtitle={
               reqSent
                 ? undefined
