@@ -567,10 +567,41 @@ export function PainelPage() {
                     do anúncio, com preço e sem explicação, e quem lia "Empresa
                     Plus" ou "patrocinar categoria" não tinha como saber o que
                     ia levar. Fechado, some do caminho de quem só quer editar. */}
-                <details className="produtos">
+                {/* Aberto por padrão enquanto não há nada assinado, e
+                    recolhido depois: para quem já paga, isso é histórico; para
+                    quem ainda não, é a única chance de descobrir que existe.
+                    Recolher para todo mundo escondia a receita do app. */}
+                <details className="produtos produtos-oferta" open={!verified && !boosted && !plusActive && !activeSponsorship}>
                   <summary>
-                    Aparecer mais <span className="muted">— opcional, pago</span>
+                    Aparecer mais{" "}
+                    <span className="muted">
+                      — a partir de R$ {PRICES.verification.amount.toFixed(2).replace(".", ",")}/mês
+                    </span>
                   </summary>
+
+                  {!verified && (
+                    /* A chamada principal vai para o selo: é a assinatura que
+                       libera o contato, e sem contato o resto rende pouco. */
+                    <div className="oferta-destaque">
+                      <p>
+                        <strong>Seu anúncio está no plano grátis.</strong> Quem procura consegue ver seu
+                        telefone, mas não tem o botão de WhatsApp nem o "peça para te chamar" — e é por ali que
+                        chega a maior parte dos contatos.
+                      </p>
+                      <button
+                        className="btn btn-primary"
+                        onClick={() => {
+                          if (!p.whatsapp_verified) {
+                            setConfirmandoWhats(p);
+                            return;
+                          }
+                          setPlanSheetFor({ professional: p, type: "verification" });
+                        }}
+                      >
+                        Assinar por R$ {PRICES.verification.amount.toFixed(2).replace(".", ",")}/mês
+                      </button>
+                    </div>
+                  )}
 
                   <p className="muted produtos-intro">
                     Seu anúncio funciona de graça, para sempre. O que está aqui embaixo serve para você

@@ -1510,3 +1510,40 @@ textarea::placeholder {
     padding-right: 16px;
   }
 }
+
+/* Bloco de ofertas quando ainda não há nada assinado: contorno azul em vez
+   de cinza, para se distinguir do resto do painel sem virar propaganda
+   piscante dentro da ferramenta de trabalho da pessoa. */
+.produtos-oferta {
+  border-color: var(--color-primary);
+}
+
+.oferta-destaque {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  margin: 0 14px 12px;
+  padding: 14px;
+  border-radius: 12px;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+}
+
+.oferta-destaque p {
+  margin: 0;
+  flex: 1 1 240px;
+  font-size: 0.87rem;
+  line-height: 1.45;
+  color: var(--color-text-muted);
+}
+
+.oferta-destaque strong {
+  color: var(--color-text);
+}
+
+.oferta-destaque .btn {
+  flex: none;
+  white-space: nowrap;
+}
