@@ -33,7 +33,18 @@ export function FavoritosPage() {
       )}
 
       {user && !loading && results.length === 0 && (
-        <p className="muted">Você ainda não favoritou nenhum profissional.</p>
+        /* Vazio com saída: quem chega aqui sem favoritos não errou nada, só
+           ainda não guardou ninguém — e o caminho de volta é a busca. */
+        <div className="card" style={{ display: "grid", gap: 8, justifyItems: "start" }}>
+          <strong>Você ainda não guardou ninguém.</strong>
+          <p className="muted" style={{ margin: 0, fontSize: "0.9rem", lineHeight: 1.45 }}>
+            Toque no ♥ de um profissional para guardá-lo aqui. Serve para não perder o contato de quem atendeu
+            bem — e para achar rápido da próxima vez.
+          </p>
+          <Link className="btn btn-primary" to="/">
+            Procurar profissionais
+          </Link>
+        </div>
       )}
 
       {loading && <p className="muted">Carregando…</p>}
