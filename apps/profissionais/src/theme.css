@@ -3200,3 +3200,51 @@ h3 {
 .plano-nao-tem {
   color: var(--color-text-muted, #5b6478);
 }
+
+/* ---------------------------------------------------------------
+   Ritmo interno do card de anúncio (Painel)
+
+   O card acumula seis assuntos diferentes — desempenho, número
+   confirmado, pedidos de contato, ações, serviços e planos pagos —
+   e todos vinham colados, com o mesmo peso visual. O olho não
+   achava onde um terminava e o outro começava, e o resultado é a
+   sensação de "está tudo junto".
+
+   A separação é uma linha fina e um respiro antes de cada assunto.
+   Não muda nada de lugar: só devolve a fronteira que já existia na
+   cabeça de quem lê, mas não estava na tela.
+   --------------------------------------------------------------- */
+.grid > .card > .views-line,
+.grid > .card > .whats-ok,
+.grid > .card > .whats-pendente,
+.grid > .card > .requests,
+.grid > .card > .acoes-anuncio,
+.grid > .card > .bloco-recolhivel,
+.grid > .card > .produtos,
+.grid > .card > .assinaturas-ativas {
+  border-top: 1px solid var(--color-border, #e6e8ee);
+  margin-top: 16px;
+  padding-top: 16px;
+}
+
+/* O primeiro bloco depois do cabeçalho não precisa de linha: ele já
+   está separado pelo nome do anúncio. */
+.grid > .card > .muted + .views-line {
+  border-top: none;
+  padding-top: 0;
+}
+
+/* Os botões de ação ganham ar entre si; grudados, viravam uma barra
+   cinza única em que nada se destacava. */
+.acoes-anuncio {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+/* Blocos recolhíveis: o título é o que a pessoa lê para decidir se
+   abre, então ele precisa parecer um título. */
+.grid > .card > details > summary {
+  font-weight: 600;
+  padding: 4px 0;
+}
