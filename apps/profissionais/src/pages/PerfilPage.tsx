@@ -14,6 +14,7 @@ import { baixarMeusDados } from "../lib/meusDados";
 import type { Profile } from "../types/domain";
 import { FecharApp } from "../components/FecharApp";
 import { MinhaAssinatura } from "../components/MinhaAssinatura";
+import { useTituloDaPagina } from "../lib/tituloDaPagina";
 
 function initials(name: string | null, email: string | null | undefined): string {
   const source = name?.trim() || email?.trim() || "?";
@@ -37,6 +38,7 @@ function SettingsItem({ to, icon, label }: { to: string; icon: string; label: st
 }
 
 export function PerfilPage() {
+  useTituloDaPagina("Meu perfil");
   const { user, loading } = useAuth();
   const navigate = useNavigate();
   const [profile, setProfile] = useState<Profile | null>(null);

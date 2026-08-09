@@ -1,8 +1,9 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { Link } from "react-router-dom";
 import { useAuth } from "../lib/useAuth";
 import { MinhaAssinatura } from "../components/MinhaAssinatura";
 import { precoMensal } from "../lib/payments";
+import { useTituloDaPagina } from "../lib/tituloDaPagina";
 
 /**
  * Tela de Assinatura.
@@ -32,9 +33,7 @@ export function AssinaturaPage() {
   const { user, loading } = useAuth();
   const [pessoa, setPessoa] = useState<"pf" | "pj">("pf");
 
-  useEffect(() => {
-    document.title = "Assinatura — procurô";
-  }, []);
+  useTituloDaPagina("Assinatura");
 
   return (
     <div className="container" style={{ maxWidth: 520, paddingTop: 24, paddingBottom: 80 }}>

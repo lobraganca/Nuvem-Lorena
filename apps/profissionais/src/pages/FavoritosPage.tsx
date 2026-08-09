@@ -5,8 +5,10 @@ import { Estrelas } from "../components/Estrelas";
 import { getFavoriteProfessionals, type ProfessionalWithRating } from "../lib/professionals";
 import { FavoriteButton } from "../components/FavoriteButton";
 import { useAuth } from "../lib/useAuth";
+import { useTituloDaPagina } from "../lib/tituloDaPagina";
 
 export function FavoritosPage() {
+  useTituloDaPagina("Meus favoritos");
   const { user, loading: authLoading } = useAuth();
   const [results, setResults] = useState<ProfessionalWithRating[]>([]);
   const [loading, setLoading] = useState(true);

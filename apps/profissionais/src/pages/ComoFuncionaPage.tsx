@@ -1,8 +1,10 @@
 import { Link } from "react-router-dom";
 import { VerifiedBadge } from "../components/VerifiedBadge";
 import { precoMensal } from "../lib/payments";
+import { useTituloDaPagina } from "../lib/tituloDaPagina";
 
 export function ComoFuncionaPage() {
+  useTituloDaPagina("Como funciona");
   return (
     <div className="container" style={{ paddingTop: 32, paddingBottom: 60 }}>
       <h1>Como funciona</h1>

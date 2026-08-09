@@ -16,6 +16,7 @@ import {
   PRICES,
 } from "../lib/payments";
 import { BottomSheet } from "../components/BottomSheet";
+import { useTituloDaPagina } from "../lib/tituloDaPagina";
 
 /**
  * Tela de estatísticas do anúncio — só acessível ao dono e só quando o
@@ -23,6 +24,7 @@ import { BottomSheet } from "../components/BottomSheet";
  * simples em cards, sem gráfico (não obrigatório pela especificação).
  */
 export function AnalyticsPage() {
+  useTituloDaPagina("Números do anúncio");
   const { id } = useParams<{ id: string }>();
   const { user, loading } = useAuth();
   const [professional, setProfessional] = useState<ProfessionalWithRating | null>(null);

@@ -26,6 +26,7 @@ import { useAuth } from "../lib/useAuth";
 import { BottomSheet } from "../components/BottomSheet";
 import { enviarIndicacao } from "../lib/indicacoes";
 import { formatPhone } from "../lib/phone";
+import { useTituloDaPagina } from "../lib/tituloDaPagina";
 
 /**
  * Iniciais em cor, no lugar do bonequinho genérico.
@@ -79,6 +80,7 @@ const TOUR_STEPS: TourStep[] = [
 ];
 
 export function HomePage() {
+  useTituloDaPagina();
   const [city, setCity] = useState<string>("");
   const [cidades, setCidades] = useState<string[]>([]);
   const [category, setCategory] = useState<string>("");

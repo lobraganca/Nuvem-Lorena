@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useAuth } from "../lib/useAuth";
 import { isAdmin } from "../lib/admin";
 import { verificarConfiguracao, type EstadoItem, type ItemConfig } from "../lib/configuracao";
+import { useTituloDaPagina } from "../lib/tituloDaPagina";
 
 /**
  * Painel de configuração, em `/configuracao` (só para administradoras).
@@ -24,6 +25,7 @@ const CORES: Record<EstadoItem, { rotulo: string; classe: string }> = {
 };
 
 export function ConfiguracaoPage() {
+  useTituloDaPagina("Configuração");
   const { user, loading } = useAuth();
   const [admin, setAdmin] = useState(false);
   const [checando, setChecando] = useState(true);

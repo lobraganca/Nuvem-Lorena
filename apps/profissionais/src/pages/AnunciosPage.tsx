@@ -6,6 +6,7 @@ import { DEFAULT_CITY, type Banner } from "../types/domain";
 import type { ProfessionalWithRating } from "../lib/professionals";
 import { Estrelas } from "../components/Estrelas";
 import { VerifiedBadge } from "../components/VerifiedBadge";
+import { useTituloDaPagina } from "../lib/tituloDaPagina";
 
 /**
  * Tela de anúncios: quem pagou para aparecer.
@@ -27,6 +28,7 @@ import { VerifiedBadge } from "../components/VerifiedBadge";
  * recomendação vale menos que uma vitrine assumida.
  */
 export function AnunciosPage() {
+  useTituloDaPagina("Anúncios");
   const [banners, setBanners] = useState<Banner[]>([]);
   const [destaques, setDestaques] = useState<ProfessionalWithRating[]>([]);
   const [carregando, setCarregando] = useState(true);

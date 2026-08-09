@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { getSession } from "../lib/auth";
 import { problemaDeConfiguracao } from "../lib/supabase";
 import { passosDaAtualizacao } from "../lib/atualizacao";
+import { useTituloDaPagina } from "../lib/tituloDaPagina";
 
 /**
  * Tela de diagnóstico do login, em `/diagnostico`.
@@ -52,6 +53,7 @@ function Linha({ rotulo, valor, ok }: { rotulo: string; valor: string; ok?: bool
 }
 
 export function DiagnosticoPage() {
+  useTituloDaPagina("Diagnóstico");
   const [sessao, setSessao] = useState<string>("consultando…");
   const [email, setEmail] = useState<string>("—");
   const [expira, setExpira] = useState<string>("—");

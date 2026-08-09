@@ -3,6 +3,7 @@ import { DEFAULT_CITY } from "../types/domain";
 import { LogoMark } from "../components/Logo";
 import { markWelcomeSeen, requestTour } from "../lib/onboarding";
 import { InstalarApp } from "../components/InstalarApp";
+import { useTituloDaPagina } from "../lib/tituloDaPagina";
 
 const FEATURES = [
   {
@@ -37,6 +38,7 @@ const FEATURES = [
  * tenha que descobrir sozinho onde se cadastra.
  */
 export function BoasVindasPage() {
+  useTituloDaPagina("Bem-vindo");
   const navigate = useNavigate();
 
   function escolherCliente() {

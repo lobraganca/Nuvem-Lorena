@@ -27,6 +27,7 @@ import { BottomSheet } from "../components/BottomSheet";
 import { VerifiedBadge } from "../components/VerifiedBadge";
 import { Estrelas } from "../components/Estrelas";
 import { formatPhone } from "../lib/phone";
+import { useTituloDaPagina } from "../lib/tituloDaPagina";
 
 /**
  * Como chamar quem anuncia, no meio de uma frase.
@@ -62,9 +63,13 @@ function comoChamar(p: { name: string; entity_type: string }): string {
 }
 
 export function ProfessionalPage() {
+  /* O nome de quem anuncia, não "procurô": é o que a pessoa vai reconhecer
+     no histórico e ao salvar o link. Enquanto carrega, fica sem título — o
+     app põe o nome do app sozinho. */
   const { id } = useParams<{ id: string }>();
   const { user } = useAuth();
   const [professional, setProfessional] = useState<ProfessionalWithRating | null>(null);
+  useTituloDaPagina(professional ? `${professional.name} — ${professional.category}` : null);
   const [reviews, setReviews] = useState<Review[]>([]);
   const [catalogo, setCatalogo] = useState<ServicoOferecido[]>([]);
   const [rating, setRating] = useState(5);

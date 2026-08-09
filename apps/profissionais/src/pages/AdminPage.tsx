@@ -26,6 +26,7 @@ import { listSuggestions, updateSuggestionStatus } from "../lib/suggestions";
 import { atualizarStatusIndicacao, listarIndicacoes, type Indicacao } from "../lib/indicacoes";
 import { CITIES, type Suggestion, type SuggestionStatus } from "../types/domain";
 import { AdminBanners } from "../components/AdminBanners";
+import { useTituloDaPagina } from "../lib/tituloDaPagina";
 
 const STATUS_LABEL: Record<ReportStatus, string> = {
   pending: "Pendente",
@@ -39,6 +40,7 @@ const SUGGESTION_STATUS_LABEL: Record<SuggestionStatus, string> = {
 };
 
 export function AdminPage() {
+  useTituloDaPagina("Administração");
   const { user, loading } = useAuth();
   const [checking, setChecking] = useState(true);
   const [admin, setAdmin] = useState(false);

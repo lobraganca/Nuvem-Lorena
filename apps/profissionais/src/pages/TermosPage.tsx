@@ -1,4 +1,7 @@
+import { useTituloDaPagina } from "../lib/tituloDaPagina";
+
 export function TermosPage() {
+  useTituloDaPagina("Termos de Uso");
   return (
     <div className="container" style={{ paddingTop: 32, paddingBottom: 60 }}>
       <h1>Termos de Uso</h1>

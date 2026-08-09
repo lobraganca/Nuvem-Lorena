@@ -41,6 +41,7 @@ import { SeletorDeServicos } from "../components/SeletorDeServicos";
 import { CatalogoDeServicos } from "../components/CatalogoDeServicos";
 import { mensagemDeErro } from "../lib/erros";
 import { SeletorDeAtributos } from "../components/SeletorDeAtributos";
+import { useTituloDaPagina } from "../lib/tituloDaPagina";
 
 /**
  * Exemplo de especialidade para o ofício escolhido.
@@ -149,6 +150,7 @@ const CONFIRMACAO_POR_SMS = true;
 
 
 export function PainelPage() {
+  useTituloDaPagina("Painel do profissional");
   const { user, loading } = useAuth();
   const [mine, setMine] = useState<Professional[]>([]);
   /** Visualizações dos últimos 30 dias por anúncio — grátis para todo anunciante. */

@@ -2,8 +2,10 @@ import { useState } from "react";
 import { signInWithGoogle } from "../lib/auth";
 import { hasDatabase } from "../lib/supabase";
 import { BotaoApple } from "../components/BotaoApple";
+import { useTituloDaPagina } from "../lib/tituloDaPagina";
 
 export function LoginPage() {
+  useTituloDaPagina("Entrar");
   const [error, setError] = useState("");
 
   async function handleGoogleLogin() {

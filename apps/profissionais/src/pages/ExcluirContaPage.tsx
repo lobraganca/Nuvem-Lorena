@@ -1,5 +1,6 @@
 import { Link } from "react-router-dom";
 import { CONTATO_EMAIL, NOME_PLATAFORMA } from "../config";
+import { useTituloDaPagina } from "../lib/tituloDaPagina";
 
 /**
  * Página pública de exclusão de conta, em `/excluir-conta`.
@@ -14,6 +15,7 @@ import { CONTATO_EMAIL, NOME_PLATAFORMA } from "../config";
  * O e-mail existe para quem não consegue mais entrar.
  */
 export function ExcluirContaPage() {
+  useTituloDaPagina("Excluir conta");
   return (
     <div className="container" style={{ paddingTop: 32, paddingBottom: 60, maxWidth: 640 }}>
       <h1>Excluir sua conta</h1>

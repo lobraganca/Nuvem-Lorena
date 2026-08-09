@@ -1,5 +1,6 @@
 import { Link } from "react-router-dom";
 import { CIDADE_SEDE, CONTATO_EMAIL, NOME_PLATAFORMA, VERSAO_DOCUMENTOS } from "../config";
+import { useTituloDaPagina } from "../lib/tituloDaPagina";
 
 /**
  * Política de Privacidade — documento exigido pela LGPD, separado dos Termos
@@ -11,6 +12,7 @@ import { CIDADE_SEDE, CONTATO_EMAIL, NOME_PLATAFORMA, VERSAO_DOCUMENTOS } from "
  * documento que ninguém entende não cumpre isso, por mais completo que seja.
  */
 export function PrivacidadePage() {
+  useTituloDaPagina("Política de Privacidade");
   return (
     <div className="container" style={{ paddingTop: 32, paddingBottom: 60 }}>
       <h1>Política de Privacidade</h1>
