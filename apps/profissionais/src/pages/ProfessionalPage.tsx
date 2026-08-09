@@ -15,11 +15,10 @@ import {
   hasLeadBalance,
   consumeLeadCredit,
   aggregateReviewTags,
+  registrarContato,
   requestContact,
   type ProfessionalWithRating,
 } from "../lib/professionals";
-import { getProfile, saveCpf } from "../lib/profiles";
-import { formatCpf, isValidCpf } from "../lib/documents";
 import { REPORT_REASONS, tagsForRating, tagsPromptForRating, type Review } from "../types/domain";
 import { useAuth } from "../lib/useAuth";
 import { FavoriteButton } from "../components/FavoriteButton";
@@ -60,9 +59,6 @@ export function ProfessionalPage() {
   const [comment, setComment] = useState("");
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
-  const [cpf, setCpf] = useState<string | null>(null);
-  const [cpfInput, setCpfInput] = useState("");
-  const [cpfLoading, setCpfLoading] = useState(true);
   const [reportOpen, setReportOpen] = useState(false);
   const [reportReason, setReportReason] = useState<string>(REPORT_REASONS[0]);
   const [reportDetails, setReportDetails] = useState("");
@@ -70,7 +66,6 @@ export function ProfessionalPage() {
   const [reportSent, setReportSent] = useState(false);
   const [reportError, setReportError] = useState("");
   const [editingReviewId, setEditingReviewId] = useState<string | null>(null);
-  const [cpfSheetOpen, setCpfSheetOpen] = useState(false);
   const [reviewSheetOpen, setReviewSheetOpen] = useState(false);
   const [isFavorite, setIsFavorite] = useState(false);
   const [replyDrafts, setReplyDrafts] = useState<Record<string, string>>({});
@@ -109,7 +104,14 @@ export function ProfessionalPage() {
     hasLeadBalance(professional.id).then(setLeadBalanceAvailable);
   }, [professional]);
 
+  /** Registra o contato para a etiqueta "avaliação de quem chamou". */
+  function anotarContato(tipo: "whatsapp" | "telefone" | "pedido") {
+    if (!id) return;
+    void registrarContato(id, user?.id ?? null, tipo);
+  }
+
   async function handleWhatsappClick(e: React.MouseEvent<HTMLAnchorElement>) {
+    anotarContato("whatsapp");
     if (!professional || professional.contact_mode !== "pay_per_lead") return;
     e.preventDefault();
     setContactLoading(true);
@@ -130,17 +132,6 @@ export function ProfessionalPage() {
     setAlreadyReportedLocally(!!window.localStorage.getItem(reportedKey(id)));
   }, [id]);
 
-  useEffect(() => {
-    if (!user) {
-      setCpf(null);
-      setCpfLoading(false);
-      return;
-    }
-    setCpfLoading(true);
-    getProfile(user.id)
-      .then((profile) => setCpf(profile?.cpf ?? null))
-      .finally(() => setCpfLoading(false));
-  }, [user]);
 
   useEffect(() => {
     if (!user || !id) {
@@ -150,26 +141,6 @@ export function ProfessionalPage() {
     getFavoriteIds(user.id).then((ids) => setIsFavorite(ids.has(id)));
   }, [user, id]);
 
-  async function confirmCpf(e: React.FormEvent) {
-    e.preventDefault();
-    if (!user) return;
-    setError("");
-    if (!isValidCpf(cpfInput)) {
-      setError("CPF inválido. Confira os números digitados.");
-      return;
-    }
-    setSaving(true);
-    try {
-      const digits = cpfInput.replace(/\D/g, "");
-      await saveCpf(user.id, digits);
-      setCpf(digits);
-      setCpfSheetOpen(false);
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "Não foi possível salvar o CPF.");
-    } finally {
-      setSaving(false);
-    }
-  }
 
   /**
    * Trocar a nota troca o conjunto de etiquetas oferecido (qualidades para
@@ -189,7 +160,7 @@ export function ProfessionalPage() {
 
   async function submitReview(e: React.FormEvent) {
     e.preventDefault();
-    if (!user || !id || !cpf) return;
+    if (!user || !id) return;
     // Nota baixa sem nenhuma etiqueta é um desabafo, não uma avaliação: não
     // diz ao profissional o que corrigir nem a quem lê o que esperar. Só
     // aqui a etiqueta é obrigatória — de 3 estrelas para cima, a nota basta.
@@ -285,6 +256,7 @@ export function ProfessionalPage() {
         phone: reqPhone.trim(),
         message: reqMessage.trim(),
       });
+      anotarContato("pedido");
       setReqSent(true);
     } catch (err) {
       setReqError(err instanceof Error ? err.message : "Não conseguimos enviar seu pedido agora.");
@@ -464,7 +436,11 @@ export function ProfessionalPage() {
             </p>
           )}
           {professional.phone && (
-            <a className="contact-chip" href={`tel:${professional.phone.replace(/\D/g, "")}`}>
+            <a
+              className="contact-chip"
+              href={`tel:${professional.phone.replace(/\D/g, "")}`}
+              onClick={() => anotarContato("telefone")}
+            >
               <span aria-hidden="true">📞</span> {formatPhone(professional.phone)}
             </a>
           )}
@@ -563,38 +539,10 @@ export function ProfessionalPage() {
 
         {!user && <p className="muted">Entre com sua conta Google para deixar sua avaliação.</p>}
 
-        {user && !cpfLoading && !cpf && (
-          <button className="btn btn-primary" onClick={() => setCpfSheetOpen(true)} style={{ marginBottom: 20 }}>
-            Confirmar CPF para avaliar
-          </button>
-        )}
-
-        {user && cpf && !editingReviewId && (
+        {user && !editingReviewId && (
           <button className="btn btn-primary" onClick={() => setReviewSheetOpen(true)} style={{ marginBottom: 20 }}>
             Enviar avaliação
           </button>
-        )}
-
-        {cpfSheetOpen && (
-          <BottomSheet
-            title="Confirmar CPF"
-            subtitle="Ele fica associado à sua conta Google e é usado só para evitar avaliações falsas — não aparece publicamente."
-            onClose={() => setCpfSheetOpen(false)}
-          >
-            <form onSubmit={confirmCpf} style={{ display: "grid", gap: 14 }}>
-              <input
-                placeholder="000.000.000-00"
-                value={cpfInput}
-                onChange={(e) => setCpfInput(formatCpf(e.target.value))}
-                inputMode="numeric"
-                maxLength={14}
-              />
-              {error && <p style={{ color: "var(--color-danger)" }}>{error}</p>}
-              <button className="btn btn-primary btn-block" type="submit" disabled={saving}>
-                {saving ? "Confirmando…" : "Confirmar CPF"}
-              </button>
-            </form>
-          </BottomSheet>
         )}
 
         {reviewSheetOpen && (
@@ -756,6 +704,13 @@ export function ProfessionalPage() {
               <div key={r.id} className="card">
                 <div style={{ display: "flex", justifyContent: "space-between", alignItems: "start", gap: 8 }}>
                   <span className="stars">{"★".repeat(r.rating)}</span>
+                {r.contato_confirmado && (
+                  /* Distingue avaliação de quem realmente chamou de opinião
+                     solta — é a única distinção que importa para confiar. */
+                  <span className="selo-contato" title="Esta pessoa pediu o contato pelo app">
+                    ✓ chamou pelo app
+                  </span>
+                )}
                   {isOwnReview && (
                     <div style={{ display: "flex", gap: 8 }}>
                       <button

@@ -1710,3 +1710,17 @@ textarea::placeholder {
   padding: 8px;
   cursor: pointer;
 }
+
+/* Etiqueta da avaliação de quem pediu contato pelo app. Discreta: é um
+   sinal a mais, não um carimbo que desqualifica as outras. */
+.selo-contato {
+  margin-left: 8px;
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: #1c6b3f;
+  background: #eaf6ef;
+  border: 1px solid #c3e4d1;
+  border-radius: 999px;
+  padding: 2px 8px;
+  white-space: nowrap;
+}

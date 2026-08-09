@@ -92,6 +92,8 @@ export interface Review {
   /** Etiquetas rápidas tocadas pelo avaliador (ver `tagsForRating`). Pode ser vazio. */
   tags: string[];
   comment: string; // opcional na prática: string vazia quando a pessoa só tocou nas etiquetas
+  /** Quem avaliou pediu o contato pelo app — calculado no servidor. */
+  contato_confirmado?: boolean;
   reply: string | null; // resposta do dono do anúncio
   replied_at: string | null;
   created_at: string;

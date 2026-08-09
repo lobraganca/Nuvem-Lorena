@@ -196,6 +196,31 @@ export function aggregateReviewTags(reviews: Review[], limit = 5): { tag: string
  * usuário. `comment` e `tags` podem vir vazios — só a nota é obrigatória,
  * que é o ponto do formulário de etiquetas rápidas.
  */
+/**
+ * Registra que alguém pediu o contato deste profissional.
+ *
+ * Alimenta a etiqueta "avaliação de quem chamou". É best-effort de
+ * propósito: se falhar, a pessoa ainda liga, ainda contrata e ainda avalia —
+ * só perde a etiqueta. Nada aqui pode ficar entre ela e o telefone.
+ */
+export async function registrarContato(
+  professionalId: string,
+  userId: string | null,
+  tipo: "whatsapp" | "telefone" | "pedido"
+): Promise<void> {
+  const client = supabase();
+  if (!client) return;
+  try {
+    await client.from("contatos_registrados").insert({
+      professional_id: professionalId,
+      user_id: userId,
+      tipo,
+    });
+  } catch {
+    /* silencioso: contato registrado é bônus, não requisito */
+  }
+}
+
 export async function addReview(input: {
   professional_id: string;
   user_id: string;

@@ -32,10 +32,9 @@ export function PrivacidadePage() {
 
         <h2>O que coletamos</h2>
         <p>
-          <strong>De quem entra para buscar:</strong> nome, e-mail e foto da conta Google usada no login. Se
-          você avaliar alguém, também o CPF — ele serve para impedir que uma mesma pessoa crie várias contas
-          para inflar ou destruir a reputação de um profissional. <strong>O CPF nunca aparece para
-          ninguém</strong> além de você e da administração da plataforma.
+          <strong>De quem entra para buscar:</strong> nome, e-mail e foto da conta Google usada no login. Não pedimos
+          CPF para avaliar: a conta Google já identifica quem escreveu, e guardar CPF para liberar um
+          comentário seria coletar mais do que o necessário.
         </p>
         <p>
           <strong>De quem anuncia:</strong> além do acima, os dados do anúncio — nome ou razão social, foto de
