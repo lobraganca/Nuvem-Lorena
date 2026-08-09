@@ -1,5 +1,5 @@
 import { supabase } from "./supabase";
-import type { SubscriptionType } from "../types/domain";
+import type { BillingCycle, SubscriptionType } from "../types/domain";
 
 /**
  * Ponto único de entrada para iniciar uma assinatura recorrente no Mercado
@@ -122,4 +122,54 @@ export const PRICES = {
  */
 export function annualPrice(type: SubscriptionType): number {
   return Number((PRICES[type].amount * 12 * 0.8).toFixed(2));
+}
+
+
+/**
+ * Assinaturas ativas de um anúncio, para a tela de cancelamento.
+ *
+ * A leitura passa pelo RLS: uma pessoa só enxerga as assinaturas dos próprios
+ * anúncios. A tela usa isso para oferecer o cancelamento; quem decide se pode
+ * cancelar é o servidor, de novo, na Edge Function.
+ */
+export interface AssinaturaAtiva {
+  id: string;
+  type: SubscriptionType;
+  billing_cycle: BillingCycle;
+  status: string;
+  created_at: string;
+  current_period_end: string | null;
+}
+
+export async function getAssinaturasAtivas(professionalId: string): Promise<AssinaturaAtiva[]> {
+  const client = supabase();
+  if (!client) return [];
+  const { data } = await client
+    .from("subscriptions")
+    .select("id, type, billing_cycle, status, created_at, current_period_end")
+    .eq("professional_id", professionalId)
+    .in("status", ["active", "authorized", "pending"])
+    .order("created_at", { ascending: false });
+  return (data ?? []) as AssinaturaAtiva[];
+}
+
+/**
+ * Cancela a assinatura. O reembolso dos 7 dias é decidido no servidor, a
+ * partir da data real da cobrança — nunca a partir do que a tela calculou.
+ */
+export async function cancelarAssinatura(
+  subscriptionId: string
+): Promise<{ reembolsado: boolean; dentroDoArrependimento: boolean }> {
+  const client = supabase();
+  if (!client) throw new Error("Sem conexão com o banco.");
+  const { data, error } = await client.functions.invoke("cancel-subscription", {
+    body: { subscriptionId },
+  });
+  if (error) throw new Error("Não foi possível cancelar agora. Tente de novo em alguns minutos.");
+  const resposta = data as { error?: string; reembolsado?: boolean; dentroDoArrependimento?: boolean };
+  if (resposta?.error) throw new Error(resposta.error);
+  return {
+    reembolsado: !!resposta?.reembolsado,
+    dentroDoArrependimento: !!resposta?.dentroDoArrependimento,
+  };
 }

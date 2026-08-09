@@ -42,6 +42,33 @@ export function TermosPage() {
           nome de um responsável pela empresa. Esses dados servem para reduzir fraude e dar mais transparência
           aos anúncios, mas <strong>não constituem, por si só, garantia de idoneidade</strong> do anunciante.
         </p>
+        <h2 style={{ fontSize: "1.05rem", marginBottom: 0 }}>Assinaturas, cancelamento e reembolso</h2>
+        <p>
+          As assinaturas (selo de verificação, destaque na busca e Empresa Plus) podem ser{" "}
+          <strong>canceladas a qualquer momento</strong>, pelo próprio app, no Painel do profissional — no mesmo
+          lugar onde foram contratadas e sem precisar falar com ninguém.
+        </p>
+        <p>
+          <strong>Arrependimento em 7 dias (art. 49 do Código de Defesa do Consumidor):</strong> se o
+          cancelamento for pedido em até 7 dias corridos da contratação, o valor pago é devolvido{" "}
+          <strong>integralmente</strong>, sem necessidade de justificar, pelo mesmo meio de pagamento usado na
+          compra. O benefício contratado é encerrado no ato.
+        </p>
+        <p>
+          <strong>Depois dos 7 dias:</strong> o cancelamento interrompe as cobranças seguintes, e o período já
+          pago continua valendo até o fim — não há corte no meio de um mês (ou ano) já quitado, nem multa por
+          encerrar.
+        </p>
+        <p>
+          Compras avulsas de <strong>banner de categoria</strong> seguem a mesma regra de 7 dias; após esse
+          prazo, por serem por período determinado e já em veiculação, não são reembolsáveis
+          proporcionalmente.
+        </p>
+        <p>
+          Os pagamentos são processados pelo <strong>Mercado Pago</strong>; o prazo de estorno na fatura ou na
+          conta depende do banco ou administradora do cartão, e não da plataforma.
+        </p>
+
         <p>
           Ao usar o Busca Itabirito — seja buscando um profissional, avaliando um anúncio ou cadastrando o seu
           próprio anúncio — você concorda com estes Termos de Uso.

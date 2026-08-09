@@ -281,6 +281,22 @@ async function handlePayment(admin: Admin, paymentId: string) {
   }
 }
 
+/**
+ * Amarra o pagamento à assinatura que ele custeou.
+ *
+ * É isso que permite, no cancelamento, saber qual cobrança devolver quando a
+ * pessoa desiste dentro dos 7 dias do direito de arrependimento. Sem o
+ * vínculo, o reembolso viraria adivinhação — ou uma consulta a mais ao
+ * Mercado Pago bem no momento em que ela quer resolver e ir embora.
+ */
+async function vinculaPagamentoAAssinatura(admin: Admin, paymentId: string, subscriptionId: string) {
+  const { error } = await admin
+    .from("processed_payments")
+    .update({ subscription_id: subscriptionId })
+    .eq("payment_id", String(paymentId));
+  if (error) console.error("mercadopago-webhook: não vinculou pagamento à assinatura", paymentId, error);
+}
+
 async function applyPaymentEffect(admin: Admin, paymentId: string, payment: any) {
   const ref: string = String(payment.external_reference ?? "");
 
@@ -354,6 +370,7 @@ async function applyPaymentEffect(admin: Admin, paymentId: string, payment: any)
 
     if (pending) {
       await admin.from("subscriptions").update(confirmed).eq("id", pending.id);
+      await vinculaPagamentoAAssinatura(admin, paymentId, pending.id);
       return;
     }
 
@@ -373,6 +390,7 @@ async function applyPaymentEffect(admin: Admin, paymentId: string, payment: any)
 
     if (activeRow) {
       await admin.from("subscriptions").update(confirmed).eq("id", activeRow.id);
+      await vinculaPagamentoAAssinatura(admin, paymentId, activeRow.id);
     } else {
       await admin.from("subscriptions").insert({
         professional_id: professionalId,

@@ -1547,3 +1547,46 @@ textarea::placeholder {
   flex: none;
   white-space: nowrap;
 }
+
+/* Cabeçalho de seção com ação à direita (ex.: "Meus anúncios" + Novo). */
+.secao-topo {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-bottom: 10px;
+}
+
+.btn-novo span {
+  font-size: 1.1rem;
+  line-height: 1;
+  margin-right: 2px;
+}
+
+/* Assinaturas ativas e cancelamento, dentro do bloco de ofertas. Mesmo peso
+   visual de qualquer outra ação: esconder o cancelamento é a prática que o
+   Código de Defesa do Consumidor chama de dificultar o exercício do direito. */
+.assinaturas-ativas {
+  padding: 14px;
+  border-top: 1px solid var(--color-border);
+  background: var(--color-surface);
+  display: grid;
+  gap: 10px;
+  font-size: 0.9rem;
+}
+
+.assinatura-linha {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.assinatura-linha em {
+  display: block;
+  font-style: normal;
+  font-size: 0.82rem;
+  color: var(--color-text-muted);
+}

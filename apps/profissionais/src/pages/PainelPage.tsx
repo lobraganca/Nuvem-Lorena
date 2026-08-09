@@ -23,7 +23,10 @@ import {
   startCreditsCheckout,
   startSponsorshipCheckout,
   annualPrice,
+  cancelarAssinatura,
+  getAssinaturasAtivas,
   PRICES,
+  type AssinaturaAtiva,
 } from "../lib/payments";
 import { CATEGORIES, CITIES, DEFAULT_CITY, MAX_CATEGORIES, MAX_CATEGORIA_LEN, normalizarCategoria, SPONSORSHIP_PLANS, type CategorySponsorship, type ContactRequest, type ContactRequestStatus, type Professional, type SubscriptionType } from "../types/domain";
 import { formatDocument, isValidDocument } from "../lib/documents";
@@ -157,6 +160,20 @@ export function PainelPage() {
   const [planSheetFor, setPlanSheetFor] = useState<{ professional: Professional; type: SubscriptionType } | null>(null);
   /** Anúncio cujo WhatsApp está sendo confirmado por código. */
   const [confirmandoWhats, setConfirmandoWhats] = useState<Professional | null>(null);
+  /**
+   * O formulário fica fechado quando já existe anúncio.
+   *
+   * Antes ele vivia aberto no fim da página, o que confundia: quem tinha um
+   * anúncio via um formulário vazio embaixo dele e não sabia se aquilo era
+   * "editar o meu" ou "criar outro". Agora criar é um gesto explícito, pelo
+   * botão de mais.
+   */
+  const [formAberto, setFormAberto] = useState(false);
+  /** Assinaturas ativas por anúncio, para oferecer o cancelamento. */
+  const [assinaturas, setAssinaturas] = useState<Record<string, AssinaturaAtiva[]>>({});
+  const [cancelando, setCancelando] = useState<AssinaturaAtiva | null>(null);
+  const [cancelandoAgora, setCancelandoAgora] = useState(false);
+  const [resultadoCancelamento, setResultadoCancelamento] = useState("");
   /** Anúncio que a pessoa pediu para excluir — a confirmação abre em folha. */
   const [excluindoAnuncio, setExcluindoAnuncio] = useState<Professional | null>(null);
   const [excluindo, setExcluindo] = useState(false);
@@ -170,6 +187,7 @@ export function PainelPage() {
   useEffect(() => {
     mine.forEach((p) => {
       getMySponsorships(p.id).then((list) => setMySponsorships((prev) => ({ ...prev, [p.id]: list })));
+      getAssinaturasAtivas(p.id).then((list) => setAssinaturas((prev) => ({ ...prev, [p.id]: list })));
     });
   }, [mine]);
 
@@ -228,6 +246,7 @@ export function PainelPage() {
     setPhotoPreview(null);
     setAcceptedTerms(true);
     setMessage("");
+    setFormAberto(true);
     window.scrollTo({ top: document.body.scrollHeight, behavior: "smooth" });
   }
 
@@ -341,6 +360,7 @@ export function PainelPage() {
       });
       const wasEditing = isEditing;
       resetForm();
+      setFormAberto(false);
       setMine(await getMyProfessionals(user.id));
       setFormMessage(wasEditing ? "Anúncio atualizado." : "Anúncio salvo.");
     } catch (err) {
@@ -438,7 +458,25 @@ export function PainelPage() {
       {message && <p className="card">{message}</p>}
 
       <section style={{ marginTop: 24 }}>
-        <h2>Meus anúncios</h2>
+        <div className="secao-topo">
+          <h2 style={{ margin: 0 }}>Meus anúncios</h2>
+          {mine.length > 0 && mine.length < 5 && !formAberto && (
+            /* Um anúncio por ofício, e não tudo amontoado num só: quem é
+               fotógrafo e dá aula de violão tem duas vitrines diferentes,
+               com fotos, textos e reputações separadas. */
+            <button
+              type="button"
+              className="btn btn-outline btn-novo"
+              onClick={() => {
+                resetForm();
+                setFormAberto(true);
+                setTimeout(() => window.scrollTo({ top: document.body.scrollHeight, behavior: "smooth" }), 50);
+              }}
+            >
+              <span aria-hidden="true">+</span> Novo anúncio
+            </button>
+          )}
+        </div>
         {mine.length === 0 && <p className="muted">Você ainda não tem anúncio. Preencha aí embaixo que em dois minutos você aparece na busca.</p>}
         <div className="grid">
           {mine.map((p) => {
@@ -749,6 +787,31 @@ export function PainelPage() {
                       </div>
                     </div>
                   )}
+                  {(assinaturas[p.id] ?? []).length > 0 && (
+                    /* Cancelar precisa estar no mesmo lugar onde se assina, e
+                       com o mesmo destaque de qualquer outro botão: esconder
+                       o cancelamento é a prática que o Código de Defesa do
+                       Consumidor chama de dificultar o exercício do direito. */
+                    <div className="assinaturas-ativas">
+                      <strong>Suas assinaturas</strong>
+                      {(assinaturas[p.id] ?? []).map((a) => (
+                        <div key={a.id} className="assinatura-linha">
+                          <span>
+                            {PRICES[a.type].label}
+                            <em>
+                              {a.billing_cycle === "annual" ? "anual" : "mensal"}
+                              {a.current_period_end
+                                ? ` · paga até ${new Date(a.current_period_end).toLocaleDateString("pt-BR")}`
+                                : ""}
+                            </em>
+                          </span>
+                          <button type="button" className="btn btn-outline" onClick={() => setCancelando(a)}>
+                            Cancelar
+                          </button>
+                        </div>
+                      ))}
+                    </div>
+                  )}
                 </details>
               </div>
             );
@@ -756,8 +819,23 @@ export function PainelPage() {
         </div>
       </section>
 
+      {(mine.length === 0 || formAberto) && (
       <section style={{ marginTop: 32 }}>
-        <h2>{isEditing ? "Editar anúncio" : "Cadastrar anúncio"}</h2>
+        <div className="secao-topo">
+          <h2 style={{ margin: 0 }}>{isEditing ? "Editar anúncio" : "Cadastrar anúncio"}</h2>
+          {mine.length > 0 && (
+            <button
+              type="button"
+              className="btn btn-outline"
+              onClick={() => {
+                resetForm();
+                setFormAberto(false);
+              }}
+            >
+              Fechar
+            </button>
+          )}
+        </div>
         <form className="card" onSubmit={handleSave} style={{ display: "grid", gap: 12 }}>
           <div style={{ display: "flex", gap: 16 }}>
             <label style={{ display: "flex", alignItems: "center", gap: 6 }}>
@@ -1063,6 +1141,96 @@ export function PainelPage() {
           </div>
         </form>
       </section>
+      )}
+
+      {cancelando && (
+        <BottomSheet
+          title="Cancelar assinatura"
+          subtitle={PRICES[cancelando.type].label}
+          onClose={() => {
+            setCancelando(null);
+            setResultadoCancelamento("");
+          }}
+        >
+          <div style={{ display: "grid", gap: 14 }}>
+            {resultadoCancelamento ? (
+              <>
+                <p className="form-aviso" style={{ margin: 0 }}>{resultadoCancelamento}</p>
+                <button
+                  className="btn btn-primary btn-block"
+                  onClick={() => {
+                    setCancelando(null);
+                    setResultadoCancelamento("");
+                  }}
+                >
+                  Entendi
+                </button>
+              </>
+            ) : (
+              <>
+                {/* A regra é dita antes de a pessoa decidir, e em dinheiro, não
+                    em artigo de lei: o que ela quer saber é se vai receber de
+                    volta e até quando o serviço continua. */}
+                {(Date.now() - new Date(cancelando.created_at).getTime()) / 86400000 <= 7 ? (
+                  <p style={{ margin: 0 }}>
+                    Você assinou há menos de 7 dias, então tem direito ao <strong>dinheiro de volta,
+                    integral</strong> — é o direito de arrependimento do Código de Defesa do Consumidor. O
+                    valor volta pelo mesmo meio de pagamento, e o benefício termina agora.
+                  </p>
+                ) : (
+                  <p style={{ margin: 0 }}>
+                    A cobrança seguinte <strong>não acontece</strong>. O que você já pagou continua valendo
+                    {cancelando.current_period_end
+                      ? ` até ${new Date(cancelando.current_period_end).toLocaleDateString("pt-BR")}`
+                      : " até o fim do período"}
+                    : você não perde os dias que já comprou.
+                  </p>
+                )}
+                <p className="muted" style={{ margin: 0, fontSize: "0.86rem" }}>
+                  Seu anúncio continua no ar de qualquer forma, no plano grátis.
+                </p>
+                <button
+                  className="btn btn-perigo btn-block"
+                  disabled={cancelandoAgora}
+                  onClick={async () => {
+                    setCancelandoAgora(true);
+                    try {
+                      const r = await cancelarAssinatura(cancelando.id);
+                      setResultadoCancelamento(
+                        r.reembolsado
+                          ? "Assinatura cancelada e reembolso solicitado. O valor volta pelo mesmo meio de pagamento, no prazo do seu banco ou cartão."
+                          : "Assinatura cancelada. Não haverá novas cobranças."
+                      );
+                      if (user) {
+                        setMine(await getMyProfessionals(user.id));
+                        setAssinaturas((prev) => ({
+                          ...prev,
+                          [cancelando.id]: [],
+                        }));
+                      }
+                    } catch (err) {
+                      setResultadoCancelamento(
+                        err instanceof Error ? err.message : "Não foi possível cancelar agora."
+                      );
+                    } finally {
+                      setCancelandoAgora(false);
+                    }
+                  }}
+                >
+                  {cancelandoAgora ? "Cancelando…" : "Confirmar cancelamento"}
+                </button>
+                <button
+                  type="button"
+                  className="btn btn-outline btn-block"
+                  onClick={() => setCancelando(null)}
+                >
+                  Manter assinatura
+                </button>
+              </>
+            )}
+          </div>
+        </BottomSheet>
+      )}
 
       {excluindoAnuncio && (
         <BottomSheet
