@@ -4,7 +4,7 @@ export function TermosPage() {
       <h1>Termos de Uso</h1>
       <div className="card" style={{ display: "grid", gap: 16 }}>
         <p>
-          O <strong>Busca Itabirito</strong> é uma plataforma de busca e divulgação de profissionais autônomos
+          O <strong>procurô</strong> é uma plataforma de busca e divulgação de profissionais autônomos
           e empresas prestadoras de serviço. Funcionamos como uma vitrine/intermediário de contato entre quem
           procura um serviço e quem o oferece — não somos parte na relação de prestação de serviço em si.
         </p>
@@ -70,7 +70,7 @@ export function TermosPage() {
         </p>
 
         <p>
-          Ao usar o Busca Itabirito — seja buscando um profissional, avaliando um anúncio ou cadastrando o seu
+          Ao usar o procurô — seja buscando um profissional, avaliando um anúncio ou cadastrando o seu
           próprio anúncio — você concorda com estes Termos de Uso.
         </p>
       </div>

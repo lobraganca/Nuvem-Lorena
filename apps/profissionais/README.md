@@ -1,4 +1,4 @@
-# Busca Itabirito
+# procurô
 
 Marketplace de busca de profissionais por cidade (hoje focado em Itabirito, mas
 modelado para expandir para outras cidades sem mudar o schema). Login via
@@ -172,7 +172,7 @@ npm run build
 | `MP_ACCESS_TOKEN` | **Access token do Mercado Pago.** Nunca deve aparecer no código nem no bundle do frontend — é usado só dentro das Edge Functions para chamar a API do Mercado Pago |
 | `PUBLIC_APP_URL` | URL pública do app, usada como `back_url` do checkout |
 | `RESEND_API_KEY` | API key da [Resend](https://resend.com), usada pelos e-mails transacionais (`notify-suspension`, `notify-new-review` e o aviso de renovação do plano anual em `renew-annual-plans`). Sem ela, as functions logam e seguem sem quebrar |
-| `RESEND_FROM_EMAIL` | Remetente verificado na Resend (ex: `"Busca Itabirito <avisos@seudominio.com>"`) |
+| `RESEND_FROM_EMAIL` | Remetente verificado na Resend (ex: `"procurô <avisos@seudominio.com>"`) |
 | `SUPABASE_URL` / `SUPABASE_SERVICE_ROLE_KEY` | Injetadas automaticamente pelo Supabase ao rodar/publicar as functions |
 
 ## Banco de dados (Supabase)
@@ -385,7 +385,7 @@ Rota `/admin` (não aparece no menu público) mostra hoje:
   2. Verifique um domínio (ou use o domínio de teste da Resend para testar).
   3. Gere uma API key em **API Keys → Create API Key**.
   4. `supabase secrets set RESEND_API_KEY=re_xxx`
-  5. `supabase secrets set RESEND_FROM_EMAIL="Busca Itabirito <avisos@seudominio.com>"`
+  5. `supabase secrets set RESEND_FROM_EMAIL="procurô <avisos@seudominio.com>"`
   6. `supabase functions deploy notify-suspension`
 
   O mesmo Resend configurado acima também é usado pela Edge Function

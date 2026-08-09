@@ -1,6 +1,6 @@
 {
-  "name": "Busca Itabirito",
-  "short_name": "Busca Itabirito",
+  "name": "procurô",
+  "short_name": "procurô",
   "description": "Marketplace de busca de profissionais verificados por cidade, com avaliações e selo de verificação.",
   "start_url": "/",
   "scope": "/",

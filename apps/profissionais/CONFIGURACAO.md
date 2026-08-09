@@ -1,4 +1,4 @@
-# Colocando o Busca Itabirito no ar — passo a passo
+# Colocando o procurô no ar — passo a passo
 
 Guia detalhado, do zero até o app rodando com dados reais. Feito para ser
 seguido na ordem, marcando cada caixinha.
@@ -116,17 +116,17 @@ na ordem, porque um lado pede uma informação do outro.
 
 - [ ] Em outra aba, abra **https://console.cloud.google.com**.
 - [ ] No topo, crie um projeto novo (**Select a project** → **New project**),
-      nome `Busca Itabirito`.
+      nome `procurô`.
 - [ ] Menu (☰) → **APIs & Services** → **OAuth consent screen**:
   - **User Type**: **External** → Create.
-  - **App name**: `Busca Itabirito`
+  - **App name**: `procurô`
   - **User support email**: seu e-mail
   - **Developer contact**: seu e-mail
   - Salve e vá avançando até o fim.
 - [ ] Menu → **APIs & Services** → **Credentials** → **Create Credentials** →
       **OAuth client ID**:
   - **Application type**: **Web application**
-  - **Name**: `Busca Itabirito Web`
+  - **Name**: `procurô Web`
   - Em **Authorized redirect URIs**, clique em **Add URI** e cole **a URL de
     retorno que você copiou do Supabase** no passo 4a.
   - **Create**.

@@ -84,7 +84,7 @@ Deno.serve(async (req) => {
       body: JSON.stringify({
         items: [
           {
-            title: `Busca Itabirito — ${quantity} créditos de contato (${professional.name})`,
+            title: `procurô — ${quantity} créditos de contato (${professional.name})`,
             quantity: 1,
             unit_price: Number((PRICE_PER_LEAD * quantity).toFixed(2)),
             currency_id: "BRL",

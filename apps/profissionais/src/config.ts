@@ -11,7 +11,7 @@
 export const CONTATO_EMAIL = "buscaitabirito@gmail.com";
 
 /** Nome usado nos documentos legais. */
-export const NOME_PLATAFORMA = "Busca Itabirito";
+export const NOME_PLATAFORMA = "procurô";
 
 /** Cidade-sede, citada na Política de Privacidade. */
 export const CIDADE_SEDE = "Itabirito/MG";
@@ -21,7 +21,7 @@ export const CIDADE_SEDE = "Itabirito/MG";
  * quando o texto mudar: a lei pede que a pessoa consiga saber se o documento
  * que ela leu ainda é o mesmo.
  */
-export const VERSAO_DOCUMENTOS = "8 de agosto de 2026";
+export const VERSAO_DOCUMENTOS = "9 de agosto de 2026";
 
 
 /**

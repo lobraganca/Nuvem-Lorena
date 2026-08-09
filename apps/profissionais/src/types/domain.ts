@@ -443,7 +443,7 @@ export const MAX_CATEGORIA_LEN = 32;
 export const MAX_ESPECIALIDADE_LEN = 60;
 
 /**
- * Cidade padrão do produto hoje ("Busca Itabirito"). A modelagem já guarda a
+ * Cidade padrão do produto hoje ("procurô"). A modelagem já guarda a
  * cidade por profissional em texto livre para permitir expandir para outras
  * cidades sem migração de schema — a busca simplesmente filtra por esse campo.
  */

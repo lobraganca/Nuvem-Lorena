@@ -38,7 +38,7 @@ const SUPABASE_SERVICE_ROLE_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "
 const MP_ACCESS_TOKEN = Deno.env.get("MP_ACCESS_TOKEN") ?? "";
 const PUBLIC_APP_URL = Deno.env.get("PUBLIC_APP_URL") ?? "http://localhost:5173";
 const RESEND_API_KEY = Deno.env.get("RESEND_API_KEY") ?? "";
-const RESEND_FROM_EMAIL = Deno.env.get("RESEND_FROM_EMAIL") ?? "Busca Itabirito <avisos@buscaitabirito.app>";
+const RESEND_FROM_EMAIL = Deno.env.get("RESEND_FROM_EMAIL") ?? "procurô <avisos@buscaitabirito.app>";
 
 /** Quantos dias antes do vencimento o aviso de renovação é disparado. */
 const NOTICE_WINDOW_DAYS = 7;
@@ -100,7 +100,7 @@ async function createRenewalPreference(
     body: JSON.stringify({
       items: [
         {
-          title: `Busca Itabirito — ${LABELS[type]} (${professionalName}) — renovação do plano anual, com 20% de desconto`,
+          title: `procurô — ${LABELS[type]} (${professionalName}) — renovação do plano anual, com 20% de desconto`,
           quantity: 1,
           unit_price: annualPrice(type),
           currency_id: "BRL",
@@ -145,7 +145,7 @@ async function sendRenewalEmail(
       subject: `Seu plano anual (${LABELS[type]}) vence em ${formatDate(expiresAt)}`,
       text:
         `Olá,\n\n` +
-        `O plano anual de "${LABELS[type]}" do seu anúncio "${professionalName}" no Busca Itabirito ` +
+        `O plano anual de "${LABELS[type]}" do seu anúncio "${professionalName}" no procurô ` +
         `vence em ${formatDate(expiresAt)}.\n\n` +
         `Como você pagou no Pix/boleto (pagamento único), a renovação não é automática — mas já deixamos ` +
         `a cobrança pronta para você. Basta pagar por este link:\n\n${initPoint}\n\n` +
@@ -154,7 +154,7 @@ async function sendRenewalEmail(
         `anual no cartão, que renova sozinho.\n\n` +
         `Se você não quiser renovar, é só ignorar este e-mail — o benefício simplesmente deixa de valer no ` +
         `vencimento, sem cobrança nenhuma.\n\n` +
-        `Equipe Busca Itabirito`,
+        `Equipe procurô`,
     }),
   });
 

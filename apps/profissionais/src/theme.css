@@ -1,4 +1,4 @@
-/* Identidade visual "Busca Itabirito": fundo branco, tinta navy da marca e
+/* Identidade visual "procurô": fundo branco, tinta navy da marca e
    dourado como única cor de destaque. O verde sobrou só no botão do WhatsApp,
    onde ler como "verde" ajuda em vez de brigar com a identidade. */
 :root {
@@ -105,68 +105,60 @@ button {
 
 .logo {
   display: inline-flex;
-  flex-direction: column;
   align-items: center;
-  gap: 0.32em;
   text-decoration: none;
   line-height: 1;
 }
 
-/* Texto corrido, e não flex, por causa do A: num flex row, `flex-end`
-   encosta a base do SVG no fundo da linha — e o fundo da caixa do texto
-   inclui o espaço do descendente (o vão do g, do p, do q). As letras BUSC
-   apoiam na linha de base, que fica acima disso, então o A desenhado ficava
-   pendurado mais embaixo que as letras. Em fluxo inline com
-   `vertical-align: baseline`, a base do SVG cai exatamente na linha de base,
-   como a de qualquer letra. */
+/* Minúsculas, peso médio e entreletra levemente aberta: é o que aproxima a
+   fonte do app do desenho geométrico arredondado da marca. Sem `lowercase`
+   forçado, um `text-transform` herdado de qualquer container quebraria o
+   wordmark — e "PROCURÔ" não é a marca. */
 .logo-brand {
   color: var(--color-text);
-  font-weight: 300;
-  letter-spacing: 0.1em;
+  font-weight: 500;
+  letter-spacing: 0.01em;
+  text-transform: lowercase;
   white-space: nowrap;
 }
 
-/* O A é um desenho, não uma letra: precisa da mesma entreletra das outras e
-   de altura igual à caixa alta do texto ao lado. */
-.logo-letters {
+/* O "o" final vira a âncora do acento: o circunflexo é posicionado em
+   relação a ele, e não à palavra, para continuar centrado quando a fonte
+   mudar de largura (fallback de sistema, celular sem a fonte carregada). */
+.logo-o {
+  position: relative;
   display: inline-block;
 }
 
-/* Altura e espessura calibradas para o A desenhado ficar do mesmo tamanho e
-   do mesmo peso das letras ao lado — senão ele lê como um acento solto. */
-.logo-apex {
+.logo-acento {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  /* Acima da altura de x, encostando no topo das letras ascendentes. */
+  bottom: 0.72em;
+  width: 0.62em;
   color: var(--color-gold-mid);
-  display: inline-block;
-  vertical-align: baseline;
-  width: 0.68em;
-  height: 0.72em;
-  margin-left: 0.02em;
 }
 
-.logo-city {
-  color: var(--color-gold-mid);
-  font-weight: 400;
-  text-transform: uppercase;
+/* Sobre o azul da abertura, o dourado claro brilha mais que o médio. */
+.logo-on-blue .logo-brand {
+  color: #ffffff;
+}
+
+.logo-on-blue .logo-acento {
+  color: #f0cd88;
 }
 
 .logo-sm .logo-brand {
-  font-size: 1.15rem;
+  font-size: 1.3rem;
 }
 
-.logo-sm .logo-city {
-  font-size: 0.52rem;
-  letter-spacing: 0.34em;
-  padding-left: 0.34em;
+.logo-md .logo-brand {
+  font-size: 1.7rem;
 }
 
 .logo-lg .logo-brand {
-  font-size: clamp(2.4rem, 11vw, 3.6rem);
-}
-
-.logo-lg .logo-city {
-  font-size: clamp(0.68rem, 2.6vw, 0.86rem);
-  letter-spacing: 0.52em;
-  padding-left: 0.52em;
+  font-size: clamp(2.6rem, 12vw, 3.8rem);
 }
 
 .nav {
@@ -961,17 +953,6 @@ textarea::placeholder {
   pointer-events: none;
 }
 
-/* Sobre o azul da abertura a marca inverte: letras brancas, A e cidade em
-   dourado claro — o dourado escuro do tema claro sumiria no fundo. */
-.logo-on-blue .logo-brand {
-  color: #ffffff;
-}
-
-.logo-on-blue .logo-apex,
-.logo-on-blue .logo-city {
-  color: #eec18a;
-}
-
 @keyframes splash-in {
   from { opacity: 0; }
   to { opacity: 1; }
@@ -1193,18 +1174,6 @@ textarea::placeholder {
 .card-pro .verified-badge {
   color: var(--color-gold-mid);
   filter: drop-shadow(0 0 6px rgba(200, 162, 74, 0.55));
-}
-
-/* Marca no cabeçalho: maior que a do rodapé, para ser a âncora visual da
-   tela e um alvo de toque confortável. */
-.logo-md .logo-brand {
-  font-size: 1.7rem;
-}
-
-.logo-md .logo-city {
-  font-size: 0.66rem;
-  letter-spacing: 0.42em;
-  padding-left: 0.42em;
 }
 
 /* Excluir conta: discreto na lista, forte só depois de confirmado. Não pode

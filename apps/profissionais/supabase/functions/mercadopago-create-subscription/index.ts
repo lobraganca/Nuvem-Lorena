@@ -83,8 +83,8 @@ Deno.serve(async (req) => {
       body: JSON.stringify({
         reason:
           type === "verification"
-            ? `Busca Itabirito — selo de verificação (${professional.name})`
-            : `Busca Itabirito — turbinar anúncio (${professional.name})`,
+            ? `procurô — selo de verificação (${professional.name})`
+            : `procurô — turbinar anúncio (${professional.name})`,
         auto_recurring: {
           frequency: 1,
           frequency_type: "months",

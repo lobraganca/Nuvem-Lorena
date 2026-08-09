@@ -111,7 +111,7 @@ Deno.serve(async (req) => {
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        reason: `Busca Itabirito — ${LABELS[type]} (${professional.name}) — plano anual com 20% de desconto, renovação automática`,
+        reason: `procurô — ${LABELS[type]} (${professional.name}) — plano anual com 20% de desconto, renovação automática`,
         auto_recurring: {
           frequency: 12,
           frequency_type: "months",

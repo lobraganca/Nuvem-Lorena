@@ -1,4 +1,4 @@
--- Busca Itabirito — esquema inicial do marketplace de profissionais.
+-- procurô — esquema inicial do marketplace de profissionais.
 -- Independente do banco do Avena: este projeto Supabase é próprio deste app.
 
 create extension if not exists "pgcrypto";

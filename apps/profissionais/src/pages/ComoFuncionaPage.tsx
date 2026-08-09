@@ -38,14 +38,14 @@ export function ComoFuncionaPage() {
         <p className="muted" style={{ margin: 0 }}>
           Em <Link to="/perfil">Perfil</Link> existe o botão <strong>"Fechar o app"</strong>. No Android ele
           fecha direto. No iPhone, o sistema não deixa um aplicativo se fechar sozinho — vale para todos, não
-          só para o Busca —, então ali o botão mostra o gesto certo.
+          só para o procurô —, então ali o botão mostra o gesto certo.
         </p>
         <p className="muted" style={{ margin: 0 }}>
           O gesto no <strong>iPhone</strong>: deslize de baixo para cima, segure no meio da tela e empurre o
-          Busca para cima. No <strong>Android</strong>: botão de recentes e empurre para o lado.
+          procurô para cima. No <strong>Android</strong>: botão de recentes e empurre para o lado.
         </p>
         <p className="muted" style={{ margin: 0 }}>
-          Você também não precisa fechar: indo para a tela de início do celular, o Busca fica parado sem gastar
+          Você também não precisa fechar: indo para a tela de início do celular, o procurô fica parado sem gastar
           bateria nem internet.
         </p>
         <p className="muted" style={{ margin: 0 }}>
@@ -112,7 +112,7 @@ export function ComoFuncionaPage() {
       <div className="card" style={{ display: "grid", gap: 10 }}>
         <h2 style={{ margin: 0 }}>Importante</h2>
         <p className="muted" style={{ margin: 0 }}>
-          O Busca Itabirito é uma vitrine: só ajuda quem busca um serviço a encontrar quem oferece. Não
+          O procurô é uma vitrine: só ajuda quem busca um serviço a encontrar quem oferece. Não
           empregamos, não supervisionamos e não nos responsabilizamos pela execução, qualidade, prazos ou
           resultado de nenhum serviço contratado — isso é combinado diretamente entre você e o
           profissional/empresa. Veja os detalhes completos nos <Link to="/termos">Termos de Uso</Link>.

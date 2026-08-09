@@ -32,7 +32,7 @@ export function AvisoDeVersao() {
       <span>
         {estado.versaoNova ? (
           <>
-            <strong>Tem uma versão nova do Busca.</strong> Atualize para pegar as novidades e as correções.
+            <strong>Tem uma versão nova do procurô.</strong> Atualize para pegar as novidades e as correções.
           </>
         ) : (
           <>

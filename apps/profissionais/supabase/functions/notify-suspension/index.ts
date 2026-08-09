@@ -8,7 +8,7 @@
 //                                 quebrar — a suspensão no banco NÃO
 //                                 depende do e-mail funcionar.
 //   RESEND_FROM_EMAIL           — remetente verificado na Resend
-//                                 (ex: "Busca Itabirito <avisos@seudominio.com>")
+//                                 (ex: "procurô <avisos@seudominio.com>")
 //   SUPABASE_URL                — injetada automaticamente pelo Supabase
 //   SUPABASE_SERVICE_ROLE_KEY   — injetada automaticamente pelo Supabase
 //
@@ -20,7 +20,7 @@
 //   2. Verifique um domínio ou use o domínio de teste da Resend.
 //   3. Gere uma API key em API Keys → Create API Key.
 //   4. `supabase secrets set RESEND_API_KEY=re_xxx`
-//   5. `supabase secrets set RESEND_FROM_EMAIL="Busca Itabirito <avisos@seudominio.com>"`
+//   5. `supabase secrets set RESEND_FROM_EMAIL="procurô <avisos@seudominio.com>"`
 
 // deno-lint-ignore-file no-explicit-any
 import { createClient } from "jsr:@supabase/supabase-js@2";
@@ -28,7 +28,7 @@ import { createClient } from "jsr:@supabase/supabase-js@2";
 const SUPABASE_URL = Deno.env.get("SUPABASE_URL") ?? "";
 const SUPABASE_SERVICE_ROLE_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "";
 const RESEND_API_KEY = Deno.env.get("RESEND_API_KEY") ?? "";
-const RESEND_FROM_EMAIL = Deno.env.get("RESEND_FROM_EMAIL") ?? "Busca Itabirito <avisos@buscaitabirito.app>";
+const RESEND_FROM_EMAIL = Deno.env.get("RESEND_FROM_EMAIL") ?? "procurô <avisos@buscaitabirito.app>";
 
 Deno.serve(async (req) => {
   if (req.method !== "POST") {
@@ -94,12 +94,12 @@ Deno.serve(async (req) => {
       body: JSON.stringify({
         from: RESEND_FROM_EMAIL,
         to: ownerEmail,
-        subject: `Seu anúncio "${professional.name}" foi removido do Busca Itabirito`,
+        subject: `Seu anúncio "${professional.name}" foi removido do procurô`,
         text:
-          `Olá,\n\nSeu anúncio "${professional.name}" foi tirado do ar pela moderação do Busca Itabirito.\n\n` +
+          `Olá,\n\nSeu anúncio "${professional.name}" foi tirado do ar pela moderação do procurô.\n\n` +
           `Motivo informado: ${reason || "não especificado"}\n\n` +
           `Se você acredita que isso foi um engano, responda este e-mail para revisão.\n\n` +
-          `Equipe Busca Itabirito`,
+          `Equipe procurô`,
       }),
     });
 

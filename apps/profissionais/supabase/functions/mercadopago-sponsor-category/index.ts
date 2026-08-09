@@ -108,7 +108,7 @@ Deno.serve(async (req) => {
       body: JSON.stringify({
         items: [
           {
-            title: `Busca Itabirito — patrocínio de categoria "${category}" (${days} dias) — ${professional.name}`,
+            title: `procurô — patrocínio de categoria "${category}" (${days} dias) — ${professional.name}`,
             quantity: 1,
             unit_price: PLANS[days],
             currency_id: "BRL",

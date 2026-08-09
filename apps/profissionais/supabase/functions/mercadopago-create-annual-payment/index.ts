@@ -111,7 +111,7 @@ Deno.serve(async (req) => {
       body: JSON.stringify({
         items: [
           {
-            title: `Busca Itabirito — ${LABELS[type]} (${professional.name}) — plano anual, pagamento único, com 20% de desconto`,
+            title: `procurô — ${LABELS[type]} (${professional.name}) — plano anual, pagamento único, com 20% de desconto`,
             quantity: 1,
             unit_price: price,
             currency_id: "BRL",

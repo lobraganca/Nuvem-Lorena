@@ -29,7 +29,7 @@ export async function baixarMeusDados(userId: string, email: string | undefined)
     minhas_avaliacoes: avaliacoes.data ?? [],
     meus_favoritos: favoritos.data ?? [],
     observacao:
-      "Este arquivo contém os dados pessoais guardados pelo Busca Itabirito sobre esta conta. Registros técnicos de acesso, exigidos pelo Marco Civil da Internet, não constam aqui e são guardados por seis meses.",
+      "Este arquivo contém os dados pessoais guardados pelo procurô sobre esta conta. Registros técnicos de acesso, exigidos pelo Marco Civil da Internet, não constam aqui e são guardados por seis meses.",
   };
 
   const blob = new Blob([JSON.stringify(conteudo, null, 2)], { type: "application/json" });

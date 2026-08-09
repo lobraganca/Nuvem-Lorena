@@ -13,7 +13,7 @@ import { createClient } from "jsr:@supabase/supabase-js@2";
 const SUPABASE_URL = Deno.env.get("SUPABASE_URL") ?? "";
 const SUPABASE_SERVICE_ROLE_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "";
 const RESEND_API_KEY = Deno.env.get("RESEND_API_KEY") ?? "";
-const RESEND_FROM_EMAIL = Deno.env.get("RESEND_FROM_EMAIL") ?? "Busca Itabirito <avisos@buscaitabirito.app>";
+const RESEND_FROM_EMAIL = Deno.env.get("RESEND_FROM_EMAIL") ?? "procurô <avisos@buscaitabirito.app>";
 const SITE_URL = Deno.env.get("SITE_URL") ?? "https://buscaitabirito.app";
 
 Deno.serve(async (req) => {
@@ -82,9 +82,9 @@ Deno.serve(async (req) => {
         to: ownerEmail,
         subject: `Seu anúncio "${professional.name}" recebeu uma nova avaliação`,
         text:
-          `Olá,\n\nSeu anúncio "${professional.name}" recebeu uma avaliação nova no Busca Itabirito: ${rating} estrela(s).\n\n` +
+          `Olá,\n\nSeu anúncio "${professional.name}" recebeu uma avaliação nova no procurô: ${rating} estrela(s).\n\n` +
           `Veja o seu perfil e responda a avaliação em: ${profileLink}\n\n` +
-          `Equipe Busca Itabirito`,
+          `Equipe procurô`,
       }),
     });
 

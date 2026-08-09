@@ -445,7 +445,7 @@ export function ProfessionalPage() {
             o que separa quem trabalha há anos de quem se cadastrou ontem
             para aplicar um golpe amanhã. */}
         <p className="desde-quando">
-          <span>No Busca desde {mesEAno(professional.created_at)}</span>
+          <span>No procurô desde {mesEAno(professional.created_at)}</span>
           {verified && professional.verified_since && (
             <span>· com selo desde {mesEAno(professional.verified_since)}</span>
           )}
@@ -904,7 +904,7 @@ export function ProfessionalPage() {
                     </span>
                   )}
                   <span className="avaliacao-quem">
-                    <strong>{r.autor_nome?.trim() || "Usuário do Busca"}</strong>
+                    <strong>{r.autor_nome?.trim() || "Usuário do procurô"}</strong>
                     <span className="muted">{diaMesAno(r.created_at)}</span>
                   </span>
                 </div>

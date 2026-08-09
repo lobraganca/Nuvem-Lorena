@@ -115,7 +115,7 @@ export function InstalarApp({ variante = "lista" }: { variante?: "lista" | "faix
         </li>
       </ol>
       <p className="muted" style={{ marginTop: 14, fontSize: "0.88rem" }}>
-        O ícone do Busca Itabirito aparece junto com os outros aplicativos, e daí em diante abre sem passar
+        O ícone do procurô aparece junto com os outros aplicativos, e daí em diante abre sem passar
         pelo navegador.
       </p>
     </BottomSheet>
@@ -132,7 +132,7 @@ export function InstalarApp({ variante = "lista" }: { variante?: "lista" | "faix
           type="button"
           className="btn-instalar-topo"
           onClick={() => (podeInstalarDireto ? instalar() : setEnsinandoIOS(true))}
-          title="Adicionar o Busca à tela do celular"
+          title="Adicionar o procurô à tela do celular"
         >
           <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
             <rect x="6" y="2.5" width="12" height="19" rx="2.5" />
@@ -154,7 +154,7 @@ export function InstalarApp({ variante = "lista" }: { variante?: "lista" | "faix
            antes de provar que serve é um app que a pessoa desinstala. */
         <div className="instalar-faixa">
           <span>
-            <strong>Deixe o Busca no seu celular.</strong> Vira ícone e abre direto, sem digitar o endereço.
+            <strong>Deixe o procurô no seu celular.</strong> Vira ícone e abre direto, sem digitar o endereço.
           </span>
           <span className="instalar-faixa-acoes">
             <button
