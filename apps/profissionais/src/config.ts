@@ -8,7 +8,7 @@
  * Privacidade, nos Termos e no aviso de dados; espalhado pelo código, uma
  * troca de e-mail deixaria versões antigas vivas em alguma tela.
  */
-export const CONTATO_EMAIL = "buscaitabirito@gmail.com";
+export const CONTATO_EMAIL = "procuroapp@gmail.com";
 
 /** Nome usado nos documentos legais. */
 export const NOME_PLATAFORMA = "procurô";
