@@ -465,6 +465,22 @@ export async function consumeLeadCredit(professionalId: string): Promise<boolean
   return !!data;
 }
 
+/**
+ * Total de pedidos de contato recebidos — quem deixou o número pedindo
+ * retorno. É a métrica que substituiu a contagem de "leads": aquela só
+ * crescia no modo de pagar por contato, que foi aposentado, e por isso
+ * mostrava zero para todo mundo desde então.
+ */
+export async function countContactRequests(professionalId: string): Promise<number> {
+  const client = supabase();
+  if (!client) return 0;
+  const { count } = await client
+    .from("contact_requests")
+    .select("id", { count: "exact", head: true })
+    .eq("professional_id", professionalId);
+  return count ?? 0;
+}
+
 /** Total de leads (contatos cobrados) já gerados para o anúncio — analytics do Plus. */
 export async function countLeadEvents(professionalId: string): Promise<number> {
   const client = supabase();

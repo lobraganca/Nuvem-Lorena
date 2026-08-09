@@ -5,7 +5,7 @@ import {
   getProfessional,
   isCurrentlyPlusActive,
   countProfileViews,
-  countLeadEvents,
+  countContactRequests,
   type ProfessionalWithRating,
 } from "../lib/professionals";
 import {
@@ -42,7 +42,7 @@ export function AnalyticsPage() {
   useEffect(() => {
     if (!professional || !isCurrentlyPlusActive(professional)) return;
     countProfileViews(professional.id).then(setViews);
-    countLeadEvents(professional.id).then(setLeads);
+    countContactRequests(professional.id).then(setLeads);
   }, [professional]);
 
   async function handleSubscribeMonthly() {
@@ -120,7 +120,7 @@ export function AnalyticsPage() {
           <div className="card" style={{ display: "grid", gap: 14 }}>
             <p>
               Assine o <strong>Empresa Plus</strong> para ver quantas pessoas visualizaram seu anúncio, quantos contatos
-              (leads) ele gerou e acompanhar sua avaliação média em um só lugar.
+              de contato ele gerou e acompanhar sua avaliação média em um só lugar.
             </p>
             {message && <p style={{ color: "var(--color-danger)" }}>{message}</p>}
             <button className="btn btn-primary" onClick={() => setPlanSheetOpen(true)} disabled={checkoutLoading !== null}>
@@ -196,11 +196,14 @@ export function AnalyticsPage() {
           </p>
         </div>
         <div className="card">
+          {/* Antes aqui contavam "leads", que só cresciam no modo de pagar
+              por contato — aposentado. O número ficava em "N/A" convidando a
+              ativar algo que não existe mais para comprar. */}
           <p className="muted" style={{ margin: 0, fontSize: "0.8rem" }}>
-            Leads / contatos {professional.contact_mode !== "pay_per_lead" && "(ative pagar por contato para contar)"}
+            Pedidos de contato
           </p>
           <p style={{ margin: "6px 0 0", fontSize: "2rem", fontWeight: 700, color: "var(--color-primary)" }}>
-            {professional.contact_mode === "pay_per_lead" ? leads ?? "…" : "N/A"}
+            {leads ?? "…"}
           </p>
         </div>
         <div className="card">
