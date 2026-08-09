@@ -135,13 +135,14 @@ const NAME_MAX_LENGTH = 80;
 /**
  * Confirmação do número por código de SMS.
  *
- * Ligada: o projeto tem Twilio Verify configurado. O convite para confirmar
- * volta ao card do anúncio.
+ * Ligada e exigida antes de assinar: o Twilio Verify está configurado e o
+ * envio foi testado ponta a ponta.
  *
- * Ela ainda NÃO é exigida antes de assinar — ver "Exigência de número
- * confirmado suspensa" nos botões. A ordem é de propósito: primeiro se
- * confirma que o código chega de verdade; só depois se coloca de volta uma
- * porta que, se o envio falhar, tranca toda a receita outra vez.
+ * Se um dia o envio parar (crédito acabado, conta suspensa, provedor fora
+ * do ar), trocar para `false` derruba a exigência e mantém as assinaturas
+ * funcionando — os botões consultam esta constante, e o convite some do
+ * card. É melhor perder a confirmação por uns dias do que travar toda a
+ * receita esperando um código que não chega.
  */
 const CONFIRMACAO_POR_SMS = true;
 
@@ -685,8 +686,10 @@ export function PainelPage() {
                       <button
                         className="btn btn-primary"
                         onClick={() => {
-                          /* Exigência de número confirmado suspensa — ver a
-                             explicação no outro botão de assinar, mais abaixo. */
+                          if (!p.whatsapp_verified) {
+                            setConfirmandoWhats(p);
+                            return;
+                          }
                           setPlanSheetFor({ professional: p, type: "verification" });
                         }}
                       >
@@ -723,14 +726,14 @@ export function PainelPage() {
                           <button
                             className="btn btn-teal"
                             onClick={() => {
-                              /* A exigência de número confirmado está suspensa
-                                 enquanto não houver serviço de SMS contratado:
-                                 sem ele, nenhum código é enviado, e exigir o
-                                 que não pode ser feito não protege ninguém —
-                                 só impede toda e qualquer assinatura.
-                                 Para voltar a exigir, basta restaurar o desvio
-                                 para setConfirmandoWhats(p) quando
-                                 !p.whatsapp_verified. */
+                              // O premium entrega botão de WhatsApp e pedido de
+                              // contato. Vender isso para um número que ninguém
+                              // confirmou é vender um atalho que leva a lugar
+                              // nenhum — e a reclamação volta para a plataforma.
+                              if (!p.whatsapp_verified) {
+                                setConfirmandoWhats(p);
+                                return;
+                              }
                               setPlanSheetFor({ professional: p, type: "verification" });
                             }}
                           >
