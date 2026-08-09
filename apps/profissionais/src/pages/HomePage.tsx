@@ -16,6 +16,7 @@ import type { CategorySponsorship, Professional } from "../types/domain";
 import { hasDatabase, problemaDeConfiguracao } from "../lib/supabase";
 import { FavoriteButton } from "../components/FavoriteButton";
 import { VerifiedBadge } from "../components/VerifiedBadge";
+import { FaixaDeBanners } from "../components/FaixaDeBanners";
 import { Estrelas } from "../components/Estrelas";
 import { TourGuide, type TourStep } from "../components/TourGuide";
 import { hasSeenWelcome, markTourSeen, shouldRunTour } from "../lib/onboarding";
@@ -414,6 +415,11 @@ export function HomePage() {
           <span className="btn btn-primary">Ver perfil</span>
         </Link>
       )}
+
+      {/* A publicidade fica entre os filtros e os resultados: é onde o olho
+          passa de qualquer jeito, sem empurrar o que a pessoa veio buscar
+          para fora da tela nem se disfarçar de resultado. */}
+      <FaixaDeBanners cidade={city || DEFAULT_CITY} categoria={category} />
 
       <div
         className="grid"

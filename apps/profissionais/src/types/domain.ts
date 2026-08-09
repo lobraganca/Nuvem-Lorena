@@ -85,6 +85,32 @@ export interface ServicoOferecido {
 /** Teto por anúncio, igual ao do banco. */
 export const MAX_SERVICOS_CATALOGO = 40;
 
+/**
+ * Banner de publicidade na tela de busca.
+ *
+ * Vendido pela administração a comércios da cidade — inclusive os que não
+ * têm anúncio no app, que é o que diferencia esta receita do selo e do
+ * destaque.
+ */
+export interface Banner {
+  id: string;
+  anunciante: string;
+  titulo: string;
+  imagem_url: string;
+  /** Externo (site, WhatsApp) ou interno (`/profissional/<id>`). Nulo = sem clique. */
+  link: string | null;
+  /** Nulo = qualquer cidade. */
+  cidade: string | null;
+  /** Nulo = qualquer busca; preenchido, só quando filtram por esse serviço. */
+  categoria: string | null;
+  inicio: string;
+  fim: string;
+  ativo: boolean;
+  exibicoes: number;
+  cliques: number;
+  created_at: string;
+}
+
 export interface LeadCredits {
   professional_id: string;
   balance: number;

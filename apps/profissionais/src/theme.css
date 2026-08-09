@@ -2834,3 +2834,164 @@ h3 {
 .card-perfil .card-especialidade {
   color: #f0cd88;
 }
+
+/* ---- Publicidade na busca ---- */
+
+/* Borda tracejada e fundo neutro: o banner não pode se parecer com um cartão
+   de profissional. Se parecesse, seria publicidade dissimulada — o que o
+   Código de Defesa do Consumidor proíbe (art. 36) e o que faria a pessoa
+   deixar de confiar na própria busca. */
+.banner-publicidade {
+  display: block;
+  margin-top: 20px;
+  border: 1px dashed var(--color-border-strong);
+  border-radius: var(--radius);
+  overflow: hidden;
+  background: var(--color-bg-soft);
+  text-decoration: none;
+  color: inherit;
+}
+
+.banner-publicidade img {
+  display: block;
+  width: 100%;
+  /* Proporção fixa: sem ela, uma imagem alta empurra os resultados para
+     fora da tela, e um anunciante acabaria comprando a página inteira. */
+  aspect-ratio: 3 / 1;
+  object-fit: cover;
+  background: var(--color-surface);
+}
+
+.banner-rodape {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  font-size: 0.78rem;
+}
+
+.banner-selo {
+  flex: none;
+  padding: 2px 8px;
+  border-radius: 999px;
+  background: var(--color-border-strong);
+  color: var(--color-text);
+  font-weight: 700;
+  letter-spacing: 0.02em;
+}
+
+.banner-anunciante {
+  color: var(--color-text-muted);
+  font-weight: 600;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* ---- Banners no painel admin ---- */
+
+.banners-admin {
+  display: grid;
+  gap: 10px;
+  margin-bottom: 18px;
+}
+
+.banner-linha {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: 12px;
+  padding: 10px 12px;
+}
+
+/* Uma barra dourada de lado marca o que está no ar agora. É a informação que
+   ela procura ao abrir o painel — "o que o anunciante está vendo hoje?" */
+.banner-linha.no-ar {
+  border-left: 4px solid var(--color-gold-mid);
+}
+
+.banner-linha > img {
+  width: 96px;
+  height: 32px;
+  object-fit: cover;
+  border-radius: 6px;
+  flex: none;
+  background: var(--color-bg-soft);
+}
+
+.banner-dados {
+  display: grid;
+  gap: 2px;
+  flex: 1;
+  min-width: 180px;
+  font-size: 0.86rem;
+}
+
+.banner-dados .muted {
+  font-size: 0.8rem;
+}
+
+.banner-numeros {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--color-primary-deep);
+}
+
+.banner-estado {
+  font-size: 0.74rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--color-text-muted);
+}
+
+.banner-estado.ok {
+  color: var(--color-gold-deep);
+}
+
+.banner-acoes {
+  display: flex;
+  gap: 10px;
+}
+
+.banner-acoes button {
+  background: none;
+  border: none;
+  padding: 2px 0;
+  font: inherit;
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--color-primary-deep);
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+.banner-acoes button.perigo {
+  color: var(--color-danger);
+}
+
+.banner-form {
+  display: grid;
+  gap: 10px;
+  background: var(--color-bg-soft);
+  border: 1px solid var(--color-border);
+  border-radius: 12px;
+  padding: 14px;
+}
+
+.banner-form-linha {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+.banner-previa {
+  width: 100%;
+  aspect-ratio: 3 / 1;
+  object-fit: cover;
+  border-radius: 8px;
+  border: 1px solid var(--color-border);
+}

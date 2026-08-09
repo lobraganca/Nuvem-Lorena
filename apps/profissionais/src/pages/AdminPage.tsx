@@ -25,6 +25,7 @@ import {
 import { listSuggestions, updateSuggestionStatus } from "../lib/suggestions";
 import { atualizarStatusIndicacao, listarIndicacoes, type Indicacao } from "../lib/indicacoes";
 import { CITIES, type Suggestion, type SuggestionStatus } from "../types/domain";
+import { AdminBanners } from "../components/AdminBanners";
 
 const STATUS_LABEL: Record<ReportStatus, string> = {
   pending: "Pendente",
@@ -239,6 +240,13 @@ export function AdminPage() {
           : `${pendingCount} denúncia${pendingCount > 1 ? "s" : ""} pendente${pendingCount > 1 ? "s" : ""}.`}
       </p>
       {message && <p className="card">{message}</p>}
+
+      {/* Primeiro do painel porque é o único bloco em que ela cria alguma
+          coisa; os outros são para conferir o que já aconteceu. */}
+      <section style={{ marginTop: 24 }}>
+        <h2>Banners de publicidade</h2>
+        <AdminBanners />
+      </section>
 
       <section style={{ marginTop: 24 }}>
         <h2>Denúncias</h2>

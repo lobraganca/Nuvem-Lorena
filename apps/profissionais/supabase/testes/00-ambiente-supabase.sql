@@ -30,6 +30,15 @@ create table if not exists storage.objects (
   name text,
   owner uuid
 );
+-- `storage.buckets` existe no Supabase e é onde os buckets são criados. A
+-- migration 0040 cria o bucket dos banners por SQL — sem este armário, ela
+-- passaria aqui e falharia lá, que é o pior dos dois mundos.
+create table if not exists storage.buckets (
+  id text primary key,
+  name text,
+  public boolean default false
+);
+
 alter table storage.objects enable row level security;
 create or replace function storage.foldername(name text)
 returns text[] language sql immutable as $$
