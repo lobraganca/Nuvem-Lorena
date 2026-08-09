@@ -5,7 +5,6 @@ import {
   getProfessional,
   getReviews,
   getCatalogo,
-  precoEmReais,
   addReview,
   updateReview,
   deleteReview,
@@ -585,13 +584,13 @@ export function ProfessionalPage() {
         )}
       </div>
 
-      {/* Catálogo: só existe para quem preencheu. Fica entre o anúncio e as
-          avaliações porque é a resposta da pergunta seguinte — depois de
-          saber quem é a pessoa, quem procura quer saber o que ela faz e
-          quanto custa. */}
+      {/* Lista de serviços: só existe para quem preencheu. Fica entre o
+          anúncio e as avaliações porque é a resposta da pergunta seguinte —
+          depois de saber quem é a pessoa, quem procura quer saber se ela faz
+          exatamente aquilo de que ele precisa. */}
       {catalogo.length > 0 && (
         <section style={{ marginTop: 28 }}>
-          <h2>Serviços e preços</h2>
+          <h2>O que essa pessoa faz</h2>
           <ul className="catalogo-publico">
             {catalogo.map((item) => (
               <li key={item.id}>
@@ -599,16 +598,11 @@ export function ProfessionalPage() {
                   <strong>{item.nome}</strong>
                   {item.descricao && <span className="muted">{item.descricao}</span>}
                 </span>
-                <span className="catalogo-preco">
-                  {precoEmReais(item.preco_centavos)}
-                  {item.unidade && <span className="muted"> {item.unidade}</span>}
-                </span>
               </li>
             ))}
           </ul>
           <p className="muted" style={{ fontSize: "0.82rem", marginTop: 8 }}>
-            Preços informados por quem anuncia. Confirme na hora de contratar — a plataforma não intermedeia
-            pagamento nem garante valores.
+            Valores você combina direto com quem faz — a plataforma não intermedeia pagamento.
           </p>
         </section>
       )}

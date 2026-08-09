@@ -12,6 +12,7 @@ import { InstalarApp } from "../components/InstalarApp";
 import { BotaoApple } from "../components/BotaoApple";
 import { baixarMeusDados } from "../lib/meusDados";
 import type { Profile } from "../types/domain";
+import { FecharApp } from "../components/FecharApp";
 
 function initials(name: string | null, email: string | null | undefined): string {
   const source = name?.trim() || email?.trim() || "?";
@@ -41,7 +42,6 @@ export function PerfilPage() {
   const [admin, setAdmin] = useState(false);
   const [error, setError] = useState("");
   const [confirmarExclusao, setConfirmarExclusao] = useState(false);
-  const [comoFechar, setComoFechar] = useState(false);
   const [textoConfirmacao, setTextoConfirmacao] = useState("");
   const [excluindo, setExcluindo] = useState(false);
   const [erroExclusao, setErroExclusao] = useState("");
@@ -167,20 +167,10 @@ export function PerfilPage() {
           </span>
         </button>
         <SettingsItem to="/como-funciona" icon="ℹ️" label="Como funciona" />
-        {/* Está aqui porque é aqui que a pessoa procura. Fechar o app não é
-            algo que o app consiga fazer — nenhum navegador deixa uma página
-            se fechar sozinha, e no iPhone o botão simplesmente não faria
-            nada. O que dá para fazer é ensinar o gesto, que é o mesmo de
-            qualquer outro aplicativo. */}
-        <button type="button" className="settings-item" onClick={() => setComoFechar(true)}>
-          <span className="settings-icon" aria-hidden="true">
-            🚪
-          </span>
-          <span>Como fechar o app</span>
-          <span className="settings-arrow" aria-hidden="true">
-            ›
-          </span>
-        </button>
+        {/* Fica aqui porque é aqui que a pessoa procura. Tenta fechar de
+            verdade e, quando o sistema não deixa, ensina o gesto — ver
+            FecharApp. */}
+        <FecharApp />
         <button
           type="button"
           className="settings-item"
@@ -223,43 +213,6 @@ export function PerfilPage() {
       >
         Excluir minha conta
       </button>
-
-      {comoFechar && (
-        <BottomSheet
-          title="Como fechar o app"
-          subtitle="Não existe botão de fechar — nem aqui, nem nos outros aplicativos do seu celular."
-          onClose={() => setComoFechar(false)}
-        >
-          <div style={{ display: "grid", gap: 14 }}>
-            <div>
-              <p style={{ margin: "0 0 6px" }}>
-                <strong>No iPhone</strong>
-              </p>
-              <ol style={{ margin: 0, paddingLeft: 20, display: "grid", gap: 6, lineHeight: 1.45 }}>
-                <li>Deslize o dedo de baixo para cima e segure no meio da tela.</li>
-                <li>Aparecem os aplicativos abertos, um do lado do outro.</li>
-                <li>Empurre o Busca para cima e solte.</li>
-              </ol>
-            </div>
-            <div>
-              <p style={{ margin: "0 0 6px" }}>
-                <strong>No Android</strong>
-              </p>
-              <ol style={{ margin: 0, paddingLeft: 20, display: "grid", gap: 6, lineHeight: 1.45 }}>
-                <li>Toque no botão de aplicativos recentes (o quadrado ou as três barras).</li>
-                <li>Empurre o Busca para o lado ou para cima.</li>
-              </ol>
-            </div>
-            <p className="muted" style={{ margin: 0, fontSize: "0.86rem" }}>
-              Você não precisa fechar para sair: pode simplesmente ir para a tela de início do celular. O app
-              não continua gastando bateria nem internet parado ali.
-            </p>
-            <p className="muted" style={{ margin: 0, fontSize: "0.86rem" }}>
-              Se o que você quer é <strong>sair da sua conta</strong>, o botão é o "Sair da conta", logo abaixo.
-            </p>
-          </div>
-        </BottomSheet>
-      )}
 
       {confirmarExclusao && (
         <BottomSheet

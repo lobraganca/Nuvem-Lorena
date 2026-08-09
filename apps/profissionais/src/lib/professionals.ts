@@ -689,8 +689,6 @@ export async function salvarServicoDoCatalogo(input: {
   professional_id: string;
   nome: string;
   descricao: string;
-  preco_centavos: number | null;
-  unidade: string;
   ordem: number;
 }): Promise<ServicoOferecido> {
   const client = supabase();
@@ -705,25 +703,4 @@ export async function apagarServicoDoCatalogo(id: string) {
   if (!client) throw new Error("Banco de dados não configurado.");
   const { error } = await client.from("servicos_oferecidos").delete().eq("id", id);
   if (error) throw error;
-}
-
-/**
- * "R$ 1.250,00" a partir de centavos, ou "Sob orçamento" quando não há preço.
- *
- * Preço fica em centavos justamente para não passar por ponto flutuante: em
- * float, 19,90 vira 19,899999… e a tela mostra um centavo a menos, que é o
- * tipo de erro que ninguém perdoa numa tela de preço.
- */
-export function precoEmReais(centavos: number | null): string {
-  if (centavos === null) return "Sob orçamento";
-  return (centavos / 100).toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
-}
-
-/** Lê "1.250,90", "1250,90" ou "1250.90" e devolve centavos. */
-export function centavosDoTexto(texto: string): number | null {
-  const limpo = texto.replace(/[^\d,.]/g, "").replace(/\.(?=\d{3}\b)/g, "").replace(",", ".");
-  if (!limpo) return null;
-  const n = Number(limpo);
-  if (!Number.isFinite(n) || n < 0) return null;
-  return Math.round(n * 100);
 }

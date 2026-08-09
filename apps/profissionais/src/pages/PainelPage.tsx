@@ -644,8 +644,8 @@ export function PainelPage() {
                     para baixo tudo o mais do painel. */}
                 <details className="bloco-recolhivel">
                   <summary>
-                    <strong>Meus serviços e preços</strong>
-                    <span className="muted"> — diárias, exames, pacotes, ajustes</span>
+                    <strong>Lista do que eu faço</strong>
+                    <span className="muted"> — exames, ajustes, pacotes, tipos de atendimento</span>
                   </summary>
                   <CatalogoDeServicos professionalId={p.id} />
                 </details>

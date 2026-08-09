@@ -36,14 +36,17 @@ export function ComoFuncionaPage() {
       <div className="card" style={{ display: "grid", gap: 10, marginBottom: 16 }}>
         <h2 style={{ margin: 0 }}>Como fecho o app</h2>
         <p className="muted" style={{ margin: 0 }}>
-          Do mesmo jeito que você fecha qualquer aplicativo, porque o Busca instalado é um aplicativo como os
-          outros. No <strong>iPhone</strong>: deslize de baixo para cima, segure, e empurre o Busca para cima.
-          No <strong>Android</strong>: toque no botão de recentes e empurre o Busca para o lado.
+          Em <Link to="/perfil">Perfil</Link> existe o botão <strong>"Fechar o app"</strong>. No Android ele
+          fecha direto. No iPhone, o sistema não deixa um aplicativo se fechar sozinho — vale para todos, não
+          só para o Busca —, então ali o botão mostra o gesto certo.
         </p>
         <p className="muted" style={{ margin: 0 }}>
-          Não existe botão de fechar dentro do app — nem aqui, nem no Instagram, nem no WhatsApp. Nenhum
-          aplicativo se fecha por dentro. E você não precisa fechar: pode ir para a tela de início do celular
-          que o Busca não fica gastando bateria nem internet parado.
+          O gesto no <strong>iPhone</strong>: deslize de baixo para cima, segure no meio da tela e empurre o
+          Busca para cima. No <strong>Android</strong>: botão de recentes e empurre para o lado.
+        </p>
+        <p className="muted" style={{ margin: 0 }}>
+          Você também não precisa fechar: indo para a tela de início do celular, o Busca fica parado sem gastar
+          bateria nem internet.
         </p>
         <p className="muted" style={{ margin: 0 }}>
           Se o que você quer é <strong>sair da sua conta</strong>, isso tem botão: em{" "}

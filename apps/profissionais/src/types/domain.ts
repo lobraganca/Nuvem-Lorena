@@ -63,39 +63,27 @@ export interface Professional {
 }
 
 /**
- * Um item do catálogo de serviços do anúncio.
+ * Um item da lista de serviços do anúncio.
  *
- * Existe para quem vende uma lista de coisas com preços diferentes — o hotel
- * com três tipos de diária, o laboratório com trinta exames, a loja com
- * ajuste e customização. O autônomo de um serviço só pode ignorar: o
- * catálogo é opcional.
+ * Existe para quem oferece várias coisas diferentes — o hotel com hospedagem
+ * e salão de eventos, o laboratório com trinta exames, a loja com ajuste e
+ * customização. O autônomo de um serviço só pode ignorar: a lista é
+ * opcional.
+ *
+ * Sem preço, de propósito: o app direciona para a pessoa certa e entrega o
+ * contato; quanto custa é conversa entre quem contrata e quem faz.
  */
 export interface ServicoOferecido {
   id: string;
   professional_id: string;
   nome: string;
   descricao: string;
-  /** Em centavos. Nulo quer dizer "sob orçamento", que é resposta legítima. */
-  preco_centavos: number | null;
-  /** O que o preço mede: "por hora", "a diária", "por peça". */
-  unidade: string;
   ordem: number;
   created_at: string;
 }
 
 /** Teto por anúncio, igual ao do banco. */
 export const MAX_SERVICOS_CATALOGO = 40;
-
-/** Unidades sugeridas — campo livre, porque cada ramo mede do seu jeito. */
-export const UNIDADES_SUGERIDAS = [
-  "por hora",
-  "a diária",
-  "por peça",
-  "por sessão",
-  "por metro",
-  "por pessoa",
-  "por exame",
-] as const;
 
 export interface LeadCredits {
   professional_id: string;

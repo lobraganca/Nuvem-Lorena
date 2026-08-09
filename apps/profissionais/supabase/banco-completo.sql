@@ -2422,34 +2422,35 @@ grant select on public.reviews_public to anon, authenticated;
 -- Catálogo de serviços do anúncio.
 --
 -- Até aqui o anúncio dizia o ofício ("Eletricista") e um texto livre. Serve
--- para o autônomo; não serve para quem vende uma lista de coisas com preços
--- diferentes — o hotel com três tipos de diária, o laboratório com trinta
--- exames, a loja com ajuste de roupa e customização. Essas pessoas hoje
--- precisariam escrever tudo na descrição, onde ninguém compara nada e nada
--- pode ser filtrado.
+-- para o autônomo; não serve para quem oferece uma lista de coisas
+-- diferentes — o hotel com hospedagem, salão de eventos e day use; o
+-- laboratório com trinta exames; a loja com ajuste e customização. Essas
+-- pessoas hoje precisariam escrever tudo na descrição, onde ninguém acha
+-- nada e nada pode ser filtrado.
 --
 -- É tabela, e não um campo de texto ou um jsonb, por causa do que vem depois:
--- buscar por "exame de sangue" e achar o laboratório, ordenar por preço,
--- mostrar "a partir de R$ X" no cartão. Nada disso se faz dentro de um
--- parágrafo, e migrar texto livre para tabela depois é bem mais caro do que
--- começar assim.
+-- buscar por "exame de sangue" e achar o laboratório. Isso não se faz dentro
+-- de um parágrafo, e migrar texto livre para tabela depois é bem mais caro
+-- do que começar assim.
+--
+-- Sem preço, de propósito. O app direciona: mostra quem faz o quê e entrega
+-- o contato. Preço na tela envelhece sozinho — a tabela muda e o anúncio
+-- fica prometendo o valor do ano passado —, vira reclamação contra a
+-- plataforma quando o cobrado é outro, e empurra todo mundo para a briga de
+-- quem cobra menos, que é o oposto do que uma boa avaliação constrói.
+
+-- Se este arquivo já foi rodado numa versão que tinha preço, as colunas
+-- saem aqui — rodar de novo é seguro.
+alter table if exists public.servicos_oferecidos
+  drop column if exists preco_centavos;
+alter table if exists public.servicos_oferecidos
+  drop column if exists unidade;
+
 create table if not exists public.servicos_oferecidos (
   id uuid primary key default gen_random_uuid(),
   professional_id uuid not null references public.professionals(id) on delete cascade,
   nome text not null,
   descricao text not null default '',
-  /**
-   * Em centavos, e anulável de propósito.
-   *
-   * Centavos porque preço em ponto flutuante erra centavo, e centavo errado
-   * numa tela de preço é reclamação garantida. Anulável porque boa parte
-   * dos serviços daqui não tem preço de tabela — pintura de parede depende
-   * da parede —, e obrigar um número faria a pessoa inventar um, que é pior
-   * que não ter: número inventado vira discussão na hora de cobrar.
-   */
-  preco_centavos integer check (preco_centavos is null or preco_centavos >= 0),
-  /** "por hora", "a diária", "por peça" — o que o preço mede. */
-  unidade text not null default '',
   /** Ordem escolhida pelo dono; empate desempata pela data. */
   ordem integer not null default 0,
   created_at timestamptz not null default now()

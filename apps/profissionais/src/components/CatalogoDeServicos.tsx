@@ -1,16 +1,10 @@
 import { useEffect, useState } from "react";
-import {
-  apagarServicoDoCatalogo,
-  centavosDoTexto,
-  getCatalogo,
-  precoEmReais,
-  salvarServicoDoCatalogo,
-} from "../lib/professionals";
-import { MAX_SERVICOS_CATALOGO, UNIDADES_SUGERIDAS, type ServicoOferecido } from "../types/domain";
+import { apagarServicoDoCatalogo, getCatalogo, salvarServicoDoCatalogo } from "../lib/professionals";
+import { MAX_SERVICOS_CATALOGO, type ServicoOferecido } from "../types/domain";
 import { mensagemDeErro } from "../lib/erros";
 
 /**
- * Catálogo de serviços com preço, no painel de quem anuncia.
+ * Lista de serviços do anúncio, no painel de quem anuncia.
  *
  * Fica fora do formulário do anúncio de propósito, e só depois que ele
  * existe: o catálogo pertence a um anúncio salvo (cada item guarda o id
@@ -19,8 +13,11 @@ import { mensagemDeErro } from "../lib/erros";
  * segunda lista só para lembrar o que apagar. Aqui cada item é salvo quando
  * a pessoa termina, e some quando ela apaga.
  *
- * É opcional. Um encanador não precisa listar nada; um hotel com três tipos
- * de diária ou um laboratório com trinta exames não tem como viver sem.
+ * É opcional. Um encanador não precisa listar nada; um laboratório com
+ * trinta exames não tem como viver sem.
+ *
+ * Sem preço: o app direciona para a pessoa certa e entrega o contato. Valor
+ * é conversa entre quem contrata e quem faz.
  */
 export function CatalogoDeServicos({ professionalId }: { professionalId: string }) {
   const [itens, setItens] = useState<ServicoOferecido[]>([]);
@@ -31,8 +28,6 @@ export function CatalogoDeServicos({ professionalId }: { professionalId: string 
 
   const [nome, setNome] = useState("");
   const [descricao, setDescricao] = useState("");
-  const [preco, setPreco] = useState("");
-  const [unidade, setUnidade] = useState("");
 
   async function carregar() {
     setCarregando(true);
@@ -49,8 +44,6 @@ export function CatalogoDeServicos({ professionalId }: { professionalId: string 
     setEditando(null);
     setNome("");
     setDescricao("");
-    setPreco("");
-    setUnidade("");
     setErro("");
   }
 
@@ -58,8 +51,6 @@ export function CatalogoDeServicos({ professionalId }: { professionalId: string 
     setEditando(item.id);
     setNome(item.nome);
     setDescricao(item.descricao);
-    setPreco(item.preco_centavos === null ? "" : (item.preco_centavos / 100).toFixed(2).replace(".", ","));
-    setUnidade(item.unidade);
     setErro("");
   }
 
@@ -76,10 +67,6 @@ export function CatalogoDeServicos({ professionalId }: { professionalId: string 
         professional_id: professionalId,
         nome: nome.trim(),
         descricao: descricao.trim(),
-        // Preço em branco não é zero: é "sob orçamento". Guardar zero faria o
-        // anúncio dizer "R$ 0,00", que é uma promessa que ninguém quer fazer.
-        preco_centavos: preco.trim() ? centavosDoTexto(preco) : null,
-        unidade: unidade.trim(),
         ordem: editando ? (itens.find((i) => i.id === editando)?.ordem ?? 0) : itens.length,
       });
       limpar();
@@ -106,9 +93,9 @@ export function CatalogoDeServicos({ professionalId }: { professionalId: string 
   return (
     <div className="catalogo">
       <p className="muted" style={{ margin: "0 0 12px", fontSize: "0.85rem" }}>
-        Opcional. Serve para quem tem uma <strong>lista</strong> de serviços com preços diferentes — diárias,
-        exames, ajustes, pacotes. Quem faz um serviço só pode deixar vazio. Preço em branco aparece como{" "}
-        <strong>“Sob orçamento”</strong>.
+        Opcional. Serve para quem oferece <strong>várias coisas diferentes</strong> — exames, ajustes,
+        pacotes, tipos de atendimento. Quem faz um serviço só pode deixar vazio. Aqui não se coloca preço:
+        valor é conversa entre você e quem te chamar.
       </p>
 
       {carregando ? (
@@ -121,10 +108,6 @@ export function CatalogoDeServicos({ professionalId }: { professionalId: string 
                 <span className="catalogo-info">
                   <strong>{item.nome}</strong>
                   {item.descricao && <span className="muted">{item.descricao}</span>}
-                </span>
-                <span className="catalogo-preco">
-                  {precoEmReais(item.preco_centavos)}
-                  {item.unidade && <span className="muted"> {item.unidade}</span>}
                 </span>
                 <span className="catalogo-acoes">
                   <button type="button" onClick={() => editar(item)}>
@@ -147,7 +130,7 @@ export function CatalogoDeServicos({ professionalId }: { professionalId: string 
       ) : (
         <div className="catalogo-form">
           <input
-            placeholder="Nome do serviço (ex: Diária de casal)"
+            placeholder="Nome do serviço (ex: Exame de sangue)"
             value={nome}
             maxLength={80}
             onChange={(e) => setNome(e.target.value)}
@@ -158,27 +141,6 @@ export function CatalogoDeServicos({ professionalId }: { professionalId: string 
             maxLength={160}
             onChange={(e) => setDescricao(e.target.value)}
           />
-          <div className="catalogo-form-linha">
-            <input
-              placeholder="Preço (deixe vazio para orçamento)"
-              value={preco}
-              inputMode="decimal"
-              onChange={(e) => setPreco(e.target.value)}
-            />
-            <input
-              placeholder="Unidade"
-              list="unidades-sugeridas"
-              value={unidade}
-              maxLength={20}
-              onChange={(e) => setUnidade(e.target.value)}
-            />
-            <datalist id="unidades-sugeridas">
-              {UNIDADES_SUGERIDAS.map((u) => (
-                <option key={u} value={u} />
-              ))}
-            </datalist>
-          </div>
-
           {erro && <p className="form-erro">{erro}</p>}
 
           <div className="catalogo-form-acoes">

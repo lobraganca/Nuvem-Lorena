@@ -1,8 +1,8 @@
 -- Catálogo de serviços do anúncio.
 --
--- O que importa aqui é o preço nulo ser aceito: "sob orçamento" é resposta
--- legítima em quase todo serviço desta cidade, e um NOT NULL faria a pessoa
--- inventar um número — que vira discussão na hora de cobrar.
+-- O catálogo não guarda preço: o app direciona para a pessoa certa e entrega
+-- o contato; valor é conversa entre quem contrata e quem faz. O que se testa
+-- aqui são os limites que protegem a lista de virar lixo.
 --
 -- Rode depois de supabase/banco-completo.sql.
 
@@ -20,19 +20,15 @@ insert into public.professionals (id, owner_id, name, category, city, phone, ent
 values ('aaaa1111-0000-0000-0000-0000000000aa', 'aaaa1111-0000-0000-0000-000000000001',
         'Hotel Serra', 'Hotel', 'Itabirito', '31999990000', 'pj');
 
-\echo '1) preco nulo (sob orcamento) e aceito: esperado 1'
-insert into public.servicos_oferecidos (professional_id, nome, unidade)
-values ('aaaa1111-0000-0000-0000-0000000000aa', 'Diária de casal', 'a diária');
+\echo '1) item simples e aceito: esperado 1'
+insert into public.servicos_oferecidos (professional_id, nome)
+values ('aaaa1111-0000-0000-0000-0000000000aa', 'Hospedagem');
 select count(*) from public.servicos_oferecidos
  where professional_id = 'aaaa1111-0000-0000-0000-0000000000aa';
 
 \echo '2) nome de uma letra e recusado (espera-se ERROR de check)'
 insert into public.servicos_oferecidos (professional_id, nome)
 values ('aaaa1111-0000-0000-0000-0000000000aa', 'x');
-
-\echo '3) preco negativo e recusado (espera-se ERROR de check)'
-insert into public.servicos_oferecidos (professional_id, nome, preco_centavos)
-values ('aaaa1111-0000-0000-0000-0000000000aa', 'Diária simples', -100);
 
 \echo '4) apagar o anuncio leva o catalogo junto: esperado 0'
 delete from public.professionals where id = 'aaaa1111-0000-0000-0000-0000000000aa';
