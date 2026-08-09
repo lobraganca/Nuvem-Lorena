@@ -4,6 +4,8 @@ import { Link } from "react-router-dom";
 import {
   getProfessional,
   getReviews,
+  getCatalogo,
+  precoEmReais,
   addReview,
   updateReview,
   deleteReview,
@@ -19,7 +21,7 @@ import {
   requestContact,
   type ProfessionalWithRating,
 } from "../lib/professionals";
-import { REPORT_REASONS, tagsForRating, tagsPromptForRating, type Review } from "../types/domain";
+import { REPORT_REASONS, tagsForRating, tagsPromptForRating, type Review, type ServicoOferecido } from "../types/domain";
 import { useAuth } from "../lib/useAuth";
 import { FavoriteButton } from "../components/FavoriteButton";
 import { BottomSheet } from "../components/BottomSheet";
@@ -65,6 +67,7 @@ export function ProfessionalPage() {
   const { user } = useAuth();
   const [professional, setProfessional] = useState<ProfessionalWithRating | null>(null);
   const [reviews, setReviews] = useState<Review[]>([]);
+  const [catalogo, setCatalogo] = useState<ServicoOferecido[]>([]);
   const [rating, setRating] = useState(5);
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
   const [comment, setComment] = useState("");
@@ -106,9 +109,10 @@ export function ProfessionalPage() {
 
   async function load() {
     if (!id) return;
-    const [p, r] = await Promise.all([getProfessional(id), getReviews(id)]);
+    const [p, r, c] = await Promise.all([getProfessional(id), getReviews(id), getCatalogo(id)]);
     setProfessional(p);
     setReviews(r);
+    setCatalogo(c);
   }
 
   useEffect(() => {
@@ -577,6 +581,34 @@ export function ProfessionalPage() {
           </p>
         )}
       </div>
+
+      {/* Catálogo: só existe para quem preencheu. Fica entre o anúncio e as
+          avaliações porque é a resposta da pergunta seguinte — depois de
+          saber quem é a pessoa, quem procura quer saber o que ela faz e
+          quanto custa. */}
+      {catalogo.length > 0 && (
+        <section style={{ marginTop: 28 }}>
+          <h2>Serviços e preços</h2>
+          <ul className="catalogo-publico">
+            {catalogo.map((item) => (
+              <li key={item.id}>
+                <span className="catalogo-info">
+                  <strong>{item.nome}</strong>
+                  {item.descricao && <span className="muted">{item.descricao}</span>}
+                </span>
+                <span className="catalogo-preco">
+                  {precoEmReais(item.preco_centavos)}
+                  {item.unidade && <span className="muted"> {item.unidade}</span>}
+                </span>
+              </li>
+            ))}
+          </ul>
+          <p className="muted" style={{ fontSize: "0.82rem", marginTop: 8 }}>
+            Preços informados por quem anuncia. Confirme na hora de contratar — a plataforma não intermedeia
+            pagamento nem garante valores.
+          </p>
+        </section>
+      )}
 
       <section style={{ marginTop: 32 }}>
         <h2>Avaliações de quem contratou</h2>

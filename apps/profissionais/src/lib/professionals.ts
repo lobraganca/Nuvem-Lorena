@@ -6,6 +6,7 @@ import type {
   LeadCredits,
   Professional,
   Review,
+  ServicoOferecido,
 } from "../types/domain";
 
 export type SortOption = "relevance" | "rating" | "reviews";
@@ -655,4 +656,67 @@ export async function getCategoriasComAnuncio(): Promise<string[]> {
     }
   }
   return [...unicas].sort((a, b) => a.localeCompare(b, "pt-BR"));
+}
+
+/**
+ * Catálogo de serviços de um anúncio.
+ *
+ * Leitura pública (é catálogo, existe para ser visto); escrita só do dono,
+ * conferida pelo banco — a policy exige que o anúncio seja dele, então
+ * mandar o id de um anúncio alheio não grava nada.
+ */
+export async function getCatalogo(professionalId: string): Promise<ServicoOferecido[]> {
+  const client = supabase();
+  if (!client) return [];
+  const { data } = await client
+    .from("servicos_oferecidos")
+    .select("*")
+    .eq("professional_id", professionalId)
+    .order("ordem", { ascending: true })
+    .order("created_at", { ascending: true });
+  return data ?? [];
+}
+
+export async function salvarServicoDoCatalogo(input: {
+  id?: string;
+  professional_id: string;
+  nome: string;
+  descricao: string;
+  preco_centavos: number | null;
+  unidade: string;
+  ordem: number;
+}): Promise<ServicoOferecido> {
+  const client = supabase();
+  if (!client) throw new Error("Banco de dados não configurado.");
+  const { data, error } = await client.from("servicos_oferecidos").upsert(input).select().single();
+  if (error) throw error;
+  return data;
+}
+
+export async function apagarServicoDoCatalogo(id: string) {
+  const client = supabase();
+  if (!client) throw new Error("Banco de dados não configurado.");
+  const { error } = await client.from("servicos_oferecidos").delete().eq("id", id);
+  if (error) throw error;
+}
+
+/**
+ * "R$ 1.250,00" a partir de centavos, ou "Sob orçamento" quando não há preço.
+ *
+ * Preço fica em centavos justamente para não passar por ponto flutuante: em
+ * float, 19,90 vira 19,899999… e a tela mostra um centavo a menos, que é o
+ * tipo de erro que ninguém perdoa numa tela de preço.
+ */
+export function precoEmReais(centavos: number | null): string {
+  if (centavos === null) return "Sob orçamento";
+  return (centavos / 100).toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
+}
+
+/** Lê "1.250,90", "1250,90" ou "1250.90" e devolve centavos. */
+export function centavosDoTexto(texto: string): number | null {
+  const limpo = texto.replace(/[^\d,.]/g, "").replace(/\.(?=\d{3}\b)/g, "").replace(",", ".");
+  if (!limpo) return null;
+  const n = Number(limpo);
+  if (!Number.isFinite(n) || n < 0) return null;
+  return Math.round(n * 100);
 }

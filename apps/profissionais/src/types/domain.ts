@@ -60,6 +60,41 @@ export interface Professional {
   created_at: string;
 }
 
+/**
+ * Um item do catálogo de serviços do anúncio.
+ *
+ * Existe para quem vende uma lista de coisas com preços diferentes — o hotel
+ * com três tipos de diária, o laboratório com trinta exames, a loja com
+ * ajuste e customização. O autônomo de um serviço só pode ignorar: o
+ * catálogo é opcional.
+ */
+export interface ServicoOferecido {
+  id: string;
+  professional_id: string;
+  nome: string;
+  descricao: string;
+  /** Em centavos. Nulo quer dizer "sob orçamento", que é resposta legítima. */
+  preco_centavos: number | null;
+  /** O que o preço mede: "por hora", "a diária", "por peça". */
+  unidade: string;
+  ordem: number;
+  created_at: string;
+}
+
+/** Teto por anúncio, igual ao do banco. */
+export const MAX_SERVICOS_CATALOGO = 40;
+
+/** Unidades sugeridas — campo livre, porque cada ramo mede do seu jeito. */
+export const UNIDADES_SUGERIDAS = [
+  "por hora",
+  "a diária",
+  "por peça",
+  "por sessão",
+  "por metro",
+  "por pessoa",
+  "por exame",
+] as const;
+
 export interface LeadCredits {
   professional_id: string;
   balance: number;
@@ -338,6 +373,38 @@ export const GRUPOS_DE_SERVICOS = [
       "Frete e mudanças",
       "Motorista",
       "Motoboy",
+    ],
+  },
+  {
+    grupo: "Comércio e hospedagem",
+    itens: [
+      "Hotel",
+      "Pousada",
+      "Restaurante",
+      "Lanchonete",
+      "Padaria",
+      "Loja de roupas",
+      "Loja de calçados",
+      "Papelaria",
+      "Material de construção",
+      "Autopeças",
+      "Farmácia",
+      "Pet shop",
+      "Mercearia",
+      "Floricultura",
+      "Ótica",
+    ],
+  },
+  {
+    grupo: "Saúde e exames",
+    itens: [
+      "Laboratório de análises",
+      "Clínica médica",
+      "Clínica odontológica",
+      "Fonoaudiólogo",
+      "Terapeuta ocupacional",
+      "Enfermagem em casa",
+      "Exames de imagem",
     ],
   },
   {
