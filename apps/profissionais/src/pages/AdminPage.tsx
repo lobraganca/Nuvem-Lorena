@@ -6,6 +6,10 @@ import {
   listReports,
   reactivateProfessional,
   suspendProfessional,
+  getDestaquesAtivos,
+  getDemandaDeDestaque,
+  type DestaqueAtivo,
+  type DemandaDestaque,
   updateReportStatus,
   type ReportStatus,
   type ReportWithProfessional,
@@ -53,6 +57,8 @@ export function AdminPage() {
   // então os ofícios escritos à mão pelos anunciantes também são filtráveis
   // aqui — sem isso, moderar um deles exigiria rolar a lista inteira.
   const [categorias, setCategorias] = useState<string[]>([]);
+  const [destaques, setDestaques] = useState<DestaqueAtivo[]>([]);
+  const [demanda, setDemanda] = useState<DemandaDestaque[]>([]);
   const [onlySuspended, setOnlySuspended] = useState(false);
 
   const [suspending, setSuspending] = useState<string | null>(null);
@@ -69,6 +75,8 @@ export function AdminPage() {
 
   async function refreshAll() {
     getCategoriasComAnuncio().then(setCategorias);
+    getDestaquesAtivos().then(setDestaques);
+    getDemandaDeDestaque().then(setDemanda);
     setReports(await listReports());
     setSuggestions(await listSuggestions());
     const data = await fetchPros(0);
@@ -138,6 +146,9 @@ export function AdminPage() {
       if (ok) {
         setReports(await listReports());
         setSuggestions(await listSuggestions());
+        getCategoriasComAnuncio().then(setCategorias);
+        getDestaquesAtivos().then(setDestaques);
+        getDemandaDeDestaque().then(setDemanda);
         const data = await searchProfessionals({ page: 0 });
         setPros(data);
         setProsPage(0);
@@ -366,6 +377,74 @@ export function AdminPage() {
               )}
             </div>
           ))}
+        </div>
+      </section>
+
+      <section style={{ marginTop: 32 }}>
+        <h2>Destaques</h2>
+
+        {/* A fila vem antes da lista de quem está turbinado de propósito: ela
+            é a única informação aqui que pede uma decisão sua. Categoria com
+            gente esperando é categoria onde o destaque está barato demais —
+            e é o momento em que dá para subir o preço sem perder ninguém. */}
+        <div className="card" style={{ marginBottom: 16 }}>
+          <strong>Quem está esperando vaga</strong>
+          {demanda.length === 0 ? (
+            <p className="muted" style={{ margin: "6px 0 0", fontSize: "0.88rem" }}>
+              Ninguém na fila. Todas as categorias têm vaga de destaque.
+            </p>
+          ) : (
+            <>
+              <p className="muted" style={{ margin: "6px 0 10px", fontSize: "0.85rem" }}>
+                São 5 vagas por categoria e cidade. Fila cheia significa procura maior que a oferta.
+              </p>
+              <ul style={{ margin: 0, paddingLeft: 18, display: "grid", gap: 6 }}>
+                {demanda.map((d) => (
+                  <li key={`${d.city}-${d.category}`} style={{ fontSize: "0.9rem" }}>
+                    <strong>
+                      {d.esperando} {d.esperando === 1 ? "esperando" : "esperando"}
+                    </strong>{" "}
+                    em {d.category} · {d.city}
+                  </li>
+                ))}
+              </ul>
+            </>
+          )}
+        </div>
+
+        <div className="card">
+          <strong>Turbinados agora ({destaques.length})</strong>
+          {destaques.length === 0 ? (
+            <p className="muted" style={{ margin: "6px 0 0", fontSize: "0.88rem" }}>
+              Nenhum anúncio turbinado no momento.
+            </p>
+          ) : (
+            <>
+              <p className="muted" style={{ margin: "6px 0 10px", fontSize: "0.85rem" }}>
+                Do que vence primeiro para o que vence por último — é a ordem em que as vagas voltam a abrir.
+              </p>
+              <ul style={{ margin: 0, paddingLeft: 18, display: "grid", gap: 8 }}>
+                {destaques.map((d) => {
+                  const dias = d.boosted_until
+                    ? Math.ceil((new Date(d.boosted_until).getTime() - Date.now()) / 86400000)
+                    : null;
+                  return (
+                    <li key={d.id} style={{ fontSize: "0.9rem" }}>
+                      <strong>{d.name}</strong> · {d.category} · {d.city}
+                      <br />
+                      <span className="muted" style={{ fontSize: "0.83rem" }}>
+                        {d.boosted_until
+                          ? `até ${new Date(d.boosted_until).toLocaleDateString("pt-BR")}${
+                              dias !== null ? ` (${dias} ${dias === 1 ? "dia" : "dias"})` : ""
+                            }`
+                          : "sem data de término"}
+                      </span>
+                    </li>
+                  );
+                })}
+              </ul>
+            </>
+          )}
         </div>
       </section>
 
