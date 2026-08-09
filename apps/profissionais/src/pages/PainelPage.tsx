@@ -466,7 +466,7 @@ export function PainelPage() {
                com fotos, textos e reputações separadas. */
             <button
               type="button"
-              className="btn btn-outline btn-novo"
+              className="btn btn-primary btn-novo"
               onClick={() => {
                 resetForm();
                 setFormAberto(true);
