@@ -10,6 +10,7 @@ import {
   updateContactRequestStatus,
   isCurrentlyBoosted,
   isCurrentlyVerified,
+  isCurrentlyPlusActive,
   upsertProfessional,
   deleteProfessional,
   setProfessionalPaused,
@@ -487,6 +488,7 @@ export function PainelPage() {
         <div className="grid">
           {mine.map((p) => {
             const verified = isCurrentlyVerified(p);
+            const plusActive = isCurrentlyPlusActive(p);
             const boosted = isCurrentlyBoosted(p);
             return (
               <div key={p.id} className="card">
@@ -607,14 +609,11 @@ export function PainelPage() {
                   <button className="btn btn-outline btn-perigo" onClick={() => setExcluindoAnuncio(p)}>
                     Excluir anúncio
                   </button>
-                  {/* As estatísticas eram do "Empresa Plus", que saiu. Ficam
-                      de graça para todo mundo, e não é generosidade: é o
-                      número de visualizações que convence alguém a assinar o
-                      selo ou turbinar. Cobrar por ver o próprio movimento era
-                      cobrar justamente pelo argumento de venda. */}
-                  <Link className="btn btn-outline" to={`/analytics/${p.id}`}>
-                    Ver estatísticas
-                  </Link>
+                  {plusActive && (
+                    <Link className="btn btn-outline" to={`/analytics/${p.id}`}>
+                      Ver estatísticas
+                    </Link>
+                  )}
                 </div>
 
                 {/* Catálogo fechado por padrão: quem faz um serviço só não
@@ -637,7 +636,7 @@ export function PainelPage() {
                     recolhido depois: para quem já paga, isso é histórico; para
                     quem ainda não, é a única chance de descobrir que existe.
                     Recolher para todo mundo escondia a receita do app. */}
-                <details className="produtos produtos-oferta" open={!verified && !boosted}>
+                <details className="produtos produtos-oferta" open={!verified && !boosted && !plusActive}>
                   <summary>
                     Aparecer mais{" "}
                     <span className="muted">
@@ -783,6 +782,32 @@ export function PainelPage() {
                     </div>
                   </div>
 
+                  {p.entity_type === "pj" && (
+                    <div className="produto">
+                      <div className="produto-texto">
+                        <strong>Empresa Plus</strong>
+                        <p>
+                          Relatórios do seu anúncio: quantas pessoas viram por dia, de quais serviços vieram e
+                          quantas pediram contato. Serve para saber se vale a pena continuar anunciando.
+                        </p>
+                      </div>
+                      <div className="produto-acao">
+                        {plusActive ? (
+                          <span className="produto-ativo">✓ Ativo</span>
+                        ) : (
+                          <>
+                            <span className="produto-preco">
+                              R$ {PRICES.plus.amount.toFixed(2).replace(".", ",")}
+                              <small>/mês</small>
+                            </span>
+                            <button className="btn btn-outline" onClick={() => setPlanSheetFor({ professional: p, type: "plus" })}>
+                              Assinar
+                            </button>
+                          </>
+                        )}
+                      </div>
+                    </div>
+                  )}
                   {(assinaturas[p.id] ?? []).length > 0 && (
                     /* Cancelar precisa estar no mesmo lugar onde se assina, e
                        com o mesmo destaque de qualquer outro botão: esconder

@@ -44,7 +44,7 @@ export function TermosPage() {
         </p>
         <h2 style={{ fontSize: "1.05rem", marginBottom: 0 }}>Assinaturas, cancelamento e reembolso</h2>
         <p>
-          As assinaturas (selo de verificação e destaque na busca) podem ser{" "}
+          As assinaturas (selo de verificação, destaque na busca e Empresa Plus) podem ser{" "}
           <strong>canceladas a qualquer momento</strong>, pelo próprio app, no Painel do profissional — no mesmo
           lugar onde foram contratadas e sem precisar falar com ninguém.
         </p>

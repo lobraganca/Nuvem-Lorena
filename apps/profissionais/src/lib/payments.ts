@@ -109,19 +109,18 @@ export async function startSponsorshipCheckout(
 
 /** Preços atuais do produto — únicos, para não divergir entre telas. */
 /**
- * As fontes de renda do app são três, e só três: a tela de Anúncios
- * (banners vendidos pela administração, ver migration 0040), turbinar o
- * anúncio e o selo de verificação.
+ * O que o app cobra.
  *
- * Saíram o "Empresa Plus" e o crédito por contato. O primeiro cobrava para
- * a pessoa ver o próprio movimento — ou seja, cobrava justamente pelo
- * argumento que a faria assinar o selo. O segundo cobrava por contato
- * recebido, o que faz o anunciante torcer contra o próprio anúncio nos dias
- * de aperto. As duas colunas continuam no banco, para não perder histórico
- * de quem porventura tenha assinado.
+ * Quatro fontes, três delas aqui: selo de verificação, turbinar o anúncio e
+ * Empresa Plus (relatórios, só para empresa). A quarta é a tela de Anúncios,
+ * que não aparece nesta lista porque não é autoatendimento — o banner é
+ * vendido na conversa e o valor combinado fica anotado no painel de banners
+ * (ver migration 0040).
  *
- * O banner não está aqui porque não é autoatendimento: quem vende é a
- * Lorena, e o valor é combinado na conversa (ver o painel de banners).
+ * Saiu só o crédito por contato: cobrar por contato recebido faz o
+ * anunciante torcer contra o próprio anúncio nos dias de aperto, que é o
+ * oposto do que este app precisa. A coluna continua no banco, para não
+ * perder histórico.
  */
 export const PRICES = {
   verification: { label: "Selo de verificação", amount: 10.9, period: "mensal" as const },
