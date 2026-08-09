@@ -113,8 +113,8 @@ export function PrivacidadePage() {
             <strong>Corrigir</strong> qualquer informação, editando o anúncio ou o perfil.
           </li>
           <li>
-            <strong>Apagar a conta</strong> — em <Link to="/perfil">Perfil</Link>, em "Excluir minha conta". É
-            imediato e definitivo.
+            <strong>Apagar a conta</strong> — em <Link to="/perfil">Perfil</Link>, em "Excluir minha conta"
+            (ou direto por <Link to="/excluir-conta">esta página</Link>). É imediato e definitivo.
           </li>
           <li>
             <strong>Saber com quem compartilhamos</strong> e revogar consentimentos, escrevendo para{" "}

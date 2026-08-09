@@ -34,6 +34,25 @@ export function ComoFuncionaPage() {
       </div>
 
       <div className="card" style={{ display: "grid", gap: 10, marginBottom: 16 }}>
+        <h2 style={{ margin: 0 }}>Como excluo minha conta</h2>
+        <p className="muted" style={{ margin: 0 }}>
+          Vá em <strong>Perfil</strong> (o último ícone da barra de baixo) e role até o fim: embaixo de "Sair
+          da conta" está <strong>"Excluir minha conta"</strong>. O app pede que você digite uma confirmação,
+          para ninguém apagar tudo por um toque errado.
+        </p>
+        <p className="muted" style={{ margin: 0 }}>
+          A exclusão é <strong>imediata e definitiva</strong>: apaga seus anúncios, suas avaliações e seus
+          favoritos. Não tem como desfazer nem recuperar depois. Se você só quer sumir da busca por um tempo,
+          existe a opção de <strong>pausar o anúncio</strong> no painel — ela guarda tudo e devolve quando você
+          quiser.
+        </p>
+        <p className="muted" style={{ margin: 0 }}>
+          Se você tem assinatura ativa (selo ou destaque), cancele antes em <strong>Meus anúncios</strong>, para
+          não continuar sendo cobrado.
+        </p>
+      </div>
+
+      <div className="card" style={{ display: "grid", gap: 10, marginBottom: 16 }}>
         <h2 style={{ margin: 0 }}>Meu endereço aparece no anúncio?</h2>
         <p className="muted" style={{ margin: 0 }}>
           Só se você quiser. No cadastro do anúncio existe a opção{" "}

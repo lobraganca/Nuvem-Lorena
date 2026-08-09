@@ -41,6 +41,13 @@ export default defineConfig({
         // app que ainda muda toda hora, receber a versão certa vale mais que
         // abrir sem internet.
         globPatterns: ['**/*.{js,css,svg,png,ico}'],
+        // Sem isto, o Workbox cria uma rota de navegação que responde TODA
+        // navegação com um index.html do cache — e o index.html nem está no
+        // cache, porque o padrão acima o deixa de fora de propósito. O
+        // resultado é o app instalado na tela do celular abrindo sempre a
+        // mesma versão de antes: publicar deixava de ter efeito para quem
+        // tinha instalado, e não havia como perceber isso de fora.
+        navigateFallback: null,
         cleanupOutdatedCaches: true,
         clientsClaim: true,
         skipWaiting: true,

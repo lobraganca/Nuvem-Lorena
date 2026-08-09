@@ -99,6 +99,12 @@ function Footer() {
             "Privacidade" — no celular, errar o alvo aqui é abrir a tela de
             apagar a própria conta sem querer. Cada um vira um alvo com
             contorno e espaço em volta. */}
+        {/* "Excluir conta" saiu daqui e ficou só no Perfil, que é onde a
+            pessoa mexe na própria conta. No rodapé de todas as telas, ela era
+            vizinha de "Como funciona" — dois toques de distância de qualquer
+            lugar do app, para uma ação sem volta. A página continua existindo
+            e aberta a quem tiver o endereço (a Play Store exige um endereço
+            público de exclusão), e a política de privacidade aponta para ela. */}
         <nav className="rodape-links">
           <Link to="/termos">Termos de Uso</Link>
           <Link to="/privacidade">Privacidade</Link>
@@ -106,7 +112,6 @@ function Footer() {
           <button type="button" onClick={() => setSuggestionOpen(true)}>
             Enviar sugestão
           </button>
-          <Link to="/excluir-conta">Excluir conta</Link>
         </nav>
         {/* O carimbo mostra a hora da construção; o "d" identifica a leva
             que trouxe o endereço único, o aviso de erro de login e a tela de

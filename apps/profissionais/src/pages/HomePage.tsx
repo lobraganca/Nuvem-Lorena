@@ -447,20 +447,14 @@ export function HomePage() {
                   <img
                     src={p.photo_url}
                     alt={p.name}
-                    style={{
-                      width: 56,
-                      height: 56,
-                      objectFit: "cover",
-                      borderRadius: p.entity_type === "pj" ? 10 : "50%",
-                      border: "1px solid var(--color-border)",
-                      flexShrink: 0,
-                    }}
+                    className="card-foto"
+                    style={{ borderRadius: p.entity_type === "pj" ? 14 : "50%" }}
                   />
                 ) : (
                   <div
-                    className="avatar-iniciais"
+                    className="avatar-iniciais card-foto"
                     style={{
-                      borderRadius: p.entity_type === "pj" ? 10 : "50%",
+                      borderRadius: p.entity_type === "pj" ? 14 : "50%",
                       background: corDoNome(p.name),
                     }}
                     aria-hidden="true"

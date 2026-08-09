@@ -50,7 +50,7 @@
   --radius: 16px;
   --radius-lg: 22px;
   --font-sans: Inter, "Segoe UI", system-ui, -apple-system, sans-serif;
-  --bottom-nav-height: 68px;
+  --bottom-nav-height: 58px;
 }
 
 * {
@@ -520,8 +520,8 @@ textarea::placeholder {
 }
 
 .bottom-nav-item svg {
-  width: 26px;
-  height: 26px;
+  width: 23px;
+  height: 23px;
 }
 
 /* O item ativo fica na cor da marca e com traço mais grosso — é o mesmo
@@ -665,12 +665,16 @@ textarea::placeholder {
   }
 }
 
+/* Fechar tem que ser fácil de acertar. A 32px o alvo ficava abaixo dos 44px
+   que o dedo precisa, encostado na borda da tela e do lado oposto ao polegar
+   de quem segura o celular com a outra mão — quem não acertava ficava com a
+   folha aberta sem saber como sair dela. */
 .sheet-close {
   position: absolute;
-  top: 16px;
-  right: 16px;
-  width: 32px;
-  height: 32px;
+  top: 12px;
+  right: 12px;
+  width: 46px;
+  height: 46px;
   border-radius: 50%;
   border: none;
   background: var(--color-bg-soft);
@@ -679,7 +683,7 @@ textarea::placeholder {
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  font-size: 1rem;
+  font-size: 1.2rem;
 }
 
 .sheet-title {
@@ -1845,15 +1849,15 @@ textarea::placeholder {
    com o mesmo bonequinho cinza — nenhum anúncio se distinguia do outro, que
    é o contrário do trabalho de um cartão de visita. */
 .avatar-iniciais {
-  width: 56px;
-  height: 56px;
+  width: 76px;
+  height: 76px;
   flex-shrink: 0;
   display: flex;
   align-items: center;
   justify-content: center;
   color: #ffffff;
   font-weight: 700;
-  font-size: 1.15rem;
+  font-size: 1.5rem;
   letter-spacing: 0.02em;
 }
 
@@ -2405,13 +2409,7 @@ h3 {
   background: var(--color-bg-soft);
 }
 
-/* Apagar a conta não é vizinho de "Como funciona". Fica por último e em tom
-   de alerta — não escondido, porque é um direito e a Play Store exige que
-   esteja à mão, mas também não confundível com os outros. */
-.rodape-links a[href="/excluir-conta"] {
-  color: var(--color-danger);
-  border-color: rgba(192, 57, 43, 0.35);
-}
+
 
 /* Autor da avaliação: foto, nome e data.
    A avaliação aparecia só com estrelas e texto. Sem rosto e sem data, ela
@@ -2478,4 +2476,53 @@ h3 {
   font-size: 0.83rem;
   font-weight: 400;
   color: var(--color-text-muted);
+}
+
+/* Indicador do "puxe para atualizar" no app instalado. */
+.puxar-atualizar {
+  position: fixed;
+  top: -52px;
+  left: 0;
+  right: 0;
+  z-index: 60;
+  height: 52px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--color-text-muted);
+  background: var(--color-surface);
+  border-bottom: 1px solid var(--color-border);
+  pointer-events: none;
+}
+
+.puxar-roda {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  border: 2px solid var(--color-border-strong);
+  border-top-color: var(--color-primary);
+}
+
+.puxar-roda.girando {
+  animation: puxar-girar 0.8s linear infinite;
+}
+
+@keyframes puxar-girar {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Foto no card da busca. A 56px era um selo ao lado do nome; quem varre uma
+   lista de profissionais decide primeiro pelo rosto e só depois lê o nome —
+   é a foto que responde "essa pessoa eu deixo entrar em casa?". */
+.card-foto {
+  width: 76px;
+  height: 76px;
+  object-fit: cover;
+  border: 1px solid var(--color-border);
+  flex-shrink: 0;
 }

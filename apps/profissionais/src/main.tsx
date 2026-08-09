@@ -5,11 +5,13 @@ import "./theme.css";
 import App from "./App";
 import { ErrorBoundary } from "./components/ErrorBoundary";
 import { irParaEnderecoCanonico } from "./lib/enderecoCanonico";
+import { cuidarDasAtualizacoes } from "./lib/atualizacao";
 
 // Antes de qualquer outra coisa: se a pessoa chegou pelo endereço sem www,
 // manda para o com www. Desenhar a tela primeiro faria o app guardar sessão
 // e segredo do login num endereço que ele vai abandonar no instante seguinte.
 if (!irParaEnderecoCanonico()) {
+cuidarDasAtualizacoes();
 createRoot(document.getElementById("root") as HTMLElement).render(
   <StrictMode>
     <ErrorBoundary>
