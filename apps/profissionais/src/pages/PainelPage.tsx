@@ -554,7 +554,11 @@ export function PainelPage() {
                   );
                 })()}
 
-                <div style={{ display: "flex", gap: 10, marginTop: 10, flexWrap: "wrap" }}>
+                {/* Ações do anúncio: tudo grátis, tudo reversível. Ficam
+                    juntas e em primeiro lugar porque são o que a pessoa vem
+                    fazer aqui — o que é pago não pode disputar espaço com o
+                    que ela já pagou (o tempo de cadastrar). */}
+                <div className="acoes-anuncio">
                   <button className="btn btn-outline" onClick={() => startEdit(p)}>
                     Editar
                   </button>
@@ -577,44 +581,6 @@ export function PainelPage() {
                   <button className="btn btn-outline btn-perigo" onClick={() => setExcluindoAnuncio(p)}>
                     Excluir anúncio
                   </button>
-                  <button
-                    className="btn btn-teal"
-                    disabled={verified}
-                    onClick={() => {
-                      // O selo diz a quem contrata que aquele anúncio passou
-                      // por alguma checagem. Vendê-lo a um número que ninguém
-                      // confirmou esvaziaria justamente o que ele promete.
-                      if (!p.whatsapp_verified) {
-                        setConfirmandoWhats(p);
-                        return;
-                      }
-                      setPlanSheetFor({ professional: p, type: "verification" });
-                    }}
-                  >
-                    {verified
-                      ? "Selo ativo"
-                      : `Assinar selo de verificação — a partir de R$ ${PRICES.verification.amount.toFixed(2).replace(".", ",")}/mês`}
-                  </button>
-                  <button
-                    className="btn btn-primary"
-                    disabled={boosted}
-                    onClick={() => setPlanSheetFor({ professional: p, type: "boost" })}
-                  >
-                    {boosted
-                      ? "Anúncio turbinado"
-                      : `Turbinar anúncio — a partir de R$ ${PRICES.boost.amount.toFixed(2).replace(".", ",")}/mês`}
-                  </button>
-                  {p.entity_type === "pj" && (
-                    <button
-                      className="btn btn-outline"
-                      disabled={plusActive}
-                      onClick={() => setPlanSheetFor({ professional: p, type: "plus" })}
-                    >
-                      {plusActive
-                        ? "Empresa Plus ativo"
-                        : `Assinar Empresa Plus — a partir de R$ ${PRICES.plus.amount.toFixed(2).replace(".", ",")}/mês`}
-                    </button>
-                  )}
                   {plusActive && (
                     <Link className="btn btn-outline" to={`/analytics/${p.id}`}>
                       Ver estatísticas
@@ -622,63 +588,193 @@ export function PainelPage() {
                   )}
                 </div>
 
-                <div style={{ marginTop: 16, paddingTop: 12, borderTop: "1px solid var(--color-border)" }}>
-                  <p style={{ margin: "0 0 6px", fontWeight: 600, fontSize: "0.85rem" }}>Modo de contato</p>
-                  <div style={{ display: "flex", gap: 16, flexWrap: "wrap", marginBottom: 8 }}>
-                    <label style={{ display: "flex", alignItems: "center", gap: 6, fontSize: "0.85rem" }}>
-                      <input
-                        type="radio"
-                        name={`contact-mode-${p.id}`}
-                        checked={p.contact_mode === "whatsapp_livre"}
-                        onChange={() => handleContactModeChange(p.id, "whatsapp_livre")}
-                        style={{ width: "auto" }}
-                      />
-                      WhatsApp livre (grátis, ilimitado)
-                    </label>
-                    <label style={{ display: "flex", alignItems: "center", gap: 6, fontSize: "0.85rem" }}>
-                      <input
-                        type="radio"
-                        name={`contact-mode-${p.id}`}
-                        checked={p.contact_mode === "pay_per_lead"}
-                        onChange={() => handleContactModeChange(p.id, "pay_per_lead")}
-                        style={{ width: "auto" }}
-                      />
-                      Pagar por contato (R$ {(PRICES.leadCreditCents / 100).toFixed(2).replace(".", ",")}/lead)
-                    </label>
+                {/* O que é pago fica reunido, fechado por padrão e com o nome
+                    dito em português: antes eram cinco botões soltos no meio
+                    do anúncio, com preço e sem explicação, e quem lia "Empresa
+                    Plus" ou "patrocinar categoria" não tinha como saber o que
+                    ia levar. Fechado, some do caminho de quem só quer editar. */}
+                <details className="produtos">
+                  <summary>
+                    Aparecer mais <span className="muted">— opcional, pago</span>
+                  </summary>
+
+                  <p className="muted produtos-intro">
+                    Seu anúncio funciona de graça, para sempre. O que está aqui embaixo serve para você
+                    aparecer antes dos outros ou passar mais confiança — nada disso muda o seu trabalho, só a
+                    sua vitrine.
+                  </p>
+
+                  <div className="produto">
+                    <div className="produto-texto">
+                      <strong>Selo de verificação</strong>
+                      <p>
+                        Aquele ✓ azul ao lado do seu nome, na busca e no seu perfil. Diz a quem não te conhece
+                        que seu cadastro e seu WhatsApp foram conferidos — é o que costuma decidir entre você e
+                        um número desconhecido.
+                      </p>
+                    </div>
+                    <div className="produto-acao">
+                      {verified ? (
+                        <span className="produto-ativo">✓ Ativo</span>
+                      ) : (
+                        <>
+                          <span className="produto-preco">
+                            R$ {PRICES.verification.amount.toFixed(2).replace(".", ",")}
+                            <small>/mês</small>
+                          </span>
+                          <button
+                            className="btn btn-teal"
+                            onClick={() => {
+                              // Vender o selo a um número que ninguém confirmou
+                              // esvaziaria justamente o que ele promete.
+                              if (!p.whatsapp_verified) {
+                                setConfirmandoWhats(p);
+                                return;
+                              }
+                              setPlanSheetFor({ professional: p, type: "verification" });
+                            }}
+                          >
+                            Assinar
+                          </button>
+                        </>
+                      )}
+                    </div>
                   </div>
+
+                  <div className="produto">
+                    <div className="produto-texto">
+                      <strong>Destaque na busca</strong>
+                      <p>
+                        Seu anúncio sobe para o topo da lista de quem procura o seu serviço em {p.city}. Quem
+                        está com pressa raramente rola até o fim — quase todo mundo chama alguém dos primeiros.
+                      </p>
+                    </div>
+                    <div className="produto-acao">
+                      {boosted ? (
+                        <span className="produto-ativo">✓ Ativo</span>
+                      ) : (
+                        <>
+                          <span className="produto-preco">
+                            R$ {PRICES.boost.amount.toFixed(2).replace(".", ",")}
+                            <small>/mês</small>
+                          </span>
+                          <button className="btn btn-primary" onClick={() => setPlanSheetFor({ professional: p, type: "boost" })}>
+                            Assinar
+                          </button>
+                        </>
+                      )}
+                    </div>
+                  </div>
+
+                  <div className="produto">
+                    <div className="produto-texto">
+                      <strong>Banner da categoria</strong>
+                      <p>
+                        Um espaço grande, com foto, no alto de quem busca por "{p.category}" — acima de todos os
+                        anúncios, inclusive dos destacados. É por período, não por assinatura.
+                      </p>
+                    </div>
+                    <div className="produto-acao">
+                      {activeSponsorship ? (
+                        <span className="produto-ativo">
+                          ✓ Até {new Date(activeSponsorship.ends_at).toLocaleDateString("pt-BR")}
+                        </span>
+                      ) : (
+                        <>
+                          <span className="produto-preco">
+                            a partir de R$ {SPONSORSHIP_PLANS[0].amount.toFixed(2).replace(".", ",")}
+                          </span>
+                          <button className="btn btn-outline" onClick={() => setSponsorSheetFor(p)}>
+                            Ver períodos
+                          </button>
+                        </>
+                      )}
+                    </div>
+                  </div>
+
+                  {p.entity_type === "pj" && (
+                    <div className="produto">
+                      <div className="produto-texto">
+                        <strong>Empresa Plus</strong>
+                        <p>
+                          Relatórios do seu anúncio: quantas pessoas viram por dia, de quais serviços vieram e
+                          quantas pediram contato. Serve para saber se vale a pena continuar anunciando.
+                        </p>
+                      </div>
+                      <div className="produto-acao">
+                        {plusActive ? (
+                          <span className="produto-ativo">✓ Ativo</span>
+                        ) : (
+                          <>
+                            <span className="produto-preco">
+                              R$ {PRICES.plus.amount.toFixed(2).replace(".", ",")}
+                              <small>/mês</small>
+                            </span>
+                            <button className="btn btn-outline" onClick={() => setPlanSheetFor({ professional: p, type: "plus" })}>
+                              Assinar
+                            </button>
+                          </>
+                        )}
+                      </div>
+                    </div>
+                  )}
+                </details>
+
+                {/* Modo de contato não é venda, é uma escolha de como você
+                    quer receber gente — por isso fica fora do bloco pago,
+                    mesmo tendo uma opção que custa. */}
+                <details className="produtos">
+                  <summary>
+                    Como você quer receber contatos <span className="muted">— {p.contact_mode === "pay_per_lead" ? "pagando por contato" : "WhatsApp livre"}</span>
+                  </summary>
+
+                  <label className="modo-contato">
+                    <input
+                      type="radio"
+                      name={`contact-mode-${p.id}`}
+                      checked={p.contact_mode === "whatsapp_livre"}
+                      onChange={() => handleContactModeChange(p.id, "whatsapp_livre")}
+                    />
+                    <span>
+                      <strong>WhatsApp livre</strong> — grátis e sem limite
+                      <em>Qualquer pessoa fala com você direto. É o normal, e serve para quase todo mundo.</em>
+                    </span>
+                  </label>
+
+                  <label className="modo-contato">
+                    <input
+                      type="radio"
+                      name={`contact-mode-${p.id}`}
+                      checked={p.contact_mode === "pay_per_lead"}
+                      onChange={() => handleContactModeChange(p.id, "pay_per_lead")}
+                    />
+                    <span>
+                      <strong>Pagar por contato</strong> — R$ {(PRICES.leadCreditCents / 100).toFixed(2).replace(".", ",")} por pessoa que te chama
+                      <em>
+                        Para quem recebe contato demais e quer filtrar: só quem realmente vai contratar costuma
+                        passar dessa barreira. Se acabar o crédito, seu WhatsApp fica escondido.
+                      </em>
+                    </span>
+                  </label>
+
                   {p.contact_mode === "pay_per_lead" && (
-                    <div style={{ display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap" }}>
-                      <span className="muted" style={{ fontSize: "0.85rem" }}>
-                        Saldo atual: <strong>{credits?.balance ?? 0}</strong> crédito(s)
+                    <div className="creditos">
+                      <span className="muted">
+                        Saldo: <strong>{credits?.balance ?? 0}</strong> contato(s)
                       </span>
                       {CREDIT_PACKS.map((qty) => (
                         <button
                           key={qty}
                           className="btn btn-outline"
-                          style={{ fontSize: "0.78rem", padding: "4px 8px" }}
                           disabled={checkoutLoading === `${p.id}:credits`}
                           onClick={() => handleBuyCredits(p.id, qty)}
                         >
-                          Comprar {qty} créditos — R$ {((PRICES.leadCreditCents / 100) * qty).toFixed(2).replace(".", ",")}
+                          {qty} por R$ {((PRICES.leadCreditCents / 100) * qty).toFixed(2).replace(".", ",")}
                         </button>
                       ))}
                     </div>
                   )}
-                </div>
-
-                <div style={{ marginTop: 16, paddingTop: 12, borderTop: "1px solid var(--color-border)" }}>
-                  <p style={{ margin: "0 0 6px", fontWeight: 600, fontSize: "0.85rem" }}>Categoria patrocinada</p>
-                  {activeSponsorship ? (
-                    <p className="muted" style={{ fontSize: "0.85rem" }}>
-                      Patrocínio ativo em "{activeSponsorship.category}" até{" "}
-                      {new Date(activeSponsorship.ends_at).toLocaleDateString("pt-BR")}.
-                    </p>
-                  ) : (
-                    <button className="btn btn-outline" style={{ fontSize: "0.85rem" }} onClick={() => setSponsorSheetFor(p)}>
-                      Patrocinar categoria "{p.category}"
-                    </button>
-                  )}
-                </div>
+                </details>
               </div>
             );
           })}

@@ -1343,3 +1343,170 @@ textarea::placeholder {
   color: var(--color-text-muted);
   border: 1px solid var(--color-border);
 }
+
+/* ---------- Painel: ações do anúncio e ofertas pagas ---------- */
+
+.acoes-anuncio {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-top: 12px;
+}
+
+/* Blocos recolhidos. Fechados por padrão: quem entra no painel vem editar o
+   anúncio ou ver quem chamou — oferta que se abre sozinha vira ruído entre a
+   pessoa e o que ela veio fazer. */
+.produtos {
+  margin-top: 12px;
+  border: 1px solid var(--color-border);
+  border-radius: 14px;
+  background: var(--color-bg-soft);
+  overflow: hidden;
+}
+
+.produtos > summary {
+  padding: 12px 14px;
+  font-weight: 600;
+  font-size: 0.9rem;
+  cursor: pointer;
+  list-style: none;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+/* A seta padrão do navegador muda de forma entre Chrome e Safari; esta é
+   igual nos dois e gira ao abrir. */
+.produtos > summary::-webkit-details-marker {
+  display: none;
+}
+
+.produtos > summary::after {
+  content: "›";
+  margin-left: auto;
+  font-size: 1.2rem;
+  color: var(--color-text-muted);
+  transform: rotate(90deg);
+  transition: transform 0.15s ease;
+}
+
+.produtos[open] > summary::after {
+  transform: rotate(270deg);
+}
+
+.produtos-intro {
+  margin: 0 14px 4px;
+  font-size: 0.85rem;
+  line-height: 1.45;
+}
+
+.produto {
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  padding: 14px;
+  border-top: 1px solid var(--color-border);
+  background: var(--color-surface);
+}
+
+.produto-texto {
+  flex: 1 1 240px;
+}
+
+.produto-texto strong {
+  display: block;
+  font-size: 0.95rem;
+  margin-bottom: 4px;
+}
+
+.produto-texto p {
+  margin: 0;
+  font-size: 0.85rem;
+  line-height: 1.45;
+  color: var(--color-text-muted);
+}
+
+.produto-acao {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex: none;
+}
+
+.produto-preco {
+  font-weight: 700;
+  font-size: 0.9rem;
+  white-space: nowrap;
+}
+
+.produto-preco small {
+  font-weight: 500;
+  color: var(--color-text-muted);
+}
+
+.produto-ativo {
+  font-weight: 700;
+  font-size: 0.85rem;
+  color: #1c6b3f;
+  white-space: nowrap;
+}
+
+/* Escolha do modo de contato: o rádio some do caminho e a linha inteira vira
+   área de toque — no celular, acertar um círculo de 14px é pedir demais. */
+.modo-contato {
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+  padding: 14px;
+  border-top: 1px solid var(--color-border);
+  background: var(--color-surface);
+  cursor: pointer;
+}
+
+.modo-contato input {
+  width: auto;
+  margin-top: 3px;
+  flex: none;
+}
+
+.modo-contato span {
+  font-size: 0.9rem;
+}
+
+.modo-contato em {
+  display: block;
+  margin-top: 3px;
+  font-style: normal;
+  font-size: 0.83rem;
+  line-height: 1.45;
+  color: var(--color-text-muted);
+}
+
+.creditos {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  padding: 14px;
+  border-top: 1px solid var(--color-border);
+  background: var(--color-surface);
+  font-size: 0.85rem;
+}
+
+.creditos .btn {
+  font-size: 0.8rem;
+  padding: 6px 10px;
+}
+
+@media (min-width: 560px) {
+  .produtos > summary,
+  .produto,
+  .modo-contato,
+  .creditos {
+    padding-left: 16px;
+    padding-right: 16px;
+  }
+}
