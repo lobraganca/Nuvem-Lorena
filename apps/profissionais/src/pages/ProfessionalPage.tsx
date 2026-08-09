@@ -24,6 +24,7 @@ import { useAuth } from "../lib/useAuth";
 import { FavoriteButton } from "../components/FavoriteButton";
 import { BottomSheet } from "../components/BottomSheet";
 import { VerifiedBadge } from "../components/VerifiedBadge";
+import { Estrelas } from "../components/Estrelas";
 import { formatPhone } from "../lib/phone";
 
 /**
@@ -413,12 +414,12 @@ export function ProfessionalPage() {
         <p>
           {professional.average_rating ? (
             <>
-              <span className="stars">{"★".repeat(Math.round(professional.average_rating))}</span>{" "}
-              <strong>{professional.average_rating.toFixed(1)}</strong>{" "}
+              <Estrelas nota={professional.average_rating} tamanho="1.05rem" />{" "}
+              <strong>{professional.average_rating.toFixed(1).replace(".", ",")}</strong>{" "}
               <span className="muted">({professional.review_count} avaliações)</span>
             </>
           ) : (
-            <span className="muted">Ainda ninguém avaliou — pode ser você o primeiro</span>
+            <span className="muted">Novo por aqui — seja o primeiro a avaliar</span>
           )}
         </p>
         <div className="contact-list">
@@ -473,7 +474,11 @@ export function ProfessionalPage() {
         </div>
 
         {contatoFacilitado ? (
-          <button className="btn btn-primary btn-block" style={{ marginTop: 14 }} onClick={() => setContactSheetOpen(true)}>
+          /* Deixou de ser azul cheio: com o WhatsApp verde logo acima, eram
+             duas ações gritando ao mesmo tempo, e quando tudo grita nada é
+             ouvido. O WhatsApp é o que a pessoa veio fazer; este é o plano B
+             de quem não quer falar agora. */
+          <button className="btn btn-outline btn-block" style={{ marginTop: 12 }} onClick={() => setContactSheetOpen(true)}>
             Peça para {comoChamar(professional)} te chamar
           </button>
         ) : (
@@ -489,8 +494,7 @@ export function ProfessionalPage() {
             link colado no grupo da família. Sem isto, indicar alguém exige
             copiar o endereço da barra, que quase ninguém faz no celular. */}
         <button
-          className="btn btn-outline btn-block"
-          style={{ marginTop: 10 }}
+          className="acao-discreta"
           onClick={async () => {
             const url = window.location.href;
             const texto = `${professional.name} — ${professional.category} em ${professional.city}`;
@@ -707,7 +711,7 @@ export function ProfessionalPage() {
             return (
               <div key={r.id} className="card">
                 <div style={{ display: "flex", justifyContent: "space-between", alignItems: "start", gap: 8 }}>
-                  <span className="stars">{"★".repeat(r.rating)}</span>
+                  <Estrelas nota={r.rating} />
                 {r.contato_confirmado && (
                   /* Distingue avaliação de quem realmente chamou de opinião
                      solta — é a única distinção que importa para confiar. */

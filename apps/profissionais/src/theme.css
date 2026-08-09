@@ -236,10 +236,15 @@ button {
   border: 1px solid var(--color-gold-line);
 }
 
+/* Destaque em dourado: até aqui o ouro da marca só existia no logotipo, e
+   a interface inteira era azul e cinza. Ele passa a marcar o que tem valor
+   pago — destaque e banner —, dando ao app uma segunda voz sem precisar de
+   cor nova. Continua discreto: fundo claro e contorno, não etiqueta berrante
+   dentro do cartão de outra pessoa. */
 .badge-boosted {
-  background: transparent;
-  color: var(--color-text-muted);
-  border: 1px solid var(--color-border-strong);
+  background: var(--color-gold-tint);
+  color: var(--color-gold-deep);
+  border: 1px solid var(--color-gold-line);
 }
 
 /* Pessoa física (autônomo) x pessoa jurídica (empresa): a diferença está no
@@ -1820,5 +1825,104 @@ textarea::placeholder {
 }
 
 .btn-apple svg {
+  flex: none;
+}
+
+/* ---------- Estrelas com precisão de meia ---------- */
+
+.estrelas {
+  position: relative;
+  display: inline-block;
+  line-height: 1;
+  letter-spacing: 0.06em;
+  white-space: nowrap;
+  vertical-align: -1px;
+}
+
+.estrelas-fundo {
+  color: var(--color-border);
+}
+
+.estrelas-frente {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  color: var(--color-gold-mid);
+}
+
+/* Ação terciária: existe, mas não disputa. "Indicar para alguém" é generoso
+   e importante para o app crescer — e ainda assim é a terceira coisa que
+   alguém quer fazer numa tela onde veio contratar. */
+.acao-discreta {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 12px;
+  padding: 8px 0;
+  background: none;
+  border: none;
+  color: var(--color-primary-deep);
+  font-size: 0.9rem;
+  font-weight: 600;
+  font-family: inherit;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  cursor: pointer;
+}
+
+/* ---------- Densidade no computador ---------- */
+
+/* Cartões um pouco mais estreitos rendem quatro colunas em tela grande em
+   vez de três com sobra: numa lista de profissionais, ver mais gente de uma
+   vez é a própria utilidade da tela. */
+@media (min-width: 1100px) {
+  .grid {
+    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)) !important;
+  }
+}
+
+/* A barra flutuante do computador cobria o último cartão da lista. */
+@media (min-width: 860px) {
+  .app-content {
+    padding-bottom: 96px;
+  }
+}
+
+/* ---------- Escala tipográfica ---------- */
+
+/* Uma família só, mas com hierarquia de verdade: títulos mais firmes e um
+   pouco mais apertados, texto de apoio com respiro. Antes tudo vinha do
+   padrão do navegador e as telas ficavam com a mesma voz do começo ao fim. */
+h1 {
+  letter-spacing: -0.02em;
+  line-height: 1.15;
+}
+
+h2 {
+  letter-spacing: -0.015em;
+  line-height: 1.2;
+}
+
+h3 {
+  letter-spacing: -0.01em;
+}
+
+.muted {
+  line-height: 1.55;
+}
+
+/* O bloco pago no painel também passa a usar o ouro no contorno, em vez do
+   azul que é a cor de tudo: assim "isto custa dinheiro" tem uma cor só dele
+   em qualquer tela onde apareça. */
+.produtos-oferta {
+  border-color: var(--color-gold-line);
+}
+
+.produtos-oferta > summary::before {
+  content: "";
+  width: 4px;
+  height: 18px;
+  border-radius: 2px;
+  background: var(--color-gold-mid);
   flex: none;
 }

@@ -16,6 +16,7 @@ import type { CategorySponsorship, Professional } from "../types/domain";
 import { hasDatabase, problemaDeConfiguracao } from "../lib/supabase";
 import { FavoriteButton } from "../components/FavoriteButton";
 import { VerifiedBadge } from "../components/VerifiedBadge";
+import { Estrelas } from "../components/Estrelas";
 import { TourGuide, type TourStep } from "../components/TourGuide";
 import { hasSeenWelcome, markTourSeen, shouldRunTour } from "../lib/onboarding";
 import { temDestinoLogin } from "../lib/auth";
@@ -494,11 +495,17 @@ export function HomePage() {
               </div>
               <p style={{ marginTop: 10 }}>
                 {p.average_rating ? (
-                  <span className="stars">{"★".repeat(Math.round(p.average_rating))}</span>
+                  <>
+                    <Estrelas nota={p.average_rating} />{" "}
+                    <strong>{p.average_rating.toFixed(1).replace(".", ",")}</strong>{" "}
+                    <span className="muted">({p.review_count})</span>
+                  </>
                 ) : (
-                  <span className="muted">Sem avaliações</span>
-                )}{" "}
-                {p.review_count > 0 && <span className="muted">({p.review_count})</span>}
+                  /* "Sem avaliações" lia como defeito do anúncio. Quem acabou
+                     de se cadastrar não tem culpa de ainda não ter sido
+                     avaliado — e o convite ainda serve a quem está lendo. */
+                  <span className="muted">Novo por aqui — seja o primeiro a avaliar</span>
+                )}
               </p>
               <span className="card-cta">Ver contatos e avaliações →</span>
             </Link>
