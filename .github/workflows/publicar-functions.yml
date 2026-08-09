@@ -1,0 +1,101 @@
+# Publica as Edge Functions do procurô no Supabase.
+#
+# Sem elas, nada que dependa de servidor funciona: pagamento, exclusão de
+# conta e e-mails. E publicar à mão exige a CLI do Supabase instalada na
+# máquina — o que trava o projeto quando a única máquina disponível é um
+# tablet.
+#
+# Aqui quem publica é o GitHub, com a mesma lógica do workflow da Vercel: os
+# segredos ficam em Settings > Secrets and variables > Actions, nunca no
+# arquivo, porque quem tem o token de acesso do Supabase manda no projeto
+# inteiro.
+#
+# Segredos exigidos:
+#   SUPABASE_ACCESS_TOKEN — token pessoal, criado em
+#                           https://supabase.com/dashboard/account/tokens
+#   SUPABASE_PROJECT_REF  — o identificador do projeto (a parte antes de
+#                           ".supabase.co" no endereço do projeto)
+#
+# ATENÇÃO: este workflow publica o CÓDIGO das functions. As variáveis que
+# elas leem (MP_ACCESS_TOKEN, RESEND_API_KEY, PUBLIC_APP_URL...) são
+# configuradas separadamente, no painel do Supabase, em
+# Edge Functions > Secrets. Publicar sem elas coloca as functions no ar, mas
+# elas respondem erro de configuração ao serem chamadas.
+
+name: Publicar Edge Functions
+
+on:
+  # Só à mão. Publicar function a cada envio arriscaria trocar o código de
+  # pagamento no meio de uma cobrança em andamento, sem ninguém olhando.
+  workflow_dispatch:
+    inputs:
+      funcao:
+        description: 'Nome de uma function específica, ou "todas"'
+        required: true
+        default: "todas"
+
+jobs:
+  publicar:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: apps/profissionais
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Conferir os segredos antes de começar
+        env:
+          TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+          REF: ${{ secrets.SUPABASE_PROJECT_REF }}
+        run: |
+          faltou=0
+          [ -z "$TOKEN" ] && echo "Falta o segredo SUPABASE_ACCESS_TOKEN." && faltou=1
+          [ -z "$REF" ] && echo "Falta o segredo SUPABASE_PROJECT_REF." && faltou=1
+          if [ "$faltou" = "1" ]; then
+            echo "Crie em: Settings > Secrets and variables > Actions > New repository secret."
+            exit 1
+          fi
+
+      - uses: supabase/setup-cli@v1
+        with:
+          version: latest
+
+      - name: Publicar
+        env:
+          SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+          REF: ${{ secrets.SUPABASE_PROJECT_REF }}
+          ESCOLHA: ${{ inputs.funcao }}
+        run: |
+          set -euo pipefail
+
+          # O webhook é chamado pelo Mercado Pago, que não tem como
+          # apresentar um JWT do Supabase. Se a verificação ficasse ligada,
+          # toda notificação de pagamento seria recusada antes de chegar ao
+          # código — e o pagamento seria aprovado no Mercado Pago sem nunca
+          # virar assinatura ativa aqui. A function se defende sozinha: ela
+          # confere a assinatura do MP_WEBHOOK_SECRET e reconsulta o status
+          # real na API do Mercado Pago antes de acreditar em qualquer coisa.
+          sem_jwt="mercadopago-webhook"
+
+          if [ "$ESCOLHA" = "todas" ]; then
+            # `_shared` não é uma function, é a pasta de código comum que as
+            # outras importam. A CLI a envia junto de quem a importa.
+            lista=$(ls -1 supabase/functions | grep -v '^_')
+          else
+            lista="$ESCOLHA"
+          fi
+
+          for f in $lista; do
+            if [ ! -d "supabase/functions/$f" ]; then
+              echo "Não existe a function '$f'."
+              exit 1
+            fi
+            echo "::group::$f"
+            if [ "$f" = "$sem_jwt" ]; then
+              supabase functions deploy "$f" --project-ref "$REF" --no-verify-jwt
+            else
+              supabase functions deploy "$f" --project-ref "$REF"
+            fi
+            echo "::endgroup::"
+          done
