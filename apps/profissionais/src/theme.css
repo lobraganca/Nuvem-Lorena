@@ -7,7 +7,7 @@
      borda de 1px que desaparece em tela de celular no sol — que é onde este
      app é usado. Continua lendo como app branco; o que muda é existir um
      degrau entre a folha e o que está sobre ela. */
-  --color-bg: #f5f7fa;
+  --color-bg: #ffffff;
   /* Um tom abaixo do fundo da página: este cinza marca o que está *dentro*
      de um cartão branco (campos, chips, blocos recolhidos). Com o fundo da
      página virando cinza-claro, ele precisou descer junto — senão os dois
@@ -1276,12 +1276,15 @@ textarea::placeholder {
   margin: 0 auto;
   padding: 14px 16px;
   border-radius: 16px;
-  /* Azul-marinho da marca, e não branco sobre branco: a faixa precisa ser
-     vista de primeira — ela existe para informar sobre dados pessoais, e um
-     aviso que se confunde com o fundo não informa ninguém. */
-  background: var(--color-primary);
-  border: 1px solid var(--color-primary-deep);
-  box-shadow: 0 10px 30px rgba(10, 26, 47, 0.28);
+  /* Branca com barra dourada, agora que os cartões de profissional são
+     azul-marinho: manter a faixa azul faria ela se fundir com o cartão que
+     estivesse embaixo — dois blocos da mesma cor colados, sem saber onde um
+     termina. O dourado dá destaque sem repetir nenhuma das duas superfícies
+     que já existem na tela. */
+  background: var(--color-surface);
+  border: 1px solid var(--color-border-strong);
+  border-left: 5px solid var(--color-gold-mid);
+  box-shadow: 0 10px 30px rgba(10, 26, 47, 0.22);
 }
 
 .aviso-dados p {
@@ -1289,22 +1292,17 @@ textarea::placeholder {
   flex: 1 1 260px;
   font-size: 0.88rem;
   line-height: 1.45;
-  color: #ffffff;
+  color: var(--color-text-muted);
 }
 
 .aviso-dados a {
-  color: #ffffff;
-  text-decoration: underline;
+  color: var(--color-primary-deep);
   text-underline-offset: 2px;
 }
 
-/* Botão claro sobre o azul: inverte o contraste em vez de repetir o mesmo
-   azul do fundo, que sumiria dentro da faixa. */
 .aviso-dados .btn {
   flex: none;
   padding: 8px 18px;
-  background: #ffffff;
-  color: var(--color-primary);
 }
 
 @media (min-width: 860px) {
@@ -1938,4 +1936,66 @@ h3 {
   border-radius: 2px;
   background: var(--color-gold-mid);
   flex: none;
+}
+
+/* ---------- Cartão de profissional em azul-marinho ---------- */
+
+/* Só o cartão de resultado, não todo `.card`: formulários, termos e blocos
+   de texto longo continuam brancos, porque ler parágrafo e digitar em fundo
+   escuro cansa — o ganho de contraste vira perda de legibilidade onde a
+   pessoa passa mais tempo.
+   Aqui o efeito é o oposto: o cartão vira um objeto sobre a folha branca, e
+   a lista ganha limite claro entre um anúncio e o seguinte. */
+.card-pro {
+  background: linear-gradient(160deg, var(--color-primary-soft), var(--color-primary));
+  border-color: var(--color-primary-deep);
+  color: #ffffff;
+}
+
+.card-pro .muted,
+.card-pro .card-cta {
+  color: #c8d6ea;
+}
+
+.card-pro .card-nome {
+  color: #ffffff;
+}
+
+/* Etiquetas dentro do cartão escuro: vidro fosco em vez das cores claras,
+   que sobre o azul virariam manchas berrantes. */
+.card-pro .badge,
+.card-pro .chip-static {
+  background: rgba(255, 255, 255, 0.14);
+  border-color: rgba(255, 255, 255, 0.28);
+  color: #eaf1fb;
+}
+
+/* Destaque continua dourado — é o único lugar onde a cor precisa gritar,
+   porque é o que a pessoa pagou para ter. */
+.card-pro .badge-boosted {
+  background: var(--color-gold-tint);
+  border-color: var(--color-gold-line);
+  color: var(--color-gold-deep);
+}
+
+.card-pro .estrelas-fundo {
+  color: rgba(255, 255, 255, 0.28);
+}
+
+.card-pro .avatar-iniciais {
+  box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.22);
+}
+
+.card-pro .avatar-fallback {
+  background: rgba(255, 255, 255, 0.12);
+  border-color: rgba(255, 255, 255, 0.25);
+}
+
+.card-pro .btn-outline {
+  border-color: rgba(255, 255, 255, 0.4);
+  color: #ffffff;
+}
+
+.card-pro .verified-badge {
+  color: #ffffff;
 }
