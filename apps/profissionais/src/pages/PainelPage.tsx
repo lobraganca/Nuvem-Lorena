@@ -524,7 +524,7 @@ export function PainelPage() {
             const plusActive = isCurrentlyPlusActive(p);
             const boosted = isCurrentlyBoosted(p);
             return (
-              <div key={p.id} className="card">
+              <div key={p.id} className="card anuncio-card">
                 <div style={{ display: "flex", justifyContent: "space-between" }}>
                   <strong>{p.name}</strong>
                   <div style={{ display: "flex", gap: 6 }}>

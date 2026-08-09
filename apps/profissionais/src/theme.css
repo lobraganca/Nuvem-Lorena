@@ -3214,14 +3214,14 @@ h3 {
    Não muda nada de lugar: só devolve a fronteira que já existia na
    cabeça de quem lê, mas não estava na tela.
    --------------------------------------------------------------- */
-.grid > .card > .views-line,
-.grid > .card > .whats-ok,
-.grid > .card > .whats-pendente,
-.grid > .card > .requests,
-.grid > .card > .acoes-anuncio,
-.grid > .card > .bloco-recolhivel,
-.grid > .card > .produtos,
-.grid > .card > .assinaturas-ativas {
+.anuncio-card > .views-line,
+.anuncio-card > .whats-ok,
+.anuncio-card > .whats-pendente,
+.anuncio-card > .requests,
+.anuncio-card > .acoes-anuncio,
+.anuncio-card > .bloco-recolhivel,
+.anuncio-card > .produtos,
+.anuncio-card > .assinaturas-ativas {
   border-top: 1px solid var(--color-border, #e6e8ee);
   margin-top: 16px;
   padding-top: 16px;
@@ -3229,7 +3229,7 @@ h3 {
 
 /* O primeiro bloco depois do cabeçalho não precisa de linha: ele já
    está separado pelo nome do anúncio. */
-.grid > .card > .muted + .views-line {
+.anuncio-card > .muted + .views-line {
   border-top: none;
   padding-top: 0;
 }
@@ -3244,7 +3244,169 @@ h3 {
 
 /* Blocos recolhíveis: o título é o que a pessoa lê para decidir se
    abre, então ele precisa parecer um título. */
-.grid > .card > details > summary {
+.anuncio-card > details > summary {
   font-weight: 600;
   padding: 4px 0;
+}
+
+/* ---------------------------------------------------------------
+   Card do anúncio em azul (Painel)
+
+   A tela inteira era branca sobre branca: o card do anúncio não se
+   distinguia do fundo, e a página parecia uma folha lisa. O azul da
+   marca separa o que é *seu anúncio* do resto.
+
+   O bloco dos planos pagos continua branco de propósito. É a única
+   parte da tela em que sai dinheiro, e ela precisa se destacar do
+   azul em vez de se dissolver nele — a decisão de pagar não pode
+   parecer só mais uma linha do card.
+   --------------------------------------------------------------- */
+.anuncio-card {
+  background: var(--color-navy);
+  border-color: var(--color-navy);
+  color: #fff;
+}
+
+.anuncio-card strong,
+.anuncio-card h3,
+.anuncio-card a {
+  color: #fff;
+}
+
+/* O cinza de texto secundário sobre azul vira ilegível: sobre fundo
+   escuro, "discreto" é branco com opacidade, não cinza. */
+.anuncio-card .muted,
+.anuncio-card em {
+  color: rgba(255, 255, 255, 0.75);
+}
+
+.anuncio-card > .views-line,
+.anuncio-card > .whats-ok,
+.anuncio-card > .whats-pendente,
+.anuncio-card > .requests,
+.anuncio-card > .acoes-anuncio,
+.anuncio-card > .bloco-recolhivel,
+.anuncio-card > .produtos,
+.anuncio-card > .assinaturas-ativas {
+  border-top-color: rgba(255, 255, 255, 0.18);
+}
+
+/* Botões de contorno sobre azul: a borda cinza sumia. */
+.anuncio-card .btn-outline {
+  border-color: rgba(255, 255, 255, 0.45);
+  color: #fff;
+  background: transparent;
+}
+
+.anuncio-card .btn-outline:hover {
+  background: rgba(255, 255, 255, 0.12);
+}
+
+.anuncio-card .btn-perigo {
+  border-color: rgba(255, 170, 170, 0.6);
+  color: #ffd6d6;
+}
+
+/* Caixas internas que já tinham fundo claro voltam a ter texto escuro:
+   sem isto, herdavam o branco e ficavam brancas sobre branco. */
+.anuncio-card .produtos,
+.anuncio-card .requests-list .request,
+.anuncio-card .whats-pendente,
+.anuncio-card .assinaturas-ativas {
+  background: var(--color-surface);
+  color: var(--color-text);
+  border-radius: 12px;
+  padding: 14px;
+}
+
+.anuncio-card .produtos .muted,
+.anuncio-card .requests-list .request .muted,
+.anuncio-card .whats-pendente .muted,
+.anuncio-card .assinaturas-ativas .muted,
+.anuncio-card .produtos em,
+.anuncio-card .assinaturas-ativas em {
+  color: var(--color-text-muted, #5b6478);
+}
+
+.anuncio-card .produtos strong,
+.anuncio-card .requests-list .request strong,
+.anuncio-card .whats-pendente strong,
+.anuncio-card .assinaturas-ativas strong,
+.anuncio-card .produtos summary,
+.anuncio-card .produtos a {
+  color: var(--color-navy);
+}
+
+.anuncio-card .produtos .btn-outline,
+.anuncio-card .whats-pendente .btn-outline,
+.anuncio-card .assinaturas-ativas .btn-outline {
+  border-color: var(--color-border-strong);
+  color: var(--color-navy);
+}
+
+.anuncio-card .produtos .btn-outline:hover,
+.anuncio-card .whats-pendente .btn-outline:hover,
+.anuncio-card .assinaturas-ativas .btn-outline:hover {
+  background: rgba(16, 26, 40, 0.06);
+}
+
+/* Caixas de fundo claro dentro do card azul.
+   Regra única e no fim do arquivo de propósito: qualquer bloco claro que
+   entrar no card no futuro precisa aparecer nesta lista, senão herda o
+   branco do texto e vira branco sobre branco — o defeito que aparece só
+   depois de publicado, porque no editor ninguém olha o card inteiro. */
+.anuncio-card .produtos,
+.anuncio-card .bloco-recolhivel,
+.anuncio-card .request,
+.anuncio-card .whats-pendente,
+.anuncio-card .assinaturas-ativas,
+.anuncio-card .produtos *,
+.anuncio-card .bloco-recolhivel *,
+.anuncio-card .request *,
+.anuncio-card .whats-pendente *,
+.anuncio-card .assinaturas-ativas * {
+  color: var(--color-text);
+}
+
+.anuncio-card .produtos .muted,
+.anuncio-card .bloco-recolhivel .muted,
+.anuncio-card .request .muted,
+.anuncio-card .whats-pendente .muted,
+.anuncio-card .assinaturas-ativas .muted,
+.anuncio-card .produtos em,
+.anuncio-card .assinaturas-ativas em {
+  color: var(--color-text-muted, #5b6478);
+}
+
+.anuncio-card .produtos a,
+.anuncio-card .bloco-recolhivel a,
+.anuncio-card .request a,
+.anuncio-card .whats-pendente a,
+.anuncio-card .assinaturas-ativas a,
+.anuncio-card .produtos strong,
+.anuncio-card .whats-pendente strong,
+.anuncio-card .assinaturas-ativas strong,
+.anuncio-card .produtos summary,
+.anuncio-card .bloco-recolhivel summary {
+  color: var(--color-navy);
+}
+
+.anuncio-card .produtos .btn-primary,
+.anuncio-card .produtos .btn-teal,
+.anuncio-card .produtos .btn-primary *,
+.anuncio-card .produtos .btn-teal * {
+  color: #fff;
+}
+
+/* O bloco de pedidos não tem fundo próprio: fica sobre o azul, então o
+   texto dele é claro — só os cartões de cada pedido é que são brancos. */
+.anuncio-card > .requests > .requests-head strong,
+.anuncio-card > .requests > .requests-head .requests-toggle {
+  color: #fff;
+}
+
+.anuncio-card > .requests > p.muted,
+.anuncio-card > .views-line,
+.anuncio-card > .views-line strong {
+  color: rgba(255, 255, 255, 0.86);
 }
