@@ -7,26 +7,39 @@ import { BottomSheet } from "./components/BottomSheet";
 import { HomePage } from "./pages/HomePage";
 import { BoasVindasPage } from "./pages/BoasVindasPage";
 import { ProfessionalPage } from "./pages/ProfessionalPage";
-import { LoginPage } from "./pages/LoginPage";
-import { PainelPage } from "./pages/PainelPage";
-import { AdminPage } from "./pages/AdminPage";
-import { TermosPage } from "./pages/TermosPage";
-import { PrivacidadePage } from "./pages/PrivacidadePage";
-import { DiagnosticoPage } from "./pages/DiagnosticoPage";
-import { ExcluirContaPage } from "./pages/ExcluirContaPage";
-import { ConfiguracaoPage } from "./pages/ConfiguracaoPage";
-import { ComoFuncionaPage } from "./pages/ComoFuncionaPage";
-import { FavoritosPage } from "./pages/FavoritosPage";
-import { PerfilPage } from "./pages/PerfilPage";
-import { AssinaturaPage } from "./pages/AssinaturaPage";
-import { AnalyticsPage } from "./pages/AnalyticsPage";
+import { Suspense, lazy } from "react";
 import { useAuth } from "./lib/useAuth";
 import { sendSuggestion } from "./lib/suggestions";
 import { AvisoDeDados } from "./components/AvisoDeDados";
 import { RetomarDestinoLogin } from "./components/RetomarDestinoLogin";
 import { AvisoErroLogin } from "./components/AvisoErroLogin";
 import { CONTATO_EMAIL } from "./config";
-import { AnunciosPage } from "./pages/AnunciosPage";
+
+/**
+ * Telas carregadas sob demanda.
+ *
+ * Tudo vinha num arquivo só: quem abria a busca baixava junto o painel, a
+ * administração, os termos e a tela de números — telas que a maioria das
+ * pessoas nunca abre. Em 4G fraco isso é a diferença entre abrir e desistir.
+ *
+ * Ficam de fora a busca, o anúncio e a apresentação: são a porta de entrada,
+ * e adiar o que já vai ser pedido só troca um tempo de espera por outro.
+ */
+const LoginPage = lazy(() => import("./pages/LoginPage").then((m) => ({ default: m.LoginPage })));
+const PainelPage = lazy(() => import("./pages/PainelPage").then((m) => ({ default: m.PainelPage })));
+const AdminPage = lazy(() => import("./pages/AdminPage").then((m) => ({ default: m.AdminPage })));
+const TermosPage = lazy(() => import("./pages/TermosPage").then((m) => ({ default: m.TermosPage })));
+const PrivacidadePage = lazy(() => import("./pages/PrivacidadePage").then((m) => ({ default: m.PrivacidadePage })));
+const DiagnosticoPage = lazy(() => import("./pages/DiagnosticoPage").then((m) => ({ default: m.DiagnosticoPage })));
+const ExcluirContaPage = lazy(() => import("./pages/ExcluirContaPage").then((m) => ({ default: m.ExcluirContaPage })));
+const ConfiguracaoPage = lazy(() => import("./pages/ConfiguracaoPage").then((m) => ({ default: m.ConfiguracaoPage })));
+const ComoFuncionaPage = lazy(() => import("./pages/ComoFuncionaPage").then((m) => ({ default: m.ComoFuncionaPage })));
+const FavoritosPage = lazy(() => import("./pages/FavoritosPage").then((m) => ({ default: m.FavoritosPage })));
+const PerfilPage = lazy(() => import("./pages/PerfilPage").then((m) => ({ default: m.PerfilPage })));
+const AssinaturaPage = lazy(() => import("./pages/AssinaturaPage").then((m) => ({ default: m.AssinaturaPage })));
+const AnalyticsPage = lazy(() => import("./pages/AnalyticsPage").then((m) => ({ default: m.AnalyticsPage })));
+const AnunciosPage = lazy(() => import("./pages/AnunciosPage").then((m) => ({ default: m.AnunciosPage })));
+
 
 /**
  * BottomSheet acessível de qualquer lugar do app (link no rodapé) para
@@ -136,6 +149,11 @@ export default function App() {
       <AppShell>
       <RetomarDestinoLogin />
       <AvisoErroLogin />
+      {/* Enquanto a tela pedida chega, o app não pode piscar em branco: a
+          barra de baixo e o cabeçalho continuam, e só o miolo espera. */}
+      <Suspense fallback={<div className="container" style={{ paddingTop: 48, textAlign: "center" }}>
+        <span className="muted">Carregando…</span>
+      </div>}>
       <Routes>
         <Route path="/" element={<HomePage />} />
         <Route path="/inicio" element={<BoasVindasPage />} />
@@ -158,6 +176,7 @@ export default function App() {
         <Route path="/assinatura" element={<AssinaturaPage />} />
         <Route path="/analytics/:id" element={<AnalyticsPage />} />
       </Routes>
+      </Suspense>
       <Footer />
       </AppShell>
       <AvisoDeDados />
