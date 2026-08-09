@@ -20,6 +20,10 @@ import { TourGuide, type TourStep } from "../components/TourGuide";
 import { hasSeenWelcome, markTourSeen, shouldRunTour } from "../lib/onboarding";
 import { temDestinoLogin } from "../lib/auth";
 import { useOnlineCount } from "../lib/presence";
+import { useAuth } from "../lib/useAuth";
+import { BottomSheet } from "../components/BottomSheet";
+import { enviarIndicacao } from "../lib/indicacoes";
+import { formatPhone } from "../lib/phone";
 
 /**
  * Passos do tour de primeiro acesso. Cada um aponta para um pedaço real da
@@ -86,6 +90,13 @@ export function HomePage() {
     return !voltandoDoLogin && !temDestinoLogin() && !hasSeenWelcome();
   });
   const online = useOnlineCount();
+  const { user } = useAuth();
+  const [indicarAberto, setIndicarAberto] = useState(false);
+  const [indNome, setIndNome] = useState("");
+  const [indContato, setIndContato] = useState("");
+  const [indSaving, setIndSaving] = useState(false);
+  const [indEnviada, setIndEnviada] = useState(false);
+  const [indErro, setIndErro] = useState("");
 
   useEffect(() => {
     getCidadesComAnuncio().then(setCidades);
@@ -252,6 +263,88 @@ export function HomePage() {
         </div>
       </div>
 
+      {indicarAberto && (
+        <BottomSheet
+          title={indEnviada ? "Obrigada!" : "Indicar um profissional"}
+          subtitle={
+            indEnviada
+              ? undefined
+              : "A gente entra em contato e convida. Não precisa saber tudo — nome e telefone já bastam."
+          }
+          onClose={() => {
+            setIndicarAberto(false);
+            setIndEnviada(false);
+          }}
+        >
+          {indEnviada ? (
+            <div style={{ display: "grid", gap: 14 }}>
+              <p style={{ margin: 0 }}>
+                Anotado. Indicação de quem já conhece o trabalho vale mais que qualquer anúncio — é assim que
+                esta lista cresce com gente boa.
+              </p>
+              <button
+                className="btn btn-primary btn-block"
+                onClick={() => {
+                  setIndicarAberto(false);
+                  setIndEnviada(false);
+                }}
+              >
+                Fechar
+              </button>
+            </div>
+          ) : (
+            <div style={{ display: "grid", gap: 12 }}>
+              <input
+                placeholder="Nome da pessoa (ou como a conhecem)"
+                value={indNome}
+                onChange={(e) => setIndNome(e.target.value)}
+              />
+              <input
+                placeholder="Telefone ou WhatsApp, se souber"
+                value={indContato}
+                inputMode="tel"
+                onChange={(e) => setIndContato(formatPhone(e.target.value))}
+              />
+              {indErro && <p className="form-erro">{indErro}</p>}
+              <button
+                className="btn btn-primary btn-block"
+                disabled={indSaving}
+                onClick={async () => {
+                  if (!indNome.trim() && !indContato.trim()) {
+                    setIndErro("Escreva pelo menos o nome ou o telefone.");
+                    return;
+                  }
+                  setIndSaving(true);
+                  setIndErro("");
+                  try {
+                    await enviarIndicacao({
+                      // O termo buscado vai junto: saber que 40 pessoas
+                      // procuraram "soldador" e não acharam já vale sozinho.
+                      servico_buscado: category || debouncedText || null,
+                      cidade: city || DEFAULT_CITY,
+                      nome_indicado: indNome.trim() || null,
+                      contato_indicado: indContato.trim() || null,
+                      user_id: user?.id ?? null,
+                    });
+                    setIndNome("");
+                    setIndContato("");
+                    setIndEnviada(true);
+                  } catch (err) {
+                    setIndErro(
+                      err instanceof Error ? err.message : "Não foi possível enviar agora."
+                    );
+                  } finally {
+                    setIndSaving(false);
+                  }
+                }}
+              >
+                {indSaving ? "Enviando…" : "Enviar indicação"}
+              </button>
+            </div>
+          )}
+        </BottomSheet>
+      )}
+
       {sponsorship && (
         <Link
           to={`/profissional/${sponsorship.professional.id}`}
@@ -306,7 +399,20 @@ export function HomePage() {
       >
         {loading && <p className="muted">Buscando…</p>}
         {!loading && results.length === 0 && (
-          <p className="muted">Não achamos ninguém com esses filtros. Tente outra categoria ou tire o filtro de nota.</p>
+          /* Busca vazia é o momento mais informativo do app: a pessoa acabou
+             de dizer o que precisa e não achou. Sem isto ela só ia embora, e
+             a informação — o que falta na cidade e quem poderia preencher —
+             ia junto. */
+          <div className="card vazio-indicar">
+            <strong>Não achamos ninguém com esses filtros.</strong>
+            <p className="muted">
+              Tente outra categoria ou tire o filtro de nota. E se você conhece alguém que faz esse serviço,
+              indique — a gente convida.
+            </p>
+            <button className="btn btn-primary" onClick={() => setIndicarAberto(true)}>
+              Indicar um profissional
+            </button>
+          </div>
         )}
         {results.map((p) => {
           const verified = isCurrentlyVerified(p);

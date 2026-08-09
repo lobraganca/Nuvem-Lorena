@@ -23,6 +23,7 @@ import {
   type ProfessionalWithRating,
 } from "../lib/professionals";
 import { listSuggestions, updateSuggestionStatus } from "../lib/suggestions";
+import { atualizarStatusIndicacao, listarIndicacoes, type Indicacao } from "../lib/indicacoes";
 import { CITIES, type Suggestion, type SuggestionStatus } from "../types/domain";
 
 const STATUS_LABEL: Record<ReportStatus, string> = {
@@ -59,6 +60,7 @@ export function AdminPage() {
   const [categorias, setCategorias] = useState<string[]>([]);
   const [destaques, setDestaques] = useState<DestaqueAtivo[]>([]);
   const [demanda, setDemanda] = useState<DemandaDestaque[]>([]);
+  const [indicacoes, setIndicacoes] = useState<Indicacao[]>([]);
   const [onlySuspended, setOnlySuspended] = useState(false);
 
   const [suspending, setSuspending] = useState<string | null>(null);
@@ -77,6 +79,7 @@ export function AdminPage() {
     getCategoriasComAnuncio().then(setCategorias);
     getDestaquesAtivos().then(setDestaques);
     getDemandaDeDestaque().then(setDemanda);
+    listarIndicacoes().then(setIndicacoes);
     setReports(await listReports());
     setSuggestions(await listSuggestions());
     const data = await fetchPros(0);
@@ -149,6 +152,7 @@ export function AdminPage() {
         getCategoriasComAnuncio().then(setCategorias);
         getDestaquesAtivos().then(setDestaques);
         getDemandaDeDestaque().then(setDemanda);
+        listarIndicacoes().then(setIndicacoes);
         const data = await searchProfessionals({ page: 0 });
         setPros(data);
         setProsPage(0);
@@ -378,6 +382,59 @@ export function AdminPage() {
             </div>
           ))}
         </div>
+      </section>
+
+      <section style={{ marginTop: 32 }}>
+        <h2>Quem a cidade procurou e não achou</h2>
+        <p className="muted" style={{ marginTop: -6 }}>
+          Indicações deixadas por quem buscou e não encontrou ninguém. É a sua lista de prospecção — gente
+          indicada por quem já conhece o trabalho.
+        </p>
+        {indicacoes.filter((i) => i.status === "nova").length === 0 ? (
+          <p className="muted">Nenhuma indicação nova.</p>
+        ) : (
+          <div style={{ display: "grid", gap: 10 }}>
+            {indicacoes
+              .filter((i) => i.status === "nova")
+              .map((i) => (
+                <div key={i.id} className="card" style={{ display: "grid", gap: 6 }}>
+                  <strong>{i.nome_indicado || "(sem nome)"}</strong>
+                  <span style={{ fontSize: "0.9rem" }}>
+                    {i.contato_indicado ? (
+                      <a href={`tel:${(i.contato_indicado ?? "").replace(/\D/g, "")}`}>{i.contato_indicado}</a>
+                    ) : (
+                      <span className="muted">sem telefone</span>
+                    )}
+                  </span>
+                  <span className="muted" style={{ fontSize: "0.85rem" }}>
+                    Procuravam: <strong>{i.servico_buscado || "não informado"}</strong>
+                    {i.cidade ? ` · ${i.cidade}` : ""} ·{" "}
+                    {new Date(i.created_at).toLocaleDateString("pt-BR")}
+                  </span>
+                  <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+                    <button
+                      className="btn btn-outline"
+                      onClick={async () => {
+                        await atualizarStatusIndicacao(i.id, "contatada");
+                        setIndicacoes(await listarIndicacoes());
+                      }}
+                    >
+                      Já convidei
+                    </button>
+                    <button
+                      className="btn btn-outline"
+                      onClick={async () => {
+                        await atualizarStatusIndicacao(i.id, "descartada");
+                        setIndicacoes(await listarIndicacoes());
+                      }}
+                    >
+                      Descartar
+                    </button>
+                  </div>
+                </div>
+              ))}
+          </div>
+        )}
       </section>
 
       <section style={{ marginTop: 32 }}>
