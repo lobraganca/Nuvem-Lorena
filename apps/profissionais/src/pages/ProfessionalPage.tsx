@@ -397,6 +397,9 @@ export function ProfessionalPage() {
               <p className="muted">
                 {professional.category} · {professional.city}
               </p>
+              {professional.especialidade && (
+                <p className="card-especialidade">{professional.especialidade}</p>
+              )}
               {/* Endereço só existe para quem tem ponto fixo. Quando existe,
                   é informação de primeira ordem — decide se dá para ir a pé. */}
               {/* Rua e número só chegam aqui quando a pessoa marcou a caixa

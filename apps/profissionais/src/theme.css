@@ -2867,3 +2867,19 @@ h3 {
   gap: 10px;
   flex-wrap: wrap;
 }
+
+/* Especialidade: o recorte dentro do ofício ("Ortodontia", "Caça-vazamento").
+   Linha própria e em dourado porque é o que decide entre dois anúncios da
+   mesma categoria — na linha da categoria ela seria só mais uma palavra. */
+.card-especialidade {
+  margin: 2px 0 0;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--color-gold-deep);
+}
+
+/* Sobre o cartão azul o dourado escuro perde força. */
+.card-pro .card-especialidade,
+.card-perfil .card-especialidade {
+  color: #f0cd88;
+}

@@ -80,8 +80,15 @@ export async function searchProfessionals(filters: SearchFilters): Promise<Profe
     // a palavra escrita no nome ou no texto do anúncio. Sem isto, o campo
     // principal do app falhava justamente na busca mais óbvia — e a pessoa
     // concluía que não havia eletricista na cidade.
+    //
+    // `especialidade` entra pelo mesmo motivo, um nível abaixo: quem digita
+    // "ortodontista" não está procurando "dentista", está procurando aquilo.
+    // Sem este campo na busca, a especialidade apareceria no anúncio e não
+    // serviria para achar ninguém.
     const t = filters.text.replace(/[%,()]/g, " ").trim();
-    query = query.or(`name.ilike.%${t}%,bio.ilike.%${t}%,category.ilike.%${t}%`);
+    query = query.or(
+      `name.ilike.%${t}%,bio.ilike.%${t}%,category.ilike.%${t}%,especialidade.ilike.%${t}%`
+    );
   }
   if (filters.onlySuspended) query = query.eq("suspended", true);
 

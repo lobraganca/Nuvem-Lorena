@@ -34,6 +34,24 @@ export function ComoFuncionaPage() {
       </div>
 
       <div className="card" style={{ display: "grid", gap: 10, marginBottom: 16 }}>
+        <h2 style={{ margin: 0 }}>Como fecho o app</h2>
+        <p className="muted" style={{ margin: 0 }}>
+          Do mesmo jeito que você fecha qualquer aplicativo, porque o Busca instalado é um aplicativo como os
+          outros. No <strong>iPhone</strong>: deslize de baixo para cima, segure, e empurre o Busca para cima.
+          No <strong>Android</strong>: toque no botão de recentes e empurre o Busca para o lado.
+        </p>
+        <p className="muted" style={{ margin: 0 }}>
+          Não existe botão de fechar dentro do app — nem aqui, nem no Instagram, nem no WhatsApp. Nenhum
+          aplicativo se fecha por dentro. E você não precisa fechar: pode ir para a tela de início do celular
+          que o Busca não fica gastando bateria nem internet parado.
+        </p>
+        <p className="muted" style={{ margin: 0 }}>
+          Se o que você quer é <strong>sair da sua conta</strong>, isso tem botão: em{" "}
+          <Link to="/perfil">Perfil</Link>, em "Sair da conta".
+        </p>
+      </div>
+
+      <div className="card" style={{ display: "grid", gap: 10, marginBottom: 16 }}>
         <h2 style={{ margin: 0 }}>Como excluo minha conta</h2>
         <p className="muted" style={{ margin: 0 }}>
           Vá em <strong>Perfil</strong> (o último ícone da barra de baixo) e role até o fim: embaixo de "Sair

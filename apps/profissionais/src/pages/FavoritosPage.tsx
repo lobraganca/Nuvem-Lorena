@@ -79,6 +79,7 @@ export function FavoritosPage() {
                   <p className="muted" style={{ margin: "4px 0" }}>
                     {p.category} · {p.city}
                   </p>
+                  {p.especialidade && <p className="card-especialidade">{p.especialidade}</p>}
                 </div>
               </div>
               {p.verified && (

@@ -20,6 +20,8 @@ export interface Professional {
   name: string;
   category: string; // categoria principal (destaque no card, usada no patrocínio)
   categories: string[]; // todos os serviços que a pessoa oferece — é o que a busca consulta
+  /** Recorte dentro do ofício: "Ortodontia", "Pintura residencial". */
+  especialidade: string | null;
   city: string;
   bio: string;
   phone: string; // telefone para ligação
@@ -448,6 +450,9 @@ export function normalizarCategoria(texto: string): string {
 
 /** Limite do serviço escrito à mão: um ofício, não uma descrição do anúncio. */
 export const MAX_CATEGORIA_LEN = 32;
+
+/** Limite da especialidade: um recorte do ofício, não a segunda descrição. */
+export const MAX_ESPECIALIDADE_LEN = 60;
 
 /**
  * Cidade padrão do produto hoje ("Busca Itabirito"). A modelagem já guarda a

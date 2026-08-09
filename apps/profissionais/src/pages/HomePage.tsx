@@ -471,6 +471,11 @@ export function HomePage() {
                     {p.category}
                     {(p.categories?.length ?? 0) > 1 && ` +${p.categories.length - 1}`} · {p.city}
                   </p>
+                  {/* A especialidade vem numa linha só dela, e não colada na
+                      categoria: é o que decide entre dois anúncios do mesmo
+                      ofício, e emendada no "Dentista · Itabirito" ela viraria
+                      mais uma palavra numa linha que ninguém termina de ler. */}
+                  {p.especialidade && <p className="card-especialidade">{p.especialidade}</p>}
                   {/* Selo e destaque numa fila própria, embaixo. Ao lado do
                       nome, eles disputavam a mesma linha com o coração e
                       empurravam tudo para fora da tela — e o nome, que é o

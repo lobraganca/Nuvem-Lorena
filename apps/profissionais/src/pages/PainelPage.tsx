@@ -30,7 +30,7 @@ import {
   PRICES,
   type AssinaturaAtiva,
 } from "../lib/payments";
-import { CATEGORIES, CITIES, DEFAULT_CITY, MAX_CATEGORIES, MAX_CATEGORIA_LEN, normalizarCategoria, SPONSORSHIP_PLANS, type CategorySponsorship, type ContactRequest, type ContactRequestStatus, type Professional, type SubscriptionType } from "../types/domain";
+import { CATEGORIES, CITIES, DEFAULT_CITY, MAX_CATEGORIES, MAX_CATEGORIA_LEN, MAX_ESPECIALIDADE_LEN, normalizarCategoria, SPONSORSHIP_PLANS, type CategorySponsorship, type ContactRequest, type ContactRequestStatus, type Professional, type SubscriptionType } from "../types/domain";
 import { formatDocument, isValidDocument } from "../lib/documents";
 import { uploadProfessionalPhoto } from "../lib/storage";
 import { formatPhone, isValidPhone } from "../lib/phone";
@@ -42,6 +42,46 @@ import { SeletorDeServicos } from "../components/SeletorDeServicos";
 import { CatalogoDeServicos } from "../components/CatalogoDeServicos";
 import { mensagemDeErro } from "../lib/erros";
 import { SeletorDeAtributos } from "../components/SeletorDeAtributos";
+
+/**
+ * Exemplo de especialidade para o ofício escolhido.
+ *
+ * Um campo vazio chamado "especialidade" recebe qualquer coisa — inclusive
+ * o nome da profissão de novo, ou "atendimento de qualidade". O exemplo é o
+ * que ensina o formato em silêncio, e por isso ele precisa ser do ramo da
+ * pessoa: "Ortodontia" não ajuda um pintor.
+ *
+ * A lista cobre os ofícios em que a especialidade mais pesa na escolha; para
+ * os outros vale o exemplo genérico, que ainda mostra o formato (uma
+ * expressão curta, não uma frase).
+ */
+const EXEMPLOS_DE_ESPECIALIDADE: Record<string, string> = {
+  "Dentista": "Ex: Ortodontia (aparelho)",
+  "Clínica odontológica": "Ex: Implantes e próteses",
+  "Clínica médica": "Ex: Cardiologia",
+  "Psicólogo": "Ex: Terapia cognitivo-comportamental",
+  "Fisioterapeuta": "Ex: Reabilitação pós-cirúrgica",
+  "Nutricionista": "Ex: Nutrição esportiva",
+  "Advogado": "Ex: Direito trabalhista",
+  "Contador": "Ex: MEI e pequenas empresas",
+  "Pintor": "Ex: Pintura residencial e textura",
+  "Pedreiro": "Ex: Alvenaria e reforma de banheiro",
+  "Eletricista": "Ex: Instalação de chuveiro e quadro",
+  "Encanador": "Ex: Caça-vazamento",
+  "Mecânico": "Ex: Injeção eletrônica",
+  "Cabeleireiro": "Ex: Coloração e mechas",
+  "Manicure": "Ex: Alongamento em gel",
+  "Professor particular": "Ex: Matemática do ensino médio",
+  "Fotógrafo": "Ex: Casamento e ensaio de gestante",
+  "Confeiteira": "Ex: Bolo de casamento",
+  "Costureira": "Ex: Ajuste de roupa social",
+  "Veterinário": "Ex: Cães e gatos",
+  "Personal trainer": "Ex: Emagrecimento e hipertrofia",
+};
+
+function exemploDeEspecialidade(categoria: string): string {
+  return EXEMPLOS_DE_ESPECIALIDADE[categoria] ?? "Ex: no que você é especialista";
+}
 
 type FormState = Omit<
   Professional,
@@ -71,6 +111,7 @@ const EMPTY: FormState = {
   // resposta colocada na boca da pessoa.
   category: "",
   categories: [],
+  especialidade: "",
   atributos: [],
   city: DEFAULT_CITY,
   bio: "",
@@ -207,6 +248,7 @@ export function PainelPage() {
       category: p.category,
       categories: p.categories?.length ? p.categories : [p.category],
       atributos: p.atributos ?? [],
+      especialidade: p.especialidade ?? "",
       city: p.city,
       bio: p.bio,
       // Anúncios salvos antes da máscara existir têm o telefone em qualquer
@@ -946,6 +988,28 @@ export function PainelPage() {
                 setForm({ ...form, categories: lista, category: lista[0] ?? "" })
               }
             />
+
+            {/* Só aparece depois que existe um ofício: perguntar "qual sua
+                especialidade?" antes de saber a profissão é uma pergunta sem
+                contexto, e o exemplo — que é o que faz a pessoa entender o
+                campo — depende justamente do ofício escolhido. */}
+            {form.category && (
+              <label style={{ display: "grid", gap: 6, marginTop: 14 }}>
+                <span className="muted">
+                  Sua especialidade <strong>(opcional)</strong>
+                </span>
+                <input
+                  placeholder={exemploDeEspecialidade(form.category)}
+                  value={form.especialidade ?? ""}
+                  maxLength={MAX_ESPECIALIDADE_LEN}
+                  onChange={(e) => setForm({ ...form, especialidade: e.target.value })}
+                />
+                <span className="muted" style={{ fontSize: "0.82rem" }}>
+                  O que você faz <em>dentro</em> do seu ofício. Quem procura aparelho não quer qualquer
+                  dentista — e quem digitar sua especialidade na busca vai te encontrar por ela.
+                </span>
+              </label>
+            )}
           </fieldset>
 
           <fieldset className="contact-fields">
