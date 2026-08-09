@@ -26,6 +26,7 @@
 // deno-lint-ignore-file no-explicit-any
 import { createClient } from "jsr:@supabase/supabase-js@2";
 import { ehTipoValido, precoAnual, ROTULOS } from "../_shared/precos.ts";
+import { comCors } from "../_shared/cors.ts";
 
 const MP_ACCESS_TOKEN = Deno.env.get("MP_ACCESS_TOKEN") ?? "";
 const SUPABASE_URL = Deno.env.get("SUPABASE_URL") ?? "";
@@ -34,7 +35,7 @@ const PUBLIC_APP_URL = Deno.env.get("PUBLIC_APP_URL") ?? "http://localhost:5173"
 
 
 
-Deno.serve(async (req) => {
+Deno.serve(comCors(async (req) => {
   if (req.method !== "POST") {
     return new Response(JSON.stringify({ error: "Método não suportado." }), { status: 405 });
   }
@@ -140,4 +141,4 @@ Deno.serve(async (req) => {
   } catch (err: any) {
     return new Response(JSON.stringify({ error: err?.message ?? "Erro inesperado." }), { status: 500 });
   }
-});
+}));

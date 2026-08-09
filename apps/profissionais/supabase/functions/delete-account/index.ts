@@ -20,11 +20,12 @@
 
 // deno-lint-ignore-file no-explicit-any
 import { createClient } from "jsr:@supabase/supabase-js@2";
+import { comCors } from "../_shared/cors.ts";
 
 const SUPABASE_URL = Deno.env.get("SUPABASE_URL") ?? "";
 const SUPABASE_SERVICE_ROLE_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "";
 
-Deno.serve(async (req) => {
+Deno.serve(comCors(async (req) => {
   if (req.method !== "POST") {
     return new Response(JSON.stringify({ error: "Método não suportado." }), { status: 405 });
   }
@@ -59,4 +60,4 @@ Deno.serve(async (req) => {
     console.error("delete-account: erro inesperado", err?.message ?? err);
     return new Response(JSON.stringify({ error: err?.message ?? "Erro inesperado." }), { status: 500 });
   }
-});
+}));

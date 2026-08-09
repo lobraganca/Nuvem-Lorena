@@ -22,6 +22,7 @@
 
 // deno-lint-ignore-file no-explicit-any
 import { createClient } from "jsr:@supabase/supabase-js@2";
+import { comCors } from "../_shared/cors.ts";
 
 const SUPABASE_URL = Deno.env.get("SUPABASE_URL") ?? "";
 const SUPABASE_SERVICE_ROLE_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "";
@@ -36,7 +37,7 @@ function json(corpo: unknown, status = 200) {
   });
 }
 
-Deno.serve(async (req) => {
+Deno.serve(comCors(async (req) => {
   if (req.method !== "POST") return json({ error: "Método não suportado." }, 405);
 
   try {
@@ -152,4 +153,4 @@ Deno.serve(async (req) => {
     console.error("cancel-subscription: erro inesperado", err?.message ?? err);
     return json({ error: "Erro inesperado ao cancelar." }, 500);
   }
-});
+}));
