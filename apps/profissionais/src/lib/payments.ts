@@ -1,4 +1,5 @@
 import { supabase } from "./supabase";
+import { erroDaFunction } from "./erros";
 import type { BillingCycle, EntityType, SubscriptionType } from "../types/domain";
 
 /**
@@ -28,7 +29,7 @@ export async function startSubscriptionCheckout(
     body: { professionalId, type },
   });
 
-  if (error) throw error;
+  if (error) throw await erroDaFunction(error);
   if (!data?.initPoint) throw new Error("Resposta inesperada do checkout do Mercado Pago.");
   return { initPoint: data.initPoint as string };
 }
@@ -48,7 +49,7 @@ export async function startAnnualSubscriptionCheckout(
   const { data, error } = await client.functions.invoke("mercadopago-create-annual-subscription", {
     body: { professionalId, type },
   });
-  if (error) throw error;
+  if (error) throw await erroDaFunction(error);
   if (!data?.initPoint) throw new Error("Resposta inesperada do checkout do Mercado Pago.");
   return { initPoint: data.initPoint as string };
 }
@@ -70,7 +71,7 @@ export async function startAnnualCheckout(
   const { data, error } = await client.functions.invoke("mercadopago-create-annual-payment", {
     body: { professionalId, type },
   });
-  if (error) throw error;
+  if (error) throw await erroDaFunction(error);
   if (!data?.initPoint) throw new Error("Resposta inesperada do checkout do Mercado Pago.");
   return { initPoint: data.initPoint as string };
 }
@@ -85,7 +86,7 @@ export async function startCreditsCheckout(professionalId: string, quantity: num
   const { data, error } = await client.functions.invoke("mercadopago-buy-credits", {
     body: { professionalId, quantity },
   });
-  if (error) throw error;
+  if (error) throw await erroDaFunction(error);
   if (!data?.initPoint) throw new Error("Resposta inesperada do checkout do Mercado Pago.");
   return { initPoint: data.initPoint as string };
 }
@@ -102,7 +103,7 @@ export async function startSponsorshipCheckout(
   const { data, error } = await client.functions.invoke("mercadopago-sponsor-category", {
     body: { professionalId, category, city, days },
   });
-  if (error) throw error;
+  if (error) throw await erroDaFunction(error);
   if (!data?.initPoint) throw new Error("Resposta inesperada do checkout do Mercado Pago.");
   return { initPoint: data.initPoint as string };
 }
@@ -244,5 +245,5 @@ export async function entrarNaFilaDeDestaque(
       { professional_id: professionalId, category, city },
       { onConflict: "professional_id,category,city" }
     );
-  if (error) throw error;
+  if (error) throw await erroDaFunction(error);
 }
