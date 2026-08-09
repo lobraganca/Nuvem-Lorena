@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Páginas fixas do site. As páginas de cada profissional não entram aqui
+     porque são geradas no navegador; indexá-las exige pré-renderização, que
+     é um passo maior e está anotado como melhoria futura. -->
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <url><loc>https://www.buscaitabirito.com.br/</loc><priority>1.0</priority></url>
+  <url><loc>https://www.buscaitabirito.com.br/inicio</loc><priority>0.8</priority></url>
+  <url><loc>https://www.buscaitabirito.com.br/como-funciona</loc><priority>0.6</priority></url>
+  <url><loc>https://www.buscaitabirito.com.br/termos</loc><priority>0.3</priority></url>
+  <url><loc>https://www.buscaitabirito.com.br/privacidade</loc><priority>0.3</priority></url>
+  <url><loc>https://www.buscaitabirito.com.br/excluir-conta</loc><priority>0.3</priority></url>
+</urlset>

@@ -71,6 +71,65 @@ import { createClient } from "jsr:@supabase/supabase-js@2";
 const SUPABASE_URL = Deno.env.get("SUPABASE_URL") ?? "";
 const SUPABASE_SERVICE_ROLE_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "";
 const MP_ACCESS_TOKEN = Deno.env.get("MP_ACCESS_TOKEN") ?? "";
+/**
+ * Segredo da assinatura do webhook (Mercado Pago > Suas integrações >
+ * Webhooks > "Chave secreta"). Sem ele configurado, a checagem é ignorada e
+ * o comportamento é o de antes — a revalidação na API do Mercado Pago segue
+ * sendo a defesa principal. Com ele, notificação forjada nem chega a virar
+ * consulta.
+ */
+const MP_WEBHOOK_SECRET = Deno.env.get("MP_WEBHOOK_SECRET") ?? "";
+
+/**
+ * Confere a assinatura que o Mercado Pago manda no cabeçalho `x-signature`.
+ *
+ * O formato é `ts=<timestamp>,v1=<hash>`, e o hash é um HMAC-SHA256 sobre o
+ * texto `id:<data.id>;request-id:<x-request-id>;ts:<ts>;` — exatamente nessa
+ * ordem, com os dois-pontos e ponto-e-vírgula, senão não fecha.
+ *
+ * A comparação é feita byte a byte em tempo constante: comparar com `===`
+ * vaza, pelo tempo de resposta, quantos caracteres iniciais estavam certos.
+ */
+async function assinaturaValida(req: Request, dataId: string): Promise<boolean> {
+  if (!MP_WEBHOOK_SECRET) return true;
+
+  const assinatura = req.headers.get("x-signature") ?? "";
+  const requestId = req.headers.get("x-request-id") ?? "";
+  const partes = new Map(
+    assinatura.split(",").map((p) => {
+      const [k, ...resto] = p.trim().split("=");
+      return [k, resto.join("=")] as const;
+    })
+  );
+  const ts = partes.get("ts");
+  const v1 = partes.get("v1");
+  if (!ts || !v1) return false;
+
+  // Assinatura velha é ataque de repetição: o mesmo aviso reenviado depois
+  // para reprocessar um pagamento antigo.
+  const idadeSegundos = Math.abs(Date.now() / 1000 - Number(ts));
+  if (!Number.isFinite(idadeSegundos) || idadeSegundos > 600) return false;
+
+  const manifesto = `id:${dataId};request-id:${requestId};ts:${ts};`;
+  const chave = await crypto.subtle.importKey(
+    "raw",
+    new TextEncoder().encode(MP_WEBHOOK_SECRET),
+    { name: "HMAC", hash: "SHA-256" },
+    false,
+    ["sign"]
+  );
+  const assinado = await crypto.subtle.sign("HMAC", chave, new TextEncoder().encode(manifesto));
+  const esperado = Array.from(new Uint8Array(assinado))
+    .map((b) => b.toString(16).padStart(2, "0"))
+    .join("");
+
+  if (esperado.length !== v1.length) return false;
+  let diferenca = 0;
+  for (let i = 0; i < esperado.length; i++) {
+    diferenca |= esperado.charCodeAt(i) ^ v1.charCodeAt(i);
+  }
+  return diferenca === 0;
+}
 
 type Admin = ReturnType<typeof createClient>;
 
@@ -378,6 +437,14 @@ Deno.serve(async (req) => {
     const id: string | undefined = body?.data?.id ?? body?.id;
 
     if (!id || !MP_ACCESS_TOKEN) {
+      return new Response(JSON.stringify({ received: true }), { status: 200 });
+    }
+
+    if (!(await assinaturaValida(req, String(id)))) {
+      // 200 de propósito: responder 401 ensina a quem está sondando que o
+      // endereço existe e é interessante. Para o Mercado Pago legítimo isso
+      // nunca acontece.
+      console.error("webhook mercadopago: assinatura inválida, ignorado");
       return new Response(JSON.stringify({ received: true }), { status: 200 });
     }
 

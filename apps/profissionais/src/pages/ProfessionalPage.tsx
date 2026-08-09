@@ -73,6 +73,8 @@ export function ProfessionalPage() {
   const [reqSaving, setReqSaving] = useState(false);
   const [reqSent, setReqSent] = useState(false);
   const [reqError, setReqError] = useState("");
+  /** Só usado onde o navegador não tem compartilhamento nativo (desktop). */
+  const [copiado, setCopiado] = useState(false);
 
   async function load() {
     if (!id) return;
@@ -462,6 +464,31 @@ export function ProfessionalPage() {
 
         <button className="btn btn-primary btn-block" style={{ marginTop: 14 }} onClick={() => setContactSheetOpen(true)}>
           Peça para {professional.name.split(" ")[0]} te chamar
+        </button>
+
+        {/* Numa cidade, o app cresce no boca a boca — e boca a boca hoje é
+            link colado no grupo da família. Sem isto, indicar alguém exige
+            copiar o endereço da barra, que quase ninguém faz no celular. */}
+        <button
+          className="btn btn-outline btn-block"
+          style={{ marginTop: 10 }}
+          onClick={async () => {
+            const url = window.location.href;
+            const texto = `${professional.name} — ${professional.category} em ${professional.city}`;
+            try {
+              if (navigator.share) {
+                await navigator.share({ title: professional.name, text: texto, url });
+              } else {
+                await navigator.clipboard.writeText(`${texto}\n${url}`);
+                setCopiado(true);
+                setTimeout(() => setCopiado(false), 2500);
+              }
+            } catch {
+              // Cancelar o compartilhamento não é erro — a pessoa mudou de ideia.
+            }
+          }}
+        >
+          {copiado ? "Link copiado ✓" : "Indicar para alguém"}
         </button>
         <p className="muted" style={{ margin: "8px 0 0", fontSize: "0.84rem" }}>
           Sem tempo de ligar agora? Deixe seu número que a pessoa retorna.

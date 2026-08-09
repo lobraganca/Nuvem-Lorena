@@ -13,6 +13,7 @@ import { AdminPage } from "./pages/AdminPage";
 import { TermosPage } from "./pages/TermosPage";
 import { PrivacidadePage } from "./pages/PrivacidadePage";
 import { DiagnosticoPage } from "./pages/DiagnosticoPage";
+import { ExcluirContaPage } from "./pages/ExcluirContaPage";
 import { ComoFuncionaPage } from "./pages/ComoFuncionaPage";
 import { FavoritosPage } from "./pages/FavoritosPage";
 import { PerfilPage } from "./pages/PerfilPage";
@@ -97,6 +98,7 @@ function Footer() {
         </p>
         <p style={{ marginTop: 6 }}>
           <Link to="/termos">Termos de Uso</Link> · <Link to="/privacidade">Privacidade</Link> ·{" "}
+          <Link to="/excluir-conta">Excluir conta</Link> ·{" "}
           <Link to="/como-funciona">Como funciona</Link> ·{" "}
           <button
             type="button"
@@ -146,6 +148,9 @@ export default function App() {
         <Route path="/privacidade" element={<PrivacidadePage />} />
         {/* Sem link em lugar nenhum: existe para depurar login a distancia. */}
         <Route path="/diagnostico" element={<DiagnosticoPage />} />
+        {/* Endereco publico exigido pela Google Play: exclusao de conta
+            explicada sem precisar estar logado. */}
+        <Route path="/excluir-conta" element={<ExcluirContaPage />} />
         <Route path="/como-funciona" element={<ComoFuncionaPage />} />
         <Route path="/favoritos" element={<FavoritosPage />} />
         <Route path="/perfil" element={<PerfilPage />} />

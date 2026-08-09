@@ -1,4 +1,5 @@
 import { supabase } from "./supabase";
+import { comprimirImagem } from "./imagem";
 
 /**
  * Bucket público de Storage usado para foto de rosto (pessoa física) ou logo
@@ -32,12 +33,15 @@ export async function uploadProfessionalPhoto(ownerId: string, file: File): Prom
     );
   }
 
-  const ext = file.name.split(".").pop() || "jpg";
+  // Reduzida antes de sair do aparelho: o que vai para a rede é o arquivo
+  // pequeno, não o original de 8 MB.
+  const arquivo = await comprimirImagem(file);
+  const ext = arquivo.name.split(".").pop() || "jpg";
   const path = `${ownerId}/${Date.now()}.${ext}`;
 
-  const { error } = await client.storage.from(PROFESSIONAL_PHOTOS_BUCKET).upload(path, file, {
+  const { error } = await client.storage.from(PROFESSIONAL_PHOTOS_BUCKET).upload(path, arquivo, {
     upsert: true,
-    contentType: file.type || undefined,
+    contentType: arquivo.type || undefined,
   });
   if (error) throw error;
 

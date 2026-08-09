@@ -1,0 +1,12 @@
+# O app é público por natureza: quem anuncia quer ser achado, inclusive pelo
+# Google. As telas de painel e administração ficam de fora — não têm conteúdo
+# para quem busca e não devem aparecer em resultado nenhum.
+User-agent: *
+Allow: /
+Disallow: /painel
+Disallow: /admin
+Disallow: /perfil
+Disallow: /diagnostico
+Disallow: /analytics
+
+Sitemap: https://www.buscaitabirito.com.br/sitemap.xml
