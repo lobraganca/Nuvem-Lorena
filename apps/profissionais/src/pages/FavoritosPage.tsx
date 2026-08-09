@@ -81,7 +81,11 @@ export function FavoritosPage() {
                   </p>
                 </div>
               </div>
-              {p.verified && <VerifiedBadge />}
+              {p.verified && (
+                <span className="badge badge-selo">
+                  <VerifiedBadge size={14} /> Verificado
+                </span>
+              )}
               <p style={{ marginTop: 10 }}>
                 {p.average_rating ? (
                   <Estrelas nota={p.average_rating} />

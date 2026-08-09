@@ -6,8 +6,14 @@
  * do card e competia por atenção com o nome. O selo cabe ao lado do nome, que
  * é onde o olho procura por ele.
  *
- * Vem em azul da marca, não no azul de rede nenhuma: é o selo desta
- * plataforma, e o texto alternativo diz isso a quem usa leitor de tela.
+ * Dourado, e não azul da marca. O dourado é a única cor que ficou reservada
+ * à identidade aqui — não existe botão dourado, não existe etiqueta dourada
+ * solta —, então quando ele aparece num anúncio a pessoa entende sozinha que
+ * aquilo é diferente do resto. E é o único item pago que quem procura
+ * enxerga: quem assina precisa ver o dinheiro dele na tela.
+ *
+ * O tique vai em branco sobre o dourado escuro (5,6:1) em vez do dourado
+ * claro: um tique que não se lê transforma o selo numa mancha.
  */
 export function VerifiedBadge({ size = 18 }: { size?: number }) {
   return (
@@ -28,7 +34,7 @@ export function VerifiedBadge({ size = 18 }: { size?: number }) {
       <path
         d="M7.8 12.2l2.9 2.9 5.5-5.9"
         stroke="#fff"
-        strokeWidth="2.2"
+        strokeWidth="2.6"
         strokeLinecap="round"
         strokeLinejoin="round"
         fill="none"

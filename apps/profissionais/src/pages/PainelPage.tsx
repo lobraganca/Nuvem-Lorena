@@ -970,9 +970,8 @@ export function PainelPage() {
           <fieldset className="contact-fields">
             <legend>Mais informações</legend>
             <p className="muted" style={{ margin: "0 0 10px", fontSize: "0.85rem" }}>
-              Nada aqui é obrigatório, mas cada etiqueta marcada é uma pergunta a menos no WhatsApp — e uma
-              desistência a menos de quem precisava justamente de sábado, de emergência ou de cartão. Marque só
-              o que você cumpre: etiqueta que não se sustenta vira avaliação ruim.
+              Opcional. Diz <strong>quando</strong> e <strong>como</strong> você atende — fim de semana,
+              emergência, cartão, se vai até o cliente.
             </p>
             <SeletorDeAtributos
               escolhidos={form.atributos}

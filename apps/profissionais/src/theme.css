@@ -1182,9 +1182,17 @@ textarea::placeholder {
 
 /* Selo de verificação ao lado do nome */
 .verified-badge {
-  color: var(--color-primary);
+  color: var(--color-gold-deep);
   flex-shrink: 0;
   vertical-align: middle;
+}
+
+/* No cartão azul o dourado escuro perde força — ali ele sobe para o dourado
+   médio, que é o que brilha sobre fundo escuro, e ganha um halo suave para
+   se destacar do azul sem precisar de mais tamanho. */
+.card-pro .verified-badge {
+  color: var(--color-gold-mid);
+  filter: drop-shadow(0 0 6px rgba(200, 162, 74, 0.55));
 }
 
 /* Marca no cabeçalho: maior que a do rodapé, para ser a âncora visual da
@@ -2653,4 +2661,40 @@ h3 {
   .perfil-identidade {
     align-items: flex-start;
   }
+}
+
+/* Etiqueta do selo de verificação: dourada cheia, e não o vidro fosco das
+   outras etiquetas do cartão azul.
+   É o único item pago que quem procura enxerga — a roseta discreta ao lado
+   do nome não justificava uma assinatura mensal. Quem paga precisa ver o
+   dinheiro dele na tela, e quem procura precisa reparar na diferença sem
+   caçar. Vale para dentro e fora do cartão escuro, por isso o seletor se
+   repete com `.card-pro`. */
+.badge-selo,
+.card-pro .badge-selo {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  background: linear-gradient(135deg, #f0cd88, var(--color-gold-mid));
+  border: 1px solid var(--color-gold-mid);
+  color: #3d2a08;
+  font-weight: 700;
+  box-shadow: 0 2px 10px rgba(184, 134, 59, 0.45);
+}
+
+/* Dentro da etiqueta a roseta perde o halo (o fundo já é dourado) e o tique
+   fica escuro, porque agora o que está atrás dele é claro. */
+.badge-selo .verified-badge,
+.card-pro .badge-selo .verified-badge {
+  color: #3d2a08;
+  filter: none;
+}
+
+/* Fila de selos do cartão: verificado, destaque e tipo de cadastro. */
+.card-selos {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+  margin-top: 6px;
 }

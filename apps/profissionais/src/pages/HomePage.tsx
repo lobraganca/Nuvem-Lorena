@@ -464,21 +464,30 @@ export function HomePage() {
                 )}
                 <div style={{ flex: 1 }}>
                   <div style={{ display: "flex", justifyContent: "space-between", alignItems: "start", gap: 8 }}>
-                    <h3 className="card-nome">
-                      {p.name} {verified && <VerifiedBadge />}
-                    </h3>
-                    <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
-                      {boosted && <span className="badge badge-boosted">Destaque</span>}
-                      <FavoriteButton professionalId={p.id} />
-                    </div>
+                    <h3 className="card-nome">{p.name}</h3>
+                    <FavoriteButton professionalId={p.id} />
                   </div>
                   <p className="muted" style={{ margin: "4px 0" }}>
                     {p.category}
                     {(p.categories?.length ?? 0) > 1 && ` +${p.categories.length - 1}`} · {p.city}
                   </p>
-                  <span className={p.entity_type === "pj" ? "badge badge-entity-pj" : "badge badge-entity-pf"}>
-                    {p.entity_type === "pj" ? "Empresa" : "Profissional autônomo"}
-                  </span>
+                  {/* Selo e destaque numa fila própria, embaixo. Ao lado do
+                      nome, eles disputavam a mesma linha com o coração e
+                      empurravam tudo para fora da tela — e o nome, que é o
+                      que a pessoa lê primeiro, quebrava em duas linhas para
+                      caber. A roseta some daqui: com a etiqueta escrita ao
+                      lado, eram dois "verificado" no mesmo cartão. */}
+                  <div className="card-selos">
+                    {verified && (
+                      <span className="badge badge-selo">
+                        <VerifiedBadge size={14} /> Verificado
+                      </span>
+                    )}
+                    {boosted && <span className="badge badge-boosted">Destaque</span>}
+                    <span className={p.entity_type === "pj" ? "badge badge-entity-pj" : "badge badge-entity-pf"}>
+                      {p.entity_type === "pj" ? "Empresa" : "Profissional autônomo"}
+                    </span>
+                  </div>
                   {p.entity_type === "pj" && p.responsible_name && (
                     <p className="muted" style={{ margin: "4px 0 0", fontSize: "0.82rem" }}>Responsável: {p.responsible_name}</p>
                   )}
