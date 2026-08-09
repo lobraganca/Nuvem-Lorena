@@ -1,0 +1,57 @@
+# Confere o app dos profissionais a cada envio.
+#
+# Até aqui, o que segurava erro era alguém rodar a checagem à mão antes de
+# publicar. Isso funciona enquanto ninguém tem pressa — e falha exatamente no
+# dia de pressa, que é quando o erro sai caro.
+#
+# São duas checagens, e as duas pegam classes diferentes de defeito:
+#   - a de tipos acha o que o editor acharia (campo que mudou de nome,
+#     função chamada com argumento a menos);
+#   - a montagem acha o que só aparece ao juntar tudo (import quebrado,
+#     arquivo que sumiu, erro de sintaxe em arquivo que ninguém abriu).
+#
+# Não roda testes de tela porque ainda não existem. Quando existirem, entram
+# aqui como um terceiro passo.
+
+name: Verificar app
+
+on:
+  push:
+    paths:
+      - "apps/profissionais/**"
+      - ".github/workflows/verificar-app.yml"
+  pull_request:
+    paths:
+      - "apps/profissionais/**"
+
+jobs:
+  verificar:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: apps/profissionais
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+          cache-dependency-path: apps/profissionais/package-lock.json
+
+      # `npm ci` em vez de `npm install`: instala exatamente as versões do
+      # package-lock. Sem isso, uma dependência atualizada sozinha poderia
+      # quebrar aqui sem ninguém ter mexido em nada.
+      - run: npm ci
+
+      - name: Conferir os tipos
+        run: npx tsc --noEmit
+
+      - name: Montar o app
+        run: npm run build
+        env:
+          # Valores de mentira, só para a montagem passar: nada aqui vai para
+          # o site publicado, que usa as variáveis reais da Vercel.
+          VITE_SUPABASE_URL: https://exemplo.supabase.co
+          VITE_SUPABASE_ANON_KEY: chave-de-mentira-para-montagem
