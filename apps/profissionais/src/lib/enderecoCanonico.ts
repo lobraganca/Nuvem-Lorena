@@ -26,27 +26,33 @@
  * página que não existe — e, pior, quem já tem o app instalado fica sem
  * caminho de volta.
  *
- * Por isso os dois endereços convivem: cada um leva à sua própria versão com
- * `www`, e nenhum manda ninguém para o outro. A mudança de fato acontece
- * quando `LIGAR_DOMINIO_NOVO` virar `true`, e só depois que os três painéis
- * estiverem prontos. Trocar essa constante é a última etapa, não a primeira.
+ * Por isso os dois endereços conviveram até a virada: cada um levava à sua
+ * própria versão com `www`, e nenhum mandava ninguém para o outro. A chave
+ * foi virada em 9/8/2026, depois de o domínio novo responder com certificado
+ * e de estar autorizado no Google e no Supabase — nessa ordem, que é a que
+ * não derruba o login.
+ *
+ * O domínio antigo continua no ar e agora redireciona para o novo. Ele não
+ * deve ser desligado: é o que segura quem guardou o link antigo e quem tem o
+ * app instalado por ele.
  */
 
-/** Endereço definitivo, para quando a virada estiver preparada. */
+/** Endereço oficial do app. */
 const HOST_NOVO = "www.procuroapp.com.br";
 
-/** Endereço em uso hoje. Continua funcionando durante toda a transição. */
+/** Endereço anterior. Continua no ar, redirecionando para o novo. */
 const HOST_ANTIGO = "www.buscaitabirito.com.br";
 
 /**
- * Vira `true` só depois que o domínio novo estiver:
- *   1. adicionado na Vercel, com o certificado emitido;
- *   2. autorizado no Google (origens e URLs de retorno);
- *   3. na lista de redirecionamento do Supabase.
+ * Virado em 9/8/2026, depois de cumpridas as três condições — domínio na
+ * Vercel com certificado emitido, autorizado no Google, e na lista de
+ * redirecionamento do Supabase.
  *
- * Antes disso, ligar é quebrar o app para todo mundo ao mesmo tempo.
+ * Fica aqui, e não some, porque é o caminho de volta: se algo der errado no
+ * endereço novo, voltar para `false` devolve o app ao endereço antigo em uma
+ * publicação, sem precisar desfazer nada nos painéis.
  */
-const LIGAR_DOMINIO_NOVO = false;
+const LIGAR_DOMINIO_NOVO = true;
 
 /** O canônico de hoje. */
 const HOST_CANONICO = LIGAR_DOMINIO_NOVO ? HOST_NOVO : HOST_ANTIGO;
@@ -73,8 +79,9 @@ export function irParaEnderecoCanonico(): boolean {
     return true;
   }
 
-  // Domínio antigo depois da virada: leva para o novo, uma vez só. Antes da
-  // virada isto não acontece, porque HOST_CANONICO é o próprio antigo.
+  // Domínio antigo depois da virada: leva para o novo, uma vez só. Com a
+  // chave desligada isto não acontece, porque HOST_CANONICO é o próprio
+  // antigo — e é assim que se volta atrás sem mexer em painel nenhum.
   if (hostname === HOST_ANTIGO && HOST_CANONICO !== HOST_ANTIGO) {
     window.location.replace(`https://${HOST_CANONICO}${pathname}${search}${hash}`);
     return true;
