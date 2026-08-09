@@ -1,10 +1,10 @@
 /**
  * Um app, um endereço só.
  *
- * `buscaitabirito.com.br` e `www.buscaitabirito.com.br` são o mesmo site para
- * uma pessoa e dois sites diferentes para o navegador: sessão, dados
- * guardados e a senha temporária do login do Google ficam separados por
- * endereço, sem se enxergarem.
+ * `procuroapp.com.br` e `www.procuroapp.com.br` são o mesmo site para uma
+ * pessoa e dois sites diferentes para o navegador: sessão, dados guardados e
+ * a senha temporária do login do Google ficam separados por endereço, sem se
+ * enxergarem.
  *
  * É isso que quebrava o login. Ele começa guardando um segredo e, na volta,
  * confere se bate. Começando em um endereço e terminando no outro, a
@@ -15,18 +15,72 @@
  * chegue a ser guardado no endereço errado. Caminho, filtros e o pedaço
  * depois do `#` (onde vem o token do login) são preservados inteiros — perder
  * o `#` aqui seria trocar um login quebrado por outro.
+ *
+ * ── A troca de nome, e por que ela não é uma linha só ──────────────────────
+ *
+ * O app mudou de "Busca Itabirito" para "procurô", e o endereço vai de
+ * `buscaitabirito.com.br` para `procuroapp.com.br`. Mandar todo mundo para o
+ * endereço novo de uma vez é o jeito mais fácil de derrubar o app inteiro:
+ * enquanto o domínio novo não estiver ligado na Vercel, com HTTPS emitido e
+ * autorizado no Google e no Supabase, esse desvio joga quem abrir o app numa
+ * página que não existe — e, pior, quem já tem o app instalado fica sem
+ * caminho de volta.
+ *
+ * Por isso os dois endereços convivem: cada um leva à sua própria versão com
+ * `www`, e nenhum manda ninguém para o outro. A mudança de fato acontece
+ * quando `LIGAR_DOMINIO_NOVO` virar `true`, e só depois que os três painéis
+ * estiverem prontos. Trocar essa constante é a última etapa, não a primeira.
  */
-const HOST_CANONICO = "www.buscaitabirito.com.br";
-const HOST_ALTERNATIVO = "buscaitabirito.com.br";
+
+/** Endereço definitivo, para quando a virada estiver preparada. */
+const HOST_NOVO = "www.procuroapp.com.br";
+
+/** Endereço em uso hoje. Continua funcionando durante toda a transição. */
+const HOST_ANTIGO = "www.buscaitabirito.com.br";
+
+/**
+ * Vira `true` só depois que o domínio novo estiver:
+ *   1. adicionado na Vercel, com o certificado emitido;
+ *   2. autorizado no Google (origens e URLs de retorno);
+ *   3. na lista de redirecionamento do Supabase.
+ *
+ * Antes disso, ligar é quebrar o app para todo mundo ao mesmo tempo.
+ */
+const LIGAR_DOMINIO_NOVO = false;
+
+/** O canônico de hoje. */
+const HOST_CANONICO = LIGAR_DOMINIO_NOVO ? HOST_NOVO : HOST_ANTIGO;
+
+/**
+ * Cada domínio tem a sua forma sem `www`, e é dela que a pessoa precisa ser
+ * tirada — mesmo no domínio que ainda não é o canônico, porque enquanto os
+ * dois estiverem no ar os dois precisam ter login funcionando.
+ */
+const SEM_WWW: Record<string, string> = {
+  "procuroapp.com.br": "www.procuroapp.com.br",
+  "buscaitabirito.com.br": "www.buscaitabirito.com.br",
+};
 
 export function irParaEnderecoCanonico(): boolean {
   if (typeof window === "undefined") return false;
 
   const { hostname, pathname, search, hash } = window.location;
-  if (hostname !== HOST_ALTERNATIVO) return false;
 
-  window.location.replace(`https://${HOST_CANONICO}${pathname}${search}${hash}`);
-  return true;
+  // Endereço sem www: sobe para o www do mesmo domínio.
+  const comWww = SEM_WWW[hostname];
+  if (comWww) {
+    window.location.replace(`https://${comWww}${pathname}${search}${hash}`);
+    return true;
+  }
+
+  // Domínio antigo depois da virada: leva para o novo, uma vez só. Antes da
+  // virada isto não acontece, porque HOST_CANONICO é o próprio antigo.
+  if (hostname === HOST_ANTIGO && HOST_CANONICO !== HOST_ANTIGO) {
+    window.location.replace(`https://${HOST_CANONICO}${pathname}${search}${hash}`);
+    return true;
+  }
+
+  return false;
 }
 
 /**
@@ -36,9 +90,16 @@ export function irParaEnderecoCanonico(): boolean {
  * endereço sem www e o desvio acima ainda não tiver acontecido, o retorno
  * seria pedido para o endereço errado — e o login quebraria de novo, agora
  * sem ninguém para consertar no meio do caminho.
+ *
+ * Durante a transição o retorno é o `www` do domínio em que a pessoa está, e
+ * não o canônico global: quem entrar pelo endereço antigo tem que voltar do
+ * Google para o endereço antigo, senão o login quebra justamente para quem
+ * ainda não migrou.
  */
 export function origemCanonica(): string {
   if (typeof window === "undefined") return `https://${HOST_CANONICO}`;
-  if (window.location.hostname === HOST_ALTERNATIVO) return `https://${HOST_CANONICO}`;
-  return window.location.origin;
+  const { hostname, origin } = window.location;
+  const comWww = SEM_WWW[hostname];
+  if (comWww) return `https://${comWww}`;
+  return origin;
 }

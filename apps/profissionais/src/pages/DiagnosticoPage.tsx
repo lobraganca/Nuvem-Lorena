@@ -87,7 +87,13 @@ export function DiagnosticoPage() {
       <p className="muted">Tire uma foto desta tela inteira e mande na conversa.</p>
 
       <div className="card">
-        <Linha rotulo="Endereço" valor={window.location.host} ok={window.location.host === "www.buscaitabirito.com.br"} />
+        {/* Os dois endereços valem durante a troca de nome: quem entrar pelo
+            antigo não está com problema, está com o endereço de antes. */}
+        <Linha
+          rotulo="Endereço"
+          valor={window.location.host}
+          ok={/^www\.(procuroapp|buscaitabirito)\.com\.br$/.test(window.location.host)}
+        />
         <Linha rotulo="Configuração do banco" valor={problema ?? "OK"} ok={!problema} />
         <Linha rotulo="Tem sessão?" valor={sessao} ok={sessao.startsWith("SIM")} />
         <Linha rotulo="Conta" valor={email} />

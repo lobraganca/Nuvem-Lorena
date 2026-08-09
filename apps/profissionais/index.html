@@ -17,7 +17,12 @@
 
     <!-- Como o link aparece quando alguém manda o app no WhatsApp.
          Sem isto, o compartilhamento vira uma linha de endereço crua, e o
-         boca a boca é justamente como este app vai crescer numa cidade. -->
+         boca a boca é justamente como este app vai crescer numa cidade.
+
+         Os três endereços abaixo trocam para procuroapp.com.br JUNTO com o
+         LIGAR_DOMINIO_NOVO de src/lib/enderecoCanonico.ts, e não antes: um
+         canonical apontando para um domínio que ainda não responde manda o
+         Google desindexar o app. Ver TROCA-DE-DOMINIO.md, passo 6. -->
     <link rel="canonical" href="https://www.buscaitabirito.com.br/" />
     <meta property="og:type" content="website" />
     <meta property="og:site_name" content="procurô" />
