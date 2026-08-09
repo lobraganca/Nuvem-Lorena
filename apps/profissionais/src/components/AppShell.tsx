@@ -1,6 +1,7 @@
 import { useEffect, useState, type ReactNode } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { Logo } from "./Logo";
+import { InstalarApp } from "./InstalarApp";
 import { useAuth } from "../lib/useAuth";
 import { signOut } from "../lib/auth";
 import { isAdmin } from "../lib/admin";
@@ -92,11 +93,16 @@ function Header({ logado }: { logado: boolean }) {
   return (
     <header className="container header">
       <Logo size="md" />
-      {logado && (
-        <button type="button" className="header-sair" onClick={() => signOut()}>
-          Sair
-        </button>
-      )}
+      <span className="header-acoes">
+        {/* Ao lado da marca, em todas as telas: some sozinho quando o app já
+            está instalado ou quando o navegador não sabe instalar. */}
+        <InstalarApp variante="cabecalho" />
+        {logado && (
+          <button type="button" className="header-sair" onClick={() => signOut()}>
+            Sair
+          </button>
+        )}
+      </span>
     </header>
   );
 }

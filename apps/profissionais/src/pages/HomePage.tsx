@@ -25,7 +25,6 @@ import { useAuth } from "../lib/useAuth";
 import { BottomSheet } from "../components/BottomSheet";
 import { enviarIndicacao } from "../lib/indicacoes";
 import { formatPhone } from "../lib/phone";
-import { InstalarApp } from "../components/InstalarApp";
 
 /**
  * Iniciais em cor, no lugar do bonequinho genérico.
@@ -209,8 +208,6 @@ export function HomePage() {
           sozinha que existe um Painel no rodapé. O convite fica no alto,
           numa faixa fina: visível de primeira, sem disputar espaço com a
           busca, que continua sendo o assunto principal da tela. */}
-      <InstalarApp variante="faixa" />
-
       <Link to="/painel" className="cta-anunciar">
         <span>
           <strong>Você presta serviço?</strong> Cadastre-se e apareça nas buscas — é grátis.

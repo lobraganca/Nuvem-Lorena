@@ -42,7 +42,7 @@ function ehIOS(): boolean {
   return /iphone|ipad|ipod/i.test(navigator.userAgent);
 }
 
-export function InstalarApp({ variante = "lista" }: { variante?: "lista" | "faixa" }) {
+export function InstalarApp({ variante = "lista" }: { variante?: "lista" | "faixa" | "cabecalho" }) {
   const [prompt, setPrompt] = useState<PromptDeInstalacao | null>(null);
   const [instalado, setInstalado] = useState(() => estaInstalado());
   const [ensinandoIOS, setEnsinandoIOS] = useState(false);
@@ -81,6 +81,57 @@ export function InstalarApp({ variante = "lista" }: { variante?: "lista" | "faix
     if (outcome === "accepted") setInstalado(true);
     // O evento só pode ser usado uma vez.
     setPrompt(null);
+  }
+
+  /* A folha do iPhone é a mesma nas três variantes — declarada uma vez para
+     não haver duas versões do texto se um dia ele mudar. */
+  const folhaIOS = (
+    <BottomSheet
+      title="Adicionar à tela de início"
+      subtitle="No iPhone, quem instala é o próprio Safari — são três toques."
+      onClose={() => setEnsinandoIOS(false)}
+    >
+      <ol style={{ display: "grid", gap: 10, paddingLeft: 20, margin: 0, lineHeight: 1.45 }}>
+        <li>
+          Toque no botão <strong>Compartilhar</strong> — o quadrado com a seta para cima, na barra de baixo.
+        </li>
+        <li>
+          Role a lista e toque em <strong>Adicionar à Tela de Início</strong>.
+        </li>
+        <li>
+          Toque em <strong>Adicionar</strong>, no canto de cima.
+        </li>
+      </ol>
+      <p className="muted" style={{ marginTop: 14, fontSize: "0.88rem" }}>
+        O ícone do Busca Itabirito aparece junto com os outros aplicativos, e daí em diante abre sem passar
+        pelo navegador.
+      </p>
+    </BottomSheet>
+  );
+
+  if (variante === "cabecalho") {
+    /* No cabeçalho, ao lado da marca: fica alcançável de qualquer tela, sem
+       ocupar espaço de conteúdo. Ícone e palavra curta porque divide a linha
+       com a logo e com o "Sair" — nome comprido empurraria a marca para
+       fora em tela estreita. */
+    return (
+      <>
+        <button
+          type="button"
+          className="btn-instalar-topo"
+          onClick={() => (podeInstalarDireto ? instalar() : setEnsinandoIOS(true))}
+          title="Adicionar o Busca à tela do celular"
+        >
+          <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+            <rect x="6" y="2.5" width="12" height="19" rx="2.5" />
+            <line x1="12" y1="8" x2="12" y2="15" />
+            <line x1="8.5" y1="11.5" x2="15.5" y2="11.5" />
+          </svg>
+          Instalar
+        </button>
+        {ensinandoIOS && folhaIOS}
+      </>
+    );
   }
 
   return (
@@ -127,29 +178,7 @@ export function InstalarApp({ variante = "lista" }: { variante?: "lista" | "faix
         </button>
       )}
 
-      {ensinandoIOS && (
-        <BottomSheet
-          title="Adicionar à tela de início"
-          subtitle="No iPhone, quem instala é o próprio Safari — são três toques."
-          onClose={() => setEnsinandoIOS(false)}
-        >
-          <ol style={{ display: "grid", gap: 10, paddingLeft: 20, margin: 0, lineHeight: 1.45 }}>
-            <li>
-              Toque no botão <strong>Compartilhar</strong> — o quadrado com a seta para cima, na barra de baixo.
-            </li>
-            <li>
-              Role a lista e toque em <strong>Adicionar à Tela de Início</strong>.
-            </li>
-            <li>
-              Toque em <strong>Adicionar</strong>, no canto de cima.
-            </li>
-          </ol>
-          <p className="muted" style={{ marginTop: 14, fontSize: "0.88rem" }}>
-            O ícone do Busca Itabirito aparece junto com os outros aplicativos, e daí em diante abre sem passar
-            pelo navegador.
-          </p>
-        </BottomSheet>
-      )}
+      {ensinandoIOS && folhaIOS}
     </>
   );
 }
