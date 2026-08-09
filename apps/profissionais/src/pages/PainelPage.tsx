@@ -132,6 +132,18 @@ const EMPTY: FormState = {
 
 const NAME_MAX_LENGTH = 80;
 
+/**
+ * Confirmação do número por código de SMS.
+ *
+ * Desligada enquanto o projeto não tiver um serviço de SMS contratado. Com o
+ * envio indisponível, oferecer o botão só produz erro: a pessoa pede o
+ * código, nada chega, e ela conclui que o app está quebrado.
+ *
+ * Ligar de volta é trocar este valor para `true` e restaurar o desvio nos
+ * botões de assinar (procure por "Exigência de número confirmado suspensa").
+ */
+const CONFIRMACAO_POR_SMS = false;
+
 
 export function PainelPage() {
   const { user, loading } = useAuth();
@@ -512,7 +524,7 @@ export function PainelPage() {
                 {/* A confirmação do número fica no card, e não escondida nas
                     configurações: é o que separa um anúncio de um número
                     qualquer digitado, e quem anuncia precisa ver que falta. */}
-                {p.whatsapp_verified ? (
+                {!CONFIRMACAO_POR_SMS ? null : p.whatsapp_verified ? (
                   <p className="whats-ok">✓ {formatPhone(p.whatsapp || p.phone)} confirmado</p>
                 ) : (
                   <div className="whats-pendente">
@@ -672,10 +684,8 @@ export function PainelPage() {
                       <button
                         className="btn btn-primary"
                         onClick={() => {
-                          if (!p.whatsapp_verified) {
-                            setConfirmandoWhats(p);
-                            return;
-                          }
+                          /* Exigência de número confirmado suspensa — ver a
+                             explicação no outro botão de assinar, mais abaixo. */
                           setPlanSheetFor({ professional: p, type: "verification" });
                         }}
                       >
@@ -712,14 +722,14 @@ export function PainelPage() {
                           <button
                             className="btn btn-teal"
                             onClick={() => {
-                              // O premium entrega botão de WhatsApp e pedido de
-                              // contato. Vender isso para um número que ninguém
-                              // confirmou é vender um atalho que leva a lugar
-                              // nenhum — e a reclamação volta para a plataforma.
-                              if (!p.whatsapp_verified) {
-                                setConfirmandoWhats(p);
-                                return;
-                              }
+                              /* A exigência de número confirmado está suspensa
+                                 enquanto não houver serviço de SMS contratado:
+                                 sem ele, nenhum código é enviado, e exigir o
+                                 que não pode ser feito não protege ninguém —
+                                 só impede toda e qualquer assinatura.
+                                 Para voltar a exigir, basta restaurar o desvio
+                                 para setConfirmandoWhats(p) quando
+                                 !p.whatsapp_verified. */
                               setPlanSheetFor({ professional: p, type: "verification" });
                             }}
                           >
