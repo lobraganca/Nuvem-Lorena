@@ -9,4 +9,4 @@ Disallow: /perfil
 Disallow: /diagnostico
 Disallow: /analytics
 
-Sitemap: https://www.buscaitabirito.com.br/sitemap.xml
+Sitemap: https://www.procuroapp.com.br/sitemap.xml

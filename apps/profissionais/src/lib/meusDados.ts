@@ -36,7 +36,7 @@ export async function baixarMeusDados(userId: string, email: string | undefined)
   const url = URL.createObjectURL(blob);
   const link = document.createElement("a");
   link.href = url;
-  link.download = `meus-dados-busca-itabirito-${new Date().toISOString().slice(0, 10)}.json`;
+  link.download = `meus-dados-procuro-${new Date().toISOString().slice(0, 10)}.json`;
   link.click();
   // Sem o revoke, o arquivo fica preso na memória da aba até ela fechar.
   URL.revokeObjectURL(url);
