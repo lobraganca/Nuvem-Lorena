@@ -2,8 +2,18 @@
    dourado como única cor de destaque. O verde sobrou só no botão do WhatsApp,
    onde ler como "verde" ajuda em vez de brigar com a identidade. */
 :root {
-  --color-bg: #ffffff;
-  --color-bg-soft: #f4f6f9;
+  /* Fundo levemente frio, cartões brancos.
+     Os dois eram #ffffff, e o cartão se dissolvia no fundo: sobrava uma
+     borda de 1px que desaparece em tela de celular no sol — que é onde este
+     app é usado. Continua lendo como app branco; o que muda é existir um
+     degrau entre a folha e o que está sobre ela. */
+  --color-bg: #f5f7fa;
+  /* Um tom abaixo do fundo da página: este cinza marca o que está *dentro*
+     de um cartão branco (campos, chips, blocos recolhidos). Com o fundo da
+     página virando cinza-claro, ele precisou descer junto — senão os dois
+     viravam a mesma cor e a distinção se perdia de novo, agora do outro
+     lado. */
+  --color-bg-soft: #eaeef4;
   --color-surface: #ffffff;
   --color-surface-raised: #f9fafc;
 
@@ -210,10 +220,13 @@ button {
 
 .card {
   background: var(--color-surface);
-  border: 1px solid var(--color-border);
+  /* Borda um tom mais firme junto com a sombra: a separação não pode
+     depender de uma coisa só, porque em brilho alto a sombra some antes da
+     borda e em tela fosca é o contrário. */
+  border: 1px solid var(--color-border-strong);
   border-radius: var(--radius);
   padding: 22px;
-  box-shadow: var(--shadow-card);
+  box-shadow: 0 1px 2px rgba(16, 26, 40, 0.05), 0 6px 16px rgba(16, 26, 40, 0.06);
 }
 
 /* Antes cada etiqueta tinha a sua cor, e um card com selo + destaque + tipo
