@@ -72,7 +72,11 @@ function traduzir(mensagem: string): string {
   if (m.includes("rate limit") || m.includes("too many")) {
     return "Muitas tentativas seguidas. Espere alguns minutos e tente de novo.";
   }
-  if (m.includes("phone provider") || m.includes("not enabled") || m.includes("unsupported")) {
+  /* "Unable to get SMS provider" é o que o Auth responde quando não há
+     serviço de SMS configurado no projeto. A frase escapava da tradução por
+     não conter "phone provider", e chegava em inglês a quem só queria
+     anunciar. */
+  if (m.includes("sms provider") || m.includes("phone provider") || m.includes("not enabled") || m.includes("unsupported")) {
     return "O envio por WhatsApp ainda não está ligado no servidor. Fale com a administração.";
   }
   if (m.includes("already been registered") || m.includes("already exists")) {
