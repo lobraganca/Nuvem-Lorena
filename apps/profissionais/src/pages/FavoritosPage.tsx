@@ -54,29 +54,26 @@ export function FavoritosPage() {
         {results.map((p) => {
           const whatsappLink = p.phone && p.verified ? `https://wa.me/${p.phone.replace(/\D/g, "")}` : null;
           return (
-            <Link key={p.id} to={`/profissional/${p.id}`} className="card" style={{ textDecoration: "none", color: "inherit" }}>
+            /* Mesmo cartão azul da busca: é a mesma pessoa nas duas telas, e
+               ver um cartão branco aqui e um azul lá faria parecer outra
+               coisa. */
+            <Link key={p.id} to={`/profissional/${p.id}`} className="card card-pro" style={{ textDecoration: "none", color: "inherit" }}>
               <div style={{ display: "flex", gap: 12, alignItems: "start" }}>
                 {p.photo_url ? (
                   <img
                     src={p.photo_url}
                     alt=""
-                    style={{
-                      width: 56,
-                      height: 56,
-                      objectFit: "cover",
-                      borderRadius: p.entity_type === "pj" ? 10 : "50%",
-                      border: "1px solid var(--color-border)",
-                      flexShrink: 0,
-                    }}
+                    className="card-foto"
+                    style={{ borderRadius: p.entity_type === "pj" ? 14 : "50%" }}
                   />
                 ) : (
-                  <div className="avatar-fallback" style={{ borderRadius: p.entity_type === "pj" ? 10 : "50%" }}>
+                  <div className="avatar-fallback card-foto" style={{ borderRadius: p.entity_type === "pj" ? 14 : "50%" }}>
                     {p.entity_type === "pj" ? "🏢" : "👤"}
                   </div>
                 )}
                 <div style={{ flex: 1 }}>
                   <div style={{ display: "flex", justifyContent: "space-between", alignItems: "start" }}>
-                    <h3 style={{ margin: 0 }}>{p.name}</h3>
+                    <h3 className="card-nome" style={{ margin: 0 }}>{p.name}</h3>
                     <FavoriteButton professionalId={p.id} initialFavorited />
                   </div>
                   <p className="muted" style={{ margin: "4px 0" }}>

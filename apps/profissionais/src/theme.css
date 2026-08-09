@@ -487,24 +487,32 @@ textarea::placeholder {
 
 /* ---------- App shell / bottom navigation (padrão de app mobile) ---------- */
 
+/* A barra agora flutua, então o conteúdo precisa terminar acima dela: a
+   altura da ilha, o vão de baixo e a faixa de gestos do iPhone. Sem isso o
+   último cartão da busca fica escondido atrás dela. */
 .app-content {
-  padding-bottom: calc(var(--bottom-nav-height) + 24px);
+  padding-bottom: calc(var(--bottom-nav-height) + 36px + env(safe-area-inset-bottom));
 }
 
+/* Ilha arredondada e suspensa, como a barra do Instagram: solta do rodapé,
+   com sombra por baixo, em vez da faixa colada de ponta a ponta. Fica acima
+   da faixa de gestos do iPhone (`safe-area-inset-bottom`) — colada embaixo,
+   o último item disputava espaço com o risquinho de voltar à tela inicial. */
 .bottom-nav {
   position: fixed;
-  left: 0;
-  right: 0;
-  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  bottom: calc(12px + env(safe-area-inset-bottom));
   z-index: 40;
+  width: min(440px, calc(100% - 24px));
   display: flex;
   justify-content: space-around;
   align-items: center;
   height: var(--bottom-nav-height);
   background: var(--color-surface);
-  border-top: 1px solid var(--color-border);
-  box-shadow: 0 -2px 16px rgba(10, 26, 47, 0.06);
-  padding-bottom: env(safe-area-inset-bottom);
+  border: 1px solid var(--color-border);
+  border-radius: 999px;
+  box-shadow: 0 10px 30px rgba(10, 26, 47, 0.16);
 }
 
 /* Barra só de ícones, como a do Instagram. O rótulo continua no HTML (ver
@@ -561,15 +569,8 @@ textarea::placeholder {
    vez de uma faixa de ponta a ponta na tela larga. */
 @media (min-width: 860px) {
   .bottom-nav {
-    left: 50%;
-    right: auto;
-    transform: translateX(-50%);
     bottom: 18px;
     width: min(560px, calc(100% - 40px));
-    border: 1px solid var(--color-border);
-    border-radius: 999px;
-    box-shadow: 0 8px 28px rgba(10, 26, 47, 0.14);
-    padding-bottom: 0;
   }
 }
 
@@ -2534,4 +2535,122 @@ h3 {
   object-fit: cover;
   border: 1px solid var(--color-border);
   flex-shrink: 0;
+}
+
+/* ---- Cartão do anúncio, na página do profissional ---- */
+
+/* O cartão de cima virou azul como o da busca. Vários filhos dele foram
+   desenhados supondo fundo branco, e sobre o azul cada um precisa do seu
+   ajuste — senão o que acontece é texto escuro sobre fundo escuro em pontos
+   isolados, que é o tipo de defeito que passa despercebido em revisão e
+   aparece na tela de quem usa. */
+.card-perfil .perfil-nome,
+.card-perfil h1,
+.card-perfil strong {
+  color: #ffffff;
+}
+
+.card-perfil,
+.card-perfil p {
+  color: #eaf1fb;
+}
+
+.card-perfil .desde-quando {
+  color: #c8d6ea;
+}
+
+/* Os canais de contato ganham fundo claro: são as ações que a pessoa veio
+   fazer, e sobre o azul um contorno translúcido as apagaria. */
+.card-perfil .contact-chip {
+  background: rgba(255, 255, 255, 0.95);
+  border-color: transparent;
+  color: var(--color-primary-deep);
+}
+
+.card-perfil .contact-chip:hover {
+  background: #ffffff;
+  border-color: transparent;
+}
+
+/* O tique das etiquetas de atendimento era dourado-claro sobre branco.
+   Sobre o azul, o dourado-claro some — vira branco translúcido. */
+.card-perfil .atributo-tique {
+  background: rgba(255, 255, 255, 0.16);
+  color: #ffffff;
+}
+
+.card-perfil .whats-ok,
+.card-perfil .selo-contato {
+  background: rgba(255, 255, 255, 0.14);
+  border-color: rgba(255, 255, 255, 0.28);
+  color: #eaf1fb;
+}
+
+/* A foto ganha um anel claro para não se dissolver no azul do cartão. */
+.card-perfil .perfil-foto {
+  border-color: rgba(255, 255, 255, 0.35);
+  box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.12);
+}
+
+/* Botão de plano B (pedir retorno) dentro do cartão escuro. */
+.card-perfil .btn-outline {
+  border-color: rgba(255, 255, 255, 0.5);
+  color: #ffffff;
+}
+
+.card-perfil .btn-outline:hover:not(:disabled) {
+  background: rgba(255, 255, 255, 0.12);
+}
+
+/* Ações escritas em azul-marinho (sem fundo próprio) ficavam azul sobre
+   azul dentro do cartão: 1,07 de contraste, ou seja, invisíveis. */
+.card-perfil .acao-discreta,
+.card-perfil a {
+  color: #ffffff;
+}
+
+/* Linha de cima do cartão do anúncio.
+   Com a foto maior, "Destaque" e o coração eram empurrados para fora da
+   tela e o nome quebrava em três linhas ("Maria / Eletrici / sta"). As ações
+   passam a ocupar uma linha própria acima da identidade em telas estreitas:
+   elas são secundárias, e nenhuma delas merece espremer o nome de quem
+   anuncia. */
+.perfil-topo {
+  display: flex;
+  flex-direction: column-reverse;
+  align-items: stretch;
+  gap: 10px;
+}
+
+.perfil-identidade {
+  display: flex;
+  gap: 14px;
+  align-items: center;
+  /* Sem isto o bloco de texto se recusa a encolher e empurra o resto. */
+  min-width: 0;
+}
+
+.perfil-identidade > div {
+  min-width: 0;
+}
+
+.perfil-acoes {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  justify-content: flex-end;
+}
+
+/* Em tela larga volta a ser uma linha só, com as ações à direita. */
+@media (min-width: 560px) {
+  .perfil-topo {
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 16px;
+  }
+
+  .perfil-identidade {
+    align-items: flex-start;
+  }
 }

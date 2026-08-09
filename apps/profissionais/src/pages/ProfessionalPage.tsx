@@ -358,9 +358,13 @@ export function ProfessionalPage() {
 
   return (
     <div className="container" style={{ paddingTop: 32 }}>
-      <div className="card">
-        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "start", gap: 16 }}>
-          <div style={{ display: "flex", gap: 14, alignItems: "start" }}>
+      {/* Azul como o cartão da busca e o dos favoritos: é a mesma pessoa
+          nas três telas, e ela é o assunto desta. O que vem depois — avaliar,
+          denunciar — fica em branco, e o degrau de cor separa quem é o
+          anúncio do que é conversa sobre ele. */}
+      <div className="card card-pro card-perfil">
+        <div className="perfil-topo">
+          <div className="perfil-identidade">
             {/* A foto é o que a pessoa olha antes de ler qualquer coisa —
                 é ela que responde "posso deixar esse alguém entrar na minha
                 casa?". A 72px ela era uma miniatura de lista, não um rosto. */}
@@ -410,7 +414,7 @@ export function ProfessionalPage() {
               )}
             </div>
           </div>
-          <div style={{ display: "flex", gap: 8, alignItems: "start" }}>
+          <div className="perfil-acoes">
             {boosted && <span className="badge badge-boosted">Destaque</span>}
             <FavoriteButton professionalId={professional.id} initialFavorited={isFavorite} size="large" />
           </div>
