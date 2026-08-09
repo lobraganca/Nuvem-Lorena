@@ -13,6 +13,7 @@ import { BotaoApple } from "../components/BotaoApple";
 import { baixarMeusDados } from "../lib/meusDados";
 import type { Profile } from "../types/domain";
 import { FecharApp } from "../components/FecharApp";
+import { MinhaAssinatura } from "../components/MinhaAssinatura";
 
 function initials(name: string | null, email: string | null | undefined): string {
   const source = name?.trim() || email?.trim() || "?";
@@ -127,6 +128,12 @@ export function PerfilPage() {
         <h2 style={{ margin: "12px 0 2px" }}>{name || user.email}</h2>
         {name && <p className="muted" style={{ margin: 0, fontSize: "0.85rem" }}>{user.email}</p>}
       </div>
+
+      {/* Antes do resto: é a pergunta que se faz no Perfil ("eu pago alguma
+          coisa por esse app?"), e a resposta estava escondida dentro do
+          Painel, presa ao cartão de cada anúncio. */}
+      <p className="settings-group-title">Assinatura</p>
+      <MinhaAssinatura userId={user.id} />
 
       <p className="settings-group-title">Meus anúncios</p>
       <div className="settings-list">
