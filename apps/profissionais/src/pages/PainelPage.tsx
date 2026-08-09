@@ -118,6 +118,13 @@ export function PainelPage() {
   const [mine, setMine] = useState<Professional[]>([]);
   /** Visualizações dos últimos 30 dias por anúncio — grátis para todo anunciante. */
   const [views30, setViews30] = useState<Record<string, number>>({});
+  /**
+   * Visualizações da última semana. Usadas só no anúncio sem assinatura, para
+   * dizer quantas pessoas chegaram nele sem ter como chamar — é o argumento
+   * mais forte que existe para assinar, porque é o número real da pessoa e
+   * não uma promessa nossa.
+   */
+  const [views7, setViews7] = useState<Record<string, number>>({});
   /** Pedidos de contato por anúncio (quem deixou o número pedindo retorno). */
   const [pedidos, setPedidos] = useState<Record<string, ContactRequest[]>>({});
   const [mostrarArquivados, setMostrarArquivados] = useState(false);
@@ -235,6 +242,9 @@ export function PainelPage() {
     let active = true;
     Promise.all(mine.map((p) => countRecentProfileViews(p.id).then((n) => [p.id, n] as const))).then((pares) => {
       if (active) setViews30(Object.fromEntries(pares));
+    });
+    Promise.all(mine.map((p) => countRecentProfileViews(p.id, 7).then((n) => [p.id, n] as const))).then((pares) => {
+      if (active) setViews7(Object.fromEntries(pares));
     });
     return () => {
       active = false;
@@ -584,9 +594,24 @@ export function PainelPage() {
                        libera o contato, e sem contato o resto rende pouco. */
                     <div className="oferta-destaque">
                       <p>
-                        <strong>Seu anúncio está no plano grátis.</strong> Quem procura consegue ver seu
-                        telefone, mas não tem o botão de WhatsApp nem o "peça para te chamar" — e é por ali que
-                        chega a maior parte dos contatos.
+                        {(views7[p.id] ?? 0) > 0 ? (
+                          <>
+                            <strong>
+                              {views7[p.id] === 1
+                                ? "1 pessoa abriu seu anúncio nos últimos 7 dias"
+                                : `${views7[p.id]} pessoas abriram seu anúncio nos últimos 7 dias`}{" "}
+                              e não tinham como te chamar com um toque.
+                            </strong>{" "}
+                            Elas viram seu telefone escrito, mas sem o botão de WhatsApp e sem o "peça para te
+                            chamar" — que é por onde chega a maior parte dos contatos.
+                          </>
+                        ) : (
+                          <>
+                            <strong>Seu anúncio está no plano grátis.</strong> Quem procura consegue ver seu
+                            telefone, mas não tem o botão de WhatsApp nem o "peça para te chamar" — e é por ali
+                            que chega a maior parte dos contatos.
+                          </>
+                        )}
                       </p>
                       <button
                         className="btn btn-primary"
