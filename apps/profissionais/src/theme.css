@@ -1258,22 +1258,35 @@ textarea::placeholder {
   margin: 0 auto;
   padding: 14px 16px;
   border-radius: 16px;
-  background: var(--color-surface);
-  border: 1px solid var(--color-border);
-  box-shadow: 0 10px 30px rgba(10, 26, 47, 0.16);
+  /* Azul-marinho da marca, e não branco sobre branco: a faixa precisa ser
+     vista de primeira — ela existe para informar sobre dados pessoais, e um
+     aviso que se confunde com o fundo não informa ninguém. */
+  background: var(--color-primary);
+  border: 1px solid var(--color-primary-deep);
+  box-shadow: 0 10px 30px rgba(10, 26, 47, 0.28);
 }
 
 .aviso-dados p {
   margin: 0;
   flex: 1 1 260px;
-  font-size: 0.86rem;
-  line-height: 1.4;
-  color: var(--color-text-muted);
+  font-size: 0.88rem;
+  line-height: 1.45;
+  color: #ffffff;
 }
 
+.aviso-dados a {
+  color: #ffffff;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+/* Botão claro sobre o azul: inverte o contraste em vez de repetir o mesmo
+   azul do fundo, que sumiria dentro da faixa. */
 .aviso-dados .btn {
   flex: none;
   padding: 8px 18px;
+  background: #ffffff;
+  color: var(--color-primary);
 }
 
 @media (min-width: 860px) {
@@ -1656,4 +1669,44 @@ textarea::placeholder {
   margin: 0;
   font-size: 0.9rem;
   line-height: 1.45;
+}
+
+/* Convite para instalar, na busca. Fina e dispensável: quem chegou veio
+   procurar alguém, e um app que pede instalação antes de provar que serve é
+   um app que a pessoa desinstala. */
+.instalar-faixa {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-top: 14px;
+  padding: 12px 14px;
+  border-radius: 14px;
+  background: var(--color-bg-soft);
+  border: 1px solid var(--color-border);
+  font-size: 0.87rem;
+  line-height: 1.4;
+}
+
+.instalar-faixa-acoes {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex: none;
+}
+
+.instalar-faixa .btn {
+  padding: 8px 16px;
+  font-size: 0.85rem;
+}
+
+.instalar-fechar {
+  background: none;
+  border: none;
+  color: var(--color-text-muted);
+  font-size: 1rem;
+  line-height: 1;
+  padding: 8px;
+  cursor: pointer;
 }

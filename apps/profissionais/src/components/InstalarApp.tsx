@@ -42,7 +42,7 @@ function ehIOS(): boolean {
   return /iphone|ipad|ipod/i.test(navigator.userAgent);
 }
 
-export function InstalarApp() {
+export function InstalarApp({ variante = "lista" }: { variante?: "lista" | "faixa" }) {
   const [prompt, setPrompt] = useState<PromptDeInstalacao | null>(null);
   const [instalado, setInstalado] = useState(() => estaInstalado());
   const [ensinandoIOS, setEnsinandoIOS] = useState(false);
@@ -85,19 +85,47 @@ export function InstalarApp() {
 
   return (
     <>
-      <button
-        type="button"
-        className="settings-item"
-        onClick={() => (podeInstalarDireto ? instalar() : setEnsinandoIOS(true))}
-      >
-        <span className="settings-icon" aria-hidden="true">
-          📲
-        </span>
-        <span>Adicionar à tela do celular</span>
-        <span className="settings-arrow" aria-hidden="true">
-          ›
-        </span>
-      </button>
+      {variante === "faixa" ? (
+        /* Na busca, o convite é uma faixa fina e dispensável: quem chegou
+           aqui veio procurar alguém, e um app que pede para ser instalado
+           antes de provar que serve é um app que a pessoa desinstala. */
+        <div className="instalar-faixa">
+          <span>
+            <strong>Deixe o Busca no seu celular.</strong> Vira ícone e abre direto, sem digitar o endereço.
+          </span>
+          <span className="instalar-faixa-acoes">
+            <button
+              type="button"
+              className="btn btn-primary"
+              onClick={() => (podeInstalarDireto ? instalar() : setEnsinandoIOS(true))}
+            >
+              Adicionar
+            </button>
+            <button
+              type="button"
+              className="instalar-fechar"
+              aria-label="Agora não"
+              onClick={() => setInstalado(true)}
+            >
+              ✕
+            </button>
+          </span>
+        </div>
+      ) : (
+        <button
+          type="button"
+          className="settings-item"
+          onClick={() => (podeInstalarDireto ? instalar() : setEnsinandoIOS(true))}
+        >
+          <span className="settings-icon" aria-hidden="true">
+            📲
+          </span>
+          <span>Adicionar à tela do celular</span>
+          <span className="settings-arrow" aria-hidden="true">
+            ›
+          </span>
+        </button>
+      )}
 
       {ensinandoIOS && (
         <BottomSheet
