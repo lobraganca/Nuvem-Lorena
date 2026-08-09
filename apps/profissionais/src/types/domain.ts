@@ -106,6 +106,11 @@ export interface Banner {
   inicio: string;
   fim: string;
   ativo: boolean;
+  /** Lado comercial. O pagamento acontece fora do app; aqui fica a anotação. */
+  contato_anunciante: string | null;
+  valor_centavos: number | null;
+  pago: boolean;
+  observacao: string | null;
   exibicoes: number;
   cliques: number;
   created_at: string;

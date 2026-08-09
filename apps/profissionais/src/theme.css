@@ -2995,3 +2995,19 @@ h3 {
   border-radius: 8px;
   border: 1px solid var(--color-border);
 }
+
+/* Avisos comerciais do painel de banners. */
+.aviso-banner {
+  margin: 0 0 12px;
+  padding: 10px 12px;
+  border-radius: 10px;
+  border-left: 4px solid var(--color-gold-mid);
+  background: var(--color-gold-tint);
+  font-size: 0.86rem;
+  line-height: 1.4;
+}
+
+.aviso-banner.devendo {
+  border-left-color: var(--color-danger);
+  background: rgba(192, 57, 43, 0.07);
+}

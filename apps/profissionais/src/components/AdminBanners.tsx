@@ -41,6 +41,10 @@ export function AdminBanners() {
   const [categoria, setCategoria] = useState("");
   const [inicio, setInicio] = useState(hoje());
   const [fim, setFim] = useState(daquiADias(30));
+  const [contatoAnunciante, setContatoAnunciante] = useState("");
+  const [valor, setValor] = useState("");
+  const [pago, setPago] = useState(false);
+  const [observacao, setObservacao] = useState("");
 
   async function carregar() {
     setCarregando(true);
@@ -62,6 +66,10 @@ export function AdminBanners() {
     setCategoria("");
     setInicio(hoje());
     setFim(daquiADias(30));
+    setContatoAnunciante("");
+    setValor("");
+    setPago(false);
+    setObservacao("");
     setErro("");
   }
 
@@ -75,6 +83,10 @@ export function AdminBanners() {
     setCategoria(b.categoria ?? "");
     setInicio(b.inicio);
     setFim(b.fim);
+    setContatoAnunciante(b.contato_anunciante ?? "");
+    setValor(b.valor_centavos === null ? "" : (b.valor_centavos / 100).toFixed(2).replace(".", ","));
+    setPago(b.pago);
+    setObservacao(b.observacao ?? "");
     setErro("");
   }
 
@@ -110,6 +122,10 @@ export function AdminBanners() {
         categoria: categoria || null,
         inicio,
         fim,
+        contato_anunciante: contatoAnunciante.trim() || null,
+        valor_centavos: valor.trim() ? Math.round(Number(valor.replace(/\./g, "").replace(",", ".")) * 100) : null,
+        pago,
+        observacao: observacao.trim() || null,
       });
       limpar();
       await carregar();
@@ -139,13 +155,38 @@ export function AdminBanners() {
     }
   }
 
+  // Sete dias é o aviso que dá tempo de ligar, combinar e receber antes de o
+  // banner sair do ar — encurtar vira correria, alongar vira ruído fixo.
+  const limite = daquiADias(7);
+  const vencendo = lista.filter((b) => estaNoAr(b) && b.fim <= limite);
+  const devendo = lista.filter((b) => estaNoAr(b) && !b.pago);
+
   return (
     <div>
       <p className="muted" style={{ marginTop: 0 }}>
         Publicidade paga na tela de busca. Quando há mais de um no ar para a mesma busca, o app sorteia qual
         mostrar a cada abertura — assim todos os que pagaram aparecem, sem fila e sem o primeiro levar sempre a
-        melhor.
+        melhor. O <strong>pagamento acontece fora do app</strong>; aqui fica a anotação de quem pagou o quê.
       </p>
+
+      {/* Os dois avisos que valem dinheiro. Campanha que vence sem ninguém
+          reparar é renovação perdida — e é o jeito mais comum de perder
+          receita numa venda de porta em porta. Banner no ar sem pagamento é
+          o outro lado do mesmo descuido. */}
+      {vencendo.length > 0 && (
+        <p className="aviso-banner">
+          <strong>Vence nos próximos 7 dias:</strong>{" "}
+          {vencendo
+            .map((b) => `${b.anunciante} (${b.fim.split("-").reverse().join("/")})`)
+            .join(", ")}
+          . Hora de ligar para renovar.
+        </p>
+      )}
+      {devendo.length > 0 && (
+        <p className="aviso-banner devendo">
+          <strong>No ar e ainda não pago:</strong> {devendo.map((b) => b.anunciante).join(", ")}.
+        </p>
+      )}
 
       {carregando ? (
         <p className="muted">Carregando…</p>
@@ -169,7 +210,11 @@ export function AdminBanners() {
                   </span>
                   <span className={estaNoAr(b) ? "banner-estado ok" : "banner-estado"}>
                     {estaNoAr(b) ? "no ar" : b.ativo ? "fora do período" : "desligado"}
+                    {b.valor_centavos !== null &&
+                      ` · ${(b.valor_centavos / 100).toLocaleString("pt-BR", { style: "currency", currency: "BRL" })}`}
+                    {b.valor_centavos !== null && (b.pago ? " · pago" : " · a receber")}
                   </span>
+                  {b.contato_anunciante && <span className="muted">{b.contato_anunciante}</span>}
                 </div>
                 <div className="banner-acoes">
                   <button type="button" onClick={() => editar(b)}>
@@ -254,6 +299,39 @@ export function AdminBanners() {
             <input type="date" value={fim} onChange={(e) => setFim(e.target.value)} />
           </label>
         </div>
+
+        <div className="banner-form-linha">
+          <input
+            placeholder="Contato do anunciante (WhatsApp)"
+            value={contatoAnunciante}
+            maxLength={60}
+            onChange={(e) => setContatoAnunciante(e.target.value)}
+          />
+          <input
+            placeholder="Valor combinado (ex: 79,90)"
+            value={valor}
+            inputMode="decimal"
+            onChange={(e) => setValor(e.target.value)}
+          />
+        </div>
+
+        <label className="opcao-endereco" style={{ background: "var(--color-surface)" }}>
+          <input type="checkbox" checked={pago} onChange={(e) => setPago(e.target.checked)} />
+          <span>
+            <strong>Já recebi o pagamento.</strong>
+            <span className="opcao-obs">
+              O app não cobra nada — isto é só a sua anotação. Enquanto estiver desmarcado, o banner aparece na
+              lista de "no ar e ainda não pago".
+            </span>
+          </span>
+        </label>
+
+        <input
+          placeholder="Observação (forma de pagamento, combinados)"
+          value={observacao}
+          maxLength={200}
+          onChange={(e) => setObservacao(e.target.value)}
+        />
 
         {erro && <p className="form-erro">{erro}</p>}
 

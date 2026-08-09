@@ -2623,6 +2623,23 @@ create table if not exists public.banners (
   inicio date not null default current_date,
   fim date not null,
 
+  /**
+   * ── O lado comercial ────────────────────────────────────────────────────
+   *
+   * O pagamento acontece fora do app: Pix, dinheiro, boleto — o que a
+   * Lorena combinar com o comércio. O app não cobra e não processa; ele
+   * **lembra**, que é o que falta quando a venda é de porta em porta.
+   *
+   * Sem estes campos, daqui a três meses ela teria dez banners no ar e
+   * nenhum jeito de saber quem pagou quanto, quem já venceu e para qual
+   * número ligar para renovar. É assim que dinheiro vaza numa operação
+   * pequena: não por falta de cliente, por falta de anotação.
+   */
+  contato_anunciante text,
+  valor_centavos integer check (valor_centavos is null or valor_centavos >= 0),
+  pago boolean not null default false,
+  observacao text,
+
   /** Desligar sem apagar: o histórico e os números da campanha ficam. */
   ativo boolean not null default true,
 
