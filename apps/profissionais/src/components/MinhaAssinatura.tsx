@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import { getMyProfessionals } from "../lib/professionals";
 import {
   getAssinaturasAtivas,
+  assinaturaConfirmada,
   precoMensal,
   startSubscriptionCheckout,
   PRICES,
@@ -117,8 +118,12 @@ export function MinhaAssinatura({ userId }: { userId: string }) {
   return (
     <div className="assinatura-lista">
       {anuncios.map((p) => {
-        const ativas = assinaturas[p.id] ?? [];
-        const premium = ativas.find((a) => a.type === "verification");
+        const todas = assinaturas[p.id] ?? [];
+        /* Só o que está pago aparece como assinatura. Uma cobrança que a
+           pessoa abandonou no meio não pode virar "você é premium" — nem
+           pode roubar o lugar da oferta, que é como ela tentaria de novo. */
+        const ativas = todas.filter(assinaturaConfirmada);
+        const aguardando = todas.filter((a) => !assinaturaConfirmada(a));
         const preco = precoMensal("verification", p.entity_type);
 
         return (
@@ -161,7 +166,9 @@ export function MinhaAssinatura({ userId }: { userId: string }) {
             ) : (
               <>
                 <p className="muted" style={{ margin: "0 0 10px", fontSize: "0.88rem" }}>
-                  Sem assinatura. Este anúncio aparece na busca normalmente, com o telefone visível.
+                  {aguardando.length > 0
+                    ? "Há um pagamento começado e ainda não concluído. Se você já pagou, o selo entra sozinho em alguns minutos; se desistiu, é só assinar de novo."
+                    : "Sem assinatura. Este anúncio aparece na busca normalmente, com o telefone visível."}
                 </p>
                 <div className="assinatura-oferta">
                   <strong>Conta premium — R$ {preco.toFixed(2).replace(".", ",")}/mês</strong>

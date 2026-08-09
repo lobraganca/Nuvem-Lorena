@@ -24,6 +24,7 @@ import {
   cancelarAssinatura,
   entrarNaFilaDeDestaque,
   getAssinaturasAtivas,
+  assinaturaConfirmada,
   vagasDeDestaque,
   PRICES,
   type AssinaturaAtiva,
@@ -841,6 +842,9 @@ export function PainelPage() {
                               {a.current_period_end
                                 ? ` · paga até ${new Date(a.current_period_end).toLocaleDateString("pt-BR")}`
                                 : ""}
+                              {/* Sem esta ressalva, uma cobrança ainda não
+                                  paga aparecia com a mesma cara de uma paga. */}
+                              {!assinaturaConfirmada(a) ? " · aguardando o pagamento" : ""}
                             </em>
                           </span>
                           <button type="button" className="btn btn-outline" onClick={() => setCancelando(a)}>

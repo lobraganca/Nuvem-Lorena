@@ -188,7 +188,33 @@ export async function getAssinaturasAtivas(professionalId: string): Promise<Assi
     .eq("professional_id", professionalId)
     .in("status", ["active", "authorized", "pending"])
     .order("created_at", { ascending: false });
-  return (data ?? []) as AssinaturaAtiva[];
+
+  /* A linha "pending" nasce quando o link de pagamento é gerado, antes de
+     qualquer dinheiro entrar. Quem abre o checkout e desiste — ou nem tem
+     conta no Mercado Pago — deixa uma pendente para sempre. Tratá-la como
+     assinatura fazia o app dizer que a pessoa assinou sem ter pago, e ainda
+     escondia a oferta, impedindo a próxima tentativa.
+
+     Pendente recente ainda vale a pena mostrar: é alguém que acabou de sair
+     para pagar e pode voltar em instantes. Passado esse tempo, é abandono. */
+  return ((data ?? []) as AssinaturaAtiva[]).filter(
+    (a) => assinaturaConfirmada(a) || pendenteRecente(a)
+  );
+}
+
+/** Uma hora é folga suficiente para pagar por Pix ou boleto e voltar. */
+export const PENDENTE_EXPIRA_MS = 60 * 60 * 1000;
+
+/** Paga e valendo — o único estado que dá direito ao benefício. */
+export function assinaturaConfirmada(a: AssinaturaAtiva): boolean {
+  return a.status === "active" || a.status === "authorized";
+}
+
+/** Saiu para pagar agora há pouco; ainda pode voltar. */
+export function pendenteRecente(a: AssinaturaAtiva): boolean {
+  if (a.status !== "pending") return false;
+  const criada = new Date(a.created_at).getTime();
+  return Number.isFinite(criada) && Date.now() - criada < PENDENTE_EXPIRA_MS;
 }
 
 /**
