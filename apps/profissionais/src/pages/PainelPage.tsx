@@ -24,7 +24,9 @@ import {
   startSponsorshipCheckout,
   annualPrice,
   cancelarAssinatura,
+  entrarNaFilaDeDestaque,
   getAssinaturasAtivas,
+  vagasDeDestaque,
   PRICES,
   type AssinaturaAtiva,
 } from "../lib/payments";
@@ -171,6 +173,9 @@ export function PainelPage() {
   const [formAberto, setFormAberto] = useState(false);
   /** Assinaturas ativas por anúncio, para oferecer o cancelamento. */
   const [assinaturas, setAssinaturas] = useState<Record<string, AssinaturaAtiva[]>>({});
+  /** Vagas de destaque restantes na categoria principal de cada anúncio. */
+  const [vagas, setVagas] = useState<Record<string, number>>({});
+  const [naFila, setNaFila] = useState<Record<string, boolean>>({});
   const [cancelando, setCancelando] = useState<AssinaturaAtiva | null>(null);
   const [cancelandoAgora, setCancelandoAgora] = useState(false);
   const [resultadoCancelamento, setResultadoCancelamento] = useState("");
@@ -188,6 +193,9 @@ export function PainelPage() {
     mine.forEach((p) => {
       getMySponsorships(p.id).then((list) => setMySponsorships((prev) => ({ ...prev, [p.id]: list })));
       getAssinaturasAtivas(p.id).then((list) => setAssinaturas((prev) => ({ ...prev, [p.id]: list })));
+      if (p.category) {
+        vagasDeDestaque(p.category, p.city).then((n) => setVagas((prev) => ({ ...prev, [p.id]: n })));
+      }
     });
   }, [mine]);
 
@@ -717,10 +725,40 @@ export function PainelPage() {
                         Seu anúncio sobe para o topo da lista de quem procura o seu serviço em {p.city}. Quem
                         está com pressa raramente rola até o fim — quase todo mundo chama alguém dos primeiros.
                       </p>
+                      {!boosted && (
+                        <p style={{ marginTop: 6, fontSize: "0.8rem" }}>
+                          {(vagas[p.id] ?? 5) <= 0
+                            ? `Sem vagas em "${p.category}" agora — são 5 por categoria, para o destaque continuar destacando.`
+                            : `${vagas[p.id] ?? 5} de 5 vagas livres em "${p.category}". O limite existe para o topo não virar uma multidão.`}
+                        </p>
+                      )}
                     </div>
                     <div className="produto-acao">
                       {boosted ? (
                         <span className="produto-ativo">✓ Ativo</span>
+                      ) : (vagas[p.id] ?? 5) <= 0 ? (
+                        /* Esgotado vira fila, não venda perdida: a fila é o
+                           melhor termômetro de preço que existe — categoria
+                           com espera é categoria onde o destaque está
+                           barato. */
+                        naFila[p.id] ? (
+                          <span className="produto-ativo">Na fila ✓</span>
+                        ) : (
+                          <button
+                            className="btn btn-outline"
+                            onClick={async () => {
+                              try {
+                                await entrarNaFilaDeDestaque(p.id, p.category, p.city);
+                                setNaFila((prev) => ({ ...prev, [p.id]: true }));
+                              } catch {
+                                setErroAoSalvar(true);
+                                setFormMessage("Não foi possível entrar na fila agora.");
+                              }
+                            }}
+                          >
+                            Avise quando vagar
+                          </button>
+                        )
                       ) : (
                         <>
                           <span className="produto-preco">

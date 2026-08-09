@@ -173,3 +173,39 @@ export async function cancelarAssinatura(
     dentroDoArrependimento: !!resposta?.dentroDoArrependimento,
   };
 }
+
+
+/**
+ * Vagas de destaque restantes numa categoria/cidade (teto de 5).
+ *
+ * Quem conta é o banco: a tela não tem como enxergar todos os anúncios, e
+ * mesmo que tivesse, contar no navegador seria confiar num número que a
+ * própria pessoa pode alterar.
+ */
+export async function vagasDeDestaque(category: string, city: string): Promise<number> {
+  const client = supabase();
+  if (!client) return 0;
+  const { data, error } = await client.rpc("vagas_de_destaque", {
+    p_category: category,
+    p_city: city,
+  });
+  if (error) return 0;
+  return typeof data === "number" ? data : 0;
+}
+
+/** Entra na fila de espera do destaque daquela categoria/cidade. */
+export async function entrarNaFilaDeDestaque(
+  professionalId: string,
+  category: string,
+  city: string
+): Promise<void> {
+  const client = supabase();
+  if (!client) throw new Error("Sem conexão com o banco.");
+  const { error } = await client
+    .from("destaque_espera")
+    .upsert(
+      { professional_id: professionalId, category, city },
+      { onConflict: "professional_id,category,city" }
+    );
+  if (error) throw error;
+}
