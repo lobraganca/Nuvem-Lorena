@@ -74,7 +74,13 @@ export async function searchProfessionals(filters: SearchFilters): Promise<Profe
   // Casa com qualquer um dos serviços do anúncio, não só o principal.
   if (filters.category) query = query.contains("categories", [filters.category]);
   if (filters.text) {
-    query = query.or(`name.ilike.%${filters.text}%,bio.ilike.%${filters.text}%`);
+    // `category` entra junto com nome e descrição: quem digita "eletricista"
+    // no campo de busca espera encontrar os eletricistas, e não só quem tem
+    // a palavra escrita no nome ou no texto do anúncio. Sem isto, o campo
+    // principal do app falhava justamente na busca mais óbvia — e a pessoa
+    // concluía que não havia eletricista na cidade.
+    const t = filters.text.replace(/[%,()]/g, " ").trim();
+    query = query.or(`name.ilike.%${t}%,bio.ilike.%${t}%,category.ilike.%${t}%`);
   }
   if (filters.onlySuspended) query = query.eq("suspended", true);
 

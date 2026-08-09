@@ -325,7 +325,17 @@ export function ProfessionalPage() {
   // Resumo de reputação: as etiquetas mais recebidas por este profissional.
   const topTags = aggregateReviewTags(reviews);
   const payPerLead = professional.contact_mode === "pay_per_lead";
-  const whatsappBlocked = payPerLead && !leadBalanceAvailable;
+  /**
+   * O "pagar por contato" foi aposentado: a assinatura passou a liberar o
+   * contato por preço fixo. Anúncios criados antes disso ficaram com o modo
+   * antigo gravado e sem tela para trocá-lo — o WhatsApp deles sumiria para
+   * sempre quando o saldo acabasse, sem que o dono pudesse fazer nada.
+   * Tratar todo mundo como "WhatsApp livre" desfaz isso sem precisar mexer
+   * no banco de quem já estava cadastrado.
+   */
+  const whatsappBlocked = false;
+  void payPerLead;
+  void leadBalanceAvailable;
   const zap = professional.whatsapp || professional.phone;
   const whatsappLink = zap && verified && !whatsappBlocked ? `https://wa.me/${zap.replace(/\D/g, "")}` : null;
   /**
