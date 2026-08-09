@@ -46,8 +46,9 @@ export function isCurrentlyPlusActive(p: Pick<Professional, "plus_active" | "plu
 }
 
 /**
- * Busca profissionais com filtros de cidade/categoria/texto, ordenando
- * anúncios turbinados primeiro (e, dentro de cada grupo, os mais novos).
+ * Busca profissionais com filtros de cidade/categoria/texto. Anúncios
+ * turbinados vêm primeiro, em ordem sorteada a cada busca (ver rodízio
+ * abaixo); os demais, do mais novo para o mais antigo.
  * Sem banco configurado, devolve uma lista vazia — as telas tratam isso como
  * "nenhum resultado" em vez de quebrar.
  *
@@ -92,13 +93,38 @@ export async function searchProfessionals(filters: SearchFilters): Promise<Profe
     results = results.filter((p) => (p.average_rating ?? 0) >= min);
   }
 
+  /**
+   * Rodízio entre os anúncios turbinados.
+   *
+   * O banco devolve turbinados primeiro e, dentro deles, os mais recentes —
+   * o que na prática dá o topo a quem assinou por último e empurra para
+   * baixo quem paga há meses. Com dez eletricistas turbinados na mesma
+   * cidade, os últimos da fila pagam e não aparecem; é o tipo de coisa que
+   * ninguém reclama, só cancela.
+   *
+   * Embaralhar a cada busca reparte o topo entre todos que pagaram. Não é
+   * sorteio de quem aparece — todos aparecem antes dos não-turbinados —, é
+   * sorteio da ordem entre eles.
+   *
+   * Só vale para a ordenação padrão: quem pediu "melhor avaliado" quer nota,
+   * e dinheiro não pode reordenar uma lista que a pessoa mandou ordenar por
+   * outro critério.
+   */
+  if (!filters.sort || filters.sort === "relevance") {
+    const turbinados = results.filter((p) => isCurrentlyBoosted(p));
+    const demais = results.filter((p) => !isCurrentlyBoosted(p));
+    for (let i = turbinados.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [turbinados[i], turbinados[j]] = [turbinados[j], turbinados[i]];
+    }
+    results = [...turbinados, ...demais];
+  }
+
   if (filters.sort === "rating") {
     results = [...results].sort((a, b) => (b.average_rating ?? 0) - (a.average_rating ?? 0));
   } else if (filters.sort === "reviews") {
     results = [...results].sort((a, b) => b.review_count - a.review_count);
   }
-  // "relevance" (padrão) mantém a ordenação já vinda do banco: turbinados
-  // primeiro, depois mais recentes.
 
   return results;
 }
