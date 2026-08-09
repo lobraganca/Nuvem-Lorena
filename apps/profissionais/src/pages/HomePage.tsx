@@ -27,6 +27,29 @@ import { formatPhone } from "../lib/phone";
 import { InstalarApp } from "../components/InstalarApp";
 
 /**
+ * Iniciais em cor, no lugar do bonequinho genérico.
+ *
+ * Sem foto, todos os anúncios ficavam idênticos — a mesma silhueta cinza
+ * repetida na lista inteira, que é o oposto do que um cartão de visita
+ * precisa fazer. As iniciais distinguem à primeira vista, e a cor vem do
+ * próprio nome, então é sempre a mesma para a mesma pessoa.
+ */
+function iniciais(nome: string): string {
+  const partes = nome.trim().split(/\s+/).filter(Boolean);
+  if (partes.length === 0) return "?";
+  if (partes.length === 1) return partes[0].slice(0, 2).toUpperCase();
+  return (partes[0][0] + partes[partes.length - 1][0]).toUpperCase();
+}
+
+function corDoNome(nome: string): string {
+  let soma = 0;
+  for (let i = 0; i < nome.length; i++) soma = (soma + nome.charCodeAt(i) * (i + 1)) % 360;
+  // Saturação e luminosidade fixas: a variação é só de matiz, para nenhuma
+  // combinação sair berrante nem apagada ao lado das outras.
+  return `hsl(${soma} 42% 42%)`;
+}
+
+/**
  * Passos do tour de primeiro acesso. Cada um aponta para um pedaço real da
  * tela (`data-tour`) — se o elemento não estiver visível, o passo vira um
  * cartão centralizado e o texto ainda se sustenta sozinho.
@@ -196,14 +219,13 @@ export function HomePage() {
         </span>
       </Link>
 
-      <section style={{ padding: "24px 0", textAlign: "center" }}>
-        <h1 style={{ fontSize: "clamp(1.5rem, 6.2vw, 2rem)", lineHeight: 1.2, marginBottom: 10 }}>
-          Quem você procura hoje, em {DEFAULT_CITY}
-        </h1>
-        <p className="muted">
-          Cada serviço fechado por aqui é dinheiro que fica na cidade. Encontre pelo nome, pela categoria ou
-          pela avaliação de quem já contratou.
-        </p>
+      {/* Título curto e sem parágrafo de apoio: no celular, o texto anterior
+          empurrava o campo de busca para fora da primeira tela — a pessoa
+          precisava rolar para fazer a única coisa que veio fazer. O que era
+          explicação virou a própria dica dentro do campo. */}
+      <section className="hero-busca">
+        <h1>Quem você procura hoje?</h1>
+        <p className="muted">Profissionais de {DEFAULT_CITY} e região, com avaliação de quem já contratou.</p>
         {online !== null && online > 0 && (
           <p className="online-pill">
             <span className="online-dot" aria-hidden="true" />
@@ -438,17 +460,20 @@ export function HomePage() {
                   />
                 ) : (
                   <div
-                    className="avatar-fallback"
-                    style={{ borderRadius: p.entity_type === "pj" ? 10 : "50%" }}
+                    className="avatar-iniciais"
+                    style={{
+                      borderRadius: p.entity_type === "pj" ? 10 : "50%",
+                      background: corDoNome(p.name),
+                    }}
+                    aria-hidden="true"
                   >
-                    {p.entity_type === "pj" ? "🏢" : "👤"}
+                    {iniciais(p.name)}
                   </div>
                 )}
                 <div style={{ flex: 1 }}>
                   <div style={{ display: "flex", justifyContent: "space-between", alignItems: "start", gap: 8 }}>
-                    <h3 style={{ margin: 0, display: "flex", alignItems: "center", gap: 6 }}>
-                      {p.name}
-                      {verified && <VerifiedBadge />}
+                    <h3 className="card-nome">
+                      {p.name} {verified && <VerifiedBadge />}
                     </h3>
                     <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
                       {boosted && <span className="badge badge-boosted">Destaque</span>}

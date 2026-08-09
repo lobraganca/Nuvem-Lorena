@@ -363,9 +363,11 @@ export function ProfessionalPage() {
               </div>
             )}
             <div>
-              <h1 style={{ margin: 0, display: "flex", alignItems: "center", gap: 8 }}>
-                {professional.name}
-                {verified && <VerifiedBadge size={22} />}
+              {/* O selo vira parte do texto em vez de item de um flex: como
+                  item, ele reservava largura fixa e espremia o nome numa
+                  coluna de três linhas ("Maria / da / Silva"). */}
+              <h1 className="perfil-nome">
+                {professional.name} {verified && <VerifiedBadge size={20} />}
               </h1>
               <p className="muted">
                 {professional.category} · {professional.city}
@@ -383,18 +385,6 @@ export function ProfessionalPage() {
                     .join(" — ")}
                 </p>
               )}
-              {(professional.categories?.length ?? 0) > 1 && (
-                <div className="chip-list" style={{ margin: "6px 0" }}>
-                  {professional.categories.map((c) => (
-                    <span key={c} className="chip chip-static chip-sm">
-                      {c}
-                    </span>
-                  ))}
-                </div>
-              )}
-              <span className={professional.entity_type === "pj" ? "badge badge-entity-pj" : "badge badge-entity-pf"}>
-                {professional.entity_type === "pj" ? "Empresa" : "Profissional autônomo"}
-              </span>
               {professional.entity_type === "pj" && professional.responsible_name && (
                 <p className="muted" style={{ margin: "4px 0 0", fontSize: "0.85rem" }}>Responsável: {professional.responsible_name}</p>
               )}
@@ -405,6 +395,20 @@ export function ProfessionalPage() {
             <FavoriteButton professionalId={professional.id} initialFavorited={isFavorite} size="large" />
           </div>
         </div>
+        {/* Serviços e tipo de cadastro saem da coluna estreita ao lado da
+            foto: ali cada etiqueta caía numa linha própria, e três serviços
+            viravam três linhas de nada. Na largura toda, cabem lado a lado. */}
+        <div className="chip-list chip-list-perfil">
+          {(professional.categories ?? []).map((c) => (
+            <span key={c} className="chip chip-static chip-sm">
+              {c}
+            </span>
+          ))}
+          <span className={professional.entity_type === "pj" ? "badge badge-entity-pj" : "badge badge-entity-pf"}>
+            {professional.entity_type === "pj" ? "Empresa" : "Profissional autônomo"}
+          </span>
+        </div>
+
         <p style={{ marginTop: 16 }}>{professional.bio || "Essa pessoa ainda não escreveu sobre o trabalho dela."}</p>
         <p>
           {professional.average_rating ? (

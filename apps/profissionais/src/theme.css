@@ -1724,3 +1724,88 @@ textarea::placeholder {
   padding: 2px 8px;
   white-space: nowrap;
 }
+
+/* ---------- Perfil do profissional: cabeçalho ---------- */
+
+/* Antes o nome dividia uma coluna estreita com a foto, o selo e o coração —
+   "Maria da Silva" virava três linhas empilhadas, com cara de layout
+   quebrado logo no primeiro olhar de quem chegou pelo link. */
+.perfil-nome {
+  margin: 0;
+  font-size: clamp(1.3rem, 5.2vw, 1.7rem);
+  line-height: 1.2;
+  text-wrap: balance;
+  overflow-wrap: anywhere;
+}
+
+.perfil-nome .verified-badge {
+  vertical-align: -2px;
+  margin-left: 4px;
+}
+
+/* Os serviços ocupam a largura toda, e não a coluna ao lado da foto: em
+   coluna estreita, cada etiqueta caía numa linha e três serviços viravam
+   três linhas de nada. */
+.chip-list-perfil {
+  margin: 10px 0 0;
+  flex-wrap: wrap;
+}
+
+/* Hierarquia das ações: uma principal por vez.
+   O WhatsApp é a ação que a pessoa veio fazer; o resto acompanha, menor. */
+.contact-list .btn-teal {
+  width: 100%;
+  justify-content: center;
+}
+
+/* Iniciais no lugar da silhueta genérica. Sem foto, a lista inteira ficava
+   com o mesmo bonequinho cinza — nenhum anúncio se distinguia do outro, que
+   é o contrário do trabalho de um cartão de visita. */
+.avatar-iniciais {
+  width: 56px;
+  height: 56px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #ffffff;
+  font-weight: 700;
+  font-size: 1.15rem;
+  letter-spacing: 0.02em;
+}
+
+/* Nome do card: o selo acompanha o texto em vez de ocupar coluna própria,
+   que empurrava nomes de duas palavras para duas linhas. */
+.card-nome {
+  margin: 0;
+  font-size: 1.02rem;
+  line-height: 1.25;
+  text-wrap: balance;
+}
+
+.card-nome .verified-badge {
+  vertical-align: -2px;
+}
+
+/* Cabeçalho da busca: enxuto no celular, onde a primeira tela vale ouro. */
+.hero-busca {
+  padding: 18px 0 14px;
+  text-align: center;
+}
+
+.hero-busca h1 {
+  font-size: clamp(1.35rem, 5.6vw, 1.9rem);
+  line-height: 1.15;
+  margin: 0 0 6px;
+  text-wrap: balance;
+}
+
+.hero-busca p {
+  margin: 0;
+  font-size: 0.92rem;
+  line-height: 1.4;
+}
+
+@media (min-width: 860px) {
+  .hero-busca { padding: 34px 0 22px; }
+}
