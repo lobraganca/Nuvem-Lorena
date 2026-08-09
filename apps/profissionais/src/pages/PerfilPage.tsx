@@ -134,6 +134,9 @@ export function PerfilPage() {
           Painel, presa ao cartão de cada anúncio. */}
       <p className="settings-group-title">Assinatura</p>
       <MinhaAssinatura userId={user.id} />
+      <div className="settings-list">
+        <SettingsItem to="/assinatura" icon="⭐" label="Planos e benefícios" />
+      </div>
 
       <p className="settings-group-title">Meus anúncios</p>
       <div className="settings-list">

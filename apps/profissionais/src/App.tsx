@@ -18,6 +18,7 @@ import { ConfiguracaoPage } from "./pages/ConfiguracaoPage";
 import { ComoFuncionaPage } from "./pages/ComoFuncionaPage";
 import { FavoritosPage } from "./pages/FavoritosPage";
 import { PerfilPage } from "./pages/PerfilPage";
+import { AssinaturaPage } from "./pages/AssinaturaPage";
 import { AnalyticsPage } from "./pages/AnalyticsPage";
 import { useAuth } from "./lib/useAuth";
 import { sendSuggestion } from "./lib/suggestions";
@@ -154,6 +155,7 @@ export default function App() {
         <Route path="/como-funciona" element={<ComoFuncionaPage />} />
         <Route path="/favoritos" element={<FavoritosPage />} />
         <Route path="/perfil" element={<PerfilPage />} />
+        <Route path="/assinatura" element={<AssinaturaPage />} />
         <Route path="/analytics/:id" element={<AnalyticsPage />} />
       </Routes>
       <Footer />

@@ -3096,3 +3096,107 @@ h3 {
   font-size: 0.88rem;
   line-height: 1.45;
 }
+
+/* ---------------------------------------------------------------
+   Comparação de planos (tela de Assinatura)
+
+   Duas colunas no celular seriam duas colunas estreitas demais para
+   ler; empilhadas, cada linha respira. Em tela larga elas ficam lado
+   a lado, que é quando a comparação realmente ajuda a decidir.
+   --------------------------------------------------------------- */
+.planos-comparacao {
+  display: grid;
+  gap: 14px;
+}
+
+@media (min-width: 560px) {
+  .planos-comparacao {
+    grid-template-columns: 1fr 1fr;
+    align-items: start;
+  }
+}
+
+.plano-cartao {
+  background: var(--color-surface, #fff);
+  border: 1px solid var(--color-border, #e6e8ee);
+  border-radius: 14px;
+  padding: 16px;
+}
+
+.plano-cartao h2 {
+  margin: 0;
+  font-size: 1rem;
+}
+
+.plano-cartao-premium {
+  background: var(--color-gold-tint);
+  border-color: var(--color-gold-line);
+  border-left: 4px solid var(--color-gold-mid);
+}
+
+.plano-preco {
+  margin: 2px 0 10px;
+  font-size: 1.35rem;
+  font-weight: 700;
+  color: var(--color-navy);
+}
+
+.plano-preco .muted {
+  font-size: 0.9rem;
+  font-weight: 500;
+}
+
+.plano-alternar {
+  display: flex;
+  gap: 6px;
+  margin-bottom: 12px;
+}
+
+.plano-alternar button {
+  flex: 1;
+  padding: 7px 10px;
+  border-radius: 999px;
+  border: 1px solid var(--color-gold-line);
+  background: #fff;
+  color: var(--color-navy);
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.plano-alternar button.ativo {
+  background: var(--color-gold-deep);
+  border-color: var(--color-gold-deep);
+  color: #fff;
+}
+
+.plano-lista {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 8px;
+}
+
+.plano-lista li {
+  display: grid;
+  grid-template-columns: 18px 1fr;
+  gap: 8px;
+  font-size: 0.88rem;
+  line-height: 1.45;
+}
+
+.plano-lista li > span:first-child {
+  font-weight: 700;
+  text-align: center;
+}
+
+.plano-tem > span:first-child {
+  color: var(--color-gold-deep);
+}
+
+/* O que falta no básico fica visível, mas sem alarde: a ideia é informar
+   quem compara, não castigar quem escolheu não pagar. */
+.plano-nao-tem {
+  color: var(--color-text-muted, #5b6478);
+}
