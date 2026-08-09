@@ -97,6 +97,10 @@ Deno.serve(comCors(async (req) => {
 
     const mpData = await mpResponse.json();
     if (!mpResponse.ok) {
+      // O motivo da recusa vem só aqui dentro. Sem esta linha, o painel
+      // mostra "502" e mais nada — e a causa real (token de teste, e-mail
+      // do pagador igual ao do vendedor, valor fora da faixa) fica invisível.
+      console.error("Mercado Pago recusou:", mpResponse.status, JSON.stringify(mpData));
       return new Response(JSON.stringify({ error: "Falha ao criar assinatura no Mercado Pago.", details: mpData }), {
         status: 502,
       });

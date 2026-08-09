@@ -116,6 +116,9 @@ Deno.serve(comCors(async (req) => {
 
     const mpData = await mpResponse.json();
     if (!mpResponse.ok) {
+      // Sem isto, o painel mostra "502" e mais nada; a causa real da recusa
+      // fica invisível.
+      console.error("Mercado Pago recusou:", mpResponse.status, JSON.stringify(mpData));
       return new Response(JSON.stringify({ error: "Falha ao criar pagamento no Mercado Pago.", details: mpData }), {
         status: 502,
       });
