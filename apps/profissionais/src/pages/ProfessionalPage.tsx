@@ -465,10 +465,12 @@ export function ProfessionalPage() {
             </a>
           )}
           {professional.whatsapp_verified && (
-            /* Quem contrata é quem precisa dessa informação: diz que o número
-               ali embaixo foi confirmado pela própria pessoa, por código. */
-            <span className="whats-ok" title="O dono do anúncio confirmou este número por código">
-              ✓ WhatsApp confirmado
+            /* Diz QUAL número foi confirmado, e não apenas que houve
+               confirmação. Quando WhatsApp e telefone são diferentes, só um
+               deles passou pelo código — e um "✓ confirmado" solto faria a
+               pessoa acreditar que os dois foram. */
+            <span className="whats-ok" title="O dono do anúncio recebeu um código neste número e digitou de volta">
+              ✓ {formatPhone(zap ?? "")} confirmado por código
             </span>
           )}
         </div>

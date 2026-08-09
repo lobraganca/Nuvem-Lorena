@@ -517,12 +517,13 @@ export function PainelPage() {
                     configurações: é o que separa um anúncio de um número
                     qualquer digitado, e quem anuncia precisa ver que falta. */}
                 {p.whatsapp_verified ? (
-                  <p className="whats-ok">✓ WhatsApp confirmado</p>
+                  <p className="whats-ok">✓ {formatPhone(p.whatsapp || p.phone)} confirmado</p>
                 ) : (
                   <div className="whats-pendente">
                     <p>
-                      <strong>Confirme seu número.</strong> Quem procura confia mais em número confirmado — e
-                      isso impede que outra pessoa anuncie usando o seu.
+                      <strong>Confirme o {formatPhone(p.whatsapp || p.phone)}.</strong> É este número que vai
+                      receber o código e é ele que aparece para quem procura. Número confirmado passa mais
+                      confiança — e impede que outra pessoa anuncie usando o seu.
                     </p>
                     <button type="button" className="btn btn-outline" onClick={() => setConfirmandoWhats(p)}>
                       Confirmar agora
@@ -1114,7 +1115,10 @@ export function PainelPage() {
           <fieldset className="contact-fields">
             <legend>Como querem falar com você</legend>
             <p className="muted" style={{ margin: "0 0 10px", fontSize: "0.85rem" }}>
-              Preencha o que fizer sentido. Só aparece no seu anúncio o que você escrever aqui.
+              Preencha o que fizer sentido — só aparece no anúncio o que você escrever aqui. O{" "}
+              <strong>WhatsApp</strong> (ou o telefone, se você não preencher o WhatsApp) é o número que recebe
+              o código de confirmação e o mesmo que as pessoas usam para te chamar. Trocá-lo depois derruba a
+              confirmação, e você confirma de novo.
             </p>
             <input
               placeholder="Telefone: (31) 99999-9999"

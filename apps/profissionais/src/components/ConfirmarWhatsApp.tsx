@@ -67,7 +67,8 @@ export function ConfirmarWhatsApp({
             Vamos mandar um código para o <strong>{formatPhone(numero)}</strong>, por SMS ou WhatsApp.
           </p>
           <p className="muted" style={{ margin: 0, fontSize: "0.85rem" }}>
-            É o número que está no seu anúncio. Se não for esse, feche aqui e corrija o anúncio primeiro.
+            É o número do seu anúncio — o mesmo que as pessoas veem e usam para te chamar. Se não for esse,
+            feche aqui, corrija o anúncio e volte: confirmar um número e divulgar outro não valeria de nada.
           </p>
           {erro && <p className="form-erro">{erro}</p>}
           <button className="btn btn-primary btn-block" onClick={enviar} disabled={carregando}>
