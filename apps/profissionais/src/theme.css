@@ -185,7 +185,11 @@ button {
 
 .btn-primary {
   background: linear-gradient(135deg, var(--color-primary-soft), var(--color-primary));
-  color: var(--color-navy);
+  /* Branco, e não `--color-navy`: a cor do texto sobrou de quando o botão
+     principal era dourado, e ficou azul-marinho (#0a1a2f) sobre azul-marinho
+     (#12305e) quando a marca mudou de cor. Dava 1,4:1 de contraste — abaixo
+     de qualquer mínimo legível, e pior ainda em tela de celular no sol. */
+  color: #ffffff;
 }
 
 .btn-teal {
@@ -422,7 +426,7 @@ textarea::placeholder {
 .chip-selected {
   background: linear-gradient(135deg, var(--color-primary-soft), var(--color-primary));
   border-color: transparent;
-  color: var(--color-navy);
+  color: #ffffff;
 }
 
 /* Chip só de leitura (etiquetas já enviadas, resumo do profissional). */
@@ -532,7 +536,7 @@ textarea::placeholder {
   justify-content: center;
   font-size: 1.8rem;
   font-weight: 700;
-  color: var(--color-navy);
+  color: #ffffff;
   background: linear-gradient(135deg, var(--color-primary), var(--color-primary-deep));
 }
 
