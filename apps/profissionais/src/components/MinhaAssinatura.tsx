@@ -48,6 +48,13 @@ export function MinhaAssinatura({ userId }: { userId: string }) {
       if (!ativo) return;
       setAssinaturas(mapa);
       setCarregando(false);
+    }).catch((err) => {
+      /* Sem isto, qualquer falha de rede deixava o bloco preso em
+         "Carregando…" para sempre — a tela mais cruel possível, porque não
+         dá nem o que contar a quem for pedir ajuda. */
+      if (!ativo) return;
+      setErro(mensagemDeErro(err, "Não foi possível carregar sua assinatura."));
+      setCarregando(false);
     });
     return () => {
       ativo = false;
@@ -72,6 +79,18 @@ export function MinhaAssinatura({ userId }: { userId: string }) {
         <div className="settings-item" style={{ cursor: "default" }}>
           <span className="muted">Carregando…</span>
         </div>
+      </div>
+    );
+  }
+
+  /* Falhou o carregamento: dizer "você não tem anúncio" aqui seria mentira —
+     a verdade é que não deu para saber. */
+  if (erro && anuncios.length === 0) {
+    return (
+      <div className="assinatura-bloco">
+        <p className="form-erro" style={{ margin: 0 }}>
+          {erro}
+        </p>
       </div>
     );
   }
