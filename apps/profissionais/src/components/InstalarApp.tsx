@@ -17,7 +17,10 @@ import { BottomSheet } from "./BottomSheet";
  *   navegador ignora o pedido.
  * - iPhone não expõe evento nenhum. Lá o único caminho é Compartilhar →
  *   "Adicionar à Tela de Início", então o que resta é ensinar, com o nome
- *   exato de cada botão.
+ *   exato de cada botão. O primeiro passo muda de aparelho para aparelho: em
+ *   boa parte dos iPhones de hoje o Compartilhar está escondido dentro dos
+ *   três pontinhos da barra de baixo, e não solto nela — por isso os dois
+ *   caminhos aparecem descritos.
  *
  * Quando o app já está instalado, o componente não aparece: `display-mode:
  * standalone` é o sinal de que a pessoa está usando justamente a versão
@@ -91,15 +94,24 @@ export function InstalarApp({ variante = "lista" }: { variante?: "lista" | "faix
       subtitle="No iPhone, quem instala é o próprio Safari — são três toques."
       onClose={() => setEnsinandoIOS(false)}
     >
-      <ol style={{ display: "grid", gap: 10, paddingLeft: 20, margin: 0, lineHeight: 1.45 }}>
+      <ol className="passos-ios">
         <li>
-          Toque no botão <strong>Compartilhar</strong> — o quadrado com a seta para cima, na barra de baixo.
+          Na barra de baixo do Safari, toque em <strong>•••</strong> (os três pontinhos) e depois em{" "}
+          <strong>Compartilhar</strong>.
+          <span className="passo-obs">
+            Em alguns iPhones o Compartilhar já fica direto na barra, como um quadrado com uma seta para cima.
+            Nesse caso, é só tocar nele.
+          </span>
         </li>
         <li>
-          Role a lista e toque em <strong>Adicionar à Tela de Início</strong>.
+          Role a lista para baixo até <strong>Adicionar à Tela de Início</strong>.
+          <span className="passo-obs">
+            Se não achar, toque em <strong>Ver Mais</strong> ou em <strong>Editar Ações</strong> no fim da
+            lista.
+          </span>
         </li>
         <li>
-          Toque em <strong>Adicionar</strong>, no canto de cima.
+          Toque em <strong>Adicionar</strong>, no canto de cima à direita.
         </li>
       </ol>
       <p className="muted" style={{ marginTop: 14, fontSize: "0.88rem" }}>

@@ -5,7 +5,7 @@
 -- `npm run sql:unico`.
 --
 -- Como usar: abra o SQL Editor do seu projeto no Supabase, cole este arquivo
--- inteiro e rode uma vez. São 34 migrations, já na ordem certa.
+-- inteiro e rode uma vez. São 36 migrations, já na ordem certa.
 --
 -- Rodar de novo num banco que já tem os dados é seguro na maior parte (quase
 -- tudo usa "if not exists" / "or replace"), mas não é o uso pretendido: para
@@ -2213,6 +2213,103 @@ select
   cep, street, street_number, neighborhood,
   entity_type, company_name, photo_url, responsible_name,
   verified, verified_until, boosted, boosted_until,
+  suspended, suspended_reason, contact_mode,
+  plus_active, plus_until, whatsapp_verified, paused, atributos, created_at
+from public.professionals
+where suspended = false and paused = false;
+
+grant select on public.professionals_public to anon, authenticated;
+
+-- ═══════════════════════════════════════════════════════════════
+-- 0035_denuncia_com_identificacao.sql
+-- ═══════════════════════════════════════════════════════════════
+
+-- Denúncia só de quem está identificado.
+--
+-- Até aqui qualquer pessoa denunciava sem login, e o raciocínio original era
+-- defensável: o golpe pode atingir quem nem conta tem. Na prática, o que essa
+-- porta aberta produz é outra coisa — denúncia anônima é a ferramenta mais
+-- barata que existe para tirar um concorrente do ar. Custa um clique, não tem
+-- dono, e do outro lado tem uma pessoa cujo anúncio é o ganha-pão dela.
+--
+-- Exigir login não impede a denúncia legítima: quem foi vítima de golpe tem
+-- todo o interesse em se identificar, e entrar leva o tempo de um toque no
+-- Google. Impede a denúncia gratuita, que é o que se quer impedir.
+--
+-- Vale também como consequência jurídica: comunicar falsamente crime é o
+-- art. 340 do Código Penal, e denunciação caluniosa é o art. 339 — nenhum dos
+-- dois significa nada se não houver a quem imputar a comunicação. Sem autor,
+-- o aviso na tela é só decoração.
+drop policy if exists "qualquer um pode denunciar um anúncio" on public.reports;
+-- Também a nova, para esta migration poder rodar duas vezes sem erro (é o
+-- que o arquivo único faz quando alguém o cola de novo).
+drop policy if exists "quem está logado pode denunciar um anúncio" on public.reports;
+
+create policy "quem está logado pode denunciar um anúncio"
+  on public.reports for insert
+  to authenticated
+  -- `reporter_id` tem que ser quem está de fato pedindo: sem isto daria para
+  -- estar logado e gravar a denúncia no nome de outra pessoa, que é pior do
+  -- que o anônimo — é o anônimo com um culpado escolhido a dedo.
+  with check (reporter_id = auth.uid());
+
+-- ═══════════════════════════════════════════════════════════════
+-- 0036_desde_quando.sql
+-- ═══════════════════════════════════════════════════════════════
+
+-- "Está no app desde…" e "tem selo desde…".
+--
+-- Tempo é a prova social que ninguém consegue comprar num dia. Um anúncio de
+-- dois anos com selo mantido há um ano e meio diz algo que nota nenhuma diz:
+-- essa pessoa continua aqui, continua pagando para ser conferida, e ninguém
+-- a tirou do ar nesse tempo todo. É o sinal que mais protege quem procura
+-- contra o anúncio criado ontem para aplicar um golpe amanhã.
+--
+-- `created_at` já existia e serve para o primeiro. Faltava o segundo:
+-- `verified_until` só diz até quando vale, e é reescrito a cada renovação —
+-- ele nunca soube dizer desde quando.
+alter table public.professionals
+  add column if not exists verified_since timestamptz;
+
+-- Quem já tem selo hoje não pode aparecer sem data: sem isto, o app diria
+-- "com selo desde —" para toda a base atual. A aproximação usa a data do
+-- cadastro, que é o mais próximo da verdade que este banco consegue provar.
+update public.professionals
+  set verified_since = created_at
+  where verified = true and verified_since is null;
+
+-- Carimba na virada de "sem selo" para "com selo", e só nela: a renovação
+-- mensal reescreve `verified_until` toda vez, e recarimbar aqui zeraria
+-- justamente o tempo que a coluna existe para acumular. Quem deixa o selo
+-- cair e volta meses depois recomeça a contagem — porque foi isso mesmo que
+-- aconteceu, e a data precisa dizer a verdade.
+create or replace function public.professionals_carimba_selo()
+returns trigger
+language plpgsql
+as $$
+begin
+  if new.verified = true and coalesce(old.verified, false) = false then
+    new.verified_since := now();
+  elsif new.verified = false then
+    new.verified_since := null;
+  end if;
+  return new;
+end;
+$$;
+
+drop trigger if exists professionals_carimba_selo_trigger on public.professionals;
+create trigger professionals_carimba_selo_trigger
+  before update on public.professionals
+  for each row execute function public.professionals_carimba_selo();
+
+drop view if exists public.professionals_public;
+create view public.professionals_public as
+select
+  id, owner_id, name, category, categories, city, bio, phone,
+  whatsapp, email, instagram, linkedin,
+  cep, street, street_number, neighborhood,
+  entity_type, company_name, photo_url, responsible_name,
+  verified, verified_until, verified_since, boosted, boosted_until,
   suspended, suspended_reason, contact_mode,
   plus_active, plus_until, whatsapp_verified, paused, atributos, created_at
 from public.professionals

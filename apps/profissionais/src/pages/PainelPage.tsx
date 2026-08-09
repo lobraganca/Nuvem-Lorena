@@ -47,6 +47,7 @@ type FormState = Omit<
   | "created_at"
   | "verified"
   | "verified_until"
+  | "verified_since"
   | "whatsapp_verified"
   | "whatsapp_verified_at"
   | "boosted"

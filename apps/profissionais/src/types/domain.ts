@@ -42,6 +42,8 @@ export interface Professional {
   whatsapp_verified_at: string | null;
   verified: boolean;
   verified_until: string | null;
+  /** Desde quando tem selo, sem contar períodos em que o selo caiu. */
+  verified_since: string | null;
   boosted: boolean;
   boosted_until: string | null;
   /** Pausado pelo próprio dono: sai da busca e volta quando ele quiser. */

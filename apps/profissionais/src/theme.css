@@ -855,26 +855,29 @@ textarea::placeholder {
 }
 
 /* Contador de gente com o app aberto agora (Realtime Presence). */
+/* Recado de rodapé, não manchete: quem está online é um sinal de que o app
+   tem vida, e não a informação que a pessoa veio buscar. Diminuído para
+   parar de disputar com o título e o campo de busca. */
 .online-pill {
   display: inline-flex;
   align-items: center;
-  gap: 8px;
-  margin-top: 14px;
-  padding: 6px 14px;
+  gap: 6px;
+  margin-top: 10px;
+  padding: 3px 10px;
   border-radius: 999px;
   background: var(--color-bg-soft);
   border: 1px solid var(--color-border);
   color: var(--color-text-muted);
-  font-size: 0.82rem;
+  font-size: 0.72rem;
   font-weight: 600;
 }
 
 .online-dot {
-  width: 8px;
-  height: 8px;
+  width: 6px;
+  height: 6px;
   border-radius: 50%;
   background: var(--color-accent-teal);
-  box-shadow: 0 0 0 3px rgba(18, 128, 95, 0.16);
+  box-shadow: 0 0 0 2px rgba(18, 128, 95, 0.16);
 }
 
 /* Quantas pessoas viram o anúncio nos últimos 30 dias (painel do anunciante) */
@@ -2265,4 +2268,132 @@ h3 {
   color: var(--color-gold-deep);
   font-size: 0.72rem;
   font-weight: 700;
+}
+
+/* Passo a passo de instalação no iPhone.
+   Cada passo carrega uma observação em letra menor porque o caminho muda de
+   aparelho para aparelho — em uns o Compartilhar está solto na barra, em
+   outros mora dentro dos três pontinhos. Descrever só um dos dois deixa
+   metade das pessoas procurando um botão que não existe ali. */
+.passos-ios {
+  display: grid;
+  gap: 14px;
+  padding-left: 22px;
+  margin: 0;
+  line-height: 1.45;
+}
+
+.passos-ios .passo-obs {
+  display: block;
+  margin-top: 4px;
+  font-size: 0.83rem;
+  color: var(--color-text-muted);
+}
+
+/* Bloco de "você já avaliou": aparece no lugar do botão de enviar, para quem
+   já deixou a sua. Sem ele, o botão continuava dizendo "Enviar avaliação" e
+   um segundo envio salvava por cima da primeira sem avisar — a pessoa achava
+   que tinha duas, e tinha uma só, trocada. */
+.minha-avaliacao {
+  background: var(--color-bg-soft);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius);
+  padding: 16px;
+  margin-bottom: 20px;
+}
+
+.minha-avaliacao-acoes {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-top: 12px;
+}
+
+/* Foto do anúncio: grande o bastante para ser um rosto, não uma miniatura de
+   lista. Em `clamp` porque é ela que ocupa a largura junto com o nome — fixa
+   em 132px, num iPhone estreito o nome caía em quatro linhas. */
+.perfil-foto {
+  width: clamp(96px, 28vw, 132px);
+  height: clamp(96px, 28vw, 132px);
+  object-fit: cover;
+  border: 1px solid var(--color-border);
+  flex-shrink: 0;
+  font-size: 2.6rem;
+}
+
+/* Há quanto tempo está no app e há quanto tempo tem selo. Discreto de
+   propósito: é contexto que sustenta a decisão, não manchete. */
+.desde-quando {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin: 14px 0 0;
+  font-size: 0.85rem;
+  color: var(--color-text-muted);
+}
+
+/* Aviso legal da denúncia, com a caixa a marcar. Fundo próprio porque ele
+   precisa parar o olho antes do botão — é o único ponto da tela em que a
+   pessoa está prestes a acusar alguém. */
+.aviso-denuncia {
+  display: flex;
+  gap: 10px;
+  align-items: start;
+  background: var(--color-gold-tint);
+  border: 1px solid var(--color-gold-line);
+  border-radius: 12px;
+  padding: 12px 14px;
+  font-size: 0.84rem;
+  line-height: 1.45;
+  cursor: pointer;
+}
+
+.aviso-denuncia input {
+  margin-top: 2px;
+  width: 18px;
+  height: 18px;
+  flex: none;
+  accent-color: var(--color-primary);
+}
+
+/* Links do rodapé como botões arredondados.
+   Eram uma linha corrida de palavras sublinhadas separadas por ponto: cada
+   alvo tinha o tamanho exato da palavra, e "Excluir conta" encostava em
+   "Privacidade". No celular isso significa abrir a tela de apagar a conta
+   por um toque torto. */
+.rodape-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 12px;
+}
+
+.rodape-links a,
+.rodape-links button {
+  display: inline-flex;
+  align-items: center;
+  background: none;
+  border: 1px solid var(--color-border-strong);
+  border-radius: 999px;
+  padding: 8px 14px;
+  font: inherit;
+  font-size: 0.84rem;
+  font-weight: 600;
+  color: var(--color-primary-deep);
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.rodape-links a:hover,
+.rodape-links button:hover {
+  border-color: var(--color-primary);
+  background: var(--color-bg-soft);
+}
+
+/* Apagar a conta não é vizinho de "Como funciona". Fica por último e em tom
+   de alerta — não escondido, porque é um direito e a Play Store exige que
+   esteja à mão, mas também não confundível com os outros. */
+.rodape-links a[href="/excluir-conta"] {
+  color: var(--color-danger);
+  border-color: rgba(192, 57, 43, 0.35);
 }

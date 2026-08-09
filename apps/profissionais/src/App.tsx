@@ -93,30 +93,21 @@ function Footer() {
     <footer className="footer">
       <div className="container">
         <Logo />
-        <p style={{ marginTop: 10 }}>
-          Busca Itabirito — marketplace de profissionais por cidade. Selo de verificação por R$ 10,90/mês,
-          pago via Mercado Pago.
-        </p>
-        <p style={{ marginTop: 6 }}>
-          <Link to="/termos">Termos de Uso</Link> · <Link to="/privacidade">Privacidade</Link> ·{" "}
-          <Link to="/excluir-conta">Excluir conta</Link> ·{" "}
-          <Link to="/como-funciona">Como funciona</Link> ·{" "}
-          <button
-            type="button"
-            onClick={() => setSuggestionOpen(true)}
-            style={{
-              background: "none",
-              border: "none",
-              padding: 0,
-              font: "inherit",
-              color: "var(--color-primary-deep)",
-              textDecoration: "underline",
-              cursor: "pointer",
-            }}
-          >
+        {/* Botões arredondados no lugar de links separados por ponto: numa
+            linha corrida de texto sublinhado, cada item tinha a área de toque
+            do tamanho da palavra, e "Excluir conta" ficava colado em
+            "Privacidade" — no celular, errar o alvo aqui é abrir a tela de
+            apagar a própria conta sem querer. Cada um vira um alvo com
+            contorno e espaço em volta. */}
+        <nav className="rodape-links">
+          <Link to="/termos">Termos de Uso</Link>
+          <Link to="/privacidade">Privacidade</Link>
+          <Link to="/como-funciona">Como funciona</Link>
+          <button type="button" onClick={() => setSuggestionOpen(true)}>
             Enviar sugestão
           </button>
-        </p>
+          <Link to="/excluir-conta">Excluir conta</Link>
+        </nav>
         {/* O carimbo mostra a hora da construção; o "d" identifica a leva
             que trouxe o endereço único, o aviso de erro de login e a tela de
             diagnóstico. Sem um marcador visível, "não funcionou" e "não

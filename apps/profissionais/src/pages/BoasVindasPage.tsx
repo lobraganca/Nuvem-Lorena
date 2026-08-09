@@ -93,10 +93,6 @@ export function BoasVindasPage() {
 
       <section className="welcome-footnote">
         <p className="muted">
-          Em breve nas lojas: por enquanto o Busca {DEFAULT_CITY} funciona pelo navegador e pode ser instalado na
-          tela de início do celular.
-        </p>
-        <p className="muted">
           Somos uma plataforma de busca e divulgação. A contratação e o pagamento são direto entre você e o
           profissional — veja os <Link to="/termos">Termos de Uso</Link>.
         </p>

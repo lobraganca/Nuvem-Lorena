@@ -28,12 +28,6 @@ import { Estrelas } from "../components/Estrelas";
 import { formatPhone } from "../lib/phone";
 
 /**
- * Chave de localStorage usada como trava anti-spam best-effort para
- * denúncias anônimas (sem login): não impede um usuário decidido de limpar
- * o localStorage e denunciar de novo, mas reduz spam casual do mesmo
- * navegador. Ver limitação documentada no README.
- */
-/**
  * Como chamar quem anuncia, no meio de uma frase.
  *
  * Pessoa física atende pelo primeiro nome. Empresa, não: cortar "Elétrica
@@ -41,13 +35,22 @@ import { formatPhone } from "../lib/phone";
  * app e deixa o anúncio com cara de amador — exatamente o oposto do que ele
  * está tentando comprar ali.
  */
+/**
+ * "agosto de 2026" — mês e ano, sem o dia.
+ *
+ * O dia exato não ajuda ninguém a decidir nada e ainda dá ao anúncio recente
+ * um ar de precisão que ele não merece; o mês já diz o que interessa, que é
+ * há quanto tempo essa pessoa está aqui.
+ */
+function mesEAno(iso: string): string {
+  const d = new Date(iso);
+  if (Number.isNaN(d.getTime())) return "";
+  return d.toLocaleDateString("pt-BR", { month: "long", year: "numeric" });
+}
+
 function comoChamar(p: { name: string; entity_type: string }): string {
   if (p.entity_type === "pj") return p.name;
   return p.name.trim().split(" ")[0];
-}
-
-function reportedKey(professionalId: string) {
-  return `busca-itabirito-denunciado-${professionalId}`;
 }
 
 export function ProfessionalPage() {
@@ -66,13 +69,13 @@ export function ProfessionalPage() {
   const [reportSaving, setReportSaving] = useState(false);
   const [reportSent, setReportSent] = useState(false);
   const [reportError, setReportError] = useState("");
+  const [denunciaConfirmada, setDenunciaConfirmada] = useState(false);
   const [editingReviewId, setEditingReviewId] = useState<string | null>(null);
   const [reviewSheetOpen, setReviewSheetOpen] = useState(false);
   const [isFavorite, setIsFavorite] = useState(false);
   const [replyDrafts, setReplyDrafts] = useState<Record<string, string>>({});
   const [replySavingId, setReplySavingId] = useState<string | null>(null);
   const [deleteConfirmId, setDeleteConfirmId] = useState<string | null>(null);
-  const [alreadyReportedLocally, setAlreadyReportedLocally] = useState(false);
   const [leadBalanceAvailable, setLeadBalanceAvailable] = useState(false);
   const [contactLoading, setContactLoading] = useState(false);
   const [contactSheetOpen, setContactSheetOpen] = useState(false);
@@ -84,6 +87,11 @@ export function ProfessionalPage() {
   const [reqError, setReqError] = useState("");
   /** Só usado onde o navegador não tem compartilhamento nativo (desktop). */
   const [copiado, setCopiado] = useState(false);
+
+  /* A avaliação desta pessoa neste anúncio — no máximo uma, por restrição do
+     banco (unique professional_id + user_id). É o que decide se o botão
+     convida a avaliar ou a mexer no que ela já escreveu. */
+  const minhaAvaliacao = user ? reviews.find((r) => r.user_id === user.id) ?? null : null;
 
   async function load() {
     if (!id) return;
@@ -127,11 +135,6 @@ export function ProfessionalPage() {
       setContactLoading(false);
     }
   }
-
-  useEffect(() => {
-    if (!id) return;
-    setAlreadyReportedLocally(!!window.localStorage.getItem(reportedKey(id)));
-  }, [id]);
 
 
   useEffect(() => {
@@ -268,22 +271,19 @@ export function ProfessionalPage() {
 
   async function submitReport(e: React.FormEvent) {
     e.preventDefault();
-    if (!id) return;
+    if (!id || !user) return;
     setReportSaving(true);
     setReportError("");
     try {
       await reportProfessional({
         professional_id: id,
-        reporter_id: user?.id ?? null,
+        reporter_id: user.id,
         reason: reportReason,
         details: reportDetails,
       });
-      if (!user) {
-        window.localStorage.setItem(reportedKey(id), "1");
-        setAlreadyReportedLocally(true);
-      }
       setReportSent(true);
       setReportDetails("");
+      setDenunciaConfirmada(false);
     } catch (err) {
       const code = (err as { code?: string } | null)?.code;
       if (code === "23505") {
@@ -342,23 +342,20 @@ export function ProfessionalPage() {
       <div className="card">
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "start", gap: 16 }}>
           <div style={{ display: "flex", gap: 14, alignItems: "start" }}>
+            {/* A foto é o que a pessoa olha antes de ler qualquer coisa —
+                é ela que responde "posso deixar esse alguém entrar na minha
+                casa?". A 72px ela era uma miniatura de lista, não um rosto. */}
             {professional.photo_url ? (
               <img
                 src={professional.photo_url}
                 alt={professional.name}
-                style={{
-                  width: 72,
-                  height: 72,
-                  objectFit: "cover",
-                  borderRadius: professional.entity_type === "pj" ? 12 : "50%",
-                  border: "1px solid var(--color-border)",
-                  flexShrink: 0,
-                }}
+                className="perfil-foto"
+                style={{ borderRadius: professional.entity_type === "pj" ? 16 : "50%" }}
               />
             ) : (
               <div
-                className="avatar-fallback"
-                style={{ width: 72, height: 72, fontSize: "1.8rem", borderRadius: professional.entity_type === "pj" ? 12 : "50%" }}
+                className="avatar-fallback perfil-foto"
+                style={{ borderRadius: professional.entity_type === "pj" ? 16 : "50%" }}
               >
                 {professional.entity_type === "pj" ? "🏢" : "👤"}
               </div>
@@ -409,6 +406,18 @@ export function ProfessionalPage() {
             {professional.entity_type === "pj" ? "Empresa" : "Profissional autônomo"}
           </span>
         </div>
+
+        {/* Tempo de casa é a prova que não se compra num dia: um anúncio de
+            dois anos, com selo mantido, diz o que nota nenhuma diz — essa
+            pessoa continua aqui e ninguém a tirou do ar nesse tempo todo. É
+            o que separa quem trabalha há anos de quem se cadastrou ontem
+            para aplicar um golpe amanhã. */}
+        <p className="desde-quando">
+          <span>No Busca desde {mesEAno(professional.created_at)}</span>
+          {verified && professional.verified_since && (
+            <span>· com selo desde {mesEAno(professional.verified_since)}</span>
+          )}
+        </p>
 
         <p style={{ marginTop: 16 }}>{professional.bio || "Essa pessoa ainda não escreveu sobre o trabalho dela."}</p>
 
@@ -567,10 +576,33 @@ export function ProfessionalPage() {
 
         {!user && <p className="muted">Entre com sua conta Google para deixar sua avaliação.</p>}
 
+        {/* Cada pessoa avalia cada profissional uma vez só — o banco garante
+            isso, e não é limitação e sim o que faz a nota valer: se desse
+            para avaliar de novo, bastaria voltar cinco vezes para afundar ou
+            inflar alguém. O que muda é o botão: quem já avaliou não recebe um
+            convite para "enviar" de novo (o que salvaria por cima sem avisar),
+            recebe o caminho para mexer no que já é dele. */}
         {user && !editingReviewId && (
-          <button className="btn btn-primary" onClick={() => setReviewSheetOpen(true)} style={{ marginBottom: 20 }}>
-            Enviar avaliação
-          </button>
+          minhaAvaliacao ? (
+            <div className="minha-avaliacao">
+              <p style={{ margin: 0 }}>
+                <strong>Você já avaliou.</strong> Sua avaliação é a única sua aqui — dá para mudar de ideia ou
+                apagar quando quiser.
+              </p>
+              <div className="minha-avaliacao-acoes">
+                <button className="btn btn-primary" onClick={() => startEditReview(minhaAvaliacao)}>
+                  Editar minha avaliação
+                </button>
+                <button className="btn btn-outline" onClick={() => setDeleteConfirmId(minhaAvaliacao.id)}>
+                  Excluir
+                </button>
+              </div>
+            </div>
+          ) : (
+            <button className="btn btn-primary" onClick={() => setReviewSheetOpen(true)} style={{ marginBottom: 20 }}>
+              Enviar avaliação
+            </button>
+          )
         )}
 
         {reviewSheetOpen && (
@@ -808,12 +840,17 @@ export function ProfessionalPage() {
       </section>
 
       <section style={{ marginTop: 32 }}>
-        {!reportOpen && !reportSent && !user && alreadyReportedLocally && (
+        {/* Denunciar exige conta. Denúncia anônima é a maneira mais barata
+            de tirar um concorrente do ar — um clique, sem dono —, e do outro
+            lado tem alguém cujo anúncio é o ganha-pão. Quem foi vítima de
+            golpe não tem por que se esconder, e entrar leva um toque. */}
+        {!reportOpen && !reportSent && !user && (
           <p className="muted" style={{ fontSize: "0.82rem" }}>
-            Você já denunciou este anúncio neste navegador. Entre com sua conta para denunciar de novo se necessário.
+            Para denunciar um anúncio é preciso <Link to="/login">entrar com sua conta</Link>. Denúncia tem
+            nome: é assim que ela vale alguma coisa para quem analisa e não vira ferramenta contra concorrente.
           </p>
         )}
-        {!reportOpen && !reportSent && (!alreadyReportedLocally || !!user) && (
+        {!reportOpen && !reportSent && !!user && (
           <button className="btn btn-outline" onClick={() => setReportOpen(true)} style={{ fontSize: "0.82rem" }}>
             Denunciar este anúncio
           </button>
@@ -839,8 +876,30 @@ export function ProfessionalPage() {
                 onChange={(e) => setReportDetails(e.target.value)}
                 rows={3}
               />
+              {/* O aviso vem antes do botão, e não no rodapé em letra miúda:
+                  ele existe para ser lido no instante da decisão. E vem com
+                  uma caixa a marcar porque declaração que ninguém confirma
+                  não é declaração — é texto que a pessoa jura depois que não
+                  viu. */}
+              <label className="aviso-denuncia">
+                <input
+                  type="checkbox"
+                  checked={denunciaConfirmada}
+                  onChange={(e) => setDenunciaConfirmada(e.target.checked)}
+                />
+                <span>
+                  Declaro que o que estou contando aqui é verdade. Denúncia falsa é crime — comunicação falsa
+                  de crime (art. 340 do Código Penal) e denunciação caluniosa (art. 339) — e responde também
+                  por dano moral quem prejudica o trabalho de alguém com acusação inventada. Sua denúncia fica
+                  registrada com o seu nome e a sua conta.
+                </span>
+              </label>
               {reportError && <p style={{ color: "var(--color-danger)" }}>{reportError}</p>}
-              <button className="btn btn-primary btn-block" type="submit" disabled={reportSaving}>
+              <button
+                className="btn btn-primary btn-block"
+                type="submit"
+                disabled={reportSaving || !denunciaConfirmada}
+              >
                 {reportSaving ? "Enviando…" : "Enviar denúncia"}
               </button>
             </form>
