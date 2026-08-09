@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { signInWithGoogle } from "../lib/auth";
 import { hasDatabase } from "../lib/supabase";
+import { BotaoApple } from "../components/BotaoApple";
 
 export function LoginPage() {
   const [error, setError] = useState("");
@@ -25,6 +26,9 @@ export function LoginPage() {
         Você continua conectado neste aparelho — só sai quando tocar em <strong>Sair</strong>.
       </p>
       {!hasDatabase() && <p className="muted" style={{ marginTop: 10 }}>Configure VITE_SUPABASE_URL/ANON_KEY e o provider Google no Supabase para habilitar o login.</p>}
+      <div style={{ marginTop: 10 }}>
+        <BotaoApple voltarPara="/perfil" onErro={setError} />
+      </div>
       {error && <p style={{ color: "var(--color-danger)", marginTop: 10 }}>{error}</p>}
     </div>
   );

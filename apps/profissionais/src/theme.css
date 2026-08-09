@@ -1809,3 +1809,16 @@ textarea::placeholder {
 @media (min-width: 860px) {
   .hero-busca { padding: 34px 0 22px; }
 }
+
+/* Botão da Apple: preto, texto branco e a maçã à esquerda, como a própria
+   Apple exige de quem usa a marca dela no login — a revisão da App Store
+   confere isso, então não é escolha estética. */
+.btn-apple {
+  background: #000000;
+  color: #ffffff;
+  gap: 8px;
+}
+
+.btn-apple svg {
+  flex: none;
+}

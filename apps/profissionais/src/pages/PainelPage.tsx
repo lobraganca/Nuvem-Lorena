@@ -37,6 +37,7 @@ import { formatPhone, isValidPhone } from "../lib/phone";
 import { buscarCep, formatCep } from "../lib/cep";
 import { BottomSheet } from "../components/BottomSheet";
 import { ConfirmarWhatsApp } from "../components/ConfirmarWhatsApp";
+import { BotaoApple } from "../components/BotaoApple";
 
 type FormState = Omit<
   Professional,
@@ -449,6 +450,7 @@ export function PainelPage() {
           >
             Entrar com Google
           </button>
+          <BotaoApple voltarPara="/painel" onErro={setLoginError} />
           {loginError && <p style={{ color: "var(--color-danger)", marginTop: 12 }}>{loginError}</p>}
           <p className="muted" style={{ marginTop: 18, fontSize: "0.85rem" }}>
             Anunciar é grátis. O selo de verificação e o destaque na busca são opcionais, e você decide depois.

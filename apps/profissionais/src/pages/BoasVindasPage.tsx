@@ -2,6 +2,7 @@ import { useNavigate, Link } from "react-router-dom";
 import { DEFAULT_CITY } from "../types/domain";
 import { LogoMark } from "../components/Logo";
 import { markWelcomeSeen, requestTour } from "../lib/onboarding";
+import { InstalarApp } from "../components/InstalarApp";
 
 const FEATURES = [
   {
@@ -73,6 +74,11 @@ export function BoasVindasPage() {
           <span className="welcome-choice-hint">Trabalho com isso e quero aparecer</span>
         </button>
       </section>
+
+      {/* Depois da escolha, nunca antes: instalar é útil para quem já decidiu
+          ficar, e pedir isso na primeira tela é pedir compromisso a quem
+          ainda não viu nada. */}
+      <InstalarApp variante="faixa" />
 
       <section className="welcome-features">
         {FEATURES.map((f) => (

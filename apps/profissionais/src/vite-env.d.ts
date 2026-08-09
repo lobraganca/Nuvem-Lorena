@@ -1,6 +1,8 @@
 /// <reference types="vite/client" />
 
 interface ImportMetaEnv {
+  /** "1" liga o botão de entrar com a Apple. Ver src/config.ts. */
+  readonly VITE_APPLE_LOGIN?: string;
   readonly VITE_SUPABASE_URL: string
   readonly VITE_SUPABASE_ANON_KEY: string
   readonly VITE_MERCADOPAGO_PUBLIC_KEY?: string

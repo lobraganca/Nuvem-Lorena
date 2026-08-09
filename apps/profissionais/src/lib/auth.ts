@@ -98,6 +98,30 @@ export async function signInWithGoogle(voltarPara?: string): Promise<void> {
   if (error) throw error;
 }
 
+/**
+ * Login com a conta Apple.
+ *
+ * Existe por dois motivos. O primeiro é a App Store: a regra 4.8 exige que
+ * um app com login de terceiros ofereça também o "Entrar com a Apple" — sem
+ * isso, rejeição na primeira revisão. O segundo é quem já usa iPhone e não
+ * quer entregar o e-mail: a Apple oferece esconder o endereço real, e parte
+ * das pessoas só entra quando pode fazer isso.
+ *
+ * O caminho é idêntico ao do Google, incluindo a volta ao ponto de partida.
+ */
+export async function signInWithApple(voltarPara?: string): Promise<void> {
+  const client = supabase();
+  if (!client) throw new Error("Banco de dados não configurado.");
+  if (voltarPara) guardarDestinoLogin(voltarPara);
+  const origem = origemCanonica();
+  const destino = voltarPara ? new URL(voltarPara, origem).toString() : origem;
+  const { error } = await client.auth.signInWithOAuth({
+    provider: "apple",
+    options: { redirectTo: destino },
+  });
+  if (error) throw error;
+}
+
 export async function signOut(): Promise<void> {
   const client = supabase();
   if (!client) return;

@@ -22,3 +22,17 @@ export const CIDADE_SEDE = "Itabirito/MG";
  * que ela leu ainda é o mesmo.
  */
 export const VERSAO_DOCUMENTOS = "8 de agosto de 2026";
+
+
+/**
+ * Liga o botão "Entrar com a Apple".
+ *
+ * Fica atrás de uma chave porque o login da Apple exige conta de
+ * desenvolvedor paga e configuração no painel do Supabase. Mostrar o botão
+ * antes disso seria oferecer uma porta que não abre — e porta que não abre
+ * custa mais confiança do que a ausência dela.
+ *
+ * Para ligar: criar a variável VITE_APPLE_LOGIN com valor 1 na Vercel, depois
+ * de configurar o provedor Apple no Supabase.
+ */
+export const LOGIN_APPLE_ATIVO = (import.meta.env.VITE_APPLE_LOGIN ?? "") === "1";

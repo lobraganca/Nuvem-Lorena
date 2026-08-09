@@ -9,6 +9,7 @@ import { resetOnboarding } from "../lib/onboarding";
 import { excluirMinhaConta } from "../lib/account";
 import { BottomSheet } from "../components/BottomSheet";
 import { InstalarApp } from "../components/InstalarApp";
+import { BotaoApple } from "../components/BotaoApple";
 import { baixarMeusDados } from "../lib/meusDados";
 import type { Profile } from "../types/domain";
 
@@ -93,6 +94,9 @@ export function PerfilPage() {
           >
             Entrar com Google
           </button>
+          <div style={{ marginTop: 10 }}>
+            <BotaoApple voltarPara="/perfil" onErro={setError} />
+          </div>
           {!hasDatabase() && (
             <p className="muted" style={{ marginTop: 10 }}>
               Configure VITE_SUPABASE_URL/ANON_KEY e o provider Google no Supabase para habilitar o login.
