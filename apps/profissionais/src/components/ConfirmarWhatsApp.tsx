@@ -57,14 +57,14 @@ export function ConfirmarWhatsApp({
 
   return (
     <BottomSheet
-      title="Confirmar seu WhatsApp"
+      title="Confirmar seu número"
       subtitle="Serve para ninguém anunciar usando o seu número — e para quem procura saber que o número é mesmo seu."
       onClose={onClose}
     >
       {passo === "enviar" ? (
         <div style={{ display: "grid", gap: 14 }}>
           <p style={{ margin: 0 }}>
-            Vamos mandar um código para o WhatsApp <strong>{formatPhone(numero)}</strong>.
+            Vamos mandar um código para o <strong>{formatPhone(numero)}</strong>, por SMS ou WhatsApp.
           </p>
           <p className="muted" style={{ margin: 0, fontSize: "0.85rem" }}>
             É o número que está no seu anúncio. Se não for esse, feche aqui e corrija o anúncio primeiro.
@@ -76,7 +76,7 @@ export function ConfirmarWhatsApp({
         </div>
       ) : (
         <div style={{ display: "grid", gap: 14 }}>
-          <p style={{ margin: 0 }}>Digite o código que chegou no seu WhatsApp:</p>
+          <p style={{ margin: 0 }}>Digite o código que chegou no seu celular:</p>
           <input
             value={codigo}
             onChange={(e) => setCodigo(e.target.value.replace(/\D/g, "").slice(0, 6))}

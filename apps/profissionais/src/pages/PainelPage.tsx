@@ -519,7 +519,7 @@ export function PainelPage() {
                 ) : (
                   <div className="whats-pendente">
                     <p>
-                      <strong>Confirme seu WhatsApp.</strong> Quem procura confia mais em número confirmado — e
+                      <strong>Confirme seu número.</strong> Quem procura confia mais em número confirmado — e
                       isso impede que outra pessoa anuncie usando o seu.
                     </p>
                     <button type="button" className="btn btn-outline" onClick={() => setConfirmandoWhats(p)}>
