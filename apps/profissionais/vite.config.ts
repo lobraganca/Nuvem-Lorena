@@ -27,7 +27,12 @@ export default defineConfig({
   plugins: [
     react(),
     VitePWA({
-      registerType: 'autoUpdate',
+      // 'prompt', e não 'autoUpdate': com autoUpdate a versão nova assume o
+      // controle sozinha e a página recarrega no meio do que a pessoa estiver
+      // fazendo. Num app cujo formulário mais importante é um cadastro longo
+      // — foto, endereço, serviços, telefone —, recarregar sem avisar apaga o
+      // trabalho de quem estava digitando. Quem decide a hora é ela.
+      registerType: 'prompt',
       manifest: false, // usamos public/manifest.json manualmente (linkado no index.html)
       includeAssets: ['icon-192.png', 'icon-512.png', 'icon-maskable-512.png', 'apple-touch-icon.png'],
       workbox: {
@@ -49,8 +54,13 @@ export default defineConfig({
         // tinha instalado, e não havia como perceber isso de fora.
         navigateFallback: null,
         cleanupOutdatedCaches: true,
-        clientsClaim: true,
-        skipWaiting: true,
+        // Os dois desligados pelo mesmo motivo: a versão nova fica esperando
+        // em segundo plano e só entra quando a pessoa tocar em "Atualizar".
+        // Com skipWaiting ligado, os arquivos antigos são apagados debaixo da
+        // página que ainda está aberta — e aí um pedaço do app que só carrega
+        // quando a pessoa navega deixa de existir no meio do caminho.
+        clientsClaim: false,
+        skipWaiting: false,
       },
     }),
   ],

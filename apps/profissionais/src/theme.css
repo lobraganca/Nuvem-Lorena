@@ -2698,3 +2698,49 @@ h3 {
   gap: 6px;
   margin-top: 6px;
 }
+
+/* Aviso de versão nova.
+   No rodapé, acima da barra: no topo ele empurraria o conteúdo para baixo
+   justamente quando a pessoa está lendo. Fica acima da ilha de navegação
+   para não cobrir os ícones. */
+.aviso-versao {
+  position: fixed;
+  left: 50%;
+  transform: translateX(-50%);
+  bottom: calc(var(--bottom-nav-height) + 22px + env(safe-area-inset-bottom));
+  z-index: 55;
+  width: min(440px, calc(100% - 24px));
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border-strong);
+  border-left: 4px solid var(--color-gold-mid);
+  border-radius: 14px;
+  padding: 12px 14px;
+  font-size: 0.86rem;
+  line-height: 1.35;
+  box-shadow: var(--shadow-raised);
+}
+
+.aviso-versao-acoes {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  flex: none;
+}
+
+.aviso-versao .btn {
+  padding: 9px 16px;
+  font-size: 0.84rem;
+}
+
+.aviso-versao-fechar {
+  background: none;
+  border: none;
+  padding: 8px;
+  font-size: 0.9rem;
+  line-height: 1;
+  color: var(--color-text-muted);
+  cursor: pointer;
+}

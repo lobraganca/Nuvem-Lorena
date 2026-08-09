@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { getSession } from "../lib/auth";
 import { problemaDeConfiguracao } from "../lib/supabase";
+import { passosDaAtualizacao } from "../lib/atualizacao";
 
 /**
  * Tela de diagnóstico do login, em `/diagnostico`.
@@ -78,6 +79,8 @@ export function DiagnosticoPage() {
     }
   })();
 
+  const passos = passosDaAtualizacao();
+
   return (
     <div className="container" style={{ paddingTop: 24, paddingBottom: 60, maxWidth: 560 }}>
       <h1 style={{ fontSize: "1.3rem" }}>Diagnóstico do login</h1>
@@ -92,6 +95,20 @@ export function DiagnosticoPage() {
         <Linha rotulo="Guardar dados no navegador" valor={testaArmazenamento()} />
         <Linha rotulo="Chaves do Supabase guardadas" valor={chavesSupabase} />
         <Linha rotulo="Versão" valor={__VERSAO__} />
+      </div>
+
+      {/* "Não apareceu aviso de versão nova" tem meia dúzia de causas — sem
+          rede, service worker não registrado, navegador entregando o arquivo
+          guardado — e nenhuma delas se distingue olhando a tela. Aqui fica o
+          rastro das últimas checagens. */}
+      <h2 style={{ fontSize: "1rem", marginTop: 24 }}>Checagem de versão nova</h2>
+      <div className="card">
+        <ol style={{ margin: 0, paddingLeft: 18, fontSize: "0.82rem", display: "grid", gap: 4 }}>
+          {passos.length === 0 && <li className="muted">Nenhuma checagem ainda.</li>}
+          {passos.map((passo, i) => (
+            <li key={i}>{passo}</li>
+          ))}
+        </ol>
       </div>
 
       <p className="muted" style={{ fontSize: "0.82rem", marginTop: 14 }}>

@@ -3,6 +3,7 @@ import { Link, useLocation } from "react-router-dom";
 import { Logo } from "./Logo";
 import { InstalarApp } from "./InstalarApp";
 import { PuxarParaAtualizar } from "./PuxarParaAtualizar";
+import { AvisoDeVersao } from "./AvisoDeVersao";
 import { useAuth } from "../lib/useAuth";
 import { signOut } from "../lib/auth";
 import { isAdmin } from "../lib/admin";
@@ -161,6 +162,7 @@ export function AppShell({ children }: { children: ReactNode }) {
   return (
     <>
       <PuxarParaAtualizar />
+      <AvisoDeVersao />
       {!isWelcome && <Header logado={!!user} />}
       <div className={isWelcome ? undefined : "app-content"}>{children}</div>
       {isWelcome ? null : (
