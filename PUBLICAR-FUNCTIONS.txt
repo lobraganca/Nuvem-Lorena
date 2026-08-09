@@ -1,0 +1,17 @@
+Este arquivo é um botão.
+
+Salvar qualquer alteração aqui — mudar a data abaixo já basta — dispara o
+workflow "Publicar Edge Functions", que publica as 12 Edge Functions do
+procurô no Supabase.
+
+Existe porque o botão "Run workflow" da aba Actions só aparece para
+workflows presentes na branch padrão do repositório, e a padrão deste
+repositório é a do outro app. Um arquivo de gatilho resolve sem precisar
+mexer nela.
+
+Antes de disparar, confira que os dois segredos existem em
+Settings > Secrets and variables > Actions:
+  SUPABASE_ACCESS_TOKEN
+  SUPABASE_PROJECT_REF
+
+Último disparo: 2026-08-09

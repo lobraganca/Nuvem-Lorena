@@ -25,14 +25,26 @@
 name: Publicar Edge Functions
 
 on:
-  # Só à mão. Publicar function a cada envio arriscaria trocar o código de
-  # pagamento no meio de uma cobrança em andamento, sem ninguém olhando.
+  # O botão "Run workflow" da aba Actions só aparece para workflows que
+  # existem na branch PADRÃO do repositório — e a padrão aqui é a do outro
+  # app. Fica declarado mesmo assim: no dia em que este código chegar à
+  # branch padrão, o botão passa a funcionar sozinho.
   workflow_dispatch:
     inputs:
       funcao:
         description: 'Nome de uma function específica, ou "todas"'
         required: true
         default: "todas"
+
+  # Enquanto isso, o gatilho é um arquivo. Publicar não acontece a cada
+  # envio — só quando alguém mexe de propósito em `PUBLICAR-FUNCTIONS.txt`,
+  # que não serve para mais nada. É o botão, em forma de commit: trocar
+  # código de cobrança no meio de uma cobrança em andamento, sem ninguém
+  # olhando, continua sendo coisa que não deve acontecer por acidente.
+  push:
+    paths:
+      - "PUBLICAR-FUNCTIONS.txt"
+      - ".github/workflows/publicar-functions.yml"
 
 jobs:
   publicar:
@@ -65,7 +77,8 @@ jobs:
         env:
           SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
           REF: ${{ secrets.SUPABASE_PROJECT_REF }}
-          ESCOLHA: ${{ inputs.funcao }}
+          # Vazio quando o disparo veio do arquivo de gatilho, e não do botão.
+          ESCOLHA: ${{ inputs.funcao || 'todas' }}
         run: |
           set -euo pipefail
 
