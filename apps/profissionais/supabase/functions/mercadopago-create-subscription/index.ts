@@ -1,5 +1,6 @@
 // Edge Function: cria uma assinatura recorrente (preapproval) no Mercado
-// Pago para o profissional autenticado — selo de verificação (R$10,90/mês)
+// Pago para o profissional autenticado — conta premium (R$10,90/mês para
+// pessoa física, R$19,90 para empresa)
 // ou turbinar anúncio (destaque pago).
 //
 // Variáveis de ambiente exigidas (configure com `supabase secrets set`):
@@ -12,16 +13,12 @@
 
 // deno-lint-ignore-file no-explicit-any
 import { createClient } from "jsr:@supabase/supabase-js@2";
+import { ehTipoValido, precoMensal, ROTULOS } from "../_shared/precos.ts";
 
 const MP_ACCESS_TOKEN = Deno.env.get("MP_ACCESS_TOKEN") ?? "";
 const SUPABASE_URL = Deno.env.get("SUPABASE_URL") ?? "";
 const SUPABASE_SERVICE_ROLE_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "";
 const PUBLIC_APP_URL = Deno.env.get("PUBLIC_APP_URL") ?? "http://localhost:5173";
-
-const PRICES: Record<string, number> = {
-  verification: 10.9,
-  boost: 19.9,
-};
 
 Deno.serve(async (req) => {
   if (req.method !== "POST") {
@@ -42,7 +39,7 @@ Deno.serve(async (req) => {
     }
 
     const { professionalId, type } = await req.json();
-    if (!professionalId || !PRICES[type]) {
+    if (!professionalId || !ehTipoValido(type)) {
       return new Response(JSON.stringify({ error: "professionalId ou type inválidos." }), {
         status: 400,
       });
@@ -52,7 +49,10 @@ Deno.serve(async (req) => {
     const admin = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY);
     const { data: professional, error: profError } = await admin
       .from("professionals")
-      .select("id, owner_id, name")
+      // `entity_type` entra porque o preço da conta premium depende dele —
+      // e tem que vir do banco, não da tela: senão bastaria trocar um campo
+      // na requisição para uma empresa assinar pelo preço de pessoa física.
+      .select("id, owner_id, name, entity_type")
       .eq("id", professionalId)
       .single();
 
@@ -81,14 +81,11 @@ Deno.serve(async (req) => {
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        reason:
-          type === "verification"
-            ? `procurô — selo de verificação (${professional.name})`
-            : `procurô — turbinar anúncio (${professional.name})`,
+        reason: `procurô — ${ROTULOS[type]} (${professional.name})`,
         auto_recurring: {
           frequency: 1,
           frequency_type: "months",
-          transaction_amount: PRICES[type],
+          transaction_amount: precoMensal(type, professional.entity_type === "pj" ? "pj" : "pf"),
           currency_id: "BRL",
         },
         back_url: `${PUBLIC_APP_URL}/painel`,

@@ -1,5 +1,5 @@
 import { supabase } from "./supabase";
-import type { BillingCycle, SubscriptionType } from "../types/domain";
+import type { BillingCycle, EntityType, SubscriptionType } from "../types/domain";
 
 /**
  * Ponto único de entrada para iniciar uma assinatura recorrente no Mercado
@@ -130,12 +130,35 @@ export const PRICES = {
 };
 
 /**
+ * Preço mensal por tipo de cadastro.
+ *
+ * A conta premium custa R$ 10,90 para pessoa física e R$ 19,90 para empresa.
+ * Não é cobrar mais de quem pode pagar mais: é cobrar proporcional ao que
+ * cada um leva — a empresa aparece com logo, responsável, endereço e lista
+ * de serviços, e usa o app como canal de venda; o autônomo usa como agenda.
+ *
+ * Esta tabela é só para MOSTRAR o valor antes do checkout. Quem cobra é o
+ * servidor, que lê o `entity_type` do banco (ver
+ * supabase/functions/_shared/precos.ts) — se o preço saísse daqui, bastaria
+ * mexer no navegador para uma empresa assinar pelo preço de pessoa física.
+ */
+export const PRECOS_MENSAIS: Record<SubscriptionType, { pf: number; pj: number }> = {
+  verification: { pf: 10.9, pj: 19.9 },
+  boost: { pf: 19.9, pj: 19.9 },
+  plus: { pf: 29.9, pj: 29.9 },
+};
+
+export function precoMensal(tipo: SubscriptionType, entityType: EntityType): number {
+  return PRECOS_MENSAIS[tipo][entityType === "pj" ? "pj" : "pf"];
+}
+
+/**
  * Preço do plano anual à vista (20% de desconto sobre 12x o mensal) das 3
  * assinaturas — mesmo cálculo feito no servidor (mercadopago-create-annual-
  * payment), replicado aqui só para exibir o valor na tela antes do checkout.
  */
-export function annualPrice(type: SubscriptionType): number {
-  return Number((PRICES[type].amount * 12 * 0.8).toFixed(2));
+export function annualPrice(type: SubscriptionType, entityType: EntityType = "pf"): number {
+  return Number((precoMensal(type, entityType) * 12 * 0.8).toFixed(2));
 }
 
 

@@ -20,6 +20,7 @@ import {
   startAnnualSubscriptionCheckout,
   startAnnualCheckout,
   annualPrice,
+  precoMensal,
   cancelarAssinatura,
   entrarNaFilaDeDestaque,
   getAssinaturasAtivas,
@@ -640,7 +641,7 @@ export function PainelPage() {
                   <summary>
                     Aparecer mais{" "}
                     <span className="muted">
-                      — a partir de R$ {PRICES.verification.amount.toFixed(2).replace(".", ",")}/mês
+                      — a partir de R$ {precoMensal("verification", p.entity_type).toFixed(2).replace(".", ",")}/mês
                     </span>
                   </summary>
 
@@ -678,7 +679,7 @@ export function PainelPage() {
                           setPlanSheetFor({ professional: p, type: "verification" });
                         }}
                       >
-                        Assinar por R$ {PRICES.verification.amount.toFixed(2).replace(".", ",")}/mês
+                        Assinar por R$ {precoMensal("verification", p.entity_type).toFixed(2).replace(".", ",")}/mês
                       </button>
                     </div>
                   )}
@@ -705,7 +706,7 @@ export function PainelPage() {
                       ) : (
                         <>
                           <span className="produto-preco">
-                            R$ {PRICES.verification.amount.toFixed(2).replace(".", ",")}
+                            R$ {precoMensal("verification", p.entity_type).toFixed(2).replace(".", ",")}
                             <small>/mês</small>
                           </span>
                           <button
@@ -1290,7 +1291,9 @@ export function PainelPage() {
         >
           <div style={{ display: "grid", gap: 14 }}>
             <div className="card" style={{ display: "grid", gap: 8 }}>
-              <strong>Mensal no cartão — R$ {PRICES[planSheetFor.type].amount.toFixed(2).replace(".", ",")}/mês</strong>
+              <strong>
+                Mensal no cartão — R$ {precoMensal(planSheetFor.type, planSheetFor.professional.entity_type).toFixed(2).replace(".", ",")}/mês
+              </strong>
               <span className="muted" style={{ fontSize: "0.85rem" }}>
                 Renova automaticamente: o Mercado Pago cobra o cartão todo mês, até você cancelar.
               </span>
@@ -1306,11 +1309,11 @@ export function PainelPage() {
             </div>
             <div className="card" style={{ display: "grid", gap: 8 }}>
               <strong>
-                Anual no cartão — R$ {annualPrice(planSheetFor.type).toFixed(2).replace(".", ",")}/ano, 20% off
+                Anual no cartão — R$ {annualPrice(planSheetFor.type, planSheetFor.professional.entity_type).toFixed(2).replace(".", ",")}/ano, 20% off
               </strong>
               <span className="muted" style={{ fontSize: "0.85rem" }}>
                 Renova automaticamente todo ano — equivalente a R${" "}
-                {(annualPrice(planSheetFor.type) / 12).toFixed(2).replace(".", ",")}/mês. Só cartão de crédito.
+                {(annualPrice(planSheetFor.type, planSheetFor.professional.entity_type) / 12).toFixed(2).replace(".", ",")}/mês. Só cartão de crédito.
               </span>
               <button
                 className="btn btn-primary btn-block"
@@ -1324,7 +1327,7 @@ export function PainelPage() {
             </div>
             <div className="card" style={{ display: "grid", gap: 8 }}>
               <strong>
-                Anual no Pix/boleto — R$ {annualPrice(planSheetFor.type).toFixed(2).replace(".", ",")}/ano, 20% off
+                Anual no Pix/boleto — R$ {annualPrice(planSheetFor.type, planSheetFor.professional.entity_type).toFixed(2).replace(".", ",")}/ano, 20% off
               </strong>
               <span className="muted" style={{ fontSize: "0.85rem" }}>
                 Pagamento único: Pix e boleto não permitem cobrança automática. Quando estiver perto de vencer,

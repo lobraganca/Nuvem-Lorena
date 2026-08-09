@@ -25,29 +25,13 @@
 
 // deno-lint-ignore-file no-explicit-any
 import { createClient } from "jsr:@supabase/supabase-js@2";
+import { ehTipoValido, precoAnual, ROTULOS } from "../_shared/precos.ts";
 
 const MP_ACCESS_TOKEN = Deno.env.get("MP_ACCESS_TOKEN") ?? "";
 const SUPABASE_URL = Deno.env.get("SUPABASE_URL") ?? "";
 const SUPABASE_SERVICE_ROLE_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "";
 const PUBLIC_APP_URL = Deno.env.get("PUBLIC_APP_URL") ?? "http://localhost:5173";
 
-// Mesmos preços mensais das outras Edge Functions de assinatura — o anual é
-// sempre 12x o mensal com 20% de desconto.
-const MONTHLY_PRICES: Record<string, number> = {
-  verification: 10.9,
-  boost: 19.9,
-  plus: 29.9,
-};
-
-const LABELS: Record<string, string> = {
-  verification: "selo de verificação",
-  boost: "turbinar anúncio",
-  plus: "Empresa Plus",
-};
-
-function annualPrice(type: string): number {
-  return Number((MONTHLY_PRICES[type] * 12 * 0.8).toFixed(2));
-}
 
 Deno.serve(async (req) => {
   if (req.method !== "POST") {
@@ -68,7 +52,7 @@ Deno.serve(async (req) => {
     }
 
     const { professionalId, type } = await req.json();
-    if (!professionalId || !MONTHLY_PRICES[type]) {
+    if (!professionalId || !ehTipoValido(type)) {
       return new Response(JSON.stringify({ error: "professionalId ou type inválidos." }), { status: 400 });
     }
 
@@ -99,7 +83,7 @@ Deno.serve(async (req) => {
       );
     }
 
-    const price = annualPrice(type);
+    const price = precoAnual(type, professional.entity_type === "pj" ? "pj" : "pf");
 
     // Assinatura recorrente ANUAL: o Mercado Pago cobra o cartão sozinho a
     // cada 12 meses, sem ação do dono do anúncio.
@@ -111,7 +95,7 @@ Deno.serve(async (req) => {
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        reason: `procurô — ${LABELS[type]} (${professional.name}) — plano anual com 20% de desconto, renovação automática`,
+        reason: `procurô — ${ROTULOS[type]} (${professional.name}) — plano anual com 20% de desconto, renovação automática`,
         auto_recurring: {
           frequency: 12,
           frequency_type: "months",

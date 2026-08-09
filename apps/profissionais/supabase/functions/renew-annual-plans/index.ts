@@ -32,6 +32,7 @@
 
 // deno-lint-ignore-file no-explicit-any
 import { createClient } from "jsr:@supabase/supabase-js@2";
+import { ehTipoValido, precoAnual, ROTULOS, type TipoDePessoa } from "../_shared/precos.ts";
 
 const SUPABASE_URL = Deno.env.get("SUPABASE_URL") ?? "";
 const SUPABASE_SERVICE_ROLE_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "";
@@ -49,28 +50,6 @@ const NOTICE_WINDOW_DAYS = 7;
  */
 const GRACE_DAYS = 7;
 
-const MONTHLY_PRICES: Record<string, number> = {
-  verification: 10.9,
-  boost: 19.9,
-  plus: 29.9,
-};
-
-const LABELS: Record<string, string> = {
-  verification: "selo de verificação",
-  boost: "turbinar anúncio",
-  plus: "Empresa Plus",
-};
-
-/** Campo de validade em `professionals` correspondente a cada assinatura. */
-const UNTIL_FIELD: Record<string, string> = {
-  verification: "verified_until",
-  boost: "boosted_until",
-  plus: "plus_until",
-};
-
-function annualPrice(type: string): number {
-  return Number((MONTHLY_PRICES[type] * 12 * 0.8).toFixed(2));
-}
 
 function formatBRL(value: number): string {
   return value.toFixed(2).replace(".", ",");
@@ -89,6 +68,7 @@ async function createRenewalPreference(
   professionalId: string,
   professionalName: string,
   type: string,
+  pessoa: TipoDePessoa,
   ownerEmail: string
 ): Promise<string | null> {
   const resp = await fetch("https://api.mercadopago.com/checkout/preferences", {
@@ -100,9 +80,9 @@ async function createRenewalPreference(
     body: JSON.stringify({
       items: [
         {
-          title: `procurô — ${LABELS[type]} (${professionalName}) — renovação do plano anual, com 20% de desconto`,
+          title: `procurô — ${ROTULOS[type]} (${professionalName}) — renovação do plano anual, com 20% de desconto`,
           quantity: 1,
-          unit_price: annualPrice(type),
+          unit_price: precoAnual(type, pessoa),
           currency_id: "BRL",
         },
       ],
@@ -129,10 +109,11 @@ async function sendRenewalEmail(
   ownerEmail: string,
   professionalName: string,
   type: string,
+  pessoa: TipoDePessoa,
   expiresAt: string,
   initPoint: string
 ): Promise<boolean> {
-  const price = formatBRL(annualPrice(type));
+  const price = formatBRL(precoAnual(type, pessoa));
   const resp = await fetch("https://api.resend.com/emails", {
     method: "POST",
     headers: {
@@ -142,10 +123,10 @@ async function sendRenewalEmail(
     body: JSON.stringify({
       from: RESEND_FROM_EMAIL,
       to: ownerEmail,
-      subject: `Seu plano anual (${LABELS[type]}) vence em ${formatDate(expiresAt)}`,
+      subject: `Seu plano anual (${ROTULOS[type]}) vence em ${formatDate(expiresAt)}`,
       text:
         `Olá,\n\n` +
-        `O plano anual de "${LABELS[type]}" do seu anúncio "${professionalName}" no procurô ` +
+        `O plano anual de "${ROTULOS[type]}" do seu anúncio "${professionalName}" no procurô ` +
         `vence em ${formatDate(expiresAt)}.\n\n` +
         `Como você pagou no Pix/boleto (pagamento único), a renovação não é automática — mas já deixamos ` +
         `a cobrança pronta para você. Basta pagar por este link:\n\n${initPoint}\n\n` +
@@ -217,7 +198,7 @@ Deno.serve(async (req) => {
   const { data: candidates, error } = await admin
     .from("subscriptions")
     .select(
-      "id, professional_id, type, current_period_end, professionals!inner(id, name, owner_id, verified_until, boosted_until, plus_until)"
+      "id, professional_id, type, current_period_end, professionals!inner(id, name, owner_id, entity_type, verified_until, boosted_until, plus_until)"
     )
     .eq("billing_cycle", "annual")
     .eq("auto_renew", false)
@@ -244,7 +225,10 @@ Deno.serve(async (req) => {
     if (!professional) continue;
 
     const type = String((row as any).type);
-    if (!MONTHLY_PRICES[type]) continue;
+    if (!ehTipoValido(type)) continue;
+    // O preço da conta premium depende de ser pessoa ou empresa; a renovação
+    // tem que cobrar o mesmo que a assinatura original cobrou.
+    const pessoa: TipoDePessoa = professional.entity_type === "pj" ? "pj" : "pf";
 
     // A validade que vale é a do próprio benefício em `professionals`
     // (é ela que o app checa para mostrar selo/destaque/Plus);
@@ -261,10 +245,10 @@ Deno.serve(async (req) => {
       continue;
     }
 
-    const initPoint = await createRenewalPreference(professional.id, professional.name, type, ownerEmail);
+    const initPoint = await createRenewalPreference(professional.id, professional.name, type, pessoa, ownerEmail);
     if (!initPoint) continue;
 
-    const sent = await sendRenewalEmail(ownerEmail, professional.name, type, until.toISOString(), initPoint);
+    const sent = await sendRenewalEmail(ownerEmail, professional.name, type, pessoa, until.toISOString(), initPoint);
     if (!sent) continue;
 
     // Só marca depois do e-mail sair de verdade — se falhar, o cron tenta de

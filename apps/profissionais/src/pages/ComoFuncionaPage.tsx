@@ -1,5 +1,6 @@
 import { Link } from "react-router-dom";
 import { VerifiedBadge } from "../components/VerifiedBadge";
+import { precoMensal } from "../lib/payments";
 
 export function ComoFuncionaPage() {
   return (
@@ -93,8 +94,11 @@ export function ComoFuncionaPage() {
       <div className="card" style={{ display: "grid", gap: 10, marginBottom: 16 }}>
         <h2 style={{ margin: 0 }}>O que é a conta premium</h2>
         <p className="muted" style={{ margin: 0 }}>
-          A <strong>conta premium</strong> (o selo <VerifiedBadge />) é uma assinatura do profissional ou da
-          empresa — R$ 10,90 por mês. Ela libera o <strong>botão de WhatsApp direto</strong> e o{" "}
+          A <strong>conta premium</strong> (o selo <VerifiedBadge />) é uma assinatura de quem anuncia:{" "}
+          <strong>R$ {precoMensal("verification", "pf").toFixed(2).replace(".", ",")} por mês</strong> para
+          profissional autônomo e{" "}
+          <strong>R$ {precoMensal("verification", "pj").toFixed(2).replace(".", ",")} para empresa</strong>.
+          Ela libera o <strong>botão de WhatsApp direto</strong> e o{" "}
           <strong>"peça para te chamar"</strong>, em que você deixa seu número e a pessoa retorna.
         </p>
         <p className="muted" style={{ margin: 0 }}>
