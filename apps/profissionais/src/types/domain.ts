@@ -46,6 +46,8 @@ export interface Professional {
   boosted_until: string | null;
   /** Pausado pelo próprio dono: sai da busca e volta quando ele quiser. */
   paused: boolean;
+  /** Etiquetas de atendimento marcadas no cadastro (ver `ATRIBUTOS`). */
+  atributos: string[];
   suspended: boolean; // tirado do ar pelo painel admin (denúncia procedente ou violação das regras)
   suspended_reason: string | null;
   contact_mode: ContactMode; // "whatsapp_livre" (grátis) ou "pay_per_lead" (cobra crédito por contato)
@@ -237,81 +239,121 @@ export interface Subscription {
  * pessoa varre os chips com o olho e desiste antes de ler quinze palavras
  * soltas.
  */
-export const CATEGORIES = [
-  // Casa e obra
-  "Encanador",
-  "Eletricista",
-  "Pedreiro",
-  "Pintor",
-  "Marceneiro",
-  "Serralheiro",
-  "Vidraceiro",
-  "Gesseiro",
-  "Marido de aluguel",
-  "Montador de móveis",
-  "Chaveiro",
-  "Jardineiro",
-  "Piscineiro",
-  "Dedetizador",
-  "Diarista",
-  "Passadeira",
-  "Cuidador de idosos",
-  "Babá",
-  // Técnica e conserto
-  "Técnico em informática",
-  "Técnico em celulares",
-  "Refrigeração e ar-condicionado",
-  "Conserto de eletrodomésticos",
-  "Mecânico",
-  "Borracheiro",
-  "Lavagem de carros",
-  "Funilaria e pintura automotiva",
-  // Beleza e bem-estar
-  "Cabeleireiro",
-  "Barbeiro",
-  "Manicure",
-  "Depilação",
-  "Maquiadora",
-  "Estética e sobrancelhas",
-  "Massagista",
-  "Personal trainer",
-  "Nutricionista",
-  "Fisioterapeuta",
-  "Psicólogo",
-  // Ensino
-  "Professor particular",
-  "Professor de inglês",
-  "Professor de música",
-  "Reforço escolar",
-  // Festas e imagem
-  "Fotógrafo",
-  "Filmagem",
-  "Confeiteira",
-  "Salgadeira",
-  "Cozinheira",
-  "Buffet e festas",
-  "DJ e som",
-  "Decoração de festas",
-  // Costura e artesanato
-  "Costureira",
-  "Sapateiro",
-  "Tapeceiro",
-  "Artesanato",
-  // Transporte
-  "Frete e mudanças",
-  "Motorista",
-  "Motoboy",
-  // Escritório e serviços
-  "Contador",
-  "Advogado",
-  "Corretor de imóveis",
-  "Designer gráfico",
-  "Social media",
-  "Costura de uniformes",
-  "Segurança e portaria",
-  "Veterinário",
-  "Banho e tosa",
+export const GRUPOS_DE_SERVICOS = [
+  {
+    grupo: "Casa e obra",
+    itens: [
+      "Encanador",
+      "Eletricista",
+      "Pedreiro",
+      "Pintor",
+      "Marceneiro",
+      "Serralheiro",
+      "Vidraceiro",
+      "Gesseiro",
+      "Marido de aluguel",
+      "Montador de móveis",
+      "Chaveiro",
+      "Jardineiro",
+      "Piscineiro",
+      "Dedetizador",
+      "Diarista",
+      "Passadeira",
+      "Cuidador de idosos",
+      "Babá",
+    ],
+  },
+  {
+    grupo: "Técnica e conserto",
+    itens: [
+      "Técnico em informática",
+      "Técnico em celulares",
+      "Refrigeração e ar-condicionado",
+      "Conserto de eletrodomésticos",
+      "Mecânico",
+      "Borracheiro",
+      "Lavagem de carros",
+      "Funilaria e pintura automotiva",
+    ],
+  },
+  {
+    grupo: "Beleza e bem-estar",
+    itens: [
+      "Cabeleireiro",
+      "Barbeiro",
+      "Manicure",
+      "Depilação",
+      "Maquiadora",
+      "Estética e sobrancelhas",
+      "Massagista",
+      "Personal trainer",
+      "Nutricionista",
+      "Fisioterapeuta",
+      "Psicólogo",
+    ],
+  },
+  {
+    grupo: "Ensino",
+    itens: [
+      "Professor particular",
+      "Professor de inglês",
+      "Professor de música",
+      "Reforço escolar",
+    ],
+  },
+  {
+    grupo: "Festas e imagem",
+    itens: [
+      "Fotógrafo",
+      "Filmagem",
+      "Confeiteira",
+      "Salgadeira",
+      "Cozinheira",
+      "Buffet e festas",
+      "DJ e som",
+      "Decoração de festas",
+    ],
+  },
+  {
+    grupo: "Costura e artesanato",
+    itens: [
+      "Costureira",
+      "Sapateiro",
+      "Tapeceiro",
+      "Artesanato",
+    ],
+  },
+  {
+    grupo: "Transporte",
+    itens: [
+      "Frete e mudanças",
+      "Motorista",
+      "Motoboy",
+    ],
+  },
+  {
+    grupo: "Escritório e serviços",
+    itens: [
+      "Contador",
+      "Advogado",
+      "Corretor de imóveis",
+      "Designer gráfico",
+      "Social media",
+      "Costura de uniformes",
+      "Segurança e portaria",
+      "Veterinário",
+      "Banho e tosa",
+    ],
+  },
 ] as const;
+
+/**
+ * A mesma lista achatada. Os grupos existem para a tela de escolha; o resto
+ * do app (filtro da busca, validação, normalização) só precisa saber quais
+ * serviços existem, e derivar daqui evita as duas listas saírem do lugar uma
+ * da outra.
+ */
+export const CATEGORIES = GRUPOS_DE_SERVICOS.flatMap((g) => g.itens as readonly string[]);
 
 /**
  * Deixa um serviço escrito à mão no mesmo formato dos sugeridos.
@@ -345,6 +387,62 @@ export const SPONSORSHIP_PLANS = [
 
 /** Teto de serviços por anúncio: quem marca tudo não está dizendo nada. */
 export const MAX_CATEGORIES = 5;
+
+/**
+ * Etiquetas de atendimento — o "quando" e o "como" do anúncio.
+ *
+ * O anúncio já diz o que a pessoa faz e onde. O que ele não dizia é
+ * exatamente o que quem procura pergunta antes de qualquer outra coisa:
+ * atende sábado? dá para hoje? aceita cartão? vai até minha casa? Cada uma
+ * dessas perguntas era uma mensagem no WhatsApp que só existia porque o
+ * anúncio ficou calado — e boa parte delas morria sem resposta.
+ *
+ * É uma lista fechada de propósito. Etiqueta escrita à mão vira propaganda
+ * ("o melhor da cidade", "preço imbatível"), e aí ninguém mais consegue
+ * comparar dois anúncios: se cada um inventa a própria etiqueta, a etiqueta
+ * deixa de significar alguma coisa. Serviço é diferente — ofício é da
+ * pessoa, e por isso lá o campo livre existe.
+ *
+ * Agrupadas porque a pessoa lê por assunto: horário é um bloco, forma de
+ * atender é outro, pagamento é outro.
+ */
+export const GRUPOS_DE_ATRIBUTOS = [
+  {
+    grupo: "Horário",
+    itens: [
+      "Atende fins de semana",
+      "Atende à noite",
+      "Só durante a semana",
+      "Atende feriados",
+      "Atende emergências 24h",
+    ],
+  },
+  {
+    grupo: "Como atende",
+    itens: [
+      "Vou até você",
+      "Atendo no meu local",
+      "Atendo por vídeo",
+      "Orçamento sem compromisso",
+      "Levo material",
+    ],
+  },
+  {
+    grupo: "Pagamento",
+    itens: ["Aceita cartão", "Aceita Pix", "Parcela no cartão", "Emite nota fiscal"],
+  },
+] as const;
+
+/** A mesma lista achatada — usada para validar o que chega do formulário. */
+export const ATRIBUTOS = GRUPOS_DE_ATRIBUTOS.flatMap((g) => g.itens as readonly string[]);
+
+/**
+ * Teto de etiquetas por anúncio, igual ao do banco.
+ *
+ * Oito é generoso de propósito: o limite não está aqui para racionar, está
+ * para impedir o anúncio que marca as dezesseis e volta a não informar nada.
+ */
+export const MAX_ATRIBUTOS = 8;
 
 /** Pacotes de créditos disponíveis para compra no modo "pagar por contato". */
 export const CREDIT_PACKS = [10, 25, 50] as const;

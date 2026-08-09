@@ -38,6 +38,8 @@ import { buscarCep, formatCep } from "../lib/cep";
 import { BottomSheet } from "../components/BottomSheet";
 import { ConfirmarWhatsApp } from "../components/ConfirmarWhatsApp";
 import { BotaoApple } from "../components/BotaoApple";
+import { SeletorDeServicos } from "../components/SeletorDeServicos";
+import { SeletorDeAtributos } from "../components/SeletorDeAtributos";
 
 type FormState = Omit<
   Professional,
@@ -66,6 +68,7 @@ const EMPTY: FormState = {
   // resposta colocada na boca da pessoa.
   category: "",
   categories: [],
+  atributos: [],
   city: DEFAULT_CITY,
   bio: "",
   phone: "",
@@ -146,7 +149,6 @@ export function PainelPage() {
   }
   const [form, setForm] = useState<FormState>(EMPTY);
   /** Texto do campo "Outro": filtra os serviços sugeridos e cadastra o que não existe. */
-  const [buscaServico, setBuscaServico] = useState("");
   const [photoFile, setPhotoFile] = useState<File | null>(null);
   const [photoPreview, setPhotoPreview] = useState<string | null>(null);
   const [acceptedTerms, setAcceptedTerms] = useState(false);
@@ -232,6 +234,7 @@ export function PainelPage() {
       name: p.name,
       category: p.category,
       categories: p.categories?.length ? p.categories : [p.category],
+      atributos: p.atributos ?? [],
       city: p.city,
       bio: p.bio,
       // Anúncios salvos antes da máscara existir têm o telefone em qualquer
@@ -948,111 +951,30 @@ export function PainelPage() {
           <fieldset className="contact-fields">
             <legend>O que você faz</legend>
             <p className="muted" style={{ margin: "0 0 10px", fontSize: "0.85rem" }}>
-              Marque tudo o que você atende — até {MAX_CATEGORIES}. Quem faz encanamento e elétrica aparece nas
-              duas buscas, sem precisar de dois anúncios. A primeira marcada é a que aparece em destaque. Não
-              achou o seu ofício? Escreva no campo abaixo — ele entra na lista e passa a aparecer no filtro da
-              busca.
+              Até {MAX_CATEGORIES} serviços. Quem faz encanamento e elétrica aparece nas duas buscas, sem
+              precisar de dois anúncios — o primeiro da lista é o que aparece em destaque.
             </p>
-            {(() => {
-              const cheio = form.categories.length >= MAX_CATEGORIES;
-              const digitado = normalizarCategoria(buscaServico);
-              const busca = digitado.toLocaleLowerCase("pt-BR");
-
-              // Serviços escritos à mão ficam sempre visíveis, mesmo quando a
-              // pessoa está filtrando a lista: senão o que ela acabou de
-              // cadastrar sumiria da tela e pareceria não ter sido salvo.
-              const escolhidosForaDaLista = form.categories.filter(
-                (c) => !(CATEGORIES as readonly string[]).includes(c)
-              );
-              const sugeridos = busca
-                ? CATEGORIES.filter((c) => c.toLocaleLowerCase("pt-BR").includes(busca))
-                : CATEGORIES;
-              const visiveis = [...escolhidosForaDaLista, ...sugeridos];
-
-              const jaExiste = visiveis.some(
-                (c) => c.toLocaleLowerCase("pt-BR") === busca
-              );
-              const podeAdicionar = digitado.length >= 3 && !jaExiste && !cheio;
-
-              function alterna(servico: string) {
-                const marcada = form.categories.includes(servico);
-                const lista = marcada
-                  ? form.categories.filter((x) => x !== servico)
-                  : [...form.categories, servico];
-                // A principal é sempre a primeira da lista; se ela sair,
-                // a seguinte assume — o anúncio nunca fica sem destaque.
-                setForm({ ...form, categories: lista, category: lista[0] ?? "" });
+            <SeletorDeServicos
+              escolhidos={form.categories}
+              onChange={(lista) =>
+                // A principal é sempre a primeira da lista; se ela sair, a
+                // seguinte assume — o anúncio nunca fica sem destaque.
+                setForm({ ...form, categories: lista, category: lista[0] ?? "" })
               }
+            />
+          </fieldset>
 
-              function adicionaEscrito() {
-                if (!podeAdicionar) return;
-                alterna(digitado);
-                setBuscaServico("");
-              }
-
-              return (
-                <>
-                  {/* Um campo só faz os dois trabalhos: procura na lista
-                      enquanto a pessoa digita e, se o ofício dela não existir
-                      ali, oferece cadastrar o que ela escreveu. Separar em
-                      "buscar" e "outro" faria a pessoa ler a lista inteira
-                      antes de descobrir que podia escrever. */}
-                  <div style={{ display: "flex", gap: 8, marginBottom: 12 }}>
-                    <input
-                      placeholder="Procure ou escreva seu serviço"
-                      value={buscaServico}
-                      maxLength={MAX_CATEGORIA_LEN}
-                      onChange={(e) => setBuscaServico(e.target.value)}
-                      onKeyDown={(e) => {
-                        // Enter dentro de um formulário envia o formulário —
-                        // aqui ele tem que acrescentar o serviço, não salvar
-                        // o anúncio pela metade.
-                        if (e.key === "Enter") {
-                          e.preventDefault();
-                          adicionaEscrito();
-                        }
-                      }}
-                      aria-label="Procurar ou escrever um serviço"
-                    />
-                    {podeAdicionar && (
-                      <button type="button" className="btn btn-secondary" onClick={adicionaEscrito}>
-                        Adicionar
-                      </button>
-                    )}
-                  </div>
-
-                  <div className="chip-list">
-                    {visiveis.map((c) => {
-                      const marcada = form.categories.includes(c);
-                      return (
-                        <button
-                          key={c}
-                          type="button"
-                          className={marcada ? "chip chip-selected" : "chip"}
-                          aria-pressed={marcada}
-                          disabled={!marcada && cheio}
-                          onClick={() => alterna(c)}
-                        >
-                          {c}
-                        </button>
-                      );
-                    })}
-                  </div>
-
-                  {visiveis.length === 0 && (
-                    <p className="muted" style={{ margin: "10px 0 0", fontSize: "0.85rem" }}>
-                      Nenhum serviço com esse nome na lista. Escreva do seu jeito e toque em Adicionar — ele
-                      passa a valer também no filtro da busca.
-                    </p>
-                  )}
-                  {cheio && (
-                    <p className="muted" style={{ margin: "10px 0 0", fontSize: "0.85rem" }}>
-                      Você já marcou {MAX_CATEGORIES} serviços. Desmarque um para trocar por outro.
-                    </p>
-                  )}
-                </>
-              );
-            })()}
+          <fieldset className="contact-fields">
+            <legend>Mais informações</legend>
+            <p className="muted" style={{ margin: "0 0 10px", fontSize: "0.85rem" }}>
+              Nada aqui é obrigatório, mas cada etiqueta marcada é uma pergunta a menos no WhatsApp — e uma
+              desistência a menos de quem precisava justamente de sábado, de emergência ou de cartão. Marque só
+              o que você cumpre: etiqueta que não se sustenta vira avaliação ruim.
+            </p>
+            <SeletorDeAtributos
+              escolhidos={form.atributos}
+              onChange={(atributos) => setForm({ ...form, atributos })}
+            />
           </fieldset>
           <select value={form.city} onChange={(e) => setForm({ ...form, city: e.target.value })}>
             {CITIES.map((c) => (

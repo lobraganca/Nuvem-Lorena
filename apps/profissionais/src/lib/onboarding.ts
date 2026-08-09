@@ -12,30 +12,6 @@ const TOUR_KEY = "busca-itabirito-tour-visto";
 /** Marcador de "rode o tour assim que a busca abrir" (some depois de rodar). */
 const TOUR_PENDING_KEY = "busca-itabirito-tour-pendente";
 
-/**
- * A tela de início usa `sessionStorage`, não `localStorage`: quem abre o
- * domínio passa por ela **toda vez**, mas navegar dentro do app na mesma
- * visita não joga a pessoa de volta para lá a cada toque em "Buscar".
- *
- * O tour continua no `localStorage` — ele ensina a usar o app, e repetir a
- * cada visita seria estorvo, não ajuda.
- */
-function sessionGet(key: string): string | null {
-  try {
-    return window.sessionStorage.getItem(key);
-  } catch {
-    return null;
-  }
-}
-
-function sessionSet(key: string, value: string) {
-  try {
-    window.sessionStorage.setItem(key, value);
-  } catch {
-    /* storage bloqueado */
-  }
-}
-
 function safeGet(key: string): string | null {
   try {
     return window.localStorage.getItem(key);
@@ -63,23 +39,27 @@ function safeRemove(key: string) {
 }
 
 /**
- * Marca em memória, não em storage nenhum.
+ * A tela de início é vista **uma vez por navegador**, e fica lembrado em
+ * `localStorage`.
  *
- * `sessionStorage` sobrevive ao recarregar a aba, então quem apertava F5 (ou
- * puxava a tela para baixo no celular) continuava caindo direto na busca — a
- * tela de início só reaparecia ao abrir uma aba nova. Uma variável de módulo
- * zera a cada carregamento da página, que é exatamente o que "toda vez que
- * alguém entrar no domínio" quer dizer, e ao mesmo tempo sobrevive à
- * navegação interna: tocar em "Buscar" não devolve a pessoa para o início.
+ * Antes isso era uma variável de módulo, que zera a cada carregamento da
+ * página. A intenção era "quem entra no domínio passa pela apresentação",
+ * mas o efeito prático era outro: recarregar a busca — F5 no computador,
+ * puxar a tela para baixo no celular, ou só voltar ao app depois que o
+ * navegador descarregou a aba — jogava a pessoa de volta para a
+ * apresentação, perdendo a busca que ela estava fazendo. Apresentação
+ * repetida não apresenta nada; só atrapalha quem já é de casa.
+ *
+ * Quem quiser rever tem o botão no Perfil (`resetOnboarding`).
  */
-let jaPassouNestaCarga = false;
+const INICIO_VISTO = WELCOME_KEY;
 
 export function hasSeenWelcome(): boolean {
-  return jaPassouNestaCarga;
+  return safeGet(INICIO_VISTO) === "1";
 }
 
 export function markWelcomeSeen() {
-  jaPassouNestaCarga = true;
+  safeSet(INICIO_VISTO, "1");
 }
 
 /** Pedido explícito de tour (feito ao escolher "quero contratar"). */
@@ -98,7 +78,6 @@ export function markTourSeen() {
 
 /** Usado pelo Perfil para rever a apresentação do zero. */
 export function resetOnboarding() {
-  jaPassouNestaCarga = false;
   safeRemove(WELCOME_KEY);
   safeRemove(TOUR_KEY);
   safeRemove(TOUR_PENDING_KEY);

@@ -411,6 +411,24 @@ export function ProfessionalPage() {
         </div>
 
         <p style={{ marginTop: 16 }}>{professional.bio || "Essa pessoa ainda não escreveu sobre o trabalho dela."}</p>
+
+        {/* As etiquetas de atendimento respondem, antes de qualquer mensagem,
+            o que quem procura pergunta primeiro: atende sábado? dá para hoje?
+            aceita cartão? Ficam depois da descrição porque completam o que a
+            pessoa contou, e separadas dos serviços porque são outra coisa —
+            uma diz o ofício, a outra diz a condição. */}
+        {professional.atributos?.length > 0 && (
+          <ul className="atributos-anuncio">
+            {professional.atributos.map((a) => (
+              <li key={a}>
+                <span className="atributo-tique" aria-hidden="true">
+                  ✓
+                </span>
+                {a}
+              </li>
+            ))}
+          </ul>
+        )}
         <p>
           {professional.average_rating ? (
             <>
