@@ -108,11 +108,26 @@ export async function startSponsorshipCheckout(
 }
 
 /** Preços atuais do produto — únicos, para não divergir entre telas. */
+/**
+ * As fontes de renda do app são três, e só três: a tela de Anúncios
+ * (banners vendidos pela administração, ver migration 0040), turbinar o
+ * anúncio e o selo de verificação.
+ *
+ * Saíram o "Empresa Plus" e o crédito por contato. O primeiro cobrava para
+ * a pessoa ver o próprio movimento — ou seja, cobrava justamente pelo
+ * argumento que a faria assinar o selo. O segundo cobrava por contato
+ * recebido, o que faz o anunciante torcer contra o próprio anúncio nos dias
+ * de aperto. As duas colunas continuam no banco, para não perder histórico
+ * de quem porventura tenha assinado.
+ *
+ * O banner não está aqui porque não é autoatendimento: quem vende é a
+ * Lorena, e o valor é combinado na conversa (ver o painel de banners).
+ */
 export const PRICES = {
   verification: { label: "Selo de verificação", amount: 10.9, period: "mensal" as const },
   boost: { label: "Turbinar anúncio", amount: 19.9, period: "mensal" as const },
   plus: { label: "Empresa Plus", amount: 29.9, period: "mensal" as const },
-  leadCreditCents: 290, // R$2,90 por lead (crédito de contato avulso)
+  leadCreditCents: 290,
 };
 
 /**

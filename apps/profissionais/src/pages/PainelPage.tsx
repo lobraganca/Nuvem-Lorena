@@ -10,18 +10,14 @@ import {
   updateContactRequestStatus,
   isCurrentlyBoosted,
   isCurrentlyVerified,
-  isCurrentlyPlusActive,
   upsertProfessional,
   deleteProfessional,
   setProfessionalPaused,
-  getMySponsorships,
 } from "../lib/professionals";
 import {
   startSubscriptionCheckout,
   startAnnualSubscriptionCheckout,
   startAnnualCheckout,
-  startCreditsCheckout,
-  startSponsorshipCheckout,
   annualPrice,
   cancelarAssinatura,
   entrarNaFilaDeDestaque,
@@ -30,7 +26,7 @@ import {
   PRICES,
   type AssinaturaAtiva,
 } from "../lib/payments";
-import { CATEGORIES, CITIES, DEFAULT_CITY, MAX_CATEGORIES, MAX_CATEGORIA_LEN, MAX_ESPECIALIDADE_LEN, normalizarCategoria, SPONSORSHIP_PLANS, type CategorySponsorship, type ContactRequest, type ContactRequestStatus, type Professional, type SubscriptionType } from "../types/domain";
+import { CATEGORIES, CITIES, DEFAULT_CITY, MAX_CATEGORIES, MAX_CATEGORIA_LEN, MAX_ESPECIALIDADE_LEN, normalizarCategoria, type ContactRequest, type ContactRequestStatus, type Professional, type SubscriptionType } from "../types/domain";
 import { formatDocument, isValidDocument } from "../lib/documents";
 import { uploadProfessionalPhoto } from "../lib/storage";
 import { formatPhone, isValidPhone } from "../lib/phone";
@@ -172,9 +168,6 @@ export function PainelPage() {
   const [erroAoSalvar, setErroAoSalvar] = useState(false);
   /** Mensagem do formulário do anúncio — separada da do topo, que é dos pagamentos. */
   const [formMessage, setFormMessage] = useState("");
-  const [sponsorSheetFor, setSponsorSheetFor] = useState<Professional | null>(null);
-  const [sponsorDays, setSponsorDays] = useState<number>(SPONSORSHIP_PLANS[0].days);
-  const [mySponsorships, setMySponsorships] = useState<Record<string, CategorySponsorship[]>>({});
   const [planSheetFor, setPlanSheetFor] = useState<{ professional: Professional; type: SubscriptionType } | null>(null);
   /** Anúncio cujo WhatsApp está sendo confirmado por código. */
   const [confirmandoWhats, setConfirmandoWhats] = useState<Professional | null>(null);
@@ -207,7 +200,6 @@ export function PainelPage() {
 
   useEffect(() => {
     mine.forEach((p) => {
-      getMySponsorships(p.id).then((list) => setMySponsorships((prev) => ({ ...prev, [p.id]: list })));
       getAssinaturasAtivas(p.id).then((list) => setAssinaturas((prev) => ({ ...prev, [p.id]: list })));
       if (p.category) {
         vagasDeDestaque(p.category, p.city).then((n) => setVagas((prev) => ({ ...prev, [p.id]: n })));
@@ -216,20 +208,6 @@ export function PainelPage() {
   }, [mine]);
 
 
-
-  async function handleSponsor(professional: Professional) {
-    setCheckoutLoading(`${professional.id}:sponsor`);
-    setMessage("");
-    try {
-      const { initPoint } = await startSponsorshipCheckout(professional.id, professional.category, professional.city, sponsorDays);
-      window.location.href = initPoint;
-    } catch (err) {
-      setMessage(err instanceof Error ? err.message : "Não foi possível iniciar o patrocínio de categoria.");
-    } finally {
-      setCheckoutLoading(null);
-      setSponsorSheetFor(null);
-    }
-  }
 
   function resetForm() {
     setForm(EMPTY);
@@ -510,9 +488,6 @@ export function PainelPage() {
           {mine.map((p) => {
             const verified = isCurrentlyVerified(p);
             const boosted = isCurrentlyBoosted(p);
-            const plusActive = isCurrentlyPlusActive(p);
-            const sponsorships = mySponsorships[p.id] ?? [];
-            const activeSponsorship = sponsorships.find((s) => s.status === "active" && new Date(s.ends_at) > new Date());
             return (
               <div key={p.id} className="card">
                 <div style={{ display: "flex", justifyContent: "space-between" }}>
@@ -632,11 +607,14 @@ export function PainelPage() {
                   <button className="btn btn-outline btn-perigo" onClick={() => setExcluindoAnuncio(p)}>
                     Excluir anúncio
                   </button>
-                  {plusActive && (
-                    <Link className="btn btn-outline" to={`/analytics/${p.id}`}>
-                      Ver estatísticas
-                    </Link>
-                  )}
+                  {/* As estatísticas eram do "Empresa Plus", que saiu. Ficam
+                      de graça para todo mundo, e não é generosidade: é o
+                      número de visualizações que convence alguém a assinar o
+                      selo ou turbinar. Cobrar por ver o próprio movimento era
+                      cobrar justamente pelo argumento de venda. */}
+                  <Link className="btn btn-outline" to={`/analytics/${p.id}`}>
+                    Ver estatísticas
+                  </Link>
                 </div>
 
                 {/* Catálogo fechado por padrão: quem faz um serviço só não
@@ -659,7 +637,7 @@ export function PainelPage() {
                     recolhido depois: para quem já paga, isso é histórico; para
                     quem ainda não, é a única chance de descobrir que existe.
                     Recolher para todo mundo escondia a receita do app. */}
-                <details className="produtos produtos-oferta" open={!verified && !boosted && !plusActive && !activeSponsorship}>
+                <details className="produtos produtos-oferta" open={!verified && !boosted}>
                   <summary>
                     Aparecer mais{" "}
                     <span className="muted">
@@ -805,58 +783,6 @@ export function PainelPage() {
                     </div>
                   </div>
 
-                  <div className="produto">
-                    <div className="produto-texto">
-                      <strong>Banner da categoria</strong>
-                      <p>
-                        Um espaço grande, com foto, no alto de quem busca por "{p.category}" — acima de todos os
-                        anúncios, inclusive dos destacados. É por período, não por assinatura.
-                      </p>
-                    </div>
-                    <div className="produto-acao">
-                      {activeSponsorship ? (
-                        <span className="produto-ativo">
-                          ✓ Até {new Date(activeSponsorship.ends_at).toLocaleDateString("pt-BR")}
-                        </span>
-                      ) : (
-                        <>
-                          <span className="produto-preco">
-                            a partir de R$ {SPONSORSHIP_PLANS[0].amount.toFixed(2).replace(".", ",")}
-                          </span>
-                          <button className="btn btn-outline" onClick={() => setSponsorSheetFor(p)}>
-                            Ver períodos
-                          </button>
-                        </>
-                      )}
-                    </div>
-                  </div>
-
-                  {p.entity_type === "pj" && (
-                    <div className="produto">
-                      <div className="produto-texto">
-                        <strong>Empresa Plus</strong>
-                        <p>
-                          Relatórios do seu anúncio: quantas pessoas viram por dia, de quais serviços vieram e
-                          quantas pediram contato. Serve para saber se vale a pena continuar anunciando.
-                        </p>
-                      </div>
-                      <div className="produto-acao">
-                        {plusActive ? (
-                          <span className="produto-ativo">✓ Ativo</span>
-                        ) : (
-                          <>
-                            <span className="produto-preco">
-                              R$ {PRICES.plus.amount.toFixed(2).replace(".", ",")}
-                              <small>/mês</small>
-                            </span>
-                            <button className="btn btn-outline" onClick={() => setPlanSheetFor({ professional: p, type: "plus" })}>
-                              Assinar
-                            </button>
-                          </>
-                        )}
-                      </div>
-                    </div>
-                  )}
                   {(assinaturas[p.id] ?? []).length > 0 && (
                     /* Cancelar precisa estar no mesmo lugar onde se assina, e
                        com o mesmo destaque de qualquer outro botão: esconder
@@ -1391,30 +1317,6 @@ export function PainelPage() {
         </BottomSheet>
       )}
 
-      {sponsorSheetFor && (
-        <BottomSheet
-          title={`Patrocinar categoria "${sponsorSheetFor.category}"`}
-          subtitle="Seu anúncio aparece em destaque no topo da busca quando alguém filtrar por essa categoria em sua cidade, pelo período escolhido."
-          onClose={() => setSponsorSheetFor(null)}
-        >
-          <div style={{ display: "grid", gap: 14 }}>
-            <select value={sponsorDays} onChange={(e) => setSponsorDays(Number(e.target.value))}>
-              {SPONSORSHIP_PLANS.map((plan) => (
-                <option key={plan.days} value={plan.days}>
-                  {plan.days} dias — R$ {plan.amount.toFixed(2).replace(".", ",")}
-                </option>
-              ))}
-            </select>
-            <button
-              className="btn btn-primary btn-block"
-              disabled={checkoutLoading === `${sponsorSheetFor.id}:sponsor`}
-              onClick={() => handleSponsor(sponsorSheetFor)}
-            >
-              {checkoutLoading === `${sponsorSheetFor.id}:sponsor` ? "Abrindo checkout…" : "Ir para pagamento"}
-            </button>
-          </div>
-        </BottomSheet>
-      )}
     </div>
   );
 }
