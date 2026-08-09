@@ -3,7 +3,7 @@ import type { BillingCycle, SubscriptionType } from "../types/domain";
 
 /**
  * Ponto único de entrada para iniciar uma assinatura recorrente no Mercado
- * Pago (selo de verificação, R$10,90/mês) ou o "turbinar anúncio" (destaque
+ * Pago (conta premium, R$10,90/mês) ou o "turbinar anúncio" (destaque
  * pago, também modelado como assinatura recorrente para simplificar renovação
  * automática — pode virar cobrança avulsa no futuro sem mudar esta função).
  *
@@ -111,7 +111,7 @@ export async function startSponsorshipCheckout(
 /**
  * O que o app cobra.
  *
- * Quatro fontes, três delas aqui: selo de verificação, turbinar o anúncio e
+ * Quatro fontes, três delas aqui: conta premium, turbinar o anúncio e
  * Empresa Plus (relatórios, só para empresa). A quarta é a tela de Anúncios,
  * que não aparece nesta lista porque não é autoatendimento — o banner é
  * vendido na conversa e o valor combinado fica anotado no painel de banners
@@ -123,7 +123,7 @@ export async function startSponsorshipCheckout(
  * perder histórico.
  */
 export const PRICES = {
-  verification: { label: "Selo de verificação", amount: 10.9, period: "mensal" as const },
+  verification: { label: "Conta premium", amount: 10.9, period: "mensal" as const },
   boost: { label: "Turbinar anúncio", amount: 19.9, period: "mensal" as const },
   plus: { label: "Empresa Plus", amount: 29.9, period: "mensal" as const },
   leadCreditCents: 290,

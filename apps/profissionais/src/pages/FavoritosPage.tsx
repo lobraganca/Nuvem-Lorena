@@ -84,7 +84,7 @@ export function FavoritosPage() {
               </div>
               {p.verified && (
                 <span className="badge badge-selo">
-                  <VerifiedBadge size={14} /> Verificado
+                  <VerifiedBadge size={14} /> Premium
                 </span>
               )}
               <p style={{ marginTop: 10 }}>

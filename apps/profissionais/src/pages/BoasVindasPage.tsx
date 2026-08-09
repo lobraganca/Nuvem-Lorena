@@ -18,8 +18,8 @@ const FEATURES = [
     text: "Sem intermediário e sem leilão de orçamento: o contato está ali, é só chamar.",
   },
   {
-    title: "Selo de verificação",
-    text: "Quem assina o selo teve o cadastro conferido (documento, foto e responsável). É um sinal de compromisso — não uma garantia do serviço.",
+    title: "Conta premium",
+    text: "Quem assina tem o botão de WhatsApp direto e recebe pedidos de contato pelo app. É um plano pago, não uma avaliação nossa — quem diz se o trabalho é bom são as avaliações de quem contratou.",
   },
   {
     title: "Aqui a gente torce junto",

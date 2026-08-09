@@ -450,7 +450,7 @@ export function PainelPage() {
           <BotaoApple voltarPara="/painel" onErro={setLoginError} />
           {loginError && <p style={{ color: "var(--color-danger)", marginTop: 12 }}>{loginError}</p>}
           <p className="muted" style={{ marginTop: 18, fontSize: "0.85rem" }}>
-            Anunciar é grátis. O selo de verificação e o destaque na busca são opcionais, e você decide depois.
+            Anunciar é grátis. A conta premium e o destaque na busca são opcionais, e você decide depois.
           </p>
         </div>
       </div>
@@ -499,7 +499,7 @@ export function PainelPage() {
                       {p.entity_type === "pj" ? "Empresa" : "Autônomo"}
                     </span>
                     {p.paused && <span className="badge badge-pausado">Pausado</span>}
-                    {verified && <span className="badge badge-verified">Selo ativo</span>}
+                    {verified && <span className="badge badge-verified">Premium ativo</span>}
                     {boosted && <span className="badge badge-boosted">Destaque</span>}
                   </div>
                 </div>
@@ -645,7 +645,7 @@ export function PainelPage() {
                   </summary>
 
                   {!verified && (
-                    /* A chamada principal vai para o selo: é a assinatura que
+                    /* A chamada principal vai para o premium: é a assinatura que
                        libera o contato, e sem contato o resto rende pouco. */
                     <div className="oferta-destaque">
                       <p>
@@ -691,12 +691,12 @@ export function PainelPage() {
 
                   <div className="produto">
                     <div className="produto-texto">
-                      <strong>Selo e contato direto</strong>
+                      <strong>Conta premium</strong>
                       <p>
-                        Três coisas: o ✓ azul ao lado do seu nome, o <strong>botão de WhatsApp</strong> no seu
-                        anúncio e o <strong>"peça para te chamar"</strong>, onde o cliente deixa o número e você
-                        retorna. Sem a assinatura, seu telefone continua aparecendo — só que escrito, para a
-                        pessoa anotar ou ligar.
+                        Três coisas: o selo dourado ao lado do seu nome, o <strong>botão de WhatsApp</strong> no
+                        seu anúncio e o <strong>"peça para te chamar"</strong>, onde o cliente deixa o número e
+                        você retorna. Sem a assinatura, seu telefone continua aparecendo — só que escrito, para
+                        a pessoa anotar ou ligar.
                       </p>
                     </div>
                     <div className="produto-acao">
@@ -711,8 +711,10 @@ export function PainelPage() {
                           <button
                             className="btn btn-teal"
                             onClick={() => {
-                              // Vender o selo a um número que ninguém confirmou
-                              // esvaziaria justamente o que ele promete.
+                              // O premium entrega botão de WhatsApp e pedido de
+                              // contato. Vender isso para um número que ninguém
+                              // confirmou é vender um atalho que leva a lugar
+                              // nenhum — e a reclamação volta para a plataforma.
                               if (!p.whatsapp_verified) {
                                 setConfirmandoWhats(p);
                                 return;

@@ -64,7 +64,7 @@ const TOUR_STEPS: TourStep[] = [
   {
     target: "resultados",
     title: "Quem aparece aqui",
-    text: "Autônomos e empresas na mesma lista, com a nota e as etiquetas que receberam. O selo ✓ Verificado indica cadastro conferido — é um sinal de compromisso, não uma garantia do serviço.",
+    text: "Autônomos e empresas na mesma lista, com a nota e as etiquetas que receberam. O selo Premium indica quem assina o plano pago — não é avaliação nossa; quem diz se o trabalho é bom são as avaliações.",
   },
   {
     target: "nav-favoritos",
@@ -491,7 +491,7 @@ export function HomePage() {
                   <div className="card-selos">
                     {verified && (
                       <span className="badge badge-selo">
-                        <VerifiedBadge size={14} /> Verificado
+                        <VerifiedBadge size={14} /> Premium
                       </span>
                     )}
                     {boosted && <span className="badge badge-boosted">Destaque</span>}

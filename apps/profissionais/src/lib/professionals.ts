@@ -31,7 +31,7 @@ export interface ProfessionalWithRating extends Professional {
   review_count: number;
 }
 
-/** Selo de verificação só conta se `verified` estiver true E não tiver expirado. */
+/** Conta premium só conta se `verified` estiver true E não tiver expirado. */
 export function isCurrentlyVerified(p: Pick<Professional, "verified" | "verified_until">): boolean {
   return !!p.verified && (!p.verified_until || new Date(p.verified_until) > new Date());
 }

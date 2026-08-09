@@ -20,11 +20,11 @@ export function TermosPage() {
           media disputas comerciais entre as partes.
         </p>
         <p>
-          O <strong>selo de verificação</strong> e o destaque de anúncio <strong>"turbinado"</strong> indicam
-          apenas que o profissional/empresa optou por assinar o serviço correspondente e, quando aplicável,
-          passou por alguma checagem básica de cadastro (documento informado, foto de rosto ou logo, nome do
-          responsável no caso de empresas). Isso reduz a chance de fraude, mas <strong>não é garantia de
-          qualidade, idoneidade ou de bom resultado do serviço contratado.</strong>
+          A <strong>conta premium</strong> e o destaque de anúncio <strong>"turbinado"</strong> indicam
+          <strong> apenas que o profissional ou a empresa assinou o plano correspondente</strong>. Não são
+          selo de checagem: a plataforma <strong>não confere documentos, não audita o cadastro e não atesta a
+          idoneidade</strong> de quem anuncia. Também não são garantia de qualidade nem de bom resultado do
+          serviço contratado.
         </p>
         <p>
           As <strong>avaliações</strong> publicadas na plataforma são de responsabilidade exclusiva de quem as
@@ -44,7 +44,7 @@ export function TermosPage() {
         </p>
         <h2 style={{ fontSize: "1.05rem", marginBottom: 0 }}>Assinaturas, cancelamento e reembolso</h2>
         <p>
-          As assinaturas (selo de verificação, destaque na busca e Empresa Plus) podem ser{" "}
+          As assinaturas (conta premium, destaque na busca e Empresa Plus) podem ser{" "}
           <strong>canceladas a qualquer momento</strong>, pelo próprio app, no Painel do profissional — no mesmo
           lugar onde foram contratadas e sem precisar falar com ninguém.
         </p>

@@ -139,7 +139,7 @@ export function AnunciosPage() {
                 <div className="card-selos">
                   {p.verified && (
                     <span className="badge badge-selo">
-                      <VerifiedBadge size={14} /> Verificado
+                      <VerifiedBadge size={14} /> Premium
                     </span>
                   )}
                   <span className="badge badge-boosted">Destaque</span>

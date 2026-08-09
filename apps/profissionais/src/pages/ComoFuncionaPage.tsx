@@ -9,7 +9,7 @@ export function ComoFuncionaPage() {
         <h2 style={{ margin: 0 }}>Como buscar</h2>
         <p className="muted" style={{ margin: 0 }}>
           Na página inicial, filtre por cidade e categoria ou digite uma palavra-chave (nome ou algo da
-          descrição). Os resultados trazem foto/logo, nota média, selo de verificação (quando houver) e um
+          descrição). Os resultados trazem foto/logo, nota média, o selo de conta premium (quando houver) e um
           botão de WhatsApp direto para quem é verificado.
         </p>
       </div>
@@ -91,12 +91,20 @@ export function ComoFuncionaPage() {
       </div>
 
       <div className="card" style={{ display: "grid", gap: 10, marginBottom: 16 }}>
-        <h2 style={{ margin: 0 }}>O que é o selo de verificação</h2>
+        <h2 style={{ margin: 0 }}>O que é a conta premium</h2>
         <p className="muted" style={{ margin: 0 }}>
-          O <strong>selo de verificação</strong> (o selo <VerifiedBadge />)
-          é uma assinatura paga pelo profissional/empresa (R$ 10,90/mês via Mercado Pago) que indica que ele
-          passou por uma checagem básica de cadastro (documento, foto de rosto ou logo, e nome do responsável
-          no caso de empresas). Também libera o botão de WhatsApp direto no perfil.
+          A <strong>conta premium</strong> (o selo <VerifiedBadge />) é uma assinatura do profissional ou da
+          empresa — R$ 10,90 por mês. Ela libera o <strong>botão de WhatsApp direto</strong> e o{" "}
+          <strong>"peça para te chamar"</strong>, em que você deixa seu número e a pessoa retorna.
+        </p>
+        <p className="muted" style={{ margin: 0 }}>
+          <strong>O selo não é uma avaliação nossa.</strong> Ele diz que aquela pessoa assina o plano, e mais
+          nada: não atestamos a qualidade do serviço, não conferimos documento e não somos parte do que for
+          combinado entre vocês. Quem diz se o trabalho é bom são as avaliações de quem contratou.
+        </p>
+        <p className="muted" style={{ margin: 0 }}>
+          Quem não assina continua aparecendo na busca, com o telefone visível. A diferença é só o atalho de
+          contato.
         </p>
       </div>
 
