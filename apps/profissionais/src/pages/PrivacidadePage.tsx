@@ -77,8 +77,8 @@ export function PrivacidadePage() {
             Civil da Internet.
           </li>
           <li>
-            <strong>Por interesse legítimo</strong> — impedir fraude, cadastro em nome de terceiros e
-            avaliações falsas. É por isso que pedimos CPF, foto de rosto e confirmação do WhatsApp.
+            <strong>Por interesse legítimo</strong> — impedir fraude e cadastro em nome de terceiros. É por
+            isso que quem anuncia informa CPF ou CNPJ, envia foto e confirma o número por código.
           </li>
           <li>
             <strong>Com o seu consentimento</strong> — quando houver algo além disso, perguntamos antes.
