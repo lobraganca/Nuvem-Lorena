@@ -32,7 +32,7 @@
 
 // deno-lint-ignore-file no-explicit-any
 import { createClient } from "jsr:@supabase/supabase-js@2";
-import { ehTipoValido, precoAnual, ROTULOS, type TipoDePessoa } from "../_shared/precos.ts";
+import { ehTipoValido, precoAnual, precoMensal, ROTULOS, type TipoDePessoa } from "../_shared/precos.ts";
 
 const SUPABASE_URL = Deno.env.get("SUPABASE_URL") ?? "";
 const SUPABASE_SERVICE_ROLE_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "";
@@ -69,8 +69,10 @@ async function createRenewalPreference(
   professionalName: string,
   type: string,
   pessoa: TipoDePessoa,
-  ownerEmail: string
+  ownerEmail: string,
+  ciclo: "annual" | "monthly"
 ): Promise<string | null> {
+  const anual = ciclo === "annual";
   const resp = await fetch("https://api.mercadopago.com/checkout/preferences", {
     method: "POST",
     headers: {
@@ -80,9 +82,11 @@ async function createRenewalPreference(
     body: JSON.stringify({
       items: [
         {
-          title: `procurô — ${ROTULOS[type]} (${professionalName}) — renovação do plano anual, com 20% de desconto`,
+          title: anual
+            ? `procurô — ${ROTULOS[type]} (${professionalName}) — renovação do plano anual, com 20% de desconto`
+            : `procurô — ${ROTULOS[type]} (${professionalName}) — renovação de mais 1 mês`,
           quantity: 1,
-          unit_price: precoAnual(type, pessoa),
+          unit_price: anual ? precoAnual(type, pessoa) : precoMensal(type, pessoa),
           currency_id: "BRL",
         },
       ],
@@ -92,7 +96,7 @@ async function createRenewalPreference(
         pending: `${PUBLIC_APP_URL}/painel`,
       },
       auto_return: "approved",
-      external_reference: `annual:${professionalId}:${type}`,
+      external_reference: `${anual ? "annual" : "mensal"}:${professionalId}:${type}`,
       payer: { email: ownerEmail },
     }),
   });
@@ -198,9 +202,13 @@ Deno.serve(async (req) => {
   const { data: candidates, error } = await admin
     .from("subscriptions")
     .select(
-      "id, professional_id, type, current_period_end, professionals!inner(id, name, owner_id, entity_type, verified_until, boosted_until, plus_until)"
+      "id, professional_id, type, billing_cycle, current_period_end, professionals!inner(id, name, owner_id, entity_type, verified_until, boosted_until, plus_until)"
     )
-    .eq("billing_cycle", "annual")
+    /* Mensal à vista entra aqui pelo mesmo motivo do anual: Pix e boleto não
+       renovam sozinhos, então quem avisa é o app. Sem isso, quem paga por
+       Pix perde o benefício em silêncio e só descobre quando o cliente
+       reclama que o WhatsApp sumiu. */
+    .in("billing_cycle", ["annual", "monthly"])
     .eq("auto_renew", false)
     .eq("status", "active")
     .is("renewal_notified_at", null);
@@ -245,7 +253,15 @@ Deno.serve(async (req) => {
       continue;
     }
 
-    const initPoint = await createRenewalPreference(professional.id, professional.name, type, pessoa, ownerEmail);
+    const ciclo = (row as any).billing_cycle === "monthly" ? "monthly" : "annual";
+    const initPoint = await createRenewalPreference(
+      professional.id,
+      professional.name,
+      type,
+      pessoa,
+      ownerEmail,
+      ciclo
+    );
     if (!initPoint) continue;
 
     const sent = await sendRenewalEmail(ownerEmail, professional.name, type, pessoa, until.toISOString(), initPoint);

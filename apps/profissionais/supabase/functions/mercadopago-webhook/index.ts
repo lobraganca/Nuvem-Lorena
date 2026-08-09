@@ -331,13 +331,18 @@ async function applyPaymentEffect(admin: Admin, paymentId: string, payment: any)
     return;
   }
 
-  if (ref.startsWith("annual:")) {
+  /* "annual:" e "mensal:" são o mesmo caminho — pagamento único via
+     Checkout Pro, que aceita Pix e boleto e não exige conta no Mercado Pago.
+     Muda só o tamanho do período comprado. */
+  if (ref.startsWith("annual:") || ref.startsWith("mensal:")) {
+    const avulsoAnual = ref.startsWith("annual:");
+    const cicloAvulso = avulsoAnual ? "annual" : "monthly";
     const [, professionalId, type] = ref.split(":");
     if (!professionalId || !type || !isSubscriptionType(type)) {
-      console.error("mercadopago-webhook: external_reference anual inválido", ref);
+      console.error("mercadopago-webhook: external_reference avulso inválido", ref);
       return;
     }
-    const until = await nextUntil(admin, professionalId, type, true);
+    const until = await nextUntil(admin, professionalId, type, avulsoAnual);
     await admin
       .from("professionals")
       .update(professionalFieldsFor(type, until))
@@ -351,7 +356,7 @@ async function applyPaymentEffect(admin: Admin, paymentId: string, payment: any)
       .select("id")
       .eq("professional_id", professionalId)
       .eq("type", type)
-      .eq("billing_cycle", "annual")
+      .eq("billing_cycle", cicloAvulso)
       .eq("status", "pending")
       .order("created_at", { ascending: false })
       .limit(1)
@@ -382,7 +387,7 @@ async function applyPaymentEffect(admin: Admin, paymentId: string, payment: any)
       .select("id")
       .eq("professional_id", professionalId)
       .eq("type", type)
-      .eq("billing_cycle", "annual")
+      .eq("billing_cycle", cicloAvulso)
       .eq("status", "active")
       .order("created_at", { ascending: false })
       .limit(1)
@@ -395,7 +400,7 @@ async function applyPaymentEffect(admin: Admin, paymentId: string, payment: any)
       await admin.from("subscriptions").insert({
         professional_id: professionalId,
         type,
-        billing_cycle: "annual",
+        billing_cycle: cicloAvulso,
         ...confirmed,
       });
     }

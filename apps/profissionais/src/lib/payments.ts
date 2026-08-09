@@ -64,12 +64,16 @@ export async function startAnnualSubscriptionCheckout(
  */
 export async function startAnnualCheckout(
   professionalId: string,
-  type: SubscriptionType
+  type: SubscriptionType,
+  /* "monthly" usa o mesmo caminho para comprar um mês só. É a única forma
+     de pagar por Pix sem ter conta no Mercado Pago — a recorrência exige
+     conta, porque é nela que o cartão fica guardado. */
+  cycle: BillingCycle = "annual"
 ): Promise<{ initPoint: string }> {
   const client = supabase();
   if (!client) throw new Error("Banco de dados não configurado.");
   const { data, error } = await client.functions.invoke("mercadopago-create-annual-payment", {
-    body: { professionalId, type },
+    body: { professionalId, type, cycle },
   });
   if (error) throw await erroDaFunction(error);
   if (!data?.initPoint) throw new Error("Resposta inesperada do checkout do Mercado Pago.");

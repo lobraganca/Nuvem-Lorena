@@ -25,7 +25,7 @@
 
 // deno-lint-ignore-file no-explicit-any
 import { createClient } from "jsr:@supabase/supabase-js@2";
-import { ehTipoValido, precoAnual, ROTULOS } from "../_shared/precos.ts";
+import { ehTipoValido, precoAnual, precoMensal, ROTULOS } from "../_shared/precos.ts";
 import { comCors } from "../_shared/cors.ts";
 
 const MP_ACCESS_TOKEN = Deno.env.get("MP_ACCESS_TOKEN") ?? "";
@@ -53,7 +53,13 @@ Deno.serve(comCors(async (req) => {
       return new Response(JSON.stringify({ error: "Não autenticado." }), { status: 401 });
     }
 
-    const { professionalId, type } = await req.json();
+    /* `cycle` diz se o pagamento único é de um ano ou de um mês. O caminho
+       existe porque Pix e boleto não têm débito automático no Mercado Pago,
+       e a assinatura recorrente exige que o pagador tenha conta lá — degrau
+       que derruba justamente quem só usa Pix. Aqui ele paga como visitante.
+       Sem `cycle`, continua sendo anual, como era antes. */
+    const { professionalId, type, cycle } = await req.json();
+    const mensal = cycle === "monthly";
     if (!professionalId || !ehTipoValido(type)) {
       return new Response(JSON.stringify({ error: "professionalId ou type inválidos." }), { status: 400 });
     }
@@ -85,7 +91,8 @@ Deno.serve(comCors(async (req) => {
       );
     }
 
-    const price = precoAnual(type, professional.entity_type === "pj" ? "pj" : "pf");
+    const pessoa = professional.entity_type === "pj" ? "pj" : "pf";
+    const price = mensal ? precoMensal(type, pessoa) : precoAnual(type, pessoa);
 
     // Cria a preferência de pagamento avulso (Checkout Pro) no Mercado Pago.
     const mpResponse = await fetch("https://api.mercadopago.com/checkout/preferences", {
@@ -97,7 +104,9 @@ Deno.serve(comCors(async (req) => {
       body: JSON.stringify({
         items: [
           {
-            title: `procurô — ${ROTULOS[type]} (${professional.name}) — plano anual, pagamento único, com 20% de desconto`,
+            title: mensal
+              ? `procurô — ${ROTULOS[type]} (${professional.name}) — 1 mês, pagamento único`
+              : `procurô — ${ROTULOS[type]} (${professional.name}) — plano anual, pagamento único, com 20% de desconto`,
             quantity: 1,
             unit_price: price,
             currency_id: "BRL",
@@ -109,7 +118,7 @@ Deno.serve(comCors(async (req) => {
           pending: `${PUBLIC_APP_URL}/painel`,
         },
         auto_return: "approved",
-        external_reference: `annual:${professionalId}:${type}`,
+        external_reference: `${mensal ? "mensal" : "annual"}:${professionalId}:${type}`,
         payer: { email: user.email },
       }),
     });
@@ -133,7 +142,7 @@ Deno.serve(comCors(async (req) => {
     await admin.from("subscriptions").insert({
       professional_id: professionalId,
       type,
-      billing_cycle: "annual",
+      billing_cycle: mensal ? "monthly" : "annual",
       auto_renew: false,
       status: "pending",
     });

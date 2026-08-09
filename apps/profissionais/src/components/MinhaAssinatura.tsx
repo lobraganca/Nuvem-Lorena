@@ -185,8 +185,10 @@ export function MinhaAssinatura({ userId }: { userId: string }) {
                     {indo === p.id ? "Abrindo pagamento…" : "Assinar premium"}
                   </button>
                   <span className="muted" style={{ fontSize: "0.8rem" }}>
-                    Cobrança mensal pelo Mercado Pago. Dá para cancelar quando quiser — e nos primeiros 7 dias
-                    o valor volta integral, por direito de arrependimento.
+                    Cobrança mensal no cartão, pelo Mercado Pago — esse caminho <strong>pede conta lá</strong>,
+                    porque é nela que o cartão fica guardado. Sem conta, dá para{" "}
+                    <Link to="/painel">pagar por Pix no Painel</Link>. Dá para cancelar quando quiser — e nos
+                    primeiros 7 dias o valor volta integral, por direito de arrependimento.
                   </span>
                 </div>
               </>
