@@ -81,7 +81,7 @@ export function ProfessionalPage() {
   const [reviewSheetOpen, setReviewSheetOpen] = useState(false);
   /* Primeiro passo da avaliação: confirmar que contratou. Só depois vêm as
      estrelas — ver o bloco que renderiza a folha. */
-  const [passoAvaliacao, setPassoAvaliacao] = useState<"confirmar" | "avaliar">("confirmar");
+  const [passoAvaliacao, setPassoAvaliacao] = useState<"confirmar" | "ainda-nao" | "avaliar">("confirmar");
   const [contratou, setContratou] = useState(false);
   const [isFavorite, setIsFavorite] = useState(false);
   const [replyDrafts, setReplyDrafts] = useState<Record<string, string>>({});
@@ -654,18 +654,49 @@ export function ProfessionalPage() {
               <button
                 type="button"
                 className="btn btn-outline btn-block"
-                onClick={() => {
-                  setContratou(false);
-                  setPassoAvaliacao("avaliar");
-                }}
+                onClick={() => setPassoAvaliacao("ainda-nao")}
               >
-                Não cheguei a contratar, mas quero avaliar o atendimento
+                Ainda não contratei
               </button>
               <p className="muted" style={{ margin: 0, fontSize: "0.85rem" }}>
-                As duas contam, mas aparecem diferente: a de quem contratou leva a etiqueta{" "}
-                <strong>“contratou o serviço”</strong>, e é nela que quem procura vai reparar. Sua avaliação
-                aparece com o seu nome e a sua foto.
+                Sua avaliação aparece com o seu nome e a sua foto.
               </p>
+            </div>
+          </BottomSheet>
+        )}
+
+        {/* Quem não contratou não avalia. A avaliação existe para contar como
+            foi o serviço, e nota de quem não passou pelo serviço não é
+            informação — é impressão. Basta ela para afundar alguém que
+            atendeu bem, ou para inflar quem nunca trabalhou. A porta não
+            fecha: fica marcada a hora de voltar. */}
+        {reviewSheetOpen && passoAvaliacao === "ainda-nao" && (
+          <BottomSheet
+            title="Então guarde a avaliação para depois"
+            subtitle="Aqui só avalia quem contratou."
+            onClose={cancelEditReview}
+          >
+            <div style={{ display: "grid", gap: 14 }}>
+              <p style={{ margin: 0 }}>
+                Assim que o serviço acontecer, volte nesta página e conte como foi — leva alguns segundos, e é
+                o que ajuda o próximo vizinho a decidir.
+              </p>
+              <p className="muted" style={{ margin: 0, fontSize: "0.88rem" }}>
+                A regra vale para os dois lados: é ela que impede alguém de derrubar a nota de um concorrente
+                sem nunca ter chamado, e de encher o próprio anúncio de estrelas de quem não contratou nada.
+              </p>
+              <button type="button" className="btn btn-primary btn-block" onClick={cancelEditReview}>
+                Entendi
+              </button>
+              {/* Quem tocou em "ainda não" por engano não fica preso: volta
+                  para a pergunta sem precisar fechar tudo e recomeçar. */}
+              <button
+                type="button"
+                className="btn btn-outline btn-block"
+                onClick={() => setPassoAvaliacao("confirmar")}
+              >
+                Na verdade eu já contratei
+              </button>
             </div>
           </BottomSheet>
         )}
@@ -846,14 +877,6 @@ export function ProfessionalPage() {
                 </div>
                 <div style={{ display: "flex", justifyContent: "space-between", alignItems: "start", gap: 8 }}>
                   <Estrelas nota={r.rating} />
-                {r.contratou && (
-                  /* A declaração de quem avaliou. Vem antes do "chamou pelo
-                     app" porque é a mais forte das duas: uma diz que a
-                     pessoa pediu o contato, a outra que o serviço aconteceu. */
-                  <span className="selo-contato" title="Quem avaliou declarou que contratou o serviço">
-                    ✓ contratou o serviço
-                  </span>
-                )}
                 {r.contato_confirmado && (
                   /* Distingue avaliação de quem realmente chamou de opinião
                      solta — é a única distinção que importa para confiar. */

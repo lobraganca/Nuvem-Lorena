@@ -90,8 +90,15 @@ button {
   align-items: center;
   justify-content: space-between;
   /* Só vertical: o recuo lateral vem do .container na mesma tag, e um
-     `padding` completo aqui o sobrescrevia — a logo encostava na borda. */
-  padding-top: 18px;
+     `padding` completo aqui o sobrescrevia — a logo encostava na borda.
+     
+     O `env(safe-area-inset-top)` é o que impede a logo de subir por baixo do
+     relógio: o app instalado usa `viewport-fit=cover`, ou seja, a página
+     ocupa a tela inteira, inclusive a faixa onde o iPhone desenha hora,
+     sinal e bateria. Sem somar essa faixa aqui, a marca e o relógio ficam
+     escritos um por cima do outro. No navegador e no computador o valor é
+     zero, e nada muda. */
+  padding-top: calc(18px + env(safe-area-inset-top));
   padding-bottom: 18px;
   border-bottom: 1px solid var(--color-border);
 }
@@ -709,10 +716,12 @@ textarea::placeholder {
 
 /* --- Tela de início (primeiro acesso) --- */
 
+/* A tela de início não tem cabeçalho, então é ela mesma que precisa começar
+   abaixo da faixa do relógio do iPhone no app instalado. */
 .welcome-page {
   max-width: 960px;
   margin: 0 auto;
-  padding: 0 20px 40px;
+  padding: env(safe-area-inset-top) 20px 40px;
 }
 
 .welcome-hero {

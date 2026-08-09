@@ -990,9 +990,11 @@ export function PainelPage() {
           <fieldset className="contact-fields">
             <legend>Onde você atende</legend>
             <p className="muted" style={{ margin: "0 0 10px", fontSize: "0.85rem" }}>
-              Só preencha se você tem ponto fixo — salão, oficina, loja. Quem atende na casa do cliente pode
-              deixar em branco: nada aqui é obrigatório, e o que você escrever <strong>aparece no seu
-              anúncio</strong>.
+              Nada aqui é obrigatório. O <strong>CEP</strong> serve para preencher sozinho a cidade e o
+              bairro do seu anúncio — e o bairro é o que ajuda quem procura alguém perto. A{" "}
+              <strong>rua e o número só aparecem no anúncio se você marcar a opção no fim deste bloco</strong>:
+              quem atende na casa do cliente, ou trabalha na própria casa, deixa desmarcado e ninguém vê onde
+              você mora.
             </p>
             <input
               placeholder="CEP"

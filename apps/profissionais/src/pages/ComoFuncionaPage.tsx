@@ -17,10 +17,10 @@ export function ComoFuncionaPage() {
       <div className="card" style={{ display: "grid", gap: 10, marginBottom: 16 }}>
         <h2 style={{ margin: 0 }}>Como avaliar</h2>
         <p className="muted" style={{ margin: 0 }}>
-          Para avaliar é preciso entrar com sua conta. Antes das estrelas, o app pergunta se você{" "}
-          <strong>contratou mesmo</strong> aquela pessoa — quem confirma leva a etiqueta{" "}
-          <strong>"✓ contratou o serviço"</strong> na avaliação, e é nela que quem procura repara. Quem não
-          chegou a contratar também pode avaliar o atendimento, e a avaliação aparece sem essa etiqueta.
+          Para avaliar é preciso entrar com sua conta e <strong>ter contratado</strong> aquela pessoa. Antes
+          das estrelas o app pergunta isso — e quem responde que ainda não contratou é convidado a voltar
+          depois do serviço. É a regra que impede alguém de derrubar a nota de um concorrente sem nunca ter
+          chamado, e de encher o próprio anúncio de estrelas de quem não contratou nada.
         </p>
         <p className="muted" style={{ margin: 0 }}>
           Toda avaliação aparece com <strong>o seu nome, a sua foto e a data</strong> — os mesmos da conta com
