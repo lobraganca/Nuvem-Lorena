@@ -24,12 +24,13 @@ function IconHeart() {
   );
 }
 
-function IconInfo() {
+/* Etiqueta de preço: diz "aqui tem oferta" sem a agressividade do megafone,
+   que num app de serviços lê como spam. */
+function IconMegafone() {
   return (
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-      <circle cx="12" cy="12" r="9" />
-      <line x1="12" y1="11" x2="12" y2="16.5" />
-      <circle cx="12" cy="7.7" r="0.2" fill="currentColor" stroke="currentColor" strokeWidth="1.6" />
+      <path d="M20.6 12.6 12 21.2l-8.5-8.5V3.5H12l8.6 8.6a1.4 1.4 0 0 1 0 2Z" />
+      <circle cx="7.6" cy="7.6" r="1.3" fill="currentColor" stroke="none" />
     </svg>
   );
 }
@@ -143,12 +144,18 @@ export function AppShell({ children }: { children: ReactNode }) {
   }, [user]);
 
   const path = location.pathname;
+  /* O "Guia" saiu da barra e virou "Anúncios".
+     
+     Não é troca de rótulo: é trocar uma tela que a pessoa abre uma vez na
+     vida por uma que ela pode abrir toda semana — e que é o estoque de
+     publicidade do app. Na busca cabe um banner por vez, com razão; aqui
+     cabem todos, porque é isso que a pessoa veio ver.
+     
+     O Guia não se perde: continua no Perfil, em "Como funciona", que é onde
+     se procura ajuda depois da primeira semana. */
   const thirdItem = admin
     ? { to: "/admin", label: "Admin", icon: <IconFlag /> }
-    : // "Como funciona" quebrava em duas linhas e invadia os itens vizinhos
-      // na barra de cinco colunas — no rodapé o rótulo precisa caber numa
-      // linha só.
-      { to: "/como-funciona", label: "Guia", icon: <IconInfo /> };
+    : { to: "/anuncios", label: "Anúncios", icon: <IconMegafone /> };
 
   // A tela de início vem antes de qualquer escolha: mostrar a barra de
   // navegação ali seria oferecer cinco caminhos justamente na tela cujo

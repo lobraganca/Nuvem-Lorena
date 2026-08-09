@@ -3011,3 +3011,15 @@ h3 {
   border-left-color: var(--color-danger);
   background: rgba(192, 57, 43, 0.07);
 }
+
+/* Lista da tela de anúncios: um embaixo do outro em coluna única, porque
+   banner é imagem larga — em duas colunas cada um ficaria pequeno demais
+   para se ler o que está escrito nele. */
+.anuncios-lista {
+  display: grid;
+  gap: 14px;
+}
+
+.anuncios-lista .banner-publicidade {
+  margin-top: 0;
+}

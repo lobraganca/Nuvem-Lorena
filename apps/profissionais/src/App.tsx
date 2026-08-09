@@ -25,6 +25,7 @@ import { AvisoDeDados } from "./components/AvisoDeDados";
 import { RetomarDestinoLogin } from "./components/RetomarDestinoLogin";
 import { AvisoErroLogin } from "./components/AvisoErroLogin";
 import { CONTATO_EMAIL } from "./config";
+import { AnunciosPage } from "./pages/AnunciosPage";
 
 /**
  * BottomSheet acessível de qualquer lugar do app (link no rodapé) para
@@ -147,6 +148,7 @@ export default function App() {
         <Route path="/diagnostico" element={<DiagnosticoPage />} />
         {/* Endereco publico exigido pela Google Play: exclusao de conta
             explicada sem precisar estar logado. */}
+        <Route path="/anuncios" element={<AnunciosPage />} />
         <Route path="/excluir-conta" element={<ExcluirContaPage />} />
         <Route path="/configuracao" element={<ConfiguracaoPage />} />
         <Route path="/como-funciona" element={<ComoFuncionaPage />} />
