@@ -1594,3 +1594,50 @@ textarea::placeholder {
   font-size: 0.82rem;
   color: var(--color-text-muted);
 }
+
+/* ---------- Painel de configuração ---------- */
+
+.cfg-item {
+  padding: 14px;
+}
+
+.cfg-linha {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.cfg-texto {
+  margin: 6px 0 0;
+  font-size: 0.86rem;
+  line-height: 1.45;
+}
+
+.cfg-selo {
+  flex: none;
+  font-size: 0.75rem;
+  font-weight: 700;
+  padding: 3px 10px;
+  border-radius: 999px;
+  white-space: nowrap;
+}
+
+.cfg-ok {
+  background: #eaf6ef;
+  color: #1c6b3f;
+  border: 1px solid #c3e4d1;
+}
+
+.cfg-falta {
+  background: #fdeceb;
+  color: var(--color-danger);
+  border: 1px solid #f3c6c2;
+}
+
+.cfg-manual {
+  background: var(--color-bg-soft);
+  color: var(--color-text-muted);
+  border: 1px solid var(--color-border);
+}

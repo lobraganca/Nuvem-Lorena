@@ -14,6 +14,7 @@ import { TermosPage } from "./pages/TermosPage";
 import { PrivacidadePage } from "./pages/PrivacidadePage";
 import { DiagnosticoPage } from "./pages/DiagnosticoPage";
 import { ExcluirContaPage } from "./pages/ExcluirContaPage";
+import { ConfiguracaoPage } from "./pages/ConfiguracaoPage";
 import { ComoFuncionaPage } from "./pages/ComoFuncionaPage";
 import { FavoritosPage } from "./pages/FavoritosPage";
 import { PerfilPage } from "./pages/PerfilPage";
@@ -151,6 +152,7 @@ export default function App() {
         {/* Endereco publico exigido pela Google Play: exclusao de conta
             explicada sem precisar estar logado. */}
         <Route path="/excluir-conta" element={<ExcluirContaPage />} />
+        <Route path="/configuracao" element={<ConfiguracaoPage />} />
         <Route path="/como-funciona" element={<ComoFuncionaPage />} />
         <Route path="/favoritos" element={<FavoritosPage />} />
         <Route path="/perfil" element={<PerfilPage />} />

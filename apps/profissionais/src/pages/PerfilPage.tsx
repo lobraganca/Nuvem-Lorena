@@ -179,6 +179,7 @@ export function PerfilPage() {
           </span>
         </button>
         {admin && <SettingsItem to="/admin" icon="🛡️" label="Painel administrativo" />}
+        {admin && <SettingsItem to="/configuracao" icon="⚙️" label="Configuração do app" />}
       </div>
 
       <button

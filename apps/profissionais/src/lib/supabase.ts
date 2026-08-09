@@ -38,6 +38,12 @@ export function problemaDeConfiguracao(): string | null {
   return null;
 }
 
+/** Endereço e chave, para quem precisa falar com o Supabase fora do cliente
+ *  (a tela de configurações consulta as Edge Functions diretamente). */
+export function credenciaisSupabase(): { url: string; key: string } {
+  return { url, key };
+}
+
 export function hasDatabase(): boolean {
   return problemaDeConfiguracao() === null;
 }
