@@ -14,8 +14,6 @@ import {
   upsertProfessional,
   deleteProfessional,
   setProfessionalPaused,
-  getLeadCredits,
-  updateContactMode,
   getMySponsorships,
 } from "../lib/professionals";
 import {
@@ -27,7 +25,7 @@ import {
   annualPrice,
   PRICES,
 } from "../lib/payments";
-import { CATEGORIES, CITIES, DEFAULT_CITY, CREDIT_PACKS, MAX_CATEGORIES, MAX_CATEGORIA_LEN, normalizarCategoria, SPONSORSHIP_PLANS, type CategorySponsorship, type ContactMode, type ContactRequest, type ContactRequestStatus, type LeadCredits, type Professional, type SubscriptionType } from "../types/domain";
+import { CATEGORIES, CITIES, DEFAULT_CITY, MAX_CATEGORIES, MAX_CATEGORIA_LEN, normalizarCategoria, SPONSORSHIP_PLANS, type CategorySponsorship, type ContactRequest, type ContactRequestStatus, type Professional, type SubscriptionType } from "../types/domain";
 import { formatDocument, isValidDocument } from "../lib/documents";
 import { uploadProfessionalPhoto } from "../lib/storage";
 import { formatPhone, isValidPhone } from "../lib/phone";
@@ -146,7 +144,6 @@ export function PainelPage() {
   const [erroAoSalvar, setErroAoSalvar] = useState(false);
   /** Mensagem do formulário do anúncio — separada da do topo, que é dos pagamentos. */
   const [formMessage, setFormMessage] = useState("");
-  const [leadCreditsByProfessional, setLeadCreditsByProfessional] = useState<Record<string, LeadCredits | null>>({});
   const [sponsorSheetFor, setSponsorSheetFor] = useState<Professional | null>(null);
   const [sponsorDays, setSponsorDays] = useState<number>(SPONSORSHIP_PLANS[0].days);
   const [mySponsorships, setMySponsorships] = useState<Record<string, CategorySponsorship[]>>({});
@@ -165,33 +162,11 @@ export function PainelPage() {
 
   useEffect(() => {
     mine.forEach((p) => {
-      getLeadCredits(p.id).then((credits) => setLeadCreditsByProfessional((prev) => ({ ...prev, [p.id]: credits })));
       getMySponsorships(p.id).then((list) => setMySponsorships((prev) => ({ ...prev, [p.id]: list })));
     });
   }, [mine]);
 
-  async function handleContactModeChange(professionalId: string, mode: ContactMode) {
-    setMessage("");
-    try {
-      await updateContactMode(professionalId, mode);
-      setMine((prev) => prev.map((p) => (p.id === professionalId ? { ...p, contact_mode: mode } : p)));
-    } catch (err) {
-      setMessage(err instanceof Error ? err.message : "Não foi possível atualizar o modo de contato.");
-    }
-  }
 
-  async function handleBuyCredits(professionalId: string, quantity: number) {
-    setCheckoutLoading(`${professionalId}:credits`);
-    setMessage("");
-    try {
-      const { initPoint } = await startCreditsCheckout(professionalId, quantity);
-      window.location.href = initPoint;
-    } catch (err) {
-      setMessage(err instanceof Error ? err.message : "Não foi possível iniciar a compra de créditos.");
-    } finally {
-      setCheckoutLoading(null);
-    }
-  }
 
   async function handleSponsor(professional: Professional) {
     setCheckoutLoading(`${professional.id}:sponsor`);
@@ -460,7 +435,6 @@ export function PainelPage() {
             const verified = isCurrentlyVerified(p);
             const boosted = isCurrentlyBoosted(p);
             const plusActive = isCurrentlyPlusActive(p);
-            const credits = leadCreditsByProfessional[p.id];
             const sponsorships = mySponsorships[p.id] ?? [];
             const activeSponsorship = sponsorships.find((s) => s.status === "active" && new Date(s.ends_at) > new Date());
             return (
@@ -606,11 +580,12 @@ export function PainelPage() {
 
                   <div className="produto">
                     <div className="produto-texto">
-                      <strong>Selo de verificação</strong>
+                      <strong>Selo e contato direto</strong>
                       <p>
-                        Aquele ✓ azul ao lado do seu nome, na busca e no seu perfil. Diz a quem não te conhece
-                        que seu cadastro e seu WhatsApp foram conferidos — é o que costuma decidir entre você e
-                        um número desconhecido.
+                        Três coisas: o ✓ azul ao lado do seu nome, o <strong>botão de WhatsApp</strong> no seu
+                        anúncio e o <strong>"peça para te chamar"</strong>, onde o cliente deixa o número e você
+                        retorna. Sem a assinatura, seu telefone continua aparecendo — só que escrito, para a
+                        pessoa anotar ou ligar.
                       </p>
                     </div>
                     <div className="produto-acao">
@@ -716,62 +691,6 @@ export function PainelPage() {
                           </>
                         )}
                       </div>
-                    </div>
-                  )}
-                </details>
-
-                {/* Modo de contato não é venda, é uma escolha de como você
-                    quer receber gente — por isso fica fora do bloco pago,
-                    mesmo tendo uma opção que custa. */}
-                <details className="produtos">
-                  <summary>
-                    Como você quer receber contatos <span className="muted">— {p.contact_mode === "pay_per_lead" ? "pagando por contato" : "WhatsApp livre"}</span>
-                  </summary>
-
-                  <label className="modo-contato">
-                    <input
-                      type="radio"
-                      name={`contact-mode-${p.id}`}
-                      checked={p.contact_mode === "whatsapp_livre"}
-                      onChange={() => handleContactModeChange(p.id, "whatsapp_livre")}
-                    />
-                    <span>
-                      <strong>WhatsApp livre</strong> — grátis e sem limite
-                      <em>Qualquer pessoa fala com você direto. É o normal, e serve para quase todo mundo.</em>
-                    </span>
-                  </label>
-
-                  <label className="modo-contato">
-                    <input
-                      type="radio"
-                      name={`contact-mode-${p.id}`}
-                      checked={p.contact_mode === "pay_per_lead"}
-                      onChange={() => handleContactModeChange(p.id, "pay_per_lead")}
-                    />
-                    <span>
-                      <strong>Pagar por contato</strong> — R$ {(PRICES.leadCreditCents / 100).toFixed(2).replace(".", ",")} por pessoa que te chama
-                      <em>
-                        Para quem recebe contato demais e quer filtrar: só quem realmente vai contratar costuma
-                        passar dessa barreira. Se acabar o crédito, seu WhatsApp fica escondido.
-                      </em>
-                    </span>
-                  </label>
-
-                  {p.contact_mode === "pay_per_lead" && (
-                    <div className="creditos">
-                      <span className="muted">
-                        Saldo: <strong>{credits?.balance ?? 0}</strong> contato(s)
-                      </span>
-                      {CREDIT_PACKS.map((qty) => (
-                        <button
-                          key={qty}
-                          className="btn btn-outline"
-                          disabled={checkoutLoading === `${p.id}:credits`}
-                          onClick={() => handleBuyCredits(p.id, qty)}
-                        >
-                          {qty} por R$ {((PRICES.leadCreditCents / 100) * qty).toFixed(2).replace(".", ",")}
-                        </button>
-                      ))}
                     </div>
                   )}
                 </details>

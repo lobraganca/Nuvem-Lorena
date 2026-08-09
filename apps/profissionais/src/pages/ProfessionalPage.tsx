@@ -328,6 +328,13 @@ export function ProfessionalPage() {
   const whatsappBlocked = payPerLead && !leadBalanceAvailable;
   const zap = professional.whatsapp || professional.phone;
   const whatsappLink = zap && verified && !whatsappBlocked ? `https://wa.me/${zap.replace(/\D/g, "")}` : null;
+  /**
+   * Botão do WhatsApp e pedido de contato são o que a assinatura entrega a
+   * quem anuncia. Sem ela, o telefone continua visível — escrito, para ser
+   * anotado ou ligado — e é isso que mantém o app útil mesmo para quem nunca
+   * pagou: quem procura sempre consegue chegar na pessoa.
+   */
+  const contatoFacilitado = verified;
   const instagramUrl = professional.instagram
     ? professional.instagram.startsWith("http")
       ? professional.instagram
@@ -462,9 +469,18 @@ export function ProfessionalPage() {
           )}
         </div>
 
-        <button className="btn btn-primary btn-block" style={{ marginTop: 14 }} onClick={() => setContactSheetOpen(true)}>
-          Peça para {professional.name.split(" ")[0]} te chamar
-        </button>
+        {contatoFacilitado ? (
+          <button className="btn btn-primary btn-block" style={{ marginTop: 14 }} onClick={() => setContactSheetOpen(true)}>
+            Peça para {professional.name.split(" ")[0]} te chamar
+          </button>
+        ) : (
+          /* Sem assinatura, o caminho é o telefone acima. Dito em uma linha,
+             sem tom de bloqueio: quem lê é o cliente, e a mensagem não pode
+             soar como se o profissional estivesse devendo algo. */
+          <p className="muted" style={{ marginTop: 14, fontSize: "0.86rem", textAlign: "center" }}>
+            Fale com {professional.name.split(" ")[0]} pelo telefone acima.
+          </p>
+        )}
 
         {/* Numa cidade, o app cresce no boca a boca — e boca a boca hoje é
             link colado no grupo da família. Sem isto, indicar alguém exige
