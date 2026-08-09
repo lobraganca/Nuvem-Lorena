@@ -135,14 +135,15 @@ const NAME_MAX_LENGTH = 80;
 /**
  * Confirmação do número por código de SMS.
  *
- * Desligada enquanto o projeto não tiver um serviço de SMS contratado. Com o
- * envio indisponível, oferecer o botão só produz erro: a pessoa pede o
- * código, nada chega, e ela conclui que o app está quebrado.
+ * Ligada: o projeto tem Twilio Verify configurado. O convite para confirmar
+ * volta ao card do anúncio.
  *
- * Ligar de volta é trocar este valor para `true` e restaurar o desvio nos
- * botões de assinar (procure por "Exigência de número confirmado suspensa").
+ * Ela ainda NÃO é exigida antes de assinar — ver "Exigência de número
+ * confirmado suspensa" nos botões. A ordem é de propósito: primeiro se
+ * confirma que o código chega de verdade; só depois se coloca de volta uma
+ * porta que, se o envio falhar, tranca toda a receita outra vez.
  */
-const CONFIRMACAO_POR_SMS = false;
+const CONFIRMACAO_POR_SMS = true;
 
 
 export function PainelPage() {
