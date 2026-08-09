@@ -86,6 +86,7 @@ const EMPTY: FormState = {
   street: "",
   street_number: "",
   neighborhood: "",
+  mostrar_endereco: false,
 };
 
 const NAME_MAX_LENGTH = 80;
@@ -254,6 +255,7 @@ export function PainelPage() {
       street: p.street ?? "",
       street_number: p.street_number ?? "",
       neighborhood: p.neighborhood ?? "",
+      mostrar_endereco: p.mostrar_endereco ?? false,
     });
     setPhotoFile(null);
     setPhotoPreview(null);
@@ -1033,6 +1035,28 @@ export function PainelPage() {
               value={form.neighborhood ?? ""}
               onChange={(e) => setForm({ ...form, neighborhood: e.target.value })}
             />
+
+            {/* Desligado por padrão, e a chave fica aqui embaixo do endereço
+                porque é aqui que a pergunta faz sentido. Boa parte de quem
+                anuncia atende em casa — manicure, confeiteira, costureira —
+                e o endereço foi digitado para o CEP completar cidade e
+                bairro, não para virar "moro na rua tal, número 42" num
+                anúncio aberto. O bairro continua aparecendo de qualquer
+                jeito: situa a região sem dizer onde é a porta. */}
+            <label className="opcao-endereco">
+              <input
+                type="checkbox"
+                checked={form.mostrar_endereco}
+                onChange={(e) => setForm({ ...form, mostrar_endereco: e.target.checked })}
+              />
+              <span>
+                <strong>Mostrar rua e número no meu anúncio.</strong>
+                <span className="opcao-obs">
+                  Marque só se você tem ponto fixo e quer que as pessoas cheguem até lá. Quem atende em casa
+                  deve deixar desmarcado — o bairro aparece de todo jeito, e é o que ajuda quem procura perto.
+                </span>
+              </span>
+            </label>
           </fieldset>
 
           <fieldset className="contact-fields">

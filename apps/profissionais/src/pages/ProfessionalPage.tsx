@@ -42,6 +42,13 @@ import { formatPhone } from "../lib/phone";
  * um ar de precisão que ele não merece; o mês já diz o que interessa, que é
  * há quanto tempo essa pessoa está aqui.
  */
+/** "9 de agosto de 2026" — a data da avaliação, por extenso. */
+function diaMesAno(iso: string): string {
+  const d = new Date(iso);
+  if (Number.isNaN(d.getTime())) return "";
+  return d.toLocaleDateString("pt-BR", { day: "numeric", month: "long", year: "numeric" });
+}
+
 function mesEAno(iso: string): string {
   const d = new Date(iso);
   if (Number.isNaN(d.getTime())) return "";
@@ -72,6 +79,10 @@ export function ProfessionalPage() {
   const [denunciaConfirmada, setDenunciaConfirmada] = useState(false);
   const [editingReviewId, setEditingReviewId] = useState<string | null>(null);
   const [reviewSheetOpen, setReviewSheetOpen] = useState(false);
+  /* Primeiro passo da avaliação: confirmar que contratou. Só depois vêm as
+     estrelas — ver o bloco que renderiza a folha. */
+  const [passoAvaliacao, setPassoAvaliacao] = useState<"confirmar" | "avaliar">("confirmar");
+  const [contratou, setContratou] = useState(false);
   const [isFavorite, setIsFavorite] = useState(false);
   const [replyDrafts, setReplyDrafts] = useState<Record<string, string>>({});
   const [replySavingId, setReplySavingId] = useState<string | null>(null);
@@ -175,7 +186,7 @@ export function ProfessionalPage() {
     setSaving(true);
     setError("");
     try {
-      const payload = { rating, tags: selectedTags, comment: comment.trim() };
+      const payload = { rating, tags: selectedTags, comment: comment.trim(), contratou };
       if (editingReviewId) {
         await updateReview(editingReviewId, payload);
       } else {
@@ -185,6 +196,8 @@ export function ProfessionalPage() {
       setSelectedTags([]);
       setRating(5);
       setEditingReviewId(null);
+      setPassoAvaliacao("confirmar");
+      setContratou(false);
       setReviewSheetOpen(false);
       await load();
     } catch (err) {
@@ -196,6 +209,10 @@ export function ProfessionalPage() {
 
   function startEditReview(r: Review) {
     setEditingReviewId(r.id);
+    // Quem está editando já respondeu a essa pergunta quando avaliou; refazer
+    // o passo seria pedir de novo o que já está guardado.
+    setPassoAvaliacao("avaliar");
+    setContratou(r.contratou ?? false);
     setRating(r.rating);
     // Só pré-seleciona etiquetas que ainda pertencem ao conjunto da nota
     // salva (protege contra etiquetas antigas removidas da lista).
@@ -208,6 +225,8 @@ export function ProfessionalPage() {
 
   function cancelEditReview() {
     setEditingReviewId(null);
+    setPassoAvaliacao("confirmar");
+    setContratou(false);
     setRating(5);
     setSelectedTags([]);
     setComment("");
@@ -372,6 +391,9 @@ export function ProfessionalPage() {
               </p>
               {/* Endereço só existe para quem tem ponto fixo. Quando existe,
                   é informação de primeira ordem — decide se dá para ir a pé. */}
+              {/* Rua e número só chegam aqui quando a pessoa marcou a caixa
+                  no cadastro — a view pública devolve nulo para quem não
+                  marcou. O bairro vem sempre. */}
               {(professional.street || professional.neighborhood) && (
                 <p className="muted" style={{ margin: "2px 0 0", fontSize: "0.88rem" }}>
                   📍{" "}
@@ -553,7 +575,7 @@ export function ProfessionalPage() {
       </div>
 
       <section style={{ marginTop: 32 }}>
-        <h2>Avaliações da vizinhança</h2>
+        <h2>Avaliações de quem contratou</h2>
         <p className="muted" style={{ margin: "0 0 16px", fontSize: "0.88rem" }}>
           Quem trabalha aqui depende da fama que constrói aqui. Se o serviço foi bom, sua avaliação é a melhor
           propaganda que essa pessoa vai ter.
@@ -605,7 +627,50 @@ export function ProfessionalPage() {
           )
         )}
 
-        {reviewSheetOpen && (
+        {/* Antes das estrelas vem a pergunta que sustenta tudo: você
+            contratou mesmo essa pessoa? Um app de avaliação sem essa
+            pergunta acumula opinião de quem só ouviu falar — e é assim que
+            uma nota deixa de significar qualquer coisa. Não é trava com
+            prova (o app não tem como exigir nota fiscal de um serviço pago
+            em dinheiro na porta de casa); é uma declaração com nome, que a
+            avaliação carrega para quem for ler. */}
+        {reviewSheetOpen && passoAvaliacao === "confirmar" && (
+          <BottomSheet
+            title="Você contratou essa pessoa?"
+            subtitle="A avaliação só vale se vier de quem passou pelo serviço."
+            onClose={cancelEditReview}
+          >
+            <div style={{ display: "grid", gap: 12 }}>
+              <button
+                type="button"
+                className="btn btn-primary btn-block"
+                onClick={() => {
+                  setContratou(true);
+                  setPassoAvaliacao("avaliar");
+                }}
+              >
+                Sim, contratei o serviço
+              </button>
+              <button
+                type="button"
+                className="btn btn-outline btn-block"
+                onClick={() => {
+                  setContratou(false);
+                  setPassoAvaliacao("avaliar");
+                }}
+              >
+                Não cheguei a contratar, mas quero avaliar o atendimento
+              </button>
+              <p className="muted" style={{ margin: 0, fontSize: "0.85rem" }}>
+                As duas contam, mas aparecem diferente: a de quem contratou leva a etiqueta{" "}
+                <strong>“contratou o serviço”</strong>, e é nela que quem procura vai reparar. Sua avaliação
+                aparece com o seu nome e a sua foto.
+              </p>
+            </div>
+          </BottomSheet>
+        )}
+
+        {reviewSheetOpen && passoAvaliacao === "avaliar" && (
           <BottomSheet
             title={editingReviewId ? "Editar avaliação" : "Enviar avaliação"}
             subtitle="Toque nas estrelas e no que combina. Não precisa escrever nada."
@@ -762,8 +827,33 @@ export function ProfessionalPage() {
             const isOwner = user?.id === professional.owner_id;
             return (
               <div key={r.id} className="card">
+                {/* Nome, foto e data de quem avaliou. Sem isso a avaliação
+                    era um comentário anônimo — e comentário anônimo na
+                    internet não convence ninguém, nem serve ao profissional,
+                    que ficava sem saber de quem foi. */}
+                <div className="avaliacao-autor">
+                  {r.autor_foto ? (
+                    <img src={r.autor_foto} alt="" className="avaliacao-foto" />
+                  ) : (
+                    <span className="avaliacao-foto avaliacao-foto-vazia" aria-hidden="true">
+                      {(r.autor_nome ?? "?").trim().charAt(0).toLocaleUpperCase("pt-BR")}
+                    </span>
+                  )}
+                  <span className="avaliacao-quem">
+                    <strong>{r.autor_nome?.trim() || "Usuário do Busca"}</strong>
+                    <span className="muted">{diaMesAno(r.created_at)}</span>
+                  </span>
+                </div>
                 <div style={{ display: "flex", justifyContent: "space-between", alignItems: "start", gap: 8 }}>
                   <Estrelas nota={r.rating} />
+                {r.contratou && (
+                  /* A declaração de quem avaliou. Vem antes do "chamou pelo
+                     app" porque é a mais forte das duas: uma diz que a
+                     pessoa pediu o contato, a outra que o serviço aconteceu. */
+                  <span className="selo-contato" title="Quem avaliou declarou que contratou o serviço">
+                    ✓ contratou o serviço
+                  </span>
+                )}
                 {r.contato_confirmado && (
                   /* Distingue avaliação de quem realmente chamou de opinião
                      solta — é a única distinção que importa para confiar. */

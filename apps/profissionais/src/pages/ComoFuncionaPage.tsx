@@ -17,9 +17,36 @@ export function ComoFuncionaPage() {
       <div className="card" style={{ display: "grid", gap: 10, marginBottom: 16 }}>
         <h2 style={{ margin: 0 }}>Como avaliar</h2>
         <p className="muted" style={{ margin: 0 }}>
-          Para avaliar é preciso entrar com sua conta Google — e só. Avaliações de quem pediu o contato pelo
-          app aparecem com a etiqueta <strong>"✓ chamou pelo app"</strong>, para você saber quem realmente
-          falou com o profissional.
+          Para avaliar é preciso entrar com sua conta. Antes das estrelas, o app pergunta se você{" "}
+          <strong>contratou mesmo</strong> aquela pessoa — quem confirma leva a etiqueta{" "}
+          <strong>"✓ contratou o serviço"</strong> na avaliação, e é nela que quem procura repara. Quem não
+          chegou a contratar também pode avaliar o atendimento, e a avaliação aparece sem essa etiqueta.
+        </p>
+        <p className="muted" style={{ margin: 0 }}>
+          Toda avaliação aparece com <strong>o seu nome, a sua foto e a data</strong> — os mesmos da conta com
+          que você entrou. Avaliação anônima não existe aqui: quem escreve responde pelo que escreveu, e é
+          isso que faz a nota valer alguma coisa.
+        </p>
+        <p className="muted" style={{ margin: 0 }}>
+          É <strong>uma avaliação por profissional</strong>. Se mudar de ideia, dá para editar ou apagar a sua
+          quando quiser, na página dele.
+        </p>
+      </div>
+
+      <div className="card" style={{ display: "grid", gap: 10, marginBottom: 16 }}>
+        <h2 style={{ margin: 0 }}>Meu endereço aparece no anúncio?</h2>
+        <p className="muted" style={{ margin: 0 }}>
+          Só se você quiser. No cadastro do anúncio existe a opção{" "}
+          <strong>"Mostrar rua e número no meu anúncio"</strong>, e ela vem <strong>desmarcada</strong>.
+        </p>
+        <p className="muted" style={{ margin: 0 }}>
+          Com ela desmarcada, ninguém vê a sua rua nem o número — nem pela tela, nem por trás dela. O que
+          aparece é o <strong>bairro</strong>, que ajuda quem procura alguém perto sem dizer onde fica a sua
+          porta. Quem tem salão, oficina ou loja e quer que as pessoas cheguem até lá é que marca a opção.
+        </p>
+        <p className="muted" style={{ margin: 0 }}>
+          Se você atende na casa do cliente ou trabalha na sua própria casa, deixe desmarcada. Você pode
+          mudar isso a qualquer momento editando o anúncio.
         </p>
       </div>
 

@@ -32,6 +32,8 @@ export interface Professional {
   street: string | null;
   street_number: string | null;
   neighborhood: string | null;
+  /** Rua e número aparecem no anúncio só quando isto está ligado. */
+  mostrar_endereco: boolean;
   entity_type: EntityType; // "pf" = profissional autônomo, "pj" = empresa
   document: string | null; // CPF (pf) ou CNPJ (pj) do anunciante
   company_name: string | null; // razão social/nome fantasia, só relevante para pj
@@ -98,6 +100,11 @@ export interface Review {
   comment: string; // opcional na prática: string vazia quando a pessoa só tocou nas etiquetas
   /** Quem avaliou pediu o contato pelo app — calculado no servidor. */
   contato_confirmado?: boolean;
+  /** Declarado por quem avaliou: contratou mesmo o serviço. */
+  contratou?: boolean;
+  /** Nome e foto de quem avaliou, vindos de `reviews_public`. */
+  autor_nome?: string | null;
+  autor_foto?: string | null;
   reply: string | null; // resposta do dono do anúncio
   replied_at: string | null;
   created_at: string;

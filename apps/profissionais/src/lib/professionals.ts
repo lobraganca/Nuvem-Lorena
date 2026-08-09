@@ -165,7 +165,10 @@ export async function getReviews(professionalId: string): Promise<Review[]> {
   const client = supabase();
   if (!client) return [];
   const { data } = await client
-    .from("reviews")
+    // `reviews_public` em vez de `reviews`: é ela que traz o nome e a foto de
+    // quem avaliou, juntando com o perfil público. A tabela crua não tem
+    // como — `profiles` só é legível pelo próprio dono, para o CPF não vazar.
+    .from("reviews_public")
     .select("*")
     .eq("professional_id", professionalId)
     .order("created_at", { ascending: false });
@@ -227,6 +230,7 @@ export async function addReview(input: {
   rating: number;
   tags: string[];
   comment: string;
+  contratou: boolean;
 }) {
   const client = supabase();
   if (!client) throw new Error("Banco de dados não configurado.");
@@ -248,7 +252,10 @@ export async function addReview(input: {
  * o autor pode dar update, e o trigger `reviews_valida_campos_update`
  * (migrations 0011/0020) garante que ele só mexe nesses três campos.
  */
-export async function updateReview(reviewId: string, input: { rating: number; tags: string[]; comment: string }) {
+export async function updateReview(
+  reviewId: string,
+  input: { rating: number; tags: string[]; comment: string; contratou: boolean }
+) {
   const client = supabase();
   if (!client) throw new Error("Banco de dados não configurado.");
   const { error } = await client.from("reviews").update(input).eq("id", reviewId);

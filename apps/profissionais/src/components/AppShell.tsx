@@ -74,10 +74,22 @@ function NavItem({
   /** Marca este item como alvo de um passo do tour de primeiro acesso. */
   tour?: string;
 }) {
+  /* Só o ícone, como no Instagram: o rótulo continua no HTML para quem usa
+     leitor de tela e para o `title`, mas sai da tela. Numa barra de cinco
+     colunas em celular estreito, o texto obrigava a fonte a encolher até o
+     tamanho em que ninguém lê mesmo — e quem já usou qualquer aplicativo
+     reconhece a lupa, o coração e a pessoinha sem legenda. */
   return (
-    <Link to={to} className={`bottom-nav-item${active ? " active" : ""}`} data-tour={tour}>
+    <Link
+      to={to}
+      className={`bottom-nav-item${active ? " active" : ""}`}
+      data-tour={tour}
+      title={label}
+      aria-label={label}
+      aria-current={active ? "page" : undefined}
+    >
       {icon}
-      <span>{label}</span>
+      <span className="apenas-leitor-de-tela">{label}</span>
     </Link>
   );
 }
