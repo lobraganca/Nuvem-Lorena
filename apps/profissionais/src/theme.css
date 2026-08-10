@@ -1904,7 +1904,12 @@ textarea::placeholder {
   justify-content: space-between;
   gap: 12px;
   flex-wrap: wrap;
+  /* Espaço dos dois lados. Só o de cima existia, e embaixo a faixa
+     encostava no primeiro cartão da lista — coladas, as duas viravam um
+     bloco só, e o convite para instalar parecia parte do conteúdo em vez
+     de um aviso à parte que se pode fechar. */
   margin-top: 14px;
+  margin-bottom: 28px;
   padding: 12px 14px;
   border-radius: 14px;
   background: var(--color-bg-soft);
