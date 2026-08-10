@@ -139,7 +139,7 @@ export function InstalarApp({ variante = "lista" }: { variante?: "lista" | "faix
             <line x1="12" y1="8" x2="12" y2="15" />
             <line x1="8.5" y1="11.5" x2="15.5" y2="11.5" />
           </svg>
-          Instalar
+          Instalar App
         </button>
         {ensinandoIOS && folhaIOS}
       </>
