@@ -3436,3 +3436,35 @@ h3 {
 .anuncio-card > .views-line strong {
   color: rgba(255, 255, 255, 0.86);
 }
+
+/* ---------------------------------------------------------------
+   Números reais na tela de boas-vindas ("X profissionais",
+   "Y avaliações", "Z visitas"). Três números lado a lado, cada um
+   com o algarismo em destaque e o rótulo discreto embaixo — o
+   mesmo padrão de qualquer placar, sem precisar de cartão ou
+   sombra: aqui é só reforço de confiança, não um bloco que compete
+   por atenção com os dois botões de escolha logo abaixo.
+   --------------------------------------------------------------- */
+.welcome-stats {
+  display: flex;
+  justify-content: center;
+  gap: 28px;
+  margin-top: 22px;
+  flex-wrap: wrap;
+}
+
+.welcome-stats > div {
+  text-align: center;
+}
+
+.welcome-stats strong {
+  display: block;
+  font-size: 1.5rem;
+  font-variant-numeric: tabular-nums;
+  color: var(--color-navy);
+}
+
+.welcome-stats span {
+  font-size: 0.78rem;
+  color: var(--color-text-muted);
+}

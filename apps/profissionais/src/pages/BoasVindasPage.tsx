@@ -5,6 +5,8 @@ import { markWelcomeSeen, requestTour } from "../lib/onboarding";
 import { InstalarApp } from "../components/InstalarApp";
 import { useTituloDaPagina } from "../lib/tituloDaPagina";
 import { useOnlineCount } from "../lib/presence";
+import { useEffect, useState } from "react";
+import { getEstatisticasPublicas, type EstatisticasPublicas } from "../lib/estatisticas";
 
 const FEATURES = [
   {
@@ -42,6 +44,11 @@ export function BoasVindasPage() {
   useTituloDaPagina("Bem-vindo");
   const navigate = useNavigate();
   const online = useOnlineCount();
+  const [stats, setStats] = useState<EstatisticasPublicas | null>(null);
+
+  useEffect(() => {
+    getEstatisticasPublicas().then(setStats);
+  }, []);
 
   function escolherCliente() {
     markWelcomeSeen();
@@ -71,6 +78,26 @@ export function BoasVindasPage() {
             <span className="online-dot" aria-hidden="true" />
             {online === 1 ? "1 pessoa navegando agora" : `${online} pessoas navegando agora`}
           </p>
+        )}
+        {/* Números reais, contados nesta hora — nenhum deles é estimativa
+            nem número redondo escolhido para impressionar. Aparecem do
+            jeito que estiverem, mesmo baixos: um número pequeno mas
+            verdadeiro erra menos do que um alto e inventado. */}
+        {stats && (
+          <div className="welcome-stats">
+            <div>
+              <strong>{stats.profissionais}</strong>
+              <span>{stats.profissionais === 1 ? "profissional cadastrado" : "profissionais cadastrados"}</span>
+            </div>
+            <div>
+              <strong>{stats.avaliacoes}</strong>
+              <span>{stats.avaliacoes === 1 ? "avaliação" : "avaliações"}</span>
+            </div>
+            <div>
+              <strong>{stats.visitas}</strong>
+              <span>{stats.visitas === 1 ? "visita a anúncio" : "visitas a anúncios"}</span>
+            </div>
+          </div>
         )}
       </section>
 
