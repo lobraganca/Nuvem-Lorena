@@ -37,6 +37,7 @@ export function AdminBanners() {
   const [imagemUrl, setImagemUrl] = useState("");
   const [enviandoImagem, setEnviandoImagem] = useState(false);
   const [link, setLink] = useState("");
+  const [local, setLocal] = useState<"busca" | "boas_vindas">("busca");
   const [cidade, setCidade] = useState("");
   const [categoria, setCategoria] = useState("");
   const [inicio, setInicio] = useState(hoje());
@@ -62,6 +63,7 @@ export function AdminBanners() {
     setTitulo("");
     setImagemUrl("");
     setLink("");
+    setLocal("busca");
     setCidade("");
     setCategoria("");
     setInicio(hoje());
@@ -79,6 +81,7 @@ export function AdminBanners() {
     setTitulo(b.titulo);
     setImagemUrl(b.imagem_url);
     setLink(b.link ?? "");
+    setLocal(b.local);
     setCidade(b.cidade ?? "");
     setCategoria(b.categoria ?? "");
     setInicio(b.inicio);
@@ -118,6 +121,7 @@ export function AdminBanners() {
         // Campos vazios viram nulo, que no banco significa "sem restrição".
         // String vazia significaria "cidade chamada ''" e nunca casaria.
         link: link.trim() || null,
+        local,
         cidade: cidade || null,
         categoria: categoria || null,
         inicio,
@@ -199,6 +203,7 @@ export function AdminBanners() {
                 <div className="banner-dados">
                   <strong>{b.anunciante}</strong>
                   <span className="muted">
+                    {b.local === "boas_vindas" ? "boas-vindas" : "busca"} ·{" "}
                     {b.inicio.split("-").reverse().join("/")} a {b.fim.split("-").reverse().join("/")}
                     {b.categoria ? ` · só em ${b.categoria}` : ""}
                     {b.cidade ? ` · ${b.cidade}` : ""}
@@ -263,6 +268,14 @@ export function AdminBanners() {
           value={link}
           onChange={(e) => setLink(e.target.value)}
         />
+
+        <label style={{ display: "grid", gap: 4 }}>
+          <span className="muted" style={{ fontSize: "0.85rem" }}>Onde aparece</span>
+          <select value={local} onChange={(e) => setLocal(e.target.value as "busca" | "boas_vindas")}>
+            <option value="busca">Faixa de publicidade na busca</option>
+            <option value="boas_vindas">Cartão na tela de boas-vindas ("Tem gente boa aqui do lado")</option>
+          </select>
+        </label>
 
         <div className="banner-form-linha">
           <label style={{ display: "grid", gap: 4 }}>

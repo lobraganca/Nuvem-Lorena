@@ -22,6 +22,26 @@ export async function getBannersDaBusca(cidade: string, categoria: string): Prom
   return data ?? [];
 }
 
+/**
+ * Banners da tela de boas-vindas — cartões vendidos dentro da lista "Tem
+ * gente boa aqui do lado", não a faixa de publicidade da busca.
+ *
+ * Sem `categoria`: essa tela é anterior a qualquer busca, ninguém escolheu
+ * um serviço ainda. O único recorte que faz sentido ali é a cidade de quem
+ * abriu o app.
+ */
+export async function getBannersBoasVindas(cidade: string): Promise<Banner[]> {
+  const client = supabase();
+  if (!client) return [];
+  const { data } = await client
+    .from("banners")
+    .select("*")
+    .eq("local", "boas_vindas")
+    .or(`cidade.is.null,cidade.eq.${cidade}`)
+    .order("created_at", { ascending: false });
+  return data ?? [];
+}
+
 /** Todos, inclusive fora do período — só admin enxerga (policy). */
 export async function getTodosOsBanners(): Promise<Banner[]> {
   const client = supabase();

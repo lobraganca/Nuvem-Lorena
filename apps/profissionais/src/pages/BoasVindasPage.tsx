@@ -5,9 +5,13 @@ import { markWelcomeSeen, requestTour } from "../lib/onboarding";
 import { InstalarApp } from "../components/InstalarApp";
 import { useTituloDaPagina } from "../lib/tituloDaPagina";
 import { useOnlineCount } from "../lib/presence";
-import { useEffect, useState } from "react";
+import { Fragment, useEffect, useState } from "react";
 import { getEstatisticasPublicas, type EstatisticasPublicas } from "../lib/estatisticas";
 import { useContagemAnimada } from "../lib/useContagemAnimada";
+import { useCidadeAproximada } from "../lib/geolocalizacao";
+import { getBannersBoasVindas } from "../lib/banners";
+import { CardPatrocinado } from "../components/CardPatrocinado";
+import type { Banner } from "../types/domain";
 
 const ATUALIZA_ESTATISTICAS_MS = 25_000;
 
@@ -48,6 +52,18 @@ export function BoasVindasPage() {
   const navigate = useNavigate();
   const online = useOnlineCount();
   const [stats, setStats] = useState<EstatisticasPublicas | null>(null);
+  const cidade = useCidadeAproximada();
+  const [bannersLocais, setBannersLocais] = useState<Banner[]>([]);
+
+  useEffect(() => {
+    let ativo = true;
+    getBannersBoasVindas(cidade).then((lista) => {
+      if (ativo) setBannersLocais(lista);
+    });
+    return () => {
+      ativo = false;
+    };
+  }, [cidade]);
 
   useEffect(() => {
     let ativo = true;
@@ -154,13 +170,23 @@ export function BoasVindasPage() {
       <InstalarApp variante="faixa" />
 
       <section className="welcome-features">
-        {FEATURES.map((f) => (
-          <div key={f.title} className="card welcome-feature-card">
-            <h3 style={{ margin: "0 0 6px" }}>{f.title}</h3>
-            <p className="muted" style={{ margin: 0 }}>
-              {f.text}
-            </p>
-          </div>
+        {/* Lugares vendidos, intercalados com o conteúdo real — não
+            empilhados no fim, onde ninguém rola até ver, nem logo no
+            início, onde pareceria que a lista inteira é anúncio. A
+            segunda posição é cedo o bastante para valer o que se cobra
+            por ela e tarde o bastante para não ser a primeira coisa que
+            a pessoa lê na tela de boas-vindas. */}
+        {FEATURES.map((f, i) => (
+          <Fragment key={f.title}>
+            <div className="card welcome-feature-card">
+              <h3 style={{ margin: "0 0 6px" }}>{f.title}</h3>
+              <p className="muted" style={{ margin: 0 }}>
+                {f.text}
+              </p>
+            </div>
+            {i === 1 && bannersLocais[0] && <CardPatrocinado key={bannersLocais[0].id} banner={bannersLocais[0]} />}
+            {i === 3 && bannersLocais[1] && <CardPatrocinado key={bannersLocais[1].id} banner={bannersLocais[1]} />}
+          </Fragment>
         ))}
       </section>
 

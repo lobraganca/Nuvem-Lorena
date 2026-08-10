@@ -745,6 +745,15 @@ textarea::placeholder {
   font-size: 1rem;
 }
 
+/* Um lugar vendido dentro do grid de cartões — mesma moldura de
+   publicidade da busca (borda tracejada, etiqueta "Publicidade"), mas sem
+   o espaçamento pensado para uma lista empilhada, que aqui desalinharia o
+   cartão dos vizinhos no grid. */
+.welcome-ad-card.banner-publicidade {
+  margin-top: 0;
+  padding: 0;
+}
+
 /* Os dois caminhos do app, logo no topo: pílulas grandes e arredondadas,
    com alvo de toque generoso. */
 .welcome-choice {

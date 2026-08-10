@@ -103,6 +103,8 @@ export interface Banner {
   cidade: string | null;
   /** Nulo = qualquer busca; preenchido, só quando filtram por esse serviço. */
   categoria: string | null;
+  /** Onde o banner aparece: faixa da busca, ou cartão na tela de boas-vindas. */
+  local: "busca" | "boas_vindas";
   inicio: string;
   fim: string;
   ativo: boolean;
