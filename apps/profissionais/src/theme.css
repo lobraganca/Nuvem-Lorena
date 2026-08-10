@@ -39,6 +39,10 @@
 
   /* Verde só no WhatsApp; escurecido para aguentar texto branco em cima. */
   --color-accent-teal: #12805f;
+  /* Fundo do card de empresa — mesma família do teal do WhatsApp, mas
+     escurecido à parte (não deriva de --color-accent-teal) porque aquele
+     é ajustado para o botão, não para servir de fundo de página inteira. */
+  --color-teal-deep: #0b3d33;
 
   --color-text: #0a1a2f;
   --color-text-muted: #5b6b7f;
@@ -3265,6 +3269,13 @@ h3 {
   background: var(--color-navy);
   border-color: var(--color-navy);
   color: #fff;
+}
+
+/* Empresa em teal, autônomo em azul-marinho: a cor já diz o tipo de
+   anúncio antes de ler o rótulo, quando o Painel tem os dois misturados. */
+.anuncio-card-pj {
+  background: var(--color-teal-deep);
+  border-color: var(--color-teal-deep);
 }
 
 .anuncio-card strong,

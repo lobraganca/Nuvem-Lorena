@@ -420,8 +420,19 @@ export function ProfessionalPage() {
                     .join(" — ")}
                 </p>
               )}
-              {professional.entity_type === "pj" && professional.responsible_name && (
-                <p className="muted" style={{ margin: "4px 0 0", fontSize: "0.85rem" }}>Responsável: {professional.responsible_name}</p>
+              {professional.entity_type === "pj" && (professional.company_name || professional.responsible_name) && (
+                /* Razão social nunca aparecia em lugar nenhum — pedíamos o
+                   dado no cadastro e ele morria ali. Mostrá-la aqui é o que
+                   justifica pedir: quem procura vê que existe uma empresa
+                   de verdade por trás do anúncio, não só um nome de fantasia. */
+                <p className="muted" style={{ margin: "4px 0 0", fontSize: "0.85rem" }}>
+                  {[
+                    professional.company_name ? `Razão social: ${professional.company_name}` : null,
+                    professional.responsible_name ? `Responsável: ${professional.responsible_name}` : null,
+                  ]
+                    .filter(Boolean)
+                    .join(" · ")}
+                </p>
               )}
             </div>
           </div>

@@ -526,7 +526,7 @@ export function PainelPage() {
             const plusActive = isCurrentlyPlusActive(p);
             const boosted = isCurrentlyBoosted(p);
             return (
-              <div key={p.id} className="card anuncio-card">
+              <div key={p.id} className={`card anuncio-card${p.entity_type === "pj" ? " anuncio-card-pj" : ""}`}>
                 <div style={{ display: "flex", justifyContent: "space-between" }}>
                   <strong>{p.name}</strong>
                   <div style={{ display: "flex", gap: 6 }}>
@@ -928,30 +928,21 @@ export function PainelPage() {
             required
             maxLength={NAME_MAX_LENGTH}
           />
-
           {isPj && (
-            <>
-              <input
-                placeholder="Nome da empresa (razão social/nome fantasia)"
-                value={form.company_name ?? ""}
-                onChange={(e) => setForm({ ...form, company_name: e.target.value })}
-              />
-              <input
-                placeholder="Responsável pela empresa (ex: Maria Silva)"
-                value={form.responsible_name ?? ""}
-                onChange={(e) => setForm({ ...form, responsible_name: e.target.value })}
-                required
-              />
-            </>
+            <p className="muted" style={{ margin: "-6px 0 0", fontSize: "0.82rem" }}>
+              É o nome que aparece no seu anúncio — pode ser o nome fantasia, não precisa ser o da razão social.
+            </p>
           )}
 
-          <input
-            placeholder={isPj ? "CNPJ" : "CPF"}
-            value={form.document ?? ""}
-            onChange={(e) => setForm({ ...form, document: formatDocument(e.target.value, form.entity_type) })}
-            inputMode="numeric"
-            maxLength={isPj ? 18 : 14}
-          />
+          {!isPj && (
+            <input
+              placeholder="CPF"
+              value={form.document ?? ""}
+              onChange={(e) => setForm({ ...form, document: formatDocument(e.target.value, form.entity_type) })}
+              inputMode="numeric"
+              maxLength={14}
+            />
+          )}
 
           <label style={{ display: "grid", gap: 6 }}>
             <span className="muted">{isPj ? "Logo da empresa" : "Foto de rosto"} {!isPj && "(obrigatória)"}</span>
@@ -964,6 +955,43 @@ export function PainelPage() {
               />
             )}
           </label>
+
+          {isPj && (
+            /* Antes eram três campos soltos entre o nome e a foto — CNPJ,
+               razão social e responsável iam sendo pedidos um atrás do
+               outro, sem explicar por quê. Agrupados aqui, depois de quem a
+               empresa é (nome e logo) e antes do que ela faz, ficam no
+               lugar que corresponde à pergunta que respondem: "quem
+               responde legalmente por este anúncio?" — não é a mesma
+               pergunta que "como você aparece na busca?". */
+            <fieldset className="contact-fields">
+              <legend>Dados da empresa</legend>
+              <p className="muted" style={{ margin: "0 0 10px", fontSize: "0.85rem" }}>
+                Não aparecem escondidos: a razão social e o responsável saem no seu anúncio, como sinal de
+                que existe uma empresa de verdade por trás dele.
+              </p>
+              <input
+                placeholder="Razão social (nome oficial no CNPJ)"
+                value={form.company_name ?? ""}
+                onChange={(e) => setForm({ ...form, company_name: e.target.value })}
+                style={{ marginBottom: 10 }}
+              />
+              <input
+                placeholder="Responsável pela empresa (ex: Maria Silva)"
+                value={form.responsible_name ?? ""}
+                onChange={(e) => setForm({ ...form, responsible_name: e.target.value })}
+                required
+                style={{ marginBottom: 10 }}
+              />
+              <input
+                placeholder="CNPJ"
+                value={form.document ?? ""}
+                onChange={(e) => setForm({ ...form, document: formatDocument(e.target.value, form.entity_type) })}
+                inputMode="numeric"
+                maxLength={18}
+              />
+            </fieldset>
+          )}
 
           <fieldset className="contact-fields">
             <legend>O que você faz</legend>
