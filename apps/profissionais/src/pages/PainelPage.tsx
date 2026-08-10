@@ -516,7 +516,7 @@ export function PainelPage() {
           )}
         </div>
         {mine.length === 0 && <p className="muted">Você ainda não tem anúncio. Preencha aí embaixo que em dois minutos você aparece na busca.</p>}
-        <div className="grid">
+        <div className="grid grid-anuncios">
           {mine.map((p) => {
             const verified = isCurrentlyVerified(p);
             const plusActive = isCurrentlyPlusActive(p);

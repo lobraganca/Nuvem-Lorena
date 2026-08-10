@@ -40,9 +40,12 @@
   /* Verde só no WhatsApp; escurecido para aguentar texto branco em cima. */
   --color-accent-teal: #12805f;
   /* Fundo do card de empresa — mesma família do teal do WhatsApp, mas
-     escurecido à parte (não deriva de --color-accent-teal) porque aquele
-     é ajustado para o botão, não para servir de fundo de página inteira. */
-  --color-teal-deep: #0b3d33;
+     ajustado à parte (não deriva de --color-accent-teal) porque aquele
+     serve ao botão, não a um fundo de card inteiro.
+     Fica na mesma luminosidade do azul do card (22%), para que os dois
+     tipos de anúncio se distingam pela cor e não pelo peso — um bem mais
+     escuro que o outro lia como "esse aqui está desligado". */
+  --color-teal-deep: #115f4f;
 
   --color-text: #0a1a2f;
   --color-text-muted: #5b6b7f;
@@ -2016,7 +2019,17 @@ textarea::placeholder {
   .grid {
     grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)) !important;
   }
+
+  /* …menos no Painel. Ali o cartão não é uma vitrine de 240px: é a tela de
+     administrar o anúncio, com pedidos de contato, lista de serviços e os
+     planos pagos dentro. Espremido em coluna estreita, o texto dos botões
+     era cortado e cada ação virava uma linha só sua. Ver mais de um anúncio
+     ao mesmo tempo não ajuda ninguém aqui — quem mexe, mexe em um. */
+  .grid-anuncios {
+    grid-template-columns: 1fr !important;
+  }
 }
+
 
 /* A barra flutuante do computador cobria o último cartão da lista. */
 @media (min-width: 860px) {
@@ -3412,9 +3425,14 @@ h3 {
    azul em vez de se dissolver nele — a decisão de pagar não pode
    parecer só mais uma linha do card.
    --------------------------------------------------------------- */
+/* O azul do card é o mesmo dos botões (`--color-primary`), e não o navy da
+   tinta. Com o navy, o fundo tinha metade da luminosidade dos botões que
+   ficam em cima dele (11% contra 22%) — duas coisas azuis na mesma tela,
+   perto demais para parecerem intencionais e longe demais para parecerem a
+   mesma cor. */
 .anuncio-card {
-  background: var(--color-navy);
-  border-color: var(--color-navy);
+  background: var(--color-primary);
+  border-color: var(--color-primary);
   color: #fff;
 }
 
