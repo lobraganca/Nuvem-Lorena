@@ -7,6 +7,9 @@ import { useTituloDaPagina } from "../lib/tituloDaPagina";
 import { useOnlineCount } from "../lib/presence";
 import { useEffect, useState } from "react";
 import { getEstatisticasPublicas, type EstatisticasPublicas } from "../lib/estatisticas";
+import { useContagemAnimada } from "../lib/useContagemAnimada";
+
+const ATUALIZA_ESTATISTICAS_MS = 25_000;
 
 const FEATURES = [
   {
@@ -47,8 +50,36 @@ export function BoasVindasPage() {
   const [stats, setStats] = useState<EstatisticasPublicas | null>(null);
 
   useEffect(() => {
-    getEstatisticasPublicas().then(setStats);
+    let ativo = true;
+    function buscar() {
+      getEstatisticasPublicas().then((s) => {
+        if (ativo) setStats(s);
+      });
+    }
+    buscar();
+
+    /* Só refaz a busca com a aba visível — atualizar em segundo plano
+       gastaria requisição por um número que ninguém está olhando, e é
+       o mesmo cuidado já tomado com o aviso de atualização do app. */
+    const intervalo = setInterval(() => {
+      if (document.visibilityState === "visible") buscar();
+    }, ATUALIZA_ESTATISTICAS_MS);
+
+    function aoVoltar() {
+      if (document.visibilityState === "visible") buscar();
+    }
+    document.addEventListener("visibilitychange", aoVoltar);
+
+    return () => {
+      ativo = false;
+      clearInterval(intervalo);
+      document.removeEventListener("visibilitychange", aoVoltar);
+    };
   }, []);
+
+  const profissionaisAnimado = useContagemAnimada(stats?.profissionais ?? 0);
+  const avaliacoesAnimado = useContagemAnimada(stats?.avaliacoes ?? 0);
+  const visitasAnimado = useContagemAnimada(stats?.visitas ?? 0);
 
   function escolherCliente() {
     markWelcomeSeen();
@@ -85,16 +116,16 @@ export function BoasVindasPage() {
             verdadeiro erra menos do que um alto e inventado. */}
         {stats && (
           <div className="welcome-stats">
-            <div>
-              <strong>{stats.profissionais}</strong>
+            <div className="welcome-stat-card">
+              <strong>{profissionaisAnimado}</strong>
               <span>{stats.profissionais === 1 ? "profissional cadastrado" : "profissionais cadastrados"}</span>
             </div>
-            <div>
-              <strong>{stats.avaliacoes}</strong>
+            <div className="welcome-stat-card">
+              <strong>{avaliacoesAnimado}</strong>
               <span>{stats.avaliacoes === 1 ? "avaliação" : "avaliações"}</span>
             </div>
-            <div>
-              <strong>{stats.visitas}</strong>
+            <div className="welcome-stat-card">
+              <strong>{visitasAnimado}</strong>
               <span>{stats.visitas === 1 ? "visita a anúncio" : "visitas a anúncios"}</span>
             </div>
           </div>

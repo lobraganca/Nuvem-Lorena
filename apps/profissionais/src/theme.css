@@ -3439,32 +3439,38 @@ h3 {
 
 /* ---------------------------------------------------------------
    Números reais na tela de boas-vindas ("X profissionais",
-   "Y avaliações", "Z visitas"). Três números lado a lado, cada um
-   com o algarismo em destaque e o rótulo discreto embaixo — o
-   mesmo padrão de qualquer placar, sem precisar de cartão ou
-   sombra: aqui é só reforço de confiança, não um bloco que compete
-   por atenção com os dois botões de escolha logo abaixo.
+   "Y avaliações", "Z visitas"), um cartão arredondado por número.
+   O algarismo anima subindo — na primeira leitura e sempre que o
+   valor mudar de verdade enquanto a tela está aberta (ver
+   useContagemAnimada) — mas nunca é o número em si que é inventado,
+   só a maneira de revelar a mudança.
    --------------------------------------------------------------- */
 .welcome-stats {
   display: flex;
   justify-content: center;
-  gap: 28px;
+  gap: 12px;
   margin-top: 22px;
   flex-wrap: wrap;
 }
 
-.welcome-stats > div {
+.welcome-stat-card {
+  min-width: 108px;
   text-align: center;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius);
+  padding: 14px 16px;
+  box-shadow: 0 1px 2px rgba(16, 26, 40, 0.05), 0 6px 16px rgba(16, 26, 40, 0.05);
 }
 
-.welcome-stats strong {
+.welcome-stat-card strong {
   display: block;
   font-size: 1.5rem;
   font-variant-numeric: tabular-nums;
   color: var(--color-navy);
 }
 
-.welcome-stats span {
+.welcome-stat-card span {
   font-size: 0.78rem;
   color: var(--color-text-muted);
 }
