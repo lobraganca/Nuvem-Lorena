@@ -14,6 +14,19 @@ const SUPABASE_URL = Deno.env.get("SUPABASE_URL") ?? "";
 const SUPABASE_SERVICE_ROLE_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "";
 const RESEND_API_KEY = Deno.env.get("RESEND_API_KEY") ?? "";
 const RESEND_FROM_EMAIL = Deno.env.get("RESEND_FROM_EMAIL") ?? "procurô <avisos@DOMINIO-AINDA-NAO-DEFINIDO>";
+
+/**
+ * Para onde vai a resposta de quem receber o aviso.
+ *
+ * O remetente precisa ser do domínio verificado na Resend, e ninguém lê a
+ * caixa dele — na prática, não existe caixa. Só que responder é o primeiro
+ * reflexo de quem recebe um e-mail, e uma resposta que se perde vira
+ * "mandei mensagem e ninguém respondeu".
+ *
+ * Sem esta variável configurada, o e-mail sai como antes: nada quebra, só
+ * não há para onde responder.
+ */
+const RESEND_REPLY_TO = Deno.env.get("RESEND_REPLY_TO") ?? "";
 const SITE_URL = Deno.env.get("SITE_URL") ?? "https://www.procuroapp.com.br";
 
 Deno.serve(async (req) => {
@@ -79,6 +92,7 @@ Deno.serve(async (req) => {
       },
       body: JSON.stringify({
         from: RESEND_FROM_EMAIL,
+        ...(RESEND_REPLY_TO ? { reply_to: RESEND_REPLY_TO } : {}),
         to: ownerEmail,
         subject: `Seu anúncio "${professional.name}" recebeu uma nova avaliação`,
         text:
