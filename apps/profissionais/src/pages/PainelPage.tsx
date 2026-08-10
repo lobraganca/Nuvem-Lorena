@@ -566,6 +566,16 @@ export function PainelPage() {
                 {(() => {
                   const lista = pedidos[p.id] ?? [];
                   const novos = lista.filter((r) => r.status === "new").length;
+                  /* Sem a assinatura, ninguém consegue pedir retorno: o botão
+                     "peça para te chamar" não existe no anúncio público. A
+                     caixa vazia dizia "quando alguém deixar o número, ele
+                     aparece aqui" — uma espera que nunca terminaria, porque
+                     não dependia de aparecer cliente e sim de assinar.
+
+                     Continua aparecendo se já houver pedidos: quem assinou,
+                     recebeu e deixou vencer precisa responder quem chamou
+                     enquanto valia. */
+                  if (!verified && lista.length === 0) return null;
                   return (
                     <div className="requests">
                       <div className="requests-head">

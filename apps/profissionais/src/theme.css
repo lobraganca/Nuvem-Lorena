@@ -1543,19 +1543,32 @@ textarea::placeholder {
 }
 
 .produtos-intro {
-  margin: 0 14px 4px;
+  margin: 0 14px 10px;
   font-size: 0.85rem;
   line-height: 1.45;
 }
 
+/* Um plano por cartão, com respiro entre eles.
+   Antes os três eram faixas coladas dentro da mesma caixa cinza, separadas
+   por um fio de 1px: título, parágrafo, preço e botão de um plano
+   encostavam no título do seguinte, e a coluna inteira lia como um bloco
+   de texto só — sem dar para ver onde uma oferta acaba e a outra começa.
+   Cartão separado é o que faz "três coisas à venda" ser visível antes de
+   ler qualquer palavra. */
+.produtos > .produto,
+.produtos > .assinaturas-ativas {
+  margin: 0 14px 10px;
+  border-radius: 12px;
+}
+
 .produto {
   display: flex;
-  gap: 12px;
+  gap: 14px;
   align-items: flex-start;
   justify-content: space-between;
   flex-wrap: wrap;
-  padding: 14px;
-  border-top: 1px solid var(--color-border);
+  padding: 16px;
+  border: 1px solid var(--color-border);
   background: var(--color-surface);
 }
 
@@ -1563,10 +1576,15 @@ textarea::placeholder {
   flex: 1 1 240px;
 }
 
-.produto-texto strong {
+/* `>` e não qualquer `strong` descendente: a regra existe para o título do
+   plano, que é filho direto. Solta, ela pegava também os negritos no meio
+   da descrição ("botão de WhatsApp", "peça para te chamar") e cada um
+   virava uma linha própria — o parágrafo do premium chegava à tela
+   quebrado em cinco pedaços, que era boa parte da bagunça deste bloco. */
+.produto-texto > strong {
   display: block;
-  font-size: 0.95rem;
-  margin-bottom: 4px;
+  font-size: 1rem;
+  margin-bottom: 5px;
 }
 
 .produto-texto p {
@@ -1581,6 +1599,35 @@ textarea::placeholder {
   align-items: center;
   gap: 10px;
   flex: none;
+}
+
+/* No celular estreito, preço e botão viram uma linha própria de ponta a
+   ponta, em vez de disputar a largura com a descrição. Os dois juntos não
+   encolhem (o preço não quebra e o botão tem o tamanho do texto dele), e é
+   essa dupla que decide a largura mínima do cartão do plano — dividindo a
+   linha com o texto, ela empurrava o card inteiro para fora da tela. */
+@media (max-width: 420px) {
+  /* Sem recuo lateral no celular: a separação entre os planos já vem da
+     borda e do espaço embaixo, e cada pixel de recuo aqui é tirado de uma
+     linha que precisa caber o preço e o botão lado a lado. */
+  .produtos > .produto,
+  .produtos > .assinaturas-ativas {
+    margin-left: 0;
+    margin-right: 0;
+  }
+
+  .produto {
+    padding: 14px;
+  }
+
+  .produto-acao {
+    width: 100%;
+    justify-content: space-between;
+    /* Última saída nas telas mais estreitas: em vez de o botão ser cortado
+       ou empurrar o card para fora da tela, ele desce para a linha de
+       baixo. */
+    flex-wrap: wrap;
+  }
 }
 
 .produto-preco {
@@ -1715,8 +1762,8 @@ textarea::placeholder {
    visual de qualquer outra ação: esconder o cancelamento é a prática que o
    Código de Defesa do Consumidor chama de dificultar o exercício do direito. */
 .assinaturas-ativas {
-  padding: 14px;
-  border-top: 1px solid var(--color-border);
+  padding: 16px;
+  border: 1px solid var(--color-border);
   background: var(--color-surface);
   display: grid;
   gap: 10px;
