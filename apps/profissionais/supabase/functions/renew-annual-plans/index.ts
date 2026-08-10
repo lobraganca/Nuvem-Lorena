@@ -21,6 +21,8 @@
 //
 // Variáveis de ambiente exigidas (configure com `supabase secrets set`):
 //   MP_ACCESS_TOKEN, SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY, PUBLIC_APP_URL
+//   CRON_SECRET       — senha só desta function, para o agendamento não
+//                       precisar carregar a chave que abre o banco inteiro.
 //   RESEND_API_KEY    — mesmo padrão de `notify-suspension`. Sem ela, a
 //                       function NÃO quebra: loga o aviso, pula os e-mails
 //                       (sem marcar ninguém como avisado, para o aviso sair
@@ -181,10 +183,24 @@ async function expireSponsorships(admin: ReturnType<typeof createClient>): Promi
 }
 
 Deno.serve(async (req) => {
-  // Só o cron (service_role key) pode disparar esta rotina.
+  /* Só o agendador dispara esta rotina — ela cria cobranças e manda e-mail.
+     Duas senhas são aceitas:
+
+       CRON_SECRET  — uma senha só desta function, inventada por quem
+                      configura. É a preferida: o agendamento fica guardado
+                      em texto dentro do banco, e não é bom que a chave que
+                      abre o banco inteiro esteja escrita ali. Se um dia
+                      vazar, troca-se esta e nada mais.
+
+       a service_role key — aceita para não quebrar agendamentos antigos,
+                      feitos antes de existir a de cima. */
   const authHeader = req.headers.get("Authorization") ?? "";
   const token = authHeader.replace(/^Bearer\s+/i, "").trim();
-  if (!SUPABASE_SERVICE_ROLE_KEY || token !== SUPABASE_SERVICE_ROLE_KEY) {
+  const senhaDoCron = Deno.env.get("CRON_SECRET") ?? "";
+  const autorizado =
+    (senhaDoCron !== "" && token === senhaDoCron) ||
+    (SUPABASE_SERVICE_ROLE_KEY !== "" && token === SUPABASE_SERVICE_ROLE_KEY);
+  if (!autorizado) {
     return new Response(JSON.stringify({ error: "Acesso restrito." }), { status: 401 });
   }
 
