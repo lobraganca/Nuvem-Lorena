@@ -3027,8 +3027,14 @@ create policy "só quem confirmou o número pode denunciar"
 -- dentro do Supabase, como era a intenção da 0008.
 -- --------------------------------------------------------------------
 
+-- Nome sem acento, sem espaço e sem aspas, ao contrário do resto do
+-- projeto: este bloco precisou ser colado à mão várias vezes no SQL
+-- Editor até funcionar, e nome entre aspas é frágil no caminho até lá —
+-- basta um aplicativo trocar as aspas retas por curvas para o Postgres
+-- recusar. Aqui vale mais colar certo de primeira do que ler bonito.
 drop policy if exists "cada um enxerga se é admin" on public.admins;
-create policy "cada um enxerga se é admin"
+drop policy if exists cada_um_enxerga_se_e_admin on public.admins;
+create policy cada_um_enxerga_se_e_admin
   on public.admins for select
   to authenticated
   using (user_id = auth.uid());
