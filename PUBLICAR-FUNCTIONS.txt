@@ -14,4 +14,4 @@ Settings > Secrets and variables > Actions:
   SUPABASE_ACCESS_TOKEN
   SUPABASE_PROJECT_REF
 
-Último disparo: 2026-08-10 (senha própria do agendador)
+Último disparo: 2026-08-10 (rotina diária sem portaria de JWT)

@@ -82,6 +82,16 @@ jobs:
         run: |
           set -euo pipefail
 
+          # Estas são chamadas por quem não tem como apresentar um JWT do
+          # Supabase: o Mercado Pago, do lado de lá, e o agendador, que manda
+          # a senha própria da rotina. Com a verificação ligada, a portaria
+          # recusa antes de o código rodar — e o erro que aparece fala de JWT,
+          # mandando procurar defeito na senha, que está certa.
+          #
+          # As duas se defendem sozinhas: o webhook confere a assinatura do
+          # Mercado Pago e reconsulta o pagamento na API; a rotina exige o
+          # CRON_SECRET e responde 401 sem ele.
+          #
           # O webhook é chamado pelo Mercado Pago, que não tem como
           # apresentar um JWT do Supabase. Se a verificação ficasse ligada,
           # toda notificação de pagamento seria recusada antes de chegar ao
@@ -89,7 +99,7 @@ jobs:
           # virar assinatura ativa aqui. A function se defende sozinha: ela
           # confere a assinatura do MP_WEBHOOK_SECRET e reconsulta o status
           # real na API do Mercado Pago antes de acreditar em qualquer coisa.
-          sem_jwt="mercadopago-webhook"
+          sem_jwt="mercadopago-webhook renew-annual-plans"
 
           if [ "$ESCOLHA" = "todas" ]; then
             # `_shared` não é uma function, é a pasta de código comum que as
@@ -105,7 +115,7 @@ jobs:
               exit 1
             fi
             echo "::group::$f"
-            if [ "$f" = "$sem_jwt" ]; then
+            if echo " $sem_jwt " | grep -q " $f "; then
               supabase functions deploy "$f" --project-ref "$REF" --no-verify-jwt
             else
               supabase functions deploy "$f" --project-ref "$REF"
