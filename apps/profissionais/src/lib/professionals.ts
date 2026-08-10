@@ -682,6 +682,33 @@ export async function getCategoriasComAnuncio(): Promise<string[]> {
 }
 
 /**
+ * As categorias com mais profissionais cadastrados — para sugerir como
+ * atalho antes de a pessoa digitar qualquer coisa.
+ *
+ * "Principal" aqui não é opinião: é a contagem real de quem está anunciado.
+ * Não existe registro de termo mais buscado (a busca por texto não é
+ * gravada em lugar nenhum), então usar o que tem gente para atender de
+ * verdade é o proxy honesto — sugerir uma categoria vazia devolveria "não
+ * achamos ninguém" no primeiro toque.
+ */
+export async function getCategoriasPopulares(limite = 8): Promise<string[]> {
+  const client = supabase();
+  if (!client) return [];
+  const { data } = await client.from("professionals_public").select("categories");
+  if (!data) return [];
+  const contagem = new Map<string, number>();
+  for (const linha of data) {
+    for (const c of (linha.categories as string[] | null) ?? []) {
+      if (c) contagem.set(c, (contagem.get(c) ?? 0) + 1);
+    }
+  }
+  return [...contagem.entries()]
+    .sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0], "pt-BR"))
+    .slice(0, limite)
+    .map(([categoria]) => categoria);
+}
+
+/**
  * Catálogo de serviços de um anúncio.
  *
  * Leitura pública (é catálogo, existe para ser visto); escrita só do dono,

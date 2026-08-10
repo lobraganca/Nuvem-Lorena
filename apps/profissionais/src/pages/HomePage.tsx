@@ -5,6 +5,7 @@ import {
   DEFAULT_PAGE_SIZE,
   getActiveSponsorship,
   getCategoriasComAnuncio,
+  getCategoriasPopulares,
   getCidadesComAnuncio,
   isCurrentlyBoosted,
   isCurrentlyVerified,
@@ -85,6 +86,7 @@ export function HomePage() {
   const [cidades, setCidades] = useState<string[]>([]);
   const [category, setCategory] = useState<string>("");
   const [categorias, setCategorias] = useState<string[]>([]);
+  const [categoriasPopulares, setCategoriasPopulares] = useState<string[]>([]);
   const [text, setText] = useState<string>("");
   const [debouncedText, setDebouncedText] = useState<string>("");
   const [minRating, setMinRating] = useState<number>(0);
@@ -131,6 +133,7 @@ export function HomePage() {
     // quem escreveu o próprio ofício no anúncio precisa ser encontrável por
     // ele, e serviço sem ninguém anunciando só levaria a uma tela vazia.
     getCategoriasComAnuncio().then(setCategorias);
+    getCategoriasPopulares().then(setCategoriasPopulares);
   }, []);
 
   // Debounce (~400ms) do texto digitado antes de disparar a busca, para não
@@ -443,7 +446,21 @@ export function HomePage() {
            altura à tela e depois encolher quando a busca chegar. */
         <div className="card vazio-indicar" data-tour="resultados" style={{ marginTop: 24, textAlign: "center" }}>
           <strong>O que você está procurando?</strong>
-          <p className="muted">Digite um serviço ali em cima, ou escolha uma categoria.</p>
+          <p className="muted">Digite um serviço ali em cima, ou toque numa das buscas mais comuns.</p>
+          {categoriasPopulares.length > 0 && (
+            /* "Mais comuns" é a contagem real de quem está anunciado, não
+               opinião nem lista fixa no código — não existe registro de
+               termo mais buscado, e sugerir uma categoria vazia devolveria
+               "não achamos ninguém" no primeiro toque (ver
+               getCategoriasPopulares). */
+            <div className="chip-list" style={{ justifyContent: "center", marginTop: 14 }}>
+              {categoriasPopulares.map((c) => (
+                <button key={c} type="button" className="chip" onClick={() => setCategory(c)}>
+                  {c}
+                </button>
+              ))}
+            </div>
+          )}
         </div>
       )}
 
