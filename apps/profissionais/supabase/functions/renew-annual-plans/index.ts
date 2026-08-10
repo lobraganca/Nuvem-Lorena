@@ -204,6 +204,23 @@ Deno.serve(async (req) => {
     return new Response(JSON.stringify({ error: "Acesso restrito." }), { status: 401 });
   }
 
+  try {
+    return await rodar();
+  } catch (err) {
+    /* Sem isto, qualquer falha aqui dentro virava "Internal Server Error"
+       sem uma linha de explicação — nem no log, nem para quem chamou. Uma
+       rotina que roda sozinha de madrugada não pode falhar em silêncio: o
+       jeito de descobrir seria alguém reclamar que não recebeu o aviso. */
+    const mensagem = err instanceof Error ? err.message : String(err);
+    console.error("renew-annual-plans: falhou —", mensagem, err);
+    return new Response(JSON.stringify({ error: mensagem }), {
+      status: 500,
+      headers: { "Content-Type": "application/json" },
+    });
+  }
+});
+
+async function rodar(): Promise<Response> {
   const admin = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY);
   const now = new Date();
 
@@ -310,4 +327,4 @@ Deno.serve(async (req) => {
     status: 200,
     headers: { "Content-Type": "application/json" },
   });
-});
+}
