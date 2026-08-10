@@ -69,9 +69,13 @@ jobs:
             exit 1
           fi
 
-      - uses: supabase/setup-cli@v1
-        with:
-          version: latest
+      # A CLI vem do npm, e não da ação oficial `supabase/setup-cli`.
+      # Aquela consulta a lista de versões pela API do GitHub, e um dia a
+      # publicação falhou com "rate limit exceeded" antes mesmo de começar —
+      # um limite compartilhado, que não depende do que a gente faz e volta a
+      # acontecer sem aviso. O npm entrega o mesmo programa sem essa consulta.
+      - name: Instalar a CLI do Supabase
+        run: npm install --global supabase
 
       - name: Publicar
         env:
