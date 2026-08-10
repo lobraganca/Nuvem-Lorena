@@ -266,6 +266,24 @@ export interface Suggestion {
   created_at: string;
 }
 
+/** Onde o anunciante quer aparecer. "tanto_faz" é resposta legítima. */
+export type LocalDeAnuncio = "busca" | "boas_vindas" | "tanto_faz";
+
+export type PedidoDeAnuncioStatus = "novo" | "em_conversa" | "fechado" | "sem_interesse";
+
+/** Alguém pedindo para comprar um espaço de publicidade (migration 0044). */
+export interface PedidoDeAnuncio {
+  id: string;
+  user_id: string | null;
+  nome: string;
+  contato: string;
+  local: LocalDeAnuncio;
+  cidade: string | null;
+  mensagem: string | null;
+  status: PedidoDeAnuncioStatus;
+  created_at: string;
+}
+
 export const REPORT_REASONS = [
   "Informação falsa",
   "Golpe/fraude",

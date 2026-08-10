@@ -2956,6 +2956,57 @@ h3 {
   white-space: nowrap;
 }
 
+/* ---- "Apareça aqui": espaço de publicidade ainda não vendido ---- */
+
+/* Contorno tracejado e fundo claro, sem imagem: tem que ficar claro à
+   primeira olhada que ali não há anúncio nenhum, e sim um lugar à venda.
+   Se parecesse campanha de verdade, o app estaria cheio de anúncio falso —
+   o oposto do que a etiqueta "Publicidade" existe para garantir. */
+.espaco-livre {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 4px;
+  padding: 16px;
+  border: 1px dashed var(--color-border-strong);
+  border-radius: var(--radius);
+  background: var(--color-bg-soft);
+  text-decoration: none;
+  color: inherit;
+}
+
+.espaco-livre-faixa {
+  margin-top: 20px;
+}
+
+.espaco-livre-etiqueta {
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--color-text-muted);
+}
+
+.espaco-livre-titulo {
+  font-size: 1.05rem;
+}
+
+.espaco-livre-texto {
+  font-size: 0.88rem;
+  color: var(--color-text-muted);
+  line-height: 1.45;
+}
+
+.espaco-livre-botao {
+  margin-top: 8px;
+  padding: 8px 16px;
+  border-radius: 999px;
+  background: var(--color-navy);
+  color: #fff;
+  font-size: 0.88rem;
+  font-weight: 600;
+}
+
 /* ---- Banners no painel admin ---- */
 
 .banners-admin {

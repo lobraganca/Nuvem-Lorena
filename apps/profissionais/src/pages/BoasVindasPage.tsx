@@ -11,6 +11,7 @@ import { useContagemAnimada } from "../lib/useContagemAnimada";
 import { useCidadeAproximada } from "../lib/geolocalizacao";
 import { getBannersBoasVindas } from "../lib/banners";
 import { CardPatrocinado } from "../components/CardPatrocinado";
+import { EspacoLivre } from "../components/EspacoLivre";
 import type { Banner } from "../types/domain";
 
 const ATUALIZA_ESTATISTICAS_MS = 25_000;
@@ -54,11 +55,18 @@ export function BoasVindasPage() {
   const [stats, setStats] = useState<EstatisticasPublicas | null>(null);
   const cidade = useCidadeAproximada();
   const [bannersLocais, setBannersLocais] = useState<Banner[]>([]);
+  /* Sem isto, a lista vazia do primeiro instante é indistinguível de "não
+     há banner vendido", e o convite "Apareça aqui" piscaria por cima do
+     espaço de quem pagou. */
+  const [bannersCarregando, setBannersCarregando] = useState(true);
 
   useEffect(() => {
     let ativo = true;
+    setBannersCarregando(true);
     getBannersBoasVindas(cidade).then((lista) => {
-      if (ativo) setBannersLocais(lista);
+      if (!ativo) return;
+      setBannersLocais(lista);
+      setBannersCarregando(false);
     });
     return () => {
       ativo = false;
@@ -186,6 +194,10 @@ export function BoasVindasPage() {
             </div>
             {i === 1 && bannersLocais[0] && <CardPatrocinado key={bannersLocais[0].id} banner={bannersLocais[0]} />}
             {i === 3 && bannersLocais[1] && <CardPatrocinado key={bannersLocais[1].id} banner={bannersLocais[1]} />}
+            {/* Um convite só, e nunca dois: com nenhum lugar vendido, dois
+                "Apareça aqui" na primeira tela do app fariam a lista
+                parecer mais espaço publicitário do que conteúdo. */}
+            {i === 1 && !bannersCarregando && !bannersLocais[0] && <EspacoLivre variante="cartao" />}
           </Fragment>
         ))}
       </section>

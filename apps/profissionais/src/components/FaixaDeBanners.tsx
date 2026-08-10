@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import { contarClique, contarExibicao, getBannersDaBusca } from "../lib/banners";
+import { EspacoLivre } from "./EspacoLivre";
 import type { Banner } from "../types/domain";
 
 /**
@@ -26,18 +27,20 @@ import type { Banner } from "../types/domain";
  */
 export function FaixaDeBanners({ cidade, categoria }: { cidade: string; categoria: string }) {
   const [banner, setBanner] = useState<Banner | null>(null);
+  /** Enquanto a busca não volta, "sem banner" e "ainda não sei" são a mesma
+      coisa em `banner === null` — e tratá-las igual faria o convite "Apareça
+      aqui" piscar por um instante em cima do espaço de quem pagou. */
+  const [carregando, setCarregando] = useState(true);
   /** Ids já contados nesta visita: sem isso, rolar a lista contaria de novo. */
   const contados = useRef<Set<string>>(new Set());
 
   useEffect(() => {
     let ativo = true;
+    setCarregando(true);
     getBannersDaBusca(cidade, categoria).then((lista) => {
       if (!ativo) return;
-      if (lista.length === 0) {
-        setBanner(null);
-        return;
-      }
-      setBanner(lista[Math.floor(Math.random() * lista.length)]);
+      setBanner(lista.length === 0 ? null : lista[Math.floor(Math.random() * lista.length)]);
+      setCarregando(false);
     });
     return () => {
       ativo = false;
@@ -52,7 +55,10 @@ export function FaixaDeBanners({ cidade, categoria }: { cidade: string; categori
     void contarExibicao(banner.id);
   }, [banner]);
 
-  if (!banner) return null;
+  if (carregando) return null;
+  // Espaço vazio não some: vira o convite para comprá-lo. Some sozinho no
+  // dia em que alguém compra, porque aí `banner` deixa de ser nulo.
+  if (!banner) return <EspacoLivre variante="faixa" />;
 
   const conteudo = (
     <>

@@ -1,7 +1,134 @@
 import { useEffect, useState } from "react";
-import { apagarBanner, enviarImagemDeBanner, getTodosOsBanners, salvarBanner } from "../lib/banners";
-import { CATEGORIES, CITIES, type Banner } from "../types/domain";
+import {
+  apagarBanner,
+  atualizarStatusDoPedido,
+  enviarImagemDeBanner,
+  getTodosOsBanners,
+  listarPedidosDeAnuncio,
+  salvarBanner,
+} from "../lib/banners";
+import { CATEGORIES, CITIES, type Banner, type PedidoDeAnuncio, type PedidoDeAnuncioStatus } from "../types/domain";
 import { mensagemDeErro } from "../lib/erros";
+
+const ONDE_APARECE: Record<string, string> = {
+  busca: "na busca",
+  boas_vindas: "na tela de início",
+  tanto_faz: "ainda não sabe",
+};
+
+/**
+ * Monta o link de WhatsApp a partir do que a pessoa digitou.
+ *
+ * O "55" só entra quando falta: quem digita o próprio número com o código
+ * do país junto acabaria com "5555…", e o link abriria uma conversa com
+ * ninguém — justamente no pedido de quem quer comprar.
+ */
+function linkDeWhatsApp(contato: string): string | null {
+  const digitos = contato.replace(/\D/g, "");
+  if (digitos.length < 10) return null; // não parece telefone; melhor não oferecer o botão
+  const completo = digitos.length <= 11 ? `55${digitos}` : digitos;
+  return `https://wa.me/${completo}`;
+}
+
+const STATUS_DO_PEDIDO: { valor: PedidoDeAnuncioStatus; rotulo: string }[] = [
+  { valor: "novo", rotulo: "Novo" },
+  { valor: "em_conversa", rotulo: "Em conversa" },
+  { valor: "fechado", rotulo: "Fechado" },
+  { valor: "sem_interesse", rotulo: "Sem interesse" },
+];
+
+/**
+ * Quem pediu para anunciar pela página /publicidade.
+ *
+ * Fica junto do cadastro de banners porque é o mesmo trabalho: o pedido
+ * chega aqui, vira uma ligação, e a ligação vira um banner logo abaixo.
+ * Separado em outra aba, viraria caixa de entrada que ninguém abre — e
+ * pedido de compra parado é a única coisa aqui que custa dinheiro de
+ * verdade.
+ */
+function PedidosDeAnuncio() {
+  const [pedidos, setPedidos] = useState<PedidoDeAnuncio[]>([]);
+  const [carregando, setCarregando] = useState(true);
+  const [erro, setErro] = useState("");
+
+  async function carregar() {
+    setCarregando(true);
+    setPedidos(await listarPedidosDeAnuncio());
+    setCarregando(false);
+  }
+
+  useEffect(() => {
+    void carregar();
+  }, []);
+
+  async function mudarStatus(p: PedidoDeAnuncio, status: PedidoDeAnuncioStatus) {
+    try {
+      await atualizarStatusDoPedido(p.id, status);
+      await carregar();
+    } catch (err) {
+      setErro(mensagemDeErro(err, "Não foi possível mudar o pedido."));
+    }
+  }
+
+  // Só some da lista quem já foi resolvido: um pedido "em conversa" ainda é
+  // trabalho em aberto e precisa continuar à vista.
+  const abertos = pedidos.filter((p) => p.status === "novo" || p.status === "em_conversa");
+
+  if (carregando) return <p className="muted">Carregando pedidos…</p>;
+  if (pedidos.length === 0) return null;
+
+  return (
+    <div style={{ marginBottom: 22 }}>
+      <h3 style={{ margin: "0 0 8px", fontSize: "0.95rem" }}>
+        Pedidos de anúncio {abertos.length > 0 && `(${abertos.length} em aberto)`}
+      </h3>
+      {erro && <p className="form-erro">{erro}</p>}
+      {abertos.length === 0 ? (
+        <p className="muted" style={{ margin: 0 }}>Nenhum pedido em aberto.</p>
+      ) : (
+        <div className="banners-admin">
+          {abertos.map((p) => (
+            <div key={p.id} className="banner-linha">
+              <div className="banner-dados">
+                <strong>{p.nome}</strong>
+                <span className="muted">
+                  {p.contato}
+                  {p.cidade ? ` · ${p.cidade}` : ""} · quer {ONDE_APARECE[p.local] ?? p.local}
+                </span>
+                <span className="muted">
+                  {new Date(p.created_at).toLocaleDateString("pt-BR")}
+                </span>
+                {p.mensagem && <span className="muted">"{p.mensagem}"</span>}
+              </div>
+              <div className="banner-acoes">
+                {linkDeWhatsApp(p.contato) && (
+                  <a
+                    className="btn btn-outline"
+                    href={linkDeWhatsApp(p.contato)!}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    WhatsApp
+                  </a>
+                )}
+                <select
+                  value={p.status}
+                  onChange={(e) => mudarStatus(p, e.target.value as PedidoDeAnuncioStatus)}
+                >
+                  {STATUS_DO_PEDIDO.map((s) => (
+                    <option key={s.valor} value={s.valor}>
+                      {s.rotulo}
+                    </option>
+                  ))}
+                </select>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
 
 function hoje(): string {
   return new Date().toISOString().slice(0, 10);
@@ -191,6 +318,8 @@ export function AdminBanners() {
           <strong>No ar e ainda não pago:</strong> {devendo.map((b) => b.anunciante).join(", ")}.
         </p>
       )}
+
+      <PedidosDeAnuncio />
 
       {carregando ? (
         <p className="muted">Carregando…</p>

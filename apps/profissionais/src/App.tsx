@@ -39,6 +39,7 @@ const PerfilPage = lazy(() => import("./pages/PerfilPage").then((m) => ({ defaul
 const AssinaturaPage = lazy(() => import("./pages/AssinaturaPage").then((m) => ({ default: m.AssinaturaPage })));
 const AnalyticsPage = lazy(() => import("./pages/AnalyticsPage").then((m) => ({ default: m.AnalyticsPage })));
 const AnunciosPage = lazy(() => import("./pages/AnunciosPage").then((m) => ({ default: m.AnunciosPage })));
+const PublicidadePage = lazy(() => import("./pages/PublicidadePage").then((m) => ({ default: m.PublicidadePage })));
 
 
 /**
@@ -124,6 +125,7 @@ function Footer() {
           <Link to="/termos">Termos de Uso</Link>
           <Link to="/privacidade">Privacidade</Link>
           <Link to="/como-funciona">Como funciona</Link>
+          <Link to="/publicidade">Anuncie aqui</Link>
           <button type="button" onClick={() => setSuggestionOpen(true)}>
             Enviar sugestão
           </button>
@@ -168,6 +170,9 @@ export default function App() {
         {/* Endereco publico exigido pela Google Play: exclusao de conta
             explicada sem precisar estar logado. */}
         <Route path="/anuncios" element={<AnunciosPage />} />
+        {/* Página de venda de publicidade: medidas da arte, regras e o
+            pedido de contato. É para onde vão os espaços "Apareça aqui". */}
+        <Route path="/publicidade" element={<PublicidadePage />} />
         <Route path="/excluir-conta" element={<ExcluirContaPage />} />
         <Route path="/configuracao" element={<ConfiguracaoPage />} />
         <Route path="/como-funciona" element={<ComoFuncionaPage />} />

@@ -1,5 +1,5 @@
 import { supabase } from "./supabase";
-import type { Banner } from "../types/domain";
+import type { Banner, LocalDeAnuncio, PedidoDeAnuncio, PedidoDeAnuncioStatus } from "../types/domain";
 
 /**
  * Banners de publicidade.
@@ -82,6 +82,53 @@ export async function contarClique(id: string) {
   const client = supabase();
   if (!client) return;
   await client.rpc("banner_contar_clique", { p_id: id });
+}
+
+/**
+ * Pedidos de anúncio — quem tocou em "Apareça aqui" e deixou o contato.
+ *
+ * Sem `.select()` depois do insert, de propósito: `INSERT ... RETURNING`
+ * exige passar também pela policy de *leitura*, e quem envia o pedido não
+ * tem (nem pode ter) permissão de ler a lista de pedidos. Pedir o registro
+ * de volta faria o envio falhar para todo mundo que não é admin.
+ */
+export async function enviarPedidoDeAnuncio(input: {
+  nome: string;
+  contato: string;
+  local: LocalDeAnuncio;
+  cidade: string | null;
+  mensagem: string | null;
+  userId: string | null;
+}): Promise<void> {
+  const client = supabase();
+  if (!client) throw new Error("Banco de dados não configurado.");
+  const { error } = await client.from("banner_leads").insert({
+    nome: input.nome,
+    contato: input.contato,
+    local: input.local,
+    cidade: input.cidade,
+    mensagem: input.mensagem,
+    user_id: input.userId,
+  });
+  if (error) throw error;
+}
+
+/** Lista os pedidos, mais novos primeiro — só admin enxerga (policy 0044). */
+export async function listarPedidosDeAnuncio(): Promise<PedidoDeAnuncio[]> {
+  const client = supabase();
+  if (!client) return [];
+  const { data } = await client
+    .from("banner_leads")
+    .select("*")
+    .order("created_at", { ascending: false });
+  return data ?? [];
+}
+
+export async function atualizarStatusDoPedido(id: string, status: PedidoDeAnuncioStatus): Promise<void> {
+  const client = supabase();
+  if (!client) throw new Error("Banco de dados não configurado.");
+  const { error } = await client.from("banner_leads").update({ status }).eq("id", id);
+  if (error) throw error;
 }
 
 /** Envia a imagem do banner para o bucket próprio e devolve o endereço dela. */
