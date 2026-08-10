@@ -523,9 +523,13 @@ export function PainelPage() {
             const boosted = isCurrentlyBoosted(p);
             return (
               <div key={p.id} className={`card anuncio-card${p.entity_type === "pj" ? " anuncio-card-pj" : ""}`}>
-                <div style={{ display: "flex", justifyContent: "space-between" }}>
-                  <strong>{p.name}</strong>
-                  <div style={{ display: "flex", gap: 6 }}>
+                {/* Nome comprido + Empresa + Premium + Destaque não cabem numa
+                    linha só em tela estreita — sem quebra, as etiquetas
+                    saíam da tela e "Destaque" ficava cortado, invisível
+                    para quem mais paga para tê-lo. */}
+                <div style={{ display: "flex", justifyContent: "space-between", flexWrap: "wrap", gap: 8, rowGap: 6 }}>
+                  <strong style={{ minWidth: 0, overflowWrap: "break-word" }}>{p.name}</strong>
+                  <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
                     <span className={p.entity_type === "pj" ? "badge badge-entity-pj" : "badge badge-entity-pf"}>
                       {p.entity_type === "pj" ? "Empresa" : "Autônomo"}
                     </span>

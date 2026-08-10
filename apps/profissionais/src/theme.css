@@ -1165,6 +1165,16 @@ textarea::placeholder {
   padding: 12px 14px;
 }
 
+/* Em celular estreito, duas colunas espremiam "Todas as cidades" e "Todos
+   os serviços" até o texto ser cortado sem reticências — o <select> nativo
+   não quebra linha nem avisa que faltou espaço, só corta a última letra.
+   Uma coluna só, com a largura toda, é o que garante o texto inteiro. */
+@media (max-width: 420px) {
+  .filter-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
 /* Selo de verificação ao lado do nome */
 .verified-badge {
   color: var(--color-gold-deep);
