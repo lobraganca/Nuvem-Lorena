@@ -53,6 +53,15 @@ function IconFlag() {
   );
 }
 
+function IconCasa() {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M3 11.5 12 4l9 7.5" />
+      <path d="M5.5 10v9a1 1 0 0 0 1 1h11a1 1 0 0 0 1-1v-9" />
+    </svg>
+  );
+}
+
 function IconUser() {
   return (
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -108,7 +117,17 @@ function NavItem({
 function Header() {
   return (
     <header className="container header">
-      <Logo size="md" />
+      <span className="header-marca">
+        <Logo size="md" />
+        {/* A tela de escolha ("quero contratar" / "quero anunciar") só
+            aparecia uma vez por aparelho e, depois disso, só tinha um
+            caminho de volta — Perfil → Rever apresentação. Este botão é o
+            atalho: fica ao lado da marca, em qualquer tela (ela mesma se
+            esconde por estar em /inicio, ver isWelcome em AppShell). */}
+        <Link to="/inicio" className="btn-tela-inicial" title="Tela inicial" aria-label="Tela inicial">
+          <IconCasa />
+        </Link>
+      </span>
       <span className="header-acoes">
         {/* Ao lado da marca, em todas as telas: some sozinho quando o app já
             está instalado ou quando o navegador não sabe instalar. */}
