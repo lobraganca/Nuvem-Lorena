@@ -921,6 +921,31 @@ textarea::placeholder {
   font-weight: 600;
 }
 
+/* A mesma pílula, no cabeçalho: sem o respiro de cima (ali ela é item de
+   uma linha, não de um bloco) e sem quebrar — o cabeçalho divide a largura
+   com a marca e o botão de instalar, e uma pílula de duas linhas empurraria
+   a altura de todas as telas. */
+.online-pill-topo {
+  margin-top: 0;
+  white-space: nowrap;
+}
+
+@media (max-width: 420px) {
+  .online-pill-texto {
+    display: none;
+  }
+}
+
+/* Abaixo de 360px nem o número cabe junto com a marca e o botão de
+   instalar. Ali o contador sai: é o item do cabeçalho de que menos falta
+   faz, e vale mais manter inteiro o que a pessoa usa do que espremer os
+   três até um deles sair pela borda. */
+@media (max-width: 359px) {
+  .online-pill-topo {
+    display: none;
+  }
+}
+
 .online-dot {
   width: 6px;
   height: 6px;

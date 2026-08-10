@@ -22,7 +22,6 @@ import { Estrelas } from "../components/Estrelas";
 import { TourGuide, type TourStep } from "../components/TourGuide";
 import { hasSeenWelcome, markTourSeen, shouldRunTour } from "../lib/onboarding";
 import { temDestinoLogin } from "../lib/auth";
-import { useOnlineCount } from "../lib/presence";
 import { useAuth } from "../lib/useAuth";
 import { BottomSheet } from "../components/BottomSheet";
 import { enviarIndicacao } from "../lib/indicacoes";
@@ -118,7 +117,6 @@ export function HomePage() {
     // a tela de início em vez do painel, e o login parecia não ter funcionado.
     return !voltandoDoLogin && !temDestinoLogin() && !hasSeenWelcome();
   });
-  const online = useOnlineCount();
   const { user } = useAuth();
   const [indicarAberto, setIndicarAberto] = useState(false);
   const [indNome, setIndNome] = useState("");
@@ -244,12 +242,9 @@ export function HomePage() {
       <section className="hero-busca">
         <h1>Quem você procura hoje?</h1>
         <p className="muted">Profissionais de {DEFAULT_CITY} e região, com avaliação de quem já contratou.</p>
-        {online !== null && online > 0 && (
-          <p className="online-pill">
-            <span className="online-dot" aria-hidden="true" />
-            {online === 1 ? "1 pessoa navegando agora" : `${online} pessoas navegando agora`}
-          </p>
-        )}
+        {/* O contador de quem está on-line subiu para o cabeçalho, que
+            aparece em todas as telas. Aqui ele seria a segunda vez na
+            mesma tela. */}
         {!hasDatabase() && (
           <p className="badge badge-boosted" style={{ marginTop: 12, whiteSpace: "normal", textAlign: "left" }}>
             Sem conexão com o banco: {problemaDeConfiguracao()}

@@ -6,6 +6,7 @@ import { PuxarParaAtualizar } from "./PuxarParaAtualizar";
 import { AvisoDeVersao } from "./AvisoDeVersao";
 import { useAuth } from "../lib/useAuth";
 import { isAdmin } from "../lib/admin";
+import { useOnlineCount } from "../lib/presence";
 
 function IconSearch() {
   return (
@@ -115,6 +116,7 @@ function NavItem({
  * da conta é ação de conta, e conta se mexe no Perfil.
  */
 function Header() {
+  const online = useOnlineCount();
   return (
     <header className="container header">
       <span className="header-marca">
@@ -129,6 +131,36 @@ function Header() {
         </Link>
       </span>
       <span className="header-acoes">
+        {/* Quantas pessoas estão no app agora, no topo de todas as telas.
+            Estava só na busca e na tela de início, que são as duas primeiras
+            — quem já tinha entrado num anúncio ou no painel deixava de ver.
+
+            É contagem real (Presence do Supabase), e por isso some quando
+            não há ninguém além de quem está lendo: um "1 on-line" fixo, que
+            é sempre a própria pessoa, não informa nada; e número inventado
+            que sobe sozinho seria publicidade enganosa (CDC art. 37).
+
+            Aqui em cima vai a forma curta — o cabeçalho divide a linha com
+            a marca e o botão de instalar, e no celular não cabe "pessoas
+            navegando agora". A frase inteira fica no title, para quem
+            passar o mouse ou usar leitor de tela. */}
+        {online !== null && online > 0 && (
+          <span
+            className="online-pill online-pill-topo"
+            title={online === 1 ? "1 pessoa navegando agora" : `${online} pessoas navegando agora`}
+            aria-label={online === 1 ? "1 pessoa navegando agora" : `${online} pessoas navegando agora`}
+          >
+            <span className="online-dot" aria-hidden="true" />
+            {online}
+            {/* A palavra some abaixo de 420px e fica só o número com o
+                ponto verde. Com ela, o botão de instalar era empurrado
+                para fora da tela no celular — e escolher entre mostrar o
+                contador e mostrar o botão é uma escolha que não precisa
+                existir. Quem usa leitor de tela ouve a frase inteira pelo
+                aria-label. */}
+            <span className="online-pill-texto">&nbsp;on-line</span>
+          </span>
+        )}
         {/* Ao lado da marca, em todas as telas: some sozinho quando o app já
             está instalado ou quando o navegador não sabe instalar. */}
         <InstalarApp variante="cabecalho" />
