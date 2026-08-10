@@ -15,16 +15,26 @@ export interface ReportWithProfessional {
 }
 
 /**
- * Verifica se o usuário é admin tentando ler a própria linha em `admins`.
- * Se não houver linha (ou o RLS bloquear por não haver policy de select
- * pública) devolve false em vez de lançar — o front trata isso como
- * "não é admin", não como erro.
+ * Verifica se o usuário é admin lendo a própria linha em `admins`.
+ *
+ * A leitura depende da policy da migration 0046. Antes dela a tabela tinha
+ * RLS ligada e nenhuma policy de select: a consulta voltava vazia mesmo
+ * para quem tinha a linha, e o painel dizia "Acesso restrito." para todo
+ * mundo — inclusive para quem administra o app.
+ *
+ * O erro é registrado no console porque durante um bom tempo ele não teve
+ * como ser visto: para a tela, "sem permissão" e "não é admin" dão no
+ * mesmo (e devem mesmo dar), mas para quem vai descobrir o problema são
+ * coisas opostas.
  */
 export async function isAdmin(userId: string): Promise<boolean> {
   const client = supabase();
   if (!client) return false;
   const { data, error } = await client.from("admins").select("user_id").eq("user_id", userId).maybeSingle();
-  if (error) return false;
+  if (error) {
+    console.warn("[admin] não foi possível conferir a permissão:", error.message);
+    return false;
+  }
   return !!data;
 }
 
