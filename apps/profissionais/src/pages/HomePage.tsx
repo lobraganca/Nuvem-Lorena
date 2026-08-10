@@ -435,11 +435,6 @@ export function HomePage() {
         </Link>
       )}
 
-      {/* A publicidade fica entre os filtros e os resultados: é onde o olho
-          passa de qualquer jeito, sem empurrar o que a pessoa veio buscar
-          para fora da tela nem se disfarçar de resultado. */}
-      <FaixaDeBanners cidade={city || DEFAULT_CITY} categoria={category} />
-
       {!buscouAlgo && (
         /* Nada foi pedido ainda: nenhum card, e sim um convite a pedir.
            Fica no lugar onde os resultados vão aparecer, para não somar
@@ -576,6 +571,15 @@ export function HomePage() {
           </button>
         </div>
       )}
+
+      {/* A publicidade fecha a página, depois de todos os profissionais.
+          Antes ela ficava entre os filtros e os resultados, e nessa posição
+          era a primeira coisa depois da busca: quem digitou "eletricista"
+          via um anúncio antes de ver um eletricista. Aqui embaixo ela não
+          disputa com o que a pessoa veio fazer — e quem chegou até o fim da
+          lista é justamente quem ainda não resolveu o problema, que é a
+          melhor hora para um comércio da cidade aparecer. */}
+      <FaixaDeBanners cidade={city || DEFAULT_CITY} categoria={category} />
     </div>
   );
 }
