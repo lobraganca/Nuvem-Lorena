@@ -554,7 +554,7 @@ export function HomePage() {
                   /* "Sem avaliações" lia como defeito do anúncio. Quem acabou
                      de se cadastrar não tem culpa de ainda não ter sido
                      avaliado — e o convite ainda serve a quem está lendo. */
-                  <span className="muted">Novo por aqui — seja o primeiro a avaliar</span>
+                  <span className="muted card-sem-nota">Novo por aqui — seja o primeiro a avaliar</span>
                 )}
               </p>
               <span className="card-cta">Ver contatos e avaliações →</span>

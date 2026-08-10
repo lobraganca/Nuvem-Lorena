@@ -152,7 +152,7 @@ export function AnunciosPage() {
                     <strong>{p.average_rating.toFixed(1).replace(".", ",")}</strong>
                   </p>
                 ) : (
-                  <p className="muted" style={{ marginTop: 10 }}>
+                  <p className="muted card-sem-nota" style={{ marginTop: 10 }}>
                     Novo por aqui
                   </p>
                 )}

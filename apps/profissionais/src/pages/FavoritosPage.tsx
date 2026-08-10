@@ -93,7 +93,7 @@ export function FavoritosPage() {
                 {p.average_rating ? (
                   <Estrelas nota={p.average_rating} />
                 ) : (
-                  <span className="muted">Sem avaliações</span>
+                  <span className="muted card-sem-nota">Sem avaliações</span>
                 )}{" "}
                 {p.review_count > 0 && <span className="muted">({p.review_count})</span>}
               </p>

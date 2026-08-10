@@ -1021,6 +1021,16 @@ textarea::placeholder {
   box-shadow: var(--shadow-raised);
 }
 
+/* "Novo por aqui — seja o primeiro a avaliar", no lugar onde os outros
+   cartões mostram a nota. É recado, não informação que a pessoa procura:
+   no corpo do texto ocupava duas linhas do tamanho de um título e empurrava
+   o resto do cartão para baixo. Menor, diz a mesma coisa e devolve a altura
+   para o que a pessoa veio ver. */
+.card-sem-nota {
+  font-size: 0.82rem;
+  line-height: 1.35;
+}
+
 .card-cta {
   display: inline-block;
   margin-top: 12px;
