@@ -117,22 +117,30 @@ export function BoasVindasPage() {
 
   return (
     <div className="welcome-page">
+      {/* No topo da página, como nas demais telas.
+          Aqui não há cabeçalho (ver isWelcome em AppShell), então a pílula
+          precisa de uma linha própria — no meio do bloco de abertura ela
+          ficava abaixo da logo e do texto, que é o oposto de "no topo".
+
+          Contagem real (Presence do Supabase), a mesma das outras telas. Só
+          aparece quando há alguém de verdade: número fabricado que sobe e
+          desce sozinho é publicidade enganosa (CDC art. 37), e ser
+          descoberto custa mais confiança do que qualquer aparência de
+          movimento vale. */}
+      {online !== null && online > 0 && (
+        <div className="welcome-topo">
+          <p className="online-pill">
+            <span className="online-dot" aria-hidden="true" />
+            {online === 1 ? "1 pessoa navegando agora" : `${online} pessoas navegando agora`}
+          </p>
+        </div>
+      )}
+
       <section className="welcome-hero">
         <LogoMark />
         <p className="welcome-tagline">
           Encontre quem faz, aqui perto, com a opinião de quem já contratou.
         </p>
-        {/* Mesmo contador real da Home (Presence do Supabase, sem dado
-            inventado). Só aparece quando há alguém de verdade — número
-            fabricado que sobe e desce sozinho é publicidade enganosa
-            (CDC art. 37), e descoberta custa mais confiança do que
-            qualquer aparência de movimento vale. */}
-        {online !== null && online > 0 && (
-          <p className="online-pill">
-            <span className="online-dot" aria-hidden="true" />
-            {online === 1 ? "1 pessoa navegando agora" : `${online} pessoas navegando agora`}
-          </p>
-        )}
         {/* Números reais, contados nesta hora — nenhum deles é estimativa
             nem número redondo escolhido para impressionar. Aparecem do
             jeito que estiverem, mesmo baixos: um número pequeno mas

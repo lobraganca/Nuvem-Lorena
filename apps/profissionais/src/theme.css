@@ -724,9 +724,26 @@ textarea::placeholder {
   padding: env(safe-area-inset-top) 20px 40px;
 }
 
+/* Linha do contador, antes de tudo na tela de início. */
+.welcome-topo {
+  display: flex;
+  justify-content: center;
+  padding-top: 14px;
+}
+
+.welcome-topo .online-pill {
+  margin-top: 0;
+}
+
 .welcome-hero {
   text-align: center;
   padding: 72px 0 48px;
+}
+
+/* Com a pílula em cima, o respiro dela conta: mantidos os 72px, a logo
+   descia quase 90px e a primeira tela do celular começava vazia. */
+.welcome-topo + .welcome-hero {
+  padding-top: 40px;
 }
 
 .welcome-tagline {
