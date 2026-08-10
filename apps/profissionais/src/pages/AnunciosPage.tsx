@@ -7,6 +7,7 @@ import type { ProfessionalWithRating } from "../lib/professionals";
 import { Estrelas } from "../components/Estrelas";
 import { VerifiedBadge } from "../components/VerifiedBadge";
 import { useTituloDaPagina } from "../lib/tituloDaPagina";
+import { NOME_PLATAFORMA } from "../config";
 
 /**
  * Tela de anúncios: quem pagou para aparecer.
@@ -66,8 +67,8 @@ export function AnunciosPage() {
     <div className="container" style={{ paddingTop: 28, paddingBottom: 40 }}>
       <h1 style={{ marginBottom: 4 }}>Anúncios</h1>
       <p className="muted" style={{ marginTop: 0 }}>
-        Comércios e profissionais que pagaram para aparecer aqui. É publicidade — e é assim que o {""}
-        {DEFAULT_CITY === "Itabirito" ? "procurô" : "app"} se mantém de pé sem cobrar de quem procura.
+        Comércios e profissionais que pagaram para aparecer aqui. É publicidade — e é assim que o{" "}
+        {NOME_PLATAFORMA} se mantém de pé sem cobrar de quem procura.
       </p>
 
       {carregando && <p className="muted">Carregando…</p>}

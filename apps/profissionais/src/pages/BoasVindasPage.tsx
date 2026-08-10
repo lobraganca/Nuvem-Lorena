@@ -1,5 +1,4 @@
 import { useNavigate, Link } from "react-router-dom";
-import { DEFAULT_CITY } from "../types/domain";
 import { LogoMark } from "../components/Logo";
 import { markWelcomeSeen, requestTour } from "../lib/onboarding";
 import { InstalarApp } from "../components/InstalarApp";
@@ -19,7 +18,7 @@ const ATUALIZA_ESTATISTICAS_MS = 25_000;
 const FEATURES = [
   {
     title: "Tem gente boa aqui do lado",
-    text: `Encanador, eletricista, professor particular, manicure — de autônomos a empresas de ${DEFAULT_CITY} e região, num lugar só.`,
+    text: "Encanador, eletricista, professor particular, manicure — de autônomos a empresas da sua região, num lugar só.",
   },
   {
     title: "Quem já chamou conta como foi",

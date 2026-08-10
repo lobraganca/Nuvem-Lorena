@@ -60,7 +60,7 @@ const TOUR_STEPS: TourStep[] = [
   {
     target: "filtros",
     title: "Comece pela categoria",
-    text: `Escolha o serviço e a cidade. Dá para refinar por nota mínima e ordenar por melhor avaliado — em ${DEFAULT_CITY} ou nas cidades vizinhas.`,
+    text: "Escolha o serviço e a cidade. Dá para refinar por nota mínima e ordenar por melhor avaliado — na sua cidade ou nas vizinhas.",
   },
   {
     target: "resultados",
@@ -241,7 +241,11 @@ export function HomePage() {
           explicação virou a própria dica dentro do campo. */}
       <section className="hero-busca">
         <h1>Quem você procura hoje?</h1>
-        <p className="muted">Profissionais de {DEFAULT_CITY} e região, com avaliação de quem já contratou.</p>
+        {/* Sem citar cidade: o app passou a ser divulgado em mais lugares, e
+            uma cidade escrita na frase de abertura diz "isto não é para
+            você" a quem abriu de qualquer outra. O recorte por cidade
+            continua existindo — mas no filtro, escolhido por quem procura. */}
+        <p className="muted">Profissionais da sua região, com avaliação de quem já contratou.</p>
         {/* O contador de quem está on-line subiu para o cabeçalho, que
             aparece em todas as telas. Aqui ele seria a segunda vez na
             mesma tela. */}
