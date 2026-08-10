@@ -10,6 +10,7 @@ import { excluirMinhaConta } from "../lib/account";
 import { BottomSheet } from "../components/BottomSheet";
 import { InstalarApp } from "../components/InstalarApp";
 import { BotaoApple } from "../components/BotaoApple";
+import { BotaoGoogle } from "../components/BotaoGoogle";
 import { baixarMeusDados } from "../lib/meusDados";
 import type { Profile } from "../types/domain";
 import { FecharApp } from "../components/FecharApp";
@@ -90,14 +91,9 @@ export function PerfilPage() {
         <div className="card">
           <h1 style={{ marginTop: 0 }}>Entrar</h1>
           <p className="muted">Use sua conta Google para buscar, avaliar e anunciar seus serviços.</p>
-          <button
-            className="btn btn-primary btn-block"
-            style={{ marginTop: 20 }}
-            onClick={handleGoogleLogin}
-            disabled={!hasDatabase()}
-          >
-            Entrar com Google
-          </button>
+          <div style={{ marginTop: 20 }}>
+            <BotaoGoogle onClick={handleGoogleLogin} disabled={!hasDatabase()} />
+          </div>
           <div style={{ marginTop: 10 }}>
             <BotaoApple voltarPara="/perfil" onErro={setError} />
           </div>

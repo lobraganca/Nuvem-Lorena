@@ -2,6 +2,7 @@ import { useState } from "react";
 import { signInWithGoogle } from "../lib/auth";
 import { hasDatabase } from "../lib/supabase";
 import { BotaoApple } from "../components/BotaoApple";
+import { BotaoGoogle } from "../components/BotaoGoogle";
 import { useTituloDaPagina } from "../lib/tituloDaPagina";
 
 export function LoginPage() {
@@ -21,9 +22,9 @@ export function LoginPage() {
     <div className="container" style={{ maxWidth: 420, paddingTop: 60, textAlign: "center" }}>
       <h1>Entrar</h1>
       <p className="muted">Use sua conta Google para buscar, avaliar e anunciar seus serviços.</p>
-      <button className="btn btn-primary" style={{ width: "100%", justifyContent: "center", marginTop: 20 }} onClick={handleGoogleLogin} disabled={!hasDatabase()}>
-        Entrar com Google
-      </button>
+      <div style={{ marginTop: 20 }}>
+        <BotaoGoogle onClick={handleGoogleLogin} disabled={!hasDatabase()} />
+      </div>
       <p className="muted" style={{ marginTop: 12, fontSize: "0.85rem" }}>
         Você continua conectado neste aparelho — só sai quando tocar em <strong>Sair</strong>.
       </p>

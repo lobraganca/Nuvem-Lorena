@@ -37,6 +37,7 @@ import { buscarCep, formatCep } from "../lib/cep";
 import { BottomSheet } from "../components/BottomSheet";
 import { ConfirmarWhatsApp } from "../components/ConfirmarWhatsApp";
 import { BotaoApple } from "../components/BotaoApple";
+import { BotaoGoogle } from "../components/BotaoGoogle";
 import { SeletorDeServicos } from "../components/SeletorDeServicos";
 import { CatalogoDeServicos } from "../components/CatalogoDeServicos";
 import { mensagemDeErro } from "../lib/erros";
@@ -474,14 +475,9 @@ export function PainelPage() {
             Entre com sua conta Google — é a mesma que você já usa no celular. Não precisa criar senha nova nem
             preencher cadastro agora.
           </p>
-          <button
-            className="btn btn-primary btn-block"
-            style={{ marginTop: 20 }}
-            onClick={handleGoogleLogin}
-            disabled={!hasDatabase()}
-          >
-            Entrar com Google
-          </button>
+          <div style={{ marginTop: 20 }}>
+            <BotaoGoogle onClick={handleGoogleLogin} disabled={!hasDatabase()} />
+          </div>
           <BotaoApple voltarPara="/painel" onErro={setLoginError} />
           {loginError && <p style={{ color: "var(--color-danger)", marginTop: 12 }}>{loginError}</p>}
           <p className="muted" style={{ marginTop: 18, fontSize: "0.85rem" }}>

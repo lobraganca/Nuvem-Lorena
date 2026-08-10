@@ -1901,6 +1901,21 @@ textarea::placeholder {
   flex: none;
 }
 
+.btn-google {
+  background: #ffffff;
+  color: #1f1f1f;
+  border: 1px solid #dadce0;
+  gap: 10px;
+}
+
+.btn-google:hover {
+  background: #f7f8f8;
+}
+
+.btn-google svg {
+  flex: none;
+}
+
 /* ---------- Estrelas com precisão de meia ---------- */
 
 .estrelas {
