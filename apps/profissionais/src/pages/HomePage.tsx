@@ -152,7 +152,21 @@ export function HomePage() {
     setShowTour(false);
   }
 
+  /* Só busca depois de um gesto explícito — texto digitado ou categoria
+     escolhida. Cidade e nota mínima não contam sozinhas: eram os valores já
+     preenchidos no primeiro carregamento, e é justamente esse carregamento
+     automático que parava de acontecer aqui. Mostrar todo mundo cadastrado
+     assim que a tela abre lotava a entrada com anúncio, sem a pessoa ter
+     pedido nada ainda. */
+  const buscouAlgo = debouncedText.trim() !== "" || category !== "";
+
   useEffect(() => {
+    if (!buscouAlgo) {
+      setResults([]);
+      setHasMore(false);
+      setLoading(false);
+      return;
+    }
     setLoading(true);
     setPage(0);
     searchProfessionals({
@@ -168,7 +182,7 @@ export function HomePage() {
         setHasMore(data.length === DEFAULT_PAGE_SIZE);
       })
       .finally(() => setLoading(false));
-  }, [city, category, debouncedText, minRating, sort]);
+  }, [buscouAlgo, city, category, debouncedText, minRating, sort]);
 
   // Banner de categoria patrocinada: só aparece quando a busca está
   // filtrada por uma categoria específica.
@@ -423,6 +437,17 @@ export function HomePage() {
           para fora da tela nem se disfarçar de resultado. */}
       <FaixaDeBanners cidade={city || DEFAULT_CITY} categoria={category} />
 
+      {!buscouAlgo && (
+        /* Nada foi pedido ainda: nenhum card, e sim um convite a pedir.
+           Fica no lugar onde os resultados vão aparecer, para não somar
+           altura à tela e depois encolher quando a busca chegar. */
+        <div className="card vazio-indicar" data-tour="resultados" style={{ marginTop: 24, textAlign: "center" }}>
+          <strong>O que você está procurando?</strong>
+          <p className="muted">Digite um serviço ali em cima, ou escolha uma categoria.</p>
+        </div>
+      )}
+
+      {buscouAlgo && (
       <div
         className="grid"
         data-tour="resultados"
@@ -525,6 +550,7 @@ export function HomePage() {
           );
         })}
       </div>
+      )}
 
       {!loading && hasMore && (
         <div style={{ textAlign: "center", marginTop: 24 }}>
