@@ -97,17 +97,24 @@ export function FavoritosPage() {
                 )}{" "}
                 {p.review_count > 0 && <span className="muted">({p.review_count})</span>}
               </p>
+              {/* Botão, e não link: o cartão inteiro já é um <Link>, e
+                  HTML não permite um <a> dentro de outro. O navegador não
+                  reclama — ele "conserta" fechando o cartão antes do botão,
+                  que então escapa do cartão e vira uma célula própria da
+                  grade. Era o borrão verde gigante no meio dos favoritos. */}
               {whatsappLink && (
-                <a
+                <button
+                  type="button"
                   className="btn btn-teal"
                   style={{ marginTop: 10 }}
-                  href={whatsappLink}
-                  target="_blank"
-                  rel="noreferrer"
-                  onClick={(e) => e.stopPropagation()}
+                  onClick={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    window.open(whatsappLink, "_blank", "noreferrer");
+                  }}
                 >
                   Chamar no WhatsApp
-                </a>
+                </button>
               )}
             </Link>
           );

@@ -739,13 +739,25 @@ textarea::placeholder {
 
 .welcome-features {
   display: grid;
-  gap: 14px;
-  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 12px;
+  grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
   margin-bottom: 40px;
 }
 
+/* Cartões menores que o `.card` padrão: aqui são cinco de uma vez, lado a
+   lado, e cada um carrega duas frases. Com o enchimento de um cartão de
+   conteúdo, a fileira ocupava a tela inteira para dizer pouco. */
+.welcome-feature-card {
+  padding: 16px;
+}
+
 .welcome-feature-card h3 {
-  font-size: 1rem;
+  font-size: 0.95rem;
+}
+
+.welcome-feature-card p {
+  font-size: 0.88rem;
+  line-height: 1.45;
 }
 
 /* Um lugar vendido dentro do grid de cartões — mesma moldura de
@@ -2124,66 +2136,23 @@ h3 {
   flex: none;
 }
 
-/* ---------- Cartão de profissional em azul-marinho ---------- */
+/* ---------- Cartão de profissional, claro ---------- */
 
-/* Só o cartão de resultado, não todo `.card`: formulários, termos e blocos
-   de texto longo continuam brancos, porque ler parágrafo e digitar em fundo
-   escuro cansa — o ganho de contraste vira perda de legibilidade onde a
-   pessoa passa mais tempo.
-   Aqui o efeito é o oposto: o cartão vira um objeto sobre a folha branca, e
-   a lista ganha limite claro entre um anúncio e o seguinte. */
+/* Era azul-marinho cheio, com todo o conteúdo invertido para branco. Numa
+   lista, aquilo virava uma parede de blocos escuros: pesado de olhar e sem
+   deixar respiro entre um anúncio e o outro. Claro, o que separa um cartão
+   do outro é o espaço em volta, não o contraste — e o pouco de cor que
+   sobra (o nome em azul, o selo dourado, o botão verde) volta a ser
+   percebido, porque não está mais competindo com o fundo.
+   O leve degradê e a borda dão o relevo que o fundo escuro dava antes. */
 .card-pro {
-  background: linear-gradient(160deg, var(--color-primary-soft), var(--color-primary));
-  border-color: var(--color-primary-deep);
-  color: #ffffff;
-}
-
-.card-pro .muted,
-.card-pro .card-cta {
-  color: #c8d6ea;
+  background: linear-gradient(165deg, #ffffff, #f3f7fd);
+  border-color: var(--color-border-strong);
+  color: var(--color-text);
 }
 
 .card-pro .card-nome {
-  color: #ffffff;
-}
-
-/* Etiquetas dentro do cartão escuro: vidro fosco em vez das cores claras,
-   que sobre o azul virariam manchas berrantes. */
-.card-pro .badge,
-.card-pro .chip-static {
-  background: rgba(255, 255, 255, 0.14);
-  border-color: rgba(255, 255, 255, 0.28);
-  color: #eaf1fb;
-}
-
-/* Destaque continua dourado — é o único lugar onde a cor precisa gritar,
-   porque é o que a pessoa pagou para ter. */
-.card-pro .badge-boosted {
-  background: var(--color-gold-tint);
-  border-color: var(--color-gold-line);
-  color: var(--color-gold-deep);
-}
-
-.card-pro .estrelas-fundo {
-  color: rgba(255, 255, 255, 0.28);
-}
-
-.card-pro .avatar-iniciais {
-  box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.22);
-}
-
-.card-pro .avatar-fallback {
-  background: rgba(255, 255, 255, 0.12);
-  border-color: rgba(255, 255, 255, 0.25);
-}
-
-.card-pro .btn-outline {
-  border-color: rgba(255, 255, 255, 0.4);
-  color: #ffffff;
-}
-
-.card-pro .verified-badge {
-  color: #ffffff;
+  color: var(--color-primary-deep);
 }
 
 /* ---- Escolha de serviços do anúncio (o "+" e a folha) ---- */
@@ -2663,11 +2632,56 @@ h3 {
 
 /* ---- Cartão do anúncio, na página do profissional ---- */
 
-/* O cartão de cima virou azul como o da busca. Vários filhos dele foram
-   desenhados supondo fundo branco, e sobre o azul cada um precisa do seu
-   ajuste — senão o que acontece é texto escuro sobre fundo escuro em pontos
-   isolados, que é o tipo de defeito que passa despercebido em revisão e
-   aparece na tela de quem usa. */
+/* Este continua escuro, e agora diz isso por conta própria.
+   Ele reaproveita `.card-pro`, que era azul-marinho e virou claro. Aqui o
+   escuro se justifica onde na lista não se justificava: é um cartão só, no
+   topo da tela, e o assunto da página inteira — não uma fileira de blocos
+   pesados repetidos. Sem esta declaração, o cartão herdaria o fundo claro
+   e ficaria com o texto branco dos ajustes abaixo: branco sobre branco.
+
+   Vários filhos dele foram desenhados supondo fundo branco, e sobre o azul
+   cada um precisa do seu ajuste — senão o que acontece é texto escuro
+   sobre fundo escuro em pontos isolados, que é o tipo de defeito que passa
+   despercebido em revisão e aparece na tela de quem usa. */
+.card-perfil {
+  background: linear-gradient(160deg, var(--color-primary-soft), var(--color-primary));
+  border-color: var(--color-primary-deep);
+}
+
+/* Etiquetas, avatares e estrelas dentro do cartão escuro: vidro fosco em
+   vez das cores claras, que sobre o azul virariam manchas berrantes. Estes
+   ajustes moravam em `.card-pro` e vieram junto quando ele clareou. */
+.card-perfil .badge,
+.card-perfil .chip-static {
+  background: rgba(255, 255, 255, 0.14);
+  border-color: rgba(255, 255, 255, 0.28);
+  color: #eaf1fb;
+}
+
+/* Destaque continua dourado — é o único lugar onde a cor precisa gritar,
+   porque é o que a pessoa pagou para ter. */
+.card-perfil .badge-boosted {
+  background: var(--color-gold-tint);
+  border-color: var(--color-gold-line);
+  color: var(--color-gold-deep);
+}
+
+.card-perfil .estrelas-fundo {
+  color: rgba(255, 255, 255, 0.28);
+}
+
+.card-perfil .avatar-iniciais {
+  box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.22);
+}
+
+.card-perfil .avatar-fallback {
+  background: rgba(255, 255, 255, 0.12);
+  border-color: rgba(255, 255, 255, 0.25);
+}
+
+.card-perfil .verified-badge {
+  color: #ffffff;
+}
 .card-perfil .perfil-nome,
 .card-perfil h1,
 .card-perfil strong {
@@ -2976,8 +2990,8 @@ h3 {
   color: var(--color-gold-deep);
 }
 
-/* Sobre o cartão azul o dourado escuro perde força. */
-.card-pro .card-especialidade,
+/* O cartão do perfil ainda é escuro; ali o dourado precisa clarear. O de
+   resultado ficou claro e usa o dourado escuro do texto normal. */
 .card-perfil .card-especialidade {
   color: #f0cd88;
 }

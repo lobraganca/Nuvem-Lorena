@@ -5,7 +5,7 @@ import { markWelcomeSeen, requestTour } from "../lib/onboarding";
 import { InstalarApp } from "../components/InstalarApp";
 import { useTituloDaPagina } from "../lib/tituloDaPagina";
 import { useOnlineCount } from "../lib/presence";
-import { Fragment, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { getEstatisticasPublicas, type EstatisticasPublicas } from "../lib/estatisticas";
 import { useContagemAnimada } from "../lib/useContagemAnimada";
 import { useCidadeAproximada } from "../lib/geolocalizacao";
@@ -178,28 +178,29 @@ export function BoasVindasPage() {
       <InstalarApp variante="faixa" />
 
       <section className="welcome-features">
-        {/* Lugares vendidos, intercalados com o conteúdo real — não
-            empilhados no fim, onde ninguém rola até ver, nem logo no
-            início, onde pareceria que a lista inteira é anúncio. A
-            segunda posição é cedo o bastante para valer o que se cobra
-            por ela e tarde o bastante para não ser a primeira coisa que
-            a pessoa lê na tela de boas-vindas. */}
-        {FEATURES.map((f, i) => (
-          <Fragment key={f.title}>
-            <div className="card welcome-feature-card">
-              <h3 style={{ margin: "0 0 6px" }}>{f.title}</h3>
-              <p className="muted" style={{ margin: 0 }}>
-                {f.text}
-              </p>
-            </div>
-            {i === 1 && bannersLocais[0] && <CardPatrocinado key={bannersLocais[0].id} banner={bannersLocais[0]} />}
-            {i === 3 && bannersLocais[1] && <CardPatrocinado key={bannersLocais[1].id} banner={bannersLocais[1]} />}
-            {/* Um convite só, e nunca dois: com nenhum lugar vendido, dois
-                "Apareça aqui" na primeira tela do app fariam a lista
-                parecer mais espaço publicitário do que conteúdo. */}
-            {i === 1 && !bannersCarregando && !bannersLocais[0] && <EspacoLivre variante="cartao" />}
-          </Fragment>
+        {FEATURES.map((f) => (
+          <div className="card welcome-feature-card" key={f.title}>
+            <h3 style={{ margin: "0 0 6px" }}>{f.title}</h3>
+            <p className="muted" style={{ margin: 0 }}>
+              {f.text}
+            </p>
+          </div>
         ))}
+
+        {/* Os lugares vendidos vão no fim da lista, não intercalados com o
+            conteúdo. Espalhados no meio, quebravam a leitura das cinco
+            explicações — e no computador, onde a grade tem três colunas, o
+            anúncio caía num buraco qualquer da fileira, longe do lugar
+            pensado para ele. Vindo depois, continuam dentro da lista (é
+            isso que se vende) sem interromper o que a pessoa veio ler. */}
+        {bannersLocais.slice(0, 2).map((banner) => (
+          <CardPatrocinado key={banner.id} banner={banner} />
+        ))}
+
+        {/* Um convite só, e nunca dois: com nenhum lugar vendido, dois
+            "Apareça aqui" na primeira tela do app fariam a lista parecer
+            mais espaço publicitário do que conteúdo. */}
+        {!bannersCarregando && bannersLocais.length === 0 && <EspacoLivre variante="cartao" />}
       </section>
 
       <section className="welcome-footnote">
