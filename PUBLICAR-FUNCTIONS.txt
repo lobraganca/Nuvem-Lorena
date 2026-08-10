@@ -14,4 +14,4 @@ Settings > Secrets and variables > Actions:
   SUPABASE_ACCESS_TOKEN
   SUPABASE_PROJECT_REF
 
-Último disparo: 2026-08-10 (CLI pelo npm)
+Último disparo: 2026-08-10 (recarregar CRON_SECRET novo)
