@@ -28,6 +28,7 @@ import { VerifiedBadge } from "../components/VerifiedBadge";
 import { Estrelas } from "../components/Estrelas";
 import { formatPhone } from "../lib/phone";
 import { useTituloDaPagina } from "../lib/tituloDaPagina";
+import { ConfirmarMeuNumero } from "../components/ConfirmarMeuNumero";
 
 /**
  * Como chamar quem anuncia, no meio de uma frase.
@@ -84,6 +85,11 @@ export function ProfessionalPage() {
   const [reportSent, setReportSent] = useState(false);
   const [reportError, setReportError] = useState("");
   const [denunciaConfirmada, setDenunciaConfirmada] = useState(false);
+  const [confirmarNumeroAberto, setConfirmarNumeroAberto] = useState(false);
+  /* O objeto da sessão só traz o telefone novo depois que o Auth atualiza o
+     token, e isso não é imediato. Sem esta marca, quem acabou de confirmar
+     via a tela dizer "confirme seu número" de novo — mesmo já confirmado. */
+  const [confirmouAgora, setConfirmouAgora] = useState(false);
   const [editingReviewId, setEditingReviewId] = useState<string | null>(null);
   const [reviewSheetOpen, setReviewSheetOpen] = useState(false);
   /* Primeiro passo da avaliação: confirmar que contratou. Só depois vêm as
@@ -358,6 +364,9 @@ export function ProfessionalPage() {
    * pagou: quem procura sempre consegue chegar na pessoa.
    */
   const contatoFacilitado = verified;
+  /* Denunciar exige número confirmado — ver a policy da migration 0045, que
+     é onde a regra de fato vale. Aqui só decidimos o que mostrar. */
+  const numeroConfirmado = confirmouAgora || Boolean(user?.phone_confirmed_at);
   const instagramUrl = professional.instagram
     ? professional.instagram.startsWith("http")
       ? professional.instagram
@@ -1012,10 +1021,44 @@ export function ProfessionalPage() {
             nome: é assim que ela vale alguma coisa para quem analisa e não vira ferramenta contra concorrente.
           </p>
         )}
-        {!reportOpen && !reportSent && !!user && (
+        {/* Logado mas sem número confirmado: a conta Google sai de graça em
+            um minuto, então só exigir login não impedia abrir três contas e
+            mandar três denúncias contra o mesmo anúncio. Confirmar um número
+            custa um chip — não impede a denúncia falsa, mas encarece a
+            fábrica delas. A regra também está na policy do banco (0045), que
+            é o que vale para quem chamar a API sem passar por esta tela. */}
+        {!reportOpen && !reportSent && !!user && !numeroConfirmado && (
+          <>
+            <p className="muted" style={{ fontSize: "0.82rem", marginBottom: 8 }}>
+              Para denunciar, confirme seu número uma vez. Ele não aparece para quem você denunciou — serve só
+              para impedir que uma mesma pessoa crie várias contas contra o anúncio de um concorrente.
+            </p>
+            <button
+              className="btn btn-outline"
+              onClick={() => setConfirmarNumeroAberto(true)}
+              style={{ fontSize: "0.82rem" }}
+            >
+              Confirmar meu número
+            </button>
+          </>
+        )}
+        {!reportOpen && !reportSent && !!user && numeroConfirmado && (
           <button className="btn btn-outline" onClick={() => setReportOpen(true)} style={{ fontSize: "0.82rem" }}>
             Denunciar este anúncio
           </button>
+        )}
+        {confirmarNumeroAberto && (
+          <ConfirmarMeuNumero
+            onConfirmado={() => {
+              setConfirmouAgora(true);
+              setConfirmarNumeroAberto(false);
+              /* Abre a denúncia na sequência: quem confirmou o número veio
+                 para denunciar, e obrigar a procurar o botão de novo depois
+                 de todo o vaivém do código é perder a pessoa no fim. */
+              setReportOpen(true);
+            }}
+            onClose={() => setConfirmarNumeroAberto(false)}
+          />
         )}
         {reportSent && <p className="muted">Denúncia enviada. Obrigado — vamos analisar este anúncio.</p>}
         {reportOpen && !reportSent && (

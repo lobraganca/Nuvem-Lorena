@@ -384,6 +384,7 @@ export const GRUPOS_DE_SERVICOS = [
       "Professor de inglês",
       "Professor de música",
       "Reforço escolar",
+      "Palestrante",
     ],
   },
   {
