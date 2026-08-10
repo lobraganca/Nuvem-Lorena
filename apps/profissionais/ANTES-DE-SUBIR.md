@@ -49,10 +49,12 @@ tabela.
 
 ---
 
-## 3. Decidir os preços
+## 3. (Nada a fazer aqui — anotação)
 
-A página `/publicidade` hoje diz que valor e período são combinados no
-contato, sem número nenhum. Isso funciona, mas faz toda conversa começar do
-zero e some com quem não ia ligar só para perguntar quanto custa.
+O preço do banner é **R$ 29,90 por 30 dias**, e vive em um lugar só:
+`PRECO_BANNER_CENTAVOS` e `DIAS_BANNER`, no arquivo `src/config.ts`.
 
-Quando você definir os valores, dá para colocá-los na página.
+Se um dia mudar de valor, mude ali: a página `/publicidade`, o convite
+"Apareça aqui" e o valor já preenchido no cadastro de banner leem todos do
+mesmo lugar. Preço trocado em uma tela e esquecido em outra é o tipo de
+diferença que um anunciante cobra depois.

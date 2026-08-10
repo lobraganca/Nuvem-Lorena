@@ -2997,6 +2997,19 @@ h3 {
   line-height: 1.45;
 }
 
+.espaco-livre-preco {
+  margin-top: 2px;
+  font-size: 0.92rem;
+  font-weight: 700;
+  color: var(--color-text);
+}
+
+/* O cartão do preço na página de vendas: destaque por contorno, não por
+   fundo colorido — o valor precisa saltar sem virar etiqueta de promoção. */
+.destaque-preco {
+  border: 2px solid var(--color-navy);
+}
+
 .espaco-livre-botao {
   margin-top: 8px;
   padding: 8px 16px;

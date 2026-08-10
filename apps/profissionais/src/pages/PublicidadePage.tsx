@@ -5,7 +5,7 @@ import { enviarPedidoDeAnuncio } from "../lib/banners";
 import { useAuth } from "../lib/useAuth";
 import { useTituloDaPagina } from "../lib/tituloDaPagina";
 import { mensagemDeErro } from "../lib/erros";
-import { CONTATO_EMAIL, NOME_PLATAFORMA } from "../config";
+import { CONTATO_EMAIL, DIAS_BANNER, NOME_PLATAFORMA, precoDoBanner } from "../config";
 
 /**
  * A página de vendas da publicidade: o que se compra, como a arte precisa
@@ -82,6 +82,21 @@ export function PublicidadePage() {
         </p>
       </div>
 
+      {/* O preço vem antes das medidas e das regras de propósito: é a
+          primeira pergunta de qualquer comerciante, e escondê-la no fim
+          faz a pessoa fechar a página antes de chegar lá. */}
+      <div className="card destaque-preco" style={{ display: "grid", gap: 8, marginBottom: 16 }}>
+        <h2 style={{ margin: 0 }}>Quanto custa</h2>
+        <p style={{ margin: 0, fontSize: "1.6rem", fontWeight: 700, lineHeight: 1.2 }}>
+          {precoDoBanner()}
+          <span style={{ fontSize: "1rem", fontWeight: 400 }}> por {DIAS_BANNER} dias</span>
+        </p>
+        <p className="muted" style={{ margin: 0 }}>
+          Mesmo valor nos dois lugares. Sem fidelidade e sem mensalidade automática: acabaram os{" "}
+          {DIAS_BANNER} dias, você decide se renova.
+        </p>
+      </div>
+
       <div className="card" style={{ display: "grid", gap: 10, marginBottom: 16 }}>
         <h2 style={{ margin: 0 }}>Como a arte precisa ser</h2>
         <ul className="muted" style={{ margin: 0, paddingLeft: 20, display: "grid", gap: 6 }}>
@@ -152,7 +167,7 @@ export function PublicidadePage() {
           <>
             <p style={{ margin: 0 }}>
               <strong>Pedido enviado.</strong> A gente entra em contato pelo número que você deixou para
-              combinar período, valor e a arte.
+              combinar a arte e a data de início.
             </p>
             <p className="muted" style={{ margin: 0 }}>
               Se preferir adiantar, escreva para <a href={`mailto:${CONTATO_EMAIL}`}>{CONTATO_EMAIL}</a>.
@@ -161,7 +176,8 @@ export function PublicidadePage() {
         ) : (
           <>
             <p className="muted" style={{ margin: 0 }}>
-              Deixe seu contato que a gente fala com você para combinar período e valor. Sem compromisso.
+              São {precoDoBanner()} por {DIAS_BANNER} dias. Deixe seu contato que a gente fala com você para
+              combinar a arte e a data de início. Sem compromisso.
             </p>
             <input
               placeholder="Nome do seu comércio"

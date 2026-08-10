@@ -25,6 +25,26 @@ export const VERSAO_DOCUMENTOS = "9 de agosto de 2026";
 
 
 /**
+ * Preço de um espaço de publicidade (banner), em centavos, e por quantos
+ * dias ele vale.
+ *
+ * Em centavos e num lugar só pelo mesmo motivo do e-mail de contato: o
+ * valor aparece na página de vendas e no cadastro do banner, e um preço
+ * que muda em uma tela e não na outra é o tipo de diferença que só se
+ * descobre quando um anunciante cobra a diferença.
+ */
+export const PRECO_BANNER_CENTAVOS = 2990;
+export const DIAS_BANNER = 30;
+
+/** O preço escrito como se lê: "R$ 29,90". */
+export function precoDoBanner(): string {
+  return (PRECO_BANNER_CENTAVOS / 100).toLocaleString("pt-BR", {
+    style: "currency",
+    currency: "BRL",
+  });
+}
+
+/**
  * Liga o botão "Entrar com a Apple".
  *
  * Fica atrás de uma chave porque o login da Apple exige conta de

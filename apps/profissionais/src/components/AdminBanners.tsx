@@ -9,6 +9,7 @@ import {
 } from "../lib/banners";
 import { CATEGORIES, CITIES, type Banner, type PedidoDeAnuncio, type PedidoDeAnuncioStatus } from "../types/domain";
 import { mensagemDeErro } from "../lib/erros";
+import { DIAS_BANNER, PRECO_BANNER_CENTAVOS } from "../config";
 
 const ONDE_APARECE: Record<string, string> = {
   busca: "na busca",
@@ -134,6 +135,11 @@ function hoje(): string {
   return new Date().toISOString().slice(0, 10);
 }
 
+/** O preço padrão já escrito no formato do campo ("29,90"). */
+function valorPadrao(): string {
+  return (PRECO_BANNER_CENTAVOS / 100).toFixed(2).replace(".", ",");
+}
+
 function daquiADias(dias: number): string {
   const d = new Date();
   d.setDate(d.getDate() + dias);
@@ -168,9 +174,9 @@ export function AdminBanners() {
   const [cidade, setCidade] = useState("");
   const [categoria, setCategoria] = useState("");
   const [inicio, setInicio] = useState(hoje());
-  const [fim, setFim] = useState(daquiADias(30));
+  const [fim, setFim] = useState(daquiADias(DIAS_BANNER));
   const [contatoAnunciante, setContatoAnunciante] = useState("");
-  const [valor, setValor] = useState("");
+  const [valor, setValor] = useState(valorPadrao());
   const [pago, setPago] = useState(false);
   const [observacao, setObservacao] = useState("");
 
@@ -194,9 +200,9 @@ export function AdminBanners() {
     setCidade("");
     setCategoria("");
     setInicio(hoje());
-    setFim(daquiADias(30));
+    setFim(daquiADias(DIAS_BANNER));
     setContatoAnunciante("");
-    setValor("");
+    setValor(valorPadrao());
     setPago(false);
     setObservacao("");
     setErro("");

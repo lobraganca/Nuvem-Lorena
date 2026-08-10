@@ -1,4 +1,5 @@
 import { Link } from "react-router-dom";
+import { DIAS_BANNER, precoDoBanner } from "../config";
 
 /**
  * O convite que ocupa um espaço de publicidade enquanto ninguém comprou.
@@ -28,6 +29,11 @@ export function EspacoLivre({ variante }: { variante: "faixa" | "cartao" }) {
         {variante === "faixa"
           ? "Seu comércio nesta tela, para quem está procurando serviço na sua cidade."
           : "Seu comércio na primeira tela do app, para quem é da sua cidade."}
+      </span>
+      {/* O preço no próprio convite: é a primeira pergunta de quem vê, e
+          quem só ia tocar para descobrir quanto custa já sabe daqui. */}
+      <span className="espaco-livre-preco">
+        {precoDoBanner()} por {DIAS_BANNER} dias
       </span>
       <span className="espaco-livre-botao">Quero anunciar</span>
     </Link>
