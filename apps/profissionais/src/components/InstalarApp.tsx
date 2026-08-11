@@ -22,9 +22,11 @@ import { BottomSheet } from "./BottomSheet";
  *   três pontinhos da barra de baixo, e não solto nela — por isso os dois
  *   caminhos aparecem descritos.
  *
- * Quando o app já está instalado, o componente não aparece: `display-mode:
- * standalone` é o sinal de que a pessoa está usando justamente a versão
- * instalada.
+ * O convite some num caso só: quando a página já está rodando DENTRO do app
+ * instalado (`display-mode: standalone`), onde ele não teria o que fazer.
+ * Em aba de navegador aparece sempre — inclusive para quem já instalou aqui
+ * antes, porque instalar num aparelho não instala nos outros, e quem apagou
+ * o ícone sem querer ficava sem caminho de volta.
  */
 interface PromptDeInstalacao extends Event {
   prompt: () => Promise<void>;
@@ -47,7 +49,14 @@ function ehIOS(): boolean {
 
 export function InstalarApp({ variante = "lista" }: { variante?: "lista" | "faixa" | "cabecalho" }) {
   const [prompt, setPrompt] = useState<PromptDeInstalacao | null>(null);
-  const [instalado, setInstalado] = useState(() => estaInstalado());
+  /* Só isto esconde o botão: estar rodando dentro do app instalado. O
+     "já instalou alguma vez" deixou de esconder — ver o comentário no
+     `return null` abaixo. */
+  const [emModoApp] = useState(() => estaInstalado());
+  /* "Agora não" da faixa: esconde só a faixa, e só nesta visita. Antes isto
+     marcava o app como instalado — o mesmo estado de quem tinha instalado de
+     verdade —, então fechar a faixa fazia sumir também o botão do cabeçalho. */
+  const [dispensado, setDispensado] = useState(false);
   const [ensinandoIOS, setEnsinandoIOS] = useState(false);
 
   useEffect(() => {
@@ -57,8 +66,10 @@ export function InstalarApp({ variante = "lista" }: { variante?: "lista" | "faix
       e.preventDefault();
       setPrompt(e as PromptDeInstalacao);
     }
+    /* Instalou agora, nesta aba: o prompt foi gasto (o evento só vale uma
+       vez) e o navegador não manda outro. A aba continua sendo uma aba, e o
+       botão continua ali — daí em diante ensinando pelo passo a passo. */
     function instalou() {
-      setInstalado(true);
       setPrompt(null);
     }
     window.addEventListener("beforeinstallprompt", capturar);
@@ -69,22 +80,63 @@ export function InstalarApp({ variante = "lista" }: { variante?: "lista" | "faix
     };
   }, []);
 
-  if (instalado) return null;
+  /* Só some quando a pessoa está DENTRO do app instalado (janela própria,
+     sem barra do navegador). Ali o botão não teria o que fazer: não existe
+     prompt, e "instalar" o que já está aberto instalado é um beco.
 
-  // No iPhone não há prompt para oferecer; no Android, se o evento ainda não
-  // chegou (ou o navegador não instala apps), não adianta prometer um botão
-  // que não vai fazer nada.
+     Em aba de navegador ele aparece sempre, mesmo que o app já esteja
+     instalado neste computador. Foi um pedido, e faz sentido: quem instalou
+     no trabalho quer instalar em casa, e quem apagou o ícone sem querer não
+     tinha por onde voltar — o convite sumia para sempre, sem explicação. */
+  if (emModoApp) return null;
+
   const podeInstalarDireto = !!prompt;
-  if (!podeInstalarDireto && !ehIOS()) return null;
 
   async function instalar() {
     if (!prompt) return;
     await prompt.prompt();
-    const { outcome } = await prompt.userChoice;
-    if (outcome === "accepted") setInstalado(true);
-    // O evento só pode ser usado uma vez.
+    await prompt.userChoice;
+    /* O evento só pode ser usado uma vez, tenha a pessoa aceitado ou não.
+       O botão continua na tela: instalado aqui não quer dizer instalado no
+       celular dela, e o passo a passo passa a ser o caminho. */
     setPrompt(null);
   }
+
+  /* Quando não há prompt para oferecer, o botão ensina em vez de não fazer
+     nada. Fora do iPhone isso passou a acontecer também no computador: uma
+     vez instalado, o Chrome não manda mais o `beforeinstallprompt` naquele
+     perfil — nem depois de apagar o ícone. Sem este texto, o botão que ela
+     pediu para deixar sempre visível seria um botão que não responde. */
+  const folhaNavegador = (
+    <BottomSheet
+      title="Instalar o procurô"
+      subtitle="Pelo menu do próprio navegador — são dois cliques."
+      onClose={() => setEnsinandoIOS(false)}
+    >
+      <ol className="passos-ios">
+        <li>
+          Abra o menu do navegador: <strong>⋮</strong> (três pontinhos) no canto de cima à direita.
+          <span className="passo-obs">
+            No computador, muitas vezes há um atalho ainda mais rápido: um ícone de monitor com uma seta, do
+            lado direito da barra de endereço.
+          </span>
+        </li>
+        <li>
+          Toque em <strong>Instalar</strong> — pode aparecer como <strong>Instalar aplicativo</strong>,{" "}
+          <strong>Adicionar à tela inicial</strong> ou <strong>Abrir como app</strong>, dependendo do
+          navegador.
+          <span className="passo-obs">
+            Se não encontrar nenhuma dessas opções, procure em <strong>Salvar e compartilhar</strong> ou{" "}
+            <strong>Mais ferramentas</strong>.
+          </span>
+        </li>
+      </ol>
+      <p className="muted" style={{ marginTop: 14, fontSize: "0.88rem" }}>
+        Se o app já estiver instalado neste aparelho, o navegador pode não oferecer de novo — nesse caso ele
+        já está aí, é só procurar o ícone do procurô junto dos outros aplicativos.
+      </p>
+    </BottomSheet>
+  );
 
   /* A folha do iPhone é a mesma nas três variantes — declarada uma vez para
      não haver duas versões do texto se um dia ele mudar. */
@@ -141,14 +193,14 @@ export function InstalarApp({ variante = "lista" }: { variante?: "lista" | "faix
           </svg>
           Instalar App
         </button>
-        {ensinandoIOS && folhaIOS}
+        {ensinandoIOS && (ehIOS() ? folhaIOS : folhaNavegador)}
       </>
     );
   }
 
   return (
     <>
-      {variante === "faixa" ? (
+      {variante === "faixa" && !dispensado ? (
         /* Na busca, o convite é uma faixa fina e dispensável: quem chegou
            aqui veio procurar alguém, e um app que pede para ser instalado
            antes de provar que serve é um app que a pessoa desinstala. */
@@ -168,7 +220,7 @@ export function InstalarApp({ variante = "lista" }: { variante?: "lista" | "faix
               type="button"
               className="instalar-fechar"
               aria-label="Agora não"
-              onClick={() => setInstalado(true)}
+              onClick={() => setDispensado(true)}
             >
               ✕
             </button>
@@ -190,7 +242,7 @@ export function InstalarApp({ variante = "lista" }: { variante?: "lista" | "faix
         </button>
       )}
 
-      {ensinandoIOS && folhaIOS}
+      {ensinandoIOS && (ehIOS() ? folhaIOS : folhaNavegador)}
     </>
   );
 }
