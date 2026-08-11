@@ -176,3 +176,114 @@ export async function getDemandaDeDestaque(): Promise<DemandaDestaque[]> {
   // Mais procurado primeiro: é onde o preço está defasado.
   return [...contagem.values()].sort((a, b) => b.esperando - a.esperando);
 }
+
+/* ------------------------------------------------------------------
+   Dinheiro: o que entrou e o que está ativo.
+
+   Duas famílias de número, separadas de propósito porque têm confiança
+   diferente:
+
+   - RECEBIDO é dinheiro que de fato entrou, lido de `processed_payments`
+     (assinaturas, créditos, patrocínio) e de `banners` (publicidade
+     vendida na mão). O valor das assinaturas só passou a ser gravado na
+     migration 0047 — antes dela o banco guardava que houve pagamento, mas
+     não quanto. Por isso `desde` vem junto: sem essa data, um total baixo
+     pareceria queda de faturamento quando é só falta de histórico.
+
+   - RECORRENTE é projeção: quantas assinaturas estão ativas hoje, vezes o
+     preço de hoje. Não é o que entrou nem o que vai entrar (alguém pode
+     cancelar amanhã) — é quanto elas somam por mês se tudo ficar como
+     está.
+   ------------------------------------------------------------------ */
+
+export interface ResumoFinanceiro {
+  /** Soma real dos pagamentos com valor gravado, em centavos. */
+  recebidoCentavos: number;
+  /** Quantos pagamentos entraram nessa soma. */
+  pagamentos: number;
+  /** Pagamentos anteriores à 0047, que existem mas não têm valor. */
+  pagamentosSemValor: number;
+  /** Data do pagamento mais antigo COM valor — o começo do histórico. */
+  desde: string | null;
+  /** Recebido por tipo (chaves de SubscriptionType, "credits", "sponsorship"). */
+  porTipo: Record<string, number>;
+  /** Publicidade já paga e ainda a receber, em centavos (tabela `banners`). */
+  bannersRecebidoCentavos: number;
+  bannersAReceberCentavos: number;
+}
+
+export async function getResumoFinanceiro(): Promise<ResumoFinanceiro> {
+  const vazio: ResumoFinanceiro = {
+    recebidoCentavos: 0,
+    pagamentos: 0,
+    pagamentosSemValor: 0,
+    desde: null,
+    porTipo: {},
+    bannersRecebidoCentavos: 0,
+    bannersAReceberCentavos: 0,
+  };
+  const client = supabase();
+  if (!client) return vazio;
+
+  const [{ data: pagos }, { data: banners }] = await Promise.all([
+    client.from("processed_payments").select("valor_centavos, tipo, processed_at"),
+    client.from("banners").select("valor_centavos, pago"),
+  ]);
+
+  const resumo = { ...vazio, porTipo: {} as Record<string, number> };
+
+  for (const p of (pagos ?? []) as { valor_centavos: number | null; tipo: string | null; processed_at: string }[]) {
+    if (p.valor_centavos === null) {
+      resumo.pagamentosSemValor += 1;
+      continue;
+    }
+    resumo.recebidoCentavos += p.valor_centavos;
+    resumo.pagamentos += 1;
+    const chave = p.tipo ?? "outros";
+    resumo.porTipo[chave] = (resumo.porTipo[chave] ?? 0) + p.valor_centavos;
+    if (!resumo.desde || p.processed_at < resumo.desde) resumo.desde = p.processed_at;
+  }
+
+  for (const b of (banners ?? []) as { valor_centavos: number | null; pago: boolean }[]) {
+    if (b.valor_centavos === null) continue;
+    if (b.pago) resumo.bannersRecebidoCentavos += b.valor_centavos;
+    else resumo.bannersAReceberCentavos += b.valor_centavos;
+  }
+
+  return resumo;
+}
+
+export interface AssinaturasAtivas {
+  /** Quantas assinaturas ativas por tipo. */
+  porTipo: Record<string, number>;
+  total: number;
+  /** Quantas são anuais (não entram na conta mensal do mesmo jeito). */
+  anuais: number;
+}
+
+export async function getAssinaturasAtivas(): Promise<AssinaturasAtivas> {
+  const client = supabase();
+  if (!client) return { porTipo: {}, total: 0, anuais: 0 };
+  const { data } = await client
+    .from("subscriptions")
+    .select("type, status, billing_cycle, current_period_end")
+    .in("status", ["active", "authorized"]);
+
+  const agora = Date.now();
+  const resultado: AssinaturasAtivas = { porTipo: {}, total: 0, anuais: 0 };
+  for (const s of (data ?? []) as {
+    type: string;
+    billing_cycle: string | null;
+    current_period_end: string | null;
+  }[]) {
+    // "active" no Mercado Pago não quer dizer "vigente hoje": uma assinatura
+    // pode estar marcada como ativa e com o período já vencido esperando a
+    // rotina diária. Contar essas infla o painel justamente no número que
+    // se olha para decidir preço.
+    if (s.current_period_end && new Date(s.current_period_end).getTime() < agora) continue;
+    resultado.porTipo[s.type] = (resultado.porTipo[s.type] ?? 0) + 1;
+    resultado.total += 1;
+    if (s.billing_cycle === "annual") resultado.anuais += 1;
+  }
+  return resultado;
+}

@@ -724,15 +724,36 @@ textarea::placeholder {
   padding: env(safe-area-inset-top) 20px 40px;
 }
 
-/* Linha do contador, antes de tudo na tela de início. */
+/* Linha dos contadores, antes de tudo na tela de início. */
 .welcome-topo {
   display: flex;
+  flex-wrap: wrap;
   justify-content: center;
+  align-items: center;
+  gap: 8px;
   padding-top: 14px;
+}
+
+/* Irmã da `.online-pill`, mas sem o ponto verde: aquele ponto significa
+   "acontecendo agora", e visitas é um total acumulado. Mesma forma para
+   ler como um par; cor mais discreta porque quem está ao vivo é a
+   informação que muda. */
+.visitas-pill {
+  display: inline-flex;
+  align-items: center;
+  margin: 0;
+  padding: 3px 10px;
+  border-radius: 999px;
+  background: var(--color-bg-soft);
+  border: 1px solid var(--color-border);
+  color: var(--color-text-muted);
+  font-size: 0.72rem;
+  font-weight: 600;
 }
 
 .welcome-topo .online-pill {
   margin-top: 0;
+  margin-bottom: 0;
 }
 
 .welcome-hero {
@@ -3168,6 +3189,117 @@ h3 {
   color: #fff;
   font-size: 0.88rem;
   font-weight: 600;
+}
+
+/* ---- Números do painel administrativo ---- */
+
+.admin-numeros {
+  display: grid;
+  gap: 12px;
+  grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+  margin-bottom: 18px;
+}
+
+.admin-numero {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  padding: 16px;
+  border: 1px solid var(--color-border-strong);
+  border-radius: var(--radius);
+  background: linear-gradient(165deg, #ffffff, #f3f7fd);
+}
+
+/* Um número puxa a vista, e é o total recebido — os outros três explicam
+   ou projetam. Sem essa hierarquia, quatro cartões iguais fazem a pessoa
+   ler os quatro para achar o que interessa. */
+.admin-numero-forte {
+  background: linear-gradient(160deg, var(--color-primary-soft), var(--color-primary));
+  border-color: var(--color-primary-deep);
+  color: #fff;
+}
+
+.admin-numero-rotulo {
+  font-size: 0.78rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+  color: var(--color-text-muted);
+}
+
+.admin-numero-forte .admin-numero-rotulo,
+.admin-numero-forte .admin-numero-obs {
+  color: rgba(255, 255, 255, 0.78);
+}
+
+.admin-numero strong {
+  font-size: 1.5rem;
+  line-height: 1.15;
+  color: var(--color-primary-deep);
+}
+
+.admin-numero-forte strong {
+  color: #fff;
+}
+
+.admin-numero-obs {
+  font-size: 0.78rem;
+  line-height: 1.35;
+  color: var(--color-text-muted);
+}
+
+.admin-detalhe {
+  display: grid;
+  gap: 12px;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+}
+
+.admin-detalhe > div {
+  padding: 16px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius);
+  background: var(--color-surface);
+}
+
+.admin-detalhe h3 {
+  margin: 0 0 10px;
+  font-size: 0.92rem;
+}
+
+.admin-lista {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 8px;
+  font-size: 0.9rem;
+}
+
+.admin-lista li {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 10px;
+  /* Linha pontilhada ligando o nome ao valor: numa lista de valores, a
+     coluna da direita fica longe do rótulo e o olho pula de linha. */
+  border-bottom: 1px dotted var(--color-border-strong);
+  padding-bottom: 6px;
+}
+
+.admin-lista li:last-child {
+  border-bottom: 0;
+  padding-bottom: 0;
+}
+
+.admin-aviso {
+  margin: 14px 0 0;
+  padding: 10px 12px;
+  border-radius: 12px;
+  background: var(--color-gold-tint);
+  border: 1px solid var(--color-gold-line);
+  color: var(--color-gold-deep);
+  font-size: 0.84rem;
+  line-height: 1.45;
 }
 
 /* ---- Banners no painel admin ---- */

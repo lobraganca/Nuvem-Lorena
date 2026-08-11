@@ -5,7 +5,7 @@
 -- `npm run sql:unico`.
 --
 -- Como usar: abra o SQL Editor do seu projeto no Supabase, cole este arquivo
--- inteiro e rode uma vez. São 46 migrations, já na ordem certa.
+-- inteiro e rode uma vez. São 48 migrations, já na ordem certa.
 --
 -- Rodar de novo num banco que já tem os dados é seguro na maior parte (quase
 -- tudo usa "if not exists" / "or replace"), mas não é o uso pretendido: para
@@ -3043,3 +3043,124 @@ create policy cada_um_enxerga_se_e_admin
 -- aqui para o caso de a concessão ter sido revogada em algum momento — sem
 -- ela, a policy sozinha não bastaria.
 grant select on public.admins to authenticated;
+
+-- ═══════════════════════════════════════════════════════════════
+-- 0047_valor_dos_pagamentos.sql
+-- ═══════════════════════════════════════════════════════════════
+
+-- --------------------------------------------------------------------
+-- Quanto entrou, por pagamento.
+--
+-- O banco registrava QUE um pagamento foi processado (`processed_payments`,
+-- criada para não creditar duas vezes o mesmo evento), mas nunca QUANTO ele
+-- trouxe: `subscriptions` não tem coluna de valor, e o patrocínio de
+-- categoria também não. O valor existia só no Mercado Pago.
+--
+-- Isso significa que o histórico anterior a esta migração não pode ser
+-- reconstruído aqui — o painel diz isso na cara, em vez de somar o que tem
+-- e apresentar como se fosse tudo. Para o que já passou, a fonte é o
+-- extrato do Mercado Pago.
+--
+-- Daqui para frente o webhook grava o valor junto com o id, no mesmo insert
+-- que já fazia. Não é uma chamada a mais nem um risco novo: o valor já vem
+-- na resposta que o webhook consulta para saber se o pagamento foi
+-- aprovado.
+-- --------------------------------------------------------------------
+alter table public.processed_payments
+  add column if not exists valor_centavos integer,
+  -- 'verification' | 'boost' | 'plus' | 'credits' | 'sponsorship' | null
+  -- (null = pagamento antigo, de antes desta migração, ou tipo que o
+  -- webhook não soube classificar).
+  add column if not exists tipo text;
+
+create index if not exists processed_payments_data_idx
+  on public.processed_payments (processed_at desc);
+
+-- A tabela não tinha policy nenhuma: era escrita só pelo webhook, com a
+-- service_role, que ignora RLS. Agora o painel administrativo precisa
+-- somar esses valores, e faz isso do navegador — daí a leitura para admin.
+-- Continua sem insert/update/delete para quem está logado: quem escreve
+-- aqui é o webhook, e só ele.
+drop policy if exists "admin vê os pagamentos" on public.processed_payments;
+create policy "admin vê os pagamentos"
+  on public.processed_payments for select
+  to authenticated
+  using (
+    exists (select 1 from public.admins a where a.user_id = auth.uid())
+  );
+
+grant select on public.processed_payments to authenticated;
+
+-- Idem para as assinaturas: o painel conta quantas estão ativas, e a policy
+-- que existia só deixava cada dono ver as próprias.
+drop policy if exists "admin vê todas as assinaturas" on public.subscriptions;
+create policy "admin vê todas as assinaturas"
+  on public.subscriptions for select
+  to authenticated
+  using (
+    exists (select 1 from public.admins a where a.user_id = auth.uid())
+  );
+
+-- ═══════════════════════════════════════════════════════════════
+-- 0048_visitas_ao_app.sql
+-- ═══════════════════════════════════════════════════════════════
+
+-- --------------------------------------------------------------------
+-- Visitas ao app.
+--
+-- Já existia `profile_views` — quem abriu QUAL anúncio. É outra coisa:
+-- aqui é quanta gente abriu o app, tenha ela procurado alguém ou não.
+--
+-- O que se guarda é uma linha com a hora, e mais nada. Sem IP, sem conta,
+-- sem identificador de aparelho, sem página. Não dá para dizer que uma
+-- visita é de fulano nem para ligar duas visitas à mesma pessoa — e é de
+-- propósito: para mostrar "N visitas" na tela de início não é preciso
+-- saber de quem, e o que não se guarda não vaza nem precisa de base legal
+-- para ser guardado (LGPD).
+--
+-- Uma linha por sessão do navegador, não por página aberta: quem contasse
+-- cada navegação teria um número que sobe sozinho enquanto a pessoa usa,
+-- o que é vaidade, não informação. Essa parte é decidida no app (ver
+-- `registrarVisita`), porque só ele sabe se a sessão é nova.
+-- --------------------------------------------------------------------
+create table if not exists public.visitas_app (
+  id bigint generated always as identity primary key,
+  criada_em timestamptz not null default now()
+);
+
+create index if not exists visitas_app_data_idx on public.visitas_app (criada_em desc);
+
+alter table public.visitas_app enable row level security;
+
+-- Qualquer pessoa registra a própria visita, inclusive sem login: é
+-- exatamente quem abre o app pela primeira vez que precisa ser contado.
+drop policy if exists "qualquer um registra a visita" on public.visitas_app;
+create policy "qualquer um registra a visita"
+  on public.visitas_app for insert
+  with check (true);
+
+-- Sem select público: a tabela inteira não interessa a ninguém de fora, e
+-- a tela precisa só do total. Vem pela função abaixo, no mesmo padrão de
+-- `contagem_de_visitas` (0042) — um número, sem linha nenhuma junto.
+create or replace function public.contagem_de_visitas_no_app()
+returns bigint
+language sql
+security definer set search_path = public
+as $$
+  select count(*) from public.visitas_app;
+$$;
+
+grant execute on function public.contagem_de_visitas_no_app() to anon, authenticated;
+grant insert on public.visitas_app to anon, authenticated;
+grant usage, select on sequence public.visitas_app_id_seq to anon, authenticated;
+
+-- Admin também enxerga as linhas, para poder olhar visitas por período.
+drop policy if exists "admin vê as visitas" on public.visitas_app;
+create policy "admin vê as visitas"
+  on public.visitas_app for select
+  to authenticated
+  using (
+    exists (select 1 from public.admins a where a.user_id = auth.uid())
+  );
+
+grant select on public.visitas_app to authenticated;

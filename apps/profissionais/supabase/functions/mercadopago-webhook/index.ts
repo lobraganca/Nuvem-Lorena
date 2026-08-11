@@ -238,6 +238,27 @@ async function handlePreapproval(admin: Admin, preapprovalId: string) {
   }
 }
 
+/**
+ * Classifica o pagamento pelo `external_reference` que nós mesmos montamos
+ * na criação da cobrança — é o único lugar onde essa informação existe do
+ * nosso lado.
+ *
+ * Devolve null quando não reconhece, em vez de chutar um tipo: no painel,
+ * um pagamento sem categoria aparece somado ao total e de fora do detalhe,
+ * o que é honesto. Chutando, ele entraria na linha errada e ninguém
+ * desconfiaria.
+ */
+function tipoDoPagamento(ref: string): string | null {
+  if (ref.startsWith("credits:")) return "credits";
+  if (ref.startsWith("sponsor:")) return "sponsorship";
+  // "annual:<tipo>:<id>" e "mensal:<tipo>:<id>"
+  if (ref.startsWith("annual:") || ref.startsWith("mensal:")) {
+    const tipo = ref.split(":")[1];
+    return tipo === "verification" || tipo === "boost" || tipo === "plus" ? tipo : null;
+  }
+  return null;
+}
+
 async function handlePayment(admin: Admin, paymentId: string) {
   const resp = await fetch(`https://api.mercadopago.com/v1/payments/${paymentId}`, {
     headers: { Authorization: `Bearer ${MP_ACCESS_TOKEN}` },
@@ -254,7 +275,21 @@ async function handlePayment(admin: Admin, paymentId: string) {
   // a compra de créditos — que SOMA ao saldo — daria crédito em dobro.
   // Reserva o id antes de aplicar qualquer efeito; se já estiver reservado,
   // este evento é repetido e não deve fazer nada.
-  const { error: claimError } = await admin.from("processed_payments").insert({ payment_id: String(paymentId) });
+  /* O valor entra no MESMO insert da trava de idempotência — não é uma
+     consulta a mais nem um caminho novo que possa falhar sozinho: o
+     `transaction_amount` já veio na resposta que acabamos de ler para saber
+     se o pagamento foi aprovado.
+     Em centavos e arredondado porque o Mercado Pago devolve reais como
+     número de ponto flutuante, e somar centenas de floats em reais rende
+     aquele total com sobra de centavo que ninguém consegue explicar. */
+  const valorCentavos = Number.isFinite(payment.transaction_amount)
+    ? Math.round(Number(payment.transaction_amount) * 100)
+    : null;
+  const { error: claimError } = await admin.from("processed_payments").insert({
+    payment_id: String(paymentId),
+    valor_centavos: valorCentavos,
+    tipo: tipoDoPagamento(String(payment.external_reference ?? "")),
+  });
   if (claimError?.code === "23505") {
     console.log("mercadopago-webhook: pagamento já processado, ignorando duplicata:", paymentId);
     return;

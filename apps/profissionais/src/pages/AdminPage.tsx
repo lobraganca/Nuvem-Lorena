@@ -26,6 +26,7 @@ import { listSuggestions, updateSuggestionStatus } from "../lib/suggestions";
 import { atualizarStatusIndicacao, listarIndicacoes, type Indicacao } from "../lib/indicacoes";
 import { CITIES, type Suggestion, type SuggestionStatus } from "../types/domain";
 import { AdminBanners } from "../components/AdminBanners";
+import { AdminFinanceiro } from "../components/AdminFinanceiro";
 import { useTituloDaPagina } from "../lib/tituloDaPagina";
 
 const STATUS_LABEL: Record<ReportStatus, string> = {
@@ -243,9 +244,14 @@ export function AdminPage() {
       </p>
       {message && <p className="card">{message}</p>}
 
-      {/* Primeiro do painel porque é o único bloco em que ela cria alguma
-          coisa; os outros são para conferir o que já aconteceu. */}
+      {/* Abre o painel: é a pergunta que se faz todo dia ("como está indo?")
+          e a única que não dependia de rolar até achar. */}
       <section style={{ marginTop: 24 }}>
+        <h2>Dinheiro</h2>
+        <AdminFinanceiro />
+      </section>
+
+      <section style={{ marginTop: 32 }}>
         <h2>Banners de publicidade</h2>
         <AdminBanners />
       </section>

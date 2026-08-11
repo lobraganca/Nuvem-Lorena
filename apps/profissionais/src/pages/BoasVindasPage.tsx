@@ -5,7 +5,7 @@ import { InstalarApp } from "../components/InstalarApp";
 import { useTituloDaPagina } from "../lib/tituloDaPagina";
 import { useOnlineCount } from "../lib/presence";
 import { useEffect, useState } from "react";
-import { getEstatisticasPublicas, type EstatisticasPublicas } from "../lib/estatisticas";
+import { getEstatisticasPublicas, registrarVisita, type EstatisticasPublicas } from "../lib/estatisticas";
 import { useContagemAnimada } from "../lib/useContagemAnimada";
 import { useCidadeAproximada } from "../lib/geolocalizacao";
 import { getBannersBoasVindas } from "../lib/banners";
@@ -74,6 +74,11 @@ export function BoasVindasPage() {
 
   useEffect(() => {
     let ativo = true;
+    /* Conta a visita ANTES da primeira leitura, para quem está abrindo o
+       app já se ver no número. Sem `await`: se falhar, a tela não muda —
+       um contador não pode atrasar nem quebrar a abertura do app. */
+    void registrarVisita();
+
     function buscar() {
       getEstatisticasPublicas().then((s) => {
         if (ativo) setStats(s);
@@ -103,6 +108,7 @@ export function BoasVindasPage() {
   const profissionaisAnimado = useContagemAnimada(stats?.profissionais ?? 0);
   const avaliacoesAnimado = useContagemAnimada(stats?.avaliacoes ?? 0);
   const visitasAnimado = useContagemAnimada(stats?.visitas ?? 0);
+  const visitasAppAnimado = useContagemAnimada(stats?.visitasApp ?? 0);
 
   function escolherCliente() {
     markWelcomeSeen();
@@ -127,14 +133,25 @@ export function BoasVindasPage() {
           desce sozinho é publicidade enganosa (CDC art. 37), e ser
           descoberto custa mais confiança do que qualquer aparência de
           movimento vale. */}
-      {online !== null && online > 0 && (
-        <div className="welcome-topo">
+      <div className="welcome-topo">
+        {online !== null && online > 0 && (
           <p className="online-pill">
             <span className="online-dot" aria-hidden="true" />
             {online === 1 ? "1 pessoa navegando agora" : `${online} pessoas navegando agora`}
           </p>
-        </div>
-      )}
+        )}
+        {/* Visitas ao app: quantas vezes ele foi aberto, contando uma por
+            sessão do navegador (ver registrarVisita). É número real e
+            cumulativo — só sobe, e não volta atrás. Fica escondido no zero
+            porque "0 visitas" na primeira tela do app é a única informação
+            que ele consegue dar contra si mesmo sem ser verdade útil: quem
+            está lendo já é a visita número um. */}
+        {visitasAppAnimado > 0 && (
+          <p className="visitas-pill">
+            {visitasAppAnimado} {stats?.visitasApp === 1 ? "visita" : "visitas"} ao app
+          </p>
+        )}
+      </div>
 
       <section className="welcome-hero">
         <LogoMark />
