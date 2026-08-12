@@ -80,15 +80,17 @@ export function InstalarApp({ variante = "lista" }: { variante?: "lista" | "faix
     };
   }, []);
 
-  /* Só some quando a pessoa está DENTRO do app instalado (janela própria,
-     sem barra do navegador). Ali o botão não teria o que fazer: não existe
-     prompt, e "instalar" o que já está aberto instalado é um beco.
+  /* Em aba de navegador o convite aparece sempre, mesmo que o app já esteja
+     instalado neste computador: quem instalou no trabalho quer instalar em
+     casa, e quem apagou o ícone sem querer não tinha por onde voltar.
 
-     Em aba de navegador ele aparece sempre, mesmo que o app já esteja
-     instalado neste computador. Foi um pedido, e faz sentido: quem instalou
-     no trabalho quer instalar em casa, e quem apagou o ícone sem querer não
-     tinha por onde voltar — o convite sumia para sempre, sem explicação. */
-  if (emModoApp) return null;
+     Dentro do app instalado (janela própria, sem barra de navegador) some
+     só o que ali seria fora de lugar: a faixa "deixe no seu celular" e o
+     item das configurações, que convidam a fazer o que já está feito. O
+     botão do topo fica — não é um convite, é o caminho para instalar em
+     OUTRO aparelho, e quem está no computador quer justamente pôr no
+     celular. Sem ele, esse caminho não existia em lugar nenhum. */
+  if (emModoApp && variante !== "cabecalho") return null;
 
   const podeInstalarDireto = !!prompt;
 
@@ -109,10 +111,23 @@ export function InstalarApp({ variante = "lista" }: { variante?: "lista" | "faix
      pediu para deixar sempre visível seria um botão que não responde. */
   const folhaNavegador = (
     <BottomSheet
-      title="Instalar o procurô"
-      subtitle="Pelo menu do próprio navegador — são dois cliques."
+      title={emModoApp ? "Instalar em outro aparelho" : "Instalar o procurô"}
+      subtitle={
+        emModoApp
+          ? "Aqui já está instalado. Para pôr no celular ou em outro computador:"
+          : "Pelo menu do próprio navegador — são dois cliques."
+      }
       onClose={() => setEnsinandoIOS(false)}
     >
+      {/* Aberta de dentro do app instalado, a folha muda de assunto: os
+          passos abaixo são para o navegador do OUTRO aparelho, e sem esta
+          linha eles pareceriam instruções para esta janela — onde não há
+          menu de navegador nenhum para abrir. */}
+      {emModoApp && (
+        <p style={{ margin: "0 0 12px" }}>
+          No outro aparelho, abra <strong>procuroapp.com.br</strong> no navegador e siga:
+        </p>
+      )}
       <ol className="passos-ios">
         <li>
           Abra o menu do navegador: <strong>⋮</strong> (três pontinhos) no canto de cima à direita.
@@ -132,8 +147,9 @@ export function InstalarApp({ variante = "lista" }: { variante?: "lista" | "faix
         </li>
       </ol>
       <p className="muted" style={{ marginTop: 14, fontSize: "0.88rem" }}>
-        Se o app já estiver instalado neste aparelho, o navegador pode não oferecer de novo — nesse caso ele
-        já está aí, é só procurar o ícone do procurô junto dos outros aplicativos.
+        {emModoApp
+          ? "O ícone aparece junto dos outros aplicativos daquele aparelho, e daí em diante abre sem passar pelo navegador."
+          : "Se o app já estiver instalado neste aparelho, o navegador pode não oferecer de novo — nesse caso ele já está aí, é só procurar o ícone do procurô junto dos outros aplicativos."}
       </p>
     </BottomSheet>
   );
