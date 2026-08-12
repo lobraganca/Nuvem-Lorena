@@ -415,9 +415,11 @@ export function ProfessionalPage() {
               )}
               {/* Endereço só existe para quem tem ponto fixo. Quando existe,
                   é informação de primeira ordem — decide se dá para ir a pé. */}
-              {/* Rua e número só chegam aqui quando a pessoa marcou a caixa
-                  no cadastro — a view pública devolve nulo para quem não
-                  marcou. O bairro vem sempre. */}
+              {/* Endereço nenhum chega aqui sem a pessoa ter marcado a caixa
+                  no cadastro: a view pública devolve nulo em tudo — cep,
+                  rua, número e bairro — para quem não marcou (0049). O
+                  bairro escapava dessa regra, e quem tinha desmarcado via
+                  o próprio bairro publicado assim mesmo. */}
               {(professional.street || professional.neighborhood) && (
                 <p className="muted" style={{ margin: "2px 0 0", fontSize: "0.88rem" }}>
                   📍{" "}
