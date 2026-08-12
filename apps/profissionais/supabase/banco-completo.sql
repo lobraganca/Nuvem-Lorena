@@ -2990,8 +2990,9 @@ grant execute on function public.tem_telefone_confirmado() to authenticated;
 
 drop policy if exists "quem está logado pode denunciar um anúncio" on public.reports;
 drop policy if exists "só quem confirmou o número pode denunciar" on public.reports;
+drop policy if exists so_quem_confirmou_o_numero_pode_denunciar on public.reports;
 
-create policy "só quem confirmou o número pode denunciar"
+create policy so_quem_confirmou_o_numero_pode_denunciar
   on public.reports for insert
   to authenticated
   with check (
@@ -3082,7 +3083,8 @@ create index if not exists processed_payments_data_idx
 -- Continua sem insert/update/delete para quem está logado: quem escreve
 -- aqui é o webhook, e só ele.
 drop policy if exists "admin vê os pagamentos" on public.processed_payments;
-create policy "admin vê os pagamentos"
+drop policy if exists admin_ve_os_pagamentos on public.processed_payments;
+create policy admin_ve_os_pagamentos
   on public.processed_payments for select
   to authenticated
   using (
@@ -3094,7 +3096,8 @@ grant select on public.processed_payments to authenticated;
 -- Idem para as assinaturas: o painel conta quantas estão ativas, e a policy
 -- que existia só deixava cada dono ver as próprias.
 drop policy if exists "admin vê todas as assinaturas" on public.subscriptions;
-create policy "admin vê todas as assinaturas"
+drop policy if exists admin_ve_todas_as_assinaturas on public.subscriptions;
+create policy admin_ve_todas_as_assinaturas
   on public.subscriptions for select
   to authenticated
   using (
@@ -3135,7 +3138,8 @@ alter table public.visitas_app enable row level security;
 -- Qualquer pessoa registra a própria visita, inclusive sem login: é
 -- exatamente quem abre o app pela primeira vez que precisa ser contado.
 drop policy if exists "qualquer um registra a visita" on public.visitas_app;
-create policy "qualquer um registra a visita"
+drop policy if exists qualquer_um_registra_a_visita on public.visitas_app;
+create policy qualquer_um_registra_a_visita
   on public.visitas_app for insert
   with check (true);
 
@@ -3156,7 +3160,8 @@ grant usage, select on sequence public.visitas_app_id_seq to anon, authenticated
 
 -- Admin também enxerga as linhas, para poder olhar visitas por período.
 drop policy if exists "admin vê as visitas" on public.visitas_app;
-create policy "admin vê as visitas"
+drop policy if exists admin_ve_as_visitas on public.visitas_app;
+create policy admin_ve_as_visitas
   on public.visitas_app for select
   to authenticated
   using (

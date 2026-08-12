@@ -32,7 +32,8 @@ create index if not exists processed_payments_data_idx
 -- Continua sem insert/update/delete para quem está logado: quem escreve
 -- aqui é o webhook, e só ele.
 drop policy if exists "admin vê os pagamentos" on public.processed_payments;
-create policy "admin vê os pagamentos"
+drop policy if exists admin_ve_os_pagamentos on public.processed_payments;
+create policy admin_ve_os_pagamentos
   on public.processed_payments for select
   to authenticated
   using (
@@ -44,7 +45,8 @@ grant select on public.processed_payments to authenticated;
 -- Idem para as assinaturas: o painel conta quantas estão ativas, e a policy
 -- que existia só deixava cada dono ver as próprias.
 drop policy if exists "admin vê todas as assinaturas" on public.subscriptions;
-create policy "admin vê todas as assinaturas"
+drop policy if exists admin_ve_todas_as_assinaturas on public.subscriptions;
+create policy admin_ve_todas_as_assinaturas
   on public.subscriptions for select
   to authenticated
   using (

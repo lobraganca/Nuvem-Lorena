@@ -40,8 +40,9 @@ grant execute on function public.tem_telefone_confirmado() to authenticated;
 
 drop policy if exists "quem está logado pode denunciar um anúncio" on public.reports;
 drop policy if exists "só quem confirmou o número pode denunciar" on public.reports;
+drop policy if exists so_quem_confirmou_o_numero_pode_denunciar on public.reports;
 
-create policy "só quem confirmou o número pode denunciar"
+create policy so_quem_confirmou_o_numero_pode_denunciar
   on public.reports for insert
   to authenticated
   with check (

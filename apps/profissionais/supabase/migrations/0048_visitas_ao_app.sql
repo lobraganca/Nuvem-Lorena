@@ -28,7 +28,8 @@ alter table public.visitas_app enable row level security;
 -- Qualquer pessoa registra a própria visita, inclusive sem login: é
 -- exatamente quem abre o app pela primeira vez que precisa ser contado.
 drop policy if exists "qualquer um registra a visita" on public.visitas_app;
-create policy "qualquer um registra a visita"
+drop policy if exists qualquer_um_registra_a_visita on public.visitas_app;
+create policy qualquer_um_registra_a_visita
   on public.visitas_app for insert
   with check (true);
 
@@ -49,7 +50,8 @@ grant usage, select on sequence public.visitas_app_id_seq to anon, authenticated
 
 -- Admin também enxerga as linhas, para poder olhar visitas por período.
 drop policy if exists "admin vê as visitas" on public.visitas_app;
-create policy "admin vê as visitas"
+drop policy if exists admin_ve_as_visitas on public.visitas_app;
+create policy admin_ve_as_visitas
   on public.visitas_app for select
   to authenticated
   using (
