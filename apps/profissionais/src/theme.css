@@ -3867,29 +3867,37 @@ h3 {
 .welcome-stats {
   display: flex;
   justify-content: center;
-  gap: 12px;
-  margin-top: 22px;
-  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 20px;
+  /* Sem `wrap`: os três são um conjunto — "somos isto" — e quebrado em
+     duas linhas o terceiro descia sozinho, lido como um número à parte.
+     Cabem os três em 320px porque cada um encolhe (flex: 1 1 0) em vez de
+     exigir uma largura mínima. */
+  flex-wrap: nowrap;
 }
 
 .welcome-stat-card {
-  min-width: 108px;
+  flex: 1 1 0;
+  min-width: 0;
+  max-width: 128px;
   text-align: center;
   background: var(--color-surface);
   border: 1px solid var(--color-border);
-  border-radius: var(--radius);
-  padding: 14px 16px;
+  border-radius: 14px;
+  padding: 10px 8px;
   box-shadow: 0 1px 2px rgba(16, 26, 40, 0.05), 0 6px 16px rgba(16, 26, 40, 0.05);
 }
 
 .welcome-stat-card strong {
   display: block;
-  font-size: 1.5rem;
+  font-size: 1.15rem;
   font-variant-numeric: tabular-nums;
   color: var(--color-navy);
 }
 
 .welcome-stat-card span {
-  font-size: 0.78rem;
+  display: block;
+  font-size: 0.68rem;
+  line-height: 1.25;
   color: var(--color-text-muted);
 }
