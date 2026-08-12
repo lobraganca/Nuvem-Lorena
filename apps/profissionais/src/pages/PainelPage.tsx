@@ -356,8 +356,16 @@ export function PainelPage() {
       falha(form.entity_type === "pj" ? "CNPJ inválido. Confira os números digitados." : "CPF inválido. Confira os números digitados.");
       return;
     }
-    if (form.entity_type === "pf" && !photoFile && !form.photo_url) {
-      falha("Envie uma foto de rosto para publicar o anúncio de pessoa física.");
+    /* Foto obrigatória nos dois tipos de cadastro. Era exigida só de pessoa
+       física; a empresa podia publicar sem logo e ficava um retângulo
+       vazio na busca, no meio de cartões com rosto — o anúncio sem imagem
+       parece anúncio abandonado, e quem procura passa direto por ele. */
+    if (!photoFile && !form.photo_url) {
+      falha(
+        form.entity_type === "pj"
+          ? "Envie a logo da empresa para publicar o anúncio."
+          : "Envie uma foto de rosto para publicar o anúncio."
+      );
       return;
     }
     if (form.entity_type === "pj" && !form.responsible_name?.trim()) {
@@ -543,6 +551,26 @@ export function PainelPage() {
                   <strong>{views30[p.id] ?? 0}</strong>{" "}
                   {(views30[p.id] ?? 0) === 1 ? "pessoa viu" : "pessoas viram"} seu anúncio nos últimos 30 dias
                 </p>
+                {/* A foto passou a ser obrigatória depois que estes anúncios
+                    já existiam. Sem este aviso, quem tem um anúncio antigo
+                    sem foto só descobriria a regra ao tentar salvar outra
+                    coisa qualquer — mudaria o telefone, apertaria salvar e
+                    levaria um erro sobre foto, que não é o que estava
+                    fazendo. Dito aqui, vira uma pendência à vista. */}
+                {!p.photo_url && (
+                  <div className="whats-pendente">
+                    <p>
+                      <strong>Falta {p.entity_type === "pj" ? "a logo" : "a foto"} do anúncio.</strong>{" "}
+                      {p.entity_type === "pj"
+                        ? "Anúncio sem logo aparece como um retângulo vazio na busca, ao lado de cartões com imagem."
+                        : "Na busca, é o rosto que responde primeiro se a pessoa te chama ou não."}{" "}
+                      Passou a ser obrigatória, então o anúncio só volta a salvar depois de enviá-la.
+                    </p>
+                    <button type="button" className="btn btn-outline" onClick={() => startEdit(p)}>
+                      Enviar agora
+                    </button>
+                  </div>
+                )}
                 {/* A confirmação do número fica no card, e não escondida nas
                     configurações: é o que separa um anúncio de um número
                     qualquer digitado, e quem anuncia precisa ver que falta. */}
@@ -955,7 +983,7 @@ export function PainelPage() {
           )}
 
           <label style={{ display: "grid", gap: 6 }}>
-            <span className="muted">{isPj ? "Logo da empresa" : "Foto de rosto"} {!isPj && "(obrigatória)"}</span>
+            <span className="muted">{isPj ? "Logo da empresa" : "Foto de rosto"} (obrigatória)</span>
             <input type="file" accept="image/*" onChange={handlePhotoChange} />
             {(photoPreview || form.photo_url) && (
               <img
