@@ -767,6 +767,25 @@ textarea::placeholder {
   padding-top: 40px;
 }
 
+/* Uma linha, não um cartão: precisa ser vista sem competir com a marca
+   logo acima nem com os botões de escolha logo abaixo — que são o que a
+   pessoa veio fazer. O verde é o mesmo do WhatsApp do app, a única cor
+   que aqui já significa "pode ir". */
+.welcome-gratis {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  margin: 14px auto 0;
+  padding: 7px 14px;
+  border-radius: 999px;
+  background: rgba(18, 128, 95, 0.09);
+  border: 1px solid rgba(18, 128, 95, 0.28);
+  color: var(--color-accent-teal);
+  font-size: 0.9rem;
+  font-weight: 600;
+  line-height: 1.35;
+}
+
 .welcome-tagline {
   color: var(--color-text-muted);
   max-width: 28rem;

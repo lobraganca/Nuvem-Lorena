@@ -158,6 +158,18 @@ export function BoasVindasPage() {
         <p className="welcome-tagline">
           Encontre quem faz, aqui perto, com a opinião de quem já contratou.
         </p>
+        {/* Logo abaixo da frase de abertura, antes dos números e dos botões:
+            é a informação que faz o profissional continuar lendo, e ela
+            chegava só lá embaixo, no cartão "Conta premium".
+
+            "Sem mensalidade" está junto porque é a pergunta seguinte de
+            quem ouve "grátis" — e a resposta honesta exige dizer que existe
+            plano pago, senão a frase promete um app inteiro de graça. O que
+            é grátis é anunciar, e isso é verdade sem asterisco: o anúncio
+            fica no ar para sempre sem pagar nada. */}
+        <p className="welcome-gratis">
+          Cadastrar seu serviço é grátis — sem mensalidade e sem prazo para acabar.
+        </p>
         {/* Números reais, contados nesta hora — nenhum deles é estimativa
             nem número redondo escolhido para impressionar. Aparecem do
             jeito que estiverem, mesmo baixos: um número pequeno mas
