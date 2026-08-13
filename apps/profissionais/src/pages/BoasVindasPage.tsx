@@ -105,9 +105,10 @@ export function BoasVindasPage() {
     };
   }, []);
 
+  /* "Avaliações" e "visitas a anúncios" saíram da tela — os dois cartões
+     junto do de profissionais. Este continua: é o número que mais diz
+     "o app já tem gente de verdade" para quem está decidindo se cadastra. */
   const profissionaisAnimado = useContagemAnimada(stats?.profissionais ?? 0);
-  const avaliacoesAnimado = useContagemAnimada(stats?.avaliacoes ?? 0);
-  const visitasAnimado = useContagemAnimada(stats?.visitas ?? 0);
   const visitasAppAnimado = useContagemAnimada(stats?.visitasApp ?? 0);
 
   function escolherCliente() {
@@ -167,23 +168,15 @@ export function BoasVindasPage() {
             está explicado nos cartões abaixo e no painel, na hora em que
             é oferecido — não precisa vir grudado aqui. */}
         <p className="welcome-gratis">O cadastro é grátis</p>
-        {/* Números reais, contados nesta hora — nenhum deles é estimativa
-            nem número redondo escolhido para impressionar. Aparecem do
-            jeito que estiverem, mesmo baixos: um número pequeno mas
-            verdadeiro erra menos do que um alto e inventado. */}
-        {stats && (
+        {/* Só o de profissionais continua — avaliações e visitas a anúncios
+            saíram. Número real, contado nesta hora: aparece do jeito que
+            estiver, mesmo baixo, porque um número pequeno mas verdadeiro
+            erra menos do que um alto e inventado. */}
+        {stats && stats.profissionais > 0 && (
           <div className="welcome-stats">
             <div className="welcome-stat-card">
               <strong>{profissionaisAnimado}</strong>
               <span>{stats.profissionais === 1 ? "profissional cadastrado" : "profissionais cadastrados"}</span>
-            </div>
-            <div className="welcome-stat-card">
-              <strong>{avaliacoesAnimado}</strong>
-              <span>{stats.avaliacoes === 1 ? "avaliação" : "avaliações"}</span>
-            </div>
-            <div className="welcome-stat-card">
-              <strong>{visitasAnimado}</strong>
-              <span>{stats.visitas === 1 ? "visita a anúncio" : "visitas a anúncios"}</span>
             </div>
           </div>
         )}
