@@ -1,5 +1,5 @@
 import { useEffect, useState, type ReactNode } from "react";
-import { Link, useLocation } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { Logo } from "./Logo";
 import { InstalarApp } from "./InstalarApp";
 import { PuxarParaAtualizar } from "./PuxarParaAtualizar";
@@ -103,6 +103,90 @@ function NavItem({
       {icon}
       <span className="apenas-leitor-de-tela">{label}</span>
     </Link>
+  );
+}
+
+function IconSeta() {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+      <line x1="19" y1="12" x2="5" y2="12" />
+      <polyline points="12 19 5 12 12 5" />
+    </svg>
+  );
+}
+
+function IconFechar() {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" aria-hidden="true">
+      <line x1="18" y1="6" x2="6" y2="18" />
+      <line x1="6" y1="6" x2="18" y2="18" />
+    </svg>
+  );
+}
+
+/**
+ * Voltar para a tela anterior, na barra de baixo.
+ *
+ * O app é uma página só que troca de tela por dentro: no celular, o gesto
+ * de voltar do sistema funciona, mas o botão do navegador some quando o
+ * app está instalado — e aí quem entrou num anúncio pelo terceiro nível de
+ * navegação não tinha como recuar sem escolher uma tela na barra, que é
+ * outra coisa.
+ *
+ * Sem histórico (alguém abriu o app direto num anúncio, por um link
+ * recebido), voltar não tem para onde ir: nesse caso leva à busca, que é
+ * o começo do app, em vez de não fazer nada.
+ */
+function BotaoVoltar() {
+  const navigate = useNavigate();
+  return (
+    <button
+      type="button"
+      className="bottom-nav-item"
+      title="Voltar"
+      aria-label="Voltar para a tela anterior"
+      onClick={() => {
+        if (window.history.length > 1) navigate(-1);
+        else navigate("/");
+      }}
+    >
+      <IconSeta />
+      <span className="apenas-leitor-de-tela">Voltar</span>
+    </button>
+  );
+}
+
+/**
+ * Fechar, flutuando no alto da tela.
+ *
+ * "Fechar" tem um limite que o navegador impõe e não dá para contornar:
+ * `window.close()` só funciona em janela que o próprio site abriu, ou no
+ * app instalado. Numa aba comum ela simplesmente não faz nada.
+ *
+ * Então o botão tenta fechar de verdade e, se a janela continuar aberta um
+ * instante depois, leva para a tela de início — que é o mais perto de
+ * "fechar" que existe dentro do app. O que não pode é o toque não
+ * responder: botão que não faz nada é pior do que botão que não existe.
+ */
+function BotaoFechar() {
+  const navigate = useNavigate();
+  return (
+    <button
+      type="button"
+      className="btn-fechar-pagina"
+      title="Fechar"
+      aria-label="Fechar"
+      onClick={() => {
+        window.close();
+        // Ainda aberta? Então o navegador recusou (aba comum). Vai para o
+        // início em vez de deixar o toque sem resposta.
+        window.setTimeout(() => {
+          if (!window.closed) navigate("/inicio");
+        }, 150);
+      }}
+    >
+      <IconFechar />
+    </button>
   );
 }
 
@@ -218,9 +302,14 @@ export function AppShell({ children }: { children: ReactNode }) {
       <PuxarParaAtualizar />
       <AvisoDeVersao />
       {!isWelcome && <Header />}
+      {!isWelcome && <BotaoFechar />}
       <div className={isWelcome ? undefined : "app-content"}>{children}</div>
       {isWelcome ? null : (
       <nav className="bottom-nav">
+        {/* Voltar em primeiro, à esquerda: é onde o dedo já procura e é a
+            ordem de leitura. Botão e não Link, porque o destino não é uma
+            tela fixa — é a anterior, qualquer que tenha sido. */}
+        <BotaoVoltar />
         <NavItem to="/" label="Buscar" icon={<IconSearch />} active={path === "/"} />
         <NavItem
           to="/favoritos"
