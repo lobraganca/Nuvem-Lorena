@@ -70,6 +70,33 @@ export class ErrorBoundary extends Component<{ children: ReactNode }, Estado> {
           >
             {eArquivoAntigo ? "Buscar versão atual" : "Tentar de novo"}
           </button>
+          {eArquivoAntigo && (
+            /* Reforço para quando o botão acima não resolve sozinho: em
+               alguns navegadores o service worker demora a soltar o
+               controle mesmo depois de cancelado, e a pessoa toca de novo
+               e vê o mesmo erro. Reinstalar sempre busca tudo do zero,
+               então é o caminho que não depende de o navegador cooperar. */
+            <div
+              style={{
+                marginTop: 16,
+                paddingTop: 16,
+                borderTop: "1px solid var(--color-border)",
+                fontSize: "0.86rem",
+                color: "var(--color-text-muted)",
+              }}
+            >
+              <p style={{ margin: "0 0 8px" }}>
+                Se o botão não resolver, reinstale o app — é rápido:
+              </p>
+              <ol style={{ margin: 0, paddingLeft: 20, display: "grid", gap: 4 }}>
+                <li>Toque e segure o ícone do procurô na tela e remova-o.</li>
+                <li>
+                  Abra o navegador e acesse <strong>procuroapp.com.br</strong>.
+                </li>
+                <li>Toque em "Instalar App" no topo da tela.</li>
+              </ol>
+            </div>
+          )}
         </div>
       </div>
     );
