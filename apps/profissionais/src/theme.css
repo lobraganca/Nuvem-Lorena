@@ -827,6 +827,26 @@ textarea::placeholder {
 
 /* Os dois caminhos do app, logo no topo: pílulas grandes e arredondadas,
    com alvo de toque generoso. */
+@keyframes slideUpFade {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes subtlePulse {
+  0%, 100% {
+    transform: translateY(-2px);
+  }
+  50% {
+    transform: translateY(-4px);
+  }
+}
+
 .welcome-choice {
   display: grid;
   gap: 12px;
@@ -848,12 +868,22 @@ textarea::placeholder {
   cursor: pointer;
   box-shadow: var(--shadow-card);
   transition: transform 0.15s ease, box-shadow 0.15s ease, filter 0.15s ease;
+  animation: slideUpFade 0.5s ease-out backwards;
+}
+
+.welcome-choice-btn:nth-child(1) {
+  animation-delay: 0.1s;
+}
+
+.welcome-choice-btn:nth-child(2) {
+  animation-delay: 0.2s;
 }
 
 .welcome-choice-btn:hover,
 .welcome-choice-btn:focus-visible {
   transform: translateY(-2px);
   box-shadow: var(--shadow-raised);
+  animation: subtlePulse 0.6s ease-in-out;
 }
 
 .welcome-choice-primary {
