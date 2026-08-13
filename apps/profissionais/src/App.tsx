@@ -14,6 +14,7 @@ import { AvisoDeDados } from "./components/AvisoDeDados";
 import { RetomarDestinoLogin } from "./components/RetomarDestinoLogin";
 import { AvisoErroLogin } from "./components/AvisoErroLogin";
 import { CONTATO_EMAIL } from "./config";
+import { importarPagina } from "./lib/importarPagina";
 
 /**
  * Telas carregadas sob demanda.
@@ -24,22 +25,28 @@ import { CONTATO_EMAIL } from "./config";
  *
  * Ficam de fora a busca, o anúncio e a apresentação: são a porta de entrada,
  * e adiar o que já vai ser pedido só troca um tempo de espera por outro.
+ *
+ * Cada `import()` passa por `importarPagina`: como o nome de cada arquivo
+ * muda a cada publicação, um app instalado com a versão antiga ainda em
+ * segundo plano pode pedir um arquivo que já não existe mais no servidor —
+ * e cair na tela de "algo quebrou" em vez de simplesmente atualizar sozinho
+ * (ver o comentário em lib/importarPagina.ts).
  */
-const LoginPage = lazy(() => import("./pages/LoginPage").then((m) => ({ default: m.LoginPage })));
-const PainelPage = lazy(() => import("./pages/PainelPage").then((m) => ({ default: m.PainelPage })));
-const AdminPage = lazy(() => import("./pages/AdminPage").then((m) => ({ default: m.AdminPage })));
-const TermosPage = lazy(() => import("./pages/TermosPage").then((m) => ({ default: m.TermosPage })));
-const PrivacidadePage = lazy(() => import("./pages/PrivacidadePage").then((m) => ({ default: m.PrivacidadePage })));
-const DiagnosticoPage = lazy(() => import("./pages/DiagnosticoPage").then((m) => ({ default: m.DiagnosticoPage })));
-const ExcluirContaPage = lazy(() => import("./pages/ExcluirContaPage").then((m) => ({ default: m.ExcluirContaPage })));
-const ConfiguracaoPage = lazy(() => import("./pages/ConfiguracaoPage").then((m) => ({ default: m.ConfiguracaoPage })));
-const ComoFuncionaPage = lazy(() => import("./pages/ComoFuncionaPage").then((m) => ({ default: m.ComoFuncionaPage })));
-const FavoritosPage = lazy(() => import("./pages/FavoritosPage").then((m) => ({ default: m.FavoritosPage })));
-const PerfilPage = lazy(() => import("./pages/PerfilPage").then((m) => ({ default: m.PerfilPage })));
-const AssinaturaPage = lazy(() => import("./pages/AssinaturaPage").then((m) => ({ default: m.AssinaturaPage })));
-const AnalyticsPage = lazy(() => import("./pages/AnalyticsPage").then((m) => ({ default: m.AnalyticsPage })));
-const AnunciosPage = lazy(() => import("./pages/AnunciosPage").then((m) => ({ default: m.AnunciosPage })));
-const PublicidadePage = lazy(() => import("./pages/PublicidadePage").then((m) => ({ default: m.PublicidadePage })));
+const LoginPage = lazy(importarPagina(() => import("./pages/LoginPage").then((m) => ({ default: m.LoginPage }))));
+const PainelPage = lazy(importarPagina(() => import("./pages/PainelPage").then((m) => ({ default: m.PainelPage }))));
+const AdminPage = lazy(importarPagina(() => import("./pages/AdminPage").then((m) => ({ default: m.AdminPage }))));
+const TermosPage = lazy(importarPagina(() => import("./pages/TermosPage").then((m) => ({ default: m.TermosPage }))));
+const PrivacidadePage = lazy(importarPagina(() => import("./pages/PrivacidadePage").then((m) => ({ default: m.PrivacidadePage }))));
+const DiagnosticoPage = lazy(importarPagina(() => import("./pages/DiagnosticoPage").then((m) => ({ default: m.DiagnosticoPage }))));
+const ExcluirContaPage = lazy(importarPagina(() => import("./pages/ExcluirContaPage").then((m) => ({ default: m.ExcluirContaPage }))));
+const ConfiguracaoPage = lazy(importarPagina(() => import("./pages/ConfiguracaoPage").then((m) => ({ default: m.ConfiguracaoPage }))));
+const ComoFuncionaPage = lazy(importarPagina(() => import("./pages/ComoFuncionaPage").then((m) => ({ default: m.ComoFuncionaPage }))));
+const FavoritosPage = lazy(importarPagina(() => import("./pages/FavoritosPage").then((m) => ({ default: m.FavoritosPage }))));
+const PerfilPage = lazy(importarPagina(() => import("./pages/PerfilPage").then((m) => ({ default: m.PerfilPage }))));
+const AssinaturaPage = lazy(importarPagina(() => import("./pages/AssinaturaPage").then((m) => ({ default: m.AssinaturaPage }))));
+const AnalyticsPage = lazy(importarPagina(() => import("./pages/AnalyticsPage").then((m) => ({ default: m.AnalyticsPage }))));
+const AnunciosPage = lazy(importarPagina(() => import("./pages/AnunciosPage").then((m) => ({ default: m.AnunciosPage }))));
+const PublicidadePage = lazy(importarPagina(() => import("./pages/PublicidadePage").then((m) => ({ default: m.PublicidadePage }))));
 
 
 /**
