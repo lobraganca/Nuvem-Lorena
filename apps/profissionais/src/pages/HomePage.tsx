@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Link, Navigate } from "react-router-dom";
 import { DEFAULT_CITY } from "../types/domain";
 import {
@@ -161,7 +161,18 @@ export function HomePage() {
      pedido nada ainda. */
   const buscouAlgo = debouncedText.trim() !== "" || category !== "";
 
+  /* Cada busca nova precisa "vencer" a anterior, não só ser disparada
+     depois dela. Sem isto, se a primeira busca demorar mais que a segunda
+     — rede lenta, servidor ocupado, qualquer variação de tempo —, ela
+     chega por último e sobrescreve o resultado certo pelo errado: a
+     pessoa via a busca antiga (ou vazia) mesmo tendo pedido outra coisa
+     depois, sem erro nenhum na tela para explicar por quê. Um número que
+     só sobe identifica qual busca é a mais recente; ao voltar, só o
+     resultado dela é aceito. */
+  const buscaAtual = useRef(0);
+
   useEffect(() => {
+    const minhaBusca = ++buscaAtual.current;
     if (!buscouAlgo) {
       setResults([]);
       setHasMore(false);
@@ -177,12 +188,12 @@ export function HomePage() {
       minRating: minRating || undefined,
       sort,
       page: 0,
-    })
-      .then((data) => {
-        setResults(data);
-        setHasMore(data.length === DEFAULT_PAGE_SIZE);
-      })
-      .finally(() => setLoading(false));
+    }).then((data) => {
+      if (minhaBusca !== buscaAtual.current) return; // já tem busca mais nova em andamento
+      setResults(data);
+      setHasMore(data.length === DEFAULT_PAGE_SIZE);
+      setLoading(false);
+    });
   }, [buscouAlgo, city, category, debouncedText, minRating, sort]);
 
   // Banner de categoria patrocinada: só aparece quando a busca está
