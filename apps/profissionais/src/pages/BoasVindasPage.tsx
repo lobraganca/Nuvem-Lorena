@@ -188,12 +188,12 @@ export function BoasVindasPage() {
           sabe continua rolando e encontra a explicação logo abaixo. */}
       <section className="welcome-choice">
         <button type="button" className="welcome-choice-btn welcome-choice-primary" onClick={escolherCliente}>
-          <span className="welcome-choice-label">Quero contratar alguém</span>
+          <span className="welcome-choice-label">Encontre um profissional</span>
           <span className="welcome-choice-hint">Estou precisando de um serviço</span>
         </button>
 
         <button type="button" className="welcome-choice-btn" onClick={escolherProfissional}>
-          <span className="welcome-choice-label">Quero ser encontrado</span>
+          <span className="welcome-choice-label">Cadastre-se</span>
           <span className="welcome-choice-hint">Trabalho com isso e quero aparecer</span>
         </button>
       </section>
