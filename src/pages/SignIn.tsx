@@ -62,6 +62,10 @@ export function SignIn() {
     setPassword("");
   }
 
+  function findProfessional() {
+    continueAsGuest();
+  }
+
   async function submit(e: React.FormEvent) {
     e.preventDefault();
     setError(null);
@@ -101,14 +105,14 @@ export function SignIn() {
         className="btn-primary signin-submit"
         onClick={() => go("criar")}
       >
-        {t("auth.createAccount")}
+        {t("auth.signUp")}
       </button>
       <button
         type="button"
         className="btn-outline signin-secondary"
-        onClick={() => go("entrar")}
+        onClick={findProfessional}
       >
-        {t("auth.signIn")}
+        {t("auth.findProfessional")}
       </button>
     </div>
   );

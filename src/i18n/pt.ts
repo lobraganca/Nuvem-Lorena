@@ -603,6 +603,8 @@ export const pt = {
   "auth.experiences": "Experiências que ficam",
   "auth.signIn": "Entrar",
   "auth.createAccount": "Criar conta",
+  "auth.signUp": "Cadastre-se",
+  "auth.findProfessional": "Encontre um profissional",
   "auth.nameField": "Seu nome",
   "auth.emailField": "E-mail",
   "auth.passwordField": "Senha",

@@ -590,6 +590,8 @@ export const es: Record<keyof typeof pt, string> = {
   "auth.experiences": "Experiencias que se quedan",
   "auth.signIn": "Entrar",
   "auth.createAccount": "Crear cuenta",
+  "auth.signUp": "Regístrate",
+  "auth.findProfessional": "Encuentra un profesional",
   "auth.nameField": "Tu nombre",
   "auth.emailField": "Correo",
   "auth.passwordField": "Contraseña",

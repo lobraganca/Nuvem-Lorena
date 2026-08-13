@@ -588,6 +588,8 @@ export const en: Record<keyof typeof pt, string> = {
   "auth.experiences": "Experiences that stay with you",
   "auth.signIn": "Sign in",
   "auth.createAccount": "Create account",
+  "auth.signUp": "Sign up",
+  "auth.findProfessional": "Find a professional",
   "auth.nameField": "Your name",
   "auth.emailField": "E-mail",
   "auth.passwordField": "Password",
