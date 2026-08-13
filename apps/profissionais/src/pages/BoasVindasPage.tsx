@@ -211,25 +211,6 @@ export function BoasVindasPage() {
       <InstalarApp variante="faixa" />
 
       <section className="welcome-features">
-        {/* Os lugares vendidos abrem a lista.
-            É a posição que vale o que se cobra por ela: primeira da fileira,
-            vista antes de qualquer rolagem, no computador e no celular. No
-            meio da lista o anúncio cortava a leitura das explicações e, na
-            grade de quatro colunas, caía num buraco qualquer da fileira; no
-            fim, quem já tinha entendido o app não chegava a ver.
-            O que mantém isso honesto não é a posição e sim a etiqueta: cada
-            um destes cartões diz "Publicidade" (CDC art. 36), então ninguém
-            confunde o primeiro cartão da tela com o que o app afirma sobre
-            si mesmo. */}
-        {bannersLocais.slice(0, 2).map((banner) => (
-          <CardPatrocinado key={banner.id} banner={banner} />
-        ))}
-
-        {/* Um convite só, e nunca dois: com nenhum lugar vendido, dois
-            "Apareça aqui" abrindo a primeira tela do app fariam a lista
-            parecer mais espaço publicitário do que conteúdo. */}
-        {!bannersCarregando && bannersLocais.length === 0 && <EspacoLivre variante="cartao" />}
-
         {FEATURES.map((f) => (
           <div className="card welcome-feature-card" key={f.title}>
             <h3 style={{ margin: "0 0 6px" }}>{f.title}</h3>
@@ -238,6 +219,24 @@ export function BoasVindasPage() {
             </p>
           </div>
         ))}
+
+        {/* Os lugares vendidos fecham a lista, depois das explicações.
+            Já estiveram no meio (cortavam a leitura, e na grade de quatro
+            colunas caíam num buraco qualquer da fileira) e na frente (a
+            primeira coisa da tela virava anúncio). Aqui a tela apresenta o
+            app primeiro e só então mostra quem pagou para aparecer.
+
+            Vale menos para quem compra do que a primeira posição — quem
+            não rolar até o fim não vê —, e isso precisa ser dito na hora de
+            vender o espaço. */}
+        {bannersLocais.slice(0, 2).map((banner) => (
+          <CardPatrocinado key={banner.id} banner={banner} />
+        ))}
+
+        {/* Um convite só, e nunca dois: com nenhum lugar vendido, dois
+            "Apareça aqui" na primeira tela do app fariam a lista parecer
+            mais espaço publicitário do que conteúdo. */}
+        {!bannersCarregando && bannersLocais.length === 0 && <EspacoLivre variante="cartao" />}
       </section>
 
       <section className="welcome-footnote">
