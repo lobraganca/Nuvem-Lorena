@@ -13,7 +13,6 @@ import {
   isCurrentlyPlusActive,
   upsertProfessional,
   deleteProfessional,
-  setProfessionalPaused,
 } from "../lib/professionals";
 import {
   startSubscriptionCheckout,
@@ -541,7 +540,6 @@ export function PainelPage() {
                     <span className={p.entity_type === "pj" ? "badge badge-entity-pj" : "badge badge-entity-pf"}>
                       {p.entity_type === "pj" ? "Empresa" : "Autônomo"}
                     </span>
-                    {p.paused && <span className="badge badge-pausado">Pausado</span>}
                     {verified && <span className="badge badge-verified">Premium ativo</span>}
                     {boosted && <span className="badge badge-boosted">Destaque</span>}
                   </div>
@@ -662,22 +660,6 @@ export function PainelPage() {
                 <div className="acoes-anuncio">
                   <button className="btn btn-outline" onClick={() => startEdit(p)}>
                     Editar
-                  </button>
-                  <button
-                    className="btn btn-outline"
-                    onClick={async () => {
-                      setErroAoSalvar(false);
-                      setFormMessage("");
-                      try {
-                        await setProfessionalPaused(p.id, !p.paused);
-                        setMine((prev) => prev.map((x) => (x.id === p.id ? { ...x, paused: !p.paused } : x)));
-                      } catch (err) {
-                        setErroAoSalvar(true);
-                        setFormMessage(mensagemDeErro(err, "Não foi possível pausar o anúncio."));
-                      }
-                    }}
-                  >
-                    {p.paused ? "Voltar para a busca" : "Pausar anúncio"}
                   </button>
                   <button className="btn btn-outline btn-perigo" onClick={() => setExcluindoAnuncio(p)}>
                     Excluir anúncio

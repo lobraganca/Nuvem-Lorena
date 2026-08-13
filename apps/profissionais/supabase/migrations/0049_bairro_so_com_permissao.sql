@@ -33,7 +33,6 @@ select
   suspended, suspended_reason, contact_mode,
   plus_active, plus_until, whatsapp_verified, paused, atributos,
   mostrar_endereco, created_at
-from public.professionals
-where suspended = false and paused = false;
+from public.professionals;
 
 grant select on public.professionals_public to anon, authenticated;
