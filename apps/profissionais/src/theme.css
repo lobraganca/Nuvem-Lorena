@@ -767,22 +767,21 @@ textarea::placeholder {
   padding-top: 40px;
 }
 
-/* Uma linha, não um cartão: precisa ser vista sem competir com a marca
-   logo acima nem com os botões de escolha logo abaixo — que são o que a
-   pessoa veio fazer. O verde é o mesmo do WhatsApp do app, a única cor
-   que aqui já significa "pode ir". */
+/* Vermelho claro, como pedido — mas o claro fica no fundo, não na letra.
+   Texto vermelho-claro sobre branco dá 2,4:1 de contraste (o mínimo legível
+   é 4,5), e some no celular sob sol, que é onde este app é usado. Com a
+   pílula rosa-clara o conjunto lê como vermelho claro e o texto mantém
+   4,8:1. */
 .welcome-gratis {
-  display: inline-flex;
-  align-items: center;
-  gap: 7px;
+  display: inline-block;
   margin: 14px auto 0;
-  padding: 7px 14px;
+  padding: 7px 16px;
   border-radius: 999px;
-  background: rgba(18, 128, 95, 0.09);
-  border: 1px solid rgba(18, 128, 95, 0.28);
-  color: var(--color-accent-teal);
-  font-size: 0.9rem;
-  font-weight: 600;
+  background: #fdeceb;
+  border: 1px solid #f6c9c4;
+  color: #c0392b;
+  font-size: 0.92rem;
+  font-weight: 700;
   line-height: 1.35;
 }
 

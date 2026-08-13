@@ -162,14 +162,11 @@ export function BoasVindasPage() {
             é a informação que faz o profissional continuar lendo, e ela
             chegava só lá embaixo, no cartão "Conta premium".
 
-            "Sem mensalidade" está junto porque é a pergunta seguinte de
-            quem ouve "grátis" — e a resposta honesta exige dizer que existe
-            plano pago, senão a frase promete um app inteiro de graça. O que
-            é grátis é anunciar, e isso é verdade sem asterisco: o anúncio
-            fica no ar para sempre sem pagar nada. */}
-        <p className="welcome-gratis">
-          Cadastrar seu serviço é grátis — sem mensalidade e sem prazo para acabar.
-        </p>
+            Frase curta e sozinha, sem ressalva: cadastrar é grátis mesmo,
+            para sempre e sem pegadinha. O que é pago (premium, destaque)
+            está explicado nos cartões abaixo e no painel, na hora em que
+            é oferecido — não precisa vir grudado aqui. */}
+        <p className="welcome-gratis">O cadastro é grátis</p>
         {/* Números reais, contados nesta hora — nenhum deles é estimativa
             nem número redondo escolhido para impressionar. Aparecem do
             jeito que estiverem, mesmo baixos: um número pequeno mas
