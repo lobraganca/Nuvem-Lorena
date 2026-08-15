@@ -1465,9 +1465,18 @@ textarea::placeholder {
   grid-template-columns: repeat(2, minmax(0, 1fr));
 }
 
+/* Brancos, para o campo de busca ficar sendo o único preenchido do
+   bloco. Com os cinco na mesma cor, a busca — que é o que a pessoa veio
+   fazer — tinha o mesmo peso de "Qualquer nota".
+
+   A borda sobe para `--color-border-strong`: branco sobre página branca
+   não tem contorno nenhum, e sem isso os quatro filtros virariam texto
+   solto no meio da tela. */
 .filter-grid select {
   font-size: 0.9rem;
   padding: 12px 14px;
+  background: var(--color-surface);
+  border-color: var(--color-border-strong);
 }
 
 /* Duas colunas também no celular estreito, mas com a letra e o recuo
