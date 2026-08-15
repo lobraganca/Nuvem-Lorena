@@ -2294,6 +2294,65 @@ textarea::placeholder {
   flex-wrap: wrap;
 }
 
+/* ---------- Página do profissional: blocos separados ---------- */
+
+/* Era um cartão só com treze blocos empilhados — foto, nome, categoria,
+   especialidade, endereço, tempo de casa, etiquetas, serviços, tipo de
+   pessoa, nota, cinco canais de contato, botão de retorno e ação de
+   indicar. Tudo com o mesmo peso e sem título nenhum, então não havia
+   como pular o que não interessava: quem já tinha decidido chamar lia o
+   cadastro inteiro até achar o botão verde.
+
+   Agora são três: quem é a pessoa, Contato, Informações. */
+.perfil-bloco {
+  margin-top: 16px;
+}
+
+.perfil-bloco-titulo {
+  margin: 0 0 14px;
+  font-size: 1.05rem;
+}
+
+/* A nota junto do nome, não depois da descrição. */
+.perfil-nota {
+  margin: 12px 0 0;
+}
+
+.perfil-bio {
+  margin: 12px 0 0;
+}
+
+/* Lista de conferência: um item por linha, com o ícone fora do texto para
+   as linhas de duas linhas continuarem alinhadas pela esquerda. */
+.perfil-infos {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 10px;
+  font-size: 0.94rem;
+}
+
+.perfil-infos li {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  line-height: 1.45;
+}
+
+.perfil-info-tique {
+  flex: none;
+  width: 1.25em;
+  text-align: center;
+  color: var(--color-primary-deep);
+}
+
+/* Centralizada e solta no fim, fora dos cartões. */
+.perfil-indicar {
+  display: block;
+  margin: 18px auto 0;
+}
+
 /* Hierarquia das ações: uma principal por vez.
    O WhatsApp é a ação que a pessoa veio fazer; o resto acompanha, menor. */
 .contact-list .btn-teal {
@@ -3091,56 +3150,20 @@ h3 {
   color: #eaf1fb;
 }
 
-.card-perfil .desde-quando {
-  color: #c8d6ea;
-}
+/* Estas regras caíram junto com a separação em três cartões: o tempo de
+   casa, os canais de contato, o selo do WhatsApp, as etiquetas de
+   atendimento e o botão de pedir retorno saíram do cartão escuro e vivem
+   agora nos cartões claros "Contato" e "Informações", onde o estilo
+   normal já serve. Sobraram só os ajustes do que continua sobre o azul.
 
-/* Os canais de contato ganham fundo claro: são as ações que a pessoa veio
-   fazer, e sobre o azul um contorno translúcido as apagaria. */
-.card-perfil .contact-chip {
-  background: rgba(255, 255, 255, 0.95);
-  border-color: transparent;
-  color: var(--color-primary-deep);
-}
-
-.card-perfil .contact-chip:hover {
-  background: #ffffff;
-  border-color: transparent;
-}
-
-/* O tique das etiquetas de atendimento era dourado-claro sobre branco.
-   Sobre o azul, o dourado-claro some — vira branco translúcido. */
-.card-perfil .atributo-tique {
-  background: rgba(255, 255, 255, 0.16);
-  color: #ffffff;
-}
-
-.card-perfil .whats-ok,
-.card-perfil .selo-contato {
-  background: rgba(255, 255, 255, 0.14);
-  border-color: rgba(255, 255, 255, 0.28);
-  color: #eaf1fb;
-}
-
-/* A foto ganha um anel claro para não se dissolver no azul do cartão. */
+   A foto ganha um anel claro para não se dissolver no azul do cartão. */
 .card-perfil .perfil-foto {
   border-color: rgba(255, 255, 255, 0.35);
   box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.12);
 }
 
-/* Botão de plano B (pedir retorno) dentro do cartão escuro. */
-.card-perfil .btn-outline {
-  border-color: rgba(255, 255, 255, 0.5);
-  color: #ffffff;
-}
-
-.card-perfil .btn-outline:hover:not(:disabled) {
-  background: rgba(255, 255, 255, 0.12);
-}
-
-/* Ações escritas em azul-marinho (sem fundo próprio) ficavam azul sobre
-   azul dentro do cartão: 1,07 de contraste, ou seja, invisíveis. */
-.card-perfil .acao-discreta,
+/* Link escrito em azul-marinho ficaria azul sobre azul aqui dentro:
+   1,07 de contraste, ou seja, invisível. */
 .card-perfil a {
   color: #ffffff;
 }

@@ -413,38 +413,11 @@ export function ProfessionalPage() {
               {professional.especialidade && (
                 <p className="card-especialidade">{professional.especialidade}</p>
               )}
-              {/* Endereço só existe para quem tem ponto fixo. Quando existe,
-                  é informação de primeira ordem — decide se dá para ir a pé. */}
-              {/* Endereço nenhum chega aqui sem a pessoa ter marcado a caixa
-                  no cadastro: a view pública devolve nulo em tudo — cep,
-                  rua, número e bairro — para quem não marcou (0049). O
-                  bairro escapava dessa regra, e quem tinha desmarcado via
-                  o próprio bairro publicado assim mesmo. */}
-              {(professional.street || professional.neighborhood) && (
-                <p className="muted" style={{ margin: "2px 0 0", fontSize: "0.88rem" }}>
-                  📍{" "}
-                  {[
-                    [professional.street, professional.street_number].filter(Boolean).join(", "),
-                    professional.neighborhood,
-                  ]
-                    .filter(Boolean)
-                    .join(" — ")}
-                </p>
-              )}
-              {professional.entity_type === "pj" && (professional.company_name || professional.responsible_name) && (
-                /* Razão social nunca aparecia em lugar nenhum — pedíamos o
-                   dado no cadastro e ele morria ali. Mostrá-la aqui é o que
-                   justifica pedir: quem procura vê que existe uma empresa
-                   de verdade por trás do cadastro, não só um nome de fantasia. */
-                <p className="muted" style={{ margin: "4px 0 0", fontSize: "0.85rem" }}>
-                  {[
-                    professional.company_name ? `Razão social: ${professional.company_name}` : null,
-                    professional.responsible_name ? `Responsável: ${professional.responsible_name}` : null,
-                  ]
-                    .filter(Boolean)
-                    .join(" · ")}
-                </p>
-              )}
+              {/* Endereço, razão social e tempo de casa desceram para o
+                  cartão "Informações". Aqui em cima ficava tudo junto: o
+                  nome dividia espaço com cinco linhas de detalhe, e quem
+                  abriu a página para decidir se chama alguém tinha que ler
+                  o cadastro inteiro antes de achar o botão. */}
             </div>
           </div>
           <div className="perfil-acoes">
@@ -452,52 +425,22 @@ export function ProfessionalPage() {
             <FavoriteButton professionalId={professional.id} initialFavorited={isFavorite} size="large" />
           </div>
         </div>
-        {/* Serviços e tipo de cadastro saem da coluna estreita ao lado da
-            foto: ali cada etiqueta caía numa linha própria, e três serviços
-            viravam três linhas de nada. Na largura toda, cabem lado a lado. */}
+        {/* Só os serviços. O tipo de pessoa desceu para "Informações":
+            aqui ele disputava a fileira com os ofícios, que são o que a
+            pessoa veio ver, e "Profissional autônomo" é a etiqueta mais
+            longa das duas. */}
         <div className="chip-list chip-list-perfil">
           {(professional.categories ?? []).map((c) => (
             <span key={c} className="chip chip-static chip-sm">
               {c}
             </span>
           ))}
-          <span className={professional.entity_type === "pj" ? "badge badge-entity-pj" : "badge badge-entity-pf"}>
-            {professional.entity_type === "pj" ? "Empresa" : "Profissional autônomo"}
-          </span>
         </div>
 
-        {/* Tempo de casa é a prova que não se compra num dia: um cadastro de
-            dois anos, com selo mantido, diz o que nota nenhuma diz — essa
-            pessoa continua aqui e ninguém a tirou do ar nesse tempo todo. É
-            o que separa quem trabalha há anos de quem se cadastrou ontem
-            para aplicar um golpe amanhã. */}
-        <p className="desde-quando">
-          <span>No procurô desde {mesEAno(professional.created_at)}</span>
-          {verified && professional.verified_since && (
-            <span>· com selo desde {mesEAno(professional.verified_since)}</span>
-          )}
-        </p>
-
-        <p style={{ marginTop: 16 }}>{professional.bio || "Essa pessoa ainda não escreveu sobre o trabalho dela."}</p>
-
-        {/* As etiquetas de atendimento respondem, antes de qualquer mensagem,
-            o que quem procura pergunta primeiro: atende sábado? dá para hoje?
-            aceita cartão? Ficam depois da descrição porque completam o que a
-            pessoa contou, e separadas dos serviços porque são outra coisa —
-            uma diz o ofício, a outra diz a condição. */}
-        {professional.atributos?.length > 0 && (
-          <ul className="atributos-anuncio">
-            {professional.atributos.map((a) => (
-              <li key={a}>
-                <span className="atributo-tique" aria-hidden="true">
-                  ✓
-                </span>
-                {a}
-              </li>
-            ))}
-          </ul>
-        )}
-        <p>
+        {/* A nota sobe para junto do nome. Ela estava depois da descrição,
+            a meia tela de distância de quem ela qualifica — e é o segundo
+            dado que alguém olha, logo depois de saber de quem se trata. */}
+        <p className="perfil-nota">
           {professional.average_rating ? (
             <>
               <Estrelas nota={professional.average_rating} tamanho="1.05rem" />{" "}
@@ -508,6 +451,19 @@ export function ProfessionalPage() {
             <span className="muted">Novo por aqui — seja o primeiro a avaliar</span>
           )}
         </p>
+
+        <p className="perfil-bio">
+          {professional.bio || "Essa pessoa ainda não escreveu sobre o trabalho dela."}
+        </p>
+      </div>
+
+      {/* Contato em cartão próprio, e logo depois de quem é a pessoa: é o
+          que quem abriu esta página veio fazer. Antes vinha no fim de um
+          cartão único, depois de descrição, etiquetas e tempo de casa —
+          quem já tinha decidido chamar precisava rolar por tudo aquilo
+          para achar o botão verde. */}
+      <section className="card perfil-bloco">
+        <h2 className="perfil-bloco-titulo">Contato</h2>
         <div className="contact-list">
           {whatsappLink && (
             <a
@@ -577,30 +533,6 @@ export function ProfessionalPage() {
             Fale com {comoChamar(professional)} pelo telefone acima.
           </p>
         )}
-
-        {/* Numa cidade, o app cresce no boca a boca — e boca a boca hoje é
-            link colado no grupo da família. Sem isto, indicar alguém exige
-            copiar o endereço da barra, que quase ninguém faz no celular. */}
-        <button
-          className="acao-discreta"
-          onClick={async () => {
-            const url = window.location.href;
-            const texto = `${professional.name} — ${professional.category} em ${professional.city}`;
-            try {
-              if (navigator.share) {
-                await navigator.share({ title: professional.name, text: texto, url });
-              } else {
-                await navigator.clipboard.writeText(`${texto}\n${url}`);
-                setCopiado(true);
-                setTimeout(() => setCopiado(false), 2500);
-              }
-            } catch {
-              // Cancelar o compartilhamento não é erro — a pessoa mudou de ideia.
-            }
-          }}
-        >
-          {copiado ? "Link copiado ✓" : "Indicar para alguém"}
-        </button>
         {contatoFacilitado && (
           /* Só quando o botão de pedir retorno existe. Sem a assinatura ele
              não aparece, e esta frase ficava sozinha prometendo uma coisa que
@@ -609,7 +541,107 @@ export function ProfessionalPage() {
             Sem tempo de ligar agora? Deixe seu número que a pessoa retorna.
           </p>
         )}
-      </div>
+      </section>
+
+      {/* "Informações": o que antes estava espalhado entre o nome, a
+          descrição e o rodapé do cartão único. São dados de conferência —
+          quem já decidiu chamar não precisa deles, e quem está em dúvida
+          quer todos juntos no mesmo lugar. */}
+      <section className="card perfil-bloco">
+        <h2 className="perfil-bloco-titulo">Informações</h2>
+        <ul className="perfil-infos">
+          <li>
+            <span className="perfil-info-tique" aria-hidden="true">✓</span>
+            {professional.entity_type === "pj" ? "Empresa" : "Profissional autônomo"}
+          </li>
+
+          {/* Endereço só existe para quem tem ponto fixo. Nenhum chega aqui
+              sem a pessoa ter marcado a caixa no cadastro: a view pública
+              devolve nulo em cep, rua, número e bairro para quem não marcou
+              (0049). O bairro escapava dessa regra, e quem tinha desmarcado
+              via o próprio bairro publicado assim mesmo. */}
+          {(professional.street || professional.neighborhood) && (
+            <li>
+              <span className="perfil-info-tique" aria-hidden="true">📍</span>
+              {[
+                [professional.street, professional.street_number].filter(Boolean).join(", "),
+                professional.neighborhood,
+              ]
+                .filter(Boolean)
+                .join(" — ")}
+            </li>
+          )}
+
+          {professional.entity_type === "pj" && professional.company_name && (
+            /* Razão social nunca aparecia em lugar nenhum — pedíamos o dado
+               no cadastro e ele morria ali. Mostrá-la é o que justifica
+               pedir: quem procura vê que existe uma empresa de verdade por
+               trás do cadastro, não só um nome de fantasia. */
+            <li>
+              <span className="perfil-info-tique" aria-hidden="true">🏢</span>
+              Razão social: {professional.company_name}
+            </li>
+          )}
+          {professional.entity_type === "pj" && professional.responsible_name && (
+            <li>
+              <span className="perfil-info-tique" aria-hidden="true">👤</span>
+              Responsável: {professional.responsible_name}
+            </li>
+          )}
+
+          {/* Tempo de casa é a prova que não se compra num dia: um cadastro
+              de dois anos, com selo mantido, diz o que nota nenhuma diz —
+              essa pessoa continua aqui e ninguém a tirou do ar nesse tempo
+              todo. É o que separa quem trabalha há anos de quem se cadastrou
+              ontem para aplicar um golpe amanhã. */}
+          <li>
+            <span className="perfil-info-tique" aria-hidden="true">🗓️</span>
+            No procurô desde {mesEAno(professional.created_at)}
+            {verified && professional.verified_since && ` · com selo desde ${mesEAno(professional.verified_since)}`}
+          </li>
+        </ul>
+
+        {/* As etiquetas de atendimento respondem, antes de qualquer mensagem,
+            o que quem procura pergunta primeiro: atende sábado? dá para hoje?
+            aceita cartão? */}
+        {professional.atributos?.length > 0 && (
+          <ul className="atributos-anuncio">
+            {professional.atributos.map((a) => (
+              <li key={a}>
+                <span className="atributo-tique" aria-hidden="true">
+                  ✓
+                </span>
+                {a}
+              </li>
+            ))}
+          </ul>
+        )}
+      </section>
+
+      {/* Numa cidade, o app cresce no boca a boca — e boca a boca hoje é
+          link colado no grupo da família. Sem isto, indicar alguém exige
+          copiar o endereço da barra, que quase ninguém faz no celular.
+          Solto no fim, fora dos cartões: é ação de quem já leu tudo. */}
+      <button
+        className="acao-discreta perfil-indicar"
+        onClick={async () => {
+          const url = window.location.href;
+          const texto = `${professional.name} — ${professional.category} em ${professional.city}`;
+          try {
+            if (navigator.share) {
+              await navigator.share({ title: professional.name, text: texto, url });
+            } else {
+              await navigator.clipboard.writeText(`${texto}\n${url}`);
+              setCopiado(true);
+              setTimeout(() => setCopiado(false), 2500);
+            }
+          } catch {
+            // Cancelar o compartilhamento não é erro — a pessoa mudou de ideia.
+          }
+        }}
+      >
+        {copiado ? "Link copiado ✓" : "Indicar para alguém"}
+      </button>
 
       {/* Lista de serviços: só existe para quem preencheu. Fica entre o
           cadastro e as avaliações porque é a resposta da pergunta seguinte —
