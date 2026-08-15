@@ -129,7 +129,7 @@ export function AnunciosPage() {
               <Link
                 key={p.id}
                 to={`/profissional/${p.id}`}
-                className="card card-pro"
+                className={`card card-pro ${p.entity_type === "pj" ? "card-pro-pj" : ""}`}
                 style={{ textDecoration: "none", color: "inherit" }}
               >
                 <h3 className="card-nome" style={{ margin: 0 }}>

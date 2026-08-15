@@ -2281,6 +2281,46 @@ h3 {
   color: var(--color-primary-deep);
 }
 
+/* Card de empresa (PJ) na busca: fundo teal para distinguir de autônomos */
+.card-pro-pj {
+  background: linear-gradient(165deg, var(--color-teal-deep), #0f4a42);
+  border-color: var(--color-teal-deep);
+  color: #ffffff;
+}
+
+.card-pro-pj .card-nome {
+  color: #ffffff;
+}
+
+.card-pro-pj .muted {
+  color: rgba(255, 255, 255, 0.75);
+}
+
+.card-pro-pj .card-especialidade {
+  color: rgba(255, 255, 255, 0.85);
+}
+
+.card-pro-pj .card-cta {
+  color: rgba(255, 255, 255, 0.95);
+}
+
+.card-pro-pj .badge {
+  background: rgba(255, 255, 255, 0.18);
+  color: #ffffff;
+  border-color: rgba(255, 255, 255, 0.25);
+}
+
+.card-pro-pj .badge-selo {
+  background: #fdf4e6;
+  color: var(--color-gold-deep);
+  border-color: var(--color-gold-line);
+}
+
+.card-pro-pj .verified-badge {
+  color: var(--color-gold-mid);
+  filter: drop-shadow(0 0 6px rgba(200, 162, 74, 0.55));
+}
+
 /* ---- Escolha de serviços do anúncio (o "+" e a folha) ---- */
 
 /* O que a pessoa já escolheu, em linhas cheias e não em chips: cada serviço

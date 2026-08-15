@@ -496,7 +496,7 @@ export function HomePage() {
           const verified = isCurrentlyVerified(p);
           const boosted = isCurrentlyBoosted(p);
           return (
-            <Link key={p.id} to={`/profissional/${p.id}`} className="card card-pro" style={{ textDecoration: "none", color: "inherit" }}>
+            <Link key={p.id} to={`/profissional/${p.id}`} className={`card card-pro ${p.entity_type === "pj" ? "card-pro-pj" : ""}`} style={{ textDecoration: "none", color: "inherit" }}>
               <div style={{ display: "flex", gap: 12, alignItems: "start" }}>
                 {p.photo_url ? (
                   <img
