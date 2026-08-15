@@ -1424,13 +1424,24 @@ textarea::placeholder {
   pointer-events: none;
 }
 
-/* O campo antes se confundia com o fundo: mesma cor clara, borda quase
-   invisível. Agora tem fundo branco, contorno firme e sombra própria — é o
-   primeiro elemento que a pessoa enxerga na tela. */
+/* Cinza-azulado, o mesmo tom dos filtros logo abaixo — o bloco de busca
+   passa a ler como uma peça só, em vez de um campo branco solto em cima
+   de quatro caixas cinzas.
+
+   A regra anterior deixava o campo branco "para não se confundir com o
+   fundo", e estava certa quando foi escrita: o fundo da página era
+   acinzentado. Depois o fundo virou branco e a justificativa se inverteu
+   sozinha — campo branco sobre página branca passou a depender só da
+   borda de 1px, que é o defeito que aquela regra queria corrigir.
+
+   O contorno firme e a sombra ficam: são eles que mantêm o campo como o
+   primeiro elemento da tela, agora que a cor não faz mais esse trabalho.
+   Medido: texto digitado a 15,01:1 e o texto de exemplo a 4,68:1, acima
+   do mínimo de 4,5. */
 .search-input {
   padding: 16px 18px 16px 46px;
   font-size: 1rem;
-  background: var(--color-surface);
+  background: var(--color-bg-soft);
   border: 1.5px solid var(--color-border-strong);
   border-radius: 999px;
   box-shadow: var(--shadow-card);
