@@ -135,6 +135,16 @@ const EMPTY: FormState = {
 const NAME_MAX_LENGTH = 80;
 
 /**
+ * Cada etapa responde a uma pergunta só, e o título diz qual é.
+ *
+ * A ordem não é arbitrária: começa pelo que a pessoa já sabe de cor (nome,
+ * foto), passa pelo que ela precisa escolher (serviços) e só no fim pede o
+ * telefone — que é o campo que mais faz alguém desistir quando aparece
+ * antes de o cadastro ter mostrado para que serve.
+ */
+const PASSO_TITULOS = ["Quem é você", "O que você faz", "Como te chamam"] as const;
+
+/**
  * Confirmação do número por código de SMS.
  *
  * Ligada e exigida antes de assinar: o Twilio Verify está configurado e o
@@ -180,6 +190,20 @@ export function PainelPage() {
   const [photoFile, setPhotoFile] = useState<File | null>(null);
   const [photoPreview, setPhotoPreview] = useState<string | null>(null);
   const [acceptedTerms, setAcceptedTerms] = useState(false);
+  /**
+   * Etapa atual do cadastro (1 a 3).
+   *
+   * O formulário era um cartão só com vinte campos, dos quais cinco
+   * obrigatórios e o resto opcional — sem nada na tela dizendo qual era
+   * qual. Quem abria o painel via a parede inteira de uma vez e fechava;
+   * é o candidato mais provável para metade das contas criadas nunca
+   * terem virado anúncio.
+   *
+   * Em três etapas cada tela responde a uma pergunta só ("quem é você",
+   * "o que você faz", "como te chamam"), e o erro de um campo aparece na
+   * etapa dele — não a quatrocentos pixels do botão que a pessoa apertou.
+   */
+  const [passo, setPasso] = useState(1);
   const [saving, setSaving] = useState(false);
   const [checkoutLoading, setCheckoutLoading] = useState<string | null>(null);
   const [message, setMessage] = useState("");
@@ -235,6 +259,7 @@ export function PainelPage() {
     setPhotoFile(null);
     setPhotoPreview(null);
     setAcceptedTerms(false);
+    setPasso(1);
   }
 
   function startEdit(p: Professional) {
@@ -271,6 +296,7 @@ export function PainelPage() {
     setAcceptedTerms(true);
     setMessage("");
     setFormAberto(true);
+    setPasso(1);
     window.scrollTo({ top: document.body.scrollHeight, behavior: "smooth" });
   }
 
@@ -323,57 +349,99 @@ export function PainelPage() {
     await carregarPedidos();
   }
 
+  /**
+   * O que falta na etapa `n`, ou `null` se ela está completa.
+   *
+   * Cada regra mora na etapa que contém o campo dela. É isso que permite
+   * checar antes de avançar — e, quando o salvamento final falha, saber
+   * para qual etapa voltar em vez de escrever o motivo embaixo de um
+   * formulário que a pessoa já rolou inteiro.
+   */
+  function validarPasso(n: number): string | null {
+    if (n === 1) {
+      if (!form.name.trim()) return "Escreva o nome que vai aparecer no anúncio.";
+      if (form.document && !isValidDocument(form.document, form.entity_type)) {
+        return form.entity_type === "pj"
+          ? "CNPJ inválido. Confira os números digitados."
+          : "CPF inválido. Confira os números digitados.";
+      }
+      /* Foto obrigatória nos dois tipos de cadastro. Era exigida só de
+         pessoa física; a empresa podia publicar sem logo e ficava um
+         retângulo vazio na busca, no meio de cartões com rosto — o anúncio
+         sem imagem parece anúncio abandonado, e quem procura passa direto. */
+      if (!photoFile && !form.photo_url) {
+        return form.entity_type === "pj"
+          ? "Envie a logo da empresa para publicar o anúncio."
+          : "Envie uma foto de rosto para publicar o anúncio.";
+      }
+      if (form.entity_type === "pj" && !form.responsible_name?.trim()) {
+        return "Informe o nome do responsável pela empresa.";
+      }
+      return null;
+    }
+    if (n === 2) {
+      if (form.categories.length === 0) return "Marque pelo menos um serviço que você faz.";
+      return null;
+    }
+    if (n === 3) {
+      if (!isValidPhone(form.phone)) return "Informe um telefone com DDD, no formato (31) 99999-9999.";
+      if (form.whatsapp && !isValidPhone(form.whatsapp)) {
+        return "O WhatsApp está incompleto. Use o formato (31) 99999-9999.";
+      }
+      if (!acceptedTerms) return "Para publicar, é preciso concordar com os Termos de Uso.";
+      return null;
+    }
+    return null;
+  }
+
+  /** Avança uma etapa, ou explica o que falta sem sair do lugar. */
+  function avancar() {
+    const falta = validarPasso(passo);
+    if (falta) {
+      setErroAoSalvar(true);
+      setFormMessage(falta);
+      return;
+    }
+    setFormMessage("");
+    setErroAoSalvar(false);
+    setPasso((p) => Math.min(3, p + 1));
+    window.scrollTo({ top: document.body.scrollHeight, behavior: "smooth" });
+  }
+
+  function voltarPasso() {
+    setFormMessage("");
+    setErroAoSalvar(false);
+    setPasso((p) => Math.max(1, p - 1));
+  }
+
   async function handleSave(e: React.FormEvent) {
     e.preventDefault();
     if (!user) return;
+
+    // Enter num campo de texto dispara o submit do formulário. Fora da
+    // última etapa isso não é "publicar", é "continuar" — tratar como envio
+    // faria a tecla mais comum do teclado recusar um cadastro que ainda
+    // nem terminou de ser preenchido.
+    if (passo < 3) {
+      avancar();
+      return;
+    }
+
     setFormMessage("");
     setErroAoSalvar(false);
 
-    /** Interrompe o salvamento com um motivo escrito ao lado do botão. */
-    function falha(texto: string) {
-      setErroAoSalvar(true);
-      setFormMessage(texto);
-    }
-
-    if (!form.name.trim()) {
-      falha("Escreva o nome que vai aparecer no anúncio.");
-      return;
-    }
-    if (form.categories.length === 0) {
-      falha("Marque pelo menos um serviço que você faz.");
-      return;
-    }
-    if (!isValidPhone(form.phone)) {
-      falha("Informe um telefone com DDD, no formato (31) 99999-9999.");
-      return;
-    }
-    if (form.whatsapp && !isValidPhone(form.whatsapp)) {
-      falha("O WhatsApp está incompleto. Use o formato (31) 99999-9999.");
-      return;
-    }
-    if (form.document && !isValidDocument(form.document, form.entity_type)) {
-      falha(form.entity_type === "pj" ? "CNPJ inválido. Confira os números digitados." : "CPF inválido. Confira os números digitados.");
-      return;
-    }
-    /* Foto obrigatória nos dois tipos de cadastro. Era exigida só de pessoa
-       física; a empresa podia publicar sem logo e ficava um retângulo
-       vazio na busca, no meio de cartões com rosto — o anúncio sem imagem
-       parece anúncio abandonado, e quem procura passa direto por ele. */
-    if (!photoFile && !form.photo_url) {
-      falha(
-        form.entity_type === "pj"
-          ? "Envie a logo da empresa para publicar o anúncio."
-          : "Envie uma foto de rosto para publicar o anúncio."
-      );
-      return;
-    }
-    if (form.entity_type === "pj" && !form.responsible_name?.trim()) {
-      falha("Informe o nome do responsável pela empresa.");
-      return;
-    }
-    if (!acceptedTerms) {
-      falha("Para publicar, é preciso concordar com os Termos de Uso.");
-      return;
+    /* Revalida as três etapas, e não só a atual: a pessoa pode ter voltado
+       e apagado um campo já preenchido. Quando alguma falha, a tela vai
+       para a etapa dona do problema — o motivo aparece junto do campo que
+       o causou, em vez de embaixo de um botão a duas telas dele. */
+    for (const n of [1, 2, 3]) {
+      const falta = validarPasso(n);
+      if (falta) {
+        setPasso(n);
+        setErroAoSalvar(true);
+        setFormMessage(falta);
+        return;
+      }
     }
 
     setSaving(true);
@@ -918,6 +986,21 @@ export function PainelPage() {
           )}
         </div>
         <form className="card" onSubmit={handleSave} style={{ display: "grid", gap: 12 }}>
+          {/* Onde a pessoa está e quanto falta. Sem isso, três telas em
+              sequência não são "um cadastro curto", são um formulário sem
+              fim — a barra é o que transforma o segundo passo em progresso
+              em vez de mais uma pergunta. */}
+          <div className="passos">
+            <div className="passos-barra" aria-hidden="true">
+              <div className="passos-preenchido" style={{ width: `${(passo / 3) * 100}%` }} />
+            </div>
+            <p className="passos-rotulo">
+              Passo {passo} de 3 · <strong>{PASSO_TITULOS[passo - 1]}</strong>
+            </p>
+          </div>
+
+          {passo === 1 && (
+          <>
           <div style={{ display: "flex", gap: 16 }}>
             <label style={{ display: "flex", alignItems: "center", gap: 6 }}>
               <input
@@ -1012,7 +1095,11 @@ export function PainelPage() {
               />
             </fieldset>
           )}
+          </>
+          )}
 
+          {passo === 2 && (
+          <>
           <fieldset className="contact-fields">
             <legend>O que você faz</legend>
             <p className="muted" style={{ margin: "0 0 10px", fontSize: "0.85rem" }}>
@@ -1143,7 +1230,11 @@ export function PainelPage() {
               </span>
             </label>
           </fieldset>
+          </>
+          )}
 
+          {passo === 3 && (
+          <>
           <fieldset className="contact-fields">
             <legend>Como querem falar com você</legend>
             <p className="muted" style={{ margin: "0 0 10px", fontSize: "0.85rem" }}>
@@ -1193,6 +1284,8 @@ export function PainelPage() {
             />
             Li e concordo com os <Link to="/termos" target="_blank" rel="noreferrer">Termos de Uso</Link>
           </label>
+          </>
+          )}
 
           {/* O aviso de erro só existia no topo da página, a uma tela inteira
               de distância do botão. Quem clicava em Salvar via a tela não
@@ -1206,9 +1299,23 @@ export function PainelPage() {
           )}
 
           <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
-            <button className="btn btn-primary" type="submit" disabled={saving}>
-              {saving ? "Salvando…" : isEditing ? "Salvar alterações" : "Salvar anúncio"}
-            </button>
+            {passo > 1 && (
+              <button type="button" className="btn btn-outline" onClick={voltarPasso} disabled={saving}>
+                Voltar
+              </button>
+            )}
+            {passo < 3 ? (
+              /* `type="button"`: só a última etapa envia o formulário. Um
+                 submit aqui rodaria a validação inteira e recusaria o
+                 cadastro por causa de campos que ainda nem foram mostrados. */
+              <button type="button" className="btn btn-primary" onClick={avancar}>
+                Continuar
+              </button>
+            ) : (
+              <button className="btn btn-primary" type="submit" disabled={saving}>
+                {saving ? "Salvando…" : isEditing ? "Salvar alterações" : "Publicar anúncio"}
+              </button>
+            )}
             {isEditing && (
               <button type="button" className="btn btn-outline" onClick={resetForm} disabled={saving}>
                 Cancelar edição

@@ -1102,6 +1102,42 @@ textarea::placeholder {
   to { opacity: 0; }
 }
 
+/* ---------- Cadastro do anúncio em três etapas ---------- */
+
+/* Fica acima dos campos, e não no rodapé junto dos botões: a pergunta que
+   ela responde ("quanto falta?") é feita ao chegar, não ao terminar. */
+.passos {
+  display: grid;
+  gap: 8px;
+  margin-bottom: 6px;
+}
+
+.passos-barra {
+  height: 6px;
+  border-radius: 999px;
+  background: var(--color-bg-soft);
+  overflow: hidden;
+}
+
+.passos-preenchido {
+  height: 100%;
+  border-radius: 999px;
+  background: linear-gradient(135deg, var(--color-primary-soft), var(--color-primary));
+  transition: width 0.25s ease;
+}
+
+/* O número da etapa em cinza e o nome dela em tinta cheia: quem lê rápido
+   pega "Quem é você" e ignora a contagem, que é o que importa menos. */
+.passos-rotulo {
+  margin: 0;
+  font-size: 0.82rem;
+  color: var(--color-text-muted);
+}
+
+.passos-rotulo strong {
+  color: var(--color-text);
+}
+
 /* Bloco de canais de contato no formulário do anúncio */
 .contact-fields {
   border: 1px solid var(--color-border);
