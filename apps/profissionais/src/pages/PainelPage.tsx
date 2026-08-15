@@ -192,6 +192,8 @@ export function PainelPage() {
   /** Arquivo aguardando enquadramento. Enquanto não for nulo, a folha de
    *  ajuste está aberta e nada foi anexado ao formulário ainda. */
   const [fotoParaAjustar, setFotoParaAjustar] = useState<File | null>(null);
+  /** Cadastro a que a assinatura se aplica. Vazio = o primeiro da lista. */
+  const [assinaturaPara, setAssinaturaPara] = useState<string>("");
   const [photoPreview, setPhotoPreview] = useState<string | null>(null);
   const [acceptedTerms, setAcceptedTerms] = useState(false);
   /**
@@ -599,6 +601,9 @@ export function PainelPage() {
   /** Ninguém cadastrado ainda: a tela vira só o formulário, sem a lista
    *  vazia nem o cabeçalho dela. */
   const semCadastro = mine.length === 0;
+  /* O plano é do cadastro, não da conta — então a seção de assinaturas
+     precisa saber de qual. Sem escolha feita, vale o primeiro. */
+  const alvoAssinatura = mine.find((m) => m.id === assinaturaPara) ?? mine[0] ?? null;
 
   return (
     <div className="container" style={{ paddingTop: 32, paddingBottom: 60 }}>
@@ -814,15 +819,59 @@ export function PainelPage() {
                     recolhido depois: para quem já paga, isso é histórico; para
                     quem ainda não, é a única chance de descobrir que existe.
                     Recolher para todo mundo escondia a receita do app. */}
-                <details className="produtos produtos-oferta" open={!verified && !boosted && !plusActive}>
-                  <summary>
-                    <span className="recolhivel-titulo">
-                      Melhorar meu desempenho{" "}
-                      <span className="muted">
-                        — a partir de R$ {precoMensal("verification", p.entity_type).toFixed(2).replace(".", ",")}/mês
-                      </span>
-                    </span>
-                  </summary>
+              </div>
+            );
+          })}
+        </div>
+      </section>
+      )}
+
+      {/* Assinaturas em seção própria, fora dos cartões de cadastro.
+          Estavam DENTRO de cada cartão: quem tem dois cadastros via a lista
+          de planos duas vezes, com os mesmos preços, e precisava entender
+          sozinho que a assinatura de cima valia para um e a de baixo para o
+          outro. Aqui a lista aparece uma vez e a pergunta "para qual
+          cadastro?" fica explícita, que é como ela existe de fato: o plano
+          é do cadastro, não da conta. */}
+      {alvoAssinatura && (() => {
+        const p = alvoAssinatura;
+        const verified = isCurrentlyVerified(p);
+        const plusActive = isCurrentlyPlusActive(p);
+        const boosted = isCurrentlyBoosted(p);
+        return (
+          <section style={{ marginTop: 28 }}>
+            <div className="secao-topo">
+              <h2 style={{ margin: 0 }}>
+                Melhorar meu desempenho{" "}
+                <span className="muted secao-preco">
+                  — a partir de R$ {precoMensal("verification", p.entity_type).toFixed(2).replace(".", ",")}/mês
+                </span>
+              </h2>
+            </div>
+
+            {/* A escolha só aparece para quem tem mais de um cadastro. Com um
+                só, perguntar "para qual?" é fazer a pessoa responder o que já
+                está respondido. */}
+            {mine.length > 1 && (
+              <label className="assinatura-alvo">
+                <span className="muted">Para qual cadastro?</span>
+                <select value={p.id} onChange={(e) => setAssinaturaPara(e.target.value)}>
+                  {mine.map((m) => (
+                    <option key={m.id} value={m.id}>
+                      {m.name} — {m.category}
+                    </option>
+                  ))}
+                </select>
+              </label>
+            )}
+
+                {/* Era um `<details>` com um `<summary>` que repetia, palavra
+                    por palavra, o título da seção logo acima. Recolher fazia
+                    sentido quando isto morava dentro do cartão do cadastro e
+                    empurrava tudo para baixo; em seção própria, no fim da
+                    página, não empurra nada — e um bloco fechado só esconde a
+                    resposta de quem veio buscá-la. */}
+                <div className="produtos produtos-oferta">
 
                   {/* O desempenho real abre a seção, e é ele que dá sentido
                       ao que vem depois: sem número, a lista de planos é só
@@ -1010,13 +1059,10 @@ export function PainelPage() {
                       ))}
                     </div>
                   )}
-                </details>
-              </div>
-            );
-          })}
-        </div>
-      </section>
-      )}
+                </div>
+          </section>
+        );
+      })()}
 
       {(semCadastro || formAberto) && (
       <section style={{ marginTop: semCadastro ? 4 : 32 }}>

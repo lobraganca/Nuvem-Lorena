@@ -2147,6 +2147,22 @@ textarea::placeholder {
   }
 }
 
+/* O preço acompanha o título da seção, em corpo normal: é ressalva, não
+   manchete, e em tamanho de h2 competia com o nome da seção. */
+.secao-preco {
+  font-size: 0.86rem;
+  font-weight: 400;
+  white-space: nowrap;
+}
+
+/* "Para qual cadastro?" — só existe para quem tem mais de um. */
+.assinatura-alvo {
+  display: grid;
+  gap: 6px;
+  margin-bottom: 12px;
+  font-size: 0.86rem;
+}
+
 /* O desempenho abre a seção dos planos: é o número que a pessoa tem, e é
    contra ele que cada plano faz sentido. */
 .desempenho-resumo {
