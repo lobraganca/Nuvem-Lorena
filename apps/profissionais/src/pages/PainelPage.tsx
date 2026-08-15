@@ -41,6 +41,7 @@ import { SeletorDeServicos } from "../components/SeletorDeServicos";
 import { CatalogoDeServicos } from "../components/CatalogoDeServicos";
 import { mensagemDeErro } from "../lib/erros";
 import { SeletorDeAtributos } from "../components/SeletorDeAtributos";
+import { AjustarFoto } from "../components/AjustarFoto";
 import { useTituloDaPagina } from "../lib/tituloDaPagina";
 
 /**
@@ -188,6 +189,9 @@ export function PainelPage() {
   const [form, setForm] = useState<FormState>(EMPTY);
   /** Texto do campo "Outro": filtra os serviços sugeridos e cadastra o que não existe. */
   const [photoFile, setPhotoFile] = useState<File | null>(null);
+  /** Arquivo aguardando enquadramento. Enquanto não for nulo, a folha de
+   *  ajuste está aberta e nada foi anexado ao formulário ainda. */
+  const [fotoParaAjustar, setFotoParaAjustar] = useState<File | null>(null);
   const [photoPreview, setPhotoPreview] = useState<string | null>(null);
   const [acceptedTerms, setAcceptedTerms] = useState(false);
   /**
@@ -271,6 +275,7 @@ export function PainelPage() {
     setErroAoSalvar(false);
     setPhotoFile(null);
     setPhotoPreview(null);
+    setFotoParaAjustar(null);
     setAcceptedTerms(false);
     setPasso(1);
   }
@@ -313,10 +318,20 @@ export function PainelPage() {
     window.scrollTo({ top: document.body.scrollHeight, behavior: "smooth" });
   }
 
+  /**
+   * A foto escolhida vai primeiro para o enquadramento, não direto para o
+   * formulário: o cartão corta em quadrado pelo centro, e sem escolher o
+   * pedaço a foto de corpo inteiro virava um retângulo de camisa.
+   *
+   * O `value` do campo é zerado de propósito. Sem isso, quem cancela o
+   * enquadramento e escolhe O MESMO arquivo de novo não dispara `change`
+   * nenhum — o navegador entende que nada mudou —, e a folha não reabre.
+   * A pessoa fica tocando no botão sem nada acontecer.
+   */
   function handlePhotoChange(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0] ?? null;
-    setPhotoFile(file);
-    setPhotoPreview(file ? URL.createObjectURL(file) : null);
+    e.target.value = "";
+    if (file) setFotoParaAjustar(file);
   }
 
   useEffect(() => {
@@ -1362,6 +1377,25 @@ export function PainelPage() {
           </div>
         </form>
       </section>
+      )}
+
+      {fotoParaAjustar && (
+        <AjustarFoto
+          arquivo={fotoParaAjustar}
+          titulo={isPj ? "Enquadre a logo" : "Enquadre sua foto"}
+          onCancelar={() => setFotoParaAjustar(null)}
+          onPronto={(recortada) => {
+            setPhotoFile(recortada);
+            setPhotoPreview(URL.createObjectURL(recortada));
+            setFotoParaAjustar(null);
+            /* O aviso de "falta a foto" some sozinho quando a foto chega —
+               senão ele fica na tela contradizendo a miniatura logo acima. */
+            if (erroAoSalvar) {
+              setErroAoSalvar(false);
+              setFormMessage("");
+            }
+          }}
+        />
       )}
 
       {cancelando && (
