@@ -24,13 +24,6 @@ export interface SearchFilters {
   pageSize?: number;
   /** Admin: incluir/filtrar por suspensos. Sem efeito na busca pública (que já filtra via RLS). */
   onlySuspended?: boolean;
-  /**
-   * Só autônomos, ou só empresas. Vem das grades de categorias da tela de
-   * busca: sem isto, tocar em "Farmácia" na grade das empresas devolveria
-   * também os autônomos daquela categoria, e o número escrito no cartão
-   * não bateria com o tanto de gente que aparece.
-   */
-  entityType?: "pf" | "pj";
 }
 
 export interface ProfessionalWithRating extends Professional {
@@ -98,7 +91,6 @@ export async function searchProfessionals(filters: SearchFilters): Promise<Profe
     );
   }
   if (filters.onlySuspended) query = query.eq("suspended", true);
-  if (filters.entityType) query = query.eq("entity_type", filters.entityType);
 
   const { data, error } = await query;
   if (error || !data) return [];
@@ -704,69 +696,78 @@ export async function getCategoriasComAnuncio(): Promise<string[]> {
   return [...unicas].sort((a, b) => a.localeCompare(b, "pt-BR"));
 }
 
+export interface CategoriaPopular {
+  categoria: string;
+  /** Quantos cadastros atendem essa categoria hoje — autônomos e empresas. */
+  quantidade: number;
+}
+
 /**
- * As categorias com mais profissionais cadastrados — para sugerir como
- * atalho antes de a pessoa digitar qualquer coisa.
+ * As categorias mais comuns, para a grade de atalhos da tela de busca.
  *
- * "Principal" aqui não é opinião: é a contagem real de quem está anunciado.
+ * "Mais comuns" não é opinião: é a contagem real de quem está cadastrado.
  * Não existe registro de termo mais buscado (a busca por texto não é
  * gravada em lugar nenhum), então usar o que tem gente para atender de
  * verdade é o proxy honesto — sugerir uma categoria vazia devolveria "não
  * achamos ninguém" no primeiro toque.
+ *
+ * ## Por que o comércio precisa de um empurrão
+ *
+ * Ordenada só pela contagem, a grade vira uma lista de autônomos: eles são
+ * a maioria dos cadastros, e as oito vagas acabam antes de a primeira
+ * farmácia aparecer. O comércio da cidade some da tela de entrada.
+ *
+ * A correção não é separar em duas grades — isso já foi tentado e partiu a
+ * tela em dois pedaços curtos, cada um com título e sobra de linha. Aqui as
+ * categorias são classificadas por quem é maioria dentro delas ("Farmácia"
+ * é coisa de empresa, "Pedreiro" é coisa de autônomo) e as duas filas são
+ * intercaladas. Sai uma grade só, visualmente igual à de antes, em que o
+ * comércio tem vaga garantida em vez de disputar com quem é mais numeroso.
+ *
+ * O número é sempre o total da categoria, sem recorte de tipo: é ele que
+ * vai aparecer escrito no cartão, e tocar no cartão filtra só pela
+ * categoria. Contar de um jeito e buscar de outro faria o cartão prometer
+ * um tanto de gente e a lista entregar outro.
  */
-export interface CategoriaPopular {
-  categoria: string;
-  /** Quantos cadastros daquele tipo atendem essa categoria hoje. */
-  quantidade: number;
-}
-
-export interface GradesDeCategorias {
-  /** Pessoas físicas: o encanador, a manicure, o professor particular. */
-  profissionais: CategoriaPopular[];
-  /** Pessoas jurídicas: a farmácia, a padaria, a clínica. */
-  empresas: CategoriaPopular[];
-}
-
-/**
- * As duas grades de ofícios da tela de busca, separadas por tipo de
- * cadastro.
- *
- * São listas diferentes porque são perguntas diferentes: quem precisa de
- * um pedreiro procura uma pessoa, e quem precisa de uma farmácia procura
- * um lugar. Misturadas, as duas competiam pelas mesmas oito vagas da grade
- * e a pessoa via metade do que existe — na prática, o comércio da cidade
- * ficava de fora, porque autônomo é a maioria dos cadastros.
- *
- * Vêm juntas de uma consulta só. Duas chamadas trariam as mesmas linhas do
- * banco duas vezes, e a separação é uma contagem sobre o que já veio.
- *
- * "Mais comuns" é a contagem real de quem está cadastrado, não opinião nem
- * lista fixa no código — não existe registro de termo mais buscado (a busca
- * por texto não é gravada em lugar nenhum), então usar o que tem gente para
- * atender de verdade é o proxy honesto: sugerir uma categoria vazia
- * devolveria "não achamos ninguém" no primeiro toque.
- */
-export async function getGradesDeCategorias(limite = 8): Promise<GradesDeCategorias> {
+export async function getCategoriasPopulares(limite = 8): Promise<CategoriaPopular[]> {
   const client = supabase();
-  if (!client) return { profissionais: [], empresas: [] };
+  if (!client) return [];
   const { data } = await client.from("professionals_public").select("categories, entity_type");
-  if (!data) return { profissionais: [], empresas: [] };
+  if (!data) return [];
 
-  const contagens = { pf: new Map<string, number>(), pj: new Map<string, number>() };
+  const total = new Map<string, number>();
+  const dePj = new Map<string, number>();
   for (const linha of data) {
-    const alvo = linha.entity_type === "pj" ? contagens.pj : contagens.pf;
     for (const c of (linha.categories as string[] | null) ?? []) {
-      if (c) alvo.set(c, (alvo.get(c) ?? 0) + 1);
+      if (!c) continue;
+      total.set(c, (total.get(c) ?? 0) + 1);
+      if (linha.entity_type === "pj") dePj.set(c, (dePj.get(c) ?? 0) + 1);
     }
   }
 
-  const maisComuns = (contagem: Map<string, number>) =>
-    [...contagem.entries()]
-      .sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0], "pt-BR"))
-      .slice(0, limite)
-      .map(([categoria, quantidade]) => ({ categoria, quantidade }));
+  const porQuantidade = (a: [string, number], b: [string, number]) =>
+    b[1] - a[1] || a[0].localeCompare(b[0], "pt-BR");
+  const entradas = [...total.entries()].sort(porQuantidade);
+  // Empatou? Conta como comércio: são eles que precisam da vaga reservada.
+  const eDeEmpresa = (c: string) => (dePj.get(c) ?? 0) * 2 >= (total.get(c) ?? 0);
 
-  return { profissionais: maisComuns(contagens.pf), empresas: maisComuns(contagens.pj) };
+  const filas = {
+    empresas: entradas.filter(([c]) => eDeEmpresa(c)),
+    profissionais: entradas.filter(([c]) => !eDeEmpresa(c)),
+  };
+
+  /* Intercala uma de cada, começando pelos autônomos porque são o que a
+     maioria vem procurar. Quando uma fila acaba, a outra preenche o resto —
+     uma cidade sem comércio cadastrado continua com a grade cheia. */
+  const escolhidas: [string, number][] = [];
+  for (let i = 0; escolhidas.length < limite; i++) {
+    const antes = escolhidas.length;
+    if (filas.profissionais[i]) escolhidas.push(filas.profissionais[i]);
+    if (escolhidas.length < limite && filas.empresas[i]) escolhidas.push(filas.empresas[i]);
+    if (escolhidas.length === antes) break; // as duas filas acabaram
+  }
+
+  return escolhidas.map(([categoria, quantidade]) => ({ categoria, quantidade }));
 }
 
 /**

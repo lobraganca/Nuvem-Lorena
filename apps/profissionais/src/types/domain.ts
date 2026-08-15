@@ -485,6 +485,12 @@ export const CATEGORIES = GRUPOS_DE_SERVICOS.flatMap((g) => g.itens as readonly 
  * Serviço escrito à mão pela própria pessoa não está aqui e cai no
  * genérico. Vale a pena: cobrir o improvável exigiria adivinhar texto
  * livre, e um símbolo errado atrapalha mais que um símbolo neutro.
+ *
+ * Nenhum símbolo se repete, e isso é regra e não coincidência: dois
+ * cartões vizinhos com o mesmo desenho voltam a exigir a leitura das duas
+ * palavras, que é exatamente o trabalho que o símbolo existe para poupar.
+ * "Pedreiro" e "Material de construção" chegaram a dividir o mesmo tijolo,
+ * lado a lado na grade.
  */
 const SIMBOLOS_DE_SERVICO: Record<string, string> = {
   // Casa e obra
@@ -496,7 +502,7 @@ const SIMBOLOS_DE_SERVICO: Record<string, string> = {
   // Técnica e conserto
   "Técnico em informática": "💻", "Técnico em celulares": "📱",
   "Refrigeração e ar-condicionado": "❄️", "Conserto de eletrodomésticos": "🔌",
-  "Mecânico": "🔧", "Borracheiro": "🛞", "Lavagem de carros": "🚿",
+  "Mecânico": "🔧", "Borracheiro": "🛞", "Lavagem de carros": "🧼",
   "Funilaria e pintura automotiva": "🚗",
   // Beleza e bem-estar
   "Cabeleireiro": "💇", "Barbeiro": "💈", "Manicure": "💅", "Depilação": "🪒",
@@ -517,7 +523,7 @@ const SIMBOLOS_DE_SERVICO: Record<string, string> = {
   // Comércio e hospedagem
   "Hotel": "🏨", "Pousada": "🛏️", "Restaurante": "🍽️", "Lanchonete": "🍔",
   "Padaria": "🥖", "Loja de roupas": "👗", "Loja de calçados": "👟",
-  "Papelaria": "📎", "Material de construção": "🧱", "Autopeças": "🔧",
+  "Papelaria": "📎", "Material de construção": "🏬", "Autopeças": "🚘",
   "Farmácia": "💊", "Pet shop": "🐶", "Mercearia": "🛒", "Floricultura": "💐",
   "Ótica": "👓",
   // Saúde e exames
@@ -527,7 +533,7 @@ const SIMBOLOS_DE_SERVICO: Record<string, string> = {
   "Exames de imagem": "🩻",
   // Escritório e serviços
   "Contador": "🧾", "Advogado": "⚖️", "Corretor de imóveis": "🏠",
-  "Designer gráfico": "🖌️", "Social media": "📣", "Costura de uniformes": "🧵",
+  "Designer gráfico": "🖌️", "Social media": "📣", "Costura de uniformes": "👕",
   "Segurança e portaria": "🛡️", "Veterinário": "🐾", "Banho e tosa": "🛁",
 };
 
