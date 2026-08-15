@@ -67,9 +67,9 @@ export function PublicidadePage() {
       <div className="card" style={{ display: "grid", gap: 10, marginBottom: 16 }}>
         <h2 style={{ margin: 0 }}>Onde seu anúncio aparece</h2>
         <p className="muted" style={{ margin: 0 }}>
-          <strong>Na busca.</strong> Uma faixa no meio dos resultados, para quem está procurando serviço
-          naquele momento. Dá para escolher aparecer só em uma categoria — por exemplo, só para quem procura
-          eletricista.
+          <strong>Na tela de anúncios.</strong> A vitrine do comércio da cidade, dentro do app. Quem abre essa
+          tela entrou para ver o que tem por aqui — o seu anúncio é o conteúdo dela, não uma interrupção no
+          meio de outra coisa.
         </p>
         <p className="muted" style={{ margin: 0 }}>
           <strong>Na tela de início.</strong> Um cartão dentro da primeira lista que a pessoa vê ao abrir o
@@ -196,7 +196,7 @@ export function PublicidadePage() {
               <span className="muted" style={{ fontSize: "0.85rem" }}>Onde você quer aparecer</span>
               <select value={local} onChange={(e) => setLocal(e.target.value as LocalDeAnuncio)}>
                 <option value="tanto_faz">Ainda não sei — me explica as opções</option>
-                <option value="busca">Na busca</option>
+                <option value="busca">Na tela de anúncios</option>
                 <option value="boas_vindas">Na tela de início</option>
               </select>
             </label>

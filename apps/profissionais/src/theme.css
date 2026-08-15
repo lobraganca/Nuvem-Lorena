@@ -2332,7 +2332,25 @@ textarea::placeholder {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 10px;
-  margin-top: 14px;
+  margin-top: 10px;
+}
+
+/* Cabeçalho de cada grade ("Profissionais", "Empresas e comércios"). É o
+   que diz que são duas listas e não uma só que continuou. */
+.categorias-titulo {
+  width: 100%;
+  margin: 18px 0 0 !important;
+  text-align: left;
+  font-size: 0.82rem !important;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--color-text-muted);
+}
+
+/* A primeira não precisa do espaço de cima: já vem logo abaixo da pergunta. */
+.vazio-indicar > .categorias-titulo:first-of-type {
+  margin-top: 12px !important;
 }
 
 .categoria-cartao {
@@ -2396,6 +2414,21 @@ textarea::placeholder {
   gap: 10px;
   flex-wrap: wrap;
   margin-top: 20px;
+}
+
+/* "Empresas" / "Profissionais" antes do nome da categoria: é o recorte que
+   veio do toque na grade e não aparece em filtro nenhum da tela. */
+.busca-ativa-tipo {
+  display: inline-block;
+  margin-right: 8px;
+  padding: 2px 8px;
+  border-radius: 999px;
+  background: var(--color-bg-soft);
+  border: 1px solid var(--color-border);
+  font-size: 0.76rem;
+  font-weight: 600;
+  color: var(--color-text-muted);
+  vertical-align: middle;
 }
 
 .busca-ativa-alvo {

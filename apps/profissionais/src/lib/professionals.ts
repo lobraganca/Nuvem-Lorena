@@ -24,6 +24,13 @@ export interface SearchFilters {
   pageSize?: number;
   /** Admin: incluir/filtrar por suspensos. Sem efeito na busca pública (que já filtra via RLS). */
   onlySuspended?: boolean;
+  /**
+   * Só autônomos, ou só empresas. Vem das grades de categorias da tela de
+   * busca: sem isto, tocar em "Farmácia" na grade das empresas devolveria
+   * também os autônomos daquela categoria, e o número escrito no cartão
+   * não bateria com o tanto de gente que aparece.
+   */
+  entityType?: "pf" | "pj";
 }
 
 export interface ProfessionalWithRating extends Professional {
@@ -91,6 +98,7 @@ export async function searchProfessionals(filters: SearchFilters): Promise<Profe
     );
   }
   if (filters.onlySuspended) query = query.eq("suspended", true);
+  if (filters.entityType) query = query.eq("entity_type", filters.entityType);
 
   const { data, error } = await query;
   if (error || !data) return [];
@@ -693,25 +701,57 @@ export async function getCategoriasComAnuncio(): Promise<string[]> {
  */
 export interface CategoriaPopular {
   categoria: string;
-  /** Quantos cadastros atendem essa categoria hoje. */
+  /** Quantos cadastros daquele tipo atendem essa categoria hoje. */
   quantidade: number;
 }
 
-export async function getCategoriasPopulares(limite = 8): Promise<CategoriaPopular[]> {
+export interface GradesDeCategorias {
+  /** Pessoas físicas: o encanador, a manicure, o professor particular. */
+  profissionais: CategoriaPopular[];
+  /** Pessoas jurídicas: a farmácia, a padaria, a clínica. */
+  empresas: CategoriaPopular[];
+}
+
+/**
+ * As duas grades de ofícios da tela de busca, separadas por tipo de
+ * cadastro.
+ *
+ * São listas diferentes porque são perguntas diferentes: quem precisa de
+ * um pedreiro procura uma pessoa, e quem precisa de uma farmácia procura
+ * um lugar. Misturadas, as duas competiam pelas mesmas oito vagas da grade
+ * e a pessoa via metade do que existe — na prática, o comércio da cidade
+ * ficava de fora, porque autônomo é a maioria dos cadastros.
+ *
+ * Vêm juntas de uma consulta só. Duas chamadas trariam as mesmas linhas do
+ * banco duas vezes, e a separação é uma contagem sobre o que já veio.
+ *
+ * "Mais comuns" é a contagem real de quem está cadastrado, não opinião nem
+ * lista fixa no código — não existe registro de termo mais buscado (a busca
+ * por texto não é gravada em lugar nenhum), então usar o que tem gente para
+ * atender de verdade é o proxy honesto: sugerir uma categoria vazia
+ * devolveria "não achamos ninguém" no primeiro toque.
+ */
+export async function getGradesDeCategorias(limite = 8): Promise<GradesDeCategorias> {
   const client = supabase();
-  if (!client) return [];
-  const { data } = await client.from("professionals_public").select("categories");
-  if (!data) return [];
-  const contagem = new Map<string, number>();
+  if (!client) return { profissionais: [], empresas: [] };
+  const { data } = await client.from("professionals_public").select("categories, entity_type");
+  if (!data) return { profissionais: [], empresas: [] };
+
+  const contagens = { pf: new Map<string, number>(), pj: new Map<string, number>() };
   for (const linha of data) {
+    const alvo = linha.entity_type === "pj" ? contagens.pj : contagens.pf;
     for (const c of (linha.categories as string[] | null) ?? []) {
-      if (c) contagem.set(c, (contagem.get(c) ?? 0) + 1);
+      if (c) alvo.set(c, (alvo.get(c) ?? 0) + 1);
     }
   }
-  return [...contagem.entries()]
-    .sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0], "pt-BR"))
-    .slice(0, limite)
-    .map(([categoria, quantidade]) => ({ categoria, quantidade }));
+
+  const maisComuns = (contagem: Map<string, number>) =>
+    [...contagem.entries()]
+      .sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0], "pt-BR"))
+      .slice(0, limite)
+      .map(([categoria, quantidade]) => ({ categoria, quantidade }));
+
+  return { profissionais: maisComuns(contagens.pf), empresas: maisComuns(contagens.pj) };
 }
 
 /**

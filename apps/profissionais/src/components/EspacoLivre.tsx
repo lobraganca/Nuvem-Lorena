@@ -27,7 +27,7 @@ export function EspacoLivre({ variante }: { variante: "faixa" | "cartao" }) {
       <strong className="espaco-livre-titulo">Apareça aqui</strong>
       <span className="espaco-livre-texto">
         {variante === "faixa"
-          ? "Seu comércio nesta tela, para quem está procurando serviço na sua cidade."
+          ? "Seu comércio nesta vitrine, para quem abriu o app para ver o que a cidade tem."
           : "Seu comércio na primeira tela do app, para quem é da sua cidade."}
       </span>
       {/* O preço no próprio convite: é a primeira pergunta de quem vê, e

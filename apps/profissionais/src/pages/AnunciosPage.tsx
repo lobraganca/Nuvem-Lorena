@@ -1,10 +1,11 @@
 import { useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
-import { contarClique, contarExibicao, getBannersDaBusca } from "../lib/banners";
+import { contarClique, contarExibicao, getBannersDeAnuncios } from "../lib/banners";
 import { searchProfessionals } from "../lib/professionals";
 import { DEFAULT_CITY, type Banner } from "../types/domain";
 import type { ProfessionalWithRating } from "../lib/professionals";
 import { Estrelas } from "../components/Estrelas";
+import { EspacoLivre } from "../components/EspacoLivre";
 import { VerifiedBadge } from "../components/VerifiedBadge";
 import { useTituloDaPagina } from "../lib/tituloDaPagina";
 import { NOME_PLATAFORMA } from "../config";
@@ -38,7 +39,7 @@ export function AnunciosPage() {
   useEffect(() => {
     let ativo = true;
     Promise.all([
-      getBannersDaBusca(DEFAULT_CITY, ""),
+      getBannersDeAnuncios(DEFAULT_CITY),
       searchProfessionals({ pageSize: 50 }),
     ]).then(([bs, pros]) => {
       if (!ativo) return;
@@ -61,8 +62,6 @@ export function AnunciosPage() {
     }
   }, [banners]);
 
-  const vazio = !carregando && banners.length === 0 && destaques.length === 0;
-
   return (
     <div className="container" style={{ paddingTop: 28, paddingBottom: 40 }}>
       <h1 style={{ marginBottom: 4 }}>Anúncios</h1>
@@ -73,12 +72,16 @@ export function AnunciosPage() {
 
       {carregando && <p className="muted">Carregando…</p>}
 
-      {vazio && (
-        <div className="card" style={{ marginTop: 16 }}>
-          <strong>Ainda não tem ninguém anunciando.</strong>
-          <p className="muted" style={{ margin: "6px 0 0" }}>
-            Tem um comércio e quer aparecer aqui? Fale com a gente — o espaço é da cidade.
-          </p>
+      {/* Sem anúncio vendido, o espaço vira o convite para comprá-lo — com
+          preço e caminho, em vez de "fale com a gente" sem telefone nem
+          link. Some sozinho no dia em que alguém compra.
+
+          Aqui isso importa mais do que importava antes: com a publicidade
+          fora da busca, esta é a única tela do app em que um comerciante
+          descobre que dá para anunciar. */}
+      {!carregando && banners.length === 0 && (
+        <div style={{ marginTop: 16 }}>
+          <EspacoLivre variante="faixa" />
         </div>
       )}
 

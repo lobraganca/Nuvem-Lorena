@@ -5,12 +5,13 @@ import {
   DEFAULT_PAGE_SIZE,
   getActiveSponsorship,
   getCategoriasComAnuncio,
-  getCategoriasPopulares,
+  getGradesDeCategorias,
   getCidadesComAnuncio,
   isCurrentlyBoosted,
   isCurrentlyVerified,
   searchProfessionals,
   type CategoriaPopular,
+  type GradesDeCategorias,
   type ProfessionalWithRating,
   type SortOption,
 } from "../lib/professionals";
@@ -18,7 +19,6 @@ import type { CategorySponsorship, Professional } from "../types/domain";
 import { hasDatabase, problemaDeConfiguracao } from "../lib/supabase";
 import { FavoriteButton } from "../components/FavoriteButton";
 import { VerifiedBadge } from "../components/VerifiedBadge";
-import { FaixaDeBanners } from "../components/FaixaDeBanners";
 import { Estrelas } from "../components/Estrelas";
 import { TourGuide, type TourStep } from "../components/TourGuide";
 import { hasSeenWelcome, markTourSeen, shouldRunTour } from "../lib/onboarding";
@@ -58,13 +58,64 @@ const TOUR_STEPS: TourStep[] = [
   },
 ];
 
+/**
+ * Uma grade de ofícios: profissionais ou empresas.
+ *
+ * A unidade vem de fora porque é ela que muda entre as duas — "3
+ * profissionais" e "3 empresas" —, e o singular vem escrito junto: "1
+ * profissionais" é o erro que denuncia um número montado por concatenação,
+ * e em cidade pequena quase toda categoria começa no singular.
+ *
+ * Some inteira quando não há nada para mostrar. Um título "Empresas" com
+ * espaço vazio embaixo diz que o app tem uma seção quebrada; sem o título,
+ * ele só ainda não tem empresas cadastradas.
+ */
+function GradeDeCategorias({
+  titulo,
+  itens,
+  unidade,
+  aoEscolher,
+}: {
+  titulo: string;
+  itens: CategoriaPopular[];
+  unidade: { um: string; varios: string };
+  aoEscolher: (categoria: string) => void;
+}) {
+  if (itens.length === 0) return null;
+  return (
+    <>
+      <p className="categorias-titulo">{titulo}</p>
+      <div className="categorias-grade">
+        {itens.map((c) => (
+          <button
+            key={c.categoria}
+            type="button"
+            className="categoria-cartao"
+            onClick={() => aoEscolher(c.categoria)}
+          >
+            <span className="categoria-simbolo" aria-hidden="true">
+              {simboloDoServico(c.categoria)}
+            </span>
+            <span className="categoria-nome">{c.categoria}</span>
+            <span className="categoria-quantos">
+              {c.quantidade} {c.quantidade === 1 ? unidade.um : unidade.varios}
+            </span>
+          </button>
+        ))}
+      </div>
+    </>
+  );
+}
+
 export function HomePage() {
   useTituloDaPagina();
   const [city, setCity] = useState<string>("");
   const [cidades, setCidades] = useState<string[]>([]);
   const [category, setCategory] = useState<string>("");
   const [categorias, setCategorias] = useState<string[]>([]);
-  const [categoriasPopulares, setCategoriasPopulares] = useState<CategoriaPopular[]>([]);
+  const [grades, setGrades] = useState<GradesDeCategorias>({ profissionais: [], empresas: [] });
+  /** "pf" ou "pj" quando a busca veio de uma das grades; vazio no resto. */
+  const [tipo, setTipo] = useState<"" | "pf" | "pj">("");
   const [text, setText] = useState<string>("");
   const [debouncedText, setDebouncedText] = useState<string>("");
   const [minRating, setMinRating] = useState<number>(0);
@@ -110,7 +161,7 @@ export function HomePage() {
     // quem escreveu o próprio ofício no cadastro precisa ser encontrável por
     // ele, e serviço sem ninguém cadastrado só levaria a uma tela vazia.
     getCategoriasComAnuncio().then(setCategorias);
-    getCategoriasPopulares().then(setCategoriasPopulares);
+    getGradesDeCategorias().then(setGrades);
   }, []);
 
   // Debounce (~400ms) do texto digitado antes de disparar a busca, para não
@@ -157,6 +208,13 @@ export function HomePage() {
     setText("");
     setDebouncedText("");
     setCategory("");
+    setTipo("");
+  }
+
+  /** Toque num cartão de grade: a categoria e o tipo andam juntos. */
+  function buscarPelaGrade(categoria: string, deQualGrade: "pf" | "pj") {
+    setCategory(categoria);
+    setTipo(deQualGrade);
   }
 
   /* Cada busca nova precisa "vencer" a anterior, não só ser disparada
@@ -184,6 +242,7 @@ export function HomePage() {
       category: category || undefined,
       text: debouncedText || undefined,
       minRating: minRating || undefined,
+      entityType: tipo || undefined,
       sort,
       page: 0,
     }).then((data) => {
@@ -192,7 +251,7 @@ export function HomePage() {
       setHasMore(data.length === DEFAULT_PAGE_SIZE);
       setLoading(false);
     });
-  }, [buscouAlgo, city, category, debouncedText, minRating, sort]);
+  }, [buscouAlgo, city, category, debouncedText, minRating, sort, tipo]);
 
   // Banner de categoria patrocinada: só aparece quando a busca está
   // filtrada por uma categoria específica.
@@ -295,7 +354,18 @@ export function HomePage() {
               </option>
             ))}
           </select>
-          <select value={category} onChange={(e) => setCategory(e.target.value)} aria-label="Categoria">
+          {/* Mexer no filtro à mão zera o tipo herdado da grade. Sem isto,
+              quem tocou em "Farmácia" nas empresas e depois trocou o serviço
+              no filtro continuaria vendo só empresas, sem nada na tela
+              dizendo por quê. */}
+          <select
+            value={category}
+            onChange={(e) => {
+              setCategory(e.target.value);
+              setTipo("");
+            }}
+            aria-label="Categoria"
+          >
             <option value="">Todos os serviços</option>
             {categorias.map((c) => (
               <option key={c} value={c}>
@@ -452,42 +522,31 @@ export function HomePage() {
            altura à tela e depois encolher quando a busca chegar. */
         <div className="card vazio-indicar" data-tour="resultados" style={{ marginTop: 24, textAlign: "center" }}>
           <strong>O que você está procurando?</strong>
-          {categoriasPopulares.length > 0 && (
-            /* Cartões no lugar de etiquetas. As etiquetas eram do tamanho da
-               palavra — alvo pequeno, e uma fileira de texto cinza que se lia
-               como enfeite do aviso, não como o caminho para os resultados.
-               Em cartão, cada ofício vira um destino: símbolo próprio para
-               ser reconhecido antes de lido, nome, e quantas pessoas atendem
-               aquilo hoje.
 
-               "Mais comuns" é a contagem real de quem está cadastrado, não
-               opinião nem lista fixa no código — não existe registro de
-               termo mais buscado, e sugerir uma categoria vazia devolveria
-               "não achamos ninguém" no primeiro toque (ver
-               getCategoriasPopulares). O número no cartão é o mesmo que
-               ordena a lista: ele já estava calculado e era jogado fora. */
-            <div className="categorias-grade">
-              {categoriasPopulares.map((c) => (
-                <button
-                  key={c.categoria}
-                  type="button"
-                  className="categoria-cartao"
-                  onClick={() => setCategory(c.categoria)}
-                >
-                  <span className="categoria-simbolo" aria-hidden="true">
-                    {simboloDoServico(c.categoria)}
-                  </span>
-                  <span className="categoria-nome">{c.categoria}</span>
-                  {/* "1 profissionais" é o erro que denuncia um número
-                      montado por concatenação, e quase toda categoria de
-                      cidade pequena começa no singular. */}
-                  <span className="categoria-quantos">
-                    {c.quantidade === 1 ? "1 profissional" : `${c.quantidade} profissionais`}
-                  </span>
-                </button>
-              ))}
-            </div>
-          )}
+          {/* Duas grades, e não uma lista misturada. Quem precisa de um
+              pedreiro procura uma pessoa; quem precisa de farmácia procura
+              um lugar — são perguntas diferentes, e juntas elas disputavam
+              as mesmas oito vagas. Como autônomo é a maioria dos cadastros,
+              o comércio da cidade simplesmente não aparecia.
+
+              Cada cartão é um destino: símbolo próprio para ser reconhecido
+              antes de lido, nome do ofício, e quantos atendem aquilo hoje.
+              Antes eram etiquetas do tamanho da palavra — alvo pequeno, e
+              uma fileira de texto cinza que se lia como enfeite do aviso,
+              não como o caminho para os resultados. */}
+          <GradeDeCategorias
+            titulo="Profissionais"
+            itens={grades.profissionais}
+            unidade={{ um: "profissional", varios: "profissionais" }}
+            aoEscolher={(c) => buscarPelaGrade(c, "pf")}
+          />
+          <GradeDeCategorias
+            titulo="Empresas e comércios"
+            itens={grades.empresas}
+            unidade={{ um: "empresa", varios: "empresas" }}
+            aoEscolher={(c) => buscarPelaGrade(c, "pj")}
+          />
+
           {/* A instrução vem depois dos cartões: quem já sabe o que quer
               toca num deles sem ler nada, e quem não achou o ofício na
               grade é justamente quem precisa saber que dá para digitar. */}
@@ -505,6 +564,11 @@ export function HomePage() {
       {buscouAlgo && (
         <div className="busca-ativa">
           <span className="busca-ativa-alvo">
+            {/* O tipo aparece escrito porque ele veio de um toque na grade e
+                não está em nenhum filtro da tela. Um recorte que a pessoa
+                não consegue ver é um recorte que ela vai achar que é falha
+                do app — "cadê o fulano, que eu sei que é eletricista?". */}
+            {tipo && <span className="busca-ativa-tipo">{tipo === "pj" ? "Empresas" : "Profissionais"}</span>}
             {category ? category : `“${debouncedText.trim()}”`}
           </span>
           <button type="button" className="busca-ativa-limpar" onClick={verTodosOsServicos}>
@@ -620,14 +684,6 @@ export function HomePage() {
         </div>
       )}
 
-      {/* A publicidade fecha a página, depois de todos os profissionais.
-          Antes ela ficava entre os filtros e os resultados, e nessa posição
-          era a primeira coisa depois da busca: quem digitou "eletricista"
-          via um cadastro antes de ver um eletricista. Aqui embaixo ela não
-          disputa com o que a pessoa veio fazer — e quem chegou até o fim da
-          lista é justamente quem ainda não resolveu o problema, que é a
-          melhor hora para um comércio da cidade aparecer. */}
-      <FaixaDeBanners cidade={city || DEFAULT_CITY} categoria={category} />
     </div>
   );
 }

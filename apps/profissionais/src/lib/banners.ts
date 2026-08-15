@@ -2,23 +2,38 @@ import { supabase } from "./supabase";
 import type { Banner, LocalDeAnuncio, PedidoDeAnuncio, PedidoDeAnuncioStatus } from "../types/domain";
 
 /**
- * Banners de publicidade.
+ * Banners de publicidade da tela de anúncios.
+ *
+ * Já foram a faixa de publicidade no fim da busca. Saíram de lá: a busca é
+ * a tela em que a pessoa está resolvendo um problema, e publicidade ali
+ * disputa atenção com o motivo pelo qual ela abriu o app. Agora vivem na
+ * tela de anúncios, que é onde quem entra já entrou para ver o que a
+ * cidade tem — o mesmo anúncio, na tela em que ele é o conteúdo e não a
+ * interrupção.
+ *
+ * Sem recorte por categoria, ao contrário de quando ficavam na busca: ali
+ * dava para vender "só para quem procura eletricista" porque havia uma
+ * busca em andamento. Aqui não há pergunta nenhuma para casar, e esconder
+ * quem pagou porque o campo `categoria` está preenchido seria cobrar por
+ * uma exibição que não acontece.
  *
  * A filtragem por período e por "ativo" acontece no banco (ver a policy de
  * leitura na migration 0040), não aqui: se dependesse desta função, quem
  * consultasse a API direto veria campanhas encerradas e futuras — inclusive
  * as de concorrentes.
  */
-export async function getBannersDaBusca(cidade: string, categoria: string): Promise<Banner[]> {
+export async function getBannersDeAnuncios(cidade: string): Promise<Banner[]> {
   const client = supabase();
   if (!client) return [];
-  let query = client.from("banners").select("*");
-  // Banner sem cidade vale para todas; com cidade, só naquela. Mesma ideia
-  // para categoria — é o que permite vender "quero aparecer para quem
-  // procura eletricista".
-  query = query.or(`cidade.is.null,cidade.eq.${cidade}`);
-  query = categoria ? query.or(`categoria.is.null,categoria.eq.${categoria}`) : query.is("categoria", null);
-  const { data } = await query.order("created_at", { ascending: false });
+  const { data } = await client
+    .from("banners")
+    .select("*")
+    // Os de boas-vindas têm tela própria e formato próprio (cartão dentro
+    // da lista, não faixa); misturá-los aqui os mostraria duas vezes.
+    .eq("local", "busca")
+    // Banner sem cidade vale para todas; com cidade, só naquela.
+    .or(`cidade.is.null,cidade.eq.${cidade}`)
+    .order("created_at", { ascending: false });
   return data ?? [];
 }
 
