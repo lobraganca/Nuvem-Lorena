@@ -4,12 +4,15 @@ import { MAX_SERVICOS_CATALOGO, type ServicoOferecido } from "../types/domain";
 import { mensagemDeErro } from "../lib/erros";
 
 /**
- * Lista de serviços do cadastro, no painel de quem tem cadastro.
+ * Lista de serviços do cadastro, na tela de edição dele.
  *
- * Fica fora do formulário do cadastro de propósito, e só depois que ele
- * existe: o catálogo pertence a um cadastro salvo (cada item guarda o id
- * dele), e um editor dentro do formulário teria que segurar tudo em memória
- * esperando o "Salvar" — inclusive as remoções, que precisariam de uma
+ * Fica ao lado dos serviços marcados, porque é a mesma pergunta em outro
+ * nível: "encanador" é o que a pessoa é, "caça-vazamento com câmera" é o
+ * que ela faz.
+ *
+ * Salva sozinha, sem esperar o "Salvar alterações" do cadastro em volta —
+ * e só existe depois que o cadastro existe, porque cada item guarda o id
+ * dele. Segurar tudo em memória até o botão do formulário exigiria uma
  * segunda lista só para lembrar o que apagar. Aqui cada item é salvo quando
  * a pessoa termina, e some quando ela apaga.
  *
@@ -90,6 +93,21 @@ export function CatalogoDeServicos({ professionalId }: { professionalId: string 
 
   const cheio = itens.length >= MAX_SERVICOS_CATALOGO;
 
+  /**
+   * Enter acrescenta o serviço, em vez de enviar o formulário em volta.
+   *
+   * O catálogo passou a viver dentro do formulário do cadastro. Enter num
+   * campo de texto dispara o submit do `<form>` mais próximo — que ali é o
+   * cadastro inteiro: quem digitasse "Exame de sangue" e apertasse Enter
+   * seria levado para a etapa seguinte do cadastro, com o serviço perdido
+   * no caminho.
+   */
+  function aoTeclar(e: React.KeyboardEvent<HTMLInputElement>) {
+    if (e.key !== "Enter") return;
+    e.preventDefault();
+    void salvar();
+  }
+
   return (
     <div className="catalogo">
       <p className="muted" style={{ margin: "0 0 12px", fontSize: "0.85rem" }}>
@@ -134,12 +152,14 @@ export function CatalogoDeServicos({ professionalId }: { professionalId: string 
             value={nome}
             maxLength={80}
             onChange={(e) => setNome(e.target.value)}
+            onKeyDown={aoTeclar}
           />
           <input
             placeholder="Detalhe (opcional): o que está incluído"
             value={descricao}
             maxLength={160}
             onChange={(e) => setDescricao(e.target.value)}
+            onKeyDown={aoTeclar}
           />
           {erro && <p className="form-erro">{erro}</p>}
 

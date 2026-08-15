@@ -34,6 +34,7 @@ import { importarPagina } from "./lib/importarPagina";
  */
 const LoginPage = lazy(importarPagina(() => import("./pages/LoginPage").then((m) => ({ default: m.LoginPage }))));
 const PainelPage = lazy(importarPagina(() => import("./pages/PainelPage").then((m) => ({ default: m.PainelPage }))));
+const CadastroPage = lazy(importarPagina(() => import("./pages/CadastroPage").then((m) => ({ default: m.CadastroPage }))));
 const AdminPage = lazy(importarPagina(() => import("./pages/AdminPage").then((m) => ({ default: m.AdminPage }))));
 const TermosPage = lazy(importarPagina(() => import("./pages/TermosPage").then((m) => ({ default: m.TermosPage }))));
 const PrivacidadePage = lazy(importarPagina(() => import("./pages/PrivacidadePage").then((m) => ({ default: m.PrivacidadePage }))));
@@ -178,6 +179,15 @@ export default function App() {
         <Route path="/profissional/:id" element={<ProfessionalPage />} />
         <Route path="/login" element={<LoginPage />} />
         <Route path="/painel" element={<PainelPage />} />
+        {/* Preencher e editar o cadastro ganharam endereço próprio. Dentro
+            do painel, o formulário era uma segunda tela empilhada na
+            primeira: a pessoa apertava "Editar" e uma rolagem a levava para
+            baixo dos cartões, sem título que mudasse nem botão de voltar —
+            no celular, dava para não perceber que a tela tinha trocado de
+            assunto. Com endereço, editar é ir e voltar, e o botão do
+            aparelho volta a servir para sair. */}
+        <Route path="/painel/novo" element={<CadastroPage />} />
+        <Route path="/painel/editar/:id" element={<CadastroPage />} />
         <Route path="/admin" element={<AdminPage />} />
         <Route path="/termos" element={<TermosPage />} />
         <Route path="/privacidade" element={<PrivacidadePage />} />

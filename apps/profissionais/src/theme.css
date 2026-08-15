@@ -2235,11 +2235,22 @@ textarea::placeholder {
   color: var(--color-text-muted);
 }
 
-/* Sem cadastro, o Painel tem um título só e ele encosta no formulário:
-   a pessoa chegou para preencher, e cada linha antes do primeiro campo é
-   linha que ela lê sem poder fazer nada. */
-.painel-titulo-unico {
-  margin-bottom: 4px;
+/* Volta para a tela anterior, no alto de uma tela que se abriu por cima de
+   outra (o cadastro). Fica antes do título porque é lá que o olho procura a
+   saída — e alvo de toque tem que ser maior do que a palavra: a área vai
+   até a linha inteira, não só até onde o texto termina. */
+.voltar-link {
+  display: inline-block;
+  padding: 6px 0;
+  font-size: 0.9rem;
+  color: var(--color-text-muted);
+  text-decoration: none;
+}
+
+.voltar-link:hover,
+.voltar-link:focus-visible {
+  color: var(--color-primary);
+  text-decoration: underline;
 }
 
 .painel-subtitulo {
