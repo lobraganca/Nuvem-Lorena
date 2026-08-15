@@ -1962,6 +1962,16 @@ textarea::placeholder {
   --recuo-cartao: 14px;
   --respiro-cartao: 16px;
   margin-top: 12px;
+  /* A caixa não tinha espaço em cima. O primeiro filho é o resumo de
+     desempenho, cuja margem superior é zero — medido, o texto começava a
+     1px da borda, contra 21px que ele tem dos lados. Encostado assim, ele
+     parecia estar caindo para fora da caixa.
+
+     Embaixo o fechamento já vem da margem de 10px que todo filho carrega;
+     o que falta para igualar o de cima entra como padding, e o `max`
+     evita um valor negativo se um dia o respiro encolher abaixo disso. */
+  padding-top: var(--respiro-cartao);
+  padding-bottom: max(0px, calc(var(--respiro-cartao) - 10px));
   border: 1px solid var(--color-border);
   border-radius: 14px;
   background: var(--color-bg-soft);
