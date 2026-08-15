@@ -504,28 +504,44 @@ textarea::placeholder {
    altura da ilha, o vão de baixo e a faixa de gestos do iPhone. Sem isso o
    último cartão da busca fica escondido atrás dela. */
 .app-content {
-  padding-bottom: calc(var(--bottom-nav-height) + 36px + env(safe-area-inset-bottom));
+  padding-bottom: calc(var(--bottom-nav-height) + env(safe-area-inset-bottom) + 20px);
 }
 
 /* Ilha arredondada e suspensa, como a barra do Instagram: solta do rodapé,
    com sombra por baixo, em vez da faixa colada de ponta a ponta. Fica acima
    da faixa de gestos do iPhone (`safe-area-inset-bottom`) — colada embaixo,
    o último item disputava espaço com o risquinho de voltar à tela inicial. */
+/* Barra ancorada no rodapé, ocupando a largura toda, com o conteúdo
+   passando por baixo dela.
+
+   Era uma ilha arredondada e flutuante, centrada com `left: 50%` mais
+   `translateX(-50%)`. Duas coisas ruins vinham daí. A primeira é que um
+   elemento fixo com `transform` é recomposto a cada quadro da rolagem, e
+   no iOS o arredondamento de subpixel faz ele oscilar de lado enquanto a
+   página anda — a tela inteira parece sambar. A segunda é a faixa vazia
+   em volta da ilha: ela fica sobre o conteúdo e intercepta o toque, então
+   o gesto de rolar iniciado ali embaixo morre na barra em vez de rolar a
+   página.
+
+   Ancorada em `bottom: 0`, sem `transform` e sem vão lateral, ela sai do
+   caminho da rolagem e para de se mexer. O recuo do iPhone entra como
+   `padding-bottom`, e não como deslocamento da barra: assim a faixa de
+   gestos fica pintada da cor da barra em vez de deixar uma fresta por
+   onde o conteúdo aparece. */
 .bottom-nav {
   position: fixed;
-  left: 50%;
-  transform: translateX(-50%);
-  bottom: calc(12px + env(safe-area-inset-bottom));
+  left: 0;
+  right: 0;
+  bottom: 0;
   z-index: 40;
-  width: min(440px, calc(100% - 24px));
   display: flex;
   justify-content: space-around;
   align-items: center;
-  height: var(--bottom-nav-height);
+  height: calc(var(--bottom-nav-height) + env(safe-area-inset-bottom));
+  padding-bottom: env(safe-area-inset-bottom);
   background: var(--color-surface);
-  border: 1px solid var(--color-border);
-  border-radius: 999px;
-  box-shadow: 0 10px 30px rgba(10, 26, 47, 0.16);
+  border-top: 1px solid var(--color-border);
+  box-shadow: 0 -2px 12px rgba(10, 26, 47, 0.07);
 }
 
 /* Barra só de ícones, como a do Instagram. O rótulo continua no HTML (ver
@@ -576,14 +592,15 @@ textarea::placeholder {
   border: 0;
 }
 
-/* No computador a barra deixava de existir e o app ficava sem navegação
-   nenhuma — quem entrava pelo notebook não achava Favoritos nem Painel. Ela
-   continua, só que como uma ilha centralizada, do tamanho do conteúdo, em
-   vez de uma faixa de ponta a ponta na tela larga. */
+/* No computador a barra continua de ponta a ponta, mas os ícones não se
+   espalham por uma tela de 1920px: o recuo lateral os agrupa no meio, na
+   mesma largura que tinham como ilha. É o recuo que muda, não a barra —
+   voltar a encolher a largura aqui traria de volta o elemento fixo que se
+   desloca durante a rolagem. */
 @media (min-width: 860px) {
   .bottom-nav {
-    bottom: 18px;
-    width: min(560px, calc(100% - 40px));
+    padding-left: max(0px, calc((100% - 560px) / 2));
+    padding-right: max(0px, calc((100% - 560px) / 2));
   }
 }
 
@@ -1562,7 +1579,7 @@ textarea::placeholder {
   position: fixed;
   left: 12px;
   right: 12px;
-  bottom: calc(var(--bottom-nav-height) + 12px);
+  bottom: calc(var(--bottom-nav-height) + env(safe-area-inset-bottom) + 12px);
   z-index: 60;
   display: flex;
   align-items: center;
@@ -1604,7 +1621,7 @@ textarea::placeholder {
 
 @media (min-width: 860px) {
   .aviso-dados {
-    bottom: calc(var(--bottom-nav-height) + 24px);
+    bottom: calc(var(--bottom-nav-height) + env(safe-area-inset-bottom) + 24px);
   }
 }
 
@@ -3053,7 +3070,7 @@ h3 {
   position: fixed;
   left: 50%;
   transform: translateX(-50%);
-  bottom: calc(var(--bottom-nav-height) + 22px + env(safe-area-inset-bottom));
+  bottom: calc(var(--bottom-nav-height) + env(safe-area-inset-bottom) + 10px);
   z-index: 55;
   width: min(440px, calc(100% - 24px));
   display: flex;
