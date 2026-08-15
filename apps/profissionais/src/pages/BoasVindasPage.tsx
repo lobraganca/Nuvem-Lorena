@@ -159,15 +159,12 @@ export function BoasVindasPage() {
         <p className="welcome-tagline">
           Encontre quem faz, aqui perto, com a opinião de quem já contratou.
         </p>
-        {/* Logo abaixo da frase de abertura, antes dos números e dos botões:
-            é a informação que faz o profissional continuar lendo, e ela
-            chegava só lá embaixo, no cartão "Conta premium".
-
-            Frase curta e sozinha, sem ressalva: cadastrar é grátis mesmo,
-            para sempre e sem pegadinha. O que é pago (premium, destaque)
-            está explicado nos cartões abaixo e no painel, na hora em que
-            é oferecido — não precisa vir grudado aqui. */}
-        <p className="welcome-gratis">O cadastro é grátis</p>
+        {/* O "é grátis" saiu daqui e foi para dentro do botão "Cadastre-se".
+            Como linha própria no meio da abertura, ele respondia uma
+            pergunta que ninguém tinha feito ainda — a pessoa lê "o cadastro
+            é grátis" antes de saber que existe cadastro. Colado ao botão,
+            chega no instante em que a dúvida aparece, que é na hora de
+            decidir tocar. */}
         {/* Só o de profissionais continua — avaliações e visitas a cadastros
             saíram. Número real, contado nesta hora: aparece do jeito que
             estiver, mesmo baixo, porque um número pequeno mas verdadeiro
@@ -193,7 +190,9 @@ export function BoasVindasPage() {
         </button>
 
         <button type="button" className="welcome-choice-btn" onClick={escolherProfissional}>
-          <span className="welcome-choice-label">Cadastre-se</span>
+          <span className="welcome-choice-label">
+            Cadastre-se <span className="welcome-choice-gratis">grátis</span>
+          </span>
           <span className="welcome-choice-hint">Trabalho com isso e quero aparecer</span>
         </button>
       </section>

@@ -877,23 +877,10 @@ textarea::placeholder {
   padding-top: 40px;
 }
 
-/* Vermelho claro, como pedido — mas o claro fica no fundo, não na letra.
-   Texto vermelho-claro sobre branco dá 2,4:1 de contraste (o mínimo legível
-   é 4,5), e some no celular sob sol, que é onde este app é usado. Com a
-   pílula rosa-clara o conjunto lê como vermelho claro e o texto mantém
-   4,8:1. */
-.welcome-gratis {
-  display: inline-block;
-  margin: 14px auto 0;
-  padding: 7px 16px;
-  border-radius: 999px;
-  background: #fdeceb;
-  border: 1px solid #f6c9c4;
-  color: #c0392b;
-  font-size: 0.92rem;
-  font-weight: 700;
-  line-height: 1.35;
-}
+/* `.welcome-gratis` foi removida: o aviso de cadastro grátis virou a
+   etiqueta `.welcome-choice-gratis`, dentro do próprio botão. O par de
+   vermelho que ela estabeleceu (fundo #fdeceb, texto #c0392b) continua
+   em uso lá, em `.btn-danger-soft` e em `.cta-anunciar`. */
 
 .welcome-tagline {
   color: var(--color-text-muted);
@@ -1005,6 +992,28 @@ textarea::placeholder {
 .welcome-choice-label {
   font-size: 1.05rem;
   font-weight: 700;
+}
+
+/* "grátis" dentro do próprio botão, em vez de uma linha solta lá em cima.
+   Pequeno de propósito: é uma ressalva que tira o medo de tocar, não uma
+   promoção — em corpo maior competiria com "Cadastre-se", que é a ação.
+
+   O par de vermelho é o mesmo de `.btn-danger-soft` e `.cta-anunciar`:
+   4,76:1 de contraste, acima do mínimo de 4,5 — que vale inclusive para
+   texto pequeno como este. */
+.welcome-choice-gratis {
+  display: inline-block;
+  vertical-align: 2px;
+  margin-left: 6px;
+  padding: 2px 8px;
+  border-radius: 999px;
+  background: #fdeceb;
+  border: 1px solid #f6c9c4;
+  color: #c0392b;
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  text-transform: lowercase;
 }
 
 .welcome-choice-hint {
@@ -1668,8 +1677,8 @@ textarea::placeholder {
    sobre branco dá cerca de 2,4:1, e o mínimo legível é 4,5; no celular
    sob sol, que é onde este app é usado, some de vez.
 
-   O fundo é o mesmo #fdeceb já usado em `.welcome-gratis` e
-   `.btn-danger-soft`, então o app não ganha um sexto tom de vermelho. Em
+   O fundo é o mesmo #fdeceb já usado em `.btn-danger-soft` e na
+   etiqueta "grátis" da tela de início, então o app não ganha um sexto tom de vermelho. Em
    cima dele, o texto em `--color-danger` dá 4,76:1 e o negrito em
    #8f2c20 dá 7,21:1 — a chamada, que é o que se lê primeiro, é a parte
    mais firme. */
