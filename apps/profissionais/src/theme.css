@@ -1877,14 +1877,49 @@ textarea::placeholder {
 /* Confirmação do WhatsApp: o estado confirmado é discreto (é o normal
    esperado), e o pendente é um convite visível — quem anuncia precisa
    perceber que falta, sem que a tela pareça um erro. */
+/* Número confirmado: uma pílula, não uma linha de texto.
+   O aviso de pendência ao lado tem cartão, borda tracejada e cor — o
+   estado resolvido não tinha nada, e a tela acabava dando mais presença a
+   quem não confirmou do que a quem confirmou. Aqui ele fica quieto, mas
+   fica visível: é o único selo do cartão que a pessoa conquistou.
+
+   Verde escuro sobre verde muito claro dá 5,87:1 de contraste — acima do
+   mínimo de 4,5:1, o que importa numa etiqueta pequena e em negrito lida
+   em tela de celular, muitas vezes no sol. */
 .whats-ok {
   display: inline-flex;
   align-items: center;
-  gap: 6px;
-  margin: 6px 0 0;
+  gap: 8px;
+  margin: 8px 0 0;
+  padding: 5px 12px 5px 5px;
+  border-radius: 999px;
+  background: #eaf6ef;
+  border: 1px solid #bfe3cf;
   font-size: 0.84rem;
-  font-weight: 600;
+  line-height: 1.3;
   color: #1c6b3f;
+}
+
+/* O visto, dentro de um círculo cheio. Solto no meio do texto ele herdava
+   o desenho do sistema — largura e altura diferentes em cada aparelho — e
+   descia meio pixel abaixo da linha de base. Num círculo de tamanho fixo,
+   centrado por flex, ele fica igual em todo lugar. */
+.whats-ok-marca {
+  flex: none;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: #1c6b3f;
+  color: #fff;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.72rem;
+  font-weight: 700;
+}
+
+.whats-ok strong {
+  font-weight: 700;
 }
 
 .whats-pendente {

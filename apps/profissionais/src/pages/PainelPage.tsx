@@ -358,7 +358,22 @@ export function PainelPage() {
                     configurações: é o que separa um cadastro de um número
                     qualquer digitado, e quem se cadastra precisa ver que falta. */}
                 {!CONFIRMACAO_POR_SMS ? null : p.whatsapp_verified ? (
-                  <p className="whats-ok">✓ {formatPhone(p.whatsapp || p.phone)} confirmado</p>
+                  /* O estado bom era a única coisa da tela sem desenho
+                     nenhum: uma linha de texto com um "✓" solto, ao lado de
+                     um aviso de pendência que ganhava cartão, borda e cor.
+                     Ficava ao contrário — quem resolveu via menos do que
+                     quem não resolveu.
+
+                     O visto sai do texto e vira uma marca própria, redonda:
+                     o caractere "✓" muda de desenho e de largura entre
+                     Android, iPhone e computador, e num deles vinha
+                     desalinhado com a linha. */
+                  <p className="whats-ok">
+                    <span className="whats-ok-marca" aria-hidden="true">✓</span>
+                    <span>
+                      <strong>{formatPhone(p.whatsapp || p.phone)}</strong> confirmado
+                    </span>
+                  </p>
                 ) : !ehCelular(p.whatsapp || p.phone) ? (
                   /* Fixo não recebe SMS nem WhatsApp. Oferecer "Confirmar
                      agora" aqui seria mandar a pessoa esperar por um código
