@@ -37,6 +37,18 @@
   --color-gold-tint: #fdf4e6;
   --color-gold-line: #ecd6b0;
 
+  /* Fundo da barra de navegação: azul claro, para ela se separar do
+     conteúdo sem precisar de sombra pesada — branca sobre branco, a
+     única coisa que a distinguia era um fio de 1px.
+
+     O tom não é escolha de gosto: é o azul mais forte em que o ícone
+     inativo (--color-text-muted) ainda dá 4,67:1 de contraste, acima do
+     mínimo de 4,5. Um passo mais escuro derruba para 4,40 e a barra
+     passa a esconder justamente os destinos que a pessoa ainda não
+     visitou. O ícone ativo fica em 11,17:1. */
+  --color-nav-bg: #e6eefb;
+  --color-nav-line: #cbdaf1;
+
   /* Verde só no WhatsApp; escurecido para aguentar texto branco em cima. */
   --color-accent-teal: #12805f;
   /* Fundo do card de empresa — mesma família do teal do WhatsApp, mas
@@ -539,8 +551,8 @@ textarea::placeholder {
   align-items: center;
   height: calc(var(--bottom-nav-height) + env(safe-area-inset-bottom));
   padding-bottom: env(safe-area-inset-bottom);
-  background: var(--color-surface);
-  border-top: 1px solid var(--color-border);
+  background: var(--color-nav-bg);
+  border-top: 1px solid var(--color-nav-line);
   box-shadow: 0 -2px 12px rgba(10, 26, 47, 0.07);
 }
 
