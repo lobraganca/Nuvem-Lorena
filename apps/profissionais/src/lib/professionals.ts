@@ -324,6 +324,27 @@ export async function isDocumentBanned(document: string): Promise<boolean> {
  * usuário editou outros campos sem trocar a foto — quem chama deve passar
  * `photo_url: null` explicitamente só se realmente quiser apagar a foto.
  */
+/**
+ * Um cadastro para abrir na tela de edição.
+ *
+ * Lê a tabela, não a view pública: a view esconde suspensos e pausados
+ * (0053), e são justamente esses que mais precisam ser abertos — o dono
+ * para entender o que houve, a administração para corrigir.
+ *
+ * Quem pode ver o quê é decidido pelo banco, não por esta função nem pela
+ * tela. As policies de `professionals` deixam passar o dono ("dono vê o
+ * próprio anúncio mesmo suspenso") e quem está em `admins` ("admin vê
+ * qualquer anúncio"). Para todo o resto, a consulta volta vazia e a tela
+ * trata como cadastro inexistente. É a diferença entre esconder o botão e
+ * fechar a porta: aqui está fechada.
+ */
+export async function getProfessionalParaEditar(id: string): Promise<Professional | null> {
+  const client = supabase();
+  if (!client) return null;
+  const { data } = await client.from("professionals").select("*").eq("id", id).maybeSingle();
+  return data ?? null;
+}
+
 export async function upsertProfessional(input: Partial<Professional> & { owner_id: string }): Promise<Professional> {
   const client = supabase();
   if (!client) throw new Error("Banco de dados não configurado.");

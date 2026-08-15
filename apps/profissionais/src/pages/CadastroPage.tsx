@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { Link, Navigate, useNavigate, useParams } from "react-router-dom";
 import { useAuth } from "../lib/useAuth";
-import { getMyProfessionals, upsertProfessional } from "../lib/professionals";
+import { getProfessionalParaEditar, upsertProfessional } from "../lib/professionals";
 import {
   CITIES,
   DEFAULT_CITY,
@@ -207,12 +207,12 @@ export function CadastroPage() {
   useEffect(() => {
     if (!user || !id) return;
     let ativo = true;
-    getMyProfessionals(user.id).then((lista) => {
+    getProfessionalParaEditar(id).then((p) => {
       if (!ativo) return;
-      const p = lista.find((m) => m.id === id);
-      // Endereço de um cadastro que não é meu, ou que já foi apagado: não
-      // adianta mostrar um formulário vazio dizendo "editar", isso salvaria
-      // um cadastro novo sem a pessoa ter pedido.
+      /* Cadastro apagado, ou de outra pessoa sem que eu seja administração:
+         nos dois casos a consulta volta vazia, porque quem recusa é a RLS
+         do banco. Mostrar um formulário em branco dizendo "editar" criaria
+         um cadastro novo sem ninguém ter pedido. */
       if (!p) {
         navigate("/painel", { replace: true });
         return;
@@ -364,7 +364,11 @@ export function CadastroPage() {
       }
       await upsertProfessional({
         ...form,
-        owner_id: user.id,
+        /* O dono continua sendo quem era. Vinha escrito `user.id` fixo, o
+           que estava certo enquanto só o dono editava — mas agora a
+           administração também abre esta tela, e salvar transferiria o
+           cadastro da pessoa para a conta de quem corrigiu a foto. */
+        owner_id: form.owner_id || user.id,
         document: form.document ? form.document.replace(/\D/g, "") : null,
         company_name: form.entity_type === "pj" ? form.company_name || null : null,
         responsible_name: form.entity_type === "pj" ? form.responsible_name || null : null,
@@ -374,7 +378,7 @@ export function CadastroPage() {
          voltar do celular traria de novo o formulário do que acabou de ser
          salvo — e um "Publicar cadastro" apertado ali criaria um segundo
          cadastro igual. */
-      navigate("/painel", {
+      navigate(voltarPara, {
         replace: true,
         state: { aviso: editando ? "Cadastro atualizado." : "Cadastro salvo." },
       });
@@ -400,18 +404,37 @@ export function CadastroPage() {
   }
 
   const isPj = form.entity_type === "pj";
+  /* Estou mexendo no cadastro de outra pessoa? Só a administração chega
+     aqui nessa situação — para qualquer outro, a consulta teria voltado
+     vazia e a tela já teria mandado embora. Serve para dizer isso em voz
+     alta e para saber de onde a pessoa veio. */
+  const deOutraPessoa = editando && !!form.owner_id && form.owner_id !== user.id;
+  const voltarPara = deOutraPessoa ? "/admin" : "/painel";
 
   return (
     <div className="container" style={{ paddingTop: 24, paddingBottom: 60 }}>
       {/* Uma tela que se abre por cima de outra precisa dizer como sair.
           Aqui é o único caminho de volta que não depende do botão do
           aparelho — e no app instalado esse botão nem sempre existe. */}
-      <Link to="/painel" className="voltar-link">
-        ← Meus cadastros
+      <Link to={voltarPara} className="voltar-link">
+        ← {deOutraPessoa ? "Painel administrativo" : "Meus cadastros"}
       </Link>
       <h1 style={{ marginTop: 10 }}>{editando ? "Editar cadastro" : "Termine seu cadastro"}</h1>
       {!editando && (
         <p className="muted painel-subtitulo">São três passos rápidos e você já aparece na busca.</p>
+      )}
+
+      {/* Dito na cara, e não escondido: editar o cadastro de outra pessoa é
+          um poder que a administração tem, e mexer no trabalho de alguém
+          sem que ela saiba merece pelo menos um aviso na tela de quem está
+          mexendo. Também evita o acidente mais óbvio — achar que está
+          corrigindo o próprio cadastro e estar no de outra pessoa. */}
+      {deOutraPessoa && (
+        <div className="aviso-admin">
+          <strong>Este cadastro é de outra pessoa.</strong> Você está editando como administração. O
+          dono não é avisado das alterações — corrija o que estiver claramente errado (foto torta,
+          telefone sem DDD) e evite reescrever o que ele escolheu escrever.
+        </div>
       )}
 
       <form ref={formRef} className="card" onSubmit={handleSave} style={{ display: "grid", gap: 12 }}>
@@ -775,7 +798,7 @@ export function CadastroPage() {
             <button
               type="button"
               className="btn btn-outline"
-              onClick={() => navigate("/painel")}
+              onClick={() => navigate(voltarPara)}
               disabled={saving}
             >
               Cancelar edição

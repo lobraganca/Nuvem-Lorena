@@ -561,11 +561,25 @@ export function AdminPage() {
               className="card"
               style={p.suspended ? { border: "1px solid var(--color-primary)" } : undefined}
             >
-              <div style={{ display: "flex", justifyContent: "space-between" }}>
-                <Link to={`/profissional/${p.id}`}>
-                  <strong>{p.name}</strong>
-                </Link>
-                <div style={{ display: "flex", gap: 6 }}>
+              {/* A foto entra na lista porque é ela que a administração
+                  precisa julgar: foto torta, cortada no pescoço ou tirada
+                  de longe demais não dá erro em lugar nenhum — só afunda o
+                  cadastro na busca, e o dono nunca fica sabendo. Sem ver a
+                  foto aqui, não havia como saber quais valia a pena
+                  reenquadrar. */}
+              <div className="admin-topo-cadastro">
+                {p.photo_url ? (
+                  <img src={p.photo_url} alt={p.name} className="admin-foto" />
+                ) : (
+                  <span className="admin-foto admin-foto-vazia" aria-hidden="true">
+                    {p.entity_type === "pj" ? "🏢" : "👤"}
+                  </span>
+                )}
+                <div className="admin-topo-texto">
+                  <Link to={`/profissional/${p.id}`}>
+                    <strong>{p.name}</strong>
+                  </Link>
+                <div style={{ display: "flex", gap: 6, flexWrap: "wrap", marginTop: 4 }}>
                   {verified && <span className="badge badge-verified">Premium ativo</span>}
                   {boosted && <span className="badge badge-boosted">Em destaque</span>}
                   {p.suspended && (
@@ -574,8 +588,17 @@ export function AdminPage() {
                     </span>
                   )}
                 </div>
+                </div>
               </div>
               <p className="muted">{p.category} · {p.city}</p>
+              {/* Editar leva à mesma tela que o dono usa, com o recortador
+                  de foto e tudo. Não existe um editor separado para a
+                  administração: dois formulários para o mesmo cadastro
+                  viram duas regras de validação diferentes, e a que ninguém
+                  testa é a que deixa passar. */}
+              <Link className="btn btn-outline" to={`/painel/editar/${p.id}`} style={{ marginTop: 4 }}>
+                Editar cadastro e foto
+              </Link>
               {p.suspended ? (
                 <>
                   {p.suspended_reason && <p className="muted" style={{ fontSize: "0.85rem" }}>Motivo: {p.suspended_reason}</p>}

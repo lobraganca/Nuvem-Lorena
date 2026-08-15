@@ -4491,3 +4491,58 @@ h3 {
 .btn-fechar-pagina:hover {
   background: var(--color-bg-soft);
 }
+
+
+/* ---------- Painel administrativo: cadastros ---------- */
+
+/* Foto ao lado do nome. A lista existia sem imagem nenhuma, e a foto é
+   justamente o que a administração precisa julgar aqui — foto torta ou
+   cortada no pescoço não dá erro em lugar nenhum, só afunda o cadastro na
+   busca. Mesmo quadrado de cantos arredondados dos cartões da busca, para
+   o que se vê aqui ser o que a cidade vê lá. */
+.admin-topo-cadastro {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+}
+
+.admin-foto {
+  flex: none;
+  width: 64px;
+  height: 64px;
+  object-fit: cover;
+  border-radius: 14px;
+  border: 1px solid var(--color-border);
+  background: var(--color-bg-soft);
+}
+
+.admin-foto-vazia {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.6rem;
+  /* Reserva o mesmo quadrado de quem tem foto: sem isso, a lista fica com
+     os nomes começando em colunas diferentes conforme o cadastro tenha ou
+     não imagem — que é o desalinhamento mais visível de uma lista. */
+}
+
+.admin-topo-texto {
+  /* `min-width: 0` para nome comprido quebrar dentro da coluna em vez de
+     empurrar as etiquetas para fora do cartão. */
+  min-width: 0;
+  flex: 1;
+}
+
+/* Aviso de que o cadastro aberto é de outra pessoa. Âmbar e não vermelho:
+   não é erro nem perigo, é uma responsabilidade — e vermelho aqui viraria
+   ruído, porque a administração abre esta tela justamente para isso. */
+.aviso-admin {
+  margin: 12px 0 0;
+  padding: 12px 14px;
+  border-radius: 12px;
+  background: #fdf3e0;
+  border: 1px solid #e9c98d;
+  color: #6b4a12;
+  font-size: 0.88rem;
+  line-height: 1.45;
+}
