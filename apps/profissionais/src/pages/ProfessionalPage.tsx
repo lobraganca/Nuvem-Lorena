@@ -112,6 +112,34 @@ export function ProfessionalPage() {
   /** Só usado onde o navegador não tem compartilhamento nativo (desktop). */
   const [copiado, setCopiado] = useState(false);
 
+  /**
+   * Indicar o cadastro para alguém.
+   *
+   * Numa cidade, o app cresce no boca a boca — e boca a boca hoje é link
+   * colado no grupo da família. Sem isto, indicar alguém exige copiar o
+   * endereço da barra, que quase ninguém faz no celular.
+   *
+   * Onde existe a folha de compartilhar do sistema, é ela que abre. Onde
+   * não existe (navegador de computador, em geral), copia e avisa que
+   * copiou — copiar sem dizer nada é indistinguível de não ter funcionado.
+   */
+  async function compartilhar() {
+    if (!professional) return;
+    const url = window.location.href;
+    const texto = `${professional.name} — ${professional.category} em ${professional.city}`;
+    try {
+      if (navigator.share) {
+        await navigator.share({ title: professional.name, text: texto, url });
+      } else {
+        await navigator.clipboard.writeText(`${texto}\n${url}`);
+        setCopiado(true);
+        setTimeout(() => setCopiado(false), 2500);
+      }
+    } catch {
+      // Cancelar o compartilhamento não é erro — a pessoa mudou de ideia.
+    }
+  }
+
   /* A avaliação desta pessoa neste cadastro — no máximo uma, por restrição do
      banco (unique professional_id + user_id). É o que decide se o botão
      convida a avaliar ou a mexer no que ela já escreveu. */
@@ -422,6 +450,29 @@ export function ProfessionalPage() {
           </div>
           <div className="perfil-acoes">
             {boosted && <span className="badge badge-boosted">Destaque</span>}
+            {/* Compartilhar mora junto do coração: as duas são ações sobre
+                este cadastro, e é aqui que a mão procura. Como link escrito
+                no fim da página, ficava órfão entre as etiquetas e as
+                avaliações, parecendo pertencer a nenhuma das duas. */}
+            <button
+              type="button"
+              className="perfil-compartilhar"
+              aria-label={copiado ? "Link copiado" : "Indicar para alguém"}
+              title={copiado ? "Link copiado" : "Indicar para alguém"}
+              onClick={compartilhar}
+            >
+              {copiado ? (
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                  <path d="M20 6 9 17l-5-5" />
+                </svg>
+              ) : (
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                  <path d="M12 16V4" />
+                  <path d="m7 9 5-5 5 5" />
+                  <path d="M5 14v4a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-4" />
+                </svg>
+              )}
+            </button>
             <FavoriteButton professionalId={professional.id} initialFavorited={isFavorite} size="large" />
           </div>
         </div>
@@ -618,31 +669,6 @@ export function ProfessionalPage() {
         )}
       </section>
 
-      {/* Numa cidade, o app cresce no boca a boca — e boca a boca hoje é
-          link colado no grupo da família. Sem isto, indicar alguém exige
-          copiar o endereço da barra, que quase ninguém faz no celular.
-          Solto no fim, fora dos cartões: é ação de quem já leu tudo. */}
-      <button
-        className="acao-discreta perfil-indicar"
-        onClick={async () => {
-          const url = window.location.href;
-          const texto = `${professional.name} — ${professional.category} em ${professional.city}`;
-          try {
-            if (navigator.share) {
-              await navigator.share({ title: professional.name, text: texto, url });
-            } else {
-              await navigator.clipboard.writeText(`${texto}\n${url}`);
-              setCopiado(true);
-              setTimeout(() => setCopiado(false), 2500);
-            }
-          } catch {
-            // Cancelar o compartilhamento não é erro — a pessoa mudou de ideia.
-          }
-        }}
-      >
-        {copiado ? "Link copiado ✓" : "Indicar para alguém"}
-      </button>
-
       {/* Lista de serviços: só existe para quem preencheu. Fica entre o
           cadastro e as avaliações porque é a resposta da pergunta seguinte —
           depois de saber quem é a pessoa, quem procura quer saber se ela faz
@@ -666,12 +692,8 @@ export function ProfessionalPage() {
         </section>
       )}
 
-      <section style={{ marginTop: 32 }}>
-        <h2>Avaliações de quem contratou</h2>
-        <p className="muted" style={{ margin: "0 0 16px", fontSize: "0.88rem" }}>
-          Quem trabalha aqui depende da fama que constrói aqui. Se o serviço foi bom, sua avaliação é a melhor
-          propaganda que essa pessoa vai ter.
-        </p>
+      <section className="card perfil-bloco">
+        <h2 className="perfil-bloco-titulo">Avaliações de quem contratou</h2>
 
         {topTags.length > 0 && (
           <div style={{ margin: "0 0 18px" }}>
@@ -713,9 +735,19 @@ export function ProfessionalPage() {
               </div>
             </div>
           ) : (
-            <button className="btn btn-primary" onClick={() => setReviewSheetOpen(true)} style={{ marginBottom: 20 }}>
-              Enviar avaliação
-            </button>
+            /* O botão antes da explicação. Quem já decidiu avaliar não
+               precisa ler três linhas sobre por que avaliar importa — e
+               quem não decidiu lê logo abaixo, sem que isso atrase o
+               primeiro. */
+            <>
+              <button className="btn btn-primary" onClick={() => setReviewSheetOpen(true)}>
+                Enviar avaliação
+              </button>
+              <p className="muted avaliacoes-motivo">
+                Quem trabalha aqui depende da fama que constrói aqui. Se o serviço foi bom, sua avaliação é a
+                melhor propaganda que essa pessoa vai ter.
+              </p>
+            </>
           )
         )}
 
@@ -944,7 +976,13 @@ export function ProfessionalPage() {
         )}
 
         <div className="grid">
-          {reviews.length === 0 && <p className="muted">Ainda não tem avaliação por aqui. Se você já chamou essa pessoa, conta pra gente como foi.</p>}
+          {reviews.length === 0 && (
+            /* Dentro do cartão das avaliações, e não solto embaixo dele: o
+               vazio é o conteúdo desta seção enquanto não houver nenhuma. */
+            <p className="muted avaliacoes-vazio">
+              Ainda não tem avaliação por aqui. Se você já chamou essa pessoa, conta pra gente como foi.
+            </p>
+          )}
           {reviews.map((r) => {
             const isOwnReview = user?.id === r.user_id;
             const isOwner = user?.id === professional.owner_id;
@@ -1146,9 +1184,11 @@ export function ProfessionalPage() {
         )}
       </section>
 
-      <p className="muted" style={{ marginTop: 24, fontSize: "0.8rem" }}>
-        Ao contratar, você concorda com os <Link to="/termos">Termos de Uso</Link> da plataforma.
-      </p>
+      {/* O aviso de que contratar implica aceitar os Termos desceu para o
+          rodapé do app (ver App.tsx). Solto no fim do conteúdo, ele ficava
+          a meia tela do botão de WhatsApp — perto demais de uma ação para
+          ser lido como nota de rodapé, e longe demais para ser lido como
+          condição daquele botão. */}
     </div>
   );
 }

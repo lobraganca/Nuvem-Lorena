@@ -137,6 +137,15 @@ function Footer() {
             Enviar sugestão
           </button>
         </nav>
+        {/* Veio da página do profissional, onde ficava solta no fim do
+            conteúdo: a meia tela do botão de WhatsApp, perto demais de uma
+            ação para ser lida como nota de rodapé e longe demais para ser
+            lida como condição daquele botão. Aqui é o lugar de aviso
+            jurídico, e a frase vale em qualquer tela — contratar acontece
+            a partir da busca tanto quanto do perfil. */}
+        <p className="rodape-aviso">
+          Ao contratar, você concorda com os <Link to="/termos">Termos de Uso</Link> da plataforma.
+        </p>
         {/* O carimbo mostra a hora da construção; o "d" identifica a leva
             que trouxe o endereço único, o aviso de erro de login e a tela de
             diagnóstico. Sem um marcador visível, "não funcionou" e "não

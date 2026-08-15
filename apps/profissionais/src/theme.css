@@ -2403,10 +2403,50 @@ textarea::placeholder {
   color: var(--color-primary-deep);
 }
 
-/* Centralizada e solta no fim, fora dos cartões. */
-.perfil-indicar {
-  display: block;
-  margin: 18px auto 0;
+/* Compartilhar, ao lado do coração. Mesmo tamanho de alvo que ele: são
+   duas ações irmãs, e a que tem só ícone não pode ser a mais difícil de
+   acertar. */
+.perfil-compartilhar {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  padding: 0;
+  border: none;
+  border-radius: 999px;
+  background: none;
+  color: var(--color-primary-deep);
+  cursor: pointer;
+}
+
+.perfil-compartilhar svg {
+  width: 22px;
+  height: 22px;
+}
+
+.perfil-compartilhar:hover {
+  background: var(--color-bg-soft);
+}
+
+/* A explicação de por que avaliar importa, agora depois do botão. */
+.avaliacoes-motivo {
+  margin: 12px 0 0;
+  font-size: 0.86rem;
+}
+
+/* Estado vazio das avaliações, dentro do cartão da seção. */
+.avaliacoes-vazio {
+  margin: 0;
+  font-size: 0.9rem;
+}
+
+/* Aviso jurídico do rodapé: menor que os links, porque é nota e não
+   caminho. */
+.rodape-aviso {
+  margin-top: 12px;
+  font-size: 0.78rem;
+  opacity: 0.85;
 }
 
 /* Hierarquia das ações: uma principal por vez.
