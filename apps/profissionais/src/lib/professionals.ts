@@ -64,8 +64,16 @@ export async function searchProfessionals(filters: SearchFilters): Promise<Profe
   const page = filters.page ?? 0;
   const pageSize = filters.pageSize ?? DEFAULT_PAGE_SIZE;
 
+  /* A view pública não devolve mais suspensos nem pausados (migration
+     0053), então o painel administrativo — que existe justamente para
+     olhar quem está fora do ar — lê a tabela direto. Não é um furo: na
+     tabela vale a RLS, que deixa admin ver tudo e devolve zero linha para
+     qualquer outra pessoa. Se alguém chamar esta função com
+     `onlySuspended` sem ser admin, recebe uma lista vazia. */
+  const fonte = filters.onlySuspended ? "professionals" : "professionals_public";
+
   let query = client
-    .from("professionals_public")
+    .from(fonte)
     .select("*")
     .order("boosted", { ascending: false })
     .order("created_at", { ascending: false })
