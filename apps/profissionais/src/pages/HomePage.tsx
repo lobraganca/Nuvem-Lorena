@@ -140,6 +140,25 @@ export function HomePage() {
      pedido nada ainda. */
   const buscouAlgo = debouncedText.trim() !== "" || category !== "";
 
+  /**
+   * Desfaz a busca e devolve a grade de ofícios.
+   *
+   * Sem isto, tocar num cartão de categoria era um caminho de ida: a grade
+   * sumia (é ela que ocupa o lugar dos resultados), e voltar dependia de
+   * achar o filtro de serviços lá em cima e devolvê-lo à mão para "Todos os
+   * serviços" — um gesto que ninguém adivinha e que, no celular, acontece
+   * fora da tela. Quem tocasse errado ficava preso na categoria escolhida.
+   *
+   * Zera o texto e a categoria, que são os dois gatilhos da busca. Cidade e
+   * nota mínima ficam: elas sozinhas não escondem a grade, e apagar uma
+   * escolha que a pessoa não pediu para apagar é outra surpresa.
+   */
+  function verTodosOsServicos() {
+    setText("");
+    setDebouncedText("");
+    setCategory("");
+  }
+
   /* Cada busca nova precisa "vencer" a anterior, não só ser disparada
      depois dela. Sem isto, se a primeira busca demorar mais que a segunda
      — rede lenta, servidor ocupado, qualquer variação de tempo —, ela
@@ -478,11 +497,27 @@ export function HomePage() {
         </div>
       )}
 
+      {/* A volta. Fica acima dos resultados e antes de qualquer cartão,
+          porque é o primeiro lugar onde o olho procura depois de perceber
+          que caiu numa lista errada — e porque no celular ela precisa
+          caber na mesma tela que o primeiro resultado, senão continua
+          sendo uma saída que só existe para quem rola atrás dela. */}
+      {buscouAlgo && (
+        <div className="busca-ativa">
+          <span className="busca-ativa-alvo">
+            {category ? category : `“${debouncedText.trim()}”`}
+          </span>
+          <button type="button" className="busca-ativa-limpar" onClick={verTodosOsServicos}>
+            Ver todos os serviços
+          </button>
+        </div>
+      )}
+
       {buscouAlgo && (
       <div
         className="grid"
         data-tour="resultados"
-        style={{ marginTop: 24, gridTemplateColumns: "repeat(auto-fill, minmax(260px, 1fr))" }}
+        style={{ marginTop: 16, gridTemplateColumns: "repeat(auto-fill, minmax(260px, 1fr))" }}
       >
         {loading && <p className="muted">Buscando…</p>}
         {!loading && results.length === 0 && (

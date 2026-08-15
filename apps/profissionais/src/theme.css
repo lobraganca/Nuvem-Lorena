@@ -2386,6 +2386,47 @@ textarea::placeholder {
   font-size: 0.84rem !important;
 }
 
+/* Barra do que está sendo mostrado, com a saída ao lado.
+   Existe porque a grade de ofícios some assim que a busca começa: sem uma
+   volta à vista, tocar num cartão virava caminho de ida. */
+.busca-ativa {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-top: 20px;
+}
+
+.busca-ativa-alvo {
+  /* `min-width: 0` para o nome comprido encolher em vez de empurrar o
+     botão de saída para fora da tela — é justamente na categoria de nome
+     grande que a saída não pode sumir. */
+  min-width: 0;
+  overflow-wrap: break-word;
+  font-weight: 600;
+  font-size: 0.95rem;
+}
+
+.busca-ativa-limpar {
+  flex: none;
+  padding: 8px 14px;
+  border-radius: 999px;
+  border: 1px solid var(--color-border);
+  background: var(--color-surface);
+  font-family: inherit;
+  font-size: 0.84rem;
+  font-weight: 600;
+  color: var(--color-primary);
+  cursor: pointer;
+}
+
+.busca-ativa-limpar:hover,
+.busca-ativa-limpar:focus-visible {
+  border-color: var(--color-primary);
+  background: var(--color-bg-soft);
+}
+
 /* Convite para instalar, na busca. Fina e dispensável: quem chegou veio
    procurar alguém, e um app que pede instalação antes de provar que serve é
    um app que a pessoa desinstala. */
