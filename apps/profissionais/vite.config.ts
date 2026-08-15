@@ -20,12 +20,51 @@ const CARIMBO = new Date().toLocaleString("pt-BR", {
   minute: "2-digit",
 });
 
+/**
+ * O commit que originou esta build, quando a Vercel constrói.
+ *
+ * Vazio quando alguém roda `npm run build` na própria máquina — ali não há
+ * commit associado, e inventar um seria pior que não ter.
+ */
+const COMMIT = process.env.VERCEL_GIT_COMMIT_SHA ?? "";
+
+/**
+ * Publica `versao.json` na raiz do site, com o carimbo e o commit.
+ *
+ * Existe para responder de fora do app uma pergunta que hoje só dá para
+ * responder olhando a tela de um celular: *o site está servindo o que foi
+ * publicado?*
+ *
+ * O gatilho de publicação é um webhook — o GitHub avisa a Vercel e recebe
+ * "ok, recebi". Se a build da Vercel falhar depois disso, o GitHub continua
+ * marcando sucesso e o site continua velho, sem nada em lugar nenhum
+ * apontando a diferença. Foi assim que três correções seguidas pareceram
+ * publicadas sem estarem.
+ *
+ * Com este arquivo, o próprio fluxo de publicação consegue perguntar ao site
+ * qual commit ele está servindo, e falhar quando a resposta não for a
+ * esperada.
+ */
+function publicarVersao() {
+  return {
+    name: "publicar-versao",
+    generateBundle(this: { emitFile: (f: { type: "asset"; fileName: string; source: string }) => void }) {
+      this.emitFile({
+        type: "asset",
+        fileName: "versao.json",
+        source: JSON.stringify({ carimbo: CARIMBO, commit: COMMIT }, null, 2),
+      });
+    },
+  };
+}
+
 export default defineConfig({
   define: {
     __VERSAO__: JSON.stringify(CARIMBO),
   },
   plugins: [
     react(),
+    publicarVersao(),
     VitePWA({
       // 'prompt', e não 'autoUpdate': com autoUpdate a versão nova assume o
       // controle sozinha e a página recarrega no meio do que a pessoa estiver

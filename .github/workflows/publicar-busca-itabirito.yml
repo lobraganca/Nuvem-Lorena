@@ -44,3 +44,33 @@ jobs:
           # de fingir sucesso e deixar o site velho no ar sem aviso.
           resposta=$(curl -sS -f -X POST "$HOOK")
           echo "Resposta da Vercel: $resposta"
+
+      # Chamar o gatilho não é publicar. A Vercel responde "recebi" na hora e
+      # constrói depois; se a build falhar, este workflow ficava verde e o
+      # site continuava velho — sem nada, em lugar nenhum, apontando a
+      # diferença. Foi assim que três correções seguidas pareceram publicadas
+      # sem estarem, e a única pessoa que percebeu foi quem usa o app.
+      #
+      # Aqui o workflow pergunta ao site qual commit ele está servindo, e só
+      # fica verde quando a resposta for este commit.
+      - name: Conferir se o site já está servindo este commit
+        env:
+          SITE: https://www.procuroapp.com.br
+        run: |
+          esperado="${{ github.sha }}"
+          echo "Esperando o site servir o commit $esperado"
+          for tentativa in $(seq 1 40); do
+            servido=$(curl -sS --max-time 10 "$SITE/versao.json?t=$(date +%s)" \
+              | python3 -c "import sys,json; print(json.load(sys.stdin).get('commit',''))" 2>/dev/null || echo "")
+            if [ "$servido" = "$esperado" ]; then
+              echo "Publicado: o site está servindo $servido"
+              exit 0
+            fi
+            echo "  tentativa $tentativa — servindo: ${servido:-<sem resposta>}"
+            sleep 15
+          done
+          echo ""
+          echo "O site não passou a servir este commit em 10 minutos."
+          echo "O gatilho foi aceito, então o problema está na build da Vercel:"
+          echo "abra vercel.com > o projeto > Deployments e veja o erro da última."
+          exit 1
