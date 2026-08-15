@@ -46,6 +46,7 @@ const FavoritosPage = lazy(importarPagina(() => import("./pages/FavoritosPage").
 const PerfilPage = lazy(importarPagina(() => import("./pages/PerfilPage").then((m) => ({ default: m.PerfilPage }))));
 const AssinaturaPage = lazy(importarPagina(() => import("./pages/AssinaturaPage").then((m) => ({ default: m.AssinaturaPage }))));
 const AnalyticsPage = lazy(importarPagina(() => import("./pages/AnalyticsPage").then((m) => ({ default: m.AnalyticsPage }))));
+const CategoriasPage = lazy(importarPagina(() => import("./pages/CategoriasPage").then((m) => ({ default: m.CategoriasPage }))));
 const AnunciosPage = lazy(importarPagina(() => import("./pages/AnunciosPage").then((m) => ({ default: m.AnunciosPage }))));
 const PublicidadePage = lazy(importarPagina(() => import("./pages/PublicidadePage").then((m) => ({ default: m.PublicidadePage }))));
 
@@ -195,6 +196,10 @@ export default function App() {
         <Route path="/diagnostico" element={<DiagnosticoPage />} />
         {/* Endereco publico exigido pela Google Play: exclusao de conta
             explicada sem precisar estar logado. */}
+        {/* Todas as categorias com gente cadastrada. A grade da busca mostra
+            oito; esta tela é a saída de quem procura um ofício que não está
+            entre os mais numerosos da cidade. */}
+        <Route path="/categorias" element={<CategoriasPage />} />
         <Route path="/anuncios" element={<AnunciosPage />} />
         {/* Página de venda de publicidade: medidas da arte, regras e o
             pedido de contato. É para onde vão os espaços "Apareça aqui". */}

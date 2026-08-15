@@ -2382,9 +2382,88 @@ textarea::placeholder {
   color: var(--color-text-muted);
 }
 
+/* Ocupa a linha inteira, embaixo da grade: é a saída de quem não achou o
+   ofício ali, e uma saída centralizada e estreita se lê como enfeite. */
+.categorias-ver-mais {
+  display: block;
+  width: 100%;
+  margin-top: 14px;
+  text-align: center;
+}
+
 .categorias-dica {
   margin-top: 12px !important;
   font-size: 0.84rem !important;
+}
+
+/* ---------- Tela de todas as categorias ---------- */
+
+.grupo-categorias {
+  margin-top: 22px;
+}
+
+.grupo-titulo {
+  margin: 0 0 8px;
+  font-size: 0.82rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--color-text-muted);
+}
+
+.categorias-lista {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 8px;
+}
+
+/* Linha, e não cartão como na grade da busca: aqui são dezenas de ofícios,
+   e em cartão a lista viraria vários metros de rolagem. O símbolo é o
+   mesmo dos dois lados, que é o que mantém as duas telas parecendo a
+   mesma coisa. */
+.categoria-linha {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 14px;
+  border: 1px solid var(--color-border);
+  border-radius: 12px;
+  background: var(--color-surface);
+  font-family: inherit;
+  color: var(--color-text);
+  cursor: pointer;
+  text-align: left;
+}
+
+.categoria-linha:hover,
+.categoria-linha:focus-visible {
+  border-color: var(--color-primary);
+  background: var(--color-bg-soft);
+}
+
+.categoria-linha-simbolo {
+  font-size: 1.3rem;
+  line-height: 1;
+  flex: none;
+}
+
+.categoria-linha-nome {
+  flex: 1;
+  /* `min-width: 0` para o nome comprido quebrar dentro da linha em vez de
+     empurrar a contagem para fora do cartão. */
+  min-width: 0;
+  overflow-wrap: break-word;
+  font-size: 0.94rem;
+  font-weight: 600;
+}
+
+.categoria-linha-quantos {
+  flex: none;
+  font-size: 0.8rem;
+  color: var(--color-text-muted);
 }
 
 /* Barra do que está sendo mostrado, com a saída ao lado.

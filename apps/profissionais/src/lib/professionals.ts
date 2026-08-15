@@ -703,6 +703,35 @@ export interface CategoriaPopular {
 }
 
 /**
+ * Todas as categorias com gente cadastrada, com a contagem de cada uma.
+ *
+ * É a lista inteira, sem corte: serve a tela de "todas as categorias", que
+ * existe justamente para quem não achou o ofício nas oito vagas da grade
+ * da busca.
+ *
+ * Continua saindo dos cadastros, e não da lista fixa do código. São coisas
+ * diferentes: `CATEGORIES` é o que dá para escolher ao se cadastrar, e isto
+ * é o que a cidade tem hoje. Mostrar a lista fixa aqui encheria a tela de
+ * ofícios sem ninguém para atender — e cada um deles é um toque que termina
+ * em "não achamos ninguém".
+ */
+export async function getTodasAsCategorias(): Promise<CategoriaPopular[]> {
+  const client = supabase();
+  if (!client) return [];
+  const { data } = await client.from("professionals_public").select("categories");
+  if (!data) return [];
+  const contagem = new Map<string, number>();
+  for (const linha of data) {
+    for (const c of (linha.categories as string[] | null) ?? []) {
+      if (c) contagem.set(c, (contagem.get(c) ?? 0) + 1);
+    }
+  }
+  return [...contagem.entries()]
+    .map(([categoria, quantidade]) => ({ categoria, quantidade }))
+    .sort((a, b) => a.categoria.localeCompare(b.categoria, "pt-BR"));
+}
+
+/**
  * As categorias mais comuns, para a grade de atalhos da tela de busca.
  *
  * "Mais comuns" não é opinião: é a contagem real de quem está cadastrado.

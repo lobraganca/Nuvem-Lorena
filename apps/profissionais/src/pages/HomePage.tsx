@@ -59,7 +59,20 @@ export function HomePage() {
   useTituloDaPagina();
   const [city, setCity] = useState<string>("");
   const [cidades, setCidades] = useState<string[]>([]);
-  const [category, setCategory] = useState<string>("");
+  /**
+   * A categoria pode chegar pelo endereço (`/?servico=Farmácia`), que é
+   * como a tela de todas as categorias manda a escolha para cá — e também
+   * o que permite mandar "olha os eletricistas daqui" por WhatsApp.
+   *
+   * O parâmetro é lido uma vez e apagado logo em seguida (ver o efeito
+   * abaixo): daí para frente quem manda é o estado. Deixá-lo no endereço
+   * faria um recarregar depois de a pessoa já ter mudado de ideia
+   * ressuscitar a busca antiga.
+   */
+  const [category, setCategory] = useState<string>(() => {
+    if (typeof window === "undefined") return "";
+    return new URLSearchParams(window.location.search).get("servico") ?? "";
+  });
   const [categorias, setCategorias] = useState<string[]>([]);
   const [categoriasPopulares, setCategoriasPopulares] = useState<CategoriaPopular[]>([]);
   const [text, setText] = useState<string>("");
@@ -90,7 +103,11 @@ export function HomePage() {
     // Supabase pode já ter limpado o token da URL antes desta tela montar, e
     // aí a volta do login parece uma visita comum — a pessoa era mandada para
     // a tela de início em vez do painel, e o login parecia não ter funcionado.
-    return !voltandoDoLogin && !temDestinoLogin() && !hasSeenWelcome();
+    // Quem chega com um serviço escolhido veio de dentro do app, pela tela
+    // de categorias — mandá-lo para a apresentação jogaria fora a escolha
+    // que ele acabou de fazer.
+    const comServicoEscolhido = new URLSearchParams(window.location.search).has("servico");
+    return !voltandoDoLogin && !comServicoEscolhido && !temDestinoLogin() && !hasSeenWelcome();
   });
   const { user } = useAuth();
   const [indicarAberto, setIndicarAberto] = useState(false);
@@ -99,6 +116,15 @@ export function HomePage() {
   const [indSaving, setIndSaving] = useState(false);
   const [indEnviada, setIndEnviada] = useState(false);
   const [indErro, setIndErro] = useState("");
+
+  /* O endereço volta a ser só "/" depois que a escolha foi lida. Sem isto,
+     a pessoa limpa a busca, recarrega a tela e a categoria antiga volta —
+     porque continuava escrita ali. */
+  useEffect(() => {
+    if (new URLSearchParams(window.location.search).has("servico")) {
+      window.history.replaceState(null, "", window.location.pathname);
+    }
+  }, []);
 
   useEffect(() => {
     getCidadesComAnuncio().then(setCidades);
@@ -443,11 +469,26 @@ export function HomePage() {
             </div>
           )}
 
-          {/* A instrução vem depois dos cartões: quem já sabe o que quer
-              toca num deles sem ler nada, e quem não achou o ofício na
-              grade é justamente quem precisa saber que dá para digitar. */}
+          {/* A saída de quem não achou o ofício na grade. Oito cartões são
+              os ofícios mais numerosos da cidade; quem procura costureira ou
+              professor de música não está entre eles, e antes só lhe restava
+              acertar a palavra no campo de busca ou abrir o filtro de
+              serviços — uma lista alfabética dentro de um `select` de
+              celular, que é onde a pessoa desiste.
+
+              Botão, e não link de texto: é a segunda ação mais provável da
+              tela, atrás só de tocar num cartão. */}
+          {categoriasPopulares.length > 0 && (
+            <Link to="/categorias" className="btn btn-outline categorias-ver-mais">
+              Ver todas as categorias
+            </Link>
+          )}
+
+          {/* A instrução vem depois do botão: quem já sabe o que quer toca
+              num cartão sem ler nada, e quem não achou o ofício tem primeiro
+              a lista completa — digitar é a terceira saída, não a segunda. */}
           <p className="muted categorias-dica">
-            Não achou aqui? Digite o serviço ali em cima — a busca vai além destes.
+            Ou digite o serviço ali em cima — a busca vai além destes.
           </p>
         </div>
       )}
