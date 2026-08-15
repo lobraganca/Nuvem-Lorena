@@ -1900,10 +1900,12 @@ textarea::placeholder {
   color: #1c6b3f;
 }
 
-/* O visto, dentro de um círculo cheio. Solto no meio do texto ele herdava
-   o desenho do sistema — largura e altura diferentes em cada aparelho — e
-   descia meio pixel abaixo da linha de base. Num círculo de tamanho fixo,
-   centrado por flex, ele fica igual em todo lugar. */
+/* O visto, dentro de um círculo cheio.
+   O traço é um SVG e não o caractere "✓": a letra não ocupa o meio da
+   própria caixa, e o quanto ela sai do meio muda com a fonte que cada
+   aparelho escolheu — dava para centrar no computador e continuar torto no
+   celular. O desenho é simétrico dentro do quadro, então centrar a caixa
+   passa a centrar o traço. */
 .whats-ok-marca {
   flex: none;
   width: 20px;
@@ -1914,8 +1916,10 @@ textarea::placeholder {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  font-size: 0.72rem;
-  font-weight: 700;
+}
+
+.whats-ok-marca svg {
+  display: block;
 }
 
 .whats-ok strong {
