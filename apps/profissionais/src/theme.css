@@ -411,8 +411,21 @@ textarea::placeholder {
   color: var(--color-text-muted);
 }
 
+/* Texto de apoio um degrau abaixo do corpo. Ele explica o que a tela
+   pede, mas não é o que a pessoa veio ler — no mesmo tamanho do corpo,
+   uma instrução de duas frases disputava a atenção com o título e com
+   os campos ao mesmo tempo.
+
+   O tamanho fica NESTE bloco, lá no começo da folha, e não junto do
+   `line-height` do fim: sete lugares combinam `muted` com uma classe
+   que já define tamanho próprio (`card-sem-nota`, `cfg-texto`,
+   `request-msg`, `produtos-intro`, todas entre 0,82 e 0,86rem). Como
+   as duas seleções têm a mesma especificidade, quem vem depois vence —
+   declarado no fim, este 0,94rem aumentaria justamente os textos que
+   alguém já tinha diminuído de propósito. */
 .muted {
   color: var(--color-text-muted);
+  font-size: 0.94rem;
 }
 
 .grid {
@@ -2307,18 +2320,31 @@ textarea::placeholder {
 /* Uma família só, mas com hierarquia de verdade: títulos mais firmes e um
    pouco mais apertados, texto de apoio com respiro. Antes tudo vinha do
    padrão do navegador e as telas ficavam com a mesma voz do começo ao fim. */
+/* Tamanho dos títulos, que até aqui nunca foi definido.
+   Sem `font-size`, `h1` e `h2` saíam no padrão do navegador — 32px e
+   24px. Numa tela de 390px, "Painel do profissional" ocupava a largura
+   inteira e empurrava o conteúdo para fora da primeira dobra: a pessoa
+   via título, subtítulo e instrução antes de chegar no primeiro campo.
+
+   `clamp` em vez de um valor fixo por faixa: assim o título encolhe
+   sozinho no celular estreito e volta a respirar no computador, sem
+   depender de media query para cada tela. */
 h1 {
+  font-size: clamp(1.45rem, 5.2vw, 1.85rem);
   letter-spacing: -0.02em;
-  line-height: 1.15;
+  line-height: 1.18;
 }
 
 h2 {
+  font-size: clamp(1.1rem, 3.8vw, 1.3rem);
   letter-spacing: -0.015em;
-  line-height: 1.2;
+  line-height: 1.25;
 }
 
 h3 {
+  font-size: clamp(1rem, 3.2vw, 1.08rem);
   letter-spacing: -0.01em;
+  line-height: 1.3;
 }
 
 .muted {
