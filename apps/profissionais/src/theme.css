@@ -1949,6 +1949,11 @@ textarea::placeholder {
   overflow: hidden;
 }
 
+/* `flex-wrap: wrap` daqui era o defeito: quando título e preço não cabiam
+   numa linha, a seta virava o terceiro item e caía sozinha numa linha
+   própria, embaixo e à direita. Sem wrap, o texto — que agora é um
+   embrulho só (`.recolhivel-titulo`) — quebra por dentro, e a seta fica
+   onde deve, centrada à direita. */
 .produtos > summary {
   padding: 12px 14px;
   font-weight: 600;
@@ -1957,8 +1962,7 @@ textarea::placeholder {
   list-style: none;
   display: flex;
   align-items: center;
-  gap: 6px;
-  flex-wrap: wrap;
+  gap: 8px;
 }
 
 /* A seta padrão do navegador muda de forma entre Chrome e Safari; esta é
@@ -3397,16 +3401,30 @@ h3 {
   cursor: pointer;
   font-size: 0.92rem;
   list-style: none;
+  display: flex;
+  align-items: center;
+  gap: 8px;
 }
 
 .bloco-recolhivel > summary::-webkit-details-marker {
   display: none;
 }
 
+/* Era `float: right`, que gruda a seta na ÚLTIMA linha do texto: com o
+   título em três linhas, ela aparecia lá embaixo, desalinhada do bloco
+   que abre. Como item de flex ela fica centrada, qualquer que seja a
+   altura do texto. */
 .bloco-recolhivel > summary::after {
   content: "▾";
-  float: right;
+  margin-left: auto;
+  flex: none;
   color: var(--color-text-muted);
+}
+
+/* O texto do cabeçalho recolhível é um item só, e é ele que quebra em
+   várias linhas — a seta nunca. */
+.recolhivel-titulo {
+  min-width: 0;
 }
 
 .bloco-recolhivel[open] > summary::after {

@@ -792,9 +792,15 @@ export function PainelPage() {
                     precisa nem saber que ele existe, e aberto ele empurraria
                     para baixo tudo o mais do painel. */}
                 <details className="bloco-recolhivel">
+                  {/* Título e explicação embrulhados juntos: são um bloco
+                      só, e a seta do lado precisa de um vizinho único para
+                      ficar à direita dele. Soltos, cada um virava um item
+                      de flex e a seta caía numa linha própria. */}
                   <summary>
-                    <strong>Lista do que eu faço</strong>
-                    <span className="muted"> — exames, ajustes, pacotes, tipos de atendimento</span>
+                    <span className="recolhivel-titulo">
+                      <strong>Lista do que eu faço</strong>
+                      <span className="muted"> — exames, ajustes, pacotes, tipos de atendimento</span>
+                    </span>
                   </summary>
                   <CatalogoDeServicos professionalId={p.id} />
                 </details>
@@ -810,9 +816,11 @@ export function PainelPage() {
                     Recolher para todo mundo escondia a receita do app. */}
                 <details className="produtos produtos-oferta" open={!verified && !boosted && !plusActive}>
                   <summary>
-                    Aparecer mais{" "}
-                    <span className="muted">
-                      — a partir de R$ {precoMensal("verification", p.entity_type).toFixed(2).replace(".", ",")}/mês
+                    <span className="recolhivel-titulo">
+                      Aparecer mais{" "}
+                      <span className="muted">
+                        — a partir de R$ {precoMensal("verification", p.entity_type).toFixed(2).replace(".", ",")}/mês
+                      </span>
                     </span>
                   </summary>
 
