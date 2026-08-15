@@ -28,7 +28,7 @@ import {
   type AssinaturaAtiva,
 } from "../lib/payments";
 import { type ContactRequest, type ContactRequestStatus, type Professional, type SubscriptionType } from "../types/domain";
-import { formatPhone } from "../lib/phone";
+import { ehCelular, formatPhone } from "../lib/phone";
 import { BottomSheet } from "../components/BottomSheet";
 import { ConfirmarWhatsApp } from "../components/ConfirmarWhatsApp";
 import { BotaoApple } from "../components/BotaoApple";
@@ -359,6 +359,24 @@ export function PainelPage() {
                     qualquer digitado, e quem se cadastra precisa ver que falta. */}
                 {!CONFIRMACAO_POR_SMS ? null : p.whatsapp_verified ? (
                   <p className="whats-ok">✓ {formatPhone(p.whatsapp || p.phone)} confirmado</p>
+                ) : !ehCelular(p.whatsapp || p.phone) ? (
+                  /* Fixo não recebe SMS nem WhatsApp. Oferecer "Confirmar
+                     agora" aqui seria mandar a pessoa esperar por um código
+                     que ninguém tem como entregar — e o pior é que nada
+                     acusaria o erro: o provedor aceita o envio, cobra, e a
+                     mensagem some. O caminho é trocar o número, então é isso
+                     que o cartão oferece. */
+                  <div className="whats-pendente">
+                    <p>
+                      <strong>Falta um celular no cadastro.</strong> O número que está aí,{" "}
+                      {formatPhone(p.whatsapp || p.phone)}, é de telefone fixo — e o código de confirmação
+                      chega por SMS ou WhatsApp, que fixo não recebe. Coloque um celular no campo WhatsApp
+                      para poder confirmar.
+                    </p>
+                    <Link className="btn btn-outline" to={`/painel/editar/${p.id}`}>
+                      Colocar um celular
+                    </Link>
+                  </div>
                 ) : (
                   <div className="whats-pendente">
                     <p>

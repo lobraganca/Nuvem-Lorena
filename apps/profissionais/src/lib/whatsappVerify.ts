@@ -1,5 +1,5 @@
 import { supabase } from "./supabase";
-import { onlyPhoneDigits } from "./phone";
+import { ehCelular, onlyPhoneDigits } from "./phone";
 
 /**
  * Confirmação de posse do número por código enviado no WhatsApp.
@@ -28,6 +28,18 @@ export async function enviarCodigoWhatsApp(telefone: string): Promise<void> {
   const digitos = onlyPhoneDigits(telefone);
   if (digitos.length !== 10 && digitos.length !== 11) {
     throw new Error("Confira o número: precisa ter DDD e 8 ou 9 dígitos.");
+  }
+  /* Barra o telefone fixo aqui, e não depois. O provedor aceita o pedido de
+     mandar SMS para um fixo, responde "enviado" e cobra — e a mensagem não
+     chega, porque não há para onde chegar. Sem esta checagem, quem tem fixo
+     no cadastro apertava "Enviar código", via a tela pedir os seis dígitos e
+     esperava para sempre por algo que ninguém mandou. Nenhum erro em lugar
+     nenhum: nem na tela, nem no log do servidor. */
+  if (!ehCelular(digitos)) {
+    throw new Error(
+      "Esse número parece ser de telefone fixo, e o código só chega em celular. " +
+        "Coloque um celular no campo WhatsApp do seu cadastro e tente de novo."
+    );
   }
 
   const { error } = await client.auth.updateUser({ phone: paraFormatoInternacional(telefone) });

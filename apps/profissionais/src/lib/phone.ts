@@ -32,3 +32,22 @@ export function isValidPhone(value: string): boolean {
   const d = onlyPhoneDigits(value);
   return d.length === 10 || d.length === 11;
 }
+
+/**
+ * É celular? DDD + 9 dígitos começando em 9.
+ *
+ * Desde 2016 todo celular do país tem esse formato, e o telefone fixo tem
+ * oito dígitos depois do DDD. A diferença importa em um lugar: o código de
+ * confirmação, que chega por SMS ou WhatsApp e portanto não chega nunca num
+ * telefone fixo.
+ *
+ * O silêncio é o que torna isso grave. Mandar um SMS para um fixo não dá
+ * erro em lugar nenhum — o provedor aceita o pedido, cobra por ele e a
+ * mensagem simplesmente não existe do outro lado. Para quem está esperando,
+ * é idêntico a "o app está quebrado": ele apertou o botão, a tela pediu o
+ * código, e o código nunca veio.
+ */
+export function ehCelular(value: string): boolean {
+  const d = onlyPhoneDigits(value);
+  return d.length === 11 && d[2] === "9";
+}
