@@ -190,6 +190,10 @@ export default function App() {
         <Route path="/painel/novo" element={<CadastroPage />} />
         <Route path="/painel/editar/:id" element={<CadastroPage />} />
         <Route path="/admin" element={<AdminPage />} />
+        {/* Cada seção do painel administrativo tem endereço próprio: dá
+            para ir direto a ela, voltar, e guardar o link. Endereço
+            desconhecido cai no menu, não numa tela em branco. */}
+        <Route path="/admin/:secao" element={<AdminPage />} />
         <Route path="/termos" element={<TermosPage />} />
         <Route path="/privacidade" element={<PrivacidadePage />} />
         {/* Sem link em lugar nenhum: existe para depurar login a distancia. */}

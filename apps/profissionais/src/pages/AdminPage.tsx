@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useParams } from "react-router-dom";
 import { useAuth } from "../lib/useAuth";
 import {
   isAdmin,
@@ -40,9 +40,40 @@ const SUGGESTION_STATUS_LABEL: Record<SuggestionStatus, string> = {
   reviewed: "Revisada",
 };
 
+/**
+ * As seções do painel, cada uma com endereço próprio.
+ *
+ * Eram sete blocos empilhados numa página só: dinheiro, banners,
+ * denúncias, sugestões, indicações, destaques e a lista de cadastros. No
+ * celular isso é mais de vinte telas de rolagem, e a única forma de
+ * chegar na última era passar pelas seis primeiras — inclusive quando a
+ * pessoa abriu o painel sabendo exatamente o que ia fazer.
+ *
+ * Agora o painel abre como um menu, e cada seção é um endereço: dá para
+ * ir direto, voltar, e mandar o link de uma delas.
+ *
+ * O `id` entra na URL, então mexer nele quebra links já salvos.
+ */
+const SECOES = [
+  { id: "dinheiro", simbolo: "💰", titulo: "Dinheiro", resumo: "O que entrou, por tipo e por mês." },
+  { id: "banners", simbolo: "🖼️", titulo: "Banners", resumo: "A publicidade vendida e o desempenho de cada peça." },
+  { id: "denuncias", simbolo: "🚩", titulo: "Denúncias", resumo: "Reclamações sobre cadastros, para apurar." },
+  { id: "sugestoes", simbolo: "💬", titulo: "Sugestões", resumo: "O que as pessoas pediram pelo app." },
+  { id: "indicacoes", simbolo: "🔎", titulo: "Procurados e não achados", resumo: "Serviços que faltam na cidade." },
+  { id: "destaques", simbolo: "🔥", titulo: "Destaques", resumo: "Quem está no topo da busca e quem está na fila." },
+  { id: "cadastros", simbolo: "📋", titulo: "Cadastros", resumo: "Ver, editar, reenquadrar foto e tirar do ar." },
+] as const;
+
+type SecaoId = (typeof SECOES)[number]["id"];
+
 export function AdminPage() {
   useTituloDaPagina("Administração");
   const { user, loading } = useAuth();
+  const { secao } = useParams<{ secao?: string }>();
+  const secaoAberta = SECOES.find((s) => s.id === secao)?.id ?? null;
+  /* Endereço inventado ("/admin/qualquercoisa") cai no menu em vez de numa
+     página vazia — a pessoa erra o link e vê o painel, não um branco. */
+  const mostrar = (id: SecaoId) => secaoAberta === id;
   const [checking, setChecking] = useState(true);
   const [admin, setAdmin] = useState(false);
   const [reports, setReports] = useState<ReportWithProfessional[]>([]);
@@ -234,30 +265,77 @@ export function AdminPage() {
 
   const pendingCount = reports.filter((r) => r.status === "pending").length;
 
+  const novasSugestoes = suggestions.filter((s) => s.status === "new").length;
+  /* Contagem só onde ela é completa. A lista de cadastros vem paginada, e
+     um "20" no menu leria como "a cidade tem 20 cadastros" quando é só o
+     tamanho da primeira página — número errado no lugar mais visível. */
+  const pendencias: Partial<Record<SecaoId, number>> = {
+    denuncias: pendingCount,
+    sugestoes: novasSugestoes,
+    indicacoes: indicacoes.length,
+  };
+  const aberta = SECOES.find((s) => s.id === secaoAberta);
+
   return (
     <div className="container" style={{ paddingTop: 32, paddingBottom: 60 }}>
-      <h1>Painel administrativo</h1>
-      <p className="muted">
-        {pendingCount === 0
-          ? "Nenhuma denúncia pendente."
-          : `${pendingCount} denúncia${pendingCount > 1 ? "s" : ""} pendente${pendingCount > 1 ? "s" : ""}.`}
-      </p>
+      {aberta ? (
+        <>
+          <Link to="/admin" className="voltar-link">
+            ← Painel administrativo
+          </Link>
+          <h1 style={{ marginTop: 10 }}>{aberta.titulo}</h1>
+          <p className="muted painel-subtitulo">{aberta.resumo}</p>
+        </>
+      ) : (
+        <>
+          <h1>Painel administrativo</h1>
+          <p className="muted">
+            {pendingCount === 0
+              ? "Nenhuma denúncia pendente."
+              : `${pendingCount} denúncia${pendingCount > 1 ? "s" : ""} pendente${pendingCount > 1 ? "s" : ""}.`}
+          </p>
+        </>
+      )}
       {message && <p className="card">{message}</p>}
+
+      {/* O menu. Cada seção é um alvo grande com o nome, uma linha do que
+          tem lá dentro e — onde a conta é confiável — quantas coisas estão
+          esperando resposta. É o que responde "o que precisa de mim hoje?"
+          sem abrir nada. */}
+      {!aberta && (
+        <div className="admin-menu">
+          {SECOES.map((s) => {
+            const quantas = pendencias[s.id] ?? 0;
+            return (
+              <Link key={s.id} to={`/admin/${s.id}`} className="admin-menu-item">
+                <span className="admin-menu-simbolo" aria-hidden="true">{s.simbolo}</span>
+                <span className="admin-menu-texto">
+                  <strong>{s.titulo}</strong>
+                  <span className="muted">{s.resumo}</span>
+                </span>
+                {quantas > 0 && <span className="admin-menu-conta">{quantas}</span>}
+              </Link>
+            );
+          })}
+        </div>
+      )}
 
       {/* Abre o painel: é a pergunta que se faz todo dia ("como está indo?")
           e a única que não dependia de rolar até achar. */}
-      <section style={{ marginTop: 24 }}>
-        <h2>Dinheiro</h2>
+      {mostrar("dinheiro") && (
+      <section>
         <AdminFinanceiro />
       </section>
+      )}
 
-      <section style={{ marginTop: 32 }}>
-        <h2>Banners de publicidade</h2>
+      {mostrar("banners") && (
+      <section>
         <AdminBanners />
       </section>
+      )}
 
-      <section style={{ marginTop: 24 }}>
-        <h2>Denúncias</h2>
+      {mostrar("denuncias") && (
+      <section>
         {reports.length === 0 && <p className="muted">Nenhuma denúncia recebida ainda.</p>}
         <div className="grid">
           {reports.map((r) => (
@@ -358,9 +436,10 @@ export function AdminPage() {
           ))}
         </div>
       </section>
+      )}
 
-      <section style={{ marginTop: 32 }}>
-        <h2>Sugestões dos usuários</h2>
+      {mostrar("sugestoes") && (
+      <section>
         {suggestions.length === 0 && <p className="muted">Nenhuma sugestão recebida ainda.</p>}
         <div className="grid">
           {suggestions.map((s) => (
@@ -399,9 +478,10 @@ export function AdminPage() {
           ))}
         </div>
       </section>
+      )}
 
-      <section style={{ marginTop: 32 }}>
-        <h2>Quem a cidade procurou e não achou</h2>
+      {mostrar("indicacoes") && (
+      <section>
         <p className="muted" style={{ marginTop: -6 }}>
           Indicações deixadas por quem buscou e não encontrou ninguém. É a sua lista de prospecção — gente
           indicada por quem já conhece o trabalho.
@@ -452,9 +532,10 @@ export function AdminPage() {
           </div>
         )}
       </section>
+      )}
 
-      <section style={{ marginTop: 32 }}>
-        <h2>Destaques</h2>
+      {mostrar("destaques") && (
+      <section>
 
         {/* A fila vem antes da lista de quem está turbinado de propósito: ela
             é a única informação aqui que pede uma decisão sua. Categoria com
@@ -520,9 +601,10 @@ export function AdminPage() {
           )}
         </div>
       </section>
+      )}
 
-      <section style={{ marginTop: 32 }}>
-        <h2>Profissionais cadastrados</h2>
+      {mostrar("cadastros") && (
+      <section>
         <p className="muted">{pros.length} cadastro{pros.length !== 1 ? "s" : ""} {prosLoading ? "(atualizando…)" : ""}</p>
         <div className="card" style={{ display: "flex", gap: 10, flexWrap: "wrap", marginBottom: 16, alignItems: "center" }}>
           <select value={cityFilter} onChange={(e) => handleFilter(e.target.value, categoryFilter, onlySuspended)}>
@@ -639,6 +721,7 @@ export function AdminPage() {
           </div>
         )}
       </section>
+      )}
     </div>
   );
 }

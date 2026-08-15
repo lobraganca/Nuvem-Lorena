@@ -4546,3 +4546,69 @@ h3 {
   font-size: 0.88rem;
   line-height: 1.45;
 }
+
+
+/* ---------- Painel administrativo: menu de seções ---------- */
+
+/* Eram sete blocos empilhados numa página só — no celular, mais de vinte
+   telas de rolagem, e a única forma de chegar na última era passar pelas
+   seis primeiras. Vira um menu: cada seção é um alvo grande, com o nome, o
+   que tem lá dentro e quantas coisas esperam resposta. */
+.admin-menu {
+  display: grid;
+  gap: 10px;
+  margin-top: 20px;
+}
+
+.admin-menu-item {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 14px 16px;
+  border: 1px solid var(--color-border);
+  border-radius: 14px;
+  background: var(--color-surface);
+  text-decoration: none;
+  color: var(--color-text);
+}
+
+.admin-menu-item:hover,
+.admin-menu-item:focus-visible {
+  border-color: var(--color-primary);
+  background: var(--color-bg-soft);
+}
+
+.admin-menu-simbolo {
+  flex: none;
+  font-size: 1.5rem;
+  line-height: 1;
+}
+
+.admin-menu-texto {
+  display: grid;
+  gap: 2px;
+  /* `min-width: 0` para o resumo comprido quebrar dentro da linha em vez
+     de empurrar a contagem para fora do cartão. */
+  min-width: 0;
+  flex: 1;
+}
+
+.admin-menu-texto .muted {
+  font-size: 0.84rem;
+  line-height: 1.35;
+}
+
+/* Quantas coisas esperam resposta naquela seção. Só aparece quando é
+   maior que zero: um "0" em destaque pede atenção para dizer que não há
+   nada, que é o contrário do que um contador serve. */
+.admin-menu-conta {
+  flex: none;
+  min-width: 26px;
+  padding: 3px 9px;
+  border-radius: 999px;
+  background: var(--color-primary);
+  color: #fff;
+  font-size: 0.82rem;
+  font-weight: 700;
+  text-align: center;
+}
