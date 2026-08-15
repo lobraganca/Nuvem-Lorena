@@ -775,24 +775,6 @@ export function PainelPage() {
                   );
                 })()}
 
-                {/* Ações do cadastro: tudo grátis, tudo reversível. Ficam
-                    juntas e em primeiro lugar porque são o que a pessoa vem
-                    fazer aqui — o que é pago não pode disputar espaço com o
-                    que ela já pagou (o tempo de cadastrar). */}
-                <div className="acoes-anuncio">
-                  <button className="btn btn-outline" onClick={() => startEdit(p)}>
-                    Editar
-                  </button>
-                  <button className="btn btn-outline btn-perigo" onClick={() => setExcluindoAnuncio(p)}>
-                    Excluir cadastro
-                  </button>
-                  {plusActive && (
-                    <Link className="btn btn-outline" to={`/analytics/${p.id}`}>
-                      Ver estatísticas
-                    </Link>
-                  )}
-                </div>
-
                 {/* Catálogo fechado por padrão: quem faz um serviço só não
                     precisa nem saber que ele existe, e aberto ele empurraria
                     para baixo tudo o mais do painel. */}
@@ -809,6 +791,27 @@ export function PainelPage() {
                   </summary>
                   <CatalogoDeServicos professionalId={p.id} />
                 </details>
+
+                {/* Editar e excluir fecham o cartão, depois da lista de
+                    serviços. Antes vinham no meio, entre o aviso do número e
+                    o catálogo — e "Excluir cadastro" em vermelho no meio do
+                    caminho é a última coisa que deve cruzar o olho de quem
+                    só passou para conferir o cadastro. No fim, elas são o
+                    que são: as ações sobre o cartão inteiro, depois de ele
+                    ter sido lido. */}
+                <div className="acoes-anuncio">
+                  <button className="btn btn-outline" onClick={() => startEdit(p)}>
+                    Editar
+                  </button>
+                  <button className="btn btn-outline btn-perigo" onClick={() => setExcluindoAnuncio(p)}>
+                    Excluir cadastro
+                  </button>
+                  {plusActive && (
+                    <Link className="btn btn-outline" to={`/analytics/${p.id}`}>
+                      Ver estatísticas
+                    </Link>
+                  )}
+                </div>
 
                 {/* O que é pago fica reunido, fechado por padrão e com o nome
                     dito em português: antes eram cinco botões soltos no meio
