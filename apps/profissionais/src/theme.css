@@ -3089,83 +3089,31 @@ h3 {
 
 /* ---- Cartão do anúncio, na página do profissional ---- */
 
-/* Este continua escuro, e agora diz isso por conta própria.
-   Ele reaproveita `.card-pro`, que era azul-marinho e virou claro. Aqui o
-   escuro se justifica onde na lista não se justificava: é um cartão só, no
-   topo da tela, e o assunto da página inteira — não uma fileira de blocos
-   pesados repetidos. Sem esta declaração, o cartão herdaria o fundo claro
-   e ficaria com o texto branco dos ajustes abaixo: branco sobre branco.
+/* Claro, como os cartões "Contato" e "Informações" logo abaixo.
 
-   Vários filhos dele foram desenhados supondo fundo branco, e sobre o azul
-   cada um precisa do seu ajuste — senão o que acontece é texto escuro
-   sobre fundo escuro em pontos isolados, que é o tipo de defeito que passa
-   despercebido em revisão e aparece na tela de quem usa. */
-.card-perfil {
-  background: linear-gradient(160deg, var(--color-primary-soft), var(--color-primary));
-  border-color: var(--color-primary-deep);
-}
+   Já foi azul-marinho cheio, com o conteúdo todo invertido para branco.
+   Enquanto era um cartão só numa página sem seções, o escuro se
+   sustentava: marcava o assunto da página. Com a página separada em
+   três blocos, ele virou o único escuro no meio de claros — a estrutura
+   nova já diz o que é cada coisa pelo título, e o contraste de fundo
+   passou a ser só peso a mais.
 
-/* Etiquetas, avatares e estrelas dentro do cartão escuro: vidro fosco em
-   vez das cores claras, que sobre o azul virariam manchas berrantes. Estes
-   ajustes moravam em `.card-pro` e vieram junto quando ele clareou. */
-.card-perfil .badge,
-.card-perfil .chip-static {
-  background: rgba(255, 255, 255, 0.14);
-  border-color: rgba(255, 255, 255, 0.28);
-  color: #eaf1fb;
-}
+   Não há regra nenhuma aqui: o cartão usa `card-pro`, que é o gradiente
+   claro, e agora simplesmente deixa de sobrescrevê-lo. Com isso caíram
+   também as dez regras que existiam só para o conteúdo sobreviver ao
+   fundo escuro — etiquetas de vidro fosco, nome em branco, estrelas
+   translúcidas, anéis claros em volta da foto e do avatar, e o link em
+   branco. Todas voltam ao estilo normal, que já foi desenhado para
+   fundo claro. */
 
-/* Destaque continua dourado — é o único lugar onde a cor precisa gritar,
-   porque é o que a pessoa pagou para ter. */
-.card-perfil .badge-boosted {
-  background: var(--color-gold-tint);
-  border-color: var(--color-gold-line);
-  color: var(--color-gold-deep);
-}
-
-.card-perfil .estrelas-fundo {
-  color: rgba(255, 255, 255, 0.28);
-}
-
-.card-perfil .avatar-iniciais {
-  box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.22);
-}
-
-.card-perfil .avatar-fallback {
-  background: rgba(255, 255, 255, 0.12);
-  border-color: rgba(255, 255, 255, 0.25);
-}
-
-.card-perfil .verified-badge {
-  color: #ffffff;
-}
-.card-perfil .perfil-nome,
-.card-perfil h1,
-.card-perfil strong {
-  color: #ffffff;
-}
-
-.card-perfil,
-.card-perfil p {
-  color: #eaf1fb;
-}
-
-/* Estas regras caíram junto com a separação em três cartões: o tempo de
-   casa, os canais de contato, o selo do WhatsApp, as etiquetas de
-   atendimento e o botão de pedir retorno saíram do cartão escuro e vivem
-   agora nos cartões claros "Contato" e "Informações", onde o estilo
-   normal já serve. Sobraram só os ajustes do que continua sobre o azul.
-
-   A foto ganha um anel claro para não se dissolver no azul do cartão. */
-.card-perfil .perfil-foto {
-  border-color: rgba(255, 255, 255, 0.35);
-  box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.12);
-}
-
-/* Link escrito em azul-marinho ficaria azul sobre azul aqui dentro:
-   1,07 de contraste, ou seja, invisível. */
-.card-perfil a {
-  color: #ffffff;
+/* O que sobrou para a classe fazer: desligar o levantar-no-hover que vem
+   de `.card-pro`. Aquele movimento foi feito para os cartões da busca,
+   que são links — aqui ele promete um clique que não existe, e no
+   celular o `:hover` fica grudado depois que o dedo encosta. */
+.card-perfil:hover,
+.card-perfil:focus-visible {
+  transform: none;
+  box-shadow: 0 1px 2px rgba(16, 26, 40, 0.05), 0 6px 16px rgba(16, 26, 40, 0.06);
 }
 
 /* Linha de cima do cartão do anúncio.
@@ -3409,12 +3357,6 @@ h3 {
   font-size: 0.85rem;
   font-weight: 600;
   color: var(--color-gold-deep);
-}
-
-/* O cartão do perfil ainda é escuro; ali o dourado precisa clarear. O de
-   resultado ficou claro e usa o dourado escuro do texto normal. */
-.card-perfil .card-especialidade {
-  color: #f0cd88;
 }
 
 /* ---- Publicidade na busca ---- */
