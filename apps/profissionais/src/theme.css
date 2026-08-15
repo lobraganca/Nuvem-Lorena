@@ -51,12 +51,17 @@
 
   /* Verde só no WhatsApp; escurecido para aguentar texto branco em cima. */
   --color-accent-teal: #12805f;
-  /* Fundo do card de empresa — mesma família do teal do WhatsApp, mas
-     ajustado à parte (não deriva de --color-accent-teal) porque aquele
-     serve ao botão, não a um fundo de card inteiro.
-     Fica na mesma luminosidade do azul do card (22%), para que os dois
-     tipos de anúncio se distingam pela cor e não pelo peso — um bem mais
-     escuro que o outro lia como "esse aqui está desligado". */
+  /* Fundo do cartão de empresa NO PAINEL — mesma família do teal do
+     WhatsApp, mas ajustado à parte (não deriva de --color-accent-teal)
+     porque aquele serve ao botão, não a um fundo de cartão inteiro.
+     Fica na mesma luminosidade do azul do cartão de autônomo (22%), para
+     que os dois se distingam pela cor e não pelo peso — um bem mais
+     escuro que o outro lia como "esse aqui está desligado".
+
+     Só vale no Painel, onde a pessoa vê os próprios cadastros e não
+     disputa atenção com ninguém. Na busca os dois cartões são claros
+     (ver `.card-pro-pj`): ali, escuro no meio de claros não é distinção,
+     é vantagem. */
   --color-teal-deep: #115f4f;
 
   --color-text: #0a1a2f;
@@ -2517,44 +2522,25 @@ h3 {
   color: var(--color-primary-deep);
 }
 
-/* Card de empresa (PJ) na busca: fundo teal para distinguir de autônomos */
+/* Card de empresa: mesma claridade do card de autônomo, só a matiz muda.
+   Era teal escuro com todo o conteúdo invertido para branco, e isso
+   quebrava a regra que este arquivo já tinha estabelecido em
+   `.badge-entity-pf` — "a diferença está no texto, não na cor, as duas
+   são igualmente legítimas". Num resultado de busca, um bloco escuro no
+   meio de cartões claros não é só diferente: é mais visível. Empresa
+   passava na frente de autônomo por decisão de cor, num app cuja
+   proposta é que quem decide são as avaliações.
+
+   O verde tem luminância 0,9293 contra 0,9267 do azul do outro cartão —
+   0,26% de diferença, ou seja, mesmo peso aos olhos. Dá para dizer qual
+   é qual, e nenhum dos dois se impõe.
+
+   Com o cartão claro, todas as inversões para texto branco saíram: nome,
+   texto secundário, etiquetas e o selo dourado voltam a herdar o estilo
+   normal, que já foi pensado para fundo claro. */
 .card-pro-pj {
-  background: linear-gradient(165deg, var(--color-teal-deep), #0f4a42);
-  border-color: var(--color-teal-deep);
-  color: #ffffff;
-}
-
-.card-pro-pj .card-nome {
-  color: #ffffff;
-}
-
-.card-pro-pj .muted {
-  color: rgba(255, 255, 255, 0.75);
-}
-
-.card-pro-pj .card-especialidade {
-  color: rgba(255, 255, 255, 0.85);
-}
-
-.card-pro-pj .card-cta {
-  color: rgba(255, 255, 255, 0.95);
-}
-
-.card-pro-pj .badge {
-  background: rgba(255, 255, 255, 0.18);
-  color: #ffffff;
-  border-color: rgba(255, 255, 255, 0.25);
-}
-
-.card-pro-pj .badge-selo {
-  background: #fdf4e6;
-  color: var(--color-gold-deep);
-  border-color: var(--color-gold-line);
-}
-
-.card-pro-pj .verified-badge {
-  color: var(--color-gold-mid);
-  filter: drop-shadow(0 0 6px rgba(200, 162, 74, 0.55));
+  background: linear-gradient(165deg, #ffffff, #f0f9f6);
+  border-color: #cfe6de;
 }
 
 /* ---- Escolha de serviços do anúncio (o "+" e a folha) ---- */
