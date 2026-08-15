@@ -46,7 +46,7 @@ const TOUR_STEPS: TourStep[] = [
   {
     target: "nav-favoritos",
     title: "Guarde para depois",
-    text: "O coração salva o profissional nos seus favoritos, para você não perder o contato de quem atendeu bem.",
+    text: "O coração em cada cartão salva o profissional nos seus favoritos, para você não perder o contato de quem atendeu bem. A lista fica aqui no Perfil, em \"Meus favoritos\".",
   },
   {
     target: "nav-painel",

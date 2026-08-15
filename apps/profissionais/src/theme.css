@@ -626,6 +626,18 @@ textarea::placeholder {
   stroke-width: 2.6;
 }
 
+/* Anúncios com cor própria na barra. É o único item que leva a conteúdo
+   pago, e marcar isso é honestidade: quem toca já sabe que vai ver
+   publicidade. Cor de terra, distante do azul da marca e do cinza dos
+   outros — 4,81:1 sobre o fundo da barra, acima do mínimo de 4,5:1.
+
+   Quando é o item ativo, vale a regra geral (azul da marca): o ativo
+   precisa ser reconhecível como ativo antes de ser reconhecível como
+   anúncio. */
+.bottom-nav-item.bottom-nav-anuncios:not(.active) {
+  color: var(--color-gold-deep);
+}
+
 /* Fica no HTML para leitor de tela, fora da tela para todo mundo. */
 .apenas-leitor-de-tela {
   position: absolute;

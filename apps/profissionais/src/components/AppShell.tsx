@@ -17,14 +17,6 @@ function IconSearch() {
   );
 }
 
-function IconHeart() {
-  return (
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-      <path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.6l-1-1a5.5 5.5 0 0 0-7.8 7.8l1 1L12 21l7.8-7.6 1-1a5.5 5.5 0 0 0 0-7.8Z" />
-    </svg>
-  );
-}
-
 /* Etiqueta de preço: diz "aqui tem oferta" sem a agressividade do megafone,
    que num app de serviços lê como spam. */
 function IconMegafone() {
@@ -78,6 +70,7 @@ function NavItem({
   icon,
   active,
   tour,
+  destaque,
 }: {
   to: string;
   label: string;
@@ -85,6 +78,8 @@ function NavItem({
   active: boolean;
   /** Marca este item como alvo de um passo do tour de primeiro acesso. */
   tour?: string;
+  /** Item com cor própria — hoje só o de anúncios, que leva a conteúdo pago. */
+  destaque?: boolean;
 }) {
   /* Só o ícone, como no Instagram: o rótulo continua no HTML para quem usa
      leitor de tela e para o `title`, mas sai da tela. Numa barra de cinco
@@ -94,7 +89,7 @@ function NavItem({
   return (
     <Link
       to={to}
-      className={`bottom-nav-item${active ? " active" : ""}`}
+      className={`bottom-nav-item${active ? " active" : ""}${destaque ? " bottom-nav-anuncios" : ""}`}
       data-tour={tour}
       title={label}
       aria-label={label}
@@ -288,9 +283,13 @@ export function AppShell({ children }: { children: ReactNode }) {
      
      O Guia não se perde: continua no Perfil, em "Como funciona", que é onde
      se procura ajuda depois da primeira semana. */
-  const thirdItem = admin
-    ? { to: "/admin", label: "Admin", icon: <IconFlag /> }
-    : { to: "/anuncios", label: "Anúncios", icon: <IconMegafone /> };
+  /* Anúncios deixou de disputar a vaga com Admin.
+     Antes os dois dividiam o mesmo lugar, e quem é administração perdia
+     o acesso à vitrine de anúncios pela barra — justamente quem mais
+     precisa conferir se o que foi vendido está no ar. A vaga sobrou
+     porque Favoritos saiu daqui: ele já existe no Perfil ("Meus
+     favoritos"), e o coração de salvar continua em cada cartão da busca,
+     que é onde a pessoa realmente usa. */
 
   // A tela de início vem antes de qualquer escolha: mostrar a barra de
   // navegação ali seria oferecer cinco caminhos justamente na tela cujo
@@ -311,14 +310,16 @@ export function AppShell({ children }: { children: ReactNode }) {
             tela fixa — é a anterior, qualquer que tenha sido. */}
         <BotaoVoltar />
         <NavItem to="/" label="Buscar" icon={<IconSearch />} active={path === "/"} />
+        {/* Cor própria: é o único item da barra que leva a algo pago, e
+            distinguir isso do resto é honestidade, não enfeite. Quem toca
+            ali sabe, antes de tocar, que vai ver publicidade. */}
         <NavItem
-          to="/favoritos"
-          label="Favoritos"
-          icon={<IconHeart />}
-          active={path.startsWith("/favoritos")}
-          tour="nav-favoritos"
+          to="/anuncios"
+          label="Anúncios"
+          icon={<IconMegafone />}
+          active={path.startsWith("/anuncios")}
+          destaque
         />
-        <NavItem to={thirdItem.to} label={thirdItem.label} icon={thirdItem.icon} active={path.startsWith(thirdItem.to)} />
         <NavItem
           to="/painel"
           label="Painel"
@@ -331,7 +332,14 @@ export function AppShell({ children }: { children: ReactNode }) {
           label="Perfil"
           icon={<IconUser />}
           active={path.startsWith("/perfil") || path === "/login"}
+          tour="nav-favoritos"
         />
+        {/* Por último, e só para quem é administração: assim as posições
+            de Buscar, Anúncios e Painel são as mesmas para todo mundo, e
+            o dedo não precisa reaprender a barra ao entrar na conta. */}
+        {admin && (
+          <NavItem to="/admin" label="Admin" icon={<IconFlag />} active={path.startsWith("/admin")} />
+        )}
       </nav>
       )}
     </>
