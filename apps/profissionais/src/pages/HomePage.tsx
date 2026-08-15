@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { Link, Navigate } from "react-router-dom";
-import { DEFAULT_CITY } from "../types/domain";
+import { DEFAULT_CITY, simboloDoServico } from "../types/domain";
 import {
   DEFAULT_PAGE_SIZE,
   getActiveSponsorship,
@@ -10,6 +10,7 @@ import {
   isCurrentlyBoosted,
   isCurrentlyVerified,
   searchProfessionals,
+  type CategoriaPopular,
   type ProfessionalWithRating,
   type SortOption,
 } from "../lib/professionals";
@@ -63,7 +64,7 @@ export function HomePage() {
   const [cidades, setCidades] = useState<string[]>([]);
   const [category, setCategory] = useState<string>("");
   const [categorias, setCategorias] = useState<string[]>([]);
-  const [categoriasPopulares, setCategoriasPopulares] = useState<string[]>([]);
+  const [categoriasPopulares, setCategoriasPopulares] = useState<CategoriaPopular[]>([]);
   const [text, setText] = useState<string>("");
   const [debouncedText, setDebouncedText] = useState<string>("");
   const [minRating, setMinRating] = useState<number>(0);
@@ -432,21 +433,48 @@ export function HomePage() {
            altura à tela e depois encolher quando a busca chegar. */
         <div className="card vazio-indicar" data-tour="resultados" style={{ marginTop: 24, textAlign: "center" }}>
           <strong>O que você está procurando?</strong>
-          <p className="muted">Digite um serviço ali em cima, ou toque numa das buscas mais comuns.</p>
           {categoriasPopulares.length > 0 && (
-            /* "Mais comuns" é a contagem real de quem está cadastrado, não
+            /* Cartões no lugar de etiquetas. As etiquetas eram do tamanho da
+               palavra — alvo pequeno, e uma fileira de texto cinza que se lia
+               como enfeite do aviso, não como o caminho para os resultados.
+               Em cartão, cada ofício vira um destino: símbolo próprio para
+               ser reconhecido antes de lido, nome, e quantas pessoas atendem
+               aquilo hoje.
+
+               "Mais comuns" é a contagem real de quem está cadastrado, não
                opinião nem lista fixa no código — não existe registro de
                termo mais buscado, e sugerir uma categoria vazia devolveria
                "não achamos ninguém" no primeiro toque (ver
-               getCategoriasPopulares). */
-            <div className="chip-list" style={{ justifyContent: "center", marginTop: 14 }}>
+               getCategoriasPopulares). O número no cartão é o mesmo que
+               ordena a lista: ele já estava calculado e era jogado fora. */
+            <div className="categorias-grade">
               {categoriasPopulares.map((c) => (
-                <button key={c} type="button" className="chip" onClick={() => setCategory(c)}>
-                  {c}
+                <button
+                  key={c.categoria}
+                  type="button"
+                  className="categoria-cartao"
+                  onClick={() => setCategory(c.categoria)}
+                >
+                  <span className="categoria-simbolo" aria-hidden="true">
+                    {simboloDoServico(c.categoria)}
+                  </span>
+                  <span className="categoria-nome">{c.categoria}</span>
+                  {/* "1 profissionais" é o erro que denuncia um número
+                      montado por concatenação, e quase toda categoria de
+                      cidade pequena começa no singular. */}
+                  <span className="categoria-quantos">
+                    {c.quantidade === 1 ? "1 profissional" : `${c.quantidade} profissionais`}
+                  </span>
                 </button>
               ))}
             </div>
           )}
+          {/* A instrução vem depois dos cartões: quem já sabe o que quer
+              toca num deles sem ler nada, e quem não achou o ofício na
+              grade é justamente quem precisa saber que dá para digitar. */}
+          <p className="muted categorias-dica">
+            Não achou aqui? Digite o serviço ali em cima — a busca vai além destes.
+          </p>
         </div>
       )}
 

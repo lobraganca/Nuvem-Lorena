@@ -691,7 +691,13 @@ export async function getCategoriasComAnuncio(): Promise<string[]> {
  * verdade é o proxy honesto — sugerir uma categoria vazia devolveria "não
  * achamos ninguém" no primeiro toque.
  */
-export async function getCategoriasPopulares(limite = 8): Promise<string[]> {
+export interface CategoriaPopular {
+  categoria: string;
+  /** Quantos cadastros atendem essa categoria hoje. */
+  quantidade: number;
+}
+
+export async function getCategoriasPopulares(limite = 8): Promise<CategoriaPopular[]> {
   const client = supabase();
   if (!client) return [];
   const { data } = await client.from("professionals_public").select("categories");
@@ -705,7 +711,7 @@ export async function getCategoriasPopulares(limite = 8): Promise<string[]> {
   return [...contagem.entries()]
     .sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0], "pt-BR"))
     .slice(0, limite)
-    .map(([categoria]) => categoria);
+    .map(([categoria, quantidade]) => ({ categoria, quantidade }));
 }
 
 /**

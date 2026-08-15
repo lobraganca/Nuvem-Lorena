@@ -2321,6 +2321,71 @@ textarea::placeholder {
   line-height: 1.45;
 }
 
+/* Grade de ofícios, antes de a pessoa ter pedido qualquer coisa.
+   Duas colunas em qualquer largura de celular: uma só faria uma lista
+   comprida de rolar, e três apertariam o nome a ponto de "Refrigeração e
+   ar-condicionado" virar quatro linhas. O `minmax(0, 1fr)` é o que impede
+   um nome comprido de esticar a coluna e empurrar a grade para fora da
+   tela — `1fr` sozinho tem largura mínima igual ao conteúdo. */
+.categorias-grade {
+  width: 100%;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+  margin-top: 14px;
+}
+
+.categoria-cartao {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  /* Alvo de toque alto: na etiqueta antiga a área era do tamanho da
+     palavra, e "DJ e som" dava um alvo de menos de 60px de largura. */
+  min-height: 104px;
+  padding: 14px 10px;
+  border: 1px solid var(--color-border);
+  border-radius: 14px;
+  background: var(--color-surface);
+  font-family: inherit;
+  color: var(--color-text);
+  cursor: pointer;
+  text-align: center;
+  transition: border-color 0.15s ease, background 0.15s ease;
+}
+
+.categoria-cartao:hover,
+.categoria-cartao:focus-visible {
+  border-color: var(--color-primary);
+  background: var(--color-bg-soft);
+}
+
+.categoria-simbolo {
+  font-size: 1.6rem;
+  line-height: 1;
+}
+
+.categoria-nome {
+  font-size: 0.92rem;
+  font-weight: 600;
+  line-height: 1.25;
+  /* Nome de ofício não tem hífen nem espaço de sobra: sem isto, o mais
+     comprido da lista sai pela borda do cartão. */
+  overflow-wrap: break-word;
+  min-width: 0;
+}
+
+.categoria-quantos {
+  font-size: 0.78rem;
+  color: var(--color-text-muted);
+}
+
+.categorias-dica {
+  margin-top: 12px !important;
+  font-size: 0.84rem !important;
+}
+
 /* Convite para instalar, na busca. Fina e dispensável: quem chegou veio
    procurar alguém, e um app que pede instalação antes de provar que serve é
    um app que a pessoa desinstala. */
