@@ -2971,7 +2971,16 @@ h3 {
    percebido, porque não está mais competindo com o fundo.
    O leve degradê e a borda dão o relevo que o fundo escuro dava antes. */
 .card-pro {
-  background: linear-gradient(165deg, #ffffff, #f3f7fd);
+  /* Tom acima do que era. O cartão ia de branco puro a quase-branco, e o
+     fundo da página também é branco: o que separava um do outro era só a
+     borda e a sombra, e num celular no sol isso some. Agora a cor faz
+     parte da separação, em vez de depender de dois fios de 1px.
+
+     O piso continua sendo o contraste do texto: com este azul, o texto
+     secundário — o mais fraco do cartão — fica em 4,62:1, acima do mínimo
+     de 4,5:1. Um passo a mais de tom derrubava para 4,40:1, e por isso
+     este é o limite. */
+  background: linear-gradient(165deg, #f5f9ff, #e4edfa);
   border-color: var(--color-border-strong);
   color: var(--color-text);
 }
@@ -2997,8 +3006,14 @@ h3 {
    texto secundário, etiquetas e o selo dourado voltam a herdar o estilo
    normal, que já foi pensado para fundo claro. */
 .card-pro-pj {
-  background: linear-gradient(165deg, #ffffff, #f0f9f6);
-  border-color: #cfe6de;
+  /* O verde tem exatamente a mesma luminância do azul do cartão de
+     autônomo — 0,8396, casado por busca e não a olho. Não é preciosismo:
+     a regra do app é que a diferença entre autônomo e empresa esteja no
+     texto da etiqueta, não no peso da cor, porque cor mais forte numa
+     lista é vantagem de quem aparece nela. Antes os dois já eram
+     próximos, mas por acaso; agora é por construção. */
+  background: linear-gradient(165deg, #f3fbf8, #def0ed);
+  border-color: #c3ded6;
 }
 
 /* ---- Escolha de serviços do anúncio (o "+" e a folha) ---- */
