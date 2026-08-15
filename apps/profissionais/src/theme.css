@@ -2147,6 +2147,23 @@ textarea::placeholder {
   }
 }
 
+/* O desempenho abre a seção dos planos: é o número que a pessoa tem, e é
+   contra ele que cada plano faz sentido. */
+.desempenho-resumo {
+  margin: 0 14px 10px;
+  font-size: 0.88rem;
+  line-height: 1.5;
+  color: var(--color-text);
+}
+
+/* O plano principal, quando ainda não assinado. Recebe a ênfase que antes
+   vinha de uma caixa separada com preço e botão repetidos — aqui é a mesma
+   informação, uma vez só, com um pouco mais de peso. */
+.produto-principal {
+  border-color: var(--color-gold-line);
+  box-shadow: 0 0 0 1px var(--color-gold-line);
+}
+
 /* Bloco de ofertas quando ainda não há nada assinado: contorno azul em vez
    de cinza, para se distinguir do resto do painel sem virar propaganda
    piscante dentro da ferramenta de trabalho da pessoa. */
@@ -2154,35 +2171,10 @@ textarea::placeholder {
   border-color: var(--color-primary);
 }
 
-.oferta-destaque {
-  display: flex;
-  gap: 12px;
-  align-items: center;
-  flex-wrap: wrap;
-  justify-content: space-between;
-  margin: 0 14px 12px;
-  padding: 14px;
-  border-radius: 12px;
-  background: var(--color-surface);
-  border: 1px solid var(--color-border);
-}
+/* `.oferta-destaque` foi removida: era a caixa que repetia a assinatura
+   premium acima da lista, com preço e botão próprios. A ênfase virou
+   `.produto-principal`, no próprio item da lista. */
 
-.oferta-destaque p {
-  margin: 0;
-  flex: 1 1 240px;
-  font-size: 0.87rem;
-  line-height: 1.45;
-  color: var(--color-text-muted);
-}
-
-.oferta-destaque strong {
-  color: var(--color-text);
-}
-
-.oferta-destaque .btn {
-  flex: none;
-  white-space: nowrap;
-}
 
 /* Cabeçalho de seção com ação à direita (ex.: "Meus anúncios" + Novo). */
 .secao-topo {

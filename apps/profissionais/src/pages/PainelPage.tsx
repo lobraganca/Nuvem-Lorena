@@ -817,59 +817,51 @@ export function PainelPage() {
                 <details className="produtos produtos-oferta" open={!verified && !boosted && !plusActive}>
                   <summary>
                     <span className="recolhivel-titulo">
-                      Aparecer mais{" "}
+                      Melhorar meu desempenho{" "}
                       <span className="muted">
                         — a partir de R$ {precoMensal("verification", p.entity_type).toFixed(2).replace(".", ",")}/mês
                       </span>
                     </span>
                   </summary>
 
-                  {!verified && (
-                    /* A chamada principal vai para o premium: é a assinatura que
-                       libera o contato, e sem contato o resto rende pouco. */
-                    <div className="oferta-destaque">
-                      <p>
-                        {(views7[p.id] ?? 0) > 0 ? (
-                          <>
-                            <strong>
-                              {views7[p.id] === 1
-                                ? "1 pessoa abriu seu cadastro nos últimos 7 dias"
-                                : `${views7[p.id]} pessoas abriram seu cadastro nos últimos 7 dias`}{" "}
-                              e não tinham como te chamar com um toque.
-                            </strong>{" "}
-                            Elas viram seu telefone escrito, mas sem o botão de WhatsApp e sem o "peça para te
-                            chamar" — que é por onde chega a maior parte dos contatos.
-                          </>
-                        ) : (
-                          <>
-                            <strong>Seu cadastro está no plano grátis.</strong> Quem procura consegue ver seu
-                            telefone, mas não tem o botão de WhatsApp nem o "peça para te chamar" — e é por ali
-                            que chega a maior parte dos contatos.
-                          </>
-                        )}
-                      </p>
-                      <button
-                        className="btn btn-primary"
-                        onClick={() => {
-                          if (!p.whatsapp_verified) {
-                            setConfirmandoWhats(p);
-                            return;
-                          }
-                          setPlanSheetFor({ professional: p, type: "verification" });
-                        }}
-                      >
-                        Assinar por R$ {precoMensal("verification", p.entity_type).toFixed(2).replace(".", ",")}/mês
-                      </button>
-                    </div>
-                  )}
+                  {/* O desempenho real abre a seção, e é ele que dá sentido
+                      ao que vem depois: sem número, a lista de planos é só
+                      uma lista de preços. Com número, cada item responde a
+                      uma pergunta que a pessoa acabou de se fazer.
 
-                  <p className="muted produtos-intro">
-                    Seu cadastro funciona de graça, para sempre. O que está aqui embaixo serve para você
-                    aparecer antes dos outros ou passar mais confiança — nada disso muda o seu trabalho, só a
-                    sua vitrine.
+                      Antes esta frase vinha dentro de uma caixa com preço e
+                      botão próprios — e logo abaixo vinha a MESMA assinatura
+                      outra vez, na lista, com outro botão. Duas chamadas para
+                      a mesma coisa na mesma tela: quem lia tinha que
+                      descobrir sozinho que era o mesmo produto. */}
+                  <p className="desempenho-resumo">
+                    {(views7[p.id] ?? 0) > 0 ? (
+                      <>
+                        <strong>
+                          {views7[p.id] === 1
+                            ? "1 pessoa abriu seu cadastro nos últimos 7 dias."
+                            : `${views7[p.id]} pessoas abriram seu cadastro nos últimos 7 dias.`}
+                        </strong>{" "}
+                        {!verified &&
+                          'Elas viram seu telefone escrito, mas sem o botão de WhatsApp e sem o "peça para te chamar" — que é por onde chega a maior parte dos contatos.'}
+                      </>
+                    ) : (
+                      <>
+                        <strong>Ninguém abriu seu cadastro nos últimos 7 dias.</strong>{" "}
+                        Aparecer antes na busca é o que muda esse número.
+                      </>
+                    )}
                   </p>
 
-                  <div className="produto">
+                  <p className="muted produtos-intro">
+                    Seu cadastro é grátis para sempre. O que está aqui muda a sua vitrine, não o seu trabalho.
+                  </p>
+
+                  {/* O premium recebe o destaque que a caixa duplicada dava,
+                      agora como ênfase no próprio item da lista: é a
+                      assinatura que libera o contato, e sem contato o resto
+                      rende pouco. */}
+                  <div className={`produto${verified ? "" : " produto-principal"}`}>
                     <div className="produto-texto">
                       <strong>Conta premium</strong>
                       <p>
