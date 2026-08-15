@@ -6,6 +6,7 @@ import { getFavoriteProfessionals, type ProfessionalWithRating } from "../lib/pr
 import { FavoriteButton } from "../components/FavoriteButton";
 import { useAuth } from "../lib/useAuth";
 import { useTituloDaPagina } from "../lib/tituloDaPagina";
+import { corDoNome, iniciais } from "../lib/avatar";
 
 export function FavoritosPage() {
   useTituloDaPagina("Meus favoritos");
@@ -62,15 +63,19 @@ export function FavoritosPage() {
             <Link key={p.id} to={`/profissional/${p.id}`} className={`card card-pro ${p.entity_type === "pj" ? "card-pro-pj" : ""}`} style={{ textDecoration: "none", color: "inherit" }}>
               <div style={{ display: "flex", gap: 12, alignItems: "start" }}>
                 {p.photo_url ? (
-                  <img
-                    src={p.photo_url}
-                    alt=""
-                    className="card-foto"
-                    style={{ borderRadius: p.entity_type === "pj" ? 14 : "50%" }}
-                  />
+                  <img src={p.photo_url} alt="" className="card-foto" />
                 ) : (
-                  <div className="avatar-fallback card-foto" style={{ borderRadius: p.entity_type === "pj" ? 14 : "50%" }}>
-                    {p.entity_type === "pj" ? "🏢" : "👤"}
+                  /* As mesmas iniciais coloridas da busca. Aqui era um emoji
+                     cinza em caixa clara: o mesmo cadastro aparecia de um
+                     jeito na busca e de outro nos favoritos, e sobre o
+                     cartão teal da empresa a caixa clara ficava como um
+                     furo no meio do cartão. */
+                  <div
+                    className="avatar-iniciais card-foto"
+                    style={{ background: corDoNome(p.name) }}
+                    aria-hidden="true"
+                  >
+                    {iniciais(p.name)}
                   </div>
                 )}
                 <div style={{ flex: 1 }}>
@@ -82,13 +87,23 @@ export function FavoritosPage() {
                     {p.category} · {p.city}
                   </p>
                   {p.especialidade && <p className="card-especialidade">{p.especialidade}</p>}
+                  {/* Dentro da coluna de texto e embrulhado em `.card-selos`,
+                      como na busca. Solto como filho direto do cartão, o selo
+                      ficava fora da coluna, alinhado com a foto e sem o
+                      respiro de cima — era o que fazia este cartão parecer
+                      quebrado ao lado do da busca. */}
+                  <div className="card-selos">
+                    {p.verified && (
+                      <span className="badge badge-selo">
+                        <VerifiedBadge size={14} /> Premium
+                      </span>
+                    )}
+                    <span className={p.entity_type === "pj" ? "badge badge-entity-pj" : "badge badge-entity-pf"}>
+                      {p.entity_type === "pj" ? "Empresa" : "Profissional autônomo"}
+                    </span>
+                  </div>
                 </div>
               </div>
-              {p.verified && (
-                <span className="badge badge-selo">
-                  <VerifiedBadge size={14} /> Premium
-                </span>
-              )}
               <p style={{ marginTop: 10 }}>
                 {p.average_rating ? (
                   <Estrelas nota={p.average_rating} />

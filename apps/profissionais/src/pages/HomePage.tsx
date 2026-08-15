@@ -27,29 +27,7 @@ import { BottomSheet } from "../components/BottomSheet";
 import { enviarIndicacao } from "../lib/indicacoes";
 import { formatPhone } from "../lib/phone";
 import { useTituloDaPagina } from "../lib/tituloDaPagina";
-
-/**
- * Iniciais em cor, no lugar do bonequinho genérico.
- *
- * Sem foto, todos os cadastros ficavam idênticos — a mesma silhueta cinza
- * repetida na lista inteira, que é o oposto do que um cartão de visita
- * precisa fazer. As iniciais distinguem à primeira vista, e a cor vem do
- * próprio nome, então é sempre a mesma para a mesma pessoa.
- */
-function iniciais(nome: string): string {
-  const partes = nome.trim().split(/\s+/).filter(Boolean);
-  if (partes.length === 0) return "?";
-  if (partes.length === 1) return partes[0].slice(0, 2).toUpperCase();
-  return (partes[0][0] + partes[partes.length - 1][0]).toUpperCase();
-}
-
-function corDoNome(nome: string): string {
-  let soma = 0;
-  for (let i = 0; i < nome.length; i++) soma = (soma + nome.charCodeAt(i) * (i + 1)) % 360;
-  // Saturação e luminosidade fixas: a variação é só de matiz, para nenhuma
-  // combinação sair berrante nem apagada ao lado das outras.
-  return `hsl(${soma} 42% 42%)`;
-}
+import { corDoNome, iniciais } from "../lib/avatar";
 
 /**
  * Passos do tour de primeiro acesso. Cada um aponta para um pedaço real da
@@ -483,13 +461,15 @@ export function HomePage() {
              ia junto. */
           <div className="card vazio-indicar">
             <strong>Não achamos ninguém com esses filtros.</strong>
+            <button className="btn btn-primary" onClick={() => setIndicarAberto(true)}>
+              Indicar um profissional
+            </button>
+            {/* Explicação embaixo do botão: o título já diz o que houve, e
+                quem chegou aqui quer saber o que fazer, não ler primeiro. */}
             <p className="muted">
               Tente outra categoria ou tire o filtro de nota. E se você conhece alguém que faz esse serviço,
               indique — a gente convida.
             </p>
-            <button className="btn btn-primary" onClick={() => setIndicarAberto(true)}>
-              Indicar um profissional
-            </button>
           </div>
         )}
         {results.map((p) => {
@@ -499,19 +479,11 @@ export function HomePage() {
             <Link key={p.id} to={`/profissional/${p.id}`} className={`card card-pro ${p.entity_type === "pj" ? "card-pro-pj" : ""}`} style={{ textDecoration: "none", color: "inherit" }}>
               <div style={{ display: "flex", gap: 12, alignItems: "start" }}>
                 {p.photo_url ? (
-                  <img
-                    src={p.photo_url}
-                    alt={p.name}
-                    className="card-foto"
-                    style={{ borderRadius: p.entity_type === "pj" ? 14 : "50%" }}
-                  />
+                  <img src={p.photo_url} alt={p.name} className="card-foto" />
                 ) : (
                   <div
                     className="avatar-iniciais card-foto"
-                    style={{
-                      borderRadius: p.entity_type === "pj" ? 14 : "50%",
-                      background: corDoNome(p.name),
-                    }}
+                    style={{ background: corDoNome(p.name) }}
                     aria-hidden="true"
                   >
                     {iniciais(p.name)}

@@ -104,17 +104,21 @@ export function MinhaAssinatura({ userId }: { userId: string }) {
          apresentando o anúncio como uma segunda tarefa depois do cadastro
          que a pessoa acha que já fez ao entrar com o Google. Aqui o recado
          é o que falta: terminar o que ela começou. */
+      /* A explicação vem DEPOIS do botão. Entre o título e a ação, ela
+         obrigava a ler quatro linhas antes de chegar ao que resolve — e
+         quem já entendeu o problema pelo título só quer o botão. Embaixo,
+         ela atende quem ficou em dúvida sem atrasar quem não ficou. */
       <div className="assinatura-bloco">
-        <p style={{ margin: 0 }}>
+        <p style={{ margin: "0 0 12px" }}>
           <strong>Seu cadastro ainda não está no ar.</strong>
-        </p>
-        <p className="muted" style={{ margin: "4px 0 12px", fontSize: "0.88rem" }}>
-          Falta terminar o cadastro para você aparecer na busca — são três passos e é grátis. A conta
-          premium, que libera o botão de WhatsApp e o pedido de contato, fica disponível aqui depois.
         </p>
         <Link className="btn btn-primary" to="/painel">
           Termine seu cadastro
         </Link>
+        <p className="muted" style={{ margin: "12px 0 0", fontSize: "0.88rem" }}>
+          São três passos e é grátis. A conta premium, que libera o botão de WhatsApp e o pedido de
+          contato, fica disponível aqui depois.
+        </p>
       </div>
     );
   }

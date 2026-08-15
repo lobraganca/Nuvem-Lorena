@@ -2223,8 +2223,8 @@ textarea::placeholder {
    com o mesmo bonequinho cinza — nenhum anúncio se distinguia do outro, que
    é o contrário do trabalho de um cartão de visita. */
 .avatar-iniciais {
-  width: 76px;
-  height: 76px;
+  width: 92px;
+  height: 92px;
   flex-shrink: 0;
   display: flex;
   align-items: center;
@@ -2947,9 +2947,19 @@ h3 {
 /* Foto no card da busca. A 56px era um selo ao lado do nome; quem varre uma
    lista de profissionais decide primeiro pelo rosto e só depois lê o nome —
    é a foto que responde "essa pessoa eu deixo entrar em casa?". */
+/* Quadrada de cantos arredondados, e a mesma forma para pessoa e empresa.
+   Antes a forma dependia do tipo — círculo para autônomo, quadrado para
+   empresa — e isso fazia a lista inteira parecer desalinhada, com dois
+   recortes diferentes na mesma coluna. A forma não precisa carregar essa
+   informação: a etiqueta embaixo do nome já diz qual é qual.
+
+   O raio fica aqui e não mais no `style` de cada tela: eram três telas
+   repetindo a mesma condição, e bastava esquecer uma para o mesmo
+   cadastro aparecer redondo num lugar e quadrado no outro. */
 .card-foto {
-  width: 76px;
-  height: 76px;
+  width: 92px;
+  height: 92px;
+  border-radius: 18px;
   object-fit: cover;
   border: 1px solid var(--color-border);
   flex-shrink: 0;
