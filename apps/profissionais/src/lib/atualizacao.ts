@@ -70,6 +70,45 @@ export function aplicarAtualizacao() {
   window.location.reload();
 }
 
+/**
+ * A saída de emergência: joga fora tudo o que está guardado e recarrega.
+ *
+ * O caminho normal — aviso na tela, botão "Atualizar" — depende de o
+ * navegador ter percebido a versão nova e deixado o novo service worker
+ * esperando. Quando essa detecção falha, e ela falha (rede que caiu no meio
+ * do download, service worker que travou em `installing`, app instalado que
+ * ficou dias em segundo plano), não sobra nada para a pessoa fazer: ela
+ * recarrega, fecha, reabre, e continua vendo a versão de antes. Foi o que
+ * aconteceu aqui, duas vezes, com quem publica o app.
+ *
+ * Isto não pede licença ao service worker: remove o registro dele, apaga os
+ * caches todos e recarrega. Na volta, o navegador é obrigado a buscar tudo
+ * do servidor, e um service worker novo se registra do zero.
+ *
+ * É seguro: o que está nos caches são cópias de arquivos que estão no
+ * servidor. Nada do que a pessoa escreveu mora ali — cadastro e favoritos
+ * estão no banco, e as preferências ficam no `localStorage`, que não é
+ * tocado aqui.
+ */
+export async function forcarAtualizacao(): Promise<void> {
+  try {
+    if ("serviceWorker" in navigator) {
+      const registros = await navigator.serviceWorker.getRegistrations();
+      await Promise.all(registros.map((r) => r.unregister()));
+    }
+    if ("caches" in window) {
+      const nomes = await caches.keys();
+      await Promise.all(nomes.map((n) => caches.delete(n)));
+    }
+  } catch {
+    /* Navegador sem suporte, ou modo privado que recusa: recarregar mesmo
+       assim é melhor que parar aqui — sem service worker no caminho, o
+       recarregamento simples já resolve. */
+  } finally {
+    window.location.reload();
+  }
+}
+
 export function observarAtualizacoes(fn: Ouvinte) {
   ouvinte = fn;
   avisar();

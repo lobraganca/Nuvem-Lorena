@@ -7,6 +7,7 @@ import { getProfile } from "../lib/profiles";
 import { getMyProfessionals } from "../lib/professionals";
 import { isAdmin } from "../lib/admin";
 import { resetOnboarding } from "../lib/onboarding";
+import { forcarAtualizacao } from "../lib/atualizacao";
 import { excluirMinhaConta } from "../lib/account";
 import { BottomSheet } from "../components/BottomSheet";
 import { InstalarApp } from "../components/InstalarApp";
@@ -61,6 +62,9 @@ export function PerfilPage() {
   const [excluindo, setExcluindo] = useState(false);
   const [erroExclusao, setErroExclusao] = useState("");
   const [baixando, setBaixando] = useState(false);
+  /** Trava o botão de forçar atualização: o recarregamento leva um instante,
+   *  e dois toques disparariam duas limpezas em cima uma da outra. */
+  const [forcando, setForcando] = useState(false);
 
   async function handleExcluirConta() {
     setExcluindo(true);
@@ -197,6 +201,38 @@ export function PerfilPage() {
         <InstalarApp />
         <SettingsItem to="/painel" icon="📋" label="Meus cadastros" />
         <SettingsItem to="/favoritos" icon="❤️" label="Meus favoritos" />
+      </div>
+
+      {/* A saída para quando o app fica preso numa versão antiga.
+          O caminho normal é o aviso "tem uma versão nova" com o botão de
+          atualizar — mas ele depende de o navegador ter percebido a versão
+          nova. Quando essa detecção falha, e ela falha, não sobrava nada
+          para fazer: recarregar, fechar e reabrir devolviam a mesma tela de
+          antes, e a pessoa concluía que a correção nunca foi publicada.
+
+          A versão fica escrita ao lado para a comparação ser possível: sem
+          ela, "estou atualizado?" não tem como ser respondido de dentro do
+          app. */}
+      <p className="settings-group-title">O app</p>
+      <div className="settings-list">
+        <div className="settings-item settings-versao">
+          <span className="settings-icon" aria-hidden="true">🏷️</span>
+          <span>Versão instalada</span>
+          <span className="settings-versao-numero">{__VERSAO__}</span>
+        </div>
+        <button
+          type="button"
+          className="settings-item"
+          onClick={() => {
+            setForcando(true);
+            void forcarAtualizacao();
+          }}
+          disabled={forcando}
+        >
+          <span className="settings-icon" aria-hidden="true">🔄</span>
+          <span>{forcando ? "Buscando a versão nova…" : "Forçar atualização"}</span>
+          <span className="settings-arrow" aria-hidden="true">›</span>
+        </button>
       </div>
 
       <p className="settings-group-title">Dados e segurança</p>
