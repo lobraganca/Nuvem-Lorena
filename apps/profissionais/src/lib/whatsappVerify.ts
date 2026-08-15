@@ -21,6 +21,40 @@ export function paraFormatoInternacional(telefone: string): string {
   return `+55${d}`;
 }
 
+/**
+ * A conta já tem este número confirmado?
+ *
+ * Precisa ser perguntado ANTES de pedir código, por causa de como o Auth se
+ * comporta: mandar `updateUser({ phone })` com o telefone que já está lá e
+ * já confirmado não é uma mudança — ele responde 200, não gera código e não
+ * manda mensagem nenhuma. Sem erro em lugar nenhum.
+ *
+ * Do lado de quem esperava, isso era o pior tipo de defeito: o botão dizia
+ * "Enviando…", a tela pedia os seis dígitos e o código nunca vinha. Dava
+ * para apertar "enviar de novo" cinco vezes seguidas e receber cinco
+ * respostas de sucesso, porque cada uma delas de fato deu certo — só não
+ * fazia o que a pessoa achava que estava pedindo.
+ *
+ * Acontece com quem já confirmou o número uma vez (num cadastro anterior,
+ * ou numa tentativa que travou depois do código) e volta para confirmar
+ * outro cadastro com o mesmo telefone. Aí não falta código nenhum: falta
+ * dizer ao cadastro que o número já é confirmado, que é o que a RPC faz.
+ *
+ * A comparação ignora o `+55` e a pontuação dos dois lados, do mesmo jeito
+ * que a RPC `confirmar_whatsapp` faz no servidor — é ela quem decide de
+ * verdade; aqui é só para saber se dá para pular o código.
+ */
+export async function numeroJaConfirmadoNaConta(telefone: string): Promise<boolean> {
+  const client = supabase();
+  if (!client) return false;
+  const { data } = await client.auth.getUser();
+  const usuario = data.user;
+  if (!usuario?.phone || !usuario.phone_confirmed_at) return false;
+
+  const semPais = (valor: string) => onlyPhoneDigits(valor.replace(/^\+?55/, ""));
+  return semPais(usuario.phone) === semPais(telefone) && semPais(telefone) !== "";
+}
+
 export async function enviarCodigoWhatsApp(telefone: string): Promise<void> {
   const client = supabase();
   if (!client) throw new Error("Sem conexão com o banco.");

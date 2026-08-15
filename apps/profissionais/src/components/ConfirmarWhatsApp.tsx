@@ -1,6 +1,11 @@
 import { useState } from "react";
 import { BottomSheet } from "./BottomSheet";
-import { conferirCodigoWhatsApp, enviarCodigoWhatsApp, marcarAnuncioConfirmado } from "../lib/whatsappVerify";
+import {
+  conferirCodigoWhatsApp,
+  enviarCodigoWhatsApp,
+  marcarAnuncioConfirmado,
+  numeroJaConfirmadoNaConta,
+} from "../lib/whatsappVerify";
 import { formatPhone } from "../lib/phone";
 
 /**
@@ -32,6 +37,16 @@ export function ConfirmarWhatsApp({
     setCarregando(true);
     setErro("");
     try {
+      /* Quem já confirmou este número não precisa de código nenhum — e,
+         pior, não conseguiria um: o Auth não manda mensagem quando o
+         telefone pedido é o que a conta já tem confirmado. Antes disso, a
+         tela pedia os seis dígitos de um código que nunca seria enviado, e
+         não havia erro em lugar nenhum para explicar. */
+      if (await numeroJaConfirmadoNaConta(numero)) {
+        await marcarAnuncioConfirmado(professionalId);
+        onConfirmado();
+        return;
+      }
       await enviarCodigoWhatsApp(numero);
       setPasso("conferir");
     } catch (err) {
