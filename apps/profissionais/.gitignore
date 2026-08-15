@@ -1,6 +1,19 @@
 node_modules
 dist
-.env.local
+
+# Qualquer arquivo de ambiente, e não só o `.env.local`.
+#
+# Só ele estava listado, o que deixava `.env`, `.env.production` e
+# companhia passarem direto — e é dentro deles que moram a chave do banco
+# e o token de pagamento. Um arquivo desses versionado por engano não se
+# desfaz apagando o commit: uma vez que foi para o GitHub, a chave tem que
+# ser trocada, e é aí que se descobre quais serviços dependiam dela.
+#
+# A exceção é o `.env.example`, que existe justamente para ser lido: ele
+# lista os nomes das variáveis, com os valores em branco.
+.env
+.env.*
+!.env.example
 
 # Projetos nativos gerados pelo Capacitor (npx cap add android/ios).
 # Não versionamos: são gerados a partir de capacitor.config.ts + dist/
