@@ -36,7 +36,7 @@ export async function registrarVisita(): Promise<void> {
  * Números reais para a tela de boas-vindas.
  *
  * Profissionais vem de uma view já de leitura pública — contagem direta,
- * sem função nenhuma. Avaliações e visitas a anúncios saíram daqui: os
+ * sem função nenhuma. Avaliações e visitas a cadastros saíram daqui: os
  * cartões que os mostravam foram tirados da tela, e mantinha-se aqui a
  * consulta seria gasto sem propósito.
  *

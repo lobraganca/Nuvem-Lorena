@@ -59,7 +59,7 @@ export function AdminPage() {
   const [cityFilter, setCityFilter] = useState("");
   const [categoryFilter, setCategoryFilter] = useState("");
   // Mesma regra da busca pública: os serviços do filtro vêm dos cadastros,
-  // então os ofícios escritos à mão pelos anunciantes também são filtráveis
+  // então os ofícios escritos à mão por quem se cadastra também são filtráveis
   // aqui — sem isso, moderar um deles exigiria rolar a lista inteira.
   const [categorias, setCategorias] = useState<string[]>([]);
   const [destaques, setDestaques] = useState<DestaqueAtivo[]>([]);
@@ -108,7 +108,7 @@ export function AdminPage() {
   async function handleSuspend(professionalId: string, banDoc: boolean) {
     const reason = (reasonDraft[professionalId] ?? "").trim();
     if (!reason) {
-      setMessage("Informe o motivo antes de tirar o anúncio do ar.");
+      setMessage("Informe o motivo antes de tirar o cadastro do ar.");
       return;
     }
     setSuspending(professionalId);
@@ -118,11 +118,11 @@ export function AdminPage() {
       await refreshAll();
       setMessage(
         emailSent
-          ? "Anúncio suspenso e dono avisado por e-mail."
-          : "Anúncio suspenso. Não foi possível confirmar o envio do e-mail de aviso (ver README sobre configurar a Resend)."
+          ? "Cadastro suspenso e dono avisado por e-mail."
+          : "Cadastro suspenso. Não foi possível confirmar o envio do e-mail de aviso (ver README sobre configurar a Resend)."
       );
     } catch (err) {
-      setMessage(err instanceof Error ? err.message : "Erro ao suspender anúncio.");
+      setMessage(err instanceof Error ? err.message : "Erro ao suspender cadastro.");
     } finally {
       setSuspending(null);
     }
@@ -134,9 +134,9 @@ export function AdminPage() {
     try {
       await reactivateProfessional(professionalId);
       await refreshAll();
-      setMessage("Anúncio reativado.");
+      setMessage("Cadastro reativado.");
     } catch (err) {
-      setMessage(err instanceof Error ? err.message : "Erro ao reativar anúncio.");
+      setMessage(err instanceof Error ? err.message : "Erro ao reativar cadastro.");
     } finally {
       setSuspending(null);
     }
@@ -275,7 +275,7 @@ export function AdminPage() {
                   {r.professional_name ? (
                     <Link to={`/profissional/${r.professional_id}`}>{r.professional_name}</Link>
                   ) : (
-                    "Anúncio removido"
+                    "Cadastro removido"
                   )}
                 </strong>
                 <span
@@ -318,7 +318,7 @@ export function AdminPage() {
               {r.professional_suspended ? (
                 <div style={{ marginTop: 10 }}>
                   <span className="badge" style={{ color: "var(--color-primary)", borderColor: "var(--color-primary)" }}>
-                    Anúncio fora do ar
+                    Cadastro fora do ar
                   </span>{" "}
                   <button
                     className="btn btn-outline"
@@ -326,13 +326,13 @@ export function AdminPage() {
                     disabled={suspending === r.professional_id}
                     onClick={() => handleReactivate(r.professional_id)}
                   >
-                    Reativar anúncio
+                    Reativar cadastro
                   </button>
                 </div>
               ) : (
                 <div style={{ marginTop: 10, borderTop: "1px solid var(--color-border)", paddingTop: 10 }}>
                   <input
-                    placeholder="Motivo para tirar o anúncio do ar"
+                    placeholder="Motivo para tirar o cadastro do ar"
                     value={reasonDraft[r.professional_id] ?? ""}
                     onChange={(e) => setReasonDraft({ ...reasonDraft, [r.professional_id]: e.target.value })}
                   />
@@ -342,7 +342,7 @@ export function AdminPage() {
                       disabled={suspending === r.professional_id}
                       onClick={() => handleSuspend(r.professional_id, false)}
                     >
-                      Tirar anúncio do ar
+                      Tirar cadastro do ar
                     </button>
                     <button
                       className="btn btn-primary"
@@ -489,7 +489,7 @@ export function AdminPage() {
           <strong>Turbinados agora ({destaques.length})</strong>
           {destaques.length === 0 ? (
             <p className="muted" style={{ margin: "6px 0 0", fontSize: "0.88rem" }}>
-              Nenhum anúncio turbinado no momento.
+              Nenhum cadastro turbinado no momento.
             </p>
           ) : (
             <>
@@ -523,7 +523,7 @@ export function AdminPage() {
 
       <section style={{ marginTop: 32 }}>
         <h2>Profissionais cadastrados</h2>
-        <p className="muted">{pros.length} anúncio{pros.length !== 1 ? "s" : ""} {prosLoading ? "(atualizando…)" : ""}</p>
+        <p className="muted">{pros.length} cadastro{pros.length !== 1 ? "s" : ""} {prosLoading ? "(atualizando…)" : ""}</p>
         <div className="card" style={{ display: "flex", gap: 10, flexWrap: "wrap", marginBottom: 16, alignItems: "center" }}>
           <select value={cityFilter} onChange={(e) => handleFilter(e.target.value, categoryFilter, onlySuspended)}>
             <option value="">Todas as cidades</option>
@@ -584,13 +584,13 @@ export function AdminPage() {
                     disabled={suspending === p.id}
                     onClick={() => handleReactivate(p.id)}
                   >
-                    Reativar anúncio
+                    Reativar cadastro
                   </button>
                 </>
               ) : (
                 <div style={{ marginTop: 8, display: "grid", gap: 8 }}>
                   <input
-                    placeholder="Motivo para tirar o anúncio do ar"
+                    placeholder="Motivo para tirar o cadastro do ar"
                     value={reasonDraft[p.id] ?? ""}
                     onChange={(e) => setReasonDraft({ ...reasonDraft, [p.id]: e.target.value })}
                   />

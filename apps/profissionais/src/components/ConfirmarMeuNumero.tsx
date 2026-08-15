@@ -4,16 +4,16 @@ import { conferirCodigoWhatsApp, enviarCodigoWhatsApp } from "../lib/whatsappVer
 import { formatPhone, onlyPhoneDigits } from "../lib/phone";
 
 /**
- * Confirmação do número da própria conta, sem anúncio no meio.
+ * Confirmação do número da própria conta, sem cadastro no meio.
  *
  * É prima do `ConfirmarWhatsApp`, mas resolve outro problema e por isso o
- * número é digitado aqui. Lá o número vem do anúncio de propósito — um
+ * número é digitado aqui. Lá o número vem do cadastro de propósito — um
  * campo livre deixaria a pessoa confirmar um número e divulgar outro.
- * Aqui não existe anúncio nenhum: quem denuncia é um vizinho qualquer, e
+ * Aqui não existe cadastro nenhum: quem denuncia é um vizinho qualquer, e
  * o que se quer garantir é só que exista um chip por trás da denúncia.
  *
  * Quem confirma, confirma para a conta (Supabase Auth). Não passa pela RPC
- * `confirmar_whatsapp`, que é a que amarra número e anúncio.
+ * `confirmar_whatsapp`, que é a que amarra número e cadastro.
  */
 export function ConfirmarMeuNumero({
   onConfirmado,
@@ -66,7 +66,7 @@ export function ConfirmarMeuNumero({
       {passo === "numero" ? (
         <div style={{ display: "grid", gap: 14 }}>
           <p style={{ margin: 0 }}>
-            Para denunciar um anúncio a gente precisa confirmar que existe um telefone de verdade por trás da
+            Para denunciar um cadastro a gente precisa confirmar que existe um telefone de verdade por trás da
             denúncia. Vamos mandar um código para o número que você digitar.
           </p>
           {/* Dito sem rodeio: a pessoa está prestes a entregar o telefone
@@ -75,7 +75,7 @@ export function ConfirmarMeuNumero({
           <p className="muted" style={{ margin: 0, fontSize: "0.85rem" }}>
             O número fica guardado na sua conta e <strong>não aparece para quem você denunciou</strong> nem em
             lugar nenhum do app. Serve só para impedir que uma pessoa abra várias contas para derrubar o
-            anúncio de um concorrente.
+            cadastro de um concorrente.
           </p>
           <input
             value={numero}

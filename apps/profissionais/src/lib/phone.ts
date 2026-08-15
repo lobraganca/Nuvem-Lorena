@@ -1,7 +1,7 @@
 /**
  * Telefone no formato que se lê em voz alta: (31) 99999-9999.
  *
- * Antes o campo era texto livre, então cada anúncio guardava de um jeito —
+ * Antes o campo era texto livre, então cada cadastro guardava de um jeito —
  * "31999999999", "31 9 9999 9999", "(31)99999999". No card do profissional
  * isso vira um borrão de números que a pessoa precisa decifrar antes de
  * ligar, e o link do WhatsApp montado a partir dele fica frágil.

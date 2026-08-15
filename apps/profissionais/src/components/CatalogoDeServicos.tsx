@@ -4,10 +4,10 @@ import { MAX_SERVICOS_CATALOGO, type ServicoOferecido } from "../types/domain";
 import { mensagemDeErro } from "../lib/erros";
 
 /**
- * Lista de serviços do anúncio, no painel de quem anuncia.
+ * Lista de serviços do cadastro, no painel de quem tem cadastro.
  *
- * Fica fora do formulário do anúncio de propósito, e só depois que ele
- * existe: o catálogo pertence a um anúncio salvo (cada item guarda o id
+ * Fica fora do formulário do cadastro de propósito, e só depois que ele
+ * existe: o catálogo pertence a um cadastro salvo (cada item guarda o id
  * dele), e um editor dentro do formulário teria que segurar tudo em memória
  * esperando o "Salvar" — inclusive as remoções, que precisariam de uma
  * segunda lista só para lembrar o que apagar. Aqui cada item é salvo quando

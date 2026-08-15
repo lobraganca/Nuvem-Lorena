@@ -19,12 +19,12 @@ import { BottomSheet } from "../components/BottomSheet";
 import { useTituloDaPagina } from "../lib/tituloDaPagina";
 
 /**
- * Tela de estatísticas do anúncio — só acessível ao dono e só quando o
+ * Tela de estatísticas do cadastro — só acessível ao dono e só quando o
  * plano Empresa Plus estiver ativo (ver `isCurrentlyPlusActive`). Números
  * simples em cards, sem gráfico (não obrigatório pela especificação).
  */
 export function AnalyticsPage() {
-  useTituloDaPagina("Números do anúncio");
+  useTituloDaPagina("Números do cadastro");
   const { id } = useParams<{ id: string }>();
   const { user, loading } = useAuth();
   const [professional, setProfessional] = useState<ProfessionalWithRating | null>(null);
@@ -103,7 +103,7 @@ export function AnalyticsPage() {
   if (!user || user.id !== professional.owner_id) {
     return (
       <div className="container" style={{ paddingTop: 40 }}>
-        <p>Você precisa entrar com a conta dona deste anúncio para ver as estatísticas.</p>
+        <p>Você precisa entrar com a conta dona deste cadastro para ver as estatísticas.</p>
       </div>
     );
   }
@@ -114,12 +114,12 @@ export function AnalyticsPage() {
         <h1>Estatísticas — {professional.name}</h1>
         {professional.entity_type !== "pj" ? (
           <p className="card">
-            O plano Empresa Plus (analytics do anúncio) só está disponível para anúncios de pessoa jurídica.
+            O plano Empresa Plus (analytics do cadastro) só está disponível para cadastros de pessoa jurídica.
           </p>
         ) : (
           <div className="card" style={{ display: "grid", gap: 14 }}>
             <p>
-              Assine o <strong>Empresa Plus</strong> para ver quantas pessoas visualizaram seu anúncio, quantos contatos
+              Assine o <strong>Empresa Plus</strong> para ver quantas pessoas visualizaram seu cadastro, quantos contatos
               de contato ele gerou e acompanhar sua avaliação média em um só lugar.
             </p>
             {message && <p style={{ color: "var(--color-danger)" }}>{message}</p>}
@@ -186,7 +186,7 @@ export function AnalyticsPage() {
   return (
     <div className="container" style={{ paddingTop: 40, paddingBottom: 60 }}>
       <h1>Estatísticas — {professional.name}</h1>
-      <p className="muted">Dados do seu anúncio, incluídos no plano Empresa Plus.</p>
+      <p className="muted">Dados do seu cadastro, incluídos no plano Empresa Plus.</p>
 
       <div className="grid" style={{ marginTop: 24, gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))" }}>
         <div className="card">

@@ -12,9 +12,9 @@ export function TermosPage() {
           procura um serviço e quem o oferece — não somos parte na relação de prestação de serviço em si.
         </p>
         <p>
-          <strong>Não prestamos os serviços anunciados.</strong> Não empregamos, não supervisionamos e não nos
+          <strong>Não prestamos os serviços cadastrados.</strong> Não empregamos, não supervisionamos e não nos
           responsabilizamos pela qualidade, execução, prazos, preços ou resultado de qualquer serviço
-          contratado entre o usuário e o profissional ou empresa anunciante.
+          contratado entre o usuário e o profissional ou empresa cadastrada.
         </p>
         <p>
           A contratação e todo o relacionamento decorrente dela — incluindo pagamento pelo serviço prestado,
@@ -23,27 +23,27 @@ export function TermosPage() {
           media disputas comerciais entre as partes.
         </p>
         <p>
-          A <strong>conta premium</strong> e o destaque de anúncio <strong>"turbinado"</strong> indicam
+          A <strong>conta premium</strong> e o destaque de cadastro <strong>"turbinado"</strong> indicam
           <strong> apenas que o profissional ou a empresa assinou o plano correspondente</strong>. Não são
           selo de checagem: a plataforma <strong>não confere documentos, não audita o cadastro e não atesta a
-          idoneidade</strong> de quem anuncia. Também não são garantia de qualidade nem de bom resultado do
+          idoneidade</strong> de quem se cadastra. Também não são garantia de qualidade nem de bom resultado do
           serviço contratado.
         </p>
         <p>
           As <strong>avaliações</strong> publicadas na plataforma são de responsabilidade exclusiva de quem as
-          escreve. A plataforma pode remover, a seu critério, avaliações ou conteúdo de anúncios que sejam
+          escreve. A plataforma pode remover, a seu critério, avaliações ou conteúdo de cadastros que sejam
           denunciados e considerados em violação a estes Termos.
         </p>
         <p>
-          Existe um <strong>canal de denúncias</strong> para reportar problemas em anúncios (informação falsa,
-          golpe/fraude, conteúdo ofensivo, entre outros). A plataforma pode suspender ou remover anúncios que
+          Existe um <strong>canal de denúncias</strong> para reportar problemas em cadastros (informação falsa,
+          golpe/fraude, conteúdo ofensivo, entre outros). A plataforma pode suspender ou remover cadastros que
           recebam denúncias procedentes, mas isso não gera qualquer obrigação de mediar ou resolver disputas
           entre usuário e profissional/empresa.
         </p>
         <p>
           O cadastro de pessoa física exige CPF e foto de rosto; o cadastro de pessoa jurídica exige CNPJ e o
           nome de um responsável pela empresa. Esses dados servem para reduzir fraude e dar mais transparência
-          aos anúncios, mas <strong>não constituem, por si só, garantia de idoneidade</strong> do anunciante.
+          aos cadastros, mas <strong>não constituem, por si só, garantia de idoneidade</strong> de quem se cadastrou.
         </p>
         <h2 style={{ fontSize: "1.05rem", marginBottom: 0 }}>Assinaturas, cancelamento e reembolso</h2>
         <p>
@@ -73,8 +73,8 @@ export function TermosPage() {
         </p>
 
         <p>
-          Ao usar o procurô — seja buscando um profissional, avaliando um anúncio ou cadastrando o seu
-          próprio anúncio — você concorda com estes Termos de Uso.
+          Ao usar o procurô — seja buscando um profissional, avaliando um cadastro ou cadastrando o seu
+          próprio cadastro — você concorda com estes Termos de Uso.
         </p>
       </div>
     </div>

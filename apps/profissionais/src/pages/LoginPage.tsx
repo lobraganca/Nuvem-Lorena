@@ -21,7 +21,7 @@ export function LoginPage() {
   return (
     <div className="container" style={{ maxWidth: 420, paddingTop: 60, textAlign: "center" }}>
       <h1>Entrar</h1>
-      <p className="muted">Use sua conta Google para buscar, avaliar e anunciar seus serviços.</p>
+      <p className="muted">Use sua conta Google para buscar, avaliar e cadastrar seus serviços.</p>
       <div style={{ marginTop: 20 }}>
         <BotaoGoogle onClick={handleGoogleLogin} disabled={!hasDatabase()} />
       </div>

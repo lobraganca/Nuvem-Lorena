@@ -4,13 +4,13 @@ import { conferirCodigoWhatsApp, enviarCodigoWhatsApp, marcarAnuncioConfirmado }
 import { formatPhone } from "../lib/phone";
 
 /**
- * Confirmação do WhatsApp do anúncio, em dois passos: manda o código, confere
+ * Confirmação do WhatsApp do cadastro, em dois passos: manda o código, confere
  * o código.
  *
- * O número não é digitado aqui — ele vem do anúncio. Um campo livre nesta
+ * O número não é digitado aqui — ele vem do cadastro. Um campo livre nesta
  * tela deixaria a pessoa confirmar um número e anunciar outro, que é
  * exatamente o buraco que esta funcionalidade existe para fechar. Se o número
- * estiver errado, o caminho é corrigir o anúncio.
+ * estiver errado, o caminho é corrigir o cadastro.
  */
 export function ConfirmarWhatsApp({
   professionalId,
@@ -58,7 +58,7 @@ export function ConfirmarWhatsApp({
   return (
     <BottomSheet
       title="Confirmar seu número"
-      subtitle="Serve para ninguém anunciar usando o seu número — e para quem procura saber que o número é mesmo seu."
+      subtitle="Serve para ninguém se cadastrar usando o seu número — e para quem procura saber que o número é mesmo seu."
       onClose={onClose}
     >
       {passo === "enviar" ? (
@@ -67,8 +67,8 @@ export function ConfirmarWhatsApp({
             Vamos mandar um código para o <strong>{formatPhone(numero)}</strong>, por SMS ou WhatsApp.
           </p>
           <p className="muted" style={{ margin: 0, fontSize: "0.85rem" }}>
-            É o número do seu anúncio — o mesmo que as pessoas veem e usam para te chamar. Se não for esse,
-            feche aqui, corrija o anúncio e volte: confirmar um número e divulgar outro não valeria de nada.
+            É o número do seu cadastro — o mesmo que as pessoas veem e usam para te chamar. Se não for esse,
+            feche aqui, corrija o cadastro e volte: confirmar um número e divulgar outro não valeria de nada.
           </p>
           {erro && <p className="form-erro">{erro}</p>}
           <button className="btn btn-primary btn-block" onClick={enviar} disabled={carregando}>

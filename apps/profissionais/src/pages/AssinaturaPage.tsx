@@ -60,7 +60,7 @@ export function AssinaturaPage() {
           <h2>Conta básica</h2>
           <p className="plano-preco">Grátis</p>
           <ul className="plano-lista">
-            <Item tem>Anúncio na busca, com foto e descrição</Item>
+            <Item tem>Cadastro na busca, com foto e descrição</Item>
             <Item tem>Seu telefone visível para quem procurar</Item>
             <Item tem>Avaliações de quem já contratou você</Item>
             <Item tem>Lista de serviços que você faz</Item>
@@ -101,7 +101,7 @@ export function AssinaturaPage() {
               <strong>"Peça para te chamar"</strong> — quem não quer ligar deixa o número e você retorna
             </Item>
             <Item tem>
-              <strong>Selo dourado</strong> ao lado do seu nome, na busca e no anúncio
+              <strong>Selo dourado</strong> ao lado do seu nome, na busca e no cadastro
             </Item>
           </ul>
         </div>
@@ -112,7 +112,7 @@ export function AssinaturaPage() {
           <strong>O que o selo não é.</strong>
         </p>
         <p className="muted" style={{ margin: 0, fontSize: "0.88rem" }}>
-          Ele mostra que o anúncio assinou o plano — não é checagem de documento e não é garantia de
+          Ele mostra que o cadastro assinou o plano — não é checagem de documento e não é garantia de
           qualidade do serviço. Preferimos dizer isso do que deixar o cliente entender uma coisa que não
           prometemos.
         </p>

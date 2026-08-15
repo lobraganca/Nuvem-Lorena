@@ -50,7 +50,7 @@ export function ExcluirContaPage() {
         <h2>O que é apagado</h2>
         <ul style={{ margin: 0, paddingLeft: 20, display: "grid", gap: 6, lineHeight: 1.5 }}>
           <li>Sua conta e seu perfil (nome, e-mail, foto e CPF, se você tiver informado)</li>
-          <li>Seus anúncios, com fotos, contatos e endereço</li>
+          <li>Seus cadastros, com fotos, contatos e endereço</li>
           <li>As avaliações que você escreveu</li>
           <li>Seus favoritos</li>
         </ul>
@@ -69,7 +69,7 @@ export function ExcluirContaPage() {
         <h2>É definitivo</h2>
         <p style={{ margin: 0 }}>
           Não há como desfazer nem recuperar depois. Criar uma conta nova com o mesmo e-mail não traz de volta
-          anúncios nem avaliações.
+          cadastros nem avaliações.
         </p>
 
         <p style={{ margin: 0 }}>

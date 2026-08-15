@@ -55,12 +55,12 @@ export function formatCnpj(value: string): string {
     .replace(/(\d{4})(\d{1,2})$/, "$1-$2");
 }
 
-/** Formata CPF ou CNPJ conforme o tipo de entidade do anúncio. */
+/** Formata CPF ou CNPJ conforme o tipo de entidade do cadastro. */
 export function formatDocument(value: string, entityType: Professional["entity_type"]): string {
   return entityType === "pj" ? formatCnpj(value) : formatCpf(value);
 }
 
-/** Valida CPF ou CNPJ conforme o tipo de entidade do anúncio. */
+/** Valida CPF ou CNPJ conforme o tipo de entidade do cadastro. */
 export function isValidDocument(value: string, entityType: Professional["entity_type"]): boolean {
   return entityType === "pj" ? isValidCnpj(value) : isValidCpf(value);
 }

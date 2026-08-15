@@ -34,7 +34,7 @@ const FEATURES = [
   },
   {
     title: "Aqui a gente torce junto",
-    text: "Quem anuncia aqui é vizinho, não uma empresa de fora. Avaliação boa vira trabalho; crítica, quando precisa existir, vem específica e sem humilhação.",
+    text: "Quem se cadastra aqui é vizinho, não uma empresa de fora. Avaliação boa vira trabalho; crítica, quando precisa existir, vem específica e sem humilhação.",
   },
 ];
 
@@ -105,7 +105,7 @@ export function BoasVindasPage() {
     };
   }, []);
 
-  /* "Avaliações" e "visitas a anúncios" saíram da tela — os dois cartões
+  /* "Avaliações" e "visitas a cadastros" saíram da tela — os dois cartões
      junto do de profissionais. Este continua: é o número que mais diz
      "o app já tem gente de verdade" para quem está decidindo se cadastra. */
   const profissionaisAnimado = useContagemAnimada(stats?.profissionais ?? 0);
@@ -168,7 +168,7 @@ export function BoasVindasPage() {
             está explicado nos cartões abaixo e no painel, na hora em que
             é oferecido — não precisa vir grudado aqui. */}
         <p className="welcome-gratis">O cadastro é grátis</p>
-        {/* Só o de profissionais continua — avaliações e visitas a anúncios
+        {/* Só o de profissionais continua — avaliações e visitas a cadastros
             saíram. Número real, contado nesta hora: aparece do jeito que
             estiver, mesmo baixo, porque um número pequeno mas verdadeiro
             erra menos do que um alto e inventado. */}
@@ -216,7 +216,7 @@ export function BoasVindasPage() {
         {/* Os lugares vendidos fecham a lista, depois das explicações.
             Já estiveram no meio (cortavam a leitura, e na grade de quatro
             colunas caíam num buraco qualquer da fileira) e na frente (a
-            primeira coisa da tela virava anúncio). Aqui a tela apresenta o
+            primeira coisa da tela virava cadastro). Aqui a tela apresenta o
             app primeiro e só então mostra quem pagou para aparecer.
 
             Vale menos para quem compra do que a primeira posição — quem

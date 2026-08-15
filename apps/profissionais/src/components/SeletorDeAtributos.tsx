@@ -3,7 +3,7 @@ import { BottomSheet } from "./BottomSheet";
 import { GRUPOS_DE_ATRIBUTOS, MAX_ATRIBUTOS } from "../types/domain";
 
 /**
- * Etiquetas de atendimento do anúncio: horário, forma de atender, pagamento.
+ * Etiquetas de atendimento do cadastro: horário, forma de atender, pagamento.
  *
  * Aberto no formulário, isso eram catorze pílulas em três blocos — meia tela
  * de cadastro gasta com o que é opcional, empurrando para baixo o telefone e
@@ -88,7 +88,7 @@ export function SeletorDeAtributos({
 
           <p className="muted" style={{ margin: "14px 0 0", fontSize: "0.85rem" }}>
             {cheio
-              ? `Você marcou ${MAX_ATRIBUTOS} etiquetas — o limite. Anúncio que marca tudo não informa nada.`
+              ? `Você marcou ${MAX_ATRIBUTOS} etiquetas — o limite. Cadastro que marca tudo não informa nada.`
               : "Marque só o que você cumpre: etiqueta que não se sustenta vira avaliação ruim."}
           </p>
 

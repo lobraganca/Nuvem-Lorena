@@ -4,7 +4,7 @@ import type { Suggestion, SuggestionStatus } from "../types/domain";
 /**
  * Canal de sugestões gerais sobre a plataforma (feedback de produto, ideias
  * como "poderia ter tal categoria" etc) — diferente de `reportProfessional`
- * (denúncia sobre um anúncio específico). Não exige login: `userId` é
+ * (denúncia sobre um cadastro específico). Não exige login: `userId` é
  * `null` quando o visitante não está autenticado.
  */
 export async function sendSuggestion(message: string, userId: string | null): Promise<void> {

@@ -1,7 +1,7 @@
 import { supabase } from "./supabase";
 
 /**
- * Apaga a conta de quem está logado, junto com anúncios, avaliações e
+ * Apaga a conta de quem está logado, junto com cadastros, avaliações e
  * favoritos.
  *
  * Quem executa é a Edge Function `delete-account`, no servidor: apagar um

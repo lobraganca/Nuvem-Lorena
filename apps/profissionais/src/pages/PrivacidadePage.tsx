@@ -39,12 +39,12 @@ export function PrivacidadePage() {
           comentário seria coletar mais do que o necessário.
         </p>
         <p>
-          <strong>De quem anuncia:</strong> além do acima, os dados do anúncio — nome ou razão social, foto de
+          <strong>De quem tem cadastro:</strong> além do acima, os dados do cadastro — nome ou razão social, foto de
           rosto ou logo, telefone, WhatsApp, e-mail, redes sociais, cidade, serviços oferecidos, descrição, CPF
           ou CNPJ e, no caso de empresa, o nome do responsável.
         </p>
         <p>
-          <strong>De uso:</strong> quantas vezes seu anúncio foi aberto nos últimos 30 dias, pedidos de contato
+          <strong>De uso:</strong> quantas vezes seu cadastro foi aberto nos últimos 30 dias, pedidos de contato
           recebidos e registros técnicos necessários para o app funcionar e para investigar abusos.
         </p>
         <p>
@@ -55,7 +55,7 @@ export function PrivacidadePage() {
 
         <h2 id="anuncio-publico">O que fica visível para todo mundo</h2>
         <p>
-          Publicar um anúncio é tornar público, para qualquer pessoa na internet — inclusive quem não tem conta
+          Publicar um cadastro é tornar público, para qualquer pessoa na internet — inclusive quem não tem conta
           aqui —, os seguintes dados: <strong>nome, foto ou logo, cidade, serviços, descrição, telefone,
           WhatsApp, e-mail e redes sociais que você preencher</strong>, além das avaliações que receber.
         </p>
@@ -65,14 +65,14 @@ export function PrivacidadePage() {
         </p>
         <p>
           Preencha apenas os contatos que você quer receber. Um campo em branco simplesmente não aparece no seu
-          anúncio.
+          cadastro.
         </p>
 
         <h2>Por que coletamos (base legal)</h2>
         <ul style={{ margin: 0, paddingLeft: 20, display: "grid", gap: 8 }}>
           <li>
-            <strong>Para executar o serviço que você pediu</strong> — mostrar seu anúncio, permitir que te
-            encontrem e te chamem. Sem esses dados não existe anúncio.
+            <strong>Para executar o serviço que você pediu</strong> — mostrar seu cadastro, permitir que te
+            encontrem e te chamem. Sem esses dados não existe cadastro.
           </li>
           <li>
             <strong>Para cumprir obrigações legais</strong> — guardar registros de acesso, como exige o Marco
@@ -80,7 +80,7 @@ export function PrivacidadePage() {
           </li>
           <li>
             <strong>Por interesse legítimo</strong> — impedir fraude e cadastro em nome de terceiros. É por
-            isso que quem anuncia informa CPF ou CNPJ, envia foto e confirma o número por código.
+            isso que quem se cadastra informa CPF ou CNPJ, envia foto e confirma o número por código.
           </li>
           <li>
             <strong>Com o seu consentimento</strong> — quando houver algo além disso, perguntamos antes.
@@ -97,7 +97,7 @@ export function PrivacidadePage() {
 
         <h2>Por quanto tempo guardamos</h2>
         <p>
-          Enquanto sua conta existir. Se você apagar a conta, apagamos o cadastro, os anúncios, as avaliações e
+          Enquanto sua conta existir. Se você apagar a conta, apagamos o cadastro, os cadastros, as avaliações e
           os favoritos. Duas exceções, e é justo você saber delas: os <strong>registros de acesso</strong>, que
           a lei manda guardar por seis meses, e os <strong>pedidos de contato que você enviou a
           profissionais</strong> — eles continuam no painel de quem recebeu, sem ligação com a sua conta,
@@ -112,7 +112,7 @@ export function PrivacidadePage() {
             dados", sem precisar pedir a ninguém.
           </li>
           <li>
-            <strong>Corrigir</strong> qualquer informação, editando o anúncio ou o perfil.
+            <strong>Corrigir</strong> qualquer informação, editando o cadastro ou o perfil.
           </li>
           <li>
             <strong>Apagar a conta</strong> — em <Link to="/perfil">Perfil</Link>, em "Excluir minha conta"

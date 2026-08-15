@@ -19,14 +19,14 @@ export function mensagemDeErro(err: unknown, padrao: string): string {
 
   // Bucket de fotos ainda não criado no projeto Supabase.
   if (/bucket not found/i.test(bruto)) {
-    return "O espaço das fotos ainda não foi criado no Supabase (Storage → New bucket → professional-photos, público). Enquanto isso, o anúncio de empresa salva sem logo.";
+    return "O espaço das fotos ainda não foi criado no Supabase (Storage → New bucket → professional-photos, público). Enquanto isso, o cadastro de empresa salva sem logo.";
   }
   // Política de segurança barrou a gravação.
   if (/row-level security|violates row-level/i.test(bruto)) {
     return "O banco recusou a gravação por segurança. Saia da conta, entre de novo e tente outra vez.";
   }
   if (/duplicate key/i.test(bruto)) {
-    return "Já existe um anúncio com esses dados.";
+    return "Já existe um cadastro com esses dados.";
   }
   return `${padrao} (${bruto})`;
 }

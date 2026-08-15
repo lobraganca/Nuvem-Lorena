@@ -67,9 +67,9 @@ export async function updateReportStatus(reportId: string, status: ReportStatus)
 }
 
 /**
- * Tira um anúncio do ar (some da busca/perfil público, mas o dono e admins
+ * Tira um cadastro do ar (some da busca/perfil público, mas o dono e admins
  * continuam vendo). `banDocument: true` também bloqueia o CPF/CNPJ do
- * anúncio em `document_bans`, impedindo novo cadastro com o mesmo
+ * cadastro em `document_bans`, impedindo novo cadastro com o mesmo
  * documento. Dispara (best-effort, sem bloquear a suspensão) o e-mail de
  * aviso ao dono via Edge Function `notify-suspension`.
  */
@@ -125,7 +125,7 @@ export async function reactivateProfessional(professionalId: string): Promise<vo
 }
 
 
-/** Um anúncio turbinado agora, com a data em que o destaque acaba. */
+/** Um cadastro turbinado agora, com a data em que o destaque acaba. */
 export interface DestaqueAtivo {
   id: string;
   name: string;

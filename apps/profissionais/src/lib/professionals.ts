@@ -36,7 +36,7 @@ export function isCurrentlyVerified(p: Pick<Professional, "verified" | "verified
   return !!p.verified && (!p.verified_until || new Date(p.verified_until) > new Date());
 }
 
-/** Anúncio turbinado só conta se `boosted` estiver true E não tiver expirado. */
+/** Cadastro turbinado só conta se `boosted` estiver true E não tiver expirado. */
 export function isCurrentlyBoosted(p: Pick<Professional, "boosted" | "boosted_until">): boolean {
   return !!p.boosted && (!p.boosted_until || new Date(p.boosted_until) > new Date());
 }
@@ -47,7 +47,7 @@ export function isCurrentlyPlusActive(p: Pick<Professional, "plus_active" | "plu
 }
 
 /**
- * Busca profissionais com filtros de cidade/categoria/texto. Anúncios
+ * Busca profissionais com filtros de cidade/categoria/texto. Cadastros
  * turbinados vêm primeiro, em ordem sorteada a cada busca (ver rodízio
  * abaixo); os demais, do mais novo para o mais antigo.
  * Sem banco configurado, devolve uma lista vazia — as telas tratam isso como
@@ -72,18 +72,18 @@ export async function searchProfessionals(filters: SearchFilters): Promise<Profe
     .range(page * pageSize, page * pageSize + pageSize - 1);
 
   if (filters.city) query = query.eq("city", filters.city);
-  // Casa com qualquer um dos serviços do anúncio, não só o principal.
+  // Casa com qualquer um dos serviços do cadastro, não só o principal.
   if (filters.category) query = query.contains("categories", [filters.category]);
   if (filters.text) {
     // `category` entra junto com nome e descrição: quem digita "eletricista"
     // no campo de busca espera encontrar os eletricistas, e não só quem tem
-    // a palavra escrita no nome ou no texto do anúncio. Sem isto, o campo
+    // a palavra escrita no nome ou no texto do cadastro. Sem isto, o campo
     // principal do app falhava justamente na busca mais óbvia — e a pessoa
     // concluía que não havia eletricista na cidade.
     //
     // `especialidade` entra pelo mesmo motivo, um nível abaixo: quem digita
     // "ortodontista" não está procurando "dentista", está procurando aquilo.
-    // Sem este campo na busca, a especialidade apareceria no anúncio e não
+    // Sem este campo na busca, a especialidade apareceria no cadastro e não
     // serviria para achar ninguém.
     const t = filters.text.replace(/[%,()]/g, " ").trim();
     query = query.or(
@@ -108,7 +108,7 @@ export async function searchProfessionals(filters: SearchFilters): Promise<Profe
   }
 
   /**
-   * Rodízio entre os anúncios turbinados.
+   * Rodízio entre os cadastros turbinados.
    *
    * O banco devolve turbinados primeiro e, dentro deles, os mais recentes —
    * o que na prática dá o topo a quem assinou por último e empurra para
@@ -244,7 +244,7 @@ export async function addReview(input: {
   if (!client) throw new Error("Banco de dados não configurado.");
   const { error } = await client.from("reviews").upsert(input, { onConflict: "professional_id,user_id" });
   if (error) throw error;
-  // Aviso ao dono do anúncio é best-effort: nunca deve derrubar o fluxo de
+  // Aviso ao dono do cadastro é best-effort: nunca deve derrubar o fluxo de
   // avaliação se a Edge Function falhar ou não estiver configurada.
   try {
     await client.functions.invoke("notify-new-review", {
@@ -278,7 +278,7 @@ export async function deleteReview(reviewId: string) {
   if (error) throw error;
 }
 
-/** Dono do anúncio responde a uma avaliação recebida. RLS garante que só o dono pode. */
+/** Dono do cadastro responde a uma avaliação recebida. RLS garante que só o dono pode. */
 export async function replyToReview(reviewId: string, reply: string) {
   const client = supabase();
   if (!client) throw new Error("Banco de dados não configurado.");
@@ -310,7 +310,7 @@ export async function isDocumentBanned(document: string): Promise<boolean> {
 }
 
 /**
- * Cria ou atualiza um anúncio. Em update (input.id presente), remove
+ * Cria ou atualiza um cadastro. Em update (input.id presente), remove
  * `photo_url` do payload quando ele não foi explicitamente informado (ex:
  * `undefined`), para não sobrescrever a foto já salva com `null` só porque o
  * usuário editou outros campos sem trocar a foto — quem chama deve passar
@@ -332,21 +332,21 @@ export async function upsertProfessional(input: Partial<Professional> & { owner_
 }
 
 /**
- * Apaga um anúncio do dono logado.
+ * Apaga um cadastro do dono logado.
  *
  * Quem decide se pode é o banco: a policy de delete exige que `owner_id` seja
- * quem está pedindo, então mandar o id de um anúncio alheio não apaga nada —
+ * quem está pedindo, então mandar o id de um cadastro alheio não apaga nada —
  * a checagem não depende de a tela ter escondido o botão.
  *
  * O efeito em cascata vem do schema: avaliações, favoritos, créditos e
- * pedidos de contato referenciam o anúncio e caem junto. É por isso que a
+ * pedidos de contato referenciam o cadastro e caem junto. É por isso que a
  * tela pede confirmação — some também a reputação construída.
  */
 /**
- * Liga e desliga a pausa do próprio anúncio.
+ * Liga e desliga a pausa do próprio cadastro.
  *
  * Separado de `upsertProfessional` porque é um gesto de um toque, e não a
- * gravação de um formulário: mandar o anúncio inteiro de volta ao banco só
+ * gravação de um formulário: mandar o cadastro inteiro de volta ao banco só
  * para mudar um booleano abriria espaço para sobrescrever, com dados velhos
  * da tela, algo que mudou no meio do caminho.
  */
@@ -428,7 +428,7 @@ export async function removeFavorite(userId: string, professionalId: string) {
 
 // --- Pagamento por contato (pay-per-lead) ---------------------------------
 
-/** Saldo de créditos de contato do próprio anúncio (só o dono enxerga). */
+/** Saldo de créditos de contato do próprio cadastro (só o dono enxerga). */
 export async function getLeadCredits(professionalId: string): Promise<LeadCredits | null> {
   const client = supabase();
   if (!client) return null;
@@ -481,7 +481,7 @@ export async function countContactRequests(professionalId: string): Promise<numb
   return count ?? 0;
 }
 
-/** Total de leads (contatos cobrados) já gerados para o anúncio — analytics do Plus. */
+/** Total de leads (contatos cobrados) já gerados para o cadastro — analytics do Plus. */
 export async function countLeadEvents(professionalId: string): Promise<number> {
   const client = supabase();
   if (!client) return 0;
@@ -530,7 +530,7 @@ export async function getActiveSponsorship(
   return { ...(data as CategorySponsorship), professional: professional as Professional };
 }
 
-/** Histórico de patrocínios do próprio anúncio, para o painel do profissional. */
+/** Histórico de patrocínios do próprio cadastro, para o painel do profissional. */
 export async function getMySponsorships(professionalId: string): Promise<CategorySponsorship[]> {
   const client = supabase();
   if (!client) return [];
@@ -559,7 +559,7 @@ export async function countProfileViews(professionalId: string): Promise<number>
  * Visualizações dos últimos 30 dias.
  *
  * Diferente do total acima, esta contagem é **grátis para todo anunciante**,
- * não só para quem assina o Plus: saber que 40 pessoas viram seu anúncio no
+ * não só para quem assina o Plus: saber que 40 pessoas viram seu cadastro no
  * último mês é o que faz alguém entender que o cadastro está valendo a pena.
  * Trancar isso atrás de uma assinatura afastaria justamente quem ainda está
  * decidindo se fica. O Plus continua valendo pelo resto (histórico completo,
@@ -597,7 +597,7 @@ export async function requestContact(input: {
   if (error) throw error;
 }
 
-/** Pedidos recebidos por um anúncio. Arquivados ficam de fora por padrão. */
+/** Pedidos recebidos por um cadastro. Arquivados ficam de fora por padrão. */
 export async function getContactRequests(
   professionalId: string,
   { includeArchived = false } = {}
@@ -632,14 +632,14 @@ export async function updateContactRequestStatus(
 }
 
 /**
- * Cidades que realmente têm anúncio publicado.
+ * Cidades que realmente têm cadastro publicado.
  *
  * O filtro da busca usava uma lista fixa no código, então oferecia cidades
  * vizinhas onde ninguém anunciou ainda — quem escolhesse uma delas via uma
  * tela vazia sem entender por quê. Aqui a lista nasce dos cadastros: só
  * aparece cidade onde há alguém para encontrar.
  *
- * O formulário do anúncio continua com a lista fixa, e tem que ser assim:
+ * O formulário do cadastro continua com a lista fixa, e tem que ser assim:
  * lá a pessoa precisa poder escolher uma cidade que ainda não existe na base
  * — é ela quem estreia a cidade.
  */
@@ -659,12 +659,12 @@ export async function getCidadesComAnuncio(): Promise<string[]> {
  * Serviços que realmente têm alguém anunciando.
  *
  * Mesma regra das cidades, e agora com um motivo a mais: quem não se encontra
- * na lista sugerida escreve o próprio serviço no anúncio. Se o filtro
+ * na lista sugerida escreve o próprio serviço no cadastro. Se o filtro
  * continuasse preso à lista fixa do código, esse serviço escrito à mão
  * existiria no cadastro e não existiria na busca — a pessoa pagaria para ficar
  * invisível.
  *
- * Lê `categories` (a lista completa do anúncio), não `category`: quem faz
+ * Lê `categories` (a lista completa do cadastro), não `category`: quem faz
  * encanamento e elétrica tem que aparecer nos dois filtros.
  */
 export async function getCategoriasComAnuncio(): Promise<string[]> {
@@ -709,11 +709,11 @@ export async function getCategoriasPopulares(limite = 8): Promise<string[]> {
 }
 
 /**
- * Catálogo de serviços de um anúncio.
+ * Catálogo de serviços de um cadastro.
  *
  * Leitura pública (é catálogo, existe para ser visto); escrita só do dono,
- * conferida pelo banco — a policy exige que o anúncio seja dele, então
- * mandar o id de um anúncio alheio não grava nada.
+ * conferida pelo banco — a policy exige que o cadastro seja dele, então
+ * mandar o id de um cadastro alheio não grava nada.
  */
 export async function getCatalogo(professionalId: string): Promise<ServicoOferecido[]> {
   const client = supabase();

@@ -129,11 +129,11 @@ function IconFechar() {
  *
  * O app é uma página só que troca de tela por dentro: no celular, o gesto
  * de voltar do sistema funciona, mas o botão do navegador some quando o
- * app está instalado — e aí quem entrou num anúncio pelo terceiro nível de
+ * app está instalado — e aí quem entrou num cadastro pelo terceiro nível de
  * navegação não tinha como recuar sem escolher uma tela na barra, que é
  * outra coisa.
  *
- * Sem histórico (alguém abriu o app direto num anúncio, por um link
+ * Sem histórico (alguém abriu o app direto num cadastro, por um link
  * recebido), voltar não tem para onde ir: nesse caso leva à busca, que é
  * o começo do app, em vez de não fazer nada.
  */
@@ -217,7 +217,7 @@ function Header() {
       <span className="header-acoes">
         {/* Quantas pessoas estão no app agora, no topo de todas as telas.
             Estava só na busca e na tela de início, que são as duas primeiras
-            — quem já tinha entrado num anúncio ou no painel deixava de ver.
+            — quem já tinha entrado num cadastro ou no painel deixava de ver.
 
             É contagem real (Presence do Supabase), e por isso some quando
             não há ninguém além de quem está lendo: um "1 on-line" fixo, que

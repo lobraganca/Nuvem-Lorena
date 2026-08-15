@@ -9,7 +9,7 @@ import {
 } from "../types/domain";
 
 /**
- * Escolha dos serviços do anúncio.
+ * Escolha dos serviços do cadastro.
  *
  * Antes a tela despejava os 65 serviços de uma vez, em chips, e o cadastro
  * inteiro ficava soterrado embaixo deles: para chegar à cidade, à descrição
@@ -24,7 +24,7 @@ import {
  * mora no formulário, ela abre quando você pede.
  *
  * A ordem importa e é visível: o primeiro serviço é o que aparece em
- * destaque no anúncio e nas buscas, então ele leva a etiqueta "principal" e
+ * destaque no cadastro e nas buscas, então ele leva a etiqueta "principal" e
  * dá para promover outro sem desmarcar tudo.
  */
 export function SeletorDeServicos({
@@ -118,7 +118,7 @@ export function SeletorDeServicos({
             maxLength={MAX_CATEGORIA_LEN}
             onChange={(e) => setBusca(e.target.value)}
             onKeyDown={(e) => {
-              // Enter dentro do formulário do anúncio salvaria o cadastro pela
+              // Enter dentro do formulário do cadastro salvaria o cadastro pela
               // metade; aqui ele acrescenta o que a pessoa escreveu.
               if (e.key === "Enter") {
                 e.preventDefault();

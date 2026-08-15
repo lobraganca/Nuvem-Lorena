@@ -16,16 +16,16 @@ import { mensagemDeErro } from "../lib/erros";
  * Assinatura, na tela de Perfil.
  *
  * As assinaturas sempre existiram, mas só dentro do Painel, presas ao cartão
- * de cada anúncio. Quem quisesse saber "eu pago alguma coisa por esse app?"
- * tinha que abrir o painel, achar o anúncio e reparar num selo pequeno — e
+ * de cada cadastro. Quem quisesse saber "eu pago alguma coisa por esse app?"
+ * tinha que abrir o painel, achar o cadastro e reparar num selo pequeno — e
  * essa é a pergunta que se faz no Perfil, que é a tela da conta.
  *
  * Esconder o que a pessoa paga não é neutro: quando ela finalmente descobre,
  * descobre com raiva. E do outro lado, quem não assina nunca esbarra na
  * oferta.
  *
- * A assinatura é por anúncio, não por conta — quem tem dois anúncios pode ter
- * premium num e não no outro. Por isso a lista é por anúncio, mesmo que na
+ * A assinatura é por cadastro, não por conta — quem tem dois cadastros pode ter
+ * premium num e não no outro. Por isso a lista é por cadastro, mesmo que na
  * maioria dos casos haja um só.
  */
 export function MinhaAssinatura({ userId }: { userId: string }) {
@@ -84,7 +84,7 @@ export function MinhaAssinatura({ userId }: { userId: string }) {
     );
   }
 
-  /* Falhou o carregamento: dizer "você não tem anúncio" aqui seria mentira —
+  /* Falhou o carregamento: dizer "você não tem cadastro" aqui seria mentira —
      a verdade é que não deu para saber. */
   if (erro && anuncios.length === 0) {
     return (
@@ -96,14 +96,14 @@ export function MinhaAssinatura({ userId }: { userId: string }) {
     );
   }
 
-  /* Sem anúncio não há o que assinar: o plano é do anúncio, e cobrar de
+  /* Sem cadastro não há o que assinar: o plano é do cadastro, e cobrar de
      alguém que não tem onde aplicar o benefício seria vender o nada. */
   if (anuncios.length === 0) {
     return (
-      /* "Você ainda não tem anúncio" / "Criar meu anúncio" apresentava o
-         anúncio como uma segunda tarefa, depois do cadastro que a pessoa
-         acha que já fez ao entrar com o Google — a mesma confusão que o
-         Painel deixou de causar. Aqui o recado é o que falta: terminar. */
+      /* Dizia "Você ainda não tem anúncio" com o botão "Criar meu anúncio",
+         apresentando o anúncio como uma segunda tarefa depois do cadastro
+         que a pessoa acha que já fez ao entrar com o Google. Aqui o recado
+         é o que falta: terminar o que ela começou. */
       <div className="assinatura-bloco">
         <p style={{ margin: 0 }}>
           <strong>Seu cadastro ainda não está no ar.</strong>
@@ -172,12 +172,12 @@ export function MinhaAssinatura({ userId }: { userId: string }) {
                 <p className="muted" style={{ margin: "0 0 10px", fontSize: "0.88rem" }}>
                   {aguardando.length > 0
                     ? "Há um pagamento começado e ainda não concluído. Se você já pagou, o selo entra sozinho em alguns minutos; se desistiu, é só assinar de novo."
-                    : "Sem assinatura. Este anúncio aparece na busca normalmente, com o telefone visível."}
+                    : "Sem assinatura. Este cadastro aparece na busca normalmente, com o telefone visível."}
                 </p>
                 <div className="assinatura-oferta">
                   <strong>Conta premium — R$ {preco.toFixed(2).replace(".", ",")}/mês</strong>
                   <p>
-                    Botão de <strong>WhatsApp direto</strong> no seu anúncio, o{" "}
+                    Botão de <strong>WhatsApp direto</strong> no seu cadastro, o{" "}
                     <strong>"peça para te chamar"</strong> (o cliente deixa o número e você retorna) e o selo
                     dourado ao lado do seu nome.
                   </p>

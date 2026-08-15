@@ -11,7 +11,7 @@ import { onlyPhoneDigits } from "./phone";
  *
  * O número entra no Auth como telefone da conta e, uma vez confirmado, a RPC
  * `confirmar_whatsapp` compara o que o Auth confirmou com o que está escrito
- * no anúncio. É essa comparação, feita no servidor, que impede alguém de
+ * no cadastro. É essa comparação, feita no servidor, que impede alguém de
  * confirmar o próprio celular e anunciar o número de outra pessoa.
  */
 
@@ -48,7 +48,7 @@ export async function conferirCodigoWhatsApp(telefone: string, codigo: string): 
   if (error) throw new Error(traduzir(error.message));
 }
 
-/** Marca o anúncio como confirmado — o servidor confere tudo de novo. */
+/** Marca o cadastro como confirmado — o servidor confere tudo de novo. */
 export async function marcarAnuncioConfirmado(professionalId: string): Promise<void> {
   const client = supabase();
   if (!client) throw new Error("Sem conexão com o banco.");

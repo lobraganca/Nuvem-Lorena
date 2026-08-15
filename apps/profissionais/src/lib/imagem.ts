@@ -2,7 +2,7 @@
  * Reduz a foto no próprio navegador, antes de enviar.
  *
  * A foto que sai de um celular tem 4000 pixels de largura e 5 a 8 MB. No
- * anúncio ela aparece com 96 pixels. Enviar o original é gastar minutos de
+ * cadastro ela aparece com 96 pixels. Enviar o original é gastar minutos de
  * 4G — e é aí que a pessoa desiste do cadastro achando que o app travou,
  * porque nada na tela diz que ainda está subindo.
  *

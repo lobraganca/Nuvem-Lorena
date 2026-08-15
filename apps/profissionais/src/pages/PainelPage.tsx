@@ -106,7 +106,7 @@ const EMPTY: FormState = {
   owner_id: "",
   name: "",
   // Nada vem marcado. Antes o primeiro serviço da lista já vinha escolhido,
-  // e quem não reparasse publicava um anúncio de encanador sem nunca ter
+  // e quem não reparasse publicava um cadastro de encanador sem nunca ter
   // dito que é encanador — um valor padrão aqui não é conveniência, é uma
   // resposta colocada na boca da pessoa.
   category: "",
@@ -163,16 +163,16 @@ export function PainelPage() {
   useTituloDaPagina("Painel do profissional");
   const { user, loading } = useAuth();
   const [mine, setMine] = useState<Professional[]>([]);
-  /** Visualizações dos últimos 30 dias por anúncio — grátis para todo anunciante. */
+  /** Visualizações dos últimos 30 dias por cadastro — grátis para todo profissional cadastrado. */
   const [views30, setViews30] = useState<Record<string, number>>({});
   /**
-   * Visualizações da última semana. Usadas só no anúncio sem assinatura, para
+   * Visualizações da última semana. Usadas só no cadastro sem assinatura, para
    * dizer quantas pessoas chegaram nele sem ter como chamar — é o argumento
    * mais forte que existe para assinar, porque é o número real da pessoa e
    * não uma promessa nossa.
    */
   const [views7, setViews7] = useState<Record<string, number>>({});
-  /** Pedidos de contato por anúncio (quem deixou o número pedindo retorno). */
+  /** Pedidos de contato por cadastro (quem deixou o número pedindo retorno). */
   const [pedidos, setPedidos] = useState<Record<string, ContactRequest[]>>({});
   const [mostrarArquivados, setMostrarArquivados] = useState(false);
   const [loginError, setLoginError] = useState("");
@@ -197,7 +197,7 @@ export function PainelPage() {
    * obrigatórios e o resto opcional — sem nada na tela dizendo qual era
    * qual. Quem abria o painel via a parede inteira de uma vez e fechava;
    * é o candidato mais provável para metade das contas criadas nunca
-   * terem virado anúncio.
+   * terem virado cadastro.
    *
    * Em três etapas cada tela responde a uma pergunta só ("quem é você",
    * "o que você faz", "como te chamam"), e o erro de um campo aparece na
@@ -222,29 +222,29 @@ export function PainelPage() {
   const [message, setMessage] = useState("");
   /** Distingue "deu errado" de "deu certo" — os dois usam a mesma linha de texto. */
   const [erroAoSalvar, setErroAoSalvar] = useState(false);
-  /** Mensagem do formulário do anúncio — separada da do topo, que é dos pagamentos. */
+  /** Mensagem do formulário do cadastro — separada da do topo, que é dos pagamentos. */
   const [formMessage, setFormMessage] = useState("");
   const [planSheetFor, setPlanSheetFor] = useState<{ professional: Professional; type: SubscriptionType } | null>(null);
-  /** Anúncio cujo WhatsApp está sendo confirmado por código. */
+  /** Cadastro cujo WhatsApp está sendo confirmado por código. */
   const [confirmandoWhats, setConfirmandoWhats] = useState<Professional | null>(null);
   /**
-   * O formulário fica fechado quando já existe anúncio.
+   * O formulário fica fechado quando já existe cadastro.
    *
    * Antes ele vivia aberto no fim da página, o que confundia: quem tinha um
-   * anúncio via um formulário vazio embaixo dele e não sabia se aquilo era
+   * cadastro via um formulário vazio embaixo dele e não sabia se aquilo era
    * "editar o meu" ou "criar outro". Agora criar é um gesto explícito, pelo
    * botão de mais.
    */
   const [formAberto, setFormAberto] = useState(false);
-  /** Assinaturas ativas por anúncio, para oferecer o cancelamento. */
+  /** Assinaturas ativas por cadastro, para oferecer o cancelamento. */
   const [assinaturas, setAssinaturas] = useState<Record<string, AssinaturaAtiva[]>>({});
-  /** Vagas de destaque restantes na categoria principal de cada anúncio. */
+  /** Vagas de destaque restantes na categoria principal de cada cadastro. */
   const [vagas, setVagas] = useState<Record<string, number>>({});
   const [naFila, setNaFila] = useState<Record<string, boolean>>({});
   const [cancelando, setCancelando] = useState<AssinaturaAtiva | null>(null);
   const [cancelandoAgora, setCancelandoAgora] = useState(false);
   const [resultadoCancelamento, setResultadoCancelamento] = useState("");
-  /** Anúncio que a pessoa pediu para excluir — a confirmação abre em folha. */
+  /** Cadastro que a pessoa pediu para excluir — a confirmação abre em folha. */
   const [excluindoAnuncio, setExcluindoAnuncio] = useState<Professional | null>(null);
   const [excluindo, setExcluindo] = useState(false);
 
@@ -286,7 +286,7 @@ export function PainelPage() {
       especialidade: p.especialidade ?? "",
       city: p.city,
       bio: p.bio,
-      // Anúncios salvos antes da máscara existir têm o telefone em qualquer
+      // Cadastros salvos antes da máscara existir têm o telefone em qualquer
       // formato; ao abrir para editar, já aparecem no formato novo.
       phone: formatPhone(p.phone),
       whatsapp: p.whatsapp ? formatPhone(p.whatsapp) : "",
@@ -372,7 +372,7 @@ export function PainelPage() {
    */
   function validarPasso(n: number): string | null {
     if (n === 1) {
-      if (!form.name.trim()) return "Escreva o nome que vai aparecer no anúncio.";
+      if (!form.name.trim()) return "Escreva o nome que vai aparecer no cadastro.";
       if (form.document && !isValidDocument(form.document, form.entity_type)) {
         return form.entity_type === "pj"
           ? "CNPJ inválido. Confira os números digitados."
@@ -380,12 +380,12 @@ export function PainelPage() {
       }
       /* Foto obrigatória nos dois tipos de cadastro. Era exigida só de
          pessoa física; a empresa podia publicar sem logo e ficava um
-         retângulo vazio na busca, no meio de cartões com rosto — o anúncio
-         sem imagem parece anúncio abandonado, e quem procura passa direto. */
+         retângulo vazio na busca, no meio de cartões com rosto — o cadastro
+         sem imagem parece cadastro abandonado, e quem procura passa direto. */
       if (!photoFile && !form.photo_url) {
         return form.entity_type === "pj"
-          ? "Envie a logo da empresa para publicar o anúncio."
-          : "Envie uma foto de rosto para publicar o anúncio.";
+          ? "Envie a logo da empresa para publicar o cadastro."
+          : "Envie uma foto de rosto para publicar o cadastro.";
       }
       if (form.entity_type === "pj" && !form.responsible_name?.trim()) {
         return "Informe o nome do responsável pela empresa.";
@@ -479,10 +479,10 @@ export function PainelPage() {
       resetForm();
       setFormAberto(false);
       setMine(await getMyProfessionals(user.id));
-      setFormMessage(wasEditing ? "Anúncio atualizado." : "Anúncio salvo.");
+      setFormMessage(wasEditing ? "Cadastro atualizado." : "Cadastro salvo.");
     } catch (err) {
       setErroAoSalvar(true);
-      setFormMessage(mensagemDeErro(err, "Não foi possível salvar o anúncio."));
+      setFormMessage(mensagemDeErro(err, "Não foi possível salvar o cadastro."));
     } finally {
       setSaving(false);
     }
@@ -562,7 +562,7 @@ export function PainelPage() {
     return (
       <div className="container" style={{ maxWidth: 460, paddingTop: 48, textAlign: "center" }}>
         <div className="card">
-          <h1 style={{ marginTop: 0, fontSize: "1.5rem" }}>Vamos criar seu anúncio</h1>
+          <h1 style={{ marginTop: 0, fontSize: "1.5rem" }}>Vamos criar seu cadastro</h1>
           <p className="muted">
             Entre com sua conta Google — é a mesma que você já usa no celular. Não precisa criar senha nova nem
             preencher cadastro agora.
@@ -589,9 +589,9 @@ export function PainelPage() {
 
       <section style={{ marginTop: 24 }}>
         <div className="secao-topo">
-          <h2 style={{ margin: 0 }}>Meus anúncios</h2>
+          <h2 style={{ margin: 0 }}>Meus cadastros</h2>
           {mine.length > 0 && mine.length < 5 && !formAberto && (
-            /* Um anúncio por ofício, e não tudo amontoado num só: quem é
+            /* Um cadastro por ofício, e não tudo amontoado num só: quem é
                fotógrafo e dá aula de violão tem duas vitrines diferentes,
                com fotos, textos e reputações separadas. */
             <button
@@ -603,12 +603,12 @@ export function PainelPage() {
                 setTimeout(() => window.scrollTo({ top: document.body.scrollHeight, behavior: "smooth" }), 50);
               }}
             >
-              <span aria-hidden="true">+</span> Novo anúncio
+              <span aria-hidden="true">+</span> Novo cadastro
             </button>
           )}
         </div>
-        {/* Antes começava com "Você ainda não tem anúncio", que apresenta
-            o anúncio como uma segunda coisa a fazer depois do cadastro —
+        {/* Antes começava com "Você ainda não tem cadastro", que apresenta
+            o cadastro como uma segunda coisa a fazer depois do cadastro —
             exatamente a confusão que o título acima passou a evitar. Aqui
             o recado é o que falta e quanto custa: três passos. */}
         {mine.length === 0 && (
@@ -641,10 +641,10 @@ export function PainelPage() {
                 <p className="muted">{p.category} · {p.city}</p>
                 <p className="views-line">
                   <strong>{views30[p.id] ?? 0}</strong>{" "}
-                  {(views30[p.id] ?? 0) === 1 ? "pessoa viu" : "pessoas viram"} seu anúncio nos últimos 30 dias
+                  {(views30[p.id] ?? 0) === 1 ? "pessoa viu" : "pessoas viram"} seu cadastro nos últimos 30 dias
                 </p>
-                {/* A foto passou a ser obrigatória depois que estes anúncios
-                    já existiam. Sem este aviso, quem tem um anúncio antigo
+                {/* A foto passou a ser obrigatória depois que estes cadastros
+                    já existiam. Sem este aviso, quem tem um cadastro antigo
                     sem foto só descobriria a regra ao tentar salvar outra
                     coisa qualquer — mudaria o telefone, apertaria salvar e
                     levaria um erro sobre foto, que não é o que estava
@@ -652,11 +652,11 @@ export function PainelPage() {
                 {!p.photo_url && (
                   <div className="whats-pendente">
                     <p>
-                      <strong>Falta {p.entity_type === "pj" ? "a logo" : "a foto"} do anúncio.</strong>{" "}
+                      <strong>Falta {p.entity_type === "pj" ? "a logo" : "a foto"} do cadastro.</strong>{" "}
                       {p.entity_type === "pj"
-                        ? "Anúncio sem logo aparece como um retângulo vazio na busca, ao lado de cartões com imagem."
+                        ? "Cadastro sem logo aparece como um retângulo vazio na busca, ao lado de cartões com imagem."
                         : "Na busca, é o rosto que responde primeiro se a pessoa te chama ou não."}{" "}
-                      Passou a ser obrigatória, então o anúncio só volta a salvar depois de enviá-la.
+                      Passou a ser obrigatória, então o cadastro só volta a salvar depois de enviá-la.
                     </p>
                     <button type="button" className="btn btn-outline" onClick={() => startEdit(p)}>
                       Enviar agora
@@ -664,8 +664,8 @@ export function PainelPage() {
                   </div>
                 )}
                 {/* A confirmação do número fica no card, e não escondida nas
-                    configurações: é o que separa um anúncio de um número
-                    qualquer digitado, e quem anuncia precisa ver que falta. */}
+                    configurações: é o que separa um cadastro de um número
+                    qualquer digitado, e quem se cadastra precisa ver que falta. */}
                 {!CONFIRMACAO_POR_SMS ? null : p.whatsapp_verified ? (
                   <p className="whats-ok">✓ {formatPhone(p.whatsapp || p.phone)} confirmado</p>
                 ) : (
@@ -673,7 +673,7 @@ export function PainelPage() {
                     <p>
                       <strong>Confirme o {formatPhone(p.whatsapp || p.phone)}.</strong> É este número que vai
                       receber o código e é ele que aparece para quem procura. Número confirmado passa mais
-                      confiança — e impede que outra pessoa anuncie usando o seu.
+                      confiança — e impede que outra pessoa se cadastre usando o seu.
                     </p>
                     <button type="button" className="btn btn-outline" onClick={() => setConfirmandoWhats(p)}>
                       Confirmar agora
@@ -687,7 +687,7 @@ export function PainelPage() {
                   const lista = pedidos[p.id] ?? [];
                   const novos = lista.filter((r) => r.status === "new").length;
                   /* Sem a assinatura, ninguém consegue pedir retorno: o botão
-                     "peça para te chamar" não existe no anúncio público. A
+                     "peça para te chamar" não existe no cadastro público. A
                      caixa vazia dizia "quando alguém deixar o número, ele
                      aparece aqui" — uma espera que nunca terminaria, porque
                      não dependia de aparecer cliente e sim de assinar.
@@ -747,7 +747,7 @@ export function PainelPage() {
                   );
                 })()}
 
-                {/* Ações do anúncio: tudo grátis, tudo reversível. Ficam
+                {/* Ações do cadastro: tudo grátis, tudo reversível. Ficam
                     juntas e em primeiro lugar porque são o que a pessoa vem
                     fazer aqui — o que é pago não pode disputar espaço com o
                     que ela já pagou (o tempo de cadastrar). */}
@@ -756,7 +756,7 @@ export function PainelPage() {
                     Editar
                   </button>
                   <button className="btn btn-outline btn-perigo" onClick={() => setExcluindoAnuncio(p)}>
-                    Excluir anúncio
+                    Excluir cadastro
                   </button>
                   {plusActive && (
                     <Link className="btn btn-outline" to={`/analytics/${p.id}`}>
@@ -778,7 +778,7 @@ export function PainelPage() {
 
                 {/* O que é pago fica reunido, fechado por padrão e com o nome
                     dito em português: antes eram cinco botões soltos no meio
-                    do anúncio, com preço e sem explicação, e quem lia "Empresa
+                    do cadastro, com preço e sem explicação, e quem lia "Empresa
                     Plus" ou "patrocinar categoria" não tinha como saber o que
                     ia levar. Fechado, some do caminho de quem só quer editar. */}
                 {/* Aberto por padrão enquanto não há nada assinado, e
@@ -802,8 +802,8 @@ export function PainelPage() {
                           <>
                             <strong>
                               {views7[p.id] === 1
-                                ? "1 pessoa abriu seu anúncio nos últimos 7 dias"
-                                : `${views7[p.id]} pessoas abriram seu anúncio nos últimos 7 dias`}{" "}
+                                ? "1 pessoa abriu seu cadastro nos últimos 7 dias"
+                                : `${views7[p.id]} pessoas abriram seu cadastro nos últimos 7 dias`}{" "}
                               e não tinham como te chamar com um toque.
                             </strong>{" "}
                             Elas viram seu telefone escrito, mas sem o botão de WhatsApp e sem o "peça para te
@@ -811,7 +811,7 @@ export function PainelPage() {
                           </>
                         ) : (
                           <>
-                            <strong>Seu anúncio está no plano grátis.</strong> Quem procura consegue ver seu
+                            <strong>Seu cadastro está no plano grátis.</strong> Quem procura consegue ver seu
                             telefone, mas não tem o botão de WhatsApp nem o "peça para te chamar" — e é por ali
                             que chega a maior parte dos contatos.
                           </>
@@ -833,7 +833,7 @@ export function PainelPage() {
                   )}
 
                   <p className="muted produtos-intro">
-                    Seu anúncio funciona de graça, para sempre. O que está aqui embaixo serve para você
+                    Seu cadastro funciona de graça, para sempre. O que está aqui embaixo serve para você
                     aparecer antes dos outros ou passar mais confiança — nada disso muda o seu trabalho, só a
                     sua vitrine.
                   </p>
@@ -843,7 +843,7 @@ export function PainelPage() {
                       <strong>Conta premium</strong>
                       <p>
                         Três coisas: o selo dourado ao lado do seu nome, o <strong>botão de WhatsApp</strong> no
-                        seu anúncio e o <strong>"peça para te chamar"</strong>, onde o cliente deixa o número e
+                        seu cadastro e o <strong>"peça para te chamar"</strong>, onde o cliente deixa o número e
                         você retorna. Sem a assinatura, seu telefone continua aparecendo — só que escrito, para
                         a pessoa anotar ou ligar.
                       </p>
@@ -882,7 +882,7 @@ export function PainelPage() {
                     <div className="produto-texto">
                       <strong>Destaque na busca</strong>
                       <p>
-                        Seu anúncio sobe para o topo da lista de quem procura o seu serviço em {p.city}. Quem
+                        Seu cadastro sobe para o topo da lista de quem procura o seu serviço em {p.city}. Quem
                         está com pressa raramente rola até o fim — quase todo mundo chama alguém dos primeiros.
                       </p>
                       {!boosted && (
@@ -938,8 +938,8 @@ export function PainelPage() {
                       <div className="produto-texto">
                         <strong>Empresa Plus</strong>
                         <p>
-                          Relatórios do seu anúncio: quantas pessoas viram por dia, de quais serviços vieram e
-                          quantas pediram contato. Serve para saber se vale a pena continuar anunciando.
+                          Relatórios do seu cadastro: quantas pessoas viram por dia, de quais serviços vieram e
+                          quantas pediram contato. Serve para saber se vale a pena manter o cadastro.
                         </p>
                       </div>
                       <div className="produto-acao">
@@ -1001,14 +1001,14 @@ export function PainelPage() {
               acabou de entrar com o Google: a pessoa já tinha feito um
               cadastro, e a tela seguinte pedia outro. Daí ela fechava,
               achando que estava pronta — é a explicação mais provável
-              para metade das contas criadas nunca terem virado anúncio.
+              para metade das contas criadas nunca terem virado cadastro.
 
               Para quem ainda não tem nenhum, o título passa a dizer que
               falta terminar o que já começou. Para quem já tem e clicou
-              em "Novo anúncio", continua sendo cadastrar um anúncio —
+              em "Novo cadastro", continua sendo cadastrar um cadastro —
               ali não há cadastro pendente, e prometer isso seria falso. */}
           <h2 style={{ margin: 0 }}>
-            {isEditing ? "Editar anúncio" : mine.length === 0 ? "Termine seu cadastro" : "Cadastrar anúncio"}
+            {isEditing ? "Editar cadastro" : mine.length === 0 ? "Termine seu cadastro" : "Novo cadastro"}
           </h2>
           {mine.length > 0 && (
             <button
@@ -1025,7 +1025,7 @@ export function PainelPage() {
         </div>
         <form ref={formRef} className="card" onSubmit={handleSave} style={{ display: "grid", gap: 12 }}>
           {/* Onde a pessoa está e quanto falta. Sem isso, três telas em
-              sequência não são "um cadastro curto", são um formulário sem
+              sequência não são "um cadastro rápido", são um formulário sem
               fim — a barra é o que transforma o segundo passo em progresso
               em vez de mais uma pergunta. */}
           <div className="passos">
@@ -1071,7 +1071,7 @@ export function PainelPage() {
           />
           {isPj && (
             <p className="muted" style={{ margin: "-6px 0 0", fontSize: "0.82rem" }}>
-              É o nome que aparece no seu anúncio — pode ser o nome fantasia, não precisa ser o da razão social.
+              É o nome que aparece no seu cadastro — pode ser o nome fantasia, não precisa ser o da razão social.
             </p>
           )}
 
@@ -1103,12 +1103,12 @@ export function PainelPage() {
                outro, sem explicar por quê. Agrupados aqui, depois de quem a
                empresa é (nome e logo) e antes do que ela faz, ficam no
                lugar que corresponde à pergunta que respondem: "quem
-               responde legalmente por este anúncio?" — não é a mesma
+               responde legalmente por este cadastro?" — não é a mesma
                pergunta que "como você aparece na busca?". */
             <fieldset className="contact-fields">
               <legend>Dados da empresa</legend>
               <p className="muted" style={{ margin: "0 0 10px", fontSize: "0.85rem" }}>
-                Não aparecem escondidos: a razão social e o responsável saem no seu anúncio, como sinal de
+                Não aparecem escondidos: a razão social e o responsável saem no seu cadastro, como sinal de
                 que existe uma empresa de verdade por trás dele.
               </p>
               <input
@@ -1142,13 +1142,13 @@ export function PainelPage() {
             <legend>O que você faz</legend>
             <p className="muted" style={{ margin: "0 0 10px", fontSize: "0.85rem" }}>
               Até {MAX_CATEGORIES} serviços. Quem faz encanamento e elétrica aparece nas duas buscas, sem
-              precisar de dois anúncios — o primeiro da lista é o que aparece em destaque.
+              precisar de dois cadastros — o primeiro da lista é o que aparece em destaque.
             </p>
             <SeletorDeServicos
               escolhidos={form.categories}
               onChange={(lista) =>
                 // A principal é sempre a primeira da lista; se ela sair, a
-                // seguinte assume — o anúncio nunca fica sem destaque.
+                // seguinte assume — o cadastro nunca fica sem destaque.
                 setForm({ ...form, categories: lista, category: lista[0] ?? "" })
               }
             />
@@ -1199,8 +1199,8 @@ export function PainelPage() {
             <legend>Onde você atende</legend>
             <p className="muted" style={{ margin: "0 0 10px", fontSize: "0.85rem" }}>
               Nada aqui é obrigatório. O <strong>CEP</strong> serve para preencher sozinho a cidade e o
-              bairro do seu anúncio — e o bairro é o que ajuda quem procura alguém perto. A{" "}
-              <strong>rua e o número só aparecem no anúncio se você marcar a opção no fim deste bloco</strong>:
+              bairro do seu cadastro — e o bairro é o que ajuda quem procura alguém perto. A{" "}
+              <strong>rua e o número só aparecem no cadastro se você marcar a opção no fim deste bloco</strong>:
               quem atende na casa do cliente, ou trabalha na própria casa, deixa desmarcado e ninguém vê onde
               você mora.
             </p>
@@ -1222,7 +1222,7 @@ export function PainelPage() {
                       ...f,
                       street: encontrado.street || f.street,
                       neighborhood: encontrado.neighborhood || f.neighborhood,
-                      // A cidade do anúncio segue o CEP quando ele responde,
+                      // A cidade do cadastro segue o CEP quando ele responde,
                       // porque é ela que decide em qual busca a pessoa cai.
                       city: encontrado.city || f.city,
                     }));
@@ -1248,10 +1248,10 @@ export function PainelPage() {
 
             {/* Desligado por padrão, e a chave fica aqui embaixo do endereço
                 porque é aqui que a pergunta faz sentido. Boa parte de quem
-                anuncia atende em casa — manicure, confeiteira, costureira —
+                se cadastra atende em casa — manicure, confeiteira, costureira —
                 e o endereço foi digitado para o CEP completar cidade e
                 bairro, não para virar "moro na rua tal, número 42" num
-                anúncio aberto. O bairro continua aparecendo de qualquer
+                cadastro aberto. O bairro continua aparecendo de qualquer
                 jeito: situa a região sem dizer onde é a porta. */}
             <label className="opcao-endereco">
               <input
@@ -1260,7 +1260,7 @@ export function PainelPage() {
                 onChange={(e) => setForm({ ...form, mostrar_endereco: e.target.checked })}
               />
               <span>
-                <strong>Mostrar rua e número no meu anúncio.</strong>
+                <strong>Mostrar rua e número no meu cadastro.</strong>
                 <span className="opcao-obs">
                   Marque só se você tem ponto fixo e quer que as pessoas cheguem até lá. Quem atende em casa
                   deve deixar desmarcado — o bairro aparece de todo jeito, e é o que ajuda quem procura perto.
@@ -1276,7 +1276,7 @@ export function PainelPage() {
           <fieldset className="contact-fields">
             <legend>Como querem falar com você</legend>
             <p className="muted" style={{ margin: "0 0 10px", fontSize: "0.85rem" }}>
-              Preencha o que fizer sentido — só aparece no anúncio o que você escrever aqui. O{" "}
+              Preencha o que fizer sentido — só aparece no cadastro o que você escrever aqui. O{" "}
               <strong>WhatsApp</strong> (ou o telefone, se você não preencher o WhatsApp) é o número que recebe
               o código de confirmação e o mesmo que as pessoas usam para te chamar. Trocá-lo depois derruba a
               confirmação, e você confirma de novo.
@@ -1351,7 +1351,7 @@ export function PainelPage() {
               </button>
             ) : (
               <button className="btn btn-primary" type="submit" disabled={saving}>
-                {saving ? "Salvando…" : isEditing ? "Salvar alterações" : "Publicar anúncio"}
+                {saving ? "Salvando…" : isEditing ? "Salvar alterações" : "Publicar cadastro"}
               </button>
             )}
             {isEditing && (
@@ -1408,7 +1408,7 @@ export function PainelPage() {
                   </p>
                 )}
                 <p className="muted" style={{ margin: 0, fontSize: "0.86rem" }}>
-                  Seu anúncio continua no ar de qualquer forma, no plano grátis.
+                  Seu cadastro continua no ar de qualquer forma, no plano grátis.
                 </p>
                 <button
                   className="btn btn-perigo btn-block"
@@ -1455,7 +1455,7 @@ export function PainelPage() {
 
       {excluindoAnuncio && (
         <BottomSheet
-          title="Excluir este anúncio?"
+          title="Excluir este cadastro?"
           subtitle="Some da busca na hora, e não dá para desfazer."
           onClose={() => setExcluindoAnuncio(null)}
         >
@@ -1464,10 +1464,10 @@ export function PainelPage() {
               <strong>{excluindoAnuncio.name}</strong>
             </p>
             {/* Dito antes, não depois: as avaliações são o que a pessoa levou
-                meses para juntar, e recriar o anúncio não as traz de volta. */}
+                meses para juntar, e recriar o cadastro não as traz de volta. */}
             <p className="muted" style={{ margin: 0, fontSize: "0.88rem" }}>
-              Junto com o anúncio saem as avaliações que você recebeu, os favoritos de quem te guardou e os
-              pedidos de contato. Isso não volta, nem criando o anúncio de novo.
+              Junto com o cadastro saem as avaliações que você recebeu, os favoritos de quem te guardou e os
+              pedidos de contato. Isso não volta, nem criando o cadastro de novo.
             </p>
             {formMessage && erroAoSalvar && <p className="form-erro">{formMessage}</p>}
             <button
@@ -1481,12 +1481,12 @@ export function PainelPage() {
                   await deleteProfessional(excluindoAnuncio.id);
                   setExcluindoAnuncio(null);
                   if (user) setMine(await getMyProfessionals(user.id));
-                  // Se o anúncio apagado estava aberto para edição, o
+                  // Se o cadastro apagado estava aberto para edição, o
                   // formulário ficaria editando algo que não existe mais.
                   if (form.id === excluindoAnuncio.id) resetForm();
                 } catch (err) {
                   setErroAoSalvar(true);
-                  setFormMessage(mensagemDeErro(err, "Não foi possível excluir o anúncio."));
+                  setFormMessage(mensagemDeErro(err, "Não foi possível excluir o cadastro."));
                 } finally {
                   setExcluindo(false);
                 }
@@ -1495,7 +1495,7 @@ export function PainelPage() {
               {excluindo ? "Excluindo…" : "Sim, excluir"}
             </button>
             <button type="button" className="btn btn-outline btn-block" onClick={() => setExcluindoAnuncio(null)}>
-              Manter anúncio
+              Manter cadastro
             </button>
           </div>
         </BottomSheet>

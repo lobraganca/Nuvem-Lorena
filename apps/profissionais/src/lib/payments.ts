@@ -4,7 +4,7 @@ import type { BillingCycle, EntityType, SubscriptionType } from "../types/domain
 
 /**
  * Ponto único de entrada para iniciar uma assinatura recorrente no Mercado
- * Pago (conta premium, R$10,90/mês) ou o "turbinar anúncio" (destaque
+ * Pago (conta premium, R$10,90/mês) ou o "turbinar cadastro" (destaque
  * pago, também modelado como assinatura recorrente para simplificar renovação
  * automática — pode virar cobrança avulsa no futuro sem mudar esta função).
  *
@@ -38,7 +38,7 @@ export async function startSubscriptionCheckout(
  * Plano ANUAL RECORRENTE no cartão — `preapproval` com frequência de 12
  * meses: o Mercado Pago cobra o cartão sozinho todo ano, com 20% de desconto
  * sobre 12x o mensal. É o caminho anual que renova de verdade, sem ação do
- * dono do anúncio (Edge Function `mercadopago-create-annual-subscription`).
+ * dono do cadastro (Edge Function `mercadopago-create-annual-subscription`).
  */
 export async function startAnnualSubscriptionCheckout(
   professionalId: string,
@@ -60,7 +60,7 @@ export async function startAnnualSubscriptionCheckout(
  * aceitando Pix/cartão/boleto, que não têm débito automático na API do
  * Mercado Pago. Por isso NÃO renova sozinho: perto do vencimento, a Edge
  * Function agendada `renew-annual-plans` gera a nova cobrança e manda o link
- * por e-mail ao dono do anúncio.
+ * por e-mail ao dono do cadastro.
  */
 export async function startAnnualCheckout(
   professionalId: string,
@@ -116,20 +116,20 @@ export async function startSponsorshipCheckout(
 /**
  * O que o app cobra.
  *
- * Quatro fontes, três delas aqui: conta premium, turbinar o anúncio e
- * Empresa Plus (relatórios, só para empresa). A quarta é a tela de Anúncios,
+ * Quatro fontes, três delas aqui: conta premium, turbinar o cadastro e
+ * Empresa Plus (relatórios, só para empresa). A quarta é a tela de Cadastros,
  * que não aparece nesta lista porque não é autoatendimento — o banner é
  * vendido na conversa e o valor combinado fica anotado no painel de banners
  * (ver migration 0040).
  *
  * Saiu só o crédito por contato: cobrar por contato recebido faz o
- * anunciante torcer contra o próprio anúncio nos dias de aperto, que é o
+ * anunciante torcer contra o próprio cadastro nos dias de aperto, que é o
  * oposto do que este app precisa. A coluna continua no banco, para não
  * perder histórico.
  */
 export const PRICES = {
   verification: { label: "Conta premium", amount: 10.9, period: "mensal" as const },
-  boost: { label: "Turbinar anúncio", amount: 19.9, period: "mensal" as const },
+  boost: { label: "Turbinar cadastro", amount: 19.9, period: "mensal" as const },
   plus: { label: "Empresa Plus", amount: 29.9, period: "mensal" as const },
   leadCreditCents: 290,
 };
@@ -168,10 +168,10 @@ export function annualPrice(type: SubscriptionType, entityType: EntityType = "pf
 
 
 /**
- * Assinaturas ativas de um anúncio, para a tela de cancelamento.
+ * Assinaturas ativas de um cadastro, para a tela de cancelamento.
  *
  * A leitura passa pelo RLS: uma pessoa só enxerga as assinaturas dos próprios
- * anúncios. A tela usa isso para oferecer o cancelamento; quem decide se pode
+ * cadastros. A tela usa isso para oferecer o cancelamento; quem decide se pode
  * cancelar é o servidor, de novo, na Edge Function.
  */
 export interface AssinaturaAtiva {
@@ -246,7 +246,7 @@ export async function cancelarAssinatura(
 /**
  * Vagas de destaque restantes numa categoria/cidade (teto de 5).
  *
- * Quem conta é o banco: a tela não tem como enxergar todos os anúncios, e
+ * Quem conta é o banco: a tela não tem como enxergar todos os cadastros, e
  * mesmo que tivesse, contar no navegador seria confiar num número que a
  * própria pessoa pode alterar.
  */

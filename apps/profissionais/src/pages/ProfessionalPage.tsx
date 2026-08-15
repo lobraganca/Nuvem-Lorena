@@ -31,17 +31,17 @@ import { useTituloDaPagina } from "../lib/tituloDaPagina";
 import { ConfirmarMeuNumero } from "../components/ConfirmarMeuNumero";
 
 /**
- * Como chamar quem anuncia, no meio de uma frase.
+ * Como chamar quem tem cadastro, no meio de uma frase.
  *
  * Pessoa física atende pelo primeiro nome. Empresa, não: cortar "Elétrica
  * Souza" no primeiro espaço produz "Fale com Elétrica", que soa como erro do
- * app e deixa o anúncio com cara de amador — exatamente o oposto do que ele
+ * app e deixa o cadastro com cara de amador — exatamente o oposto do que ele
  * está tentando comprar ali.
  */
 /**
  * "agosto de 2026" — mês e ano, sem o dia.
  *
- * O dia exato não ajuda ninguém a decidir nada e ainda dá ao anúncio recente
+ * O dia exato não ajuda ninguém a decidir nada e ainda dá ao cadastro recente
  * um ar de precisão que ele não merece; o mês já diz o que interessa, que é
  * há quanto tempo essa pessoa está aqui.
  */
@@ -64,7 +64,7 @@ function comoChamar(p: { name: string; entity_type: string }): string {
 }
 
 export function ProfessionalPage() {
-  /* O nome de quem anuncia, não "procurô": é o que a pessoa vai reconhecer
+  /* O nome de quem tem o cadastro, não "procurô": é o que a pessoa vai reconhecer
      no histórico e ao salvar o link. Enquanto carrega, fica sem título — o
      app põe o nome do app sozinho. */
   const { id } = useParams<{ id: string }>();
@@ -112,7 +112,7 @@ export function ProfessionalPage() {
   /** Só usado onde o navegador não tem compartilhamento nativo (desktop). */
   const [copiado, setCopiado] = useState(false);
 
-  /* A avaliação desta pessoa neste anúncio — no máximo uma, por restrição do
+  /* A avaliação desta pessoa neste cadastro — no máximo uma, por restrição do
      banco (unique professional_id + user_id). É o que decide se o botão
      convida a avaliar ou a mexer no que ela já escreveu. */
   const minhaAvaliacao = user ? reviews.find((r) => r.user_id === user.id) ?? null : null;
@@ -320,7 +320,7 @@ export function ProfessionalPage() {
     } catch (err) {
       const code = (err as { code?: string } | null)?.code;
       if (code === "23505") {
-        setReportError("Você já tem uma denúncia em aberto para este anúncio.");
+        setReportError("Você já tem uma denúncia em aberto para este cadastro.");
       } else {
         setReportError(err instanceof Error ? err.message : "Não foi possível enviar a denúncia.");
       }
@@ -333,7 +333,7 @@ export function ProfessionalPage() {
     return (
       <div className="container">
         <p className="muted" style={{ marginTop: 40 }}>
-          Não encontramos esse anúncio. Ele pode ter saído do ar.
+          Não encontramos esse cadastro. Ele pode ter saído do ar.
         </p>
       </div>
     );
@@ -346,7 +346,7 @@ export function ProfessionalPage() {
   const payPerLead = professional.contact_mode === "pay_per_lead";
   /**
    * O "pagar por contato" foi aposentado: a assinatura passou a liberar o
-   * contato por preço fixo. Anúncios criados antes disso ficaram com o modo
+   * contato por preço fixo. Cadastros criados antes disso ficaram com o modo
    * antigo gravado e sem tela para trocá-lo — o WhatsApp deles sumiria para
    * sempre quando o saldo acabasse, sem que o dono pudesse fazer nada.
    * Tratar todo mundo como "WhatsApp livre" desfaz isso sem precisar mexer
@@ -359,7 +359,7 @@ export function ProfessionalPage() {
   const whatsappLink = zap && verified && !whatsappBlocked ? `https://wa.me/${zap.replace(/\D/g, "")}` : null;
   /**
    * Botão do WhatsApp e pedido de contato são o que a assinatura entrega a
-   * quem anuncia. Sem ela, o telefone continua visível — escrito, para ser
+   * quem tem cadastro. Sem ela, o telefone continua visível — escrito, para ser
    * anotado ou ligado — e é isso que mantém o app útil mesmo para quem nunca
    * pagou: quem procura sempre consegue chegar na pessoa.
    */
@@ -378,7 +378,7 @@ export function ProfessionalPage() {
       {/* Azul como o cartão da busca e o dos favoritos: é a mesma pessoa
           nas três telas, e ela é o assunto desta. O que vem depois — avaliar,
           denunciar — fica em branco, e o degrau de cor separa quem é o
-          anúncio do que é conversa sobre ele. */}
+          cadastro do que é conversa sobre ele. */}
       <div className="card card-pro card-perfil">
         <div className="perfil-topo">
           <div className="perfil-identidade">
@@ -435,7 +435,7 @@ export function ProfessionalPage() {
                 /* Razão social nunca aparecia em lugar nenhum — pedíamos o
                    dado no cadastro e ele morria ali. Mostrá-la aqui é o que
                    justifica pedir: quem procura vê que existe uma empresa
-                   de verdade por trás do anúncio, não só um nome de fantasia. */
+                   de verdade por trás do cadastro, não só um nome de fantasia. */
                 <p className="muted" style={{ margin: "4px 0 0", fontSize: "0.85rem" }}>
                   {[
                     professional.company_name ? `Razão social: ${professional.company_name}` : null,
@@ -466,7 +466,7 @@ export function ProfessionalPage() {
           </span>
         </div>
 
-        {/* Tempo de casa é a prova que não se compra num dia: um anúncio de
+        {/* Tempo de casa é a prova que não se compra num dia: um cadastro de
             dois anos, com selo mantido, diz o que nota nenhuma diz — essa
             pessoa continua aqui e ninguém a tirou do ar nesse tempo todo. É
             o que separa quem trabalha há anos de quem se cadastrou ontem
@@ -523,7 +523,7 @@ export function ProfessionalPage() {
           )}
           {whatsappBlocked && (
             <p className="muted" style={{ width: "100%", margin: 0 }}>
-              O WhatsApp deste anúncio está indisponível agora. Dá para ligar ou pedir que retornem.
+              O WhatsApp deste cadastro está indisponível agora. Dá para ligar ou pedir que retornem.
             </p>
           )}
           {professional.phone && (
@@ -555,7 +555,7 @@ export function ProfessionalPage() {
                confirmação. Quando WhatsApp e telefone são diferentes, só um
                deles passou pelo código — e um "✓ confirmado" solto faria a
                pessoa acreditar que os dois foram. */
-            <span className="whats-ok" title="O dono do anúncio recebeu um código neste número e digitou de volta">
+            <span className="whats-ok" title="O dono do cadastro recebeu um código neste número e digitou de volta">
               ✓ {formatPhone(zap ?? "")} confirmado por código
             </span>
           )}
@@ -612,7 +612,7 @@ export function ProfessionalPage() {
       </div>
 
       {/* Lista de serviços: só existe para quem preencheu. Fica entre o
-          anúncio e as avaliações porque é a resposta da pergunta seguinte —
+          cadastro e as avaliações porque é a resposta da pergunta seguinte —
           depois de saber quem é a pessoa, quem procura quer saber se ela faz
           exatamente aquilo de que ele precisa. */}
       {catalogo.length > 0 && (
@@ -743,7 +743,7 @@ export function ProfessionalPage() {
               </p>
               <p className="muted" style={{ margin: 0, fontSize: "0.88rem" }}>
                 A regra vale para os dois lados: é ela que impede alguém de derrubar a nota de um concorrente
-                sem nunca ter chamado, e de encher o próprio anúncio de estrelas de quem não contratou nada.
+                sem nunca ter chamado, e de encher o próprio cadastro de estrelas de quem não contratou nada.
               </p>
               <button type="button" className="btn btn-primary btn-block" onClick={cancelEditReview}>
                 Entendi
@@ -1015,17 +1015,17 @@ export function ProfessionalPage() {
       <section style={{ marginTop: 32 }}>
         {/* Denunciar exige conta. Denúncia anônima é a maneira mais barata
             de tirar um concorrente do ar — um clique, sem dono —, e do outro
-            lado tem alguém cujo anúncio é o ganha-pão. Quem foi vítima de
+            lado tem alguém cujo cadastro é o ganha-pão. Quem foi vítima de
             golpe não tem por que se esconder, e entrar leva um toque. */}
         {!reportOpen && !reportSent && !user && (
           <p className="muted" style={{ fontSize: "0.82rem" }}>
-            Para denunciar um anúncio é preciso <Link to="/login">entrar com sua conta</Link>. Denúncia tem
+            Para denunciar um cadastro é preciso <Link to="/login">entrar com sua conta</Link>. Denúncia tem
             nome: é assim que ela vale alguma coisa para quem analisa e não vira ferramenta contra concorrente.
           </p>
         )}
         {/* Logado mas sem número confirmado: a conta Google sai de graça em
             um minuto, então só exigir login não impedia abrir três contas e
-            mandar três denúncias contra o mesmo anúncio. Confirmar um número
+            mandar três denúncias contra o mesmo cadastro. Confirmar um número
             custa um chip — não impede a denúncia falsa, mas encarece a
             fábrica delas. A regra também está na policy do banco (0045), que
             é o que vale para quem chamar a API sem passar por esta tela. */}
@@ -1033,7 +1033,7 @@ export function ProfessionalPage() {
           <>
             <p className="muted" style={{ fontSize: "0.82rem", marginBottom: 8 }}>
               Para denunciar, confirme seu número uma vez. Ele não aparece para quem você denunciou — serve só
-              para impedir que uma mesma pessoa crie várias contas contra o anúncio de um concorrente.
+              para impedir que uma mesma pessoa crie várias contas contra o cadastro de um concorrente.
             </p>
             <button
               className="btn btn-outline"
@@ -1046,7 +1046,7 @@ export function ProfessionalPage() {
         )}
         {!reportOpen && !reportSent && !!user && numeroConfirmado && (
           <button className="btn btn-outline" onClick={() => setReportOpen(true)} style={{ fontSize: "0.82rem" }}>
-            Denunciar este anúncio
+            Denunciar este cadastro
           </button>
         )}
         {confirmarNumeroAberto && (
@@ -1062,10 +1062,10 @@ export function ProfessionalPage() {
             onClose={() => setConfirmarNumeroAberto(false)}
           />
         )}
-        {reportSent && <p className="muted">Denúncia enviada. Obrigado — vamos analisar este anúncio.</p>}
+        {reportSent && <p className="muted">Denúncia enviada. Obrigado — vamos analisar este cadastro.</p>}
         {reportOpen && !reportSent && (
           <BottomSheet
-            title="Denunciar este anúncio"
+            title="Denunciar este cadastro"
             subtitle="Encontrou algo errado (informação falsa, golpe/fraude, conteúdo ofensivo)? Conte pra gente."
             onClose={() => setReportOpen(false)}
           >

@@ -23,7 +23,7 @@ export function ComoFuncionaPage() {
           Para avaliar é preciso entrar com sua conta e <strong>ter contratado</strong> aquela pessoa. Antes
           das estrelas o app pergunta isso — e quem responde que ainda não contratou é convidado a voltar
           depois do serviço. É a regra que impede alguém de derrubar a nota de um concorrente sem nunca ter
-          chamado, e de encher o próprio anúncio de estrelas de quem não contratou nada.
+          chamado, e de encher o próprio cadastro de estrelas de quem não contratou nada.
         </p>
         <p className="muted" style={{ margin: 0 }}>
           Toda avaliação aparece com <strong>o seu nome, a sua foto e a data</strong> — os mesmos da conta com
@@ -65,22 +65,22 @@ export function ComoFuncionaPage() {
           para ninguém apagar tudo por um toque errado.
         </p>
         <p className="muted" style={{ margin: 0 }}>
-          A exclusão é <strong>imediata e definitiva</strong>: apaga seus anúncios, suas avaliações e seus
+          A exclusão é <strong>imediata e definitiva</strong>: apaga seus cadastros, suas avaliações e seus
           favoritos. Não tem como desfazer nem recuperar depois. Se você só quer sumir da busca por um tempo,
-          existe a opção de <strong>pausar o anúncio</strong> no painel — ela guarda tudo e devolve quando você
+          existe a opção de <strong>pausar o cadastro</strong> no painel — ela guarda tudo e devolve quando você
           quiser.
         </p>
         <p className="muted" style={{ margin: 0 }}>
-          Se você tem assinatura ativa (selo ou destaque), cancele antes em <strong>Meus anúncios</strong>, para
+          Se você tem assinatura ativa (selo ou destaque), cancele antes em <strong>Meus cadastros</strong>, para
           não continuar sendo cobrado.
         </p>
       </div>
 
       <div className="card" style={{ display: "grid", gap: 10, marginBottom: 16 }}>
-        <h2 style={{ margin: 0 }}>Meu endereço aparece no anúncio?</h2>
+        <h2 style={{ margin: 0 }}>Meu endereço aparece no cadastro?</h2>
         <p className="muted" style={{ margin: 0 }}>
-          Só se você quiser. No cadastro do anúncio existe a opção{" "}
-          <strong>"Mostrar rua e número no meu anúncio"</strong>, e ela vem <strong>desmarcada</strong>.
+          Só se você quiser. No formulário do cadastro existe a opção{" "}
+          <strong>"Mostrar rua e número no meu cadastro"</strong>, e ela vem <strong>desmarcada</strong>.
         </p>
         <p className="muted" style={{ margin: 0 }}>
           Com ela desmarcada, ninguém vê a sua rua nem o número — nem pela tela, nem por trás dela. O que
@@ -89,14 +89,14 @@ export function ComoFuncionaPage() {
         </p>
         <p className="muted" style={{ margin: 0 }}>
           Se você atende na casa do cliente ou trabalha na sua própria casa, deixe desmarcada. Você pode
-          mudar isso a qualquer momento editando o anúncio.
+          mudar isso a qualquer momento editando o cadastro.
         </p>
       </div>
 
       <div className="card" style={{ display: "grid", gap: 10, marginBottom: 16 }}>
         <h2 style={{ margin: 0 }}>O que é a conta premium</h2>
         <p className="muted" style={{ margin: 0 }}>
-          A <strong>conta premium</strong> (o selo <VerifiedBadge />) é uma assinatura de quem anuncia:{" "}
+          A <strong>conta premium</strong> (o selo <VerifiedBadge />) é uma assinatura de quem tem cadastro:{" "}
           <strong>R$ {precoMensal("verification", "pf").toFixed(2).replace(".", ",")} por mês</strong> para
           profissional autônomo e{" "}
           <strong>R$ {precoMensal("verification", "pj").toFixed(2).replace(".", ",")} para empresa</strong>.
@@ -115,10 +115,10 @@ export function ComoFuncionaPage() {
       </div>
 
       <div className="card" style={{ display: "grid", gap: 10, marginBottom: 16 }}>
-        <h2 style={{ margin: 0 }}>O que é um anúncio turbinado</h2>
+        <h2 style={{ margin: 0 }}>O que é um cadastro turbinado</h2>
         <p className="muted" style={{ margin: 0 }}>
-          Um anúncio <strong>turbinado</strong> (<span className="badge badge-boosted">Destaque</span>) é
-          outra assinatura opcional que faz o anúncio aparecer primeiro nos resultados de busca. É só um
+          Um cadastro <strong>turbinado</strong> (<span className="badge badge-boosted">Destaque</span>) é
+          outra assinatura opcional que faz o cadastro aparecer primeiro nos resultados de busca. É só um
           destaque de posicionamento — não é uma avaliação de qualidade do serviço.
         </p>
       </div>

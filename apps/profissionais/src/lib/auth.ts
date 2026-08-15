@@ -86,7 +86,7 @@ export async function signInWithGoogle(voltarPara?: string): Promise<void> {
   if (!client) throw new Error("Banco de dados não configurado (VITE_SUPABASE_URL/ANON_KEY ausentes).");
   // Sem `voltarPara`, o Google devolvia todo mundo na raiz do site. Quem
   // clicava em "Quero ser encontrado" e entrava com a conta reaparecia na
-  // tela de busca, sem o formulário do anúncio e sem entender o que tinha
+  // tela de busca, sem o formulário do cadastro e sem entender o que tinha
   // acontecido — a impressão é de que o login deu errado.
   if (voltarPara) guardarDestinoLogin(voltarPara);
   const origem = origemCanonica();

@@ -3,7 +3,7 @@
  *
  * Chamava-se "verificado" e mudou de nome por honestidade. O selo era
  * liberado pelo pagamento, automaticamente — ninguém conferia documento
- * nenhum. Uma etiqueta escrita "verificado" num anúncio é entendida como
+ * nenhum. Uma etiqueta escrita "verificado" num cadastro é entendida como
  * "esta plataforma checou quem é essa pessoa", e é isso que um cliente
  * lesado levaria a um juiz: a plataforma afirmou uma checagem que não fez.
  *
@@ -14,7 +14,7 @@
  *
  * Dourado, e não azul da marca. O dourado é a única cor que ficou reservada
  * à identidade aqui — não existe botão dourado, não existe etiqueta dourada
- * solta —, então quando ele aparece num anúncio a pessoa entende sozinha que
+ * solta —, então quando ele aparece num cadastro a pessoa entende sozinha que
  * aquilo é diferente do resto. E é o único item pago que quem procura
  * enxerga: quem assina precisa ver o dinheiro dele na tela.
  *

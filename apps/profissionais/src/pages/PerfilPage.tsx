@@ -45,7 +45,7 @@ export function PerfilPage() {
   const navigate = useNavigate();
   const [profile, setProfile] = useState<Profile | null>(null);
   /**
-   * Anúncios da pessoa, só para dizer se o cadastro está no ar.
+   * Cadastros da pessoa, só para dizer se o cadastro está no ar.
    *
    * `null` significa "ainda não sei" — durante o carregamento e também
    * quando a consulta falha. Nos dois casos a tela não mostra selo
@@ -105,7 +105,7 @@ export function PerfilPage() {
       <div className="container" style={{ maxWidth: 420, paddingTop: 60, textAlign: "center" }}>
         <div className="card">
           <h1 style={{ marginTop: 0 }}>Entrar</h1>
-          <p className="muted">Use sua conta Google para buscar, avaliar e anunciar seus serviços.</p>
+          <p className="muted">Use sua conta Google para buscar, avaliar e cadastrar seus serviços.</p>
           <div style={{ marginTop: 20 }}>
             <BotaoGoogle onClick={handleGoogleLogin} disabled={!hasDatabase()} />
           </div>
@@ -129,16 +129,16 @@ export function PerfilPage() {
   /**
    * O cadastro está no ar?
    *
-   * É a primeira coisa que quem anuncia quer saber ao abrir o perfil, e
+   * É a primeira coisa que quem tem cadastro quer saber ao abrir o perfil, e
    * até agora a resposta exigia entrar no Painel e interpretar a lista.
    * Quem entrou com o Google e parou no meio não tinha como perceber que
    * tinha parado — a tela não dizia nada, e "sem aviso" lê como "está
    * tudo certo".
    *
-   * `suspended` é o que tira o anúncio da busca de verdade: é a coluna
+   * `suspended` é o que tira o cadastro da busca de verdade: é a coluna
    * que a policy de RLS filtra na leitura pública. Por isso ela decide
    * o selo, e não uma checagem de campos preenchidos, que diria "no ar"
-   * para um anúncio que a moderação derrubou.
+   * para um cadastro que a moderação derrubou.
    */
   const situacao =
     anuncios === null
@@ -147,7 +147,7 @@ export function PerfilPage() {
         ? { tom: "pendente", texto: "Cadastro não finalizado" }
         : anuncios.some((p) => !p.suspended)
           ? { tom: "ok", texto: "Seu cadastro está no ar" }
-          : { tom: "problema", texto: "Anúncio suspenso" };
+          : { tom: "problema", texto: "Cadastro suspenso" };
 
   return (
     <div className="container" style={{ maxWidth: 480, paddingTop: 32 }}>
@@ -185,17 +185,17 @@ export function PerfilPage() {
 
       {/* Antes do resto: é a pergunta que se faz no Perfil ("eu pago alguma
           coisa por esse app?"), e a resposta estava escondida dentro do
-          Painel, presa ao cartão de cada anúncio. */}
+          Painel, presa ao cartão de cada cadastro. */}
       <p className="settings-group-title">Assinatura</p>
       <MinhaAssinatura userId={user.id} />
       <div className="settings-list">
         <SettingsItem to="/assinatura" icon="⭐" label="Planos e benefícios" />
       </div>
 
-      <p className="settings-group-title">Meus anúncios</p>
+      <p className="settings-group-title">Meus cadastros</p>
       <div className="settings-list">
         <InstalarApp />
-        <SettingsItem to="/painel" icon="📋" label="Meus anúncios" />
+        <SettingsItem to="/painel" icon="📋" label="Meus cadastros" />
         <SettingsItem to="/favoritos" icon="❤️" label="Meus favoritos" />
       </div>
 
@@ -287,7 +287,7 @@ export function PerfilPage() {
           <div style={{ display: "grid", gap: 14 }}>
             <p style={{ margin: 0 }}>Vão ser apagados para sempre:</p>
             <ul style={{ margin: 0, paddingLeft: 20, display: "grid", gap: 6 }} className="muted">
-              <li>seus anúncios e as avaliações que você recebeu neles</li>
+              <li>seus cadastros e as avaliações que você recebeu neles</li>
               <li>as avaliações que você escreveu sobre outros profissionais</li>
               <li>seus favoritos e seu cadastro</li>
             </ul>

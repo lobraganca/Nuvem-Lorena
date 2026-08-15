@@ -31,7 +31,7 @@ import { useTituloDaPagina } from "../lib/tituloDaPagina";
 /**
  * Iniciais em cor, no lugar do bonequinho genérico.
  *
- * Sem foto, todos os anúncios ficavam idênticos — a mesma silhueta cinza
+ * Sem foto, todos os cadastros ficavam idênticos — a mesma silhueta cinza
  * repetida na lista inteira, que é o oposto do que um cartão de visita
  * precisa fazer. As iniciais distinguem à primeira vista, e a cor vem do
  * próprio nome, então é sempre a mesma para a mesma pessoa.
@@ -75,7 +75,7 @@ const TOUR_STEPS: TourStep[] = [
   {
     target: "nav-painel",
     title: "Você também presta serviço?",
-    text: "No Painel você cria seu próprio anúncio, como pessoa física ou empresa. É grátis — o selo e o destaque são opcionais.",
+    text: "No Painel você cria seu próprio cadastro, como pessoa física ou empresa. É grátis — o selo e o destaque são opcionais.",
   },
 ];
 
@@ -128,8 +128,8 @@ export function HomePage() {
   useEffect(() => {
     getCidadesComAnuncio().then(setCidades);
     // O filtro de serviços vem dos cadastros, não da lista fixa do código:
-    // quem escreveu o próprio ofício no anúncio precisa ser encontrável por
-    // ele, e serviço sem ninguém anunciando só levaria a uma tela vazia.
+    // quem escreveu o próprio ofício no cadastro precisa ser encontrável por
+    // ele, e serviço sem ninguém cadastrado só levaria a uma tela vazia.
     getCategoriasComAnuncio().then(setCategorias);
     getCategoriasPopulares().then(setCategoriasPopulares);
   }, []);
@@ -157,7 +157,7 @@ export function HomePage() {
      escolhida. Cidade e nota mínima não contam sozinhas: eram os valores já
      preenchidos no primeiro carregamento, e é justamente esse carregamento
      automático que parava de acontecer aqui. Mostrar todo mundo cadastrado
-     assim que a tela abre lotava a entrada com anúncio, sem a pessoa ter
+     assim que a tela abre lotava a entrada com cadastro, sem a pessoa ter
      pedido nada ainda. */
   const buscouAlgo = debouncedText.trim() !== "" || category !== "";
 
@@ -332,7 +332,7 @@ export function HomePage() {
           {indEnviada ? (
             <div style={{ display: "grid", gap: 14 }}>
               <p style={{ margin: 0 }}>
-                Anotado. Indicação de quem já conhece o trabalho vale mais que qualquer anúncio — é assim que
+                Anotado. Indicação de quem já conhece o trabalho vale mais que qualquer cadastro — é assim que
                 esta lista cresce com gente boa.
               </p>
               <button
@@ -453,7 +453,7 @@ export function HomePage() {
           <strong>O que você está procurando?</strong>
           <p className="muted">Digite um serviço ali em cima, ou toque numa das buscas mais comuns.</p>
           {categoriasPopulares.length > 0 && (
-            /* "Mais comuns" é a contagem real de quem está anunciado, não
+            /* "Mais comuns" é a contagem real de quem está cadastrado, não
                opinião nem lista fixa no código — não existe registro de
                termo mais buscado, e sugerir uma categoria vazia devolveria
                "não achamos ninguém" no primeiro toque (ver
@@ -527,7 +527,7 @@ export function HomePage() {
                     {(p.categories?.length ?? 0) > 1 && ` +${p.categories.length - 1}`} · {p.city}
                   </p>
                   {/* A especialidade vem numa linha só dela, e não colada na
-                      categoria: é o que decide entre dois anúncios do mesmo
+                      categoria: é o que decide entre dois cadastros do mesmo
                       ofício, e emendada no "Dentista · Itabirito" ela viraria
                       mais uma palavra numa linha que ninguém termina de ler. */}
                   {p.especialidade && <p className="card-especialidade">{p.especialidade}</p>}
@@ -561,7 +561,7 @@ export function HomePage() {
                     <span className="muted">({p.review_count})</span>
                   </>
                 ) : (
-                  /* "Sem avaliações" lia como defeito do anúncio. Quem acabou
+                  /* "Sem avaliações" lia como defeito do cadastro. Quem acabou
                      de se cadastrar não tem culpa de ainda não ter sido
                      avaliado — e o convite ainda serve a quem está lendo. */
                   <span className="muted card-sem-nota">Novo por aqui — seja o primeiro a avaliar</span>
@@ -585,7 +585,7 @@ export function HomePage() {
       {/* A publicidade fecha a página, depois de todos os profissionais.
           Antes ela ficava entre os filtros e os resultados, e nessa posição
           era a primeira coisa depois da busca: quem digitou "eletricista"
-          via um anúncio antes de ver um eletricista. Aqui embaixo ela não
+          via um cadastro antes de ver um eletricista. Aqui embaixo ela não
           disputa com o que a pessoa veio fazer — e quem chegou até o fim da
           lista é justamente quem ainda não resolveu o problema, que é a
           melhor hora para um comércio da cidade aparecer. */}

@@ -16,7 +16,7 @@ export type EntityType = "pf" | "pj";
 
 export interface Professional {
   id: string;
-  owner_id: string; // profiles.id do dono do anúncio
+  owner_id: string; // profiles.id do dono do cadastro
   name: string;
   category: string; // categoria principal (destaque no card, usada no patrocínio)
   categories: string[]; // todos os serviços que a pessoa oferece — é o que a busca consulta
@@ -34,7 +34,7 @@ export interface Professional {
   street: string | null;
   street_number: string | null;
   neighborhood: string | null;
-  /** Rua e número aparecem no anúncio só quando isto está ligado. */
+  /** Rua e número aparecem no cadastro só quando isto está ligado. */
   mostrar_endereco: boolean;
   entity_type: EntityType; // "pf" = profissional autônomo, "pj" = empresa
   document: string | null; // CPF (pf) ou CNPJ (pj) do anunciante
@@ -63,7 +63,7 @@ export interface Professional {
 }
 
 /**
- * Um item da lista de serviços do anúncio.
+ * Um item da lista de serviços do cadastro.
  *
  * Existe para quem oferece várias coisas diferentes — o hotel com hospedagem
  * e salão de eventos, o laboratório com trinta exames, a loja com ajuste e
@@ -82,14 +82,14 @@ export interface ServicoOferecido {
   created_at: string;
 }
 
-/** Teto por anúncio, igual ao do banco. */
+/** Teto por cadastro, igual ao do banco. */
 export const MAX_SERVICOS_CATALOGO = 40;
 
 /**
  * Banner de publicidade na tela de busca.
  *
  * Vendido pela administração a comércios da cidade — inclusive os que não
- * têm anúncio no app, que é o que diferencia esta receita do selo e do
+ * têm cadastro no app, que é o que diferencia esta receita do selo e do
  * destaque.
  */
 export interface Banner {
@@ -163,7 +163,7 @@ export interface Review {
   /** Nome e foto de quem avaliou, vindos de `reviews_public`. */
   autor_nome?: string | null;
   autor_foto?: string | null;
-  reply: string | null; // resposta do dono do anúncio
+  reply: string | null; // resposta do dono do cadastro
   replied_at: string | null;
   created_at: string;
 }
@@ -312,7 +312,7 @@ export interface Subscription {
 }
 
 /**
- * Serviços sugeridos no formulário do anúncio.
+ * Serviços sugeridos no formulário do cadastro.
  *
  * É uma lista de atalhos, não uma grade fechada: quem não se encontra aqui
  * escreve o próprio serviço no campo "Outro". Uma lista curta obrigava gente
@@ -488,7 +488,7 @@ export function normalizarCategoria(texto: string): string {
   return limpo.charAt(0).toLocaleUpperCase("pt-BR") + limpo.slice(1);
 }
 
-/** Limite do serviço escrito à mão: um ofício, não uma descrição do anúncio. */
+/** Limite do serviço escrito à mão: um ofício, não uma descrição do cadastro. */
 export const MAX_CATEGORIA_LEN = 32;
 
 /** Limite da especialidade: um recorte do ofício, não a segunda descrição. */
@@ -506,21 +506,21 @@ export const SPONSORSHIP_PLANS = [
   { days: 30, amount: 79.9 },
 ] as const;
 
-/** Teto de serviços por anúncio: quem marca tudo não está dizendo nada. */
+/** Teto de serviços por cadastro: quem marca tudo não está dizendo nada. */
 export const MAX_CATEGORIES = 5;
 
 /**
- * Etiquetas de atendimento — o "quando" e o "como" do anúncio.
+ * Etiquetas de atendimento — o "quando" e o "como" do cadastro.
  *
- * O anúncio já diz o que a pessoa faz e onde. O que ele não dizia é
+ * O cadastro já diz o que a pessoa faz e onde. O que ele não dizia é
  * exatamente o que quem procura pergunta antes de qualquer outra coisa:
  * atende sábado? dá para hoje? aceita cartão? vai até minha casa? Cada uma
  * dessas perguntas era uma mensagem no WhatsApp que só existia porque o
- * anúncio ficou calado — e boa parte delas morria sem resposta.
+ * cadastro ficou calado — e boa parte delas morria sem resposta.
  *
  * É uma lista fechada de propósito. Etiqueta escrita à mão vira propaganda
  * ("o melhor da cidade", "preço imbatível"), e aí ninguém mais consegue
- * comparar dois anúncios: se cada um inventa a própria etiqueta, a etiqueta
+ * comparar dois cadastros: se cada um inventa a própria etiqueta, a etiqueta
  * deixa de significar alguma coisa. Serviço é diferente — ofício é da
  * pessoa, e por isso lá o campo livre existe.
  *
@@ -558,10 +558,10 @@ export const GRUPOS_DE_ATRIBUTOS = [
 export const ATRIBUTOS = GRUPOS_DE_ATRIBUTOS.flatMap((g) => g.itens as readonly string[]);
 
 /**
- * Teto de etiquetas por anúncio, igual ao do banco.
+ * Teto de etiquetas por cadastro, igual ao do banco.
  *
  * Oito é generoso de propósito: o limite não está aqui para racionar, está
- * para impedir o anúncio que marca as dezesseis e volta a não informar nada.
+ * para impedir o cadastro que marca as dezesseis e volta a não informar nada.
  */
 export const MAX_ATRIBUTOS = 8;
 
