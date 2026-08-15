@@ -607,7 +607,16 @@ export function PainelPage() {
             </button>
           )}
         </div>
-        {mine.length === 0 && <p className="muted">Você ainda não tem anúncio. Preencha aí embaixo que em dois minutos você aparece na busca.</p>}
+        {/* Antes começava com "Você ainda não tem anúncio", que apresenta
+            o anúncio como uma segunda coisa a fazer depois do cadastro —
+            exatamente a confusão que o título acima passou a evitar. Aqui
+            o recado é o que falta e quanto custa: três passos. */}
+        {mine.length === 0 && (
+          <p className="muted">
+            Falta pouco: são três passos rápidos e você já aparece na busca para quem procura o seu serviço
+            na cidade.
+          </p>
+        )}
         <div className="grid grid-anuncios">
           {mine.map((p) => {
             const verified = isCurrentlyVerified(p);
@@ -988,7 +997,19 @@ export function PainelPage() {
       {(mine.length === 0 || formAberto) && (
       <section style={{ marginTop: 32 }}>
         <div className="secao-topo">
-          <h2 style={{ margin: 0 }}>{isEditing ? "Editar anúncio" : "Cadastrar anúncio"}</h2>
+          {/* "Cadastrar anúncio" lia como recomeçar do zero para quem
+              acabou de entrar com o Google: a pessoa já tinha feito um
+              cadastro, e a tela seguinte pedia outro. Daí ela fechava,
+              achando que estava pronta — é a explicação mais provável
+              para metade das contas criadas nunca terem virado anúncio.
+
+              Para quem ainda não tem nenhum, o título passa a dizer que
+              falta terminar o que já começou. Para quem já tem e clicou
+              em "Novo anúncio", continua sendo cadastrar um anúncio —
+              ali não há cadastro pendente, e prometer isso seria falso. */}
+          <h2 style={{ margin: 0 }}>
+            {isEditing ? "Editar anúncio" : mine.length === 0 ? "Termine seu cadastro" : "Cadastrar anúncio"}
+          </h2>
           {mine.length > 0 && (
             <button
               type="button"
