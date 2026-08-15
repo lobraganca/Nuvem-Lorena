@@ -111,6 +111,7 @@ export function BoasVindasPage() {
      um total baixo numa cidade inteira soa como lugar vazio para quem
      está decidindo se vale procurar aqui. */
   const visitasAppAnimado = useContagemAnimada(stats?.visitasApp ?? 0);
+  const visitasHojeAnimado = useContagemAnimada(stats?.visitasHoje ?? 0);
 
   function escolherCliente() {
     markWelcomeSeen();
@@ -178,6 +179,21 @@ export function BoasVindasPage() {
               <strong>{visitasAppAnimado}</strong>
               <span>{stats.visitasApp === 1 ? "visita ao app" : "visitas ao app"}</span>
             </div>
+            {/* O de hoje só aparece quando há visita hoje — e some sozinho
+                de madrugada, quando o dia vira e a contagem volta a zero.
+                É de propósito: um "0 hoje" ao lado de um total grande diz
+                que o app está parado, que é o contrário do que o par de
+                números existe para mostrar.
+
+                Também é o que segura o período entre publicar isto e
+                rodar a migration 0051 no banco: sem a função, o número
+                vem zero e o cartão simplesmente não aparece. */}
+            {stats.visitasHoje > 0 && (
+              <div className="welcome-stat-card">
+                <strong>{visitasHojeAnimado}</strong>
+                <span>{stats.visitasHoje === 1 ? "visita hoje" : "visitas hoje"}</span>
+              </div>
+            )}
           </div>
         )}
       </section>

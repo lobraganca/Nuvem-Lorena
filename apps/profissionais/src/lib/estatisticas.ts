@@ -4,6 +4,8 @@ export interface EstatisticasPublicas {
   profissionais: number;
   /** Quantas vezes o app foi aberto (migration 0048). */
   visitasApp: number;
+  /** Quantas vezes o app foi aberto hoje, no fuso de Itabirito (0051). */
+  visitasHoje: number;
 }
 
 const CHAVE_VISITA = "procuro-visita-registrada";
@@ -45,15 +47,22 @@ export async function registrarVisita(): Promise<void> {
  */
 export async function getEstatisticasPublicas(): Promise<EstatisticasPublicas> {
   const client = supabase();
-  if (!client) return { profissionais: 0, visitasApp: 0 };
+  if (!client) return { profissionais: 0, visitasApp: 0, visitasHoje: 0 };
 
-  const [profissionais, visitasApp] = await Promise.all([
+  const [profissionais, visitasApp, visitasHoje] = await Promise.all([
     client.from("professionals_public").select("id", { count: "exact", head: true }),
     client.rpc("contagem_de_visitas_no_app"),
+    client.rpc("contagem_de_visitas_no_app_hoje"),
   ]);
 
+  /* `typeof data === "number"` também é o que segura a função que ainda
+     não existe no banco. As migrations não sobem junto com o app — são
+     coladas à mão no SQL Editor —, então entre publicar isto e rodar a
+     0051 a chamada volta com erro e `data` nulo. Aí o número fica em
+     zero, e a tela esconde o cartão em vez de mostrar "NaN visitas". */
   return {
     profissionais: profissionais.count ?? 0,
     visitasApp: typeof visitasApp.data === "number" ? visitasApp.data : 0,
+    visitasHoje: typeof visitasHoje.data === "number" ? visitasHoje.data : 0,
   };
 }

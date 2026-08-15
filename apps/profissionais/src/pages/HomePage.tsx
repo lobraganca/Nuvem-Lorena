@@ -216,8 +216,11 @@ export function HomePage() {
           numa faixa fina: visível de primeira, sem disputar espaço com a
           busca, que continua sendo o assunto principal da tela. */}
       <Link to="/painel" className="cta-anunciar">
-        <span>
-          <strong>Você presta serviço?</strong> Cadastre-se e apareça nas buscas — é grátis.
+        {/* Encurtado para caber numa linha. "e apareça nas buscas" dizia o
+            que a tela inteira já demonstra — a pessoa está olhando a busca
+            — e era o que empurrava o aviso para duas linhas. */}
+        <span className="cta-anunciar-texto">
+          <strong>Presta serviço?</strong> Cadastre-se grátis
         </span>
         <span className="cta-anunciar-seta" aria-hidden="true">
           →

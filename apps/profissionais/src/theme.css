@@ -1675,14 +1675,44 @@ textarea::placeholder {
   justify-content: space-between;
   gap: 12px;
   margin-top: 16px;
-  padding: 12px 16px;
+  /* O recuo maior à direita não é estética: o botão flutuante de fechar
+     (`.btn-fechar-pagina`) é fixo no canto e ocupa os 50px finais da
+     tela, na mesma altura deste aviso. Com o aviso em duas linhas a seta
+     caía abaixo dele e ninguém via; em uma linha, ela passou a ficar
+     escondida atrás do X. Medido: sem isto a seta vai até x=355 e o
+     botão começa em x=340. */
+  padding: 10px 46px 10px 12px;
   border-radius: 999px;
   border: 1px solid #f6c9c4;
   background: #fdeceb;
   color: var(--color-danger);
   text-decoration: none;
-  font-size: 0.9rem;
+  /* 0,78rem e não 0,82: com os 46px reservados à direita, a 0,82 o texto
+     pedia 237px e sobravam 232 numa tela de 360px — a mais comum —, e
+     voltava a ser cortado. */
+  font-size: 0.78rem;
   line-height: 1.3;
+}
+
+/* Uma linha só. O `nowrap` sozinho seria arriscado — se um dia o texto
+   crescer, ele escapa da pílula em vez de quebrar —, então vem com
+   `min-width: 0` e reticências: o pior caso passa a ser um "…" no fim,
+   não texto vazando por cima da seta. */
+.cta-anunciar-texto {
+  min-width: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Abaixo de 340px o texto não cabe numa linha por mais que se aperte:
+   medido, ele pede 243px e sobram 224px. Ali a quebra é liberada, porque
+   duas linhas dizem a frase inteira e uma linha cortada come justamente
+   o "grátis", que é o motivo de o aviso existir. */
+@media (max-width: 339px) {
+  .cta-anunciar-texto {
+    white-space: normal;
+  }
 }
 
 .cta-anunciar strong {
