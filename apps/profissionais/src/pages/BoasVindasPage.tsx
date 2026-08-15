@@ -105,10 +105,11 @@ export function BoasVindasPage() {
     };
   }, []);
 
-  /* "Avaliações" e "visitas a cadastros" saíram da tela — os dois cartões
-     junto do de profissionais. Este continua: é o número que mais diz
-     "o app já tem gente de verdade" para quem está decidindo se cadastra. */
-  const profissionaisAnimado = useContagemAnimada(stats?.profissionais ?? 0);
+  /* Sobrou um número na abertura, e é o de visitas. "Avaliações",
+     "visitas a cadastros" e, agora, "profissionais cadastrados" saíram —
+     este último porque enquanto o app é novo ele lê contra o próprio app:
+     um total baixo numa cidade inteira soa como lugar vazio para quem
+     está decidindo se vale procurar aqui. */
   const visitasAppAnimado = useContagemAnimada(stats?.visitasApp ?? 0);
 
   function escolherCliente() {
@@ -141,17 +142,9 @@ export function BoasVindasPage() {
             {online === 1 ? "1 pessoa navegando agora" : `${online} pessoas navegando agora`}
           </p>
         )}
-        {/* Visitas ao app: quantas vezes ele foi aberto, contando uma por
-            sessão do navegador (ver registrarVisita). É número real e
-            cumulativo — só sobe, e não volta atrás. Fica escondido no zero
-            porque "0 visitas" na primeira tela do app é a única informação
-            que ele consegue dar contra si mesmo sem ser verdade útil: quem
-            está lendo já é a visita número um. */}
-        {visitasAppAnimado > 0 && (
-          <p className="visitas-pill">
-            {visitasAppAnimado} {stats?.visitasApp === 1 ? "visita" : "visitas"} ao app
-          </p>
-        )}
+        {/* As visitas saíram daqui e viraram o cartão grande, abaixo da
+            marca. Nos dois lugares ao mesmo tempo, o mesmo número aparecia
+            duas vezes na mesma tela. */}
       </div>
 
       <section className="welcome-hero">
@@ -165,15 +158,25 @@ export function BoasVindasPage() {
             é grátis" antes de saber que existe cadastro. Colado ao botão,
             chega no instante em que a dúvida aparece, que é na hora de
             decidir tocar. */}
-        {/* Só o de profissionais continua — avaliações e visitas a cadastros
-            saíram. Número real, contado nesta hora: aparece do jeito que
-            estiver, mesmo baixo, porque um número pequeno mas verdadeiro
-            erra menos do que um alto e inventado. */}
-        {stats && stats.profissionais > 0 && (
+        {/* Visitas ao app, no lugar de "profissionais cadastrados".
+
+            Os dois são números reais, mas dizem coisas diferentes para
+            quem acabou de chegar. A contagem de cadastrados é a mais fácil
+            de ler contra o app enquanto ele é novo: "18 profissionais"
+            numa cidade inteira soa como lugar vazio, justamente para quem
+            está decidindo se vale procurar aqui. As visitas são
+            cumulativas — só sobem, e falam de movimento em vez de estoque.
+
+            Contagem real, uma por sessão do navegador (ver
+            registrarVisita). Escondida no zero: "0 visitas" na primeira
+            tela é a única informação que o app consegue dar contra si
+            mesmo sem ser verdade útil, porque quem está lendo já é a
+            visita número um. */}
+        {stats && stats.visitasApp > 0 && (
           <div className="welcome-stats">
             <div className="welcome-stat-card">
-              <strong>{profissionaisAnimado}</strong>
-              <span>{stats.profissionais === 1 ? "profissional cadastrado" : "profissionais cadastrados"}</span>
+              <strong>{visitasAppAnimado}</strong>
+              <span>{stats.visitasApp === 1 ? "visita ao app" : "visitas ao app"}</span>
             </div>
           </div>
         )}

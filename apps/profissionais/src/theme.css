@@ -844,22 +844,9 @@ textarea::placeholder {
   padding-top: 14px;
 }
 
-/* Irmã da `.online-pill`, mas sem o ponto verde: aquele ponto significa
-   "acontecendo agora", e visitas é um total acumulado. Mesma forma para
-   ler como um par; cor mais discreta porque quem está ao vivo é a
-   informação que muda. */
-.visitas-pill {
-  display: inline-flex;
-  align-items: center;
-  margin: 0;
-  padding: 3px 10px;
-  border-radius: 999px;
-  background: var(--color-bg-soft);
-  border: 1px solid var(--color-border);
-  color: var(--color-text-muted);
-  font-size: 0.72rem;
-  font-weight: 600;
-}
+/* `.visitas-pill` foi removida: as visitas deixaram de ser uma pílula
+   discreta no topo e passaram a ser o cartão grande abaixo da marca, no
+   lugar que era do total de profissionais cadastrados. */
 
 .welcome-topo .online-pill {
   margin-top: 0;
