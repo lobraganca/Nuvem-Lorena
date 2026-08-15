@@ -84,7 +84,18 @@
    escondido. No celular a barra é sobreposta e não ocupa largura, então
    lá esta regra não muda nada. */
 html {
-  scrollbar-gutter: stable;
+  /* `both-edges` e não só `stable`: reservar a faixa apenas do lado da
+     barra deixa a página inteira torta. Medido em 390px, todo o conteúdo
+     ficava a 20px da borda esquerda e 35px da direita — 15px de diferença
+     em cima de uma margem de 20, o que é visível a olho nu e faz o texto
+     parecer encostado na esquerda. Reservando dos dois lados, o conteúdo
+     volta ao centro e a barra continua sem fazer a página saltar.
+
+     Em celular não muda nada: onde a barra é sobreposta, esta propriedade
+     não reserva nada dos dois jeitos. Quem paga os 15px de cada lado é
+     quem tem barra de verdade — computador e tablet —, e lá sobra
+     largura. */
+  scrollbar-gutter: stable both-edges;
 }
 
 body {
@@ -1942,6 +1953,14 @@ textarea::placeholder {
    anúncio ou ver quem chamou — oferta que se abre sozinha vira ruído entre a
    pessoa e o que ela veio fazer. */
 .produtos {
+  /* O recuo dos cartões e o espaço interno deles vivem aqui como variáveis
+     porque os dois precisam andar juntos: o texto solto da caixa (o resumo
+     de desempenho, a linha do "grátis para sempre") tem que começar na
+     mesma coluna do texto de dentro dos cartões, e essa coluna é a soma
+     dos dois. Escritos à mão em cada regra, bastava mexer num deles para
+     as duas colunas saírem do lugar sem ninguém perceber. */
+  --recuo-cartao: 14px;
+  --respiro-cartao: 16px;
   margin-top: 12px;
   border: 1px solid var(--color-border);
   border-radius: 14px;
@@ -1985,7 +2004,7 @@ textarea::placeholder {
 }
 
 .produtos-intro {
-  margin: 0 14px 10px;
+  margin: 0 calc(var(--recuo-cartao) + var(--respiro-cartao)) 10px;
   font-size: 0.85rem;
   line-height: 1.45;
 }
@@ -1999,7 +2018,7 @@ textarea::placeholder {
    ler qualquer palavra. */
 .produtos > .produto,
 .produtos > .assinaturas-ativas {
-  margin: 0 14px 10px;
+  margin: 0 var(--recuo-cartao) 10px;
   border-radius: 12px;
 }
 
@@ -2009,7 +2028,7 @@ textarea::placeholder {
   align-items: flex-start;
   justify-content: space-between;
   flex-wrap: wrap;
-  padding: 16px;
+  padding: var(--respiro-cartao);
   border: 1px solid var(--color-border);
   background: var(--color-surface);
 }
@@ -2049,17 +2068,15 @@ textarea::placeholder {
    essa dupla que decide a largura mínima do cartão do plano — dividindo a
    linha com o texto, ela empurrava o card inteiro para fora da tela. */
 @media (max-width: 420px) {
-  /* Sem recuo lateral no celular: a separação entre os planos já vem da
-     borda e do espaço embaixo, e cada pixel de recuo aqui é tirado de uma
-     linha que precisa caber o preço e o botão lado a lado. */
-  .produtos > .produto,
-  .produtos > .assinaturas-ativas {
-    margin-left: 0;
-    margin-right: 0;
-  }
-
-  .produto {
-    padding: 14px;
+  /* No celular o recuo encolhe, porque cada pixel aqui sai de uma linha
+     que precisa caber o preço e o botão lado a lado. Mas não vai a zero:
+     zerado, a borda branca do cartão encostava na borda colorida da
+     caixa, e os dois traços colados leem como erro de desenho — foi o que
+     fez a seção parecer "muito perto da borda". Seis pixels bastam para
+     separar os dois traços. */
+  .produtos {
+    --recuo-cartao: 6px;
+    --respiro-cartao: 14px;
   }
 
   .produto-acao {
@@ -2139,7 +2156,6 @@ textarea::placeholder {
 
 @media (min-width: 560px) {
   .produtos > summary,
-  .produto,
   .modo-contato,
   .creditos {
     padding-left: 16px;
@@ -2166,7 +2182,7 @@ textarea::placeholder {
 /* O desempenho abre a seção dos planos: é o número que a pessoa tem, e é
    contra ele que cada plano faz sentido. */
 .desempenho-resumo {
-  margin: 0 14px 10px;
+  margin: 0 calc(var(--recuo-cartao) + var(--respiro-cartao)) 10px;
   font-size: 0.88rem;
   line-height: 1.5;
   color: var(--color-text);
