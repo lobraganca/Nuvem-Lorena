@@ -596,16 +596,34 @@ export function PainelPage() {
   }
 
   const isPj = form.entity_type === "pj";
+  /** Ninguém cadastrado ainda: a tela vira só o formulário, sem a lista
+   *  vazia nem o cabeçalho dela. */
+  const semCadastro = mine.length === 0;
 
   return (
     <div className="container" style={{ paddingTop: 32, paddingBottom: 60 }}>
-      <h1>Painel do profissional</h1>
+      {/* Quem ainda não tem cadastro via quatro títulos antes de chegar no
+          primeiro campo: "Painel do profissional", "Meus cadastros" — que é
+          cabeçalho de uma lista vazia —, a explicação em três linhas e
+          "Termine seu cadastro". Metade da primeira tela ia embora antes de
+          a pessoa poder fazer qualquer coisa, e ela chegou aqui justamente
+          para preencher.
+
+          Sem cadastro, sobra um título só, e ele é o que a pessoa veio
+          fazer. A lista e o cabeçalho dela voltam a existir quando houver o
+          que listar. */}
+      {semCadastro ? (
+        <h1 className="painel-titulo-unico">Termine seu cadastro</h1>
+      ) : (
+        <h1>Painel do profissional</h1>
+      )}
       {message && <p className="card">{message}</p>}
 
+      {!semCadastro && (
       <section style={{ marginTop: 24 }}>
         <div className="secao-topo">
           <h2 style={{ margin: 0 }}>Meus cadastros</h2>
-          {mine.length > 0 && mine.length < 5 && !formAberto && (
+          {mine.length < 5 && !formAberto && (
             /* Um cadastro por ofício, e não tudo amontoado num só: quem é
                fotógrafo e dá aula de violão tem duas vitrines diferentes,
                com fotos, textos e reputações separadas. */
@@ -622,16 +640,6 @@ export function PainelPage() {
             </button>
           )}
         </div>
-        {/* Antes começava com "Você ainda não tem cadastro", que apresenta
-            o cadastro como uma segunda coisa a fazer depois do cadastro —
-            exatamente a confusão que o título acima passou a evitar. Aqui
-            o recado é o que falta e quanto custa: três passos. */}
-        {mine.length === 0 && (
-          <p className="muted">
-            Falta pouco: são três passos rápidos e você já aparece na busca para quem procura o seu serviço
-            na cidade.
-          </p>
-        )}
         <div className="grid grid-anuncios">
           {mine.map((p) => {
             const verified = isCurrentlyVerified(p);
@@ -1008,9 +1016,17 @@ export function PainelPage() {
           })}
         </div>
       </section>
+      )}
 
-      {(mine.length === 0 || formAberto) && (
-      <section style={{ marginTop: 32 }}>
+      {(semCadastro || formAberto) && (
+      <section style={{ marginTop: semCadastro ? 4 : 32 }}>
+        {/* Sem cadastro, o `h1` acima já diz "Termine seu cadastro" — o
+            cabeçalho desta seção repetiria a mesma frase a dois centímetros
+            de distância. No lugar dele fica a linha curta que diz o que
+            esperar. */}
+        {semCadastro && !isEditing ? (
+          <p className="muted painel-subtitulo">São três passos rápidos e você já aparece na busca.</p>
+        ) : (
         <div className="secao-topo">
           {/* "Cadastrar anúncio" lia como recomeçar do zero para quem
               acabou de entrar com o Google: a pessoa já tinha feito um
@@ -1022,9 +1038,7 @@ export function PainelPage() {
               falta terminar o que já começou. Para quem já tem e clicou
               em "Novo cadastro", continua sendo cadastrar um cadastro —
               ali não há cadastro pendente, e prometer isso seria falso. */}
-          <h2 style={{ margin: 0 }}>
-            {isEditing ? "Editar cadastro" : mine.length === 0 ? "Termine seu cadastro" : "Novo cadastro"}
-          </h2>
+          <h2 style={{ margin: 0 }}>{isEditing ? "Editar cadastro" : "Novo cadastro"}</h2>
           {mine.length > 0 && (
             <button
               type="button"
@@ -1038,6 +1052,7 @@ export function PainelPage() {
             </button>
           )}
         </div>
+        )}
         <form ref={formRef} className="card" onSubmit={handleSave} style={{ display: "grid", gap: 12 }}>
           {/* Onde a pessoa está e quanto falta. Sem isso, três telas em
               sequência não são "um cadastro rápido", são um formulário sem

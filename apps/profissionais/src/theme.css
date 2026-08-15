@@ -2231,6 +2231,18 @@ textarea::placeholder {
   color: var(--color-text-muted);
 }
 
+/* Sem cadastro, o Painel tem um título só e ele encosta no formulário:
+   a pessoa chegou para preencher, e cada linha antes do primeiro campo é
+   linha que ela lê sem poder fazer nada. */
+.painel-titulo-unico {
+  margin-bottom: 4px;
+}
+
+.painel-subtitulo {
+  margin: 0 0 14px;
+  font-size: 0.9rem;
+}
+
 /* ---------- Painel de configuração ---------- */
 
 .cfg-item {
