@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import { useAuth } from "../lib/useAuth";
 import { signInWithGoogle } from "../lib/auth";
@@ -204,6 +204,19 @@ export function PainelPage() {
    * etapa dele — não a quatrocentos pixels do botão que a pessoa apertou.
    */
   const [passo, setPasso] = useState(1);
+  const formRef = useRef<HTMLFormElement>(null);
+
+  /**
+   * Troca de etapa leva a tela para o começo do formulário.
+   *
+   * A primeira versão rolava para `document.body.scrollHeight`, que é o pé
+   * da página: a pessoa apertava "Continuar" e era jogada para depois dos
+   * campos da etapa nova, encarando os botões. Como cada etapa tem uma
+   * altura diferente, o destino ainda mudava de lugar a cada troca.
+   */
+  function irParaOTopoDoFormulario() {
+    formRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+  }
   const [saving, setSaving] = useState(false);
   const [checkoutLoading, setCheckoutLoading] = useState<string | null>(null);
   const [message, setMessage] = useState("");
@@ -405,13 +418,14 @@ export function PainelPage() {
     setFormMessage("");
     setErroAoSalvar(false);
     setPasso((p) => Math.min(3, p + 1));
-    window.scrollTo({ top: document.body.scrollHeight, behavior: "smooth" });
+    irParaOTopoDoFormulario();
   }
 
   function voltarPasso() {
     setFormMessage("");
     setErroAoSalvar(false);
     setPasso((p) => Math.max(1, p - 1));
+    irParaOTopoDoFormulario();
   }
 
   async function handleSave(e: React.FormEvent) {
@@ -440,6 +454,9 @@ export function PainelPage() {
         setPasso(n);
         setErroAoSalvar(true);
         setFormMessage(falta);
+        // A etapa mudou debaixo da pessoa; sem levar a tela junto, ela fica
+        // parada numa altura que agora pertence a outro conteúdo.
+        irParaOTopoDoFormulario();
         return;
       }
     }
@@ -985,7 +1002,7 @@ export function PainelPage() {
             </button>
           )}
         </div>
-        <form className="card" onSubmit={handleSave} style={{ display: "grid", gap: 12 }}>
+        <form ref={formRef} className="card" onSubmit={handleSave} style={{ display: "grid", gap: 12 }}>
           {/* Onde a pessoa está e quanto falta. Sem isso, três telas em
               sequência não são "um cadastro curto", são um formulário sem
               fim — a barra é o que transforma o segundo passo em progresso

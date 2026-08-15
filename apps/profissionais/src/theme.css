@@ -64,6 +64,20 @@
   box-sizing: border-box;
 }
 
+/* Reserva a faixa da barra de rolagem mesmo quando ela não é necessária.
+   Sem isto, toda tela que encolhe abaixo da altura da janela faz a barra
+   sumir — e os ~15px que ela ocupava voltam para a largura da página, que
+   se realinha de lado. Alternando entre uma tela curta e uma comprida, o
+   conteúdo inteiro salta para a esquerda e para a direita a cada troca.
+   Apareceu com o cadastro em três etapas (o passo 1 cabe na tela, os
+   outros dois não); antes o formulário era um bloco só, sempre alto o
+   bastante para a barra existir o tempo todo, e o defeito ficava
+   escondido. No celular a barra é sobreposta e não ocupa largura, então
+   lá esta regra não muda nada. */
+html {
+  scrollbar-gutter: stable;
+}
+
 body {
   margin: 0;
   background: var(--color-bg);
