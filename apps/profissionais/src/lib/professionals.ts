@@ -509,7 +509,22 @@ export async function updateContactMode(professionalId: string, contactMode: Pro
 
 // --- Banner de categoria patrocinada --------------------------------------
 
-/** Patrocínio ativo (status='active' e dentro do período) para uma categoria+cidade, se houver. */
+/**
+ * Patrocínio ativo (status='active' e dentro do período) para uma
+ * categoria+cidade, se houver.
+ *
+ * **Hoje sem nenhum chamador.** O cartão que a mostrava vivia na busca e
+ * saiu junto com o resto da publicidade: a busca é onde a pessoa está
+ * resolvendo um problema, e ali nada que foi pago para aparecer disputa
+ * com o que ela veio fazer. Não há tela de compra deste produto no app —
+ * ele só nasce pela administração —, então nada ficou vendido sem
+ * entrega.
+ *
+ * Fica de pé porque a tabela continua existindo, o financeiro do admin
+ * ainda soma "Patrocínio de categoria", e o lugar natural de o produto
+ * voltar é a tela de anúncios, onde quem entra já entrou para ver quem
+ * pagou para aparecer.
+ */
 export async function getActiveSponsorship(
   category: string,
   city: string

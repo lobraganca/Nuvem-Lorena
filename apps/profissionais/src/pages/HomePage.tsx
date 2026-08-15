@@ -3,7 +3,6 @@ import { Link, Navigate } from "react-router-dom";
 import { DEFAULT_CITY, simboloDoServico } from "../types/domain";
 import {
   DEFAULT_PAGE_SIZE,
-  getActiveSponsorship,
   getCategoriasComAnuncio,
   getGradesDeCategorias,
   getCidadesComAnuncio,
@@ -15,7 +14,6 @@ import {
   type ProfessionalWithRating,
   type SortOption,
 } from "../lib/professionals";
-import type { CategorySponsorship, Professional } from "../types/domain";
 import { hasDatabase, problemaDeConfiguracao } from "../lib/supabase";
 import { FavoriteButton } from "../components/FavoriteButton";
 import { VerifiedBadge } from "../components/VerifiedBadge";
@@ -126,7 +124,6 @@ export function HomePage() {
   const [hasMore, setHasMore] = useState(false);
   const [loadingMore, setLoadingMore] = useState(false);
   const [showTour, setShowTour] = useState(false);
-  const [sponsorship, setSponsorship] = useState<(CategorySponsorship & { professional: Professional }) | null>(null);
   // Quem nunca viu a tela de início é mandado para lá antes da busca —
   // EXCETO quando esta carga é a volta do login.
   //
@@ -252,16 +249,6 @@ export function HomePage() {
       setLoading(false);
     });
   }, [buscouAlgo, city, category, debouncedText, minRating, sort, tipo]);
-
-  // Banner de categoria patrocinada: só aparece quando a busca está
-  // filtrada por uma categoria específica.
-  useEffect(() => {
-    if (!category) {
-      setSponsorship(null);
-      return;
-    }
-    getActiveSponsorship(category, city || DEFAULT_CITY).then(setSponsorship);
-  }, [category, city]);
 
   async function loadMore() {
     const nextPage = page + 1;
@@ -467,53 +454,6 @@ export function HomePage() {
             </div>
           )}
         </BottomSheet>
-      )}
-
-      {sponsorship && (
-        <Link
-          to={`/profissional/${sponsorship.professional.id}`}
-          className="card"
-          style={{
-            marginTop: 24,
-            display: "flex",
-            gap: 16,
-            alignItems: "center",
-            textDecoration: "none",
-            color: "inherit",
-            border: "1px solid var(--color-primary)",
-            background: "linear-gradient(135deg, var(--color-gold-tint), var(--color-surface))",
-          }}
-        >
-          {sponsorship.professional.photo_url ? (
-            <img
-              src={sponsorship.professional.photo_url}
-              alt={sponsorship.professional.name}
-              style={{
-                width: 72,
-                height: 72,
-                objectFit: "cover",
-                borderRadius: sponsorship.professional.entity_type === "pj" ? 12 : "50%",
-                border: "1px solid var(--color-border)",
-                flexShrink: 0,
-              }}
-            />
-          ) : (
-            <div
-              className="avatar-fallback"
-              style={{ width: 72, height: 72, fontSize: "1.8rem", borderRadius: sponsorship.professional.entity_type === "pj" ? 12 : "50%" }}
-            >
-              {sponsorship.professional.entity_type === "pj" ? "🏢" : "👤"}
-            </div>
-          )}
-          <div style={{ flex: 1 }}>
-            <span className="badge badge-boosted">Destaque patrocinado</span>
-            <h3 style={{ margin: "6px 0 0" }}>{sponsorship.professional.name}</h3>
-            <p className="muted" style={{ margin: "4px 0 0" }}>
-              {sponsorship.professional.category} · {sponsorship.professional.city}
-            </p>
-          </div>
-          <span className="btn btn-primary">Ver perfil</span>
-        </Link>
       )}
 
       {!buscouAlgo && (
