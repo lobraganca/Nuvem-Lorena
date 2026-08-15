@@ -156,7 +156,7 @@ export function PerfilPage() {
           <img
             src={avatarUrl}
             alt=""
-            style={{ width: 88, height: 88, borderRadius: "50%", margin: "0 auto", objectFit: "cover" }}
+            className="profile-avatar-foto"
           />
         ) : (
           <div className="profile-avatar">{initials(name, user.email)}</div>

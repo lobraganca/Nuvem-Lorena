@@ -306,6 +306,20 @@ button {
   border: 1px solid var(--color-gold-line);
 }
 
+/* O foguinho vem pelo CSS, e não escrito em cada tela: a etiqueta aparece
+   em sete lugares (busca, perfil, favoritos, painel, anúncios, admin e o
+   texto do "Como funciona"), e sete cópias do emoji é uma para esquecer
+   quando alguma mudar.
+
+   `aria-hidden` não existe em pseudo-elemento, mas conteúdo de `::before`
+   também não é anunciado como texto pelos leitores de tela mais usados —
+   e o rótulo escrito ao lado já diz o que a etiqueta significa. */
+.badge-boosted::before {
+  content: "🔥";
+  font-size: 0.9em;
+  line-height: 1;
+}
+
 /* Pessoa física (autônomo) x pessoa jurídica (empresa): a diferença está no
    texto, não na cor — as duas são igualmente legítimas. */
 .badge-entity-pf,
@@ -636,11 +650,26 @@ textarea::placeholder {
 
 /* ---------- Perfil: lista de itens em cards com ícone + seta ---------- */
 
-.profile-avatar {
-  width: 88px;
-  height: 88px;
-  border-radius: 50%;
+/* Foto da conta: quadrada e arredondada, como as demais fotos do app.
+   Duas regras, e não uma lista de seletores: o espaço-reserva das
+   iniciais precisa do gradiente e da centralização do texto, e a foto de
+   verdade precisa de `object-fit` — juntar as duas daria fundo azul por
+   baixo de imagem com transparência. */
+.profile-avatar,
+.profile-avatar-foto {
+  width: 104px;
+  height: 104px;
+  border-radius: 24px;
   margin: 0 auto;
+  display: block;
+}
+
+.profile-avatar-foto {
+  object-fit: cover;
+  border: 1px solid var(--color-border);
+}
+
+.profile-avatar {
   display: flex;
   align-items: center;
   justify-content: center;
@@ -2958,9 +2987,14 @@ h3 {
 /* Foto do anúncio: grande o bastante para ser um rosto, não uma miniatura de
    lista. Em `clamp` porque é ela que ocupa a largura junto com o nome — fixa
    em 132px, num iPhone estreito o nome caía em quatro linhas. */
+/* Mesma forma do `.card-foto` da busca, em escala maior: quem vem da
+   lista precisa reconhecer que é a mesma pessoa, e forma diferente entre
+   as duas telas quebra esse reconhecimento. O raio cresce junto com o
+   lado — 18px num quadrado de 92 e num de 132 não são a mesma curva. */
 .perfil-foto {
-  width: clamp(96px, 28vw, 132px);
-  height: clamp(96px, 28vw, 132px);
+  width: clamp(104px, 30vw, 140px);
+  height: clamp(104px, 30vw, 140px);
+  border-radius: 22px;
   object-fit: cover;
   border: 1px solid var(--color-border);
   flex-shrink: 0;
@@ -3068,10 +3102,13 @@ h3 {
   margin-bottom: 10px;
 }
 
+/* Quem avaliou também aparece em quadrado arredondado, e maior: a 38px
+   redondos a foto era um ponto, e o rosto de quem assina a avaliação é
+   parte do que faz ela valer. */
 .avaliacao-foto {
-  width: 38px;
-  height: 38px;
-  border-radius: 50%;
+  width: 46px;
+  height: 46px;
+  border-radius: 12px;
   object-fit: cover;
   flex: none;
   border: 1px solid var(--color-border);

@@ -650,7 +650,7 @@ export function PainelPage() {
                       {p.entity_type === "pj" ? "Empresa" : "Autônomo"}
                     </span>
                     {verified && <span className="badge badge-verified">Premium ativo</span>}
-                    {boosted && <span className="badge badge-boosted">Destaque</span>}
+                    {boosted && <span className="badge badge-boosted">Em destaque</span>}
                   </div>
                 </div>
                 <p className="muted">{p.category} · {p.city}</p>

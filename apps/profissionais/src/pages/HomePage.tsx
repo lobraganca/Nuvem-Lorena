@@ -518,7 +518,7 @@ export function HomePage() {
                         <VerifiedBadge size={14} /> Premium
                       </span>
                     )}
-                    {boosted && <span className="badge badge-boosted">Destaque</span>}
+                    {boosted && <span className="badge badge-boosted">Em destaque</span>}
                     <span className={p.entity_type === "pj" ? "badge badge-entity-pj" : "badge badge-entity-pf"}>
                       {p.entity_type === "pj" ? "Empresa" : "Profissional autônomo"}
                     </span>

@@ -418,12 +418,10 @@ export function ProfessionalPage() {
                 src={professional.photo_url}
                 alt={professional.name}
                 className="perfil-foto"
-                style={{ borderRadius: professional.entity_type === "pj" ? 16 : "50%" }}
               />
             ) : (
               <div
                 className="avatar-fallback perfil-foto"
-                style={{ borderRadius: professional.entity_type === "pj" ? 16 : "50%" }}
               >
                 {professional.entity_type === "pj" ? "🏢" : "👤"}
               </div>
@@ -449,7 +447,7 @@ export function ProfessionalPage() {
             </div>
           </div>
           <div className="perfil-acoes">
-            {boosted && <span className="badge badge-boosted">Destaque</span>}
+            {boosted && <span className="badge badge-boosted">Em destaque</span>}
             {/* Compartilhar mora junto do coração: as duas são ações sobre
                 este cadastro, e é aqui que a mão procura. Como link escrito
                 no fim da página, ficava órfão entre as etiquetas e as

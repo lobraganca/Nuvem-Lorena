@@ -567,7 +567,7 @@ export function AdminPage() {
                 </Link>
                 <div style={{ display: "flex", gap: 6 }}>
                   {verified && <span className="badge badge-verified">Premium ativo</span>}
-                  {boosted && <span className="badge badge-boosted">Destaque</span>}
+                  {boosted && <span className="badge badge-boosted">Em destaque</span>}
                   {p.suspended && (
                     <span className="badge" style={{ color: "var(--color-primary)", borderColor: "var(--color-primary)" }}>
                       Fora do ar

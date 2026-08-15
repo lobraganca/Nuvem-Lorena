@@ -145,7 +145,7 @@ export function AnunciosPage() {
                       <VerifiedBadge size={14} /> Premium
                     </span>
                   )}
-                  <span className="badge badge-boosted">Destaque</span>
+                  <span className="badge badge-boosted">Em destaque</span>
                 </div>
                 {p.average_rating ? (
                   <p style={{ marginTop: 10 }}>
