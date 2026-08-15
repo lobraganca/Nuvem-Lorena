@@ -4,6 +4,7 @@ import { useAuth } from "../lib/useAuth";
 import { signInWithGoogle, signOut } from "../lib/auth";
 import { hasDatabase } from "../lib/supabase";
 import { getProfile } from "../lib/profiles";
+import { getMyProfessionals } from "../lib/professionals";
 import { isAdmin } from "../lib/admin";
 import { resetOnboarding } from "../lib/onboarding";
 import { excluirMinhaConta } from "../lib/account";
@@ -12,7 +13,7 @@ import { InstalarApp } from "../components/InstalarApp";
 import { BotaoApple } from "../components/BotaoApple";
 import { BotaoGoogle } from "../components/BotaoGoogle";
 import { baixarMeusDados } from "../lib/meusDados";
-import type { Profile } from "../types/domain";
+import type { Professional, Profile } from "../types/domain";
 import { FecharApp } from "../components/FecharApp";
 import { MinhaAssinatura } from "../components/MinhaAssinatura";
 import { useTituloDaPagina } from "../lib/tituloDaPagina";
@@ -43,6 +44,16 @@ export function PerfilPage() {
   const { user, loading } = useAuth();
   const navigate = useNavigate();
   const [profile, setProfile] = useState<Profile | null>(null);
+  /**
+   * Anúncios da pessoa, só para dizer se o cadastro está no ar.
+   *
+   * `null` significa "ainda não sei" — durante o carregamento e também
+   * quando a consulta falha. Nos dois casos a tela não mostra selo
+   * nenhum: escrever "não está no ar" para quem está com a internet
+   * ruim seria um susto por engano, e num lugar onde a pessoa não tem
+   * como conferir se é verdade.
+   */
+  const [anuncios, setAnuncios] = useState<Professional[] | null>(null);
   const [admin, setAdmin] = useState(false);
   const [error, setError] = useState("");
   const [confirmarExclusao, setConfirmarExclusao] = useState(false);
@@ -67,11 +78,15 @@ export function PerfilPage() {
   useEffect(() => {
     if (!user) {
       setProfile(null);
+      setAnuncios(null);
       setAdmin(false);
       return;
     }
     getProfile(user.id).then(setProfile);
     isAdmin(user.id).then(setAdmin);
+    getMyProfessionals(user.id)
+      .then(setAnuncios)
+      .catch(() => setAnuncios(null));
   }, [user]);
 
   async function handleGoogleLogin() {
@@ -111,6 +126,29 @@ export function PerfilPage() {
   const name = profile?.full_name ?? user.user_metadata?.full_name ?? null;
   const avatarUrl = profile?.avatar_url ?? user.user_metadata?.avatar_url ?? null;
 
+  /**
+   * O cadastro está no ar?
+   *
+   * É a primeira coisa que quem anuncia quer saber ao abrir o perfil, e
+   * até agora a resposta exigia entrar no Painel e interpretar a lista.
+   * Quem entrou com o Google e parou no meio não tinha como perceber que
+   * tinha parado — a tela não dizia nada, e "sem aviso" lê como "está
+   * tudo certo".
+   *
+   * `suspended` é o que tira o anúncio da busca de verdade: é a coluna
+   * que a policy de RLS filtra na leitura pública. Por isso ela decide
+   * o selo, e não uma checagem de campos preenchidos, que diria "no ar"
+   * para um anúncio que a moderação derrubou.
+   */
+  const situacao =
+    anuncios === null
+      ? null
+      : anuncios.length === 0
+        ? { tom: "pendente", texto: "Cadastro não finalizado" }
+        : anuncios.some((p) => !p.suspended)
+          ? { tom: "ok", texto: "Seu cadastro está no ar" }
+          : { tom: "problema", texto: "Anúncio suspenso" };
+
   return (
     <div className="container" style={{ maxWidth: 480, paddingTop: 32 }}>
       <div className="card" style={{ textAlign: "center" }}>
@@ -125,6 +163,24 @@ export function PerfilPage() {
         )}
         <h2 style={{ margin: "12px 0 2px" }}>{name || user.email}</h2>
         {name && <p className="muted" style={{ margin: 0, fontSize: "0.85rem" }}>{user.email}</p>}
+
+        {/* A linha existe mesmo vazia, com altura reservada: o selo chega
+            depois da consulta, e sem o espaço guardado ele empurraria o
+            resto da tela para baixo no momento em que aparece. */}
+        <div className="situacao-linha">
+          {situacao && (
+            <Link
+              to="/painel"
+              className={`situacao situacao-${situacao.tom}`}
+              /* Levar ao Painel importa mais quando falta terminar, mas
+                 vale nos três estados: o selo diz o que está acontecendo,
+                 e o toque leva ao único lugar onde se resolve. */
+            >
+              <span className="situacao-ponto" aria-hidden="true" />
+              {situacao.texto}
+            </Link>
+          )}
+        </div>
       </div>
 
       {/* Antes do resto: é a pergunta que se faz no Perfil ("eu pago alguma

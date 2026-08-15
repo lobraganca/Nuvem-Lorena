@@ -100,16 +100,20 @@ export function MinhaAssinatura({ userId }: { userId: string }) {
      alguém que não tem onde aplicar o benefício seria vender o nada. */
   if (anuncios.length === 0) {
     return (
+      /* "Você ainda não tem anúncio" / "Criar meu anúncio" apresentava o
+         anúncio como uma segunda tarefa, depois do cadastro que a pessoa
+         acha que já fez ao entrar com o Google — a mesma confusão que o
+         Painel deixou de causar. Aqui o recado é o que falta: terminar. */
       <div className="assinatura-bloco">
         <p style={{ margin: 0 }}>
-          <strong>Você ainda não tem anúncio.</strong>
+          <strong>Seu cadastro ainda não está no ar.</strong>
         </p>
         <p className="muted" style={{ margin: "4px 0 12px", fontSize: "0.88rem" }}>
-          A conta premium é do anúncio — ela libera o botão de WhatsApp e o pedido de contato no <em>seu</em>{" "}
-          anúncio. Crie o seu primeiro, que é grátis, e a assinatura fica disponível aqui.
+          Falta terminar o cadastro para você aparecer na busca — são três passos e é grátis. A conta
+          premium, que libera o botão de WhatsApp e o pedido de contato, fica disponível aqui depois.
         </p>
         <Link className="btn btn-primary" to="/painel">
-          Criar meu anúncio
+          Termine seu cadastro
         </Link>
       </div>
     );

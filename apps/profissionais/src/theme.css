@@ -645,6 +645,60 @@ textarea::placeholder {
   background: linear-gradient(135deg, var(--color-primary), var(--color-primary-deep));
 }
 
+/* ---------- Situação do cadastro, no cartão do perfil ---------- */
+
+/* Altura reservada mesmo sem selo: ele chega depois da consulta, e sem
+   isto empurraria a tela inteira para baixo ao aparecer. */
+.situacao-linha {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 34px;
+  margin-top: 12px;
+}
+
+.situacao {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 6px 14px;
+  border-radius: 999px;
+  font-size: 0.82rem;
+  font-weight: 700;
+  text-decoration: none;
+  border: 1px solid transparent;
+}
+
+.situacao-ponto {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: currentColor;
+  flex: none;
+}
+
+/* As três cores saem do vocabulário que o app já usa para os mesmos
+   sentidos: o verde de `.cfg-ok`, o âmbar de `.review-care` (aviso, não
+   alarme — falta terminar não é erro de ninguém) e o vermelho de
+   `.cfg-falta`. */
+.situacao-ok {
+  background: #eaf6ef;
+  color: #1c6b3f;
+  border-color: #c3e4d1;
+}
+
+.situacao-pendente {
+  background: #fdf7ec;
+  color: var(--color-gold-deep);
+  border-color: #ecd6b0;
+}
+
+.situacao-problema {
+  background: #fdeceb;
+  color: var(--color-danger);
+  border-color: #f3c6c2;
+}
+
 .settings-group-title {
   font-size: 0.75rem;
   font-weight: 700;
