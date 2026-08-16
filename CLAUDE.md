@@ -123,6 +123,34 @@ passar `+55 31 99999-8888`.
 `initdb` recusa rodar como root — crie o diretório em `/var/tmp` e use
 `su postgres -s /bin/bash -c "..."`.
 
+### Rodar o app aqui, com um Supabase de mentira
+
+Dá para abrir o app no navegador deste container e exercitar a navegação de
+verdade, sem credencial nenhuma. Foi assim que se achou que "voltar" apagava
+a busca — um defeito que nenhuma leitura de código tinha pegado.
+
+O jeito que funciona é **trocar `src/lib/supabase.ts` pelo cliente falso** e
+restaurar depois com `git checkout --`. Aliás: `resolve.alias` do Vite
+**não** resolve isso — o alias casa com o texto do import (`../lib/supabase`),
+e tentar apontar `/src/lib/supabase` não pega. Duas horas foram embora aí.
+
+O falso precisa implementar, além de `from().select().eq()...`, também
+`channel()` (a presença chama, e sem ela a tela inteira cai no
+`ErrorBoundary` — o sintoma é o teste "não achar" nem a barra nem o campo de
+busca) e `overlaps()`.
+
+**Antes de commitar, confira que `git status` não lista `src/lib/supabase.ts`.**
+
+Para medir alinhamento, vale fotografar o elemento com `deviceScaleFactor: 8`
+e calcular o centro da tinta com `pngjs`. Um visto que "parecia torto" estava
+0,66px fora do centro — e foi apontado três vezes antes de alguém medir em
+vez de olhar.
+
+`playwright` está instalado na raiz do repositório, não em
+`apps/profissionais`: o script de teste roda de `/home/user/Nuvem-Lorena`.
+Arquivos `*.mjs` na raiz são ignorados pelo git (`.gitignore`), então dá
+para deixá-los lá enquanto se trabalha.
+
 ---
 
 ## Comandos
