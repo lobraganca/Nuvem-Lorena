@@ -4987,19 +4987,31 @@ h3 {
   overflow: visible;
 }
 
-.bottom-nav-item.bottom-nav-centro {
-  justify-content: flex-end;
-  padding-bottom: 6px;
-}
+/* O círculo sobe por margem negativa, não por `position: absolute`.
 
+   A primeira versão o posicionava a partir do fundo do item, somando
+   `env(safe-area-inset-bottom)` — que a barra JÁ soma no próprio
+   `padding-bottom`. No computador, onde essa faixa é zero, ficou certo; no
+   iPhone, onde ela tem uns 34px, o círculo subiu 34px a mais e descolou da
+   barra, boiando sobre o conteúdo. Foi assim que a dona viu.
+
+   Fora do fluxo, o círculo também deixava o rótulo sozinho no item, e o
+   `flex-end` que o alinhava jogava "Buscar" abaixo da linha dos outros
+   nomes. Os dois defeitos tinham a mesma raiz.
+
+   Com margem negativa não há nada a somar: o círculo continua no fluxo, o
+   rótulo vem logo abaixo dele como nos outros itens, e o quanto ele sobe é
+   um número só. `-29px` é a diferença entre os 50px do círculo e os 21px do
+   ícone comum — é isso que deixa os cinco rótulos na mesma linha, sem
+   ajuste manual. */
 .bottom-nav-circulo {
-  position: absolute;
-  bottom: calc(var(--bottom-nav-height) - 34px + env(safe-area-inset-bottom));
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 52px;
-  height: 52px;
+  flex: none;
+  width: 50px;
+  height: 50px;
+  margin-top: -29px;
   border-radius: 50%;
   background: var(--color-primary);
   color: #fff;
@@ -5106,4 +5118,20 @@ h3 {
 .linha-cidade.ativa {
   color: var(--color-primary);
   font-weight: 700;
+}
+
+/* Coluna vazia que reequilibra a barra de quem administra — ver AppShell.
+   Ocupa uma fração igual à dos outros itens e não recebe toque.
+
+   A conta não tem meio-termo: para o botão cair no centro exato com seis
+   itens, a coluna vazia precisa valer uma coluna inteira. Medido, isso
+   custa "Anúncios" terminar em reticências na barra da administração em
+   telas de até 360px — em 390px, que é o tamanho do celular dela, tudo
+   cabe. Fica assim de propósito: botão fora do centro é o que ela viu e
+   apontou; uma palavra com reticências, numa barra que uma pessoa só
+   enxerga, é o preço menor. */
+.bottom-nav-espaco {
+  flex: 1;
+  min-width: 0;
+  pointer-events: none;
 }

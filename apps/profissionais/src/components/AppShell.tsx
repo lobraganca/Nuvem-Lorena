@@ -335,6 +335,19 @@ export function AppShell({ children }: { children: ReactNode }) {
         {/* Voltar em primeiro, à esquerda: é onde o dedo já procura e é a
             ordem de leitura. Botão e não Link, porque o destino não é uma
             tela fixa — é a anterior, qualquer que tenha sido. */}
+        {/* Espaço vazio, e só na barra de quem administra.
+
+            O botão do meio fica centrado porque tem o mesmo número de
+            itens dos dois lados. Com cinco itens isso acontece sozinho;
+            com o de administração são seis, sobra um à direita, e o
+            círculo escorrega 30px para a esquerda — foi o que a dona viu
+            no próprio celular, e o que fez o botão parecer fora do lugar
+            mesmo depois de colado na barra.
+
+            Uma coluna vazia à esquerda reequilibra a conta sem tirar nada
+            de ninguém: três de um lado, três do outro, e o círculo volta
+            ao meio exato. */}
+        {admin && <span className="bottom-nav-espaco" aria-hidden="true" />}
         <BotaoVoltar />
         {/* Cor própria: é o único item da barra que leva a algo pago, e
             distinguir isso do resto é honestidade, não enfeite. Quem toca
