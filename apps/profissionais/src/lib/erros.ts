@@ -21,9 +21,15 @@ export function mensagemDeErro(err: unknown, padrao: string): string {
   if (/bucket not found/i.test(bruto)) {
     return "O espaço das fotos ainda não foi criado no Supabase (Storage → New bucket → professional-photos, público). Enquanto isso, o cadastro de empresa salva sem logo.";
   }
-  // Política de segurança barrou a gravação.
+  /* Política de segurança barrou a gravação.
+     A frase de antes mandava sair da conta e entrar de novo. É conselho
+     errado quase sempre: a recusa não vem de sessão vencida — sessão
+     vencida dá outro erro —, vem de a conta não ter permissão para
+     escrever naquela linha. Sair e entrar não muda permissão nenhuma, e
+     quem seguia a instrução voltava para o mesmo erro achando que tinha
+     feito algo errado. */
   if (/row-level security|violates row-level/i.test(bruto)) {
-    return "O banco recusou a gravação por segurança. Saia da conta, entre de novo e tente outra vez.";
+    return "O banco não deixou salvar: esta conta não tem permissão para alterar este cadastro. Se ele é seu, avise a administração — é falha nossa, não sua.";
   }
   if (/duplicate key/i.test(bruto)) {
     return "Já existe um cadastro com esses dados.";

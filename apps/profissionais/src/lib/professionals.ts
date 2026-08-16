@@ -345,17 +345,55 @@ export async function getProfessionalParaEditar(id: string): Promise<Professiona
   return data ?? null;
 }
 
+/**
+ * Cria ou atualiza um cadastro.
+ *
+ * Cadastro que já tem `id` vai por `update`, não por `upsert`, e a
+ * diferença não é de estilo — é o que faz a edição pela administração
+ * existir.
+ *
+ * O Postgres executa `upsert` como INSERT com "se já existir, atualize", e
+ * a RLS avalia a regra de INSERT: `with check (auth.uid() = owner_id)`, ou
+ * seja, só dá para inserir cadastro que é seu. Quem edita o cadastro de
+ * outra pessoa esbarra ali mesmo tendo permissão de update — a regra que
+ * autoriza a administração é a de UPDATE, e o upsert nunca chega a
+ * acioná-la. O banco recusava, e a tela dizia "saia da conta e entre de
+ * novo", que não tinha nada a ver.
+ *
+ * Indo por `update`, valem as regras de update: o dono edita o que é dele,
+ * a administração edita qualquer um. Cada caminho passa pela porta que
+ * existe para ele.
+ *
+ * `owner_id` fica de fora da atualização de propósito. Ele não muda quando
+ * se edita um cadastro, e não mandá-lo é a garantia, na camada dos dados,
+ * de que nenhuma tela consegue transferir o cadastro de alguém para outra
+ * conta por engano.
+ */
 export async function upsertProfessional(input: Partial<Professional> & { owner_id: string }): Promise<Professional> {
   const client = supabase();
   if (!client) throw new Error("Banco de dados não configurado.");
   if (input.document && (await isDocumentBanned(input.document))) {
     throw new Error("Este CPF/CNPJ está impedido de se cadastrar na plataforma.");
   }
+
   const payload = { ...input };
   if (payload.id && payload.photo_url === undefined) {
     delete payload.photo_url;
   }
-  const { data, error } = await client.from("professionals").upsert(payload).select().single();
+
+  if (payload.id) {
+    const { id, owner_id: _dono, ...campos } = payload;
+    const { data, error } = await client
+      .from("professionals")
+      .update(campos)
+      .eq("id", id)
+      .select()
+      .single();
+    if (error) throw error;
+    return data;
+  }
+
+  const { data, error } = await client.from("professionals").insert(payload).select().single();
   if (error) throw error;
   return data;
 }
