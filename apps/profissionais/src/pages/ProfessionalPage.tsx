@@ -28,6 +28,7 @@ import { VerifiedBadge } from "../components/VerifiedBadge";
 import { Estrelas } from "../components/Estrelas";
 import { formatPhone } from "../lib/phone";
 import { useTituloDaPagina } from "../lib/tituloDaPagina";
+import { mensagemDeErro } from "../lib/erros";
 import { ConfirmarMeuNumero } from "../components/ConfirmarMeuNumero";
 
 /**
@@ -243,7 +244,7 @@ export function ProfessionalPage() {
       setReviewSheetOpen(false);
       await load();
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Não foi possível salvar a avaliação.");
+      setError(mensagemDeErro(err, "Não foi possível salvar a avaliação."));
     } finally {
       setSaving(false);
     }
@@ -284,7 +285,7 @@ export function ProfessionalPage() {
       if (editingReviewId === reviewId) cancelEditReview();
       await load();
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Não foi possível excluir a avaliação.");
+      setError(mensagemDeErro(err, "Não foi possível excluir a avaliação."));
     } finally {
       setDeleteConfirmId(null);
     }
@@ -298,7 +299,7 @@ export function ProfessionalPage() {
       await replyToReview(reviewId, reply);
       await load();
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Não foi possível salvar a resposta.");
+      setError(mensagemDeErro(err, "Não foi possível salvar a resposta."));
     } finally {
       setReplySavingId(null);
     }
@@ -324,7 +325,7 @@ export function ProfessionalPage() {
       anotarContato("pedido");
       setReqSent(true);
     } catch (err) {
-      setReqError(err instanceof Error ? err.message : "Não conseguimos enviar seu pedido agora.");
+      setReqError(mensagemDeErro(err, "Não conseguimos enviar seu pedido agora."));
     } finally {
       setReqSaving(false);
     }
@@ -350,7 +351,7 @@ export function ProfessionalPage() {
       if (code === "23505") {
         setReportError("Você já tem uma denúncia em aberto para este cadastro.");
       } else {
-        setReportError(err instanceof Error ? err.message : "Não foi possível enviar a denúncia.");
+        setReportError(mensagemDeErro(err, "Não foi possível enviar a denúncia."));
       }
     } finally {
       setReportSaving(false);
