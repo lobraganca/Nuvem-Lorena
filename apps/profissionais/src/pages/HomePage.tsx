@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { Link, Navigate } from "react-router-dom";
-import { DEFAULT_CITY, simboloDoServico } from "../types/domain";
+import { DEFAULT_CITY } from "../types/domain";
+import { IconeDeServico } from "../components/IconeDeServico";
 import {
   DEFAULT_PAGE_SIZE,
   getCategoriasComAnuncio,
@@ -446,8 +447,8 @@ export function HomePage() {
                   className="categoria-cartao"
                   onClick={() => setCategory(c.categoria)}
                 >
-                  <span className="categoria-simbolo" aria-hidden="true">
-                    {simboloDoServico(c.categoria)}
+                  <span className="categoria-simbolo">
+                    <IconeDeServico categoria={c.categoria} />
                   </span>
                   <span className="categoria-nome">{c.categoria}</span>
                   {/* "Opções" e não "profissionais": na mesma grade convivem

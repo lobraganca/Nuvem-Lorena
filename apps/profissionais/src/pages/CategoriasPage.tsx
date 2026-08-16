@@ -1,7 +1,8 @@
 import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { getTodasAsCategorias, type CategoriaPopular } from "../lib/professionals";
-import { GRUPOS_DE_SERVICOS, simboloDoServico } from "../types/domain";
+import { GRUPOS_DE_SERVICOS } from "../types/domain";
+import { IconeDeServico } from "../components/IconeDeServico";
 import { useTituloDaPagina } from "../lib/tituloDaPagina";
 
 /**
@@ -81,8 +82,8 @@ export function CategoriasPage() {
             {g.itens.map((nome) => (
               <li key={nome}>
                 <button type="button" className="categoria-linha" onClick={() => buscar(nome)}>
-                  <span className="categoria-linha-simbolo" aria-hidden="true">
-                    {simboloDoServico(nome)}
+                  <span className="categoria-linha-simbolo">
+                    <IconeDeServico categoria={nome} tamanho={22} />
                   </span>
                   <span className="categoria-linha-nome">{nome}</span>
                   <span className="categoria-linha-quantos">
