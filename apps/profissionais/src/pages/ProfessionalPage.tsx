@@ -30,6 +30,7 @@ import { formatPhone } from "../lib/phone";
 import { useTituloDaPagina } from "../lib/tituloDaPagina";
 import { mensagemDeErro } from "../lib/erros";
 import { ConfirmarMeuNumero } from "../components/ConfirmarMeuNumero";
+import { MarcaConfirmado } from "../components/MarcaConfirmado";
 
 /**
  * Como chamar quem tem cadastro, no meio de uma frase.
@@ -561,8 +562,14 @@ export function ProfessionalPage() {
                confirmação. Quando WhatsApp e telefone são diferentes, só um
                deles passou pelo código — e um "✓ confirmado" solto faria a
                pessoa acreditar que os dois foram. */
+            /* O visto era o caractere "✓" solto na frente do texto — a
+               mesma letra que já tinha sido tirada do painel por não ficar
+               no meio da própria caixa. Aqui ela também encostava no
+               número. Passa a ser a mesma marca redonda do painel: um
+               desenho só, num arquivo só, torto em lugar nenhum. */
             <span className="whats-ok" title="O dono do cadastro recebeu um código neste número e digitou de volta">
-              ✓ {formatPhone(zap ?? "")} confirmado por código
+              <MarcaConfirmado tamanho={18} />
+              <span>{formatPhone(zap ?? "")} confirmado por código</span>
             </span>
           )}
         </div>

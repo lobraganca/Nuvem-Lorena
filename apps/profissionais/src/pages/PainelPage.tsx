@@ -35,6 +35,7 @@ import { BotaoApple } from "../components/BotaoApple";
 import { BotaoGoogle } from "../components/BotaoGoogle";
 import { mensagemDeErro } from "../lib/erros";
 import { useTituloDaPagina } from "../lib/tituloDaPagina";
+import { MarcaConfirmado } from "../components/MarcaConfirmado";
 
 
 /**
@@ -405,20 +406,7 @@ export function PainelPage() {
                      Android, iPhone e computador, e num deles vinha
                      desalinhado com a linha. */
                   <p className="whats-ok">
-                    <span className="whats-ok-marca" aria-hidden="true">
-                      {/* Desenhado, e não o caractere "✓". Centrar a letra
-                          dentro do círculo é impossível de acertar: o
-                          desenho dela não ocupa o meio da própria caixa, e
-                          o quanto sai do meio depende da fonte que o
-                          aparelho usou — o que estava centrado no
-                          computador aparecia torto no celular. O traço
-                          abaixo é simétrico dentro do quadro por
-                          construção: vai de 3,5 a 12,5 nos dois eixos, com
-                          centro exato em 8. */}
-                      <svg viewBox="0 0 16 16" width="11" height="11" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                        <path d="M3.5 8.5 L6.5 11.5 L12.5 4.5" />
-                      </svg>
-                    </span>
+                    <MarcaConfirmado />
                     <span>
                       <strong>{formatPhone(p.whatsapp || p.phone)}</strong> confirmado
                     </span>

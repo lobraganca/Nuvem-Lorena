@@ -1,4 +1,5 @@
 import { supabase } from "./supabase";
+import { oficiosParaNecessidade } from "./necessidades";
 import type {
   CategorySponsorship,
   ContactRequest,
@@ -128,10 +129,32 @@ export async function searchProfessionals(filters: SearchFilters): Promise<Profe
     // "ortodontista" não está procurando "dentista", está procurando aquilo.
     // Sem este campo na busca, a especialidade apareceria no cadastro e não
     // serviria para achar ninguém.
-    const t = filters.text.replace(/[%,()]/g, " ").trim();
-    query = query.or(
-      `name.ilike.%${t}%,bio.ilike.%${t}%,category.ilike.%${t}%,especialidade.ilike.%${t}%`
-    );
+    /* Busca pelo problema, não pelo nome do ofício.
+       "Consertar chuveiro" não está escrito no cadastro de eletricista
+       nenhum, e "cesta de café da manhã" não é nome de profissão — as duas
+       devolviam tela vazia numa cidade que tem as duas coisas. Quando o
+       dicionário de `necessidades.ts` reconhece a frase, a busca deixa de
+       procurar o texto e passa a procurar os ofícios que ele apontou.
+
+       Trocar em vez de somar é deliberado: procurar as duas coisas
+       obrigaria a montar a condição à mão numa string (`category.eq."X"`),
+       e é aí que mora o risco — nome de ofício tem espaço, acento e hífen
+       ("Refrigeração e ar-condicionado"), e um erro de aspas não devolve
+       menos resultado, derruba a consulta inteira. `overlaps` é método do
+       cliente, que escapa o valor sozinho.
+
+       E não se perde nada de real: quem digita uma necessidade não está
+       procurando um nome. A tela mostra qual ofício foi entendido, e o
+       nome é tocável — quem quis outra coisa corrige com um toque. */
+    const oficios = oficiosParaNecessidade(filters.text);
+    if (oficios.length > 0) {
+      query = query.overlaps("categories", oficios);
+    } else {
+      const t = filters.text.replace(/[%,()]/g, " ").trim();
+      query = query.or(
+        `name.ilike.%${t}%,bio.ilike.%${t}%,category.ilike.%${t}%,especialidade.ilike.%${t}%`
+      );
+    }
   }
   if (filters.onlySuspended) query = query.eq("suspended", true);
 

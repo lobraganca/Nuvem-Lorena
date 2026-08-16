@@ -16,6 +16,7 @@ import {
 } from "../lib/professionals";
 import { hasDatabase, problemaDeConfiguracao } from "../lib/supabase";
 import { mensagemDeErro } from "../lib/erros";
+import { oficiosParaNecessidade } from "../lib/necessidades";
 import { FavoriteButton } from "../components/FavoriteButton";
 import { VerifiedBadge } from "../components/VerifiedBadge";
 import { Estrelas } from "../components/Estrelas";
@@ -210,6 +211,21 @@ export function HomePage() {
    * nota mínima ficam: elas sozinhas não escondem a grade, e apagar uma
    * escolha que a pessoa não pediu para apagar é outra surpresa.
    */
+  /* Os ofícios que a frase digitada quer dizer. Só existe quando a pessoa
+     escreveu uma necessidade — buscar por nome de pessoa ou pelo próprio
+     ofício não produz tradução, e aí nada aparece na tela. */
+  const oficiosDaNecessidade = category === "" ? oficiosParaNecessidade(debouncedText) : [];
+
+  /* Tocar no ofício traduzido troca a busca por ele: quem digitou
+     "chuveiro" e viu "Eletricista ou Encanador" escolhe qual dos dois, em
+     vez de digitar de novo. O texto sai, senão os dois filtros se somariam
+     e a lista ficaria menor a cada toque. */
+  function buscarOficio(oficio: string) {
+    setText("");
+    setDebouncedText("");
+    setCategory(oficio);
+  }
+
   function verTodosOsServicos() {
     setText("");
     setDebouncedText("");
@@ -553,6 +569,29 @@ export function HomePage() {
             Ver todos os serviços
           </button>
         </div>
+      )}
+
+      {/* Quando a busca foi traduzida, a tradução aparece.
+          Quem digita "consertar chuveiro" e recebe uma lista de
+          eletricistas sem explicação fica na dúvida se o app entendeu ou se
+          errou — e a dúvida faz voltar e digitar de novo. Dizer qual ofício
+          foi entendido resolve as duas coisas: confirma o acerto e, quando
+          erramos, mostra o erro em vez de escondê-lo atrás de uma lista
+          estranha. Os nomes são tocáveis: quem quis o outro ofício chega
+          nele com um toque. */}
+      {buscouAlgo && oficiosDaNecessidade.length > 0 && (
+        <p className="busca-traducao">
+          Entendemos que você precisa de{" "}
+          {oficiosDaNecessidade.map((oficio, i) => (
+            <span key={oficio}>
+              {i > 0 && (i === oficiosDaNecessidade.length - 1 ? " ou " : ", ")}
+              <button type="button" className="busca-traducao-oficio" onClick={() => buscarOficio(oficio)}>
+                {oficio}
+              </button>
+            </span>
+          ))}
+          .
+        </p>
       )}
 
       {buscouAlgo && (

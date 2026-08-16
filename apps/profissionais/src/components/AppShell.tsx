@@ -81,11 +81,13 @@ function NavItem({
   /** Item com cor própria — hoje só o de anúncios, que leva a conteúdo pago. */
   destaque?: boolean;
 }) {
-  /* Só o ícone, como no Instagram: o rótulo continua no HTML para quem usa
-     leitor de tela e para o `title`, mas sai da tela. Numa barra de cinco
-     colunas em celular estreito, o texto obrigava a fonte a encolher até o
-     tamanho em que ninguém lê mesmo — e quem já usou qualquer aplicativo
-     reconhece a lupa, o coração e a pessoinha sem legenda. */
+  /* Ícone com o nome embaixo.
+     Já foi só ícone, pelo argumento de que "todo mundo reconhece a lupa e a
+     pessoinha". Vale para a lupa e a pessoinha; não vale para o resto. Uma
+     maleta é Painel ou Viagens? Um megafone é Anúncios — ou é aviso? Quem
+     não reconhece não pergunta: toca, cai na tela errada e volta, e depois
+     de duas vezes deixa de tocar. O nome custa 11 pixels de altura e
+     remove a adivinhação. */
   return (
     <Link
       to={to}
@@ -96,7 +98,7 @@ function NavItem({
       aria-current={active ? "page" : undefined}
     >
       {icon}
-      <span className="apenas-leitor-de-tela">{label}</span>
+      <span className="bottom-nav-rotulo">{label}</span>
     </Link>
   );
 }
@@ -146,7 +148,7 @@ function BotaoVoltar() {
       }}
     >
       <IconSeta />
-      <span className="apenas-leitor-de-tela">Voltar</span>
+      <span className="bottom-nav-rotulo">Voltar</span>
     </button>
   );
 }
@@ -304,7 +306,7 @@ export function AppShell({ children }: { children: ReactNode }) {
       {!isWelcome && <BotaoFechar />}
       <div className={isWelcome ? undefined : "app-content"}>{children}</div>
       {isWelcome ? null : (
-      <nav className="bottom-nav">
+      <nav className={`bottom-nav${admin ? " com-admin" : ""}`}>
         {/* Voltar em primeiro, à esquerda: é onde o dedo já procura e é a
             ordem de leitura. Botão e não Link, porque o destino não é uma
             tela fixa — é a anterior, qualquer que tenha sido. */}

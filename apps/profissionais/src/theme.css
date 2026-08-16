@@ -66,7 +66,7 @@
   --radius: 16px;
   --radius-lg: 22px;
   --font-sans: Inter, "Segoe UI", system-ui, -apple-system, sans-serif;
-  --bottom-nav-height: 58px;
+  --bottom-nav-height: 68px;
 }
 
 * {
@@ -591,17 +591,23 @@ textarea::placeholder {
   box-shadow: 0 -2px 12px rgba(10, 26, 47, 0.07);
 }
 
-/* Barra só de ícones, como a do Instagram. O rótulo continua no HTML (ver
-   `.apenas-leitor-de-tela`), mas sai da tela: em cinco colunas de celular
-   estreito ele obrigava a fonte a encolher até o tamanho em que ninguém lê,
-   e ainda assim "Favoritos" e "Como funciona" não cabiam. Sem o texto, o
-   ícone cresce e o alvo de toque ocupa a altura inteira da barra. */
+/* Ícone em cima, nome embaixo.
+   A barra já foi só de ícones, e o argumento de então era o espaço: em
+   celular estreito o texto encolhia a fonte até ninguém ler. O erro estava
+   em tratar o nome como enfeite que precisa caber. Ele é a única coisa que
+   diz para onde o botão leva — e sem ele a pessoa descobre tocando, cai na
+   tela errada e volta.
+   O espaço apareceu tirando peso de onde havia de sobra: o ícone desceu de
+   23px para 21px e a barra subiu de 58px para 68px. */
 .bottom-nav-item {
   display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
+  gap: 3px;
   flex: 1;
   height: 100%;
+  padding: 0 2px;
   text-decoration: none;
   color: var(--color-text-muted);
   background: none;
@@ -611,8 +617,41 @@ textarea::placeholder {
 }
 
 .bottom-nav-item svg {
-  width: 23px;
-  height: 23px;
+  width: 21px;
+  height: 21px;
+  flex: none;
+}
+
+/* Uma linha só, sempre. Um nome que quebra em duas empurra o ícone para
+   cima e desalinha a fila inteira — e nome cortado ainda diz mais que nome
+   nenhum. `100%` com `min-width: 0` no pai é o que deixa o corte
+   acontecer em vez de o texto esticar a coluna. */
+.bottom-nav-rotulo {
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 0.66rem;
+  line-height: 1.1;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+}
+
+/* A barra de quem administra tem um item a mais, e é só ela.
+   Cinco itens cabem folgados em qualquer celular; seis não: medido em tela
+   de 360px, a coluna cai para 51px e "Anúncios" pede 53px — cortava por
+   dois pixels, e só na tela da administração.
+   Em vez de encolher a fonte para todo mundo por causa de uma tela que
+   quase ninguém vê, o aperto fica onde ele existe. Abaixo de uns 330px o
+   nome ainda termina em reticências; é aparelho raro, é a barra de uma
+   pessoa só, e reticências dizem mais do que ícone sem nome. */
+.bottom-nav.com-admin .bottom-nav-item {
+  padding: 0;
+}
+
+.bottom-nav.com-admin .bottom-nav-rotulo {
+  font-size: 0.6rem;
+  letter-spacing: -0.02em;
 }
 
 /* O item ativo fica na cor da marca e com traço mais grosso — é o mesmo
@@ -4638,4 +4677,29 @@ h3 {
   font-size: 0.86rem;
   color: var(--color-text-muted);
   font-variant-numeric: tabular-nums;
+}
+
+/* A tradução da necessidade em ofício, logo abaixo da barra de busca ativa.
+   Discreta de propósito: é uma explicação, não um resultado — e quem já
+   entendeu precisa passar por ela sem tropeçar para chegar nos cartões. */
+.busca-traducao {
+  margin: 8px 0 0;
+  font-size: 0.88rem;
+  color: var(--color-text-muted);
+}
+
+/* Botão que não parece botão de formulário: é o nome do ofício, sublinhado,
+   como um link no meio da frase. Alvo de toque de 44px de altura seria
+   desproporcional dentro de uma linha de texto; o sublinhado e a cor da
+   marca é o que diz que dá para tocar. */
+.busca-traducao-oficio {
+  background: none;
+  border: none;
+  padding: 0;
+  font: inherit;
+  color: var(--color-primary);
+  font-weight: 700;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  cursor: pointer;
 }
