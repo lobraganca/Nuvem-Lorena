@@ -7,15 +7,7 @@ import { AvisoDeVersao } from "./AvisoDeVersao";
 import { useAuth } from "../lib/useAuth";
 import { isAdmin } from "../lib/admin";
 import { useOnlineCount } from "../lib/presence";
-
-function IconSearch() {
-  return (
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
-      <circle cx="11" cy="11" r="7" />
-      <line x1="21" y1="21" x2="16.65" y2="16.65" />
-    </svg>
-  );
-}
+import { MarcaProcuro } from "./MarcaProcuro";
 
 /* Etiqueta de preço: diz "aqui tem oferta" sem a agressividade do megafone,
    que num app de serviços lê como spam. */
@@ -371,7 +363,7 @@ export function AppShell({ children }: { children: ReactNode }) {
         <NavItem
           to="/"
           label="Buscar"
-          icon={<IconSearch />}
+          icon={<MarcaProcuro />}
           active={path === "/"}
           centro
         />

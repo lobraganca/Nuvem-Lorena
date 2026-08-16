@@ -5013,15 +5013,22 @@ h3 {
   height: 50px;
   margin-top: -29px;
   border-radius: 50%;
-  background: var(--color-primary);
+  /* O navy da marca, não o azul de ação: dentro do círculo está o símbolo
+     do app, e o fundo do ícone do procurô é este tom. Com o azul dos
+     botões, o mesmo desenho passava a parecer outro. */
+  background: var(--color-navy);
   color: #fff;
-  box-shadow: 0 6px 16px rgba(18, 48, 94, 0.32);
+  box-shadow: 0 6px 16px rgba(10, 26, 47, 0.34);
   border: 3px solid var(--color-bg);
 }
 
+/* O símbolo ocupa mais do círculo do que um ícone de traço ocuparia: ele é
+   uma marca, não um pictograma, e marca pequena demais dentro de um círculo
+   grande lê como erro de alinhamento. 28 de 44 (o círculo menos a borda)
+   é a mesma folga que o ícone do aplicativo tem em volta do "ô". */
 .bottom-nav-item.bottom-nav-centro svg {
-  width: 24px;
-  height: 24px;
+  width: 28px;
+  height: 28px;
 }
 
 /* O item ativo pinta o texto de azul; dentro do círculo azul, o ícone tem
