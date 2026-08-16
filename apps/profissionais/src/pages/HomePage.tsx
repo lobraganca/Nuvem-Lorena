@@ -1,16 +1,17 @@
 import { useEffect, useRef, useState } from "react";
 import { Link, Navigate } from "react-router-dom";
-import { DEFAULT_CITY } from "../types/domain";
+import { DEFAULT_CITY, GRUPOS_DE_SERVICOS } from "../types/domain";
 import { IconeDeServico } from "../components/IconeDeServico";
+import { Prateleira } from "../components/Prateleira";
+import { CartaoVitrine } from "../components/CartaoVitrine";
 import {
   DEFAULT_PAGE_SIZE,
   getCategoriasComAnuncio,
-  getCategoriasPopulares,
   getCidadesComAnuncio,
+  getMaisVistos,
   isCurrentlyBoosted,
   isCurrentlyVerified,
   searchProfessionals,
-  type CategoriaPopular,
   type ProfessionalWithRating,
   type SortOption,
 } from "../lib/professionals";
@@ -62,6 +63,7 @@ export function HomePage() {
   useTituloDaPagina();
   const [city, setCity] = useState<string>("");
   const [cidades, setCidades] = useState<string[]>([]);
+  const [cidadeAberta, setCidadeAberta] = useState(false);
   /**
    * A busca mora no endereço — e é isso que faz o "voltar" funcionar.
    *
@@ -86,7 +88,6 @@ export function HomePage() {
     typeof window === "undefined" ? new URLSearchParams() : new URLSearchParams(window.location.search);
   const [category, setCategory] = useState<string>(() => paramsIniciais().get("servico") ?? "");
   const [categorias, setCategorias] = useState<string[]>([]);
-  const [categoriasPopulares, setCategoriasPopulares] = useState<CategoriaPopular[]>([]);
   const [text, setText] = useState<string>(() => paramsIniciais().get("q") ?? "");
   /* Já nasce preenchido junto com `text`: o debounce serve para não buscar
      a cada tecla digitada, e quem volta de outra tela não digitou nada —
@@ -95,6 +96,11 @@ export function HomePage() {
   const [minRating, setMinRating] = useState<number>(0);
   const [sort, setSort] = useState<SortOption>("relevance");
   const [results, setResults] = useState<ProfessionalWithRating[]>([]);
+  /* A lista que alimenta as prateleiras da tela inicial. Separada de
+     `results`, que é o resultado da busca: as duas nunca aparecem juntas,
+     mas misturá-las faria a vitrine sumir e voltar a cada tecla digitada. */
+  const [vitrine, setVitrine] = useState<ProfessionalWithRating[]>([]);
+  const [emAlta, setEmAlta] = useState<ProfessionalWithRating[]>([]);
   const [loading, setLoading] = useState(false);
   /* Falha de busca tem tela própria. Enquanto `searchProfessionals`
      devolvia lista vazia em caso de erro, "não achamos ninguém" cobria
@@ -162,13 +168,42 @@ export function HomePage() {
     }
   }, [category, debouncedText]);
 
+  /* A vitrine inteira sai de duas idas ao banco, não de uma por prateleira.
+     "Bem avaliados" e "Novos por aqui" são a mesma lista ordenada de dois
+     jeitos — pedir duas vezes a mesma coisa na tela mais aberta do app é
+     custo sem troco. "Em alta" precisa da sua própria, porque a contagem de
+     visitas só existe dentro do banco (migration 0059).
+
+     `sort: "rating"` não é por acaso: a ordenação padrão embaralha (o
+     rodízio que impede o primeiro cadastro da cidade de ficar sempre por
+     último), e prateleira ordenada por relevância aleatória não significa
+     nada. Aqui a ordem vem imposta abaixo, campo a campo. */
+  useEffect(() => {
+    let ativo = true;
+
+    searchProfessionals({ pageSize: 50, sort: "rating" })
+      .then((lista) => ativo && setVitrine(lista))
+      .catch(() => ativo && setVitrine([]));
+
+    /* Falha aqui não estraga a tela: sem "Em alta", as outras prateleiras
+       continuam de pé. É o único lugar do app onde lista vazia em caso de
+       erro é a resposta certa — a prateleira simplesmente não aparece, e
+       não há nada que a pessoa possa fazer a respeito. */
+    getMaisVistos()
+      .then((lista) => ativo && setEmAlta(lista))
+      .catch(() => ativo && setEmAlta([]));
+
+    return () => {
+      ativo = false;
+    };
+  }, []);
+
   useEffect(() => {
     getCidadesComAnuncio().then(setCidades);
     // O filtro de serviços vem dos cadastros, não da lista fixa do código:
     // quem escreveu o próprio ofício no cadastro precisa ser encontrável por
     // ele, e serviço sem ninguém cadastrado só levaria a uma tela vazia.
     getCategoriasComAnuncio().then(setCategorias);
-    getCategoriasPopulares().then(setCategoriasPopulares);
   }, []);
 
   // Debounce (~400ms) do texto digitado antes de disparar a busca, para não
@@ -211,6 +246,37 @@ export function HomePage() {
    * nota mínima ficam: elas sozinhas não escondem a grade, e apagar uma
    * escolha que a pessoa não pediu para apagar é outra surpresa.
    */
+  /* As três prateleiras de gente, derivadas do que já foi buscado.
+
+     "Bem avaliados" exige avaliação de verdade: sem `review_count > 0`, a
+     prateleira encheria de cadastros sem nota nenhuma e o título viraria
+     mentira. */
+  const bemAvaliados = vitrine
+    .filter((p) => (p.review_count ?? 0) > 0 && p.average_rating !== null)
+    .sort((a, b) => (b.average_rating ?? 0) - (a.average_rating ?? 0))
+    .slice(0, 12);
+
+  const novos = [...vitrine]
+    .sort((a, b) => (a.created_at < b.created_at ? 1 : -1))
+    .slice(0, 12);
+
+  /* Quantos cadastros existem por ofício, contados do que veio — evita uma
+     terceira consulta só para o número do cartão. */
+  const quantosPorOficio = new Map<string, number>();
+  for (const p of vitrine) {
+    for (const c of p.categories?.length ? p.categories : [p.category]) {
+      if (c) quantosPorOficio.set(c, (quantosPorOficio.get(c) ?? 0) + 1);
+    }
+  }
+
+  /* Só os grupos que têm gente cadastrada, e dentro de cada um só os
+     ofícios com cadastro. Grupo vazio não vira faixa: título com fileira
+     vazia embaixo é a tela dizendo que quebrou. */
+  const gruposComGente = GRUPOS_DE_SERVICOS.map((g) => ({
+    nome: g.grupo as string,
+    itens: (g.itens as readonly string[]).filter((i) => quantosPorOficio.has(i)),
+  })).filter((g) => g.itens.length > 0);
+
   /* Os ofícios que a frase digitada quer dizer. Só existe quando a pessoa
      escreveu uma necessidade — buscar por nome de pessoa ou pelo próprio
      ofício não produz tradução, e aí nada aparece na tela. */
@@ -311,6 +377,59 @@ export function HomePage() {
           sozinha que existe um Painel no rodapé. O convite fica no alto,
           numa faixa fina: visível de primeira, sem disputar espaço com a
           busca, que continua sendo o assunto principal da tela. */}
+      {/* A cidade, no alto e por extenso.
+          Ela morava num `select` no meio de quatro filtros — a informação
+          que decide o que a tela inteira mostra, escondida entre "nota
+          mínima" e "ordenar por". Quem abria o app não tinha como saber de
+          onde eram as pessoas que estava vendo, e quem é de fora não
+          descobria que dava para trocar.
+          Aqui em cima ela é a primeira coisa lida, como o endereço nos
+          aplicativos de entrega, e continua sendo escolha de quem procura —
+          é um botão, não um enfeite. */}
+      <button type="button" className="endereco-topo" onClick={() => setCidadeAberta(true)}>
+        <span className="endereco-topo-pino" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M12 21s7-5.6 7-11a7 7 0 1 0-14 0c0 5.4 7 11 7 11Z" />
+            <circle cx="12" cy="10" r="2.6" />
+          </svg>
+        </span>
+        <span className="endereco-topo-texto">
+          <strong>{city || "Todas as cidades"}</strong>
+          <span className="endereco-topo-dica">{city ? "Toque para trocar" : "Toque para escolher a sua"}</span>
+        </span>
+        <span className="endereco-topo-seta" aria-hidden="true">›</span>
+      </button>
+
+      {cidadeAberta && (
+        <BottomSheet title="De qual cidade?" onClose={() => setCidadeAberta(false)}>
+          <div className="lista-cidades">
+            <button
+              type="button"
+              className={`linha-cidade${city === "" ? " ativa" : ""}`}
+              onClick={() => {
+                setCity("");
+                setCidadeAberta(false);
+              }}
+            >
+              Todas as cidades
+            </button>
+            {cidades.map((c) => (
+              <button
+                key={c}
+                type="button"
+                className={`linha-cidade${city === c ? " ativa" : ""}`}
+                onClick={() => {
+                  setCity(c);
+                  setCidadeAberta(false);
+                }}
+              >
+                {c}
+              </button>
+            ))}
+          </div>
+        </BottomSheet>
+      )}
+
       <Link to="/painel" className="cta-anunciar">
         {/* Encurtado para caber numa linha. "e apareça nas buscas" dizia o
             que a tela inteira já demonstra — a pessoa está olhando a busca
@@ -363,14 +482,6 @@ export function HomePage() {
         </div>
 
         <div className="filter-grid">
-          <select value={city} onChange={(e) => setCity(e.target.value)} aria-label="Cidade">
-            <option value="">Todas as cidades</option>
-            {cidades.map((c) => (
-              <option key={c} value={c}>
-                {c}
-              </option>
-            ))}
-          </select>
           <select value={category} onChange={(e) => setCategory(e.target.value)} aria-label="Categoria">
             <option value="">Todos os serviços</option>
             {categorias.map((c) => (
@@ -474,81 +585,108 @@ export function HomePage() {
       )}
 
       {!buscouAlgo && (
-        /* Nada foi pedido ainda: nenhum card, e sim um convite a pedir.
-           Fica no lugar onde os resultados vão aparecer, para não somar
-           altura à tela e depois encolher quando a busca chegar. */
-        <div className="card vazio-indicar" data-tour="resultados" style={{ marginTop: 24, textAlign: "center" }}>
-          <strong>O que você está procurando?</strong>
-
-          {/* Uma grade só, e o comércio dentro dela.
-
-              Chegou a ser duas — "Profissionais" e "Empresas e comércios",
-              cada uma com seu título. A tela ficou partida: com poucos
-              cadastros, cada metade virava três ou quatro cartões e uma
-              linha pela metade, e o que era um bloco só passou a parecer
-              dois pedaços soltos.
-
-              A vaga do comércio agora é reservada na hora de montar a lista,
-              não na hora de desenhar (ver getCategoriasPopulares): as
-              categorias de empresa entram intercaladas com as de autônomo,
-              em vez de disputarem por contagem — disputa que elas perdem
-              sempre, porque autônomo é a maioria dos cadastros.
-
-              Cada cartão é um destino: símbolo próprio para ser reconhecido
-              antes de lido, nome do ofício, e quantos atendem aquilo hoje.
-              Antes eram etiquetas do tamanho da palavra — alvo pequeno, e
-              uma fileira de texto cinza que se lia como enfeite do aviso,
-              não como o caminho para os resultados. */}
-          {categoriasPopulares.length > 0 && (
-            <div className="categorias-grade">
-              {categoriasPopulares.map((c) => (
-                <button
-                  key={c.categoria}
-                  type="button"
-                  className="categoria-cartao"
-                  onClick={() => setCategory(c.categoria)}
-                >
-                  <span className="categoria-simbolo">
-                    <IconeDeServico categoria={c.categoria} />
-                  </span>
-                  <span className="categoria-nome">{c.categoria}</span>
-                  {/* "Opções" e não "profissionais": na mesma grade convivem
-                      o eletricista e a farmácia, e chamar uma farmácia de
-                      "1 profissional" é a frase errada bem no cartão que
-                      existe para o comércio aparecer. "Opção" serve para
-                      pessoa e para lugar, e é o que a pessoa está mesmo
-                      contando ali.
-
-                      O singular vem escrito à parte: "1 opções" é o erro
-                      que denuncia um número montado por concatenação, e em
-                      cidade pequena quase toda categoria começa no
-                      singular. */}
-                  <span className="categoria-quantos">
-                    {c.quantidade === 1 ? "1 opção" : `${c.quantidade} opções`}
-                  </span>
-                </button>
+        /* A vitrine: o que a cidade tem, antes de a pessoa pedir.
+           Aqui já foi uma grade de oito categorias e mais nada — a tela só
+           perguntava, e quem abria o app pela primeira vez não via uma
+           pessoa sequer. Cidade que parece vazia não traz ninguém de volta.
+           Agora as categorias continuam (nas prateleiras de grupo, mais
+           abaixo), mas depois de mostrar gente de verdade. */
+        <div data-tour="resultados" className="vitrine">
+          {/* Os chips grudam no alto ao rolar, abaixo do cabeçalho. São os
+              grupos do catálogo — os mesmos do formulário de cadastro —, e
+              não os ofícios: dez chips atravessam a tela; noventa e oito
+              seriam uma fita infinita que ninguém percorre. */}
+          {gruposComGente.length > 0 && (
+            <div className="chips-grupo" role="tablist" aria-label="Grupos de serviço">
+              {gruposComGente.map((g) => (
+                <a key={g.nome} href={`#grupo-${idDoGrupo(g.nome)}`} className="chip-grupo">
+                  <IconeDeServico categoria={g.itens[0]} tamanho={18} />
+                  {g.nome}
+                </a>
               ))}
             </div>
           )}
 
-          {/* A saída de quem não achou o ofício na grade. Oito cartões são
-              os ofícios mais numerosos da cidade; quem procura costureira ou
-              professor de música não está entre eles, e antes só lhe restava
-              acertar a palavra no campo de busca ou abrir o filtro de
-              serviços — uma lista alfabética dentro de um `select` de
-              celular, que é onde a pessoa desiste.
+          <Prateleira
+            titulo="Em alta em Itabirito"
+            subtitulo="Os mais procurados nos últimos dias"
+            ancora="prateleira-em-alta"
+            quantidade={emAlta.length}
+          >
+            {emAlta.map((p) => (
+              <CartaoVitrine key={p.id} p={p} />
+            ))}
+          </Prateleira>
 
-              Botão, e não link de texto: é a segunda ação mais provável da
-              tela, atrás só de tocar num cartão. */}
-          {categoriasPopulares.length > 0 && (
-            <Link to="/categorias" className="btn btn-outline categorias-ver-mais">
-              Ver todas as categorias
-            </Link>
-          )}
+          <Prateleira
+            titulo="Bem avaliados"
+            subtitulo="Quem já foi contratado e recebeu nota"
+            quantidade={bemAvaliados.length}
+          >
+            {bemAvaliados.map((p) => (
+              <CartaoVitrine key={p.id} p={p} />
+            ))}
+          </Prateleira>
 
-          {/* A instrução vem depois do botão: quem já sabe o que quer toca
-              num cartão sem ler nada, e quem não achou o ofício tem primeiro
-              a lista completa — digitar é a terceira saída, não a segunda. */}
+          <Prateleira
+            titulo="Novos por aqui"
+            subtitulo="Cadastros mais recentes"
+            quantidade={novos.length}
+          >
+            {novos.map((p) => (
+              <CartaoVitrine key={p.id} p={p} />
+            ))}
+          </Prateleira>
+
+          {/* Uma prateleira por grupo, com os ofícios que têm gente hoje.
+              O comércio não disputa espaço com o autônomo aqui: cada um
+              está no seu grupo, e "Comércio e hospedagem" é uma faixa como
+              qualquer outra — o que resolve, por outro caminho, o mesmo
+              problema que a grade única resolvia. */}
+          {gruposComGente.map((g) => (
+            <Prateleira
+              key={g.nome}
+              titulo={g.nome}
+              ancora={`grupo-${idDoGrupo(g.nome)}`}
+              verTudo="/categorias"
+              minimo={1}
+              quantidade={g.itens.length}
+            >
+              {g.itens.map((nome) => (
+                <button
+                  key={nome}
+                  type="button"
+                  className="cartao-oficio"
+                  role="listitem"
+                  onClick={() => setCategory(nome)}
+                >
+                  <span className="cartao-oficio-simbolo">
+                    <IconeDeServico categoria={nome} tamanho={26} />
+                  </span>
+                  <span className="cartao-oficio-nome">{nome}</span>
+                  {/* "Opções" e não "profissionais": na mesma fileira
+                      convivem o eletricista e a farmácia, e chamar uma
+                      farmácia de "1 profissional" é a frase errada bem no
+                      cartão que existe para o comércio aparecer.
+
+                      O singular vem escrito à parte: "1 opções" é o erro
+                      que denuncia número montado por concatenação, e em
+                      cidade pequena quase toda categoria começa no
+                      singular. */}
+                  <span className="cartao-oficio-quantos">
+                    {quantosPorOficio.get(nome) === 1 ? "1 opção" : `${quantosPorOficio.get(nome)} opções`}
+                  </span>
+                </button>
+              ))}
+            </Prateleira>
+          ))}
+
+          {/* A saída de quem não achou o ofício em nenhuma prateleira, e a
+              instrução depois dela: quem já sabe o que quer toca num cartão
+              sem ler nada. */}
+          <Link to="/categorias" className="btn btn-outline categorias-ver-mais">
+            Ver todas as categorias
+          </Link>
           <p className="muted categorias-dica">
             Ou digite o serviço ali em cima — a busca vai além destes.
           </p>
@@ -721,4 +859,20 @@ export function HomePage() {
 
     </div>
   );
+}
+
+/**
+ * "Casa e obra" → "casa-e-obra", para o chip do topo achar a prateleira.
+ *
+ * Um `id` de HTML com acento e espaço funciona nos navegadores de hoje, mas
+ * quebra no `href="#..."` assim que alguém escrever o link à mão ou copiar
+ * o endereço — e "Saúde e exames" tem os dois problemas na mesma palavra.
+ */
+function idDoGrupo(nome: string): string {
+  return nome
+    .normalize("NFD")
+    .replace(/[̀-ͯ]/g, "")
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-|-$/g, "");
 }

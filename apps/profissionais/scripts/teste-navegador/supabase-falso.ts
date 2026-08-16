@@ -10,7 +10,11 @@ const emDias = (d: number) => new Date(AGORA + d * 86400000).toISOString();
 
 const CATS = ["Eletricista", "Encanador", "Confeiteira", "Manicure", "Diarista"];
 
-const professionals: Linha[] = Array.from({ length: 24 }, (_, i) => ({
+/* Quantos cadastros o banco falso tem. Trocar para 3 exercita a cidade
+   quase vazia, que é onde a tela inicial em prateleiras pode ficar feia. */
+const QUANTOS = Number(new URLSearchParams(location.search).get("falsos") ?? 24);
+
+const professionals: Linha[] = Array.from({ length: QUANTOS }, (_, i) => ({
   id: `pro-${i}`,
   owner_id: `dono-${i}`,
   name: `Profissional ${i}`,
@@ -135,7 +139,13 @@ const auth = {
 
 const clienteFalso = {
   from: (tabela: string) => new Consulta(tabela),
-  rpc: async () => ({ data: 0, error: null }),
+  rpc: async (nome: string) => {
+    if (nome === "mais_vistos") {
+      // os quatro primeiros, como se fossem os mais vistos da semana
+      return { data: professionals.slice(0, 4).map((p) => ({ professional_id: p.id })), error: null };
+    }
+    return { data: 0, error: null };
+  },
   auth,
   storage: { from: () => ({ upload: async () => ({ error: null }), getPublicUrl: () => ({ data: { publicUrl: "" } }) }) },
   functions: { invoke: async () => ({ data: null, error: null }) },

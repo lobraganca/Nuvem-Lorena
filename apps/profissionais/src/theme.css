@@ -4703,3 +4703,407 @@ h3 {
   text-underline-offset: 2px;
   cursor: pointer;
 }
+
+/* ============================================================
+   VITRINE — a tela inicial em prateleiras
+   ============================================================
+
+   A tela era uma grade de oito categorias: só perguntava, nunca mostrava.
+   Quem abria o app pela primeira vez não via uma pessoa sequer antes de
+   escolher alguma coisa, e cidade que parece vazia não traz ninguém de
+   volta.
+
+   Nada aqui inventa cor: o azul marinho da marca nos chips escolhidos, o
+   cinza-frio do fundo nas faixas, branco nos cartões. O app de referência é
+   roxo; o procurô não é. */
+
+.vitrine {
+  margin-top: 18px;
+}
+
+/* --- Chips de grupo, grudados no alto ------------------------------- */
+
+/* `top` sai da altura real do cabeçalho, medida no navegador e publicada
+   pelo AppShell. Os dois são `sticky`; com um valor chutado aqui, ou os
+   chips passam por baixo da logo ou sobra uma faixa vazia entre eles — e a
+   altura do cabeçalho muda com o `safe-area` do iPhone, então não existe
+   número certo para escrever à mão. */
+.chips-grupo {
+  position: sticky;
+  top: var(--altura-header, 56px);
+  z-index: 30;
+  display: flex;
+  gap: 8px;
+  overflow-x: auto;
+  /* Sangra até a borda da tela: uma fileira que rola precisa começar e
+     terminar fora do recuo do container, senão o primeiro chip parece
+     cortado e o último parece o fim da lista quando não é. */
+  margin: 0 -20px;
+  padding: 10px 20px;
+  background: var(--color-bg);
+  scrollbar-width: none;
+}
+
+.chips-grupo::-webkit-scrollbar {
+  display: none;
+}
+
+.chip-grupo {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  flex: none;
+  padding: 8px 14px;
+  border: 1px solid var(--color-border);
+  border-radius: 999px;
+  background: var(--color-surface);
+  color: var(--color-text);
+  font-size: 0.86rem;
+  font-weight: 600;
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+.chip-grupo:hover,
+.chip-grupo:focus-visible {
+  border-color: var(--color-primary);
+  background: var(--color-bg-soft);
+}
+
+/* --- A prateleira --------------------------------------------------- */
+
+.prateleira {
+  margin-top: 22px;
+  padding: 16px 0 18px;
+  border-radius: var(--radius-lg);
+  background: var(--color-bg-soft);
+  /* Sangra igual aos chips: a fileira de dentro precisa poder encostar na
+     borda da tela para não parecer que acabou antes do fim. */
+  margin-left: -20px;
+  margin-right: -20px;
+  padding-left: 20px;
+  padding-right: 0;
+}
+
+.prateleira-topo {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  padding-right: 20px;
+}
+
+.prateleira-titulos {
+  min-width: 0;
+}
+
+.prateleira-titulo {
+  margin: 0;
+  font-size: 1.02rem;
+  line-height: 1.25;
+}
+
+.prateleira-subtitulo {
+  margin: 2px 0 0;
+  font-size: 0.82rem;
+  color: var(--color-text-muted);
+}
+
+.prateleira-ver-tudo {
+  flex: none;
+  padding-top: 2px;
+  color: var(--color-primary);
+  font-size: 0.86rem;
+  font-weight: 700;
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+.prateleira-fileira {
+  display: flex;
+  gap: 10px;
+  overflow-x: auto;
+  margin-top: 12px;
+  padding: 2px 20px 4px 0;
+  /* Cada cartão para alinhado à esquerda ao soltar o dedo: sem isto a
+     fileira para em qualquer lugar e o primeiro cartão visível fica sempre
+     pela metade. */
+  scroll-snap-type: x proximity;
+  scrollbar-width: none;
+}
+
+.prateleira-fileira::-webkit-scrollbar {
+  display: none;
+}
+
+.prateleira-fileira > * {
+  scroll-snap-align: start;
+}
+
+/* --- Cartão de cadastro (gente) ------------------------------------- */
+
+.cartao-vitrine {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  flex: none;
+  width: 132px;
+  padding: 8px;
+  border-radius: 14px;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  color: var(--color-text);
+  text-decoration: none;
+}
+
+.cartao-vitrine:hover,
+.cartao-vitrine:focus-visible {
+  border-color: var(--color-primary);
+}
+
+.cartao-vitrine-foto {
+  position: relative;
+  display: block;
+  aspect-ratio: 1;
+  border-radius: 10px;
+  overflow: hidden;
+  background: var(--color-bg-soft);
+}
+
+.cartao-vitrine-foto img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.cartao-vitrine-iniciais {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+  color: #fff;
+  font-size: 1.5rem;
+  font-weight: 700;
+}
+
+/* A nota sobre a foto, como nos aplicativos de entrega: é o dado que
+   decide o toque, e numa linha embaixo do nome ela se perde entre as
+   outras. */
+.cartao-vitrine-nota {
+  position: absolute;
+  left: 6px;
+  top: 6px;
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  padding: 2px 7px;
+  border-radius: 999px;
+  background: rgba(10, 26, 47, 0.82);
+  color: #fff;
+  font-size: 0.72rem;
+  font-weight: 700;
+}
+
+.cartao-vitrine-nome {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 0.86rem;
+  font-weight: 700;
+  line-height: 1.2;
+  /* Duas linhas no máximo: nome de empresa é comprido, e deixá-lo crescer
+     desalinha a altura de toda a fileira. */
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.cartao-vitrine-oficio {
+  font-size: 0.76rem;
+  color: var(--color-text-muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* --- Cartão de ofício (categoria) ----------------------------------- */
+
+.cartao-oficio {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  flex: none;
+  width: 116px;
+  min-height: 108px;
+  padding: 12px 8px;
+  border-radius: 14px;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  color: var(--color-text);
+  font-family: inherit;
+  text-align: center;
+  cursor: pointer;
+}
+
+.cartao-oficio:hover,
+.cartao-oficio:focus-visible {
+  border-color: var(--color-primary);
+}
+
+.cartao-oficio-simbolo {
+  line-height: 1;
+}
+
+.cartao-oficio-nome {
+  font-size: 0.82rem;
+  font-weight: 600;
+  line-height: 1.2;
+  overflow-wrap: break-word;
+  min-width: 0;
+}
+
+.cartao-oficio-quantos {
+  font-size: 0.74rem;
+  color: var(--color-text-muted);
+}
+
+/* --- O botão do meio da barra --------------------------------------- */
+
+/* A busca num círculo elevado. Ela é a ação principal do app e estava
+   indistinguível das outras quatro: mesma lupa cinza, mesmo tamanho,
+   disputando atenção com telas que quase ninguém abre.
+
+   O círculo sobe acima da barra, então três coisas precisam acompanhar:
+   o item não pode empurrar os vizinhos (`justify-content: flex-end` alinha
+   o rótulo com os demais), a barra precisa deixar o círculo transbordar
+   (`overflow: visible`), e o conteúdo da página precisa de folga extra
+   embaixo — senão o último cartão fica escondido atrás dele. */
+.bottom-nav {
+  overflow: visible;
+}
+
+.bottom-nav-item.bottom-nav-centro {
+  justify-content: flex-end;
+  padding-bottom: 6px;
+}
+
+.bottom-nav-circulo {
+  position: absolute;
+  bottom: calc(var(--bottom-nav-height) - 34px + env(safe-area-inset-bottom));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  background: var(--color-primary);
+  color: #fff;
+  box-shadow: 0 6px 16px rgba(18, 48, 94, 0.32);
+  border: 3px solid var(--color-bg);
+}
+
+.bottom-nav-item.bottom-nav-centro svg {
+  width: 24px;
+  height: 24px;
+}
+
+/* O item ativo pinta o texto de azul; dentro do círculo azul, o ícone tem
+   que continuar branco. */
+.bottom-nav-item.bottom-nav-centro.active .bottom-nav-circulo {
+  color: #fff;
+}
+
+/* Posicionamento do círculo depende de o item ser a referência. */
+.bottom-nav-item {
+  position: relative;
+}
+
+/* --- A cidade no alto ----------------------------------------------- */
+
+/* A cidade decide o que a tela inteira mostra e morava num `select` entre
+   "nota mínima" e "ordenar por". Aqui em cima ela é a primeira coisa lida —
+   e continua sendo escolha de quem procura, não enfeite: é um botão, com a
+   seta que promete que algo abre. */
+.endereco-topo {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  margin-top: 10px;
+  padding: 10px 12px;
+  border: 1px solid var(--color-border);
+  border-radius: 14px;
+  background: var(--color-surface);
+  font-family: inherit;
+  color: var(--color-text);
+  text-align: left;
+  cursor: pointer;
+}
+
+.endereco-topo:hover,
+.endereco-topo:focus-visible {
+  border-color: var(--color-primary);
+}
+
+.endereco-topo-pino {
+  flex: none;
+  display: flex;
+  color: var(--color-primary);
+}
+
+.endereco-topo-pino svg {
+  width: 22px;
+  height: 22px;
+}
+
+.endereco-topo-texto {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  line-height: 1.2;
+}
+
+.endereco-topo-texto strong {
+  font-size: 0.98rem;
+}
+
+.endereco-topo-dica {
+  font-size: 0.76rem;
+  color: var(--color-text-muted);
+}
+
+.endereco-topo-seta {
+  margin-left: auto;
+  color: var(--color-text-muted);
+  font-size: 1.3rem;
+  line-height: 1;
+}
+
+.lista-cidades {
+  display: flex;
+  flex-direction: column;
+  max-height: 50vh;
+  overflow-y: auto;
+}
+
+.linha-cidade {
+  padding: 14px 4px;
+  border: none;
+  border-bottom: 1px solid var(--color-border);
+  background: none;
+  font-family: inherit;
+  font-size: 1rem;
+  color: var(--color-text);
+  text-align: left;
+  cursor: pointer;
+}
+
+.linha-cidade.ativa {
+  color: var(--color-primary);
+  font-weight: 700;
+}

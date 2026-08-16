@@ -1,4 +1,4 @@
-import { useEffect, useState, type ReactNode } from "react";
+import { useEffect, useRef, useState, type ReactNode } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { Logo } from "./Logo";
 import { InstalarApp } from "./InstalarApp";
@@ -71,6 +71,7 @@ function NavItem({
   active,
   tour,
   destaque,
+  centro,
 }: {
   to: string;
   label: string;
@@ -80,6 +81,8 @@ function NavItem({
   tour?: string;
   /** Item com cor própria — hoje só o de anúncios, que leva a conteúdo pago. */
   destaque?: boolean;
+  /** O item do meio, num círculo elevado: a ação principal do app. */
+  centro?: boolean;
 }) {
   /* Ícone com o nome embaixo.
      Já foi só ícone, pelo argumento de que "todo mundo reconhece a lupa e a
@@ -91,13 +94,13 @@ function NavItem({
   return (
     <Link
       to={to}
-      className={`bottom-nav-item${active ? " active" : ""}${destaque ? " bottom-nav-anuncios" : ""}`}
+      className={`bottom-nav-item${active ? " active" : ""}${destaque ? " bottom-nav-anuncios" : ""}${centro ? " bottom-nav-centro" : ""}`}
       data-tour={tour}
       title={label}
       aria-label={label}
       aria-current={active ? "page" : undefined}
     >
-      {icon}
+      {centro ? <span className="bottom-nav-circulo">{icon}</span> : icon}
       <span className="bottom-nav-rotulo">{label}</span>
     </Link>
   );
@@ -198,8 +201,30 @@ function BotaoFechar() {
  */
 function Header() {
   const online = useOnlineCount();
+  const ref = useRef<HTMLElement>(null);
+
+  /* Publica a altura real do cabeçalho numa variável CSS.
+     Os chips de grupo da tela inicial também grudam no alto, e precisam
+     grudar *abaixo* daqui. Com um número escrito à mão no CSS, ou eles
+     passam por baixo da logo ou sobra uma faixa vazia entre os dois — e
+     não existe número certo para escrever: a altura muda com a faixa de
+     status do iPhone (`safe-area-inset-top`), que só o aparelho conhece.
+     Medir e publicar resolve nos dois casos, e o `ResizeObserver` mantém o
+     valor certo quando o cabeçalho muda de altura (o contador de pessoas
+     on-line aparece e some). */
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    const publicar = () =>
+      document.documentElement.style.setProperty("--altura-header", `${el.offsetHeight}px`);
+    publicar();
+    const observador = new ResizeObserver(publicar);
+    observador.observe(el);
+    return () => observador.disconnect();
+  }, []);
+
   return (
-    <header className="container header">
+    <header className="container header" ref={ref}>
       <span className="header-marca">
         <Logo size="md" />
         {/* A tela de escolha ("quero contratar" / "quero anunciar") só
@@ -311,7 +336,6 @@ export function AppShell({ children }: { children: ReactNode }) {
             ordem de leitura. Botão e não Link, porque o destino não é uma
             tela fixa — é a anterior, qualquer que tenha sido. */}
         <BotaoVoltar />
-        <NavItem to="/" label="Buscar" icon={<IconSearch />} active={path === "/"} />
         {/* Cor própria: é o único item da barra que leva a algo pago, e
             distinguir isso do resto é honestidade, não enfeite. Quem toca
             ali sabe, antes de tocar, que vai ver publicidade. */}
@@ -321,6 +345,22 @@ export function AppShell({ children }: { children: ReactNode }) {
           icon={<IconMegafone />}
           active={path.startsWith("/anuncios")}
           destaque
+        />
+        {/* A busca no meio, num círculo que sobe acima da barra.
+            É a ação principal do app e estava indistinguível das outras
+            quatro — a mesma lupa cinza do mesmo tamanho, disputando atenção
+            com "Anúncios" e "Painel", que quase ninguém abre. O destaque
+            aqui não é enfeite copiado de outro aplicativo: é dizer, sem
+            texto, qual das cinco a pessoa veio fazer.
+            Continua sendo o terceiro item com ou sem a administração —
+            com seis não existe meio exato, e o polegar procura pela
+            posição, não pela contagem. */}
+        <NavItem
+          to="/"
+          label="Buscar"
+          icon={<IconSearch />}
+          active={path === "/"}
+          centro
         />
         <NavItem
           to="/painel"

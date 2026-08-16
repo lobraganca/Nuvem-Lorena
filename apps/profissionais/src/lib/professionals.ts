@@ -747,6 +747,51 @@ const TETO_VISITAS_EM_LOTE = 5000;
  * contado pelo caminho exato, que conta no servidor e não traz linha
  * nenhuma.
  */
+/**
+ * Os cadastros mais procurados nos últimos dias, para a prateleira "Em alta".
+ *
+ * A ordem vem do banco (`mais_vistos`, migration 0059), que é onde a
+ * contagem pode acontecer sem expor a ninguém quantas visitas cada cadastro
+ * teve — esse número é o que o Empresa Plus vende, e dizê-lo de graça na
+ * tela inicial entregaria o movimento de cada um aos concorrentes.
+ *
+ * A função devolve só ids; as linhas vêm de `professionals_public`, que é a
+ * mesma fonte da busca (sem documento, sem suspenso, sem pausado). E a
+ * ordem do banco é reimposta aqui: `in` não promete ordem nenhuma, então
+ * sem esta parte a prateleira "em alta" sairia em ordem qualquer — o que a
+ * faria mentir sem dar nenhum sinal.
+ */
+export async function getMaisVistos(dias = 7, quantos = 12): Promise<ProfessionalWithRating[]> {
+  const client = supabase();
+  if (!client) return [];
+
+  const { data: ordem, error } = await client.rpc("mais_vistos", { dias, quantos });
+  if (error) throw error;
+
+  const ids = ((ordem ?? []) as { professional_id: string }[]).map((l) => l.professional_id);
+  if (ids.length === 0) return [];
+
+  const { data, error: erroLinhas } = await client
+    .from("professionals_public")
+    .select("*")
+    .in("id", ids);
+  if (erroLinhas) throw erroLinhas;
+
+  const ratings = await fetchRatingsMap(client, ids);
+  const porId = new Map(
+    (data ?? []).map((p) => [
+      p.id as string,
+      {
+        ...p,
+        average_rating: ratings[p.id]?.average_rating ?? null,
+        review_count: ratings[p.id]?.review_count ?? 0,
+      } as ProfessionalWithRating,
+    ])
+  );
+
+  return ids.map((id) => porId.get(id)).filter((p): p is ProfessionalWithRating => p !== undefined);
+}
+
 export async function countRecentProfileViewsDeVarios(
   professionalIds: string[],
   days = 30
