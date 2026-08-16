@@ -2,6 +2,7 @@ import { useState } from "react";
 import { BottomSheet } from "./BottomSheet";
 import { conferirCodigoWhatsApp, enviarCodigoWhatsApp } from "../lib/whatsappVerify";
 import { formatPhone, onlyPhoneDigits } from "../lib/phone";
+import { mensagemDeErro } from "../lib/erros";
 
 /**
  * Confirmação do número da própria conta, sem cadastro no meio.
@@ -38,7 +39,7 @@ export function ConfirmarMeuNumero({
       await enviarCodigoWhatsApp(numero);
       setPasso("codigo");
     } catch (err) {
-      setErro(err instanceof Error ? err.message : "Não foi possível enviar o código.");
+      setErro(mensagemDeErro(err, "Não foi possível enviar o código."));
     } finally {
       setCarregando(false);
     }
@@ -51,7 +52,7 @@ export function ConfirmarMeuNumero({
       await conferirCodigoWhatsApp(numero, codigo);
       onConfirmado();
     } catch (err) {
-      setErro(err instanceof Error ? err.message : "Não foi possível confirmar o código.");
+      setErro(mensagemDeErro(err, "Não foi possível confirmar o código."));
     } finally {
       setCarregando(false);
     }

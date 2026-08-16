@@ -360,7 +360,13 @@ export function CadastroPage() {
     try {
       let photoUrl = form.photo_url;
       if (photoFile) {
-        photoUrl = await uploadProfessionalPhoto(user.id, photoFile);
+        /* Na pasta do dono do cadastro, não na de quem está salvando.
+           Pelo mesmo motivo do `owner_id` logo abaixo: quando a
+           administração corrige a foto de alguém, o arquivo é daquela
+           pessoa. A pasta é a única coisa que liga arquivo a dono no
+           Storage, e é por ela que uma limpeza futura vai procurar.
+           A policy da migration 0058 é o que permite esse envio. */
+        photoUrl = await uploadProfessionalPhoto(form.owner_id || user.id, photoFile);
       }
       await upsertProfessional({
         ...form,

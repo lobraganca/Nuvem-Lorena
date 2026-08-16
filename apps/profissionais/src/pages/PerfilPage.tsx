@@ -18,6 +18,7 @@ import type { Professional, Profile } from "../types/domain";
 import { FecharApp } from "../components/FecharApp";
 import { MinhaAssinatura } from "../components/MinhaAssinatura";
 import { useTituloDaPagina } from "../lib/tituloDaPagina";
+import { mensagemDeErro } from "../lib/erros";
 
 function initials(name: string | null, email: string | null | undefined): string {
   const source = name?.trim() || email?.trim() || "?";
@@ -74,7 +75,7 @@ export function PerfilPage() {
       // Depois de apagar, não há para onde voltar dentro da conta.
       window.location.href = "/inicio";
     } catch (err) {
-      setErroExclusao(err instanceof Error ? err.message : "Não foi possível apagar a conta.");
+      setErroExclusao(mensagemDeErro(err, "Não foi possível apagar a conta."));
       setExcluindo(false);
     }
   }
@@ -98,7 +99,7 @@ export function PerfilPage() {
     try {
       await signInWithGoogle("/perfil");
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Não foi possível iniciar o login.");
+      setError(mensagemDeErro(err, "Não foi possível iniciar o login."));
     }
   }
 
@@ -252,7 +253,7 @@ export function PerfilPage() {
             try {
               await baixarMeusDados(user.id, user.email ?? undefined);
             } catch (err) {
-              setError(err instanceof Error ? err.message : "Não foi possível gerar o arquivo.");
+              setError(mensagemDeErro(err, "Não foi possível gerar o arquivo."));
             } finally {
               setBaixando(false);
             }

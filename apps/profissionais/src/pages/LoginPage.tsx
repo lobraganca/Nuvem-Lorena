@@ -4,6 +4,7 @@ import { hasDatabase } from "../lib/supabase";
 import { BotaoApple } from "../components/BotaoApple";
 import { BotaoGoogle } from "../components/BotaoGoogle";
 import { useTituloDaPagina } from "../lib/tituloDaPagina";
+import { mensagemDeErro } from "../lib/erros";
 
 export function LoginPage() {
   useTituloDaPagina("Entrar");
@@ -14,7 +15,7 @@ export function LoginPage() {
     try {
       await signInWithGoogle("/perfil");
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Não foi possível iniciar o login.");
+      setError(mensagemDeErro(err, "Não foi possível iniciar o login."));
     }
   }
 

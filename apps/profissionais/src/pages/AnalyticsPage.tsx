@@ -17,6 +17,7 @@ import {
 } from "../lib/payments";
 import { BottomSheet } from "../components/BottomSheet";
 import { useTituloDaPagina } from "../lib/tituloDaPagina";
+import { mensagemDeErro } from "../lib/erros";
 
 /**
  * Tela de estatísticas do cadastro — só acessível ao dono e só quando o
@@ -53,7 +54,7 @@ export function AnalyticsPage() {
       const { initPoint } = await startSubscriptionCheckout(id, "plus");
       window.location.href = initPoint;
     } catch (err) {
-      setMessage(err instanceof Error ? err.message : "Não foi possível iniciar o checkout do Mercado Pago.");
+      setMessage(mensagemDeErro(err, "Não foi possível iniciar o checkout do Mercado Pago."));
     } finally {
       setCheckoutLoading(null);
       setPlanSheetOpen(false);
@@ -69,7 +70,7 @@ export function AnalyticsPage() {
       const { initPoint } = await startAnnualSubscriptionCheckout(id, "plus");
       window.location.href = initPoint;
     } catch (err) {
-      setMessage(err instanceof Error ? err.message : "Não foi possível iniciar o checkout do Mercado Pago.");
+      setMessage(mensagemDeErro(err, "Não foi possível iniciar o checkout do Mercado Pago."));
     } finally {
       setCheckoutLoading(null);
       setPlanSheetOpen(false);
@@ -89,7 +90,7 @@ export function AnalyticsPage() {
       const { initPoint } = await startAnnualCheckout(id, "plus");
       window.location.href = initPoint;
     } catch (err) {
-      setMessage(err instanceof Error ? err.message : "Não foi possível iniciar o checkout do Mercado Pago.");
+      setMessage(mensagemDeErro(err, "Não foi possível iniciar o checkout do Mercado Pago."));
     } finally {
       setCheckoutLoading(null);
       setPlanSheetOpen(false);

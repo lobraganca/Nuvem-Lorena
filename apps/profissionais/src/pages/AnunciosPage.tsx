@@ -48,6 +48,11 @@ export function AnunciosPage() {
       // quem não pagou faria o destaque valer menos para quem paga.
       setDestaques(pros.filter((p) => p.boosted).slice(0, 12));
       setCarregando(false);
+    }).catch(() => {
+      /* Sem os destaques, a tela ainda tem os banners — e mesmo sem nada,
+         precisa parar de dizer "Carregando…". Antes disto, uma falha aqui
+         deixava a aba de Anúncios girando para sempre. */
+      if (ativo) setCarregando(false);
     });
     return () => {
       ativo = false;

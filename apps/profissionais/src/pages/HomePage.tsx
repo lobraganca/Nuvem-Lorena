@@ -15,6 +15,7 @@ import {
   type SortOption,
 } from "../lib/professionals";
 import { hasDatabase, problemaDeConfiguracao } from "../lib/supabase";
+import { mensagemDeErro } from "../lib/erros";
 import { FavoriteButton } from "../components/FavoriteButton";
 import { VerifiedBadge } from "../components/VerifiedBadge";
 import { Estrelas } from "../components/Estrelas";
@@ -82,6 +83,17 @@ export function HomePage() {
   const [sort, setSort] = useState<SortOption>("relevance");
   const [results, setResults] = useState<ProfessionalWithRating[]>([]);
   const [loading, setLoading] = useState(false);
+  /* Falha de busca tem tela própria. Enquanto `searchProfessionals`
+     devolvia lista vazia em caso de erro, "não achamos ninguém" cobria
+     duas situações opostas — a cidade não tem esse serviço, e o app está
+     quebrado — e só a primeira era verdade na maioria das vezes em que
+     apareceu. */
+  const [erroBusca, setErroBusca] = useState("");
+  /* "Tentar de novo" precisa de um número que muda, não de um estado que
+     volta ao mesmo valor: repetir a mesma busca não altera texto nem
+     categoria, e o React não roda um efeito cujas dependências ficaram
+     iguais. Este contador é a dependência que muda. */
+  const [tentativa, setTentativa] = useState(0);
   const [page, setPage] = useState(0);
   const [hasMore, setHasMore] = useState(false);
   const [loadingMore, setLoadingMore] = useState(false);
@@ -198,9 +210,11 @@ export function HomePage() {
       setResults([]);
       setHasMore(false);
       setLoading(false);
+      setErroBusca("");
       return;
     }
     setLoading(true);
+    setErroBusca("");
     setPage(0);
     searchProfessionals({
       city: city || undefined,
@@ -214,12 +228,19 @@ export function HomePage() {
       setResults(data);
       setHasMore(data.length === DEFAULT_PAGE_SIZE);
       setLoading(false);
+    }).catch((err) => {
+      if (minhaBusca !== buscaAtual.current) return;
+      setResults([]);
+      setHasMore(false);
+      setLoading(false);
+      setErroBusca(mensagemDeErro(err, "Não conseguimos buscar agora."));
     });
-  }, [buscouAlgo, city, category, debouncedText, minRating, sort]);
+  }, [buscouAlgo, city, category, debouncedText, minRating, sort, tentativa]);
 
   async function loadMore() {
     const nextPage = page + 1;
     setLoadingMore(true);
+    setErroBusca("");
     try {
       const data = await searchProfessionals({
         city: city || undefined,
@@ -232,6 +253,10 @@ export function HomePage() {
       setResults((prev) => [...prev, ...data]);
       setHasMore(data.length === DEFAULT_PAGE_SIZE);
       setPage(nextPage);
+    } catch (err) {
+      /* A lista que já está na tela fica. Quem pediu "ver mais" não perde o
+         que estava lendo por causa de uma página que não veio. */
+      setErroBusca(mensagemDeErro(err, "Não conseguimos carregar mais agora."));
     } finally {
       setLoadingMore(false);
     }
@@ -397,9 +422,7 @@ export function HomePage() {
                     setIndContato("");
                     setIndEnviada(true);
                   } catch (err) {
-                    setIndErro(
-                      err instanceof Error ? err.message : "Não foi possível enviar agora."
-                    );
+                    setIndErro(mensagemDeErro(err, "Não foi possível enviar agora."));
                   } finally {
                     setIndSaving(false);
                   }
@@ -517,7 +540,19 @@ export function HomePage() {
         style={{ marginTop: 16, gridTemplateColumns: "repeat(auto-fill, minmax(260px, 1fr))" }}
       >
         {loading && <p className="muted">Buscando…</p>}
-        {!loading && results.length === 0 && (
+        {!loading && erroBusca !== "" && results.length === 0 && (
+          /* Erro é diferente de vazio, e a diferença importa: aqui o app
+             está admitindo que o problema é dele, e a saída é tentar de
+             novo — não indicar alguém. */
+          <div className="card">
+            <strong>A busca não funcionou agora.</strong>
+            <p className="muted" style={{ margin: "6px 0 12px" }}>{erroBusca}</p>
+            <button className="btn btn-outline" onClick={() => setTentativa((n) => n + 1)}>
+              Tentar de novo
+            </button>
+          </div>
+        )}
+        {!loading && erroBusca === "" && results.length === 0 && (
           /* Busca vazia é o momento mais informativo do app: a pessoa acabou
              de dizer o que precisa e não achou. Sem isto ela só ia embora, e
              a informação — o que falta na cidade e quem poderia preencher —
@@ -611,6 +646,12 @@ export function HomePage() {
 
       {!loading && hasMore && (
         <div style={{ textAlign: "center", marginTop: 24 }}>
+          {/* Falha do "ver mais" fica aqui embaixo, junto do botão que
+              falhou, e não no lugar da lista: o que já carregou continua
+              valendo e a pessoa está lendo. */}
+          {erroBusca !== "" && results.length > 0 && (
+            <p className="muted" style={{ marginBottom: 10 }}>{erroBusca}</p>
+          )}
           <button className="btn btn-outline" onClick={loadMore} disabled={loadingMore}>
             {loadingMore ? "Carregando…" : "Ver mais profissionais"}
           </button>

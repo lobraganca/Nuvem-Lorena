@@ -7,6 +7,7 @@ import {
   numeroJaConfirmadoNaConta,
 } from "../lib/whatsappVerify";
 import { formatPhone } from "../lib/phone";
+import { mensagemDeErro } from "../lib/erros";
 
 /**
  * Confirmação do WhatsApp do cadastro, em dois passos: manda o código, confere
@@ -50,7 +51,7 @@ export function ConfirmarWhatsApp({
       await enviarCodigoWhatsApp(numero);
       setPasso("conferir");
     } catch (err) {
-      setErro(err instanceof Error ? err.message : "Não foi possível enviar o código.");
+      setErro(mensagemDeErro(err, "Não foi possível enviar o código."));
     } finally {
       setCarregando(false);
     }
@@ -64,7 +65,7 @@ export function ConfirmarWhatsApp({
       await marcarAnuncioConfirmado(professionalId);
       onConfirmado();
     } catch (err) {
-      setErro(err instanceof Error ? err.message : "Não foi possível confirmar o código.");
+      setErro(mensagemDeErro(err, "Não foi possível confirmar o código."));
     } finally {
       setCarregando(false);
     }

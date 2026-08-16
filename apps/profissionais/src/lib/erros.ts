@@ -14,8 +14,23 @@ export function mensagemDeErro(err: unknown, padrao: string): string {
     typeof err === "object" && err !== null && "message" in err
       ? String((err as { message: unknown }).message)
       : "";
+  const codigo =
+    typeof err === "object" && err !== null && "code" in err
+      ? String((err as { code: unknown }).code)
+      : "";
 
   if (!bruto) return padrao;
+
+  /* Frase que nós mesmos escrevemos dentro do banco passa inteira.
+     Os gatilhos do projeto usam `raise exception` com o texto já em
+     português e já pensado para quem vai ler ("Você já enviou um pedido
+     para este profissional agora há pouco"). Isso chega aqui com o código
+     P0001, que é o do `raise` de pl/pgsql — os erros do próprio Postgres
+     têm códigos próprios e vêm em inglês.
+
+     Sem isto, a frase boa chegava embrulhada no genérico: "Não foi
+     possível enviar. (Você já enviou um pedido…)". */
+  if (codigo === "P0001") return bruto;
 
   // Bucket de fotos ainda não criado no projeto Supabase.
   if (/bucket not found/i.test(bruto)) {

@@ -206,6 +206,40 @@ export async function getAssinaturasAtivas(professionalId: string): Promise<Assi
   );
 }
 
+/**
+ * As assinaturas de vários cadastros de uma vez.
+ *
+ * O painel chamava `getAssinaturasAtivas` dentro de um `forEach` sobre os
+ * cadastros da pessoa — uma ida ao banco por cadastro, e mais quatro por
+ * cadastro nas outras consultas da mesma tela. Quem tem três cadastros
+ * abria o painel disparando quinze requisições, num 4G de cidade pequena,
+ * para montar uma tela só. O filtro por dono continua sendo o RLS: a
+ * consulta pede vários `professional_id`, e o banco devolve apenas os que
+ * pertencem a quem perguntou.
+ */
+export async function getAssinaturasAtivasDeVarios(
+  professionalIds: string[]
+): Promise<Record<string, AssinaturaAtiva[]>> {
+  const vazio: Record<string, AssinaturaAtiva[]> = {};
+  for (const id of professionalIds) vazio[id] = [];
+
+  const client = supabase();
+  if (!client || professionalIds.length === 0) return vazio;
+
+  const { data } = await client
+    .from("subscriptions")
+    .select("id, professional_id, type, billing_cycle, status, created_at, current_period_end")
+    .in("professional_id", professionalIds)
+    .in("status", ["active", "authorized", "pending"])
+    .order("created_at", { ascending: false });
+
+  for (const linha of (data ?? []) as (AssinaturaAtiva & { professional_id: string })[]) {
+    if (!assinaturaConfirmada(linha) && !pendenteRecente(linha)) continue;
+    (vazio[linha.professional_id] ??= []).push(linha);
+  }
+  return vazio;
+}
+
 /** Uma hora é folga suficiente para pagar por Pix ou boleto e voltar. */
 export const PENDENTE_EXPIRA_MS = 60 * 60 * 1000;
 

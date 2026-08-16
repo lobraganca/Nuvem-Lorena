@@ -28,6 +28,7 @@ import { CITIES, type Suggestion, type SuggestionStatus } from "../types/domain"
 import { AdminBanners } from "../components/AdminBanners";
 import { AdminFinanceiro } from "../components/AdminFinanceiro";
 import { useTituloDaPagina } from "../lib/tituloDaPagina";
+import { mensagemDeErro } from "../lib/erros";
 
 const STATUS_LABEL: Record<ReportStatus, string> = {
   pending: "Pendente",
@@ -131,6 +132,8 @@ export function AdminPage() {
       setPros((prev) => [...prev, ...data]);
       setProsPage(nextPage);
       setProsHasMore(data.length === DEFAULT_PAGE_SIZE);
+    } catch (err) {
+      setMessage(mensagemDeErro(err, "Não foi possível carregar mais cadastros."));
     } finally {
       setProsLoadingMore(false);
     }
@@ -153,7 +156,7 @@ export function AdminPage() {
           : "Cadastro suspenso. Não foi possível confirmar o envio do e-mail de aviso (ver README sobre configurar a Resend)."
       );
     } catch (err) {
-      setMessage(err instanceof Error ? err.message : "Erro ao suspender cadastro.");
+      setMessage(mensagemDeErro(err, "Erro ao suspender cadastro."));
     } finally {
       setSuspending(null);
     }
@@ -167,7 +170,7 @@ export function AdminPage() {
       await refreshAll();
       setMessage("Cadastro reativado.");
     } catch (err) {
-      setMessage(err instanceof Error ? err.message : "Erro ao reativar cadastro.");
+      setMessage(mensagemDeErro(err, "Erro ao reativar cadastro."));
     } finally {
       setSuspending(null);
     }
@@ -181,19 +184,29 @@ export function AdminPage() {
     setChecking(true);
     isAdmin(user.id).then(async (ok) => {
       setAdmin(ok);
-      if (ok) {
-        setReports(await listReports());
-        setSuggestions(await listSuggestions());
-        getCategoriasComAnuncio().then(setCategorias);
-        getDestaquesAtivos().then(setDestaques);
-        getDemandaDeDestaque().then(setDemanda);
-        listarIndicacoes().then(setIndicacoes);
-        const data = await searchProfessionals({ page: 0 });
-        setPros(data);
-        setProsPage(0);
-        setProsHasMore(data.length === DEFAULT_PAGE_SIZE);
+      /* O `finally` é o que garante que o painel abre.
+         Sem ele, qualquer uma destas consultas falhando deixava
+         `checking` ligado para sempre — e o painel inteiro parado em
+         "Carregando…", sem nada escrito na tela explicando por quê. Foi
+         essa a forma de várias horas perdidas por aqui. */
+      try {
+        if (ok) {
+          setReports(await listReports());
+          setSuggestions(await listSuggestions());
+          getCategoriasComAnuncio().then(setCategorias);
+          getDestaquesAtivos().then(setDestaques);
+          getDemandaDeDestaque().then(setDemanda);
+          listarIndicacoes().then(setIndicacoes);
+          const data = await searchProfessionals({ page: 0 });
+          setPros(data);
+          setProsPage(0);
+          setProsHasMore(data.length === DEFAULT_PAGE_SIZE);
+        }
+      } catch (err) {
+        setMessage(mensagemDeErro(err, "Não foi possível carregar o painel."));
+      } finally {
+        setChecking(false);
       }
-      setChecking(false);
     });
   }, [user]);
 
@@ -212,6 +225,8 @@ export function AdminPage() {
       setPros(data);
       setProsPage(0);
       setProsHasMore(data.length === DEFAULT_PAGE_SIZE);
+    } catch (err) {
+      setMessage(mensagemDeErro(err, "Não foi possível filtrar os cadastros."));
     } finally {
       setProsLoading(false);
     }
@@ -224,7 +239,7 @@ export function AdminPage() {
       await updateReportStatus(reportId, status);
       setReports(await listReports());
     } catch (err) {
-      setMessage(err instanceof Error ? err.message : "Erro ao atualizar denúncia.");
+      setMessage(mensagemDeErro(err, "Erro ao atualizar denúncia."));
     } finally {
       setUpdating(null);
     }
@@ -237,7 +252,7 @@ export function AdminPage() {
       await updateSuggestionStatus(suggestionId, "reviewed");
       setSuggestions(await listSuggestions());
     } catch (err) {
-      setMessage(err instanceof Error ? err.message : "Erro ao atualizar sugestão.");
+      setMessage(mensagemDeErro(err, "Erro ao atualizar sugestão."));
     } finally {
       setUpdatingSuggestion(null);
     }

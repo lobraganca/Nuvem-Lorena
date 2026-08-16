@@ -100,8 +100,17 @@ export async function searchProfessionals(filters: SearchFilters): Promise<Profe
   }
   if (filters.onlySuspended) query = query.eq("suspended", true);
 
+  /* Busca que falha não é busca vazia.
+     Devolver `[]` aqui fazia a tela dizer "nenhum resultado" com cara de
+     normal sempre que o banco recusasse a consulta — policy nova, coluna
+     renomeada, rede caída. Foi assim que a exigência de CPF nas avaliações
+     passou semanas invisível: a tela mentia com calma. Aqui é pior, porque
+     é a função principal do app: a pessoa concluiria que não existe
+     eletricista em Itabirito. O erro sobe e quem chamou decide o que
+     mostrar. */
   const { data, error } = await query;
-  if (error || !data) return [];
+  if (error) throw error;
+  if (!data) return [];
 
   const ratings = await fetchRatingsMap(client, data.map((p) => p.id));
   let results = data.map((p) => ({
@@ -659,6 +668,54 @@ export async function countRecentProfileViews(professionalId: string, days = 30)
   return count ?? 0;
 }
 
+/** Teto de linhas lidas de uma vez ao contar visitas de vários cadastros. */
+const TETO_VISITAS_EM_LOTE = 5000;
+
+/**
+ * As visitas de vários cadastros numa consulta só.
+ *
+ * Contar de um em um custava duas idas ao banco por cadastro (30 dias e 7
+ * dias), e o painel de quem tem três cadastros abria com seis só para esse
+ * número. Aqui as linhas do período vêm juntas e a soma é feita aqui.
+ *
+ * O teto existe porque a resposta traz linha por visita, não um total: se
+ * um dia a cidade gerar mais visitas do que cabe numa resposta, somar o que
+ * veio daria um número menor que o real — e número errado num painel é pior
+ * que número demorado. Quando o teto é alcançado, cada cadastro volta a ser
+ * contado pelo caminho exato, que conta no servidor e não traz linha
+ * nenhuma.
+ */
+export async function countRecentProfileViewsDeVarios(
+  professionalIds: string[],
+  days = 30
+): Promise<Record<string, number>> {
+  const totais: Record<string, number> = {};
+  for (const id of professionalIds) totais[id] = 0;
+
+  const client = supabase();
+  if (!client || professionalIds.length === 0) return totais;
+
+  const since = new Date(Date.now() - days * 24 * 60 * 60 * 1000).toISOString();
+  const { data, error } = await client
+    .from("profile_views")
+    .select("professional_id")
+    .in("professional_id", professionalIds)
+    .gte("viewed_at", since)
+    .limit(TETO_VISITAS_EM_LOTE);
+
+  if (error || !data || data.length >= TETO_VISITAS_EM_LOTE) {
+    const pares = await Promise.all(
+      professionalIds.map(async (id) => [id, await countRecentProfileViews(id, days)] as const)
+    );
+    return Object.fromEntries(pares);
+  }
+
+  for (const linha of data as { professional_id: string }[]) {
+    totais[linha.professional_id] = (totais[linha.professional_id] ?? 0) + 1;
+  }
+  return totais;
+}
+
 // --- Pedidos de contato ----------------------------------------------------
 
 /**
@@ -694,6 +751,38 @@ export async function getContactRequests(
   if (!includeArchived) query = query.neq("status", "archived");
   const { data } = await query;
   return data ?? [];
+}
+
+/**
+ * Os pedidos de contato de vários cadastros numa consulta só.
+ *
+ * Mesma história das assinaturas e das visitas: o painel percorria os
+ * cadastros pedindo um por um. Quem lê continua sendo filtrado pelo RLS —
+ * "dono vê os pedidos do próprio anúncio" (migration 0022) —, então pedir
+ * por uma lista de ids não amplia o que volta.
+ */
+export async function getContactRequestsDeVarios(
+  professionalIds: string[],
+  { includeArchived = false } = {}
+): Promise<Record<string, ContactRequest[]>> {
+  const porCadastro: Record<string, ContactRequest[]> = {};
+  for (const id of professionalIds) porCadastro[id] = [];
+
+  const client = supabase();
+  if (!client || professionalIds.length === 0) return porCadastro;
+
+  let query = client
+    .from("contact_requests")
+    .select("*")
+    .in("professional_id", professionalIds)
+    .order("created_at", { ascending: false });
+  if (!includeArchived) query = query.neq("status", "archived");
+
+  const { data } = await query;
+  for (const pedido of (data ?? []) as ContactRequest[]) {
+    (porCadastro[pedido.professional_id] ??= []).push(pedido);
+  }
+  return porCadastro;
 }
 
 export async function updateContactRequestStatus(

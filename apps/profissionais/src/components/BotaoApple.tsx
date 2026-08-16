@@ -1,5 +1,6 @@
 import { signInWithApple } from "../lib/auth";
 import { LOGIN_APPLE_ATIVO } from "../config";
+import { mensagemDeErro } from "../lib/erros";
 
 /**
  * "Entrar com a Apple", ao lado do Google.
@@ -24,7 +25,7 @@ export function BotaoApple({ voltarPara, onErro }: { voltarPara?: string; onErro
         try {
           await signInWithApple(voltarPara);
         } catch (err) {
-          onErro?.(err instanceof Error ? err.message : "Não foi possível abrir o login da Apple.");
+          onErro?.(mensagemDeErro(err, "Não foi possível abrir o login da Apple."));
         }
       }}
     >

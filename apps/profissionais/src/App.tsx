@@ -15,6 +15,7 @@ import { RetomarDestinoLogin } from "./components/RetomarDestinoLogin";
 import { AvisoErroLogin } from "./components/AvisoErroLogin";
 import { CONTATO_EMAIL } from "./config";
 import { importarPagina } from "./lib/importarPagina";
+import { mensagemDeErro } from "./lib/erros";
 
 /**
  * Telas carregadas sob demanda.
@@ -74,7 +75,7 @@ function SuggestionSheet({ onClose }: { onClose: () => void }) {
       await sendSuggestion(message.trim(), user?.id ?? null);
       setSent(true);
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Não foi possível enviar a sugestão.");
+      setError(mensagemDeErro(err, "Não foi possível enviar a sugestão."));
     } finally {
       setSending(false);
     }

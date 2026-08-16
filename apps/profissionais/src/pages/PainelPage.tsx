@@ -5,8 +5,8 @@ import { signInWithGoogle } from "../lib/auth";
 import { hasDatabase } from "../lib/supabase";
 import {
   getMyProfessionals,
-  countRecentProfileViews,
-  getContactRequests,
+  countRecentProfileViewsDeVarios,
+  getContactRequestsDeVarios,
   updateContactRequestStatus,
   isCurrentlyBoosted,
   isCurrentlyVerified,
@@ -21,7 +21,7 @@ import {
   precoMensal,
   cancelarAssinatura,
   entrarNaFilaDeDestaque,
-  getAssinaturasAtivas,
+  getAssinaturasAtivasDeVarios,
   assinaturaConfirmada,
   vagasDeDestaque,
   PRICES,
@@ -51,6 +51,18 @@ import { useTituloDaPagina } from "../lib/tituloDaPagina";
  */
 const CONFIRMACAO_POR_SMS = true;
 
+/**
+ * Identifica um par categoria+cidade numa chave de mapa.
+ *
+ * Categoria pode ser texto escrito à mão por quem se cadastrou, então
+ * qualquer separador escolhido a dedo ("|", "-", espaço) pode aparecer
+ * dentro do próprio nome e juntar dois pares diferentes num só. O JSON
+ * escapa o que precisa escapar e não tem esse problema.
+ */
+function chaveDoPar(category: string, city: string): string {
+  return JSON.stringify([category, city]);
+}
+
 
 export function PainelPage() {
   useTituloDaPagina("Painel do profissional");
@@ -75,7 +87,7 @@ export function PainelPage() {
     try {
       await signInWithGoogle("/painel");
     } catch (err) {
-      setLoginError(err instanceof Error ? err.message : "Não foi possível abrir o login do Google.");
+      setLoginError(mensagemDeErro(err, "Não foi possível abrir o login do Google."));
     }
   }
   /** Cadastro a que a assinatura se aplica. Vazio = o primeiro da lista. */
@@ -135,12 +147,40 @@ export function PainelPage() {
   }, [user]);
 
   useEffect(() => {
-    mine.forEach((p) => {
-      getAssinaturasAtivas(p.id).then((list) => setAssinaturas((prev) => ({ ...prev, [p.id]: list })));
-      if (p.category) {
-        vagasDeDestaque(p.category, p.city).then((n) => setVagas((prev) => ({ ...prev, [p.id]: n })));
-      }
+    if (mine.length === 0) return;
+    let active = true;
+
+    getAssinaturasAtivasDeVarios(mine.map((p) => p.id)).then((porCadastro) => {
+      if (active) setAssinaturas(porCadastro);
     });
+
+    /* As vagas de destaque são por categoria e cidade, não por cadastro.
+       Quem tem três cadastros na mesma categoria e cidade — o caso comum de
+       quem cadastrou variações do mesmo ofício — fazia três chamadas
+       idênticas para receber três vezes o mesmo número. Uma por par
+       distinto basta, e o resultado é distribuído entre os cadastros
+       daquele par. */
+    const pares = new Map<string, { category: string; city: string }>();
+    for (const p of mine) {
+      if (p.category) pares.set(chaveDoPar(p.category, p.city), { category: p.category, city: p.city });
+    }
+    Promise.all(
+      [...pares].map(async ([chave, { category, city }]) => [chave, await vagasDeDestaque(category, city)] as const)
+    ).then((resultados) => {
+      if (!active) return;
+      const porPar = new Map(resultados);
+      const porCadastro: Record<string, number> = {};
+      for (const p of mine) {
+        if (!p.category) continue;
+        const n = porPar.get(chaveDoPar(p.category, p.city));
+        if (n !== undefined) porCadastro[p.id] = n;
+      }
+      setVagas(porCadastro);
+    });
+
+    return () => {
+      active = false;
+    };
   }, [mine]);
 
 
@@ -149,11 +189,12 @@ export function PainelPage() {
   useEffect(() => {
     if (mine.length === 0) return;
     let active = true;
-    Promise.all(mine.map((p) => countRecentProfileViews(p.id).then((n) => [p.id, n] as const))).then((pares) => {
-      if (active) setViews30(Object.fromEntries(pares));
+    const ids = mine.map((p) => p.id);
+    countRecentProfileViewsDeVarios(ids, 30).then((totais) => {
+      if (active) setViews30(totais);
     });
-    Promise.all(mine.map((p) => countRecentProfileViews(p.id, 7).then((n) => [p.id, n] as const))).then((pares) => {
-      if (active) setViews7(Object.fromEntries(pares));
+    countRecentProfileViewsDeVarios(ids, 7).then((totais) => {
+      if (active) setViews7(totais);
     });
     return () => {
       active = false;
@@ -161,24 +202,19 @@ export function PainelPage() {
   }, [mine]);
 
   async function carregarPedidos() {
-    const pares = await Promise.all(
-      mine.map((p) =>
-        getContactRequests(p.id, { includeArchived: mostrarArquivados }).then((lista) => [p.id, lista] as const)
-      )
+    setPedidos(
+      await getContactRequestsDeVarios(mine.map((p) => p.id), { includeArchived: mostrarArquivados })
     );
-    setPedidos(Object.fromEntries(pares));
   }
 
   useEffect(() => {
     if (mine.length === 0) return;
     let active = true;
-    Promise.all(
-      mine.map((p) =>
-        getContactRequests(p.id, { includeArchived: mostrarArquivados }).then((lista) => [p.id, lista] as const)
-      )
-    ).then((pares) => {
-      if (active) setPedidos(Object.fromEntries(pares));
-    });
+    getContactRequestsDeVarios(mine.map((p) => p.id), { includeArchived: mostrarArquivados }).then(
+      (porCadastro) => {
+        if (active) setPedidos(porCadastro);
+      }
+    );
     return () => {
       active = false;
     };
@@ -196,7 +232,7 @@ export function PainelPage() {
       const { initPoint } = await startSubscriptionCheckout(professionalId, type);
       window.location.href = initPoint;
     } catch (err) {
-      setMessage(err instanceof Error ? err.message : "Não foi possível iniciar o checkout do Mercado Pago.");
+      setMessage(mensagemDeErro(err, "Não foi possível iniciar o checkout do Mercado Pago."));
     } finally {
       setCheckoutLoading(null);
       setPlanSheetFor(null);
@@ -211,7 +247,7 @@ export function PainelPage() {
       const { initPoint } = await startAnnualSubscriptionCheckout(professionalId, type);
       window.location.href = initPoint;
     } catch (err) {
-      setMessage(err instanceof Error ? err.message : "Não foi possível iniciar o checkout do Mercado Pago.");
+      setMessage(mensagemDeErro(err, "Não foi possível iniciar o checkout do Mercado Pago."));
     } finally {
       setCheckoutLoading(null);
       setPlanSheetFor(null);
@@ -233,7 +269,7 @@ export function PainelPage() {
       const { initPoint } = await startAnnualCheckout(professionalId, type, "monthly");
       window.location.href = initPoint;
     } catch (err) {
-      setMessage(err instanceof Error ? err.message : "Não foi possível iniciar o checkout do Mercado Pago.");
+      setMessage(mensagemDeErro(err, "Não foi possível iniciar o checkout do Mercado Pago."));
     } finally {
       setCheckoutLoading(null);
       setPlanSheetFor(null);
@@ -247,7 +283,7 @@ export function PainelPage() {
       const { initPoint } = await startAnnualCheckout(professionalId, type);
       window.location.href = initPoint;
     } catch (err) {
-      setMessage(err instanceof Error ? err.message : "Não foi possível iniciar o checkout do Mercado Pago.");
+      setMessage(mensagemDeErro(err, "Não foi possível iniciar o checkout do Mercado Pago."));
     } finally {
       setCheckoutLoading(null);
       setPlanSheetFor(null);
@@ -819,7 +855,7 @@ export function PainelPage() {
                       }
                     } catch (err) {
                       setResultadoCancelamento(
-                        err instanceof Error ? err.message : "Não foi possível cancelar agora."
+                        mensagemDeErro(err, "Não foi possível cancelar agora.")
                       );
                     } finally {
                       setCancelandoAgora(false);
