@@ -9,18 +9,72 @@
  * coisa do lado de quem usa.
  *
  * A primeira versão disto recarregava sozinha assim que a versão nova
- * chegava. Está errado: o formulário mais importante deste app é um cadastro
- * longo — foto, endereço, cinco serviços, telefone —, e recarregar no meio
- * dele joga fora o trabalho de quem estava digitando, sem aviso e sem
- * desfazer. O ganho de estar atualizado cinco minutos antes não paga isso.
+ * chegava. Estava errado: o formulário mais importante deste app é um
+ * cadastro longo — foto, endereço, cinco serviços, telefone —, e recarregar
+ * no meio dele joga fora o trabalho de quem estava digitando, sem aviso e
+ * sem desfazer.
  *
- * Agora a versão nova fica esperando em segundo plano e quem decide a hora é
- * a pessoa, por um aviso na tela. Enquanto ela não decidir, o app continua
- * funcionando na versão antiga, inteiro.
+ * A segunda passou a só avisar, com um botão "Atualizar". Também estava
+ * errado, e o erro levou mais tempo para aparecer porque acontecia do outro
+ * lado: quem publica corrigia alguma coisa, conferia que estava no ar, e a
+ * dona do app continuava vendo a tela de três horas antes — três vezes numa
+ * semana, cada uma delas terminando em "não mudou nada". Um aviso que
+ * depende de alguém notar e tocar não é atualização; é uma tarefa a mais
+ * para quem já estava reclamando de um defeito.
+ *
+ * A terceira, esta, separa as duas coisas em vez de escolher entre elas:
+ *
+ * - **Na volta ao app**, quando a pessoa acabou de trazê-lo para a frente e
+ *   ainda não começou nada, a versão nova entra sozinha e calada. É o
+ *   momento em que recarregar não custa absolutamente nada.
+ * - **Se houver algo em jogo na tela** — cadastro aberto, folha aberta,
+ *   qualquer campo digitado —, não troca: acende o aviso e a decisão volta
+ *   a ser de quem está ali. Ver `podeTrocarDeVersaoAgora`.
+ * - **Com o app aberto na frente**, nunca troca sozinho. A ronda de hora em
+ *   hora e o `focus` continuam só avisando; ninguém pode ter a tela trocada
+ *   debaixo do dedo.
  */
 
 /** Quanto tempo de aba aberta já é "isso aqui está parado há tempo demais". */
 const DIAS_PARADO = 2;
+
+/**
+ * Dá para trocar a versão agora sem jogar fora trabalho de alguém?
+ *
+ * Esta pergunta é a diferença entre a atualização automática de hoje e a que
+ * foi tirada daqui (ver o cabeçalho). Não voltamos a recarregar a qualquer
+ * momento: recarregamos só quando não há nada em jogo na tela.
+ *
+ * As três respostas negativas correspondem a três formas reais de perder o
+ * que a pessoa estava fazendo:
+ */
+export function podeTrocarDeVersaoAgora(): boolean {
+  if (typeof document === "undefined") return false;
+
+  /* 1. O cadastro, nunca. É o formulário citado lá em cima — longo, com
+     foto e cinco serviços — e boa parte do que já foi preenchido vive no
+     estado do React, não nos campos: mesmo com todos os campos visíveis
+     vazios (a etapa 3, por exemplo), recarregar apaga as etapas 1 e 2. */
+  const caminho = window.location.pathname;
+  if (caminho.startsWith("/painel/novo") || caminho.startsWith("/painel/editar")) return false;
+
+  /* 2. Folha aberta é gente no meio de alguma coisa — avaliando, pedindo
+     contato, escolhendo cidade. */
+  if (document.querySelector(".sheet-panel")) return false;
+
+  /* 3. Qualquer coisa digitada. A exceção é o campo de busca: o que está
+     escrito nele sobrevive ao recarregamento, porque a busca mora no
+     endereço (`?q=`) — e bloquear por causa dele deixaria o app sem
+     atualizar justamente para quem o usa mais. */
+  const campos = document.querySelectorAll<HTMLInputElement | HTMLTextAreaElement>("input, textarea");
+  for (const campo of campos) {
+    if (campo.classList.contains("search-input")) continue;
+    if (campo.type === "hidden" || campo.type === "checkbox" || campo.type === "radio") continue;
+    if (campo.value.trim() !== "") return false;
+  }
+
+  return true;
+}
 
 type Ouvinte = (estado: { versaoNova: boolean; abertoHaMuitoTempo: boolean }) => void;
 
@@ -121,6 +175,11 @@ export function cuidarDasAtualizacoes() {
   if (typeof navigator === "undefined" || !("serviceWorker" in navigator)) return;
 
   let recarregando = false;
+  /* Liga só depois de a aba voltar do segundo plano. Na primeira carga
+     fica desligado: se o app abrir já com uma versão esperando, trocar
+     antes de a pessoa ver qualquer coisa faria a tela piscar duas vezes na
+     abertura, que é onde a impressão de app quebrado se forma. */
+  let aplicarSozinho = false;
   navigator.serviceWorker.addEventListener("controllerchange", () => {
     if (recarregando) return;
     recarregando = true;
@@ -134,6 +193,30 @@ export function cuidarDasAtualizacoes() {
     esperando = registro.waiting;
     versaoNova = true;
     avisar();
+    if (aplicarSozinho) trocarSeDerAgora();
+  }
+
+  /**
+   * Troca de versão sem perguntar — só na volta ao app, e só se não houver
+   * nada em jogo na tela.
+   *
+   * A dona do app viu três vezes numa semana uma tela velha e concluiu que o
+   * conserto não tinha sido feito. Estava tudo publicado; o app instalado é
+   * que segurava a versão antiga esperando alguém tocar em "Atualizar".
+   * Entre pedir licença e não perder trabalho, dá para ter os dois: pede-se
+   * licença quando há o que perder, e troca-se calado quando não há.
+   *
+   * Se a troca for barrada, o aviso continua na tela e a decisão volta a ser
+   * dela — nada se perde, só adia.
+   */
+  function trocarSeDerAgora() {
+    if (!esperando) return;
+    if (!podeTrocarDeVersaoAgora()) {
+      registrarPasso("versao-nova-mas-tem-coisa-na-tela");
+      return;
+    }
+    registrarPasso("aplicando-sozinho");
+    aplicarAtualizacao();
   }
 
   async function procurarVersaoNova() {
@@ -169,7 +252,22 @@ export function cuidarDasAtualizacoes() {
     }
   }
 
-  document.addEventListener("visibilitychange", procurarVersaoNova);
+  /* A troca automática acontece só na volta ao app.
+
+     Quem está com o app aberto na frente não pode ter a tela trocada
+     debaixo do dedo — por isso o `focus` e a ronda de hora em hora
+     continuam apenas avisando. Já a transição "estava em segundo plano →
+     voltou" é o momento em que recarregar não custa nada: a pessoa acabou
+     de trazer o app para a frente e ainda não começou a fazer nada.
+
+     No celular é justamente essa a transição que importa: o app instalado
+     fica dias aberto atrás de outros, e é ao voltar para ele que a versão
+     de três horas atrás reaparece como se fosse a atual. */
+  document.addEventListener("visibilitychange", () => {
+    aplicarSozinho = document.visibilityState === "visible";
+    void procurarVersaoNova();
+    if (aplicarSozinho) trocarSeDerAgora();
+  });
   window.addEventListener("focus", procurarVersaoNova);
   void procurarVersaoNova();
   // Uma aba que fica aberta o dia inteiro nunca dispara `focus` nem
