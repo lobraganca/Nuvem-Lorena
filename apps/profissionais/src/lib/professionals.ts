@@ -13,6 +13,41 @@ export type SortOption = "relevance" | "rating" | "reviews";
 
 export const DEFAULT_PAGE_SIZE = 20;
 
+/**
+ * Semente do rodízio, sorteada uma vez por abertura do app.
+ *
+ * Embaralhar com `Math.random()` a cada chamada parece a solução óbvia e é
+ * pior: a mesma busca devolve uma ordem diferente toda vez que roda — e ela
+ * roda de novo sozinha, quando a pessoa volta da tela de um profissional.
+ * A lista que ela estava lendo aparece remexida, e quem ela tinha acabado
+ * de ver mudou de lugar. Parece defeito, e com razão.
+ *
+ * Com uma semente fixa por sessão, a ordem é sorteada uma vez e se mantém
+ * enquanto o app estiver aberto: ir e voltar devolve a mesma tela. Na
+ * próxima abertura, outra ordem — que é o rodízio que se quer.
+ */
+const SEMENTE_DA_SESSAO = Math.random().toString(36).slice(2);
+
+/**
+ * Ordem sorteada, porém estável: o mesmo id com a mesma semente cai sempre
+ * na mesma posição. Um embaralhamento de Fisher-Yates guardaria a ordem
+ * numa lista; aqui a "posição" é calculada do próprio id, então funciona
+ * mesmo com a lista chegando em pedaços (a página 2 do "ver mais").
+ *
+ * O cálculo é o hash djb2, escolhido por ser curto e espalhar bem — não
+ * precisa de qualidade criptográfica, precisa que dois ids parecidos
+ * (`pro-1` e `pro-2`) não caiam lado a lado.
+ */
+function embaralhar<T extends { id: string }>(itens: T[]): T[] {
+  const posicao = (id: string) => {
+    let h = 5381;
+    const semeado = id + SEMENTE_DA_SESSAO;
+    for (let i = 0; i < semeado.length; i++) h = ((h * 33) ^ semeado.charCodeAt(i)) >>> 0;
+    return h;
+  };
+  return [...itens].sort((a, b) => posicao(a.id) - posicao(b.id));
+}
+
 export interface SearchFilters {
   city?: string;
   category?: string;
@@ -125,30 +160,34 @@ export async function searchProfessionals(filters: SearchFilters): Promise<Profe
   }
 
   /**
-   * Rodízio entre os cadastros turbinados.
+   * Rodízio da ordem — entre os turbinados e entre todos os outros.
    *
-   * O banco devolve turbinados primeiro e, dentro deles, os mais recentes —
-   * o que na prática dá o topo a quem assinou por último e empurra para
-   * baixo quem paga há meses. Com dez eletricistas turbinados na mesma
-   * cidade, os últimos da fila pagam e não aparecem; é o tipo de coisa que
-   * ninguém reclama, só cancela.
+   * O banco devolve turbinados primeiro e, dentro de cada grupo, os mais
+   * recentes. Isso cria duas injustiças com a mesma raiz: a ordem é fixa e
+   * favorece quem chegou por último.
    *
-   * Embaralhar a cada busca reparte o topo entre todos que pagaram. Não é
-   * sorteio de quem aparece — todos aparecem antes dos não-turbinados —, é
-   * sorteio da ordem entre eles.
+   * Entre os turbinados, dava o topo a quem assinou mais recentemente e
+   * empurrava para baixo quem paga há meses — quem fica no fim paga e não
+   * aparece, e não reclama: cancela.
    *
-   * Só vale para a ordenação padrão: quem pediu "melhor avaliado" quer nota,
-   * e dinheiro não pode reordenar uma lista que a pessoa mandou ordenar por
-   * outro critério.
+   * Entre os demais é pior, porque é permanente. `created_at desc` põe o
+   * primeiro cadastro da cidade sempre em último lugar, em toda busca, para
+   * sempre. Quem acreditou no app quando ele não tinha ninguém é
+   * exatamente quem menos aparece.
+   *
+   * Agora os dois grupos são embaralhados. Turbinados continuam todos na
+   * frente — isso é o que foi vendido a quem pagou —, mas a ordem dentro de
+   * cada grupo é sorteada.
+   *
+   * Só vale para a ordenação padrão: quem pediu "melhor avaliado" quer
+   * nota, e nem dinheiro nem sorte podem reordenar uma lista que a pessoa
+   * mandou ordenar por outro critério.
    */
   if (!filters.sort || filters.sort === "relevance") {
-    const turbinados = results.filter((p) => isCurrentlyBoosted(p));
-    const demais = results.filter((p) => !isCurrentlyBoosted(p));
-    for (let i = turbinados.length - 1; i > 0; i--) {
-      const j = Math.floor(Math.random() * (i + 1));
-      [turbinados[i], turbinados[j]] = [turbinados[j], turbinados[i]];
-    }
-    results = [...turbinados, ...demais];
+    results = [
+      ...embaralhar(results.filter((p) => isCurrentlyBoosted(p))),
+      ...embaralhar(results.filter((p) => !isCurrentlyBoosted(p))),
+    ];
   }
 
   if (filters.sort === "rating") {

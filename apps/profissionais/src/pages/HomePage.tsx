@@ -62,23 +62,35 @@ export function HomePage() {
   const [city, setCity] = useState<string>("");
   const [cidades, setCidades] = useState<string[]>([]);
   /**
-   * A categoria pode chegar pelo endereço (`/?servico=Farmácia`), que é
-   * como a tela de todas as categorias manda a escolha para cá — e também
-   * o que permite mandar "olha os eletricistas daqui" por WhatsApp.
+   * A busca mora no endereço — e é isso que faz o "voltar" funcionar.
    *
-   * O parâmetro é lido uma vez e apagado logo em seguida (ver o efeito
-   * abaixo): daí para frente quem manda é o estado. Deixá-lo no endereço
-   * faria um recarregar depois de a pessoa já ter mudado de ideia
-   * ressuscitar a busca antiga.
+   * Antes, `?servico=` era lido uma vez e apagado em seguida, para um
+   * recarregar não ressuscitar uma busca que a pessoa já tinha abandonado.
+   * A intenção estava certa; o efeito colateral era grave e passou meses
+   * sem ser nomeado: **abrir um cadastro e voltar apagava a busca**. A
+   * pessoa procurava eletricista, entrava num, achava caro, voltava — e
+   * caía na grade de categorias, do zero, tendo que escolher tudo de novo.
+   * Comparar dois profissionais, que é o motivo de existir uma lista,
+   * custava refazer a busca a cada comparação.
+   *
+   * Agora o endereço acompanha a busca (`/?servico=Eletricista&q=forno`).
+   * Voltar devolve a tela como ela estava, porque o navegador guarda o
+   * endereço e o endereço guarda a busca.
+   *
+   * E o medo original não se realiza: como o endereço é reescrito sempre
+   * que a busca muda, limpar a busca também limpa o parâmetro. Não existe
+   * mais "parâmetro velho" para ressuscitar nada.
    */
-  const [category, setCategory] = useState<string>(() => {
-    if (typeof window === "undefined") return "";
-    return new URLSearchParams(window.location.search).get("servico") ?? "";
-  });
+  const paramsIniciais = () =>
+    typeof window === "undefined" ? new URLSearchParams() : new URLSearchParams(window.location.search);
+  const [category, setCategory] = useState<string>(() => paramsIniciais().get("servico") ?? "");
   const [categorias, setCategorias] = useState<string[]>([]);
   const [categoriasPopulares, setCategoriasPopulares] = useState<CategoriaPopular[]>([]);
-  const [text, setText] = useState<string>("");
-  const [debouncedText, setDebouncedText] = useState<string>("");
+  const [text, setText] = useState<string>(() => paramsIniciais().get("q") ?? "");
+  /* Já nasce preenchido junto com `text`: o debounce serve para não buscar
+     a cada tecla digitada, e quem volta de outra tela não digitou nada —
+     esperar 400ms aqui só atrasaria a lista que ela já tinha. */
+  const [debouncedText, setDebouncedText] = useState<string>(() => paramsIniciais().get("q") ?? "");
   const [minRating, setMinRating] = useState<number>(0);
   const [sort, setSort] = useState<SortOption>("relevance");
   const [results, setResults] = useState<ProfessionalWithRating[]>([]);
@@ -133,11 +145,21 @@ export function HomePage() {
   /* O endereço volta a ser só "/" depois que a escolha foi lida. Sem isto,
      a pessoa limpa a busca, recarrega a tela e a categoria antiga volta —
      porque continuava escrita ali. */
+  /* O endereço segue a busca.
+     `replaceState` e não `push`: cada tecla digitada viraria um item no
+     histórico, e sair da busca exigiria apertar "voltar" uma vez por
+     letra. O que precisa entrar no histórico é a ida ao cadastro, e essa
+     quem cria é o link do cartão. */
   useEffect(() => {
-    if (new URLSearchParams(window.location.search).has("servico")) {
-      window.history.replaceState(null, "", window.location.pathname);
+    const params = new URLSearchParams();
+    if (category) params.set("servico", category);
+    if (debouncedText.trim()) params.set("q", debouncedText.trim());
+    const busca = params.toString();
+    const destino = window.location.pathname + (busca ? `?${busca}` : "");
+    if (destino !== window.location.pathname + window.location.search) {
+      window.history.replaceState(null, "", destino);
     }
-  }, []);
+  }, [category, debouncedText]);
 
   useEffect(() => {
     getCidadesComAnuncio().then(setCidades);

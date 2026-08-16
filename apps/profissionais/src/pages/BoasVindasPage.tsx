@@ -22,7 +22,14 @@ const FEATURES = [
   },
   {
     title: "Quem já chamou conta como foi",
-    text: "Só quem tem conta e CPF confirmado avalia. Em vez de escrever um texto, a pessoa toca em estrelas e etiquetas — leva segundos.",
+    /* O CPF saiu do app na migration 0033 — guardá-lo para liberar um
+       comentário era coleta excessiva, e ele nunca foi conferido contra
+       coisa nenhuma. Esta frase ficou para trás e passou a mentir na pior
+       direção possível: prometia a quem lê um rigor que não existe, e
+       avisava quem ia avaliar que precisaria de um documento que o app não
+       pede. O que de fato distingue uma avaliação hoje é a etiqueta de
+       quem chamou pelo app, calculada no servidor. */
+    text: "Quem avalia precisa ter conta, e quem chamou pelo app ganha uma etiqueta na avaliação. Em vez de escrever um texto, a pessoa toca em estrelas e etiquetas — leva segundos.",
   },
   {
     title: "Fale direto com a pessoa",
