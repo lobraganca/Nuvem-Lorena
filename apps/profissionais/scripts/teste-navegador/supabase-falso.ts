@@ -136,11 +136,43 @@ class Consulta implements PromiseLike<{ data: Linha[] | Linha | null; error: unk
   }
 }
 
+/**
+ * Sessão de mentira, ligada pelo `localStorage`.
+ *
+ * Sem isto o falso só sabia representar visitante deslogado, e as telas de
+ * conta ficavam fora de alcance do teste — foi assim que a barreira do
+ * número confirmado quase entrou sem nunca ter sido aberta no navegador.
+ *
+ * `falso-usuario` vale "google" (entrou pelo Google, sem número — é quem a
+ * barreira precisa parar) ou "telefone" (entrou pelo SMS, número já
+ * confirmado — é quem ela precisa deixar passar).
+ */
+function usuarioFalso() {
+  const tipo = typeof localStorage === "undefined" ? null : localStorage.getItem("falso-usuario");
+  if (!tipo) return null;
+  return {
+    id: "00000000-0000-4000-8000-000000000001",
+    email: "pessoa@exemplo.com",
+    phone: tipo === "telefone" ? "5531999998888" : "",
+    phone_confirmed_at: tipo === "telefone" ? new Date().toISOString() : null,
+    app_metadata: {},
+    user_metadata: {},
+    aud: "authenticated",
+    created_at: new Date().toISOString(),
+  };
+}
+
 const auth = {
-  getSession: async () => ({ data: { session: null }, error: null }),
-  getUser: async () => ({ data: { user: null }, error: null }),
+  getSession: async () => {
+    const user = usuarioFalso();
+    return { data: { session: user ? { user } : null }, error: null };
+  },
+  getUser: async () => ({ data: { user: usuarioFalso() }, error: null }),
   onAuthStateChange: () => ({ data: { subscription: { unsubscribe() {} } } }),
-  signOut: async () => ({ error: null }),
+  signOut: async () => {
+    localStorage.removeItem("falso-usuario");
+    return { error: null };
+  },
 };
 
 const clienteFalso = {

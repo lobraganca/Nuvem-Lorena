@@ -7,6 +7,7 @@ import { AvisoDeVersao } from "./AvisoDeVersao";
 import { useAuth } from "../lib/useAuth";
 import { useOnlineCount } from "../lib/presence";
 import { MarcaProcuro } from "./MarcaProcuro";
+import { ExigirNumero, exigeNumero } from "./ExigirNumero";
 
 /* Etiqueta de preço: diz "aqui tem oferta" sem a agressividade do megafone,
    que num app de serviços lê como spam. */
@@ -316,7 +317,12 @@ export function AppShell({ children }: { children: ReactNode }) {
       {/* `app-content` também na tela de início: é ele que reserva o espaço
           da barra embaixo. Sem isso, o último botão da apresentação fica
           escondido atrás dela. */}
-      <div className="app-content">{children}</div>
+      {/* A barreira do número envolve só as telas de conta. A busca fica
+          de fora de propósito: ela funciona sem conta, e é o motivo de o
+          app existir. */}
+      <div className="app-content">
+        {exigeNumero(path) ? <ExigirNumero>{children}</ExigirNumero> : children}
+      </div>
       {(
       <nav className="bottom-nav">
         {/* Voltar em primeiro, à esquerda: é onde o dedo já procura e é a

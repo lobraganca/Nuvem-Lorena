@@ -5222,3 +5222,125 @@ h3 {
   height: 17px;
   flex: none;
 }
+
+/* --- Tela de entrar, com três portas -------------------------------- */
+
+.entrar-pagina {
+  max-width: 420px;
+  padding-top: 40px;
+  padding-bottom: 40px;
+}
+
+.entrar-pagina h1 {
+  margin-bottom: 4px;
+}
+
+/* Cada caminho num bloco próprio, com contorno: sem isso, os campos do
+   telefone e os do e-mail viram uma coluna só de caixas, e não fica claro
+   qual botão pertence a quê. */
+.entrar-bloco {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 18px;
+  padding: 16px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius);
+  background: var(--color-surface);
+}
+
+.entrar-rotulo {
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: var(--color-text-muted);
+}
+
+.entrar-secundario {
+  margin-top: 2px;
+}
+
+.entrar-dica {
+  margin: 6px 0 0;
+  font-size: 0.8rem;
+}
+
+/* O "ou" com um risco de cada lado — é o que diz que os caminhos são
+   alternativos, e não etapas de uma sequência. */
+.entrar-ou {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 20px 0 14px;
+  color: var(--color-text-muted);
+  font-size: 0.82rem;
+}
+
+.entrar-ou::before,
+.entrar-ou::after {
+  content: "";
+  flex: 1;
+  height: 1px;
+  background: var(--color-border);
+}
+
+.entrar-link {
+  align-self: flex-start;
+  margin-top: 12px;
+  padding: 6px 0;
+  background: none;
+  border: 0;
+  font: inherit;
+  font-size: 0.86rem;
+  font-weight: 600;
+  color: var(--color-primary);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  cursor: pointer;
+}
+
+.entrar-link:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+
+.entrar-alternativas {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0 18px;
+}
+
+.entrar-aviso {
+  margin-top: 14px;
+  padding: 10px 12px;
+  border-radius: 12px;
+  background: var(--color-gold-tint);
+  border: 1px solid var(--color-gold-line);
+  font-size: 0.86rem;
+}
+
+.entrar-erro {
+  margin-top: 14px;
+  color: var(--color-danger);
+  font-size: 0.88rem;
+}
+
+/* A barreira do número confirmado, nas telas de conta. */
+.exigir-numero {
+  max-width: 460px;
+  padding-top: 40px;
+  padding-bottom: 40px;
+}
+
+.exigir-numero .btn-primary {
+  margin-top: 18px;
+}
+
+/* As saídas ficam visíveis sem rolar: barreira sem saída perde a pessoa
+   em vez de ganhar o dado. */
+.exigir-numero-saidas {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 4px;
+  margin-top: 22px;
+}

@@ -1,39 +1,246 @@
 import { useState } from "react";
-import { signInWithGoogle } from "../lib/auth";
+import {
+  conferirCodigoDeEntrada,
+  criarContaComEmail,
+  entrarComEmail,
+  entrarComTelefone,
+  recuperarSenha,
+  signInWithGoogle,
+} from "../lib/auth";
 import { hasDatabase } from "../lib/supabase";
 import { BotaoApple } from "../components/BotaoApple";
 import { BotaoGoogle } from "../components/BotaoGoogle";
 import { useTituloDaPagina } from "../lib/tituloDaPagina";
 import { mensagemDeErro } from "../lib/erros";
+import { formatPhone } from "../lib/phone";
 
+/**
+ * Entrar: pelo telefone, pelo Google, ou por e-mail e senha.
+ *
+ * O Google era a única porta, e isso deixava de fora quem não tem conta
+ * Google no celular, quem tem e não lembra a senha, e quem simplesmente não
+ * quer entrar com ela. Numa cidade pequena, essas três somam gente demais.
+ *
+ * O telefone vem primeiro por dois motivos. Para quem entra, é o caminho
+ * mais curto que existe: sem senha para criar, sem senha para lembrar, sem
+ * e-mail para confirmar. Para o app, é o único que entrega o número
+ * confirmado sem precisar pedir nada — e o número é o que permite avisar
+ * alguém de que apareceu um cliente.
+ *
+ * E-mail e senha ficam recolhidos atrás de um toque. Não por serem piores,
+ * mas porque quem quer esse caminho já sabe que quer, e quem não quer não
+ * precisa ler dois campos a mais para achar o que veio fazer.
+ */
 export function LoginPage() {
   useTituloDaPagina("Entrar");
   const [error, setError] = useState("");
+  const [aviso, setAviso] = useState("");
 
-  async function handleGoogleLogin() {
+  const [telefone, setTelefone] = useState("");
+  const [codigo, setCodigo] = useState("");
+  const [passoTelefone, setPassoTelefone] = useState<"numero" | "codigo">("numero");
+  const [enviando, setEnviando] = useState(false);
+
+  const [comEmail, setComEmail] = useState(false);
+  const [criando, setCriando] = useState(false);
+  const [email, setEmail] = useState("");
+  const [senha, setSenha] = useState("");
+
+  function limpar() {
     setError("");
+    setAviso("");
+  }
+
+  async function tentar(acao: () => Promise<void>, aoDarCerto?: () => void) {
+    limpar();
+    setEnviando(true);
     try {
-      await signInWithGoogle("/perfil");
+      await acao();
+      aoDarCerto?.();
     } catch (err) {
-      setError(mensagemDeErro(err, "Não foi possível iniciar o login."));
+      setError(mensagemDeErro(err, "Não foi possível continuar."));
+    } finally {
+      setEnviando(false);
     }
   }
 
   return (
-    <div className="container" style={{ maxWidth: 420, paddingTop: 60, textAlign: "center" }}>
+    <div className="container entrar-pagina">
       <h1>Entrar</h1>
-      <p className="muted">Use sua conta Google para buscar, avaliar e cadastrar seus serviços.</p>
-      <div style={{ marginTop: 20 }}>
-        <BotaoGoogle onClick={handleGoogleLogin} disabled={!hasDatabase()} />
-      </div>
-      <p className="muted" style={{ marginTop: 12, fontSize: "0.85rem" }}>
+      <p className="muted">
+        Para avaliar, salvar favoritos e cadastrar os seus serviços. Buscar continua livre, sem conta.
+      </p>
+
+      {!hasDatabase() && (
+        <p className="muted" style={{ marginTop: 10 }}>
+          Configure VITE_SUPABASE_URL/ANON_KEY no Supabase para habilitar a entrada.
+        </p>
+      )}
+
+      {/* --- Telefone: o caminho principal ---------------------------- */}
+      <section className="entrar-bloco">
+        {passoTelefone === "numero" ? (
+          <>
+            <label className="entrar-rotulo" htmlFor="entrar-telefone">
+              Seu celular
+            </label>
+            <input
+              id="entrar-telefone"
+              type="tel"
+              inputMode="numeric"
+              autoComplete="tel"
+              placeholder="(31) 99999-9999"
+              value={telefone}
+              onChange={(e) => setTelefone(formatPhone(e.target.value))}
+              disabled={!hasDatabase() || enviando}
+            />
+            <button
+              type="button"
+              className="btn btn-primary btn-block"
+              disabled={!hasDatabase() || enviando || telefone.length < 14}
+              onClick={() =>
+                tentar(
+                  () => entrarComTelefone(telefone),
+                  () => {
+                    setPassoTelefone("codigo");
+                    setAviso("Enviamos um código por SMS. Ele chega em alguns segundos.");
+                  }
+                )
+              }
+            >
+              {enviando ? "Enviando…" : "Receber código por SMS"}
+            </button>
+            <p className="muted entrar-dica">
+              Sem senha para criar nem lembrar. O número fica sendo seu jeito de entrar.
+            </p>
+          </>
+        ) : (
+          <>
+            <label className="entrar-rotulo" htmlFor="entrar-codigo">
+              Código enviado para {telefone}
+            </label>
+            <input
+              id="entrar-codigo"
+              type="text"
+              inputMode="numeric"
+              autoComplete="one-time-code"
+              placeholder="000000"
+              value={codigo}
+              onChange={(e) => setCodigo(e.target.value.replace(/\D/g, "").slice(0, 6))}
+              disabled={enviando}
+            />
+            <button
+              type="button"
+              className="btn btn-primary btn-block"
+              disabled={enviando || codigo.length < 4}
+              onClick={() => tentar(() => conferirCodigoDeEntrada(telefone, codigo))}
+            >
+              {enviando ? "Conferindo…" : "Entrar"}
+            </button>
+            <button
+              type="button"
+              className="btn btn-outline btn-block entrar-secundario"
+              disabled={enviando}
+              onClick={() => {
+                setPassoTelefone("numero");
+                setCodigo("");
+                limpar();
+              }}
+            >
+              Trocar o número
+            </button>
+          </>
+        )}
+      </section>
+
+      <p className="entrar-ou">ou</p>
+
+      <BotaoGoogle onClick={() => tentar(() => signInWithGoogle("/perfil"))} disabled={!hasDatabase()} />
+      <BotaoApple voltarPara="/perfil" onErro={setError} />
+
+      {/* --- E-mail e senha: recolhido ------------------------------- */}
+      {!comEmail ? (
+        <button type="button" className="entrar-link" onClick={() => setComEmail(true)}>
+          Entrar com e-mail e senha
+        </button>
+      ) : (
+        <section className="entrar-bloco">
+          <label className="entrar-rotulo" htmlFor="entrar-email">
+            E-mail
+          </label>
+          <input
+            id="entrar-email"
+            type="email"
+            autoComplete="email"
+            placeholder="voce@exemplo.com"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            disabled={enviando}
+          />
+          <label className="entrar-rotulo" htmlFor="entrar-senha">
+            Senha
+          </label>
+          <input
+            id="entrar-senha"
+            type="password"
+            autoComplete={criando ? "new-password" : "current-password"}
+            placeholder={criando ? "Pelo menos 8 caracteres" : "Sua senha"}
+            value={senha}
+            onChange={(e) => setSenha(e.target.value)}
+            disabled={enviando}
+          />
+          <button
+            type="button"
+            className="btn btn-primary btn-block"
+            /* Criando, o mínimo é 8 — o mesmo que `criarContaComEmail`
+               cobra. Deixar o botão aceso com 5 caracteres só adiava a
+               recusa para depois do toque. Entrando, qualquer tamanho
+               serve: quem já tem senha curta de antes precisa poder usá-la. */
+            disabled={enviando || !email.includes("@") || senha.length < (criando ? 8 : 4)}
+            onClick={() =>
+              criando
+                ? tentar(
+                    () => criarContaComEmail(email, senha),
+                    () =>
+                      setAviso(
+                        "Conta criada. Confirme pelo link que enviamos para o seu e-mail — olhe também o lixo eletrônico."
+                      )
+                  )
+                : tentar(() => entrarComEmail(email, senha))
+            }
+          >
+            {enviando ? "Aguarde…" : criando ? "Criar conta" : "Entrar"}
+          </button>
+
+          <div className="entrar-alternativas">
+            <button type="button" className="entrar-link" onClick={() => { setCriando(!criando); limpar(); }}>
+              {criando ? "Já tenho conta" : "Criar uma conta"}
+            </button>
+            {!criando && (
+              <button
+                type="button"
+                className="entrar-link"
+                disabled={!email.includes("@")}
+                onClick={() =>
+                  tentar(
+                    () => recuperarSenha(email),
+                    () => setAviso("Se existir conta com este e-mail, o link de nova senha chega nele.")
+                  )
+                }
+              >
+                Esqueci a senha
+              </button>
+            )}
+          </div>
+        </section>
+      )}
+
+      {aviso && <p className="entrar-aviso">{aviso}</p>}
+      {error && <p className="entrar-erro">{error}</p>}
+
+      <p className="muted entrar-dica">
         Você continua conectado neste aparelho — só sai quando tocar em <strong>Sair</strong>.
       </p>
-      {!hasDatabase() && <p className="muted" style={{ marginTop: 10 }}>Configure VITE_SUPABASE_URL/ANON_KEY e o provider Google no Supabase para habilitar o login.</p>}
-      <div style={{ marginTop: 10 }}>
-        <BotaoApple voltarPara="/perfil" onErro={setError} />
-      </div>
-      {error && <p style={{ color: "var(--color-danger)", marginTop: 10 }}>{error}</p>}
     </div>
   );
 }
