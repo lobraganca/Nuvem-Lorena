@@ -1558,32 +1558,37 @@ textarea::placeholder {
   pointer-events: none;
 }
 
-/* Branco, com contorno que dá para ver.
+/* Dourado bem claro — o acento da marca, que até aqui só existia no "ô"
+   do wordmark e no selo.
 
-   O campo era cinza-azulado (#eaeef4) com uma borda #cdd6e2 em volta.
-   Medidos, os dois davam **1,26:1** um contra o outro: a borda não
-   existia. Sobrava um retângulo cinza-claro numa página branca — e campo
-   cinza sem contorno é o desenho universal de campo desativado. Era isso
-   que a dona estava vendo quando disse que a barra estava apagada.
+   O campo já foi cinza-azulado (#eaeef4) com borda #cdd6e2: medidos, os
+   dois davam 1,26:1 um contra o outro, a borda não existia, e sobrava um
+   retângulo cinza numa página branca — o desenho universal de campo
+   desativado. Depois ficou branco com contorno azul, o que resolveu o
+   contraste e não resolveu a impressão: continuava sendo mais um retângulo
+   claro no meio de outros.
 
-   A justificativa antiga era que o cinza igualava o campo aos filtros
-   logo abaixo, para o bloco ler como uma peça só. Ela caducou sem
-   ninguém notar: os filtros viraram brancos depois disso, justamente para
-   a busca ser o único elemento preenchido do bloco. O campo continuou
-   cinza sozinho, invertendo o efeito — o único apagado no meio dos
-   brancos.
+   O dourado resolve as duas coisas juntas. É a única cor quente do app,
+   então o campo para de disputar com os brancos e cinzas em volta por
+   diferença de tom e passa a se distinguir por diferença de temperatura,
+   que o olho pega antes de comparar nada.
 
-   Agora ele é o mais claro e o mais contornado. Medido: texto digitado a
-   17,48:1, o texto de exemplo a 5,45:1 (era 4,68) e a borda a 3,37:1
-   contra o branco — acima dos 3:1 que se pede para contorno que carrega
-   significado. */
+   O contorno é obrigatório aqui, e não é enfeite: o preenchimento sozinho
+   dá 1,16:1 contra a página branca — quase nada. Quem separa o campo do
+   fundo é a borda, no dourado cheio da marca: 3,23:1 contra a página,
+   acima dos 3:1 pedidos para contorno que carrega significado.
+
+   Medido dentro do campo: texto digitado 15,06:1 e texto de exemplo
+   4,70:1 — os dois acima do mínimo, e o exemplo melhor do que era no
+   cinza (4,68).
+
+   O foco continua virando azul: mudar de cor, e não só de espessura, é o
+   que avisa que o campo está pronto para receber texto. */
 .search-input {
   padding: 16px 18px 16px 46px;
   font-size: 1rem;
-  background: var(--color-surface);
-  /* Navy da marca a 55%: é o ponto em que o contorno passa de 3:1 sem
-     virar a moldura grossa de um campo em foco. */
-  border: 1.6px solid rgba(18, 48, 94, 0.55);
+  background: #f9edd5;
+  border: 1.6px solid var(--color-gold-mid);
   border-radius: 999px;
   box-shadow: var(--shadow-card);
 }
