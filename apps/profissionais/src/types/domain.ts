@@ -23,6 +23,8 @@ export interface Professional {
   /** Recorte dentro do ofício: "Ortodontia", "Pintura residencial". */
   especialidade: string | null;
   city: string;
+  /** Sigla do estado. Anda sempre junto com `city`. */
+  uf: string;
   bio: string;
   phone: string; // telefone para ligação
   whatsapp: string | null;
@@ -570,4 +572,32 @@ export const CREDIT_PACKS = [10, 25, 50] as const;
 
 export const DEFAULT_CITY = "Itabirito";
 
+export const DEFAULT_UF = "MG";
+
+/**
+ * As cidades onde o procurô nasceu.
+ *
+ * Deixou de ser a lista do que o app aceita: qualquer cidade do Brasil pode
+ * ter cadastro. Continua servindo às telas de venda de publicidade, que são
+ * as que ainda operam por praça conhecida.
+ */
 export const CITIES = [DEFAULT_CITY, "Ouro Preto", "Belo Horizonte", "Congonhas"] as const;
+
+/**
+ * As 27 siglas, para o seletor de estado.
+ *
+ * Cidade sem estado não identifica lugar nenhum no Brasil: há "Bom Jesus" em
+ * mais de vinte estados, e "Santa Maria", "Boa Vista" e "Bela Vista"
+ * espalhadas pelo país. Sem a sigla, duas cidades distantes viram a mesma
+ * busca — e a lista vem com gente dentro, sem erro nenhum na tela.
+ */
+export const UFS = [
+  "AC", "AL", "AP", "AM", "BA", "CE", "DF", "ES", "GO", "MA", "MT", "MS",
+  "MG", "PA", "PB", "PR", "PE", "PI", "RJ", "RN", "RS", "RO", "RR", "SC",
+  "SP", "SE", "TO",
+] as const;
+
+/** "Itabirito/MG" — como cidade e estado aparecem escritos em toda tela. */
+export function cidadeComEstado(city: string, uf: string): string {
+  return uf ? `${city}/${uf}` : city;
+}

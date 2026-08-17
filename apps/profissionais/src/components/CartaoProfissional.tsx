@@ -1,6 +1,7 @@
 import { Link } from "react-router-dom";
 import { isCurrentlyBoosted, isCurrentlyVerified, type ProfessionalWithRating } from "../lib/professionals";
 import { corDoNome, iniciais } from "../lib/avatar";
+import { cidadeComEstado } from "../types/domain";
 import { Estrelas } from "./Estrelas";
 import { FavoriteButton } from "./FavoriteButton";
 import { VerifiedBadge } from "./VerifiedBadge";
@@ -68,7 +69,7 @@ export function CartaoProfissional({
           </div>
           <p className="muted" style={{ margin: "4px 0" }}>
             {p.category}
-            {(p.categories?.length ?? 0) > 1 && ` +${p.categories.length - 1}`} · {p.city}
+            {(p.categories?.length ?? 0) > 1 && ` +${p.categories.length - 1}`} · {cidadeComEstado(p.city, p.uf)}
           </p>
           {/* A especialidade vem numa linha só dela, e não colada na
               categoria: é o que decide entre dois cadastros do mesmo ofício,

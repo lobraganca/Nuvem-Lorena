@@ -20,7 +20,7 @@ import {
   requestContact,
   type ProfessionalWithRating,
 } from "../lib/professionals";
-import { REPORT_REASONS, tagsForRating, tagsPromptForRating, type Review, type ServicoOferecido } from "../types/domain";
+import { REPORT_REASONS, cidadeComEstado, tagsForRating, tagsPromptForRating, type Review, type ServicoOferecido } from "../types/domain";
 import { useAuth } from "../lib/useAuth";
 import { FavoriteButton } from "../components/FavoriteButton";
 import { BottomSheet } from "../components/BottomSheet";
@@ -130,7 +130,7 @@ export function ProfessionalPage() {
   async function compartilhar() {
     if (!professional) return;
     const url = window.location.href;
-    const texto = `${professional.name} — ${professional.category} em ${professional.city}`;
+    const texto = `${professional.name} — ${professional.category} em ${cidadeComEstado(professional.city, professional.uf)}`;
     try {
       if (navigator.share) {
         await navigator.share({ title: professional.name, text: texto, url });
@@ -470,7 +470,7 @@ export function ProfessionalPage() {
                 {professional.name} {verified && <VerifiedBadge size={20} />}
               </h1>
               <p className="muted">
-                {professional.category} · {professional.city}
+                {professional.category} · {cidadeComEstado(professional.city, professional.uf)}
               </p>
               {professional.especialidade && (
                 <p className="card-especialidade">{professional.especialidade}</p>

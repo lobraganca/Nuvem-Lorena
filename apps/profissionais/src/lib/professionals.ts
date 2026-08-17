@@ -51,6 +51,8 @@ function embaralhar<T extends { id: string }>(itens: T[]): T[] {
 
 export interface SearchFilters {
   city?: string;
+  /** Sigla do estado. Só tem sentido acompanhada de `city`. */
+  uf?: string;
   category?: string;
   text?: string;
   minRating?: number;
@@ -116,6 +118,10 @@ export async function searchProfessionals(filters: SearchFilters): Promise<Profe
     .range(page * pageSize, page * pageSize + pageSize - 1);
 
   if (filters.city) query = query.eq("city", filters.city);
+  /* O estado entra junto com a cidade, nunca sozinho: filtrar só por
+     "Bom Jesus" num app nacional devolve os Bom Jesus de vinte estados
+     misturados, e a lista vem cheia, sem erro nenhum na tela. */
+  if (filters.uf) query = query.eq("uf", filters.uf);
   // Casa com qualquer um dos serviços do cadastro, não só o principal.
   if (filters.category) query = query.contains("categories", [filters.category]);
   if (filters.text) {
@@ -1029,17 +1035,45 @@ export async function updateContactRequestStatus(
  * lá a pessoa precisa poder escolher uma cidade que ainda não existe na base
  * — é ela quem estreia a cidade.
  */
-export async function getCidadesComAnuncio(): Promise<string[]> {
+export interface CidadeAtendida {
+  city: string;
+  uf: string;
+  /** Quantos cadastros existem ali. Ordena a lista e alimenta o "N profissionais". */
+  quantos: number;
+}
+
+/**
+ * As cidades onde existe alguém cadastrado, da mais cheia para a mais vazia.
+ *
+ * É esta lista que o seletor de cidade oferece, e não os 5.570 municípios do
+ * país. A diferença não é de conveniência: oferecer uma cidade vazia é
+ * prometer uma busca que volta sem ninguém, e quem passa por isso na
+ * primeira visita não costuma voltar. Cidade sem cadastro não é uma opção —
+ * é um convite a indicar alguém, e a tela de busca vazia faz esse convite.
+ *
+ * Cidade e estado andam colados aqui pelo mesmo motivo de sempre: "Bom
+ * Jesus" sozinho não diz qual dos vinte.
+ */
+export async function getCidadesComAnuncio(): Promise<CidadeAtendida[]> {
   const client = supabase();
   if (!client) return [];
-  const { data, error } = await client.from("professionals_public").select("city");
+  const { data, error } = await client.from("professionals_public").select("city, uf");
   if (error) throw error;
   if (!data) return [];
-  const unicas = new Set<string>();
-  for (const linha of data) {
-    if (linha.city) unicas.add(linha.city as string);
+
+  const contagem = new Map<string, CidadeAtendida>();
+  for (const linha of data as { city: string | null; uf: string | null }[]) {
+    if (!linha.city) continue;
+    const uf = linha.uf ?? "";
+    const chave = `${linha.city}\u0000${uf}`;
+    const atual = contagem.get(chave);
+    if (atual) atual.quantos += 1;
+    else contagem.set(chave, { city: linha.city, uf, quantos: 1 });
   }
-  return [...unicas].sort((a, b) => a.localeCompare(b, "pt-BR"));
+
+  return [...contagem.values()].sort(
+    (a, b) => b.quantos - a.quantos || a.city.localeCompare(b.city, "pt-BR")
+  );
 }
 
 /**

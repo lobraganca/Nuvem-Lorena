@@ -5375,14 +5375,53 @@ h3 {
 /* Recado de quando o CEP aponta uma cidade que o app não atende. Âmbar,
    e não vermelho: nada deu errado — a pessoa só precisa saber por que a
    cidade não mudou sozinha, senão ela repete o CEP achando que falhou. */
-.aviso-cidade {
-  background: var(--color-gold-tint);
-  border: 1px solid var(--color-gold-line);
-  border-radius: var(--radius);
-  padding: 10px 14px;
-  margin: 8px 0 0;
-  font-size: 0.88rem;
-  line-height: 1.45;
+/* O aviso de cidade não atendida saiu junto com a lista fechada de
+   cidades: agora toda cidade do Brasil é atendida, e não há o que avisar.
+   A regra fica porque `.dica-cidade` reusa o mesmo tom. */
+.dica-cidade {
+  margin: 6px 0 0;
+  font-size: 0.84rem;
+}
+
+/* Cidade escrita e estado escolhido, lado a lado. O estado é curto e tem
+   largura fixa: deixá-lo crescer junto com a cidade daria a ele metade da
+   linha para mostrar duas letras. */
+.campo-cidade-estado {
+  display: flex;
+  gap: 8px;
+}
+
+.campo-cidade-estado input {
+  flex: 1;
+  min-width: 0;
+}
+
+.campo-cidade-estado select {
+  flex: 0 0 5.5rem;
+}
+
+/* Busca dentro da folha de cidades. Só aparece quando a lista passa de
+   oito — antes disso ela cabe na tela e o campo seria um degrau a mais. */
+.filtro-cidade {
+  width: 100%;
+  margin-bottom: 12px;
+}
+
+/* Quantos profissionais há na cidade, à direita do nome. Cinza e menor: é
+   contexto para a escolha, não a escolha. */
+.linha-cidade-quantos {
+  color: var(--color-text-muted);
+  font-size: 0.82rem;
+  font-variant-numeric: tabular-nums;
+}
+
+/* A linha vira duas colunas por causa do número à direita. O seletor
+   antigo tinha só o nome, então nada aqui muda para quem já usava. */
+.lista-cidades .linha-cidade {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 12px;
 }
 
 /* ---------------------------------------------------------------

@@ -14,6 +14,8 @@ export interface EnderecoDoCep {
   street: string;
   neighborhood: string;
   city: string;
+  /** Sigla do estado. Vem junto com a cidade e nunca deve ser separada dela. */
+  uf: string;
 }
 
 export function formatCep(valor: string): string {
@@ -34,6 +36,7 @@ export async function buscarCep(cep: string): Promise<EnderecoDoCep | null> {
       logradouro?: string;
       bairro?: string;
       localidade?: string;
+      uf?: string;
     };
     // CEP inexistente vem com `erro: true` e status 200 — não dá para
     // confiar só no código da resposta.
@@ -42,6 +45,10 @@ export async function buscarCep(cep: string): Promise<EnderecoDoCep | null> {
       street: dados.logradouro ?? "",
       neighborhood: dados.bairro ?? "",
       city: dados.localidade ?? "",
+      /* Em maiúsculas por garantia: a coluna do banco só aceita as 27
+         siglas escritas assim, e um "mg" minúsculo criaria uma cidade
+         paralela que ninguém encontra. */
+      uf: (dados.uf ?? "").toUpperCase(),
     };
   } catch {
     return null;

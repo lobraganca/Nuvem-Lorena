@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { Link, Navigate } from "react-router-dom";
-import { DEFAULT_CITY, GRUPOS_DE_SERVICOS } from "../types/domain";
+import { DEFAULT_CITY, GRUPOS_DE_SERVICOS, cidadeComEstado } from "../types/domain";
 import { IconeDeServico } from "../components/IconeDeServico";
 import { Prateleira } from "../components/Prateleira";
 import { CartaoVitrine } from "../components/CartaoVitrine";
@@ -14,6 +14,7 @@ import {
   isCurrentlyBoosted,
   isCurrentlyVerified,
   searchProfessionals,
+  type CidadeAtendida,
   type ProfessionalWithRating,
   type SortOption,
 } from "../lib/professionals";
@@ -64,8 +65,17 @@ const TOUR_STEPS: TourStep[] = [
 export function HomePage() {
   useTituloDaPagina();
   const [city, setCity] = useState<string>("");
-  const [cidades, setCidades] = useState<string[]>([]);
+  /* O estado anda junto com a cidade em toda parte. Guardado à parte por
+     ser assim que a busca o recebe, mas os dois são sempre escolhidos e
+     limpos juntos — cidade sem estado num app nacional junta os "Bom
+     Jesus" de vinte estados na mesma lista. */
+  const [uf, setUf] = useState<string>("");
+  const [cidades, setCidades] = useState<CidadeAtendida[]>([]);
   const [cidadeAberta, setCidadeAberta] = useState(false);
+  /* Filtro de digitação da folha de cidades. Com quatro cidades não fazia
+     falta; com o app aberto ao país, a lista cresce com a base e rolar
+     até achar a sua deixa de ser possível. */
+  const [filtroDeCidade, setFiltroDeCidade] = useState("");
   /**
    * A busca mora no endereço — e é isso que faz o "voltar" funcionar.
    *
@@ -345,6 +355,7 @@ export function HomePage() {
     setPage(0);
     searchProfessionals({
       city: city || undefined,
+      uf: uf || undefined,
       category: category || undefined,
       text: debouncedText || undefined,
       minRating: minRating || undefined,
@@ -362,7 +373,7 @@ export function HomePage() {
       setLoading(false);
       setErroBusca(mensagemDeErro(err, "Não conseguimos buscar agora."));
     });
-  }, [buscouAlgo, city, category, debouncedText, minRating, sort, tentativa]);
+  }, [buscouAlgo, city, uf, category, debouncedText, minRating, sort, tentativa]);
 
   async function loadMore() {
     const nextPage = page + 1;
@@ -371,6 +382,7 @@ export function HomePage() {
     try {
       const data = await searchProfessionals({
         city: city || undefined,
+        uf: uf || undefined,
         category: category || undefined,
         text: debouncedText || undefined,
         minRating: minRating || undefined,
@@ -417,38 +429,75 @@ export function HomePage() {
           </svg>
         </span>
         <span className="endereco-topo-texto">
-          <strong>{city || "Todas as cidades"}</strong>
+          <strong>{city ? cidadeComEstado(city, uf) : "Todas as cidades"}</strong>
           <span className="endereco-topo-dica">{city ? "Toque para trocar" : "Toque para escolher a sua"}</span>
         </span>
         <span className="endereco-topo-seta" aria-hidden="true">›</span>
       </button>
 
       {cidadeAberta && (
-        <BottomSheet title="De qual cidade?" onClose={() => setCidadeAberta(false)}>
+        <BottomSheet
+          title="De qual cidade?"
+          onClose={() => {
+            setCidadeAberta(false);
+            setFiltroDeCidade("");
+          }}
+        >
+          {/* Só aparecem cidades onde existe alguém cadastrado, e não os
+              5.570 municípios do país. Oferecer uma cidade vazia é
+              prometer uma busca que volta sem ninguém — e quem passa por
+              isso na primeira visita raramente volta. Cidade sem cadastro
+              não é uma opção da lista: é o convite a indicar alguém, que
+              a busca vazia faz. */}
+          {cidades.length > 8 && (
+            <input
+              className="filtro-cidade"
+              placeholder="Buscar cidade"
+              value={filtroDeCidade}
+              onChange={(e) => setFiltroDeCidade(e.target.value)}
+              aria-label="Buscar cidade"
+            />
+          )}
           <div className="lista-cidades">
             <button
               type="button"
               className={`linha-cidade${city === "" ? " ativa" : ""}`}
               onClick={() => {
                 setCity("");
+                setUf("");
                 setCidadeAberta(false);
+                setFiltroDeCidade("");
               }}
             >
               Todas as cidades
             </button>
-            {cidades.map((c) => (
-              <button
-                key={c}
-                type="button"
-                className={`linha-cidade${city === c ? " ativa" : ""}`}
-                onClick={() => {
-                  setCity(c);
-                  setCidadeAberta(false);
-                }}
-              >
-                {c}
-              </button>
-            ))}
+            {cidades
+              .filter((c) =>
+                filtroDeCidade.trim() === ""
+                  ? true
+                  : `${c.city} ${c.uf}`.toLowerCase().includes(filtroDeCidade.trim().toLowerCase())
+              )
+              .map((c) => (
+                <button
+                  key={`${c.city}-${c.uf}`}
+                  type="button"
+                  className={`linha-cidade${city === c.city && uf === c.uf ? " ativa" : ""}`}
+                  onClick={() => {
+                    setCity(c.city);
+                    setUf(c.uf);
+                    setCidadeAberta(false);
+                    setFiltroDeCidade("");
+                  }}
+                >
+                  <span>{cidadeComEstado(c.city, c.uf)}</span>
+                  {/* Quantos há ali: é o que separa "esta cidade funciona"
+                      de "esta cidade tem uma pessoa". Quem escolhe sabendo
+                      não se frustra com a lista curta que vem depois. */}
+                  <span className="linha-cidade-quantos">
+                    {c.quantos} {c.quantos === 1 ? "profissional" : "profissionais"}
+                  </span>
+                </button>
+              ))}
           </div>
         </BottomSheet>
       )}
@@ -814,15 +863,26 @@ export function HomePage() {
              a informação — o que falta na cidade e quem poderia preencher —
              ia junto. */
           <div className="card vazio-indicar">
-            <strong>Não achamos ninguém com esses filtros.</strong>
+            {/* Numa cidade recém-aberta, "não achamos ninguém com esses
+                filtros" manda a pessoa mexer em filtro — e não é disso
+                que se trata: a cidade dela ainda não tem gente. Dizer o
+                que de fato aconteceu é o que transforma uma busca vazia
+                num convite em vez de numa decepção, e é assim que o app
+                entra numa cidade nova: por quem já está lá. */}
+            <strong>
+              {city
+                ? `Ainda não há ninguém assim em ${cidadeComEstado(city, uf)}.`
+                : "Não achamos ninguém com esses filtros."}
+            </strong>
             <button className="btn btn-primary" onClick={() => setIndicarAberto(true)}>
               Indicar um profissional
             </button>
             {/* Explicação embaixo do botão: o título já diz o que houve, e
                 quem chegou aqui quer saber o que fazer, não ler primeiro. */}
             <p className="muted">
-              Tente outra categoria ou tire o filtro de nota. E se você conhece alguém que faz esse serviço,
-              indique — a gente convida.
+              {city
+                ? "O procurô é novo aí. Se você conhece alguém que faz esse serviço na sua cidade, indique — a gente convida, e é assim que o app começa em cada lugar."
+                : "Tente outra categoria ou tire o filtro de nota. E se você conhece alguém que faz esse serviço, indique — a gente convida."}
             </p>
           </div>
         )}
