@@ -126,7 +126,13 @@ button {
   position: sticky;
   top: 0;
   z-index: 45;
-  background: var(--color-surface);
+  /* A mesma cor da barra de baixo, a pedido da dona.
+     As duas são a moldura fixa do app — ficam paradas enquanto o conteúdo
+     rola — e vinham de cores diferentes: branco em cima, azul claro
+     embaixo. A tela lia como se a de cima fizesse parte da página e a de
+     baixo não. Iguais, as duas dizem a mesma coisa: isto aqui é o app, o
+     que está no meio é o conteúdo. */
+  background: var(--color-nav-bg);
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -141,7 +147,7 @@ button {
      zero, e nada muda. */
   padding-top: calc(18px + env(safe-area-inset-top));
   padding-bottom: 18px;
-  border-bottom: 1px solid var(--color-border);
+  border-bottom: 1px solid var(--color-nav-line);
 }
 
 .logo {
@@ -1191,6 +1197,11 @@ textarea::placeholder {
 .online-pill-topo {
   margin-top: 0;
   white-space: nowrap;
+  /* Branca, e não o cinza da pílula solta: o cabeçalho passou a ser azul
+     claro, e o cinza dela (#eaeef4) é quase o mesmo tom — a pílula sumia,
+     sobrando o pontinho verde solto no ar. Sobre o azul, quem separa é o
+     branco. */
+  background: var(--color-surface);
 }
 
 @media (max-width: 420px) {
@@ -1703,6 +1714,9 @@ textarea::placeholder {
 
 /* Ícone só, discreto — ao lado da logo, mas sem disputar com ela: quem
    olha reconhece a marca primeiro, o botão é achado por quem procura. */
+/* A casinha era transparente sobre o cabeçalho branco. Com o cabeçalho
+   azul, transparente virou azul, e o botão passou a ser só um contorno no
+   meio de um fundo colorido. Branco de volta o separa. */
 .btn-tela-inicial {
   display: inline-flex;
   align-items: center;
@@ -1712,7 +1726,7 @@ textarea::placeholder {
   border-radius: 999px;
   border: 1px solid var(--color-border);
   color: var(--color-text-muted);
-  background: transparent;
+  background: var(--color-surface);
 }
 
 .btn-tela-inicial:hover {
