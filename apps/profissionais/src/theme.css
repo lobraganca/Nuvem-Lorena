@@ -1558,25 +1558,32 @@ textarea::placeholder {
   pointer-events: none;
 }
 
-/* Cinza-azulado, o mesmo tom dos filtros logo abaixo — o bloco de busca
-   passa a ler como uma peça só, em vez de um campo branco solto em cima
-   de quatro caixas cinzas.
+/* Branco, com contorno que dá para ver.
 
-   A regra anterior deixava o campo branco "para não se confundir com o
-   fundo", e estava certa quando foi escrita: o fundo da página era
-   acinzentado. Depois o fundo virou branco e a justificativa se inverteu
-   sozinha — campo branco sobre página branca passou a depender só da
-   borda de 1px, que é o defeito que aquela regra queria corrigir.
+   O campo era cinza-azulado (#eaeef4) com uma borda #cdd6e2 em volta.
+   Medidos, os dois davam **1,26:1** um contra o outro: a borda não
+   existia. Sobrava um retângulo cinza-claro numa página branca — e campo
+   cinza sem contorno é o desenho universal de campo desativado. Era isso
+   que a dona estava vendo quando disse que a barra estava apagada.
 
-   O contorno firme e a sombra ficam: são eles que mantêm o campo como o
-   primeiro elemento da tela, agora que a cor não faz mais esse trabalho.
-   Medido: texto digitado a 15,01:1 e o texto de exemplo a 4,68:1, acima
-   do mínimo de 4,5. */
+   A justificativa antiga era que o cinza igualava o campo aos filtros
+   logo abaixo, para o bloco ler como uma peça só. Ela caducou sem
+   ninguém notar: os filtros viraram brancos depois disso, justamente para
+   a busca ser o único elemento preenchido do bloco. O campo continuou
+   cinza sozinho, invertendo o efeito — o único apagado no meio dos
+   brancos.
+
+   Agora ele é o mais claro e o mais contornado. Medido: texto digitado a
+   17,48:1, o texto de exemplo a 5,45:1 (era 4,68) e a borda a 3,37:1
+   contra o branco — acima dos 3:1 que se pede para contorno que carrega
+   significado. */
 .search-input {
   padding: 16px 18px 16px 46px;
   font-size: 1rem;
-  background: var(--color-bg-soft);
-  border: 1.5px solid var(--color-border-strong);
+  background: var(--color-surface);
+  /* Navy da marca a 55%: é o ponto em que o contorno passa de 3:1 sem
+     virar a moldura grossa de um campo em foco. */
+  border: 1.6px solid rgba(18, 48, 94, 0.55);
   border-radius: 999px;
   box-shadow: var(--shadow-card);
 }
