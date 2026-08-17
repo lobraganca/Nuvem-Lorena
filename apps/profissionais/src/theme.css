@@ -3440,9 +3440,8 @@ h3 {
   text-decoration: underline;
 }
 
-/* Telefone e e-mail não quebram no meio: "97147-" numa linha e "3162" na
-   outra deixa de ser um número, e quem for copiar copia errado. */
-.rodape-grupo a[href^="https://wa.me"],
+/* O e-mail não quebra no meio: partido, deixa de ser um endereço, e quem
+   for copiar copia errado. */
 .rodape-grupo a[href^="mailto:"] {
   white-space: nowrap;
 }
@@ -5186,18 +5185,25 @@ h3 {
    reservado ao WhatsApp desde o começo (`--color-accent-teal`). Diz para
    onde o toque leva antes de o texto ser lido.
 
-   Não ocupa a largura toda: botão largo no fim da página compete com o
-   conteúdo acima dele, e este não é o assunto principal de tela nenhuma. */
+   Não ocupa a largura toda, e é miúdo: botão grande no fim da página
+   compete com o conteúdo acima dele, e este não é o assunto principal de
+   tela nenhuma.
+
+   Medido, dá 33px de altura por 193 de largura. A altura fica abaixo dos
+   44px que se recomenda para alvo de toque, e isso é uma escolha, não um
+   descuido: o alvo é largo, está sozinho no fim da página — sem nada
+   colado em volta para errar — e o custo de errar é abrir uma conversa,
+   não apagar nada. */
 .botao-suporte {
   display: inline-flex;
   align-items: center;
-  gap: 8px;
-  margin-top: 20px;
-  padding: 10px 16px;
+  gap: 6px;
+  margin-top: 18px;
+  padding: 8px 14px;
   border-radius: 999px;
   background: var(--color-accent-teal);
   color: #fff;
-  font-size: 0.86rem;
+  font-size: 0.79rem;
   font-weight: 700;
   text-decoration: none;
 }
@@ -5208,7 +5214,7 @@ h3 {
 }
 
 .botao-suporte svg {
-  width: 20px;
-  height: 20px;
+  width: 17px;
+  height: 17px;
   flex: none;
 }

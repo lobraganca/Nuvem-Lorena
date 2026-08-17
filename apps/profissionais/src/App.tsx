@@ -14,7 +14,7 @@ import { sendSuggestion } from "./lib/suggestions";
 import { AvisoDeDados } from "./components/AvisoDeDados";
 import { RetomarDestinoLogin } from "./components/RetomarDestinoLogin";
 import { AvisoErroLogin } from "./components/AvisoErroLogin";
-import { CONTATO_EMAIL, SUPORTE_WHATSAPP, SUPORTE_WHATSAPP_VISIVEL } from "./config";
+import { CONTATO_EMAIL } from "./config";
 import { importarPagina } from "./lib/importarPagina";
 import { mensagemDeErro } from "./lib/erros";
 
@@ -152,24 +152,15 @@ function Footer() {
             <Link to="/privacidade">Privacidade</Link>
           </nav>
 
-          {/* Contato como um grupo igual aos outros, e não como uma linha
-              destacada logo abaixo.
+          {/* Contato: o e-mail escrito, e o WhatsApp só no botão.
 
-              Estava em corpo maior, com o número e o e-mail em negrito, na
-              largura toda — três linhas gritando num rodapé cuja função é
-              ser encontrado, não lido. Quem precisa de socorro agora tem o
-              botão do WhatsApp o tempo todo na tela; aqui embaixo é o lugar
-              de quem foi procurar, e quem procura acha um grupo chamado
-              "Contato" tão rápido quanto acharia uma linha em negrito. */}
+              O número também aparecia aqui, por extenso. Era repetição: o
+              botão logo abaixo abre a mesma conversa, e ninguém digita um
+              telefone à mão tendo o toque ao lado. O e-mail fica porque
+              não tem botão — e porque pedido sobre dados pessoais costuma
+              vir por escrito, com registro. */}
           <nav className="rodape-grupo" aria-label="Contato">
             <h2 className="rodape-grupo-titulo">Contato</h2>
-            <a
-              href={`https://wa.me/${SUPORTE_WHATSAPP}?text=${encodeURIComponent("Oi! Preciso de ajuda com o procurô.")}`}
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              WhatsApp {SUPORTE_WHATSAPP_VISIVEL}
-            </a>
             <a href={`mailto:${CONTATO_EMAIL}`}>{CONTATO_EMAIL}</a>
           </nav>
         </div>
