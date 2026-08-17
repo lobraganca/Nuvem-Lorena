@@ -13,6 +13,8 @@ import {
   updateReportStatus,
   type ReportStatus,
   type ReportWithProfessional,
+  resumoDeCadastros,
+  type ResumoDeCadastros,
 } from "../lib/admin";
 import {
   DEFAULT_PAGE_SIZE,
@@ -88,6 +90,11 @@ export function AdminPage() {
   const [prosLoadingMore, setProsLoadingMore] = useState(false);
   const [prosPage, setProsPage] = useState(0);
   const [prosHasMore, setProsHasMore] = useState(false);
+  /* Os números do topo dos cadastros. `null` enquanto carrega, e o erro é
+     guardado à parte: um resumo que falha não pode virar zero na tela — a
+     dona leria "0 hoje" e concluiria que ninguém se cadastrou. */
+  const [resumo, setResumo] = useState<ResumoDeCadastros | null>(null);
+  const [erroResumo, setErroResumo] = useState("");
   const [cityFilter, setCityFilter] = useState("");
   const [categoryFilter, setCategoryFilter] = useState("");
   // Mesma regra da busca pública: os serviços do filtro vêm dos cadastros,
@@ -112,6 +119,10 @@ export function AdminPage() {
   }
 
   async function refreshAll() {
+    setErroResumo("");
+    resumoDeCadastros()
+      .then(setResumo)
+      .catch((err) => setErroResumo(mensagemDeErro(err, "Não foi possível contar os cadastros.")));
     getCategoriasComAnuncio().then(setCategorias);
     getDestaquesAtivos().then(setDestaques);
     getDemandaDeDestaque().then(setDemanda);
@@ -190,18 +201,13 @@ export function AdminPage() {
          "Carregando…", sem nada escrito na tela explicando por quê. Foi
          essa a forma de várias horas perdidas por aqui. */
       try {
-        if (ok) {
-          setReports(await listReports());
-          setSuggestions(await listSuggestions());
-          getCategoriasComAnuncio().then(setCategorias);
-          getDestaquesAtivos().then(setDestaques);
-          getDemandaDeDestaque().then(setDemanda);
-          listarIndicacoes().then(setIndicacoes);
-          const data = await searchProfessionals({ page: 0 });
-          setPros(data);
-          setProsPage(0);
-          setProsHasMore(data.length === DEFAULT_PAGE_SIZE);
-        }
+        /* Chama o `refreshAll` em vez de repetir o que ele faz. Este bloco
+           era uma segunda cópia da mesma sequência, e as duas já tinham
+           se afastado: o que se acrescentava aqui não acontecia depois de
+           suspender um cadastro, e o que se acrescentava lá não acontecia
+           ao abrir o painel. Foi assim que a contagem de cadastros entrou
+           e não apareceu na tela — estava só na cópia errada. */
+        if (ok) await refreshAll();
       } catch (err) {
         setMessage(mensagemDeErro(err, "Não foi possível carregar o painel."));
       } finally {
@@ -620,7 +626,61 @@ export function AdminPage() {
 
       {mostrar("cadastros") && (
       <section>
-        <p className="muted">{pros.length} cadastro{pros.length !== 1 ? "s" : ""} {prosLoading ? "(atualizando…)" : ""}</p>
+        {/* Aqui ficava `pros.length`: o tamanho da lista já carregada, que
+            chega de vinte em vinte. Dizia "20 cadastros" para qualquer
+            cidade com mais de vinte — número errado no lugar onde se olha
+            justamente para saber se o app está crescendo. */}
+        {erroResumo ? (
+          <p className="admin-resumo-erro">{erroResumo}</p>
+        ) : !resumo ? (
+          <p className="muted">Contando os cadastros…</p>
+        ) : (
+          <div className="admin-resumo">
+            <div className="admin-numero">
+              <strong>{resumo.pessoas}</strong>
+              <span>{resumo.pessoas === 1 ? "pessoa" : "pessoas"}</span>
+            </div>
+            {/* Cadastros e pessoas são números diferentes de propósito: uma
+                pessoa pode ter até cinco cadastros, e a distância entre 40
+                cadastros e 12 pessoas é a distância entre uma cidade que
+                aderiu e uma que não aderiu. */}
+            <div className="admin-numero">
+              <strong>{resumo.cadastros}</strong>
+              <span>{resumo.cadastros === 1 ? "cadastro" : "cadastros"}</span>
+            </div>
+            <div className="admin-numero">
+              <strong>{resumo.hoje}</strong>
+              <span>hoje</span>
+            </div>
+            <div className="admin-numero">
+              <strong>{resumo.semana}</strong>
+              <span>nos 7 dias</span>
+            </div>
+            {resumo.foraDoAr > 0 && (
+              <div className="admin-numero admin-numero-alerta">
+                <strong>{resumo.foraDoAr}</strong>
+                <span>não aparecem</span>
+              </div>
+            )}
+          </div>
+        )}
+        {/* O detalhe do "não aparecem" fica escrito por extenso, e não em
+            mais cinco caixinhas: cada motivo tem um conserto diferente, e
+            "cidade fora da lista" é o único que a pessoa cadastrada não
+            tem como perceber sozinha. */}
+        {resumo && resumo.foraDoAr > 0 && (
+          <p className="muted admin-resumo-detalhe">
+            {[
+              resumo.suspensos > 0 && `${resumo.suspensos} suspenso${resumo.suspensos > 1 ? "s" : ""} pela administração`,
+              resumo.pausados > 0 && `${resumo.pausados} pausado${resumo.pausados > 1 ? "s" : ""} pelo próprio dono`,
+              resumo.cidadeDeFora > 0 && `${resumo.cidadeDeFora} com cidade fora da lista do app`,
+              resumo.semServico > 0 && `${resumo.semServico} sem nenhum serviço marcado`,
+            ]
+              .filter(Boolean)
+              .join(" · ")}
+          </p>
+        )}
+        {prosLoading && <p className="muted">Atualizando a lista…</p>}
         <div className="card" style={{ display: "flex", gap: 10, flexWrap: "wrap", marginBottom: 16, alignItems: "center" }}>
           <select value={cityFilter} onChange={(e) => handleFilter(e.target.value, categoryFilter, onlySuspended)}>
             <option value="">Todas as cidades</option>

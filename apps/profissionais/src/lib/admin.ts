@@ -1,4 +1,8 @@
 import { supabase } from "./supabase";
+import { CITIES } from "../types/domain";
+
+/** As cidades que a busca oferece. Fora delas, o cadastro existe e ninguém acha. */
+const CIDADES_DO_APP: readonly string[] = CITIES;
 
 export type ReportStatus = "pending" | "reviewed" | "dismissed";
 
@@ -286,4 +290,118 @@ export async function getAssinaturasAtivas(): Promise<AssinaturasAtivas> {
     if (s.billing_cycle === "annual") resultado.anuais += 1;
   }
   return resultado;
+}
+
+export interface ResumoDeCadastros {
+  /** Cadastros existentes, contando os que estão fora do ar. */
+  cadastros: number;
+  /** Pessoas distintas. Uma pessoa pode ter até cinco cadastros. */
+  pessoas: number;
+  /** Cadastros criados hoje, no fuso do aparelho de quem olha. */
+  hoje: number;
+  /** Cadastros criados nos últimos sete dias, hoje incluído. */
+  semana: number;
+  /** Cadastros que existem e não aparecem na busca, com o motivo. */
+  foraDoAr: number;
+  suspensos: number;
+  pausados: number;
+  /** Cidade fora da lista do app — some da busca sem ninguém ter pausado nada. */
+  cidadeDeFora: number;
+  /** Nunca marcaram um serviço: não casam com nenhuma categoria. */
+  semServico: number;
+}
+
+/**
+ * Os números do painel de cadastros.
+ *
+ * O painel mostrava `pros.length` — o tamanho da lista já carregada, que
+ * chega de vinte em vinte. Ou seja: dizia "20 cadastros" para qualquer
+ * cidade com mais de vinte, e só crescia se alguém tocasse em "ver mais".
+ * Era um número errado no lugar onde se olha justamente para saber se o
+ * app está crescendo.
+ *
+ * Aqui as linhas são contadas no banco, não na tela. Traz só quatro
+ * colunas de cada cadastro — o suficiente para todas as contas — porque
+ * `count` sozinho não sabe responder "quantas *pessoas*": uma pessoa pode
+ * ter cinco cadastros, e a diferença entre 40 cadastros e 12 pessoas é a
+ * diferença entre uma cidade que aderiu e uma que não aderiu.
+ *
+ * "Hoje" é calculado com a data do aparelho de quem está olhando, e não em
+ * UTC: às 21h de Itabirito, UTC já virou o dia seguinte, e o painel diria
+ * "0 hoje" para quem acabou de ver alguém se cadastrar.
+ *
+ * Ler a tabela inteira é barato numa cidade e deixa de ser numa dezena
+ * delas. Passando de uns poucos milhares de cadastros, estas contas devem
+ * virar uma função no banco — o sinal de que a hora chegou é esta consulta
+ * começar a demorar.
+ */
+export async function resumoDeCadastros(): Promise<ResumoDeCadastros> {
+  const client = supabase();
+  if (!client) throw new Error("Sem conexão com o banco.");
+
+  /* A tabela, e não a view pública: a view esconde suspensos e pausados, e
+     são exatamente eles que este resumo precisa contar. Na tabela vale a
+     RLS — admin vê tudo, e qualquer outra pessoa recebe zero linha. */
+  const { data, error } = await client
+    .from("professionals")
+    .select("owner_id, created_at, suspended, paused, city, categories");
+  if (error) throw error;
+
+  const linhas = (data ?? []) as {
+    owner_id: string;
+    created_at: string;
+    suspended: boolean;
+    paused: boolean;
+    city: string | null;
+    categories: string[] | null;
+  }[];
+
+  const inicioDeHoje = new Date();
+  inicioDeHoje.setHours(0, 0, 0, 0);
+  /* Sete dias contando hoje — "última semana" para quem pergunta é a
+     semana que inclui o dia de hoje, não os sete dias anteriores a ontem. */
+  const inicioDaSemana = new Date(inicioDeHoje);
+  inicioDaSemana.setDate(inicioDaSemana.getDate() - 6);
+
+  const resumo: ResumoDeCadastros = {
+    cadastros: linhas.length,
+    pessoas: new Set(linhas.map((l) => l.owner_id)).size,
+    hoje: 0,
+    semana: 0,
+    foraDoAr: 0,
+    suspensos: 0,
+    pausados: 0,
+    cidadeDeFora: 0,
+    semServico: 0,
+  };
+
+  for (const l of linhas) {
+    const criado = new Date(l.created_at);
+    if (criado >= inicioDeHoje) resumo.hoje += 1;
+    if (criado >= inicioDaSemana) resumo.semana += 1;
+
+    /* Um cadastro pode estar fora do ar por mais de um motivo ao mesmo
+       tempo. Cada motivo é contado por si, e `foraDoAr` conta cadastros —
+       senão a soma dos motivos passaria do total e ninguém entenderia. */
+    let some = false;
+    if (l.suspended) {
+      resumo.suspensos += 1;
+      some = true;
+    }
+    if (l.paused) {
+      resumo.pausados += 1;
+      some = true;
+    }
+    if (!l.city || !CIDADES_DO_APP.includes(l.city)) {
+      resumo.cidadeDeFora += 1;
+      some = true;
+    }
+    if (!l.categories || l.categories.length === 0) {
+      resumo.semServico += 1;
+      some = true;
+    }
+    if (some) resumo.foraDoAr += 1;
+  }
+
+  return resumo;
 }
