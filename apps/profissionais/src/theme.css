@@ -3440,19 +3440,10 @@ h3 {
   text-decoration: underline;
 }
 
-/* Falar com gente: a linha que alguém procura num rodapé quando está com
-   problema. Vem antes do resto por isso. */
-.rodape-contato {
-  margin: 18px 0 0;
-  font-size: 0.85rem;
-}
-
-.rodape-contato a {
-  color: var(--color-primary);
-  font-weight: 600;
-  /* Telefone não quebra no meio: sem isto, "WhatsApp (31) 97147-3162"
-     virava "97147-" numa linha e "3162" na outra, e um número partido ao
-     meio deixa de ser um número — quem for copiar copia errado. */
+/* Telefone e e-mail não quebram no meio: "97147-" numa linha e "3162" na
+   outra deixa de ser um número, e quem for copiar copia errado. */
+.rodape-grupo a[href^="https://wa.me"],
+.rodape-grupo a[href^="mailto:"] {
   white-space: nowrap;
 }
 
@@ -5185,31 +5176,29 @@ h3 {
 }
 
 
-/* O botão flutuante do suporte.
+/* "Falar com o suporte", no fim da página.
 
-   Verde, e só ele: o app inteiro é azul marinho e dourado, e o verde está
-   reservado ao WhatsApp desde o começo (ver `--color-accent-teal`). Aqui
-   ele não briga com a identidade — diz para onde o toque leva antes de
-   qualquer texto ser lido.
+   Já flutuou no canto da tela. Fixo, ele cobria conteúdo em todas as telas
+   para servir a um assunto que quase ninguém tem — interrupção permanente
+   por um problema ocasional. Aqui embaixo fica onde já se procura ajuda.
 
-   A altura sai da barra de baixo mais a faixa de gestos do iPhone: sem
-   somar as duas, ele fica atrás da barra no celular e boiando no meio do
-   nada no computador. À direita porque à esquerda cairia sobre o Voltar e
-   no meio sobre o círculo da busca. */
+   Verde, e só ele: o app é azul marinho e dourado, e o verde está
+   reservado ao WhatsApp desde o começo (`--color-accent-teal`). Diz para
+   onde o toque leva antes de o texto ser lido.
+
+   Não ocupa a largura toda: botão largo no fim da página compete com o
+   conteúdo acima dele, e este não é o assunto principal de tela nenhuma. */
 .botao-suporte {
-  position: fixed;
-  right: 16px;
-  bottom: calc(var(--bottom-nav-height) + env(safe-area-inset-bottom) + 14px);
-  z-index: 42;
-  display: flex;
+  display: inline-flex;
   align-items: center;
-  justify-content: center;
-  width: 48px;
-  height: 48px;
-  border-radius: 50%;
+  gap: 8px;
+  margin-top: 20px;
+  padding: 10px 16px;
+  border-radius: 999px;
   background: var(--color-accent-teal);
   color: #fff;
-  box-shadow: 0 6px 18px rgba(10, 26, 47, 0.28);
+  font-size: 0.86rem;
+  font-weight: 700;
   text-decoration: none;
 }
 
@@ -5219,6 +5208,7 @@ h3 {
 }
 
 .botao-suporte svg {
-  width: 26px;
-  height: 26px;
+  width: 20px;
+  height: 20px;
+  flex: none;
 }

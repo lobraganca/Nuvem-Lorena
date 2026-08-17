@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Routes, Route, Link, useLocation } from "react-router-dom";
 import { Logo } from "./components/Logo";
+import { BotaoSuporte } from "./components/BotaoSuporte";
 import { AppShell } from "./components/AppShell";
 import { SplashScreen } from "./components/SplashScreen";
 import { BottomSheet } from "./components/BottomSheet";
@@ -150,22 +151,30 @@ function Footer() {
             <Link to="/termos">Termos de Uso</Link>
             <Link to="/privacidade">Privacidade</Link>
           </nav>
+
+          {/* Contato como um grupo igual aos outros, e não como uma linha
+              destacada logo abaixo.
+
+              Estava em corpo maior, com o número e o e-mail em negrito, na
+              largura toda — três linhas gritando num rodapé cuja função é
+              ser encontrado, não lido. Quem precisa de socorro agora tem o
+              botão do WhatsApp o tempo todo na tela; aqui embaixo é o lugar
+              de quem foi procurar, e quem procura acha um grupo chamado
+              "Contato" tão rápido quanto acharia uma linha em negrito. */}
+          <nav className="rodape-grupo" aria-label="Contato">
+            <h2 className="rodape-grupo-titulo">Contato</h2>
+            <a
+              href={`https://wa.me/${SUPORTE_WHATSAPP}?text=${encodeURIComponent("Oi! Preciso de ajuda com o procurô.")}`}
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              WhatsApp {SUPORTE_WHATSAPP_VISIVEL}
+            </a>
+            <a href={`mailto:${CONTATO_EMAIL}`}>{CONTATO_EMAIL}</a>
+          </nav>
         </div>
 
-        {/* Falar com gente vem antes de tudo o mais: é o que alguém procura
-            num rodapé quando está com problema. O WhatsApp primeiro porque
-            é onde a resposta chega no mesmo dia. */}
-        <p className="rodape-contato">
-          Precisa de ajuda?{" "}
-          <a
-            href={`https://wa.me/${SUPORTE_WHATSAPP}?text=${encodeURIComponent("Oi! Preciso de ajuda com o procurô.")}`}
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            WhatsApp {SUPORTE_WHATSAPP_VISIVEL}
-          </a>{" "}
-          · <a href={`mailto:${CONTATO_EMAIL}`}>{CONTATO_EMAIL}</a>
-        </p>
+        <BotaoSuporte />
 
         {/* O aviso jurídico e o carimbo de versão na mesma linha miúda: os
             dois existem para serem encontrados quando procurados, não para
