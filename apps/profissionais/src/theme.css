@@ -3382,52 +3382,86 @@ h3 {
    alvo tinha o tamanho exato da palavra, e "Excluir conta" encostava em
    "Privacidade". No celular isso significa abrir a tela de apagar a conta
    por um toque torto. */
-/* Uma fileira miúda, não uma grade de pílulas.
-   As pílulas grandes existiam para afastar o alvo de toque de "Excluir
-   conta", que era vizinha de "Como funciona" aqui — dois toques de
-   distância de uma ação sem volta. Essa vizinha saiu do rodapé faz tempo
-   (foi para o Perfil) e, sem ela, o que sobrou é navegação de leitura:
-   nada aqui apaga nada, e o tamanho de botão só empurrava o conteúdo da
-   página para cima. */
-.rodape-links {
+/* O rodapé em dois grupos com título, no lugar de cinco links soltos.
+
+   Estavam todos na mesma fileira, do mesmo tamanho e sem ordem: dois
+   documentos que quase ninguém abre por vontade própria misturados com
+   três caminhos que a pessoa pode querer agora. Sem separação, o rodapé
+   virava uma lista para procurar dentro — foi assim que a dona o
+   descreveu: confuso.
+
+   Em tela estreita os grupos continuam lado a lado de propósito:
+   empilhados, o rodapé volta a ser uma coluna comprida de links, que é o
+   que eles vieram resolver. */
+.rodape-grupos {
   display: flex;
   flex-wrap: wrap;
-  align-items: center;
-  gap: 0 2px;
-  margin-top: 10px;
+  gap: 22px 40px;
+  margin-top: 16px;
 }
 
-.rodape-links a,
-.rodape-links button {
+.rodape-grupo {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  min-width: 0;
+}
+
+.rodape-grupo-titulo {
+  margin: 0 0 2px;
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--color-text-muted);
+  opacity: 0.75;
+}
+
+.rodape-grupo a,
+.rodape-grupo button {
   display: inline-flex;
   align-items: center;
   background: none;
   border: 0;
   /* Miúdo à vista, mas ainda com um alvo de toque decente: o espaço
-     vertical continua vindo do padding, não do tamanho da letra. */
-  padding: 7px 3px;
+     vertical vem do padding, não do tamanho da letra. */
+  padding: 6px 0;
   font: inherit;
-  font-size: 0.77rem;
+  font-size: 0.82rem;
   font-weight: 500;
-  color: var(--color-text-muted);
+  color: var(--color-primary);
+  text-align: left;
   text-decoration: none;
   cursor: pointer;
+}
+
+.rodape-grupo a:hover,
+.rodape-grupo button:hover {
+  text-decoration: underline;
+}
+
+/* Falar com gente: a linha que alguém procura num rodapé quando está com
+   problema. Vem antes do resto por isso. */
+.rodape-contato {
+  margin: 18px 0 0;
+  font-size: 0.85rem;
+}
+
+.rodape-contato a {
+  color: var(--color-primary);
+  font-weight: 600;
+  /* Telefone não quebra no meio: sem isto, "WhatsApp (31) 97147-3162"
+     virava "97147-" numa linha e "3162" na outra, e um número partido ao
+     meio deixa de ser um número — quem for copiar copia errado. */
   white-space: nowrap;
 }
 
-/* Ponto separando um item do outro — é o que faz a fileira ler como uma
-   linha só, em vez de palavras soltas com espaço no meio. */
-.rodape-links a:not(:last-child)::after,
-.rodape-links button:not(:last-child)::after {
-  content: "·";
-  margin-left: 5px;
-  color: var(--color-border-strong);
-}
-
-.rodape-links a:hover,
-.rodape-links button:hover {
-  color: var(--color-primary-deep);
-  text-decoration: underline;
+/* Aviso jurídico e carimbo de versão na mesma linha miúda: existem para
+   serem achados quando procurados, não para disputar atenção. */
+.rodape-miudo {
+  margin: 8px 0 0;
+  font-size: 0.76rem;
+  opacity: 0.75;
 }
 
 
@@ -5150,3 +5184,41 @@ h3 {
   font-weight: 700;
 }
 
+
+/* O botão flutuante do suporte.
+
+   Verde, e só ele: o app inteiro é azul marinho e dourado, e o verde está
+   reservado ao WhatsApp desde o começo (ver `--color-accent-teal`). Aqui
+   ele não briga com a identidade — diz para onde o toque leva antes de
+   qualquer texto ser lido.
+
+   A altura sai da barra de baixo mais a faixa de gestos do iPhone: sem
+   somar as duas, ele fica atrás da barra no celular e boiando no meio do
+   nada no computador. À direita porque à esquerda cairia sobre o Voltar e
+   no meio sobre o círculo da busca. */
+.botao-suporte {
+  position: fixed;
+  right: 16px;
+  bottom: calc(var(--bottom-nav-height) + env(safe-area-inset-bottom) + 14px);
+  z-index: 42;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background: var(--color-accent-teal);
+  color: #fff;
+  box-shadow: 0 6px 18px rgba(10, 26, 47, 0.28);
+  text-decoration: none;
+}
+
+.botao-suporte:hover,
+.botao-suporte:focus-visible {
+  filter: brightness(1.08);
+}
+
+.botao-suporte svg {
+  width: 26px;
+  height: 26px;
+}

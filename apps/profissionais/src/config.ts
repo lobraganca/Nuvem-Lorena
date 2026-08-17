@@ -10,6 +10,18 @@
  */
 export const CONTATO_EMAIL = "procuroapp@gmail.com";
 
+/**
+ * WhatsApp do suporte, só com dígitos e com o código do país.
+ *
+ * Fica aqui pelo mesmo motivo do e-mail: ele aparece no botão flutuante e
+ * no rodapé, e um número trocado num lugar só deixaria o outro mandando
+ * gente para um telefone que não atende mais.
+ */
+export const SUPORTE_WHATSAPP = "5531971473162";
+
+/** O mesmo número escrito como se lê, para aparecer na tela. */
+export const SUPORTE_WHATSAPP_VISIVEL = "(31) 97147-3162";
+
 /** Nome usado nos documentos legais. */
 export const NOME_PLATAFORMA = "procurô";
 

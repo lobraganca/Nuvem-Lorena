@@ -13,7 +13,7 @@ import { sendSuggestion } from "./lib/suggestions";
 import { AvisoDeDados } from "./components/AvisoDeDados";
 import { RetomarDestinoLogin } from "./components/RetomarDestinoLogin";
 import { AvisoErroLogin } from "./components/AvisoErroLogin";
-import { CONTATO_EMAIL } from "./config";
+import { CONTATO_EMAIL, SUPORTE_WHATSAPP, SUPORTE_WHATSAPP_VISIVEL } from "./config";
 import { importarPagina } from "./lib/importarPagina";
 import { mensagemDeErro } from "./lib/erros";
 
@@ -119,43 +119,61 @@ function Footer() {
     <footer className="footer">
       <div className="container">
         <Logo />
-        {/* Botões arredondados no lugar de links separados por ponto: numa
-            linha corrida de texto sublinhado, cada item tinha a área de toque
-            do tamanho da palavra, e "Excluir conta" ficava colado em
-            "Privacidade" — no celular, errar o alvo aqui é abrir a tela de
-            apagar a própria conta sem querer. Cada um vira um alvo com
-            contorno e espaço em volta. */}
-        {/* "Excluir conta" saiu daqui e ficou só no Perfil, que é onde a
-            pessoa mexe na própria conta. No rodapé de todas as telas, ela era
-            vizinha de "Como funciona" — dois toques de distância de qualquer
-            lugar do app, para uma ação sem volta. A página continua existindo
-            e aberta a quem tiver o endereço (a Play Store exige um endereço
-            público de exclusão), e a política de privacidade aponta para ela. */}
-        <nav className="rodape-links">
-          <Link to="/termos">Termos de Uso</Link>
-          <Link to="/privacidade">Privacidade</Link>
-          <Link to="/como-funciona">Como funciona</Link>
-          <Link to="/publicidade">Anuncie aqui</Link>
-          <button type="button" onClick={() => setSuggestionOpen(true)}>
-            Enviar sugestão
-          </button>
-        </nav>
-        {/* Veio da página do profissional, onde ficava solta no fim do
-            conteúdo: a meia tela do botão de WhatsApp, perto demais de uma
-            ação para ser lida como nota de rodapé e longe demais para ser
-            lida como condição daquele botão. Aqui é o lugar de aviso
-            jurídico, e a frase vale em qualquer tela — contratar acontece
-            a partir da busca tanto quanto do perfil. */}
-        <p className="rodape-aviso">
-          Ao contratar, você concorda com os <Link to="/termos">Termos de Uso</Link> da plataforma.
+
+        {/* Dois grupos com título, no lugar de cinco links soltos.
+
+            Estavam todos na mesma fileira, do mesmo tamanho e sem ordem:
+            "Termos de Uso", "Privacidade", "Como funciona", "Anuncie aqui"
+            e "Enviar sugestão", como se fossem cinco coisas do mesmo tipo.
+            Não são. Duas são documento que quase ninguém abre por vontade
+            própria; três são caminhos que a pessoa pode querer agora. Sem
+            essa separação, o rodapé virava uma lista para procurar dentro,
+            e foi assim que a dona o descreveu: confuso.
+
+            Depois dos links vinham três parágrafos soltos — aviso
+            jurídico, versão, e-mail —, cada um com um tamanho de letra
+            diferente, dois deles escritos direto no atributo `style`. Agora
+            são duas linhas quietas, do mesmo tamanho, na ordem de quem
+            precisa: quem quer falar com alguém primeiro, o resto depois. */}
+        <div className="rodape-grupos">
+          <nav className="rodape-grupo" aria-label="O procurô">
+            <h2 className="rodape-grupo-titulo">O procurô</h2>
+            <Link to="/como-funciona">Como funciona</Link>
+            <Link to="/publicidade">Anuncie aqui</Link>
+            <button type="button" onClick={() => setSuggestionOpen(true)}>
+              Enviar sugestão
+            </button>
+          </nav>
+
+          <nav className="rodape-grupo" aria-label="Documentos">
+            <h2 className="rodape-grupo-titulo">Documentos</h2>
+            <Link to="/termos">Termos de Uso</Link>
+            <Link to="/privacidade">Privacidade</Link>
+          </nav>
+        </div>
+
+        {/* Falar com gente vem antes de tudo o mais: é o que alguém procura
+            num rodapé quando está com problema. O WhatsApp primeiro porque
+            é onde a resposta chega no mesmo dia. */}
+        <p className="rodape-contato">
+          Precisa de ajuda?{" "}
+          <a
+            href={`https://wa.me/${SUPORTE_WHATSAPP}?text=${encodeURIComponent("Oi! Preciso de ajuda com o procurô.")}`}
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            WhatsApp {SUPORTE_WHATSAPP_VISIVEL}
+          </a>{" "}
+          · <a href={`mailto:${CONTATO_EMAIL}`}>{CONTATO_EMAIL}</a>
         </p>
-        {/* O carimbo mostra a hora da construção; o "d" identifica a leva
-            que trouxe o endereço único, o aviso de erro de login e a tela de
-            diagnóstico. Sem um marcador visível, "não funcionou" e "não
-            chegou" continuam parecendo a mesma coisa. */}
-        <p style={{ marginTop: 6, fontSize: "0.78rem", opacity: 0.7 }}>Versão {__VERSAO__}</p>
-        <p style={{ marginTop: 6 }}>
-          Dúvidas ou pedidos sobre seus dados: <a href={`mailto:${CONTATO_EMAIL}`}>{CONTATO_EMAIL}</a>
+
+        {/* O aviso jurídico e o carimbo de versão na mesma linha miúda: os
+            dois existem para serem encontrados quando procurados, não para
+            disputar atenção com o resto. O carimbo é o que separa "não
+            funcionou" de "não chegou" quando alguém relata um problema. */}
+        <p className="rodape-miudo">
+          Ao contratar, você concorda com os <Link to="/termos">Termos de Uso</Link>. · Versão{" "}
+          {__VERSAO__}
         </p>
       </div>
       {suggestionOpen && <SuggestionSheet onClose={() => setSuggestionOpen(false)} />}

@@ -19,7 +19,13 @@ import { corDoNome, iniciais } from "../lib/avatar";
  */
 export function CartaoVitrine({ p }: { p: ProfessionalWithRating }) {
   const verificado = isCurrentlyVerified(p);
-  const nome = p.entity_type === "pj" ? p.company_name || p.name : p.name;
+  /* O nome é o que a pessoa escolheu, sempre — inclusive para empresa.
+     Este cartão mostrava a razão social quando havia uma, e razão social é
+     o nome do CNPJ, não o nome do negócio: "M. A. Souza Comércio de
+     Alimentos ME" no lugar de "Padaria da Praça". Ninguém procura pelo
+     primeiro nem reconhece a padaria por ele. A razão social continua na
+     página do cadastro, escrita como o que é — um dado do documento. */
+  const nome = p.name;
 
   return (
     <Link to={`/profissional/${p.id}`} className="cartao-vitrine" role="listitem">

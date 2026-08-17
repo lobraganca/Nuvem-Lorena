@@ -7,6 +7,7 @@ import { AvisoDeVersao } from "./AvisoDeVersao";
 import { useAuth } from "../lib/useAuth";
 import { useOnlineCount } from "../lib/presence";
 import { MarcaProcuro } from "./MarcaProcuro";
+import { BotaoSuporte } from "./BotaoSuporte";
 
 /* Etiqueta de preço: diz "aqui tem oferta" sem a agressividade do megafone,
    que num app de serviços lê como spam. */
@@ -313,6 +314,9 @@ export function AppShell({ children }: { children: ReactNode }) {
       <AvisoDeVersao />
       {!isWelcome && <Header />}
       {!isWelcome && <BotaoFechar />}
+      {/* Também na tela de início: é lá que está quem ainda não entendeu o
+          app, e é de lá que mais se desiste. */}
+      <BotaoSuporte />
       {/* `app-content` também na tela de início: é ele que reserva o espaço
           da barra embaixo. Sem isso, o último botão da apresentação fica
           escondido atrás dela. */}
