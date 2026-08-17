@@ -167,14 +167,6 @@ function Footer() {
 
         <BotaoSuporte />
 
-        {/* O aviso jurídico e o carimbo de versão na mesma linha miúda: os
-            dois existem para serem encontrados quando procurados, não para
-            disputar atenção com o resto. O carimbo é o que separa "não
-            funcionou" de "não chegou" quando alguém relata um problema. */}
-        <p className="rodape-miudo">
-          Ao contratar, você concorda com os <Link to="/termos">Termos de Uso</Link>. · Versão{" "}
-          {__VERSAO__}
-        </p>
       </div>
       {suggestionOpen && <SuggestionSheet onClose={() => setSuggestionOpen(false)} />}
     </footer>
