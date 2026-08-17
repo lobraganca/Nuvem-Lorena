@@ -368,11 +368,25 @@ export async function replyToReview(reviewId: string, reply: string) {
   if (error) throw error;
 }
 
-export async function getMyProfessionals(ownerId: string): Promise<Professional[]> {
+/**
+ * Os cadastros de quem está no painel — com a nota junto.
+ *
+ * A nota vem porque o painel mostra ao dono o mesmo cartão que o cliente vê,
+ * e sem ela todo cadastro apareceria ali como "novo por aqui", inclusive
+ * quem já tem trinta avaliações. Uma prévia que mente sobre a reputação é
+ * pior do que não ter prévia.
+ */
+export async function getMyProfessionals(ownerId: string): Promise<ProfessionalWithRating[]> {
   const client = supabase();
   if (!client) return [];
   const { data } = await client.from("professionals").select("*").eq("owner_id", ownerId).order("created_at", { ascending: false });
-  return data ?? [];
+  const meus = (data ?? []) as Professional[];
+  const notas = await fetchRatingsMap(client, meus.map((p) => p.id));
+  return meus.map((p) => ({
+    ...p,
+    average_rating: notas[p.id]?.average_rating ?? null,
+    review_count: notas[p.id]?.review_count ?? 0,
+  }));
 }
 
 /**

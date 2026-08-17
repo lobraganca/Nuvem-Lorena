@@ -5344,3 +5344,31 @@ h3 {
   gap: 4px;
   margin-top: 22px;
 }
+
+/* ---------------------------------------------------------------
+   A prévia do cartão no painel do profissional
+
+   O painel mostra ao dono o mesmo cartão que o cliente vê. Antes ele
+   tinha uma versão própria — nome em negrito e "categoria · cidade" —
+   e o dono não tinha, em lugar nenhum, como ver a própria foto, a
+   própria nota ou o próprio selo. Para conferir a foto era preciso ir
+   à busca e se procurar no meio dos outros.
+   --------------------------------------------------------------- */
+.previa-titulo {
+  margin: 0 0 10px;
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--color-text-muted);
+}
+
+/* `.card-pro` é um `<a>`, e `<a>` é inline. Na busca isso não aparece
+   porque ele é célula de uma grade, e grade transforma o filho em
+   bloco. Aqui, dentro do card do painel, ele é filho comum do fluxo:
+   sem esta linha, o cartão inteiro se comportava como um trecho de
+   texto — foto e nome escorrendo lado a lado, sem largura própria. */
+.card-pro {
+  display: block;
+}
+

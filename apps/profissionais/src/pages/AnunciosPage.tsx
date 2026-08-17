@@ -4,9 +4,8 @@ import { contarClique, contarExibicao, getBannersDeAnuncios } from "../lib/banne
 import { searchProfessionals } from "../lib/professionals";
 import { DEFAULT_CITY, type Banner } from "../types/domain";
 import type { ProfessionalWithRating } from "../lib/professionals";
-import { Estrelas } from "../components/Estrelas";
+import { CartaoProfissional } from "../components/CartaoProfissional";
 import { EspacoLivre } from "../components/EspacoLivre";
-import { VerifiedBadge } from "../components/VerifiedBadge";
 import { useTituloDaPagina } from "../lib/tituloDaPagina";
 import { NOME_PLATAFORMA } from "../config";
 
@@ -133,39 +132,11 @@ export function AnunciosPage() {
             Anúncios turbinados — quem pagou para aparecer antes na busca.
           </p>
           <div className="grid" style={{ gridTemplateColumns: "repeat(auto-fill, minmax(260px, 1fr))" }}>
+            {/* O mesmo cartão da busca. Aqui ele era uma versão sem foto:
+                o profissional que paga para aparecer em destaque saía sem
+                rosto justamente na tela feita para mostrá-lo. */}
             {destaques.map((p) => (
-              <Link
-                key={p.id}
-                to={`/profissional/${p.id}`}
-                className={`card card-pro ${p.entity_type === "pj" ? "card-pro-pj" : ""}`}
-                style={{ textDecoration: "none", color: "inherit" }}
-              >
-                <h3 className="card-nome" style={{ margin: 0 }}>
-                  {p.name}
-                </h3>
-                <p className="muted" style={{ margin: "4px 0" }}>
-                  {p.category} · {p.city}
-                </p>
-                {p.especialidade && <p className="card-especialidade">{p.especialidade}</p>}
-                <div className="card-selos">
-                  {p.verified && (
-                    <span className="badge badge-selo">
-                      <VerifiedBadge size={14} /> Premium
-                    </span>
-                  )}
-                  <span className="badge badge-boosted">Em destaque</span>
-                </div>
-                {p.average_rating ? (
-                  <p style={{ marginTop: 10 }}>
-                    <Estrelas nota={p.average_rating} />{" "}
-                    <strong>{p.average_rating.toFixed(1).replace(".", ",")}</strong>
-                  </p>
-                ) : (
-                  <p className="muted card-sem-nota" style={{ marginTop: 10 }}>
-                    Novo por aqui
-                  </p>
-                )}
-              </Link>
+              <CartaoProfissional key={p.id} p={p} />
             ))}
           </div>
         </section>

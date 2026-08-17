@@ -4,6 +4,7 @@ import { DEFAULT_CITY, GRUPOS_DE_SERVICOS } from "../types/domain";
 import { IconeDeServico } from "../components/IconeDeServico";
 import { Prateleira } from "../components/Prateleira";
 import { CartaoVitrine } from "../components/CartaoVitrine";
+import { CartaoProfissional } from "../components/CartaoProfissional";
 import {
   DEFAULT_PAGE_SIZE,
   getCategoriasComAnuncio,
@@ -823,77 +824,9 @@ export function HomePage() {
             </p>
           </div>
         )}
-        {results.map((p) => {
-          const verified = isCurrentlyVerified(p);
-          const boosted = isCurrentlyBoosted(p);
-          return (
-            <Link key={p.id} to={`/profissional/${p.id}`} className={`card card-pro ${p.entity_type === "pj" ? "card-pro-pj" : ""}`} style={{ textDecoration: "none", color: "inherit" }}>
-              <div style={{ display: "flex", gap: 12, alignItems: "start" }}>
-                {p.photo_url ? (
-                  <img src={p.photo_url} alt={p.name} className="card-foto" />
-                ) : (
-                  <div
-                    className="avatar-iniciais card-foto"
-                    style={{ background: corDoNome(p.name) }}
-                    aria-hidden="true"
-                  >
-                    {iniciais(p.name)}
-                  </div>
-                )}
-                <div style={{ flex: 1 }}>
-                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "start", gap: 8 }}>
-                    <h3 className="card-nome">{p.name}</h3>
-                    <FavoriteButton professionalId={p.id} />
-                  </div>
-                  <p className="muted" style={{ margin: "4px 0" }}>
-                    {p.category}
-                    {(p.categories?.length ?? 0) > 1 && ` +${p.categories.length - 1}`} · {p.city}
-                  </p>
-                  {/* A especialidade vem numa linha só dela, e não colada na
-                      categoria: é o que decide entre dois cadastros do mesmo
-                      ofício, e emendada no "Dentista · Itabirito" ela viraria
-                      mais uma palavra numa linha que ninguém termina de ler. */}
-                  {p.especialidade && <p className="card-especialidade">{p.especialidade}</p>}
-                  {/* Selo e destaque numa fila própria, embaixo. Ao lado do
-                      nome, eles disputavam a mesma linha com o coração e
-                      empurravam tudo para fora da tela — e o nome, que é o
-                      que a pessoa lê primeiro, quebrava em duas linhas para
-                      caber. A roseta some daqui: com a etiqueta escrita ao
-                      lado, eram dois "verificado" no mesmo cartão. */}
-                  <div className="card-selos">
-                    {verified && (
-                      <span className="badge badge-selo">
-                        <VerifiedBadge size={14} /> Premium
-                      </span>
-                    )}
-                    {boosted && <span className="badge badge-boosted">Em destaque</span>}
-                    <span className={p.entity_type === "pj" ? "badge badge-entity-pj" : "badge badge-entity-pf"}>
-                      {p.entity_type === "pj" ? "Empresa" : "Profissional autônomo"}
-                    </span>
-                  </div>
-                  {p.entity_type === "pj" && p.responsible_name && (
-                    <p className="muted" style={{ margin: "4px 0 0", fontSize: "0.82rem" }}>Responsável: {p.responsible_name}</p>
-                  )}
-                </div>
-              </div>
-              <p style={{ marginTop: 10 }}>
-                {p.average_rating ? (
-                  <>
-                    <Estrelas nota={p.average_rating} />{" "}
-                    <strong>{p.average_rating.toFixed(1).replace(".", ",")}</strong>{" "}
-                    <span className="muted">({p.review_count})</span>
-                  </>
-                ) : (
-                  /* "Sem avaliações" lia como defeito do cadastro. Quem acabou
-                     de se cadastrar não tem culpa de ainda não ter sido
-                     avaliado — e o convite ainda serve a quem está lendo. */
-                  <span className="muted card-sem-nota">Novo por aqui — seja o primeiro a avaliar</span>
-                )}
-              </p>
-              <span className="card-cta">Ver contatos e avaliações →</span>
-            </Link>
-          );
-        })}
+        {results.map((p) => (
+          <CartaoProfissional key={p.id} p={p} />
+        ))}
       </div>
       )}
 

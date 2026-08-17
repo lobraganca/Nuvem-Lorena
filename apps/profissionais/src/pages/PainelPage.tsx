@@ -12,6 +12,7 @@ import {
   isCurrentlyVerified,
   isCurrentlyPlusActive,
   deleteProfessional,
+  type ProfessionalWithRating,
 } from "../lib/professionals";
 import {
   startSubscriptionCheckout,
@@ -36,6 +37,7 @@ import { BotaoGoogle } from "../components/BotaoGoogle";
 import { mensagemDeErro } from "../lib/erros";
 import { useTituloDaPagina } from "../lib/tituloDaPagina";
 import { MarcaConfirmado } from "../components/MarcaConfirmado";
+import { CartaoProfissional } from "../components/CartaoProfissional";
 
 
 /**
@@ -68,7 +70,7 @@ function chaveDoPar(category: string, city: string): string {
 export function PainelPage() {
   useTituloDaPagina("Painel do profissional");
   const { user, loading } = useAuth();
-  const [mine, setMine] = useState<Professional[]>([]);
+  const [mine, setMine] = useState<ProfessionalWithRating[]>([]);
   /** Visualizações dos últimos 30 dias por cadastro — grátis para todo profissional cadastrado. */
   const [views30, setViews30] = useState<Record<string, number>>({});
   /**
@@ -352,21 +354,18 @@ export function PainelPage() {
             const boosted = isCurrentlyBoosted(p);
             return (
               <div key={p.id} className={`card anuncio-card${p.entity_type === "pj" ? " anuncio-card-pj" : ""}`}>
-                {/* Nome comprido + Empresa + Premium + Destaque não cabem numa
-                    linha só em tela estreita — sem quebra, as etiquetas
-                    saíam da tela e "Destaque" ficava cortado, invisível
-                    para quem mais paga para tê-lo. */}
-                <div style={{ display: "flex", justifyContent: "space-between", flexWrap: "wrap", gap: 8, rowGap: 6 }}>
-                  <strong style={{ minWidth: 0, overflowWrap: "break-word" }}>{p.name}</strong>
-                  <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
-                    <span className={p.entity_type === "pj" ? "badge badge-entity-pj" : "badge badge-entity-pf"}>
-                      {p.entity_type === "pj" ? "Empresa" : "Autônomo"}
-                    </span>
-                    {verified && <span className="badge badge-verified">Premium ativo</span>}
-                    {boosted && <span className="badge badge-boosted">Em destaque</span>}
-                  </div>
-                </div>
-                <p className="muted">{p.category} · {p.city}</p>
+                {/* O cartão de verdade, o mesmo componente da busca.
+                    Aqui havia uma versão à parte, feita à mão: nome em
+                    negrito, duas etiquetas e "categoria · cidade". Ela não
+                    mostrava a foto, nem a especialidade, nem a nota — então
+                    o dono não tinha, em lugar nenhum do app, como ver o que
+                    o cliente vê. Quem quisesse conferir a própria foto tinha
+                    que ir à busca e se procurar.
+                    Toda diferença entre esta tela e a busca era, na prática,
+                    uma decisão tomada às cegas: trocar a foto, escrever a
+                    especialidade, pagar pelo destaque. */}
+                <p className="previa-titulo">Como aparece na busca</p>
+                <CartaoProfissional p={p} previa />
                 <p className="views-line">
                   <strong>{views30[p.id] ?? 0}</strong>{" "}
                   {(views30[p.id] ?? 0) === 1 ? "pessoa viu" : "pessoas viram"} seu cadastro nos últimos 30 dias

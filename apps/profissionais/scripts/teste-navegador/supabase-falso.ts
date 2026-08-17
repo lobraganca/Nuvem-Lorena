@@ -14,9 +14,13 @@ const CATS = ["Encanador", "Eletricista", "Pedreiro", "Pintor", "Marceneiro", "S
    quase vazia, que é onde a tela inicial em prateleiras pode ficar feia. */
 const QUANTOS = Number(new URLSearchParams(location.search).get("falsos") ?? 60);
 
+/* O dono da sessão de mentira. Os dois primeiros cadastros são dele, senão
+   o painel abre vazio e não dá para conferir nada do que ele mostra. */
+export const DONO_FALSO = "00000000-0000-4000-8000-000000000001";
+
 const professionals: Linha[] = Array.from({ length: QUANTOS }, (_, i) => ({
   id: `pro-${i}`,
-  owner_id: `dono-${i}`,
+  owner_id: i < 2 ? DONO_FALSO : `dono-${i}`,
   name: `Profissional ${i}`,
   category: CATS[i % CATS.length],
   categories: [CATS[i % CATS.length]],
@@ -60,7 +64,10 @@ const TABELAS: Record<string, Linha[]> = {
   contact_requests: [],
   banners: [],
   subscriptions: [],
-  favorites: [],
+  /* Três favoritos do dono falso — um deles com selo, para exercitar o
+     "Chamar no WhatsApp" que só aparece em cadastro verificado. Vazio,
+     a tela de favoritos nunca era testada de verdade. */
+  favorites: [0, 7, 9].map((i) => ({ user_id: DONO_FALSO, professional_id: `pro-${i}` })),
   contatos_registrados: [],
   app_visits: [],
 };
@@ -151,7 +158,7 @@ function usuarioFalso() {
   const tipo = typeof localStorage === "undefined" ? null : localStorage.getItem("falso-usuario");
   if (!tipo) return null;
   return {
-    id: "00000000-0000-4000-8000-000000000001",
+    id: DONO_FALSO,
     email: "pessoa@exemplo.com",
     phone: tipo === "telefone" ? "5531999998888" : "",
     phone_confirmed_at: tipo === "telefone" ? new Date().toISOString() : null,
