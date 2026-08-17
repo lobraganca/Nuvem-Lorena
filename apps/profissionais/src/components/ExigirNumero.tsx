@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import { useAuth } from "../lib/useAuth";
 import { signOut } from "../lib/auth";
 import { ConfirmarMeuNumero } from "./ConfirmarMeuNumero";
+import { EXIGIR_NUMERO_ATIVO } from "../config";
 
 /**
  * As telas de conta que só abrem com número confirmado.
@@ -14,6 +15,10 @@ import { ConfirmarMeuNumero } from "./ConfirmarMeuNumero";
 const TELAS_DE_CONTA = ["/painel", "/perfil", "/favoritos", "/admin"];
 
 export function exigeNumero(caminho: string): boolean {
+  /* Desligada, a barreira não existe — nem como componente. Não basta
+     devolver os filhos lá dentro: o `useAuth` daqui dispararia uma consulta
+     de sessão em toda tela de conta para não fazer nada com a resposta. */
+  if (!EXIGIR_NUMERO_ATIVO) return false;
   return TELAS_DE_CONTA.some((t) => caminho === t || caminho.startsWith(`${t}/`));
 }
 

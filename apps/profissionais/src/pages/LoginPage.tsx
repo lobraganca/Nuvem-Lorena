@@ -13,6 +13,7 @@ import { BotaoGoogle } from "../components/BotaoGoogle";
 import { useTituloDaPagina } from "../lib/tituloDaPagina";
 import { mensagemDeErro } from "../lib/erros";
 import { formatPhone } from "../lib/phone";
+import { LOGIN_EMAIL_ATIVO, LOGIN_TELEFONE_ATIVO } from "../config";
 
 /**
  * Entrar: pelo telefone, pelo Google, ou por e-mail e senha.
@@ -30,6 +31,13 @@ import { formatPhone } from "../lib/phone";
  * E-mail e senha ficam recolhidos atrás de um toque. Não por serem piores,
  * mas porque quem quer esse caminho já sabe que quer, e quem não quer não
  * precisa ler dois campos a mais para achar o que veio fazer.
+ *
+ * **Hoje só o Google está no ar.** As duas portas novas dependem de ajuste
+ * no painel do Supabase (ver `LOGIN_TELEFONE_ATIVO` e `LOGIN_EMAIL_ATIVO`
+ * em `config.ts`) e ficam escondidas até lá — inteiras, não desabilitadas.
+ * Botão cinza com "em breve" é pior que ausência: quem precisava daquele
+ * caminho vai embora sabendo que ele existe e não funciona, e ainda tenta
+ * de novo amanhã.
  */
 export function LoginPage() {
   useTituloDaPagina("Entrar");
@@ -78,6 +86,7 @@ export function LoginPage() {
       )}
 
       {/* --- Telefone: o caminho principal ---------------------------- */}
+      {LOGIN_TELEFONE_ATIVO && (
       <section className="entrar-bloco">
         {passoTelefone === "numero" ? (
           <>
@@ -152,14 +161,15 @@ export function LoginPage() {
           </>
         )}
       </section>
+      )}
 
-      <p className="entrar-ou">ou</p>
+      {LOGIN_TELEFONE_ATIVO && <p className="entrar-ou">ou</p>}
 
       <BotaoGoogle onClick={() => tentar(() => signInWithGoogle("/perfil"))} disabled={!hasDatabase()} />
       <BotaoApple voltarPara="/perfil" onErro={setError} />
 
       {/* --- E-mail e senha: recolhido ------------------------------- */}
-      {!comEmail ? (
+      {!LOGIN_EMAIL_ATIVO ? null : !comEmail ? (
         <button type="button" className="entrar-link" onClick={() => setComEmail(true)}>
           Entrar com e-mail e senha
         </button>

@@ -68,3 +68,62 @@ export function precoDoBanner(): string {
  * de configurar o provedor Apple no Supabase.
  */
 export const LOGIN_APPLE_ATIVO = (import.meta.env.VITE_APPLE_LOGIN ?? "") === "1";
+
+/* ---------------------------------------------------------------------
+   As portas de entrada que dependem de configuração no painel do Supabase
+   ---------------------------------------------------------------------
+
+   As três chaves abaixo nascem desligadas, e isso foi decidido de
+   propósito: cada uma delas, ligada sem o ajuste correspondente no
+   Supabase, vira uma porta que não abre — e porta que não abre custa mais
+   confiança do que porta que não existe. A pessoa digita o número, aperta
+   "receber código", vê "Enviando…" e espera para sempre. Não há erro
+   nenhum na tela dizendo o que houve, porque do lado do app nada deu
+   errado.
+
+   Ligar cada uma é trocar o valor por "1" numa variável na Vercel
+   (Settings > Environment Variables), sem mexer no código.
+   ------------------------------------------------------------------- */
+
+/**
+ * Entrar pelo celular, com código por SMS.
+ *
+ * Antes de ligar: Supabase > Authentication > Sign In / Providers > Phone,
+ * conferindo se **criar conta nova pelo telefone** está permitido. O envio
+ * de código já funciona no app (é o que confirma o número de quem anuncia),
+ * mas confirmar o número de uma conta que já existe e *nascer* uma conta
+ * pelo número são coisas separadas no painel.
+ *
+ * Variável: VITE_LOGIN_TELEFONE
+ */
+export const LOGIN_TELEFONE_ATIVO = (import.meta.env.VITE_LOGIN_TELEFONE ?? "") === "1";
+
+/**
+ * Entrar com e-mail e senha, com "criar conta" e "esqueci a senha".
+ *
+ * Antes de ligar: Supabase > Authentication > SMTP Settings, com um
+ * remetente de verdade. O remetente que vem de fábrica tem limite baixo por
+ * hora e cai em spam — e os dois caminhos que este login precisa
+ * (confirmar o cadastro e recuperar a senha) são exatamente os que morrem
+ * quando o e-mail não chega. Sem SMTP, quem criar conta fica sem conseguir
+ * entrar nela.
+ *
+ * Variável: VITE_LOGIN_EMAIL
+ */
+export const LOGIN_EMAIL_ATIVO = (import.meta.env.VITE_LOGIN_EMAIL ?? "") === "1";
+
+/**
+ * Exigir número confirmado nas telas de conta.
+ *
+ * Esta não depende de configuração nova — usa o mesmo envio de código que
+ * já funciona. Nasce desligada por outro motivo: ela é a única mudança
+ * daqui que pode **impedir alguém de usar o que já usava**. Quem entrou
+ * pelo Google e não confirmou o número topa com a barreira no painel, no
+ * perfil, nos favoritos e na administração — e isso inclui a dona do app.
+ *
+ * Uma barreira dessas não deve estrear enquanto não houver ninguém
+ * disponível para socorrer quem ficar do lado de fora.
+ *
+ * Variável: VITE_EXIGIR_NUMERO
+ */
+export const EXIGIR_NUMERO_ATIVO = (import.meta.env.VITE_EXIGIR_NUMERO ?? "") === "1";
