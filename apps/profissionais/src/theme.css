@@ -637,23 +637,6 @@ textarea::placeholder {
   letter-spacing: -0.01em;
 }
 
-/* A barra de quem administra tem um item a mais, e é só ela.
-   Cinco itens cabem folgados em qualquer celular; seis não: medido em tela
-   de 360px, a coluna cai para 51px e "Anúncios" pede 53px — cortava por
-   dois pixels, e só na tela da administração.
-   Em vez de encolher a fonte para todo mundo por causa de uma tela que
-   quase ninguém vê, o aperto fica onde ele existe. Abaixo de uns 330px o
-   nome ainda termina em reticências; é aparelho raro, é a barra de uma
-   pessoa só, e reticências dizem mais do que ícone sem nome. */
-.bottom-nav.com-admin .bottom-nav-item {
-  padding: 0;
-}
-
-.bottom-nav.com-admin .bottom-nav-rotulo {
-  font-size: 0.6rem;
-  letter-spacing: -0.02em;
-}
-
 /* O item ativo fica na cor da marca e com traço mais grosso — é o mesmo
    recurso do Instagram (lá o ícone vira cheio), e aqui funciona sem
    precisar de um segundo desenho para cada ícone. */
@@ -5127,18 +5110,3 @@ h3 {
   font-weight: 700;
 }
 
-/* Coluna vazia que reequilibra a barra de quem administra — ver AppShell.
-   Ocupa uma fração igual à dos outros itens e não recebe toque.
-
-   A conta não tem meio-termo: para o botão cair no centro exato com seis
-   itens, a coluna vazia precisa valer uma coluna inteira. Medido, isso
-   custa "Anúncios" terminar em reticências na barra da administração em
-   telas de até 360px — em 390px, que é o tamanho do celular dela, tudo
-   cabe. Fica assim de propósito: botão fora do centro é o que ela viu e
-   apontou; uma palavra com reticências, numa barra que uma pessoa só
-   enxerga, é o preço menor. */
-.bottom-nav-espaco {
-  flex: 1;
-  min-width: 0;
-  pointer-events: none;
-}

@@ -5,7 +5,6 @@ import { InstalarApp } from "./InstalarApp";
 import { PuxarParaAtualizar } from "./PuxarParaAtualizar";
 import { AvisoDeVersao } from "./AvisoDeVersao";
 import { useAuth } from "../lib/useAuth";
-import { isAdmin } from "../lib/admin";
 import { useOnlineCount } from "../lib/presence";
 import { MarcaProcuro } from "./MarcaProcuro";
 
@@ -276,22 +275,6 @@ function Header() {
 export function AppShell({ children }: { children: ReactNode }) {
   const location = useLocation();
   const { user } = useAuth();
-  const [admin, setAdmin] = useState(false);
-
-  useEffect(() => {
-    if (!user) {
-      setAdmin(false);
-      return;
-    }
-    let active = true;
-    isAdmin(user.id).then((v) => {
-      if (active) setAdmin(v);
-    });
-    return () => {
-      active = false;
-    };
-  }, [user]);
-
   const path = location.pathname;
   /* O "Guia" saiu da barra e virou "Anúncios".
      
@@ -310,9 +293,18 @@ export function AppShell({ children }: { children: ReactNode }) {
      favoritos"), e o coração de salvar continua em cada cartão da busca,
      que é onde a pessoa realmente usa. */
 
-  // A tela de início vem antes de qualquer escolha: mostrar a barra de
-  // navegação ali seria oferecer cinco caminhos justamente na tela cujo
-  // trabalho é perguntar qual deles a pessoa quer.
+  /* A tela de início esconde o cabeçalho, mas não a barra de baixo.
+
+     O argumento para escondê-la era que aquela tela vem antes de qualquer
+     escolha, e oferecer cinco caminhos ali atrapalharia a pergunta que ela
+     faz. Só que a tela de início não é mais só a porta de entrada: dá para
+     voltar a ela pela casinha do cabeçalho, a qualquer momento, e quem faz
+     isso ficava sem saída nenhuma — a única forma de sair era a casinha,
+     que desaparece justamente ali. A dona pediu a barra nesta tela por
+     isso.
+
+     O cabeçalho continua fora: a marca é o assunto da tela, e repeti-la
+     menor no alto só duplicaria. */
   const isWelcome = path === "/inicio";
 
   return (
@@ -321,25 +313,31 @@ export function AppShell({ children }: { children: ReactNode }) {
       <AvisoDeVersao />
       {!isWelcome && <Header />}
       {!isWelcome && <BotaoFechar />}
-      <div className={isWelcome ? undefined : "app-content"}>{children}</div>
-      {isWelcome ? null : (
-      <nav className={`bottom-nav${admin ? " com-admin" : ""}`}>
+      {/* `app-content` também na tela de início: é ele que reserva o espaço
+          da barra embaixo. Sem isso, o último botão da apresentação fica
+          escondido atrás dela. */}
+      <div className="app-content">{children}</div>
+      {(
+      <nav className="bottom-nav">
         {/* Voltar em primeiro, à esquerda: é onde o dedo já procura e é a
             ordem de leitura. Botão e não Link, porque o destino não é uma
             tela fixa — é a anterior, qualquer que tenha sido. */}
-        {/* Espaço vazio, e só na barra de quem administra.
+        {/* Cinco itens, para todo mundo, sempre.
 
-            O botão do meio fica centrado porque tem o mesmo número de
-            itens dos dois lados. Com cinco itens isso acontece sozinho;
-            com o de administração são seis, sobra um à direita, e o
-            círculo escorrega 30px para a esquerda — foi o que a dona viu
-            no próprio celular, e o que fez o botão parecer fora do lugar
-            mesmo depois de colado na barra.
+            O botão redondo do meio só fica centrado quando há o mesmo
+            número de itens dos dois lados — ou seja, com um total ímpar.
+            A barra da administração tinha seis, e nenhuma arrumação de
+            ordem conserta isso: com seis, ou o botão escorrega uns 30px
+            para um lado, ou sobra uma coluna vazia numa das pontas. As
+            duas foram tentadas aqui, e as duas foram vistas como barra
+            torta — a segunda com razão, porque um buraco na borda é pior
+            que um desvio.
 
-            Uma coluna vazia à esquerda reequilibra a conta sem tirar nada
-            de ninguém: três de um lado, três do outro, e o círculo volta
-            ao meio exato. */}
-        {admin && <span className="bottom-nav-espaco" aria-hidden="true" />}
+            A administração saiu da barra e virou um item do Perfil. Não é
+            perda: o painel administrativo é ferramenta de uma pessoa só, e
+            um toque a mais para chegar nele custa menos do que uma barra
+            errada para todo mundo. O que a cidade inteira usa —
+            Anúncios, Buscar, Painel, Perfil — continua onde estava. */}
         <BotaoVoltar />
         {/* Cor própria: é o único item da barra que leva a algo pago, e
             distinguir isso do resto é honestidade, não enfeite. Quem toca
@@ -357,9 +355,7 @@ export function AppShell({ children }: { children: ReactNode }) {
             com "Anúncios" e "Painel", que quase ninguém abre. O destaque
             aqui não é enfeite copiado de outro aplicativo: é dizer, sem
             texto, qual das cinco a pessoa veio fazer.
-            Continua sendo o terceiro item com ou sem a administração —
-            com seis não existe meio exato, e o polegar procura pela
-            posição, não pela contagem. */}
+            É sempre o terceiro de cinco, ou seja, o meio exato. */}
         <NavItem
           to="/"
           label="Buscar"
@@ -381,12 +377,6 @@ export function AppShell({ children }: { children: ReactNode }) {
           active={path.startsWith("/perfil") || path === "/login"}
           tour="nav-favoritos"
         />
-        {/* Por último, e só para quem é administração: assim as posições
-            de Buscar, Anúncios e Painel são as mesmas para todo mundo, e
-            o dedo não precisa reaprender a barra ao entrar na conta. */}
-        {admin && (
-          <NavItem to="/admin" label="Admin" icon={<IconFlag />} active={path.startsWith("/admin")} />
-        )}
       </nav>
       )}
     </>
