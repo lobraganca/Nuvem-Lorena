@@ -1,4 +1,5 @@
 {
+  "id": "/",
   "name": "procurô",
   "short_name": "procurô",
   "description": "Marketplace de busca de profissionais verificados por cidade, com avaliações e selo de verificação.",
@@ -7,8 +8,10 @@
   "display": "standalone",
   "orientation": "portrait",
   "background_color": "#FFFFFF",
-  "theme_color": "#FFFFFF",
+  "theme_color": "#E6EEFB",
   "lang": "pt-BR",
+  "dir": "ltr",
+  "categories": ["business", "utilities", "lifestyle"],
   "icons": [
     {
       "src": "/icon-192.png",
@@ -27,6 +30,26 @@
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "maskable"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Buscar profissional",
+      "short_name": "Buscar",
+      "url": "/",
+      "icons": [{ "src": "/icon-192.png", "sizes": "192x192" }]
+    },
+    {
+      "name": "Meu painel",
+      "short_name": "Painel",
+      "url": "/painel",
+      "icons": [{ "src": "/icon-192.png", "sizes": "192x192" }]
+    },
+    {
+      "name": "Meus favoritos",
+      "short_name": "Favoritos",
+      "url": "/favoritos",
+      "icons": [{ "src": "/icon-192.png", "sizes": "192x192" }]
     }
   ]
 }
