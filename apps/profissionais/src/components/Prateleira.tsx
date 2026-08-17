@@ -27,6 +27,7 @@ export function Prateleira({
   ancora,
   minimo = 3,
   quantidade,
+  duasFileiras = false,
   children,
 }: {
   titulo: string;
@@ -38,6 +39,8 @@ export function Prateleira({
   minimo?: number;
   /** Quantos itens a fileira tem. Decide se a prateleira aparece. */
   quantidade: number;
+  /** Empilha em duas linhas em vez de uma — para muitos itens pequenos. */
+  duasFileiras?: boolean;
   children: ReactNode;
 }) {
   if (quantidade < minimo) return null;
@@ -58,7 +61,7 @@ export function Prateleira({
       {/* `role="list"` porque a rolagem horizontal precisa de um contêiner
           com `overflow`, e um `<ul>` com `overflow-x` e `display: flex`
           perde o papel de lista em alguns leitores de tela. */}
-      <div className="prateleira-fileira" role="list">
+      <div className={`prateleira-fileira${duasFileiras ? " prateleira-duas" : ""}`} role="list">
         {children}
       </div>
     </section>

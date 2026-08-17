@@ -9,6 +9,7 @@ import {
   getCategoriasComAnuncio,
   getCidadesComAnuncio,
   getMaisVistos,
+  getRecomendados,
   isCurrentlyBoosted,
   isCurrentlyVerified,
   searchProfessionals,
@@ -101,6 +102,7 @@ export function HomePage() {
      mas misturá-las faria a vitrine sumir e voltar a cada tecla digitada. */
   const [vitrine, setVitrine] = useState<ProfessionalWithRating[]>([]);
   const [emAlta, setEmAlta] = useState<ProfessionalWithRating[]>([]);
+  const [recomendados, setRecomendados] = useState<ProfessionalWithRating[]>([]);
   const [loading, setLoading] = useState(false);
   /* Falha de busca tem tela própria. Enquanto `searchProfessionals`
      devolvia lista vazia em caso de erro, "não achamos ninguém" cobria
@@ -192,6 +194,10 @@ export function HomePage() {
     getMaisVistos()
       .then((lista) => ativo && setEmAlta(lista))
       .catch(() => ativo && setEmAlta([]));
+
+    getRecomendados()
+      .then((lista) => ativo && setRecomendados(lista))
+      .catch(() => ativo && setRecomendados([]));
 
     return () => {
       ativo = false;
@@ -290,6 +296,20 @@ export function HomePage() {
     setText("");
     setDebouncedText("");
     setCategory(oficio);
+  }
+
+  /* O chip do topo leva à parte da fileira onde aquele grupo começa.
+
+     Era um link de âncora, e funcionava enquanto cada grupo tinha a sua
+     faixa. Com todos os ofícios numa fileira só, âncora não serve: o
+     navegador rolaria a *página* até um item que já está visível, sem mexer
+     na rolagem lateral, que é onde o grupo está escondido. Aqui a página
+     vai até a faixa e a fileira anda de lado até o primeiro ofício do
+     grupo — as duas coisas que faltavam. */
+  function irParaOGrupo(id: string) {
+    const alvo = document.getElementById(`grupo-${id}`);
+    if (!alvo) return;
+    alvo.scrollIntoView({ behavior: "smooth", block: "nearest", inline: "start" });
   }
 
   function verTodosOsServicos() {
@@ -599,10 +619,15 @@ export function HomePage() {
           {gruposComGente.length > 0 && (
             <div className="chips-grupo" role="tablist" aria-label="Grupos de serviço">
               {gruposComGente.map((g) => (
-                <a key={g.nome} href={`#grupo-${idDoGrupo(g.nome)}`} className="chip-grupo">
-                  <IconeDeServico categoria={g.itens[0]} tamanho={18} />
+                <button
+                  key={g.nome}
+                  type="button"
+                  className="chip-grupo"
+                  onClick={() => irParaOGrupo(idDoGrupo(g.nome))}
+                >
+                  <IconeDeServico categoria={g.itens[0]} tamanho={16} />
                   {g.nome}
-                </a>
+                </button>
               ))}
             </div>
           )}
@@ -614,6 +639,20 @@ export function HomePage() {
             quantidade={emAlta.length}
           >
             {emAlta.map((p) => (
+              <CartaoVitrine key={p.id} p={p} />
+            ))}
+          </Prateleira>
+
+          {/* Antes de "bem avaliados", porque é mais forte: nota alta com
+              uma avaliação só pode ser um primo; aqui houve serviço
+              prestado e quem pagou disse que valeu. */}
+          <Prateleira
+            titulo="Recomendados"
+            subtitulo="Quem já foi contratado e voltou bem avaliado"
+            quantidade={recomendados.length}
+            minimo={2}
+          >
+            {recomendados.map((p) => (
               <CartaoVitrine key={p.id} p={p} />
             ))}
           </Prateleira>
@@ -638,30 +677,45 @@ export function HomePage() {
             ))}
           </Prateleira>
 
-          {/* Uma prateleira por grupo, com os ofícios que têm gente hoje.
-              O comércio não disputa espaço com o autônomo aqui: cada um
-              está no seu grupo, e "Comércio e hospedagem" é uma faixa como
-              qualquer outra — o que resolve, por outro caminho, o mesmo
-              problema que a grade única resolvia. */}
-          {gruposComGente.map((g) => (
-            <Prateleira
-              key={g.nome}
-              titulo={g.nome}
-              ancora={`grupo-${idDoGrupo(g.nome)}`}
-              verTudo="/categorias"
-              minimo={1}
-              quantidade={g.itens.length}
-            >
-              {g.itens.map((nome) => (
+          {/* Todos os ofícios num bloco só, em duas fileiras.
+
+              Cada grupo já teve a sua prateleira: dez títulos, dez faixas
+              cinzentas, cartões grandes de três em três. Somado, dava uma
+              tela que não acabava mais para dizer uma coisa simples — quais
+              serviços existem na cidade. Era muito pedaço para pouca
+              informação, e foi assim que a dona descreveu: segmentado
+              demais, ocupando espaço demais.
+
+              Agora é uma faixa só. Os ofícios continuam na ordem dos
+              grupos, então os parecidos seguem vizinhos, e cada chip lá em
+              cima rola esta fileira até o começo do seu grupo — o que os
+              dez títulos faziam, sem os dez títulos.
+
+              Duas fileiras e não uma: com uma, a pastilha ficaria sozinha
+              numa faixa alta e sobraria branco embaixo; com três, a fileira
+              passa da altura da tela e vira outra coisa para rolar. */}
+          <Prateleira
+            titulo="Serviços em Itabirito"
+            subtitulo="Toque para ver quem faz"
+            verTudo="/categorias"
+            minimo={1}
+            quantidade={quantosPorOficio.size}
+            duasFileiras
+          >
+            {gruposComGente.flatMap((g) =>
+              g.itens.map((nome, i) => (
                 <button
                   key={nome}
                   type="button"
                   className="cartao-oficio"
                   role="listitem"
+                  /* O primeiro de cada grupo carrega a âncora: é nele que o
+                     chip do topo encosta a rolagem. */
+                  id={i === 0 ? `grupo-${idDoGrupo(g.nome)}` : undefined}
                   onClick={() => setCategory(nome)}
                 >
                   <span className="cartao-oficio-simbolo">
-                    <IconeDeServico categoria={nome} tamanho={26} />
+                    <IconeDeServico categoria={nome} tamanho={18} />
                   </span>
                   <span className="cartao-oficio-nome">{nome}</span>
                   {/* "Opções" e não "profissionais": na mesma fileira
@@ -677,9 +731,9 @@ export function HomePage() {
                     {quantosPorOficio.get(nome) === 1 ? "1 opção" : `${quantosPorOficio.get(nome)} opções`}
                   </span>
                 </button>
-              ))}
-            </Prateleira>
-          ))}
+              ))
+            )}
+          </Prateleira>
 
           {/* A saída de quem não achou o ofício em nenhuma prateleira, e a
               instrução depois dela: quem já sabe o que quer toca num cartão

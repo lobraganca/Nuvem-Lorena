@@ -792,6 +792,72 @@ export async function getMaisVistos(dias = 7, quantos = 12): Promise<Professiona
   return ids.map((id) => porId.get(id)).filter((p): p is ProfessionalWithRating => p !== undefined);
 }
 
+/**
+ * Recomendados: quem foi contratado e voltou avaliado.
+ *
+ * As outras prateleiras da tela inicial respondem "quem está sendo
+ * procurado" (em alta), "quem tirou nota boa" (bem avaliados) e "quem
+ * chegou agora" (novos). Faltava a mais forte de todas, e a única que uma
+ * pessoa daria a um vizinho: **de quem alguém realmente contratou e não se
+ * arrependeu**.
+ *
+ * A diferença não é sutil. Nota alta com uma avaliação de cinco estrelas
+ * pode ser um primo. Aqui só entra cadastro com avaliação em que quem
+ * escreveu marcou `contratou` — a declaração de que houve serviço
+ * prestado, e não só contato — e com nota de 4 para cima.
+ *
+ * Sai de `reviews_public`, que já é de leitura pública, então não precisa
+ * de migration. O teto de linhas existe porque esta é a tela mais aberta
+ * do app: numa cidade pequena as avaliações cabem folgadas nele, e no dia
+ * em que não couberem, a prateleira fica com as mais recentes, que é uma
+ * degradação aceitável para uma vitrine.
+ */
+export async function getRecomendados(quantos = 12): Promise<ProfessionalWithRating[]> {
+  const client = supabase();
+  if (!client) return [];
+
+  const { data: avaliacoes, error } = await client
+    .from("reviews_public")
+    .select("professional_id, rating")
+    .eq("contratou", true)
+    .gte("rating", 4)
+    .order("created_at", { ascending: false })
+    .limit(400);
+  if (error) throw error;
+
+  /* Mais indicações primeiro; empate desempata pela nota somada, senão a
+     ordem sairia do acaso do banco. */
+  const porPessoa = new Map<string, { quantas: number; soma: number }>();
+  for (const a of (avaliacoes ?? []) as { professional_id: string; rating: number }[]) {
+    const atual = porPessoa.get(a.professional_id) ?? { quantas: 0, soma: 0 };
+    porPessoa.set(a.professional_id, { quantas: atual.quantas + 1, soma: atual.soma + a.rating });
+  }
+  const ids = [...porPessoa.entries()]
+    .sort((a, b) => b[1].quantas - a[1].quantas || b[1].soma - a[1].soma)
+    .slice(0, quantos)
+    .map(([id]) => id);
+  if (ids.length === 0) return [];
+
+  const { data, error: erroLinhas } = await client
+    .from("professionals_public")
+    .select("*")
+    .in("id", ids);
+  if (erroLinhas) throw erroLinhas;
+
+  const ratings = await fetchRatingsMap(client, ids);
+  const porId = new Map(
+    (data ?? []).map((p) => [
+      p.id as string,
+      {
+        ...p,
+        average_rating: ratings[p.id]?.average_rating ?? null,
+        review_count: ratings[p.id]?.review_count ?? 0,
+      } as ProfessionalWithRating,
+    ])
+  );
+  return ids.map((id) => porId.get(id)).filter((p): p is ProfessionalWithRating => p !== undefined);
+}
+
 export async function countRecentProfileViewsDeVarios(
   professionalIds: string[],
   days = 30

@@ -8,11 +8,11 @@ type Linha = Record<string, unknown>;
 const AGORA = Date.now();
 const emDias = (d: number) => new Date(AGORA + d * 86400000).toISOString();
 
-const CATS = ["Eletricista", "Encanador", "Confeiteira", "Manicure", "Diarista"];
+const CATS = ["Encanador", "Eletricista", "Pedreiro", "Pintor", "Marceneiro", "Serralheiro", "Vidraceiro", "Gesseiro", "Marido de aluguel", "Montador de móveis", "Chaveiro", "Jardineiro", "Piscineiro", "Dedetizador", "Diarista", "Passadeira", "Cuidador de idosos", "Babá", "Técnico em informática", "Técnico em celulares", "Refrigeração e ar-condicionado", "Conserto de eletrodomésticos", "Mecânico", "Borracheiro", "Lavagem de carros", "Funilaria e pintura automotiva", "Cabeleireiro", "Barbeiro", "Manicure", "Depilação", "Maquiadora", "Estética e sobrancelhas", "Massagista", "Personal trainer", "Nutricionista", "Fisioterapeuta", "Psicólogo", "Professor particular", "Professor de inglês", "Professor de música"];
 
 /* Quantos cadastros o banco falso tem. Trocar para 3 exercita a cidade
    quase vazia, que é onde a tela inicial em prateleiras pode ficar feia. */
-const QUANTOS = Number(new URLSearchParams(location.search).get("falsos") ?? 24);
+const QUANTOS = Number(new URLSearchParams(location.search).get("falsos") ?? 60);
 
 const professionals: Linha[] = Array.from({ length: QUANTOS }, (_, i) => ({
   id: `pro-${i}`,
@@ -49,7 +49,13 @@ const TABELAS: Record<string, Linha[]> = {
     average_rating: i % 3 === 0 ? null : 3 + (i % 3),
     review_count: i % 3 === 0 ? 0 : i % 7,
   })),
-  reviews_public: [],
+  reviews_public: professionals.slice(0, 8).flatMap((p, i) =>
+    Array.from({ length: (i % 3) + 1 }, (_, j) => ({
+      id: `av-${i}-${j}`, professional_id: p.id, user_id: `u-${j}`,
+      rating: 4 + (j % 2), contratou: true, comment: "", tags: [],
+      created_at: emDias(-i),
+    }))
+  ),
   profile_views: [],
   contact_requests: [],
   banners: [],

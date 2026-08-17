@@ -4756,8 +4756,10 @@ h3 {
 /* --- A prateleira --------------------------------------------------- */
 
 .prateleira {
-  margin-top: 22px;
-  padding: 16px 0 18px;
+  /* Espaço entre faixas: era 22px de fora e 16/18 de dentro, e com dez
+     faixas isso somava mais altura em respiro do que em conteúdo. */
+  margin-top: 14px;
+  padding: 12px 0 14px;
   border-radius: var(--radius-lg);
   background: var(--color-bg-soft);
   /* Sangra igual aos chips: a fileira de dentro precisa poder encostar na
@@ -4914,17 +4916,23 @@ h3 {
 
 /* --- Cartão de ofício (categoria) ----------------------------------- */
 
+/* Pastilha, não cartão.
+
+   O cartão de ofício tinha 116px de largura e 108 de altura, com o ícone em
+   26px — três deles ocupavam a tela inteira de lado, e a lista de serviços
+   da cidade virava uma rolagem sem fim. A informação de cada um é curta
+   (um desenho, um nome, um número), e não precisava de tanto. */
 .cartao-oficio {
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 4px;
+  gap: 2px;
   flex: none;
-  width: 116px;
-  min-height: 108px;
-  padding: 12px 8px;
-  border-radius: 14px;
+  width: 92px;
+  min-height: 78px;
+  padding: 8px 6px;
+  border-radius: 12px;
   background: var(--color-surface);
   border: 1px solid var(--color-border);
   color: var(--color-text);
@@ -4943,16 +4951,34 @@ h3 {
 }
 
 .cartao-oficio-nome {
-  font-size: 0.82rem;
+  font-size: 0.72rem;
   font-weight: 600;
-  line-height: 1.2;
+  line-height: 1.15;
   overflow-wrap: break-word;
   min-width: 0;
+  /* Duas linhas no máximo: "Refrigeração e ar-condicionado" ocupava quatro e
+     esticava a fileira inteira para acomodar um nome só. */
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
 }
 
 .cartao-oficio-quantos {
-  font-size: 0.74rem;
+  font-size: 0.66rem;
   color: var(--color-text-muted);
+}
+
+/* Duas fileiras em vez de uma.
+   `grid-auto-flow: column` enche de cima para baixo e só então anda para o
+   lado — que é o que faz a lista longa ocupar metade do comprimento sem
+   ficar mais alta do que um cartão e meio. */
+.prateleira-fileira.prateleira-duas {
+  display: grid;
+  grid-auto-flow: column;
+  grid-template-rows: repeat(2, auto);
+  gap: 8px;
+  align-items: stretch;
 }
 
 /* --- O botão do meio da barra --------------------------------------- */
