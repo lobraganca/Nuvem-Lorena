@@ -206,7 +206,9 @@ export function HomePage() {
   }, []);
 
   useEffect(() => {
-    getCidadesComAnuncio().then(setCidades);
+    /* A lista de cidades é conveniência: se falhar, o seletor fica com as
+       cidades fixas do app e ninguém perde nada. */
+    getCidadesComAnuncio().then(setCidades).catch(() => {});
     // O filtro de serviços vem dos cadastros, não da lista fixa do código:
     // quem escreveu o próprio ofício no cadastro precisa ser encontrável por
     // ele, e serviço sem ninguém cadastrado só levaria a uma tela vazia.

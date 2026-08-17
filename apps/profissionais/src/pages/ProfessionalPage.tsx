@@ -80,6 +80,8 @@ export function ProfessionalPage() {
   const [comment, setComment] = useState("");
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
+  /** Falha ao carregar o cadastro ou as avaliações. */
+  const [erroAoCarregar, setErroAoCarregar] = useState("");
   const [reportOpen, setReportOpen] = useState(false);
   const [reportReason, setReportReason] = useState<string>(REPORT_REASONS[0]);
   const [reportDetails, setReportDetails] = useState("");
@@ -149,10 +151,20 @@ export function ProfessionalPage() {
 
   async function load() {
     if (!id) return;
-    const [p, r, c] = await Promise.all([getProfessional(id), getReviews(id), getCatalogo(id)]);
-    setProfessional(p);
-    setReviews(r);
-    setCatalogo(c);
+    /* As avaliações agora avisam quando a consulta falha, em vez de
+       devolverem lista vazia. Sem este `catch`, a falha derrubaria a
+       página inteira no ErrorBoundary — e o cadastro, que carregou bem,
+       sumiria junto. Aqui a página abre, e o que não veio diz que não
+       veio. */
+    setErroAoCarregar("");
+    try {
+      const [p, r, c] = await Promise.all([getProfessional(id), getReviews(id), getCatalogo(id)]);
+      setProfessional(p);
+      setReviews(r);
+      setCatalogo(c);
+    } catch (err) {
+      setErroAoCarregar(mensagemDeErro(err, "Não foi possível carregar esta página agora."));
+    }
   }
 
   useEffect(() => {
@@ -197,7 +209,11 @@ export function ProfessionalPage() {
       setIsFavorite(false);
       return;
     }
-    getFavoriteIds(user.id).then((ids) => setIsFavorite(ids.has(id)));
+    /* Falhar aqui deixa o coração vazio, e isso é aceitável: é um detalhe
+       da tela, não o conteúdo dela. O que não pode é derrubar a página. */
+    getFavoriteIds(user.id)
+      .then((ids) => setIsFavorite(ids.has(id)))
+      .catch(() => setIsFavorite(false));
   }, [user, id]);
 
 
@@ -357,6 +373,24 @@ export function ProfessionalPage() {
     } finally {
       setReportSaving(false);
     }
+  }
+
+  /* Falha vem antes de "não encontramos": as duas telas eram a mesma, e
+     "este cadastro saiu do ar" dito por causa de uma queda de rede é a
+     pior frase possível — quem lê conclui que a pessoa foi banida. */
+  if (erroAoCarregar) {
+    return (
+      <div className="container">
+        <div className="card" style={{ marginTop: 40 }}>
+          <h1 style={{ marginTop: 0, fontSize: "1.3rem" }}>Não deu para abrir esta página</h1>
+          <p className="muted">{erroAoCarregar}</p>
+          <p className="muted">O cadastro continua no ar — foi a conexão que falhou.</p>
+          <button type="button" className="btn btn-primary" onClick={() => void load()}>
+            Tentar de novo
+          </button>
+        </div>
+      </div>
+    );
   }
 
   if (!professional) {

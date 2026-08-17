@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import { CartaoProfissional } from "../components/CartaoProfissional";
 import { getFavoriteProfessionals, type ProfessionalWithRating } from "../lib/professionals";
 import { useAuth } from "../lib/useAuth";
+import { mensagemDeErro } from "../lib/erros";
 import { useTituloDaPagina } from "../lib/tituloDaPagina";
 
 export function FavoritosPage() {
@@ -10,6 +11,7 @@ export function FavoritosPage() {
   const { user, loading: authLoading } = useAuth();
   const [results, setResults] = useState<ProfessionalWithRating[]>([]);
   const [loading, setLoading] = useState(true);
+  const [erro, setErro] = useState("");
 
   useEffect(() => {
     if (!user) {
@@ -18,8 +20,13 @@ export function FavoritosPage() {
       return;
     }
     setLoading(true);
+    setErro("");
     getFavoriteProfessionals(user.id)
       .then(setResults)
+      /* "Você ainda não guardou ninguém" é o que a tela diz quando a lista
+         volta vazia. Falha não pode cair nessa frase: quem tem vinte
+         favoritos leria que não tem nenhum. */
+      .catch((err) => setErro(mensagemDeErro(err, "Não foi possível carregar seus favoritos.")))
       .finally(() => setLoading(false));
   }, [user]);
 
@@ -33,7 +40,9 @@ export function FavoritosPage() {
         </p>
       )}
 
-      {user && !loading && results.length === 0 && (
+      {erro && <p className="entrar-erro">{erro}</p>}
+
+      {user && !loading && !erro && results.length === 0 && (
         /* Vazio com saída: quem chega aqui sem favoritos não errou nada, só
            ainda não guardou ninguém — e o caminho de volta é a busca. */
         <div className="card" style={{ display: "grid", gap: 8, justifyItems: "start" }}>

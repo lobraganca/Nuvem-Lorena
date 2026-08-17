@@ -139,15 +139,33 @@ export function PainelPage() {
    * servidor chegar.
    */
   const [carregouCadastros, setCarregouCadastros] = useState(false);
+  /** Falha ao carregar os cadastros. Vazio = deu certo (ou ainda está indo). */
+  const [erroAoCarregar, setErroAoCarregar] = useState("");
+  /** Muda a cada "tentar de novo", para o efeito rodar outra vez. */
+  const [tentativaDeCarregar, setTentativaDeCarregar] = useState(0);
 
   useEffect(() => {
-    if (user) {
-      getMyProfessionals(user.id).then((lista) => {
+    if (!user) return;
+    let ativo = true;
+    setErroAoCarregar("");
+    getMyProfessionals(user.id)
+      .then((lista) => {
+        if (!ativo) return;
         setMine(lista);
         setCarregouCadastros(true);
+      })
+      /* Falhar não pode ser confundido com "não tem cadastro".
+         `carregouCadastros` continua falso de propósito: é ele que
+         libera a ida para o formulário de cadastro novo, e quem já tem
+         cadastro não pode ser mandado para lá porque a rede caiu. */
+      .catch((err) => {
+        if (!ativo) return;
+        setErroAoCarregar(mensagemDeErro(err, "Não foi possível carregar seus cadastros."));
       });
-    }
-  }, [user]);
+    return () => {
+      ativo = false;
+    };
+  }, [user, tentativaDeCarregar]);
 
   useEffect(() => {
     if (mine.length === 0) return;
@@ -324,6 +342,29 @@ export function PainelPage() {
      convite para começar, a pessoa já chega no formulário. Ela veio para
      preencher, e um toque a mais entre a intenção e o primeiro campo é
      exatamente o degrau em que metade das contas criadas parou. */
+  /* Antes do redirecionamento, sempre: a tela de erro existe justamente
+     para não deixar uma falha de rede virar "você não tem cadastro". */
+  if (erroAoCarregar) {
+    return (
+      <div className="container" style={{ maxWidth: 460, paddingTop: 48 }}>
+        <div className="card">
+          <h1 style={{ marginTop: 0 }}>Não deu para abrir seus cadastros</h1>
+          <p className="muted">{erroAoCarregar}</p>
+          <p className="muted">
+            Seus cadastros continuam no lugar — foi a conexão que falhou, não o seu anúncio.
+          </p>
+          <button
+            type="button"
+            className="btn btn-primary btn-block"
+            onClick={() => setTentativaDeCarregar((n) => n + 1)}
+          >
+            Tentar de novo
+          </button>
+        </div>
+      </div>
+    );
+  }
+
   if (carregouCadastros && mine.length === 0) return <Navigate to="/painel/novo" replace />;
 
   /* O plano é do cadastro, não da conta — então a seção de assinaturas

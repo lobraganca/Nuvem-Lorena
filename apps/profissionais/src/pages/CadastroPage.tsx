@@ -176,6 +176,10 @@ export function CadastroPage() {
   const navigate = useNavigate();
 
   const [form, setForm] = useState<FormState>(EMPTY);
+  /* Recado de quando o CEP é de uma cidade que o app não atende. Fica
+     ao lado do seletor de cidade, e não no rodapé do formulário: é ali
+     que a pessoa vai olhar para entender por que a cidade não mudou. */
+  const [avisoDeCidade, setAvisoDeCidade] = useState("");
   const [photoFile, setPhotoFile] = useState<File | null>(null);
   /** Arquivo aguardando enquadramento. Enquanto não for nulo, a folha de
    *  ajuste está aberta e nada foi anexado ao formulário ainda. */
@@ -633,13 +637,20 @@ export function CadastroPage() {
             onChange={(atributos) => setForm({ ...form, atributos })}
           />
         </fieldset>
-        <select value={form.city} onChange={(e) => setForm({ ...form, city: e.target.value })}>
+        <select
+          value={form.city}
+          onChange={(e) => {
+            setForm({ ...form, city: e.target.value });
+            setAvisoDeCidade("");
+          }}
+        >
           {CITIES.map((c) => (
             <option key={c} value={c}>
               {c}
             </option>
           ))}
         </select>
+        {avisoDeCidade && <p className="aviso-cidade">{avisoDeCidade}</p>}
         <textarea placeholder="Conte o que você faz, com suas palavras" value={form.bio} onChange={(e) => setForm({ ...form, bio: e.target.value })} rows={3} />
         <fieldset className="contact-fields">
           <legend>Onde você atende</legend>
@@ -664,13 +675,31 @@ export function CadastroPage() {
               if (cep.replace(/\D/g, "").length === 8) {
                 const encontrado = await buscarCep(cep);
                 if (encontrado) {
+                  /* A cidade do CEP só entra se o app atender essa cidade.
+                     Antes ela entrava sempre, e isso apagava cadastros da
+                     busca sem ninguém perceber: o serviço de endereço
+                     conhece o Brasil inteiro, então quem mora em Rio
+                     Acima, Moeda ou Nova Lima — ou digitou um número
+                     errado — ficava salvo numa cidade que não está na
+                     lista. E como a lista não tem essa opção, ela não
+                     tinha nem como mostrar o que havia acontecido: a
+                     pessoa preenchia tudo, via a tela normal, salvava,
+                     recebia "cadastro salvo" e sumia da busca.
+                     Fora da lista, a escolha dela fica de pé e a tela
+                     diz por quê — que é a única parte disso que ela pode
+                     resolver sozinha. */
+                  const cidadeAtendida =
+                    encontrado.city && (CITIES as readonly string[]).includes(encontrado.city);
+                  setAvisoDeCidade(
+                    encontrado.city && !cidadeAtendida
+                      ? `Este CEP é de ${encontrado.city}, cidade que o procurô ainda não atende. Seu cadastro continua em ${form.city} — é lá que as pessoas vão te encontrar.`
+                      : ""
+                  );
                   setForm((f) => ({
                     ...f,
                     street: encontrado.street || f.street,
                     neighborhood: encontrado.neighborhood || f.neighborhood,
-                    // A cidade do cadastro segue o CEP quando ele responde,
-                    // porque é ela que decide em qual busca a pessoa cai.
-                    city: encontrado.city || f.city,
+                    city: cidadeAtendida ? encontrado.city : f.city,
                   }));
                 }
               }

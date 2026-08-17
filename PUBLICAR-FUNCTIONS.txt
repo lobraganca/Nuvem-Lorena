@@ -14,4 +14,4 @@ Settings > Secrets and variables > Actions:
   SUPABASE_ACCESS_TOKEN
   SUPABASE_PROJECT_REF
 
-Último disparo: 2026-08-13 (deploy migration 0049: remove suspended/paused filters from professionals_public view)
+Último disparo: 2026-08-17 (delete-account passa a apagar tambem as fotos do Storage)

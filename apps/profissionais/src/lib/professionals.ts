@@ -224,7 +224,13 @@ export async function searchProfessionals(filters: SearchFilters): Promise<Profe
 
 async function fetchRatingsMap(client: NonNullable<ReturnType<typeof supabase>>, ids: string[]) {
   if (ids.length === 0) return {} as Record<string, { average_rating: number; review_count: number }>;
-  const { data } = await client.from("professional_ratings").select("*").in("professional_id", ids);
+  /* Falha aqui não pode virar "sem nota": o cartão mostra "Novo por aqui
+     — seja o primeiro a avaliar" quando não há nota, e quem tem trinta
+     avaliações apareceria assim, com a tela perfeita e a reputação
+     apagada. A queixa que chega é "não estou aparecendo", que manda
+     procurar no lugar errado. */
+  const { data, error } = await client.from("professional_ratings").select("*").in("professional_id", ids);
+  if (error) throw error;
   const map: Record<string, { average_rating: number; review_count: number }> = {};
   for (const row of data ?? []) {
     map[row.professional_id] = { average_rating: row.average_rating, review_count: row.review_count };
@@ -251,7 +257,10 @@ export async function getProfessional(id: string): Promise<ProfessionalWithRatin
 export async function getReviews(professionalId: string): Promise<Review[]> {
   const client = supabase();
   if (!client) return [];
-  const { data } = await client
+  /* Sem esta checagem, uma falha aqui apagava as avaliações da página e
+     escrevia "ainda não tem avaliação" — que é o oposto da verdade e o
+     tipo de coisa que faz um cliente escolher outra pessoa. */
+  const { data, error: erroDaConsulta } = await client
     // `reviews_public` em vez de `reviews`: é ela que traz o nome e a foto de
     // quem avaliou, juntando com o perfil público. A tabela crua não tem
     // como — `profiles` só é legível pelo próprio dono, para o CPF não vazar.
@@ -259,6 +268,7 @@ export async function getReviews(professionalId: string): Promise<Review[]> {
     .select("*")
     .eq("professional_id", professionalId)
     .order("created_at", { ascending: false });
+  if (erroDaConsulta) throw erroDaConsulta;
   return data ?? [];
 }
 
@@ -379,7 +389,19 @@ export async function replyToReview(reviewId: string, reply: string) {
 export async function getMyProfessionals(ownerId: string): Promise<ProfessionalWithRating[]> {
   const client = supabase();
   if (!client) return [];
-  const { data } = await client.from("professionals").select("*").eq("owner_id", ownerId).order("created_at", { ascending: false });
+  /* O erro sobe, e não vira lista vazia.
+     Vazio é a condição que manda a pessoa para o formulário de cadastro
+     novo — então uma queda de rede jogava quem já tinha cadastro num
+     formulário em branco, sem aviso nenhum, e quem preenchesse ficava
+     com dois cadastros iguais. "Não achei nada" e "não consegui
+     perguntar" são coisas opostas, e só uma delas pode mandar alguém
+     começar do zero. */
+  const { data, error } = await client
+    .from("professionals")
+    .select("*")
+    .eq("owner_id", ownerId)
+    .order("created_at", { ascending: false });
+  if (error) throw error;
   const meus = (data ?? []) as Professional[];
   const notas = await fetchRatingsMap(client, meus.map((p) => p.id));
   return meus.map((p) => ({
@@ -539,7 +561,10 @@ export async function reportProfessional(input: {
 export async function getFavoriteIds(userId: string): Promise<Set<string>> {
   const client = supabase();
   if (!client) return new Set();
-  const { data } = await client.from("favorites").select("professional_id").eq("user_id", userId);
+  /* Falhar aqui deixava todos os corações vazios, e a pessoa favoritava
+     de novo quem já era favorito. */
+  const { data, error } = await client.from("favorites").select("professional_id").eq("user_id", userId);
+  if (error) throw error;
   return new Set((data ?? []).map((f: { professional_id: string }) => f.professional_id));
 }
 
@@ -551,7 +576,10 @@ export async function getFavoriteProfessionals(userId: string): Promise<Professi
   const ids = (favs ?? []).map((f: { professional_id: string }) => f.professional_id);
   if (ids.length === 0) return [];
   const { data, error } = await client.from("professionals_public").select("*").in("id", ids);
-  if (error || !data) return [];
+  /* Antes devolvia lista vazia, e a tela dizia "você ainda não salvou
+     ninguém" para quem tinha vinte favoritos salvos. */
+  if (error) throw error;
+  if (!data) return [];
   const ratings = await fetchRatingsMap(client, data.map((p) => p.id));
   return data.map((p) => ({
     ...p,
@@ -1004,7 +1032,8 @@ export async function updateContactRequestStatus(
 export async function getCidadesComAnuncio(): Promise<string[]> {
   const client = supabase();
   if (!client) return [];
-  const { data } = await client.from("professionals_public").select("city");
+  const { data, error } = await client.from("professionals_public").select("city");
+  if (error) throw error;
   if (!data) return [];
   const unicas = new Set<string>();
   for (const linha of data) {

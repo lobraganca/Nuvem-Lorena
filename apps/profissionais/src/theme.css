@@ -5372,6 +5372,19 @@ h3 {
   display: block;
 }
 
+/* Recado de quando o CEP aponta uma cidade que o app não atende. Âmbar,
+   e não vermelho: nada deu errado — a pessoa só precisa saber por que a
+   cidade não mudou sozinha, senão ela repete o CEP achando que falhou. */
+.aviso-cidade {
+  background: var(--color-gold-tint);
+  border: 1px solid var(--color-gold-line);
+  border-radius: var(--radius);
+  padding: 10px 14px;
+  margin: 8px 0 0;
+  font-size: 0.88rem;
+  line-height: 1.45;
+}
+
 /* ---------------------------------------------------------------
    Os números do painel de cadastros
 
