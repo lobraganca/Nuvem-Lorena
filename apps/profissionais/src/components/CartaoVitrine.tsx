@@ -1,7 +1,7 @@
 import { Link } from "react-router-dom";
 import { isCurrentlyVerified, type ProfessionalWithRating } from "../lib/professionals";
 import { VerifiedBadge } from "./VerifiedBadge";
-import { corDoNome, iniciais } from "../lib/avatar";
+import { corDoNome, iniciais, tintaDoNome } from "../lib/avatar";
 
 /**
  * O cartão estreito das prateleiras da tela inicial.
@@ -33,7 +33,7 @@ export function CartaoVitrine({ p }: { p: ProfessionalWithRating }) {
         {p.photo_url ? (
           <img src={p.photo_url} alt="" loading="lazy" />
         ) : (
-          <span className="cartao-vitrine-iniciais" style={{ background: corDoNome(nome) }} aria-hidden="true">
+          <span className="cartao-vitrine-iniciais" style={{ background: corDoNome(nome), color: tintaDoNome(nome) }} aria-hidden="true">
             {iniciais(nome)}
           </span>
         )}

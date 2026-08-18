@@ -32,7 +32,7 @@ import { BottomSheet } from "../components/BottomSheet";
 import { enviarIndicacao } from "../lib/indicacoes";
 import { formatPhone } from "../lib/phone";
 import { useTituloDaPagina } from "../lib/tituloDaPagina";
-import { corDoNome, iniciais } from "../lib/avatar";
+
 
 /**
  * Passos do tour de primeiro acesso. Cada um aponta para um pedaço real da

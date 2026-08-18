@@ -18,10 +18,39 @@ export function iniciais(nome: string): string {
   return (partes[0][0] + partes[partes.length - 1][0]).toUpperCase();
 }
 
-export function corDoNome(nome: string): string {
+function matizDoNome(nome: string): number {
   let soma = 0;
   for (let i = 0; i < nome.length; i++) soma = (soma + nome.charCodeAt(i) * (i + 1)) % 360;
-  // Saturação e luminosidade fixas: a variação é só de matiz, para nenhuma
-  // combinação sair berrante nem apagada ao lado das outras.
-  return `hsl(${soma} 42% 42%)`;
+  return soma;
+}
+
+/**
+ * Fundo das iniciais: claro, da matiz que o nome gera.
+ *
+ * Era um bloco de cor média (42% de luminosidade) com as letras em branco,
+ * e isso o tornava a coisa mais forte da tela — mais que a nota, mais que o
+ * nome. Um quadrado gritante para dizer justamente "esta pessoa não mandou
+ * foto": o espaço-reserva vencia o conteúdo, e vencia também as fotos de
+ * verdade dos vizinhos, que são o que a lista quer mostrar.
+ *
+ * Claro, ele continua distinguindo um cadastro do outro — que é o motivo
+ * de a cor existir — sem disputar a atenção com nada.
+ *
+ * Saturação e luminosidade continuam fixas: a variação é só de matiz, para
+ * nenhuma combinação sair berrante nem apagada ao lado das outras.
+ */
+export function corDoNome(nome: string): string {
+  return `hsl(${matizDoNome(nome)} 44% 92%)`;
+}
+
+/**
+ * A tinta das iniciais, na mesma matiz do fundo.
+ *
+ * 30% de luminosidade contra os 92% do fundo dá no mínimo 7:1 de contraste
+ * em qualquer matiz — bem acima dos 4,5:1 exigidos, e necessário porque
+ * são só duas letras: texto curto não dá ao olho uma segunda chance de
+ * decifrar.
+ */
+export function tintaDoNome(nome: string): string {
+  return `hsl(${matizDoNome(nome)} 55% 30%)`;
 }

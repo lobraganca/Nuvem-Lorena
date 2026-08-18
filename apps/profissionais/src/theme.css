@@ -7,7 +7,14 @@
      borda de 1px que desaparece em tela de celular no sol — que é onde este
      app é usado. Continua lendo como app branco; o que muda é existir um
      degrau entre a folha e o que está sobre ela. */
-  --color-bg: #ffffff;
+  /* Fundo levemente frio, cartões brancos.
+     Este token já foi #ffffff, e com os cartões também brancos não havia
+     degrau nenhum: sobrava uma borda de 1px, que some em tela de celular
+     no sol — que é onde este app é usado. Sombra nenhuma resolve isso,
+     porque sombra separa superfícies de cores diferentes; entre branco e
+     branco ela só suja a borda.
+     O tom é frio e puxado para o navy da marca, não um cinza neutro. */
+  --color-bg: #f1f4f9;
   /* Um tom abaixo do fundo da página: este cinza marca o que está *dentro*
      de um cartão branco (campos, chips, blocos recolhidos). Com o fundo da
      página virando cinza-claro, ele precisou descer junto — senão os dois
@@ -61,8 +68,25 @@
   --color-border: #e4e9f0;
   --color-border-strong: #cdd6e2;
   --color-danger: #c0392b;
-  --shadow-card: 0 1px 2px rgba(10, 26, 47, 0.04), 0 8px 24px rgba(10, 26, 47, 0.06);
-  --shadow-raised: 0 12px 32px rgba(10, 26, 47, 0.12);
+  /* Elevação em três degraus, e cada sombra tem duas camadas.
+     A de contato (curta, quase opaca) é o que diz "isto está apoiado ali";
+     a ambiente (longa, muito clara) é o que dá volume. Só a ambiente, que
+     era o que existia aqui, borra sem levantar — o objeto fica com um halo
+     e continua parecendo colado na folha.
+     Os três degraus têm papel definido, e é isso que impede o app inteiro
+     de voltar a ficar no mesmo plano:
+       repouso  — cartão parado, lista, campo
+       destaque — o que a tela quer que a pessoa toque
+       flutuante— o que está por cima de tudo: folhas, menus */
+  --shadow-repouso: 0 1px 2px rgba(10, 26, 47, 0.07), 0 2px 6px rgba(10, 26, 47, 0.05);
+  --shadow-destaque: 0 2px 4px rgba(10, 26, 47, 0.08), 0 8px 20px rgba(10, 26, 47, 0.10);
+  --shadow-flutuante: 0 6px 12px rgba(10, 26, 47, 0.10), 0 18px 40px rgba(10, 26, 47, 0.16);
+
+  /* Nomes antigos, apontando para os novos: o CSS os usa em dezenas de
+     lugares e trocar tudo de uma vez é como se perde uma regra sem
+     perceber. */
+  --shadow-card: var(--shadow-repouso);
+  --shadow-raised: var(--shadow-destaque);
   --radius: 16px;
   --radius-lg: 22px;
   --font-sans: Inter, "Segoe UI", system-ui, -apple-system, sans-serif;
@@ -281,7 +305,7 @@ button {
   border: 1px solid var(--color-border-strong);
   border-radius: var(--radius);
   padding: 22px;
-  box-shadow: 0 1px 2px rgba(16, 26, 40, 0.05), 0 6px 16px rgba(16, 26, 40, 0.06);
+  box-shadow: var(--shadow-repouso);
 }
 
 /* Antes cada etiqueta tinha a sua cor, e um card com selo + destaque + tipo
@@ -331,11 +355,18 @@ button {
 
 /* Pessoa física (autônomo) x pessoa jurídica (empresa): a diferença está no
    texto, não na cor — as duas são igualmente legítimas. */
+/* Só contorno, sem preenchimento.
+   Cheia de cinza, esta etiqueta virava o bloco mais pesado do cartão —
+   maior que a nota, que é o dado que decide o toque. "Profissional
+   autônomo" em duas linhas dentro de um retângulo cinza chamava mais
+   atenção que as estrelas logo abaixo. É informação de rodapé: precisa
+   estar legível, não precisa gritar. */
 .badge-entity-pf,
 .badge-entity-pj {
-  background: var(--color-bg-soft);
+  background: transparent;
   color: var(--color-text-muted);
-  border: 1px solid var(--color-border);
+  border: 1px solid var(--color-border-strong);
+  font-weight: 500;
 }
 
 .avatar-fallback {
@@ -1836,9 +1867,13 @@ textarea::placeholder {
      botão começa em x=340. */
   padding: 10px 46px 10px 12px;
   border-radius: 999px;
-  border: 1px solid #f6c9c4;
-  background: #fdeceb;
-  color: var(--color-danger);
+  /* Era rosa sobre vermelho — a paleta de erro do app. Num convite, essa
+     cor diz "algo deu errado" antes de qualquer palavra ser lida, e é a
+     única mancha da tela que não pertence à identidade (navy e dourado).
+     No dourado ele continua chamando atenção e passa a pertencer. */
+  border: 1px solid var(--color-gold-line);
+  background: var(--color-gold-tint);
+  color: var(--color-gold-deep);
   text-decoration: none;
   /* 0,78rem e não 0,82: com os 46px reservados à direita, a 0,82 o texto
      pedia 237px e sobravam 232 numa tela de 360px — a mais comum —, e
@@ -2833,7 +2868,9 @@ textarea::placeholder {
   display: flex;
   align-items: center;
   justify-content: center;
-  color: #ffffff;
+  /* A cor da letra vem do componente, junto com a do fundo: as duas são
+     da mesma matiz e precisam variar juntas. Um branco fixo aqui apagaria
+     as iniciais no fundo claro. */
   font-weight: 700;
   font-size: 1.5rem;
   letter-spacing: 0.02em;
@@ -3044,9 +3081,18 @@ h3 {
      secundário — o mais fraco do cartão — fica em 4,62:1, acima do mínimo
      de 4,5:1. Um passo a mais de tom derrubava para 4,40:1, e por isso
      este é o limite. */
-  background: linear-gradient(165deg, #f5f9ff, #e4edfa);
+  /* Quase branco, e não mais azul médio.
+     A cor forte foi escolhida quando o fundo da página era branco: o
+     cartão precisava se pintar para existir. Com a página agora num cinza
+     frio, a hierarquia se inverteu — o fim do gradiente (#e4edfa) ficava
+     mais ESCURO que o fundo, e o cartão lia como um buraco na folha em vez
+     de um objeto sobre ela. Quem está por cima é mais claro; é assim que o
+     olho lê profundidade, e é a regra que o app passa a seguir.
+     O texto secundário melhorou junto: 5,20:1 contra os 4,62:1 de antes. */
+  background: linear-gradient(165deg, #ffffff, #f7fafe);
   border-color: var(--color-border-strong);
   color: var(--color-text);
+  box-shadow: var(--shadow-repouso);
 }
 
 .card-pro .card-nome {
@@ -3076,8 +3122,14 @@ h3 {
      texto da etiqueta, não no peso da cor, porque cor mais forte numa
      lista é vantagem de quem aparece nela. Antes os dois já eram
      próximos, mas por acaso; agora é por construção. */
-  background: linear-gradient(165deg, #f3fbf8, #def0ed);
-  border-color: #c3ded6;
+  /* Casado em luminância com o azul do autônomo, de novo por cálculo:
+     #f7fafe dá 0,953011 e #f6fbf7 dá 0,953026 — diferença na quinta casa.
+     A regra continua valendo e é a razão de refazer a conta em vez de
+     escolher um verde bonito: cor mais forte numa lista é vantagem de
+     quem aparece nela, e empresa não deve passar na frente de autônomo
+     por decisão de cor. */
+  background: linear-gradient(165deg, #ffffff, #f6fbf7);
+  border-color: #cfe0d9;
 }
 
 /* ---- Escolha de serviços do anúncio (o "+" e a folha) ---- */
@@ -4787,7 +4839,13 @@ h3 {
   margin-top: 14px;
   padding: 12px 0 14px;
   border-radius: var(--radius-lg);
-  background: var(--color-bg-soft);
+  /* Sem bloco cinza atrás.
+     Ele existia para separar a faixa do fundo branco da página. Com a
+     página agora num cinza frio, o bloco ficou quase da mesma cor —
+     duas superfícies quase iguais uma sobre a outra, que é exatamente o
+     que suja a leitura em vez de organizar. Quem estrutura a faixa são
+     os cartões brancos dentro dela, que agora se levantam sozinhos. */
+  background: transparent;
   /* Sangra igual aos chips: a fileira de dentro precisa poder encostar na
      borda da tela para não parecer que acabou antes do fim. */
   margin-left: -20px;
@@ -4894,7 +4952,6 @@ h3 {
   justify-content: center;
   width: 100%;
   height: 100%;
-  color: #fff;
   font-size: 1.5rem;
   font-weight: 700;
 }
@@ -5089,10 +5146,15 @@ h3 {
   gap: 10px;
   width: 100%;
   margin-top: 10px;
-  padding: 10px 12px;
+  /* Os 52px à direita são o lugar do botão de fechar, que é fixo no canto
+     e cai exatamente nesta altura. Sem eles, o X ficava pousado em cima
+     deste cartão e a seta do "toque para trocar" sumia atrás dele.
+     Mesma reserva que o convite de cadastro já fazia logo abaixo. */
+  padding: 10px 52px 10px 12px;
   border: 1px solid var(--color-border);
   border-radius: 14px;
   background: var(--color-surface);
+  box-shadow: var(--shadow-repouso);
   font-family: inherit;
   color: var(--color-text);
   text-align: left;

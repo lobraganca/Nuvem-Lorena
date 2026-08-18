@@ -1,6 +1,6 @@
 import { Link } from "react-router-dom";
 import { isCurrentlyBoosted, isCurrentlyVerified, type ProfessionalWithRating } from "../lib/professionals";
-import { corDoNome, iniciais } from "../lib/avatar";
+import { corDoNome, iniciais, tintaDoNome } from "../lib/avatar";
 import { cidadeComEstado } from "../types/domain";
 import { Estrelas } from "./Estrelas";
 import { FavoriteButton } from "./FavoriteButton";
@@ -58,7 +58,7 @@ export function CartaoProfissional({
         ) : (
           /* Iniciais sobre a cor que o próprio nome gera. Cadastro sem foto
              continua parecendo cadastro, e não erro de carregamento. */
-          <div className="avatar-iniciais card-foto" style={{ background: corDoNome(p.name) }} aria-hidden="true">
+          <div className="avatar-iniciais card-foto" style={{ background: corDoNome(p.name), color: tintaDoNome(p.name) }} aria-hidden="true">
             {iniciais(p.name)}
           </div>
         )}
