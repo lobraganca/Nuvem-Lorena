@@ -4688,20 +4688,6 @@ h3 {
 }
 
 
-/* Versão instalada, no Perfil. Não é um item clicável — é um dado, e por
-   isso não tem a seta nem o realce de toque dos vizinhos. Existe para
-   "estou atualizado?" ter resposta de dentro do app. */
-.settings-versao {
-  cursor: default;
-}
-
-.settings-versao-numero {
-  margin-left: auto;
-  font-size: 0.86rem;
-  color: var(--color-text-muted);
-  font-variant-numeric: tabular-nums;
-}
-
 /* A tradução da necessidade em ofício, logo abaixo da barra de busca ativa.
    Discreta de propósito: é uma explicação, não um resultado — e quem já
    entendeu precisa passar por ela sem tropeçar para chegar nos cartões. */

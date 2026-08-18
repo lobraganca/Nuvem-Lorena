@@ -204,23 +204,18 @@ export function PerfilPage() {
         <SettingsItem to="/favoritos" icon="❤️" label="Meus favoritos" />
       </div>
 
-      {/* A saída para quando o app fica preso numa versão antiga.
-          O caminho normal é o aviso "tem uma versão nova" com o botão de
-          atualizar — mas ele depende de o navegador ter percebido a versão
-          nova. Quando essa detecção falha, e ela falha, não sobrava nada
-          para fazer: recarregar, fechar e reabrir devolviam a mesma tela de
-          antes, e a pessoa concluía que a correção nunca foi publicada.
+      {/* O número da versão saiu daqui.
+          Ele existia para responder "estou atualizado?" de dentro do app,
+          numa época em que publicar não dava para conferir de fora. Hoje
+          quem confere é o workflow, que só fica verde depois de o site
+          devolver o commit exato — e um carimbo de data e hora no perfil
+          de quem só quer achar um encanador não diz nada a essa pessoa.
 
-          A versão fica escrita ao lado para a comparação ser possível: sem
-          ela, "estou atualizado?" não tem como ser respondido de dentro do
-          app. */}
+          "Forçar atualização" fica. Ele não é informação, é conserto: é a
+          saída de quando o app trava numa versão antiga e nem recarregar
+          nem fechar e reabrir resolvem. Já foi preciso mais de uma vez. */}
       <p className="settings-group-title">O app</p>
       <div className="settings-list">
-        <div className="settings-item settings-versao">
-          <span className="settings-icon" aria-hidden="true">🏷️</span>
-          <span>Versão instalada</span>
-          <span className="settings-versao-numero">{__VERSAO__}</span>
-        </div>
         <button
           type="button"
           className="settings-item"
