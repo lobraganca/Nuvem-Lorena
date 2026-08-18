@@ -5140,65 +5140,71 @@ h3 {
    "nota mínima" e "ordenar por". Aqui em cima ela é a primeira coisa lida —
    e continua sendo escolha de quem procura, não enfeite: é um botão, com a
    seta que promete que algo abre. */
-.endereco-topo {
-  display: flex;
+/* A cidade, agora numa linha só, logo abaixo do campo de busca.
+
+   Era um cartão de 55px no alto da tela, com título e subtítulo — o
+   primeiro elemento da página, gastando a altura de um resultado inteiro
+   para responder uma pergunta que quase ninguém faz duas vezes: quem abre
+   o app já está na sua cidade.
+
+   Encolhida, ela continua fazendo o que precisava fazer, que é dizer em
+   voz alta de onde são as pessoas da lista. Foi por isso que ela saiu do
+   meio dos filtros um dia: escondida entre "nota mínima" e "ordenar por",
+   a informação que decide o que a tela inteira mostra passava
+   despercebida, e quem é de fora não descobria que dava para trocar.
+   O meio-termo é este: visível e discreta. */
+.chip-cidade {
+  display: inline-flex;
   align-items: center;
-  gap: 10px;
-  width: 100%;
-  margin-top: 10px;
-  /* Os 52px à direita são o lugar do botão de fechar, que é fixo no canto
-     e cai exatamente nesta altura. Sem eles, o X ficava pousado em cima
-     deste cartão e a seta do "toque para trocar" sumia atrás dele.
-     Mesma reserva que o convite de cadastro já fazia logo abaixo. */
-  padding: 10px 52px 10px 12px;
-  border: 1px solid var(--color-border);
-  border-radius: 14px;
+  gap: 7px;
+  /* O pai é uma grade, e numa grade o filho estica na largura da coluna
+     por padrão. `justify-self` é o que faz o chip encolher até o próprio
+     conteúdo — sem ele, virava uma barra da largura da tela, que é o
+     oposto de "ocupa menos espaço". */
+  justify-self: start;
+  align-self: start;
+  margin-top: -2px;
+  padding: 7px 14px 7px 10px;
+  border: 1px solid var(--color-border-strong);
+  border-radius: 999px;
   background: var(--color-surface);
   box-shadow: var(--shadow-repouso);
   font-family: inherit;
+  font-size: 0.86rem;
   color: var(--color-text);
-  text-align: left;
   cursor: pointer;
 }
 
-.endereco-topo:hover,
-.endereco-topo:focus-visible {
+.chip-cidade svg {
+  width: 16px;
+  height: 16px;
+  flex-shrink: 0;
+  color: var(--color-primary-deep);
+}
+
+.chip-cidade strong {
+  font-weight: 600;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* "trocar" escrito, e não só uma seta: seta ao lado de um nome de cidade
+   lê como "abrir a página desta cidade". A palavra diz o que o toque faz. */
+.chip-cidade-acao {
+  flex-shrink: 0;
+  padding-left: 3px;
+  color: var(--color-text-muted);
+  font-size: 0.78rem;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.chip-cidade:hover,
+.chip-cidade:focus-visible {
   border-color: var(--color-primary);
 }
 
-.endereco-topo-pino {
-  flex: none;
-  display: flex;
-  color: var(--color-primary);
-}
-
-.endereco-topo-pino svg {
-  width: 22px;
-  height: 22px;
-}
-
-.endereco-topo-texto {
-  display: flex;
-  flex-direction: column;
-  min-width: 0;
-  line-height: 1.2;
-}
-
-.endereco-topo-texto strong {
-  font-size: 0.98rem;
-}
-
-.endereco-topo-dica {
-  font-size: 0.76rem;
-  color: var(--color-text-muted);
-}
-
-.endereco-topo-seta {
-  margin-left: auto;
-  color: var(--color-text-muted);
-  font-size: 1.3rem;
-  line-height: 1;
-}
 
 .lista-cidades {
   display: flex;

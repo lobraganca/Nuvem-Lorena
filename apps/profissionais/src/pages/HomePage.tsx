@@ -412,28 +412,6 @@ export function HomePage() {
           sozinha que existe um Painel no rodapé. O convite fica no alto,
           numa faixa fina: visível de primeira, sem disputar espaço com a
           busca, que continua sendo o assunto principal da tela. */}
-      {/* A cidade, no alto e por extenso.
-          Ela morava num `select` no meio de quatro filtros — a informação
-          que decide o que a tela inteira mostra, escondida entre "nota
-          mínima" e "ordenar por". Quem abria o app não tinha como saber de
-          onde eram as pessoas que estava vendo, e quem é de fora não
-          descobria que dava para trocar.
-          Aqui em cima ela é a primeira coisa lida, como o endereço nos
-          aplicativos de entrega, e continua sendo escolha de quem procura —
-          é um botão, não um enfeite. */}
-      <button type="button" className="endereco-topo" onClick={() => setCidadeAberta(true)}>
-        <span className="endereco-topo-pino" aria-hidden="true">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-            <path d="M12 21s7-5.6 7-11a7 7 0 1 0-14 0c0 5.4 7 11 7 11Z" />
-            <circle cx="12" cy="10" r="2.6" />
-          </svg>
-        </span>
-        <span className="endereco-topo-texto">
-          <strong>{city ? cidadeComEstado(city, uf) : "Todas as cidades"}</strong>
-          <span className="endereco-topo-dica">{city ? "Toque para trocar" : "Toque para escolher a sua"}</span>
-        </span>
-        <span className="endereco-topo-seta" aria-hidden="true">›</span>
-      </button>
 
       {cidadeAberta && (
         <BottomSheet
@@ -552,6 +530,25 @@ export function HomePage() {
             aria-label="Buscar profissional por nome ou serviço"
           />
         </div>
+
+        {/* A cidade desceu do topo para cá, e encolheu.
+            Lá em cima ela era um cartão de 55px com título e subtítulo —
+            a primeira coisa da tela, ocupando o espaço de um resultado
+            inteiro para responder uma pergunta que quase ninguém faz duas
+            vezes: quem abre o app já está na sua cidade.
+            Aqui ela fica onde a pergunta acontece — depois de "o que você
+            precisa", antes de refinar — numa linha só. Continua sendo um
+            botão, e continua dizendo em voz alta de onde são as pessoas
+            que a lista mostra, que é o motivo de ela ter saído do meio dos
+            filtros. */}
+        <button type="button" className="chip-cidade" onClick={() => setCidadeAberta(true)}>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+            <path d="M12 21s7-5.6 7-11a7 7 0 1 0-14 0c0 5.4 7 11 7 11Z" />
+            <circle cx="12" cy="10" r="2.6" />
+          </svg>
+          <strong>{city ? cidadeComEstado(city, uf) : "Todas as cidades"}</strong>
+          <span className="chip-cidade-acao">trocar</span>
+        </button>
 
         <div className="filter-grid">
           <select value={category} onChange={(e) => setCategory(e.target.value)} aria-label="Categoria">
