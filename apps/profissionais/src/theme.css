@@ -5489,3 +5489,24 @@ h3 {
   font-size: 0.9rem;
 }
 
+
+/* "Sua conta já está criada" no topo do formulário.
+
+   Verde discreto, com o visto: é um passo cumprido, não um aviso. A
+   confusão que ele resolve é de quem toca em "Cadastre-se grátis", entra
+   com o Google e encontra uma tela chamada "cadastro" pedindo nome e
+   e-mail de novo — do lado de quem preenche, foram dois cadastros. Marcar
+   o primeiro como feito troca "de novo?" por "falta só isto". */
+.conta-pronta {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  margin: 14px 0 4px;
+  padding: 10px 14px;
+  background: #eaf3ef;
+  border: 1px solid #cfe3d8;
+  border-radius: var(--radius);
+  color: #2f6350;
+  font-size: 0.9rem;
+  line-height: 1.45;
+}

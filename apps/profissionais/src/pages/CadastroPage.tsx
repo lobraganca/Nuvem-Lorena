@@ -179,7 +179,7 @@ function preencher(p: Professional): FormState {
 export function CadastroPage() {
   const { id } = useParams<{ id?: string }>();
   const editando = !!id;
-  useTituloDaPagina(editando ? "Editar cadastro" : "Novo cadastro");
+  useTituloDaPagina(editando ? "Editar minha página" : "Minha página");
   const { user, loading } = useAuth();
   const navigate = useNavigate();
 
@@ -211,6 +211,41 @@ export function CadastroPage() {
   const [formMessage, setFormMessage] = useState("");
   /** Só enquanto o cadastro que vai ser editado está vindo do servidor. */
   const [carregandoCadastro, setCarregandoCadastro] = useState(editando);
+
+  /* Já aproveitei o que a conta sabe? Uma vez só: depois disso o que vale
+     é o que a pessoa digitou, e reescrever por cima seria apagar a
+     correção dela a cada re-renderização. */
+  const jaAproveitouAConta = useRef(false);
+
+  /**
+   * O formulário abre com o que a conta já sabe.
+   *
+   * Esta é a resposta a uma confusão real: a tela inicial convida a
+   * "cadastre-se grátis", a pessoa entra com o Google, e o app abre um
+   * formulário chamado "cadastro" com nome e e-mail em branco. Do lado
+   * dela, foram dois cadastros — e o segundo pedindo justamente o que ela
+   * acabou de entregar no primeiro.
+   *
+   * Nome e e-mail vêm da conta. A foto do Google fica de fora de
+   * propósito: ela mora num endereço do Google que pode sumir, e a foto do
+   * cadastro precisa estar no nosso Storage para não virar quadrado
+   * quebrado meses depois.
+   *
+   * Só para cadastro novo. Editando, quem manda é o que está salvo — puxar
+   * o nome da conta por cima trocaria o nome do negócio pelo nome pessoal
+   * de quem edita, e na administração trocaria pelo nome do admin.
+   */
+  useEffect(() => {
+    if (!user || editando || jaAproveitouAConta.current) return;
+    jaAproveitouAConta.current = true;
+    const meta = (user.user_metadata ?? {}) as { full_name?: string; name?: string };
+    const nomeDaConta = (meta.full_name ?? meta.name ?? "").trim();
+    setForm((f) => ({
+      ...f,
+      name: f.name || nomeDaConta.slice(0, NAME_MAX_LENGTH),
+      email: f.email || user.email || "",
+    }));
+  }, [user, editando]);
 
   useEffect(() => {
     if (!user || !id) return;
@@ -431,11 +466,26 @@ export function CadastroPage() {
           Aqui é o único caminho de volta que não depende do botão do
           aparelho — e no app instalado esse botão nem sempre existe. */}
       <Link to={voltarPara} className="voltar-link">
-        ← {deOutraPessoa ? "Painel administrativo" : "Meus cadastros"}
+        ← {deOutraPessoa ? "Painel administrativo" : "Minhas páginas"}
       </Link>
-      <h1 style={{ marginTop: 10 }}>{editando ? "Editar cadastro" : "Termine seu cadastro"}</h1>
+      <h1 style={{ marginTop: 10 }}>{editando ? "Editar sua página" : "Sua página no procurô"}</h1>
       {!editando && (
-        <p className="muted painel-subtitulo">São três passos rápidos e você já aparece na busca.</p>
+        <>
+          {/* A conta aparece como passo já cumprido, e não como assunto
+              encerrado em silêncio. "Cadastre-se grátis" na tela inicial
+              levava ao login; o login criava a conta; e então surgia um
+              segundo "cadastro" pedindo nome e e-mail de novo. Do lado de
+              quem preenche, eram dois cadastros. Marcar o primeiro como
+              feito é o que transforma "de novo?" em "falta só isto". */}
+          <p className="conta-pronta">
+            <span aria-hidden="true">✓</span> Sua conta já está criada
+            {user?.email ? ` (${user.email})` : ""}.
+          </p>
+          <p className="muted painel-subtitulo">
+            Falta a sua página — é ela que aparece na busca quando alguém procura o seu serviço. São três
+            passos rápidos.
+          </p>
+        </>
       )}
 
       {/* Dito na cara, e não escondido: editar o cadastro de outra pessoa é

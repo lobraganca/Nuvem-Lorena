@@ -378,13 +378,13 @@ export function PainelPage() {
 
       <section style={{ marginTop: 24 }}>
         <div className="secao-topo">
-          <h2 style={{ margin: 0 }}>Meus cadastros</h2>
+          <h2 style={{ margin: 0 }}>Minhas páginas</h2>
           {mine.length < 5 && (
             /* Um cadastro por ofício, e não tudo amontoado num só: quem é
                fotógrafo e dá aula de violão tem duas vitrines diferentes,
                com fotos, textos e reputações separadas. */
             <Link className="btn btn-primary btn-novo" to="/painel/novo">
-              <span aria-hidden="true">+</span> Novo cadastro
+              <span aria-hidden="true">+</span> Nova página
             </Link>
           )}
         </div>

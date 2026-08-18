@@ -71,7 +71,7 @@ export function ComoFuncionaPage() {
           quiser.
         </p>
         <p className="muted" style={{ margin: 0 }}>
-          Se você tem assinatura ativa (selo ou destaque), cancele antes em <strong>Meus cadastros</strong>, para
+          Se você tem assinatura ativa (selo ou destaque), cancele antes em <strong>Minhas páginas</strong>, para
           não continuar sendo cobrado.
         </p>
       </div>
