@@ -531,26 +531,24 @@ export function HomePage() {
           />
         </div>
 
-        {/* A cidade desceu do topo para cá, e encolheu.
-            Lá em cima ela era um cartão de 55px com título e subtítulo —
-            a primeira coisa da tela, ocupando o espaço de um resultado
-            inteiro para responder uma pergunta que quase ninguém faz duas
-            vezes: quem abre o app já está na sua cidade.
-            Aqui ela fica onde a pergunta acontece — depois de "o que você
-            precisa", antes de refinar — numa linha só. Continua sendo um
-            botão, e continua dizendo em voz alta de onde são as pessoas
-            que a lista mostra, que é o motivo de ela ter saído do meio dos
-            filtros. */}
-        <button type="button" className="chip-cidade" onClick={() => setCidadeAberta(true)}>
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-            <path d="M12 21s7-5.6 7-11a7 7 0 1 0-14 0c0 5.4 7 11 7 11Z" />
-            <circle cx="12" cy="10" r="2.6" />
-          </svg>
-          <strong>{city ? cidadeComEstado(city, uf) : "Todas as cidades"}</strong>
-          <span className="chip-cidade-acao">trocar</span>
-        </button>
 
         <div className="filter-grid">
+          {/* A cidade é o primeiro dos quatro filtros, e tem a forma dos
+              outros três — mesma altura, mesma borda, mesma seta.
+              Ela não é um `<select>` porque a lista de cidades cresce com
+              a base e precisa de busca por digitação, o que o seletor
+              nativo não faz. Mas parecer diferente dos vizinhos fazia dela
+              um objeto à parte no meio de um bloco de filtros, e quem lê
+              não tem por que saber que por baixo são coisas diferentes. */}
+          <button type="button" className="filtro-cidade-botao" onClick={() => setCidadeAberta(true)}>
+            {/* "Qualquer cidade", e não "Todas as cidades": é o mesmo
+                molde do filtro vizinho ("Qualquer nota"), e é mais curto —
+                o suficiente para caber inteiro na tela de 360px, onde a
+                versão longa saía com reticências. Dentro da folha de
+                escolha a linha continua "Todas as cidades", que é onde há
+                espaço e onde ela é uma opção, não um rótulo. */}
+            <span>{city ? cidadeComEstado(city, uf) : "Qualquer cidade"}</span>
+          </button>
           <select value={category} onChange={(e) => setCategory(e.target.value)} aria-label="Categoria">
             <option value="">Todos os serviços</option>
             {categorias.map((c) => (

@@ -53,8 +53,26 @@
      mínimo de 4,5. Um passo mais escuro derruba para 4,40 e a barra
      passa a esconder justamente os destinos que a pessoa ainda não
      visitou. O ícone ativo fica em 11,17:1. */
-  --color-nav-bg: #e6eefb;
-  --color-nav-line: #cbdaf1;
+  /* Marinho nas duas barras, a pedido da dona: elas são a moldura fixa do
+     app — ficam paradas enquanto o conteúdo rola — e em azul escuro
+     separam-se do conteúdo sem precisar de sombra nenhuma.
+
+     As cores de cima delas foram recalculadas, não escolhidas a olho, do
+     mesmo jeito que a versão clara tinha sido:
+       ícone inativo  #9db3d0 → 6,08:1
+       ícone ativo    #ffffff → 13,04:1
+       Anúncios       #d9ab5c → 6,17:1
+     Todos acima do mínimo de 4,5:1, e com folga suficiente entre inativo e
+     ativo para a diferença ser lida como estado, e não como cor. */
+  --color-nav-bg: #12305e;
+  --color-nav-line: #1d3f70;
+  /* As três cores que vivem SOBRE as barras. Ficam em variáveis porque
+     aparecem em seis regras diferentes, e uma delas esquecida deixa texto
+     escuro sobre fundo escuro — que é o defeito que não se vê no
+     computador e some no celular no sol. */
+  --color-sobre-nav: #9db3d0;
+  --color-sobre-nav-forte: #ffffff;
+  --color-sobre-nav-ouro: #d9ab5c;
 
   /* Verde só no WhatsApp; escurecido para aguentar texto branco em cima. */
   --color-accent-teal: #12805f;
@@ -179,6 +197,36 @@ button {
   align-items: center;
   text-decoration: none;
   line-height: 1;
+}
+
+/* O que está DENTRO do cabeçalho marinho.
+   Escopado ao `.header` de propósito: a mesma marca aparece no rodapé da
+   página e na tela de boas-vindas, sobre fundo claro, e lá ela continua
+   navy. Pintar `.logo-brand` de branco no arquivo inteiro apagaria as
+   outras duas. */
+.header .logo-brand {
+  color: var(--color-sobre-nav-forte);
+}
+
+.header .logo-acento {
+  /* 7,34:1 sobre o marinho. O dourado da marca (#b8863b) dá só 4,04:1 e
+     ficaria abaixo do mínimo — é a mesma cor, dois passos mais clara. */
+  color: #e3bd77;
+}
+
+/* Invertido: fundo claro, letra marinho. Ele era marinho preenchido, e
+   sobre um cabeçalho marinho virava um retângulo invisível com texto
+   branco solto no meio. */
+.header .btn-instalar-topo {
+  background: var(--color-sobre-nav-forte);
+  border-color: var(--color-sobre-nav-forte);
+  color: var(--color-primary);
+}
+
+.header .btn-instalar-topo:hover {
+  background: #e6eefb;
+  border-color: #e6eefb;
+  color: var(--color-primary);
 }
 
 /* Minúsculas, peso médio e entreletra levemente aberta: é o que aproxima a
@@ -646,7 +694,7 @@ textarea::placeholder {
   height: 100%;
   padding: 0 2px;
   text-decoration: none;
-  color: var(--color-text-muted);
+  color: var(--color-sobre-nav);
   background: none;
   border: none;
   cursor: pointer;
@@ -678,7 +726,7 @@ textarea::placeholder {
    recurso do Instagram (lá o ícone vira cheio), e aqui funciona sem
    precisar de um segundo desenho para cada ícone. */
 .bottom-nav-item.active {
-  color: var(--color-primary);
+  color: var(--color-sobre-nav-forte);
 }
 
 .bottom-nav-item.active svg {
@@ -694,7 +742,7 @@ textarea::placeholder {
    precisa ser reconhecível como ativo antes de ser reconhecível como
    anúncio. */
 .bottom-nav-item.bottom-nav-anuncios:not(.active) {
-  color: var(--color-gold-deep);
+  color: var(--color-sobre-nav-ouro);
 }
 
 /* Fica no HTML para leitor de tela, fora da tela para todo mundo. */
@@ -5140,69 +5188,76 @@ h3 {
    "nota mínima" e "ordenar por". Aqui em cima ela é a primeira coisa lida —
    e continua sendo escolha de quem procura, não enfeite: é um botão, com a
    seta que promete que algo abre. */
-/* A cidade, agora numa linha só, logo abaixo do campo de busca.
+/* A cidade com a forma dos outros três filtros.
 
-   Era um cartão de 55px no alto da tela, com título e subtítulo — o
-   primeiro elemento da página, gastando a altura de um resultado inteiro
-   para responder uma pergunta que quase ninguém faz duas vezes: quem abre
-   o app já está na sua cidade.
+   Ela já foi um cartão de 55px no alto da tela e uma pílula solta abaixo
+   da busca. Nos dois casos era um objeto à parte no meio de um bloco de
+   filtros — e quem lê não tem por que saber que, por baixo, a cidade não
+   é um `<select>` como os vizinhos (ela abre uma folha com busca por
+   digitação, porque a lista de cidades cresce com a base e o seletor
+   nativo não sabe filtrar).
 
-   Encolhida, ela continua fazendo o que precisava fazer, que é dizer em
-   voz alta de onde são as pessoas da lista. Foi por isso que ela saiu do
-   meio dos filtros um dia: escondida entre "nota mínima" e "ordenar por",
-   a informação que decide o que a tela inteira mostra passava
-   despercebida, e quem é de fora não descobria que dava para trocar.
-   O meio-termo é este: visível e discreta. */
-.chip-cidade {
-  display: inline-flex;
+   Aqui ela tem a mesma altura, a mesma borda e a mesma seta dos outros.
+   A seta é desenhada à mão porque a do `<select>` é do sistema e não
+   existe fora dele; as medidas abaixo foram tiradas do próprio select
+   para as quatro caixas ficarem iguais. */
+.filtro-cidade-botao {
+  display: flex;
   align-items: center;
-  gap: 7px;
-  /* O pai é uma grade, e numa grade o filho estica na largura da coluna
-     por padrão. `justify-self` é o que faz o chip encolher até o próprio
-     conteúdo — sem ele, virava uma barra da largura da tela, que é o
-     oposto de "ocupa menos espaço". */
-  justify-self: start;
-  align-self: start;
-  margin-top: -2px;
-  padding: 7px 14px 7px 10px;
-  border: 1px solid var(--color-border-strong);
-  border-radius: 999px;
-  background: var(--color-surface);
-  box-shadow: var(--shadow-repouso);
+  gap: 8px;
+  width: 100%;
   font-family: inherit;
-  font-size: 0.86rem;
+  font-size: 0.9rem;
+  /* 26px à direita, e não 30: a seta desenhada reservava mais espaço que
+     a do `<select>` nativo, e "Todas as cidades" virava "Todas as cid…"
+     enquanto "Todos os serviços", que é maior, cabia na caixa vizinha. */
+  padding: 12px 26px 12px 14px;
+  border: 1px solid var(--color-border-strong);
+  /* 14px, e não `var(--radius)`: é o raio que os `<select>` já usam. Com
+     16px a caixa da cidade ficava com o canto visivelmente mais redondo
+     que as três vizinhas — medido, não achado. */
+  border-radius: 14px;
+  background: var(--color-surface);
   color: var(--color-text);
+  text-align: left;
   cursor: pointer;
+  /* A seta, no mesmo lugar e tamanho da do seletor nativo. */
+  background-image: linear-gradient(45deg, transparent 50%, var(--color-text-muted) 50%),
+    linear-gradient(135deg, var(--color-text-muted) 50%, transparent 50%);
+  background-position: calc(100% - 15px) calc(50% + 1px), calc(100% - 10px) calc(50% + 1px);
+  background-size: 5px 5px, 5px 5px;
+  background-repeat: no-repeat;
 }
 
-.chip-cidade svg {
-  width: 16px;
-  height: 16px;
-  flex-shrink: 0;
-  color: var(--color-primary-deep);
-}
-
-.chip-cidade strong {
-  font-weight: 600;
-  white-space: nowrap;
+.filtro-cidade-botao span {
+  min-width: 0;
   overflow: hidden;
   text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
-/* "trocar" escrito, e não só uma seta: seta ao lado de um nome de cidade
-   lê como "abrir a página desta cidade". A palavra diz o que o toque faz. */
-.chip-cidade-acao {
-  flex-shrink: 0;
-  padding-left: 3px;
-  color: var(--color-text-muted);
-  font-size: 0.78rem;
-  text-decoration: underline;
-  text-underline-offset: 2px;
-}
-
-.chip-cidade:hover,
-.chip-cidade:focus-visible {
+.filtro-cidade-botao:hover,
+.filtro-cidade-botao:focus-visible {
   border-color: var(--color-primary);
+}
+
+/* Encolhe junto com os `<select>` vizinhos abaixo de 420px — a mesma
+   regra que eles já tinham.
+
+   Mora aqui, e não junto da regra dos selects lá em cima, por ordem no
+   arquivo: a regra base deste botão é escrita depois daquela media query
+   e a sobrescrevia. O sintoma era o botão manter 0,9rem enquanto os três
+   vizinhos iam para 0,84 — e "Todas as cidades" virava "Todas as cid…"
+   enquanto "Todos os serviços", que é maior, cabia na caixa ao lado. */
+@media (max-width: 420px) {
+  .filtro-cidade-botao {
+    font-size: 0.84rem;
+    padding: 12px 22px 12px 10px;
+  }
+
+  .filtro-cidade-botao {
+    background-position: calc(100% - 13px) calc(50% + 1px), calc(100% - 8px) calc(50% + 1px);
+  }
 }
 
 
