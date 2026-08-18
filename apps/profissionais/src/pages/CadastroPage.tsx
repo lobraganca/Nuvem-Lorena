@@ -482,8 +482,7 @@ export function CadastroPage() {
             {user?.email ? ` (${user.email})` : ""}.
           </p>
           <p className="muted painel-subtitulo">
-            Falta a sua página — é ela que aparece na busca quando alguém procura o seu serviço. São três
-            passos rápidos.
+            Agora falta a sua página — é ela que aparece na busca quando alguém procura o seu serviço.
           </p>
         </>
       )}
@@ -508,10 +507,16 @@ export function CadastroPage() {
             em vez de mais uma pergunta. */}
         <div className="passos">
           <div className="passos-barra" aria-hidden="true">
-            <div className="passos-preenchido" style={{ width: `${(passo / 3) * 100}%` }} />
+            {/* Quatro passos, não três: entrar é o primeiro deles.
+                A pessoa toca em "Cadastre-se grátis", entra com o Google,
+                e encontra uma tela chamada "passo 1 de 3" — do lado dela,
+                o que acabou de fazer não contou. Contando o login, a
+                barra já chega aqui um quarto cheia, e o formulário deixa
+                de parecer um começo do zero. */}
+            <div className="passos-preenchido" style={{ width: `${((passo + 1) / 4) * 100}%` }} />
           </div>
           <p className="passos-rotulo">
-            Passo {passo} de 3 · <strong>{PASSO_TITULOS[passo - 1]}</strong>
+            Passo {passo + 1} de 4 · <strong>{PASSO_TITULOS[passo - 1]}</strong>
           </p>
         </div>
 

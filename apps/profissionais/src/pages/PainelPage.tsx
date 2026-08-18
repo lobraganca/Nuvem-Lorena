@@ -320,10 +320,27 @@ export function PainelPage() {
     return (
       <div className="container" style={{ maxWidth: 460, paddingTop: 48, textAlign: "center" }}>
         <div className="card">
-          <h1 style={{ marginTop: 0, fontSize: "1.5rem" }}>Vamos criar seu cadastro</h1>
+          {/* A mesma barra do formulário, começando aqui.
+              Entrar era um portão antes do cadastro, e a frase desta tela
+              dizia "não precisa preencher cadastro agora" — prometendo
+              que não haveria formulário. Aí o formulário aparecia, e do
+              lado de quem preenche eram dois cadastros, o segundo
+              contrariando o que o primeiro tinha dito.
+              Contado como passo 1 de 4, entrar deixa de ser um portão e
+              vira o começo da mesma coisa. */}
+          <div className="passos" style={{ marginBottom: 18 }}>
+            <div className="passos-barra" aria-hidden="true">
+              <div className="passos-preenchido" style={{ width: "25%" }} />
+            </div>
+            <p className="passos-rotulo">
+              Passo 1 de 4 · <strong>Entrar</strong>
+            </p>
+          </div>
+          <h1 style={{ marginTop: 0, fontSize: "1.5rem" }}>Vamos criar sua página</h1>
           <p className="muted">
-            Entre com sua conta Google — é a mesma que você já usa no celular. Não precisa criar senha nova nem
-            preencher cadastro agora.
+            Entre com sua conta Google — é a mesma que você já usa no celular, sem senha nova para criar. Nos
+            três passos seguintes você monta a página que aparece na busca: seu nome e foto, o que você faz e
+            como te chamam.
           </p>
           <div style={{ marginTop: 20 }}>
             <BotaoGoogle onClick={handleGoogleLogin} disabled={!hasDatabase()} />
