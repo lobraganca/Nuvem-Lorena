@@ -180,6 +180,14 @@ const auth = {
     localStorage.removeItem("falso-usuario");
     return { error: null };
   },
+  /* Guarda o que teria sido pedido ao Google, em vez de sair do app.
+     É o que permite conferir no navegador se o pedido de "escolha a
+     conta" está sendo feito depois de sair — sem isso, a única forma de
+     testar seria fazendo login de verdade. */
+  signInWithOAuth: async (opcoes: unknown) => {
+    localStorage.setItem("ultimo-login-pedido", JSON.stringify(opcoes));
+    return { data: null, error: null };
+  },
 };
 
 const clienteFalso = {

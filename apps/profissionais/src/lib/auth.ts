@@ -92,11 +92,43 @@ export async function signInWithGoogle(voltarPara?: string): Promise<void> {
   if (voltarPara) guardarDestinoLogin(voltarPara);
   const origem = origemCanonica();
   const destino = voltarPara ? new URL(voltarPara, origem).toString() : origem;
+  /* Depois de "Sair", o Google precisa perguntar QUAL conta.
+     Sem este pedido, ele reaproveita em silêncio a conta que já está
+     aberta no aparelho: a pessoa toca em sair, toca em entrar, e volta
+     exatamente para a mesma conta — sem tela nenhuma no meio e sem
+     nenhuma forma de trocar. Quem tem duas contas (a pessoal e a do
+     negócio), ou empresta o celular, fica preso na primeira.
+     Só depois de sair, e não sempre: para quem tem uma conta só, a tela
+     de escolha em todo login é um toque a mais sem serventia. */
+  const escolherConta = pediuParaTrocarDeConta();
   const { error } = await client.auth.signInWithOAuth({
     provider: "google",
-    options: { redirectTo: destino },
+    options: {
+      redirectTo: destino,
+      ...(escolherConta ? { queryParams: { prompt: "select_account" } } : {}),
+    },
   });
   if (error) throw error;
+}
+
+/**
+ * Marca que o próximo login deve perguntar qual conta.
+ *
+ * Guardado no aparelho porque a volta do Google recarrega a página: nada
+ * que viva só na memória sobrevive à ida e à volta do login.
+ */
+const CHAVE_TROCAR_DE_CONTA = "procuro-escolher-conta";
+
+function pediuParaTrocarDeConta(): boolean {
+  try {
+    const pediu = window.localStorage.getItem(CHAVE_TROCAR_DE_CONTA) === "1";
+    /* Lido e apagado no mesmo movimento: o pedido vale para o login
+       seguinte, não para sempre. */
+    if (pediu) window.localStorage.removeItem(CHAVE_TROCAR_DE_CONTA);
+    return pediu;
+  } catch {
+    return false;
+  }
 }
 
 /**
@@ -251,6 +283,16 @@ function traduzirErroDeEntrada(mensagem: string): string {
 export async function signOut(): Promise<void> {
   const client = supabase();
   if (!client) return;
+  /* Sair daqui não desconecta o Google do aparelho — e não deve mesmo:
+     ninguém espera que sair do procurô derrube o Gmail. O que se pode
+     fazer é garantir que a próxima entrada pergunte qual conta, senão
+     "sair" não leva a lugar nenhum: o botão de entrar devolve a mesma
+     conta no mesmo instante. */
+  try {
+    window.localStorage.setItem(CHAVE_TROCAR_DE_CONTA, "1");
+  } catch {
+    /* Sem armazenamento, o login segue como antes. */
+  }
   await client.auth.signOut();
 }
 
