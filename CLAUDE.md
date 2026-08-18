@@ -85,7 +85,7 @@ Então: escrever o arquivo em `supabase/migrations/`, **e mandar o SQL no
 chat para ela colar**. Um arquivo commitado não é uma migration aplicada —
 e o app novo pode depender dela.
 
-- Numeração sequencial: a última hoje é a `0058`.
+- Numeração sequencial: a última hoje é a `0060`.
 - `supabase/banco-completo.sql` **está desatualizado** (para na 0051). Serve
   para montar um banco do zero até ali, não como retrato do que está no ar.
 - Edge Functions ficam em `supabase/functions/` e sobem pelo workflow.
@@ -111,6 +111,70 @@ e o app novo pode depender dela.
 E a regra que sai dos três: **função de dados que falha nunca deve devolver
 lista vazia.** "Nenhum resultado" é uma mentira calma — a tela parece
 normal e o defeito não aparece em lugar nenhum.
+
+### A ordem: SQL primeiro, confirmação dela, e SÓ ENTÃO o código
+
+Isto custou um dia inteiro com gente sem conseguir publicar cadastro, e é
+o erro mais caro desta semana.
+
+A 0060 acrescentou a coluna `uf`. O código que a envia foi publicado às
+6h40; a coluna só passou a existir por volta das 21h. Nesse intervalo o
+app mandava uma coluna que o banco não conhecia, e o PostgREST recusava a
+gravação **inteira** — o formulário manda `{...form}` de uma vez, então
+uma coluna desconhecida derruba o cadastro todo.
+
+Escrever "sem esta SQL o cadastro não salva" na mensagem não evita nada.
+O que evita é a ordem: mandar a SQL, **esperar ela confirmar que aplicou**,
+e só então empurrar o código que depende dela. Coluna criada sozinha não
+quebra nada — o app antigo simplesmente a ignora.
+
+### `information_schema` mente; use `pg_catalog`
+
+Depois de aplicada a 0060, esta consulta respondeu que a coluna não
+existia — cinco vezes, em rodadas diferentes:
+
+```sql
+select 1 from information_schema.columns
+ where table_schema='public' and table_name='professionals' and column_name='uf';
+```
+
+Ela estava lá o tempo todo: um `alter table ... add column uf` devolveu
+`42701: column "uf" already exists`, e `pg_attribute` a listava. O motivo
+exato não foi apurado (o `information_schema` filtra por privilégio do
+papel corrente, e o editor do painel não roda como dono). O que importa é
+a regra: **toda conferência mandada para ela lê `pg_catalog`**, nunca o
+`information_schema`.
+
+```sql
+select count(*) from pg_attribute
+ where attrelid = 'public.professionals'::regclass
+   and attname = 'uf' and not attisdropped;
+```
+
+E toda SQL enviada deve **terminar conferindo a si mesma**, com a resposta
+escrita em português ("PRONTO — ..." / "AINDA FALTA — ..."). Ela lê o
+resultado do **último** comando: um `notify` no fim devolve "Success. No
+rows returned" e engole a resposta da conferência.
+
+### Duas armadilhas do editor SQL do painel
+
+1. **Com texto selecionado, o botão Run executa só a seleção.** Roda,
+   responde "Success", e não faz o que se pediu.
+2. **Um erro no meio desfaz o bloco inteiro**, inclusive os comandos que
+   já tinham passado. Por isso migration longa vai em partes numeradas,
+   uma por vez — e o que destrava as pessoas vem na Parte 1.
+
+### São dois projetos Supabase na conta dela
+
+| Projeto | Qual app |
+|---|---|
+| `dfdinrimxqoqjedemjbw` | **procurô** |
+| `wkuwwzcucsxonhsblkmc` | Avena |
+
+O endereço do painel mostra qual está aberto. No projeto errado, uma
+conferência de coluna responde "não existe" **sem erro nenhum** — porque
+lá a tabela não existe. Vale confirmar o projeto antes de investigar
+qualquer coisa.
 
 ### Testar SQL antes de mandar para ela
 
