@@ -53,26 +53,32 @@
      mínimo de 4,5. Um passo mais escuro derruba para 4,40 e a barra
      passa a esconder justamente os destinos que a pessoa ainda não
      visitou. O ícone ativo fica em 11,17:1. */
-  /* Marinho nas duas barras, a pedido da dona: elas são a moldura fixa do
-     app — ficam paradas enquanto o conteúdo rola — e em azul escuro
-     separam-se do conteúdo sem precisar de sombra nenhuma.
+  /* Fundo das duas barras fixas: azul claro.
 
-     As cores de cima delas foram recalculadas, não escolhidas a olho, do
-     mesmo jeito que a versão clara tinha sido:
-       ícone inativo  #9db3d0 → 6,08:1
-       ícone ativo    #ffffff → 13,04:1
-       Anúncios       #d9ab5c → 6,17:1
-     Todos acima do mínimo de 4,5:1, e com folga suficiente entre inativo e
-     ativo para a diferença ser lida como estado, e não como cor. */
-  --color-nav-bg: #12305e;
-  --color-nav-line: #1d3f70;
-  /* As três cores que vivem SOBRE as barras. Ficam em variáveis porque
-     aparecem em seis regras diferentes, e uma delas esquecida deixa texto
-     escuro sobre fundo escuro — que é o defeito que não se vê no
-     computador e some no celular no sol. */
-  --color-sobre-nav: #9db3d0;
-  --color-sobre-nav-forte: #ffffff;
-  --color-sobre-nav-ouro: #d9ab5c;
+     Chegou a ser marinho por um dia. Voltou ao claro a pedido da dona —
+     e o claro tem uma razão medida a seu favor: este é o azul mais forte
+     em que o ícone inativo ainda dá 4,67:1, acima do mínimo de 4,5. Um
+     passo mais escuro derruba para 4,40 e a barra passa a esconder
+     justamente os destinos que a pessoa ainda não visitou.
+
+     As duas barras usam o mesmo token de propósito: são a moldura fixa do
+     app — ficam paradas enquanto o conteúdo rola — e com cores diferentes
+     a tela lia como se a de cima fizesse parte da página e a de baixo
+     não. */
+  --color-nav-bg: #e6eefb;
+  --color-nav-line: #cbdaf1;
+  /* As três cores que vivem SOBRE as barras. Ficam em variáveis, e não
+     escritas em cada regra, porque aparecem em seis lugares: trocar a cor
+     da barra sem trocar as seis de uma vez deixa texto de baixo contraste
+     em alguma delas — defeito que não se vê no computador e some no
+     celular no sol. Foi exatamente o que a ida e a volta do marinho
+     mostrou, e é por isso que a indireção fica.
+       inativo   #5b6b7f →  4,67:1
+       ativo     #12305e → 11,17:1
+       Anúncios  #8a5f1f →  4,81:1 */
+  --color-sobre-nav: #5b6b7f;
+  --color-sobre-nav-forte: #12305e;
+  --color-sobre-nav-ouro: #8a5f1f;
 
   /* Verde só no WhatsApp; escurecido para aguentar texto branco em cima. */
   --color-accent-teal: #12805f;
@@ -199,35 +205,6 @@ button {
   line-height: 1;
 }
 
-/* O que está DENTRO do cabeçalho marinho.
-   Escopado ao `.header` de propósito: a mesma marca aparece no rodapé da
-   página e na tela de boas-vindas, sobre fundo claro, e lá ela continua
-   navy. Pintar `.logo-brand` de branco no arquivo inteiro apagaria as
-   outras duas. */
-.header .logo-brand {
-  color: var(--color-sobre-nav-forte);
-}
-
-.header .logo-acento {
-  /* 7,34:1 sobre o marinho. O dourado da marca (#b8863b) dá só 4,04:1 e
-     ficaria abaixo do mínimo — é a mesma cor, dois passos mais clara. */
-  color: #e3bd77;
-}
-
-/* Invertido: fundo claro, letra marinho. Ele era marinho preenchido, e
-   sobre um cabeçalho marinho virava um retângulo invisível com texto
-   branco solto no meio. */
-.header .btn-instalar-topo {
-  background: var(--color-sobre-nav-forte);
-  border-color: var(--color-sobre-nav-forte);
-  color: var(--color-primary);
-}
-
-.header .btn-instalar-topo:hover {
-  background: #e6eefb;
-  border-color: #e6eefb;
-  color: var(--color-primary);
-}
 
 /* Minúsculas, peso médio e entreletra levemente aberta: é o que aproxima a
    fonte do app do desenho geométrico arredondado da marca. Sem `lowercase`
