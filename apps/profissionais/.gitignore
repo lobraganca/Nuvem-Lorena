@@ -15,8 +15,24 @@ dist
 .env.*
 !.env.example
 
-# Projetos nativos gerados pelo Capacitor (npx cap add android/ios).
-# Não versionamos: são gerados a partir de capacitor.config.ts + dist/
-# sempre que alguém rodar os comandos do README, seção "Publicação nas lojas".
-android
+# O projeto iOS continua fora: ninguém o gerou ainda, e ele é refeito a
+# partir de capacitor.config.ts + dist/ quando for a hora.
 ios
+
+# O projeto ANDROID passou a ser versionado, e a decisão mudou de lado por
+# um motivo prático: a partir do momento em que alguém abre essa pasta num
+# editor e mexe nela — ícone, nome, número da versão, permissões, chave de
+# assinatura, cobrança da Google —, ela deixa de ser "gerada" e passa a
+# guardar trabalho. Regerar apagaria tudo isso em silêncio.
+#
+# O que continua fora são as saídas da compilação, que são grandes e se
+# refazem sozinhas.
+android/build/
+android/app/build/
+android/.gradle/
+android/local.properties
+android/.idea/
+android/app/release/
+android/app/debug/
+*.keystore
+*.jks
