@@ -102,8 +102,28 @@
        repouso  — cartão parado, lista, campo
        destaque — o que a tela quer que a pessoa toque
        flutuante— o que está por cima de tudo: folhas, menus */
-  --shadow-repouso: 0 1px 2px rgba(10, 26, 47, 0.07), 0 2px 6px rgba(10, 26, 47, 0.05);
-  --shadow-destaque: 0 2px 4px rgba(10, 26, 47, 0.08), 0 8px 20px rgba(10, 26, 47, 0.10);
+  /* O que dá espessura ao canto arredondado.
+
+     Uma sombra por fora só empurra o objeto para longe da folha: ele
+     continua sendo uma silhueta plana, com o canto redondo desenhado.
+     O que faz o canto ter volume é o que acontece DENTRO da borda —
+     uma linha de luz no alto, onde a superfície curva pega a luz, e uma
+     penumbra embaixo, onde ela vira e a luz não chega.
+
+     São duas linhas de 1px que seguem o raio sozinhas, então quanto mais
+     arredondado o canto, mais volume elas dão. É por isso que valem mais
+     aqui do que numa caixa quadrada.
+
+     Ficam em variáveis próprias porque entram em toda superfície do app,
+     e um dia em que alguém mudar a luz da interface precisa mudar num
+     lugar só. */
+  --brilho-borda: inset 0 1px 0 rgba(255, 255, 255, 0.92);
+  --penumbra-borda: inset 0 -1px 1px rgba(10, 26, 47, 0.045);
+
+  --shadow-repouso: var(--brilho-borda), var(--penumbra-borda),
+    0 1px 2px rgba(10, 26, 47, 0.07), 0 2px 6px rgba(10, 26, 47, 0.05);
+  --shadow-destaque: var(--brilho-borda), var(--penumbra-borda),
+    0 2px 4px rgba(10, 26, 47, 0.08), 0 8px 20px rgba(10, 26, 47, 0.10);
   --shadow-flutuante: 0 6px 12px rgba(10, 26, 47, 0.10), 0 18px 40px rgba(10, 26, 47, 0.16);
 
   /* Nomes antigos, apontando para os novos: o CSS os usa em dezenas de
@@ -288,8 +308,27 @@ button {
   transform: translateY(1px);
 }
 
+/* Afunda junto com o deslocamento: sem tirar a sombra, o botão desce 1px
+   e continua parecendo levantado — o movimento sozinho lê como escorregão,
+   não como toque. */
+.btn-primary:active:not(:disabled) {
+  box-shadow:
+    inset 0 2px 4px rgba(0, 0, 0, 0.18),
+    0 1px 2px rgba(10, 26, 47, 0.14);
+}
+
 .btn-primary {
   background: linear-gradient(135deg, var(--color-primary-soft), var(--color-primary));
+  /* Volume no botão cheio: o brilho de cima aqui é branco a 22%, e não os
+     92% das superfícies claras. Sobre o marinho, um branco forte viraria
+     um risco luminoso na borda em vez de uma curva pegando luz — o mesmo
+     efeito precisa de intensidades diferentes conforme o que está
+     embaixo. */
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.22),
+    inset 0 -1px 2px rgba(0, 0, 0, 0.12),
+    0 2px 4px rgba(10, 26, 47, 0.16),
+    0 6px 14px rgba(10, 26, 47, 0.16);
   /* Branco, e não `--color-navy`: a cor do texto sobrou de quando o botão
      principal era dourado, e ficou azul-marinho (#0a1a2f) sobre azul-marinho
      (#12305e) quando a marca mudou de cor. Dava 1,4:1 de contraste — abaixo
@@ -1731,6 +1770,7 @@ textarea::placeholder {
   padding: 12px 14px;
   background: var(--color-surface);
   border-color: var(--color-border-strong);
+  box-shadow: var(--shadow-repouso);
 }
 
 /* Duas colunas também no celular estreito, mas com a letra e o recuo
@@ -5010,6 +5050,7 @@ h3 {
   border-radius: 16px;
   background: var(--color-surface);
   border: 1px solid var(--color-border);
+  box-shadow: var(--shadow-repouso);
   color: var(--color-text);
   text-decoration: none;
 }
@@ -5261,6 +5302,7 @@ h3 {
      que as três vizinhas — medido, não achado. */
   border-radius: 14px;
   background: var(--color-surface);
+  box-shadow: var(--shadow-repouso);
   color: var(--color-text);
   text-align: left;
   cursor: pointer;
