@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <title>procurô — encontre profissionais verificados na sua cidade</title>
+    <meta name="description" content="procurô: marketplace de busca de profissionais por cidade, com avaliações de quem já contratou e anúncios em destaque." />
+    <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%230a1a2f'/%3E%3Ctext x='32' y='46' font-family='Inter,Segoe UI,system-ui,sans-serif' font-size='34' font-weight='500' fill='%23ffffff' text-anchor='middle'%3Eo%3C/text%3E%3Cpath d='M22 21 32 15 42 21' stroke='%23c8a24a' stroke-width='5' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E" />
+
+    <!-- PWA -->
+    <link rel="manifest" href="/manifest.json" />
+    <meta name="theme-color" content="#E6EEFB" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="apple-mobile-web-app-title" content="procurô" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+
+    <!-- Como o link aparece quando alguém manda o app no WhatsApp.
+         Sem isto, o compartilhamento vira uma linha de endereço crua, e o
+         boca a boca é justamente como este app vai crescer numa cidade.
+
+         Estes três acompanham o LIGAR_DOMINIO_NOVO de
+         src/lib/enderecoCanonico.ts: se um dia a chave voltar para `false`,
+         eles voltam junto. Um canonical apontando para domínio que não
+         responde manda o Google desindexar o app. -->
+    <link rel="canonical" href="https://www.procuroapp.com.br/" />
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="procurô" />
+    <meta property="og:url" content="https://www.procuroapp.com.br/" />
+    <meta property="og:title" content="procurô — quem faz, aqui perto" />
+    <meta property="og:description" content="Encontre profissionais da sua região, com a opinião de quem já contratou. Anunciar é grátis." />
+    <meta property="og:image" content="https://www.procuroapp.com.br/icon-512.png" />
+    <meta property="og:locale" content="pt_BR" />
+    <meta name="twitter:card" content="summary" />
+    <script type="module" crossorigin src="/assets/index-jE1wbQq3.js"></script>
+    <link rel="modulepreload" crossorigin href="/assets/tituloDaPagina-GHykUEVI.js">
+    <link rel="modulepreload" crossorigin href="/assets/supabase-5v_17mAQ.js">
+    <link rel="modulepreload" crossorigin href="/assets/auth-cBbkHpMV.js">
+    <link rel="stylesheet" crossorigin href="/assets/index-9PfSaRdz.css">
+  <script id="vite-plugin-pwa:register-sw" src="/registerSW.js"></script></head>
+  <body>
+    <div id="root"></div>
+  </body>
+</html>

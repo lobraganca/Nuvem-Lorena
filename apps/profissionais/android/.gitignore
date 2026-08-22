@@ -93,7 +93,21 @@ lint/tmp/
 capacitor-cordova-android-plugins
 
 # Copied web assets
-app/src/main/assets/public
+# app/src/main/assets/public — DESLIGADO de propósito.
+#
+# O Capacitor ignora esta pasta porque, no fluxo normal, ela é refeita por
+# `npx cap sync` a cada compilação: é saída, não código.
+#
+# Aqui ela precisa estar versionada. O caminho real deste projeto é a dona
+# baixar o ZIP pelo GitHub e abrir a pasta no Android Studio, de um tablet,
+# sem terminal e sem Node instalado. Ignorada, ela simplesmente não vem no
+# ZIP — e o app compila, instala, abre em branco, sem erro nenhum que
+# explique por quê.
+#
+# O preço é ruído: todo `cap sync` mexe nestes arquivos e eles aparecem
+# como alteração. É um preço menor que o de entregar um projeto que abre
+# vazio.
+# app/src/main/assets/public
 
 # Generated Config files
 app/src/main/assets/capacitor.config.json
