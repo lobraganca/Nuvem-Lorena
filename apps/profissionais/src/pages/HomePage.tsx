@@ -112,6 +112,9 @@ export function HomePage() {
      `results`, que é o resultado da busca: as duas nunca aparecem juntas,
      mas misturá-las faria a vitrine sumir e voltar a cada tecla digitada. */
   const [vitrine, setVitrine] = useState<ProfessionalWithRating[]>([]);
+  /* Quem pagou pelo destaque. Prateleira própria, e a primeira da tela:
+     é literalmente o que a pessoa comprou. */
+  const [destaques, setDestaques] = useState<ProfessionalWithRating[]>([]);
   const [emAlta, setEmAlta] = useState<ProfessionalWithRating[]>([]);
   const [recomendados, setRecomendados] = useState<ProfessionalWithRating[]>([]);
   const [loading, setLoading] = useState(false);
@@ -202,6 +205,19 @@ export function HomePage() {
        continuam de pé. É o único lugar do app onde lista vazia em caso de
        erro é a resposta certa — a prateleira simplesmente não aparece, e
        não há nada que a pessoa possa fazer a respeito. */
+    /* Consulta própria para o destaque, e não um filtro em cima da
+       vitrine: a vitrine vem ordenada por nota, e quem acabou de assinar
+       o destaque costuma não ter nota nenhuma — ficaria no fim da lista
+       de 50 e sumiria da prateleira que ele está pagando. Aqui a busca
+       devolve os destacados primeiro, por ordem do banco.
+
+       `isCurrentlyBoosted` em vez de `p.boosted`: a coluna continua
+       verdadeira depois de a assinatura vencer, e quem parou de pagar não
+       pode continuar aparecendo no lugar de quem paga. */
+    searchProfessionals({ pageSize: 24 })
+      .then((lista) => ativo && setDestaques(lista.filter(isCurrentlyBoosted).slice(0, 12)))
+      .catch(() => ativo && setDestaques([]));
+
     getMaisVistos()
       .then((lista) => ativo && setEmAlta(lista))
       .catch(() => ativo && setEmAlta([]));
@@ -678,6 +694,32 @@ export function HomePage() {
               ))}
             </div>
           )}
+
+          {/* A primeira da tela, porque é a única que alguém comprou.
+
+              O subtítulo diz que é anúncio, e isso não é opcional: o app
+              já marca o que é pago na barra de navegação pelo mesmo
+              motivo. Quem vê uma lista precisa saber quando a ordem foi
+              comprada — e quem paga precisa que o lugar seja visível o
+              suficiente para valer o dinheiro. As duas coisas se resolvem
+              com a mesma linha de texto.
+
+              `minimo={1}`: as outras prateleiras somem com menos de três
+              porque uma seleção curta parece defeito. Esta não — um
+              anunciante só já é motivo suficiente para a faixa existir,
+              já que ele pagou por ela. */}
+          <Prateleira
+            titulo="Em destaque"
+            subtitulo="Anúncios de profissionais que pagaram para aparecer aqui"
+            ancora="prateleira-destaque"
+            minimo={1}
+            quantidade={destaques.length}
+            verTudo="/anuncios"
+          >
+            {destaques.map((p) => (
+              <CartaoVitrine key={p.id} p={p} />
+            ))}
+          </Prateleira>
 
           <Prateleira
             titulo="Em alta em Itabirito"
