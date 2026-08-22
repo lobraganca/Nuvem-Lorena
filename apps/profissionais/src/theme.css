@@ -1663,10 +1663,35 @@ textarea::placeholder {
 .search-input {
   padding: 17px 18px 17px 48px;
   font-size: 1.02rem;
-  background: var(--color-surface);
+  /* Volume, e não só uma sombra embaixo.
+     São quatro camadas, e cada uma faz uma coisa que as outras não fazem:
+       1. o brilho branco na borda de dentro, no alto — é ele que dá a
+          impressão de que a superfície é curva e pega luz de cima;
+       2. a sombra interna embaixo, levíssima — o outro lado da mesma
+          curva, onde a luz não chega;
+       3. a sombra de contato, curta e escura, que apoia o campo na folha;
+       4. a ambiente, longa e clara, que dá o volume.
+     Sem a 1 e a 2 o campo é um retângulo com sombra; com elas, ele tem
+     espessura. E o degradê quase imperceptível do fundo (branco para
+     #fbfcfe) é o que impede o brilho de cima de parecer um risco. */
+  background: linear-gradient(180deg, #ffffff 0%, #fbfcfe 100%);
   border: 1px solid var(--color-border-strong);
   border-radius: 999px;
-  box-shadow: var(--shadow-destaque);
+  box-shadow:
+    inset 0 1.5px 0 rgba(255, 255, 255, 0.95),
+    inset 0 -1.5px 3px rgba(10, 26, 47, 0.05),
+    0 2px 4px rgba(10, 26, 47, 0.09),
+    0 10px 24px rgba(10, 26, 47, 0.11);
+}
+
+/* Afunda ao ser tocado. O campo tem espessura, então precisa reagir como
+   uma coisa com espessura: a luz de cima some, a sombra interna aparece,
+   e a sombra de baixo encurta — é o que o olho lê como "está pressionado".
+   Sem isso, um campo em relevo fica parecendo um adesivo colado. */
+.search-input:active {
+  box-shadow:
+    inset 0 2px 4px rgba(10, 26, 47, 0.10),
+    0 1px 2px rgba(10, 26, 47, 0.08);
 }
 
 /* O foco precisa ser inconfundível num campo sem cor própria: a borda
@@ -1674,7 +1699,11 @@ textarea::placeholder {
    campos, um pouco mais forte — este é o campo principal do app. */
 .search-input:focus {
   border-color: var(--color-primary);
-  box-shadow: var(--shadow-destaque), 0 0 0 4px rgba(18, 48, 94, 0.14);
+  box-shadow:
+    inset 0 1.5px 0 rgba(255, 255, 255, 0.95),
+    0 2px 4px rgba(10, 26, 47, 0.09),
+    0 10px 24px rgba(10, 26, 47, 0.11),
+    0 0 0 4px rgba(18, 48, 94, 0.14);
 }
 
 .search-input::placeholder {
@@ -5632,4 +5661,76 @@ h3 {
   color: #2f6350;
   font-size: 0.9rem;
   line-height: 1.45;
+}
+
+/* ---------------------------------------------------------------
+   O convite dentro da faixa de destaque
+
+   Um cartão do mesmo tamanho dos vizinhos, no fim da fileira. Do
+   mesmo tamanho de propósito: ele faz parte da fileira, não é um
+   banner colado nela — e do fim, porque na frente roubaria o
+   primeiro lugar, que é exatamente o que os anunciantes pagaram.
+
+   Dourado, e não azul: é o acento da identidade, o mesmo do convite
+   "Presta serviço?" no alto da tela. Azul aqui o faria parecer mais
+   um profissional da fileira, que é o oposto do que ele é.
+   --------------------------------------------------------------- */
+.cartao-convite {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  flex: none;
+  width: clamp(168px, 53vw, 232px);
+  padding: 16px 14px;
+  border-radius: 16px;
+  background: linear-gradient(165deg, #fffaf0, var(--color-gold-tint));
+  border: 1px solid var(--color-gold-line);
+  box-shadow: var(--shadow-repouso);
+  color: var(--color-text);
+  text-decoration: none;
+}
+
+.cartao-convite:hover,
+.cartao-convite:focus-visible {
+  border-color: var(--color-gold-mid);
+}
+
+.cartao-convite-selo {
+  font-size: 1.6rem;
+  line-height: 1;
+}
+
+.cartao-convite strong {
+  font-size: 1.02rem;
+  color: var(--color-gold-deep);
+}
+
+.cartao-convite-texto {
+  font-size: 0.82rem;
+  line-height: 1.4;
+  color: var(--color-text-muted);
+}
+
+/* O preço fica visível no cartão, e não só depois do toque: um convite
+   que esconde quanto custa faz a pessoa tocar para descobrir, e descobrir
+   o preço é o momento em que ela desiste. Dito na frente, quem toca já
+   decidiu que o valor cabe. */
+.cartao-convite-preco {
+  margin-top: auto;
+  padding-top: 6px;
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--color-gold-deep);
+  font-variant-numeric: tabular-nums;
+}
+
+.cartao-convite-preco small {
+  font-size: 0.74rem;
+  font-weight: 600;
+}
+
+.cartao-convite-acao {
+  font-size: 0.84rem;
+  font-weight: 700;
+  color: var(--color-primary-deep);
 }

@@ -709,7 +709,7 @@ export function HomePage() {
               anunciante só já é motivo suficiente para a faixa existir,
               já que ele pagou por ela. */}
           <Prateleira
-            titulo="Em destaque"
+            titulo="🔥 Em destaque"
             subtitulo="Anúncios de profissionais que pagaram para aparecer aqui"
             ancora="prateleira-destaque"
             minimo={1}
@@ -719,6 +719,28 @@ export function HomePage() {
             {destaques.map((p) => (
               <CartaoVitrine key={p.id} p={p} />
             ))}
+            {/* O convite vem DEPOIS dos anunciantes, nunca antes.
+                Na frente, ele roubaria o primeiro lugar — que é
+                exatamente o que essas pessoas pagaram para ter. No fim da
+                fileira ele aparece para quem rolou até o fim, que é
+                justamente quem olhou os anúncios e pode estar se
+                perguntando como entrar ali.
+
+                Leva ao Painel porque é lá que o destaque é assinado, e
+                porque o caminho passa por ter uma página: quem ainda não
+                tem cai no login (passo 1 de 4) e segue o fluxo normal, em
+                vez de esbarrar num pagamento sem ter o que destacar. */}
+            <Link to="/painel" className="cartao-convite">
+              <span className="cartao-convite-selo" aria-hidden="true">🔥</span>
+              <strong>Apareça aqui</strong>
+              <span className="cartao-convite-texto">
+                Seu serviço no topo da busca, na frente de quem procura agora.
+              </span>
+              <span className="cartao-convite-preco">
+                R$ 19,90<small>/mês</small>
+              </span>
+              <span className="cartao-convite-acao">Quero aparecer ›</span>
+            </Link>
           </Prateleira>
 
           <Prateleira
