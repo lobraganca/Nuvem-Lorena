@@ -10,7 +10,6 @@ import {
   getCategoriasComAnuncio,
   getCidadesComAnuncio,
   getMaisVistos,
-  getRecomendados,
   isCurrentlyBoosted,
   isCurrentlyVerified,
   searchProfessionals,
@@ -116,7 +115,6 @@ export function HomePage() {
      é literalmente o que a pessoa comprou. */
   const [destaques, setDestaques] = useState<ProfessionalWithRating[]>([]);
   const [emAlta, setEmAlta] = useState<ProfessionalWithRating[]>([]);
-  const [recomendados, setRecomendados] = useState<ProfessionalWithRating[]>([]);
   const [loading, setLoading] = useState(false);
   /* Falha de busca tem tela própria. Enquanto `searchProfessionals`
      devolvia lista vazia em caso de erro, "não achamos ninguém" cobria
@@ -221,10 +219,6 @@ export function HomePage() {
     getMaisVistos()
       .then((lista) => ativo && setEmAlta(lista))
       .catch(() => ativo && setEmAlta([]));
-
-    getRecomendados()
-      .then((lista) => ativo && setRecomendados(lista))
-      .catch(() => ativo && setRecomendados([]));
 
     return () => {
       ativo = false;
@@ -754,19 +748,23 @@ export function HomePage() {
             ))}
           </Prateleira>
 
-          {/* Antes de "bem avaliados", porque é mais forte: nota alta com
-              uma avaliação só pode ser um primo; aqui houve serviço
-              prestado e quem pagou disse que valeu. */}
-          <Prateleira
-            titulo="Recomendados"
-            subtitulo="Quem já foi contratado e voltou bem avaliado"
-            quantidade={recomendados.length}
-            minimo={2}
-          >
-            {recomendados.map((p) => (
-              <CartaoVitrine key={p.id} p={p} />
-            ))}
-          </Prateleira>
+          {/* "Recomendados" saiu daqui.
+
+              A queixa da dona foi que ela repetia "Em alta", e estava
+              certa — mas a raiz era outra: "Recomendados" e "Bem
+              avaliados" perguntavam quase a mesma coisa, e os subtítulos
+              denunciavam ("quem já foi contratado e voltou bem avaliado"
+              contra "quem já foi contratado e recebeu nota").
+
+              Numa cidade com poucos cadastros avaliados, as duas devolvem
+              as mesmas pessoas — e as mesmas que "Em alta", porque quem é
+              visto é quem é avaliado. Três faixas com as mesmas caras não
+              parecem três seleções: parecem um defeito.
+
+              Ficou "Em alta", que é a única que mede outra coisa (o que a
+              cidade está procurando agora) e a única que funciona sem
+              nenhuma avaliação existir — que é a situação de toda cidade
+              nova. */}
 
           <Prateleira
             titulo="Bem avaliados"
