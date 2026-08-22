@@ -1974,15 +1974,23 @@ textarea::placeholder {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 12px;
-  margin-top: 16px;
+  gap: 8px;
+  margin-top: 14px;
   /* O recuo maior à direita não é estética: o botão flutuante de fechar
      (`.btn-fechar-pagina`) é fixo no canto e ocupa os 50px finais da
      tela, na mesma altura deste aviso. Com o aviso em duas linhas a seta
      caía abaixo dele e ninguém via; em uma linha, ela passou a ficar
      escondida atrás do X. Medido: sem isto a seta vai até x=355 e o
      botão começa em x=340. */
-  padding: 10px 46px 10px 12px;
+  /* A faixa deixou de atravessar a tela inteira: com `fit-content` ela
+     passa a ter a largura da própria frase. Isso resolveu de brinde o
+     problema que os 46px de recuo à direita resolviam na marra — o botão
+     flutuante de fechar (`.btn-fechar-pagina`) fica fixo de x=310 a x=348,
+     e a pílula agora termina bem antes disso, então a seta não tem mais
+     como sumir atrás do X. */
+  width: fit-content;
+  max-width: 100%;
+  padding: 6px 12px;
   border-radius: 999px;
   /* Era rosa sobre vermelho — a paleta de erro do app. Num convite, essa
      cor diz "algo deu errado" antes de qualquer palavra ser lida, e é a
@@ -1992,10 +2000,12 @@ textarea::placeholder {
   background: var(--color-gold-tint);
   color: var(--color-gold-deep);
   text-decoration: none;
-  /* 0,78rem e não 0,82: com os 46px reservados à direita, a 0,82 o texto
-     pedia 237px e sobravam 232 numa tela de 360px — a mais comum —, e
-     voltava a ser cortado. */
-  font-size: 0.78rem;
+  /* Menor a pedido da dona: o convite é para quem presta serviço, e quem
+     abre o app veio procurar alguém. Ele precisa ser visto, não lido
+     primeiro. A 0,72rem a frase inteira cabe com folga — a restrição
+     antiga (0,78 era o teto por causa dos 46px reservados) caiu junto com
+     o recuo. */
+  font-size: 0.72rem;
   line-height: 1.3;
 }
 
@@ -2010,11 +2020,21 @@ textarea::placeholder {
   text-overflow: ellipsis;
 }
 
-/* Abaixo de 340px o texto não cabe numa linha por mais que se aperte:
-   medido, ele pede 243px e sobram 224px. Ali a quebra é liberada, porque
-   duas linhas dizem a frase inteira e uma linha cortada come justamente
-   o "grátis", que é o motivo de o aviso existir. */
+/* Telas muito estreitas são o único lugar onde a pílula encolhida ainda
+   esbarra no botão de fechar. Medido: a seta acaba em x=262 e o botão
+   começa em x=largura-50, então a partir de 311px para baixo um cobre o
+   outro — foi exatamente a regressão que o `fit-content` trouxe de volta
+   ao remover o recuo de 46px.
+
+   O `max-width` resolve pela raiz: a pílula não pode passar de 30px antes
+   da borda do conteúdo, que é onde o botão começa. Aí a frase precisa de
+   duas linhas, e por isso a quebra é liberada junto — uma linha cortada
+   comeria justamente o "grátis", que é o motivo de o aviso existir. */
 @media (max-width: 339px) {
+  .cta-anunciar {
+    max-width: calc(100% - 34px);
+  }
+
   .cta-anunciar-texto {
     white-space: normal;
   }
@@ -2027,7 +2047,7 @@ textarea::placeholder {
 .cta-anunciar-seta {
   flex: none;
   color: #8f2c20;
-  font-size: 1.05rem;
+  font-size: 0.95rem;
 }
 
 .cta-anunciar:active {
