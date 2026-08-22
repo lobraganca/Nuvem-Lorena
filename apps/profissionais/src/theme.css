@@ -4941,9 +4941,21 @@ h3 {
   flex-direction: column;
   gap: 6px;
   flex: none;
-  width: 132px;
-  padding: 8px;
-  border-radius: 14px;
+  /* Cartão largo, no molde dos aplicativos de hospedagem: cabem menos de
+     dois na tela, e o segundo aparece cortado — o corte é o que conta que
+     a fileira continua.
+
+     Eram 132px fixos, e a 390px isso punha quase três na largura. Três
+     cartões pequenos numa vitrine viram uma tira de miniaturas: a foto
+     fica pequena demais para dizer alguma coisa, e a foto é o que decide
+     o toque numa lista de gente.
+
+     `clamp` e não `vw` puro: abaixo de 300px de tela um cartão de 53% já
+     seria estreito demais para o nome caber, e num tablet um de 53% seria
+     do tamanho de meia tela. */
+  width: clamp(168px, 53vw, 232px);
+  padding: 10px;
+  border-radius: 16px;
   background: var(--color-surface);
   border: 1px solid var(--color-border);
   color: var(--color-text);
@@ -5003,7 +5015,9 @@ h3 {
   display: flex;
   align-items: center;
   gap: 4px;
-  font-size: 0.86rem;
+  /* Cresce junto com o cartão: no cartão largo, 0,86rem ficava pequeno
+     para o nome, que é a segunda coisa que se lê depois da foto. */
+  font-size: 0.95rem;
   font-weight: 700;
   line-height: 1.2;
   /* Duas linhas no máximo: nome de empresa é comprido, e deixá-lo crescer
@@ -5015,7 +5029,7 @@ h3 {
 }
 
 .cartao-vitrine-oficio {
-  font-size: 0.76rem;
+  font-size: 0.82rem;
   color: var(--color-text-muted);
   white-space: nowrap;
   overflow: hidden;
