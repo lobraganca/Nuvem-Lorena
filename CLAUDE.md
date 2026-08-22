@@ -6,6 +6,109 @@ verdade, não uma precaução hipotética.
 
 ---
 
+# ⚠️ VOCÊ ESTÁ NA RAMIFICAÇÃO DA PLAY STORE
+
+Se você está lendo isto, a ramificação é a `claude/app-play-store`, e ela
+existe para uma coisa só: **transformar o procurô num aplicativo Android
+para a Play Store.**
+
+## A regra que não se quebra
+
+**Nada daqui vai para o ar.** O site é publicado pela `duqnk8`, e esta
+ramificação nunca é empurrada para lá. Trabalho de app que vazasse para a
+`duqnk8` publicaria no site coisas que só fazem sentido dentro do
+aplicativo instalado.
+
+| Ramificação | Para quê |
+|---|---|
+| `claude/professional-search-app-vuryc8` | o app que está no ar — **outra sessão cuida dela** |
+| `claude/professional-search-app-duqnk8` | publica o site |
+| **`claude/app-play-store`** | **esta — o aplicativo da loja** |
+
+Correção de defeito do app **não se faz aqui**: faz-se na `vuryc8`, e
+depois esta ramificação recebe por merge. Consertar dos dois lados cria
+duas versões que se afastam — é o erro que este repositório já cometeu com
+o mesmo cartão escrito quatro vezes.
+
+## O que já está pronto
+
+- **Capacitor instalado**, com o projeto Android gerado em
+  `apps/profissionais/android/`. É a pasta que o Android Studio abre.
+- **Identidade do app:** `br.com.procuroapp.app` — o domínio ao contrário.
+  **Isto é definitivo depois da primeira publicação**: trocar cria outro
+  aplicativo aos olhos da loja, e quem já instalou para de receber
+  atualização. Enquanto nada foi enviado, ainda dá para mudar.
+- **74 ícones e telas de abertura** gerados do ícone do procurô, sobre o
+  navy da marca.
+- **Nome na tela do celular:** procurô.
+
+## Duas armadilhas desta ramificação
+
+**1. `npx cap sync` depois de TODA mudança no app.** Os arquivos do
+procurô ficam DENTRO do aplicativo, em
+`android/app/src/main/assets/public`. Esquecer o sync faz o app da loja
+sair com o desenho de dias atrás — e nada, em tela nenhuma, diz isso. É a
+mesma família do "check verde sem o site mudar".
+
+```bash
+cd /home/user/Nuvem-Lorena/apps/profissionais
+npm run build && npx cap sync android
+```
+
+**2. Aquela pasta está versionada de propósito**, contra o padrão do
+Capacitor (que a ignora por ser saída de build). O motivo: a dona baixa o
+ZIP pelo GitHub e abre no Android Studio, **de um tablet, sem terminal e
+sem Node**. Ignorada, ela não vem no ZIP e o app abre em branco, sem erro
+nenhum explicando por quê. Não volte a ignorá-la sem trocar esse fluxo
+antes.
+
+## O que falta, em ordem
+
+**1. Esconder o que não faz sentido no app instalado.** "Instalar App" no
+topo, "Adicionar à tela do celular" e "Fechar o app" no Perfil. Hoje eles
+se escondem por `display-mode: standalone`, teste que **não funciona
+dentro do Capacitor** — o app da loja mostraria "Instalar App" para quem
+acabou de instalar pela loja. Detectar com
+`window.Capacitor?.isNativePlatform?.()`.
+
+**2. Os pagamentos.** É o item que reprova na revisão. Selo, destaque e
+banner são produtos digitais dentro do app, e a Google exige a cobrança
+dela. Duas saídas, e a escolha é da dona:
+   - o app da loja não vende nada (o profissional assina pelo site) —
+     rápido, sem taxa, sem risco;
+   - cobrança da Google — cerca de 15% das assinaturas, precisa de
+     servidor escutando quem pagou, e é a parte que mais dá errado quando
+     apressada.
+
+**3. Tela de "sem internet".** Dentro do Capacitor o app abre (os arquivos
+são locais), mas a busca precisa de rede. Sem uma tela própria, a pessoa
+vê uma lista vazia sem explicação.
+
+**4. Localização pedida cedo demais.** Na tela de boas-vindas, antes de a
+pessoa entender por quê. No Android vira caixa do sistema na primeira
+abertura: recusa quase certa e uma estrela a menos.
+
+**5. Ficha da loja:** prints, capa 1024×500, textos, classificação
+indicativa e o formulário de Segurança de Dados. A política de
+privacidade já está no ar.
+
+## O que a dona precisa fazer, e ninguém faz por ela
+
+- **Conta no Google Play Console** (US$ 25). É o passo mais lento —
+  documento e alguns dias de espera.
+- **Guardar a chave de assinatura.** Perdida, não existe atualização do
+  app: só publicar outro, com outro endereço, e pedir para todos
+  instalarem de novo.
+
+## Como ela trabalha
+
+Está descrito no fim deste arquivo, e vale igual aqui: português simples,
+sem jargão, e **dizer quando algo não foi verificado**. Do container não
+dá para abrir o site nem compilar Android (não há SDK instalado) — quem
+compila é o Android Studio na máquina dela, ou um workflow.
+
+---
+
 ## São dois apps neste repositório
 
 | Onde | Qual | Site |
