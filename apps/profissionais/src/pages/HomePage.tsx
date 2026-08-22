@@ -10,7 +10,6 @@ import {
   getCategoriasComAnuncio,
   getCidadesComAnuncio,
   getMaisVistos,
-  getRecomendados,
   isCurrentlyBoosted,
   isCurrentlyVerified,
   searchProfessionals,
@@ -112,8 +111,10 @@ export function HomePage() {
      `results`, que é o resultado da busca: as duas nunca aparecem juntas,
      mas misturá-las faria a vitrine sumir e voltar a cada tecla digitada. */
   const [vitrine, setVitrine] = useState<ProfessionalWithRating[]>([]);
+  /* Quem pagou pelo destaque. Prateleira própria, e a primeira da tela:
+     é literalmente o que a pessoa comprou. */
+  const [destaques, setDestaques] = useState<ProfessionalWithRating[]>([]);
   const [emAlta, setEmAlta] = useState<ProfessionalWithRating[]>([]);
-  const [recomendados, setRecomendados] = useState<ProfessionalWithRating[]>([]);
   const [loading, setLoading] = useState(false);
   /* Falha de busca tem tela própria. Enquanto `searchProfessionals`
      devolvia lista vazia em caso de erro, "não achamos ninguém" cobria
@@ -202,13 +203,22 @@ export function HomePage() {
        continuam de pé. É o único lugar do app onde lista vazia em caso de
        erro é a resposta certa — a prateleira simplesmente não aparece, e
        não há nada que a pessoa possa fazer a respeito. */
+    /* Consulta própria para o destaque, e não um filtro em cima da
+       vitrine: a vitrine vem ordenada por nota, e quem acabou de assinar
+       o destaque costuma não ter nota nenhuma — ficaria no fim da lista
+       de 50 e sumiria da prateleira que ele está pagando. Aqui a busca
+       devolve os destacados primeiro, por ordem do banco.
+
+       `isCurrentlyBoosted` em vez de `p.boosted`: a coluna continua
+       verdadeira depois de a assinatura vencer, e quem parou de pagar não
+       pode continuar aparecendo no lugar de quem paga. */
+    searchProfessionals({ pageSize: 24 })
+      .then((lista) => ativo && setDestaques(lista.filter(isCurrentlyBoosted).slice(0, 12)))
+      .catch(() => ativo && setDestaques([]));
+
     getMaisVistos()
       .then((lista) => ativo && setEmAlta(lista))
       .catch(() => ativo && setEmAlta([]));
-
-    getRecomendados()
-      .then((lista) => ativo && setRecomendados(lista))
-      .catch(() => ativo && setRecomendados([]));
 
     return () => {
       ativo = false;
@@ -679,6 +689,63 @@ export function HomePage() {
             </div>
           )}
 
+          {/* A primeira da tela, porque é a única que alguém comprou.
+
+              O subtítulo diz que é anúncio, e isso não é opcional: o app
+              já marca o que é pago na barra de navegação pelo mesmo
+              motivo. Quem vê uma lista precisa saber quando a ordem foi
+              comprada — e quem paga precisa que o lugar seja visível o
+              suficiente para valer o dinheiro. As duas coisas se resolvem
+              com a mesma linha de texto.
+
+              `minimo={1}`: as outras prateleiras somem com menos de três
+              porque uma seleção curta parece defeito. Esta não — um
+              anunciante só já é motivo suficiente para a faixa existir,
+              já que ele pagou por ela. */}
+          <Prateleira
+            titulo="🔥 Em destaque"
+            /* O subtítulo que dizia "anúncios de profissionais que pagaram
+               para aparecer aqui" saiu a pedido da dona.
+               Fica anotado o que ele fazia, porque um dia isso volta a ser
+               pedido: publicidade precisa ser reconhecível como
+               publicidade — é o que o Código de Defesa do Consumidor
+               chama de identificação da mensagem publicitária, e é o que
+               a Play Store cobra de app com conteúdo pago. O convite
+               "Apareça aqui", no fim da fileira, ainda deixa implícito
+               que o lugar é comprado, mas implícito não é o mesmo que
+               dito. */
+            ancora="prateleira-destaque"
+            minimo={1}
+            quantidade={destaques.length}
+            verTudo="/anuncios"
+          >
+            {destaques.map((p) => (
+              <CartaoVitrine key={p.id} p={p} />
+            ))}
+            {/* O convite vem DEPOIS dos anunciantes, nunca antes.
+                Na frente, ele roubaria o primeiro lugar — que é
+                exatamente o que essas pessoas pagaram para ter. No fim da
+                fileira ele aparece para quem rolou até o fim, que é
+                justamente quem olhou os anúncios e pode estar se
+                perguntando como entrar ali.
+
+                Leva ao Painel porque é lá que o destaque é assinado, e
+                porque o caminho passa por ter uma página: quem ainda não
+                tem cai no login (passo 1 de 4) e segue o fluxo normal, em
+                vez de esbarrar num pagamento sem ter o que destacar. */}
+            <Link to="/painel" className="cartao-convite">
+              <span className="cartao-convite-selo" aria-hidden="true">🔥</span>
+              <strong>Apareça aqui</strong>
+              <span className="cartao-convite-texto">
+                Seu serviço no topo da busca, na frente de quem procura agora.
+              </span>
+              <span className="cartao-convite-preco">
+                R$ 19,90<small>/mês</small>
+              </span>
+              <span className="cartao-convite-acao">Quero aparecer ›</span>
+            </Link>
+          </Prateleira>
+
           <Prateleira
             titulo="Em alta em Itabirito"
             subtitulo="Os mais procurados nos últimos dias"
@@ -690,19 +757,23 @@ export function HomePage() {
             ))}
           </Prateleira>
 
-          {/* Antes de "bem avaliados", porque é mais forte: nota alta com
-              uma avaliação só pode ser um primo; aqui houve serviço
-              prestado e quem pagou disse que valeu. */}
-          <Prateleira
-            titulo="Recomendados"
-            subtitulo="Quem já foi contratado e voltou bem avaliado"
-            quantidade={recomendados.length}
-            minimo={2}
-          >
-            {recomendados.map((p) => (
-              <CartaoVitrine key={p.id} p={p} />
-            ))}
-          </Prateleira>
+          {/* "Recomendados" saiu daqui.
+
+              A queixa da dona foi que ela repetia "Em alta", e estava
+              certa — mas a raiz era outra: "Recomendados" e "Bem
+              avaliados" perguntavam quase a mesma coisa, e os subtítulos
+              denunciavam ("quem já foi contratado e voltou bem avaliado"
+              contra "quem já foi contratado e recebeu nota").
+
+              Numa cidade com poucos cadastros avaliados, as duas devolvem
+              as mesmas pessoas — e as mesmas que "Em alta", porque quem é
+              visto é quem é avaliado. Três faixas com as mesmas caras não
+              parecem três seleções: parecem um defeito.
+
+              Ficou "Em alta", que é a única que mede outra coisa (o que a
+              cidade está procurando agora) e a única que funciona sem
+              nenhuma avaliação existir — que é a situação de toda cidade
+              nova. */}
 
           <Prateleira
             titulo="Bem avaliados"

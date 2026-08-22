@@ -840,6 +840,14 @@ export async function getMaisVistos(dias = 7, quantos = 12): Promise<Professiona
   return ids.map((id) => porId.get(id)).filter((p): p is ProfessionalWithRating => p !== undefined);
 }
 
+/* SEM USO NA TELA desde que a prateleira "Recomendados" saiu da tela
+   inicial: ela devolvia praticamente as mesmas pessoas que "Bem
+   avaliados" e que "Em alta", porque numa cidade com poucos cadastros
+   avaliados quem é visto é quem é avaliado.
+
+   Ficou aqui de propósito, e não foi apagada: a consulta é a única do app
+   que sabe separar "recebeu nota" de "foi contratado E voltou bem
+   avaliado", e essa distinção passa a valer quando a base crescer. */
 /**
  * Recomendados: quem foi contratado e voltou avaliado.
  *
