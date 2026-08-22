@@ -704,7 +704,16 @@ export function HomePage() {
               já que ele pagou por ela. */}
           <Prateleira
             titulo="🔥 Em destaque"
-            subtitulo="Anúncios de profissionais que pagaram para aparecer aqui"
+            /* O subtítulo que dizia "anúncios de profissionais que pagaram
+               para aparecer aqui" saiu a pedido da dona.
+               Fica anotado o que ele fazia, porque um dia isso volta a ser
+               pedido: publicidade precisa ser reconhecível como
+               publicidade — é o que o Código de Defesa do Consumidor
+               chama de identificação da mensagem publicitária, e é o que
+               a Play Store cobra de app com conteúdo pago. O convite
+               "Apareça aqui", no fim da fileira, ainda deixa implícito
+               que o lugar é comprado, mas implícito não é o mesmo que
+               dito. */
             ancora="prateleira-destaque"
             minimo={1}
             quantidade={destaques.length}
