@@ -1607,10 +1607,14 @@ textarea::placeholder {
 
 .search-icon {
   position: absolute;
-  left: 16px;
+  left: 17px;
   width: 20px;
   height: 20px;
-  color: var(--color-primary);
+  /* Cinza, não o azul de ação. A lupa não é um botão e não faz nada ao
+     ser tocada — pintada na cor das coisas clicáveis, ela promete um
+     toque que não existe. Aqui ela é o que sempre foi: o desenho que diz
+     "isto é um campo de busca". */
+  color: var(--color-text-muted);
   pointer-events: none;
 }
 
@@ -1640,18 +1644,37 @@ textarea::placeholder {
 
    O foco continua virando azul: mudar de cor, e não só de espessura, é o
    que avisa que o campo está pronto para receber texto. */
+/* Branco, com sombra — e não mais o creme com borda dourada.
+
+   O creme foi um remendo, e vale contar por quê: naquele momento o fundo
+   da página era branco, o campo era branco, e ele sumia. Pintá-lo de
+   dourado resolveu o sumiço da única forma disponível na época — dando
+   cor a ele.
+
+   O fundo da página passou a ser um cinza frio, e o problema deixou de
+   existir: agora é o branco que se destaca, porque está mais claro que a
+   folha. O remendo virou o que sobrava dele — uma mancha mostarda no
+   meio de uma tela navy e branca, a única coisa da tela fora da paleta.
+
+   Ele continua sendo o elemento mais forte do bloco, que é o que se quer:
+   é alto, tem sombra de destaque enquanto os filtros abaixo têm a de
+   repouso, e é o único preenchido de branco puro. Peso agora vem de
+   elevação, não de cor. */
 .search-input {
-  padding: 16px 18px 16px 46px;
-  font-size: 1rem;
-  background: #f9edd5;
-  border: 1.6px solid var(--color-gold-mid);
+  padding: 17px 18px 17px 48px;
+  font-size: 1.02rem;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border-strong);
   border-radius: 999px;
-  box-shadow: var(--shadow-card);
+  box-shadow: var(--shadow-destaque);
 }
 
+/* O foco precisa ser inconfundível num campo sem cor própria: a borda
+   escurece e um halo azul aparece em volta. É o mesmo halo dos outros
+   campos, um pouco mais forte — este é o campo principal do app. */
 .search-input:focus {
   border-color: var(--color-primary);
-  box-shadow: 0 0 0 4px rgba(18, 48, 94, 0.12);
+  box-shadow: var(--shadow-destaque), 0 0 0 4px rgba(18, 48, 94, 0.14);
 }
 
 .search-input::placeholder {
