@@ -1,0 +1,45 @@
+{
+  "expo": {
+    "name": "procurô",
+    "slug": "procuro",
+    "version": "0.1.0",
+    "orientation": "portrait",
+    "scheme": "procuro",
+    "userInterfaceStyle": "light",
+    "newArchEnabled": true,
+    "splash": {
+      "resizeMode": "contain",
+      "backgroundColor": "#12245C"
+    },
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "br.com.procuroapp.procuro",
+      "infoPlist": {
+        "NSLocationWhenInUseUsageDescription": "O procurô usa sua localização para mostrar profissionais perto de você e para avisar quem atende na sua região.",
+        "NSPhotoLibraryUsageDescription": "Para escolher a foto do seu perfil.",
+        "NSCameraUsageDescription": "Para tirar a foto do seu perfil."
+      }
+    },
+    "android": {
+      "package": "br.com.procuroapp.procuro",
+      "adaptiveIcon": {
+        "backgroundColor": "#12245C"
+      },
+      "permissions": [
+        "ACCESS_COARSE_LOCATION",
+        "ACCESS_FINE_LOCATION"
+      ],
+      "edgeToEdgeEnabled": true
+    },
+    "web": {
+      "bundler": "metro",
+      "output": "static"
+    },
+    "plugins": [
+      "expo-router"
+    ],
+    "experiments": {
+      "typedRoutes": true
+    }
+  }
+}

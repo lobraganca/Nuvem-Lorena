@@ -1,0 +1,12 @@
+node_modules/
+.expo/
+dist/
+web-build/
+*.log
+
+# As chaves ficam de fora do repositório. O modelo está em .env.example.
+.env
+.env.local
+
+*.orig.*
+.DS_Store
