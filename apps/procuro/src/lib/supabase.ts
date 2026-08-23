@@ -33,11 +33,38 @@ if (!url || !chaveAnonima) {
   );
 }
 
+/**
+ * Onde a sessão é guardada — e por que não é sempre o `AsyncStorage`.
+ *
+ * A versão web do app é publicada com `output: "static"`, o que significa
+ * que cada tela é renderizada no **Node** antes de ir para o navegador. E
+ * no Node não existe `AsyncStorage`: ele é uma ponte para o armazenamento
+ * do aparelho, e do lado do servidor essa ponte não leva a lugar nenhum.
+ *
+ * O sintoma é violento e não aponta para cá: o servidor derruba a página
+ * inteira ao montar o cliente do Supabase, antes de qualquer tela aparecer.
+ * Não é erro de tela, é erro de arranque.
+ *
+ * A saída é um armazenamento de mentira para o servidor. Não guardar nada
+ * lá é o certo, não um remendo: no servidor não HÁ sessão para guardar —
+ * ninguém entrou ainda, a página está sendo montada para ser enviada. Quem
+ * lê a sessão de verdade é o navegador, quando a página chega nele.
+ */
+const semLugarParaGuardar = {
+  getItem: async () => null,
+  setItem: async () => {},
+  removeItem: async () => {},
+};
+
+const estaNoServidor = typeof window === 'undefined';
+
 export const supabase = createClient(url, chaveAnonima, {
   auth: {
-    storage: AsyncStorage,
+    storage: estaNoServidor ? semLugarParaGuardar : AsyncStorage,
     autoRefreshToken: true,
-    persistSession: true,
+    // Renovar e guardar sessão no servidor não faz sentido pelo mesmo
+    // motivo: não há dono para a sessão do lado de lá.
+    persistSession: !estaNoServidor,
     detectSessionInUrl: false,
   },
 });

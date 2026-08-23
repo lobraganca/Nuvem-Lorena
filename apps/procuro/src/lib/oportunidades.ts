@@ -16,6 +16,37 @@ import { supabase } from './supabase';
 import { ErroDeDados, mensagemDeErro } from './erros';
 import type { Oportunidade, Plano, RespostaAoDisparo } from '../tipos/dominio';
 
+/**
+ * O cadastro de profissional de quem está logado.
+ *
+ * Devolve `null` quando a pessoa entrou mas ainda não se cadastrou como
+ * profissional — que é o estado de todo mundo que usa o app só para
+ * procurar. `null` aqui NÃO é erro, é uma resposta legítima, e é por isso
+ * que ele não lança: quem só contrata nunca vai ter essa linha.
+ *
+ * Falha de verdade (rede, permissão) continua lançando, para não virar o
+ * mesmo `null` e esconder o problema.
+ */
+export async function meuCadastroProfissional(): Promise<{ id: string } | null> {
+  const { data: sessao } = await supabase.auth.getSession();
+  const meuId = sessao.session?.user.id;
+  if (!meuId) return null;
+
+  const { data, error } = await supabase
+    .from('profissionais')
+    .select('id')
+    .eq('perfil_id', meuId)
+    .maybeSingle();
+
+  if (error) {
+    throw new ErroDeDados(
+      mensagemDeErro(error, 'Não deu para carregar seu cadastro de profissional.'),
+      error,
+    );
+  }
+  return data ?? null;
+}
+
 /** As colunas do pedido que o cartão de oportunidade precisa. */
 const CAMPOS = `
   id, pedido_id, profissional_id, onda,

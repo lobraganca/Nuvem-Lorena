@@ -6,8 +6,8 @@
  * hora de separar é quando um deles crescer, não antes.
  */
 
-import { ActivityIndicator, Pressable, StyleSheet, Text, View } from 'react-native';
-import type { ReactNode } from 'react';
+import { ActivityIndicator, Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
+import type { ComponentProps, ReactNode } from 'react';
 import { ALVO_DE_TOQUE, canto, cores, espaco, sombra, tipo } from '../tema';
 
 // ---------------------------------------------------------------------
@@ -101,6 +101,45 @@ export function Cartao({
     <Pressable onPress={onPress} style={({ pressed }) => pressed && { opacity: 0.85 }}>
       {conteudo}
     </Pressable>
+  );
+}
+
+// ---------------------------------------------------------------------
+// Campo de texto
+// ---------------------------------------------------------------------
+
+type CampoProps = ComponentProps<typeof TextInput> & {
+  rotulo: string;
+  /** O recado de erro fica COLADO no campo, não no topo da tela. */
+  erro?: string | null;
+  ajuda?: string;
+};
+
+export function Campo({ rotulo, erro, ajuda, style, ...resto }: CampoProps) {
+  return (
+    <View style={e.campoFora}>
+      <Text style={[tipo.corpoForte, { color: cores.texto, marginBottom: espaco.sm }]}>
+        {rotulo}
+      </Text>
+      <TextInput
+        placeholderTextColor={cores.textoApagado}
+        // Sem isto o campo fica cinza-claro no modo escuro do aparelho e a
+        // pessoa digita sem enxergar o que escreveu.
+        style={[e.campo, erro ? { borderColor: cores.erro } : null, style]}
+        accessibilityLabel={rotulo}
+        {...resto}
+      />
+      {/* O erro entra no lugar da ajuda em vez de empurrar a tela para
+          baixo: campo que cresce quando erra faz o botão fugir do dedo
+          exatamente no momento em que a pessoa vai tocar nele. */}
+      {erro ? (
+        <Text style={[tipo.apoio, { color: cores.erro, marginTop: espaco.sm }]}>{erro}</Text>
+      ) : ajuda ? (
+        <Text style={[tipo.apoio, { color: cores.textoApagado, marginTop: espaco.sm }]}>
+          {ajuda}
+        </Text>
+      ) : null}
+    </View>
   );
 }
 
@@ -211,6 +250,17 @@ const e = StyleSheet.create({
     paddingVertical: espaco.xs,
     borderRadius: canto.sm,
     alignSelf: 'flex-start',
+  },
+  campoFora: { marginBottom: espaco.lg },
+  campo: {
+    minHeight: ALVO_DE_TOQUE + 6,
+    backgroundColor: cores.superficie,
+    borderWidth: 1,
+    borderColor: cores.bordaForte,
+    borderRadius: canto.md,
+    paddingHorizontal: espaco.lg,
+    fontSize: 17, // maior que o corpo: é o que a pessoa está digitando
+    color: cores.texto,
   },
   centralizado: {
     flex: 1,

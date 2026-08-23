@@ -40,6 +40,23 @@ gravação inteira.
 | `0001_fundacao.sql` | cidades, categorias, perfis, profissionais |
 | `0002_planos_e_assinaturas.sql` | os três planos e a assinatura vigente |
 | `0003_pedidos_e_ondas.sql` | pedidos, disparos e o motor de ondas |
+| `0004_entrar_e_confirmar_numero.sql` | perfil automático e a confirmação à prova de forja |
+
+### A confirmação do número não pode vir do app
+
+A coluna `telefone_confirmado` decide duas coisas sérias: se o telefone
+aparece para quem procura, e se a pessoa entra na fila de disparo. A 0001
+deixava o app escrever nela — ou seja, dava para se declarar confirmado sem
+nunca ter recebido código.
+
+Policy não resolve isso: policy decide se a **linha** pode ser escrita, não
+quais **colunas**. Quem resolve é um gatilho que reescreve a coluna a partir
+do `auth.users`, que só o Supabase Auth escreve depois de conferir o código
+com o Twilio. O que o app mandar naquele campo é descartado.
+
+A regra que sai daí, e vale para o sistema todo: **dado que dá poder a
+alguém nunca vem do cliente** — ele é derivado, no banco, de algo que o
+cliente não controla.
 
 ### Testar a SQL antes de mandar
 
@@ -62,6 +79,7 @@ for f in supabase/migrations/*.sql; do
   psql -h /var/tmp -p 5434 -U postgres -d procuro -v ON_ERROR_STOP=1 -f "$f"
 done
 psql -h /var/tmp -p 5434 -U postgres -d procuro -f supabase/testes/01-ondas-de-disparo.sql
+psql -h /var/tmp -p 5434 -U postgres -d procuro -f supabase/testes/02-confirmacao-a-prova-de-forja.sql
 ```
 
 O teste monta cinco eletricistas e um pedido, e confere que a oportunidade
@@ -106,11 +124,13 @@ impede a mesma oportunidade de chegar duas vezes na mesma pessoa.
 - Banco: fundação, planos, pedidos, disparos, bloqueios, RLS
 - Motor de ondas, testado
 - Tela de oportunidades, com aceitar e recusar
+- Entrar por telefone com código por SMS, e o guarda de sessão
+- Validação de celular brasileiro, com 14 casos testados
 - Tema da marca (azul, dourado, branco) em `src/tema/`
 
 ## O que ainda não está
 
-- Entrar e cadastrar (hoje o app lê `EXPO_PUBLIC_PROFISSIONAL_DEMO`)
+- Cadastrar-se como profissional (entrar já funciona)
 - Busca e perfil público
 - Publicar pedido (lado de quem procura)
 - Avisos no celular

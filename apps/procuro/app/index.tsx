@@ -24,22 +24,18 @@ import { cores, espaco, tipo } from '../src/tema';
 import { ErroDeDados, mensagemDeErro } from '../src/lib/erros';
 import {
   comoRecebeOportunidades,
+  meuCadastroProfissional,
   oportunidadesEmAberto,
   planoVigente,
   responder,
 } from '../src/lib/oportunidades';
 import type { Oportunidade, Plano, RespostaAoDisparo } from '../src/tipos/dominio';
 
-/**
- * Enquanto não existe login, o app precisa saber de quem são as
- * oportunidades. Isto sai daqui assim que a tela de entrar existir — e
- * está marcado para não passar despercebido.
- */
-const PROFISSIONAL_ID = process.env.EXPO_PUBLIC_PROFISSIONAL_DEMO ?? '';
-
 type Estado =
   | { fase: 'carregando' }
   | { fase: 'pronto'; lista: Oportunidade[]; plano: Plano | null }
+  /** Entrou, mas não é profissional — usa o app só para procurar. */
+  | { fase: 'so_cliente' }
   | { fase: 'falhou'; mensagem: string };
 
 export default function Oportunidades() {
@@ -49,12 +45,20 @@ export default function Oportunidades() {
 
   const carregar = useCallback(async () => {
     try {
+      const cadastro = await meuCadastroProfissional();
+      // Quem não é profissional não tem oportunidade nenhuma para ver, e
+      // isso não é um vazio nem uma falha — é outra tela.
+      if (!cadastro) {
+        setEstado({ fase: 'so_cliente' });
+        return;
+      }
+
       // As duas juntas: sem o plano, a tela não sabe explicar POR QUE a
       // lista está vazia — e "seu plano não recebe oportunidades" é uma
       // resposta completamente diferente de "não apareceu nada hoje".
       const [lista, plano] = await Promise.all([
-        oportunidadesEmAberto(PROFISSIONAL_ID),
-        planoVigente(PROFISSIONAL_ID),
+        oportunidadesEmAberto(cadastro.id),
+        planoVigente(cadastro.id),
       ]);
       setEstado({ fase: 'pronto', lista, plano });
     } catch (err) {
@@ -111,6 +115,11 @@ export default function Oportunidades() {
         <Carregando texto="Procurando trabalho para você…" />
       ) : estado.fase === 'falhou' ? (
         <Falhou mensagem={estado.mensagem} aoTentarDeNovo={() => void carregar()} />
+      ) : estado.fase === 'so_cliente' ? (
+        <Vazio
+          titulo="Você ainda não tem cadastro de profissional"
+          texto="Cadastre o que você faz para começar a receber os pedidos de quem precisa do seu serviço na região."
+        />
       ) : (
         <FlatList
           data={estado.lista}

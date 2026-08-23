@@ -20,9 +20,16 @@ create extension if not exists "pgcrypto";
 
 create schema if not exists auth;
 
+-- As colunas são as que as migrations daqui realmente leem. `phone` e
+-- `phone_confirmed_at` são escritas pelo Supabase Auth depois de conferir
+-- o código do SMS — e é justamente por serem inalcançáveis pelo app que
+-- elas servem de fonte da verdade para a confirmação (ver 0004).
 create table if not exists auth.users (
-  id    uuid primary key default gen_random_uuid(),
-  email text
+  id                 uuid primary key default gen_random_uuid(),
+  email              text,
+  phone              text,
+  phone_confirmed_at timestamptz,
+  raw_user_meta_data jsonb default '{}'::jsonb
 );
 
 -- No Supabase de verdade esta função devolve o dono do token da requisição.
