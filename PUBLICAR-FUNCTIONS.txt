@@ -14,4 +14,4 @@ Settings > Secrets and variables > Actions:
   SUPABASE_ACCESS_TOKEN
   SUPABASE_PROJECT_REF
 
-Último disparo: 2026-08-17 (delete-account passa a apagar tambem as fotos do Storage)
+Último disparo: 2026-08-23 (webhook: pagamento avulso volta a ser classificado por produto)

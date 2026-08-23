@@ -251,9 +251,15 @@ async function handlePreapproval(admin: Admin, preapprovalId: string) {
 function tipoDoPagamento(ref: string): string | null {
   if (ref.startsWith("credits:")) return "credits";
   if (ref.startsWith("sponsor:")) return "sponsorship";
-  // "annual:<tipo>:<id>" e "mensal:<tipo>:<id>"
+  /* O formato é "annual:<id do anúncio>:<tipo>" — o tipo é a TERCEIRA parte,
+     não a segunda. Isto já esteve errado aqui: lia-se a posição 1, que é o
+     id do anúncio (um UUID), então nenhum pagamento anual ou mensal casava
+     com "verification"/"boost"/"plus" e todos eram gravados com tipo nulo.
+     O efeito era silencioso do jeito pior: no painel eles entravam no total
+     recebido e sumiam do detalhe por produto, e a conta "não fechava" sem
+     que nada aparecesse quebrado. */
   if (ref.startsWith("annual:") || ref.startsWith("mensal:")) {
-    const tipo = ref.split(":")[1];
+    const tipo = ref.split(":")[2];
     return tipo === "verification" || tipo === "boost" || tipo === "plus" ? tipo : null;
   }
   return null;
