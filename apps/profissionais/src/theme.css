@@ -1789,10 +1789,18 @@ textarea::placeholder {
 
 /* --- Bloco de busca: campo de texto em destaque, filtros abaixo --- */
 
+/* Os cinco controles eram cinco caixas soltas, com o mesmo respiro entre
+   elas que havia entre os blocos da página — então nada dizia que o campo
+   de busca e os quatro filtros são a mesma ferramenta. Apertando o vão
+   entre eles e afastando o conjunto do que vem antes e depois, o grupo
+   passa a ler como um só objeto, sem precisar de moldura nem de fundo
+   novo (que inverteriam a decisão de cor documentada logo abaixo, em
+   `.filter-grid select`). */
 .search-block {
   display: grid;
-  gap: 12px;
-  margin-top: 4px;
+  gap: 9px;
+  margin-top: 2px;
+  margin-bottom: 6px;
 }
 
 .search-field {
@@ -1911,7 +1919,7 @@ textarea::placeholder {
    grade para fora da tela em vez de encolher. */
 .filter-grid {
   display: grid;
-  gap: 10px;
+  gap: 8px;
   grid-template-columns: repeat(2, minmax(0, 1fr));
 }
 
@@ -2026,7 +2034,10 @@ textarea::placeholder {
 .header-marca {
   display: inline-flex;
   align-items: center;
-  gap: 10px;
+  /* 10px colavam a casinha no "ô" do wordmark: os dois liam como uma peça
+     só, e a marca parecia ter um apêndice. São destinos diferentes e
+     precisam de um vão que diga isso. */
+  gap: 14px;
 }
 
 /* Ícone só, discreto — ao lado da logo, mas sem disputar com ela: quem
@@ -2034,6 +2045,10 @@ textarea::placeholder {
 /* A casinha era transparente sobre o cabeçalho branco. Com o cabeçalho
    azul, transparente virou azul, e o botão passou a ser só um contorno no
    meio de um fundo colorido. Branco de volta o separa. */
+/* A borda subiu para a forte: contra o azul claro da barra, a borda fraca
+   sumia e sobrava um disco branco flutuando sem contorno — que é como ele
+   aparece no print. Com contorno e a mesma sombra dos outros objetos
+   claros, vira um botão. */
 .btn-tela-inicial {
   display: inline-flex;
   align-items: center;
@@ -2041,9 +2056,10 @@ textarea::placeholder {
   width: 30px;
   height: 30px;
   border-radius: 999px;
-  border: 1px solid var(--color-border);
+  border: 1px solid var(--color-border-strong);
   color: var(--color-text-muted);
   background: var(--color-surface);
+  box-shadow: var(--shadow-repouso);
 }
 
 .btn-tela-inicial:hover {
@@ -2066,13 +2082,25 @@ textarea::placeholder {
   background: var(--color-primary);
   border: 1px solid var(--color-primary);
   border-radius: 999px;
-  padding: 8px 14px;
+  padding: 8px 13px;
   font: inherit;
   font-size: 0.85rem;
   font-weight: 700;
   color: #ffffff;
   cursor: pointer;
   white-space: nowrap;
+  /* As mesmas camadas do `.btn-primary`: sobre o marinho, o brilho de cima
+     é branco a 22%, nunca os 92% das superfícies claras. Sem elas, o
+     objeto mais pesado da tela era também o único chapado. */
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.22),
+    inset 0 -1px 2px rgba(0, 0, 0, 0.12),
+    0 2px 4px rgba(10, 26, 47, 0.18);
+}
+
+.btn-instalar-topo:active {
+  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.2);
+  transform: translateY(1px);
 }
 
 .btn-instalar-topo:hover {
@@ -2131,7 +2159,7 @@ textarea::placeholder {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 8px;
+  gap: 6px;
   margin-top: 14px;
   /* O recuo maior à direita não é estética: o botão flutuante de fechar
      (`.btn-fechar-pagina`) é fixo no canto e ocupa os 50px finais da
@@ -2146,8 +2174,13 @@ textarea::placeholder {
      e a pílula agora termina bem antes disso, então a seta não tem mais
      como sumir atrás do X. */
   width: fit-content;
-  max-width: 100%;
-  padding: 6px 12px;
+  /* Reserva o espaço do botão de fechar, em toda largura — e não só nas
+     estreitas, como era antes. O X é fixo e ocupa os 34px que terminam na
+     margem do conteúdo; 44 = esses 34 mais 10 de vão. Medido, os dois
+     chegavam a 1px de distância numa tela de 360px: encostados, liam como
+     um objeto torto em vez de dois. */
+  max-width: calc(100% - 44px);
+  padding: 6px 8px;
   border-radius: 999px;
   /* Era rosa sobre vermelho — a paleta de erro do app. Num convite, essa
      cor diz "algo deu errado" antes de qualquer palavra ser lida, e é a
@@ -2177,21 +2210,18 @@ textarea::placeholder {
   text-overflow: ellipsis;
 }
 
-/* Telas muito estreitas são o único lugar onde a pílula encolhida ainda
-   esbarra no botão de fechar. Medido: a seta acaba em x=262 e o botão
-   começa em x=largura-50, então a partir de 311px para baixo um cobre o
-   outro — foi exatamente a regressão que o `fit-content` trouxe de volta
-   ao remover o recuo de 46px.
+/* Onde a frase não couber na largura que sobra, ela quebra em duas linhas
+   em vez de ser cortada. Isto não é preferência: com reticências, o que
+   some é o fim da frase — ou seja, justamente o "grátis", que é o motivo
+   de o convite existir.
 
-   O `max-width` resolve pela raiz: a pílula não pode passar de 30px antes
-   da borda do conteúdo, que é onde o botão começa. Aí a frase precisa de
-   duas linhas, e por isso a quebra é liberada junto — uma linha cortada
-   comeria justamente o "grátis", que é o motivo de o aviso existir. */
+   O limite continua em 339px, e isso foi medido depois de apertar a
+   pílula: com o recuo em 8px e o vão em 6, a frase inteira passou a pedir
+   245px, e numa tela de 360px sobram 246 — cabe em uma linha por um
+   pixel. Abaixo disso não cabe de jeito nenhum, e aí ela ocupa duas: a
+   pílula fica mais alta que o botão ao lado, e os dois se alinham pelo
+   topo, que lê como linha e não como desencontro. */
 @media (max-width: 339px) {
-  .cta-anunciar {
-    max-width: calc(100% - 34px);
-  }
-
   .cta-anunciar-texto {
     white-space: normal;
   }
@@ -3184,9 +3214,19 @@ textarea::placeholder {
 }
 
 /* Cabeçalho da busca: enxuto no celular, onde a primeira tela vale ouro. */
+/* Medido antes de mexer: da borda de cima até o primeiro resultado iam
+   462px numa tela de 844 — mais da metade da tela gasta para não mostrar
+   um profissional sequer. Os oito degraus do alto tinham 14 a 18px de
+   respiro cada um, e é a soma que custa, não nenhum deles. */
 .hero-busca {
-  padding: 18px 0 14px;
-  text-align: center;
+  padding: 12px 0 10px;
+  /* À esquerda, e não centralizado. Tudo o que vem antes e depois nasce na
+     mesma margem — a pílula dourada, o campo, os quatro filtros, os chips,
+     os cartões —, e só o título e a frase de apoio flutuavam no meio. Um
+     bloco centralizado entre blocos alinhados não lê como destaque: lê
+     como peça de outro lugar. Agora a tela tem uma única borda esquerda,
+     de cima a baixo. */
+  text-align: left;
 }
 
 .hero-busca h1 {
@@ -3203,7 +3243,7 @@ textarea::placeholder {
 }
 
 @media (min-width: 860px) {
-  .hero-busca { padding: 34px 0 22px; }
+  .hero-busca { padding: 28px 0 18px; }
 }
 
 /* Botão da Apple: preto, texto branco e a maçã à esquerda, como a própria
@@ -4883,33 +4923,57 @@ h3 {
 
 /* Abaixo do cabeçalho, não em cima dele: o cabeçalho é fixo e já tem a
    marca à esquerda e o contador + instalar à direita. Sobreposto ali, o
-   "fechar" cobriria o botão de instalar em tela estreita. */
+   "fechar" cobriria o botão de instalar em tela estreita.
+
+   E ALINHADO, que é o que faltava. Este botão flutua sobre o conteúdo, e
+   por três vezes o conteúdo foi remendado para desviar dele: a pílula
+   "Presta serviço?" ganhou recuo extra à direita, depois virou
+   `fit-content`, depois ganhou uma regra só para telas estreitas — três
+   consertos que nunca tocaram na causa. Medido na busca: o centro do X
+   ficava 9px acima do centro da pílula, e a borda direita dele 8px além
+   da margem do conteúdo. Duas desalinhados visíveis, lado a lado — era
+   isso que fazia o alto da tela parecer quebrado.
+
+   Os dois números agora vêm de onde os vizinhos vêm: `--altura-header` é
+   medida e publicada pelo próprio cabeçalho (ver Header em AppShell), e
+   os 14px são a margem de cima da pílula. Como o botão tem a altura dela,
+   os centros coincidem sem conta nenhuma. Os 20px da direita são o recuo
+   de `.container` — o mesmo que define a margem de tudo na tela.
+
+   Menor e mais leve também: a 38px com sombra forte ele era o segundo
+   objeto mais pesado do alto da tela, atrás só do "Instalar App", para
+   uma ação que quase ninguém usa. */
 .btn-fechar-pagina {
   position: fixed;
-  top: calc(74px + env(safe-area-inset-top));
-  right: 12px;
+  top: calc(var(--altura-header, 71px) + 14px);
+  right: 20px;
+  /* Mesma origem vertical da pílula: quando ela cabe em uma linha os dois
+     têm a mesma altura e os centros coincidem; quando ela quebra em duas,
+     os dois se alinham pelo topo. Nos dois casos há uma linha, e não um
+     objeto boiando sobre o outro. */
   z-index: 44;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 38px;
-  height: 38px;
+  width: 34px;
+  height: 34px;
   padding: 0;
   border-radius: 999px;
   border: 1px solid var(--color-border-strong);
   background: var(--color-surface);
-  color: var(--color-text);
-  box-shadow: 0 4px 14px rgba(10, 26, 47, 0.14);
+  color: var(--color-text-muted);
+  box-shadow: var(--shadow-repouso);
   cursor: pointer;
 }
 
 .btn-fechar-pagina svg {
-  width: 18px;
-  height: 18px;
+  width: 16px;
+  height: 16px;
 }
 
 .btn-fechar-pagina:hover {
   background: var(--color-bg-soft);
+  color: var(--color-text);
 }
 
 
