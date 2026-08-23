@@ -336,15 +336,47 @@ button {
   color: #ffffff;
 }
 
+/* O verde tinha o mesmo problema que o azul já resolveu: cor chapada, sem
+   nenhuma das camadas que fazem um botão parecer que se pode apertar. Ao
+   lado de um `.btn-primary`, ele lia como etiqueta colorida em vez de par.
+   As intensidades são as do azul — sobre cor escura, o brilho de cima é
+   branco a 22%, nunca os 92% das superfícies claras.
+
+   Sem gradiente, ao contrário do azul, e isto é medido: o azul aguenta
+   clarear porque o seu tom claro (#1c4480) ainda dá 9,6:1 com texto
+   branco. O verde não — #12805f já está em 4,91:1, quase no limite de
+   4,5, e o verde claro que eu tinha posto aqui derrubava para 3,64. A
+   profundidade veio toda das sombras e do brilho de cima, que não mexem
+   na cor do fundo sob a letra. */
 .btn-teal {
   background: var(--color-accent-teal);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.22),
+    inset 0 -1px 2px rgba(0, 0, 0, 0.12),
+    0 2px 4px rgba(10, 26, 47, 0.16),
+    0 6px 14px rgba(18, 128, 95, 0.22);
   color: #ffffff;
 }
 
+.btn-teal:active:not(:disabled) {
+  box-shadow:
+    inset 0 2px 4px rgba(0, 0, 0, 0.18),
+    0 1px 2px rgba(10, 26, 47, 0.14);
+}
+
+/* O de contorno era transparente e sem sombra nenhuma: sobre o fundo da
+   página ele desaparecia, e a pessoa não sabia que ali havia um botão.
+   Agora tem superfície própria e as mesmas quatro camadas dos cartões
+   claros — continua sendo a opção secundária, mas existe. */
 .btn-outline {
-  background: transparent;
-  border: 1px solid var(--color-border);
+  background: linear-gradient(180deg, #ffffff 0%, #f7fafe 100%);
+  border: 1px solid var(--color-border-strong);
   color: var(--color-text);
+  box-shadow: var(--shadow-repouso);
+}
+
+.btn-outline:active:not(:disabled) {
+  box-shadow: inset 0 2px 5px rgba(10, 26, 47, 0.12);
 }
 
 /* Desligado tem que continuar legível.
@@ -1006,6 +1038,17 @@ textarea::placeholder {
   padding: env(safe-area-inset-top) 20px 40px;
 }
 
+/* 20px de cada lado eram 40px que os botões de escolha não tinham para
+   gastar: com o ícone e a seta ocupando ponta e ponta, "Encontre um
+   profissional" não cabia numa linha em tela de 360px. Medido, não
+   estimado — ver o comentário de `.welcome-choice-label`. */
+@media (max-width: 420px) {
+  .welcome-page {
+    padding-left: 16px;
+    padding-right: 16px;
+  }
+}
+
 /* Linha dos contadores, antes de tudo na tela de início. */
 .welcome-topo {
   display: flex;
@@ -1025,15 +1068,17 @@ textarea::placeholder {
   margin-bottom: 0;
 }
 
+/* 72px de respiro em cima gastavam um quinto da primeira tela do celular
+   para não dizer nada — e a decisão (os dois botões) só aparecia depois de
+   metade do caminho. O `clamp` dá o ar de tela grande sem cobrar isso do
+   celular, que é onde este app é usado. */
 .welcome-hero {
   text-align: center;
-  padding: 72px 0 48px;
+  padding: clamp(26px, 6vh, 60px) 0 clamp(18px, 3.4vh, 34px);
 }
 
-/* Com a pílula em cima, o respiro dela conta: mantidos os 72px, a logo
-   descia quase 90px e a primeira tela do celular começava vazia. */
 .welcome-topo + .welcome-hero {
-  padding-top: 40px;
+  padding-top: clamp(18px, 4vh, 40px);
 }
 
 /* `.welcome-gratis` foi removida: o aviso de cadastro grátis virou a
@@ -1060,16 +1105,38 @@ textarea::placeholder {
    lado, e cada um carrega duas frases. Com o enchimento de um cartão de
    conteúdo, a fileira ocupava a tela inteira para dizer pouco. */
 .welcome-feature-card {
-  padding: 16px;
+  padding: 18px 16px 16px;
+  border-radius: 20px;
+  background: linear-gradient(180deg, #ffffff 0%, #f8fbff 100%);
+  box-shadow: var(--shadow-repouso);
+}
+
+/* O ícone num quadrado dourado claro — o dourado é a cor de identidade do
+   app, e é o único lugar da tela onde ela aparece além do acento da marca.
+   Fica em cima e não à esquerda porque no celular a coluna é uma só: ao
+   lado do título, ele roubaria da frase a largura de que ela precisa. */
+.welcome-feature-icone {
+  display: grid;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  margin-bottom: 12px;
+  border-radius: 13px;
+  background: var(--color-gold-tint);
+  border: 1px solid var(--color-gold-line);
+  color: var(--color-gold-deep);
 }
 
 .welcome-feature-card h3 {
-  font-size: 0.95rem;
+  margin: 0 0 6px;
+  font-size: 0.98rem;
+  line-height: 1.3;
 }
 
 .welcome-feature-card p {
+  margin: 0;
   font-size: 0.88rem;
-  line-height: 1.45;
+  line-height: 1.5;
 }
 
 /* Um lugar vendido dentro do grid de cartões — mesma moldura de
@@ -1106,51 +1173,118 @@ textarea::placeholder {
 .welcome-choice {
   display: grid;
   gap: 12px;
-  margin-bottom: 44px;
+  margin-bottom: 26px;
 }
 
+/* Linha, não pílula.
+
+   O raio 999px saiu: nenhum outro elemento do app é uma cápsula, e num
+   botão desta largura ela lê como tela antiga. 22px é o mesmo canto dos
+   cartões grandes — o botão passa a pertencer à mesma família do resto.
+
+   A profundidade vem das quatro camadas que o app já usa (o brilho de 1px
+   em cima, a penumbra embaixo, a sombra curta de contato e a longa e
+   clara). Escritas aqui e não só no token porque o botão primário precisa
+   das suas em azul: sombra cinza sob um bloco azul-marinho suja a borda em
+   vez de levantá-la. */
 .welcome-choice-btn {
   display: flex;
-  flex-direction: column;
   align-items: center;
-  gap: 3px;
+  gap: 10px;
   width: 100%;
-  padding: 18px 24px;
-  border-radius: 999px;
+  padding: 14px 12px 14px 13px;
+  border-radius: 22px;
   border: 1px solid var(--color-border-strong);
-  background: var(--color-surface);
+  background: linear-gradient(180deg, #ffffff 0%, #f7fafe 100%);
   color: var(--color-text);
   font: inherit;
+  text-align: left;
   cursor: pointer;
-  box-shadow: var(--shadow-card);
-  transition: transform 0.15s ease, box-shadow 0.15s ease, filter 0.15s ease;
+  min-height: 72px;
+  box-shadow: var(--shadow-destaque);
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
   animation: slideUpFade 0.5s ease-out backwards;
 }
 
 .welcome-choice-btn:nth-child(1) {
-  animation-delay: 0.1s;
+  animation-delay: 0.06s;
 }
 
 .welcome-choice-btn:nth-child(2) {
-  animation-delay: 0.2s;
+  animation-delay: 0.16s;
 }
 
 .welcome-choice-btn:hover,
 .welcome-choice-btn:focus-visible {
   transform: translateY(-2px);
-  box-shadow: var(--shadow-raised);
-  animation: subtlePulse 0.6s ease-in-out;
+  box-shadow: var(--brilho-borda), var(--penumbra-borda), 0 3px 6px rgba(10, 26, 47, 0.1),
+    0 14px 30px rgba(10, 26, 47, 0.13);
+}
+
+/* O toque tem que responder no dedo. Sem isto, no celular — onde não
+   existe `hover` — os dois botões eram completamente inertes: a pessoa
+   tocava e nada acontecia até a tela trocar. */
+.welcome-choice-btn:active {
+  transform: translateY(1px);
+  box-shadow: inset 0 2px 5px rgba(10, 26, 47, 0.12), 0 1px 2px rgba(10, 26, 47, 0.06);
 }
 
 .welcome-choice-primary {
-  background: linear-gradient(135deg, var(--color-primary-soft), var(--color-primary));
-  border-color: transparent;
+  background: linear-gradient(135deg, var(--color-primary-soft) 0%, var(--color-primary) 100%);
+  border-color: rgba(10, 26, 47, 0.35);
+  color: #ffffff;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.22), inset 0 -1px 1px rgba(0, 0, 0, 0.12),
+    0 2px 4px rgba(10, 26, 47, 0.16), 0 10px 24px rgba(18, 48, 94, 0.28);
+}
+
+.welcome-choice-primary:hover,
+.welcome-choice-primary:focus-visible {
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.24), inset 0 -1px 1px rgba(0, 0, 0, 0.12),
+    0 4px 8px rgba(10, 26, 47, 0.18), 0 16px 34px rgba(18, 48, 94, 0.32);
+}
+
+/* O ícone dentro de um disco próprio, e não solto sobre o botão: solto,
+   ele some no gradiente do primário e briga com o texto no branco. O disco
+   dá a ele um lugar e é o que faz os dois botões lerem como um par. */
+.welcome-choice-icone {
+  flex: 0 0 auto;
+  display: grid;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 13px;
+  background: var(--color-bg-soft);
+  border: 1px solid var(--color-border);
+  color: var(--color-primary-deep);
+}
+
+.welcome-choice-primary .welcome-choice-icone {
+  background: rgba(255, 255, 255, 0.16);
+  border-color: rgba(255, 255, 255, 0.24);
   color: #ffffff;
 }
 
+.welcome-choice-texto {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  min-width: 0;
+  flex: 1 1 auto;
+}
+
+/* O corpo acompanha a largura da tela porque a frase e longa: "Encontre um
+   profissional" tem 24 letras, e entre o icone e a seta nao sobra espaco
+   para ela numa tela de 320px em corpo fixo. Medido: numa de 390px cabe em
+   uma linha; nas estreitas encolhe ate caber, em vez de quebrar no meio.
+
+   `text-wrap: balance` e o seguro para quando ela quebrar mesmo assim --
+   sem ele sobra "profissional" sozinho na segunda linha, que le como
+   erro. */
 .welcome-choice-label {
-  font-size: 1.05rem;
+  font-size: clamp(0.86rem, 3.9vw, 1.05rem);
   font-weight: 700;
+  line-height: 1.25;
+  text-wrap: balance;
 }
 
 /* "grátis" dentro do próprio botão, em vez de uma linha solta lá em cima.
@@ -1162,7 +1296,7 @@ textarea::placeholder {
    texto pequeno como este. */
 .welcome-choice-gratis {
   display: inline-block;
-  vertical-align: 2px;
+  vertical-align: 1px;
   margin-left: 6px;
   padding: 2px 8px;
   border-radius: 999px;
@@ -1175,13 +1309,36 @@ textarea::placeholder {
   text-transform: lowercase;
 }
 
+/* 0,8rem e não 0,82: medida, "Trabalho com isso e quero aparecer" pedia
+   234px numa coluna de 233px — quebrava em duas linhas por um pixel, e os
+   dois botões ficavam de alturas diferentes lado a lado. */
 .welcome-choice-hint {
-  font-size: 0.82rem;
+  font-size: 0.8rem;
+  line-height: 1.35;
   color: var(--color-text-muted);
 }
 
 .welcome-choice-primary .welcome-choice-hint {
-  color: rgba(255, 255, 255, 0.85);
+  color: rgba(255, 255, 255, 0.86);
+}
+
+/* A seta é o que diz "isto leva a algum lugar" — sem ela, um bloco com
+   ícone e duas linhas de texto lê como aviso, não como botão. */
+.welcome-choice-seta {
+  flex: 0 0 auto;
+  font-size: 1.2rem;
+  line-height: 1;
+  opacity: 0.4;
+  transition: transform 0.15s ease, opacity 0.15s ease;
+}
+
+.welcome-choice-primary .welcome-choice-seta {
+  opacity: 0.65;
+}
+
+.welcome-choice-btn:hover .welcome-choice-seta {
+  transform: translateX(3px);
+  opacity: 0.75;
 }
 
 .welcome-footnote {

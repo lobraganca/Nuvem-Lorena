@@ -1,5 +1,6 @@
 import { useNavigate, Link } from "react-router-dom";
 import { LogoMark } from "../components/Logo";
+import { IconeInicio, type NomeDeIcone } from "../components/IconesInicio";
 import { markWelcomeSeen, requestTour } from "../lib/onboarding";
 import { InstalarApp } from "../components/InstalarApp";
 import { useTituloDaPagina } from "../lib/tituloDaPagina";
@@ -15,12 +16,21 @@ import type { Banner } from "../types/domain";
 
 const ATUALIZA_ESTATISTICAS_MS = 25_000;
 
-const FEATURES = [
+/* Cada explicação ganhou um ícone.
+
+   Não é enfeite: eram cinco cartões brancos idênticos, empilhados, cada um
+   com duas frases — uma parede de texto que ninguém termina de ler. O
+   ícone dá a cada cartão uma silhueta própria, e quem rola rápido ainda
+   sai sabendo que assunto é cada um. O texto continua igual; o que mudou é
+   ele deixar de ser a única coisa a distinguir um cartão do outro. */
+const FEATURES: { title: string; text: string; icone: NomeDeIcone }[] = [
   {
+    icone: "alfinete",
     title: "Tem gente boa aqui do lado",
     text: "Encanador, eletricista, professor particular, manicure — de autônomos a empresas da sua região, num lugar só.",
   },
   {
+    icone: "estrela",
     title: "Quem já chamou conta como foi",
     /* O CPF saiu do app na migration 0033 — guardá-lo para liberar um
        comentário era coleta excessiva, e ele nunca foi conferido contra
@@ -32,14 +42,17 @@ const FEATURES = [
     text: "Quem avalia precisa ter conta, e quem chamou pelo app ganha uma etiqueta na avaliação. Em vez de escrever um texto, a pessoa toca em estrelas e etiquetas — leva segundos.",
   },
   {
+    icone: "conversa",
     title: "Fale direto com a pessoa",
     text: "Sem intermediário e sem leilão de orçamento: o contato está ali, é só chamar.",
   },
   {
+    icone: "selo",
     title: "Conta premium",
     text: "Quem assina tem o botão de WhatsApp direto e recebe pedidos de contato pelo app. É um plano pago, não uma avaliação nossa — quem diz se o trabalho é bom são as avaliações de quem contratou.",
   },
   {
+    icone: "vizinhos",
     title: "Aqui a gente torce junto",
     text: "Quem se cadastra aqui é vizinho, não uma empresa de fora. Avaliação boa vira trabalho; crítica, quando precisa existir, vem específica e sem humilhação.",
   },
@@ -209,17 +222,41 @@ export function BoasVindasPage() {
           se quer contratar ou ser encontrado, e fazer essa pessoa rolar por
           quatro cartões de texto para chegar ao botão é atrapalhar. Quem não
           sabe continua rolando e encontra a explicação logo abaixo. */}
+      {/* Os botões deixaram de ser duas pílulas de texto centralizado.
+
+          A pílula inteira (raio 999px) não é a linguagem do resto do app —
+          todo cartão daqui tem canto de 16 a 22px —, e em botão largo ela
+          lê como tela de 2016. Pior: os dois eram só palavras empilhadas no
+          centro, sem nada que os distinguisse de longe, e o segundo era
+          branco sobre um fundo quase branco.
+
+          Agora cada um tem ícone à esquerda, texto alinhado com o ícone e
+          uma seta à direita — que é o que diz "isto leva a algum lugar". O
+          alvo de toque cresceu junto: a linha inteira responde, não só o
+          miolo. */}
       <section className="welcome-choice">
         <button type="button" className="welcome-choice-btn welcome-choice-primary" onClick={escolherCliente}>
-          <span className="welcome-choice-label">Encontre um profissional</span>
-          <span className="welcome-choice-hint">Estou precisando de um serviço</span>
+          <span className="welcome-choice-icone" aria-hidden="true">
+            <IconeInicio nome="lupa" tamanho={24} />
+          </span>
+          <span className="welcome-choice-texto">
+            <span className="welcome-choice-label">Encontre um profissional</span>
+            <span className="welcome-choice-hint">Estou precisando de um serviço</span>
+          </span>
+          <span className="welcome-choice-seta" aria-hidden="true">›</span>
         </button>
 
         <button type="button" className="welcome-choice-btn" onClick={escolherProfissional}>
-          <span className="welcome-choice-label">
-            Cadastre-se <span className="welcome-choice-gratis">grátis</span>
+          <span className="welcome-choice-icone" aria-hidden="true">
+            <IconeInicio nome="maleta" tamanho={24} />
           </span>
-          <span className="welcome-choice-hint">Trabalho com isso e quero aparecer</span>
+          <span className="welcome-choice-texto">
+            <span className="welcome-choice-label">
+              Cadastre-se <span className="welcome-choice-gratis">grátis</span>
+            </span>
+            <span className="welcome-choice-hint">Trabalho com isso e quero aparecer</span>
+          </span>
+          <span className="welcome-choice-seta" aria-hidden="true">›</span>
         </button>
       </section>
 
@@ -231,10 +268,11 @@ export function BoasVindasPage() {
       <section className="welcome-features">
         {FEATURES.map((f) => (
           <div className="card welcome-feature-card" key={f.title}>
-            <h3 style={{ margin: "0 0 6px" }}>{f.title}</h3>
-            <p className="muted" style={{ margin: 0 }}>
-              {f.text}
-            </p>
+            <span className="welcome-feature-icone" aria-hidden="true">
+              <IconeInicio nome={f.icone} tamanho={22} />
+            </span>
+            <h3>{f.title}</h3>
+            <p className="muted">{f.text}</p>
           </div>
         ))}
 
