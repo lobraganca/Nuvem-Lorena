@@ -4,7 +4,9 @@ App em React Native (Expo). Roda em Android, iPhone e navegador com o mesmo
 código.
 
 > Este é um app **novo**, separado do que já existe em `apps/profissionais/`.
-> Nada aqui toca naquele — outra pasta, outro banco, outra publicação.
+> Outra pasta, outro banco, outra publicação, e **nenhum arquivo em comum**:
+> tudo de que ele precisa está dentro desta pasta. Nada aqui lê, escreve ou
+> depende do outro app.
 
 ## Rodar
 
@@ -53,7 +55,7 @@ psql -h /var/tmp -p 5434 -U postgres -c 'create database procuro;'
 
 # ambiente mínimo do Supabase (schema auth, auth.uid(), papéis)
 psql -h /var/tmp -p 5434 -U postgres -d procuro \
-  -f ../profissionais/supabase/testes/00-ambiente-supabase.sql
+  -f supabase/testes/00-ambiente.sql
 
 # as migrations, e depois o teste das ondas
 for f in supabase/migrations/*.sql; do
