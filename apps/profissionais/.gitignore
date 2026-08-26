@@ -15,8 +15,18 @@ dist
 .env.*
 !.env.example
 
-# Projetos nativos gerados pelo Capacitor (npx cap add android/ios).
-# Não versionamos: são gerados a partir de capacitor.config.ts + dist/
-# sempre que alguém rodar os comandos do README, seção "Publicação nas lojas".
-android
+# O projeto Android É versionado, ao contrário do que o Capacitor sugere.
+#
+# No fluxo normal ele é descartável: quem compila roda `npx cap add android`
+# e a pasta reaparece. Aqui não pode ser descartável por dois motivos que
+# não existem num projeto comum:
+#
+# 1. A identidade do app na loja (br.com.procuroapp.app), a versão mínima
+#    do Android e os 29 ícones moram aqui. Regenerar a pasta os perde, e o
+#    identificador é DEFINITIVO — publicado, não se troca nunca mais.
+# 2. Quem publica trabalha de celular e tablet, sem terminal. A montagem
+#    acontece no workflow "Gerar o app para a Play Store", que precisa
+#    encontrar o projeto pronto no repositório.
+#
+# O que continua fora é a saída do build (ver o .gitignore de android/).
 ios

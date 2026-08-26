@@ -1,0 +1,139 @@
+# Monta o arquivo que se envia à Google Play (.aab), na nuvem.
+#
+# Existe porque quem publica o procurô trabalha de celular e tablet. Montar
+# um app Android normalmente exige Android Studio num computador; aqui o
+# GitHub faz isso e devolve o arquivo pronto para baixar pelo próprio
+# celular e subir no Play Console.
+#
+# NÃO dispara sozinho a cada push, de propósito: montar um app é minutos de
+# máquina e cada versão gasta um número de envio que não volta. Roda quando
+# alguém pede, na aba Actions.
+#
+# ANTES DO PRIMEIRO USO, quatro segredos precisam existir em
+# Settings > Secrets and variables > Actions:
+#
+#   ANDROID_KEYSTORE_BASE64   a chave de assinatura, em texto
+#   ANDROID_KEYSTORE_PASSWORD a senha da chave
+#   ANDROID_KEY_ALIAS         o apelido da chave (procuro)
+#   ANDROID_KEY_PASSWORD      a senha do apelido
+#
+# Sem eles o app é montado assinado com a chave de depuração — instala no
+# celular para testar e a loja RECUSA. O workflow avisa qual é o caso em
+# vez de deixar descobrir no Play Console.
+
+name: Gerar o app para a Play Store
+
+on:
+  workflow_dispatch:
+    inputs:
+      versionName:
+        description: 'Versão que aparece para as pessoas (ex.: 1.0.3)'
+        required: true
+        default: '1.0.0'
+
+jobs:
+  montar:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: apps/profissionais
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      # A Google exige Android 16 (API 36) para envios a partir de
+      # 31/08/2026, e o projeto já está nessa versão. O JDK 21 é o exigido
+      # pelas ferramentas do Android nessa faixa.
+      - name: Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '21'
+
+      - name: Android SDK
+        uses: android-actions/setup-android@v3
+
+      - name: Instalar as dependências
+        run: npm ci
+
+      - name: Conferir os tipos
+        run: npx tsc --noEmit
+
+      # Constrói o site e copia o resultado para dentro do projeto Android.
+      # É este passo que faz o app da loja ser o MESMO procurô do site — e
+      # é por isso que a pasta de saída não fica versionada: aqui ela é
+      # sempre a do commit que está sendo montado.
+      - name: Montar o app e copiar para o Android
+        run: |
+          npm run build
+          npx cap sync android
+
+      # A chave volta a ser arquivo só aqui dentro, e some com a máquina no
+      # fim do trabalho.
+      - name: Preparar a chave de assinatura
+        id: chave
+        env:
+          KEYSTORE_BASE64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
+        run: |
+          if [ -z "$KEYSTORE_BASE64" ]; then
+            echo "assinado=nao" >> "$GITHUB_OUTPUT"
+            echo "::warning::Sem chave de assinatura configurada. O arquivo vai sair assinado para TESTE e a Play Store vai recusar. Configure os quatro segredos em Settings > Secrets and variables > Actions."
+          else
+            echo "$KEYSTORE_BASE64" | base64 -d > "$RUNNER_TEMP/procuro.jks"
+            echo "assinado=sim" >> "$GITHUB_OUTPUT"
+          fi
+
+      # O número do envio é o número da execução do workflow: sobe sozinho,
+      # nunca repete, e ninguém precisa lembrar de somar 1. A Play Store
+      # recusa um envio cujo número já foi usado.
+      - name: Montar o .aab
+        env:
+          ANDROID_KEYSTORE_FILE: ${{ steps.chave.outputs.assinado == 'sim' && format('{0}/procuro.jks', runner.temp) || '' }}
+          ANDROID_KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
+          ANDROID_KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
+          ANDROID_KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
+        run: |
+          cd android
+          chmod +x gradlew
+          ./gradlew bundleRelease --no-daemon \
+            -PversionCode=${{ github.run_number }} \
+            -PversionName=${{ inputs.versionName }}
+
+      # Confere o que saiu antes de entregar. Um .aab existe mesmo quando o
+      # conteúdo está errado, e o erro só aparece no Play Console — depois
+      # da espera.
+      - name: Conferir o arquivo
+        run: |
+          AAB=$(find android -name "*.aab" | head -1)
+          if [ -z "$AAB" ]; then
+            echo "::error::Nenhum .aab foi gerado."
+            exit 1
+          fi
+          TAM=$(du -h "$AAB" | cut -f1)
+          echo "### App montado" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "| | |" >> $GITHUB_STEP_SUMMARY
+          echo "|---|---|" >> $GITHUB_STEP_SUMMARY
+          echo "| Versão | ${{ inputs.versionName }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Número do envio | ${{ github.run_number }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Tamanho | $TAM |" >> $GITHUB_STEP_SUMMARY
+          if [ "${{ steps.chave.outputs.assinado }}" = "sim" ]; then
+            echo "| Assinatura | de verdade — serve para a Play Store |" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "| Assinatura | **DE TESTE — a Play Store vai recusar** |" >> $GITHUB_STEP_SUMMARY
+          fi
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "Baixe em **Artifacts**, no fim desta página, e envie no Play Console." >> $GITHUB_STEP_SUMMARY
+
+      - name: Guardar o arquivo para baixar
+        uses: actions/upload-artifact@v4
+        with:
+          name: procuro-${{ inputs.versionName }}-envio${{ github.run_number }}
+          path: apps/profissionais/android/app/build/outputs/bundle/release/*.aab
+          retention-days: 30
+          if-no-files-found: error
