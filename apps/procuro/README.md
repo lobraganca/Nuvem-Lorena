@@ -41,6 +41,7 @@ gravação inteira.
 | `0002_planos_e_assinaturas.sql` | os três planos e a assinatura vigente |
 | `0003_pedidos_e_ondas.sql` | pedidos, disparos e o motor de ondas |
 | `0004_entrar_e_confirmar_numero.sql` | perfil automático e a confirmação à prova de forja |
+| `0005_busca.sql` | catálogo de ofícios, necessidades e a busca ordenada |
 
 ### A confirmação do número não pode vir do app
 
@@ -80,6 +81,7 @@ for f in supabase/migrations/*.sql; do
 done
 psql -h /var/tmp -p 5434 -U postgres -d procuro -f supabase/testes/01-ondas-de-disparo.sql
 psql -h /var/tmp -p 5434 -U postgres -d procuro -f supabase/testes/02-confirmacao-a-prova-de-forja.sql
+psql -h /var/tmp -p 5434 -U postgres -d procuro -f supabase/testes/03-busca.sql
 ```
 
 O teste monta cinco eletricistas e um pedido, e confere que a oportunidade
@@ -92,6 +94,33 @@ Ele já pegou dois defeitos que nenhuma leitura tinha encontrado:
    Postgres recusa antes de chegar a rodar.
 2. `get diagnostics` só aceita `variável = item`; não dá para somar na
    mesma linha.
+
+## A busca aceita o problema, não só o ofício
+
+Ninguém acorda pensando "preciso de um eletricista". Pensa "o chuveiro
+parou". Uma busca que só procura pelo nome do ofício exige que a pessoa já
+saiba a resposta para poder fazer a pergunta — e quem não sabe desiste.
+
+A tabela `necessidades` liga expressões do dia a dia aos ofícios que as
+resolvem. É tabela e não lista no código porque a dona precisa poder
+acrescentar "meu portão travou" no dia em que perceber que alguém procurou
+por isso e não achou, sem publicar app.
+
+A expressão MAIS LONGA que casa é a que manda: "chuveiro" leva aos dois
+ofícios (não esquenta é eletricista, vaza é encanador); "chuveiro vazando"
+põe o encanador na frente.
+
+A ordenação da busca vive no banco, não no app, porque "quem paga aparece
+antes" é regra de negócio — espalhada pelas telas ela diverge, e a tela que
+esquecer de aplicá-la vira a tela onde o plano pago não vale nada.
+
+| Critério | Por quê |
+|---|---|
+| 1. Ofício mais certo | Eletricista livre não resolve vazamento |
+| 2. Disponível | Quem atende hoje resolve o problema de hoje |
+| 3. Destaque do plano | O que a assinatura compra |
+| 4. Verificado | Desempate por confiança |
+| 5. Sorteio do dia | Senão os mesmos ficam eternamente no topo |
 
 ## O motor de ondas
 
@@ -125,13 +154,15 @@ impede a mesma oportunidade de chegar duas vezes na mesma pessoa.
 - Motor de ondas, testado
 - Tela de oportunidades, com aceitar e recusar
 - Entrar por telefone com código por SMS, e o guarda de sessão
+- Tela de consulta: catálogo de 41 ofícios e busca pelo problema
+- Barra de abas entre Buscar e Oportunidades
 - Validação de celular brasileiro, com 14 casos testados
 - Tema da marca (azul, dourado, branco) em `src/tema/`
 
 ## O que ainda não está
 
 - Cadastrar-se como profissional (entrar já funciona)
-- Busca e perfil público
+- Perfil público do profissional
 - Publicar pedido (lado de quem procura)
 - Avisos no celular
 - Chat interno, avaliações, denúncias

@@ -12,6 +12,7 @@
   },
   "dependencies": {
     "@expo/metro-runtime": "^57.0.12",
+    "@expo/vector-icons": "^15.1.1",
     "@react-native-async-storage/async-storage": "^2.2.0",
     "@supabase/supabase-js": "^2.111.0",
     "expo": "^57.0.15",
@@ -26,6 +27,7 @@
     "react-native-reanimated": "^4.6.0",
     "react-native-safe-area-context": "^5.6.0",
     "react-native-screens": "^4.26.0",
+    "react-native-svg": "^15.15.5",
     "react-native-web": "^0.21.0"
   },
   "devDependencies": {

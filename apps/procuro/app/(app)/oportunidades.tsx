@@ -17,19 +17,19 @@
 
 import { useCallback, useEffect, useState } from 'react';
 import { FlatList, RefreshControl, StyleSheet, Text, View } from 'react-native';
-import { Cabecalho } from '../src/componentes/Cabecalho';
-import { CartaoDeOportunidade } from '../src/componentes/CartaoDeOportunidade';
-import { Carregando, Etiqueta, Falhou, Vazio } from '../src/componentes/Base';
-import { cores, espaco, tipo } from '../src/tema';
-import { ErroDeDados, mensagemDeErro } from '../src/lib/erros';
+import { Cabecalho } from '../../src/componentes/Cabecalho';
+import { CartaoDeOportunidade } from '../../src/componentes/CartaoDeOportunidade';
+import { Carregando, Etiqueta, Falhou, Vazio } from '../../src/componentes/Base';
+import { cores, espaco, tipo } from '../../src/tema';
+import { ErroDeDados, mensagemDeErro } from '../../src/lib/erros';
 import {
   comoRecebeOportunidades,
   meuCadastroProfissional,
   oportunidadesEmAberto,
   planoVigente,
   responder,
-} from '../src/lib/oportunidades';
-import type { Oportunidade, Plano, RespostaAoDisparo } from '../src/tipos/dominio';
+} from '../../src/lib/oportunidades';
+import type { Oportunidade, Plano, RespostaAoDisparo } from '../../src/tipos/dominio';
 
 type Estado =
   | { fase: 'carregando' }

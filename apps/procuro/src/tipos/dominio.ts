@@ -97,6 +97,13 @@ export type ProfissionalPublico = {
   raio_km: number;
   latitude: number | null;
   longitude: number | null;
+  /**
+   * O peso que o plano compra na ordenação da busca. Vem da view, calculado
+   * a partir da assinatura vigente — quem deixa de pagar deixa de ter
+   * destaque no mesmo instante, sem ninguém precisar passar atualizando
+   * coluna.
+   */
+  destaque: number;
 };
 
 export type Pedido = {
