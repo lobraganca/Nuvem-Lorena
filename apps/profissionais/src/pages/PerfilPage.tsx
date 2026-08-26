@@ -19,6 +19,7 @@ import { FecharApp } from "../components/FecharApp";
 import { MinhaAssinatura } from "../components/MinhaAssinatura";
 import { useTituloDaPagina } from "../lib/tituloDaPagina";
 import { mensagemDeErro } from "../lib/erros";
+import { googleServeAqui } from "../lib/plataforma";
 
 function initials(name: string | null, email: string | null | undefined): string {
   const source = name?.trim() || email?.trim() || "?";
@@ -110,13 +111,31 @@ export function PerfilPage() {
       <div className="container" style={{ maxWidth: 420, paddingTop: 60, textAlign: "center" }}>
         <div className="card">
           <h1 style={{ marginTop: 0 }}>Entrar</h1>
-          <p className="muted">Use sua conta Google para buscar, avaliar e cadastrar seus serviços.</p>
-          <div style={{ marginTop: 20 }}>
-            <BotaoGoogle onClick={handleGoogleLogin} disabled={!hasDatabase()} />
-          </div>
-          <div style={{ marginTop: 10 }}>
-            <BotaoApple voltarPara="/perfil" onErro={setError} />
-          </div>
+          {/* Mesma regra do Painel: no app da loja o Google não volta, e o
+              caminho passa pela tela de login. Ver `googleServeAqui`. */}
+          {googleServeAqui() ? (
+            <>
+              <p className="muted">Use sua conta Google para buscar, avaliar e cadastrar seus serviços.</p>
+              <div style={{ marginTop: 20 }}>
+                <BotaoGoogle onClick={handleGoogleLogin} disabled={!hasDatabase()} />
+              </div>
+              <div style={{ marginTop: 10 }}>
+                <BotaoApple voltarPara="/perfil" onErro={setError} />
+              </div>
+            </>
+          ) : (
+            <>
+              <p className="muted">
+                Entre com seu celular para avaliar, favoritar e cadastrar seus serviços. A gente manda um
+                código por SMS — sem senha nova.
+              </p>
+              <div style={{ marginTop: 20 }}>
+                <Link className="btn btn-primary btn-block" to="/login">
+                  Entrar com meu celular
+                </Link>
+              </div>
+            </>
+          )}
           {!hasDatabase() && (
             <p className="muted" style={{ marginTop: 10 }}>
               Configure VITE_SUPABASE_URL/ANON_KEY e o provider Google no Supabase para habilitar o login.

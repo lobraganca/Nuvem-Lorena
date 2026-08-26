@@ -38,7 +38,7 @@ import { mensagemDeErro } from "../lib/erros";
 import { useTituloDaPagina } from "../lib/tituloDaPagina";
 import { MarcaConfirmado } from "../components/MarcaConfirmado";
 import { CartaoProfissional } from "../components/CartaoProfissional";
-import { podeVender } from "../lib/plataforma";
+import { podeVender, googleServeAqui } from "../lib/plataforma";
 
 
 /**
@@ -338,15 +338,38 @@ export function PainelPage() {
             </p>
           </div>
           <h1 style={{ marginTop: 0, fontSize: "1.5rem" }}>Vamos criar sua página</h1>
-          <p className="muted">
-            Entre com sua conta Google — é a mesma que você já usa no celular, sem senha nova para criar. Nos
-            três passos seguintes você monta a página que aparece na busca: seu nome e foto, o que você faz e
-            como te chamam.
-          </p>
-          <div style={{ marginTop: 20 }}>
-            <BotaoGoogle onClick={handleGoogleLogin} disabled={!hasDatabase()} />
-          </div>
-          <BotaoApple voltarPara="/painel" onErro={setLoginError} />
+          {/* No app da loja o botão do Google seria um beco sem saída (ver
+              `googleServeAqui`), então aqui o caminho passa pela tela de
+              login, que é onde mora a entrada por telefone. Um link e não
+              um botão de conta: repetir aqui as portas de entrada seria
+              manter duas telas de login, e a esquecida numa mudança vira a
+              que quebra. */}
+          {googleServeAqui() ? (
+            <>
+              <p className="muted">
+                Entre com sua conta Google — é a mesma que você já usa no celular, sem senha nova para criar. Nos
+                três passos seguintes você monta a página que aparece na busca: seu nome e foto, o que você faz e
+                como te chamam.
+              </p>
+              <div style={{ marginTop: 20 }}>
+                <BotaoGoogle onClick={handleGoogleLogin} disabled={!hasDatabase()} />
+              </div>
+              <BotaoApple voltarPara="/painel" onErro={setLoginError} />
+            </>
+          ) : (
+            <>
+              <p className="muted">
+                Entre com seu celular: a gente manda um código por SMS e pronto — sem senha nova para criar nem
+                para lembrar. Nos três passos seguintes você monta a página que aparece na busca: seu nome e
+                foto, o que você faz e como te chamam.
+              </p>
+              <div style={{ marginTop: 20 }}>
+                <Link className="btn btn-primary btn-block" to="/login">
+                  Entrar com meu celular
+                </Link>
+              </div>
+            </>
+          )}
           {loginError && <p style={{ color: "var(--color-danger)", marginTop: 12 }}>{loginError}</p>}
           <p className="muted" style={{ marginTop: 18, fontSize: "0.85rem" }}>
             Anunciar é grátis. A conta premium e o destaque na busca são opcionais, e você decide depois.

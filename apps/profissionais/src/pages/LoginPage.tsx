@@ -14,6 +14,7 @@ import { useTituloDaPagina } from "../lib/tituloDaPagina";
 import { mensagemDeErro } from "../lib/erros";
 import { formatPhone } from "../lib/phone";
 import { LOGIN_EMAIL_ATIVO, LOGIN_TELEFONE_ATIVO } from "../config";
+import { googleServeAqui } from "../lib/plataforma";
 
 /**
  * Entrar: pelo telefone, pelo Google, ou por e-mail e senha.
@@ -163,10 +164,17 @@ export function LoginPage() {
       </section>
       )}
 
-      {LOGIN_TELEFONE_ATIVO && <p className="entrar-ou">ou</p>}
-
-      <BotaoGoogle onClick={() => tentar(() => signInWithGoogle("/perfil"))} disabled={!hasDatabase()} />
-      <BotaoApple voltarPara="/perfil" onErro={setError} />
+      {/* Google e Apple só onde eles voltam. Dentro do app instalado o
+          login abre no navegador e não tem caminho de volta — ver
+          `googleServeAqui`. O "ou" acompanha: sem nada depois dele, ele
+          anuncia uma alternativa que não vem. */}
+      {googleServeAqui() && (
+        <>
+          {LOGIN_TELEFONE_ATIVO && <p className="entrar-ou">ou</p>}
+          <BotaoGoogle onClick={() => tentar(() => signInWithGoogle("/perfil"))} disabled={!hasDatabase()} />
+          <BotaoApple voltarPara="/perfil" onErro={setError} />
+        </>
+      )}
 
       {/* --- E-mail e senha: recolhido ------------------------------- */}
       {!LOGIN_EMAIL_ATIVO ? null : !comEmail ? (

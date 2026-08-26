@@ -1,3 +1,5 @@
+import { LOGIN_TELEFONE_ATIVO } from "../config";
+
 /**
  * Onde este código está rodando: no site ou dentro do app instalado pela
  * Play Store.
@@ -53,4 +55,36 @@ export function ehAppDaLoja(): boolean {
  */
 export function podeVender(): boolean {
   return !ehAppDaLoja();
+}
+
+/**
+ * O login do Google serve neste lugar?
+ *
+ * Dentro do app instalado, NÃO — e o motivo é mecânico, não de gosto. O
+ * Google recusa fazer login dentro da tela do próprio app (é regra dele,
+ * contra golpe de tela falsa), então ele abre no navegador do celular. De
+ * lá, voltar para dentro do app exige uma ponte: um endereço próprio do
+ * app, registrado no Android, autorizado no Google Cloud e no Supabase.
+ * Essa ponte não existe neste projeto. Quem tocar no botão entra no
+ * Google, e fica no navegador — a conta é criada e o app continua pedindo
+ * login, sem nada explicando por quê.
+ *
+ * Por isso o botão some no app da loja. MAS há uma trava, e ela é o
+ * ponto importante desta função:
+ *
+ *   ele só some se existir outra porta de entrada.
+ *
+ * O login por telefone depende de uma configuração ligada fora do código
+ * (ver LOGIN_TELEFONE_ATIVO). Se alguém publicar o app com ela desligada e
+ * o Google escondido, o resultado é um aplicativo em que NÃO É POSSÍVEL
+ * entrar de jeito nenhum — pior que o botão que não volta, porque o botão
+ * quebrado ao menos denuncia o problema, e a tela sem botão nenhum parece
+ * de propósito.
+ *
+ * Então, sem a outra porta, o Google fica. Um caminho ruim é melhor que
+ * caminho nenhum, e o defeito aparece em vez de se esconder.
+ */
+export function googleServeAqui(): boolean {
+  if (!ehAppDaLoja()) return true;
+  return !LOGIN_TELEFONE_ATIVO;
 }
