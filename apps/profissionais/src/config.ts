@@ -88,15 +88,29 @@ export const LOGIN_APPLE_ATIVO = (import.meta.env.VITE_APPLE_LOGIN ?? "") === "1
 /**
  * Entrar pelo celular, com código por SMS.
  *
- * Antes de ligar: Supabase > Authentication > Sign In / Providers > Phone,
- * conferindo se **criar conta nova pelo telefone** está permitido. O envio
- * de código já funciona no app (é o que confirma o número de quem anuncia),
- * mas confirmar o número de uma conta que já existe e *nascer* uma conta
- * pelo número são coisas separadas no painel.
+ * LIGADO por padrão, ao contrário das duas portas abaixo — e a razão é
+ * que ele deixou de ser opcional: no app da Play Store, é a ÚNICA forma de
+ * entrar. O login do Google abre no navegador do celular e não tem caminho
+ * de volta para dentro do app (ver `googleServeAqui` em lib/plataforma.ts),
+ * então sem esta chave ligada o app instalado não teria porta nenhuma.
  *
- * Variável: VITE_LOGIN_TELEFONE
+ * Uma variável desligada por padrão é o certo para uma porta opcional, e o
+ * errado para a porta principal: ela transforma "publicar o app" numa
+ * tarefa que depende de alguém lembrar de mexer num painel. Aqui o padrão
+ * passa a ser o comportamento desejado, e a variável continua existindo
+ * para o caso contrário.
+ *
+ * Para DESLIGAR: criar VITE_LOGIN_TELEFONE com valor 0 na Vercel.
+ *
+ * Do lado do banco, uma conferência que continua valendo: Supabase >
+ * Authentication > Sign In / Providers > Phone, vendo se **criar conta
+ * nova pelo telefone** está permitido. O envio de código já funciona no
+ * app (é o que confirma o número de quem anuncia), mas confirmar o número
+ * de uma conta que já existe e *nascer* uma conta pelo número são coisas
+ * separadas no painel. Com a segunda desligada, o app mostra o erro que o
+ * Supabase devolve — não fica em silêncio.
  */
-export const LOGIN_TELEFONE_ATIVO = (import.meta.env.VITE_LOGIN_TELEFONE ?? "") === "1";
+export const LOGIN_TELEFONE_ATIVO = (import.meta.env.VITE_LOGIN_TELEFONE ?? "1") !== "0";
 
 /**
  * Entrar com e-mail e senha, com "criar conta" e "esqueci a senha".
