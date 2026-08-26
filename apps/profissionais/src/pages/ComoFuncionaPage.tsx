@@ -1,6 +1,7 @@
 import { Link } from "react-router-dom";
 import { VerifiedBadge } from "../components/VerifiedBadge";
 import { precoMensal } from "../lib/payments";
+import { podeVender } from "../lib/plataforma";
 import { useTituloDaPagina } from "../lib/tituloDaPagina";
 
 export function ComoFuncionaPage() {
@@ -96,10 +97,22 @@ export function ComoFuncionaPage() {
       <div className="card" style={{ display: "grid", gap: 10, marginBottom: 16 }}>
         <h2 style={{ margin: 0 }}>O que é a conta premium</h2>
         <p className="muted" style={{ margin: 0 }}>
-          A <strong>conta premium</strong> (o selo <VerifiedBadge />) é uma assinatura de quem tem cadastro:{" "}
-          <strong>R$ {precoMensal("verification", "pf").toFixed(2).replace(".", ",")} por mês</strong> para
-          profissional autônomo e{" "}
-          <strong>R$ {precoMensal("verification", "pj").toFixed(2).replace(".", ",")} para empresa</strong>.
+          {/* Esta tela EXPLICA o selo, e explicar continua valendo no app da
+              loja — inclusive precisa continuar, porque a próxima frase é a
+              ressalva de que o selo não é avaliação nossa, e ela existe por
+              causa do Código de Defesa do Consumidor. O que sai é só o
+              preço: preço é oferta. */}
+          A <strong>conta premium</strong> (o selo <VerifiedBadge />) é uma assinatura de quem tem cadastro
+          {podeVender() ? (
+            <>
+              :{" "}
+              <strong>R$ {precoMensal("verification", "pf").toFixed(2).replace(".", ",")} por mês</strong> para
+              profissional autônomo e{" "}
+              <strong>R$ {precoMensal("verification", "pj").toFixed(2).replace(".", ",")} para empresa</strong>.
+            </>
+          ) : (
+            "."
+          )}{" "}
           Ela libera o <strong>botão de WhatsApp direto</strong> e o{" "}
           <strong>"peça para te chamar"</strong>, em que você deixa seu número e a pessoa retorna.
         </p>

@@ -4,6 +4,7 @@ import { CITIES, type LocalDeAnuncio } from "../types/domain";
 import { enviarPedidoDeAnuncio } from "../lib/banners";
 import { useAuth } from "../lib/useAuth";
 import { useTituloDaPagina } from "../lib/tituloDaPagina";
+import { podeVender } from "../lib/plataforma";
 import { mensagemDeErro } from "../lib/erros";
 import { CONTATO_EMAIL, DIAS_BANNER, NOME_PLATAFORMA, precoDoBanner } from "../config";
 
@@ -54,6 +55,28 @@ export function PublicidadePage() {
     } finally {
       setEnviando(false);
     }
+  }
+
+  /* A tela inteira é uma venda: preço do banner, formulário de pedido e
+     "a gente fala com você". No app da Play Store ela não aparece.
+
+     Poderia haver discussão sobre espaço de publicidade ser ou não bem
+     digital — e é justamente por haver discussão que ela some. Uma dúvida
+     ao lado de uma regra que pode tirar o app do ar não vale ser
+     defendida, ainda mais quando esconder não custa nada: a venda de
+     banner é feita por conversa, e continua sendo. */
+  if (!podeVender()) {
+    return (
+      <div className="container" style={{ paddingTop: 32, paddingBottom: 60 }}>
+        <h1>Anúncios</h1>
+        <p className="muted">
+          Os espaços de publicidade do {NOME_PLATAFORMA} são combinados direto com a nossa equipe.
+        </p>
+        <p className="muted" style={{ fontSize: "0.9rem" }}>
+          Fale com o suporte pelo Perfil que a gente explica como funciona.
+        </p>
+      </div>
+    );
   }
 
   return (

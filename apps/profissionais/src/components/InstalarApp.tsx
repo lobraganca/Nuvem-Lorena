@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { BottomSheet } from "./BottomSheet";
+import { ehAppDaLoja } from "../lib/plataforma";
 
 /**
  * "Adicionar à tela do celular".
@@ -48,6 +49,14 @@ function ehIOS(): boolean {
 }
 
 export function InstalarApp({ variante = "lista" }: { variante?: "lista" | "faixa" | "cabecalho" }) {
+  /* Dentro do app instalado pela loja, convidar a instalar o app é o
+     absurdo que parece. Ele já sumia quando o navegador dizia que não há
+     o que instalar — mas o app da loja não é navegador, e a pergunta nunca
+     chega a ser feita: o convite ficava na tela, sem ter o que fazer ao
+     ser tocado. Um botão que não responde é o que ensina a pessoa que o
+     app está travado. */
+  if (ehAppDaLoja()) return null;
+
   const [prompt, setPrompt] = useState<PromptDeInstalacao | null>(null);
   /* Só isto esconde o botão: estar rodando dentro do app instalado. O
      "já instalou alguma vez" deixou de esconder — ver o comentário no

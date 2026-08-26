@@ -38,6 +38,7 @@ import { mensagemDeErro } from "../lib/erros";
 import { useTituloDaPagina } from "../lib/tituloDaPagina";
 import { MarcaConfirmado } from "../components/MarcaConfirmado";
 import { CartaoProfissional } from "../components/CartaoProfissional";
+import { podeVender } from "../lib/plataforma";
 
 
 /**
@@ -610,11 +611,22 @@ export function PainelPage() {
         return (
           <section style={{ marginTop: 28 }}>
             <div className="secao-topo">
+              {/* O preço vive no título da seção, e por isso quase escapou:
+                  eu tinha escondido a vitrine inteira e este "a partir de
+                  R$ 10,90/mês" continuou na tela — só apareceu porque a
+                  varredura leu o texto de todas as rotas em vez de conferir
+                  os blocos que eu lembrava de ter mexido.
+
+                  No app da loja o título vira só o assunto da seção, que
+                  segue verdadeiro: ali embaixo continuam o desempenho do
+                  cadastro e as assinaturas ativas com o botão de cancelar. */}
               <h2 style={{ margin: 0 }}>
-                Melhorar meu desempenho{" "}
-                <span className="muted secao-preco">
-                  — a partir de R$ {precoMensal("verification", p.entity_type).toFixed(2).replace(".", ",")}/mês
-                </span>
+                {podeVender() ? "Melhorar meu desempenho" : "Meu desempenho"}
+                {podeVender() && (
+                  <span className="muted secao-preco">
+                    {" "}— a partir de R$ {precoMensal("verification", p.entity_type).toFixed(2).replace(".", ",")}/mês
+                  </span>
+                )}
               </h2>
             </div>
 
@@ -640,7 +652,24 @@ export function PainelPage() {
                     empurrava tudo para baixo; em seção própria, no fim da
                     página, não empurra nada — e um bloco fechado só esconde a
                     resposta de quem veio buscá-la. */}
-                <div className="produtos produtos-oferta">
+                {/* A VITRINE DE PLANOS some dentro do app da Play Store.
+
+                    É o bloco inteiro de venda — premium, destaque e Empresa
+                    Plus, com preço e botão. A regra da Google é que bem
+                    digital usado dentro do app se vende pela cobrança dela;
+                    o procurô vende pelo Mercado Pago, e isso continua certo
+                    no site. No app da loja a vitrine simplesmente não
+                    existe, que é o estado mais conforme que há: quem não
+                    oferece compra não tem o que violar.
+
+                    O que NÃO some, logo abaixo: "Suas assinaturas", com o
+                    botão de cancelar. Cancelar não é vender, e esconder o
+                    cancelamento é justamente o que o Código de Defesa do
+                    Consumidor chama de dificultar o exercício do direito —
+                    seria trocar uma regra de loja por uma infração de lei.
+                    O desempenho do cadastro (visitas, contatos) também
+                    fica: é informação da pessoa sobre o que é dela. */}
+                <div className={podeVender() ? "produtos produtos-oferta" : "produtos"}>
 
                   {/* O desempenho real abre a seção, e é ele que dá sentido
                       ao que vem depois: sem número, a lista de planos é só
@@ -660,17 +689,19 @@ export function PainelPage() {
                             ? "1 pessoa abriu seu cadastro nos últimos 7 dias."
                             : `${views7[p.id]} pessoas abriram seu cadastro nos últimos 7 dias.`}
                         </strong>{" "}
-                        {!verified &&
+                        {!verified && podeVender() &&
                           'Elas viram seu telefone escrito, mas sem o botão de WhatsApp e sem o "peça para te chamar" — que é por onde chega a maior parte dos contatos.'}
                       </>
                     ) : (
                       <>
                         <strong>Ninguém abriu seu cadastro nos últimos 7 dias.</strong>{" "}
-                        Aparecer antes na busca é o que muda esse número.
+                        {podeVender() && "Aparecer antes na busca é o que muda esse número."}
                       </>
                     )}
                   </p>
 
+                  {podeVender() && (
+                  <>
                   <p className="muted produtos-intro">
                     Seu cadastro é grátis para sempre. O que está aqui muda a sua vitrine, não o seu trabalho.
                   </p>
@@ -799,6 +830,8 @@ export function PainelPage() {
                         )}
                       </div>
                     </div>
+                  )}
+                  </>
                   )}
                   {(assinaturas[p.id] ?? []).length > 0 && (
                     /* Cancelar precisa estar no mesmo lugar onde se assina, e
@@ -979,7 +1012,11 @@ export function PainelPage() {
         />
       )}
 
-      {planSheetFor && (
+      {/* Cinto e suspensório: os botões que abrem esta folha já não existem
+          no app da loja, mas um estado deixado para trás — ou um caminho
+          que ninguém previu — não pode fazer a vitrine reaparecer. A folha
+          confere por conta própria. */}
+      {planSheetFor && podeVender() && (
         <BottomSheet
           title={`Assinar ${PRICES[planSheetFor.type].label.toLowerCase()}`}
           subtitle="Comece pelo Pix ou boleto: paga na hora, sem criar conta em lugar nenhum. As duas últimas renovam sozinhas, mas pedem conta no Mercado Pago."

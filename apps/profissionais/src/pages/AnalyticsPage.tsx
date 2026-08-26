@@ -18,6 +18,7 @@ import {
 import { BottomSheet } from "../components/BottomSheet";
 import { useTituloDaPagina } from "../lib/tituloDaPagina";
 import { mensagemDeErro } from "../lib/erros";
+import { podeVender } from "../lib/plataforma";
 
 /**
  * Tela de estatísticas do cadastro — só acessível ao dono e só quando o
@@ -117,7 +118,7 @@ export function AnalyticsPage() {
           <p className="card">
             O plano Empresa Plus (analytics do cadastro) só está disponível para cadastros de pessoa jurídica.
           </p>
-        ) : (
+        ) : podeVender() ? (
           <div className="card" style={{ display: "grid", gap: 14 }}>
             <p>
               Assine o <strong>Empresa Plus</strong> para ver quantas pessoas visualizaram seu cadastro, quantos contatos
@@ -128,12 +129,21 @@ export function AnalyticsPage() {
               {`Assinar Empresa Plus — a partir de R$ ${PRICES.plus.amount.toFixed(2).replace(".", ",")}/mês`}
             </button>
           </div>
+        ) : (
+          /* No app da loja não há oferta nem preço — só o que esta tela
+             mostra a quem já tem o plano. Sem "assine no site": convidar
+             para pagar fora é a violação. */
+          <div className="card">
+            <p style={{ margin: 0 }}>
+              Os relatórios do seu cadastro fazem parte do <strong>Empresa Plus</strong>, que não está ativo nesta conta.
+            </p>
+          </div>
         )}
         <p style={{ marginTop: 20 }}>
           <Link to="/painel">Voltar ao painel</Link>
         </p>
 
-        {planSheetOpen && (
+        {planSheetOpen && podeVender() && (
           <BottomSheet
             title="Assinar Empresa Plus"
             subtitle="Três formas de pagar. As duas do cartão renovam sozinhas; no Pix/boleto a gente avisa por e-mail quando estiver perto de vencer."

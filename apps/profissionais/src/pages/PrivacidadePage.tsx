@@ -48,8 +48,21 @@ export function PrivacidadePage() {
           recebidos e registros técnicos necessários para o app funcionar e para investigar abusos.
         </p>
         <p>
-          <strong>Não coletamos</strong> sua localização em tempo real, sua lista de contatos, nem dados de
-          cartão: quando há pagamento, quem processa é o Mercado Pago, e os dados do cartão não passam pela
+          {/* Esta parte dizia "não coletamos sua localização em tempo real", e
+              era falso: o app pede a localização do aparelho. Uma política que
+              nega o que o código faz é pior que uma omissão — e é o tipo de
+              divergência que reprova na revisão da Play Store, porque lá o
+              formulário de dados, a política e o app são comparados entre si.
+              Aqui está o que realmente acontece. */}
+          <strong>Localização:</strong> o app pode pedir a localização aproximada do seu aparelho, e{" "}
+          <strong>só para adivinhar em qual cidade você está</strong>, para já mostrar os profissionais dali.
+          Você pode recusar — o app funciona igual, e você escolhe a cidade na mão. A coordenada{" "}
+          <strong>não é enviada nem guardada</strong> em servidor nenhum: ela é usada dentro do próprio
+          aparelho e descartada. Nunca acompanhamos por onde você anda.
+        </p>
+        <p>
+          <strong>Não coletamos</strong> sua lista de contatos, suas fotos, sua agenda, nem dados de cartão:
+          quando há pagamento, quem processa é o Mercado Pago, e os dados do cartão não passam pela
           plataforma.
         </p>
 
@@ -89,10 +102,24 @@ export function PrivacidadePage() {
 
         <h2>Com quem compartilhamos</h2>
         <p>
-          Só com quem é necessário para o app existir, e apenas no mínimo necessário:{" "}
+          {/* Faltavam dois, e são justamente os que recebem telefone e e-mail:
+              a empresa que manda o SMS de confirmação e a que manda os avisos
+              por e-mail. Omitir quem recebe um dado é omitir o
+              compartilhamento em si. */}
+          Só com quem é necessário para o app existir, e apenas o mínimo:{" "}
           <strong>Supabase</strong> (banco de dados e login), <strong>Vercel</strong> (hospedagem),{" "}
-          <strong>Google</strong> (login) e <strong>Mercado Pago</strong> (pagamentos, apenas para quem
-          assina). <strong>Não vendemos seus dados</strong> e não os cedemos para publicidade de terceiros.
+          <strong>Google</strong> (login), <strong>Mercado Pago</strong> (pagamentos, apenas para quem
+          assina), <strong>Twilio</strong> (envio do SMS de confirmação — recebe o número de telefone, só
+          para entregar o código) e <strong>Resend</strong> (envio de e-mails do app, como o aviso de
+          vencimento — recebe o endereço de e-mail, só para entregar a mensagem).
+        </p>
+        <p>
+          Twilio e Resend são empresas sediadas fora do Brasil, o que significa que esses dados podem ser
+          tratados no exterior. Eles recebem apenas o necessário para entregar a mensagem, e nada além
+          disso.
+        </p>
+        <p>
+          <strong>Não vendemos seus dados</strong> e não os cedemos para publicidade de terceiros.
         </p>
 
         <h2>Por quanto tempo guardamos</h2>

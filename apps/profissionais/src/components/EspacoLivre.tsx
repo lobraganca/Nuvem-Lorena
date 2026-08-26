@@ -1,5 +1,6 @@
 import { Link } from "react-router-dom";
 import { DIAS_BANNER, precoDoBanner } from "../config";
+import { podeVender } from "../lib/plataforma";
 
 /**
  * O convite que ocupa um espaço de publicidade enquanto ninguém comprou.
@@ -18,6 +19,16 @@ import { DIAS_BANNER, precoDoBanner } from "../config";
  *    exatamente o que a etiqueta "Publicidade" existe para evitar.
  */
 export function EspacoLivre({ variante }: { variante: "faixa" | "cartao" }) {
+  /* Dentro do app da Play Store este convite não existe: ele traz preço e
+     leva a um formulário de venda. A venda de banner acontece por conversa,
+     fora do app, e é assim que ela continua — o que não pode é o app da
+     loja ser a vitrine dela.
+
+     Devolve `null` em vez de um espaço vazio: o lugar dele é um buraco de
+     publicidade não vendida, e um buraco reservado sem nada dentro é pior
+     que nenhum buraco. */
+  if (!podeVender()) return null;
+
   return (
     <Link
       to="/publicidade"

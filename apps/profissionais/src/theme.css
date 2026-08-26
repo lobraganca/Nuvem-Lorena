@@ -6017,3 +6017,45 @@ h3 {
   font-weight: 700;
   color: var(--color-primary-deep);
 }
+
+/* ---- Faixa de "sem internet" ----
+
+   Fica acima de tudo e empurra o conteúdo em vez de cobri-lo: sobreposta,
+   ela taparia justamente o cabeçalho, que é onde a pessoa procura o que
+   fazer em seguida.
+
+   Âmbar e não vermelho. Vermelho é a cor de erro do app, e sem internet
+   não é erro de ninguém — é um estado que passa. A cor precisa dizer
+   "espere", não "deu errado".
+
+   Contraste conferido: #7a4b00 sobre #fdf2e3 dá 6,9:1, acima do mínimo de
+   4,5 inclusive para o texto pequeno.
+*/
+.aviso-sem-internet {
+  position: sticky;
+  top: 0;
+  z-index: 60;
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  padding: calc(9px + env(safe-area-inset-top)) 20px 9px;
+  background: #fdf2e3;
+  border-bottom: 1px solid #eed7b2;
+  color: #7a4b00;
+  font-size: 0.85rem;
+  line-height: 1.35;
+}
+
+.aviso-sem-internet strong {
+  font-weight: 600;
+}
+
+/* O ponto não pisca. Um alerta que pulsa na borda da tela puxa o olho a
+   cada segundo, e este aviso pode ficar minutos no ar. */
+.aviso-sem-internet-ponto {
+  flex: none;
+  width: 8px;
+  height: 8px;
+  border-radius: 999px;
+  background: #b4741a;
+}

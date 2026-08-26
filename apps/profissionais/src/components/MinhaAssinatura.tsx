@@ -11,6 +11,7 @@ import {
 } from "../lib/payments";
 import type { Professional } from "../types/domain";
 import { mensagemDeErro } from "../lib/erros";
+import { podeVender } from "../lib/plataforma";
 
 /**
  * Assinatura, na tela de Perfil.
@@ -174,10 +175,23 @@ export function MinhaAssinatura({ userId }: { userId: string }) {
             ) : (
               <>
                 <p className="muted" style={{ margin: "0 0 10px", fontSize: "0.88rem" }}>
+                  {/* No app da loja não existe caminho para assinar, então
+                      "é só assinar de novo" mandaria a pessoa fazer algo que
+                      a tela não oferece — pior que não dizer nada. */}
                   {aguardando.length > 0
-                    ? "Há um pagamento começado e ainda não concluído. Se você já pagou, o selo entra sozinho em alguns minutos; se desistiu, é só assinar de novo."
+                    ? podeVender()
+                      ? "Há um pagamento começado e ainda não concluído. Se você já pagou, o selo entra sozinho em alguns minutos; se desistiu, é só assinar de novo."
+                      : "Há um pagamento começado e ainda não concluído. Se você já pagou, o selo entra sozinho em alguns minutos."
                     : "Sem assinatura. Este cadastro aparece na busca normalmente, com o telefone visível."}
                 </p>
+                {/* A oferta some dentro do app da Play Store; o ESTADO da conta
+                    (acima) fica. A diferença importa e é exatamente onde passa
+                    a regra da Google: dizer "sua conta é premium até 12/09" é
+                    informar a situação de quem já é cliente; mostrar preço e
+                    botão é vender, e vender fora da cobrança dela é o que não
+                    pode. Nada aqui convida a pagar no site — apontar o caminho
+                    de fora seria a mesma violação. */}
+                {podeVender() && (
                 <div className="assinatura-oferta">
                   <strong>Conta premium — R$ {preco.toFixed(2).replace(".", ",")}/mês</strong>
                   <p>
@@ -199,6 +213,7 @@ export function MinhaAssinatura({ userId }: { userId: string }) {
                     primeiros 7 dias o valor volta integral, por direito de arrependimento.
                   </span>
                 </div>
+                )}
               </>
             )}
           </div>

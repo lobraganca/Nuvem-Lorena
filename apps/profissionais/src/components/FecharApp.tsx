@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { BottomSheet } from "./BottomSheet";
+import { ehAppDaLoja } from "../lib/plataforma";
 
 /**
  * "Fechar o app".
@@ -19,6 +20,13 @@ import { BottomSheet } from "./BottomSheet";
  */
 export function FecharApp() {
   const [ensinando, setEnsinando] = useState(false);
+
+  /* No app da loja o botão de voltar do Android já fecha, e o gesto de
+     aplicativos recentes também. Um item de menu escrito "Fechar o app"
+     que abre uma folha ensinando o gesto que a pessoa já tem é ruído — e
+     no Android é o tipo de coisa que um revisor lê como app mal
+     adaptado. */
+  if (ehAppDaLoja()) return null;
 
   function tentarFechar() {
     window.close();

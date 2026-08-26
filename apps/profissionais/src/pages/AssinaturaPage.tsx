@@ -4,6 +4,7 @@ import { useAuth } from "../lib/useAuth";
 import { MinhaAssinatura } from "../components/MinhaAssinatura";
 import { precoMensal } from "../lib/payments";
 import { useTituloDaPagina } from "../lib/tituloDaPagina";
+import { podeVender } from "../lib/plataforma";
 
 /**
  * Tela de Assinatura.
@@ -34,6 +35,38 @@ export function AssinaturaPage() {
   const [pessoa, setPessoa] = useState<"pf" | "pj">("pf");
 
   useTituloDaPagina("Assinatura");
+
+  /* Dentro do app da Play Store esta tela inteira não existe.
+     Ela é uma vitrine de plano do começo ao fim — comparação, preço,
+     botão —, e é exatamente o que a regra da Google não admite fora da
+     cobrança dela. Some sem substituto e sem "assine no site": apontar o
+     caminho de fora é a mesma violação que vender.
+     A rota continua existindo porque quem chega aqui por um link antigo
+     precisa cair em algum lugar, e não numa tela em branco. */
+  if (!podeVender()) {
+    return (
+      <div className="container" style={{ maxWidth: 520, paddingTop: 24, paddingBottom: 80 }}>
+        <h1 style={{ marginBottom: 4 }}>Sua conta</h1>
+        <p className="muted" style={{ marginTop: 0 }}>
+          Aqui aparece a situação da sua conta e o que ela já faz.
+        </p>
+        {!loading && user && <MinhaAssinatura userId={user.id} />}
+        <div className="card" style={{ marginTop: 16 }}>
+          <h2 style={{ margin: "0 0 6px", fontSize: "1.05rem" }}>Sua conta já faz muita coisa</h2>
+          <ul className="plano-lista" style={{ marginBottom: 0 }}>
+            <Item tem>Aparecer na busca da sua cidade</Item>
+            <Item tem>Telefone e WhatsApp visíveis no seu perfil</Item>
+            <Item tem>Receber avaliações de quem contratou</Item>
+            <Item tem>Responder a cada avaliação</Item>
+            <Item tem>Catálogo com os serviços que você faz</Item>
+          </ul>
+        </div>
+        <p className="muted" style={{ fontSize: "0.86rem", marginTop: 16 }}>
+          Precisa de ajuda com a sua conta? Fale com o suporte pelo Perfil.
+        </p>
+      </div>
+    );
+  }
 
   return (
     <div className="container" style={{ maxWidth: 520, paddingTop: 24, paddingBottom: 80 }}>

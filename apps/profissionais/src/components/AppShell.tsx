@@ -4,6 +4,7 @@ import { Logo } from "./Logo";
 import { InstalarApp } from "./InstalarApp";
 import { PuxarParaAtualizar } from "./PuxarParaAtualizar";
 import { AvisoDeVersao } from "./AvisoDeVersao";
+import { AvisoSemInternet } from "./AvisoSemInternet";
 import { useAuth } from "../lib/useAuth";
 import { useOnlineCount } from "../lib/presence";
 import { MarcaProcuro } from "./MarcaProcuro";
@@ -312,6 +313,9 @@ export function AppShell({ children }: { children: ReactNode }) {
     <>
       <PuxarParaAtualizar />
       <AvisoDeVersao />
+      {/* Antes do cabeçalho: se não há internet, isso vem antes de qualquer
+          coisa que a pessoa possa interpretar como defeito do app. */}
+      <AvisoSemInternet />
       {!isWelcome && <Header />}
       {!isWelcome && <BotaoFechar />}
       {/* `app-content` também na tela de início: é ele que reserva o espaço

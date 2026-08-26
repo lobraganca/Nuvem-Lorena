@@ -31,6 +31,7 @@ import { BottomSheet } from "../components/BottomSheet";
 import { enviarIndicacao } from "../lib/indicacoes";
 import { formatPhone } from "../lib/phone";
 import { useTituloDaPagina } from "../lib/tituloDaPagina";
+import { podeVender } from "../lib/plataforma";
 
 
 /**
@@ -733,7 +734,11 @@ export function HomePage() {
                 porque o caminho passa por ter uma página: quem ainda não
                 tem cai no login (passo 1 de 4) e segue o fluxo normal, em
                 vez de esbarrar num pagamento sem ter o que destacar. */}
-            <Link to="/painel" className="cartao-convite">
+            {/* "Apareça aqui — R$ 19,90/mês" é oferta com preço, então não
+              entra no app da Play Store. A prateleira de destaques continua
+              inteira: mostrar quem pagou não é vender nada a quem olha. */}
+          {podeVender() && (
+          <Link to="/painel" className="cartao-convite">
               <span className="cartao-convite-selo" aria-hidden="true">🔥</span>
               <strong>Apareça aqui</strong>
               <span className="cartao-convite-texto">
@@ -744,6 +749,7 @@ export function HomePage() {
               </span>
               <span className="cartao-convite-acao">Quero aparecer ›</span>
             </Link>
+          )}
           </Prateleira>
 
           <Prateleira
