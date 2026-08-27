@@ -1,5 +1,6 @@
 import { supabase } from "./supabase";
 import { CITIES } from "../types/domain";
+import { lerTudo } from "./lerTudo";
 
 /** As cidades que a busca oferece. Fora delas, o cadastro existe e ninguém acha. */
 const CIDADES_DO_APP: readonly string[] = CITIES;
@@ -46,11 +47,16 @@ export async function isAdmin(userId: string): Promise<boolean> {
 export async function listReports(): Promise<ReportWithProfessional[]> {
   const client = supabase();
   if (!client) return [];
-  const { data, error } = await client
-    .from("reports")
-    .select("*, professionals(name, suspended)")
-    .order("created_at", { ascending: false });
-  if (error || !data) return [];
+  /* Em páginas: denúncia que não aparece é denúncia não lida, e o teto de
+     linhas cortaria as mais antigas sem dizer nada.
+
+     O `catch` que devolve lista vazia continua aqui de propósito? NÃO —
+     ele estava e some: uma lista de denúncias vazia por causa de erro é
+     exatamente a mentira calma que este projeto combateu em todo lugar.
+     Falhando, a tela mostra o erro. */
+  const data = await lerTudo(() =>
+    client.from("reports").select("*, professionals(name, suspended)").order("created_at", { ascending: false })
+  );
   return data.map((row) => {
     const { professionals, ...rest } = row as typeof row & {
       professionals: { name: string; suspended: boolean } | null;
@@ -146,11 +152,16 @@ export interface DestaqueAtivo {
 export async function getDestaquesAtivos(): Promise<DestaqueAtivo[]> {
   const client = supabase();
   if (!client) return [];
-  const { data } = await client
-    .from("professionals")
-    .select("id, name, category, city, boosted_until")
-    .eq("boosted", true)
-    .order("boosted_until", { ascending: true });
+  /* Em páginas: este número decide quantas VAGAS de destaque ainda há
+     para vender por categoria. Truncado, ele venderia vaga que não
+     existe. */
+  const data = await lerTudo(() =>
+    client
+      .from("professionals")
+      .select("id, name, category, city, boosted_until")
+      .eq("boosted", true)
+      .order("boosted_until", { ascending: true })
+  );
   const agora = Date.now();
   return ((data ?? []) as DestaqueAtivo[]).filter(
     (d) => !d.boosted_until || new Date(d.boosted_until).getTime() > agora
@@ -169,7 +180,7 @@ export async function getDemandaDeDestaque(): Promise<DemandaDestaque[]> {
   if (!client) return [];
   // A policy de admin em `destaque_espera` é o que libera esta leitura; para
   // qualquer outra pessoa, isto volta só com a própria linha.
-  const { data } = await client.from("destaque_espera").select("category, city");
+  const data = await lerTudo(() => client.from("destaque_espera").select("category, city"));
   const contagem = new Map<string, DemandaDestaque>();
   for (const linha of (data ?? []) as { category: string; city: string }[]) {
     const chave = `${linha.city}|${linha.category}`;
@@ -229,9 +240,12 @@ export async function getResumoFinanceiro(): Promise<ResumoFinanceiro> {
   const client = supabase();
   if (!client) return vazio;
 
-  const [{ data: pagos }, { data: banners }] = await Promise.all([
-    client.from("processed_payments").select("valor_centavos, tipo, processed_at"),
-    client.from("banners").select("valor_centavos, pago"),
+  /* Em páginas, pelo mesmo motivo — e aqui o estrago seria o maior: o
+     total recebido pararia no ducentésimo pagamento e nunca mais subiria,
+     sem nada na tela dizendo isso. */
+  const [pagos, banners] = await Promise.all([
+    lerTudo(() => client.from("processed_payments").select("valor_centavos, tipo, processed_at")),
+    lerTudo(() => client.from("banners").select("valor_centavos, pago")),
   ]);
 
   const resumo = { ...vazio, porTipo: {} as Record<string, number> };
@@ -268,10 +282,14 @@ export interface AssinaturasAtivas {
 export async function getAssinaturasAtivas(): Promise<AssinaturasAtivas> {
   const client = supabase();
   if (!client) return { porTipo: {}, total: 0, anuais: 0 };
-  const { data } = await client
-    .from("subscriptions")
-    .select("type, status, billing_cycle, current_period_end")
-    .in("status", ["active", "authorized"]);
+  // Em páginas: truncado, o total de assinaturas ativas viraria um número
+  // que para de crescer sem avisar.
+  const data = await lerTudo(() =>
+    client
+      .from("subscriptions")
+      .select("type, status, billing_cycle, current_period_end")
+      .in("status", ["active", "authorized"])
+  );
 
   const agora = Date.now();
   const resultado: AssinaturasAtivas = { porTipo: {}, total: 0, anuais: 0 };
@@ -342,10 +360,11 @@ export async function resumoDeCadastros(): Promise<ResumoDeCadastros> {
   /* A tabela, e não a view pública: a view esconde suspensos e pausados, e
      são exatamente eles que este resumo precisa contar. Na tabela vale a
      RLS — admin vê tudo, e qualquer outra pessoa recebe zero linha. */
-  const { data, error } = await client
-    .from("professionals")
-    .select("owner_id, created_at, suspended, paused, city, categories");
-  if (error) throw error;
+  /* Lido em páginas: o teto de 200 linhas da 0062 vale aqui também, e
+     truncado este resumo mostraria "200 cadastros" para sempre. */
+  const data = await lerTudo(() =>
+    client.from("professionals").select("owner_id, created_at, suspended, paused, city, categories")
+  );
 
   const linhas = (data ?? []) as {
     owner_id: string;
