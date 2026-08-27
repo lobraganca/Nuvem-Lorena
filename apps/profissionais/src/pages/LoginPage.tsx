@@ -51,6 +51,21 @@ export function LoginPage() {
   const [telefone, setTelefone] = useState("");
   const [codigo, setCodigo] = useState("");
   const [passoTelefone, setPassoTelefone] = useState<"numero" | "codigo">("numero");
+  /* Segundos que faltam para poder pedir OUTRO código.
+     ─────────────────────────────────────────────────
+     Cada pedido manda um SMS, e cada SMS é pago pela dona do app. Sem
+     freio, o botão "Receber código" é um botão de gastar dinheiro dela —
+     e não é preciso má intenção: basta a pessoa achar que não chegou e
+     tocar de novo três vezes.
+     
+     Há um efeito melhor que o custo: pedir um código novo INVALIDA o
+     anterior. Boa parte das falhas desta noite foi isso — código pedido
+     duas vezes, a pessoa digitando o primeiro, que já não valia.
+     
+     Não substitui o freio do servidor (Supabase > Authentication > Rate
+     Limits), que é quem segura quem tem má intenção de verdade. Este aqui
+     resolve o caso comum, que é a maioria. */
+  const [esperaSegundos, setEsperaSegundos] = useState(0);
   const [enviando, setEnviando] = useState(false);
 
   const [comEmail, setComEmail] = useState(false);
@@ -87,6 +102,12 @@ export function LoginPage() {
     if (temDestinoLogin()) return;
     navegar("/perfil", { replace: true });
   }, [user, carregandoConta, navegar]);
+
+  useEffect(() => {
+    if (esperaSegundos <= 0) return;
+    const t = setTimeout(() => setEsperaSegundos((n) => n - 1), 1000);
+    return () => clearTimeout(t);
+  }, [esperaSegundos]);
 
   async function tentar(acao: () => Promise<void>, aoDarCerto?: () => void) {
     limpar();
@@ -135,18 +156,23 @@ export function LoginPage() {
             <button
               type="button"
               className="btn btn-primary btn-block"
-              disabled={!hasDatabase() || enviando || telefone.length < 14}
+              disabled={!hasDatabase() || enviando || telefone.length < 14 || esperaSegundos > 0}
               onClick={() =>
                 tentar(
                   () => entrarComTelefone(telefone),
                   () => {
                     setPassoTelefone("codigo");
+                    setEsperaSegundos(60);
                     setAviso("Enviamos um código por SMS. Ele chega em alguns segundos.");
                   }
                 )
               }
             >
-              {enviando ? "Enviando…" : "Receber código por SMS"}
+              {enviando
+                ? "Enviando…"
+                : esperaSegundos > 0
+                  ? `Aguarde ${esperaSegundos}s para pedir outro`
+                  : "Receber código por SMS"}
             </button>
             <p className="muted entrar-dica">
               Sem senha para criar nem lembrar. O número fica sendo seu jeito de entrar.
@@ -174,6 +200,29 @@ export function LoginPage() {
               onClick={() => tentar(() => conferirCodigoDeEntrada(telefone, codigo))}
             >
               {enviando ? "Conferindo…" : "Entrar"}
+            </button>
+            {/* Reenviar sem voltar atrás. Antes, quem achava que o SMS não
+                tinha chegado só tinha "Trocar o número" — e usava esse
+                caminho para pedir de novo, apagando o número certo. A
+                espera é a mesma do outro botão: pedir um código novo
+                invalida o anterior, e o anterior pode estar chegando
+                agora. */}
+            <button
+              type="button"
+              className="btn btn-outline btn-block entrar-secundario"
+              disabled={enviando || esperaSegundos > 0}
+              onClick={() =>
+                tentar(
+                  () => entrarComTelefone(telefone),
+                  () => {
+                    setCodigo("");
+                    setEsperaSegundos(60);
+                    setAviso("Mandamos outro código. Use o mais novo — o anterior deixou de valer.");
+                  }
+                )
+              }
+            >
+              {esperaSegundos > 0 ? `Reenviar em ${esperaSegundos}s` : "Não recebi — reenviar"}
             </button>
             <button
               type="button"

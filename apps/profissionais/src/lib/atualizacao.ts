@@ -35,6 +35,8 @@
  *   debaixo do dedo.
  */
 
+import { ehAppDaLoja } from "./plataforma";
+
 /** Quanto tempo de aba aberta já é "isso aqui está parado há tempo demais". */
 const DIAS_PARADO = 2;
 
@@ -173,6 +175,46 @@ export function observarAtualizacoes(fn: Ouvinte) {
 
 export function cuidarDasAtualizacoes() {
   if (typeof navigator === "undefined" || !("serviceWorker" in navigator)) return;
+
+  /* Dentro do app da Play Store, o service worker é DESLIGADO — e isto é
+     um conserto, não uma otimização.
+
+     Ele existe para o site: guarda cópias dos arquivos para a próxima
+     visita abrir rápido. Dentro do app instalado a mesma coisa se inverte
+     e vira defeito, porque ali os arquivos já estão no aparelho e quem os
+     troca é a loja.
+
+     O estrago: a pessoa atualiza o app pela Play Store, o aparelho passa a
+     ter os arquivos novos — e o service worker continua entregando os
+     antigos, que ele guardou. App novo instalado, tela velha, nada em
+     lugar nenhum explicando. No pior caso a versão nova e a guardada se
+     misturam e a tela não abre.
+
+     Ele é registrado pelo próprio index.html (o `registerSW.js` que o
+     plugin de PWA injeta), antes de qualquer código nosso rodar. Por isso
+     aqui não é "não registrar": é desfazer o registro e apagar o que ele
+     guardou. Roda na abertura, e nas vezes seguintes não há mais nada para
+     desfazer.
+
+     Nada do que a pessoa escreveu mora nesses caches — cadastro e
+     favoritos estão no banco, e as preferências no `localStorage`, que não
+     é tocado aqui. */
+  if (ehAppDaLoja()) {
+    void (async () => {
+      try {
+        const registros = await navigator.serviceWorker.getRegistrations();
+        await Promise.all(registros.map((r) => r.unregister()));
+        if ("caches" in window) {
+          const nomes = await caches.keys();
+          await Promise.all(nomes.map((n) => caches.delete(n)));
+        }
+      } catch {
+        /* Se o aparelho recusar, o pior caso é continuar como estava — não
+           vale derrubar a abertura do app por causa disto. */
+      }
+    })();
+    return;
+  }
 
   let recarregando = false;
   /* Liga só depois de a aba voltar do segundo plano. Na primeira carga
