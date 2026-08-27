@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   conferirCodigoDeEntrada,
   criarContaComEmail,
@@ -13,7 +13,10 @@ import { BotaoGoogle } from "../components/BotaoGoogle";
 import { useTituloDaPagina } from "../lib/tituloDaPagina";
 import { mensagemDeErro } from "../lib/erros";
 import { formatPhone } from "../lib/phone";
+import { useNavigate } from "react-router-dom";
 import { LOGIN_EMAIL_ATIVO, LOGIN_TELEFONE_ATIVO } from "../config";
+import { useAuth } from "../lib/useAuth";
+import { temDestinoLogin } from "../lib/auth";
 import { googleServeAqui } from "../lib/plataforma";
 
 /**
@@ -59,6 +62,31 @@ export function LoginPage() {
     setError("");
     setAviso("");
   }
+
+  /* Quando a pessoa entra, ela sai desta tela.
+     ──────────────────────────────────────────
+     Parece óbvio e não estava aqui, porque até agora só existia o Google:
+     lá o navegador SAI do app, vai ao Google e VOLTA para um endereço — a
+     mudança de tela é efeito da viagem, não do código.
+
+     Entrar por telefone (e por e-mail) termina aqui mesmo, sem viagem
+     nenhuma. A sessão era criada e a tela ficava exatamente igual: o
+     código digitado, o botão "Entrar" no lugar, nada acontecendo. Quem
+     estava do outro lado tocava de novo — e a segunda conferência
+     encontrava um código já gasto.
+
+     `temDestinoLogin` evita disputa: se alguém pediu para entrar a partir
+     de outra tela ("Quero ser encontrado" leva ao Painel), quem manda é o
+     RetomarDestinoLogin, que sabe o destino certo. Sem destino guardado,
+     o Perfil é o lugar: é de onde se vê a conta que acabou de entrar. */
+  const { user, loading: carregandoConta } = useAuth();
+  const navegar = useNavigate();
+
+  useEffect(() => {
+    if (carregandoConta || !user) return;
+    if (temDestinoLogin()) return;
+    navegar("/perfil", { replace: true });
+  }, [user, carregandoConta, navegar]);
 
   async function tentar(acao: () => Promise<void>, aoDarCerto?: () => void) {
     limpar();
