@@ -20,6 +20,8 @@ import { MinhaAssinatura } from "../components/MinhaAssinatura";
 import { useTituloDaPagina } from "../lib/tituloDaPagina";
 import { mensagemDeErro } from "../lib/erros";
 import { googleServeAqui } from "../lib/plataforma";
+import { salvarMeuPerfil } from "../lib/profiles";
+import { uploadProfessionalPhoto } from "../lib/storage";
 import { LOGIN_TELEFONE_ATIVO } from "../config";
 
 function initials(name: string | null, email: string | null | undefined): string {
@@ -48,6 +50,14 @@ export function PerfilPage() {
   const { user, loading } = useAuth();
   const navigate = useNavigate();
   const [profile, setProfile] = useState<Profile | null>(null);
+  /* Edição do próprio nome e foto. Guardados em rascunho até salvar, para
+     que cancelar devolva o que estava lá — e não o que a pessoa digitou e
+     desistiu. */
+  const [editandoNome, setEditandoNome] = useState(false);
+  const [nomeRascunho, setNomeRascunho] = useState("");
+  const [salvandoNome, setSalvandoNome] = useState(false);
+  const [enviandoFoto, setEnviandoFoto] = useState(false);
+  const [erroPerfil, setErroPerfil] = useState("");
   /**
    * Cadastros da pessoa, só para dizer se o cadastro está no ar.
    *
@@ -188,17 +198,110 @@ export function PerfilPage() {
   return (
     <div className="container" style={{ maxWidth: 480, paddingTop: 32 }}>
       <div className="card" style={{ textAlign: "center" }}>
-        {avatarUrl ? (
-          <img
-            src={avatarUrl}
-            alt=""
-            className="profile-avatar-foto"
+        {/* Foto e nome passaram a ser EDITÁVEIS aqui, e isso é consequência
+            direta da troca de porta de entrada.
+
+            Com o login só pelo Google, os dois vinham prontos e ninguém
+            precisava preenchê-los — por isso nunca houve onde. Entrando
+            pelo telefone não vem nada: a conta nasce anônima e ficava
+            assim para sempre. As avaliações dessa pessoa apareciam como
+            "Usuário do procurô", com um "?" no lugar do rosto.
+
+            Isso corrói o que dá valor ao app. Uma avaliação vale pela
+            pessoa que a escreveu; assinada por "Usuário do procurô" ela lê
+            como texto de robô, e quem veio ler opinião de gente da cidade
+            desconfia da lista inteira. */}
+        <label className="perfil-foto-alvo" title="Trocar a foto">
+          {avatarUrl ? (
+            <img src={avatarUrl} alt="" className="profile-avatar-foto" />
+          ) : (
+            <div className="profile-avatar">{initials(name, user.email)}</div>
+          )}
+          <span className="perfil-foto-etiqueta">{enviandoFoto ? "Enviando…" : "Trocar"}</span>
+          <input
+            type="file"
+            accept="image/*"
+            disabled={enviandoFoto}
+            style={{ display: "none" }}
+            onChange={async (e) => {
+              const arquivo = e.target.files?.[0];
+              e.target.value = "";
+              if (!arquivo) return;
+              setEnviandoFoto(true);
+              setErroPerfil("");
+              try {
+                const url = await uploadProfessionalPhoto(user.id, arquivo);
+                await salvarMeuPerfil(user.id, { avatar_url: url });
+                setProfile((p) => (p ? { ...p, avatar_url: url } : p));
+              } catch (err) {
+                setErroPerfil(mensagemDeErro(err, "Não foi possível enviar a foto."));
+              } finally {
+                setEnviandoFoto(false);
+              }
+            }}
           />
+        </label>
+
+        {editandoNome ? (
+          <div className="perfil-nome-edita">
+            <input
+              value={nomeRascunho}
+              onChange={(e) => setNomeRascunho(e.target.value)}
+              placeholder="Como você quer ser chamada"
+              maxLength={60}
+              autoFocus
+            />
+            <div className="perfil-nome-acoes">
+              <button
+                className="btn btn-primary"
+                disabled={salvandoNome || !nomeRascunho.trim()}
+                onClick={async () => {
+                  setSalvandoNome(true);
+                  setErroPerfil("");
+                  try {
+                    const limpo = nomeRascunho.trim();
+                    await salvarMeuPerfil(user.id, { full_name: limpo });
+                    setProfile((p) => (p ? { ...p, full_name: limpo } : p));
+                    setEditandoNome(false);
+                  } catch (err) {
+                    setErroPerfil(mensagemDeErro(err, "Não foi possível salvar o nome."));
+                  } finally {
+                    setSalvandoNome(false);
+                  }
+                }}
+              >
+                {salvandoNome ? "Salvando…" : "Salvar"}
+              </button>
+              <button className="btn btn-outline" onClick={() => setEditandoNome(false)}>
+                Cancelar
+              </button>
+            </div>
+          </div>
         ) : (
-          <div className="profile-avatar">{initials(name, user.email)}</div>
+          <>
+            <h2 style={{ margin: "12px 0 2px" }}>{name || "Sem nome"}</h2>
+            <button
+              type="button"
+              className="perfil-editar-nome"
+              onClick={() => {
+                setNomeRascunho(name ?? "");
+                setEditandoNome(true);
+              }}
+            >
+              {name ? "Editar nome" : "Escrever meu nome"}
+            </button>
+          </>
         )}
-        <h2 style={{ margin: "12px 0 2px" }}>{name || user.email}</h2>
-        {name && <p className="muted" style={{ margin: 0, fontSize: "0.85rem" }}>{user.email}</p>}
+
+        {/* Sem nome, o aviso explica ONDE isso aparece. "Complete seu
+            perfil" não convence ninguém; saber que a própria avaliação sai
+            assinada como "Usuário do procurô", sim. */}
+        {!name && !editandoNome && (
+          <p className="perfil-sem-nome">
+            Suas avaliações aparecem como <strong>"Usuário do procurô"</strong> até você escrever seu nome.
+          </p>
+        )}
+        {erroPerfil && <p className="perfil-erro">{erroPerfil}</p>}
 
         {/* A linha existe mesmo vazia, com altura reservada: o selo chega
             depois da consulta, e sem o espaço guardado ele empurraria o

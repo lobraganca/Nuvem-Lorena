@@ -6077,3 +6077,85 @@ h3 {
   font-size: 0.88rem;
   line-height: 1.45;
 }
+
+/* ---- Perfil: nome e foto editáveis ----
+
+   Entrando pelo telefone a conta nasce sem nome e sem foto (o Google os
+   entregava prontos), e não havia onde preenchê-los. Estes controles são
+   discretos de propósito: quem entrou pelo Google já tem os dois e não
+   precisa ser convidado a mexer.
+*/
+.perfil-foto-alvo {
+  position: relative;
+  display: inline-block;
+  cursor: pointer;
+  border-radius: 999px;
+}
+
+/* A etiqueta fica sobre a borda de baixo da foto, e não ao lado: ao lado
+   ela empurraria o nome para fora do centro do cartão. */
+.perfil-foto-etiqueta {
+  position: absolute;
+  left: 50%;
+  bottom: -4px;
+  transform: translateX(-50%);
+  padding: 3px 10px;
+  border-radius: 999px;
+  background: var(--color-primary);
+  color: #ffffff;
+  font-size: 0.68rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  white-space: nowrap;
+  box-shadow: 0 2px 6px rgba(10, 26, 47, 0.25);
+}
+
+.perfil-editar-nome {
+  background: none;
+  border: none;
+  padding: 2px 4px;
+  color: var(--color-primary-deep);
+  font: inherit;
+  font-size: 0.82rem;
+  font-weight: 600;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  cursor: pointer;
+}
+
+.perfil-nome-edita {
+  display: grid;
+  gap: 8px;
+  margin-top: 14px;
+  text-align: left;
+}
+
+.perfil-nome-acoes {
+  display: flex;
+  gap: 8px;
+}
+
+.perfil-nome-acoes .btn {
+  flex: 1;
+}
+
+/* Âmbar, e não vermelho: estar sem nome não é erro nem punição — é uma
+   coisa a fazer. Mesmo par do aviso de sem internet, 6,7:1 de contraste. */
+.perfil-sem-nome {
+  margin: 12px 0 0;
+  padding: 10px 12px;
+  border-radius: 12px;
+  background: #fdf2e3;
+  border: 1px solid #eed7b2;
+  color: #7a4b00;
+  font-size: 0.84rem;
+  line-height: 1.45;
+  text-align: left;
+}
+
+.perfil-erro {
+  margin: 10px 0 0;
+  color: var(--color-danger);
+  font-size: 0.86rem;
+  text-align: left;
+}

@@ -20,3 +20,36 @@ export async function getProfile(userId: string): Promise<Profile | null> {
  * excesso. A coluna sai do banco na migration que acompanha esta mudança;
  * aqui sai o caminho que escrevia nela.
  */
+
+/**
+ * Guarda o nome e a foto de quem está logado.
+ *
+ * Existe porque a porta de entrada mudou. Enquanto o login era só pelo
+ * Google, nome e foto vinham prontos: o Google os entrega junto com a
+ * conta, e o gatilho `handle_new_user` os copia para `profiles`. Ninguém
+ * precisava preencher nada, e por isso nunca houve onde preencher.
+ *
+ * Entrando pelo telefone não vem nada — nem nome, nem foto. A conta nasce
+ * anônima e ficava assim para sempre: as avaliações daquela pessoa
+ * apareciam como "Usuário do procurô", com um "?" no lugar do rosto.
+ *
+ * Isso corrói justamente o que dá valor ao app. Uma avaliação vale pela
+ * pessoa que a escreveu; assinada por "Usuário do procurô", ela lê como
+ * texto de robô — e quem procura, que veio ler opinião de gente da
+ * cidade, desconfia da lista inteira.
+ *
+ * `update` e não `upsert`: a linha já existe (o gatilho a cria junto com a
+ * conta), e o `upsert` do PostgREST é `insert ... on conflict`, então
+ * passaria pela policy de INSERT mesmo editando linha existente — que é
+ * exatamente o erro que já impediu a administração de salvar cadastro de
+ * outra pessoa.
+ */
+export async function salvarMeuPerfil(
+  userId: string,
+  dados: { full_name?: string | null; avatar_url?: string | null }
+): Promise<void> {
+  const client = supabase();
+  if (!client) throw new Error("Sem conexão com o banco.");
+  const { error } = await client.from("profiles").update(dados).eq("id", userId);
+  if (error) throw error;
+}
