@@ -13,7 +13,8 @@ import {
 } from "../types/domain";
 import { formatDocument, isValidDocument } from "../lib/documents";
 import { uploadProfessionalPhoto } from "../lib/storage";
-import { formatPhone, isValidPhone } from "../lib/phone";
+import { formatPhone, isValidPhone, doFormatoDoBanco } from "../lib/phone";
+import { getProfile } from "../lib/profiles";
 import { buscarCep, formatCep } from "../lib/cep";
 import { SeletorDeServicos } from "../components/SeletorDeServicos";
 import { SeletorDeAtributos } from "../components/SeletorDeAtributos";
@@ -218,18 +219,34 @@ export function CadastroPage() {
   const jaAproveitouAConta = useRef(false);
 
   /**
-   * O formulário abre com o que a conta já sabe.
+   * O formulário abre com o que a pessoa já preencheu.
    *
    * Esta é a resposta a uma confusão real: a tela inicial convida a
-   * "cadastre-se grátis", a pessoa entra com o Google, e o app abre um
-   * formulário chamado "cadastro" com nome e e-mail em branco. Do lado
-   * dela, foram dois cadastros — e o segundo pedindo justamente o que ela
-   * acabou de entregar no primeiro.
+   * "cadastre-se grátis", a pessoa entra, e o app abre um formulário
+   * chamado "cadastro" com tudo em branco. Do lado dela, foram dois
+   * cadastros — e o segundo pedindo justamente o que ela acabou de
+   * entregar no primeiro.
    *
-   * Nome e e-mail vêm da conta. A foto do Google fica de fora de
-   * propósito: ela mora num endereço do Google que pode sumir, e a foto do
-   * cadastro precisa estar no nosso Storage para não virar quadrado
-   * quebrado meses depois.
+   * A primeira versão disto lia só `user_metadata`, que é o que o Google
+   * manda junto com a conta. Servia enquanto o Google era a única porta.
+   * Com a entrada por SMS esse objeto chega **vazio** — quem entrou pelo
+   * telefone caía num formulário totalmente em branco, e a tela que acabou
+   * de pedir nome, e-mail, telefone e foto pedia os quatro de novo três
+   * toques depois. Era a mesma digitação duas vezes, e é o degrau em que
+   * metade das contas criadas parou.
+   *
+   * Agora quem manda é `profiles`, que é onde a tela de completar o perfil
+   * grava — e vale para as duas portas de entrada, porque as duas passam
+   * por lá.
+   *
+   * A foto entra junto, e isso é novo. Ela ficava de fora quando vinha do
+   * Google, com razão: morava num endereço do Google que pode sumir, e a
+   * foto do cadastro precisa estar no nosso Storage para não virar quadrado
+   * quebrado meses depois. A de `profiles` já está no nosso Storage — foi
+   * enviada por lá — então a objeção não vale mais.
+   *
+   * `f.campo ||` em tudo: só preenche o que está vazio. O que a pessoa
+   * digitou vale mais do que o que a conta sabe, sempre.
    *
    * Só para cadastro novo. Editando, quem manda é o que está salvo — puxar
    * o nome da conta por cima trocaria o nome do negócio pelo nome pessoal
@@ -238,6 +255,7 @@ export function CadastroPage() {
   useEffect(() => {
     if (!user || editando || jaAproveitouAConta.current) return;
     jaAproveitouAConta.current = true;
+
     const meta = (user.user_metadata ?? {}) as { full_name?: string; name?: string };
     const nomeDaConta = (meta.full_name ?? meta.name ?? "").trim();
     setForm((f) => ({
@@ -245,6 +263,30 @@ export function CadastroPage() {
       name: f.name || nomeDaConta.slice(0, NAME_MAX_LENGTH),
       email: f.email || user.email || "",
     }));
+
+    /* O perfil vem depois porque vem do servidor. Falhar aqui não pode
+       atrapalhar nada: um formulário sem nada aproveitado ainda é um
+       formulário que funciona, e travar o cadastro porque uma consulta de
+       conveniência não voltou seria trocar o essencial pelo cômodo. */
+    let ativo = true;
+    getProfile(user.id)
+      .then((p) => {
+        if (!ativo || !p) return;
+        setForm((f) => ({
+          ...f,
+          name: f.name || (p.full_name ?? "").trim().slice(0, NAME_MAX_LENGTH),
+          email: f.email || p.email || "",
+          phone: f.phone || formatPhone(doFormatoDoBanco(p.phone)),
+          photo_url: f.photo_url || p.avatar_url || "",
+        }));
+        if (p.avatar_url) setPhotoPreview((atual) => atual || p.avatar_url);
+      })
+      .catch(() => {
+        /* silêncio de propósito: ver o comentário acima */
+      });
+    return () => {
+      ativo = false;
+    };
   }, [user, editando]);
 
   useEffect(() => {

@@ -8,6 +8,10 @@ type Linha = Record<string, unknown>;
 const AGORA = Date.now();
 const emDias = (d: number) => new Date(AGORA + d * 86400000).toISOString();
 
+/** Ligado pelo teste: o perfil já vem preenchido, com foto. */
+const perfilCompleto = () =>
+  typeof localStorage !== "undefined" && localStorage.getItem("falso-perfil-completo") === "1";
+
 const CATS = ["Encanador", "Eletricista", "Pedreiro", "Pintor", "Marceneiro", "Serralheiro", "Vidraceiro", "Gesseiro", "Marido de aluguel", "Montador de móveis", "Chaveiro", "Jardineiro", "Piscineiro", "Dedetizador", "Diarista", "Passadeira", "Cuidador de idosos", "Babá", "Técnico em informática", "Técnico em celulares", "Refrigeração e ar-condicionado", "Conserto de eletrodomésticos", "Mecânico", "Borracheiro", "Lavagem de carros", "Funilaria e pintura automotiva", "Cabeleireiro", "Barbeiro", "Manicure", "Depilação", "Maquiadora", "Estética e sobrancelhas", "Massagista", "Personal trainer", "Nutricionista", "Fisioterapeuta", "Psicólogo", "Professor particular", "Professor de inglês", "Professor de música"];
 
 /* Quantos cadastros o banco falso tem. Trocar para 3 exercita a cidade
@@ -75,15 +79,22 @@ const TABELAS: Record<string, Linha[]> = {
      de completar o perfil existe para pegar — com um perfil já cheio, o
      teste passaria sem nunca ter aberto a tela.
 
-     Para exercitar o caminho de quem já está completo, basta preencher
-     `full_name` e `email` aqui. */
+     `falso-perfil-completo` no localStorage vira o outro caso: perfil
+     preenchido, com foto. Ele existe porque a tentativa óbvia — mexer nas
+     linhas pelo `window.__TABELAS` e recarregar — não funciona: o falso
+     mora na memória do módulo, e recarregar zera tudo. Isso já custou um
+     teste que parecia rodar e não testava nada. */
   profiles: [
     {
       id: DONO_FALSO,
-      full_name: null,
-      email: null,
+      ...(perfilCompleto()
+        ? {
+            full_name: "Joana Ferreira",
+            email: "joana@exemplo.com",
+            avatar_url: "https://exemplo.invalido/joana.jpg",
+          }
+        : { full_name: null, email: null, avatar_url: null }),
       phone: "5531999998888",
-      avatar_url: null,
       is_admin: false,
       created_at: emDias(-30),
     },
