@@ -215,7 +215,32 @@ export async function conferirCodigoDeEntrada(telefone: string, codigo: string):
     // expired or is invalid" mesmo com o código certo, recém-recebido.
     type: "sms",
   });
-  if (error) throw new Error(traduzirErroDeEntrada(error.message));
+
+  /* Antes de acreditar no erro, pergunta se a pessoa entrou.
+     ─────────────────────────────────────────────────────────
+     Isto não é paranoia: o log do Supabase mostrou o padrão. Numa mesma
+     tentativa aparecem `/otp`, depois `/verify`, um evento de login — e
+     UM SEGUNDO `/verify` dois segundos depois, com aviso. O primeiro
+     gastou o código e criou a sessão; o segundo chega num código que já
+     não vale e devolve "token inválido".
+
+     Onde nasce o segundo não está esclarecido, e é honesto dizer isso: o
+     app tem um único lugar que confere código, com o botão desabilitado
+     enquanto a conferência corre. Pode ser um toque duplo que escapa
+     entre o clique e o `setEnviando`, pode ser algo do lado do provedor.
+
+     O que ESTÁ esclarecido é o efeito, e ele é o pior possível: a pessoa
+     entrou de verdade e a tela diz "código incorreto". Ela pede outro
+     código — que também vai parecer falhar — e desiste achando que o app
+     não funciona, já logada.
+
+     Um erro só é erro se a pessoa continuou de fora. Se existe sessão, o
+     login aconteceu, e a mensagem seria mentira. */
+  if (error) {
+    const { data } = await client.auth.getSession();
+    if (data.session?.user) return;
+    throw new Error(traduzirErroDeEntrada(error.message));
+  }
 }
 
 export async function entrarComEmail(email: string, senha: string): Promise<void> {
