@@ -8,13 +8,15 @@ export async function getProfile(userId: string): Promise<Profile | null> {
   return data ?? null;
 }
 
-/** Salva o CPF do usuário logado. O banco garante (unique index) que um CPF não se repete entre contas. */
-export async function saveCpf(userId: string, cpf: string): Promise<void> {
-  const client = supabase();
-  if (!client) throw new Error("Banco de dados não configurado.");
-  const { error } = await client.from("profiles").update({ cpf }).eq("id", userId);
-  if (error) {
-    if (error.code === "23505") throw new Error("Este CPF já está associado a outra conta.");
-    throw error;
-  }
-}
+/* `saveCpf` foi removida.
+ *
+ * O CPF deixou de ser pedido na migration 0033, mas a função que o grava
+ * continuou aqui — sem nenhuma tela chamando, e ainda assim funcionando.
+ * Uma porta que ninguém usa continua sendo uma porta: pela política de
+ * segurança do banco, o dono do próprio perfil pode gravar o campo, então
+ * bastava alguém chamar isto.
+ *
+ * Guardar dado sem finalidade atual é exatamente o que a LGPD trata como
+ * excesso. A coluna sai do banco na migration que acompanha esta mudança;
+ * aqui sai o caminho que escrevia nela.
+ */

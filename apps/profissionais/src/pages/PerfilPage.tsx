@@ -20,6 +20,7 @@ import { MinhaAssinatura } from "../components/MinhaAssinatura";
 import { useTituloDaPagina } from "../lib/tituloDaPagina";
 import { mensagemDeErro } from "../lib/erros";
 import { googleServeAqui } from "../lib/plataforma";
+import { LOGIN_TELEFONE_ATIVO } from "../config";
 
 function initials(name: string | null, email: string | null | undefined): string {
   const source = name?.trim() || email?.trim() || "?";
@@ -122,6 +123,17 @@ export function PerfilPage() {
               <div style={{ marginTop: 10 }}>
                 <BotaoApple voltarPara="/perfil" onErro={setError} />
               </div>
+              {/* O telefone existe e é o caminho principal desde que o app
+                  passou a ser instalável — mas esta tela continuava
+                  oferecendo só o Google, e quem não usa Google saía daqui
+                  achando que não tinha como entrar. */}
+              {LOGIN_TELEFONE_ATIVO && (
+                <p style={{ marginTop: 14, marginBottom: 0 }}>
+                  <Link className="entrar-link" to="/login">
+                    Entrar com meu celular
+                  </Link>
+                </p>
+              )}
             </>
           ) : (
             <>

@@ -23,8 +23,27 @@ function distanciaKm(a: { lat: number; lon: number }, b: { lat: number; lon: num
   return 2 * R * Math.asin(Math.sqrt(s));
 }
 
-function cidadeMaisProxima(pos: { lat: number; lon: number }): string {
-  let melhor = DEFAULT_CITY;
+/**
+ * Longe demais para chutar.
+ *
+ * A lista de coordenadas tem quatro cidades, todas mineiras e vizinhas
+ * entre si. Enquanto o app atendia só elas, "a mais próxima" era sempre a
+ * certa ou quase. Com o app aberto ao Brasil, a mesma conta responde
+ * "Itabirito" para quem abre em Fortaleza — porque das quatro é a menos
+ * distante, a 1.800 km.
+ *
+ * Chute errado é pior que nenhum chute: a pessoa vê banners de uma cidade
+ * que não é a dela e conclui que o app não serve para ela.
+ *
+ * 120 km é o raio em que a resposta ainda quer dizer alguma coisa — dá
+ * para atender uma cidade vizinha, não outro estado. Além disso, o app
+ * simplesmente não adivinha, e a escolha continua no filtro, que é de
+ * quem procura.
+ */
+const RAIO_MAXIMO_KM = 120;
+
+function cidadeMaisProxima(pos: { lat: number; lon: number }): string | null {
+  let melhor: string | null = null;
   let menorDist = Infinity;
   for (const cidade of CITIES) {
     const c = COORDENADAS[cidade];
@@ -35,6 +54,7 @@ function cidadeMaisProxima(pos: { lat: number; lon: number }): string {
       melhor = cidade;
     }
   }
+  if (menorDist > RAIO_MAXIMO_KM) return null;
   return melhor;
 }
 
@@ -83,6 +103,9 @@ export function useCidadeAproximada(): string {
           lat: posicao.coords.latitude,
           lon: posicao.coords.longitude,
         });
+        // Fora do raio: mantém a cidade padrão em vez de mudar para uma
+        // que fica a mil quilômetros de quem está lendo.
+        if (!encontrada) return;
         setCidade(encontrada);
         try {
           window.sessionStorage.setItem(CHAVE_CACHE, encontrada);

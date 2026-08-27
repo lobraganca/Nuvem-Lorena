@@ -6059,3 +6059,21 @@ h3 {
   border-radius: 999px;
   background: #b4741a;
 }
+
+/* Aviso de cadastro pausado, no painel.
+
+   Âmbar e não vermelho: pausar foi uma escolha da pessoa, não um erro nem
+   uma punição. Vermelho aqui leria como "seu cadastro foi bloqueado", que
+   é outra coisa e assusta à toa.
+
+   Contraste conferido: #7a4b00 sobre #fdf2e3 dá 6,7:1, acima do mínimo. */
+.aviso-pausado {
+  margin: 0 0 12px;
+  padding: 12px 14px;
+  border-radius: 14px;
+  background: #fdf2e3;
+  border: 1px solid #eed7b2;
+  color: #7a4b00;
+  font-size: 0.88rem;
+  line-height: 1.45;
+}

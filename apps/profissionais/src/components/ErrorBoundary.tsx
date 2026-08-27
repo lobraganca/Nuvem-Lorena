@@ -1,5 +1,6 @@
 import { Component, type ErrorInfo, type ReactNode } from "react";
 import { pareceArquivoDesatualizado, recarregarDoZero } from "../lib/importarPagina";
+import { ehAppDaLoja } from "../lib/plataforma";
 
 /**
  * Barreira de erro: quando alguma tela quebra, mostra o que houve em vez de
@@ -85,16 +86,39 @@ export class ErrorBoundary extends Component<{ children: ReactNode }, Estado> {
                 color: "var(--color-text-muted)",
               }}
             >
-              <p style={{ margin: "0 0 8px" }}>
-                Se o botão não resolver, reinstale o app — é rápido:
-              </p>
-              <ol style={{ margin: 0, paddingLeft: 20, display: "grid", gap: 4 }}>
-                <li>Toque e segure o ícone do procurô na tela e remova-o.</li>
-                <li>
-                  Abra o navegador e acesse <strong>procuroapp.com.br</strong>.
-                </li>
-                <li>Toque em "Instalar App" no topo da tela.</li>
-              </ol>
+              {/* Duas receitas, porque reinstalar não é a mesma coisa nos dois
+                  lugares — e a receita errada é pior que nenhuma: manda a
+                  pessoa procurar um botão que a tela dela não tem.
+
+                  No app da Play Store não existe "Instalar App" nem site
+                  para abrir; quem reinstala vai à loja. Escrever
+                  "acesse procuroapp.com.br" ali também seria mandar sair do
+                  app para resolver um problema do app. */}
+              {ehAppDaLoja() ? (
+                <>
+                  <p style={{ margin: "0 0 8px" }}>
+                    Se o botão não resolver, feche o procurô de vez e abra de novo:
+                  </p>
+                  <ol style={{ margin: 0, paddingLeft: 20, display: "grid", gap: 4 }}>
+                    <li>Abra a tela de aplicativos recentes do seu celular.</li>
+                    <li>Empurre o procurô para fora e solte.</li>
+                    <li>Abra o procurô pelo ícone de novo.</li>
+                  </ol>
+                </>
+              ) : (
+                <>
+                  <p style={{ margin: "0 0 8px" }}>
+                    Se o botão não resolver, reinstale o app — é rápido:
+                  </p>
+                  <ol style={{ margin: 0, paddingLeft: 20, display: "grid", gap: 4 }}>
+                    <li>Toque e segure o ícone do procurô na tela e remova-o.</li>
+                    <li>
+                      Abra o navegador e acesse <strong>procuroapp.com.br</strong>.
+                    </li>
+                    <li>Toque em "Instalar App" no topo da tela.</li>
+                  </ol>
+                </>
+              )}
             </div>
           )}
         </div>

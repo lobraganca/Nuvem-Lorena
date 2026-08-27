@@ -7,6 +7,7 @@ import {
   getMyProfessionals,
   countRecentProfileViewsDeVarios,
   getContactRequestsDeVarios,
+  setProfessionalPaused,
   updateContactRequestStatus,
   isCurrentlyBoosted,
   isCurrentlyVerified,
@@ -39,6 +40,7 @@ import { useTituloDaPagina } from "../lib/tituloDaPagina";
 import { MarcaConfirmado } from "../components/MarcaConfirmado";
 import { CartaoProfissional } from "../components/CartaoProfissional";
 import { podeVender, googleServeAqui } from "../lib/plataforma";
+import { LOGIN_TELEFONE_ATIVO } from "../config";
 
 
 /**
@@ -117,6 +119,10 @@ export function PainelPage() {
   /** Mensagem de erro das ações do painel (fila de destaque, exclusão). */
   const [formMessage, setFormMessage] = useState("");
   const [planSheetFor, setPlanSheetFor] = useState<{ professional: Professional; type: SubscriptionType } | null>(null);
+  /* Qual cadastro está sendo pausado/despausado agora. Guardado por id, e
+     não como booleano, porque a pessoa pode ter mais de um cadastro na
+     tela e só o tocado deve mostrar "Aguarde…". */
+  const [pausando, setPausando] = useState<string | null>(null);
   /** Cadastro cujo WhatsApp está sendo confirmado por código. */
   const [confirmandoWhats, setConfirmandoWhats] = useState<Professional | null>(null);
   /** Assinaturas ativas por cadastro, para oferecer o cancelamento. */
@@ -242,6 +248,36 @@ export function PainelPage() {
     };
   }, [mine, mostrarArquivados]);
 
+  /**
+   * Tirar o cadastro do ar sem apagá-lo — e devolvê-lo.
+   *
+   * A coluna existia no banco, a busca já escondia quem estivesse pausado,
+   * e a função `setProfessionalPaused` estava escrita desde sempre. O que
+   * nunca existiu foi o botão: nenhuma tela do app chamava aquela função.
+   *
+   * Na prática isso significava que quem viajou, adoeceu ou está com a
+   * agenda cheia não tinha como parar de aparecer — só apagando o cadastro,
+   * que leva junto as avaliações conquistadas. Entre "sumir e perder tudo"
+   * e "continuar recebendo pedido que não posso atender", as duas escolhas
+   * são ruins.
+   *
+   * Recarrega a lista do banco em vez de mexer no que está na tela: se a
+   * gravação falhar, o botão volta ao que era em vez de mostrar um estado
+   * que não aconteceu.
+   */
+  async function alternarPausa(p: ProfessionalWithRating) {
+    setPausando(p.id);
+    setMessage("");
+    try {
+      await setProfessionalPaused(p.id, !p.paused);
+      if (user) setMine(await getMyProfessionals(user.id));
+    } catch (err) {
+      setMessage(mensagemDeErro(err, "Não foi possível mudar a situação do cadastro."));
+    } finally {
+      setPausando(null);
+    }
+  }
+
   async function marcarPedido(requestId: string, status: ContactRequestStatus) {
     await updateContactRequestStatus(requestId, status);
     await carregarPedidos();
@@ -355,6 +391,15 @@ export function PainelPage() {
                 <BotaoGoogle onClick={handleGoogleLogin} disabled={!hasDatabase()} />
               </div>
               <BotaoApple voltarPara="/painel" onErro={setLoginError} />
+              {/* Mesma falta do Perfil: só o Google era oferecido, e quem
+                  não usa Google não tinha por onde. */}
+              {LOGIN_TELEFONE_ATIVO && (
+                <p style={{ marginTop: 14, marginBottom: 0 }}>
+                  <Link className="entrar-link" to="/login">
+                    Entrar com meu celular
+                  </Link>
+                </p>
+              )}
             </>
           ) : (
             <>
@@ -446,7 +491,24 @@ export function PainelPage() {
                     Toda diferença entre esta tela e a busca era, na prática,
                     uma decisão tomada às cegas: trocar a foto, escrever a
                     especialidade, pagar pelo destaque. */}
-                <p className="previa-titulo">Como aparece na busca</p>
+                {/* Pausado precisa gritar, e por cima da prévia.
+
+                    Quem pausa e esquece some da busca sem nenhum aviso: o
+                    telefone para de tocar e nada na tela liga uma coisa à
+                    outra. É o mesmo defeito silencioso de sempre — a tela
+                    parece normal e o motivo não aparece em lugar nenhum.
+
+                    Por isso vem ANTES da prévia e diz o que fazer, não só o
+                    que aconteceu. E a prévia embaixo continua verdadeira:
+                    é como o cadastro apareceria, se estivesse aparecendo. */}
+                {p.paused ? (
+                  <div className="aviso-pausado">
+                    <strong>Este cadastro está pausado.</strong> Ele não aparece na busca e você não recebe
+                    pedidos. Toque em <strong>“Voltar a aparecer”</strong> aqui embaixo quando quiser retomar —
+                    suas avaliações continuam guardadas.
+                  </div>
+                ) : null}
+                <p className="previa-titulo">{p.paused ? "Como apareceria na busca" : "Como aparece na busca"}</p>
                 <CartaoProfissional p={p} previa />
                 <p className="views-line">
                   <strong>{views30[p.id] ?? 0}</strong>{" "}
@@ -603,6 +665,21 @@ export function PainelPage() {
                   <Link className="btn btn-outline" to={`/painel/editar/${p.id}`}>
                     Editar
                   </Link>
+                  {/* Pausar fica ao lado de Editar, e longe de Excluir: são a
+                      mesma família (mexer no cadastro sem perdê-lo), e a
+                      confusão que importa evitar é alguém apagar querendo
+                      apenas sumir por uns dias. */}
+                  <button
+                    className="btn btn-outline"
+                    disabled={pausando === p.id}
+                    onClick={() => alternarPausa(p)}
+                  >
+                    {pausando === p.id
+                      ? "Aguarde…"
+                      : p.paused
+                        ? "Voltar a aparecer"
+                        : "Pausar por uns dias"}
+                  </button>
                   <button className="btn btn-outline btn-perigo" onClick={() => setExcluindoAnuncio(p)}>
                     Excluir cadastro
                   </button>
