@@ -16,7 +16,31 @@
     </style>
 
 
+    <!--
+      A tela de abertura do Android: azul, sem desenho nenhum.
+
+      Ela era `@drawable/splash` — uma imagem BRANCA com a logo no meio, que
+      o Capacitor gera por padrão. O app tem a sua própria abertura, azul e
+      com a marca, e as duas somadas faziam o procurô abrir duas vezes:
+      branca com logo, depois azul com a marca, depois o app. Foi assim que
+      a dona descreveu ao instalar pela primeira vez.
+
+      Tirar a do Android por completo não é possível: o sistema sempre
+      mostra alguma coisa enquanto o app carrega, e sem cor definida essa
+      coisa é branco. O que resolve é ela deixar de ser OUTRA tela e passar
+      a ser o começo da mesma — o mesmo azul, sem logo. A pessoa vê azul, a
+      marca aparece por cima, e o app entra. Uma abertura só.
+
+      A logo não se perde: ela está na abertura do app, que vem logo em
+      seguida e é feita para isso, com animação e tudo.
+
+      `windowSplashScreenBackground` é o jeito do Android 12 para cima;
+      `android:windowBackground` cobre os anteriores. Os dois apontam para a
+      mesma cor, então não há versão do Android em que sobre branco.
+    -->
     <style name="AppTheme.NoActionBarLaunch" parent="Theme.SplashScreen">
-        <item name="android:background">@drawable/splash</item>
+        <item name="windowSplashScreenBackground">@color/abertura</item>
+        <item name="android:windowBackground">@color/abertura</item>
+        <item name="postSplashScreenTheme">@style/AppTheme.NoActionBar</item>
     </style>
 </resources>

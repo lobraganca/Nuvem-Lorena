@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!--
+      O azul da abertura.
+
+      É o meio do degradê da tela de abertura do app (`.splash` no
+      theme.css, de #12305e a #0a1a2f). O valor não é escolha nova: é o
+      mesmo azul, para que a tela do Android e a do app sejam
+      indistinguíveis uma da outra.
+    -->
+    <color name="abertura">#0E2546</color>
+</resources>

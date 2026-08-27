@@ -37,8 +37,17 @@ const config: CapacitorConfig = {
   webDir: "dist",
 
   android: {
-    /* A tela de fundo enquanto o app abre. Branco, como o app. */
-    backgroundColor: "#ffffff",
+    /* O fundo do WebView enquanto o app ainda não desenhou nada.
+
+       Era branco, e era o terceiro branco da sequência: a tela do Android
+       (branca, com logo), este fundo (branco) e só então a abertura azul do
+       app. Agora os três são o mesmo azul, e o que a pessoa vê é uma
+       abertura só — azul do primeiro instante até a marca aparecer.
+
+       Mesma cor de `@color/abertura` no Android, que é o meio do degradê da
+       tela de abertura do app. Escrita aqui à mão porque este arquivo não
+       enxerga os recursos do Android; mudando uma, mude a outra. */
+    backgroundColor: "#0E2546",
   },
 };
 
