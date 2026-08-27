@@ -96,7 +96,22 @@ jobs:
       # O número do envio é o número da execução do workflow: sobe sozinho,
       # nunca repete, e ninguém precisa lembrar de somar 1. A Play Store
       # recusa um envio cujo número já foi usado.
-      - name: Montar o .aab
+      # Os DOIS formatos, na mesma montagem.
+      #
+      # `.aab` é o que a Play Store aceita, e SÓ ela: o arquivo não instala
+      # em celular nenhum — tocá-lo no Android não faz nada. `.apk` é o que
+      # instala direto no aparelho.
+      #
+      # Os dois são necessários, e por motivos diferentes. Sem o apk não há
+      # como ver o app rodando antes de enviar — e sem ver o app rodando não
+      # há como tirar as capturas de tela da loja, que precisam mostrar
+      # profissionais de verdade. Descobrir que algo quebrou com 12 pessoas
+      # testando é caro; descobrir sozinha, no próprio celular, é de graça.
+      #
+      # Os dois saem da MESMA montagem e da mesma chave, então o que você
+      # instala e testa é exatamente o que a loja recebe. Gerados separados,
+      # seriam duas coisas parecidas — e a diferença apareceria só depois.
+      - name: Montar o .aab e o .apk
         env:
           ANDROID_KEYSTORE_FILE: ${{ steps.chave.outputs.assinado == 'sim' && format('{0}/procuro.jks', runner.temp) || '' }}
           ANDROID_KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
@@ -105,40 +120,65 @@ jobs:
         run: |
           cd android
           chmod +x gradlew
-          ./gradlew bundleRelease --no-daemon \
+          ./gradlew bundleRelease assembleRelease --no-daemon \
             -PversionCode=${{ github.run_number }} \
             -PversionName=${{ inputs.versionName }}
 
       # Confere o que saiu antes de entregar. Um .aab existe mesmo quando o
       # conteúdo está errado, e o erro só aparece no Play Console — depois
       # da espera.
-      - name: Conferir o arquivo
+      # Confere o que saiu antes de entregar. Os arquivos existem mesmo
+      # quando o conteúdo está errado, e o erro só apareceria no Play
+      # Console — depois da espera.
+      - name: Conferir os arquivos
         run: |
           AAB=$(find android -name "*.aab" | head -1)
+          APK=$(find android -name "*-release*.apk" | head -1)
           if [ -z "$AAB" ]; then
-            echo "::error::Nenhum .aab foi gerado."
+            echo "::error::Nenhum .aab foi gerado — sem ele não há o que enviar à loja."
             exit 1
           fi
-          TAM=$(du -h "$AAB" | cut -f1)
+          if [ -z "$APK" ]; then
+            echo "::error::Nenhum .apk foi gerado — sem ele não há como instalar no celular para testar."
+            exit 1
+          fi
           echo "### App montado" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "| | |" >> $GITHUB_STEP_SUMMARY
           echo "|---|---|" >> $GITHUB_STEP_SUMMARY
           echo "| Versão | ${{ inputs.versionName }} |" >> $GITHUB_STEP_SUMMARY
           echo "| Número do envio | ${{ github.run_number }} |" >> $GITHUB_STEP_SUMMARY
-          echo "| Tamanho | $TAM |" >> $GITHUB_STEP_SUMMARY
+          echo "| Para a loja (.aab) | $(du -h "$AAB" | cut -f1) |" >> $GITHUB_STEP_SUMMARY
+          echo "| Para o seu celular (.apk) | $(du -h "$APK" | cut -f1) |" >> $GITHUB_STEP_SUMMARY
           if [ "${{ steps.chave.outputs.assinado }}" = "sim" ]; then
             echo "| Assinatura | de verdade — serve para a Play Store |" >> $GITHUB_STEP_SUMMARY
           else
             echo "| Assinatura | **DE TESTE — a Play Store vai recusar** |" >> $GITHUB_STEP_SUMMARY
           fi
           echo "" >> $GITHUB_STEP_SUMMARY
-          echo "Baixe em **Artifacts**, no fim desta página, e envie no Play Console." >> $GITHUB_STEP_SUMMARY
+          echo "Baixe os dois em **Artifacts**, no fim desta página." >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "- **procuro-celular-…** — o .apk. Abra no Android para instalar e testar." >> $GITHUB_STEP_SUMMARY
+          echo "- **procuro-loja-…** — o .aab. Este é o que sobe no Play Console (não instala no celular)." >> $GITHUB_STEP_SUMMARY
 
-      - name: Guardar o arquivo para baixar
+      # Dois pacotes separados, com nomes que dizem para que servem.
+      #
+      # Num pacote só, os dois arquivos viriam juntos num zip e caberia a
+      # quem baixa descobrir qual é qual — no celular, olhando extensão. Aí
+      # se instala o errado, não acontece nada, e a conclusão é que o app
+      # não funciona.
+      - name: Guardar o .apk (para instalar e testar)
         uses: actions/upload-artifact@v4
         with:
-          name: procuro-${{ inputs.versionName }}-envio${{ github.run_number }}
+          name: procuro-celular-${{ inputs.versionName }}-envio${{ github.run_number }}
+          path: apps/profissionais/android/app/build/outputs/apk/release/*.apk
+          retention-days: 30
+          if-no-files-found: error
+
+      - name: Guardar o .aab (para enviar à loja)
+        uses: actions/upload-artifact@v4
+        with:
+          name: procuro-loja-${{ inputs.versionName }}-envio${{ github.run_number }}
           path: apps/profissionais/android/app/build/outputs/bundle/release/*.aab
           retention-days: 30
           if-no-files-found: error
