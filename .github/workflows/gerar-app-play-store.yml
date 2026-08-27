@@ -41,10 +41,15 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      # 22, e não 20: o Capacitor 8 recusa rodar abaixo disso —
+      # "The Capacitor CLI requires NodeJS >=22.0.0". A primeira execução
+      # deste workflow morreu exatamente aí, DEPOIS de construir o app com
+      # sucesso: o build passa em qualquer versão, e só o passo que copia
+      # os arquivos para dentro do projeto Android é que exige a nova.
       - name: Node
         uses: actions/setup-node@v4
         with:
-          node-version: '20'
+          node-version: '22'
 
       # A Google exige Android 16 (API 36) para envios a partir de
       # 31/08/2026, e o projeto já está nessa versão. O JDK 21 é o exigido
