@@ -27,6 +27,32 @@ export function formatPhone(value: string): string {
   return `(${d.slice(0, 2)}) ${d.slice(2, 2 + meio)}-${d.slice(2 + meio)}`;
 }
 
+/**
+ * O telefone como o login o guarda vira o telefone como se lê aqui.
+ *
+ * Quem entra por SMS tem o número gravado em `auth.users.phone` no formato
+ * internacional e sem o "+": `5531999998888`. Jogar isso direto no campo
+ * dá `(55) 31999-9988` — o `onlyPhoneDigits` corta nos 11 primeiros
+ * dígitos, e os 11 primeiros de um número com código de país são o país,
+ * o DDD e metade da linha. O campo então já abre com um número errado, e
+ * quem só confere de relance salva o errado.
+ *
+ * A conta que separa um caso do outro é o tamanho, não o começo: número
+ * local tem 10 ou 11 dígitos, com código de país tem 12 ou 13. Olhar só
+ * para o "55" inicial estragaria os números de Santa Maria, cujo DDD é
+ * justamente 55.
+ *
+ * É de propósito que ela aceite os dois formatos e não mude nada quando já
+ * está local: a coluna `phone` de `profiles` nasceu preenchida pela 0064 a
+ * partir do login (internacional) e passa a receber o que a pessoa digita
+ * (local), então as duas formas convivem lá dentro.
+ */
+export function doFormatoDoBanco(valor: string | null | undefined): string {
+  const d = String(valor ?? "").replace(/\D/g, "");
+  if (d.length >= 12 && d.length <= 13 && d.startsWith("55")) return d.slice(2);
+  return d;
+}
+
 /** Um telefone só serve se der para ligar: DDD + 8 ou 9 dígitos. */
 export function isValidPhone(value: string): boolean {
   const d = onlyPhoneDigits(value);

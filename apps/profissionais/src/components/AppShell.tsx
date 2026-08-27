@@ -9,6 +9,7 @@ import { useAuth } from "../lib/useAuth";
 import { useOnlineCount } from "../lib/presence";
 import { MarcaProcuro } from "./MarcaProcuro";
 import { ExigirNumero, exigeNumero } from "./ExigirNumero";
+import { CompletarPerfil, exigePerfil } from "./CompletarPerfil";
 
 /* Etiqueta de preço: diz "aqui tem oferta" sem a agressividade do megafone,
    que num app de serviços lê como spam. */
@@ -274,6 +275,24 @@ function Header() {
  * referência (item ativo destacado em dourado, demais em cinza). Some em
  * telas largas (ver media query em theme.css).
  */
+/**
+ * Põe as barreiras das telas de conta em volta do conteúdo, na ordem certa.
+ *
+ * Existe como função e não inline porque eram dois ternários aninhados no
+ * meio do JSX, e a próxima barreira faria três — o tipo de linha que se lê
+ * errado e se edita pior.
+ *
+ * Cada barreira, desligada ou fora das telas dela, não aparece nem como
+ * componente: `exigeNumero`/`exigePerfil` respondem `false` e o `useAuth`
+ * lá dentro nem chega a pedir a sessão.
+ */
+function envolverTelaDeConta(caminho: string, conteudo: ReactNode): ReactNode {
+  let saida = conteudo;
+  if (exigePerfil(caminho)) saida = <CompletarPerfil>{saida}</CompletarPerfil>;
+  if (exigeNumero(caminho)) saida = <ExigirNumero>{saida}</ExigirNumero>;
+  return saida;
+}
+
 export function AppShell({ children }: { children: ReactNode }) {
   const location = useLocation();
   const { user } = useAuth();
@@ -321,11 +340,18 @@ export function AppShell({ children }: { children: ReactNode }) {
       {/* `app-content` também na tela de início: é ele que reserva o espaço
           da barra embaixo. Sem isso, o último botão da apresentação fica
           escondido atrás dela. */}
-      {/* A barreira do número envolve só as telas de conta. A busca fica
-          de fora de propósito: ela funciona sem conta, e é o motivo de o
-          app existir. */}
+      {/* As duas barreiras envolvem só as telas de conta. A busca fica de
+          fora de propósito: ela funciona sem conta, e é o motivo de o app
+          existir.
+
+          A ordem importa. O número vem por fora e o perfil por dentro,
+          porque quem confirma o número acaba de dizer qual ele é — e a
+          tela de perfil, logo em seguida, já o encontra preenchido. Na
+          ordem inversa a pessoa digitaria o telefone, seria mandada
+          confirmar o mesmo telefone, e voltaria a um formulário que ela
+          já tinha preenchido. */}
       <div className="app-content">
-        {exigeNumero(path) ? <ExigirNumero>{children}</ExigirNumero> : children}
+        {envolverTelaDeConta(path, children)}
       </div>
       {(
       <nav className="bottom-nav">

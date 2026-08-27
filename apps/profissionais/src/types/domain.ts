@@ -8,7 +8,12 @@ export interface Profile {
   id: string; // = auth.users.id
   full_name: string | null;
   avatar_url: string | null;
-  cpf: string | null; // exigido para poder avaliar, ligado à conta Google do login
+  /* Contato, e não credencial. O e-mail de LOGIN mora em `auth.users`;
+     estes dois existem porque cada porta de entrada traz só metade — quem
+     entra pelo Google não tem telefone, quem entra pelo número não tem
+     e-mail. Ver migration 0064. */
+  email: string | null;
+  phone: string | null;
   created_at: string;
 }
 

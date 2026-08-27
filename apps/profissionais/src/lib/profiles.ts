@@ -22,7 +22,8 @@ export async function getProfile(userId: string): Promise<Profile | null> {
  */
 
 /**
- * Guarda o nome e a foto de quem está logado.
+ * Guarda os dados de contato de quem está logado: nome, e-mail, telefone
+ * e foto.
  *
  * Existe porque a porta de entrada mudou. Enquanto o login era só pelo
  * Google, nome e foto vinham prontos: o Google os entrega junto com a
@@ -32,6 +33,11 @@ export async function getProfile(userId: string): Promise<Profile | null> {
  * Entrando pelo telefone não vem nada — nem nome, nem foto. A conta nasce
  * anônima e ficava assim para sempre: as avaliações daquela pessoa
  * apareciam como "Usuário do procurô", com um "?" no lugar do rosto.
+ *
+ * E cada porta traz só metade do contato: o Google entrega e-mail e nunca
+ * telefone; o SMS entrega telefone e nunca e-mail. Por isso `email` e
+ * `phone` também passam por aqui — são colunas de `profiles` desde a
+ * migration 0064, alimentadas pela tela que completa o perfil.
  *
  * Isso corrói justamente o que dá valor ao app. Uma avaliação vale pela
  * pessoa que a escreveu; assinada por "Usuário do procurô", ela lê como
@@ -46,7 +52,12 @@ export async function getProfile(userId: string): Promise<Profile | null> {
  */
 export async function salvarMeuPerfil(
   userId: string,
-  dados: { full_name?: string | null; avatar_url?: string | null }
+  dados: {
+    full_name?: string | null;
+    avatar_url?: string | null;
+    email?: string | null;
+    phone?: string | null;
+  }
 ): Promise<void> {
   const client = supabase();
   if (!client) throw new Error("Sem conexão com o banco.");

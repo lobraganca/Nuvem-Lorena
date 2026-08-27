@@ -5781,6 +5781,107 @@ h3 {
 }
 
 /* ---------------------------------------------------------------
+   Completar o perfil, uma vez, depois de entrar
+
+   Mesma largura e mesmo respiro da barreira do número, de propósito: são
+   duas telas que a pessoa pode ver em sequência, e mudar a caixa entre
+   uma e outra dá a impressão de ter mudado de app.
+   --------------------------------------------------------------- */
+.completar-perfil {
+  max-width: 460px;
+  padding-top: 28px;
+  padding-bottom: 40px;
+}
+
+.completar-intro {
+  margin-top: 8px;
+}
+
+.completar-card {
+  margin-top: 18px;
+}
+
+/* A foto é o primeiro elemento e é um alvo grande: no celular, um botão
+   de foto pequeno é o campo que mais faz errar o toque. O rótulo inteiro
+   é clicável — o <input type=file> mora escondido dentro dele. */
+.completar-foto {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  margin-bottom: 6px;
+}
+
+.completar-foto-img,
+.completar-foto-vazia {
+  width: 78px;
+  height: 78px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid var(--color-border);
+}
+
+.completar-foto-vazia {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--color-bg-soft);
+  color: var(--color-text-muted);
+  font-size: 2.1rem;
+  font-weight: 600;
+  border-style: dashed;
+}
+
+.completar-foto-acao {
+  font-size: 0.86rem;
+  font-weight: 600;
+  color: var(--color-primary);
+}
+
+/* O convite, não a exigência. Explica o que a foto muda em vez de só
+   dizer "opcional": quem lê "opcional" pula, quem lê "sua avaliação tem
+   rosto" às vezes põe. */
+.completar-foto-nota {
+  margin: 0 0 10px;
+  text-align: center;
+  font-size: 0.82rem;
+  line-height: 1.45;
+  color: var(--color-text-muted);
+}
+
+.completar-rotulo {
+  display: block;
+  margin: 14px 0 6px;
+  font-size: 0.86rem;
+  font-weight: 600;
+}
+
+.completar-dica {
+  margin: 8px 0 0;
+  font-size: 0.82rem;
+  color: var(--color-text-muted);
+}
+
+.completar-erro {
+  margin: 14px 0 0;
+  font-size: 0.88rem;
+  color: var(--color-danger);
+}
+
+.completar-card .btn-primary {
+  margin-top: 20px;
+}
+
+/* A saída, sempre visível. Mesma razão da barreira do número: barreira
+   sem saída perde a pessoa em vez de ganhar o dado. */
+.completar-saida {
+  margin-top: 18px;
+  text-align: center;
+  font-size: 0.9rem;
+}
+
+/* ---------------------------------------------------------------
    A prévia do cartão no painel do profissional
 
    O painel mostra ao dono o mesmo cartão que o cliente vê. Antes ele

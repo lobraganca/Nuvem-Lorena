@@ -70,6 +70,24 @@ const TABELAS: Record<string, Linha[]> = {
   favorites: [0, 7, 9].map((i) => ({ user_id: DONO_FALSO, professional_id: `pro-${i}` })),
   contatos_registrados: [],
   app_visits: [],
+  /* O perfil do dono falso nasce como nasce uma conta de SMS: só o
+     telefone, sem nome, sem e-mail, sem foto. É esse o estado que a tela
+     de completar o perfil existe para pegar — com um perfil já cheio, o
+     teste passaria sem nunca ter aberto a tela.
+
+     Para exercitar o caminho de quem já está completo, basta preencher
+     `full_name` e `email` aqui. */
+  profiles: [
+    {
+      id: DONO_FALSO,
+      full_name: null,
+      email: null,
+      phone: "5531999998888",
+      avatar_url: null,
+      is_admin: false,
+      created_at: emDias(-30),
+    },
+  ],
 };
 
 type Filtro = (l: Linha) => boolean;
@@ -162,13 +180,20 @@ class Consulta implements PromiseLike<{ data: Linha[] | Linha | null; error: unk
 function usuarioFalso() {
   const tipo = typeof localStorage === "undefined" ? null : localStorage.getItem("falso-usuario");
   if (!tipo) return null;
+  /* Cada porta traz metade do contato, e o falso precisa mentir do mesmo
+     jeito que o real — senão a tela que completa o perfil aparece sempre
+     com tudo preenchido e o teste não prova nada. O Google traz e-mail,
+     nome e foto e nenhum telefone; o SMS traz telefone e mais nada. */
+  const peloGoogle = tipo === "google";
   return {
     id: DONO_FALSO,
-    email: "pessoa@exemplo.com",
-    phone: tipo === "telefone" ? "5531999998888" : "",
-    phone_confirmed_at: tipo === "telefone" ? new Date().toISOString() : null,
+    email: peloGoogle ? "pessoa@exemplo.com" : "",
+    phone: peloGoogle ? "" : "5531999998888",
+    phone_confirmed_at: peloGoogle ? null : new Date().toISOString(),
     app_metadata: {},
-    user_metadata: {},
+    user_metadata: peloGoogle
+      ? { full_name: "Pessoa do Google", avatar_url: "" }
+      : {},
     aud: "authenticated",
     created_at: new Date().toISOString(),
   };
@@ -194,6 +219,15 @@ const auth = {
     return { data: null, error: null };
   },
 };
+
+/* As tabelas ficam visíveis ao teste. Sem isto, a única forma de saber o
+   que uma tela gravou é olhar outra tela — e aí se testa a leitura junto
+   com a escrita, sem saber qual das duas quebrou. Foi assim que um
+   telefone com código de país ("5531999998888" virando "(55) 31999-9988")
+   passou por um teste que só perguntava se a barreira tinha sumido. */
+if (typeof window !== "undefined") {
+  (window as unknown as { __TABELAS?: unknown }).__TABELAS = TABELAS;
+}
 
 const clienteFalso = {
   from: (tabela: string) => new Consulta(tabela),
