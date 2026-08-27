@@ -27,6 +27,13 @@ Comece toda sequência de comandos com o caminho explícito:
 `cd /home/user/Nuvem-Lorena/apps/profissionais`. O `cd` não sobrevive entre
 chamadas de ferramenta.
 
+**E isso vale em dobro para `cp`, `rm` e `git checkout`: use caminho
+absoluto sempre.** Um `cp src/lib/supabase.ts ...` rodado da raiz já
+destruiu o cliente falso do procurô, substituindo-o pelo do Avena — e
+passou na conferência de tipos e no build, porque nenhum dos dois olha
+`scripts/`. Só apareceu horas depois, ao usar o arquivo. Comando relativo
+neste repositório acerta o app errado sem dar erro.
+
 ---
 
 ## Branches
@@ -45,6 +52,11 @@ git push origin claude/professional-search-app-vuryc8:claude/professional-search
 ```
 
 Nunca empurrar para outra branch sem a dona pedir.
+
+A `claude/app-play-store` existiu e está **aposentada** — o app da loja
+saiu da mesma base de código (ver a seção do aplicativo, abaixo). Ela ficou
+4 commits atrás em um único dia; branch velha de app é pior que nenhuma,
+porque ela publica.
 
 ---
 
@@ -111,6 +123,14 @@ e o app novo pode depender dela.
 E a regra que sai dos três: **função de dados que falha nunca deve devolver
 lista vazia.** "Nenhum resultado" é uma mentira calma — a tela parece
 normal e o defeito não aparece em lugar nenhum.
+
+**Quarta pegadinha, da mesma família: o teto de linhas.** A 0062 pôs
+`pgrst.db_max_rows = 200` para ninguém baixar a base de contatos de uma
+vez — e o teto vale para TODA consulta, inclusive as do painel
+administrativo, que carregavam a tabela e contavam no navegador. O total
+recebido pararia no ducentésimo pagamento e nunca mais subiria, sem nada
+avisando. Consulta que CONTA usa `lerTudo()` (`src/lib/lerTudo.ts`), que lê
+em páginas e fica imune a qualquer teto.
 
 ### A ordem: SQL primeiro, confirmação dela, e SÓ ENTÃO o código
 
@@ -216,6 +236,124 @@ Arquivos `*.mjs` na raiz são ignorados pelo git (`.gitignore`), então dá
 para deixá-los lá enquanto se trabalha.
 
 ---
+
+## O aplicativo da Play Store
+
+O procurô é **um app instalável de verdade**, não um site aberto numa
+janelinha — e a distinção decide entre aprovado e rejeitado. Os arquivos
+ficam DENTRO do aparelho (`android/app/src/main/assets/public`), copiados
+por `npx cap sync`. Nenhum endereço é aberto.
+
+**Uma base de código só.** A branch `claude/app-play-store` existiu e está
+aposentada: em um dia ela já estava 4 commits atrás e publicaria uma versão
+sem as correções. O que muda entre site e app é decidido em tempo de
+execução por `src/lib/plataforma.ts`.
+
+### `podeVender()` — e por que a loja não vende nada
+
+Regra da Google: bem digital usado dentro do app se vende pela cobrança
+dela. O procurô vende pelo Mercado Pago, o que continua certo no site.
+Dentro do app da loja **as telas que vendem não existem** — que é o estado
+mais conforme possível, porque quem não oferece compra não tem o que
+violar.
+
+O que fica de propósito: **"Suas assinaturas" com o botão de cancelar**
+(esconder cancelamento é infração do CDC — seria trocar uma regra de loja
+por uma de lei), o desempenho do cadastro, e a explicação do selo sem
+preço.
+
+**E em lugar nenhum aparece "assine no site".** Convidar a pagar fora é a
+mesma violação que vender. Esconder pode; apontar o caminho não.
+
+Ao mexer em qualquer tela com preço, **varra as rotas nos dois modos** —
+foi assim que se achou um "a partir de R$ 10,90/mês" escondido no TÍTULO
+de uma seção, que sobreviveu a esconder a vitrine inteira.
+
+### Entrar no app é pelo telefone, não pelo Google
+
+O Google recusa fazer login dentro da tela do próprio app (regra dele,
+contra tela falsa), então abre no navegador do celular. Voltar de lá exige
+uma ponte — endereço próprio do app registrado no Android e autorizado no
+Google Cloud e no Supabase. **Essa ponte não existe.** Quem tocasse no
+botão entraria no Google e ficaria no navegador, com o app ainda pedindo
+login.
+
+Por isso `googleServeAqui()` esconde o botão no app — **mas só se houver
+outra porta**. Sem o login por telefone ligado, o Google fica: um caminho
+ruim é melhor que nenhum, e o botão quebrado ao menos denuncia o problema.
+
+Duas armadilhas do login por SMS, as duas descobertas em produção:
+
+1. **Pedir um código novo invalida o anterior.** Quem pedia duas vezes e
+   digitava o primeiro via "código incorreto" com o código certo na mão.
+   Daí os 60 segundos de espera entre pedidos.
+2. **A conferência pode falhar DEPOIS de a sessão existir.** O log mostrou
+   `/otp` → `/verify` → login → um segundo `/verify` com aviso. O app agora
+   pergunta se há sessão antes de acreditar no erro — sem isso, quem
+   entrou lia "código incorreto" e desistia, já logado.
+
+E o óbvio que faltava: **quem entra tem que sair da tela de login.** No
+Google a troca de tela é efeito da viagem ao navegador; por telefone,
+termina ali mesmo e ninguém movia a tela.
+
+### Os seis segredos do GitHub
+
+Em Settings > Secrets and variables > Actions:
+
+| Segredo | Para quê |
+|---|---|
+| `ANDROID_KEYSTORE_BASE64` | a chave de assinatura, em texto |
+| `ANDROID_KEYSTORE_PASSWORD` | a senha dela |
+| `ANDROID_KEY_ALIAS` | `procuro` |
+| `ANDROID_KEY_PASSWORD` | a mesma senha |
+| `VITE_SUPABASE_URL` | endereço do banco |
+| `VITE_SUPABASE_ANON_KEY` | chave pública do banco |
+
+Os dois últimos entraram depois de um app ser montado, assinado, instalado
+— e abrir dizendo "sem conexão com o banco". Eles moram na Vercel, que o
+GitHub não conhece. O workflow agora **recusa montar sem eles** e ainda
+confere se o endereço chegou aos arquivos gerados: são coisas diferentes, e
+um erro de digitação no nome passaria pela primeira conferência.
+
+**A chave de assinatura é para sempre.** Perdê-la = nunca mais atualizar o
+app publicado. Ela não está no repositório; a cópia é da dona.
+
+### O workflow
+
+`.github/workflows/gerar-app-play-store.yml`, disparado à mão em Actions.
+Devolve dois pacotes: `procuro-celular-…` (o `.apk`, que instala no
+aparelho) e `procuro-loja-…` (o `.aab`, que **não** instala e só serve para
+o Play Console).
+
+Detalhes que custaram execução perdida:
+- **Node 22**, não 20 — o Capacitor 8 recusa abaixo disso. O build passa em
+  qualquer versão e só o `cap sync` quebra, então o log parece bom até o
+  fim.
+- O `versionCode` vem do número da execução. Fixo, a loja recusaria o
+  segundo envio.
+
+### Identidade do app: `br.com.procuroapp.app`
+
+Nos três lugares (capacitor.config.ts, namespace e applicationId).
+**Definitiva** — publicada, não muda nunca: trocá-la cria outro app, com
+outro endereço, sem os usuários do primeiro.
+
+### O service worker é desligado no app
+
+Ele guarda cópias dos arquivos para o site abrir rápido. Dentro do app
+isso se inverte: a pessoa atualiza pela loja e ele continua entregando os
+arquivos velhos — app novo instalado, tela velha, sem nada explicando.
+
+### Teste fechado: 12 pessoas, 14 dias
+
+Conta pessoal criada depois de 13/11/2023 — o caso dela. **Convidado não
+conta, só quem instalou e não desinstalou.** Por isso se convida 15 ou 16.
+É calendário puro: nada acelera.
+
+As capturas de tela da loja **têm que sair do app real, com profissionais
+de verdade** — captura com dado inventado é motivo de reprovação, e não há
+como gerá-las aqui.
+
 
 ## Comandos
 
