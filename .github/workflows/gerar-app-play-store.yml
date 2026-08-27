@@ -73,10 +73,57 @@ jobs:
       # É este passo que faz o app da loja ser o MESMO procurô do site — e
       # é por isso que a pasta de saída não fica versionada: aqui ela é
       # sempre a do commit que está sendo montado.
+      # O endereço e a chave do banco entram AQUI, e o passo recusa montar
+      # sem eles.
+      #
+      # Eles moram na Vercel, que publica o site — o GitHub não os conhece.
+      # Sem esta parte, a montagem termina com sucesso e entrega um app que
+      # abre e diz "sem conexão com o banco": não sabe com qual banco
+      # falar. Foi o que aconteceu no envio 3, e é a pior forma de falhar,
+      # porque tudo fica verde.
+      #
+      # A chave `anon` é pública por natureza — ela viaja dentro do app de
+      # qualquer jeito, e quem protege os dados é a RLS no servidor. Está
+      # como segredo do GitHub por organização, não por sigilo.
+      - name: Conferir o endereço e a chave do banco
+        env:
+          VITE_SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL }}
+          VITE_SUPABASE_ANON_KEY: ${{ secrets.VITE_SUPABASE_ANON_KEY }}
+        run: |
+          FALTA=""
+          [ -z "$VITE_SUPABASE_URL" ] && FALTA="VITE_SUPABASE_URL"
+          [ -z "$VITE_SUPABASE_ANON_KEY" ] && FALTA="$FALTA VITE_SUPABASE_ANON_KEY"
+          if [ -n "$FALTA" ]; then
+            echo "::error::Falta(m) o(s) segredo(s):$FALTA — sem eles o app é montado sem saber com qual banco falar, abre e mostra 'sem conexão com o banco'. Crie em Settings > Secrets and variables > Actions. Os valores estão na Vercel (Settings > Environment Variables) ou no Supabase (Settings > API)."
+            exit 1
+          fi
+          echo "Endereço e chave presentes."
+
       - name: Montar o app e copiar para o Android
+        env:
+          VITE_SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL }}
+          VITE_SUPABASE_ANON_KEY: ${{ secrets.VITE_SUPABASE_ANON_KEY }}
         run: |
           npm run build
           npx cap sync android
+
+      # Confere no arquivo montado que o endereço realmente entrou.
+      #
+      # O passo acima garante que a variável existe; este garante que ela
+      # chegou ao pacote. São coisas diferentes: um erro de nome, um build
+      # que ignora a variável, e o app volta a sair mudo — com o workflow
+      # verde do mesmo jeito.
+      - name: Conferir que o banco entrou no app
+        env:
+          VITE_SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL }}
+        run: |
+          HOST=$(echo "$VITE_SUPABASE_URL" | sed -E 's#https?://([^/]+).*#\1#')
+          if ! grep -rqF "$HOST" dist/assets/*.js; then
+            echo "::error::O endereço do banco não aparece nos arquivos montados. O app sairia sem conexão."
+            exit 1
+          fi
+          echo "O endereço do banco está dentro do app."
+
 
       # A chave volta a ser arquivo só aqui dentro, e some com a máquina no
       # fim do trabalho.
