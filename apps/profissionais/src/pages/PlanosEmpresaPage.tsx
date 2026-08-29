@@ -6,6 +6,7 @@ import {
   PLANOS_EMPRESA,
   precoDoPlano,
   DIAS_ANUNCIO_VAGA,
+  ONDAS_POR_VAGA,
   type CicloDoPlano,
   type PlanoEmpresa,
 } from "../types/domain";
@@ -13,19 +14,18 @@ import {
 /**
  * Os planos de quem contrata.
  *
- * O que se compra aqui é o direito de ANUNCIAR — deixar a vaga parada na
- * tela onde as pessoas procuram. Duas coisas continuam de graça e é
- * importante que a tela diga isso, senão o plano parece um pedágio para
- * usar o app:
+ * O que se compra aqui é publicar vaga: a onda que avisa quem encaixa, e as
+ * respostas de quem se interessou chegando sozinhas. O anúncio na área de
+ * anúncios vem junto.
  *
- * - Ver e buscar profissionais. Sempre foi livre, sem conta, para qualquer
- *   pessoa. Uma empresa que não quer anunciar entra e procura como todo
- *   mundo.
- * - Publicar a vaga e disparar as ondas. Qualquer vaga avisa as pessoas que
- *   encaixam, com ou sem plano.
+ * O que continua de graça, e a tela precisa dizer: ver e procurar os
+ * profissionais, e falar com cada um direto. Sempre foi livre, sem conta,
+ * para qualquer pessoa — e uma empresa que topa chamar um por um resolve o
+ * problema dela sem pagar nada.
  *
- * Dizer o que é grátis ao lado do que é pago não é modéstia comercial: quem
- * não entende o que já tem de graça desconfia do que está sendo vendido.
+ * Dizer isso ao lado do preço não é modéstia comercial, é o que faz o preço
+ * ser entendido: o plano não vende acesso aos profissionais (que é grátis),
+ * vende não ter que chamar cada um deles.
  *
  * A tela inteira some dentro do app da Play Store (ver `podeVender`), e a
  * rota nem existe lá. A Google não permite vender bem digital por fora da
@@ -53,22 +53,40 @@ export function PlanosEmpresaPage() {
 
   return (
     <div className="container" style={{ paddingTop: 24, paddingBottom: 32 }}>
-      <h1 style={{ marginBottom: 8 }}>Anuncie suas vagas</h1>
+      <h1 style={{ marginBottom: 8 }}>Pare de chamar um por um</h1>
       <p className="muted" style={{ marginTop: 0 }}>
-        A vaga anunciada fica {DIAS_ANUNCIO_VAGA} dias na tela onde as pessoas de
-        Itabirito procuram trabalho — além de ser avisada pelas ondas.
+        Você publica a vaga, e ela é avisada para quem faz aquele serviço em
+        Itabirito. Quem tem interesse responde, e a lista chega até você.
       </p>
 
-      {/* O que já é de graça, dito antes do preço. */}
-      <div className="card" style={{ padding: 14, marginBottom: 20 }}>
-        <strong style={{ fontSize: "0.95em" }}>Sem plano você já pode:</strong>
+      {/* O que o plano dá, em três linhas. */}
+      <div className="card" style={{ padding: 14, margin: "16px 0" }}>
+        <strong style={{ fontSize: "0.95em" }}>Com o plano:</strong>
         <ul style={{ margin: "8px 0 0", paddingLeft: 20, lineHeight: 1.6 }}>
-          <li>Ver e procurar os profissionais da cidade, sem pagar nada.</li>
-          <li>Publicar a vaga e avisar quem encaixa, pelas ondas.</li>
+          <li>Publica a vaga.</li>
+          <li>
+            Avisa quem encaixa — {ONDAS_POR_VAGA} ondas por vaga, da mais parecida
+            para a mais ampla.
+          </li>
+          <li>
+            Recebe quem se interessou, e a vaga ainda fica {DIAS_ANUNCIO_VAGA} dias na
+            área de anúncios.
+          </li>
+        </ul>
+      </div>
+
+      {/* O que já é de graça, dito antes do preço. Sem isto, "assine para
+          publicar" soa como se o app inteiro estivesse trancado — e a
+          empresa vai embora sem descobrir a busca, que resolve o problema
+          de muita gente sem custar nada. */}
+      <div className="card" style={{ padding: 14, marginBottom: 20 }}>
+        <strong style={{ fontSize: "0.95em" }}>Sem plano, de graça:</strong>
+        <ul style={{ margin: "8px 0 0", paddingLeft: 20, lineHeight: 1.6 }}>
+          <li>Ver e procurar todos os profissionais da cidade.</li>
+          <li>Falar com cada um direto, pelo telefone do cadastro.</li>
         </ul>
         <p className="muted" style={{ margin: "8px 0 0", fontSize: "0.88em" }}>
-          O plano serve para a vaga também <strong>ficar parada</strong> onde quem
-          procura passa — para quem não recebeu o aviso encontrar sozinho.
+          Nem conta precisa. O plano serve para não ter que chamar um por um.
         </p>
       </div>
 

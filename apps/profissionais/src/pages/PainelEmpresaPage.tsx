@@ -5,6 +5,7 @@ import {
   obterMinhaEmpresa,
   listarMinhasVagas,
   confirmarTelefoneDaEmpresa,
+  situacaoDoPlano,
 } from "../lib/company";
 import { mensagemDeErro } from "../lib/erros";
 import type { Company, JobListing } from "../types/domain";
@@ -26,6 +27,9 @@ export function PainelEmpresaPage() {
   const [carregando, setCarregando] = useState(true);
   const [erro, setErro] = useState("");
   const [confirmando, setConfirmando] = useState(false);
+  /* `null` enquanto não se sabe. Começar em `false` faria o painel piscar
+     "assine" para quem já paga, a cada vez que a tela abre. */
+  const [temPlano, setTemPlano] = useState<boolean | null>(null);
 
   /**
    * Confirma o telefone da empresa.
@@ -76,6 +80,13 @@ export function PainelEmpresaPage() {
 
       const minhasVagas = await listarMinhasVagas(minha.id);
       setVagas(minhasVagas);
+
+      /* O plano decide o texto do botão principal. Se a leitura falhar,
+         fica `null` e o botão segue oferecendo criar vaga — quem recusa de
+         verdade é o banco, e mandar quem já paga para a tela de preço por
+         causa de uma consulta que caiu seria pior que o contrário. */
+      const p = await situacaoDoPlano(minha.id);
+      setTemPlano(p.temPlano);
     } catch (err) {
       setErro(mensagemDeErro(err, "Não foi possível carregar os dados."));
     } finally {
@@ -168,14 +179,33 @@ export function PainelEmpresaPage() {
         </div>
       )}
 
-      {/* Ação principal */}
+      {/* Ação principal.
+          ────────────────
+          Sem plano o botão leva à explicação, não some: some, a empresa não
+          descobre que existe o caminho. Muda só o texto — "assinar" é
+          honesto sobre o que vem depois do toque, e um "+ Criar nova vaga"
+          que abre uma tela de preço é a isca que a faz desconfiar do resto. */}
       <div style={{ marginBottom: 24 }}>
         <button
           className="btn btn-primary btn-block"
-          onClick={() => navegar("/criar-vaga")}
+          onClick={() => navegar(temPlano === false ? "/planos-empresa" : "/criar-vaga")}
         >
-          + Criar nova vaga
+          {temPlano === false ? "Assinar para publicar vagas" : "+ Criar nova vaga"}
         </button>
+        {temPlano === false && (
+          <p className="muted" style={{ margin: "8px 0 0", fontSize: "0.88em" }}>
+            Procurar profissionais e falar com eles continua de graça —{" "}
+            <button
+              type="button"
+              className="entrar-link"
+              style={{ padding: 0 }}
+              onClick={() => navegar("/")}
+            >
+              é só buscar
+            </button>
+            .
+          </p>
+        )}
       </div>
 
       {/* Vagas ativas */}

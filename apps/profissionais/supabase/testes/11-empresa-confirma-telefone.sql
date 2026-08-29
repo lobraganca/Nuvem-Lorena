@@ -98,6 +98,12 @@ begin
 end $$;
 
 -- ── A cota do mês ──────────────────────────────────────────────────────
+-- Plano ativo: desde a 0073 nenhuma vaga entra sem ele. Aqui é só o
+-- cenário — quem testa a regra do plano é o 13-plano-e-a-porta.sql.
+update public.companies
+   set plano = 'ilimitado', plano_ate = now() + interval '30 days'
+ where id = 'c0000000-0000-0000-0000-000000000001';
+
 insert into public.job_listings
   (id, company_id, title, profession, description, work_modality, city, uf)
 values
@@ -118,6 +124,13 @@ values
 -- passaria sem provar nada.
 grant select, insert on public.job_listings to authenticated;
 grant select on public.companies to authenticated;
+
+-- A empresa do Bruno ganha plano ativo de propósito: desde a 0073 a falta
+-- de plano também barra a vaga, e sem isto o teste passaria pelo motivo
+-- errado — provando a regra do plano e não a do telefone, que é a daqui.
+update public.companies
+   set plano = 'ilimitado', plano_ate = now() + interval '30 days'
+ where id = 'c0000000-0000-0000-0000-000000000002';
 
 create or replace function auth.uid() returns uuid language sql stable as
   $$ select 'bbbb0000-0000-0000-0000-00000000000b'::uuid $$;

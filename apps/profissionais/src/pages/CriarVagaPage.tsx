@@ -23,10 +23,9 @@ import {
 import { podeVender } from "../lib/plataforma";
 import { mensagemDeErro } from "../lib/erros";
 
-/* `anunciada_ate` fica de fora: ela é consequência de um pagamento, não um
-   campo do formulário. Quem a grava é `anunciarVaga`, depois da vaga
-   existir — e um dia será a Edge Function que confirma o pagamento, porque
-   data de validade escrita pelo navegador é data que se estica de graça. */
+/* `anunciada_ate` fica de fora: ela é gravada depois que a vaga existe, por
+   `anunciarVaga`. O plano é que dá direito ao anúncio — quem não tem plano
+   não chega nem a criar a vaga (migration 0073). */
 type FormState = Omit<
   JobListing,
   "id" | "created_at" | "closed_at" | "status" | "anunciada_ate"
@@ -81,13 +80,19 @@ export function CriarVagaPage() {
      desfazer, então ela é sempre um ato, nunca um esquecimento. */
   const [ondaExtra, setOndaExtra] = useState<2 | 3 | null>(null);
 
-  /* Anunciar custa dinheiro, então nasce desmarcado — e some inteiro dentro
-     do app da loja (ver `podeVender`). */
-  const [anunciar, setAnunciar] = useState(false);
+  /* O anúncio vem junto do plano, então nasce MARCADO: quem pagou para
+     publicar quer ser encontrado, e desmarcado por padrão ele viraria um
+     benefício que a maioria nunca liga. Continua sendo escolha porque nem
+     toda contratação é para se expor — substituir alguém que ainda está na
+     empresa é o caso de avisar só quem encaixa, sem cartaz. */
+  const [anunciar, setAnunciar] = useState(true);
 
-  const [plano, setPlano] = useState<{ limite: number; anunciadas: number; cabeMais: boolean } | null>(
-    null
-  );
+  const [plano, setPlano] = useState<{
+    limite: number;
+    abertas: number;
+    temPlano: boolean;
+    cabeMais: boolean;
+  } | null>(null);
   const [empresaConfirmada, setEmpresaConfirmada] = useState(false);
 
   useEffect(() => {
@@ -196,8 +201,12 @@ export function CriarVagaPage() {
       /* O anúncio depois do disparo, e não antes: se a gravação do anúncio
          falhar, a vaga já saiu para as pessoas — que é o que a empresa veio
          fazer. Na ordem inversa, um erro no disparo deixaria uma vaga
-         anunciada que nunca avisou ninguém. */
-      if (anunciar && podeVender()) {
+         anunciada que nunca avisou ninguém.
+
+         Sem `podeVender()` aqui: o anúncio deixou de ser compra à parte e
+         virou parte do plano, então marcá-lo dentro do app da loja não é
+         venda nenhuma — é usar o que já foi pago. */
+      if (anunciar) {
         await anunciarVaga(vaga.id);
       }
 
@@ -212,6 +221,86 @@ export function CriarVagaPage() {
     return <div className="container" style={{ paddingTop: 48 }}>
       <span className="muted">Carregando…</span>
     </div>;
+  }
+
+  /* Sem plano, o formulário nem abre.
+     ─────────────────────────────────
+     Deixar escrever a vaga inteira e recusar no fim é a pior forma de
+     cobrar: a pessoa fez o trabalho, se animou, e leva um "não" na hora de
+     confirmar. Aqui ela sabe antes de digitar a primeira letra.
+
+     E a tela diz o que ela JÁ PODE fazer sem pagar — procurar e falar com
+     os profissionais um a um. Sem essa frase, "assine para publicar" soa
+     como se o app inteiro estivesse trancado, e ela vai embora sem
+     descobrir a busca, que é de graça e resolve o problema de muita gente. */
+  if (plano && !plano.temPlano) {
+    return (
+      <div className="container" style={{ paddingTop: 32, paddingBottom: 32 }}>
+        <h1 style={{ marginBottom: 8 }}>Para publicar vaga, precisa de um plano</h1>
+        <p className="muted" style={{ marginTop: 0 }}>
+          Com o plano, sua vaga é avisada por SMS para quem faz aquele serviço na
+          cidade, e as pessoas interessadas chegam até você.
+        </p>
+
+        <div className="card" style={{ padding: 14, margin: "20px 0" }}>
+          <strong style={{ fontSize: "0.95em" }}>Sem plano você já pode, agora:</strong>
+          <ul style={{ margin: "8px 0 0", paddingLeft: 20, lineHeight: 1.6 }}>
+            <li>Ver e procurar todos os profissionais de Itabirito.</li>
+            <li>Falar com cada um direto, pelo telefone que está no cadastro.</li>
+          </ul>
+          <p className="muted" style={{ margin: "8px 0 0", fontSize: "0.88em" }}>
+            Isso é grátis e não precisa nem de conta. O plano serve para não ter
+            que chamar um por um.
+          </p>
+        </div>
+
+        <div style={{ display: "grid", gap: 10 }}>
+          {podeVender() && (
+            <button
+              className="btn btn-primary btn-block"
+              onClick={() => navegar("/planos-empresa")}
+            >
+              Ver os planos
+            </button>
+          )}
+          <button className="btn btn-outline btn-block" onClick={() => navegar("/")}>
+            Procurar profissionais
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  /* Plano cheio: mesma ideia, motivo diferente. E o caminho de saída é
+     fechar uma vaga, não pagar mais — quem já paga não deve ser empurrado
+     para o upgrade antes de saber que basta fechar a que já encheu. */
+  if (plano && plano.temPlano && !plano.cabeMais) {
+    return (
+      <div className="container" style={{ paddingTop: 32, paddingBottom: 32 }}>
+        <h1 style={{ marginBottom: 8 }}>Suas vagas já estão todas abertas</h1>
+        <p className="muted" style={{ marginTop: 0 }}>
+          Seu plano permite {plano.limite} {plano.limite === 1 ? "vaga aberta" : "vagas abertas"} por
+          vez, e {plano.limite === 1 ? "ela já está no ar" : "todas já estão no ar"}. Feche uma que
+          já encheu para abrir outra — ou mude de plano.
+        </p>
+        <div style={{ display: "grid", gap: 10, marginTop: 20 }}>
+          <button
+            className="btn btn-primary btn-block"
+            onClick={() => navegar("/painel-empresa")}
+          >
+            Ver minhas vagas
+          </button>
+          {podeVender() && (
+            <button
+              className="btn btn-outline btn-block"
+              onClick={() => navegar("/planos-empresa")}
+            >
+              Ver os planos
+            </button>
+          )}
+        </div>
+      </div>
+    );
   }
 
   return (
@@ -472,65 +561,32 @@ export function CriarVagaPage() {
               desabilitado: um bloco cinza com preço continua sendo uma
               oferta. E em lugar nenhum aparece "assine no site" — convidar
               a pagar fora é a mesma violação que vender. */}
-          {podeVender() && (
-            <div className="card" style={{ padding: 16 }}>
-              {plano && plano.limite > 0 && !plano.cabeMais ? (
-                /* Plano cheio: a caixinha some em vez de ficar cinza. Uma
-                   caixinha desabilitada convida a tocar, e o toque não faz
-                   nada — o que a pessoa lê é "o app travou". */
-                <>
-                  <strong>Seu plano já está com as vagas no ar</strong>
-                  <p className="muted" style={{ margin: "4px 0 0", fontSize: "0.9em" }}>
-                    São {plano.anunciadas} de {plano.limite} anunciadas. Esta vaga vai
-                    ser publicada e avisar as pessoas do mesmo jeito — o que ela não
-                    ganha é o espaço na área de anúncios. Assim que uma das outras
-                    vencer, dá para anunciar esta.
-                  </p>
-                </>
-              ) : plano && plano.limite === 0 ? (
-                /* Sem plano. Nada de preço aqui: quem contrata escolhe o
-                   plano na tela de planos, e repetir a vitrine no meio do
-                   formulário atrapalha quem só quer publicar a vaga. */
-                <>
-                  <strong>Anunciar precisa de um plano</strong>
-                  <p className="muted" style={{ margin: "4px 0 0", fontSize: "0.9em" }}>
-                    Esta vaga vai ser publicada e avisar as pessoas do mesmo jeito. O
-                    plano serve para ela também ficar {DIAS_ANUNCIO_VAGA} dias na tela
-                    onde as pessoas procuram.
-                  </p>
-                  <button
-                    type="button"
-                    className="btn btn-outline"
-                    style={{ marginTop: 10 }}
-                    onClick={() => navegar("/planos-empresa")}
-                  >
-                    Ver os planos
-                  </button>
-                </>
-              ) : (
-                <label style={{ display: "flex", gap: 10, alignItems: "flex-start" }}>
-                  <input
-                    type="checkbox"
-                    checked={anunciar}
-                    style={{ marginTop: 3 }}
-                    onChange={(e) => setAnunciar(e.target.checked)}
-                  />
-                  <span>
-                    <strong>Deixar também na área de anúncios</strong>
-                    <p className="muted" style={{ margin: "4px 0 0", fontSize: "0.9em" }}>
-                      A vaga fica {DIAS_ANUNCIO_VAGA} dias na tela onde as pessoas
-                      procuram, além de ser avisada pelas ondas. Quem não recebeu o
-                      aviso ainda encontra. Já está no seu plano
-                      {plano && plano.limite > 0
-                        ? ` — ${plano.anunciadas} de ${plano.limite} em uso`
-                        : ""}
-                      .
-                    </p>
-                  </span>
-                </label>
-              )}
-            </div>
-          )}
+          {/* O anúncio vem junto do plano — não custa nada a mais.
+              Continua sendo escolha porque nem toda contratação é para se
+              expor: uma vaga que substitui alguém que ainda está lá é
+              exatamente o caso de avisar só quem encaixa, sem cartaz.
+
+              Sem `podeVender()` em volta: não há preço nesta tela, e o que
+              a regra da loja proíbe é vender, não escolher. */}
+          <div className="card" style={{ padding: 16 }}>
+            <label style={{ display: "flex", gap: 10, alignItems: "flex-start" }}>
+              <input
+                type="checkbox"
+                checked={anunciar}
+                style={{ marginTop: 3 }}
+                onChange={(e) => setAnunciar(e.target.checked)}
+              />
+              <span>
+                <strong>Deixar também na área de anúncios</strong>
+                <p className="muted" style={{ margin: "4px 0 0", fontSize: "0.9em" }}>
+                  Além do aviso das ondas, a vaga fica {DIAS_ANUNCIO_VAGA} dias na tela
+                  onde as pessoas procuram — quem não recebeu o aviso ainda encontra.
+                  Já está no seu plano.
+                </p>
+              </span>
+            </label>
+          </div>
+
 
           <div style={{ display: "flex", gap: 12 }}>
             <button

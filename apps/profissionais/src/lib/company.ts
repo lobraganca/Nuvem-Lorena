@@ -354,22 +354,39 @@ export async function obterRespostasDaVaga(vagaId: string): Promise<JobResponse[
  * mentira mais cara desta tela: a empresa acharia que tem os dois disparos
  * na mão e descobriria o contrário no fim.
  */
+/**
+ * O plano da empresa: se tem, quantas vagas cabem, e quantas já estão
+ * abertas.
+ *
+ * O plano é a porta da vaga — sem ele a empresa vê e procura os
+ * profissionais como qualquer pessoa, mas não publica, não dispara e não
+ * recebe interessados. Quem recusa de verdade é o banco (migration 0073);
+ * isto aqui é para a tela explicar antes, em vez de deixar a empresa
+ * escrever a vaga inteira e esbarrar num erro no fim.
+ *
+ * `limite` vem do banco: 0 = sem plano ou vencido, -1 = ilimitado.
+ */
 export async function situacaoDoPlano(
   companyId: string
-): Promise<{ limite: number; anunciadas: number; cabeMais: boolean }> {
+): Promise<{ limite: number; abertas: number; temPlano: boolean; cabeMais: boolean }> {
   const sb = getSupabase();
   if (!sb) throw new Error("Banco não configurado");
 
-  const [{ data: limite, error: e1 }, { data: anunciadas, error: e2 }] = await Promise.all([
+  const [{ data: limite, error: e1 }, { data: ativas, error: e2 }] = await Promise.all([
     sb.rpc("limite_de_vagas_do_plano", { p_company_id: companyId }),
-    sb.rpc("vagas_anunciadas_agora", { p_company_id: companyId }),
+    sb.rpc("vagas_ativas_agora", { p_company_id: companyId }),
   ]);
   if (e1) throw e1;
   if (e2) throw e2;
 
   const lim = Number(limite ?? 0);
-  const usadas = Number(anunciadas ?? 0);
-  return { limite: lim, anunciadas: usadas, cabeMais: cabeVagaNoPlano(lim, usadas) };
+  const abertas = Number(ativas ?? 0);
+  return {
+    limite: lim,
+    abertas,
+    temPlano: lim !== 0,
+    cabeMais: cabeVagaNoPlano(lim, abertas),
+  };
 }
 
 /** Quantas ondas esta vaga já abriu. O teto é `ONDAS_POR_VAGA`. */

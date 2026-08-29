@@ -756,14 +756,23 @@ export type PlanoEmpresa = "pro" | "tres" | "ilimitado";
 /**
  * Os planos de quem contrata.
  *
- * O que se compra é o direito de ANUNCIAR — deixar a vaga parada na tela
- * onde as pessoas procuram. Buscar profissional continua livre e sem conta,
- * como sempre foi, e disparar as ondas vem junto de qualquer vaga
- * publicada. O plano limita quantas vagas ficam anunciadas AO MESMO TEMPO,
- * não quantas se publica no total.
+ * O plano é a PORTA DA VAGA: sem ele a empresa vê e procura os
+ * profissionais como qualquer pessoa — de graça, sem conta —, mas não
+ * publica vaga, não dispara onda e não recebe interessado. Com ele, faz as
+ * três, e o anúncio na área de anúncios vem junto.
  *
- * `-1` em `vagas` é sem teto, e é lido em um lugar só (`cabeVagaNoPlano`),
- * para o número mágico não escapar pelo resto do código.
+ * Foi assim que ficou depois de uma primeira versão ao contrário, que
+ * cobrava pelo anúncio e dava a onda de graça: a onda é a parte valiosa,
+ * porque vai atrás de quem encaixa em vez de esperar. Cobrar pelo passivo e
+ * dar o ativo deixava o plano sem motivo para existir — bastava publicar,
+ * disparar as duas ondas e nunca assinar nada.
+ *
+ * `vagas` limita quantas ficam ABERTAS ao mesmo tempo, não quantas se
+ * publica no total: vaga fechada libera o lugar sozinha, então o plano de
+ * uma vaga serve a quem contrata uma de cada vez, que é a maioria.
+ *
+ * `-1` é sem teto, e é lido em um lugar só (`cabeVagaNoPlano`), para o
+ * número mágico não escapar pelo resto do código.
  *
  * Preço em centavos pelo mesmo motivo do banner: valor com vírgula em
  * ponto flutuante rende diferença de um centavo na hora de cobrar, e essa é
@@ -782,19 +791,19 @@ export const PLANOS_EMPRESA: Record<
     nome: "Pro",
     centavos: 2990,
     vagas: 1,
-    resumo: "1 vaga anunciada por vez",
+    resumo: "1 vaga aberta por vez. Fechou uma, abre outra",
   },
   tres: {
     nome: "Três vagas",
     centavos: 5990,
     vagas: 3,
-    resumo: "3 vagas anunciadas ao mesmo tempo",
+    resumo: "3 vagas abertas ao mesmo tempo",
   },
   ilimitado: {
     nome: "Ilimitado",
     centavos: 8990,
     vagas: -1,
-    resumo: "quantas vagas quiser",
+    resumo: "quantas vagas abertas quiser",
   },
 };
 
