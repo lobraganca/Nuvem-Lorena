@@ -12,11 +12,62 @@ código.
 
 ```bash
 cd apps/procuro
-cp .env.example .env      # e preencha as chaves do Supabase
 npm install
+cp .env.example .env      # e preencha as chaves do Supabase
 npm run web               # abre no navegador
 npm start                 # abre com QR code para o celular (app Expo Go)
 ```
+
+### Ver sem banco nenhum
+
+```bash
+echo 'EXPO_PUBLIC_DEMO=profissional' > .env
+npm run web
+```
+
+Com `EXPO_PUBLIC_DEMO` definida, o app usa `src/lib/supabaseFalso.ts` e não
+fala com o Supabase. `=1` entra como cliente; `=profissional` entra já
+cadastrado, com oportunidades na caixa.
+
+Isso existe para acabar com um hábito perigoso: trocar o `supabase.ts` por
+um falso à mão e lembrar de desfazer. Funciona até a vez em que alguém
+esquece — e aí o app publicado mostra dados inventados sem erro nenhum.
+Não dá para esquecer de desfazer o que não foi feito.
+
+## Abrir no Android Studio
+
+```bash
+cd apps/procuro
+npm install
+npx expo prebuild --platform android   # regera a pasta android/
+```
+
+Depois é só abrir a pasta `apps/procuro/android` no Android Studio.
+
+A pasta `android/` está no repositório, mas ela é **gerada**: a fonte da
+verdade é o `app.json`. Mudou nome, ícone, permissão ou pacote? Mude no
+`app.json` e rode o `prebuild` de novo — editar o `AndroidManifest.xml` à
+mão funciona até a próxima geração apagar a edição.
+
+> Este container não tem o SDK do Android, então a pasta foi **gerada e
+> conferida, mas nunca compilada aqui**. Quem compila é o Android Studio,
+> que traz o próprio SDK.
+
+### As permissões foram limpas para a Play Store
+
+O modelo do React Native traz por padrão permissões que este app não usa, e
+elas ficam no manifesto **principal** — o que vai para a loja:
+
+| Permissão | Por que saiu |
+|---|---|
+| `SYSTEM_ALERT_WINDOW` | desenhar sobre outros apps; é do menu de desenvolvimento, e já existe no manifesto de depuração à parte |
+| `READ/WRITE_EXTERNAL_STORAGE` | acesso a arquivos, que o app não faz |
+| `VIBRATE` | volta quando os avisos no celular existirem |
+| `ACCESS_FINE/COARSE_LOCATION` | o app ainda não pede localização; o raio é escolhido à mão no cadastro |
+
+Sobra `INTERNET`. Permissão perigosa declarada e não usada é o que a
+revisão da Play questiona, e "vamos usar depois" não é resposta que passa.
+Elas voltam pelo `app.json` junto com o recurso que as justifica.
 
 ## Conferir antes de commitar
 
@@ -42,6 +93,19 @@ gravação inteira.
 | `0003_pedidos_e_ondas.sql` | pedidos, disparos e o motor de ondas |
 | `0004_entrar_e_confirmar_numero.sql` | perfil automático e a confirmação à prova de forja |
 | `0005_busca.sql` | catálogo de ofícios, necessidades e a busca ordenada |
+| `0006_avaliacoes_e_denuncias.sql` | avaliações verificadas, reputação e denúncias |
+
+### Só avalia quem teve contato
+
+Avaliação aberta a qualquer um vira duas coisas ao mesmo tempo: arma (o
+concorrente derruba a nota do vizinho) e mentira (o dono cria contas e se
+elogia). As duas destroem a nota como informação — e uma nota em que
+ninguém acredita é pior que nota nenhuma, porque ocupa o lugar dela.
+
+A avaliação exige um pedido em que aquele profissional **aceitou**, e o
+vínculo é chave estrangeira, não conferência do app. O custo é real e vale
+pagar: quem combinou por fora não consegue avaliar. Preferimos ter menos
+avaliações e poder confiar em todas.
 
 ### A confirmação do número não pode vir do app
 
@@ -82,6 +146,7 @@ done
 psql -h /var/tmp -p 5434 -U postgres -d procuro -f supabase/testes/01-ondas-de-disparo.sql
 psql -h /var/tmp -p 5434 -U postgres -d procuro -f supabase/testes/02-confirmacao-a-prova-de-forja.sql
 psql -h /var/tmp -p 5434 -U postgres -d procuro -f supabase/testes/03-busca.sql
+psql -h /var/tmp -p 5434 -U postgres -d procuro -f supabase/testes/04-avaliacoes.sql
 ```
 
 O teste monta cinco eletricistas e um pedido, e confere que a oportunidade
@@ -150,21 +215,25 @@ impede a mesma oportunidade de chegar duas vezes na mesma pessoa.
 
 ## O que já está de pé
 
-- Banco: fundação, planos, pedidos, disparos, bloqueios, RLS
-- Motor de ondas, testado
-- Tela de oportunidades, com aceitar e recusar
-- Entrar por telefone com código por SMS, e o guarda de sessão
-- Tela de consulta: catálogo de 41 ofícios e busca pelo problema
-- Barra de abas entre Buscar e Oportunidades
-- Validação de celular brasileiro, com 14 casos testados
-- Tema da marca (azul, dourado, branco) em `src/tema/`
+**Banco** — fundação, planos com as ondas, pedidos, disparos, bloqueios,
+avaliações verificadas, reputação, denúncias, RLS em tudo.
+
+**Quem procura** — entrar por telefone, catálogo de 41 ofícios, busca pelo
+problema, perfil do profissional com avaliações, contato por WhatsApp e
+ligação conforme o plano, publicar pedido (mostrando quantos vão receber),
+acompanhar quem se interessou.
+
+**Quem atende** — cadastro em passos, oportunidades com aceitar e recusar,
+disponibilidade em quatro estados, plano e comparação de planos.
+
+**Provado** — 27 conferências no banco (4 arquivos de teste) e 22 passos no
+app, percorridos no navegador.
 
 ## O que ainda não está
 
-- Cadastrar-se como profissional (entrar já funciona)
-- Perfil público do profissional
-- Publicar pedido (lado de quem procura)
-- Avisos no celular
-- Chat interno, avaliações, denúncias
+- Avisos no celular (push)
+- Chat interno do Premium
+- Foto no perfil e verificação de documento
 - Painel da administração
-- Cobrança das assinaturas
+- Cobrança das assinaturas (as telas mostram os planos; não há pagamento)
+- O agendador que chama `processar_ondas()` de minuto em minuto

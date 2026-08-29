@@ -17,11 +17,13 @@ begin;
 
 set local client_min_messages to warning;
 
-insert into public.cidades (id, nome, uf)
-values ('11111111-1111-1111-1111-111111111111', 'Itabirito', 'MG');
-
-insert into public.categorias (id, nome, grupo)
-values ('22222222-2222-2222-2222-222222222222', 'Eletricista', 'Casa e obra');
+-- A cidade e os ofícios vêm do catálogo semeado pela migration 0005. Este
+-- teste criava os seus próprios, e passou a colidir no dia em que o
+-- catálogo passou a existir — o próprio teste avisou, recusando-se a rodar.
+create temporary table ids as
+select
+  (select id from public.cidades    where nome = 'Itabirito')   as cidade,
+  (select id from public.categorias where nome = 'Eletricista') as eletricista;
 
 -- =====================================================================
 -- 1 — O perfil nasce junto com a conta
@@ -66,7 +68,7 @@ values ('b0000000-0000-0000-0000-00000000000e', '+5531977776666', now(), '{"nome
 
 update public.perfis
    set telefone = '+5531977776666',
-       cidade_id = '11111111-1111-1111-1111-111111111111'
+       cidade_id = (select cidade from ids)
  where id = 'b0000000-0000-0000-0000-00000000000e';
 
 select
@@ -85,7 +87,7 @@ select
 
 insert into public.profissionais (id, perfil_id, categoria_id, cidade_id)
 values ('b1000000-0000-0000-0000-00000000000e','b0000000-0000-0000-0000-00000000000e',
-        '22222222-2222-2222-2222-222222222222','11111111-1111-1111-1111-111111111111');
+        (select eletricista from ids),(select cidade from ids));
 
 -- Antes da troca: o telefone aparece.
 select
@@ -121,8 +123,8 @@ values ('c0000000-0000-0000-0000-00000000000d', '+5531966665555', now());
 insert into public.pedidos (id, cliente_id, categoria_id, cidade_id, descricao)
 values ('99999999-9999-9999-9999-99999999999f',
         'c0000000-0000-0000-0000-00000000000d',
-        '22222222-2222-2222-2222-222222222222',
-        '11111111-1111-1111-1111-111111111111',
+        (select eletricista from ids),
+        (select cidade from ids),
         'Preciso de um eletricista para revisar a fiação da casa.');
 
 select public.processar_ondas() as disparos;

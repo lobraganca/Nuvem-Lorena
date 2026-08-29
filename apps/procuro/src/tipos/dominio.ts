@@ -38,6 +38,43 @@ export type Cidade = {
   raio_padrao_km: number;
 };
 
+/** A conta de quem está usando — cliente e profissional são a mesma. */
+export type Perfil = {
+  id: string;
+  nome: string;
+  telefone: string | null;
+  /**
+   * O número que passou pelo código do SMS. Comparar com `telefone` é o
+   * que impede confirmar um número e trocar por outro depois.
+   */
+  telefone_confirmado: string | null;
+  foto_url: string | null;
+  cidade_id: string | null;
+  aceitou_termos_em: string | null;
+};
+
+/** A reputação, calculada na hora a partir das avaliações. */
+export type Reputacao = {
+  profissional_id: string;
+  quantas: number;
+  media: number;
+  boas: number;
+  ruins: number;
+  media_recente: number | null;
+};
+
+export type Avaliacao = {
+  id: string;
+  profissional_id: string;
+  autor_id: string;
+  autor_nome: string;
+  nota: number;
+  comentario: string | null;
+  resposta: string | null;
+  criada_em: string;
+  editada_em: string | null;
+};
+
 export type Categoria = {
   id: string;
   nome: string;

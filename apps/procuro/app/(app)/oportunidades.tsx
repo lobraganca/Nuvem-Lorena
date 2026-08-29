@@ -17,9 +17,10 @@
 
 import { useCallback, useEffect, useState } from 'react';
 import { FlatList, RefreshControl, StyleSheet, Text, View } from 'react-native';
+import { useRouter } from 'expo-router';
 import { Cabecalho } from '../../src/componentes/Cabecalho';
 import { CartaoDeOportunidade } from '../../src/componentes/CartaoDeOportunidade';
-import { Carregando, Etiqueta, Falhou, Vazio } from '../../src/componentes/Base';
+import { Botao, Carregando, Etiqueta, Falhou, Vazio } from '../../src/componentes/Base';
 import { cores, espaco, tipo } from '../../src/tema';
 import { ErroDeDados, mensagemDeErro } from '../../src/lib/erros';
 import {
@@ -39,6 +40,7 @@ type Estado =
   | { fase: 'falhou'; mensagem: string };
 
 export default function Oportunidades() {
+  const router = useRouter();
   const [estado, setEstado] = useState<Estado>({ fase: 'carregando' });
   const [atualizando, setAtualizando] = useState(false);
   const [respondendoId, setRespondendoId] = useState<string | null>(null);
@@ -116,10 +118,15 @@ export default function Oportunidades() {
       ) : estado.fase === 'falhou' ? (
         <Falhou mensagem={estado.mensagem} aoTentarDeNovo={() => void carregar()} />
       ) : estado.fase === 'so_cliente' ? (
-        <Vazio
-          titulo="Você ainda não tem cadastro de profissional"
-          texto="Cadastre o que você faz para começar a receber os pedidos de quem precisa do seu serviço na região."
-        />
+        <View style={e.vazio}>
+          <Vazio
+            titulo="Você ainda não tem cadastro de profissional"
+            texto="Cadastre o que você faz para começar a receber os pedidos de quem precisa do seu serviço na região."
+          />
+          <View style={e.botaoDoVazio}>
+            <Botao onPress={() => router.push('/cadastro')}>Quero me cadastrar</Botao>
+          </View>
+        </View>
       ) : (
         <FlatList
           data={estado.lista}
@@ -194,6 +201,8 @@ function SemOportunidades({ plano }: { plano: Plano | null }) {
 const e = StyleSheet.create({
   tela: { flex: 1, backgroundColor: cores.fundo },
   lista: { padding: espaco.lg, flexGrow: 1 },
+  vazio: { flex: 1, justifyContent: 'center' },
+  botaoDoVazio: { paddingHorizontal: espaco.xl, marginTop: espaco.lg },
   faixa: {
     backgroundColor: cores.destaqueLavado,
     borderRadius: 16,

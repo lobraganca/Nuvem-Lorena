@@ -1,15 +1,18 @@
 /**
  * A barra de baixo.
  *
- * Duas abas, porque o app serve duas pessoas na mesma conta: quem procura
- * e quem atende. Elas convivem de propósito — quem contrata hoje pode se
- * cadastrar como profissional amanhã sem criar outra conta, e obrigar a
- * escolher um lado no cadastro seria fechar essa porta antes de a pessoa
- * saber que ela existe.
+ * Quatro abas, porque o app serve duas pessoas na mesma conta: quem
+ * procura e quem atende. Elas convivem de propósito — quem contrata hoje
+ * pode se cadastrar como profissional amanhã sem criar outra conta, e
+ * obrigar a escolher um lado no cadastro seria fechar essa porta antes de
+ * a pessoa saber que ela existe.
  *
- * Buscar vem primeiro porque é a aba que TODO mundo tem. Oportunidades só
- * faz sentido para quem se cadastrou, e quem não se cadastrou encontra ali
- * o convite para fazê-lo.
+ * A ordem segue quem tem cada aba:
+ *
+ *   Buscar        — todo mundo
+ *   Pedidos       — todo mundo (o que eu pedi)
+ *   Oportunidades — quem se cadastrou (e quem não, encontra o convite ali)
+ *   Conta         — todo mundo
  */
 
 import { Tabs } from 'expo-router';
@@ -20,11 +23,10 @@ import { cores, tipo } from '../../src/tema';
 /**
  * Altura da barra, sem contar a faixa do sistema.
  *
- * Foi calculada e não chutada: ícone (24) + folga (4) + rótulo (~14) +
- * respiro em cima e embaixo. A primeira versão deixava a altura no padrão
- * e só a corrigia no Android — e a foto da tela mostrou "Oportunidades"
- * cortado ao meio. Rótulo cortado não é detalhe estético: é a palavra que
- * diz para que serve a aba.
+ * Foi medida, não chutada. Uma versão anterior punha `paddingTop` aqui e o
+ * rótulo ficava com 3px de altura, espremido entre o padding e o ícone — a
+ * palavra que diz para que serve a aba, cortada. A navegação já distribui
+ * o miolo do item sozinha; o que ela precisa é de altura.
  */
 const ALTURA_DA_BARRA = 60;
 
@@ -44,12 +46,11 @@ export default function AbasDoApp() {
           // Android) entra SOMADA à altura, nunca comendo dela.
           height: ALTURA_DA_BARRA + margens.bottom,
         },
-        // Sem `paddingTop`/`paddingBottom` aqui de propósito. A primeira
-        // versão os aplicava na barra, e medir a tela mostrou o estrago: o
-        // rótulo ficava com 3px de altura, espremido entre o padding e o
-        // ícone. A navegação já distribui o miolo do item sozinha — o que
-        // ela precisa é de altura, não de instrução.
-        tabBarLabelStyle: tipo.etiqueta,
+        // 10px e não os 11 do resto do app: com QUATRO abas num celular
+        // estreito, "Oportunidades" não cabe em 11 e chega cortado como
+        // "Oportunida…" — e a palavra cortada é justamente a que diz para
+        // que serve a aba. Medido no navegador, não estimado.
+        tabBarLabelStyle: { ...tipo.etiqueta, fontSize: 10 },
       }}
     >
       <Tabs.Screen
@@ -60,10 +61,24 @@ export default function AbasDoApp() {
         }}
       />
       <Tabs.Screen
+        name="pedidos"
+        options={{
+          title: 'Pedidos',
+          tabBarIcon: ({ color, size }) => <Feather name="file-text" size={size} color={color} />,
+        }}
+      />
+      <Tabs.Screen
         name="oportunidades"
         options={{
           title: 'Oportunidades',
           tabBarIcon: ({ color, size }) => <Feather name="bell" size={size} color={color} />,
+        }}
+      />
+      <Tabs.Screen
+        name="conta"
+        options={{
+          title: 'Conta',
+          tabBarIcon: ({ color, size }) => <Feather name="user" size={size} color={color} />,
         }}
       />
     </Tabs>

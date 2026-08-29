@@ -21,36 +21,46 @@ set local client_min_messages to warning;
 
 -- --- Cenário ---------------------------------------------------------
 
-insert into public.cidades (id, nome, uf, latitude, longitude)
-values ('11111111-1111-1111-1111-111111111111', 'Itabirito', 'MG', -20.2528, -43.8014);
+-- A cidade e os ofícios vêm do catálogo semeado pela migration 0005. Este
+-- teste criava os seus próprios, e passou a colidir no dia em que o
+-- catálogo passou a existir — o próprio teste avisou, recusando-se a rodar.
+create temporary table ids as
+select
+  (select id from public.cidades    where nome = 'Itabirito')   as cidade,
+  (select id from public.categorias where nome = 'Eletricista') as eletricista;
 
-insert into public.categorias (id, nome, grupo)
-values ('22222222-2222-2222-2222-222222222222', 'Eletricista', 'Casa e obra');
+-- A conta vem primeiro, e o PERFIL NASCE JUNTO com ela — o gatilho da
+-- migration 0004 cuida disso. Este teste inseria o perfil à mão e passou a
+-- colidir no dia em que o gatilho passou a existir; foi o próprio teste que
+-- avisou.
+--
+-- Repare que `phone` e `phone_confirmed_at` vão no `auth.users`, não no
+-- perfil: é de lá que a confirmação é lida, e escrever no perfil não
+-- adianta nada — o gatilho descarta (é exatamente o que o teste 02 prova).
+insert into auth.users (id, phone, phone_confirmed_at, raw_user_meta_data) values
+  ('a0000000-0000-0000-0000-000000000001','+5531900000001', now(), '{"nome":"Ana"}'::jsonb),
+  ('b0000000-0000-0000-0000-000000000002','+5531900000002', now(), '{"nome":"Bruno"}'::jsonb),
+  ('c0000000-0000-0000-0000-000000000003','+5531900000003', now(), '{"nome":"Carla"}'::jsonb),
+  ('d0000000-0000-0000-0000-000000000004','+5531900000004', now(), '{"nome":"Diego"}'::jsonb),
+  -- Elena tem telefone, mas NUNCA confirmou por código: sem
+  -- `phone_confirmed_at`, ela não entra na fila de disparo.
+  ('e0000000-0000-0000-0000-000000000005','+5531900000005', null,  '{"nome":"Elena"}'::jsonb),
+  ('f0000000-0000-0000-0000-000000000006','+5531900000006', now(), '{"nome":"Joana"}'::jsonb);
 
--- auth.users primeiro: perfis referencia essa tabela.
-insert into auth.users (id) values
-  ('a0000000-0000-0000-0000-000000000001'),  -- ana
-  ('b0000000-0000-0000-0000-000000000002'),  -- bruno
-  ('c0000000-0000-0000-0000-000000000003'),  -- carla
-  ('d0000000-0000-0000-0000-000000000004'),  -- diego
-  ('e0000000-0000-0000-0000-000000000005'),  -- elena
-  ('f0000000-0000-0000-0000-000000000006');  -- joana, a cliente
-
-insert into public.perfis (id, nome, telefone, telefone_confirmado, telefone_confirmado_em, cidade_id) values
-  ('a0000000-0000-0000-0000-000000000001','Ana',  '+5531900000001','+5531900000001', now(), '11111111-1111-1111-1111-111111111111'),
-  ('b0000000-0000-0000-0000-000000000002','Bruno','+5531900000002','+5531900000002', now(), '11111111-1111-1111-1111-111111111111'),
-  ('c0000000-0000-0000-0000-000000000003','Carla','+5531900000003','+5531900000003', now(), '11111111-1111-1111-1111-111111111111'),
-  ('d0000000-0000-0000-0000-000000000004','Diego','+5531900000004','+5531900000004', now(), '11111111-1111-1111-1111-111111111111'),
-  -- Elena tem telefone, mas nunca confirmou por código.
-  ('e0000000-0000-0000-0000-000000000005','Elena','+5531900000005', null,             null,  '11111111-1111-1111-1111-111111111111'),
-  ('f0000000-0000-0000-0000-000000000006','Joana','+5531900000006','+5531900000006', now(), '11111111-1111-1111-1111-111111111111');
+-- O telefone e a cidade do cadastro. O gatilho já preencheu o nome a partir
+-- da conta; falta dizer qual é o número que a pessoa declara — e ele
+-- precisa bater com o confirmado para valer.
+update public.perfis p
+   set telefone = u.phone, cidade_id = (select cidade from ids)
+  from auth.users u
+ where u.id = p.id;
 
 insert into public.profissionais (id, perfil_id, categoria_id, cidade_id, situacao, ausente_ate) values
-  ('a1000000-0000-0000-0000-000000000001','a0000000-0000-0000-0000-000000000001','22222222-2222-2222-2222-222222222222','11111111-1111-1111-1111-111111111111','disponivel', null),
-  ('b1000000-0000-0000-0000-000000000002','b0000000-0000-0000-0000-000000000002','22222222-2222-2222-2222-222222222222','11111111-1111-1111-1111-111111111111','disponivel', null),
-  ('c1000000-0000-0000-0000-000000000003','c0000000-0000-0000-0000-000000000003','22222222-2222-2222-2222-222222222222','11111111-1111-1111-1111-111111111111','disponivel', null),
-  ('d1000000-0000-0000-0000-000000000004','d0000000-0000-0000-0000-000000000004','22222222-2222-2222-2222-222222222222','11111111-1111-1111-1111-111111111111','ferias', current_date + 5),
-  ('e1000000-0000-0000-0000-000000000005','e0000000-0000-0000-0000-000000000005','22222222-2222-2222-2222-222222222222','11111111-1111-1111-1111-111111111111','disponivel', null);
+  ('a1000000-0000-0000-0000-000000000001','a0000000-0000-0000-0000-000000000001',(select eletricista from ids),(select cidade from ids),'disponivel', null),
+  ('b1000000-0000-0000-0000-000000000002','b0000000-0000-0000-0000-000000000002',(select eletricista from ids),(select cidade from ids),'disponivel', null),
+  ('c1000000-0000-0000-0000-000000000003','c0000000-0000-0000-0000-000000000003',(select eletricista from ids),(select cidade from ids),'disponivel', null),
+  ('d1000000-0000-0000-0000-000000000004','d0000000-0000-0000-0000-000000000004',(select eletricista from ids),(select cidade from ids),'ferias', current_date + 5),
+  ('e1000000-0000-0000-0000-000000000005','e0000000-0000-0000-0000-000000000005',(select eletricista from ids),(select cidade from ids),'disponivel', null);
 
 -- Assinaturas: Ana, Diego e Elena Premium; Bruno Pro; Carla Básico.
 insert into public.assinaturas (profissional_id, plano_id, vigente_ate)
@@ -68,8 +78,8 @@ select 'c1000000-0000-0000-0000-000000000003', id, now() + interval '30 days' fr
 insert into public.pedidos (id, cliente_id, categoria_id, cidade_id, descricao)
 values ('99999999-9999-9999-9999-999999999999',
         'f0000000-0000-0000-0000-000000000006',
-        '22222222-2222-2222-2222-222222222222',
-        '11111111-1111-1111-1111-111111111111',
+        (select eletricista from ids),
+        (select cidade from ids),
         'A tomada da cozinha parou de funcionar e cheira a queimado.');
 
 -- =====================================================================
@@ -137,8 +147,8 @@ values ('f0000000-0000-0000-0000-000000000006','b0000000-0000-0000-0000-00000000
 insert into public.pedidos (id, cliente_id, categoria_id, cidade_id, descricao, criado_em)
 values ('88888888-8888-8888-8888-888888888888',
         'f0000000-0000-0000-0000-000000000006',
-        '22222222-2222-2222-2222-222222222222',
-        '11111111-1111-1111-1111-111111111111',
+        (select eletricista from ids),
+        (select cidade from ids),
         'Preciso trocar o disjuntor do quadro de luz.',
         now() - interval '61 minutes');   -- já nasce com as duas ondas vencidas
 
@@ -158,8 +168,8 @@ select
 insert into public.pedidos (id, cliente_id, categoria_id, cidade_id, descricao, criado_em, expira_em)
 values ('77777777-7777-7777-7777-777777777777',
         'f0000000-0000-0000-0000-000000000006',
-        '22222222-2222-2222-2222-222222222222',
-        '11111111-1111-1111-1111-111111111111',
+        (select eletricista from ids),
+        (select cidade from ids),
         'Pedido antigo que ninguém respondeu a tempo.',
         now() - interval '3 days',
         now() - interval '1 day');

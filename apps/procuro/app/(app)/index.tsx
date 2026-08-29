@@ -30,10 +30,11 @@ import {
   View,
 } from 'react-native';
 import { Feather } from '@expo/vector-icons';
+import { useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Marca } from '../../src/componentes/Cabecalho';
 import { CartaoProfissional } from '../../src/componentes/CartaoProfissional';
-import { Carregando, Falhou, Vazio } from '../../src/componentes/Base';
+import { Botao, Carregando, Falhou, Vazio } from '../../src/componentes/Base';
 import { buscar, categorias, porGrupo } from '../../src/lib/busca';
 import { mensagemDeErro } from '../../src/lib/erros';
 import { ALVO_DE_TOQUE, canto, cores, espaco, tipo } from '../../src/tema';
@@ -53,6 +54,7 @@ type Estado =
   | { fase: 'falhou'; mensagem: string };
 
 export default function Buscar() {
+  const router = useRouter();
   const margens = useSafeAreaInsets();
   const [estado, setEstado] = useState<Estado>({ fase: 'carregando' });
   const [termo, setTermo] = useState('');
@@ -178,12 +180,36 @@ export default function Buscar() {
             </View>
           }
           ListEmptyComponent={
-            <Vazio
-              titulo="Ninguém encontrado ainda"
-              texto={`Nenhum profissional cadastrado para “${estado.oQueFoiProcurado}” na sua região por enquanto. Tente outra palavra ou veja as categorias.`}
-            />
+            <View style={e.vazio}>
+              <Vazio
+                titulo="Ninguém encontrado ainda"
+                texto={`Nenhum profissional cadastrado para “${estado.oQueFoiProcurado}” na sua região por enquanto.`}
+              />
+              {/* Não achar ninguém é justamente quando publicar um pedido
+                  vale mais: o pedido fica esperando, e quem se cadastrar
+                  depois recebe. Mandar a pessoa embora de mãos vazias aqui
+                  é perder as duas pontas. */}
+              <View style={e.botaoDoVazio}>
+                <Botao
+                  onPress={() =>
+                    router.push(
+                      categoriaEscolhida
+                        ? `/pedir?categoriaId=${categoriaEscolhida.id}`
+                        : '/pedir',
+                    )
+                  }
+                >
+                  Publicar um pedido
+                </Botao>
+              </View>
+            </View>
           }
-          renderItem={({ item }) => <CartaoProfissional profissional={item} />}
+          renderItem={({ item }) => (
+            <CartaoProfissional
+              profissional={item}
+              aoTocar={() => router.push(`/profissional/${item.id}`)}
+            />
+          )}
         />
       ) : (
         <CatalogoDeOficios
@@ -270,6 +296,8 @@ const e = StyleSheet.create({
     marginTop: espaco.md,
   },
   lista: { padding: espaco.lg, flexGrow: 1 },
+  vazio: { flex: 1, justifyContent: 'center' },
+  botaoDoVazio: { paddingHorizontal: espaco.xl, marginTop: espaco.lg },
   cabecalhoDaLista: { marginBottom: espaco.lg },
   catalogo: { padding: espaco.lg },
   grupo: { marginBottom: espaco.xl },
