@@ -1,4 +1,4 @@
-# Chama a rotina diária do procurô (renew-annual-plans).
+# Chama a rotina diária do Ei Itabirito (renew-annual-plans).
 #
 # A rotina avisa por e-mail quem paga por Pix antes do plano vencer, e
 # encerra os patrocínios de categoria já vencidos. Sem ela, quem pagou por

@@ -1,4 +1,4 @@
-# Publica as Edge Functions do procurô no Supabase.
+# Publica as Edge Functions do Ei Itabirito no Supabase.
 #
 # Sem elas, nada que dependa de servidor funciona: pagamento, exclusão de
 # conta e e-mails. E publicar à mão exige a CLI do Supabase instalada na

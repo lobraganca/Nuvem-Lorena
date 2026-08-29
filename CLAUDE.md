@@ -11,7 +11,7 @@ verdade, não uma precaução hipotética.
 | Onde | Qual | Site |
 |---|---|---|
 | **raiz** (`src/`, `supabase/`) | Avena — turismo, reservas, passeios | outro |
-| **`apps/profissionais/`** | **procurô** — busca de profissionais em Itabirito, MG | procuroapp.com.br |
+| **`apps/profissionais/`** | **Ei Itabirito** — busca de profissionais em Itabirito, MG | eiitabirito.com.br |
 
 **Quase todo o trabalho é no `apps/profissionais/`.** A raiz tem outro app,
 com outro banco, outras migrations e outra dona da decisão.
@@ -20,7 +20,7 @@ Duas armadilhas que já pegaram, as duas pelo mesmo motivo — comando rodado
 da pasta errada:
 
 - `supabase/migrations/*.sql` na raiz é do **Avena**. Aplicá-las num banco
-  do procurô cria tabelas de reserva de passeio por cima do schema certo.
+  do Ei Itabirito cria tabelas de reserva de passeio por cima do schema certo.
 - `npm run build` na raiz constrói o Avena.
 
 Comece toda sequência de comandos com o caminho explícito:
@@ -29,7 +29,7 @@ chamadas de ferramenta.
 
 **E isso vale em dobro para `cp`, `rm` e `git checkout`: use caminho
 absoluto sempre.** Um `cp src/lib/supabase.ts ...` rodado da raiz já
-destruiu o cliente falso do procurô, substituindo-o pelo do Avena — e
+destruiu o cliente falso do Ei Itabirito, substituindo-o pelo do Avena — e
 passou na conferência de tipos e no build, porque nenhum dos dois olha
 `scripts/`. Só apareceu horas depois, ao usar o arquivo. Comando relativo
 neste repositório acerta o app errado sem dar erro.
@@ -42,7 +42,7 @@ neste repositório acerta o app errado sem dar erro.
 |---|---|
 | `claude/professional-search-app-vuryc8` | onde o trabalho é feito |
 | `claude/professional-search-app-duqnk8` | **é ela que publica** — o workflow só escuta esta |
-| branch padrão do repositório | é do Avena, não do procurô |
+| branch padrão do repositório | é do Avena, não do Ei Itabirito |
 
 O fluxo é: commitar na `vuryc8`, empurrar as duas.
 
@@ -74,7 +74,7 @@ sucesso.
 
 Por isso o `vite.config.ts` publica um `versao.json` com o commit, e o
 workflow tem um segundo passo que fica batendo em
-`procuroapp.com.br/versao.json` até o site devolver aquele commit exato.
+`eiitabirito.com.br/versao.json` até o site devolver aquele commit exato.
 **Hoje verde quer dizer no ar.** Se esse passo falhar, ele imprime o
 caminho: Vercel > Deployments > "Promote to Production", e
 Settings > Git > Production Branch para não repetir.
@@ -188,7 +188,7 @@ rows returned" e engole a resposta da conferência.
 
 | Projeto | Qual app |
 |---|---|
-| `dfdinrimxqoqjedemjbw` | **procurô** |
+| `dfdinrimxqoqjedemjbw` | **Ei Itabirito** |
 | `wkuwwzcucsxonhsblkmc` | Avena |
 
 O endereço do painel mostra qual está aberto. No projeto errado, uma
@@ -239,7 +239,7 @@ para deixá-los lá enquanto se trabalha.
 
 ## O aplicativo da Play Store
 
-O procurô é **um app instalável de verdade**, não um site aberto numa
+O Ei Itabirito é **um app instalável de verdade**, não um site aberto numa
 janelinha — e a distinção decide entre aprovado e rejeitado. Os arquivos
 ficam DENTRO do aparelho (`android/app/src/main/assets/public`), copiados
 por `npx cap sync`. Nenhum endereço é aberto.
@@ -252,7 +252,7 @@ execução por `src/lib/plataforma.ts`.
 ### `podeVender()` — e por que a loja não vende nada
 
 Regra da Google: bem digital usado dentro do app se vende pela cobrança
-dela. O procurô vende pelo Mercado Pago, o que continua certo no site.
+dela. O Ei Itabirito vende pelo Mercado Pago, o que continua certo no site.
 Dentro do app da loja **as telas que vendem não existem** — que é o estado
 mais conforme possível, porque quem não oferece compra não tem o que
 violar.
@@ -304,7 +304,7 @@ Em Settings > Secrets and variables > Actions:
 |---|---|
 | `ANDROID_KEYSTORE_BASE64` | a chave de assinatura, em texto |
 | `ANDROID_KEYSTORE_PASSWORD` | a senha dela |
-| `ANDROID_KEY_ALIAS` | `procuro` |
+| `ANDROID_KEY_ALIAS` | `eiitabirito` |
 | `ANDROID_KEY_PASSWORD` | a mesma senha |
 | `VITE_SUPABASE_URL` | endereço do banco |
 | `VITE_SUPABASE_ANON_KEY` | chave pública do banco |
@@ -321,8 +321,8 @@ app publicado. Ela não está no repositório; a cópia é da dona.
 ### O workflow
 
 `.github/workflows/gerar-app-play-store.yml`, disparado à mão em Actions.
-Devolve dois pacotes: `procuro-celular-…` (o `.apk`, que instala no
-aparelho) e `procuro-loja-…` (o `.aab`, que **não** instala e só serve para
+Devolve dois pacotes: `ei-itabirito-celular-…` (o `.apk`, que instala no
+aparelho) e `ei-itabirito-loja-…` (o `.aab`, que **não** instala e só serve para
 o Play Console).
 
 Detalhes que custaram execução perdida:
@@ -332,7 +332,7 @@ Detalhes que custaram execução perdida:
 - O `versionCode` vem do número da execução. Fixo, a loja recusaria o
   segundo envio.
 
-### Identidade do app: `br.com.procuroapp.app`
+### Identidade do app: `br.com.eiitabirito.app`
 
 Nos três lugares (capacitor.config.ts, namespace e applicationId).
 **Definitiva** — publicada, não muda nunca: trocá-la cria outro app, com

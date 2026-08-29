@@ -1,10 +1,10 @@
 apply plugin: 'com.android.application'
 
 android {
-    namespace = "br.com.procuroapp.app"
+    namespace = "br.com.eiitabirito.app"
     compileSdk = rootProject.ext.compileSdkVersion
     defaultConfig {
-        applicationId "br.com.procuroapp.app"
+        applicationId "br.com.eiitabirito.app"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
         /* O número da versão vem do workflow, não daqui.

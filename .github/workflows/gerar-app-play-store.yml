@@ -1,6 +1,6 @@
 # Monta o arquivo que se envia à Google Play (.aab), na nuvem.
 #
-# Existe porque quem publica o procurô trabalha de celular e tablet. Montar
+# Existe porque quem publica o Ei Itabirito trabalha de celular e tablet. Montar
 # um app Android normalmente exige Android Studio num computador; aqui o
 # GitHub faz isso e devolve o arquivo pronto para baixar pelo próprio
 # celular e subir no Play Console.
@@ -70,7 +70,7 @@ jobs:
         run: npx tsc --noEmit
 
       # Constrói o site e copia o resultado para dentro do projeto Android.
-      # É este passo que faz o app da loja ser o MESMO procurô do site — e
+      # É este passo que faz o app da loja ser o MESMO Ei Itabirito do site — e
       # é por isso que a pasta de saída não fica versionada: aqui ela é
       # sempre a do commit que está sendo montado.
       # O endereço e a chave do banco entram AQUI, e o passo recusa montar
@@ -205,8 +205,8 @@ jobs:
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "Baixe os dois em **Artifacts**, no fim desta página." >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
-          echo "- **procuro-celular-…** — o .apk. Abra no Android para instalar e testar." >> $GITHUB_STEP_SUMMARY
-          echo "- **procuro-loja-…** — o .aab. Este é o que sobe no Play Console (não instala no celular)." >> $GITHUB_STEP_SUMMARY
+          echo "- **ei-itabirito-celular-…** — o .apk. Abra no Android para instalar e testar." >> $GITHUB_STEP_SUMMARY
+          echo "- **ei-itabirito-loja-…** — o .aab. Este é o que sobe no Play Console (não instala no celular)." >> $GITHUB_STEP_SUMMARY
 
       # Dois pacotes separados, com nomes que dizem para que servem.
       #
@@ -217,7 +217,7 @@ jobs:
       - name: Guardar o .apk (para instalar e testar)
         uses: actions/upload-artifact@v4
         with:
-          name: procuro-celular-${{ inputs.versionName }}-envio${{ github.run_number }}
+          name: ei-itabirito-celular-${{ inputs.versionName }}-envio${{ github.run_number }}
           path: apps/profissionais/android/app/build/outputs/apk/release/*.apk
           retention-days: 30
           if-no-files-found: error
@@ -225,7 +225,7 @@ jobs:
       - name: Guardar o .aab (para enviar à loja)
         uses: actions/upload-artifact@v4
         with:
-          name: procuro-loja-${{ inputs.versionName }}-envio${{ github.run_number }}
+          name: ei-itabirito-loja-${{ inputs.versionName }}-envio${{ github.run_number }}
           path: apps/profissionais/android/app/build/outputs/bundle/release/*.aab
           retention-days: 30
           if-no-files-found: error

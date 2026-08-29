@@ -120,7 +120,7 @@ export function InstalarApp({ variante = "lista" }: { variante?: "lista" | "faix
      pediu para deixar sempre visível seria um botão que não responde. */
   const folhaNavegador = (
     <BottomSheet
-      title={emModoApp ? "Instalar em outro aparelho" : "Instalar o procurô"}
+      title={emModoApp ? "Instalar em outro aparelho" : "Instalar o Ei Itabirito"}
       subtitle={
         emModoApp
           ? "Aqui já está instalado. Para pôr no celular ou em outro computador:"
@@ -158,7 +158,7 @@ export function InstalarApp({ variante = "lista" }: { variante?: "lista" | "faix
       <p className="muted" style={{ marginTop: 14, fontSize: "0.88rem" }}>
         {emModoApp
           ? "O ícone aparece junto dos outros aplicativos daquele aparelho, e daí em diante abre sem passar pelo navegador."
-          : "Se o app já estiver instalado neste aparelho, o navegador pode não oferecer de novo — nesse caso ele já está aí, é só procurar o ícone do procurô junto dos outros aplicativos."}
+          : "Se o app já estiver instalado neste aparelho, o navegador pode não oferecer de novo — nesse caso ele já está aí, é só procurar o ícone do Ei Itabirito junto dos outros aplicativos."}
       </p>
     </BottomSheet>
   );
@@ -192,7 +192,7 @@ export function InstalarApp({ variante = "lista" }: { variante?: "lista" | "faix
         </li>
       </ol>
       <p className="muted" style={{ marginTop: 14, fontSize: "0.88rem" }}>
-        O ícone do procurô aparece junto com os outros aplicativos, e daí em diante abre sem passar
+        O ícone do Ei Itabirito aparece junto com os outros aplicativos, e daí em diante abre sem passar
         pelo navegador.
       </p>
     </BottomSheet>
@@ -209,7 +209,7 @@ export function InstalarApp({ variante = "lista" }: { variante?: "lista" | "faix
           type="button"
           className="btn-instalar-topo"
           onClick={() => (podeInstalarDireto ? instalar() : setEnsinandoIOS(true))}
-          title="Adicionar o procurô à tela do celular"
+          title="Adicionar o Ei Itabirito à tela do celular"
         >
           <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
             <rect x="6" y="2.5" width="12" height="19" rx="2.5" />
@@ -231,7 +231,7 @@ export function InstalarApp({ variante = "lista" }: { variante?: "lista" | "faix
            antes de provar que serve é um app que a pessoa desinstala. */
         <div className="instalar-faixa">
           <span>
-            <strong>Deixe o procurô no seu celular.</strong> Vira ícone e abre direto, sem digitar o endereço.
+            <strong>Deixe o Ei Itabirito no seu celular.</strong> Vira ícone e abre direto, sem digitar o endereço.
           </span>
           <span className="instalar-faixa-acoes">
             <button

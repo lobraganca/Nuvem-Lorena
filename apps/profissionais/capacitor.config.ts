@@ -3,7 +3,7 @@ import type { CapacitorConfig } from "@capacitor/cli";
 /**
  * Configuração do app instalável — o que vai para a Play Store.
  *
- * O Capacitor NÃO reescreve o procurô. Ele embrulha o mesmo app que roda
+ * O Capacitor NÃO reescreve o Ei Itabirito. Ele embrulha o mesmo app que roda
  * no site: os arquivos construídos em `dist` vão para DENTRO do aplicativo
  * e são lidos do próprio aparelho. É essa a diferença para o caminho que
  * carrega o site — aqui não há endereço nenhum sendo aberto, o app abre
@@ -24,10 +24,10 @@ const config: CapacitorConfig = {
    * pessoas que já instalaram não recebem mais atualização. É o domínio
    * escrito ao contrário, que é a convenção do Android.
    */
-  appId: "br.com.procuroapp.app",
+  appId: "br.com.eiitabirito.app",
 
   /** O nome que aparece embaixo do ícone, na tela do celular. */
-  appName: "procurô",
+  appName: "Ei Itabirito",
 
   /**
    * De onde vêm os arquivos do app: a mesma pasta que o site publica.

@@ -92,17 +92,17 @@ export class ErrorBoundary extends Component<{ children: ReactNode }, Estado> {
 
                   No app da Play Store não existe "Instalar App" nem site
                   para abrir; quem reinstala vai à loja. Escrever
-                  "acesse procuroapp.com.br" ali também seria mandar sair do
+                  "acesse eiitabirito.com.br" ali também seria mandar sair do
                   app para resolver um problema do app. */}
               {ehAppDaLoja() ? (
                 <>
                   <p style={{ margin: "0 0 8px" }}>
-                    Se o botão não resolver, feche o procurô de vez e abra de novo:
+                    Se o botão não resolver, feche o Ei Itabirito de vez e abra de novo:
                   </p>
                   <ol style={{ margin: 0, paddingLeft: 20, display: "grid", gap: 4 }}>
                     <li>Abra a tela de aplicativos recentes do seu celular.</li>
-                    <li>Empurre o procurô para fora e solte.</li>
-                    <li>Abra o procurô pelo ícone de novo.</li>
+                    <li>Empurre o Ei Itabirito para fora e solte.</li>
+                    <li>Abra o Ei Itabirito pelo ícone de novo.</li>
                   </ol>
                 </>
               ) : (
@@ -111,9 +111,9 @@ export class ErrorBoundary extends Component<{ children: ReactNode }, Estado> {
                     Se o botão não resolver, reinstale o app — é rápido:
                   </p>
                   <ol style={{ margin: 0, paddingLeft: 20, display: "grid", gap: 4 }}>
-                    <li>Toque e segure o ícone do procurô na tela e remova-o.</li>
+                    <li>Toque e segure o ícone do Ei Itabirito na tela e remova-o.</li>
                     <li>
-                      Abra o navegador e acesse <strong>procuroapp.com.br</strong>.
+                      Abra o navegador e acesse <strong>eiitabirito.com.br</strong>.
                     </li>
                     <li>Toque em "Instalar App" no topo da tela.</li>
                   </ol>

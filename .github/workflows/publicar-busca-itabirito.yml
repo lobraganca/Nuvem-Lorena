@@ -55,7 +55,7 @@ jobs:
       # fica verde quando a resposta for este commit.
       - name: Conferir se o site já está servindo este commit
         env:
-          SITE: https://www.procuroapp.com.br
+          SITE: https://www.eiitabirito.com.br
         run: |
           esperado="${{ github.sha }}"
           echo "Esperando o site servir o commit $esperado"
@@ -74,7 +74,7 @@ jobs:
           echo ""
           echo "A causa mais provável, porque já aconteceu: a build funcionou,"
           echo "mas foi para PREVIEW em vez de PRODUCTION. Preview é um endereço"
-          echo "de teste que ninguém acessa; o procuroapp.com.br continua na"
+          echo "de teste que ninguém acessa; o eiitabirito.com.br continua na"
           echo "versão anterior, e nada nesta tela nem na da Vercel aponta a"
           echo "diferença — as duas mostram sucesso."
           echo ""

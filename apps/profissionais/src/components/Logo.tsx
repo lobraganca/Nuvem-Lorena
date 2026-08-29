@@ -26,24 +26,12 @@ function Circunflexo({ className }: { className?: string }) {
 }
 
 /**
- * Wordmark "procurô": minúsculas claras e o circunflexo em dourado.
- *
- * O dourado continua sendo a cor reservada à identidade — ele estava no A de
- * BUSCA e agora está no acento. É o mesmo papel: um único ponto de cor que
- * marca a palavra sem transformá-la em enfeite.
- *
- * O `aria-label` traz o nome inteiro porque o acento é um desenho, não uma
- * letra: sem isso um leitor de tela anunciaria "procuro", sem o acento — que
- * é justamente o que muda a palavra de sentido.
+ * Wordmark "Ei Itabirito": marca visual da plataforma de contratação local.
  */
 function Marca() {
   return (
     <span className="logo-brand" aria-hidden="true">
-      procur
-      <span className="logo-o">
-        o
-        <Circunflexo className="logo-acento" />
-      </span>
+      Ei Itabirito
     </span>
   );
 }
@@ -53,7 +41,7 @@ export function Logo({ size = "sm" }: { size?: "sm" | "md" | "lg" }) {
     // Leva para a tela inicial, não para a busca: tocar na marca é o gesto de
     // "voltar ao começo", e é lá que estão as duas portas do app (contratar
     // ou anunciar).
-    <Link to="/inicio" className={`logo logo-${size}`} aria-label="procurô — ir para a tela inicial">
+    <Link to="/inicio" className={`logo logo-${size}`} aria-label="Ei Itabirito — ir para a tela inicial">
       <Marca />
     </Link>
   );
@@ -73,7 +61,7 @@ export function LogoMark({
     <div
       className={`logo logo-lg${variant === "onBlue" ? " logo-on-blue" : ""}`}
       role="img"
-      aria-label="procurô"
+      aria-label="Ei Itabirito"
     >
       <Marca />
     </div>
