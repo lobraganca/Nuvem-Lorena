@@ -228,6 +228,33 @@ jobs:
       # quem baixa descobrir qual é qual — no celular, olhando extensão. Aí
       # se instala o errado, não acontece nada, e a conclusão é que o app
       # não funciona.
+      # Cada arquivo passa a dizer, no próprio nome, qual envio ele é.
+      #
+      # O Gradle nomeia TODO arquivo como `app-release.aab` — o mesmo nome
+      # em toda montagem. Baixados um por vez, eles se acumulam na pasta de
+      # downloads com nomes idênticos (ou `app-release(1).aab`, que é pior
+      # porque parece uma cópia e não uma versão diferente), e na hora de
+      # enviar não há como saber qual é qual.
+      #
+      # Foi o que aconteceu: a loja recusou dizendo que o arquivo já tinha
+      # sido usado, e a causa mais provável não era o número gerado aqui —
+      # era um arquivo ANTIGO sendo enviado no lugar do novo. O nome do
+      # pacote já trazia o envio; o arquivo lá dentro, não, e é o arquivo
+      # que se arrasta para o Play Console.
+      - name: Dar nome próprio aos arquivos
+        env:
+          CODIGO: ${{ inputs.versionCode != '' && inputs.versionCode || github.run_number }}
+        run: |
+          set -euo pipefail
+          BASE="procuro-${{ inputs.versionName }}-envio${CODIGO}"
+          mv android/app/build/outputs/bundle/release/*.aab \
+             "android/app/build/outputs/bundle/release/${BASE}.aab"
+          mv android/app/build/outputs/apk/release/*.apk \
+             "android/app/build/outputs/apk/release/${BASE}.apk"
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "Os arquivos se chamam **${BASE}.aab** e **${BASE}.apk**." >> $GITHUB_STEP_SUMMARY
+          echo "Confira o nome antes de enviar: a loja recusa um envio repetido." >> $GITHUB_STEP_SUMMARY
+
       - name: Guardar o .apk (para instalar e testar)
         uses: actions/upload-artifact@v4
         with:
