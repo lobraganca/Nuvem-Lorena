@@ -6,7 +6,7 @@ import {
   criarVaga,
   abrirOnda,
   calcularOndas,
-  cotaDeDisparos,
+  situacaoDoPlano,
   anunciarVaga,
 } from "../lib/company";
 import {
@@ -15,7 +15,7 @@ import {
   DEFAULT_UF,
   DIAS_ANUNCIO_VAGA,
   ONDAS,
-  precoDoAnuncioDeVaga,
+  ONDAS_POR_VAGA,
   type JobListing,
   type WaveNumber,
   type WorkModality,
@@ -73,18 +73,21 @@ export function CriarVagaPage() {
   const [conferindo, setConferindo] = useState(false);
   const [ondaPreview, setOndaPreview] = useState<Array<{ onda: WaveNumber; novos: number }>>([]);
 
-  /* Quais ondas saem já. A 1 sempre sai — é o disparo. As outras duas são
-     escolha de quem tem pressa e não quer voltar aqui para tocar o botão.
-     Desmarcadas por padrão: avisar mais gente do que o necessário é a
-     decisão que não dá para desfazer, então ela é sempre um ato, nunca um
-     esquecimento. */
-  const [ondasExtras, setOndasExtras] = useState<Record<2 | 3, boolean>>({ 2: false, 3: false });
+  /* A segunda onda desta vaga, se a empresa quiser usá-la já.
+     ────────────────────────────────────────────────────────
+     Cada vaga tem direito a `ONDAS_POR_VAGA` ondas; a 1 sai na criação, e
+     sobra uma. `null` = guardar para depois, que é o padrão: avisar mais
+     gente do que o necessário é a única decisão desta tela que não dá para
+     desfazer, então ela é sempre um ato, nunca um esquecimento. */
+  const [ondaExtra, setOndaExtra] = useState<2 | 3 | null>(null);
 
   /* Anunciar custa dinheiro, então nasce desmarcado — e some inteiro dentro
      do app da loja (ver `podeVender`). */
   const [anunciar, setAnunciar] = useState(false);
 
-  const [cota, setCota] = useState<{ usadas: number; restantes: number; teto: number } | null>(null);
+  const [plano, setPlano] = useState<{ limite: number; anunciadas: number; cabeMais: boolean } | null>(
+    null
+  );
   const [empresaConfirmada, setEmpresaConfirmada] = useState(false);
 
   useEffect(() => {
@@ -115,17 +118,17 @@ export function CriarVagaPage() {
         );
       }
 
-      /* A cota é buscada AQUI, ao abrir a tela, e não no fim: a empresa
-         precisa saber que está no último disparo do mês antes de escrever a
+      /* O plano é buscado AQUI, ao abrir a tela, e não no fim: a empresa
+         precisa saber que o plano dela já está cheio antes de escrever a
          vaga inteira, não depois de confirmar. */
-      cotaDeDisparos(empresa.id)
-        .then(setCota)
+      situacaoDoPlano(empresa.id)
+        .then(setPlano)
         .catch(() => {
-          /* Sem a cota, a tela continua funcionando — quem realmente
-             recusa o disparo é o banco. Deixar `null` faz o aviso sumir em
-             vez de mostrar "0 de 2", que seria um número inventado no lugar
+          /* Sem a resposta, a tela continua funcionando — quem realmente
+             recusa o anúncio é o banco. Deixar `null` faz o aviso sumir em
+             vez de mostrar "0 de 1", que seria um número inventado no lugar
              de um que não se sabe. */
-          setCota(null);
+          setPlano(null);
         });
     });
   }, [user, carregandoConta, navegar]);
@@ -188,8 +191,7 @@ export function CriarVagaPage() {
          marcou, e em ordem: a 2 antes da 3, porque cada onda desconta quem
          as anteriores já alcançaram, e fora de ordem a conta sai errada. */
       await abrirOnda(vaga, 1);
-      if (ondasExtras[2]) await abrirOnda(vaga, 2);
-      if (ondasExtras[3]) await abrirOnda(vaga, 3);
+      if (ondaExtra) await abrirOnda(vaga, ondaExtra);
 
       /* O anúncio depois do disparo, e não antes: se a gravação do anúncio
          falhar, a vaga já saiu para as pessoas — que é o que a empresa veio
@@ -361,35 +363,15 @@ export function CriarVagaPage() {
           <div className="card" style={{ padding: 16 }}>
             <h2 style={{ margin: "0 0 8px 0" }}>Quem esta vaga alcança</h2>
             <p className="muted" style={{ marginTop: 0 }}>
-              A <strong>onda 1</strong> é avisada ao confirmar. As outras duas
-              ficam esperando — se ninguém responder, você abre a próxima num
-              toque, na tela da vaga. Ou marque aqui para avisar já.
+              Cada vaga tem direito a <strong>{ONDAS_POR_VAGA} ondas</strong>. A onda 1
+              é avisada ao confirmar; a segunda é sua para usar quando quiser — se
+              ninguém responder, você escolhe qual abrir, num toque na tela da vaga.
+              Ou já escolhe aqui.
             </p>
 
-            {/* O aviso da cota fica no topo da conferência, junto do que ela
-                custa. Descobrir no fim que o mês acabou é o pior lugar
-                possível: a vaga já está escrita. */}
-            {cota && (
-              <p
-                style={{
-                  margin: "0 0 12px",
-                  fontSize: "0.9em",
-                  color: cota.restantes === 0 ? "var(--color-danger)" : undefined,
-                }}
-              >
-                {cota.restantes === 0 ? (
-                  <>
-                    <strong>Você já usou os {cota.teto} disparos deste mês.</strong> A vaga
-                    pode ser criada, mas só volta a avisar gente no mês que vem.
-                  </>
-                ) : (
-                  <>
-                    Este é o disparo <strong>{cota.usadas + 1} de {cota.teto}</strong> do mês.
-                    {cota.restantes === 1 && " Depois dele, o mês acaba."}
-                  </>
-                )}
-              </p>
-            )}
+            {/* Disparar não depende de plano — qualquer vaga publicada
+                avisa as pessoas. O que o plano limita é o ANÚNCIO, e o
+                aviso disso mora no bloco do anúncio, mais abaixo. */}
 
             <div style={{ display: "grid", gap: 12, marginTop: 16 }}>
               {ondaPreview.map(({ onda, novos }) => (
@@ -407,7 +389,7 @@ export function CriarVagaPage() {
                        isso a tela parecia prometer três disparos. Marcar a
                        caixinha acende a onda, que é a confirmação visual de
                        que ela passou a valer. */
-                    opacity: onda === 1 || ondasExtras[onda as 2 | 3] ? 1 : 0.62,
+                    opacity: onda === 1 || ondaExtra === onda ? 1 : 0.62,
                   }}
                 >
                   <div>
@@ -427,19 +409,24 @@ export function CriarVagaPage() {
                     {onda === 1 ? (
                       <p style={{ margin: "6px 0 0", fontSize: "0.9em" }}>Sai agora.</p>
                     ) : (
+                      /* Cada vaga tem direito a 2 ondas, e a 1 já é uma
+                         delas — então sobra UMA. São botões de rádio, e não
+                         caixinhas: com caixinha a pessoa marca as duas,
+                         confirma, e o banco recusa a segunda com um erro
+                         que ela não tem como prever. A forma do controle é
+                         o que ensina a regra, antes de qualquer texto. */
                       <label style={{ display: "flex", gap: 8, marginTop: 8, fontSize: "0.9em" }}>
                         <input
-                          type="checkbox"
-                          checked={ondasExtras[onda as 2 | 3]}
+                          type="radio"
+                          name="onda-extra"
+                          checked={ondaExtra === onda}
                           disabled={novos === 0}
-                          onChange={(e) =>
-                            setOndasExtras((o) => ({ ...o, [onda]: e.target.checked }))
-                          }
+                          onChange={() => setOndaExtra(onda as 2 | 3)}
                         />
                         <span>
                           {novos === 0
                             ? "Não há mais ninguém nesta onda"
-                            : "Avisar esta onda junto, agora"}
+                            : "Usar minha segunda onda nesta, agora"}
                         </span>
                       </label>
                     )}
@@ -487,22 +474,61 @@ export function CriarVagaPage() {
               a pagar fora é a mesma violação que vender. */}
           {podeVender() && (
             <div className="card" style={{ padding: 16 }}>
-              <label style={{ display: "flex", gap: 10, alignItems: "flex-start" }}>
-                <input
-                  type="checkbox"
-                  checked={anunciar}
-                  style={{ marginTop: 3 }}
-                  onChange={(e) => setAnunciar(e.target.checked)}
-                />
-                <span>
-                  <strong>Deixar também na área de anúncios</strong>
+              {plano && plano.limite > 0 && !plano.cabeMais ? (
+                /* Plano cheio: a caixinha some em vez de ficar cinza. Uma
+                   caixinha desabilitada convida a tocar, e o toque não faz
+                   nada — o que a pessoa lê é "o app travou". */
+                <>
+                  <strong>Seu plano já está com as vagas no ar</strong>
                   <p className="muted" style={{ margin: "4px 0 0", fontSize: "0.9em" }}>
-                    A vaga fica {DIAS_ANUNCIO_VAGA} dias na tela onde as pessoas procuram,
-                    além de ser avisada pelas ondas. Quem não recebeu o aviso ainda
-                    encontra. <strong>{precoDoAnuncioDeVaga()}</strong>.
+                    São {plano.anunciadas} de {plano.limite} anunciadas. Esta vaga vai
+                    ser publicada e avisar as pessoas do mesmo jeito — o que ela não
+                    ganha é o espaço na área de anúncios. Assim que uma das outras
+                    vencer, dá para anunciar esta.
                   </p>
-                </span>
-              </label>
+                </>
+              ) : plano && plano.limite === 0 ? (
+                /* Sem plano. Nada de preço aqui: quem contrata escolhe o
+                   plano na tela de planos, e repetir a vitrine no meio do
+                   formulário atrapalha quem só quer publicar a vaga. */
+                <>
+                  <strong>Anunciar precisa de um plano</strong>
+                  <p className="muted" style={{ margin: "4px 0 0", fontSize: "0.9em" }}>
+                    Esta vaga vai ser publicada e avisar as pessoas do mesmo jeito. O
+                    plano serve para ela também ficar {DIAS_ANUNCIO_VAGA} dias na tela
+                    onde as pessoas procuram.
+                  </p>
+                  <button
+                    type="button"
+                    className="btn btn-outline"
+                    style={{ marginTop: 10 }}
+                    onClick={() => navegar("/planos-empresa")}
+                  >
+                    Ver os planos
+                  </button>
+                </>
+              ) : (
+                <label style={{ display: "flex", gap: 10, alignItems: "flex-start" }}>
+                  <input
+                    type="checkbox"
+                    checked={anunciar}
+                    style={{ marginTop: 3 }}
+                    onChange={(e) => setAnunciar(e.target.checked)}
+                  />
+                  <span>
+                    <strong>Deixar também na área de anúncios</strong>
+                    <p className="muted" style={{ margin: "4px 0 0", fontSize: "0.9em" }}>
+                      A vaga fica {DIAS_ANUNCIO_VAGA} dias na tela onde as pessoas
+                      procuram, além de ser avisada pelas ondas. Quem não recebeu o
+                      aviso ainda encontra. Já está no seu plano
+                      {plano && plano.limite > 0
+                        ? ` — ${plano.anunciadas} de ${plano.limite} em uso`
+                        : ""}
+                      .
+                    </p>
+                  </span>
+                </label>
+              )}
             </div>
           )}
 

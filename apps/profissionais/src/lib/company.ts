@@ -1,9 +1,9 @@
 import { supabase as getSupabase } from "./supabase";
 import type { Company, JobListing, JobDispatch, JobResponse, WaveNumber } from "../types/domain";
 import {
+  cabeVagaNoPlano,
   categoriasDoMesmoGrupo,
   DIAS_ANUNCIO_VAGA,
-  VAGAS_COM_DISPARO_POR_MES,
 } from "../types/domain";
 import { lerTudo } from "./lerTudo";
 
@@ -67,7 +67,16 @@ export async function upsertCompany(
   /* Sem o selo do telefone na assinatura: quem o grava é a função do banco,
      e mandá-lo daqui seria recusado pelo gatilho da 0071 — que é o
      comportamento certo, mas derrubaria o salvamento inteiro do cadastro. */
-  company: Omit<Company, "id" | "created_at" | "phone_verified" | "phone_verified_at">
+  company: Omit<
+    Company,
+    | "id"
+    | "created_at"
+    | "phone_verified"
+    | "phone_verified_at"
+    | "plano"
+    | "plano_ate"
+    | "plano_recorrente"
+  >
 ): Promise<Company> {
   if (!supabase) throw new Error("Banco não configurado");
 
@@ -345,23 +354,36 @@ export async function obterRespostasDaVaga(vagaId: string): Promise<JobResponse[
  * mentira mais cara desta tela: a empresa acharia que tem os dois disparos
  * na mão e descobriria o contrário no fim.
  */
-export async function cotaDeDisparos(
+export async function situacaoDoPlano(
   companyId: string
-): Promise<{ usadas: number; restantes: number; teto: number }> {
+): Promise<{ limite: number; anunciadas: number; cabeMais: boolean }> {
   const sb = getSupabase();
   if (!sb) throw new Error("Banco não configurado");
 
-  const { data, error } = await sb.rpc("vagas_disparadas_no_mes", {
-    p_company_id: companyId,
-  });
-  if (error) throw error;
+  const [{ data: limite, error: e1 }, { data: anunciadas, error: e2 }] = await Promise.all([
+    sb.rpc("limite_de_vagas_do_plano", { p_company_id: companyId }),
+    sb.rpc("vagas_anunciadas_agora", { p_company_id: companyId }),
+  ]);
+  if (e1) throw e1;
+  if (e2) throw e2;
 
-  const usadas = Number(data ?? 0);
-  return {
-    usadas,
-    restantes: Math.max(0, VAGAS_COM_DISPARO_POR_MES - usadas),
-    teto: VAGAS_COM_DISPARO_POR_MES,
-  };
+  const lim = Number(limite ?? 0);
+  const usadas = Number(anunciadas ?? 0);
+  return { limite: lim, anunciadas: usadas, cabeMais: cabeVagaNoPlano(lim, usadas) };
+}
+
+/** Quantas ondas esta vaga já abriu. O teto é `ONDAS_POR_VAGA`. */
+export async function ondasJaAbertas(vagaId: string): Promise<number> {
+  const sb = getSupabase();
+  if (!sb) throw new Error("Banco não configurado");
+
+  const { count, error } = await sb
+    .from("job_dispatches")
+    .select("id", { count: "exact", head: true })
+    .eq("job_listing_id", vagaId);
+
+  if (error) throw error;
+  return count ?? 0;
 }
 
 /**

@@ -106,42 +106,10 @@ values
   ('11110000-0000-0000-0000-000000000002', 'c0000000-0000-0000-0000-000000000001',
    'Padeiro', 'Padeiro', 'x', 'presencial', 'Itabirito', 'MG');
 
-do $$
-begin
-  -- Vaga criada e não disparada não gasta cota.
-  if public.vagas_disparadas_no_mes('c0000000-0000-0000-0000-000000000001') <> 0 then
-    raise exception 'FALHOU: vaga sem disparo ja contou na cota';
-  end if;
-
-  insert into public.job_dispatches (job_listing_id, wave, professionals_count, status)
-  values ('11110000-0000-0000-0000-000000000001', 1, 3, 'sent');
-
-  if public.vagas_disparadas_no_mes('c0000000-0000-0000-0000-000000000001') <> 1 then
-    raise exception 'FALHOU: vaga disparada nao contou';
-  end if;
-
-  -- Alargar a MESMA vaga não gasta outra cota: é a mesma vaga procurando
-  -- gente, e cobrar por isso faria a empresa hesitar justamente quando a
-  -- onda 1 não deu resposta.
-  insert into public.job_dispatches (job_listing_id, wave, professionals_count, status)
-  values ('11110000-0000-0000-0000-000000000001', 2, 9, 'sent');
-  insert into public.job_dispatches (job_listing_id, wave, professionals_count, status)
-  values ('11110000-0000-0000-0000-000000000001', 3, 20, 'sent');
-
-  if public.vagas_disparadas_no_mes('c0000000-0000-0000-0000-000000000001') <> 1 then
-    raise exception 'FALHOU: abrir onda 2 e 3 da mesma vaga gastou cota nova';
-  end if;
-
-  -- Outra vaga, aí sim.
-  insert into public.job_dispatches (job_listing_id, wave, professionals_count, status)
-  values ('11110000-0000-0000-0000-000000000002', 1, 5, 'sent');
-
-  if public.vagas_disparadas_no_mes('c0000000-0000-0000-0000-000000000001') <> 2 then
-    raise exception 'FALHOU: segunda vaga nao contou';
-  end if;
-
-  raise notice 'PASSOU: a cota conta vagas disparadas, nao ondas abertas';
-end $$;
+-- A cota MENSAL que existiu aqui foi aposentada pela migration 0072: o teto
+-- passou a ser de 2 ondas POR VAGA, e quem o testa agora é o
+-- 12-planos-da-empresa.sql. O bloco saiu em vez de ficar comentado — teste
+-- que não roda mais é teste que mente sobre o que está protegido.
 
 -- ── Sem telefone confirmado, o BANCO recusa a vaga ─────────────────────
 -- A tela também trava, mas trava de tela se contorna com uma chamada por

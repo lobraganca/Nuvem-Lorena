@@ -10,7 +10,14 @@ import {
   abrirOnda,
 } from "../lib/company";
 import { mensagemDeErro } from "../lib/erros";
-import { ONDAS, type JobListing, type JobDispatch, type JobResponse, type WaveNumber } from "../types/domain";
+import {
+  ONDAS,
+  ONDAS_POR_VAGA,
+  type JobListing,
+  type JobDispatch,
+  type JobResponse,
+  type WaveNumber,
+} from "../types/domain";
 
 /**
  * Detalhes de uma vaga: dados, ondas, e respostas de profissionais.
@@ -132,6 +139,12 @@ export function DetalheVagaPage() {
   const proximaOnda = ([1, 2, 3] as WaveNumber[]).find(
     (n) => !ondas.some((o) => o.wave === n)
   );
+
+  /* Cada vaga tem direito a `ONDAS_POR_VAGA` ondas, e quem recusa a terceira
+     é o banco (gatilho da 0072). Esconder o bloco quando o direito acabou
+     evita o pior caminho: a empresa toca o botão, espera, e recebe um erro
+     que não tinha como prever. */
+  const aindaTemOnda = ondas.length < ONDAS_POR_VAGA;
 
   return (
     <div className="container detalhe-vaga" style={{ paddingTop: 24, paddingBottom: 24 }}>
@@ -256,7 +269,14 @@ export function DetalheVagaPage() {
             tela: ela lê a base inteira em páginas (ver `lerTudo`), e fazer
             isso a cada visita à vaga seria cobrar de todo mundo o preço de
             uma pergunta que quase ninguém faz. */}
-        {vaga.status === "active" && proximaOnda && (
+        {vaga.status === "active" && !aindaTemOnda && ondas.length > 0 && (
+          <p className="muted" style={{ marginTop: 16, fontSize: "0.9em" }}>
+            Esta vaga já usou as {ONDAS_POR_VAGA} ondas dela. Quem encaixava foi
+            avisado — daqui em diante quem chega é quem procura sozinho.
+          </p>
+        )}
+
+        {vaga.status === "active" && aindaTemOnda && proximaOnda && (
           <div style={{ marginTop: 16, paddingTop: 16, borderTop: "1px solid var(--color-border)" }}>
             <p style={{ margin: "0 0 4px" }}>
               <strong>

@@ -3489,6 +3489,38 @@ h3 {
   padding: 10px 12px;
 }
 
+/* ── Escolha entre duas formas de pagar ────────────────────────────────
+   Dois botões grudados, um aceso. É a forma que já se reconhece como
+   "escolha uma" sem precisar de rótulo — e cabe numa linha de celular, ao
+   contrário de dois rádios com texto do lado. */
+.segmentado {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 4px;
+  background: var(--color-bg-soft);
+  border: 1px solid var(--color-border);
+  border-radius: 12px;
+  padding: 4px;
+}
+
+.segmentado-opcao {
+  border: 0;
+  background: transparent;
+  border-radius: 9px;
+  padding: 9px 8px;
+  font: inherit;
+  font-size: 0.9rem;
+  color: var(--color-text-muted);
+  cursor: pointer;
+}
+
+.segmentado-opcao.ativa {
+  background: var(--color-surface);
+  color: var(--color-text);
+  font-weight: 600;
+  box-shadow: 0 1px 3px rgb(0 0 0 / 0.12);
+}
+
 /* ── Experiências de trabalho ──────────────────────────────────────────
    Cada experiência é um cartão, e não três campos soltos: soltos, a
    segunda experiência parecia continuação da primeira, e quem preenchia

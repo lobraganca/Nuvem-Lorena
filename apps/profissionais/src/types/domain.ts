@@ -714,6 +714,16 @@ export interface Company {
    */
   phone_verified: boolean;
   phone_verified_at: string | null;
+  /**
+   * O plano de anúncio. `null` = nunca assinou.
+   *
+   * `plano_ate` é quem diz se vale AGORA — data vence sozinha, booleano
+   * precisa de alguém para desligar, e esse alguém é uma rotina que um dia
+   * falha calada e deixa plano vencido valendo de graça.
+   */
+  plano: PlanoEmpresa | null;
+  plano_ate: string | null;
+  plano_recorrente: boolean;
   created_at: string;
 }
 
@@ -721,40 +731,90 @@ export interface Company {
 export type WorkModality = "presencial" | "remoto" | "hibrido";
 
 /**
- * Quantas VAGAS uma empresa dispara por mês.
+ * Quantas ondas cada vaga tem direito a abrir.
  *
- * Conta vagas, não ondas: abrir a onda 2 ou 3 de uma vaga que não deu
- * resposta é a mesma vaga procurando gente, e cobrar por isso faria a
- * empresa hesitar justamente quando precisa alargar a busca — que é para o
- * que o botão existe. Quem conta de verdade é o banco, em
- * `vagas_disparadas_no_mes` (migration 0071); este número é só para a tela
- * avisar antes.
+ * É por VAGA, e não por mês da empresa. Uma vaga que não encheu precisa
+ * alargar a busca, e uma cota mensal faria a empresa escolher entre alargar
+ * esta e abrir a próxima — necessidades diferentes disputando o mesmo
+ * saldo. Quem recusa de verdade é o banco (gatilho da migration 0072);
+ * este número é para a tela avisar antes.
+ *
+ * A onda 1 sai na criação, então sobra UMA para a empresa abrir. Qual das
+ * duas seguintes usar é escolha dela: alargar pouco (onda 2, mesmo ofício)
+ * ou alargar até o ramo (onda 3).
  */
-export const VAGAS_COM_DISPARO_POR_MES = 2;
+export const ONDAS_POR_VAGA = 2;
 
-/**
- * Deixar a vaga anunciada na área de anúncios: R$ 10,90 por 30 dias.
- *
- * ATENÇÃO, decisão comercial que precisa de olho: o MESMO espaço vende
- * banner a R$ 29,90 por 30 dias (`PRECO_BANNER_CENTAVOS`, em config.ts).
- * Uma vaga anunciada custa um terço disso, então quem hoje compra banner
- * passa a ter motivo para publicar uma "vaga" no lugar. Foi apontado antes
- * de existir; se um dia a receita de banner cair sem explicação, é aqui
- * que se olha primeiro.
- *
- * Em centavos, como o preço do banner, e pelo mesmo motivo: valor com
- * vírgula em ponto flutuante rende diferença de um centavo na hora de
- * cobrar, e essa é a diferença que o anunciante percebe.
- */
-export const PRECO_ANUNCIO_VAGA_CENTAVOS = 1090;
+/** Por quantos dias a vaga fica na área de anúncios. */
 export const DIAS_ANUNCIO_VAGA = 30;
 
-/** "R$ 10,90" — escrito como se lê. */
-export function precoDoAnuncioDeVaga(): string {
-  return (PRECO_ANUNCIO_VAGA_CENTAVOS / 100).toLocaleString("pt-BR", {
+/** Avulso paga uma vez e vence; recorrente se renova até alguém cancelar. */
+export type CicloDoPlano = "avulso" | "recorrente";
+
+export type PlanoEmpresa = "pro" | "tres" | "ilimitado";
+
+/**
+ * Os planos de quem contrata.
+ *
+ * O que se compra é o direito de ANUNCIAR — deixar a vaga parada na tela
+ * onde as pessoas procuram. Buscar profissional continua livre e sem conta,
+ * como sempre foi, e disparar as ondas vem junto de qualquer vaga
+ * publicada. O plano limita quantas vagas ficam anunciadas AO MESMO TEMPO,
+ * não quantas se publica no total.
+ *
+ * `-1` em `vagas` é sem teto, e é lido em um lugar só (`cabeVagaNoPlano`),
+ * para o número mágico não escapar pelo resto do código.
+ *
+ * Preço em centavos pelo mesmo motivo do banner: valor com vírgula em
+ * ponto flutuante rende diferença de um centavo na hora de cobrar, e essa é
+ * a diferença que o cliente percebe.
+ *
+ * ATENÇÃO ao nome: já existe uma assinatura de profissional chamada
+ * "Empresa Plus" que custa os mesmos R$ 29,90 (ver PRECOS_MENSAIS em
+ * lib/payments.ts). São coisas diferentes com preço igual, e quem atender o
+ * telefone vai ouvir "assinei o de 29,90" sem saber qual dos dois.
+ */
+export const PLANOS_EMPRESA: Record<
+  PlanoEmpresa,
+  { nome: string; centavos: number; vagas: number; resumo: string }
+> = {
+  pro: {
+    nome: "Pro",
+    centavos: 2990,
+    vagas: 1,
+    resumo: "1 vaga anunciada por vez",
+  },
+  tres: {
+    nome: "Três vagas",
+    centavos: 5990,
+    vagas: 3,
+    resumo: "3 vagas anunciadas ao mesmo tempo",
+  },
+  ilimitado: {
+    nome: "Ilimitado",
+    centavos: 8990,
+    vagas: -1,
+    resumo: "quantas vagas quiser",
+  },
+};
+
+/** "R$ 29,90" — escrito como se lê. */
+export function precoDoPlano(plano: PlanoEmpresa): string {
+  return (PLANOS_EMPRESA[plano].centavos / 100).toLocaleString("pt-BR", {
     style: "currency",
     currency: "BRL",
   });
+}
+
+/**
+ * Ainda cabe mais uma vaga anunciada neste plano?
+ *
+ * O `-1` do ilimitado é entendido aqui, e só aqui. Sem plano (ou vencido)
+ * o limite é 0 e não cabe nada — que é a mesma resposta que o banco dá.
+ */
+export function cabeVagaNoPlano(limite: number, anunciadasAgora: number): boolean {
+  if (limite < 0) return true;
+  return anunciadasAgora < limite;
 }
 
 /** Vaga de trabalho criada por uma empresa. */

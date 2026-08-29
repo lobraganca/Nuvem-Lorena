@@ -12,7 +12,19 @@ import { mensagemDeErro } from "../lib/erros";
    `confirmar_telefone_empresa`, no banco, e um campo aqui viraria um valor
    que a tela manda junto no salvamento — que é exatamente o caminho que o
    gatilho da 0071 existe para recusar. */
-type FormState = Omit<Company, "id" | "created_at" | "phone_verified" | "phone_verified_at">;
+type FormState = Omit<
+  Company,
+  | "id"
+  | "created_at"
+  | "phone_verified"
+  | "phone_verified_at"
+  /* O plano também sai daqui: ele é consequência de um pagamento, e um
+     campo no formulário do cadastro seria um plano que a tela manda junto
+     ao salvar o endereço. */
+  | "plano"
+  | "plano_ate"
+  | "plano_recorrente"
+>;
 
 const EMPTY: FormState = {
   owner_id: "",
