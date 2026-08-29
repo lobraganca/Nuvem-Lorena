@@ -35,6 +35,9 @@ on:
         required: false
         default: ''
 
+permissions:
+  contents: write   # necessário para publicar a release com os arquivos
+
 jobs:
   montar:
     runs-on: ubuntu-latest
@@ -270,3 +273,53 @@ jobs:
           path: apps/profissionais/android/app/build/outputs/bundle/release/*.aab
           retention-days: 30
           if-no-files-found: error
+
+      # E, por fim, os mesmos arquivos como RELEASE — que é o único jeito
+      # de baixá-los sem entrar na conta.
+      #
+      # Artefato de Actions exige login, sempre, mesmo em repositório
+      # público. Quem publica este app trabalha do celular e nem sempre
+      # está logada no GitHub no aparelho que tem à mão; o resultado é
+      # ficar com o arquivo pronto e sem conseguir pegá-lo — já aconteceu
+      # mais de uma vez, e trava tudo o que vem depois.
+      #
+      # A release, num repositório público, é um endereço direto: abre em
+      # qualquer navegador, sem conta, e entrega o arquivo em si — não um
+      # zip para descompactar, que no celular é outra parede.
+      #
+      # Nada aqui é sigiloso. O endereço e a chave pública do banco viajam
+      # dentro do app de qualquer jeito, e quem protege os dados é a RLS no
+      # servidor; a chave de ASSINATURA não vai no arquivo, fica nos
+      # segredos. O que se publica é o mesmo app que a loja vai distribuir
+      # de graça.
+      - name: Publicar os arquivos para download direto
+        env:
+          GH_TOKEN: ${{ github.token }}
+          CODIGO: ${{ inputs.versionCode != '' && inputs.versionCode || github.run_number }}
+        run: |
+          set -euo pipefail
+          BASE="procuro-${{ inputs.versionName }}-envio${CODIGO}"
+          TAG="envio${CODIGO}"
+
+          gh release create "$TAG" \
+            --repo "$GITHUB_REPOSITORY" \
+            --title "procurô ${{ inputs.versionName }} — envio ${CODIGO}" \
+            --notes "Versão ${{ inputs.versionName }}, envio ${CODIGO}.
+
+          - **${BASE}.aab** — este é o que sobe no Play Console. Não instala no celular.
+          - **${BASE}.apk** — este instala no celular, para testar antes.
+
+          Baixe clicando no nome do arquivo, logo abaixo." \
+            "android/app/build/outputs/bundle/release/${BASE}.aab" \
+            "android/app/build/outputs/apk/release/${BASE}.apk"
+
+          URL="${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/releases/download/${TAG}"
+          {
+            echo ""
+            echo "### Baixar sem precisar entrar na conta"
+            echo ""
+            echo "- [${BASE}.aab](${URL}/${BASE}.aab) — para o Play Console"
+            echo "- [${BASE}.apk](${URL}/${BASE}.apk) — para instalar no celular"
+          } >> $GITHUB_STEP_SUMMARY
+          echo "AAB: ${URL}/${BASE}.aab"
+          echo "APK: ${URL}/${BASE}.apk"
