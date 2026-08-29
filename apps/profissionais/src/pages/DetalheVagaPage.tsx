@@ -1,9 +1,16 @@
 import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useAuth } from "../lib/useAuth";
-import { obterVaga, obterOndasDaVaga, obterRespostasDaVaga, fecharVaga } from "../lib/company";
+import {
+  obterVaga,
+  obterOndasDaVaga,
+  obterRespostasDaVaga,
+  fecharVaga,
+  calcularOndas,
+  abrirOnda,
+} from "../lib/company";
 import { mensagemDeErro } from "../lib/erros";
-import type { JobListing, JobDispatch, JobResponse } from "../types/domain";
+import { ONDAS, type JobListing, type JobDispatch, type JobResponse, type WaveNumber } from "../types/domain";
 
 /**
  * Detalhes de uma vaga: dados, ondas, e respostas de profissionais.
@@ -19,6 +26,13 @@ export function DetalheVagaPage() {
   const [carregando, setCarregando] = useState(true);
   const [fechando, setFechando] = useState(false);
   const [erro, setErro] = useState("");
+  /* `null` = ainda não perguntamos ao banco. Um número = a contagem veio.
+     Zero é resposta legítima ("não há mais ninguém"), então não dá para
+     usar 0 como "não sei" — seria a mesma confusão que faz tela dizer
+     "nenhum resultado" quando na verdade a consulta falhou. */
+  const [alcanceProximaOnda, setAlcanceProximaOnda] = useState<number | null>(null);
+  const [contando, setContando] = useState(false);
+  const [abrindo, setAbrindo] = useState(false);
 
   useEffect(() => {
     if (!vagaId) {
@@ -47,6 +61,38 @@ export function DetalheVagaPage() {
       setErro(mensagemDeErro(err, "Não foi possível carregar a vaga."));
     } finally {
       setCarregando(false);
+    }
+  }
+
+  /** Quantas pessoas novas a próxima onda alcança. Só quando a empresa pede. */
+  async function contarProximaOnda() {
+    if (!vaga || !proximaOnda) return;
+    setContando(true);
+    setErro("");
+    try {
+      const todas = await calcularOndas(vaga);
+      setAlcanceProximaOnda(todas.find((o) => o.onda === proximaOnda)?.novos ?? 0);
+    } catch (err) {
+      setErro(mensagemDeErro(err, "Não foi possível contar os profissionais."));
+    } finally {
+      setContando(false);
+    }
+  }
+
+  async function abrirProximaOnda() {
+    if (!vaga || !proximaOnda) return;
+    setAbrindo(true);
+    setErro("");
+    try {
+      await abrirOnda(vaga, proximaOnda);
+      /* Recarrega em vez de acrescentar à lista na mão: a onda gravada é a
+         que vale, e o número dela vem do banco. */
+      setAlcanceProximaOnda(null);
+      await carregarDados();
+    } catch (err) {
+      setErro(mensagemDeErro(err, "Não foi possível avisar os profissionais."));
+    } finally {
+      setAbrindo(false);
     }
   }
 
@@ -79,6 +125,13 @@ export function DetalheVagaPage() {
   }
 
   const totalProfissionais = ondas.reduce((sum, o) => sum + o.professionals_count, 0);
+
+  /* A próxima onda que ainda não abriu. `undefined` quando as três já
+     saíram — aí não há mais ninguém a alcançar e o bloco some da tela, em
+     vez de virar um botão que não faz nada. */
+  const proximaOnda = ([1, 2, 3] as WaveNumber[]).find(
+    (n) => !ondas.some((o) => o.wave === n)
+  );
 
   return (
     <div className="container detalhe-vaga" style={{ paddingTop: 24, paddingBottom: 24 }}>
@@ -184,8 +237,57 @@ export function DetalheVagaPage() {
                 textAlign: "center",
               }}
             >
-              <strong>Total: {totalProfissionais} profissionais disparados</strong>
+              <strong>
+                {totalProfissionais}{" "}
+                {totalProfissionais === 1 ? "pessoa avisada" : "pessoas avisadas"} até agora
+              </strong>
             </div>
+          </div>
+        )}
+
+        {/* Abrir a próxima onda.
+            ─────────────────────
+            Nada abre sozinho neste app: sem agendamento, sem cron, sem
+            aviso de madrugada. Quem já achou gente na onda 1 simplesmente
+            não toca aqui, e ninguém mais é incomodado — que é a diferença
+            entre um app que avisa e um app que a pessoa silencia.
+
+            A contagem só é buscada quando a empresa pede, e não ao abrir a
+            tela: ela lê a base inteira em páginas (ver `lerTudo`), e fazer
+            isso a cada visita à vaga seria cobrar de todo mundo o preço de
+            uma pergunta que quase ninguém faz. */}
+        {vaga.status === "active" && proximaOnda && (
+          <div style={{ marginTop: 16, paddingTop: 16, borderTop: "1px solid var(--color-border)" }}>
+            <p style={{ margin: "0 0 4px" }}>
+              <strong>
+                Onda {proximaOnda} — {ONDAS[proximaOnda].titulo}
+              </strong>
+            </p>
+            <p className="muted" style={{ margin: "0 0 12px", fontSize: "0.9em" }}>
+              {ONDAS[proximaOnda].explicacao}
+              {alcanceProximaOnda !== null &&
+                ` Alcança ${alcanceProximaOnda} ${
+                  alcanceProximaOnda === 1 ? "pessoa nova" : "pessoas novas"
+                }.`}
+            </p>
+
+            {alcanceProximaOnda === null ? (
+              <button
+                className="btn btn-outline btn-block"
+                disabled={contando}
+                onClick={contarProximaOnda}
+              >
+                {contando ? "Contando…" : "Ainda não achei ninguém — ver quem mais posso avisar"}
+              </button>
+            ) : (
+              <button className="btn btn-primary btn-block" disabled={abrindo} onClick={abrirProximaOnda}>
+                {abrindo
+                  ? "Avisando…"
+                  : alcanceProximaOnda === 0
+                    ? "Não há mais ninguém para avisar"
+                    : `Avisar as ${alcanceProximaOnda} pessoas da onda ${proximaOnda}`}
+              </button>
+            )}
           </div>
         )}
       </section>

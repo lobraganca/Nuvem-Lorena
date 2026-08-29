@@ -24,7 +24,10 @@ create table if not exists public.job_listings (
   city text not null,
   uf text,
   neighborhood text,
-  distance_radius_km integer,
+  -- Sem raio em quilômetros, de propósito: o cadastro de profissional não
+  -- guarda latitude nem longitude (só bairro, CEP, cidade e estado), então
+  -- distância não é conta que este banco saiba fazer. A coluna existiu numa
+  -- versão anterior deste arquivo e nenhuma consulta poderia usá-la.
   status text not null default 'active' check (status in ('active', 'closed')),
   created_at timestamp with time zone default now(),
   closed_at timestamp with time zone,
@@ -75,9 +78,9 @@ select case
            and attname in ('id', 'company_id', 'title', 'profession', 'specialty',
                           'description', 'required_experience', 'skills', 'work_modality',
                           'available_immediately', 'salary_range_min', 'salary_range_max',
-                          'city', 'uf', 'neighborhood', 'distance_radius_km', 'status',
+                          'city', 'uf', 'neighborhood', 'status',
                           'created_at', 'closed_at', 'updated_at')
-           and not attisdropped) = 20
+           and not attisdropped) = 19
   then 'PRONTO — job_listings foi criada com todas as colunas'
   else 'AINDA FALTA — as colunas nao foram criadas'
   end as resultado;

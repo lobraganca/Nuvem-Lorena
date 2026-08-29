@@ -1,20 +1,36 @@
 -- 0068 — tabela de ondas de disparo (job_dispatches).
 --
--- Quando uma empresa dispara uma vaga, o sistema cria 3 ondas automáticas:
+-- A vaga não vai para todo mundo de uma vez. Ela abre em três ondas, do
+-- encaixe mais exato para o mais largo, e QUEM ABRE É A EMPRESA, num botão
+-- na tela da vaga. Não há disparo automático, nem agendamento, nem cron:
+-- enquanto a empresa não pedir, ninguém mais é avisado.
 --
--- Onda 1: profissionais mais compatíveis + mais próximos
---         Filtrados por: profissão, categoria, skills, experiência.
---         Ordenados por: compatibilidade descrescente, depois distância crescente.
+-- Onda 1 — quem é exatamente isso
+--          `categories` contém a profissão E a especialidade bate.
+-- Onda 2 — quem faz esse serviço
+--          `categories` contém a profissão, qualquer especialidade.
+-- Onda 3 — quem faz coisa do mesmo ramo
+--          `categories` cruza com o grupo da profissão (ver
+--          GRUPOS_DE_SERVICOS em src/types/domain.ts). Vaga de pedreiro
+--          alcança "Casa e obra"; não alcança manicure.
 --
--- Onda 2: profissionais compatíveis (sem considerar distância)
---         Filtrados por: profissão, categoria, skills, experiência.
---         (Pode incluir pessoas de outras cidades.)
+-- Duas coisas que a versão anterior deste arquivo errava, e que estão aqui
+-- para não voltarem:
 --
--- Onda 3: profissionais de qualquer tipo (aberta para a cidade)
---         Qualquer pessoa cadastrada na mesma cidade.
+-- 1. As ondas abriam por DISTÂNCIA. O cadastro de profissional não tem
+--    latitude nem longitude — só bairro, CEP, cidade e estado —, então a
+--    ordenação por quilômetro nunca poderia ser escrita. E Itabirito
+--    inteira se atravessa em dez minutos: ordenar por proximidade aqui é
+--    ordenar por ruído.
 --
--- Cada onda é um registro aqui, rastreando quantas pessoas foram notificadas,
--- quando, e qual foi o status.
+-- 2. A onda 3 era "todo mundo da cidade". Mandava vaga de pedreiro para
+--    manicure — uma vez cada, e a pessoa silencia o app. Aí a vaga
+--    seguinte, a que era mesmo dela, não chega mais. Alargar até o ramo é
+--    o limite: passou disso, o aviso deixa de valer para todo mundo.
+--
+-- Cada onda aberta vira um registro aqui, com quantas pessoas alcançou e
+-- quando. O `unique (job_listing_id, wave)` é o que garante que uma onda
+-- abra uma vez só — dois toques no botão não avisam ninguém duas vezes.
 
 create table if not exists public.job_dispatches (
   id uuid primary key default gen_random_uuid(),

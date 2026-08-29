@@ -481,6 +481,28 @@ export const GRUPOS_DE_SERVICOS = [
 export const CATEGORIES = GRUPOS_DE_SERVICOS.flatMap((g) => g.itens as readonly string[]);
 
 /**
+ * Os ofícios vizinhos de um ofício — os do mesmo grupo, ele incluído.
+ *
+ * É o que dá sentido à onda 3 das vagas. "Alargar a busca" precisava
+ * significar alguma coisa entre "só quem faz exatamente isso" e "a cidade
+ * inteira", e o meio-termo já estava escrito: os grupos de
+ * `GRUPOS_DE_SERVICOS`, montados para a tela de escolha de serviços.
+ *
+ * Vaga de pedreiro alcança quem faz "Casa e obra" — pintor, servente,
+ * azulejista. Não alcança manicure, e é esse o ponto: a onda que alarga
+ * demais é a que ensina a pessoa a ignorar o aviso seguinte.
+ *
+ * Ofício escrito à mão (fora da lista) não tem grupo. Aí devolve só ele
+ * mesmo — alargar para um grupo adivinhado seria pior que não alargar.
+ */
+export function categoriasDoMesmoGrupo(categoria: string): string[] {
+  const grupo = GRUPOS_DE_SERVICOS.find((g) =>
+    (g.itens as readonly string[]).includes(categoria)
+  );
+  return grupo ? [...(grupo.itens as readonly string[])] : [categoria];
+}
+
+/**
  * Deixa um serviço escrito à mão no mesmo formato dos sugeridos.
  *
  * Sem isto, "eletricista", "ELETRICISTA" e " Eletricista " virariam três
@@ -651,7 +673,6 @@ export interface JobListing {
   city: string;
   uf: string;
   neighborhood: string | null;
-  distance_radius_km: number | null; // raio de busca em km
   status: "active" | "paused" | "closed";
   created_at: string;
   closed_at: string | null;
@@ -659,6 +680,44 @@ export interface JobListing {
 
 /** Onda de disparo (onda 1, 2 ou 3). */
 export type WaveNumber = 1 | 2 | 3;
+
+/**
+ * As ondas: quem a vaga alcança, e em que ordem.
+ *
+ * A primeira versão disto abria por DISTÂNCIA — onda 1 "os mais próximos",
+ * onda 3 "a cidade inteira". Estava errado duas vezes.
+ *
+ * Errado nos dados: o cadastro guarda bairro, CEP, cidade e estado. Não há
+ * latitude nem longitude em lugar nenhum, então quilômetro não é uma conta
+ * que este banco saiba fazer. O campo `distance_radius_km` existia na vaga
+ * e nenhuma consulta poderia usá-lo.
+ *
+ * Errado na cidade: Itabirito inteira se atravessa em dez minutos. Ordenar
+ * por proximidade aqui é ordenar por ruído — a diferença entre o primeiro e
+ * o último colocado não muda a decisão de ninguém.
+ *
+ * E a onda 3 antiga ("todo mundo da cidade") era o pior dos três: mandava
+ * vaga de pedreiro para manicure. Uma vez cada, e a pessoa silencia o app —
+ * aí a vaga seguinte, a que era mesmo dela, não chega mais.
+ *
+ * O que sobrou é o eixo que os dados sustentam: **o encaixe**, do mais
+ * exato para o mais largo. E ele para no ramo — nunca alcança quem não tem
+ * nada a ver com o serviço.
+ */
+export const ONDAS: Record<WaveNumber, { titulo: string; explicacao: string }> = {
+  1: {
+    titulo: "Quem é exatamente isso",
+    explicacao: "Faz esse serviço e a especialidade bate.",
+  },
+  2: {
+    titulo: "Quem faz esse serviço",
+    explicacao: "Mesmo ofício, qualquer especialidade.",
+  },
+  3: {
+    titulo: "Quem faz coisa do mesmo ramo",
+    explicacao: "Ofícios vizinhos, do mesmo grupo de serviços.",
+  },
+};
 
 /** Disparo de uma vaga para profissionais (sistema de ondas). */
 export interface JobDispatch {

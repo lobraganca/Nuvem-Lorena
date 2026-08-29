@@ -1,8 +1,16 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../lib/useAuth";
-import { obterMinhaEmpresa, criarVaga, dispararVagaComOndas, buscarProfissionaisComFiltrosLocais } from "../lib/company";
-import { CATEGORIES, DEFAULT_CITY, DEFAULT_UF, type JobListing, type WorkModality } from "../types/domain";
+import { obterMinhaEmpresa, criarVaga, abrirOnda, calcularOndas } from "../lib/company";
+import {
+  CATEGORIES,
+  DEFAULT_CITY,
+  DEFAULT_UF,
+  ONDAS,
+  type JobListing,
+  type WaveNumber,
+  type WorkModality,
+} from "../types/domain";
 import { mensagemDeErro } from "../lib/erros";
 
 type FormState = Omit<JobListing, "id" | "created_at" | "closed_at" | "status">;
@@ -22,14 +30,20 @@ const EMPTY_FORM: FormState = {
   city: DEFAULT_CITY,
   uf: DEFAULT_UF,
   neighborhood: null,
-  distance_radius_km: 5,
 };
 
 /**
  * Criar uma vaga de trabalho.
  *
- * Coleta dados da vaga, mostra pré-visualização das ondas,
- * e dispara automaticamente quando confirmado.
+ * Dois passos: o formulário e a conferência. Na conferência a tela mostra
+ * quantas pessoas cada onda alcançaria — números lidos do banco, não
+ * estimados. Uma versão anterior desta tela sorteava os três números com
+ * `Math.random()` para "ilustrar", e ilustração com cara de dado é a
+ * mentira mais barata que existe: a empresa decidiria disparar olhando um
+ * número que não veio de lugar nenhum.
+ *
+ * Ao confirmar, **só a onda 1 abre**. As outras duas ficam esperando um
+ * toque na tela da vaga — ver `ONDAS` e o cabeçalho da migration 0068.
  */
 export function CriarVagaPage() {
   const navegar = useNavigate();
@@ -39,7 +53,8 @@ export function CriarVagaPage() {
   const [passo, setPasso] = useState<"formulario" | "preview">("formulario");
   const [salvando, setSalvando] = useState(false);
   const [erro, setErro] = useState("");
-  const [ondaPreview, setOndaPreview] = useState<Array<{ wave: number; count: number }>>([]);
+  const [conferindo, setConferindo] = useState(false);
+  const [ondaPreview, setOndaPreview] = useState<Array<{ onda: WaveNumber; novos: number }>>([]);
 
   useEffect(() => {
     if (carregandoConta || !user) return;
@@ -63,49 +78,44 @@ export function CriarVagaPage() {
     setErro("");
 
     if (!form.title.trim()) {
-      setErro("Título da vaga é obrigatório.");
+      setErro("Escreva o título da vaga.");
       return;
     }
 
     if (!form.profession) {
-      setErro("Profissão é obrigatória.");
+      setErro("Escolha a profissão.");
       return;
     }
 
-    // Busca profissionais compatíveis
-    const profissionais = await buscarProfissionaisComFiltrosLocais(
-      form as JobListing & { id: string; created_at: string; closed_at: null; status: "active" }
-    );
-
-    // Mock: simula 3 ondas com números aleatórios
-    const onda1 = Math.floor(Math.random() * 20) + 5;
-    const onda2 = Math.floor(Math.random() * 30) + 10;
-    const onda3 = Math.floor(Math.random() * 50) + 20;
-
-    setOndaPreview([
-      { wave: 1, count: onda1 },
-      { wave: 2, count: onda2 },
-      { wave: 3, count: onda3 },
-    ]);
-
-    setPasso("preview");
+    setConferindo(true);
+    try {
+      /* A vaga ainda não existe no banco — a contagem é feita sobre o que
+         está no formulário. Os campos que `calcularOndas` lê (cidade,
+         estado, profissão, especialidade) já estão todos preenchidos aqui. */
+      const ondas = await calcularOndas(form as JobListing);
+      setOndaPreview(ondas.map(({ onda, novos }) => ({ onda, novos })));
+      setPasso("preview");
+    } catch (err) {
+      /* Contagem que falha não é contagem zero. Mostrar "0 profissionais"
+         quando o banco recusou a consulta faria a empresa concluir que não
+         há ninguém na cidade — e desistir de uma vaga que teria enchido. */
+      setErro(mensagemDeErro(err, "Não foi possível contar os profissionais."));
+    } finally {
+      setConferindo(false);
+    }
   }
 
-  async function confirmarEDisparar() {
+  async function confirmarEAbrirPrimeiraOnda() {
     setSalvando(true);
     setErro("");
 
     try {
-      // Cria a vaga
-      const vaga = await criarVaga({
-        ...form,
-        status: "active",
-      });
+      const vaga = await criarVaga({ ...form, status: "active" });
 
-      // Dispara as ondas
-      await dispararVagaComOndas(vaga.id);
+      /* Só a onda 1. As outras esperam a empresa pedir, na tela da vaga:
+         quem já achou gente na primeira não incomoda mais ninguém. */
+      await abrirOnda(vaga, 1);
 
-      // Redireciona para a vaga
       navegar(`/vaga/${vaga.id}`, { replace: true });
     } catch (err) {
       setErro(mensagemDeErro(err, "Não foi possível criar a vaga."));
@@ -219,17 +229,10 @@ export function CriarVagaPage() {
             </label>
           </div>
 
-          <div>
-            <label htmlFor="distance_radius">Raio de busca (km)</label>
-            <input
-              id="distance_radius"
-              type="number"
-              min="1"
-              max="50"
-              value={form.distance_radius_km || 5}
-              onChange={(e) => setForm((f) => ({ ...f, distance_radius_km: parseInt(e.target.value) || 5 }))}
-            />
-          </div>
+          {/* Não há campo de raio em quilômetros, e não é esquecimento: o
+              cadastro de profissional não guarda latitude nem longitude, e
+              Itabirito inteira se atravessa em dez minutos. Ver `ONDAS` em
+              types/domain.ts. */}
 
           <div>
             <label htmlFor="salary_min">Faixa salarial mínima (R$)</label>
@@ -263,8 +266,9 @@ export function CriarVagaPage() {
             <button
               className="btn btn-primary"
               onClick={previsualizarOndas}
+              disabled={conferindo}
             >
-              Ver previsão de profissionais
+              {conferindo ? "Contando…" : "Ver quem esta vaga alcança"}
             </button>
           </div>
         </div>
@@ -272,15 +276,17 @@ export function CriarVagaPage() {
         // PREVIEW DAS ONDAS
         <div style={{ display: "grid", gap: 20 }}>
           <div className="card" style={{ padding: 16 }}>
-            <h2 style={{ margin: "0 0 16px 0" }}>Previsão de profissionais</h2>
-            <p className="muted">
-              Com base nos seus critérios, o sistema vai disparar em 3 ondas:
+            <h2 style={{ margin: "0 0 8px 0" }}>Quem esta vaga alcança</h2>
+            <p className="muted" style={{ marginTop: 0 }}>
+              Ao confirmar, só a <strong>onda 1</strong> é avisada. As outras
+              ficam esperando: se ninguém responder, você abre a próxima num
+              toque, na tela da vaga.
             </p>
 
             <div style={{ display: "grid", gap: 12, marginTop: 16 }}>
-              {ondaPreview.map((onda) => (
+              {ondaPreview.map(({ onda, novos }) => (
                 <div
-                  key={onda.wave}
+                  key={onda}
                   style={{
                     padding: 12,
                     backgroundColor: "var(--color-bg-input)",
@@ -288,39 +294,47 @@ export function CriarVagaPage() {
                     display: "flex",
                     justifyContent: "space-between",
                     alignItems: "center",
+                    gap: 12,
+                    /* A onda 1 é a única que sai agora; as outras são
+                       possibilidade. Deixá-las com o mesmo peso visual fazia
+                       a tela parecer prometer três disparos. */
+                    opacity: onda === 1 ? 1 : 0.62,
                   }}
                 >
                   <div>
-                    <strong>Onda {onda.wave}</strong>
-                    {onda.wave === 1 && (
-                      <p className="muted" style={{ margin: "4px 0 0 0", fontSize: "0.9em" }}>
-                        Maior compatibilidade + menor distância. Sai agora.
-                      </p>
-                    )}
-                    {onda.wave === 2 && (
-                      <p className="muted" style={{ margin: "4px 0 0 0", fontSize: "0.9em" }}>
-                        Outros compatíveis. Sai em 4 horas (se sem respostas).
-                      </p>
-                    )}
-                    {onda.wave === 3 && (
-                      <p className="muted" style={{ margin: "4px 0 0 0", fontSize: "0.9em" }}>
-                        Ampliação dentro da cidade. Sai em 8 horas (se sem respostas).
-                      </p>
-                    )}
+                    <strong>
+                      Onda {onda} — {ONDAS[onda].titulo}
+                    </strong>
+                    <p className="muted" style={{ margin: "4px 0 0 0", fontSize: "0.9em" }}>
+                      {ONDAS[onda].explicacao} {onda === 1 ? "Sai agora." : "Só se você pedir."}
+                    </p>
                   </div>
-                  <div style={{ textAlign: "right" }}>
+                  <div style={{ textAlign: "right", flexShrink: 0 }}>
                     <div style={{ fontSize: "1.5em", fontWeight: "bold", color: "var(--color-primary)" }}>
-                      {onda.count}
+                      {novos}
                     </div>
-                    <div className="muted" style={{ fontSize: "0.9em" }}>profissionais</div>
+                    <div className="muted" style={{ fontSize: "0.9em" }}>
+                      {novos === 1 ? "pessoa" : "pessoas"}
+                    </div>
                   </div>
                 </div>
               ))}
             </div>
 
+            {/* Cada onda conta só quem as anteriores não alcançaram, então
+                somar os três números dá o total de verdade. Sem o desconto,
+                "12, 30, 45" para 45 pessoas seria lido como 87. */}
             <p className="muted" style={{ marginTop: 16, fontSize: "0.9em" }}>
-              Total: {ondaPreview.reduce((sum, o) => sum + o.count, 0)} profissionais na cidade
+              No total, {ondaPreview.reduce((soma, o) => soma + o.novos, 0)} pessoas em{" "}
+              {form.city} podem ser avisadas — nenhuma duas vezes.
             </p>
+
+            {ondaPreview[0]?.novos === 0 && (
+              <p style={{ marginTop: 12, fontSize: "0.9em" }}>
+                Ninguém com esse encaixe exato hoje. A vaga pode ser criada do
+                mesmo jeito — e a onda 2 provavelmente tem gente.
+              </p>
+            )}
           </div>
 
           <div style={{ display: "flex", gap: 12 }}>
@@ -333,10 +347,10 @@ export function CriarVagaPage() {
             </button>
             <button
               className="btn btn-primary"
-              onClick={confirmarEDisparar}
+              onClick={confirmarEAbrirPrimeiraOnda}
               disabled={salvando}
             >
-              {salvando ? "Disparando..." : "Confirmar e disparar"}
+              {salvando ? "Criando…" : "Criar vaga e avisar a onda 1"}
             </button>
           </div>
         </div>

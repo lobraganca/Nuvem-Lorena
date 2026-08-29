@@ -1,6 +1,7 @@
 import { supabase as getSupabase } from "./supabase";
-import type { Company, JobListing, JobDispatch, JobResponse, UserOnboarding } from "../types/domain";
-import { mensagemDeErro } from "./erros";
+import type { Company, JobListing, JobDispatch, JobResponse, WaveNumber } from "../types/domain";
+import { categoriasDoMesmoGrupo } from "../types/domain";
+import { lerTudo } from "./lerTudo";
 
 const supabase = getSupabase();
 
@@ -135,37 +136,112 @@ export async function obterVaga(vagaId: string): Promise<JobListing | null> {
   return data as JobListing;
 }
 
-/** Busca profissionais locais compatíveis com a vaga (sem disparar). */
-export async function buscarProfissionaisComFiltrosLocais(
-  jobListing: JobListing
-): Promise<Array<{ professional: any; distancia: number; compatibilidade: number }>> {
-  if (!supabase) return [];
+/**
+ * Quem uma onda alcança.
+ *
+ * Lê a `professionals_public`, que já deixa de fora suspensos e pausados
+ * (migration 0053). Ninguém que tirou o próprio cadastro do ar recebe vaga.
+ *
+ * As três ondas diferem só na largura do filtro de ofício — ver `ONDAS` e o
+ * cabeçalho da migration 0068 para o porquê de não haver distância aqui.
+ */
+function consultaDaOnda(sb: NonNullable<ReturnType<typeof getSupabase>>, vaga: JobListing, onda: WaveNumber) {
+  let q = sb
+    .from("professionals_public")
+    .select("id, owner_id, name, categories, especialidade")
+    .eq("city", vaga.city);
 
-  /* Esta é uma busca MOCK — sem banco real, não há dados.
-     Quando o banco estiver pronto, esta função fará uma query real
-     que:
-     1. Filtra professionals.city = jobListing.city
-     2. Filtra por profession/category match
-     3. Calcula compatibilidade por skills, experience, etc
-     4. Calcula distância aproximada
-     5. Retorna resultados ordenados
-  */
+  /* O estado anda junto com a cidade, sempre: há "Bom Jesus" em mais de
+     vinte estados, e filtrar só pelo nome mistura cidades distantes numa
+     lista que chega cheia, sem erro nenhum na tela. */
+  if (vaga.uf) q = q.eq("uf", vaga.uf);
 
-  return [];
+  if (onda === 3) {
+    // Ofícios vizinhos: o grupo inteiro da profissão, ela incluída.
+    q = q.overlaps("categories", categoriasDoMesmoGrupo(vaga.profession));
+  } else {
+    q = q.contains("categories", [vaga.profession]);
+  }
+
+  /* Onda 1 é a única que olha especialidade — e só quando a vaga pediu uma.
+     Vaga sem especialidade não tem como ser mais exata que o ofício, então
+     a onda 1 já é a onda 2, e a 2 não terá o que acrescentar. É de
+     propósito: melhor uma onda que sobra vazia do que uma que finge
+     precisão que não existe. */
+  if (onda === 1 && vaga.specialty?.trim()) {
+    q = q.ilike("especialidade", `%${vaga.specialty.trim()}%`);
+  }
+
+  return q;
 }
 
-/** Cria as 3 ondas automáticas ao disparar uma vaga. */
-export async function dispararVagaComOndas(vagaId: string): Promise<{ ondas: JobDispatch[] }> {
-  if (!supabase) throw new Error("Banco não configurado");
+type AlcancadoPelaOnda = { id: string; owner_id: string; name: string };
 
-  /* MOCK: Quando o banco estiver pronto:
-     1. Busca profissionais compatíveis (onda 1: maior compatibilidade + menor distância)
-     2. Cria 3 registros em job_dispatches com wave 1, 2, 3
-     3. Retorna as ondas criadas
+/**
+ * Quantas pessoas cada onda alcançaria, sem avisar ninguém.
+ *
+ * É o que a tela mostra antes de a empresa confirmar. As ondas são
+ * cumulativas por construção (quem está na 1 está na 2), então o número de
+ * cada uma é descontado das anteriores — senão a tela diria "12, 30, 45"
+ * para 45 pessoas no total, e quem lê entenderia 87.
+ *
+ * `lerTudo` e não `select` direto: a migration 0062 pôs teto de 200 linhas
+ * por consulta, e ele vale para toda consulta. Uma contagem que bate no
+ * teto para de subir para sempre, sem erro, sem aviso — e um número que
+ * mente calado é o defeito mais caro deste projeto.
+ */
+export async function calcularOndas(
+  vaga: JobListing
+): Promise<Array<{ onda: WaveNumber; novos: number; pessoas: AlcancadoPelaOnda[] }>> {
+  const sb = getSupabase();
+  if (!sb) throw new Error("Banco não configurado");
 
-     Por enquanto, retorna ondas vazias. */
+  const jaAlcancados = new Set<string>();
+  const resultado: Array<{ onda: WaveNumber; novos: number; pessoas: AlcancadoPelaOnda[] }> = [];
 
-  return { ondas: [] };
+  for (const onda of [1, 2, 3] as WaveNumber[]) {
+    const linhas = await lerTudo<AlcancadoPelaOnda>(() => consultaDaOnda(sb, vaga, onda));
+    const novas = linhas.filter((p) => !jaAlcancados.has(p.id));
+    novas.forEach((p) => jaAlcancados.add(p.id));
+    resultado.push({ onda, novos: novas.length, pessoas: novas });
+  }
+
+  return resultado;
+}
+
+/**
+ * Abre UMA onda — a que a empresa pediu no botão.
+ *
+ * Não existe disparo automático neste app, e é decisão de produto: a
+ * empresa que já achou gente não incomoda mais ninguém, e ninguém é
+ * acordado por um agendamento de madrugada.
+ *
+ * O `unique (job_listing_id, wave)` do banco é quem garante que dois toques
+ * no botão não avisem as mesmas pessoas duas vezes — a conferência aqui
+ * embaixo é conveniência de tela, a garantia é lá.
+ */
+export async function abrirOnda(vaga: JobListing, onda: WaveNumber): Promise<JobDispatch> {
+  const sb = getSupabase();
+  if (!sb) throw new Error("Banco não configurado");
+
+  const ondas = await calcularOndas(vaga);
+  const alvo = ondas.find((o) => o.onda === onda);
+
+  const { data, error } = await sb
+    .from("job_dispatches")
+    .insert([
+      {
+        job_listing_id: vaga.id,
+        wave: onda,
+        professionals_count: alvo?.novos ?? 0,
+        status: "sent",
+      },
+    ])
+    .select()
+    .single();
+
+  if (error) throw error;
+  return data as JobDispatch;
 }
 
 /** Obtém o status das ondas de uma vaga. */
