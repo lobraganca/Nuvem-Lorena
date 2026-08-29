@@ -92,7 +92,7 @@ export class ErrorBoundary extends Component<{ children: ReactNode }, Estado> {
 
                   No app da Play Store não existe "Instalar App" nem site
                   para abrir; quem reinstala vai à loja. Escrever
-                  "acesse eiitabirito.com.br" ali também seria mandar sair do
+                  "acesse www.empregoitabirito.com.br" ali também seria mandar sair do
                   app para resolver um problema do app. */}
               {ehAppDaLoja() ? (
                 <>
@@ -113,7 +113,7 @@ export class ErrorBoundary extends Component<{ children: ReactNode }, Estado> {
                   <ol style={{ margin: 0, paddingLeft: 20, display: "grid", gap: 4 }}>
                     <li>Toque e segure o ícone do Ei Itabirito na tela e remova-o.</li>
                     <li>
-                      Abra o navegador e acesse <strong>eiitabirito.com.br</strong>.
+                      Abra o navegador e acesse <strong>www.empregoitabirito.com.br</strong>.
                     </li>
                     <li>Toque em "Instalar App" no topo da tela.</li>
                   </ol>

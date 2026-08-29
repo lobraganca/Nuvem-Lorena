@@ -11,7 +11,7 @@ verdade, não uma precaução hipotética.
 | Onde | Qual | Site |
 |---|---|---|
 | **raiz** (`src/`, `supabase/`) | Avena — turismo, reservas, passeios | outro |
-| **`apps/profissionais/`** | **Ei Itabirito** — busca de profissionais em Itabirito, MG | eiitabirito.com.br |
+| **`apps/profissionais/`** | **Ei Itabirito** — busca de profissionais em Itabirito, MG | www.empregoitabirito.com.br |
 
 **Quase todo o trabalho é no `apps/profissionais/`.** A raiz tem outro app,
 com outro banco, outras migrations e outra dona da decisão.
@@ -74,7 +74,7 @@ sucesso.
 
 Por isso o `vite.config.ts` publica um `versao.json` com o commit, e o
 workflow tem um segundo passo que fica batendo em
-`eiitabirito.com.br/versao.json` até o site devolver aquele commit exato.
+`www.empregoitabirito.com.br/versao.json` até o site devolver aquele commit exato.
 **Hoje verde quer dizer no ar.** Se esse passo falhar, ele imprime o
 caminho: Vercel > Deployments > "Promote to Production", e
 Settings > Git > Production Branch para não repetir.
