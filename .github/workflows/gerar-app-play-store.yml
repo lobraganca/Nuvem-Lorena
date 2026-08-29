@@ -30,6 +30,10 @@ on:
         description: 'Versão que aparece para as pessoas (ex.: 1.0.3)'
         required: true
         default: '1.0.0'
+      versionCode:
+        description: 'Número do envio. Deixe vazio para usar o número da execução. Preencha com um número MAIOR quando a loja disser que o código já foi usado.'
+        required: false
+        default: ''
 
 jobs:
   montar:
@@ -143,6 +147,16 @@ jobs:
       # O número do envio é o número da execução do workflow: sobe sozinho,
       # nunca repete, e ninguém precisa lembrar de somar 1. A Play Store
       # recusa um envio cujo número já foi usado.
+      #
+      # Só que "nunca repete" vale para as execuções DESTE workflow, e não
+      # para o que a loja já viu. Um envio feito de outro jeito, um arquivo
+      # antigo reenviado, uma execução recontada — qualquer um desses deixa
+      # a loja com um número que a contagem daqui não conhece, e aí ela
+      # recusa sem que haja o que consertar no código.
+      #
+      # Por isso o campo existe: quando a loja disser "o código da versão já
+      # foi usado", basta montar de novo com um número maior. Vazio, o
+      # comportamento é o de sempre.
       # Os DOIS formatos, na mesma montagem.
       #
       # `.aab` é o que a Play Store aceita, e SÓ ela: o arquivo não instala
@@ -168,7 +182,7 @@ jobs:
           cd android
           chmod +x gradlew
           ./gradlew bundleRelease assembleRelease --no-daemon \
-            -PversionCode=${{ github.run_number }} \
+            -PversionCode=${{ inputs.versionCode != '' && inputs.versionCode || github.run_number }} \
             -PversionName=${{ inputs.versionName }}
 
       # Confere o que saiu antes de entregar. Um .aab existe mesmo quando o
@@ -194,7 +208,7 @@ jobs:
           echo "| | |" >> $GITHUB_STEP_SUMMARY
           echo "|---|---|" >> $GITHUB_STEP_SUMMARY
           echo "| Versão | ${{ inputs.versionName }} |" >> $GITHUB_STEP_SUMMARY
-          echo "| Número do envio | ${{ github.run_number }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Número do envio (versionCode) | ${{ inputs.versionCode != '' && inputs.versionCode || github.run_number }} |" >> $GITHUB_STEP_SUMMARY
           echo "| Para a loja (.aab) | $(du -h "$AAB" | cut -f1) |" >> $GITHUB_STEP_SUMMARY
           echo "| Para o seu celular (.apk) | $(du -h "$APK" | cut -f1) |" >> $GITHUB_STEP_SUMMARY
           if [ "${{ steps.chave.outputs.assinado }}" = "sim" ]; then
@@ -217,7 +231,7 @@ jobs:
       - name: Guardar o .apk (para instalar e testar)
         uses: actions/upload-artifact@v4
         with:
-          name: procuro-celular-${{ inputs.versionName }}-envio${{ github.run_number }}
+          name: procuro-celular-${{ inputs.versionName }}-envio${{ inputs.versionCode != '' && inputs.versionCode || github.run_number }}
           path: apps/profissionais/android/app/build/outputs/apk/release/*.apk
           retention-days: 30
           if-no-files-found: error
@@ -225,7 +239,7 @@ jobs:
       - name: Guardar o .aab (para enviar à loja)
         uses: actions/upload-artifact@v4
         with:
-          name: procuro-loja-${{ inputs.versionName }}-envio${{ github.run_number }}
+          name: procuro-loja-${{ inputs.versionName }}-envio${{ inputs.versionCode != '' && inputs.versionCode || github.run_number }}
           path: apps/profissionais/android/app/build/outputs/bundle/release/*.aab
           retention-days: 30
           if-no-files-found: error
