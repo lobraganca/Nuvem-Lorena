@@ -67,6 +67,24 @@ jobs:
             "$URL/rest/v1/professionals_public?select=name,city,category,verified,created_at&order=created_at.desc&limit=15" \
             -H "apikey: $CHAVE" -H "Authorization: Bearer $CHAVE"
 
+          # Todas as datas, para o desenho dia a dia.
+          #
+          # Um total sozinho não distingue "entra gente toda semana" de
+          # "entrou tudo de uma vez e parou" — e as duas pedem coisas
+          # opostas de quem cuida do app. O desenho por dia mostra qual é.
+          #
+          # `limit=1000` esbarraria no teto de 200 do PostgREST se um dia
+          # houver mais que isso; por ora são dezenas, e o cabeçalho contado
+          # acima é quem manda no total. Quando passar de 200, esta parte
+          # precisa paginar (é o que o `lerTudo` do app faz).
+          curl -sS -o /tmp/datas.json \
+            "$URL/rest/v1/professionals_public?select=created_at&order=created_at.desc&limit=200" \
+            -H "apikey: $CHAVE" -H "Authorization: Bearer $CHAVE"
+
+          primeiro=$(jq -r 'sort_by(.created_at) | .[0].created_at[0:10] // "—"' /tmp/datas.json)
+          ultimo=$(jq -r '.[0].created_at[0:10] // "—"' /tmp/datas.json)
+          dias_parado=$(( ( $(date -u +%s) - $(date -u -d "$ultimo" +%s) ) / 86400 ))
+
           {
             echo "## Cadastros no ar em $hoje"
             echo
@@ -78,10 +96,20 @@ jobs:
             echo "| Com selo de verificado | $selo |"
             echo
             if [ "${semana:-0}" = "0" ]; then
-              echo "**Ninguém novo nos últimos 7 dias.**"
+              echo "**Ninguém novo nos últimos 7 dias.** O último entrou em"
+              echo "$ultimo — faz $dias_parado dia(s)."
             else
               echo "**Continua entrando gente:** $semana cadastro(s) nos últimos 7 dias."
             fi
+            echo
+            echo "### Dia a dia"
+            echo
+            echo "Do primeiro ($primeiro) ao último ($ultimo). Cada ▇ é um cadastro."
+            echo
+            echo '```'
+            jq -r 'group_by(.created_at[0:10]) | sort_by(.[0].created_at) | reverse | .[]
+                   | "\(.[0].created_at[0:10])  \(length | tostring | (" " * (3 - length)) + .)  \("▇" * length)"' /tmp/datas.json
+            echo '```'
             echo
             echo "### Os últimos que entraram"
             echo
@@ -97,4 +125,7 @@ jobs:
 
           # O mesmo no log, para quem estiver lendo por aqui.
           echo "Total no ar: $total | 7 dias: $semana | 30 dias: $mes | com selo: $selo"
+          echo "Primeiro: $primeiro | Último: $ultimo | parado ha $dias_parado dia(s)"
+          jq -r 'group_by(.created_at[0:10]) | sort_by(.[0].created_at) | reverse | .[]
+                 | "\(.[0].created_at[0:10])  \(length)"' /tmp/datas.json
           jq -r '.[] | "\(.created_at[0:10])  \(.name)  —  \(.city)  —  \(.category)"' /tmp/recentes.json
