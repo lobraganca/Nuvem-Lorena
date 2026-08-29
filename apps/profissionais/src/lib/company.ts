@@ -292,6 +292,24 @@ export async function abrirOnda(vaga: JobListing, onda: WaveNumber): Promise<Job
 
   const ondas = await calcularOndas(vaga);
   const alvo = ondas.find((o) => o.onda === onda);
+  const pessoas = alvo?.pessoas ?? [];
+  const donos = pessoas.map((p) => p.owner_id);
+
+  /* Quantos, destes, têm aparelho que receba aviso.
+     ───────────────────────────────────────────────
+     A diferença entre `professionals_count` e `podiam_receber` é a verdade
+     que a empresa precisa ver: push só alcança quem instalou o app e
+     aceitou receber. Guardar só o primeiro número faria a tela vender um
+     alcance que não existe — e a empresa descobriria pelo silêncio, que é a
+     forma mais cara de descobrir. */
+  let podiamReceber: number | null = null;
+  if (donos.length > 0) {
+    const { data, error } = await sb.rpc("quantos_recebem_push", { p_users: donos });
+    /* Erro aqui não derruba o disparo: a vaga sair é mais importante que a
+       estatística dela. Fica `null`, e a tela mostra "não sei" em vez de
+       zero — que seria dizer que ninguém recebe. */
+    if (!error) podiamReceber = Number(data ?? 0);
+  }
 
   const { data, error } = await sb
     .from("job_dispatches")
@@ -299,7 +317,8 @@ export async function abrirOnda(vaga: JobListing, onda: WaveNumber): Promise<Job
       {
         job_listing_id: vaga.id,
         wave: onda,
-        professionals_count: alvo?.novos ?? 0,
+        professionals_count: pessoas.length,
+        podiam_receber: podiamReceber,
         status: "sent",
       },
     ])
@@ -307,6 +326,42 @@ export async function abrirOnda(vaga: JobListing, onda: WaveNumber): Promise<Job
     .single();
 
   if (error) throw error;
+
+  /* Agora o recado, pessoa por pessoa.
+     ──────────────────────────────────
+     Isto é o aviso em si. O push é só o empurrão para a pessoa abrir o app;
+     quem não tem push ligado encontra a vaga em "vagas para você", porque a
+     linha está aqui do mesmo jeito. Sem esta tabela, uma onda seria um
+     número no painel da empresa e mais nada — ninguém teria como ficar
+     sabendo da vaga.
+
+     `ignoreDuplicates` porque a onda 2 pode alcançar quem a onda 1 já
+     alcançou (o desconto entre ondas é da contagem, não uma garantia de
+     banco), e a mesma vaga não avisa a mesma pessoa duas vezes. */
+  if (pessoas.length > 0) {
+    const { error: erroAviso } = await sb.from("job_notifications").upsert(
+      pessoas.map((p) => ({
+        job_listing_id: vaga.id,
+        professional_id: p.owner_id,
+        wave: onda,
+      })),
+      { onConflict: "job_listing_id,professional_id", ignoreDuplicates: true }
+    );
+    /* Este erro SOBE. Sem as linhas de aviso a onda não avisou ninguém — o
+       registro em `job_dispatches` diria "12 pessoas alcançadas" sobre um
+       disparo que não alcançou nenhuma. É exatamente o número que mente
+       calado, e a empresa gastou uma das duas ondas da vaga nele. */
+    if (erroAviso) throw erroAviso;
+
+    /* Empurra a fila agora, para o aviso chegar em minutos e não na próxima
+       rotina. É best-effort de propósito: se a função falhar ou demorar, as
+       linhas continuam na fila e a chamada seguinte as pega. Esperar por
+       ela aqui faria a empresa olhar um botão girando enquanto dezenas de
+       notificações saem uma a uma — e um erro no meio pareceria "a vaga não
+       foi criada", quando ela já foi. */
+    sb.functions.invoke("enviar-avisos-de-vaga").catch(() => {});
+  }
+
   return data as JobDispatch;
 }
 

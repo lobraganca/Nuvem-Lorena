@@ -233,11 +233,31 @@ export function DetalheVagaPage() {
                     })}
                   </p>
                 </div>
-                <div style={{ textAlign: "right" }}>
+                <div style={{ textAlign: "right", flexShrink: 0 }}>
                   <div style={{ fontSize: "1.2em", fontWeight: "bold" }}>
                     {onda.professionals_count}
                   </div>
-                  <div className="muted" style={{ fontSize: "0.85em" }}>profissionais</div>
+                  <div className="muted" style={{ fontSize: "0.85em" }}>
+                    {onda.professionals_count === 1 ? "pessoa" : "pessoas"}
+                  </div>
+                  {/* O número que não pode faltar.
+                      ─────────────────────────────
+                      Notificação só alcança quem instalou o app e aceitou
+                      receber. Mostrar só "12 pessoas" venderia um alcance
+                      que não existe, e a empresa descobriria pelo silêncio
+                      — a forma mais cara de descobrir.
+
+                      `null` é "não sei" e some da tela: a contagem pode ter
+                      falhado, e escrever "0 com aviso" nesse caso seria
+                      inventar a pior notícia possível. */}
+                  {onda.podiam_receber !== null && onda.podiam_receber !== undefined && (
+                    <div
+                      className="muted"
+                      style={{ fontSize: "0.78em", marginTop: 2, maxWidth: 130 }}
+                    >
+                      {onda.podiam_receber} com aviso no celular
+                    </div>
+                  )}
                 </div>
               </div>
             ))}

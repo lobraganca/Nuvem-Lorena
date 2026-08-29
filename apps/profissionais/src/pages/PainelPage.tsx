@@ -36,6 +36,7 @@ import { ConfirmarWhatsApp } from "../components/ConfirmarWhatsApp";
 import { BotaoApple } from "../components/BotaoApple";
 import { BotaoGoogle } from "../components/BotaoGoogle";
 import { mensagemDeErro } from "../lib/erros";
+import { quantasVagasNovas } from "../lib/minhasVagas";
 import { useTituloDaPagina } from "../lib/tituloDaPagina";
 import { MarcaConfirmado } from "../components/MarcaConfirmado";
 import { CartaoProfissional } from "../components/CartaoProfissional";
@@ -136,6 +137,8 @@ export function PainelPage() {
   /** Cadastro que a pessoa pediu para excluir — a confirmação abre em folha. */
   const [excluindoAnuncio, setExcluindoAnuncio] = useState<Professional | null>(null);
   const [excluindo, setExcluindo] = useState(false);
+  /** Vagas que chegaram e ainda não foram abertas. Zero esconde o cartão. */
+  const [vagasNovas, setVagasNovas] = useState(0);
 
   /**
    * Ainda não sabemos se a pessoa tem cadastro.
@@ -150,6 +153,20 @@ export function PainelPage() {
   const [erroAoCarregar, setErroAoCarregar] = useState("");
   /** Muda a cada "tentar de novo", para o efeito rodar outra vez. */
   const [tentativaDeCarregar, setTentativaDeCarregar] = useState(0);
+
+  /* Quantas vagas esperam esta pessoa. Falhar aqui não faz nada aparecer,
+     e é o certo: o cartão é um atalho, e derrubar o painel inteiro por
+     causa dele seria trocar uma conveniência por uma tela quebrada. */
+  useEffect(() => {
+    if (!user) return;
+    let ativo = true;
+    quantasVagasNovas(user.id).then((n) => {
+      if (ativo) setVagasNovas(n);
+    });
+    return () => {
+      ativo = false;
+    };
+  }, [user]);
 
   useEffect(() => {
     if (!user) return;
@@ -461,6 +478,44 @@ export function PainelPage() {
     <div className="container" style={{ paddingTop: 32, paddingBottom: 60 }}>
       <h1>Painel do profissional</h1>
       {message && <p className="card">{message}</p>}
+
+      {/* As vagas que chegaram para esta pessoa.
+          ────────────────────────────────────────
+          Fica aqui em cima, e não na barra de baixo: a barra já tem cinco
+          itens e um sexto espremeria os que já existem. Aqui é onde quem se
+          cadastrou para trabalhar volta — e é a primeira coisa que ele quer
+          saber.
+
+          Só aparece quando há vaga esperando. Um "0 vagas" permanente
+          ensina a pessoa a não olhar, e aí o dia em que houver uma ela não
+          vê. */}
+      {vagasNovas > 0 && (
+        <Link
+          to="/vagas-para-mim"
+          className="card"
+          style={{
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "space-between",
+            gap: 12,
+            padding: 14,
+            marginTop: 16,
+            textDecoration: "none",
+          }}
+        >
+          <span>
+            <strong>
+              {vagasNovas === 1 ? "1 vaga para você" : `${vagasNovas} vagas para você`}
+            </strong>
+            <span className="muted" style={{ display: "block", fontSize: "0.88em" }}>
+              Empresas daqui procurando quem faz o que você faz.
+            </span>
+          </span>
+          <span aria-hidden="true" style={{ fontSize: 20, color: "var(--color-muted)" }}>
+            ›
+          </span>
+        </Link>
+      )}
 
       <section style={{ marginTop: 24 }}>
         <div className="secao-topo">

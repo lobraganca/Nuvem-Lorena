@@ -141,3 +141,21 @@ export const LOGIN_EMAIL_ATIVO = (import.meta.env.VITE_LOGIN_EMAIL ?? "") === "1
  * Variável: VITE_EXIGIR_NUMERO
  */
 export const EXIGIR_NUMERO_ATIVO = (import.meta.env.VITE_EXIGIR_NUMERO ?? "") === "1";
+
+/**
+ * A chave pública do Web Push (VAPID).
+ *
+ * É ela que o navegador usa para criar a inscrição de push do site. A chave
+ * PRIVADA, o par desta, mora nos segredos do Supabase e é o que assina o
+ * envio — ela nunca aparece aqui, porque tudo neste arquivo vai para dentro
+ * do pacote que qualquer pessoa baixa.
+ *
+ * Vazia enquanto a dona não gerar o par. E vazia significa que o site não
+ * inscreve ninguém — `pedirPermissaoDePush` devolve `false` em vez de pedir
+ * a permissão e não conseguir usá-la. Pedir e falhar é o pior dos dois
+ * mundos: no navegador a recusa é definitiva, e uma permissão gasta à toa
+ * não se pede de novo.
+ *
+ * Não afeta o app da Play Store, que usa o Firebase e não esta chave.
+ */
+export const VAPID_PUBLICA = import.meta.env.VITE_VAPID_PUBLICA ?? "";

@@ -75,6 +75,18 @@ export default defineConfig({
       manifest: false, // usamos public/manifest.json manualmente (linkado no index.html)
       includeAssets: ['icon-192.png', 'icon-512.png', 'icon-maskable-512.png', 'apple-touch-icon.png'],
       workbox: {
+        /* O pedaço que recebe notificação, puxado para dentro do service
+           worker gerado.
+           ─────────────────────────────────────────────────────────────
+           `importScripts` em vez de trocar para o modo `injectManifest`:
+           mudar o modo obrigaria a reescrever à mão toda a configuração de
+           cache comentada abaixo — e errar ali não aparece como erro,
+           aparece como app servindo a versão de ontem, que é exatamente o
+           defeito que essas linhas existem para impedir.
+
+           Vale só para o site: no app da Play Store o service worker é
+           desligado, e quem entrega a notificação é o Firebase. */
+        importScripts: ['push-sw.js'],
         // O HTML ficou DE FORA do cache de propósito. Com ele guardado, cada
         // publicação nova só aparecia na segunda ou terceira vez que a pessoa
         // abria o app — e quem estava com a versão velha não tinha como saber

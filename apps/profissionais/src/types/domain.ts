@@ -902,7 +902,19 @@ export interface JobDispatch {
   id: string;
   job_listing_id: string;
   wave: WaveNumber;
-  professionals_count: number; // quantos profissionais receberam
+  professionals_count: number; // quantas pessoas a onda alcançou
+  /**
+   * Quantas delas TÊM aparelho que receba notificação.
+   *
+   * A diferença entre este número e o de cima é a verdade sobre o alcance:
+   * push só chega em quem instalou o app e aceitou receber, e no iPhone só
+   * em quem adicionou à tela de início. Mostrar só "alcançou 12" venderia
+   * um alcance que não existe.
+   *
+   * `null` é "não deu para contar", e a tela esconde em vez de escrever
+   * zero — zero seria inventar a pior notícia possível.
+   */
+  podiam_receber: number | null;
   sent_at: string;
   status: "pending" | "sent" | "closed";
 }
