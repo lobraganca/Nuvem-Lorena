@@ -81,6 +81,40 @@ jobs:
             "$URL/rest/v1/professionals_public?select=created_at&order=created_at.desc&limit=200" \
             -H "apikey: $CHAVE" -H "Authorization: Bearer $CHAVE"
 
+          # Tem gente ENTRANDO no site, ou só parou de chegar?
+          #
+          # É a pergunta que separa "o cadastro quebrou" de "ninguém veio".
+          # As duas dão o mesmo zero de cadastros novos, e pedem coisas
+          # opostas: uma é conserto, a outra é divulgação.
+          #
+          # `profile_views` não pode ser lida por visitante — a policy só
+          # deixa o dono ver as visitas do próprio anúncio, o que é certo.
+          # A porta que existe é `mais_vistos`, uma função `security
+          # definer` liberada para `anon` na 0059. Ela devolve quem passou
+          # de 3 visitas no período.
+          #
+          # O erro é separado do vazio de propósito. Se a 0059 nunca foi
+          # aplicada, a função não existe e a chamada dá erro — e ler esse
+          # erro como "ninguém visitou" seria a mentira mais calma
+          # possível: a tela pareceria normal e o defeito não apareceria em
+          # lugar nenhum.
+          visitados() {
+            local codigo
+            codigo=$(curl -sS -o /tmp/vis.json -w "%{http_code}" \
+              -X POST "$URL/rest/v1/rpc/mais_vistos" \
+              -H "apikey: $CHAVE" -H "Authorization: Bearer $CHAVE" \
+              -H "Content-Type: application/json" \
+              -d "{\"dias\": $1, \"quantos\": 200}") || true
+            if [ "$codigo" != "200" ]; then
+              echo "ERRO($codigo): $(head -c 200 /tmp/vis.json | tr -d '\n')"
+            else
+              jq -r 'length' /tmp/vis.json
+            fi
+          }
+
+          vis7=$(visitados 7)
+          vis30=$(visitados 30)
+
           primeiro=$(jq -r 'sort_by(.created_at) | .[0].created_at[0:10] // "—"' /tmp/datas.json)
           ultimo=$(jq -r '.[0].created_at[0:10] // "—"' /tmp/datas.json)
           dias_parado=$(( ( $(date -u +%s) - $(date -u -d "$ultimo" +%s) ) / 86400 ))
@@ -101,6 +135,17 @@ jobs:
             else
               echo "**Continua entrando gente:** $semana cadastro(s) nos últimos 7 dias."
             fi
+            echo
+            echo "### Ainda entra gente no site?"
+            echo
+            echo "| Período | Cadastros com 3+ visitas |"
+            echo "|---|---|"
+            echo "| Últimos 7 dias | $vis7 |"
+            echo "| Últimos 30 dias | $vis30 |"
+            echo
+            echo "> Se aqui aparecer **ERRO**, a conta não foi feita — não leia"
+            echo "> como \"ninguém visitou\". Zero de verdade quer dizer que nenhum"
+            echo "> cadastro passou de 3 visitas no período."
             echo
             echo "### Dia a dia"
             echo
@@ -126,6 +171,7 @@ jobs:
           # O mesmo no log, para quem estiver lendo por aqui.
           echo "Total no ar: $total | 7 dias: $semana | 30 dias: $mes | com selo: $selo"
           echo "Primeiro: $primeiro | Último: $ultimo | parado ha $dias_parado dia(s)"
+          echo "Cadastros com 3+ visitas — 7 dias: $vis7 | 30 dias: $vis30"
           jq -r 'group_by(.created_at[0:10]) | sort_by(.[0].created_at) | reverse | .[]
                  | "\(.[0].created_at[0:10])  \(length)"' /tmp/datas.json
           jq -r '.[] | "\(.created_at[0:10])  \(.name)  —  \(.city)  —  \(.category)"' /tmp/recentes.json
