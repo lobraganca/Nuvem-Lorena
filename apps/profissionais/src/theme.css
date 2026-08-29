@@ -3489,6 +3489,49 @@ h3 {
   padding: 10px 12px;
 }
 
+/* ── Experiências de trabalho ──────────────────────────────────────────
+   Cada experiência é um cartão, e não três campos soltos: soltos, a
+   segunda experiência parecia continuação da primeira, e quem preenchia
+   duas não sabia onde uma acabava. */
+.experiencias {
+  display: grid;
+  gap: 12px;
+}
+
+.experiencia-item {
+  display: grid;
+  gap: 8px;
+  background: var(--color-bg-soft);
+  border: 1px solid var(--color-border);
+  border-radius: 12px;
+  padding: 12px;
+}
+
+.experiencia-cabecalho {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 0.82rem;
+}
+
+/* Os dois opcionais lado a lado — mas só onde cabe. Num celular estreito
+   duas caixas na mesma linha ficam pequenas demais para digitar, então
+   elas voltam a empilhar. */
+.experiencia-linha {
+  display: grid;
+  gap: 8px;
+}
+
+@media (min-width: 420px) {
+  .experiencia-linha {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+.experiencia-item input {
+  width: 100%;
+}
+
 /* O principal é o que aparece no card da busca, então precisa ser
    reconhecível na hora — sem isso a ordem da lista vira detalhe invisível. */
 .servico-escolhido.principal {

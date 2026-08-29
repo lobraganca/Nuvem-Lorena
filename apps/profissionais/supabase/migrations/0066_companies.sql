@@ -69,7 +69,7 @@ select case
            and attname in ('id', 'owner_id', 'company_name', 'cnpj', 'city', 'uf',
                           'neighborhood', 'address', 'phone', 'email', 'website',
                           'photo_url', 'responsible_name', 'description', 'created_at', 'updated_at')
-           and not attisdropped) = 15
+           and not attisdropped) = 16
   then 'PRONTO — companies foi criada com todas as colunas'
   else 'AINDA FALTA — as colunas nao foram criadas'
   end as resultado;

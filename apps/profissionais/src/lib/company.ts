@@ -145,11 +145,38 @@ export async function obterVaga(vagaId: string): Promise<JobListing | null> {
  * As três ondas diferem só na largura do filtro de ofício — ver `ONDAS` e o
  * cabeçalho da migration 0068 para o porquê de não haver distância aqui.
  */
-function consultaDaOnda(sb: NonNullable<ReturnType<typeof getSupabase>>, vaga: JobListing, onda: WaveNumber) {
+function consultaDaOnda(
+  sb: NonNullable<ReturnType<typeof getSupabase>>,
+  vaga: JobListing,
+  onda: WaveNumber,
+  /* Duas colunas guardam ofício: `categories` é o que a pessoa FAZ,
+     `areas_de_interesse` é onde ela ACEITARIA trabalhar. A vaga alcança
+     pelas duas.
+
+     São duas consultas, e não um `or` numa string só, porque nome de ofício
+     tem espaço, acento e hífen ("Refrigeração e ar-condicionado") — e a
+     condição escrita à mão que o `or` exigiria não devolve menos resultado
+     quando as aspas erram, derruba a consulta inteira. `contains` e
+     `overlaps` são métodos do cliente, que escapam o valor sozinhos. */
+  coluna: "categories" | "areas_de_interesse"
+) {
   let q = sb
     .from("professionals_public")
-    .select("id, owner_id, name, categories, especialidade")
-    .eq("city", vaga.city);
+    .select("id, owner_id, name, categories, areas_de_interesse, especialidade")
+    .eq("city", vaga.city)
+    /* Sem telefone confirmado, ninguém entra em onda nenhuma.
+       O aviso da vaga é uma mensagem no número da pessoa: mandar para um
+       número que ninguém provou ser dela é, na melhor hipótese, avisar o
+       vazio — e na pior, avisar um estranho. A view pública já deixa de
+       fora quem está pausado ou suspenso (migration 0053); esta linha
+       acrescenta a terceira condição para ser alcançável.
+
+       Quem se cadastrou e não confirmou fica invisível para as vagas, e
+       isso é grave o bastante para a pessoa PRECISAR saber — o cartão do
+       painel avisa, com o botão de confirmar do lado. Cadastro que não
+       recebe nada e não explica por quê é o defeito mais caro que existe:
+       ninguém reclama, todo mundo some. */
+    .eq("whatsapp_verified", true);
 
   /* O estado anda junto com a cidade, sempre: há "Bom Jesus" em mais de
      vinte estados, e filtrar só pelo nome mistura cidades distantes numa
@@ -158,17 +185,21 @@ function consultaDaOnda(sb: NonNullable<ReturnType<typeof getSupabase>>, vaga: J
 
   if (onda === 3) {
     // Ofícios vizinhos: o grupo inteiro da profissão, ela incluída.
-    q = q.overlaps("categories", categoriasDoMesmoGrupo(vaga.profession));
+    q = q.overlaps(coluna, categoriasDoMesmoGrupo(vaga.profession));
   } else {
-    q = q.contains("categories", [vaga.profession]);
+    q = q.contains(coluna, [vaga.profession]);
   }
 
   /* Onda 1 é a única que olha especialidade — e só quando a vaga pediu uma.
      Vaga sem especialidade não tem como ser mais exata que o ofício, então
      a onda 1 já é a onda 2, e a 2 não terá o que acrescentar. É de
      propósito: melhor uma onda que sobra vazia do que uma que finge
-     precisão que não existe. */
-  if (onda === 1 && vaga.specialty?.trim()) {
+     precisão que não existe.
+
+     Só vale para quem OFERECE o serviço: especialidade é um recorte do que
+     a pessoa faz, e quem marcou o ofício como interesse ainda não tem
+     recorte nenhum dentro dele. */
+  if (onda === 1 && coluna === "categories" && vaga.specialty?.trim()) {
     q = q.ilike("especialidade", `%${vaga.specialty.trim()}%`);
   }
 
@@ -200,9 +231,22 @@ export async function calcularOndas(
   const resultado: Array<{ onda: WaveNumber; novos: number; pessoas: AlcancadoPelaOnda[] }> = [];
 
   for (const onda of [1, 2, 3] as WaveNumber[]) {
-    const linhas = await lerTudo<AlcancadoPelaOnda>(() => consultaDaOnda(sb, vaga, onda));
-    const novas = linhas.filter((p) => !jaAlcancados.has(p.id));
-    novas.forEach((p) => jaAlcancados.add(p.id));
+    /* Uma consulta por coluna (o que faz / onde aceitaria trabalhar), e a
+       união feita aqui. Quem marcou as duas aparece nas duas listas e é
+       contado uma vez só — o `Set` abaixo resolve isso junto com a
+       sobreposição entre ondas. */
+    const [oferece, aceitaria] = await Promise.all([
+      lerTudo<AlcancadoPelaOnda>(() => consultaDaOnda(sb, vaga, onda, "categories")),
+      lerTudo<AlcancadoPelaOnda>(() => consultaDaOnda(sb, vaga, onda, "areas_de_interesse")),
+    ]);
+
+    const novas: AlcancadoPelaOnda[] = [];
+    for (const p of [...oferece, ...aceitaria]) {
+      if (jaAlcancados.has(p.id)) continue;
+      jaAlcancados.add(p.id);
+      novas.push(p);
+    }
+
     resultado.push({ onda, novos: novas.length, pessoas: novas });
   }
 

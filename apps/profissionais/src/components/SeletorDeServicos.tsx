@@ -26,18 +26,37 @@ import {
  * A ordem importa e é visível: o primeiro serviço é o que aparece em
  * destaque no cadastro e nas buscas, então ele leva a etiqueta "principal" e
  * dá para promover outro sem desmarcar tudo.
+ *
+ * Serve a duas perguntas parecidas e diferentes: "o que você faz" e "onde
+ * você aceitaria trabalhar". As duas escolhem ofícios da mesma lista, então
+ * repetem o mesmo gesto — quem aprendeu um já sabe o outro. O que muda é o
+ * texto e a etiqueta de principal, que só faz sentido na primeira: entre
+ * áreas de interesse não existe uma que apareça em destaque.
  */
 export function SeletorDeServicos({
   escolhidos,
   onChange,
+  max = MAX_CATEGORIES,
+  comPrincipal = true,
+  textos,
 }: {
   escolhidos: string[];
   onChange: (servicos: string[]) => void;
+  max?: number;
+  comPrincipal?: boolean;
+  textos?: { vazio: string; adicionar: string; tituloFolha: string; subtituloFolha: string };
 }) {
   const [aberto, setAberto] = useState(false);
   const [busca, setBusca] = useState("");
 
-  const cheio = escolhidos.length >= MAX_CATEGORIES;
+  const cheio = escolhidos.length >= max;
+
+  const t = textos ?? {
+    vazio: "Escolher o que você faz",
+    adicionar: "Adicionar outro serviço",
+    tituloFolha: "O que você faz",
+    subtituloFolha: `Escolha até ${max}. Não achou o seu ofício? Escreva do seu jeito — ele passa a valer também no filtro da busca.`,
+  };
 
   function alterna(servico: string) {
     onChange(
@@ -63,9 +82,12 @@ export function SeletorDeServicos({
       {escolhidos.length > 0 && (
         <ul className="servicos-escolhidos">
           {escolhidos.map((c, i) => (
-            <li key={c} className={i === 0 ? "servico-escolhido principal" : "servico-escolhido"}>
+            <li
+              key={c}
+              className={comPrincipal && i === 0 ? "servico-escolhido principal" : "servico-escolhido"}
+            >
               <span className="servico-nome">{c}</span>
-              {i === 0 ? (
+              {!comPrincipal ? null : i === 0 ? (
                 <span className="servico-marca">principal</span>
               ) : (
                 <button
@@ -94,19 +116,19 @@ export function SeletorDeServicos({
         <span className="mais" aria-hidden="true">
           +
         </span>
-        {escolhidos.length === 0 ? "Escolher o que você faz" : "Adicionar outro serviço"}
+        {escolhidos.length === 0 ? t.vazio : t.adicionar}
       </button>
 
       {cheio && (
         <p className="muted" style={{ margin: "8px 0 0", fontSize: "0.85rem" }}>
-          Você já marcou {MAX_CATEGORIES} serviços — o limite. Tire um para pôr outro.
+          Você já marcou {max} — o limite. Tire um para pôr outro.
         </p>
       )}
 
       {aberto && (
         <BottomSheet
-          title="O que você faz"
-          subtitle={`Escolha até ${MAX_CATEGORIES}. Não achou o seu ofício? Escreva do seu jeito — ele passa a valer também no filtro da busca.`}
+          title={t.tituloFolha}
+          subtitle={t.subtituloFolha}
           onClose={() => {
             setAberto(false);
             setBusca("");

@@ -8,6 +8,7 @@ import {
   DEFAULT_UF,
   UFS,
   MAX_CATEGORIES,
+  MAX_AREAS_DE_INTERESSE,
   MAX_ESPECIALIDADE_LEN,
   type Professional,
 } from "../types/domain";
@@ -18,6 +19,11 @@ import { getProfile } from "../lib/profiles";
 import { buscarCep, formatCep } from "../lib/cep";
 import { SeletorDeServicos } from "../components/SeletorDeServicos";
 import { SeletorDeAtributos } from "../components/SeletorDeAtributos";
+import {
+  SeletorDeExperiencias,
+  type ExperienciaEmEdicao,
+} from "../components/SeletorDeExperiencias";
+import { lerExperiencias, salvarExperiencias } from "../lib/experiencias";
 import { CatalogoDeServicos } from "../components/CatalogoDeServicos";
 import { AjustarFoto } from "../components/AjustarFoto";
 import { mensagemDeErro } from "../lib/erros";
@@ -93,6 +99,7 @@ const EMPTY: FormState = {
   categories: [],
   especialidade: "",
   atributos: [],
+  areas_de_interesse: [],
   city: DEFAULT_CITY,
   uf: DEFAULT_UF,
   bio: "",
@@ -134,6 +141,10 @@ function preencher(p: Professional): FormState {
     category: p.category,
     categories: p.categories?.length ? p.categories : [p.category],
     atributos: p.atributos ?? [],
+    /* `?? []` e não `p.areas_de_interesse`: cadastros salvos antes da
+       migration 0070 não têm a coluna preenchida, e um `undefined` aqui
+       viraria um seletor que não marca nada e não deixa marcar. */
+    areas_de_interesse: p.areas_de_interesse ?? [],
     especialidade: p.especialidade ?? "",
     city: p.city,
     /* Cadastros salvos antes de a coluna existir foram preenchidos com MG
@@ -185,6 +196,10 @@ export function CadastroPage() {
   const navigate = useNavigate();
 
   const [form, setForm] = useState<FormState>(EMPTY);
+  /* Fora do `form` porque não é coluna de `professionals`: as experiências
+     moram em tabela própria e são gravadas depois, quando o cadastro já tem
+     id. Ver `salvarExperiencias`. */
+  const [experiencias, setExperiencias] = useState<ExperienciaEmEdicao[]>([]);
   const [photoFile, setPhotoFile] = useState<File | null>(null);
   /** Arquivo aguardando enquadramento. Enquanto não for nulo, a folha de
    *  ajuste está aberta e nada foi anexado ao formulário ainda. */
@@ -308,6 +323,34 @@ export function CadastroPage() {
       // rodada de leitura jurídica.
       setAcceptedTerms(true);
       setCarregandoCadastro(false);
+
+      /* As experiências vêm de tabela própria, então é uma segunda leitura.
+         Se ela falhar, o formulário abre com a lista vazia — e salvar
+         APAGARIA as experiências que a pessoa tinha. Por isso o erro tranca
+         o salvamento em vez de virar lista vazia: uma tela que perde dado
+         calada é o pior resultado possível aqui. */
+      lerExperiencias(p.id)
+        .then((lista) => {
+          if (!ativo) return;
+          setExperiencias(
+            lista.map((e) => ({
+              id: e.id,
+              cargo: e.cargo,
+              onde: e.onde ?? "",
+              periodo: e.periodo ?? "",
+            }))
+          );
+        })
+        .catch((err) => {
+          if (!ativo) return;
+          setErroAoSalvar(true);
+          setFormMessage(
+            mensagemDeErro(
+              err,
+              "Não consegui ler suas experiências. Recarregue antes de salvar, senão elas se perdem."
+            )
+          );
+        });
     });
     return () => {
       ativo = false;
@@ -453,7 +496,7 @@ export function CadastroPage() {
            A policy da migration 0058 é o que permite esse envio. */
         photoUrl = await uploadProfessionalPhoto(form.owner_id || user.id, photoFile);
       }
-      await upsertProfessional({
+      const salvo = await upsertProfessional({
         ...form,
         /* O dono continua sendo quem era. Vinha escrito `user.id` fixo, o
            que estava certo enquanto só o dono editava — mas agora a
@@ -465,6 +508,31 @@ export function CadastroPage() {
         responsible_name: form.entity_type === "pj" ? form.responsible_name || null : null,
         photo_url: photoUrl,
       });
+
+      /* As experiências só podem ser gravadas DEPOIS, porque cada uma
+         aponta para o cadastro e um cadastro novo só ganha id aqui. É o
+         que permite preencher tudo de uma vez, no primeiro cadastro —
+         a lista do catálogo, que só aparece ao editar, cobra da pessoa uma
+         segunda visita para uma informação que ela já tinha na cabeça.
+
+         Fora do `try` principal? Não: se isto falhar, a pessoa precisa
+         saber. Mas o cadastro em si JÁ foi salvo, então a mensagem diz
+         exatamente isso — "o cadastro foi salvo, as experiências não" é
+         acionável; "não foi possível salvar" mandaria ela refazer tudo. */
+      try {
+        await salvarExperiencias(salvo.id, experiencias);
+      } catch (err) {
+        setErroAoSalvar(true);
+        setFormMessage(
+          mensagemDeErro(
+            err,
+            "Seu cadastro foi salvo, mas as experiências não. Abra a edição e tente de novo."
+          )
+        );
+        setSaving(false);
+        return;
+      }
+
       /* Volta para a lista com o aviso na mão. Sem `replace`, o botão de
          voltar do celular traria de novo o formulário do que acabou de ser
          salvo — e um "Publicar cadastro" apertado ali criaria um segundo
@@ -700,6 +768,76 @@ export function CadastroPage() {
             </label>
           )}
         </fieldset>
+
+        {/* "Onde eu aceitaria trabalhar" — o campo que faz o app ser de
+            emprego, e não só de achar encanador.
+            ─────────────────────────────────────────────────────────────
+            É outra pergunta, então é outro bloco: acima está o que a pessoa
+            FAZ, aqui o que ela ACEITARIA. Um eletricista que topa vaga de
+            auxiliar de produção nunca seria alcançado por ela se as duas
+            listas fossem a mesma — e quem procura um eletricista veria gente
+            que só toparia ser um.
+
+            Recolhido, porque é opcional de verdade: quem só quer bico
+            fecha e nem lê. Aberto sozinho quando já tem coisa marcada,
+            senão quem preencheu não encontra o que preencheu. */}
+        <details className="bloco-recolhivel" open={form.areas_de_interesse.length > 0}>
+          <summary>
+            <span className="recolhivel-titulo">
+              <strong>Quero ser avisado de vagas</strong>
+              <span className="muted"> — de que tipo de trabalho?</span>
+            </span>
+          </summary>
+
+          <p className="muted" style={{ margin: "10px 0", fontSize: "0.85rem" }}>
+            Marque o que você aceitaria fazer, mesmo que não seja o seu ofício. Quando
+            uma empresa daqui abrir uma vaga assim, você recebe o aviso.
+          </p>
+
+          <SeletorDeServicos
+            escolhidos={form.areas_de_interesse}
+            onChange={(lista) => setForm({ ...form, areas_de_interesse: lista })}
+            max={MAX_AREAS_DE_INTERESSE}
+            comPrincipal={false}
+            textos={{
+              vazio: "Escolher tipos de vaga",
+              adicionar: "Acrescentar outro tipo",
+              tituloFolha: "Que vagas quero receber",
+              subtituloFolha: `Escolha até ${MAX_AREAS_DE_INTERESSE}. Não é o que você faz hoje — é o que você aceitaria fazer.`,
+            }}
+          />
+
+          {/* O aviso da vaga é uma mensagem no número da pessoa, então sem
+              número confirmado ela simplesmente não é alcançada. Dizer isso
+              AQUI, ao lado do campo que cria a expectativa, é o que evita o
+              pior resultado possível: alguém marcar dez tipos de vaga,
+              esperar meses e nunca entender por que não chegou nada. */}
+          {editando && !form.areas_de_interesse.length ? null : (
+            <p className="muted" style={{ margin: "12px 0 0", fontSize: "0.85rem" }}>
+              Para receber vagas é preciso <strong>confirmar seu WhatsApp</strong> — o
+              aviso vai por lá. Dá para fazer isso no seu painel, depois de publicar.
+            </p>
+          )}
+        </details>
+
+        {/* Onde já trabalhei. Fica junto do "que vagas quero" porque as duas
+            respondem à mesma pergunta da empresa — "essa pessoa serve?" — e
+            porque quem se interessa por uma se interessa pela outra. */}
+        <details className="bloco-recolhivel" open={experiencias.length > 0}>
+          <summary>
+            <span className="recolhivel-titulo">
+              <strong>Onde já trabalhei</strong>
+              <span className="muted"> — conta ponto nas vagas</span>
+            </span>
+          </summary>
+
+          <p className="muted" style={{ margin: "10px 0", fontSize: "0.85rem" }}>
+            Opcional, e rápido: o cargo basta. Quem já fez o serviço tem preferência
+            quando a empresa olha a lista.
+          </p>
+
+          <SeletorDeExperiencias experiencias={experiencias} onChange={setExperiencias} />
+        </details>
 
         {/* A lista detalhada vem logo depois dos serviços marcados, porque é
             a mesma pergunta em outro nível: "encanador" é o que você é,

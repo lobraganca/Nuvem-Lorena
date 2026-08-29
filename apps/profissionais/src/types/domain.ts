@@ -61,6 +61,19 @@ export interface Professional {
   paused: boolean;
   /** Etiquetas de atendimento marcadas no cadastro (ver `ATRIBUTOS`). */
   atributos: string[];
+  /**
+   * Onde a pessoa ACEITARIA trabalhar — diferente de `categories`, que é o
+   * que ela FAZ.
+   *
+   * A distinção é o app de emprego inteiro: um eletricista que topa vaga de
+   * auxiliar de produção nunca seria alcançado por ela, porque "auxiliar de
+   * produção" não é o ofício dele. Misturar as duas listas estragaria as
+   * duas pontas — quem procura um eletricista veria gente que só toparia
+   * ser, e a vaga não saberia distinguir quem faz de quem aceitaria.
+   *
+   * As ondas de uma vaga alcançam pelas duas colunas (ver `ONDAS`).
+   */
+  areas_de_interesse: string[];
   suspended: boolean; // tirado do ar pelo painel admin (denúncia procedente ou violação das regras)
   suspended_reason: string | null;
   contact_mode: ContactMode; // "whatsapp_livre" (grátis) ou "pay_per_lead" (cobra crédito por contato)
@@ -91,6 +104,47 @@ export interface ServicoOferecido {
 
 /** Teto por cadastro, igual ao do banco. */
 export const MAX_SERVICOS_CATALOGO = 40;
+
+/**
+ * Uma experiência de trabalho do profissional.
+ *
+ * Três campos, e é decisão de produto, não preguiça. "Ajudante de pedreiro
+ * / Construções Silva / 2 anos" é o que uma empresa da cidade quer saber, e
+ * é o que se preenche num celular sem desistir no meio. Currículo com mês e
+ * ano de início e fim é mais completo e fica vazio — e experiência não
+ * preenchida não ajuda ninguém.
+ *
+ * `periodo` é texto livre, e não duas datas: quem trabalhou "uns três anos"
+ * não lembra o mês, e obrigá-lo a escolher um faz ele inventar ou desistir.
+ */
+export interface ProfessionalExperience {
+  id: string;
+  professional_id: string;
+  /** "Ajudante de pedreiro". O único obrigatório. */
+  cargo: string;
+  /** "Construções Silva", ou vazio para quem trabalhou por conta. */
+  onde: string | null;
+  /** "2 anos", "de 2019 a 2022", "uns 6 meses". */
+  periodo: string | null;
+  ordem: number;
+  created_at: string;
+}
+
+/** Teto de experiências por cadastro. Quem tem mais, resume. */
+export const MAX_EXPERIENCIAS = 10;
+
+/**
+ * Teto de áreas de interesse — maior que o de serviços, e de propósito.
+ *
+ * O limite de 5 serviços existe porque quem marca tudo não está dizendo
+ * nada: um cadastro que aparece em vinte buscas atrapalha as vinte. Aqui a
+ * conta é outra. Marcar "aceito vaga de estoquista" não promete nada a
+ * ninguém e não polui busca nenhuma — só amplia o que chega para a própria
+ * pessoa. Quem está procurando emprego costuma aceitar mais coisas do que
+ * sabe fazer, e apertar isso em cinco seria fazê-la escolher entre vagas
+ * que ela toparia.
+ */
+export const MAX_AREAS_DE_INTERESSE = 12;
 
 /**
  * Banner de publicidade na tela de busca.

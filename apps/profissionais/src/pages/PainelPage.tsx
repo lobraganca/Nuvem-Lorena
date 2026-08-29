@@ -579,6 +579,28 @@ export function PainelPage() {
                       receber o código e é ele que aparece para quem procura. Número confirmado passa mais
                       confiança — e impede que outra pessoa se cadastre usando o seu.
                     </p>
+                    {/* A consequência que faltava dizer.
+                        ─────────────────────────────────
+                        O aviso de vaga é uma mensagem no número da pessoa,
+                        então quem não confirmou não entra em onda nenhuma
+                        (ver `consultaDaOnda` em lib/company.ts). Sem esta
+                        linha, alguém marcaria dez tipos de vaga em "quero
+                        ser avisado", esperaria meses e nunca saberia por que
+                        não chegou nada — e cadastro que não recebe e não
+                        explica é o defeito que ninguém reclama e todo mundo
+                        abandona.
+
+                        Só aparece para quem pediu vagas: para os outros
+                        seria mais um motivo genérico numa lista que eles já
+                        decidiram ignorar. */}
+                    {(p.areas_de_interesse?.length ?? 0) > 0 && (
+                      <p style={{ marginTop: 0 }}>
+                        <strong>Enquanto não confirmar, você não recebe vagas.</strong> Você marcou{" "}
+                        {p.areas_de_interesse.length}{" "}
+                        {p.areas_de_interesse.length === 1 ? "tipo de vaga" : "tipos de vaga"} para ser
+                        avisado, e o aviso vai por este número.
+                      </p>
+                    )}
                     <button type="button" className="btn btn-outline" onClick={() => setConfirmandoWhats(p)}>
                       Confirmar agora
                     </button>
