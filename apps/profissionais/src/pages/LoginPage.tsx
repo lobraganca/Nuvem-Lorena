@@ -18,6 +18,7 @@ import { LOGIN_EMAIL_ATIVO, LOGIN_TELEFONE_ATIVO } from "../config";
 import { useAuth } from "../lib/useAuth";
 import { temDestinoLogin } from "../lib/auth";
 import { googleServeAqui } from "../lib/plataforma";
+import { useOnboardingStatus } from "../lib/useOnboardingStatus";
 
 /**
  * Entrar: pelo telefone, pelo Google, ou por e-mail e senha.
@@ -93,15 +94,27 @@ export function LoginPage() {
      `temDestinoLogin` evita disputa: se alguém pediu para entrar a partir
      de outra tela ("Quero ser encontrado" leva ao Painel), quem manda é o
      RetomarDestinoLogin, que sabe o destino certo. Sem destino guardado,
-     o Perfil é o lugar: é de onde se vê a conta que acabou de entrar. */
+     o usuário passa pelo onboarding (se primeira vez) ou vai ao destino padrão. */
   const { user, loading: carregandoConta } = useAuth();
+  const tipoOnboarding = useOnboardingStatus();
   const navegar = useNavigate();
 
   useEffect(() => {
     if (carregandoConta || !user) return;
     if (temDestinoLogin()) return;
+
+    // Se está carregando o status de onboarding, aguarda
+    if (tipoOnboarding === null) return;
+
+    // Se não passou pelo onboarding, vai para escolher tipo
+    if (tipoOnboarding === false) {
+      navegar("/onboarding-tipo", { replace: true });
+      return;
+    }
+
+    // Passou pelo onboarding, vai para o perfil
     navegar("/perfil", { replace: true });
-  }, [user, carregandoConta, navegar]);
+  }, [user, carregandoConta, tipoOnboarding, navegar]);
 
   useEffect(() => {
     if (esperaSegundos <= 0) return;

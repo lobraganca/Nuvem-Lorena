@@ -606,3 +606,83 @@ export const UFS = [
 export function cidadeComEstado(city: string, uf: string): string {
   return uf ? `${city}/${uf}` : city;
 }
+
+// ===== MVP LOCAL HIRING =====
+
+/** Tipo de usuário na plataforma. */
+export type UserType = "professional" | "company";
+
+/** Empresa contratante na plataforma. */
+export interface Company {
+  id: string;
+  owner_id: string; // profiles.id do dono/responsável
+  company_name: string; // razão social
+  cnpj: string | null;
+  city: string; // mesmo padrão do Professional
+  uf: string;
+  neighborhood: string | null; // bairro/região
+  address: string | null; // endereço comercial
+  phone: string; // telefone comercial
+  email: string | null;
+  website: string | null;
+  photo_url: string | null; // logo
+  responsible_name: string | null; // nome do responsável
+  description: string; // descrição da empresa
+  created_at: string;
+}
+
+/** Tipos de trabalho disponíveis. */
+export type WorkModality = "presencial" | "remoto" | "hibrido";
+
+/** Vaga de trabalho criada por uma empresa. */
+export interface JobListing {
+  id: string;
+  company_id: string;
+  title: string; // "Vendedor", "Recepcionista", etc
+  description: string; // descrição da vaga
+  profession: string; // profissão/categoria (ex: "Vendedor")
+  specialty: string | null; // especialidade (ex: "Vendas em loja de roupas")
+  required_experience: string | null; // "0-2 anos", "2-5 anos", "5+ anos"
+  skills: string[]; // habilidades requeridas (array)
+  salary_range_min: number | null; // em centavos
+  salary_range_max: number | null; // em centavos
+  available_immediately: boolean; // disponibilidade imediata
+  work_modality: WorkModality;
+  city: string;
+  uf: string;
+  neighborhood: string | null;
+  distance_radius_km: number | null; // raio de busca em km
+  status: "active" | "paused" | "closed";
+  created_at: string;
+  closed_at: string | null;
+}
+
+/** Onda de disparo (onda 1, 2 ou 3). */
+export type WaveNumber = 1 | 2 | 3;
+
+/** Disparo de uma vaga para profissionais (sistema de ondas). */
+export interface JobDispatch {
+  id: string;
+  job_listing_id: string;
+  wave: WaveNumber;
+  professionals_count: number; // quantos profissionais receberam
+  sent_at: string;
+  status: "pending" | "sent" | "closed";
+}
+
+/** Resposta de um profissional a uma vaga (confirmou interesse). */
+export interface JobResponse {
+  id: string;
+  job_listing_id: string;
+  professional_id: string;
+  responded_at: string;
+  status: "new" | "contacted" | "archived";
+}
+
+/** Tipo de onboarding: profissional ou empresa. */
+export interface UserOnboarding {
+  user_id: string;
+  user_type: UserType; // "professional" ou "company"
+  completed: boolean;
+  completed_at: string | null;
+}

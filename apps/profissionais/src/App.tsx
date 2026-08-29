@@ -52,6 +52,13 @@ const CategoriasPage = lazy(importarPagina(() => import("./pages/CategoriasPage"
 const AnunciosPage = lazy(importarPagina(() => import("./pages/AnunciosPage").then((m) => ({ default: m.AnunciosPage }))));
 const PublicidadePage = lazy(importarPagina(() => import("./pages/PublicidadePage").then((m) => ({ default: m.PublicidadePage }))));
 
+// MVP Local Hiring
+const OnboardingTipoPage = lazy(importarPagina(() => import("./pages/OnboardingTipoPage").then((m) => ({ default: m.OnboardingTipoPage }))));
+const CadastroEmpresaPage = lazy(importarPagina(() => import("./pages/CadastroEmpresaPage").then((m) => ({ default: m.CadastroEmpresaPage }))));
+const PainelEmpresaPage = lazy(importarPagina(() => import("./pages/PainelEmpresaPage").then((m) => ({ default: m.PainelEmpresaPage }))));
+const CriarVagaPage = lazy(importarPagina(() => import("./pages/CriarVagaPage").then((m) => ({ default: m.CriarVagaPage }))));
+const DetalheVagaPage = lazy(importarPagina(() => import("./pages/DetalheVagaPage").then((m) => ({ default: m.DetalheVagaPage }))));
+
 
 /**
  * BottomSheet acessível de qualquer lugar do app (link no rodapé) para
@@ -226,6 +233,14 @@ export default function App() {
         <Route path="/perfil" element={<PerfilPage />} />
         <Route path="/assinatura" element={<AssinaturaPage />} />
         <Route path="/analytics/:id" element={<AnalyticsPage />} />
+
+        {/* MVP Local Hiring */}
+        <Route path="/onboarding-tipo" element={<OnboardingTipoPage />} />
+        <Route path="/cadastro-empresa" element={<CadastroEmpresaPage />} />
+        <Route path="/painel-empresa" element={<PainelEmpresaPage />} />
+        <Route path="/painel/editar-empresa" element={<CadastroEmpresaPage />} />
+        <Route path="/criar-vaga" element={<CriarVagaPage />} />
+        <Route path="/vaga/:id" element={<DetalheVagaPage />} />
       </Routes>
       </Suspense>
       <Footer />
