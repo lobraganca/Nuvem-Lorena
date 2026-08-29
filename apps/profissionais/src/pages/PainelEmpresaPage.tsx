@@ -1,7 +1,11 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../lib/useAuth";
-import { obterMinhaEmpresa, listarMinhasVagas } from "../lib/company";
+import {
+  obterMinhaEmpresa,
+  listarMinhasVagas,
+  confirmarTelefoneDaEmpresa,
+} from "../lib/company";
 import { mensagemDeErro } from "../lib/erros";
 import type { Company, JobListing } from "../types/domain";
 
@@ -21,6 +25,39 @@ export function PainelEmpresaPage() {
   const [vagas, setVagas] = useState<JobListing[]>([]);
   const [carregando, setCarregando] = useState(true);
   const [erro, setErro] = useState("");
+  const [confirmando, setConfirmando] = useState(false);
+
+  /**
+   * Confirma o telefone da empresa.
+   *
+   * Quem confere tudo é o banco. O caso que exige cuidado aqui é o do
+   * número que a conta de login NÃO confirmou: a função recusa com uma
+   * mensagem técnica, e traduzi-la é o que separa "faça isto" de "deu
+   * erro". Sem isso, a empresa fica olhando uma frase sobre código sem
+   * saber que o caminho é entrar pelo telefone.
+   */
+  async function confirmarTelefone() {
+    if (!empresa) return;
+    setConfirmando(true);
+    setErro("");
+    try {
+      await confirmarTelefoneDaEmpresa(empresa.id);
+      await carregarDados();
+    } catch (err) {
+      const texto = mensagemDeErro(err, "Não foi possível confirmar o telefone.");
+      setErro(
+        texto.includes("ainda não foi confirmado")
+          ? "Para confirmar, sua conta precisa ter entrado com este mesmo número. " +
+              "Saia e entre de novo usando o telefone da empresa."
+          : texto.includes("diferente")
+            ? "O número do cadastro da empresa é diferente do número com que você entrou. " +
+                "Ajuste um dos dois para que fiquem iguais."
+            : texto
+      );
+    } finally {
+      setConfirmando(false);
+    }
+  }
 
   useEffect(() => {
     if (carregandoConta || !user) return;
@@ -101,6 +138,35 @@ export function PainelEmpresaPage() {
           </button>
         </div>
       </section>
+
+      {/* O telefone confirmado, antes de qualquer coisa.
+          ────────────────────────────────────────────────
+          Fica ACIMA do botão de criar vaga, e não escondido nas
+          configurações, porque é o que separa uma empresa de um número
+          digitado — e do lado de quem contrata isso pesa mais: quem
+          responde à vaga vai procurar essa empresa de volta, e é aí que
+          mora o golpe do falso emprego.
+
+          O botão de criar vaga continua ali, aceso: quem trava a publicação
+          é a própria tela de criação, com o motivo escrito. Desabilitar
+          aqui deixaria a empresa olhando um botão cinza sem saber o que
+          fazer para acendê-lo. */}
+      {!empresa.phone_verified && (
+        <div className="whats-pendente" style={{ marginBottom: 16 }}>
+          <p>
+            <strong>Confirme o telefone da empresa.</strong> É por ele que os
+            profissionais vão procurar vocês de volta — e sem ele a vaga não sai.
+          </p>
+          <button
+            type="button"
+            className="btn btn-outline"
+            disabled={confirmando}
+            onClick={confirmarTelefone}
+          >
+            {confirmando ? "Confirmando…" : "Confirmar agora"}
+          </button>
+        </div>
+      )}
 
       {/* Ação principal */}
       <div style={{ marginBottom: 24 }}>

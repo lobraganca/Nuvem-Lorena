@@ -1,6 +1,10 @@
 import { supabase as getSupabase } from "./supabase";
 import type { Company, JobListing, JobDispatch, JobResponse, WaveNumber } from "../types/domain";
-import { categoriasDoMesmoGrupo } from "../types/domain";
+import {
+  categoriasDoMesmoGrupo,
+  DIAS_ANUNCIO_VAGA,
+  VAGAS_COM_DISPARO_POR_MES,
+} from "../types/domain";
 import { lerTudo } from "./lerTudo";
 
 const supabase = getSupabase();
@@ -59,7 +63,12 @@ export async function marcarOnboardingCompleto(userId: string): Promise<void> {
 }
 
 /** Cria ou atualiza o cadastro de uma empresa. */
-export async function upsertCompany(company: Omit<Company, "id" | "created_at">): Promise<Company> {
+export async function upsertCompany(
+  /* Sem o selo do telefone na assinatura: quem o grava é a função do banco,
+     e mandá-lo daqui seria recusado pelo gatilho da 0071 — que é o
+     comportamento certo, mas derrubaria o salvamento inteiro do cadastro. */
+  company: Omit<Company, "id" | "created_at" | "phone_verified" | "phone_verified_at">
+): Promise<Company> {
   if (!supabase) throw new Error("Banco não configurado");
 
   const { data, error } = await supabase
@@ -90,7 +99,11 @@ export async function obterMinhaEmpresa(ownerId: string): Promise<Company | null
 }
 
 /** Cria uma vaga de trabalho. */
-export async function criarVaga(vaga: Omit<JobListing, "id" | "created_at" | "closed_at">): Promise<JobListing> {
+export async function criarVaga(
+  /* `anunciada_ate` entra depois, por `anunciarVaga`: a vaga nasce sem
+     anúncio, e o anúncio é consequência de um pagamento. */
+  vaga: Omit<JobListing, "id" | "created_at" | "closed_at" | "anunciada_ate">
+): Promise<JobListing> {
   if (!supabase) throw new Error("Banco não configurado");
 
   const { data, error } = await supabase
@@ -317,6 +330,79 @@ export async function obterRespostasDaVaga(vagaId: string): Promise<JobResponse[
 
   if (error) return [];
   return data as JobResponse[];
+}
+
+/**
+ * Quantas vagas esta empresa já disparou no mês, e quantas ainda cabem.
+ *
+ * Quem conta é o banco (`vagas_disparadas_no_mes`, migration 0071), não o
+ * navegador: um teto conferido só na tela é um teto que não existe, porque
+ * a chamada pode ser feita sem passar pela tela. Aqui é para AVISAR antes —
+ * a empresa precisa saber que está no último disparo antes de escrever a
+ * vaga inteira, não depois.
+ *
+ * O erro sobe. "Você já usou 0 de 2" quando a consulta falhou seria a
+ * mentira mais cara desta tela: a empresa acharia que tem os dois disparos
+ * na mão e descobriria o contrário no fim.
+ */
+export async function cotaDeDisparos(
+  companyId: string
+): Promise<{ usadas: number; restantes: number; teto: number }> {
+  const sb = getSupabase();
+  if (!sb) throw new Error("Banco não configurado");
+
+  const { data, error } = await sb.rpc("vagas_disparadas_no_mes", {
+    p_company_id: companyId,
+  });
+  if (error) throw error;
+
+  const usadas = Number(data ?? 0);
+  return {
+    usadas,
+    restantes: Math.max(0, VAGAS_COM_DISPARO_POR_MES - usadas),
+    teto: VAGAS_COM_DISPARO_POR_MES,
+  };
+}
+
+/**
+ * Confirma o telefone da empresa.
+ *
+ * Só chama a função do banco, que é quem confere tudo: se é o dono, se o
+ * Auth já confirmou aquele número, e se o número confirmado é o mesmo do
+ * cadastro. Nada disso pode ser decidido aqui — o navegador é justamente o
+ * lugar onde alguém mexeria para se declarar confirmado.
+ */
+export async function confirmarTelefoneDaEmpresa(companyId: string): Promise<void> {
+  const sb = getSupabase();
+  if (!sb) throw new Error("Banco não configurado");
+
+  const { error } = await sb.rpc("confirmar_telefone_empresa", {
+    p_company_id: companyId,
+  });
+  if (error) throw error;
+}
+
+/**
+ * Põe a vaga na área de anúncios por `DIAS_ANUNCIO_VAGA` dias.
+ *
+ * A data é calculada aqui e não no banco por ora — quando houver pagamento
+ * de verdade, quem grava isto passa a ser a Edge Function que confirma o
+ * pagamento, pelo mesmo motivo de sempre: data de validade escrita pelo
+ * navegador é data de validade que se estica de graça.
+ */
+export async function anunciarVaga(vagaId: string): Promise<void> {
+  const sb = getSupabase();
+  if (!sb) throw new Error("Banco não configurado");
+
+  const ate = new Date();
+  ate.setDate(ate.getDate() + DIAS_ANUNCIO_VAGA);
+
+  const { error } = await sb
+    .from("job_listings")
+    .update({ anunciada_ate: ate.toISOString() })
+    .eq("id", vagaId);
+
+  if (error) throw error;
 }
 
 /** Fecha uma vaga. */

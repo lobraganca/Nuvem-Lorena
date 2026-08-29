@@ -704,11 +704,58 @@ export interface Company {
   photo_url: string | null; // logo
   responsible_name: string | null; // nome do responsável
   description: string; // descrição da empresa
+  /**
+   * Telefone confirmado por código, igual ao do profissional.
+   *
+   * Vale para todo mundo: quem publica vaga é procurado de volta, e um
+   * número não provado do lado de quem contrata é o mesmo problema do outro
+   * lado — com dinheiro envolvido. Só a função `confirmar_telefone_empresa`
+   * liga isto (migration 0071); trocar o número derruba.
+   */
+  phone_verified: boolean;
+  phone_verified_at: string | null;
   created_at: string;
 }
 
 /** Tipos de trabalho disponíveis. */
 export type WorkModality = "presencial" | "remoto" | "hibrido";
+
+/**
+ * Quantas VAGAS uma empresa dispara por mês.
+ *
+ * Conta vagas, não ondas: abrir a onda 2 ou 3 de uma vaga que não deu
+ * resposta é a mesma vaga procurando gente, e cobrar por isso faria a
+ * empresa hesitar justamente quando precisa alargar a busca — que é para o
+ * que o botão existe. Quem conta de verdade é o banco, em
+ * `vagas_disparadas_no_mes` (migration 0071); este número é só para a tela
+ * avisar antes.
+ */
+export const VAGAS_COM_DISPARO_POR_MES = 2;
+
+/**
+ * Deixar a vaga anunciada na área de anúncios: R$ 10,90 por 30 dias.
+ *
+ * ATENÇÃO, decisão comercial que precisa de olho: o MESMO espaço vende
+ * banner a R$ 29,90 por 30 dias (`PRECO_BANNER_CENTAVOS`, em config.ts).
+ * Uma vaga anunciada custa um terço disso, então quem hoje compra banner
+ * passa a ter motivo para publicar uma "vaga" no lugar. Foi apontado antes
+ * de existir; se um dia a receita de banner cair sem explicação, é aqui
+ * que se olha primeiro.
+ *
+ * Em centavos, como o preço do banner, e pelo mesmo motivo: valor com
+ * vírgula em ponto flutuante rende diferença de um centavo na hora de
+ * cobrar, e essa é a diferença que o anunciante percebe.
+ */
+export const PRECO_ANUNCIO_VAGA_CENTAVOS = 1090;
+export const DIAS_ANUNCIO_VAGA = 30;
+
+/** "R$ 10,90" — escrito como se lê. */
+export function precoDoAnuncioDeVaga(): string {
+  return (PRECO_ANUNCIO_VAGA_CENTAVOS / 100).toLocaleString("pt-BR", {
+    style: "currency",
+    currency: "BRL",
+  });
+}
 
 /** Vaga de trabalho criada por uma empresa. */
 export interface JobListing {
@@ -727,6 +774,14 @@ export interface JobListing {
   city: string;
   uf: string;
   neighborhood: string | null;
+  /**
+   * Até quando a vaga fica na área de anúncios. `null` = nunca foi anunciada.
+   *
+   * Guarda a data-limite, e não um "está anunciada": data vence sozinha,
+   * booleano precisa de alguém para desligar — e esse alguém é sempre uma
+   * rotina agendada que um dia falha calada, deixando anúncio vencido no ar.
+   */
+  anunciada_ate: string | null;
   status: "active" | "paused" | "closed";
   created_at: string;
   closed_at: string | null;

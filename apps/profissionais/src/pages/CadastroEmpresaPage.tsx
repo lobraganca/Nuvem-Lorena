@@ -8,7 +8,11 @@ import { formatDocument, isValidDocument } from "../lib/documents";
 import { formatPhone, isValidPhone } from "../lib/phone";
 import { mensagemDeErro } from "../lib/erros";
 
-type FormState = Omit<Company, "id" | "created_at">;
+/* O selo do telefone fica de fora: quem o grava é a função
+   `confirmar_telefone_empresa`, no banco, e um campo aqui viraria um valor
+   que a tela manda junto no salvamento — que é exatamente o caminho que o
+   gatilho da 0071 existe para recusar. */
+type FormState = Omit<Company, "id" | "created_at" | "phone_verified" | "phone_verified_at">;
 
 const EMPTY: FormState = {
   owner_id: "",
