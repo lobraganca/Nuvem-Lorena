@@ -32,7 +32,7 @@ export async function getProfile(userId: string): Promise<Profile | null> {
  *
  * Entrando pelo telefone não vem nada — nem nome, nem foto. A conta nasce
  * anônima e ficava assim para sempre: as avaliações daquela pessoa
- * apareciam como "Usuário do procurô", com um "?" no lugar do rosto.
+ * apareciam como "Usuário do Ei Itabirito", com um "?" no lugar do rosto.
  *
  * E cada porta traz só metade do contato: o Google entrega e-mail e nunca
  * telefone; o SMS entrega telefone e nunca e-mail. Por isso `email` e

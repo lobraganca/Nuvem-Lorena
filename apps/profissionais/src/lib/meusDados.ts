@@ -29,14 +29,14 @@ export async function baixarMeusDados(userId: string, email: string | undefined)
     minhas_avaliacoes: avaliacoes.data ?? [],
     meus_favoritos: favoritos.data ?? [],
     observacao:
-      "Este arquivo contém os dados pessoais guardados pelo procurô sobre esta conta. Registros técnicos de acesso, exigidos pelo Marco Civil da Internet, não constam aqui e são guardados por seis meses.",
+      "Este arquivo contém os dados pessoais guardados pelo Ei Itabirito sobre esta conta. Registros técnicos de acesso, exigidos pelo Marco Civil da Internet, não constam aqui e são guardados por seis meses.",
   };
 
   const blob = new Blob([JSON.stringify(conteudo, null, 2)], { type: "application/json" });
   const url = URL.createObjectURL(blob);
   const link = document.createElement("a");
   link.href = url;
-  link.download = `meus-dados-procuro-${new Date().toISOString().slice(0, 10)}.json`;
+  link.download = `meus-dados-ei-itabirito-${new Date().toISOString().slice(0, 10)}.json`;
   link.click();
   // Sem o revoke, o arquivo fica preso na memória da aba até ela fechar.
   URL.revokeObjectURL(url);

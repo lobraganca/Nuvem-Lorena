@@ -3,16 +3,30 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-    <title>procurô — encontre profissionais verificados na sua cidade</title>
-    <meta name="description" content="procurô: marketplace de busca de profissionais por cidade, com avaliações de quem já contratou e anúncios em destaque." />
-    <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%230a1a2f'/%3E%3Ctext x='32' y='46' font-family='Inter,Segoe UI,system-ui,sans-serif' font-size='34' font-weight='500' fill='%23ffffff' text-anchor='middle'%3Eo%3C/text%3E%3Cpath d='M22 21 32 15 42 21' stroke='%23c8a24a' stroke-width='5' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E" />
+    <title>Ei Itabirito — vagas e profissionais em Itabirito</title>
+    <meta name="description" content="Ei Itabirito: empresas encontram quem faz o serviço, e quem procura trabalho recebe as vagas da cidade." />
+    <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%23031e52'/%3E%3Ctext x='30' y='45' font-family='Roboto,Segoe UI,system-ui,sans-serif' font-size='36' font-weight='700' fill='%23ffffff' text-anchor='middle'%3EEi%3C/text%3E%3Ccircle cx='47' cy='20' r='5' fill='%23ff6a05'/%3E%3C/svg%3E" />
+
+    <!-- A fonte da Google.
+         Roboto já é a fonte do sistema em Android, então na maioria dos
+         celulares de Itabirito ela nem chega a ser baixada — o navegador
+         usa a que já está lá. O `preconnect` existe para os outros casos:
+         sem ele, a busca do servidor da fonte só começa depois de o CSS
+         ser lido, e o texto pisca trocando de fonte no meio da leitura.
+
+         `display=swap` para o texto aparecer na fonte de reserva enquanto
+         a Roboto não chega. Sem isso a tela fica com a área de texto em
+         branco — e num 4G fraco isso são segundos olhando o nada. -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet" />
 
     <!-- PWA -->
     <link rel="manifest" href="/manifest.json" />
-    <meta name="theme-color" content="#E6EEFB" />
+    <meta name="theme-color" content="#031E52" />
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
-    <meta name="apple-mobile-web-app-title" content="procurô" />
+    <meta name="apple-mobile-web-app-title" content="Ei Itabirito" />
     <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
 
     <!-- Como o link aparece quando alguém manda o app no WhatsApp.
@@ -23,13 +37,13 @@
          src/lib/enderecoCanonico.ts: se um dia a chave voltar para `false`,
          eles voltam junto. Um canonical apontando para domínio que não
          responde manda o Google desindexar o app. -->
-    <link rel="canonical" href="https://www.procuroapp.com.br/" />
+    <link rel="canonical" href="https://www.empregoitabirito.com.br/" />
     <meta property="og:type" content="website" />
-    <meta property="og:site_name" content="procurô" />
-    <meta property="og:url" content="https://www.procuroapp.com.br/" />
-    <meta property="og:title" content="procurô — quem faz, aqui perto" />
-    <meta property="og:description" content="Encontre profissionais da sua região, com a opinião de quem já contratou. Anunciar é grátis." />
-    <meta property="og:image" content="https://www.procuroapp.com.br/icon-512.png" />
+    <meta property="og:site_name" content="Ei Itabirito" />
+    <meta property="og:url" content="https://www.empregoitabirito.com.br/" />
+    <meta property="og:title" content="Ei Itabirito — trabalho aqui perto" />
+    <meta property="og:description" content="Empresas de Itabirito encontram quem faz o serviço. Quem procura trabalho recebe as vagas no celular. Cadastrar é grátis." />
+    <meta property="og:image" content="https://www.empregoitabirito.com.br/icon-512.png" />
     <meta property="og:locale" content="pt_BR" />
     <meta name="twitter:card" content="summary" />
   </head>

@@ -2,145 +2,173 @@
    dourado como única cor de destaque. O verde sobrou só no botão do WhatsApp,
    onde ler como "verde" ajuda em vez de brigar com a identidade. */
 :root {
-  /* Fundo levemente frio, cartões brancos.
-     Os dois eram #ffffff, e o cartão se dissolvia no fundo: sobrava uma
-     borda de 1px que desaparece em tela de celular no sol — que é onde este
-     app é usado. Continua lendo como app branco; o que muda é existir um
-     degrau entre a folha e o que está sobre ela. */
-  /* Fundo levemente frio, cartões brancos.
-     Este token já foi #ffffff, e com os cartões também brancos não havia
-     degrau nenhum: sobrava uma borda de 1px, que some em tela de celular
-     no sol — que é onde este app é usado. Sombra nenhuma resolve isso,
-     porque sombra separa superfícies de cores diferentes; entre branco e
-     branco ela só suja a borda.
-     O tom é frio e puxado para o navy da marca, não um cinza neutro. */
-  --color-bg: #f1f4f9;
-  /* Um tom abaixo do fundo da página: este cinza marca o que está *dentro*
-     de um cartão branco (campos, chips, blocos recolhidos). Com o fundo da
-     página virando cinza-claro, ele precisou descer junto — senão os dois
-     viravam a mesma cor e a distinção se perdia de novo, agora do outro
-     lado. */
-  --color-bg-soft: #eaeef4;
-  --color-surface: #ffffff;
-  --color-surface-raised: #f9fafc;
+  /* ─── Sistema visual: Material 3, com as cores da marca ───────────────
+     O app era o procurô: degradê nos botões, brilho branco por dentro dos
+     cartões, dourado como cor de identidade, sombra em três degraus. Tudo
+     isso é assinatura daquele produto, e este aqui precisa ser outro.
 
-  /* O navy da marca virou a cor da tinta: títulos, texto e o wordmark. */
-  --color-navy: #0a1a2f;
+     A referência agora são os apps da Google. O que muda de verdade, e não
+     é gosto — é o que faz um app "parecer Google":
+
+       1. A elevação vem da COR da superfície, não de sombra. Cada nível
+          acima do fundo é o mesmo cinza com um pouco mais do azul da
+          marca dentro. Sombra sobrou só onde algo realmente flutua.
+       2. Nada de degradê nem de brilho interno. Superfície é chapada.
+       3. Canto muito mais redondo: botão é cápsula, cartão é 16, folha
+          é 28.
+       4. O destaque tem "container": um fundo claro da própria cor, com
+          texto escuro em cima — em vez de cor forte com texto branco em
+          tudo.
+       5. Tipografia da Google (Roboto), com rótulo em peso médio.
+
+     As cores saem da marca: o azul #031E52 e o laranja #FF6A05. */
+
+  /* ── Superfícies ─────────────────────────────────────────────────────
+     Os cinco degraus não são decoração: é assim que o Material separa
+     planos sem sombra. Cada um tem o azul da marca dissolvido em
+     proporção crescente, então o app inteiro fica com a temperatura da
+     marca mesmo nas partes cinzas. */
+  --color-bg: #f7f9fc;
+  --color-surface: #ffffff;
+  --color-surface-1: #f2f5fa;
+  --color-surface-2: #eceff7;
+  --color-surface-3: #e6eaf4;
+  --color-surface-4: #e0e6f1;
+
+  /* Nomes antigos, apontando para os novos. O CSS os usa em dezenas de
+     lugares, e trocar tudo de uma vez é como se perde uma regra sem
+     perceber — a troca vai acontecendo à medida que cada tela for
+     revisitada. */
+  --color-bg-soft: var(--color-surface-2);
+  --color-surface-raised: var(--color-surface-1);
+
+  /* ── A cor de ação ───────────────────────────────────────────────────
+     `primary` é o azul da marca. `container` é a mesma cor diluída, para
+     o padrão do Material que a interface da Google usa em quase tudo:
+     fundo claro da cor + texto escuro da cor. É mais leve que um botão
+     azul chapado e continua lendo como "isto é clicável". */
+  --color-primary: #031e52;
+  --color-on-primary: #ffffff;
+
+  /* Dois nomes do desenho antigo que sobrevivem em 32 regras espalhadas.
+     ────────────────────────────────────────────────────────────────────
+     Apaguei os dois numa primeira versão destes tokens, e o resultado foi
+     imediato e feio: o cartão "Encontre um profissional" da tela de início
+     usa `--color-primary-soft` num degradê, o degradê virou inválido, o
+     fundo caiu para branco e o texto continuou BRANCO. Cartão invisível na
+     primeira tela do app. Foi visto numa foto, não deduzido.
+
+     Ficam apontando para tons do azul novo até cada regra ser revisitada.
+     `soft` é o azul clareado — só existe onde ainda há degradê; `deep` é o
+     azul para escrever sobre branco. */
+  --color-primary-soft: #1a3c78;
+  --color-primary-deep: #0a2a63;
+  --color-primary-container: #dbe3f7;
+  --color-on-primary-container: #041437;
+
+  /* ── O laranja da marca ──────────────────────────────────────────────
+     Entra no lugar do dourado, e com outro papel: no procurô o dourado
+     era identidade (ficava no wordmark e no selo). Aqui o laranja é o
+     acento de atenção — o que a tela quer que a pessoa note primeiro
+     depois da ação principal.
+
+     O tom escrito é escurecido onde a cor precisa carregar TEXTO: o
+     laranja da marca sobre branco dá 2,6:1, ilegível. O laranja puro fica
+     onde ele é forma, não letra: a bolinha da marca, o indicador, o ponto
+     de aviso.
+
+     #b34800 e não #c24f00, que foi a primeira tentativa: medido na tela,
+     o c24f00 dava 4,14:1 no rótulo "Anúncios" sobre o fundo da barra —
+     abaixo do mínimo de 4,5. Este dá 4,75 na barra e 5,46 sobre branco,
+     que são os dois fundos onde ele escreve. */
+  --color-accent: #ff6a05;
+  --color-accent-ink: #b34800;
+  --color-accent-container: #ffe6d4;
+  --color-on-accent-container: #4a1d00;
+
+  /* ── Tinta ───────────────────────────────────────────────────────────
+     Preto-azulado em vez de preto puro, que é o que dá o ar de coisa
+     desenhada e não de texto de sistema. */
+  --color-text: #10131c;
+  --color-text-muted: #444b5c;
+  --color-outline: #757a89;
+  --color-outline-variant: #d5d9e4;
+
+  /* Nomes antigos das bordas. */
+  --color-border: var(--color-outline-variant);
+  --color-border-strong: #c2c8d6;
+
+  --color-danger: #b3261e;
+  --color-danger-container: #f9dedc;
+  --color-on-danger-container: #410e0b;
+
   /* O azul EXATO da marca, tirado do arquivo da logo. Aparece em três
      lugares que precisam ser a mesma cor: aqui, no `backgroundColor` do
      capacitor.config.ts e no `@color/abertura` do Android. Mudando um,
      mude os três — a diferença aparece como um pisca de cor entre a tela
      do sistema e a do app. */
   --color-marca-azul: #031e52;
+  /* Sobrou do desenho antigo e ainda é usado como cor de tinta em algumas
+     telas. Aponta para a tinta nova até cada uma ser revisitada. */
+  --color-navy: var(--color-text);
 
-  /* Azul marinho é a cor de ação: botões, links, item ativo, foco. Três
-     forças porque o `soft` só existe para dar um leve volume ao gradiente do
-     botão (sem ele, o azul marinho chapado fica pesado), o `primary` é o
-     preenchimento com texto branco em cima, e o `deep` é para escrever sobre
-     branco. */
-  --color-primary: #12305e;
-  --color-primary-soft: #1c4480;
-  --color-primary-deep: #16406f;
-
-  /* O dourado sai das ações e fica só onde é identidade: o A do wordmark e o
-     selo de verificação — que é literalmente um selo, e ganha por não se
-     confundir com nada clicável. */
-  --color-gold-mid: #b8863b;
-  --color-gold-deep: #8a5f1f;
-  --color-gold-tint: #fdf4e6;
-  --color-gold-line: #ecd6b0;
-
-  /* Fundo da barra de navegação: azul claro, para ela se separar do
-     conteúdo sem precisar de sombra pesada — branca sobre branco, a
-     única coisa que a distinguia era um fio de 1px.
-
-     O tom não é escolha de gosto: é o azul mais forte em que o ícone
-     inativo (--color-text-muted) ainda dá 4,67:1 de contraste, acima do
-     mínimo de 4,5. Um passo mais escuro derruba para 4,40 e a barra
-     passa a esconder justamente os destinos que a pessoa ainda não
-     visitou. O ícone ativo fica em 11,17:1. */
-  /* Fundo das duas barras fixas: azul claro.
-
-     Chegou a ser marinho por um dia. Voltou ao claro a pedido da dona —
-     e o claro tem uma razão medida a seu favor: este é o azul mais forte
-     em que o ícone inativo ainda dá 4,67:1, acima do mínimo de 4,5. Um
-     passo mais escuro derruba para 4,40 e a barra passa a esconder
-     justamente os destinos que a pessoa ainda não visitou.
-
-     As duas barras usam o mesmo token de propósito: são a moldura fixa do
-     app — ficam paradas enquanto o conteúdo rola — e com cores diferentes
-     a tela lia como se a de cima fizesse parte da página e a de baixo
-     não. */
-  --color-nav-bg: #e6eefb;
-  --color-nav-line: #cbdaf1;
-  /* As três cores que vivem SOBRE as barras. Ficam em variáveis, e não
-     escritas em cada regra, porque aparecem em seis lugares: trocar a cor
-     da barra sem trocar as seis de uma vez deixa texto de baixo contraste
-     em alguma delas — defeito que não se vê no computador e some no
-     celular no sol. Foi exatamente o que a ida e a volta do marinho
-     mostrou, e é por isso que a indireção fica.
-       inativo   #5b6b7f →  4,67:1
-       ativo     #12305e → 11,17:1
-       Anúncios  #8a5f1f →  4,81:1 */
-  --color-sobre-nav: #5b6b7f;
-  --color-sobre-nav-forte: #12305e;
-  --color-sobre-nav-ouro: #8a5f1f;
-
-  /* Verde só no WhatsApp; escurecido para aguentar texto branco em cima. */
+  /* O verde do WhatsApp continua: ali ler como "verde" ajuda, e é a única
+     cor do app que vem de fora da marca de propósito. */
   --color-accent-teal: #12805f;
-  /* `--color-teal-deep` foi removido: era o fundo do cartão de empresa
-     no Painel, que agora é claro como os demais. O verde da empresa vive
-     em `.card-pro-pj` e `.anuncio-card-pj`, os dois na mesma claridade
-     do cartão de autônomo. */
 
-  --color-text: #0a1a2f;
-  --color-text-muted: #5b6b7f;
-  --color-border: #e4e9f0;
-  --color-border-strong: #cdd6e2;
-  --color-danger: #c0392b;
-  /* Elevação em três degraus, e cada sombra tem duas camadas.
-     A de contato (curta, quase opaca) é o que diz "isto está apoiado ali";
-     a ambiente (longa, muito clara) é o que dá volume. Só a ambiente, que
-     era o que existia aqui, borra sem levantar — o objeto fica com um halo
-     e continua parecendo colado na folha.
-     Os três degraus têm papel definido, e é isso que impede o app inteiro
-     de voltar a ficar no mesmo plano:
-       repouso  — cartão parado, lista, campo
-       destaque — o que a tela quer que a pessoa toque
-       flutuante— o que está por cima de tudo: folhas, menus */
-  /* O que dá espessura ao canto arredondado.
+  /* Tokens do dourado, mantidos apontando para o laranja: eles aparecem em
+     dezenas de regras antigas, e apagá-los agora deixaria texto sem cor
+     espalhado pelo app. O que era dourado passa a ser laranja, que é a
+     troca de identidade que se quer. */
+  --color-gold-mid: var(--color-accent-ink);
+  --color-gold-deep: var(--color-on-accent-container);
+  --color-gold-tint: var(--color-accent-container);
+  --color-gold-line: #f6c9a6;
 
-     Uma sombra por fora só empurra o objeto para longe da folha: ele
-     continua sendo uma silhueta plana, com o canto redondo desenhado.
-     O que faz o canto ter volume é o que acontece DENTRO da borda —
-     uma linha de luz no alto, onde a superfície curva pega a luz, e uma
-     penumbra embaixo, onde ela vira e a luz não chega.
+  /* ── As duas barras fixas ────────────────────────────────────────────
+     No Material a barra de baixo é uma superfície do sistema, não um bloco
+     colorido: mesmo tom dos níveis de superfície, e quem marca o item
+     ativo é uma cápsula atrás do ícone — não a cor do texto. É a mudança
+     mais reconhecível de todas, porque a barra está em toda tela. */
+  --color-nav-bg: var(--color-surface-2);
+  --color-nav-line: transparent;
+  --color-sobre-nav: #444b5c;
+  --color-sobre-nav-forte: var(--color-primary);
+  --color-sobre-nav-ouro: var(--color-accent-ink);
 
-     São duas linhas de 1px que seguem o raio sozinhas, então quanto mais
-     arredondado o canto, mais volume elas dão. É por isso que valem mais
-     aqui do que numa caixa quadrada.
+  /* ── Elevação ────────────────────────────────────────────────────────
+     Quase nada. No Material o que separa planos é a cor da superfície; a
+     sombra só entra no que de fato flutua sobre o conteúdo (folha, menu,
+     botão flutuante). As três continuam existindo porque o CSS antigo as
+     usa em muitos lugares — mas agora são leves o bastante para não
+     recriar o volume do procurô.
 
-     Ficam em variáveis próprias porque entram em toda superfície do app,
-     e um dia em que alguém mudar a luz da interface precisa mudar num
-     lugar só. */
-  --brilho-borda: inset 0 1px 0 rgba(255, 255, 255, 0.92);
-  --penumbra-borda: inset 0 -1px 1px rgba(10, 26, 47, 0.045);
-
-  --shadow-repouso: var(--brilho-borda), var(--penumbra-borda),
-    0 1px 2px rgba(10, 26, 47, 0.07), 0 2px 6px rgba(10, 26, 47, 0.05);
-  --shadow-destaque: var(--brilho-borda), var(--penumbra-borda),
-    0 2px 4px rgba(10, 26, 47, 0.08), 0 8px 20px rgba(10, 26, 47, 0.10);
-  --shadow-flutuante: 0 6px 12px rgba(10, 26, 47, 0.10), 0 18px 40px rgba(10, 26, 47, 0.16);
-
-  /* Nomes antigos, apontando para os novos: o CSS os usa em dezenas de
-     lugares e trocar tudo de uma vez é como se perde uma regra sem
-     perceber. */
+     O brilho e a penumbra internos foram a nada: era o que dava o
+     "acabamento" do app antigo, e é justamente o que Material não tem. */
+  --brilho-borda: 0 0 0 rgba(0, 0, 0, 0);
+  --penumbra-borda: 0 0 0 rgba(0, 0, 0, 0);
+  --shadow-repouso: none;
+  --shadow-destaque: 0 1px 2px rgba(16, 19, 28, 0.10), 0 1px 3px 1px rgba(16, 19, 28, 0.07);
+  --shadow-flutuante: 0 4px 8px 3px rgba(16, 19, 28, 0.10), 0 1px 3px rgba(16, 19, 28, 0.14);
   --shadow-card: var(--shadow-repouso);
   --shadow-raised: var(--shadow-destaque);
+
+  /* ── Forma ───────────────────────────────────────────────────────────
+     Bem mais redondo que antes. É a segunda coisa que se reconhece de
+     longe num app da Google, depois da barra de baixo. */
+  --radius-xs: 8px;
   --radius: 16px;
-  --radius-lg: 22px;
-  --font-sans: Inter, "Segoe UI", system-ui, -apple-system, sans-serif;
-  --bottom-nav-height: 68px;
+  --radius-lg: 28px;
+  --radius-cheio: 999px;
+
+  /* ── Tipografia ──────────────────────────────────────────────────────
+     Roboto é a fonte da Google e o jeito mais direto de o app deixar de
+     ter a voz do procurô, que usava Inter. A lista de reserva importa:
+     Roboto já é a fonte do sistema em Android, então na maioria dos
+     celulares daqui ela nem precisa ser baixada. */
+  --font-sans: Roboto, "Helvetica Neue", system-ui, -apple-system, "Segoe UI", sans-serif;
+
+  --bottom-nav-height: 80px;
 }
 
 * {
@@ -337,12 +365,24 @@ button {
   font-size: 0.92rem;
 }
 
+/* ─── Botões, no vocabulário do Material ──────────────────────────────
+   Três formas, e a diferença entre elas é o PESO da ação, não a cor:
+
+     .btn-primary   cheio, cor da marca      — a ação principal da tela
+     .btn-secondary tonal, container claro   — ação importante, não a única
+     .btn-outline   contorno, sem preenchimento — alternativa, cancelar
+
+   O que saiu, e é o que fazia o botão ser do procurô: o degradê, o brilho
+   branco por dentro, a sombra de dois níveis e o `translateY` no toque. No
+   Material o botão não afunda — ele acende: um véu da própria cor por cima,
+   que é o que a Google chama de camada de estado. */
 .btn {
   border: none;
-  border-radius: 999px;
-  padding: 12px 22px;
-  font-size: 0.92rem;
-  font-weight: 600;
+  border-radius: var(--radius-cheio);
+  /* 40px de altura é a medida do botão do Material; o padding sai dela. */
+  padding: 10px 24px;
+  font-size: 0.875rem;
+  font-weight: 500;
   letter-spacing: 0.01em;
   cursor: pointer;
   text-decoration: none;
@@ -350,111 +390,107 @@ button {
   align-items: center;
   justify-content: center;
   gap: 8px;
-  transition: filter 0.15s ease, transform 0.15s ease;
+  position: relative;
+  overflow: hidden;
+  transition: box-shadow 0.15s ease, background-color 0.15s ease;
 }
 
-.btn:hover:not(:disabled) {
-  filter: brightness(1.06);
+/* A camada de estado: um véu da cor do texto sobre o botão, que aparece no
+   toque e no passar do mouse. É como o Material mostra reação sem mover
+   nada de lugar — e mover é o que fazia o botão antigo parecer escorregar
+   em vez de ser apertado. */
+.btn::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: currentColor;
+  opacity: 0;
+  transition: opacity 0.15s ease;
+  pointer-events: none;
 }
 
-.btn:active:not(:disabled) {
-  transform: translateY(1px);
-}
-
-/* Afunda junto com o deslocamento: sem tirar a sombra, o botão desce 1px
-   e continua parecendo levantado — o movimento sozinho lê como escorregão,
-   não como toque. */
-.btn-primary:active:not(:disabled) {
-  box-shadow:
-    inset 0 2px 4px rgba(0, 0, 0, 0.18),
-    0 1px 2px rgba(10, 26, 47, 0.14);
-}
+.btn:hover:not(:disabled)::after { opacity: 0.08; }
+.btn:active:not(:disabled)::after { opacity: 0.12; }
 
 .btn-primary {
-  background: linear-gradient(135deg, var(--color-primary-soft), var(--color-primary));
-  /* Volume no botão cheio: o brilho de cima aqui é branco a 22%, e não os
-     92% das superfícies claras. Sobre o marinho, um branco forte viraria
-     um risco luminoso na borda em vez de uma curva pegando luz — o mesmo
-     efeito precisa de intensidades diferentes conforme o que está
-     embaixo. */
-  box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.22),
-    inset 0 -1px 2px rgba(0, 0, 0, 0.12),
-    0 2px 4px rgba(10, 26, 47, 0.16),
-    0 6px 14px rgba(10, 26, 47, 0.16);
-  /* Branco, e não `--color-navy`: a cor do texto sobrou de quando o botão
-     principal era dourado, e ficou azul-marinho (#0a1a2f) sobre azul-marinho
-     (#12305e) quando a marca mudou de cor. Dava 1,4:1 de contraste — abaixo
-     de qualquer mínimo legível, e pior ainda em tela de celular no sol. */
-  color: #ffffff;
+  background: var(--color-primary);
+  color: var(--color-on-primary);
 }
 
-/* O verde tinha o mesmo problema que o azul já resolveu: cor chapada, sem
-   nenhuma das camadas que fazem um botão parecer que se pode apertar. Ao
-   lado de um `.btn-primary`, ele lia como etiqueta colorida em vez de par.
-   As intensidades são as do azul — sobre cor escura, o brilho de cima é
-   branco a 22%, nunca os 92% das superfícies claras.
+/* O tonal: fundo claro da própria cor, texto escuro. É o botão que mais
+   aparece nos apps da Google, e o que menos existia aqui — no procurô tudo
+   era ou azul chapado ou contorno. */
+.btn-secondary {
+  background: var(--color-primary-container);
+  color: var(--color-on-primary-container);
+}
 
-   Sem gradiente, ao contrário do azul, e isto é medido: o azul aguenta
-   clarear porque o seu tom claro (#1c4480) ainda dá 9,6:1 com texto
-   branco. O verde não — #12805f já está em 4,91:1, quase no limite de
-   4,5, e o verde claro que eu tinha posto aqui derrubava para 3,64. A
-   profundidade veio toda das sombras e do brilho de cima, que não mexem
-   na cor do fundo sob a letra. */
+.btn-outline {
+  background: transparent;
+  border: 1px solid var(--color-outline);
+  color: var(--color-primary);
+  box-shadow: none;
+}
+
 .btn-teal {
   background: var(--color-accent-teal);
-  box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.22),
-    inset 0 -1px 2px rgba(0, 0, 0, 0.12),
-    0 2px 4px rgba(10, 26, 47, 0.16),
-    0 6px 14px rgba(18, 128, 95, 0.22);
   color: #ffffff;
 }
 
-.btn-teal:active:not(:disabled) {
-  box-shadow:
-    inset 0 2px 4px rgba(0, 0, 0, 0.18),
-    0 1px 2px rgba(10, 26, 47, 0.14);
-}
-
-/* O de contorno era transparente e sem sombra nenhuma: sobre o fundo da
-   página ele desaparecia, e a pessoa não sabia que ali havia um botão.
-   Agora tem superfície própria e as mesmas quatro camadas dos cartões
-   claros — continua sendo a opção secundária, mas existe. */
-.btn-outline {
-  background: linear-gradient(180deg, #ffffff 0%, #f7fafe 100%);
-  border: 1px solid var(--color-border-strong);
-  color: var(--color-text);
-  box-shadow: var(--shadow-repouso);
-}
-
-.btn-outline:active:not(:disabled) {
-  box-shadow: inset 0 2px 5px rgba(10, 26, 47, 0.12);
+/* Botão de texto: sem fundo e sem contorno, só o rótulo. É a ação mais
+   leve que existe no Material, e serve para o que hoje é link disfarçado
+   de botão espalhado pelo app. */
+.btn-texto {
+  background: transparent;
+  color: var(--color-primary);
+  padding-left: 12px;
+  padding-right: 12px;
 }
 
 /* Desligado tem que continuar legível.
-   `opacity: 0.5` desbota o fundo e a letra na mesma proporção, então o botão
-   azul com texto branco virava azul-lavado com branco-lavado: 2,4:1, abaixo
-   de qualquer mínimo, e é justamente nesse estado que a pessoa precisa ler o
-   rótulo para entender o que falta preencher. Cinza chapado com texto escuro
-   diz "agora não" sem esconder o que está escrito. */
+   `opacity: 0.5` desbota o fundo e a letra na mesma proporção, então o
+   botão azul com texto branco virava azul-lavado com branco-lavado: 2,4:1,
+   abaixo de qualquer mínimo — e é justamente nesse estado que a pessoa
+   precisa ler o rótulo para entender o que falta preencher.
+
+   O Material resolve com a própria tinta rebaixada sobre a superfície, que
+   é o que está aqui: cinza chapado com texto escuro diz "agora não" sem
+   esconder o que está escrito. */
 .btn:disabled {
-  background: var(--color-bg-soft);
+  background: rgba(16, 19, 28, 0.10);
   background-image: none;
-  border-color: var(--color-border-strong);
-  color: var(--color-text-muted);
+  border-color: transparent;
+  color: rgba(16, 19, 28, 0.42);
   cursor: default;
+  box-shadow: none;
 }
 
+.btn:disabled::after { opacity: 0; }
+
+/* O cartão do Material é uma SUPERFÍCIE, não um objeto levantado.
+   ──────────────────────────────────────────────────────────────
+   Aqui ele era branco com borda firme e sombra — dois recursos ao mesmo
+   tempo para se separar do fundo. No Material a separação vem de o cartão
+   ser branco sobre um fundo que NÃO é branco, e mais nada: sem borda, sem
+   sombra. É o que deixa a tela calma, e é metade do que faz um app parecer
+   da Google.
+
+   O canto cresceu de 16 para 16 mantendo o token, mas o padding encolheu:
+   22px vinha de um desenho com borda, onde o conteúdo precisava respirar
+   longe da linha. Sem linha, 16px já é o suficiente e cabe mais na tela. */
 .card {
   background: var(--color-surface);
-  /* Borda um tom mais firme junto com a sombra: a separação não pode
-     depender de uma coisa só, porque em brilho alto a sombra some antes da
-     borda e em tela fosca é o contrário. */
-  border: 1px solid var(--color-border-strong);
+  border: none;
   border-radius: var(--radius);
-  padding: 22px;
-  box-shadow: var(--shadow-repouso);
+  padding: 16px;
+  box-shadow: none;
+}
+
+/* Onde o cartão precisa se distinguir de outro cartão logo ao lado (lista
+   dentro de lista), ele sobe um nível de superfície em vez de ganhar
+   borda. */
+.card-fundo {
+  background: var(--color-surface-2);
 }
 
 /* Antes cada etiqueta tinha a sua cor, e um card com selo + destaque + tipo
@@ -530,17 +566,28 @@ button {
   flex-shrink: 0;
 }
 
+/* Campo no estilo "outlined" do Material: contorno de 1px sobre a própria
+   superfície da tela, e não uma caixa cinza. A caixa cinza era do desenho
+   antigo e tem um problema real além do estilo — num formulário longo, dez
+   retângulos cinzas empilhados viram uma parede, e a pessoa perde de vista
+   onde termina um campo e começa o outro.
+
+   No foco o contorno ENGROSSA para 2px em vez de só mudar de cor: quem
+   enxerga pouco percebe espessura antes de perceber matiz, e o campo em
+   foco é a informação mais importante de um formulário. */
 input,
 select,
 textarea {
-  background: var(--color-bg-soft);
-  border: 1px solid var(--color-border);
+  background: transparent;
+  border: 1px solid var(--color-outline);
   color: var(--color-text);
-  border-radius: 14px;
-  padding: 14px 16px;
-  font-size: 0.95rem;
+  border-radius: var(--radius-xs);
+  /* 1px a mais de padding do que parece necessário: o contorno de foco tem
+     2px e, sem a folga, o texto pula de lugar ao entrar no campo. */
+  padding: 15px 16px;
+  font-size: 1rem;
   width: 100%;
-  transition: border-color 0.15s ease;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
 }
 
 input:focus,
@@ -548,6 +595,14 @@ select:focus,
 textarea:focus {
   outline: none;
   border-color: var(--color-primary);
+  /* `inset` para o contorno crescer para dentro: crescendo para fora, o
+     campo empurraria os vizinhos 1px a cada foco. */
+  box-shadow: inset 0 0 0 1px var(--color-primary);
+}
+
+input::placeholder,
+textarea::placeholder {
+  color: var(--color-text-muted);
 }
 
 /* Sem isto, quem navega por teclado não enxerga onde está — o :focus-visible
@@ -773,8 +828,12 @@ textarea::placeholder {
   height: calc(var(--bottom-nav-height) + env(safe-area-inset-bottom));
   padding-bottom: env(safe-area-inset-bottom);
   background: var(--color-nav-bg);
-  border-top: 1px solid var(--color-nav-line);
-  box-shadow: 0 -2px 12px rgba(10, 26, 47, 0.07);
+  /* Sem linha e sem sombra: a barra do Material se separa do conteúdo por
+     ser uma superfície de nível mais alto, não por ter moldura. A linha e
+     a sombra eram o jeito do desenho antigo, e são o que fazia a barra
+     parecer colada por cima da página em vez de fazer parte do app. */
+  border-top: none;
+  box-shadow: none;
 }
 
 /* Ícone em cima, nome embaixo.
@@ -817,21 +876,60 @@ textarea::placeholder {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
-  font-size: 0.66rem;
+  font-size: 0.69rem;
   line-height: 1.1;
-  font-weight: 600;
-  letter-spacing: -0.01em;
+  /* 500, e não 600: no Material o rótulo da barra é "label medium", de peso
+     médio. Em 600 os cinco nomes competiam com o conteúdo da tela. */
+  font-weight: 500;
+  letter-spacing: 0.01em;
 }
 
-/* O item ativo fica na cor da marca e com traço mais grosso — é o mesmo
-   recurso do Instagram (lá o ícone vira cheio), e aqui funciona sem
-   precisar de um segundo desenho para cada ícone. */
+/* A cápsula atrás do ícone ativo.
+   ───────────────────────────────
+   É a marca registrada da barra de navegação do Material 3, e a coisa mais
+   reconhecível do desenho da Google — está no Gmail, no Drive, no Fotos.
+   Antes o ativo se distinguia só por cor e espessura do traço, que é o
+   recurso do Instagram; trocar isso muda a cara do app em toda tela, porque
+   a barra aparece em todas.
+
+   A cápsula é um pseudo-elemento atrás do ícone, e não um fundo no item
+   inteiro: ela precisa ter 64x32 e ficar SÓ em volta do ícone, com o nome
+   embaixo dela e fora. Um fundo no item inteiro viraria um retângulo alto
+   que engole o rótulo — que é o erro clássico de quem copia isto de olho. */
+.bottom-nav-item {
+  position: relative;
+}
+
+.bottom-nav-item svg,
+.bottom-nav-item .bottom-nav-rotulo {
+  position: relative;
+  z-index: 1;
+}
+
+.bottom-nav-item.active::before {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 64px;
+  height: 32px;
+  /* O `translateY` sobe a cápsula para o centro do ÍCONE, não do item: o
+     item inclui o rótulo embaixo, então centralizar nele deixaria a cápsula
+     baixa, mordendo o texto. */
+  transform: translate(-50%, calc(-50% - 10px));
+  background: var(--color-primary-container);
+  border-radius: var(--radius-cheio);
+  z-index: 0;
+}
+
 .bottom-nav-item.active {
-  color: var(--color-sobre-nav-forte);
+  color: var(--color-on-primary-container);
 }
 
+/* O traço do ícone ativo engrossa um pouco, mas bem menos que antes: com a
+   cápsula atrás, 2.6 ficava pesado dentro dela. */
 .bottom-nav-item.active svg {
-  stroke-width: 2.6;
+  stroke-width: 2.2;
 }
 
 /* Anúncios com cor própria na barra. É o único item que leva a conteúdo
@@ -1240,60 +1338,62 @@ textarea::placeholder {
    clara). Escritas aqui e não só no token porque o botão primário precisa
    das suas em azul: sombra cinza sob um bloco azul-marinho suja a borda em
    vez de levantá-la. */
+/* As duas portas da tela de início, no vocabulário do Material.
+   ─────────────────────────────────────────────────────────────
+   Eram dois cartões com degradê, borda firme e sombra de dois níveis, que
+   subiam 2px no toque. Cada um desses recursos é assinatura do desenho
+   antigo, e juntos eles são a primeira coisa que alguém vê ao abrir o app —
+   por isso começam por aqui.
+
+   No lugar: superfícies chapadas. A porta principal é a cor da marca cheia;
+   a segunda é a superfície branca sobre o fundo cinza, sem borda. A
+   diferença de peso entre as duas passa a vir da COR, não de sombra — que é
+   como a Google separa a ação principal da secundária. */
 .welcome-choice-btn {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 12px;
   width: 100%;
-  padding: 14px 12px 14px 13px;
-  border-radius: 22px;
-  border: 1px solid var(--color-border-strong);
-  background: linear-gradient(180deg, #ffffff 0%, #f7fafe 100%);
+  padding: 16px;
+  border-radius: var(--radius);
+  border: none;
+  background: var(--color-surface);
   color: var(--color-text);
   font: inherit;
   text-align: left;
   cursor: pointer;
-  min-height: 72px;
-  box-shadow: var(--shadow-destaque);
-  transition: transform 0.15s ease, box-shadow 0.15s ease;
+  min-height: 76px;
+  box-shadow: none;
+  position: relative;
+  overflow: hidden;
+  transition: background-color 0.15s ease;
   animation: slideUpFade 0.5s ease-out backwards;
 }
 
-.welcome-choice-btn:nth-child(1) {
-  animation-delay: 0.06s;
+/* A camada de estado, igual à dos botões: o cartão acende no toque em vez
+   de se mexer. Mover era o que fazia parecer que ele escorregou. */
+.welcome-choice-btn::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: currentColor;
+  opacity: 0;
+  transition: opacity 0.15s ease;
+  pointer-events: none;
 }
 
-.welcome-choice-btn:nth-child(2) {
-  animation-delay: 0.16s;
-}
+.welcome-choice-btn:hover::after,
+.welcome-choice-btn:focus-visible::after { opacity: 0.06; }
+.welcome-choice-btn:active::after { opacity: 0.1; }
 
-.welcome-choice-btn:hover,
-.welcome-choice-btn:focus-visible {
-  transform: translateY(-2px);
-  box-shadow: var(--brilho-borda), var(--penumbra-borda), 0 3px 6px rgba(10, 26, 47, 0.1),
-    0 14px 30px rgba(10, 26, 47, 0.13);
-}
-
-/* O toque tem que responder no dedo. Sem isto, no celular — onde não
-   existe `hover` — os dois botões eram completamente inertes: a pessoa
-   tocava e nada acontecia até a tela trocar. */
-.welcome-choice-btn:active {
-  transform: translateY(1px);
-  box-shadow: inset 0 2px 5px rgba(10, 26, 47, 0.12), 0 1px 2px rgba(10, 26, 47, 0.06);
-}
+.welcome-choice-btn:nth-child(1) { animation-delay: 0.06s; }
+.welcome-choice-btn:nth-child(2) { animation-delay: 0.16s; }
 
 .welcome-choice-primary {
-  background: linear-gradient(135deg, var(--color-primary-soft) 0%, var(--color-primary) 100%);
-  border-color: rgba(10, 26, 47, 0.35);
-  color: #ffffff;
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.22), inset 0 -1px 1px rgba(0, 0, 0, 0.12),
-    0 2px 4px rgba(10, 26, 47, 0.16), 0 10px 24px rgba(18, 48, 94, 0.28);
-}
-
-.welcome-choice-primary:hover,
-.welcome-choice-primary:focus-visible {
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.24), inset 0 -1px 1px rgba(0, 0, 0, 0.12),
-    0 4px 8px rgba(10, 26, 47, 0.18), 0 16px 34px rgba(18, 48, 94, 0.32);
+  background: var(--color-primary);
+  color: var(--color-on-primary);
+  box-shadow: none;
+  border: none;
 }
 
 /* O ícone dentro de um disco próprio, e não solto sobre o botão: solto,
@@ -1303,17 +1403,19 @@ textarea::placeholder {
   flex: 0 0 auto;
   display: grid;
   place-items: center;
-  width: 40px;
-  height: 40px;
-  border-radius: 13px;
-  background: var(--color-bg-soft);
-  border: 1px solid var(--color-border);
-  color: var(--color-primary-deep);
+  width: 44px;
+  height: 44px;
+  /* Redondo, e não quadrado de canto arredondado: o disco do ícone é
+     circular em toda interface da Google. */
+  border-radius: var(--radius-cheio);
+  background: var(--color-primary-container);
+  border: none;
+  color: var(--color-on-primary-container);
 }
 
 .welcome-choice-primary .welcome-choice-icone {
-  background: rgba(255, 255, 255, 0.16);
-  border-color: rgba(255, 255, 255, 0.24);
+  background: rgba(255, 255, 255, 0.14);
+  border: none;
   color: #ffffff;
 }
 

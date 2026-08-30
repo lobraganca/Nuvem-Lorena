@@ -8,7 +8,7 @@
  * Privacidade, nos Termos e no aviso de dados; espalhado pelo código, uma
  * troca de e-mail deixaria versões antigas vivas em alguma tela.
  */
-export const CONTATO_EMAIL = "procuroapp@gmail.com";
+export const CONTATO_EMAIL = "contato@empregoitabirito.com.br";
 
 /**
  * WhatsApp do suporte, só com dígitos e com o código do país.
@@ -23,7 +23,7 @@ export const SUPORTE_WHATSAPP = "5531971473162";
 export const SUPORTE_WHATSAPP_VISIVEL = "(31) 97147-3162";
 
 /** Nome usado nos documentos legais. */
-export const NOME_PLATAFORMA = "procurô";
+export const NOME_PLATAFORMA = "Ei Itabirito";
 
 /** Cidade-sede, citada na Política de Privacidade. */
 export const CIDADE_SEDE = "Itabirito/MG";

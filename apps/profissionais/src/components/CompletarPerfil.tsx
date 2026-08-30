@@ -56,7 +56,7 @@ function incompleto(p: Profile | null): boolean {
  * contato: o Google entrega nome, foto e e-mail, mas nenhum telefone; o
  * login por SMS entrega o telefone e mais nada. Antes disso a conta ficava
  * pela metade para sempre, e as avaliações saíam assinadas como "Usuário
- * do procurô".
+ * do Ei Itabirito".
  *
  * Três decisões que valem ser ditas, porque cada uma é onde se perde
  * gente:

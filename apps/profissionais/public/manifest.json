@@ -1,14 +1,14 @@
 {
   "id": "/",
-  "name": "procurô",
-  "short_name": "procurô",
-  "description": "Marketplace de busca de profissionais verificados por cidade, com avaliações e selo de verificação.",
+  "name": "Ei Itabirito",
+  "short_name": "Ei Itabirito",
+  "description": "Vagas e profissionais em Itabirito: a empresa publica e avisa quem encaixa; quem procura trabalho recebe no celular.",
   "start_url": "/",
   "scope": "/",
   "display": "standalone",
   "orientation": "portrait",
-  "background_color": "#FFFFFF",
-  "theme_color": "#E6EEFB",
+  "background_color": "#031E52",
+  "theme_color": "#031E52",
   "lang": "pt-BR",
   "dir": "ltr",
   "categories": ["business", "utilities", "lifestyle"],
@@ -46,9 +46,9 @@
       "icons": [{ "src": "/icon-192.png", "sizes": "192x192" }]
     },
     {
-      "name": "Meus favoritos",
-      "short_name": "Favoritos",
-      "url": "/favoritos",
+      "name": "Vagas para você",
+      "short_name": "Vagas",
+      "url": "/vagas-para-mim",
       "icons": [{ "src": "/icon-192.png", "sizes": "192x192" }]
     }
   ]

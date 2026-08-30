@@ -146,8 +146,8 @@ function Footer() {
             são duas linhas quietas, do mesmo tamanho, na ordem de quem
             precisa: quem quer falar com alguém primeiro, o resto depois. */}
         <div className="rodape-grupos">
-          <nav className="rodape-grupo" aria-label="O procurô">
-            <h2 className="rodape-grupo-titulo">O procurô</h2>
+          <nav className="rodape-grupo" aria-label="O Ei Itabirito">
+            <h2 className="rodape-grupo-titulo">O Ei Itabirito</h2>
             <Link to="/como-funciona">Como funciona</Link>
             <Link to="/publicidade">Anuncie aqui</Link>
             <button type="button" onClick={() => setSuggestionOpen(true)}>
