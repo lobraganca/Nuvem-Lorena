@@ -15,12 +15,19 @@ import { Link } from "react-router-dom";
  */
 export function Pagina({
   icone,
+  foto,
   titulo,
   ondeEstou,
   children,
 }: {
   /** O emoji da página. No Notion o ícone de página é emoji, e é literal. */
   icone: string;
+  /**
+   * Uma imagem no lugar do emoji — o Notion também aceita isso, e numa
+   * página que É uma pessoa o rosto dela vale mais que um bonequinho azul
+   * genérico. Cai no emoji sozinho quando não há foto.
+   */
+  foto?: string | null;
   titulo: string;
   /** A migalha: "Ei Itabirito / Vagas". A última parte é a página atual. */
   ondeEstou?: string;
@@ -36,9 +43,15 @@ export function Pagina({
         <span className="ei-migalha-atual">{ondeEstou ?? titulo}</span>
       </div>
 
-      <span className="ei-icone-pagina" aria-hidden="true">
-        {icone}
-      </span>
+      {foto ? (
+        <span className="ei-icone-pagina ei-icone-foto" aria-hidden="true">
+          <img src={foto} alt="" />
+        </span>
+      ) : (
+        <span className="ei-icone-pagina" aria-hidden="true">
+          {icone}
+        </span>
+      )}
 
       <h1 className="ei-titulo-g">{titulo}</h1>
 

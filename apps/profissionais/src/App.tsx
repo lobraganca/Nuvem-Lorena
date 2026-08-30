@@ -51,6 +51,7 @@ const ProfissionaisPage = lazy(importarPagina(() => import("./pages/Profissionai
 const VagasParaMimPage = lazy(importarPagina(() => import("./pages/VagasParaMimPage").then((m) => ({ default: m.VagasParaMimPage }))));
 const PlanosEmpresaPage = lazy(importarPagina(() => import("./pages/PlanosEmpresaPage").then((m) => ({ default: m.PlanosEmpresaPage }))));
 const DetalheVagaPage = lazy(importarPagina(() => import("./pages/DetalheVagaPage").then((m) => ({ default: m.DetalheVagaPage }))));
+const PerfilPublicoPage = lazy(importarPagina(() => import("./pages/PerfilPublicoPage").then((m) => ({ default: m.PerfilPublicoPage }))));
 
 
 /**
@@ -131,6 +132,7 @@ const TELAS_DE_APP = [
   "/vaga",
   "/planos-empresa",
   "/profissionais",
+  "/profissional",
   "/perfil",
 ];
 
@@ -247,6 +249,10 @@ export default function App() {
         <Route path="/vaga/:id" element={<DetalheVagaPage />} />
         <Route path="/planos-empresa" element={<PlanosEmpresaPage />} />
         <Route path="/profissionais" element={<ProfissionaisPage />} />
+        {/* O perfil de uma pessoa, visto por quem contrata. É a metade
+            gratuita da oferta da empresa — ver e falar um a um — e não
+            existia: a lista não levava a lugar nenhum. */}
+        <Route path="/profissional/:id" element={<PerfilPublicoPage />} />
 
         {/* Conta e documentos */}
         <Route path="/perfil" element={<PerfilPage />} />

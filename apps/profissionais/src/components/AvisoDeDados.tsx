@@ -48,12 +48,12 @@ export function AvisoDeDados() {
   }
 
   return (
-    <div className="aviso-dados" role="region" aria-label="Aviso sobre dados pessoais">
+    <div className="ei aviso-dados" role="region" aria-label="Aviso sobre dados pessoais">
       <p>
         Guardamos apenas o necessário para o app funcionar — e nada vai para publicidade. Veja a{" "}
         <Link to="/privacidade">Política de Privacidade</Link>.
       </p>
-      <button type="button" className="btn btn-primary" onClick={aceitar}>
+      <button type="button" className="ei-btn ei-btn-cheio" onClick={aceitar}>
         Entendi
       </button>
     </div>

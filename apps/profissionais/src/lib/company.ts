@@ -380,20 +380,54 @@ export async function obterOndasDaVaga(vagaId: string): Promise<JobDispatch[]> {
   return data as JobDispatch[];
 }
 
-/** Obtém respostas (profissionais interessados) de uma vaga. */
-export async function obterRespostasDaVaga(vagaId: string): Promise<JobResponse[]> {
+/**
+ * Quem se interessou por uma vaga — com NOME, e não só o identificador.
+ *
+ * A tela mostrava "Profissional ID: 8f3a2b1c…" para cada pessoa
+ * interessada. É a lista pela qual a empresa paga o plano inteiro, e ela
+ * chegava como uma coluna de códigos: a empresa não tinha como saber quem
+ * era, nem como falar com ninguém.
+ *
+ * O `!inner` na junção é de propósito: quem ficou oculto ou foi suspenso
+ * some da `professionals_public`, e sem o `inner` a linha voltaria com o
+ * nome nulo — de volta ao código na tela. Some inteira, que é o certo:
+ * quem saiu de cena não deve aparecer numa lista de contatos.
+ *
+ * `status = "new"` saiu do filtro. Ele escondia da empresa todo mundo que
+ * ela já tinha marcado como visto — e a lista de quem respondeu não é uma
+ * caixa de entrada, é o resultado da vaga.
+ */
+export type RespostaComPessoa = JobResponse & {
+  nome: string;
+  telefone: string | null;
+  foto: string | null;
+  bairro: string | null;
+};
+
+export async function obterRespostasDaVaga(vagaId: string): Promise<RespostaComPessoa[]> {
   const sb = getSupabase();
   if (!sb) return [];
 
   const { data, error } = await sb
     .from("job_responses")
-    .select("*")
+    .select(
+      `*, professionals_public!inner ( name, whatsapp, phone, photo_url, neighborhood )`
+    )
     .eq("job_listing_id", vagaId)
-    .eq("status", "new")
     .order("responded_at", { ascending: false });
 
   if (error) return [];
-  return data as JobResponse[];
+
+  return ((data ?? []) as Record<string, unknown>[]).map((r) => {
+    const pessoa = (r.professionals_public ?? {}) as Record<string, unknown>;
+    return {
+      ...(r as unknown as JobResponse),
+      nome: String(pessoa.name ?? ""),
+      telefone: (pessoa.whatsapp as string) ?? (pessoa.phone as string) ?? null,
+      foto: (pessoa.photo_url as string) ?? null,
+      bairro: (pessoa.neighborhood as string) ?? null,
+    };
+  });
 }
 
 /**

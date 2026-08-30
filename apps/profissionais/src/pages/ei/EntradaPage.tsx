@@ -3,7 +3,6 @@ import { useAuth } from "../../lib/useAuth";
 import { useOnboardingStatus } from "../../lib/useOnboardingStatus";
 import { useTituloDaPagina } from "../../lib/tituloDaPagina";
 import { InstalarApp } from "../../components/InstalarApp";
-import marcaEi from "/marca-ei.png";
 
 /**
  * A porta de entrada do Ei Itabirito.
@@ -34,59 +33,46 @@ export function EntradaPage() {
 
   return (
     <div className="ei">
-      <div className="ei-tela" style={{ display: "grid", alignContent: "start", gap: 24 }}>
-        {/* Saudação em duas linhas, como na referência: a primeira na cor
-            de acento, a segunda em preto. Faz a tela parecer um
-            cumprimento, e não o cabeçalho de um formulário. */}
-        <div style={{ paddingTop: 28 }}>
-          <img
-            src={marcaEi}
-            alt=""
-            aria-hidden="true"
-            style={{
-              height: 52,
-              background: "var(--ei-marca)",
-              borderRadius: "24%",
-              padding: "10px 12px",
-              boxSizing: "content-box",
-              marginBottom: 28,
-            }}
-          />
-          <h1 className="ei-saudacao">
-            <span>Olá,</span>
-            Emprego em Itabirito
-          </h1>
-          <p className="ei-apoio" style={{ marginBottom: 28 }}>
-            De um lado quem procura serviço. Do outro, quem procura gente.
-          </p>
-        </div>
+      <div className="ei-tela">
+        {/* A marca aparecia DUAS vezes: no cabeçalho e de novo aqui, grande,
+            num quadrado azul que era a única mancha de cor forte do app
+            inteiro. Saiu a segunda — a do cabeçalho já identifica o app, e
+            uma marca repetida a 60px de distância da outra não informa
+            nada, só ocupa o lugar do que decide a tela.
 
-        {/* As duas portas, empilhadas em cápsula — o formato dos botões de
-            entrar da referência. Ordem deliberada: quem procura trabalho
-            primeiro. São muito mais pessoas, e é o lado que precisa estar
-            cheio antes de o outro valer alguma coisa. */}
-        <div style={{ display: "grid", gap: 12 }}>
-          <Link to="/login" className="ei-btn ei-btn-contorno ei-btn-largo ei-btn-alto">
+            E "quem procura serviço" era linguagem do procurô. Aqui não se
+            contrata serviço, se contrata gente. */}
+        <h1 className="ei-titulo-g" style={{ paddingTop: 34 }}>
+          Emprego em Itabirito
+        </h1>
+        <p className="ei-apoio ei-margem" style={{ paddingBottom: 26 }}>
+          De um lado quem procura trabalho. Do outro, quem está contratando.
+        </p>
+
+        {/* As duas portas. Ordem deliberada: quem procura trabalho primeiro.
+            São muito mais pessoas, e é o lado que precisa estar cheio antes
+            de o outro valer alguma coisa.
+
+            A primeira é a CHEIA agora, e não "ver os profissionais": a
+            decisão desta tela é de que lado a pessoa está, e a terceira
+            opção estava em preto disputando com ela. */}
+        <div className="ei-margem" style={{ display: "grid", gap: 10 }}>
+          <Link to="/login" className="ei-btn ei-btn-cheio ei-btn-largo ei-btn-alto">
             Procuro trabalho
           </Link>
           <Link to="/login" className="ei-btn ei-btn-contorno ei-btn-largo ei-btn-alto">
-            Procuro gente
-          </Link>
-          <Link
-            to="/profissionais"
-            className="ei-btn ei-btn-cheio ei-btn-largo ei-btn-alto"
-            style={{ marginTop: 8 }}
-          >
-            Ver os profissionais da cidade
+            Estou contratando
           </Link>
         </div>
 
-        {/* Dito depois dos botões, e não num cartão: o cartão dava a ele o
-            mesmo peso das duas portas, e isto é uma nota de rodapé — o que
-            importa é que exista, não que compita. */}
-        <p className="ei-apoio" style={{ textAlign: "center", marginTop: 4 }}>
-          Ver quem está disponível é grátis e não precisa de conta.
-        </p>
+        <div className="ei-margem" style={{ marginTop: 18 }}>
+          <Link to="/profissionais" className="ei-btn-inline">
+            Ver quem está disponível na cidade
+          </Link>
+          <p className="ei-apoio" style={{ marginTop: 4 }}>
+            É grátis e não precisa de conta.
+          </p>
+        </div>
 
         {/* Instalar, para quem ainda não entrou.
             ──────────────────────────────────────
@@ -97,7 +83,7 @@ export function EntradaPage() {
 
             Some sozinho dentro do app já instalado e dentro do app da
             loja. Ver InstalarApp. */}
-        <div className="ei-lista" style={{ marginTop: 8 }}>
+        <div className="ei-lista" style={{ marginTop: 26 }}>
           <InstalarApp />
         </div>
       </div>

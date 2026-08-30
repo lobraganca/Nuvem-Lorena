@@ -275,6 +275,8 @@ class Consulta implements PromiseLike<{ data: Linha[] | Linha | null; error: unk
   private limite: number | null = null;
   private unico: "single" | "maybe" | null = null;
   private gravar: Linha | null = null;
+  private inserir: Linha[] | null = null;
+  private apagar = false;
 
   constructor(private tabela: string) {}
 
@@ -315,13 +317,42 @@ class Consulta implements PromiseLike<{ data: Linha[] | Linha | null; error: unk
   limit(n: number) { this.limite = n; return this; }
   single() { this.unico = "single"; return this; }
   maybeSingle() { this.unico = "maybe"; return this; }
-  insert() { return this; }
+  /* `insert` GRAVA de verdade. Antes devolvia `this` e não escrevia nada:
+     um teste de "salvar" passava sempre, porque o falso respondia "deu
+     certo" para qualquer coisa — inclusive para um botão sem `onClick`,
+     que foi exatamente o defeito que passou meses despercebido. */
+  insert(linhas: Linha | Linha[]) {
+    this.inserir = Array.isArray(linhas) ? linhas : [linhas];
+    return this;
+  }
   update(mudancas: Linha) { this.gravar = mudancas; return this; }
-  upsert() { return this; }
-  delete() { return this; }
+  upsert(linhas: Linha | Linha[]) { return this.insert(linhas); }
+  delete() { this.apagar = true; return this; }
 
   private resolver() {
-    let linhas = (TABELAS[this.tabela] ?? []).filter((l) => this.filtros.every((f) => f(l)));
+    const tabela = (TABELAS[this.tabela] ??= []);
+
+    if (this.inserir) {
+      const novas = this.inserir.map((l) => ({
+        id: l.id ?? `${this.tabela}-${tabela.length + 1}`,
+        created_at: new Date().toISOString(),
+        ...l,
+      }));
+      tabela.push(...novas);
+      return this.unico
+        ? { data: novas[0] ?? null, error: null, count: novas.length }
+        : { data: novas, error: null, count: novas.length };
+    }
+
+    let linhas = tabela.filter((l) => this.filtros.every((f) => f(l)));
+
+    if (this.apagar) {
+      for (const l of linhas) {
+        const i = tabela.indexOf(l);
+        if (i >= 0) tabela.splice(i, 1);
+      }
+      return { data: linhas, error: null, count: linhas.length };
+    }
     /* Um `update` que não altera nada faz o teste passar sem testar: a tela
        chama, o falso responde "deu certo", e a lista volta igual. Foi
        exatamente o que aconteceu com o botão de pausar. */

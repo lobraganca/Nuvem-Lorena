@@ -1,7 +1,20 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { useTituloDaPagina } from "../../lib/tituloDaPagina";
+import { useAuth } from "../../lib/useAuth";
+import { mensagemDeErro } from "../../lib/erros";
 import { Switch } from "../../components/ei/Switch";
+import { Pagina } from "../../components/ei/Pagina";
 import { CATEGORIES, MAX_FUNCOES } from "../../types/domain";
+import {
+  lerMeuPerfil,
+  salvarMeuPerfil,
+  lerCursos,
+  salvarCursos,
+  PERFIL_VAZIO,
+  type MeuPerfil,
+} from "../../lib/meuPerfil";
+import { lerExperiencias, salvarExperiencias } from "../../lib/experiencias";
 
 /**
  * O perfil de quem procura trabalho.
@@ -21,23 +34,115 @@ import { CATEGORIES, MAX_FUNCOES } from "../../types/domain";
  *
  * O procurô pedia o inverso: foto e texto de apresentação primeiro, e o que
  * a pessoa faz lá pelo meio.
+ *
+ * ── Esta tela era uma MAQUETE ─────────────────────────────────────────
+ *
+ * Até aqui ela desenhava tudo isso e não gravava nada: o botão "Salvar"
+ * não tinha `onClick`, o arquivo não importava o banco, e recarregar a
+ * página zerava o que a pessoa tinha marcado. Parecia funcionar, que é o
+ * pior estado possível — e era a tela de que todo o resto depende, porque
+ * é `areas_de_interesse` que a onda consulta para achar quem avisar.
  */
-
-/* Rascunho de tela: os dados ainda vêm do formulário e vão para o banco na
-   próxima leva, junto com a migration das funções e dos cursos. O que está
-   pronto aqui é o DESENHO, e é ele que precisava ser visto antes. */
 type Experiencia = { empresa: string; cargo: string; inicio: string; fim: string };
 type Curso = { nome: string; instituicao: string; ano: string };
 
 export function MeuPerfilPage() {
   useTituloDaPagina("Meu perfil");
+  const navegar = useNavigate();
+  const { user, loading: carregandoConta } = useAuth();
 
-  const [disponivel, setDisponivel] = useState(true);
-  const [oculto, setOculto] = useState(false);
-  const [funcoes, setFuncoes] = useState<string[]>([]);
+  const [perfil, setPerfil] = useState<MeuPerfil>(PERFIL_VAZIO);
   const [experiencias, setExperiencias] = useState<Experiencia[]>([]);
   const [cursos, setCursos] = useState<Curso[]>([]);
   const [busca, setBusca] = useState("");
+  const [carregando, setCarregando] = useState(true);
+  const [salvando, setSalvando] = useState(false);
+  const [erro, setErro] = useState("");
+  /* O aviso de que salvou. Sem ele a pessoa toca em Salvar, nada muda na
+     tela, e ela não sabe se deu certo — numa tela em que o que está em
+     jogo é a chance de ser chamada para trabalhar. */
+  const [salvo, setSalvo] = useState(false);
+
+  const { disponivel, oculto, funcoes } = perfil;
+  const setDisponivel = (v: boolean) => setPerfil((p) => ({ ...p, disponivel: v }));
+  const setOculto = (v: boolean) => setPerfil((p) => ({ ...p, oculto: v }));
+  const setFuncoes = (f: (a: string[]) => string[]) =>
+    setPerfil((p) => ({ ...p, funcoes: f(p.funcoes) }));
+
+  useEffect(() => {
+    if (carregandoConta) return;
+    if (!user) {
+      navegar("/login", { replace: true });
+      return;
+    }
+
+    (async () => {
+      try {
+        const meu = await lerMeuPerfil(user.id);
+        if (meu) {
+          setPerfil(meu);
+          if (meu.id) {
+            /* As duas listas juntas: uma falha em qualquer uma derruba as
+               duas, e é isso que se quer — meia tela carregada é a que faz
+               a pessoa salvar por cima do que não apareceu. */
+            const [exps, curs] = await Promise.all([
+              lerExperiencias(meu.id),
+              lerCursos(meu.id),
+            ]);
+            setExperiencias(
+              exps.map((e) => ({
+                cargo: e.cargo,
+                empresa: e.onde ?? "",
+                /* O banco guarda um período em texto livre ("de 2019 a
+                   2022"); a tela tem dois campos. Na volta, o que não dá
+                   para separar vai inteiro no "começou" — melhor mostrar
+                   torto do que sumir com o que a pessoa escreveu. */
+                inicio: e.periodo ?? "",
+                fim: "",
+              }))
+            );
+            setCursos(curs);
+          }
+        } else {
+          /* Sem cadastro ainda: o telefone da conta já entra preenchido.
+             É o dado que a pessoa acabou de confirmar por SMS, e pedir de
+             novo é o tipo de atrito que faz desistir no primeiro campo. */
+          setPerfil({ ...PERFIL_VAZIO, phone: user.phone ?? "", email: user.email ?? "" });
+        }
+      } catch (err) {
+        setErro(mensagemDeErro(err, "Não consegui carregar o seu perfil."));
+      } finally {
+        setCarregando(false);
+      }
+    })();
+  }, [user, carregandoConta, navegar]);
+
+  async function salvar() {
+    if (!user) return;
+    setSalvando(true);
+    setErro("");
+    setSalvo(false);
+    try {
+      const id = await salvarMeuPerfil(user.id, perfil);
+      setPerfil((p) => ({ ...p, id }));
+      await Promise.all([
+        salvarExperiencias(
+          id,
+          experiencias.map((e) => ({
+            cargo: e.cargo,
+            onde: e.empresa,
+            periodo: [e.inicio, e.fim].filter(Boolean).join(" a "),
+          }))
+        ),
+        salvarCursos(id, cursos),
+      ]);
+      setSalvo(true);
+    } catch (err) {
+      setErro(mensagemDeErro(err, "Não consegui salvar o seu perfil."));
+    } finally {
+      setSalvando(false);
+    }
+  }
 
   const cheio = funcoes.length >= MAX_FUNCOES;
 
@@ -54,13 +159,76 @@ export function MeuPerfilPage() {
     ? CATEGORIES.filter((c) => c.toLocaleLowerCase("pt-BR").includes(busca.toLocaleLowerCase("pt-BR")))
     : CATEGORIES;
 
+  if (carregandoConta || carregando) {
+    return (
+      <div className="ei">
+        <div className="ei-tela">
+          <p className="ei-apoio ei-margem" style={{ paddingTop: 24 }}>Carregando…</p>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="ei">
       <div className="ei-tela">
-        <div className="ei-topo">
-          <div>
-            <h1 className="ei-titulo-g">Meu perfil</h1>
-            <p className="ei-apoio">É por ele que as vagas chegam até você.</p>
+        {/* Era a única tela principal sem o cabeçalho de página — sem
+            migalha, sem ícone, e com o título centralizado enquanto todas
+            as outras alinham à esquerda. */}
+        <Pagina icone="🧰" titulo="Meu perfil" ondeEstou="Meu perfil" />
+        <p className="ei-apoio ei-margem" style={{ paddingBottom: 6 }}>
+          É por ele que as vagas chegam até você.
+        </p>
+
+        {/* ── 0. Quem é você ───────────────────────────────────────────
+            Nome, telefone e e-mail, que a dona pediu por escrito e não
+            existiam nesta tela. O nome é o que a empresa lê primeiro; o
+            telefone é como ela chama. Sem os dois, o cadastro não serve
+            para nada — por isso vêm antes de tudo. */}
+        <h2 className="ei-secao">Seus dados</h2>
+        <div className="ei-cartao" style={{ display: "grid", gap: 12 }}>
+          <div className="ei-campo">
+            <label htmlFor="meu-nome">Nome</label>
+            <input
+              id="meu-nome"
+              value={perfil.name}
+              placeholder="Como a empresa vai te chamar"
+              maxLength={80}
+              onChange={(e) => setPerfil((x) => ({ ...x, name: e.target.value }))}
+            />
+          </div>
+          <div className="ei-campo">
+            <label htmlFor="meu-fone">Telefone</label>
+            <input
+              id="meu-fone"
+              type="tel"
+              inputMode="tel"
+              value={perfil.phone}
+              placeholder="(31) 99999-8888"
+              onChange={(e) => setPerfil((x) => ({ ...x, phone: e.target.value }))}
+            />
+            <span className="ei-campo-ajuda">É por aqui que a empresa vai te chamar.</span>
+          </div>
+          <div className="ei-campo">
+            <label htmlFor="meu-email">E-mail</label>
+            <input
+              id="meu-email"
+              type="email"
+              inputMode="email"
+              value={perfil.email}
+              placeholder="opcional"
+              onChange={(e) => setPerfil((x) => ({ ...x, email: e.target.value }))}
+            />
+          </div>
+          <div className="ei-campo">
+            <label htmlFor="meu-bairro">Bairro</label>
+            <input
+              id="meu-bairro"
+              value={perfil.neighborhood}
+              placeholder="Centro"
+              maxLength={60}
+              onChange={(e) => setPerfil((x) => ({ ...x, neighborhood: e.target.value }))}
+            />
           </div>
         </div>
 
@@ -342,9 +510,41 @@ export function MeuPerfilPage() {
           </button>
         </div>
 
-        <button className="ei-btn ei-btn-cheio ei-btn-largo" style={{ marginTop: 24 }}>
-          Salvar
-        </button>
+        {/* O aviso de que deu certo, e o de que não deu.
+            ───────────────────────────────────────────────
+            O botão não tinha ação nenhuma; agora tem, e avisa nos dois
+            casos. Salvar em silêncio numa tela em que o que está em jogo é
+            a chance de ser chamada para trabalhar faz a pessoa tocar de
+            novo, e depois desconfiar do app inteiro. */}
+        {erro && (
+          <p className="ei-campo-erro ei-margem" style={{ marginTop: 16 }} role="alert">
+            {erro}
+          </p>
+        )}
+        {salvo && !erro && (
+          <div className="ei-callout" style={{ marginTop: 16 }}>
+            <span className="ei-callout-emoji" aria-hidden="true">✅</span>
+            <span className="ei-callout-texto">
+              <strong>Perfil salvo.</strong>{" "}
+              {funcoes.length === 0
+                ? "Marque ao menos uma função para começar a receber vaga."
+                : oculto
+                  ? "Você não aparece na lista, mas continua recebendo vaga."
+                  : "As vagas do seu ofício vão chegar aqui."}
+            </span>
+          </div>
+        )}
+
+        <div className="ei-margem" style={{ marginTop: 20 }}>
+          <button
+            type="button"
+            className="ei-btn ei-btn-cheio ei-btn-largo ei-btn-alto"
+            disabled={salvando}
+            onClick={salvar}
+          >
+            {salvando ? "Salvando…" : "Salvar"}
+          </button>
+        </div>
       </div>
     </div>
   );

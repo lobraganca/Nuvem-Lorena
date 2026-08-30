@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
+import { Link, useSearchParams } from "react-router-dom";
 import { useTituloDaPagina } from "../lib/tituloDaPagina";
 import { mensagemDeErro } from "../lib/erros";
 import { supabase } from "../lib/supabase";
@@ -60,8 +61,33 @@ export function ProfissionaisPage() {
   const [lista, setLista] = useState<Disponivel[]>([]);
   const [carregando, setCarregando] = useState(true);
   const [erro, setErro] = useState("");
-  const [filtro, setFiltro] = useState("");
-  const [oficio, setOficio] = useState<string | null>(null);
+
+  /* A busca e o filtro moram na URL, não no estado da tela.
+     ────────────────────────────────────────────────────────
+     Testei como usuária: busquei "Pedreiro", abri um perfil, voltei — e o
+     campo estava vazio, com a lista inteira de volta. É o mesmo defeito
+     que o CLAUDE.md registra como já tendo custado horas no procurô
+     ("abrir um cadastro e voltar apagava a busca"), e ele tinha voltado.
+
+     Na URL, o botão de voltar do navegador devolve o estado sozinho, e o
+     endereço filtrado pode ser guardado ou mandado para alguém. */
+  const [params, setParams] = useSearchParams();
+  const filtro = params.get("q") ?? "";
+  const oficio = params.get("f");
+
+  function mudarParams(mudanca: { q?: string; f?: string | null }) {
+    const novo = new URLSearchParams(params);
+    for (const [chave, valor] of Object.entries(mudanca)) {
+      if (valor) novo.set(chave, valor);
+      else novo.delete(chave);
+    }
+    /* `replace` para a busca não encher o histórico: senão, voltar depois
+       de digitar oito letras exige oito toques no botão de voltar. */
+    setParams(novo, { replace: true });
+  }
+
+  const setFiltro = (v: string) => mudarParams({ q: v });
+  const setOficio = (v: string | null) => mudarParams({ f: v });
 
   useEffect(() => {
     const sb = supabase();
@@ -225,7 +251,11 @@ export function ProfissionaisPage() {
             {visiveis.map((p) => {
               const funcoes = p.areas_de_interesse ?? [];
               return (
-                <article key={p.id} className="ei-pessoa">
+                /* A linha vira LINK. Era um `<article>` sem link nenhum:
+                   a empresa via a lista, tocava numa pessoa e não
+                   acontecia nada — e não havia telefone em lugar nenhum
+                   do app. A parte gratuita da oferta não existia. */
+                <Link key={p.id} to={`/profissional/${p.id}`} className="ei-pessoa">
                   <Retrato foto={p.photo_url} nome={p.name} />
                   <div className="ei-pessoa-texto">
                     {/* Na linha inteira cabem duas funções sem cortar — no
@@ -236,7 +266,10 @@ export function ProfissionaisPage() {
                       {funcoes.length > 2 && ` +${funcoes.length - 2}`}
                     </div>
                   </div>
-                </article>
+                  <span className="ei-linha-seta" aria-hidden="true">
+                    <IconeSeta />
+                  </span>
+                </Link>
               );
             })}
           </div>
@@ -271,6 +304,15 @@ function Retrato({ foto, nome }: { foto: string | null; nome: string }) {
         inicial
       )}
     </span>
+  );
+}
+
+function IconeSeta() {
+  return (
+    <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor"
+         strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+      <path d="M9 5l7 7-7 7" />
+    </svg>
   );
 }
 

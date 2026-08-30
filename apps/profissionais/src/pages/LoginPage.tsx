@@ -139,7 +139,11 @@ export function LoginPage() {
     <div className="container entrar-pagina">
       <h1>Entrar</h1>
       <p className="muted">
-        Para avaliar, salvar favoritos e cadastrar os seus serviços. Buscar continua livre, sem conta.
+        {/* Era texto do procurô — "avaliar, salvar favoritos e cadastrar
+            os seus serviços" —, e nenhuma dessas três coisas existe aqui.
+            Ficava na PRIMEIRA tela que qualquer pessoa nova lê. */}
+        Para receber vagas de Itabirito, ou para publicar as suas. Ver quem está disponível
+        continua livre, sem conta.
       </p>
 
       {!hasDatabase() && (

@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useParams, useNavigate } from "react-router-dom";
+import { Link, useParams, useNavigate } from "react-router-dom";
 import { useAuth } from "../lib/useAuth";
 import {
   obterVaga,
@@ -8,14 +8,15 @@ import {
   fecharVaga,
   calcularOndas,
   abrirOnda,
+  type RespostaComPessoa,
 } from "../lib/company";
 import { mensagemDeErro } from "../lib/erros";
+import { Pagina, Prop } from "../components/ei/Pagina";
 import {
   ONDAS,
   ONDAS_POR_VAGA,
   type JobListing,
   type JobDispatch,
-  type JobResponse,
   type WaveNumber,
 } from "../types/domain";
 
@@ -29,7 +30,7 @@ export function DetalheVagaPage() {
 
   const [vaga, setVaga] = useState<JobListing | null>(null);
   const [ondas, setOndas] = useState<JobDispatch[]>([]);
-  const [respostas, setRespostas] = useState<JobResponse[]>([]);
+  const [respostas, setRespostas] = useState<RespostaComPessoa[]>([]);
   const [carregando, setCarregando] = useState(true);
   const [fechando, setFechando] = useState(false);
   const [erro, setErro] = useState("");
@@ -117,18 +118,31 @@ export function DetalheVagaPage() {
   }
 
   if (carregando) {
-    return <div className="container" style={{ paddingTop: 48 }}>
-      <span className="muted">Carregando…</span>
-    </div>;
+    return (
+      <div className="ei">
+        <div className="ei-tela">
+          <p className="ei-apoio ei-margem" style={{ paddingTop: 24 }}>Carregando…</p>
+        </div>
+      </div>
+    );
   }
 
   if (!vaga) {
-    return <div className="container" style={{ paddingTop: 48 }}>
-      <p className="muted">{erro || "Vaga não encontrada."}</p>
-      <button className="btn btn-primary" onClick={() => navegar("/painel-empresa")}>
-        Voltar ao painel
-      </button>
-    </div>;
+    return (
+      <div className="ei">
+        <div className="ei-tela">
+          <Pagina icone="📋" titulo="Vaga" ondeEstou="Vaga" />
+          <p className="ei-apoio ei-margem" style={{ paddingTop: 8 }}>
+            {erro || "Vaga não encontrada."}
+          </p>
+          <div className="ei-margem" style={{ marginTop: 16 }}>
+            <button className="ei-btn ei-btn-contorno" onClick={() => navegar("/painel-empresa")}>
+              Ver minhas vagas
+            </button>
+          </div>
+        </div>
+      </div>
+    );
   }
 
   const totalProfissionais = ondas.reduce((sum, o) => sum + o.professionals_count, 0);
@@ -147,66 +161,53 @@ export function DetalheVagaPage() {
   const aindaTemOnda = ondas.length < ONDAS_POR_VAGA;
 
   return (
-    <div className="container detalhe-vaga" style={{ paddingTop: 24, paddingBottom: 24 }}>
-      <button
-        className="btn btn-link"
-        onClick={() => navegar("/painel-empresa")}
-        style={{ marginBottom: 16 }}
-      >
-        ← Voltar
-      </button>
-
-      <h1>{vaga.title}</h1>
-      <p className="muted">{vaga.profession}</p>
-
-      {erro && (
-        <div style={{ color: "var(--color-danger)", marginBottom: 16, padding: 12, backgroundColor: "var(--color-danger-light)", borderRadius: 8 }}>
-          {erro}
-        </div>
-      )}
-
-      {/* Dados da vaga */}
-      <section className="card" style={{ marginBottom: 24, padding: 16 }}>
-        <h2 style={{ marginTop: 0 }}>Detalhes da vaga</h2>
-
-        {vaga.description && (
-          <div style={{ marginBottom: 12 }}>
-            <strong>Descrição:</strong>
-            <p style={{ margin: "4px 0 0 0" }}>{vaga.description}</p>
+    <div className="ei">
+      <div className="ei-tela detalhe-vaga">
+        {/* Era a última tela no desenho velho: cartões cinzas, "Descrição:"
+            com dois-pontos, um botão AZUL (o último do app) e "Voltar" duas
+            vezes — em cima e embaixo. A migalha do cabeçalho de página faz
+            o trabalho dos dois botões, e faz melhor: diz onde a pessoa
+            está, não só que dá para sair. */}
+        <Pagina icone="📋" titulo={vaga.title} ondeEstou="Vaga">
+          <div className="ei-props">
+            <Prop rotulo="Ofício">{vaga.profession}</Prop>
+            <Prop rotulo="Jeito">
+              {vaga.work_modality === "presencial"
+                ? "Presencial"
+                : vaga.work_modality === "remoto"
+                  ? "A distância"
+                  : "Híbrido"}
+            </Prop>
+            {vaga.required_experience && (
+              <Prop rotulo="Experiência">{vaga.required_experience}</Prop>
+            )}
+            {vaga.salary_range_min && vaga.salary_range_max && (
+              <Prop rotulo="Salário">
+                R$ {(vaga.salary_range_min / 100).toLocaleString("pt-BR")} a R${" "}
+                {(vaga.salary_range_max / 100).toLocaleString("pt-BR")}
+              </Prop>
+            )}
+            <Prop rotulo="Publicada">
+              {new Date(vaga.created_at).toLocaleDateString("pt-BR")}
+            </Prop>
           </div>
+        </Pagina>
+
+        {erro && (
+          <p className="ei-campo-erro ei-margem" style={{ marginTop: 12 }} role="alert">
+            {erro}
+          </p>
         )}
 
-        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
-          <div>
-            <strong>Modalidade:</strong>
-            <p style={{ margin: "4px 0 0 0", fontSize: "0.95em" }}>{vaga.work_modality}</p>
-          </div>
-          <div>
-            <strong>Criada em:</strong>
-            <p style={{ margin: "4px 0 0 0", fontSize: "0.95em" }}>
-              {new Date(vaga.created_at).toLocaleDateString("pt-BR")}
-            </p>
-          </div>
-          {vaga.required_experience && (
-            <div>
-              <strong>Experiência:</strong>
-              <p style={{ margin: "4px 0 0 0", fontSize: "0.95em" }}>{vaga.required_experience}</p>
-            </div>
-          )}
-          {vaga.salary_range_min && vaga.salary_range_max && (
-            <div>
-              <strong>Faixa salarial:</strong>
-              <p style={{ margin: "4px 0 0 0", fontSize: "0.95em" }}>
-                R$ {(vaga.salary_range_min / 100).toLocaleString("pt-BR")} - R$ {(vaga.salary_range_max / 100).toLocaleString("pt-BR")}
-              </p>
-            </div>
-          )}
-        </div>
-      </section>
+        {vaga.description && (
+          <p className="ei-corpo ei-margem" style={{ paddingTop: 10 }}>
+            {vaga.description}
+          </p>
+        )}
 
       {/* Status das ondas */}
-      <section className="card" style={{ marginBottom: 24, padding: 16 }}>
-        <h2 style={{ marginTop: 0 }}>Status das ondas</h2>
+      <h2 className="ei-secao">As ondas desta vaga</h2>
+      <section className="ei-cartao">
 
         {ondas.length === 0 ? (
           <p className="muted">Nenhuma onda disparada ainda.</p>
@@ -333,8 +334,8 @@ export function DetalheVagaPage() {
       </section>
 
       {/* Respostas */}
-      <section className="card" style={{ marginBottom: 24, padding: 16 }}>
-        <h2 style={{ marginTop: 0 }}>
+      <section className="ei-cartao">
+        <h2 className="ei-cartao-titulo" style={{ marginBottom: 10 }}>
           Profissionais interessados
           {respostas.length > 0 && ` (${respostas.length})`}
         </h2>
@@ -342,51 +343,69 @@ export function DetalheVagaPage() {
         {respostas.length === 0 ? (
           <p className="muted">Nenhum profissional respondeu ainda.</p>
         ) : (
-          <div style={{ display: "grid", gap: 12 }}>
+          /* Cada pessoa vira uma LINHA com nome, rosto e caminho para o
+             perfil — onde está o telefone. Antes era "Profissional ID:
+             8f3a2b1c…" com um botão "Ver perfil" que não fazia nada: a
+             lista pela qual a empresa paga o plano inteiro chegava como
+             uma coluna de códigos. */
+          <div style={{ margin: "0 -20px" }}>
             {respostas.map((resp) => (
-              <div
+              <Link
                 key={resp.id}
-                style={{
-                  padding: 12,
-                  backgroundColor: "var(--color-bg-input)",
-                  borderRadius: 8,
-                }}
+                to={`/profissional/${resp.professional_id}`}
+                className="ei-pessoa"
               >
-                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                  <div>
-                    <strong>Profissional ID: {resp.professional_id.substring(0, 8)}…</strong>
-                    <p className="muted" style={{ margin: "4px 0 0 0", fontSize: "0.9em" }}>
-                      Respondeu em {new Date(resp.responded_at).toLocaleDateString("pt-BR")}
-                    </p>
-                  </div>
-                  <button className="btn btn-primary btn-sm">
-                    Ver perfil
-                  </button>
-                </div>
-              </div>
+                <span className="ei-pessoa-retrato" aria-hidden="true">
+                  {resp.foto ? (
+                    <img src={resp.foto} alt="" loading="lazy" />
+                  ) : (
+                    (resp.nome || "?").trim().charAt(0).toLocaleUpperCase("pt-BR")
+                  )}
+                </span>
+                <span className="ei-pessoa-texto">
+                  <span className="ei-pessoa-nome ei-uma-linha">
+                    {resp.nome || "Sem nome"}
+                  </span>
+                  <span className="ei-pessoa-oficio ei-uma-linha">
+                    {resp.bairro ? `${resp.bairro} · ` : ""}
+                    respondeu em {new Date(resp.responded_at).toLocaleDateString("pt-BR")}
+                  </span>
+                </span>
+                <span className="ei-linha-seta" aria-hidden="true">
+                  <IconeSeta />
+                </span>
+              </Link>
             ))}
           </div>
         )}
       </section>
 
-      {/* Ações */}
-      <div style={{ display: "flex", gap: 12 }}>
-        <button
-          className="btn btn-secondary"
-          onClick={() => navegar("/painel-empresa")}
-        >
-          Voltar
-        </button>
-        {vaga.status === "active" && (
+      {/* Só "Fechar vaga". O "Voltar" daqui era o segundo da tela — o
+          primeiro estava no topo —, e a migalha já leva de volta. */}
+      {vaga.status === "active" && (
+        <div className="ei-margem" style={{ marginTop: 24 }}>
           <button
-            className="btn btn-danger"
+            className="ei-btn ei-btn-contorno ei-btn-largo"
             onClick={fecharVagaFunc}
             disabled={fechando}
           >
-            {fechando ? "Fechando…" : "Fechar vaga"}
+            {fechando ? "Fechando…" : "Fechar esta vaga"}
           </button>
-        )}
+          <p className="ei-apoio" style={{ marginTop: 8 }}>
+            Fechar libera uma vaga do seu plano. Quem já respondeu continua nesta lista.
+          </p>
+        </div>
+      )}
       </div>
     </div>
+  );
+}
+
+function IconeSeta() {
+  return (
+    <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor"
+         strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+      <path d="M9 5l7 7-7 7" />
+    </svg>
   );
 }
