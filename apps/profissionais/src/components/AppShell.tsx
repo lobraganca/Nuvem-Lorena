@@ -10,6 +10,7 @@ import { useOnlineCount } from "../lib/presence";
 import { MarcaProcuro } from "./MarcaProcuro";
 import { ExigirNumero, exigeNumero } from "./ExigirNumero";
 import { CompletarPerfil, exigePerfil } from "./CompletarPerfil";
+import { ehAppDaLoja } from "../lib/plataforma";
 
 /* Etiqueta de preço: diz "aqui tem oferta" sem a agressividade do megafone,
    que num app de serviços lê como spam. */
@@ -54,6 +55,17 @@ function IconUser() {
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
       <circle cx="12" cy="8" r="4" />
       <path d="M4 20c1.5-3.5 4.5-5.5 8-5.5s6.5 2 8 5.5" />
+    </svg>
+  );
+}
+
+/* Só existe pelo app da loja: no lugar de "Anúncios" nesse modo. Mesmo
+   traço das outras (viewBox 24, stroke 2), para não destoar do resto da
+   barra — é um substituto, não um item de segunda categoria. */
+function IconCoracao() {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M12 20.5s-7.5-4.6-9.7-9.1C.9 8.2 2.2 5 5.4 4.2 7.6 3.6 9.8 4.6 12 7c2.2-2.4 4.4-3.4 6.6-2.8 3.2.8 4.5 4 3.1 7.2C19.5 15.9 12 20.5 12 20.5Z" />
     </svg>
   );
 }
@@ -377,14 +389,36 @@ export function AppShell({ children }: { children: ReactNode }) {
         <BotaoVoltar />
         {/* Cor própria: é o único item da barra que leva a algo pago, e
             distinguir isso do resto é honestidade, não enfeite. Quem toca
-            ali sabe, antes de tocar, que vai ver publicidade. */}
-        <NavItem
-          to="/anuncios"
-          label="Anúncios"
-          icon={<IconMegafone />}
-          active={path.startsWith("/anuncios")}
-          destaque
-        />
+            ali sabe, antes de tocar, que vai ver publicidade.
+
+            No app da loja este botão vira Favoritos, e Anúncios simplesmente
+            não existe nesse modo — a tela inteira é sobre quem pagou para
+            aparecer, e "isto é publicidade paga" não é frase para dizer
+            dentro de um app que a Play Store não deixa vender nada. Vira
+            Favoritos e não outra coisa porque completa o par com Painel: um
+            é "o que ofereço", o outro é "o que eu quis guardar" — a única
+            função que ficava só dentro do Perfil, um toque mais fundo, e
+            que merece o mesmo alcance de Anúncios.
+
+            Continua 5 itens, sempre: sem isto o total cai para 4 e o botão
+            do meio (Buscar) perde o centro — o mesmo defeito que a barra da
+            administração já causou com 6. */}
+        {ehAppDaLoja() ? (
+          <NavItem
+            to="/favoritos"
+            label="Favoritos"
+            icon={<IconCoracao />}
+            active={path.startsWith("/favoritos")}
+          />
+        ) : (
+          <NavItem
+            to="/anuncios"
+            label="Anúncios"
+            icon={<IconMegafone />}
+            active={path.startsWith("/anuncios")}
+            destaque
+          />
+        )}
         {/* A busca no meio, num círculo que sobe acima da barra.
             É a ação principal do app e estava indistinguível das outras
             quatro — a mesma lupa cinza do mesmo tamanho, disputando atenção
