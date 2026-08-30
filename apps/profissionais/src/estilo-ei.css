@@ -1,0 +1,469 @@
+/* ═══════════════════════════════════════════════════════════════════════
+   O DESENHO DO EI ITABIRITO
+   ═══════════════════════════════════════════════════════════════════════
+
+   Arquivo próprio, e carregado DEPOIS do theme.css, de propósito.
+
+   O theme.css é do procurô: 6.400 linhas escritas para outro produto, com
+   os componentes daquele app (vitrine de anúncio, cartão de avaliação,
+   selo, patrocínio de categoria). Mexer nele é repintar o procurô, e foi
+   isso que já se tentou duas vezes sem resolver — porque o problema nunca
+   foi a cor, foi de quem era o desenho.
+
+   Aqui é o desenho do Ei. Tudo que a tela nova usa mora neste arquivo, com
+   prefixo `ei-`, e não depende de uma linha do outro. À medida que cada
+   tela do procurô for substituída, o theme.css encolhe até sumir.
+
+   A referência é o Material 3, que é o sistema dos apps da Google. O que
+   faz um app "parecer Google" não é a cor — é isto:
+
+     · a elevação vem da COR da superfície, não de sombra
+     · superfície chapada: nada de degradê nem de brilho interno
+     · canto muito redondo, e botão em forma de cápsula
+     · o padrão "container": fundo claro da cor + texto escuro da cor,
+       em vez de cor forte com texto branco em tudo
+     · tipografia Roboto, com rótulo em peso médio
+     · o toque ACENDE o elemento (véu da própria cor) em vez de movê-lo
+
+   As cores saem da marca: azul #031E52 e laranja #FF6A05.
+   ═══════════════════════════════════════════════════════════════════════ */
+
+.ei {
+  /* ── Superfícies ───────────────────────────────────────────────────
+     Cinco degraus, cada um com mais do azul da marca dissolvido dentro.
+     É assim que o Material separa planos sem usar sombra — e é o que dá
+     ao app inteiro a temperatura da marca, mesmo nas partes cinzas. */
+  --ei-fundo: #f7f9fc;
+  --ei-s1: #ffffff;
+  --ei-s2: #f1f4fa;
+  --ei-s3: #e9edf6;
+  --ei-s4: #e1e7f2;
+
+  /* ── Ação ──────────────────────────────────────────────────────────
+     `container` é a mesma cor diluída. É o botão que mais aparece na
+     interface da Google e o que menos existia no procurô, onde tudo era
+     ou azul chapado ou contorno. */
+  --ei-cor: #031e52;
+  --ei-sobre-cor: #ffffff;
+  --ei-cor-fraca: #dbe3f7;
+  --ei-sobre-cor-fraca: #041437;
+
+  /* ── Laranja ───────────────────────────────────────────────────────
+     Acento de atenção. O tom escrito é escurecido porque o laranja da
+     marca sobre branco dá 2,6:1 — ilegível. O laranja puro fica onde ele
+     é forma e não letra: ponto de aviso, indicador, a bolinha da marca. */
+  --ei-laranja: #ff6a05;
+  --ei-laranja-tinta: #b34800;
+  --ei-laranja-fraco: #ffe6d4;
+  --ei-sobre-laranja-fraco: #4a1d00;
+
+  /* ── Verde de "está disponível" ────────────────────────────────────
+     O estado mais importante do perfil de quem procura trabalho merece
+     cor própria, e verde é a única leitura universal de "pode chamar". */
+  --ei-verde: #146c43;
+  --ei-verde-fraco: #d7f0e2;
+  --ei-sobre-verde-fraco: #04321c;
+
+  /* ── Tinta ─────────────────────────────────────────────────────────
+     Preto-azulado em vez de preto puro: é o que dá o ar de coisa
+     desenhada, e não de texto cru do sistema. */
+  --ei-tinta: #10131c;
+  --ei-tinta-fraca: #444b5c;
+  --ei-linha: #d5d9e4;
+  --ei-contorno: #757a89;
+
+  --ei-erro: #b3261e;
+  --ei-erro-fraco: #f9dedc;
+  --ei-sobre-erro-fraco: #410e0b;
+
+  /* ── Forma ─────────────────────────────────────────────────────────
+     Depois da barra de baixo, é a segunda coisa que se reconhece de
+     longe num app da Google. */
+  --ei-raio-p: 12px;
+  --ei-raio: 16px;
+  --ei-raio-g: 28px;
+  --ei-capsula: 999px;
+
+  /* ── Elevação ──────────────────────────────────────────────────────
+     Quase nada, e só no que de fato flutua sobre o conteúdo. */
+  --ei-sombra: 0 1px 2px rgba(16, 19, 28, 0.10), 0 1px 3px 1px rgba(16, 19, 28, 0.07);
+  --ei-sombra-alta: 0 4px 8px 3px rgba(16, 19, 28, 0.10), 0 1px 3px rgba(16, 19, 28, 0.14);
+
+  font-family: Roboto, "Helvetica Neue", system-ui, -apple-system, sans-serif;
+  color: var(--ei-tinta);
+}
+
+/* ── A tela ───────────────────────────────────────────────────────────
+   `min-height` com a altura real da janela (`100dvh`) e não `100vh`: no
+   celular a barra do navegador entra e sai, e com `vh` a tela fica alta
+   demais e sobra um pedaço em branco no fim do rolar. */
+.ei-tela {
+  min-height: 100dvh;
+  background: var(--ei-fundo);
+  padding: 20px 16px calc(96px + env(safe-area-inset-bottom));
+}
+
+/* ── Tipografia ───────────────────────────────────────────────────────
+   A escala do Material, com os nomes em português. Peso 400 nos títulos
+   grandes é deliberado: título pesado é a voz do procurô; a da Google é
+   um título grande e leve, com o peso reservado ao que se toca. */
+.ei-titulo-g {
+  font-size: 1.75rem;
+  line-height: 1.2;
+  font-weight: 400;
+  letter-spacing: 0;
+  margin: 0 0 4px;
+}
+
+.ei-titulo {
+  font-size: 1.375rem;
+  line-height: 1.27;
+  font-weight: 400;
+  margin: 0 0 4px;
+}
+
+.ei-secao {
+  font-size: 0.875rem;
+  font-weight: 500;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--ei-tinta-fraca);
+  margin: 24px 0 8px;
+}
+
+.ei-corpo {
+  font-size: 1rem;
+  line-height: 1.5;
+  margin: 0;
+}
+
+.ei-apoio {
+  font-size: 0.875rem;
+  line-height: 1.43;
+  color: var(--ei-tinta-fraca);
+  margin: 0;
+}
+
+/* ── Botões ───────────────────────────────────────────────────────────
+   A diferença entre eles é o PESO da ação, não a cor. */
+.ei-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 44px;
+  padding: 10px 24px;
+  border: none;
+  border-radius: var(--ei-capsula);
+  font: inherit;
+  font-size: 0.875rem;
+  font-weight: 500;
+  letter-spacing: 0.01em;
+  cursor: pointer;
+  text-decoration: none;
+  position: relative;
+  overflow: hidden;
+  transition: background-color 0.15s ease;
+}
+
+/* A camada de estado: um véu da cor do texto, que aparece no toque. É como
+   o Material mostra reação sem mover nada de lugar — e mover é o que fazia
+   o botão do procurô parecer escorregar em vez de ser apertado. */
+.ei-btn::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: currentColor;
+  opacity: 0;
+  transition: opacity 0.15s ease;
+  pointer-events: none;
+}
+
+.ei-btn:hover:not(:disabled)::after { opacity: 0.08; }
+.ei-btn:active:not(:disabled)::after { opacity: 0.12; }
+
+.ei-btn-cheio { background: var(--ei-cor); color: var(--ei-sobre-cor); }
+.ei-btn-tonal { background: var(--ei-cor-fraca); color: var(--ei-sobre-cor-fraca); }
+.ei-btn-contorno {
+  background: transparent;
+  border: 1px solid var(--ei-contorno);
+  color: var(--ei-cor);
+}
+.ei-btn-texto { background: transparent; color: var(--ei-cor); padding: 10px 12px; }
+
+.ei-btn-largo { width: 100%; }
+
+.ei-btn:disabled {
+  background: rgba(16, 19, 28, 0.10);
+  border-color: transparent;
+  color: rgba(16, 19, 28, 0.42);
+  cursor: default;
+}
+.ei-btn:disabled::after { opacity: 0; }
+
+/* ── Cartão ───────────────────────────────────────────────────────────
+   Uma superfície, não um objeto levantado: ele é branco sobre um fundo que
+   não é branco, e é só isso que o separa. Sem borda e sem sombra — metade
+   do que faz uma tela parecer da Google é essa calma. */
+.ei-cartao {
+  background: var(--ei-s1);
+  border-radius: var(--ei-raio);
+  padding: 16px;
+}
+
+.ei-cartao-fundo { background: var(--ei-s2); }
+
+/* Cartão que se toca inteiro. */
+.ei-cartao-toque {
+  display: block;
+  width: 100%;
+  text-align: left;
+  border: none;
+  font: inherit;
+  color: inherit;
+  cursor: pointer;
+  position: relative;
+  overflow: hidden;
+}
+.ei-cartao-toque::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: currentColor;
+  opacity: 0;
+  transition: opacity 0.15s ease;
+  pointer-events: none;
+}
+.ei-cartao-toque:hover::after { opacity: 0.05; }
+.ei-cartao-toque:active::after { opacity: 0.09; }
+
+/* ── Lista ────────────────────────────────────────────────────────────
+   Itens colados num bloco único de canto redondo — o padrão de lista dos
+   apps da Google, no lugar de vários cartões soltos com espaço entre eles.
+   Uma lista de trinta cartões separados vira um acordeão visual; colada,
+   ela lê como uma coisa só. */
+.ei-lista {
+  display: grid;
+  gap: 2px;
+  border-radius: var(--ei-raio);
+  overflow: hidden;
+}
+
+.ei-lista > * {
+  border-radius: 0;
+}
+
+.ei-lista > *:first-child {
+  border-top-left-radius: var(--ei-raio);
+  border-top-right-radius: var(--ei-raio);
+}
+
+.ei-lista > *:last-child {
+  border-bottom-left-radius: var(--ei-raio);
+  border-bottom-right-radius: var(--ei-raio);
+}
+
+/* ── Campo ────────────────────────────────────────────────────────────
+   Contorno sobre a própria superfície, e não caixa cinza: num formulário
+   longo, dez retângulos cinzas empilhados viram uma parede e a pessoa
+   perde de vista onde acaba um campo e começa o outro. */
+.ei-campo {
+  display: grid;
+  gap: 6px;
+}
+
+.ei-campo > label {
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--ei-tinta-fraca);
+}
+
+.ei-campo input,
+.ei-campo select,
+.ei-campo textarea {
+  width: 100%;
+  background: transparent;
+  border: 1px solid var(--ei-contorno);
+  border-radius: var(--ei-raio-p);
+  padding: 15px 16px;
+  font: inherit;
+  font-size: 1rem;
+  color: var(--ei-tinta);
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.ei-campo input:focus,
+.ei-campo select:focus,
+.ei-campo textarea:focus {
+  outline: none;
+  border-color: var(--ei-cor);
+  /* `inset` para o contorno crescer para dentro: para fora, o campo
+     empurraria os vizinhos 1px a cada foco. */
+  box-shadow: inset 0 0 0 1px var(--ei-cor);
+}
+
+.ei-campo-ajuda {
+  font-size: 0.75rem;
+  color: var(--ei-tinta-fraca);
+}
+
+.ei-campo-erro {
+  font-size: 0.75rem;
+  color: var(--ei-erro);
+}
+
+/* ── Etiqueta escolhível ("chip") ─────────────────────────────────────
+   É como a Google deixa escolher várias coisas de uma lista. Substitui a
+   folha que abria por cima da tela no procurô: para oito funções, ver
+   todas de uma vez e tocar é menos passo do que abrir, procurar e fechar. */
+.ei-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.ei-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 32px;
+  padding: 6px 14px;
+  border: 1px solid var(--ei-contorno);
+  border-radius: var(--ei-raio-p);
+  background: transparent;
+  color: var(--ei-tinta);
+  font: inherit;
+  font-size: 0.875rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.15s ease, border-color 0.15s ease;
+}
+
+.ei-chip[aria-pressed="true"] {
+  background: var(--ei-cor-fraca);
+  border-color: transparent;
+  color: var(--ei-sobre-cor-fraca);
+}
+
+.ei-chip:disabled {
+  opacity: 0.38;
+  cursor: default;
+}
+
+/* ── Etiqueta de estado ("badge") ─────────────────────────────────────
+   Só informa; não se toca. */
+.ei-selo {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 4px 10px;
+  border-radius: var(--ei-capsula);
+  font-size: 0.75rem;
+  font-weight: 500;
+}
+
+.ei-selo-verde { background: var(--ei-verde-fraco); color: var(--ei-sobre-verde-fraco); }
+.ei-selo-laranja { background: var(--ei-laranja-fraco); color: var(--ei-sobre-laranja-fraco); }
+.ei-selo-cinza { background: var(--ei-s3); color: var(--ei-tinta-fraca); }
+
+/* ── Interruptor ──────────────────────────────────────────────────────
+   Para "estou disponível" e "ficar oculto": duas escolhas que a pessoa
+   liga e desliga, e que precisam mostrar o estado ATUAL sem ela abrir
+   nada. Caixa de marcar não serve — ela some no meio do formulário. */
+.ei-switch {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  width: 100%;
+  padding: 14px 16px;
+  background: none;
+  border: none;
+  font: inherit;
+  color: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.ei-switch-trilho {
+  flex: 0 0 auto;
+  width: 52px;
+  height: 32px;
+  border-radius: var(--ei-capsula);
+  background: var(--ei-s4);
+  border: 2px solid var(--ei-contorno);
+  position: relative;
+  transition: background-color 0.18s ease, border-color 0.18s ease;
+}
+
+.ei-switch-bolinha {
+  position: absolute;
+  top: 50%;
+  left: 4px;
+  width: 16px;
+  height: 16px;
+  border-radius: 999px;
+  background: var(--ei-contorno);
+  transform: translateY(-50%);
+  transition: left 0.18s ease, width 0.18s ease, height 0.18s ease, background-color 0.18s ease;
+}
+
+.ei-switch[aria-checked="true"] .ei-switch-trilho {
+  background: var(--ei-cor);
+  border-color: var(--ei-cor);
+}
+
+/* Ligada, a bolinha CRESCE além de andar. É o detalhe que o Material 3
+   tem e as cópias não: o tamanho é o que confirma a mudança para quem não
+   distingue bem as cores. */
+.ei-switch[aria-checked="true"] .ei-switch-bolinha {
+  left: 26px;
+  width: 24px;
+  height: 24px;
+  background: #ffffff;
+}
+
+/* ── Cabeçalho de tela ────────────────────────────────────────────────
+   Sem barra fixa colorida: o título é grande, mora na própria página e
+   rola com ela. É o que a Google faz em Gmail, Fotos e Drive. */
+.ei-topo {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+/* ── Estado vazio ─────────────────────────────────────────────────────
+   Nunca só "nada aqui": sempre o que a pessoa pode fazer a respeito. Uma
+   tela vazia sem saída faz concluir que o app não serve. */
+.ei-vazio {
+  display: grid;
+  justify-items: center;
+  gap: 8px;
+  padding: 40px 24px;
+  text-align: center;
+}
+
+.ei-vazio-icone {
+  display: grid;
+  place-items: center;
+  width: 64px;
+  height: 64px;
+  border-radius: var(--ei-capsula);
+  background: var(--ei-s3);
+  color: var(--ei-tinta-fraca);
+  margin-bottom: 4px;
+}
+
+/* ── Foco visível ─────────────────────────────────────────────────────
+   Para quem navega por teclado. Fica por último para vencer o resto. */
+.ei a:focus-visible,
+.ei button:focus-visible,
+.ei input:focus-visible,
+.ei select:focus-visible,
+.ei textarea:focus-visible,
+.ei [tabindex]:focus-visible {
+  outline: 3px solid var(--ei-laranja);
+  outline-offset: 2px;
+}

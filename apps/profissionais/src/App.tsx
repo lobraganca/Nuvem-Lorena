@@ -57,6 +57,7 @@ const OnboardingTipoPage = lazy(importarPagina(() => import("./pages/OnboardingT
 const CadastroEmpresaPage = lazy(importarPagina(() => import("./pages/CadastroEmpresaPage").then((m) => ({ default: m.CadastroEmpresaPage }))));
 const PainelEmpresaPage = lazy(importarPagina(() => import("./pages/PainelEmpresaPage").then((m) => ({ default: m.PainelEmpresaPage }))));
 const CriarVagaPage = lazy(importarPagina(() => import("./pages/CriarVagaPage").then((m) => ({ default: m.CriarVagaPage }))));
+const MeuPerfilPage = lazy(importarPagina(() => import("./pages/ei/MeuPerfilPage").then((m) => ({ default: m.MeuPerfilPage }))));
 const ProfissionaisPage = lazy(importarPagina(() => import("./pages/ProfissionaisPage").then((m) => ({ default: m.ProfissionaisPage }))));
 const VagasParaMimPage = lazy(importarPagina(() => import("./pages/VagasParaMimPage").then((m) => ({ default: m.VagasParaMimPage }))));
 const PlanosEmpresaPage = lazy(importarPagina(() => import("./pages/PlanosEmpresaPage").then((m) => ({ default: m.PlanosEmpresaPage }))));
@@ -250,6 +251,7 @@ export default function App() {
         <Route path="/planos-empresa" element={<PlanosEmpresaPage />} />
         <Route path="/vagas-para-mim" element={<VagasParaMimPage />} />
         <Route path="/profissionais" element={<ProfissionaisPage />} />
+        <Route path="/meu-perfil" element={<MeuPerfilPage />} />
         <Route path="/vaga/:id" element={<DetalheVagaPage />} />
       </Routes>
       </Suspense>

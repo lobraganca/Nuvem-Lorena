@@ -147,6 +147,19 @@ export const MAX_EXPERIENCIAS = 10;
 export const MAX_AREAS_DE_INTERESSE = 12;
 
 /**
+ * Quantas funções a pessoa pode marcar como "aceito ser chamada".
+ *
+ * Oito, decidido pela dona. Substitui as DUAS listas que existiam — "o que
+ * eu faço" (5, herdada da busca do procurô) e "onde aceito trabalhar" (12).
+ * Uma lista só, e é por ela que a vaga chega e que a empresa encontra.
+ *
+ * O teto existe pela mesma razão de sempre: quem marca tudo não está
+ * dizendo nada, e uma pessoa que aparece em oitenta buscas atrapalha as
+ * oitenta.
+ */
+export const MAX_FUNCOES = 8;
+
+/**
  * Banner de publicidade na tela de busca.
  *
  * Vendido pela administração a comércios da cidade — inclusive os que não

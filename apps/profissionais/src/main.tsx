@@ -2,6 +2,9 @@ import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
 import { BrowserRouter } from "react-router-dom";
 import "./theme.css";
+/* Depois do theme.css de propósito: o outro é do procurô, este é do Ei.
+   Ver o cabeçalho do arquivo. */
+import "./estilo-ei.css";
 import App from "./App";
 import { ErrorBoundary } from "./components/ErrorBoundary";
 import { irParaEnderecoCanonico } from "./lib/enderecoCanonico";
