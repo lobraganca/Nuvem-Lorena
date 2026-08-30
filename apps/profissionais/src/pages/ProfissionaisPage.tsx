@@ -109,13 +109,14 @@ export function ProfissionaisPage() {
   return (
     <div className="ei">
       <div className="ei-tela">
+        {/* Só o título. O subtítulo ("Quem está em Itabirito aceitando ser
+            chamado para trabalhar") ocupava duas linhas para dizer o que a
+            própria tela já mostra. A dona pediu menos escrito, e este era
+            texto que não decide nada. */}
         <h1 className="ei-titulo-g">Profissionais</h1>
-        <p className="ei-apoio">
-          Quem está em {DEFAULT_CITY} aceitando ser chamado para trabalhar.
-        </p>
 
         {/* A busca em cápsula, com a lupa dentro. */}
-        <div className="ei-busca" style={{ marginTop: 18 }}>
+        <div className="ei-busca" style={{ marginTop: 14 }}>
           <IconeLupa />
           <input
             type="search"
@@ -226,17 +227,26 @@ export function ProfissionaisPage() {
                         {p.name.trim().charAt(0).toLocaleUpperCase("pt-BR")}
                       </span>
                     )}
-                    {p.neighborhood && (
-                      <span className="ei-foto-cartao-selo">{p.neighborhood}</span>
-                    )}
                   </div>
                   <div className="ei-foto-cartao-texto">
-                    <div className="ei-foto-cartao-nome">{p.name}</div>
+                    {/* Nome numa linha; ofício em até duas.
+                        ─────────────────────────────────────
+                        Com uma linha só, quase todo ofício de verdade saía
+                        cortado no meio da palavra ("Técnico em celular…",
+                        "Cuidador de idoso…") — o que a dona chamou de
+                        quebrado. Em duas linhas eles cabem inteiros, e a
+                        altura reservada mantém os cartões da mesma linha
+                        alinhados mesmo quando um usa uma linha e o outro
+                        usa duas.
+
+                        A etiqueta de bairro saiu junto: "Nossa Senhora do
+                        Carmo" não cabe em cartão de 163px de largura de
+                        jeito nenhum, e bairro é detalhe que a empresa
+                        descobre ao falar com a pessoa. */}
+                    <div className="ei-foto-cartao-nome ei-uma-linha">{p.name}</div>
                     <div className="ei-foto-cartao-oficio">
-                      {funcoes.slice(0, 2).join(" · ") ||
-                        p.especialidade ||
-                        "Sem função marcada"}
-                      {funcoes.length > 2 && ` +${funcoes.length - 2}`}
+                      {funcoes[0] || p.especialidade || "Sem função"}
+                      {funcoes.length > 1 && ` +${funcoes.length - 1}`}
                     </div>
                   </div>
                 </article>
@@ -245,12 +255,6 @@ export function ProfissionaisPage() {
           </div>
         )}
 
-        {!carregando && !erro && lista.length > 0 && (
-          <p className="ei-apoio" style={{ marginTop: 24 }}>
-            Para chamar alguém para uma vaga, publique a vaga: o aviso vai para todo mundo que
-            encaixa, inclusive quem escolheu não aparecer nesta lista.
-          </p>
-        )}
       </div>
     </div>
   );

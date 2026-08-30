@@ -339,11 +339,14 @@ export function PerfilPage() {
             </>
           ) : (
             <>
+              {/* Rótulos curtos: "Meu perfil profissional" e "Vagas que
+                  chegaram para mim" quebravam em duas linhas e faziam a
+                  linha da lista crescer, cada uma com uma altura. */}
               <Linha para="/meu-perfil" icone={<IconePessoa />}>
-                Meu perfil profissional
+                Meu perfil
               </Linha>
               <Linha para="/vagas-para-mim" icone={<IconeMala />}>
-                Vagas que chegaram para mim
+                Vagas para mim
               </Linha>
             </>
           )}
@@ -360,7 +363,7 @@ export function PerfilPage() {
             ninguém percebeu porque o componente continuava importado. Era
             a dona quem não achava mais como pôr o app no celular. */}
         <div className="ei-secao-linha">
-          <h2>O app no seu celular</h2>
+          <h2>O app</h2>
         </div>
         <div className="ei-lista">
           <InstalarApp />

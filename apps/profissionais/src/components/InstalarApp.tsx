@@ -268,10 +268,7 @@ export function InstalarApp({ variante = "lista" }: { variante?: "lista" | "faix
               <path d="M9 11.5l3 3 3-3" />
             </svg>
           </span>
-          <span className="ei-linha-nome">
-            Instalar o app no celular
-            <span className="ei-linha-sub">Vira ícone e abre direto, sem digitar o endereço</span>
-          </span>
+          <span className="ei-linha-nome">Instalar no celular</span>
           <span className="ei-linha-seta" aria-hidden="true">
             <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor"
                  strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">

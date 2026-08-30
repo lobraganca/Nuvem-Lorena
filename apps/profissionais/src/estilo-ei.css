@@ -111,7 +111,9 @@
 .ei-tela {
   min-height: 100dvh;
   background: var(--ei-fundo);
-  padding: 20px 16px calc(96px + env(safe-area-inset-bottom));
+  /* A folga de baixo é a altura da barra (71px medidos) mais um respiro.
+     Antes eram 96px fixos, de quando a barra flutuava com 10px de vão. */
+  padding: 20px 16px calc(88px + env(safe-area-inset-bottom));
 }
 
 /* ── Tipografia ───────────────────────────────────────────────────────
@@ -318,9 +320,17 @@
    não ser. Visto na foto, não no código.
 
    Os cantos de fora quem faz é o `overflow: hidden` do bloco, então os
-   filhos não precisam de canto nenhum. */
+   filhos não precisam de canto nenhum.
+
+   O `min-width: 0` é a armadilha clássica do grid: item de grid nasce com
+   `min-width: auto`, ou seja, "nunca menor que o meu conteúdo". Uma linha
+   com título longo e `white-space: nowrap` dentro fazia a trilha inteira
+   crescer, e a lista saía 21px para fora da tela — o texto cortado no fio
+   da borda, sem reticências, com a seta empurrada para fora. Medido: a
+   linha terminava em 411px numa tela de 390px. */
 .ei .ei-lista > * {
   border-radius: 0;
+  min-width: 0;
 }
 
 /* ── Campo ────────────────────────────────────────────────────────────
@@ -809,6 +819,9 @@
      vez de parecer cortada na borda da tela. */
   padding: 2px 16px 2px 0;
   margin-right: -16px;
+  /* Encostava no título logo acima (4px medidos). Título e filtro são
+     coisas diferentes e precisavam de um degrau entre eles. */
+  margin-top: 14px;
 }
 .ei-filtros::-webkit-scrollbar { display: none; }
 
@@ -910,10 +923,40 @@
 .ei-foto-cartao-oficio {
   margin-top: 2px;
   font-size: 0.8rem;
+  line-height: 1.25;
   color: var(--ei-tinta-fraca);
+  /* Duas linhas, com a altura reservada das duas mesmo quando só uma é
+     usada: sem a reserva, um cartão de ofício curto ao lado de um de
+     ofício longo fica mais baixo e a grade desanda. */
+  min-height: 2.5em;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+/* ── Cortar em vez de quebrar ─────────────────────────────────────────
+   "Está muito quebrado", disse a dona, e a foto dava razão: "Padaria Pão
+   de / Minas" em duas linhas, "Pedreiro para obra no / Centro" em duas,
+   nome de bairro cortado no meio. Texto que quebra empurra tudo para
+   baixo e faz dois cartões vizinhos terem alturas diferentes — é o que dá
+   a sensação de tela desmontada.
+
+   A regra: nome próprio (de gente, de empresa) fica em UMA linha e corta
+   com reticências; título de vaga pode ir a duas e para. Nunca três. */
+.ei-uma-linha {
+  display: block;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+  min-width: 0;
+}
+
+.ei-duas-linhas {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
 }
 
 /* ── Marca da empresa, no cartão da vaga ──────────────────────────────
@@ -1000,6 +1043,7 @@
   align-items: center;
   gap: 12px;
   width: 100%;
+  min-width: 0;
   padding: 16px;
   background: var(--ei-s1);
   border: none;

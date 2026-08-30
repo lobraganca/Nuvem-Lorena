@@ -148,13 +148,15 @@ export function VagasParaMimPage() {
   return (
     <div className="ei">
       <div className="ei-tela">
-        {/* Saudação de duas linhas, como a referência: a primeira na cor
-            de acento e a segunda em preto. Faz a tela abrir cumprimentando
-            a pessoa em vez de anunciar o nome de um menu. */}
-        <h1 className="ei-saudacao">
-          <span>Olá{primeiroNome ? `, ${primeiroNome}` : ""},</span>
-          Vagas em Itabirito
-        </h1>
+        {/* Uma linha, e só.
+            ──────────────────
+            Era uma saudação de duas linhas enormes ("Olá, Joana," /
+            "Vagas em Itabirito") que comia um quarto da tela antes da
+            primeira vaga. A dona disse "muitos escritos", e a referência
+            dela abre a seção com DUAS PALAVRAS ("Meus Saldos"). O nome da
+            pessoa não some — ele vale na Conta, onde é sobre ela; aqui a
+            tela é sobre as vagas. */}
+        <h1 className="ei-titulo-g">Vagas</h1>
 
         {/* A fileira de filtros, com o escolhido preenchido. Só aparece
             quando há mais de uma vaga: com uma, filtrar é mexer numa lista
@@ -193,22 +195,27 @@ export function VagasParaMimPage() {
             atrás sem ir nas configurações do sistema. Pedir antes de a pessoa
             entender para quê é gastar a única chance que existe. */}
         {podeOferecerAviso && (
-          <div className="ei-cartao" style={{ marginTop: 20 }}>
-            <div className="ei-cartao-topo">
-              <span className="ei-tarja" aria-hidden="true" />
-              <h2 className="ei-cartao-titulo">Quer saber na hora?</h2>
-            </div>
-            <p className="ei-apoio" style={{ marginBottom: 14 }}>
-              Ligue o aviso e o celular te chama quando aparecer vaga do seu ofício.
-              Quem responde primeiro costuma ser chamado primeiro.
-            </p>
+          /* Uma LINHA, no formato do "Cashback · Acessar ›" da referência.
+             Era um cartão com título, quatro linhas de parágrafo e um
+             botão largo — mais texto que qualquer vaga da lista, para uma
+             coisa que é secundária. O convite continua inteiro; o que saiu
+             foi a explicação, que ninguém lê num convite de uma linha. */
+          <div className="ei-lista" style={{ marginTop: 16 }}>
             <button
               type="button"
-              className="ei-btn ei-btn-tonal ei-btn-largo"
+              className="ei-linha-item"
               disabled={ligandoAviso}
               onClick={ligarAviso}
             >
-              {ligandoAviso ? "Ligando…" : "Ligar o aviso"}
+              <span className="ei-linha-icone" aria-hidden="true">
+                <IconeSino />
+              </span>
+              <span className="ei-linha-nome">
+                {ligandoAviso ? "Ligando…" : "Avisar no celular"}
+              </span>
+              <span className="ei-linha-seta" aria-hidden="true">
+                <IconeSeta />
+              </span>
             </button>
           </div>
         )}
@@ -281,10 +288,11 @@ export function VagasParaMimPage() {
                       )}
                     </span>
                     <span style={{ flex: 1, minWidth: 0 }}>
-                      <strong style={{ display: "block", lineHeight: 1.25 }}>{v.empresa}</strong>
-                      <span className="ei-linha-sub">
-                        {v.vaga.city}/{v.vaga.uf}
-                        {v.vaga.neighborhood ? ` · ${v.vaga.neighborhood}` : ""}
+                      <strong className="ei-uma-linha" style={{ lineHeight: 1.25 }}>
+                        {v.empresa}
+                      </strong>
+                      <span className="ei-linha-sub ei-uma-linha">
+                        {v.vaga.neighborhood || `${v.vaga.city}/${v.vaga.uf}`}
                       </span>
                     </span>
                     {novas.has(v.aviso_id) && !v.respondida && (
@@ -300,28 +308,37 @@ export function VagasParaMimPage() {
                       aria-hidden="true"
                       style={v.respondida ? { background: "var(--ei-verde)" } : undefined}
                     />
-                    <h3 className="ei-cartao-titulo">{v.vaga.title}</h3>
+                    <h3 className="ei-cartao-titulo ei-duas-linhas">{v.vaga.title}</h3>
                   </div>
 
                   {v.vaga.description && (
-                    <p className="ei-corpo" style={{ marginTop: 10 }}>
+                    /* Duas linhas e para. Sem o corte, uma vaga bem escrita
+                       enchia meio cartão de parágrafo e empurrava o botão
+                       para fora da tela — e o que decide se a pessoa toca é
+                       o ofício e a empresa, não o texto inteiro. */
+                    <p className="ei-corpo ei-duas-linhas" style={{ marginTop: 10 }}>
                       {v.vaga.description}
                     </p>
                   )}
 
+                  {/* Duas etiquetas no máximo. Eram três e enchiam a linha
+                      inteira, quebrando para uma segunda fileira — mais um
+                      pedaço do "está quebrado". "Para começar logo" virou
+                      "Urgente": é a mesma informação em uma palavra. */}
                   <div className="ei-chips" style={{ marginTop: 12 }}>
                     <span className="ei-selo ei-selo-cinza">
                       {v.vaga.work_modality === "presencial"
                         ? "Presencial"
                         : v.vaga.work_modality === "remoto"
                           ? "A distância"
-                          : "Parte presencial"}
+                          : "Híbrido"}
                     </span>
-                    {v.vaga.required_experience && (
-                      <span className="ei-selo ei-selo-cinza">{v.vaga.required_experience}</span>
-                    )}
-                    {v.vaga.available_immediately && (
-                      <span className="ei-selo ei-selo-cinza">Para começar logo</span>
+                    {v.vaga.available_immediately ? (
+                      <span className="ei-selo ei-selo-laranja">Urgente</span>
+                    ) : (
+                      v.vaga.required_experience && (
+                        <span className="ei-selo ei-selo-cinza">{v.vaga.required_experience}</span>
+                      )
                     )}
                   </div>
 
@@ -330,10 +347,8 @@ export function VagasParaMimPage() {
                        achando que não funcionou, e depois fica sem saber se a
                        empresa recebeu. */
                     <div className="ei-faixa" style={{ marginTop: 14 }}>
-                      <span>
-                        <strong>Você avisou que tem interesse.</strong>
-                        <br />A empresa entra em contato pelo seu telefone.
-                      </span>
+                      <span>Interesse enviado</span>
+                      <span className="ei-faixa-valor">a empresa te liga</span>
                     </div>
                   ) : (
                     <button
@@ -353,6 +368,25 @@ export function VagasParaMimPage() {
         )}
       </div>
     </div>
+  );
+}
+
+function IconeSino() {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"
+         strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+      <path d="M18 9a6 6 0 1 0-12 0c0 5-2 6.5-2 6.5h16S18 14 18 9z" />
+      <path d="M10.3 19.5a2 2 0 0 0 3.4 0" />
+    </svg>
+  );
+}
+
+function IconeSeta() {
+  return (
+    <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor"
+         strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+      <path d="M9 5l7 7-7 7" />
+    </svg>
   );
 }
 

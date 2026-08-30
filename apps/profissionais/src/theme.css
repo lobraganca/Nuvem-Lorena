@@ -3331,35 +3331,41 @@ h3 {
 /* ═══════════════════════════════════════════════════════════════════════
    A BARRA DE BAIXO DO EI ITABIRITO
    ═══════════════════════════════════════════════════════════════════════
-   Cápsula branca FLUTUANDO, com margem nas laterais — não uma faixa colada
-   na borda de baixo. É o traço mais marcante da referência que a dona
-   mandou, e o que se reconhece de longe antes de qualquer cor.
+   FIXA e colada na borda de baixo, de ponta a ponta.
 
-   Ela substitui a `.bottom-nav` do procurô, que era uma faixa de ponta a
-   ponta com cinco itens e um botão redondo saltando no meio.
+   Ela já foi uma cápsula flutuando, com 12px de margem dos lados e 10px do
+   chão. Eu tinha escrito aqui que aquilo era "o traço mais marcante da
+   referência". Era leitura minha: a dona mandou a tela de novo e disse "a
+   barra tem que ser fixa" — e na tela dela a barra é uma faixa branca
+   encostada no fim, com os cantos de cima arredondados, não uma pílula
+   pairando.
 
-   O item ativo ganha uma pastilha clara atrás de ícone E rótulo juntos —
-   diferente do Material puro, onde a cápsula fica só atrás do ícone. A
-   referência faz assim, e a referência manda.
-   ═══════════════════════════════════════════════════════════════════════ */
+   A diferença não é enfeite. Flutuando, ela deixa aparecer uma nesga de
+   conteúdo por baixo, no vão dos 10px, e o cartão que passa ali fica
+   cortado ao meio — foi o que apareceu em toda foto de tela cheia. Colada,
+   o conteúdo termina nela e a tela para de parecer quebrada.
+
+   O item ativo ganha uma pastilha clara atrás de ícone E rótulo juntos, do
+   jeito da referência. */
 .nav-ei {
   position: fixed;
-  left: 12px;
-  right: 12px;
-  bottom: calc(10px + env(safe-area-inset-bottom));
+  left: 0;
+  right: 0;
+  bottom: 0;
   z-index: 40;
   display: flex;
   align-items: center;
   justify-content: space-around;
   gap: 4px;
-  padding: 8px;
+  padding: 8px 8px calc(8px + env(safe-area-inset-bottom));
   background: #ffffff;
-  border-radius: 999px;
+  /* Só os cantos de cima: embaixo ela encosta na borda do aparelho, e um
+     canto redondo ali deixaria aparecer o fundo por baixo. */
+  border-radius: 20px 20px 0 0;
   border: none;
-  /* A sombra aqui é a exceção que confirma a regra do resto do app: a
-     barra é a única coisa que de fato flutua SOBRE o conteúdo, e sem ela
-     a cápsula branca some quando passa por cima de um cartão branco. */
-  box-shadow: 0 2px 10px rgba(16, 19, 28, 0.10), 0 8px 24px rgba(16, 19, 28, 0.08);
+  /* Sombra só para cima, e fraca: a barra não flutua mais, ela apenas
+     precisa se descolar do conteúdo que passa por trás ao rolar. */
+  box-shadow: 0 -1px 0 rgba(16, 19, 28, 0.06), 0 -6px 20px rgba(16, 19, 28, 0.06);
 }
 
 .nav-ei-item {
@@ -3371,7 +3377,7 @@ h3 {
   flex: 1;
   min-width: 0;
   padding: 8px 4px;
-  border-radius: 999px;
+  border-radius: 14px;
   text-decoration: none;
   color: var(--ei-tinta-fraca, #444b5c);
   transition: background-color 0.18s ease, color 0.18s ease;

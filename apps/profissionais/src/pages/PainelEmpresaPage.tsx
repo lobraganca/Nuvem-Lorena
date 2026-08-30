@@ -134,10 +134,16 @@ export function PainelEmpresaPage() {
   return (
     <div className="ei">
       <div className="ei-tela">
-        <h1 className="ei-titulo-g">{empresa.company_name}</h1>
-        <p className="ei-apoio">
-          {empresa.neighborhood && `${empresa.neighborhood} · `}
-          {empresa.city}/{empresa.uf}
+        {/* O título é o nome da TELA, não o da empresa.
+            ─────────────────────────────────────────────
+            "Padaria Pão de Minas" em corpo 1,9rem quebrava em duas linhas
+            enormes e comia um terço da altura antes de qualquer coisa útil
+            — e nome de empresa longo é a regra, não a exceção. O nome fica
+            embaixo, numa linha só, onde ele identifica sem gritar. */}
+        <h1 className="ei-titulo-g">Minhas vagas</h1>
+        <p className="ei-apoio ei-uma-linha">
+          {empresa.company_name}
+          {empresa.neighborhood ? ` · ${empresa.neighborhood}` : ""}
         </p>
 
         {erro && (
@@ -164,8 +170,7 @@ export function PainelEmpresaPage() {
               <h2 className="ei-cartao-titulo">Confirme o telefone</h2>
             </div>
             <p className="ei-apoio" style={{ marginBottom: 14 }}>
-              É por ele que os profissionais vão procurar vocês de volta — e sem ele
-              a vaga não sai.
+              Sem ele a vaga não sai.
             </p>
             <button
               type="button"
@@ -198,9 +203,7 @@ export function PainelEmpresaPage() {
           {semPlano ? (
             <>
               <p className="ei-apoio" style={{ margin: "12px 0 14px" }}>
-                Sem plano você continua vendo os profissionais e falando com eles —
-                isso é de graça. Para publicar vaga e disparar a onda, é preciso
-                assinar.
+                Ver profissionais é grátis. Publicar vaga, não.
               </p>
               <Link
                 to="/planos-empresa"
@@ -269,8 +272,7 @@ export function PainelEmpresaPage() {
               </span>
               <h3 className="ei-titulo">Nenhuma vaga ainda</h3>
               <p className="ei-apoio">
-                Ao publicar uma vaga, ela é disparada para quem faz esse trabalho em
-                Itabirito — e quem tiver interesse aparece aqui para você.
+                Publique uma vaga e quem tiver interesse aparece aqui.
               </p>
             </div>
           </div>
@@ -285,11 +287,13 @@ export function PainelEmpresaPage() {
                   <IconeMala />
                 </span>
                 <span className="ei-linha-nome">
-                  {vaga.title}
-                  <span className="ei-linha-sub">
-                    {vaga.profession}
-                    {vaga.specialty && ` · ${vaga.specialty}`} ·{" "}
-                    {new Date(vaga.created_at).toLocaleDateString("pt-BR")}
+                  <span className="ei-uma-linha">{vaga.title}</span>
+                  {/* Ofício e data, numa linha. A especialidade saiu: com
+                      ela a linha quebrava em duas ("Pedreiro · Alvenaria ·"
+                      / "29/08/2026") e o item de lista ficava mais alto que
+                      os vizinhos. E ela já está no título da vaga. */}
+                  <span className="ei-linha-sub ei-uma-linha">
+                    {vaga.profession} · {new Date(vaga.created_at).toLocaleDateString("pt-BR")}
                   </span>
                 </span>
                 <span className="ei-linha-seta" aria-hidden="true">
