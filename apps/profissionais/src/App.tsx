@@ -57,6 +57,7 @@ const OnboardingTipoPage = lazy(importarPagina(() => import("./pages/OnboardingT
 const CadastroEmpresaPage = lazy(importarPagina(() => import("./pages/CadastroEmpresaPage").then((m) => ({ default: m.CadastroEmpresaPage }))));
 const PainelEmpresaPage = lazy(importarPagina(() => import("./pages/PainelEmpresaPage").then((m) => ({ default: m.PainelEmpresaPage }))));
 const CriarVagaPage = lazy(importarPagina(() => import("./pages/CriarVagaPage").then((m) => ({ default: m.CriarVagaPage }))));
+const ProfissionaisPage = lazy(importarPagina(() => import("./pages/ProfissionaisPage").then((m) => ({ default: m.ProfissionaisPage }))));
 const VagasParaMimPage = lazy(importarPagina(() => import("./pages/VagasParaMimPage").then((m) => ({ default: m.VagasParaMimPage }))));
 const PlanosEmpresaPage = lazy(importarPagina(() => import("./pages/PlanosEmpresaPage").then((m) => ({ default: m.PlanosEmpresaPage }))));
 const DetalheVagaPage = lazy(importarPagina(() => import("./pages/DetalheVagaPage").then((m) => ({ default: m.DetalheVagaPage }))));
@@ -149,7 +150,11 @@ function Footer() {
           <nav className="rodape-grupo" aria-label="O Ei Itabirito">
             <h2 className="rodape-grupo-titulo">O Ei Itabirito</h2>
             <Link to="/como-funciona">Como funciona</Link>
-            <Link to="/publicidade">Anuncie aqui</Link>
+            {/* "Anuncie aqui" saiu: levava à venda de espaço de banner, que é
+                produto do procurô. Quem contrata neste app publica VAGA, e o
+                caminho para isso é o plano — que fica no painel da empresa,
+                onde ela já está, e não escondido num link de rodapé. */}
+            <Link to="/planos-empresa">Publicar vaga</Link>
             <button type="button" onClick={() => setSuggestionOpen(true)}>
               Enviar sugestão
             </button>
@@ -244,6 +249,7 @@ export default function App() {
         <Route path="/criar-vaga" element={<CriarVagaPage />} />
         <Route path="/planos-empresa" element={<PlanosEmpresaPage />} />
         <Route path="/vagas-para-mim" element={<VagasParaMimPage />} />
+        <Route path="/profissionais" element={<ProfissionaisPage />} />
         <Route path="/vaga/:id" element={<DetalheVagaPage />} />
       </Routes>
       </Suspense>

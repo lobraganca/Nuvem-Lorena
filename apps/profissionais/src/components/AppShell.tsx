@@ -6,6 +6,7 @@ import { PuxarParaAtualizar } from "./PuxarParaAtualizar";
 import { AvisoDeVersao } from "./AvisoDeVersao";
 import { AvisoSemInternet } from "./AvisoSemInternet";
 import { useAuth } from "../lib/useAuth";
+import { NavegacaoEi } from "./NavegacaoEi";
 import { useOnlineCount } from "../lib/presence";
 import { MarcaProcuro } from "./MarcaProcuro";
 import { ExigirNumero, exigeNumero } from "./ExigirNumero";
@@ -353,68 +354,16 @@ export function AppShell({ children }: { children: ReactNode }) {
       <div className="app-content">
         {envolverTelaDeConta(path, children)}
       </div>
-      {(
-      <nav className="bottom-nav">
-        {/* Voltar em primeiro, à esquerda: é onde o dedo já procura e é a
-            ordem de leitura. Botão e não Link, porque o destino não é uma
-            tela fixa — é a anterior, qualquer que tenha sido. */}
-        {/* Cinco itens, para todo mundo, sempre.
+      {/* A barra do procurô saiu inteira.
+          ─────────────────────────────────
+          Eram cinco itens — Voltar, Anúncios, Buscar, Painel, Perfil — com
+          o botão redondo da busca no meio. Essa é a espinha de um app para
+          achar um encanador e navegar em publicidade, não de um app de
+          trabalho: "Anúncios" leva a banners pagos e "Buscar" era A ação do
+          produto antigo.
 
-            O botão redondo do meio só fica centrado quando há o mesmo
-            número de itens dos dois lados — ou seja, com um total ímpar.
-            A barra da administração tinha seis, e nenhuma arrumação de
-            ordem conserta isso: com seis, ou o botão escorrega uns 30px
-            para um lado, ou sobra uma coluna vazia numa das pontas. As
-            duas foram tentadas aqui, e as duas foram vistas como barra
-            torta — a segunda com razão, porque um buraco na borda é pior
-            que um desvio.
-
-            A administração saiu da barra e virou um item do Perfil. Não é
-            perda: o painel administrativo é ferramenta de uma pessoa só, e
-            um toque a mais para chegar nele custa menos do que uma barra
-            errada para todo mundo. O que a cidade inteira usa —
-            Anúncios, Buscar, Painel, Perfil — continua onde estava. */}
-        <BotaoVoltar />
-        {/* Cor própria: é o único item da barra que leva a algo pago, e
-            distinguir isso do resto é honestidade, não enfeite. Quem toca
-            ali sabe, antes de tocar, que vai ver publicidade. */}
-        <NavItem
-          to="/anuncios"
-          label="Anúncios"
-          icon={<IconMegafone />}
-          active={path.startsWith("/anuncios")}
-          destaque
-        />
-        {/* A busca no meio, num círculo que sobe acima da barra.
-            É a ação principal do app e estava indistinguível das outras
-            quatro — a mesma lupa cinza do mesmo tamanho, disputando atenção
-            com "Anúncios" e "Painel", que quase ninguém abre. O destaque
-            aqui não é enfeite copiado de outro aplicativo: é dizer, sem
-            texto, qual das cinco a pessoa veio fazer.
-            É sempre o terceiro de cinco, ou seja, o meio exato. */}
-        <NavItem
-          to="/"
-          label="Buscar"
-          icon={<MarcaProcuro />}
-          active={path === "/"}
-          centro
-        />
-        <NavItem
-          to="/painel"
-          label="Painel"
-          icon={<IconBriefcase />}
-          active={path.startsWith("/painel")}
-          tour="nav-painel"
-        />
-        <NavItem
-          to={user ? "/perfil" : "/login"}
-          label="Perfil"
-          icon={<IconUser />}
-          active={path.startsWith("/perfil") || path === "/login"}
-          tour="nav-favoritos"
-        />
-      </nav>
-      )}
+          A nova é por papel e tem três itens. Ver NavegacaoEi.tsx. */}
+      <NavegacaoEi />
     </>
   );
 }
