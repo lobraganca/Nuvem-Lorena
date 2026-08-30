@@ -28,12 +28,16 @@
      planos sem sombra. Cada um tem o azul da marca dissolvido em
      proporção crescente, então o app inteiro fica com a temperatura da
      marca mesmo nas partes cinzas. */
-  --color-bg: #f7f9fc;
+  /* Os mesmos tons do estilo-ei. Estavam num cinza puxado para o azul —
+     igual ao do procurô —, e o resultado era uma emenda visível: a faixa
+     do cabeçalho fria, a página morna. Enquanto as telas antigas não
+     migram, os dois arquivos precisam concordar na cor do papel. */
+  --color-bg: #faf9f7;
   --color-surface: #ffffff;
-  --color-surface-1: #f2f5fa;
-  --color-surface-2: #eceff7;
-  --color-surface-3: #e6eaf4;
-  --color-surface-4: #e0e6f1;
+  --color-surface-1: #f4f2ee;
+  --color-surface-2: #ece9e3;
+  --color-surface-3: #e3dfd7;
+  --color-surface-4: #dbd6cc;
 
   /* Nomes antigos, apontando para os novos. O CSS os usa em dezenas de
      lugares, e trocar tudo de uma vez é como se perde uma regra sem
@@ -47,8 +51,13 @@
      o padrão do Material que a interface da Google usa em quase tudo:
      fundo claro da cor + texto escuro da cor. É mais leve que um botão
      azul chapado e continua lendo como "isto é clicável". */
-  --color-primary: #031e52;
-  --color-on-primary: #ffffff;
+  /* Laranja, como no estilo-ei: era o azul-marinho, e botão azul-marinho
+     é o procurô por mais que o tom seja outro. Texto navy por cima porque
+     com branco o laranja dá 2,87:1 — reprovado. */
+  --color-primary: #ff6a05;
+  --color-on-primary: #031e52;
+  /* O navy continua existindo como MARCA e tinta, não como ação. */
+  --color-marca: #031e52;
 
   /* Dois nomes do desenho antigo que sobrevivem em 32 regras espalhadas.
      ────────────────────────────────────────────────────────────────────
@@ -89,10 +98,10 @@
   /* ── Tinta ───────────────────────────────────────────────────────────
      Preto-azulado em vez de preto puro, que é o que dá o ar de coisa
      desenhada e não de texto de sistema. */
-  --color-text: #10131c;
-  --color-text-muted: #444b5c;
-  --color-outline: #757a89;
-  --color-outline-variant: #d5d9e4;
+  --color-text: #1a1613;
+  --color-text-muted: #55504a;
+  --color-outline: #7d766d;
+  --color-outline-variant: #ddd8d0;
 
   /* Nomes antigos das bordas. */
   --color-border: var(--color-outline-variant);
@@ -130,7 +139,7 @@
      colorido: mesmo tom dos níveis de superfície, e quem marca o item
      ativo é uma cápsula atrás do ícone — não a cor do texto. É a mudança
      mais reconhecível de todas, porque a barra está em toda tela. */
-  --color-nav-bg: var(--color-surface-2);
+  --color-nav-bg: var(--color-surface-1);
   --color-nav-line: transparent;
   --color-sobre-nav: #444b5c;
   --color-sobre-nav-forte: var(--color-primary);
@@ -427,7 +436,7 @@ button {
 .btn-outline {
   background: transparent;
   border: 1px solid var(--color-outline);
-  color: var(--color-primary);
+  color: var(--color-marca);
   box-shadow: none;
 }
 
@@ -559,7 +568,12 @@ textarea::placeholder {
   color: var(--color-text-muted);
 }
 
-/* Sem isto, quem navega por teclado não enxerga onde está — o :focus-visible
+/* TEXTO usa a marca (navy); o laranja fica para área — preenchimento de
+   botão, pastilha, traço. Laranja em letra sobre fundo claro dá 2,73:1, e
+   foi assim que os links do rodapé sumiram quando a cor de ação virou
+   laranja. Medido nas telas, não suposto.
+
+   Sem isto, quem navega por teclado não enxerga onde está — o :focus-visible
    dos botões/links não era tratado em lugar nenhum. */
 a:focus-visible,
 button:focus-visible,
@@ -1606,7 +1620,7 @@ html.abrindo body {
 
 .voltar-link:hover,
 .voltar-link:focus-visible {
-  color: var(--color-primary);
+  color: var(--color-marca);
   text-decoration: underline;
 }
 
@@ -2054,7 +2068,7 @@ h3 {
   font: inherit;
   font-size: 0.82rem;
   font-weight: 500;
-  color: var(--color-primary);
+  color: var(--color-marca);
   text-align: left;
   text-decoration: none;
   cursor: pointer;
@@ -2852,7 +2866,7 @@ h3 {
 }
 
 .linha-cidade.ativa {
-  color: var(--color-primary);
+  color: var(--color-marca);
   font-weight: 700;
 }
 
@@ -2971,7 +2985,7 @@ h3 {
   font: inherit;
   font-size: 0.86rem;
   font-weight: 600;
-  color: var(--color-primary);
+  color: var(--color-marca);
   text-decoration: underline;
   text-underline-offset: 2px;
   cursor: pointer;
@@ -3080,7 +3094,7 @@ h3 {
 .completar-foto-acao {
   font-size: 0.86rem;
   font-weight: 600;
-  color: var(--color-primary);
+  color: var(--color-marca);
 }
 
 /* O convite, não a exigência. Explica o que a foto muda em vez de só
@@ -3363,10 +3377,12 @@ h3 {
   transition: background-color 0.18s ease, color 0.18s ease;
 }
 
-/* A pastilha é o FUNDO do item inteiro, ícone e rótulo dentro dela. */
+/* A pastilha é o FUNDO do item inteiro, ícone e rótulo dentro dela.
+   Laranja clara, não azul: a pastilha azul era o que mais lembrava o
+   procurô na barra, porque ela aparece em toda tela. */
 .nav-ei-item.ativo {
-  background: var(--ei-cor-fraca, #dbe3f7);
-  color: var(--ei-cor, #031e52);
+  background: var(--ei-cor-fraca, #ffe4d0);
+  color: var(--ei-sobre-cor-fraca, #5c2400);
 }
 
 .nav-ei-capsula {

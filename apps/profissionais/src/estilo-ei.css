@@ -29,33 +29,52 @@
    ═══════════════════════════════════════════════════════════════════════ */
 
 .ei {
-  /* ── Superfícies ───────────────────────────────────────────────────
-     Cinco degraus, cada um com mais do azul da marca dissolvido dentro.
-     É assim que o Material separa planos sem usar sombra — e é o que dá
-     ao app inteiro a temperatura da marca, mesmo nas partes cinzas. */
-  --ei-fundo: #f7f9fc;
+  /* ── Superfícies: cinza MORNO, não azulado ─────────────────────────
+     O fundo era #f7f9fc, um cinza puxado para o azul. O do procurô é
+     #f1f4f9 — praticamente o mesmo. Somado ao azul-marinho nos botões,
+     dava o mesmo app de antes: a dona olhou e disse que as cores
+     continuavam as do procurô, e estava certa.
+
+     Agora o cinza é morno, puxado para o amarelo. Ele sozinho já muda a
+     temperatura da tela inteira, e é o oposto exato do cinza frio de lá. */
+  --ei-fundo: #faf9f7;
   --ei-s1: #ffffff;
-  --ei-s2: #f1f4fa;
-  --ei-s3: #e9edf6;
-  --ei-s4: #e1e7f2;
+  --ei-s2: #f4f2ee;
+  --ei-s3: #ece9e3;
+  --ei-s4: #e3dfd7;
 
-  /* ── Ação ──────────────────────────────────────────────────────────
-     `container` é a mesma cor diluída. É o botão que mais aparece na
-     interface da Google e o que menos existia no procurô, onde tudo era
-     ou azul chapado ou contorno. */
-  --ei-cor: #031e52;
-  --ei-sobre-cor: #ffffff;
-  --ei-cor-fraca: #dbe3f7;
-  --ei-sobre-cor-fraca: #041437;
+  /* ── O laranja é a cor de AÇÃO ────────────────────────────────────
+     Esta é a virada. Antes o azul-marinho da marca era a cor dos botões —
+     e azul-marinho em botão é o procurô, por mais que o tom seja outro.
 
-  /* ── Laranja ───────────────────────────────────────────────────────
-     Acento de atenção. O tom escrito é escurecido porque o laranja da
-     marca sobre branco dá 2,6:1 — ilegível. O laranja puro fica onde ele
-     é forma e não letra: ponto de aviso, indicador, a bolinha da marca. */
+     A referência que a dona mandou faz assim: a marca é verde escuro, mas
+     o botão principal é verde-LIMÃO e o filtro ativo é terracota. A ação é
+     a cor viva; a escura fica para a marca e o texto.
+
+     O laranja da marca com texto BRANCO dá 2,87:1 — reprovado. Com o navy
+     por cima dá 5,58:1, e é assim que a referência resolve o dela: botão
+     limão com texto verde escuro. Medido, não copiado de olho. */
+  --ei-cor: #ff6a05;
+  --ei-sobre-cor: #031e52;
+  --ei-cor-fraca: #ffe4d0;
+  --ei-sobre-cor-fraca: #5c2400;
+
+  /* O tom escrito, para quando o laranja precisa carregar LETRA e não
+     ser fundo: 4,75:1 sobre a barra e 5,46 sobre branco. */
   --ei-laranja: #ff6a05;
   --ei-laranja-tinta: #b34800;
-  --ei-laranja-fraco: #ffe6d4;
-  --ei-sobre-laranja-fraco: #4a1d00;
+  --ei-laranja-fraco: #ffe4d0;
+  --ei-sobre-laranja-fraco: #5c2400;
+
+  /* ── O navy vira TINTA e marca, não ação ───────────────────────────
+     Continua sendo a cor da logo e dos títulos — é a marca. O que ele
+     deixou de ser é a cor dos botões, que era o que fazia o app inteiro
+     ler como azul. */
+  --ei-marca: #031e52;
+  --ei-tinta: #1a1613;
+  --ei-tinta-fraca: #55504a;
+  --ei-linha: #ddd8d0;
+  --ei-contorno: #7d766d;
 
   /* ── Verde de "está disponível" ────────────────────────────────────
      O estado mais importante do perfil de quem procura trabalho merece
@@ -63,14 +82,6 @@
   --ei-verde: #146c43;
   --ei-verde-fraco: #d7f0e2;
   --ei-sobre-verde-fraco: #04321c;
-
-  /* ── Tinta ─────────────────────────────────────────────────────────
-     Preto-azulado em vez de preto puro: é o que dá o ar de coisa
-     desenhada, e não de texto cru do sistema. */
-  --ei-tinta: #10131c;
-  --ei-tinta-fraca: #444b5c;
-  --ei-linha: #d5d9e4;
-  --ei-contorno: #757a89;
 
   --ei-erro: #b3261e;
   --ei-erro-fraco: #f9dedc;
@@ -209,12 +220,16 @@
 
 .ei-btn-cheio { background: var(--ei-cor); color: var(--ei-sobre-cor); }
 .ei-btn-tonal { background: var(--ei-cor-fraca); color: var(--ei-sobre-cor-fraca); }
+/* Contorno e texto usam a MARCA, não o laranja: laranja em letra fina
+   sobre branco fica fraco de ler, e é aí que o navy trabalha bem. O
+   laranja fica onde ele é área — preenchimento de botão, pastilha, ponto
+   de aviso. */
 .ei-btn-contorno {
   background: transparent;
   border: 1px solid var(--ei-contorno);
-  color: var(--ei-cor);
+  color: var(--ei-marca);
 }
-.ei-btn-texto { background: transparent; color: var(--ei-cor); padding: 10px 12px; }
+.ei-btn-texto { background: transparent; color: var(--ei-marca); padding: 10px 12px; }
 
 .ei-btn-largo { width: 100%; }
 

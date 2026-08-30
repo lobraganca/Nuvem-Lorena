@@ -20,7 +20,7 @@ import marcaEi from "/marca-ei.png";
  * Quem já entrou nunca vê esta tela: é levado direto para o lado dele.
  */
 export function EntradaPage() {
-  useTituloDaPagina("Trabalho em Itabirito");
+  useTituloDaPagina("Emprego em Itabirito");
   const { user, loading } = useAuth();
   const tipo = useOnboardingStatus();
 
@@ -44,7 +44,7 @@ export function EntradaPage() {
             aria-hidden="true"
             style={{
               height: 52,
-              background: "var(--ei-cor)",
+              background: "var(--ei-marca)",
               borderRadius: "24%",
               padding: "10px 12px",
               boxSizing: "content-box",
@@ -53,7 +53,7 @@ export function EntradaPage() {
           />
           <h1 className="ei-saudacao">
             <span>Olá,</span>
-            Trabalho em Itabirito
+            Emprego em Itabirito
           </h1>
           <p className="ei-apoio" style={{ marginBottom: 28 }}>
             De um lado quem procura serviço. Do outro, quem procura gente.
