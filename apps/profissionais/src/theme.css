@@ -3317,83 +3317,78 @@ h3 {
 /* ═══════════════════════════════════════════════════════════════════════
    A BARRA DE BAIXO DO EI ITABIRITO
    ═══════════════════════════════════════════════════════════════════════
-   Substitui a `.bottom-nav`, que era do procurô: cinco itens, botão redondo
-   no meio, e destinos que não existem neste produto (Anúncios, Buscar).
+   Cápsula branca FLUTUANDO, com margem nas laterais — não uma faixa colada
+   na borda de baixo. É o traço mais marcante da referência que a dona
+   mandou, e o que se reconhece de longe antes de qualquer cor.
 
-   Aqui são três itens, por papel — ver o comentário em NavegacaoEi.tsx. O
-   desenho é o da barra de navegação do Material 3: superfície sem moldura,
-   cápsula atrás do ícone ativo, rótulo em peso médio embaixo.
+   Ela substitui a `.bottom-nav` do procurô, que era uma faixa de ponta a
+   ponta com cinco itens e um botão redondo saltando no meio.
+
+   O item ativo ganha uma pastilha clara atrás de ícone E rótulo juntos —
+   diferente do Material puro, onde a cápsula fica só atrás do ícone. A
+   referência faz assim, e a referência manda.
    ═══════════════════════════════════════════════════════════════════════ */
 .nav-ei {
   position: fixed;
-  left: 0;
-  right: 0;
-  bottom: 0;
+  left: 12px;
+  right: 12px;
+  bottom: calc(10px + env(safe-area-inset-bottom));
   z-index: 40;
   display: flex;
-  align-items: flex-start;
+  align-items: center;
   justify-content: space-around;
-  /* 80px é a altura da barra do Material. A área segura entra por cima,
-     para o rótulo não ficar debaixo da faixa do iPhone. */
-  height: calc(80px + env(safe-area-inset-bottom));
-  padding: 12px 8px calc(16px + env(safe-area-inset-bottom));
-  background: var(--color-surface-2);
-  /* Sem linha e sem sombra: a barra se separa por ser uma superfície de
-     nível mais alto, não por ter moldura. */
+  gap: 4px;
+  padding: 8px;
+  background: #ffffff;
+  border-radius: 999px;
   border: none;
-  box-shadow: none;
+  /* A sombra aqui é a exceção que confirma a regra do resto do app: a
+     barra é a única coisa que de fato flutua SOBRE o conteúdo, e sem ela
+     a cápsula branca some quando passa por cima de um cartão branco. */
+  box-shadow: 0 2px 10px rgba(16, 19, 28, 0.10), 0 8px 24px rgba(16, 19, 28, 0.08);
 }
 
 .nav-ei-item {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 4px;
+  justify-content: center;
+  gap: 2px;
   flex: 1;
-  max-width: 140px;
-  text-decoration: none;
-  color: var(--color-text-muted);
   min-width: 0;
+  padding: 8px 4px;
+  border-radius: 999px;
+  text-decoration: none;
+  color: var(--ei-tinta-fraca, #444b5c);
+  transition: background-color 0.18s ease, color 0.18s ease;
 }
 
-/* A cápsula: 64x32 quando ativa, e do tamanho do ícone quando não.
-   Ela existe SEMPRE, mesmo transparente, para o ícone não pular de lugar
-   ao virar o item ativo — que é o defeito que aparece quando a cápsula só
-   é criada no estado ativo. */
+/* A pastilha é o FUNDO do item inteiro, ícone e rótulo dentro dela. */
+.nav-ei-item.ativo {
+  background: var(--ei-cor-fraca, #dbe3f7);
+  color: var(--ei-cor, #031e52);
+}
+
 .nav-ei-capsula {
   display: grid;
   place-items: center;
-  width: 64px;
-  height: 32px;
-  border-radius: var(--radius-cheio);
-  background: transparent;
-  transition: background-color 0.18s ease;
-}
-
-.nav-ei-capsula svg {
   width: 24px;
   height: 24px;
 }
 
-.nav-ei-item.ativo {
-  color: var(--color-on-primary-container);
-}
-
-.nav-ei-item.ativo .nav-ei-capsula {
-  background: var(--color-primary-container);
+.nav-ei-capsula svg {
+  width: 22px;
+  height: 22px;
 }
 
 .nav-ei-item.ativo .nav-ei-capsula svg {
-  stroke-width: 2.1;
+  stroke-width: 2.3;
 }
 
 .nav-ei-rotulo {
-  font-size: 0.75rem;
-  line-height: 1.1;
-  /* 500 é o "label medium" do Material. Em 600 os rótulos competiam com o
-     conteúdo da tela. */
+  font-size: 0.72rem;
+  line-height: 1.15;
   font-weight: 500;
-  letter-spacing: 0.01em;
   max-width: 100%;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -3402,4 +3397,13 @@ h3 {
 
 .nav-ei-item.ativo .nav-ei-rotulo {
   font-weight: 700;
+}
+
+/* O cabeçalho do Ei: a marca, e mais nada. Ver AppShell.tsx. */
+.cabecalho-ei {
+  display: flex;
+  align-items: center;
+  padding: 14px 16px 6px;
+  background: transparent;
+  border: none;
 }

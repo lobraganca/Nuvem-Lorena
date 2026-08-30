@@ -79,8 +79,8 @@
   /* ── Forma ─────────────────────────────────────────────────────────
      Depois da barra de baixo, é a segunda coisa que se reconhece de
      longe num app da Google. */
-  --ei-raio-p: 12px;
-  --ei-raio: 16px;
+  --ei-raio-p: 14px;
+  --ei-raio: 20px;
   --ei-raio-g: 28px;
   --ei-capsula: 999px;
 
@@ -104,31 +104,56 @@
 }
 
 /* ── Tipografia ───────────────────────────────────────────────────────
-   A escala do Material, com os nomes em português. Peso 400 nos títulos
-   grandes é deliberado: título pesado é a voz do procurô; a da Google é
-   um título grande e leve, com o peso reservado ao que se toca. */
+   Títulos GRANDES e em NEGRITO.
+
+   Eu tinha posto peso 400 aqui, argumentando que título leve é o jeito da
+   Google. A referência que a dona mandou desmente: os títulos dela
+   ("Favoritos", "Mais procurados", "Tudo vazio por aqui") são pesados e
+   escuros, e é isso que dá o ar de app de produto em vez de página de
+   documento. Referência ganha de teoria.
+
+   A seção também deixa de ser MAIÚSCULA ESPAÇADA — aquilo é rótulo de
+   formulário antigo. Aqui ela é um título de verdade, um degrau abaixo do
+   principal, como o "Adicionados recentemente" da referência. */
 .ei-titulo-g {
-  font-size: 1.75rem;
-  line-height: 1.2;
-  font-weight: 400;
-  letter-spacing: 0;
+  font-size: 1.9rem;
+  line-height: 1.15;
+  font-weight: 700;
+  letter-spacing: -0.02em;
   margin: 0 0 4px;
 }
 
 .ei-titulo {
-  font-size: 1.375rem;
-  line-height: 1.27;
-  font-weight: 400;
+  font-size: 1.4rem;
+  line-height: 1.2;
+  font-weight: 700;
+  letter-spacing: -0.01em;
   margin: 0 0 4px;
 }
 
 .ei-secao {
-  font-size: 0.875rem;
-  font-weight: 500;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
-  color: var(--ei-tinta-fraca);
-  margin: 24px 0 8px;
+  font-size: 1.25rem;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  text-transform: none;
+  color: var(--ei-tinta);
+  margin: 28px 0 12px;
+}
+
+/* Saudação de duas linhas, como o "Olá," + "Bem-vindo ao Amazoca" da
+   referência: a primeira linha na cor de acento, a segunda em preto. É o
+   que faz uma tela de entrada parecer um cumprimento e não um cabeçalho. */
+.ei-saudacao {
+  font-size: 1.9rem;
+  line-height: 1.15;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  margin: 0 0 20px;
+}
+
+.ei-saudacao span {
+  display: block;
+  color: var(--ei-laranja-tinta);
 }
 
 .ei-corpo {
@@ -473,4 +498,12 @@
 .ei [tabindex]:focus-visible {
   outline: 3px solid var(--ei-laranja);
   outline-offset: 2px;
+}
+
+/* Botão alto, para as escolhas principais de uma tela de entrada. A
+   referência usa botões bem mais altos que os de dentro do app — ali eles
+   SÃO a tela, e não um controle no meio de um formulário. */
+.ei-btn-alto {
+  min-height: 56px;
+  font-size: 1rem;
 }

@@ -218,54 +218,24 @@ function Header() {
     return () => observador.disconnect();
   }, []);
 
+  /* O cabeçalho do Ei: só a marca.
+        ─────────────────────────────
+        O do procurô tinha, além dela, o botão de casa, o contador de
+        "pessoas on-line" e o botão "Instalar App" — três coisas disputando
+        a mesma linha num celular de 390px, e foi por isso que a marca com o
+        nome ao lado empurrou o botão de instalar para fora da tela.
+
+        A referência que a dona mandou tem só a marca no topo, e o título da
+        tela grande logo abaixo, dentro da própria página. Cada coisa que
+        saiu daqui foi para onde ela pertence: instalar é item das
+        configurações, e voltar ao começo é tocar na marca.
+
+        O contador de on-line saiu inteiro: num app de trabalho, "12 pessoas
+        navegando" não ajuda ninguém a decidir nada — no procurô ele servia
+        para dar movimento a uma vitrine. */
   return (
-    <header className="container header" ref={ref}>
-      <span className="header-marca">
-        <Logo size="md" />
-        {/* A tela de escolha ("quero contratar" / "quero anunciar") só
-            aparecia uma vez por aparelho e, depois disso, só tinha um
-            caminho de volta — Perfil → Rever apresentação. Este botão é o
-            atalho: fica ao lado da marca, em qualquer tela (ela mesma se
-            esconde por estar em /inicio, ver isWelcome em AppShell). */}
-        <Link to="/inicio" className="btn-tela-inicial" title="Tela inicial" aria-label="Tela inicial">
-          <IconCasa />
-        </Link>
-      </span>
-      <span className="header-acoes">
-        {/* Quantas pessoas estão no app agora, no topo de todas as telas.
-            Estava só na busca e na tela de início, que são as duas primeiras
-            — quem já tinha entrado num cadastro ou no painel deixava de ver.
-
-            É contagem real (Presence do Supabase), e por isso some quando
-            não há ninguém além de quem está lendo: um "1 on-line" fixo, que
-            é sempre a própria pessoa, não informa nada; e número inventado
-            que sobe sozinho seria publicidade enganosa (CDC art. 37).
-
-            Aqui em cima vai a forma curta — o cabeçalho divide a linha com
-            a marca e o botão de instalar, e no celular não cabe "pessoas
-            navegando agora". A frase inteira fica no title, para quem
-            passar o mouse ou usar leitor de tela. */}
-        {online !== null && online > 0 && (
-          <span
-            className="online-pill online-pill-topo"
-            title={online === 1 ? "1 pessoa navegando agora" : `${online} pessoas navegando agora`}
-            aria-label={online === 1 ? "1 pessoa navegando agora" : `${online} pessoas navegando agora`}
-          >
-            <span className="online-dot" aria-hidden="true" />
-            {online}
-            {/* A palavra some abaixo de 420px e fica só o número com o
-                ponto verde. Com ela, o botão de instalar era empurrado
-                para fora da tela no celular — e escolher entre mostrar o
-                contador e mostrar o botão é uma escolha que não precisa
-                existir. Quem usa leitor de tela ouve a frase inteira pelo
-                aria-label. */}
-            <span className="online-pill-texto">&nbsp;on-line</span>
-          </span>
-        )}
-        {/* Ao lado da marca, em todas as telas: some sozinho quando o app já
-            está instalado ou quando o navegador não sabe instalar. */}
-        <InstalarApp variante="cabecalho" />
-      </span>
+    <header className="cabecalho-ei" ref={ref}>
+      <Logo size="sm" />
     </header>
   );
 }
@@ -337,7 +307,17 @@ export function AppShell({ children }: { children: ReactNode }) {
           coisa que a pessoa possa interpretar como defeito do app. */}
       <AvisoSemInternet />
       {!isWelcome && <Header />}
-      {!isWelcome && <BotaoFechar />}
+      {/* O "×" flutuante saiu.
+          ─────────────────────
+          Era do procurô: uma tela de vitrine que a pessoa abria de um link
+          e queria fechar. Num app de trabalho não há o que fechar — as
+          telas são destinos da barra de baixo, e sair de uma é ir para
+          outra. Ele ainda tapava o canto de cima à direita de toda tela.
+
+          O componente `BotaoFechar` fica no arquivo, sem uso, porque a
+          lógica dele (o navegador só deixa fechar aba que o próprio app
+          abriu) é conhecimento que custou caro e pode voltar a fazer falta.
+          Está comentado lá em cima. */}
       {/* `app-content` também na tela de início: é ele que reserva o espaço
           da barra embaixo. Sem isso, o último botão da apresentação fica
           escondido atrás dela. */}

@@ -34,65 +34,58 @@ export function EntradaPage() {
   return (
     <div className="ei">
       <div className="ei-tela" style={{ display: "grid", alignContent: "start", gap: 24 }}>
-        <header style={{ textAlign: "center", paddingTop: 24 }}>
+        {/* Saudação em duas linhas, como na referência: a primeira na cor
+            de acento, a segunda em preto. Faz a tela parecer um
+            cumprimento, e não o cabeçalho de um formulário. */}
+        <div style={{ paddingTop: 28 }}>
           <img
             src={marcaEi}
             alt=""
             aria-hidden="true"
             style={{
-              height: 64,
+              height: 52,
               background: "var(--ei-cor)",
-              borderRadius: "22%",
+              borderRadius: "24%",
               padding: "10px 12px",
               boxSizing: "content-box",
+              marginBottom: 28,
             }}
           />
-          <h1 className="ei-titulo-g" style={{ marginTop: 16 }}>
+          <h1 className="ei-saudacao">
+            <span>Olá,</span>
             Trabalho em Itabirito
           </h1>
-          <p className="ei-apoio">
+          <p className="ei-apoio" style={{ marginBottom: 28 }}>
             De um lado quem procura serviço. Do outro, quem procura gente.
           </p>
-        </header>
+        </div>
 
-        {/* As duas portas.
-            ───────────────
-            Ordem deliberada: quem procura trabalho primeiro. São muito mais
-            pessoas, e é o lado que precisa estar cheio antes de o outro
-            valer alguma coisa — uma cidade com trinta empresas e nenhum
-            profissional não tem produto nenhum. */}
+        {/* As duas portas, empilhadas em cápsula — o formato dos botões de
+            entrar da referência. Ordem deliberada: quem procura trabalho
+            primeiro. São muito mais pessoas, e é o lado que precisa estar
+            cheio antes de o outro valer alguma coisa. */}
         <div style={{ display: "grid", gap: 12 }}>
+          <Link to="/login" className="ei-btn ei-btn-contorno ei-btn-largo ei-btn-alto">
+            Procuro trabalho
+          </Link>
+          <Link to="/login" className="ei-btn ei-btn-contorno ei-btn-largo ei-btn-alto">
+            Procuro gente
+          </Link>
           <Link
-            to="/login"
-            className="ei-cartao ei-cartao-toque"
-            style={{ background: "var(--ei-cor)", color: "var(--ei-sobre-cor)", padding: 20 }}
+            to="/profissionais"
+            className="ei-btn ei-btn-cheio ei-btn-largo ei-btn-alto"
+            style={{ marginTop: 8 }}
           >
-            <strong style={{ fontSize: "1.1rem", display: "block" }}>Procuro trabalho</strong>
-            <span style={{ opacity: 0.86, fontSize: "0.94rem" }}>
-              Diga o que você faz e receba as vagas da cidade no celular.
-            </span>
-          </Link>
-
-          <Link to="/login" className="ei-cartao ei-cartao-toque" style={{ padding: 20 }}>
-            <strong style={{ fontSize: "1.1rem", display: "block" }}>Procuro gente</strong>
-            <span className="ei-apoio">
-              Publique a vaga e avise quem faz aquele serviço aqui perto.
-            </span>
+            Ver os profissionais da cidade
           </Link>
         </div>
 
-        {/* O que é grátis, dito na entrada. Sem isto, os dois cartões acima
-            parecem levar a um pedágio, e quem só queria olhar vai embora. */}
-        <div className="ei-cartao ei-cartao-fundo">
-          <p className="ei-apoio" style={{ margin: 0 }}>
-            <strong>Ver os profissionais da cidade é grátis</strong> e não precisa de
-            conta —{" "}
-            <Link to="/profissionais" style={{ color: "var(--ei-cor)", fontWeight: 500 }}>
-              é só olhar
-            </Link>
-            .
-          </p>
-        </div>
+        {/* Dito depois dos botões, e não num cartão: o cartão dava a ele o
+            mesmo peso das duas portas, e isto é uma nota de rodapé — o que
+            importa é que exista, não que compita. */}
+        <p className="ei-apoio" style={{ textAlign: "center", marginTop: 4 }}>
+          Ver quem está disponível é grátis e não precisa de conta.
+        </p>
       </div>
     </div>
   );
