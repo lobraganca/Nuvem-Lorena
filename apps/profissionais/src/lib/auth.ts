@@ -117,7 +117,7 @@ export async function signInWithGoogle(voltarPara?: string): Promise<void> {
  * Guardado no aparelho porque a volta do Google recarrega a página: nada
  * que viva só na memória sobrevive à ida e à volta do login.
  */
-const CHAVE_TROCAR_DE_CONTA = "procuro-escolher-conta";
+const CHAVE_TROCAR_DE_CONTA = "ei-escolher-conta";
 
 function pediuParaTrocarDeConta(): boolean {
   try {

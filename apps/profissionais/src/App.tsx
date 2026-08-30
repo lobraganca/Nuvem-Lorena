@@ -5,9 +5,6 @@ import { BotaoSuporte } from "./components/BotaoSuporte";
 import { AppShell } from "./components/AppShell";
 import { SplashScreen } from "./components/SplashScreen";
 import { BottomSheet } from "./components/BottomSheet";
-import { HomePage } from "./pages/HomePage";
-import { BoasVindasPage } from "./pages/BoasVindasPage";
-import { ProfessionalPage } from "./pages/ProfessionalPage";
 import { Suspense, lazy } from "react";
 import { useAuth } from "./lib/useAuth";
 import { sendSuggestion } from "./lib/suggestions";
@@ -35,28 +32,20 @@ import { mensagemDeErro } from "./lib/erros";
  * (ver o comentário em lib/importarPagina.ts).
  */
 const LoginPage = lazy(importarPagina(() => import("./pages/LoginPage").then((m) => ({ default: m.LoginPage }))));
-const PainelPage = lazy(importarPagina(() => import("./pages/PainelPage").then((m) => ({ default: m.PainelPage }))));
-const CadastroPage = lazy(importarPagina(() => import("./pages/CadastroPage").then((m) => ({ default: m.CadastroPage }))));
 const AdminPage = lazy(importarPagina(() => import("./pages/AdminPage").then((m) => ({ default: m.AdminPage }))));
 const TermosPage = lazy(importarPagina(() => import("./pages/TermosPage").then((m) => ({ default: m.TermosPage }))));
 const PrivacidadePage = lazy(importarPagina(() => import("./pages/PrivacidadePage").then((m) => ({ default: m.PrivacidadePage }))));
 const DiagnosticoPage = lazy(importarPagina(() => import("./pages/DiagnosticoPage").then((m) => ({ default: m.DiagnosticoPage }))));
 const ExcluirContaPage = lazy(importarPagina(() => import("./pages/ExcluirContaPage").then((m) => ({ default: m.ExcluirContaPage }))));
 const ConfiguracaoPage = lazy(importarPagina(() => import("./pages/ConfiguracaoPage").then((m) => ({ default: m.ConfiguracaoPage }))));
-const ComoFuncionaPage = lazy(importarPagina(() => import("./pages/ComoFuncionaPage").then((m) => ({ default: m.ComoFuncionaPage }))));
-const FavoritosPage = lazy(importarPagina(() => import("./pages/FavoritosPage").then((m) => ({ default: m.FavoritosPage }))));
 const PerfilPage = lazy(importarPagina(() => import("./pages/PerfilPage").then((m) => ({ default: m.PerfilPage }))));
-const AssinaturaPage = lazy(importarPagina(() => import("./pages/AssinaturaPage").then((m) => ({ default: m.AssinaturaPage }))));
-const AnalyticsPage = lazy(importarPagina(() => import("./pages/AnalyticsPage").then((m) => ({ default: m.AnalyticsPage }))));
-const CategoriasPage = lazy(importarPagina(() => import("./pages/CategoriasPage").then((m) => ({ default: m.CategoriasPage }))));
-const AnunciosPage = lazy(importarPagina(() => import("./pages/AnunciosPage").then((m) => ({ default: m.AnunciosPage }))));
-const PublicidadePage = lazy(importarPagina(() => import("./pages/PublicidadePage").then((m) => ({ default: m.PublicidadePage }))));
 
 // MVP Local Hiring
 const OnboardingTipoPage = lazy(importarPagina(() => import("./pages/OnboardingTipoPage").then((m) => ({ default: m.OnboardingTipoPage }))));
 const CadastroEmpresaPage = lazy(importarPagina(() => import("./pages/CadastroEmpresaPage").then((m) => ({ default: m.CadastroEmpresaPage }))));
 const PainelEmpresaPage = lazy(importarPagina(() => import("./pages/PainelEmpresaPage").then((m) => ({ default: m.PainelEmpresaPage }))));
 const CriarVagaPage = lazy(importarPagina(() => import("./pages/CriarVagaPage").then((m) => ({ default: m.CriarVagaPage }))));
+const EntradaPage = lazy(importarPagina(() => import("./pages/ei/EntradaPage").then((m) => ({ default: m.EntradaPage }))));
 const MeuPerfilPage = lazy(importarPagina(() => import("./pages/ei/MeuPerfilPage").then((m) => ({ default: m.MeuPerfilPage }))));
 const ProfissionaisPage = lazy(importarPagina(() => import("./pages/ProfissionaisPage").then((m) => ({ default: m.ProfissionaisPage }))));
 const VagasParaMimPage = lazy(importarPagina(() => import("./pages/VagasParaMimPage").then((m) => ({ default: m.VagasParaMimPage }))));
@@ -150,7 +139,6 @@ function Footer() {
         <div className="rodape-grupos">
           <nav className="rodape-grupo" aria-label="O Ei Itabirito">
             <h2 className="rodape-grupo-titulo">O Ei Itabirito</h2>
-            <Link to="/como-funciona">Como funciona</Link>
             {/* "Anuncie aqui" saiu: levava à venda de espaço de banner, que é
                 produto do procurô. Quem contrata neste app publica VAGA, e o
                 caminho para isso é o plano — que fica no painel da empresa,
@@ -201,58 +189,53 @@ export default function App() {
         <span className="muted">Carregando…</span>
       </div>}>
       <Routes>
-        <Route path="/" element={<HomePage />} />
-        <Route path="/inicio" element={<BoasVindasPage />} />
-        <Route path="/profissional/:id" element={<ProfessionalPage />} />
-        <Route path="/login" element={<LoginPage />} />
-        <Route path="/painel" element={<PainelPage />} />
-        {/* Preencher e editar o cadastro ganharam endereço próprio. Dentro
-            do painel, o formulário era uma segunda tela empilhada na
-            primeira: a pessoa apertava "Editar" e uma rolagem a levava para
-            baixo dos cartões, sem título que mudasse nem botão de voltar —
-            no celular, dava para não perceber que a tela tinha trocado de
-            assunto. Com endereço, editar é ir e voltar, e o botão do
-            aparelho volta a servir para sair. */}
-        <Route path="/painel/novo" element={<CadastroPage />} />
-        <Route path="/painel/editar/:id" element={<CadastroPage />} />
-        <Route path="/admin" element={<AdminPage />} />
-        {/* Cada seção do painel administrativo tem endereço próprio: dá
-            para ir direto a ela, voltar, e guardar o link. Endereço
-            desconhecido cai no menu, não numa tela em branco. */}
-        <Route path="/admin/:secao" element={<AdminPage />} />
-        <Route path="/termos" element={<TermosPage />} />
-        <Route path="/privacidade" element={<PrivacidadePage />} />
-        {/* Sem link em lugar nenhum: existe para depurar login a distancia. */}
-        <Route path="/diagnostico" element={<DiagnosticoPage />} />
-        {/* Endereco publico exigido pela Google Play: exclusao de conta
-            explicada sem precisar estar logado. */}
-        {/* Todas as categorias com gente cadastrada. A grade da busca mostra
-            oito; esta tela é a saída de quem procura um ofício que não está
-            entre os mais numerosos da cidade. */}
-        <Route path="/categorias" element={<CategoriasPage />} />
-        <Route path="/anuncios" element={<AnunciosPage />} />
-        {/* Página de venda de publicidade: medidas da arte, regras e o
-            pedido de contato. É para onde vão os espaços "Apareça aqui". */}
-        <Route path="/publicidade" element={<PublicidadePage />} />
-        <Route path="/excluir-conta" element={<ExcluirContaPage />} />
-        <Route path="/configuracao" element={<ConfiguracaoPage />} />
-        <Route path="/como-funciona" element={<ComoFuncionaPage />} />
-        <Route path="/favoritos" element={<FavoritosPage />} />
-        <Route path="/perfil" element={<PerfilPage />} />
-        <Route path="/assinatura" element={<AssinaturaPage />} />
-        <Route path="/analytics/:id" element={<AnalyticsPage />} />
+        {/* ── O Ei Itabirito ───────────────────────────────────────────
+            As telas do procurô saíram daqui inteiras: a busca de serviço,
+            o perfil público com avaliações, os anúncios, a venda de
+            banner, as categorias, os favoritos, as assinaturas de selo e
+            destaque, e os relatórios. Eram o produto daquele app.
 
-        {/* MVP Local Hiring */}
+            Ficou o que é infraestrutura (entrar, conta, documentos,
+            administração) e o que é o Ei. */}
+        <Route path="/" element={<EntradaPage />} />
+        {/* `/inicio` era a tela das duas portas do procurô. Continua
+            existindo porque a marca do cabeçalho aponta para ela e há
+            links antigos por aí — leva à entrada nova. */}
+        <Route path="/inicio" element={<EntradaPage />} />
+        <Route path="/login" element={<LoginPage />} />
+
+        {/* Quem procura trabalho */}
+        <Route path="/vagas-para-mim" element={<VagasParaMimPage />} />
+        <Route path="/meu-perfil" element={<MeuPerfilPage />} />
+        {/* `/painel` era o painel do profissional no procurô, com
+            assinaturas, destaque e pedidos de contato. O que resta dele
+            neste app é o perfil — e é para lá que ele aponta, para não
+            quebrar a barra de baixo nem o que já estava aberto no celular
+            de alguém. */}
+        <Route path="/painel" element={<MeuPerfilPage />} />
+
+        {/* Quem contrata */}
         <Route path="/onboarding-tipo" element={<OnboardingTipoPage />} />
         <Route path="/cadastro-empresa" element={<CadastroEmpresaPage />} />
-        <Route path="/painel-empresa" element={<PainelEmpresaPage />} />
         <Route path="/painel/editar-empresa" element={<CadastroEmpresaPage />} />
+        <Route path="/painel-empresa" element={<PainelEmpresaPage />} />
         <Route path="/criar-vaga" element={<CriarVagaPage />} />
-        <Route path="/planos-empresa" element={<PlanosEmpresaPage />} />
-        <Route path="/vagas-para-mim" element={<VagasParaMimPage />} />
-        <Route path="/profissionais" element={<ProfissionaisPage />} />
-        <Route path="/meu-perfil" element={<MeuPerfilPage />} />
         <Route path="/vaga/:id" element={<DetalheVagaPage />} />
+        <Route path="/planos-empresa" element={<PlanosEmpresaPage />} />
+        <Route path="/profissionais" element={<ProfissionaisPage />} />
+
+        {/* Conta e documentos */}
+        <Route path="/perfil" element={<PerfilPage />} />
+        <Route path="/configuracao" element={<ConfiguracaoPage />} />
+        <Route path="/termos" element={<TermosPage />} />
+        <Route path="/privacidade" element={<PrivacidadePage />} />
+        <Route path="/excluir-conta" element={<ExcluirContaPage />} />
+        {/* Sem link em lugar nenhum: existe para depurar login a distância. */}
+        <Route path="/diagnostico" element={<DiagnosticoPage />} />
+
+        {/* Administração */}
+        <Route path="/admin" element={<AdminPage />} />
+        <Route path="/admin/:secao" element={<AdminPage />} />
       </Routes>
       </Suspense>
       <Footer />

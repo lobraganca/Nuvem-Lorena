@@ -65,7 +65,7 @@ export function importarPagina<T>(carregar: () => Promise<T>): () => Promise<T> 
       return await carregar();
     } catch (err) {
       const mensagem = err instanceof Error ? err.message : String(err);
-      const chave = "procuro-recarregou-por-arquivo-antigo";
+      const chave = "ei-recarregou-por-arquivo-antigo";
       if (pareceArquivoDesatualizado(mensagem) && !window.sessionStorage.getItem(chave)) {
         window.sessionStorage.setItem(chave, "1");
         void recarregarDoZero();

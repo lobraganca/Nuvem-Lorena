@@ -134,7 +134,7 @@ export function InstalarApp({ variante = "lista" }: { variante?: "lista" | "faix
           menu de navegador nenhum para abrir. */}
       {emModoApp && (
         <p style={{ margin: "0 0 12px" }}>
-          No outro aparelho, abra <strong>procuroapp.com.br</strong> no navegador e siga:
+          No outro aparelho, abra <strong>www.empregoitabirito.com.br</strong> no navegador e siga:
         </p>
       )}
       <ol className="passos-ios">

@@ -259,7 +259,6 @@ button {
   line-height: 1;
 }
 
-
 /* O símbolo tem tamanho próprio por classe, e não em `em` do texto.
    ────────────────────────────────────────────────────────────────
    Tentei `1.5em` primeiro, para ele acompanhar a fonte sozinho. Não serve:
@@ -437,16 +436,6 @@ button {
   color: #ffffff;
 }
 
-/* Botão de texto: sem fundo e sem contorno, só o rótulo. É a ação mais
-   leve que existe no Material, e serve para o que hoje é link disfarçado
-   de botão espalhado pelo app. */
-.btn-texto {
-  background: transparent;
-  color: var(--color-primary);
-  padding-left: 12px;
-  padding-right: 12px;
-}
-
 /* Desligado tem que continuar legível.
    `opacity: 0.5` desbota o fundo e a letra na mesma proporção, então o
    botão azul com texto branco virava azul-lavado com branco-lavado: 2,4:1,
@@ -484,13 +473,6 @@ button {
   border-radius: var(--radius);
   padding: 16px;
   box-shadow: none;
-}
-
-/* Onde o cartão precisa se distinguir de outro cartão logo ao lado (lista
-   dentro de lista), ele sobe um nível de superfície em vez de ganhar
-   borda. */
-.card-fundo {
-  background: var(--color-surface-2);
 }
 
 /* Antes cada etiqueta tinha a sua cor, e um card com selo + destaque + tipo
@@ -536,34 +518,6 @@ button {
   content: "🔥";
   font-size: 0.9em;
   line-height: 1;
-}
-
-/* Pessoa física (autônomo) x pessoa jurídica (empresa): a diferença está no
-   texto, não na cor — as duas são igualmente legítimas. */
-/* Só contorno, sem preenchimento.
-   Cheia de cinza, esta etiqueta virava o bloco mais pesado do cartão —
-   maior que a nota, que é o dado que decide o toque. "Profissional
-   autônomo" em duas linhas dentro de um retângulo cinza chamava mais
-   atenção que as estrelas logo abaixo. É informação de rodapé: precisa
-   estar legível, não precisa gritar. */
-.badge-entity-pf,
-.badge-entity-pj {
-  background: transparent;
-  color: var(--color-text-muted);
-  border: 1px solid var(--color-border-strong);
-  font-weight: 500;
-}
-
-.avatar-fallback {
-  width: 56px;
-  height: 56px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: var(--color-bg-soft);
-  border: 1px solid var(--color-border);
-  font-size: 1.4rem;
-  flex-shrink: 0;
 }
 
 /* Campo no estilo "outlined" do Material: contorno de 1px sobre a própria
@@ -630,45 +584,6 @@ button:focus-visible,
   border: 1px solid #f3c9c5;
 }
 
-/* Radio buttons customizados: círculo com preenchimento na cor de destaque quando selecionado */
-.radio-option {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  cursor: pointer;
-  padding: 12px 14px;
-  border: 1px solid var(--color-border);
-  border-radius: 14px;
-  background: var(--color-bg-soft);
-}
-
-.radio-option input[type="radio"] {
-  appearance: none;
-  -webkit-appearance: none;
-  width: 20px;
-  height: 20px;
-  min-width: 20px;
-  border-radius: 50%;
-  border: 2px solid var(--color-border);
-  display: inline-block;
-  position: relative;
-  margin: 0;
-  cursor: pointer;
-  flex-shrink: 0;
-}
-
-.radio-option input[type="radio"]:checked {
-  border-color: var(--color-primary);
-}
-
-.radio-option input[type="radio"]:checked::after {
-  content: "";
-  position: absolute;
-  inset: 3px;
-  border-radius: 50%;
-  background: linear-gradient(135deg, var(--color-primary-soft), var(--color-primary));
-}
-
 input::placeholder,
 textarea::placeholder {
   color: var(--color-text-muted);
@@ -704,43 +619,6 @@ textarea::placeholder {
   font-size: 0.85rem;
 }
 
-.stars {
-  color: var(--color-primary);
-  letter-spacing: 2px;
-}
-
-/* ---------- Avaliação por toque: estrelas + etiquetas rápidas ---------- */
-
-/* Seletor de nota: 5 estrelas tocáveis (nada de <select>), com alvo de
-   toque confortável no celular. */
-.star-picker {
-  display: flex;
-  gap: 4px;
-}
-
-.star-btn {
-  background: none;
-  border: none;
-  padding: 4px 6px;
-  min-width: 44px;
-  min-height: 44px;
-  font-size: 2rem;
-  line-height: 1;
-  cursor: pointer;
-  color: #d3dae4;
-}
-
-.star-btn-on {
-  color: var(--color-primary);
-}
-
-/* Etiquetas rápidas (chips). Quebram linha naturalmente no mobile. */
-.chip-list {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-}
-
 .chip {
   display: inline-flex;
   align-items: center;
@@ -758,34 +636,6 @@ textarea::placeholder {
   cursor: pointer;
 }
 
-.chip-selected {
-  background: linear-gradient(135deg, var(--color-primary-soft), var(--color-primary));
-  border-color: transparent;
-  color: #ffffff;
-}
-
-/* Chip só de leitura (etiquetas já enviadas, resumo do profissional). */
-.chip-static {
-  cursor: default;
-}
-
-.chip-sm {
-  padding: 4px 10px;
-  font-size: 0.74rem;
-}
-
-/* Resumo agregado ("Pontual (12)") no topo das avaliações. */
-.chip-tally {
-  background: #fdf4e6;
-  border-color: #e0bd85;
-  color: var(--color-accent-teal);
-}
-
-.chip-tally .chip-count {
-  font-weight: 700;
-  opacity: 0.75;
-}
-
 /* ---------- App shell / bottom navigation (padrão de app mobile) ---------- */
 
 /* A barra agora flutua, então o conteúdo precisa terminar acima dela: a
@@ -793,47 +643,6 @@ textarea::placeholder {
    último cartão da busca fica escondido atrás dela. */
 .app-content {
   padding-bottom: calc(var(--bottom-nav-height) + env(safe-area-inset-bottom) + 20px);
-}
-
-/* Ilha arredondada e suspensa, como a barra do Instagram: solta do rodapé,
-   com sombra por baixo, em vez da faixa colada de ponta a ponta. Fica acima
-   da faixa de gestos do iPhone (`safe-area-inset-bottom`) — colada embaixo,
-   o último item disputava espaço com o risquinho de voltar à tela inicial. */
-/* Barra ancorada no rodapé, ocupando a largura toda, com o conteúdo
-   passando por baixo dela.
-
-   Era uma ilha arredondada e flutuante, centrada com `left: 50%` mais
-   `translateX(-50%)`. Duas coisas ruins vinham daí. A primeira é que um
-   elemento fixo com `transform` é recomposto a cada quadro da rolagem, e
-   no iOS o arredondamento de subpixel faz ele oscilar de lado enquanto a
-   página anda — a tela inteira parece sambar. A segunda é a faixa vazia
-   em volta da ilha: ela fica sobre o conteúdo e intercepta o toque, então
-   o gesto de rolar iniciado ali embaixo morre na barra em vez de rolar a
-   página.
-
-   Ancorada em `bottom: 0`, sem `transform` e sem vão lateral, ela sai do
-   caminho da rolagem e para de se mexer. O recuo do iPhone entra como
-   `padding-bottom`, e não como deslocamento da barra: assim a faixa de
-   gestos fica pintada da cor da barra em vez de deixar uma fresta por
-   onde o conteúdo aparece. */
-.bottom-nav {
-  position: fixed;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  z-index: 40;
-  display: flex;
-  justify-content: space-around;
-  align-items: center;
-  height: calc(var(--bottom-nav-height) + env(safe-area-inset-bottom));
-  padding-bottom: env(safe-area-inset-bottom);
-  background: var(--color-nav-bg);
-  /* Sem linha e sem sombra: a barra do Material se separa do conteúdo por
-     ser uma superfície de nível mais alto, não por ter moldura. A linha e
-     a sombra eram o jeito do desenho antigo, e são o que fazia a barra
-     parecer colada por cima da página em vez de fazer parte do app. */
-  border-top: none;
-  box-shadow: none;
 }
 
 /* Ícone em cima, nome embaixo.
@@ -944,19 +753,6 @@ textarea::placeholder {
   color: var(--color-sobre-nav-ouro);
 }
 
-/* Fica no HTML para leitor de tela, fora da tela para todo mundo. */
-.apenas-leitor-de-tela {
-  position: absolute;
-  width: 1px;
-  height: 1px;
-  padding: 0;
-  margin: -1px;
-  overflow: hidden;
-  clip: rect(0, 0, 0, 0);
-  white-space: nowrap;
-  border: 0;
-}
-
 /* No computador a barra continua de ponta a ponta, mas os ícones não se
    espalham por uma tela de 1920px: o recuo lateral os agrupa no meio, na
    mesma largura que tinham como ilha. É o recuo que muda, não a barra —
@@ -1030,28 +826,6 @@ textarea::placeholder {
   border-radius: 50%;
   background: currentColor;
   flex: none;
-}
-
-/* As três cores saem do vocabulário que o app já usa para os mesmos
-   sentidos: o verde de `.cfg-ok`, o âmbar de `.review-care` (aviso, não
-   alarme — falta terminar não é erro de ninguém) e o vermelho de
-   `.cfg-falta`. */
-.situacao-ok {
-  background: #eaf6ef;
-  color: #1c6b3f;
-  border-color: #c3e4d1;
-}
-
-.situacao-pendente {
-  background: #fdf7ec;
-  color: var(--color-gold-deep);
-  border-color: #ecd6b0;
-}
-
-.situacao-problema {
-  background: #fdeceb;
-  color: var(--color-danger);
-  border-color: #f3c6c2;
 }
 
 .settings-group-title {
@@ -1179,16 +953,6 @@ textarea::placeholder {
   }
 }
 
-/* --- Tela de início (primeiro acesso) --- */
-
-/* A tela de início não tem cabeçalho, então é ela mesma que precisa começar
-   abaixo da faixa do relógio do iPhone no app instalado. */
-.welcome-page {
-  max-width: 960px;
-  margin: 0 auto;
-  padding: env(safe-area-inset-top) 20px 40px;
-}
-
 /* 20px de cada lado eram 40px que os botões de escolha não tinham para
    gastar: com o ícone e a seta ocupando ponta e ponta, "Encontre um
    profissional" não cabia numa linha em tela de 360px. Medido, não
@@ -1200,16 +964,6 @@ textarea::placeholder {
   }
 }
 
-/* Linha dos contadores, antes de tudo na tela de início. */
-.welcome-topo {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
-  align-items: center;
-  gap: 8px;
-  padding-top: 14px;
-}
-
 /* `.visitas-pill` foi removida: as visitas deixaram de ser uma pílula
    discreta no topo e passaram a ser o cartão grande abaixo da marca, no
    lugar que era do total de profissionais cadastrados. */
@@ -1217,86 +971,6 @@ textarea::placeholder {
 .welcome-topo .online-pill {
   margin-top: 0;
   margin-bottom: 0;
-}
-
-/* 72px de respiro em cima gastavam um quinto da primeira tela do celular
-   para não dizer nada — e a decisão (os dois botões) só aparecia depois de
-   metade do caminho. O `clamp` dá o ar de tela grande sem cobrar isso do
-   celular, que é onde este app é usado. */
-.welcome-hero {
-  text-align: center;
-  padding: clamp(26px, 6vh, 60px) 0 clamp(18px, 3.4vh, 34px);
-}
-
-.welcome-topo + .welcome-hero {
-  padding-top: clamp(18px, 4vh, 40px);
-}
-
-/* `.welcome-gratis` foi removida: o aviso de cadastro grátis virou a
-   etiqueta `.welcome-choice-gratis`, dentro do próprio botão. O par de
-   vermelho que ela estabeleceu (fundo #fdeceb, texto #c0392b) continua
-   em uso lá, em `.btn-danger-soft` e em `.cta-anunciar`. */
-
-.welcome-tagline {
-  color: var(--color-text-muted);
-  max-width: 28rem;
-  margin: 28px auto 0;
-  font-size: 1.02rem;
-  line-height: 1.55;
-}
-
-.welcome-features {
-  display: grid;
-  gap: 12px;
-  grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
-  margin-bottom: 40px;
-}
-
-/* Cartões menores que o `.card` padrão: aqui são cinco de uma vez, lado a
-   lado, e cada um carrega duas frases. Com o enchimento de um cartão de
-   conteúdo, a fileira ocupava a tela inteira para dizer pouco. */
-.welcome-feature-card {
-  padding: 18px 16px 16px;
-  border-radius: 20px;
-  background: linear-gradient(180deg, #ffffff 0%, #f8fbff 100%);
-  box-shadow: var(--shadow-repouso);
-}
-
-/* O ícone num quadrado dourado claro — o dourado é a cor de identidade do
-   app, e é o único lugar da tela onde ela aparece além do acento da marca.
-   Fica em cima e não à esquerda porque no celular a coluna é uma só: ao
-   lado do título, ele roubaria da frase a largura de que ela precisa. */
-.welcome-feature-icone {
-  display: grid;
-  place-items: center;
-  width: 40px;
-  height: 40px;
-  margin-bottom: 12px;
-  border-radius: 13px;
-  background: var(--color-gold-tint);
-  border: 1px solid var(--color-gold-line);
-  color: var(--color-gold-deep);
-}
-
-.welcome-feature-card h3 {
-  margin: 0 0 6px;
-  font-size: 0.98rem;
-  line-height: 1.3;
-}
-
-.welcome-feature-card p {
-  margin: 0;
-  font-size: 0.88rem;
-  line-height: 1.5;
-}
-
-/* Um lugar vendido dentro do grid de cartões — mesma moldura de
-   publicidade da busca (borda tracejada, etiqueta "Publicidade"), mas sem
-   o espaçamento pensado para uma lista empilhada, que aqui desalinharia o
-   cartão dos vizinhos no grid. */
-.welcome-ad-card.banner-publicidade {
-  margin-top: 0;
-  padding: 0;
 }
 
 /* Os dois caminhos do app, logo no topo: pílulas grandes e arredondadas,
@@ -1319,264 +993,6 @@ textarea::placeholder {
   50% {
     transform: translateY(-4px);
   }
-}
-
-.welcome-choice {
-  display: grid;
-  gap: 12px;
-  margin-bottom: 26px;
-}
-
-/* Linha, não pílula.
-
-   O raio 999px saiu: nenhum outro elemento do app é uma cápsula, e num
-   botão desta largura ela lê como tela antiga. 22px é o mesmo canto dos
-   cartões grandes — o botão passa a pertencer à mesma família do resto.
-
-   A profundidade vem das quatro camadas que o app já usa (o brilho de 1px
-   em cima, a penumbra embaixo, a sombra curta de contato e a longa e
-   clara). Escritas aqui e não só no token porque o botão primário precisa
-   das suas em azul: sombra cinza sob um bloco azul-marinho suja a borda em
-   vez de levantá-la. */
-/* As duas portas da tela de início, no vocabulário do Material.
-   ─────────────────────────────────────────────────────────────
-   Eram dois cartões com degradê, borda firme e sombra de dois níveis, que
-   subiam 2px no toque. Cada um desses recursos é assinatura do desenho
-   antigo, e juntos eles são a primeira coisa que alguém vê ao abrir o app —
-   por isso começam por aqui.
-
-   No lugar: superfícies chapadas. A porta principal é a cor da marca cheia;
-   a segunda é a superfície branca sobre o fundo cinza, sem borda. A
-   diferença de peso entre as duas passa a vir da COR, não de sombra — que é
-   como a Google separa a ação principal da secundária. */
-.welcome-choice-btn {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  width: 100%;
-  padding: 16px;
-  border-radius: var(--radius);
-  border: none;
-  background: var(--color-surface);
-  color: var(--color-text);
-  font: inherit;
-  text-align: left;
-  cursor: pointer;
-  min-height: 76px;
-  box-shadow: none;
-  position: relative;
-  overflow: hidden;
-  transition: background-color 0.15s ease;
-  animation: slideUpFade 0.5s ease-out backwards;
-}
-
-/* A camada de estado, igual à dos botões: o cartão acende no toque em vez
-   de se mexer. Mover era o que fazia parecer que ele escorregou. */
-.welcome-choice-btn::after {
-  content: "";
-  position: absolute;
-  inset: 0;
-  background: currentColor;
-  opacity: 0;
-  transition: opacity 0.15s ease;
-  pointer-events: none;
-}
-
-.welcome-choice-btn:hover::after,
-.welcome-choice-btn:focus-visible::after { opacity: 0.06; }
-.welcome-choice-btn:active::after { opacity: 0.1; }
-
-.welcome-choice-btn:nth-child(1) { animation-delay: 0.06s; }
-.welcome-choice-btn:nth-child(2) { animation-delay: 0.16s; }
-
-.welcome-choice-primary {
-  background: var(--color-primary);
-  color: var(--color-on-primary);
-  box-shadow: none;
-  border: none;
-}
-
-/* O ícone dentro de um disco próprio, e não solto sobre o botão: solto,
-   ele some no gradiente do primário e briga com o texto no branco. O disco
-   dá a ele um lugar e é o que faz os dois botões lerem como um par. */
-.welcome-choice-icone {
-  flex: 0 0 auto;
-  display: grid;
-  place-items: center;
-  width: 44px;
-  height: 44px;
-  /* Redondo, e não quadrado de canto arredondado: o disco do ícone é
-     circular em toda interface da Google. */
-  border-radius: var(--radius-cheio);
-  background: var(--color-primary-container);
-  border: none;
-  color: var(--color-on-primary-container);
-}
-
-.welcome-choice-primary .welcome-choice-icone {
-  background: rgba(255, 255, 255, 0.14);
-  border: none;
-  color: #ffffff;
-}
-
-.welcome-choice-texto {
-  display: flex;
-  flex-direction: column;
-  gap: 3px;
-  min-width: 0;
-  flex: 1 1 auto;
-}
-
-/* O corpo acompanha a largura da tela porque a frase e longa: "Encontre um
-   profissional" tem 24 letras, e entre o icone e a seta nao sobra espaco
-   para ela numa tela de 320px em corpo fixo. Medido: numa de 390px cabe em
-   uma linha; nas estreitas encolhe ate caber, em vez de quebrar no meio.
-
-   `text-wrap: balance` e o seguro para quando ela quebrar mesmo assim --
-   sem ele sobra "profissional" sozinho na segunda linha, que le como
-   erro. */
-.welcome-choice-label {
-  font-size: clamp(0.86rem, 3.9vw, 1.05rem);
-  font-weight: 700;
-  line-height: 1.25;
-  text-wrap: balance;
-}
-
-/* "grátis" dentro do próprio botão, em vez de uma linha solta lá em cima.
-   Pequeno de propósito: é uma ressalva que tira o medo de tocar, não uma
-   promoção — em corpo maior competiria com "Cadastre-se", que é a ação.
-
-   O par de vermelho é o mesmo de `.btn-danger-soft` e `.cta-anunciar`:
-   4,76:1 de contraste, acima do mínimo de 4,5 — que vale inclusive para
-   texto pequeno como este. */
-.welcome-choice-gratis {
-  display: inline-block;
-  vertical-align: 1px;
-  margin-left: 6px;
-  padding: 2px 8px;
-  border-radius: 999px;
-  background: #fdeceb;
-  border: 1px solid #f6c9c4;
-  color: #c0392b;
-  font-size: 0.68rem;
-  font-weight: 700;
-  letter-spacing: 0.02em;
-  text-transform: lowercase;
-}
-
-/* 0,8rem e não 0,82: medida, "Trabalho com isso e quero aparecer" pedia
-   234px numa coluna de 233px — quebrava em duas linhas por um pixel, e os
-   dois botões ficavam de alturas diferentes lado a lado. */
-.welcome-choice-hint {
-  font-size: 0.8rem;
-  line-height: 1.35;
-  color: var(--color-text-muted);
-}
-
-.welcome-choice-primary .welcome-choice-hint {
-  color: rgba(255, 255, 255, 0.86);
-}
-
-/* A seta é o que diz "isto leva a algum lugar" — sem ela, um bloco com
-   ícone e duas linhas de texto lê como aviso, não como botão. */
-.welcome-choice-seta {
-  flex: 0 0 auto;
-  font-size: 1.2rem;
-  line-height: 1;
-  opacity: 0.4;
-  transition: transform 0.15s ease, opacity 0.15s ease;
-}
-
-.welcome-choice-primary .welcome-choice-seta {
-  opacity: 0.65;
-}
-
-.welcome-choice-btn:hover .welcome-choice-seta {
-  transform: translateX(3px);
-  opacity: 0.75;
-}
-
-.welcome-footnote {
-  margin-top: 40px;
-  text-align: center;
-  font-size: 0.85rem;
-}
-
-/* --- Tour guiado de primeiro acesso --- */
-
-.tour-root {
-  position: fixed;
-  inset: 0;
-  z-index: 1200;
-}
-
-/* O "buraco" é a sombra gigante em volta da caixa do elemento destacado. */
-.tour-spotlight {
-  position: fixed;
-  border-radius: 12px;
-  box-shadow: 0 0 0 9999px rgba(10, 26, 47, 0.7);
-  border: 2px solid var(--color-primary);
-  pointer-events: none;
-  transition: top 0.2s ease, left 0.2s ease, width 0.2s ease, height 0.2s ease;
-}
-
-.tour-dim {
-  position: fixed;
-  inset: 0;
-  background: rgba(10, 26, 47, 0.7);
-}
-
-.tour-card {
-  position: fixed;
-  left: 50%;
-  transform: translateX(-50%);
-  width: min(420px, calc(100vw - 32px));
-  background: var(--color-surface);
-  border: 1px solid var(--color-border);
-  border-radius: 16px;
-  padding: 18px;
-  box-shadow: var(--shadow-raised);
-}
-
-.tour-card:focus {
-  outline: none;
-}
-
-.tour-progress {
-  margin: 0 0 6px;
-  font-size: 0.78rem;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  color: var(--color-primary);
-}
-
-.tour-title {
-  margin: 0 0 6px;
-  font-size: 1.1rem;
-}
-
-.tour-text {
-  margin: 0 0 16px;
-  color: var(--color-text-muted);
-  font-size: 0.92rem;
-}
-
-.tour-actions {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
-}
-
-.tour-skip {
-  background: none;
-  border: none;
-  padding: 8px;
-  font: inherit;
-  font-size: 0.9rem;
-  color: var(--color-text-muted);
-  text-decoration: underline;
-  cursor: pointer;
 }
 
 /* Contador de gente com o app aberto agora (Realtime Presence). */
@@ -1633,38 +1049,6 @@ textarea::placeholder {
   border-radius: 50%;
   background: var(--color-accent-teal);
   box-shadow: 0 0 0 2px rgba(18, 128, 95, 0.16);
-}
-
-/* Quantas pessoas viram o anúncio nos últimos 30 dias (painel do anunciante) */
-.views-line {
-  margin: 8px 0 0;
-  font-size: 0.88rem;
-  color: var(--color-text-muted);
-}
-
-.views-line strong {
-  color: var(--color-primary-deep);
-  font-size: 1.05rem;
-}
-
-/* Recado de tom antes de uma avaliação negativa. Âmbar, não vermelho: é um
-   convite a ser específico, não um alarme de erro. */
-.review-care {
-  background: #fdf7ec;
-  border: 1px solid #ecd6b0;
-  border-radius: 14px;
-  padding: 14px 16px;
-  font-size: 0.88rem;
-  line-height: 1.5;
-}
-
-.review-care strong {
-  color: var(--color-primary-deep);
-}
-
-.review-care p {
-  margin: 6px 0 0;
-  color: var(--color-text-muted);
 }
 
 /* --- Abertura do app --- */
@@ -1764,248 +1148,13 @@ html.abrindo body {
   color: var(--color-text);
 }
 
-/* ---------- Enquadrar a foto antes de enviar ---------- */
-
-.ajustar-foto {
-  display: grid;
-  gap: 16px;
-}
-
-/* Quadrada e com o MESMO raio do `.card-foto`: a moldura é a promessa do
-   resultado, e um raio diferente aqui faria a foto chegar no cartão com um
-   corte que a pessoa não viu. `touch-action: none` porque o arrasto é para
-   mover a foto — sem isso o navegador entende como rolagem da página e a
-   folha inteira sobe junto com o dedo. */
-.ajustar-moldura {
-  width: min(280px, 72vw);
-  aspect-ratio: 1;
-  margin: 0 auto;
-  border-radius: 18px;
-  overflow: hidden;
-  background: var(--color-bg-soft);
-  border: 1px solid var(--color-border-strong);
-  cursor: grab;
-  touch-action: none;
-  user-select: none;
-}
-
-.ajustar-moldura:active {
-  cursor: grabbing;
-}
-
-.ajustar-zoom {
-  display: grid;
-  gap: 6px;
-  font-size: 0.85rem;
-}
-
-/* O controle nativo vem com 16px de altura de alvo em alguns navegadores —
-   abaixo do que um dedo acerta. */
-.ajustar-zoom input[type="range"] {
-  width: 100%;
-  height: 32px;
-  padding: 0;
-  background: none;
-  border: none;
-  accent-color: var(--color-primary);
-}
-
-.ajustar-acoes {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 10px;
-}
-
 .ajustar-acoes .btn {
   justify-content: center;
-}
-
-/* Bloco de canais de contato no formulário do anúncio */
-.contact-fields {
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius);
-  padding: 16px;
-  display: grid;
-  gap: 10px;
-  margin: 0;
-}
-
-.contact-fields legend {
-  padding: 0 6px;
-  font-weight: 600;
-  font-size: 0.9rem;
-}
-
-/* Card de profissional na busca: cantos bem arredondados e um convite claro
-   a entrar. Os contatos ficam só dentro do perfil — é o clique aqui que
-   registra a visita e vira o número que o profissional vê no painel. */
-.card-pro {
-  border-radius: var(--radius-lg);
-  transition: transform 0.15s ease, box-shadow 0.15s ease;
-}
-
-.card-pro:hover,
-.card-pro:focus-visible {
-  transform: translateY(-2px);
-  box-shadow: var(--shadow-raised);
-}
-
-/* "Novo por aqui — seja o primeiro a avaliar", no lugar onde os outros
-   cartões mostram a nota. É recado, não informação que a pessoa procura:
-   no corpo do texto ocupava duas linhas do tamanho de um título e empurrava
-   o resto do cartão para baixo. Menor, diz a mesma coisa e devolve a altura
-   para o que a pessoa veio ver. */
-.card-sem-nota {
-  font-size: 0.82rem;
-  line-height: 1.35;
-}
-
-.card-cta {
-  display: inline-block;
-  margin-top: 12px;
-  color: var(--color-primary-deep);
-  font-weight: 600;
-  font-size: 0.88rem;
-}
-
-/* Canais de contato no perfil do profissional */
-.contact-list {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-  margin-top: 14px;
-}
-
-.contact-chip {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  padding: 9px 14px;
-  border-radius: 999px;
-  border: 1px solid var(--color-border-strong);
-  background: var(--color-surface);
-  color: var(--color-text);
-  text-decoration: none;
-  font-size: 0.88rem;
-  font-weight: 600;
-}
-
-.contact-chip:hover {
-  border-color: var(--color-primary);
-}
-
-/* Pedidos de contato recebidos, no painel do profissional */
-.requests {
-  margin-top: 14px;
-  padding-top: 14px;
-  border-top: 1px solid var(--color-border);
-}
-
-.requests-head {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 10px;
-  margin-bottom: 10px;
-}
-
-.requests-badge {
-  margin-left: 8px;
-  padding: 2px 9px;
-  border-radius: 999px;
-  background: var(--color-primary);
-  color: #fff;
-  font-size: 0.7rem;
-}
-
-.requests-toggle {
-  background: none;
-  border: none;
-  padding: 0;
-  font: inherit;
-  font-size: 0.82rem;
-  color: var(--color-primary-deep);
-  text-decoration: underline;
-  cursor: pointer;
-}
-
-.requests-list {
-  list-style: none;
-  margin: 0;
-  padding: 0;
-  display: grid;
-  gap: 10px;
-}
-
-.request {
-  border: 1px solid var(--color-border);
-  border-radius: 14px;
-  padding: 12px 14px;
-  background: var(--color-surface-raised);
-  font-size: 0.9rem;
-}
-
-.request-new {
-  border-color: var(--color-primary);
-  background: var(--color-surface);
-}
-
-.request-tag {
-  margin-left: 8px;
-  font-size: 0.74rem;
-  color: var(--color-text-muted);
-}
-
-.request-msg {
-  margin: 6px 0 0;
-  font-size: 0.86rem;
-}
-
-.request-actions {
-  display: flex;
-  gap: 8px;
-  margin-top: 10px;
-  flex-wrap: wrap;
 }
 
 .request-actions .btn {
   padding: 7px 14px;
   font-size: 0.82rem;
-}
-
-/* --- Bloco de busca: campo de texto em destaque, filtros abaixo --- */
-
-/* Os cinco controles eram cinco caixas soltas, com o mesmo respiro entre
-   elas que havia entre os blocos da página — então nada dizia que o campo
-   de busca e os quatro filtros são a mesma ferramenta. Apertando o vão
-   entre eles e afastando o conjunto do que vem antes e depois, o grupo
-   passa a ler como um só objeto, sem precisar de moldura nem de fundo
-   novo (que inverteriam a decisão de cor documentada logo abaixo, em
-   `.filter-grid select`). */
-.search-block {
-  display: grid;
-  gap: 9px;
-  margin-top: 2px;
-  margin-bottom: 6px;
-}
-
-.search-field {
-  position: relative;
-  display: flex;
-  align-items: center;
-}
-
-.search-icon {
-  position: absolute;
-  left: 17px;
-  width: 20px;
-  height: 20px;
-  /* Cinza, não o azul de ação. A lupa não é um botão e não faz nada ao
-     ser tocada — pintada na cor das coisas clicáveis, ela promete um
-     toque que não existe. Aqui ela é o que sempre foi: o desenho que diz
-     "isto é um campo de busca". */
-  color: var(--color-text-muted);
-  pointer-events: none;
 }
 
 /* Dourado bem claro — o acento da marca, que até aqui só existia no "ô"
@@ -2100,30 +1249,6 @@ html.abrindo body {
   color: var(--color-text-muted);
 }
 
-/* Sempre dois por linha. `minmax(0, 1fr)` e não `1fr`: o mínimo padrão de
-   uma coluna de grade é o conteúdo, e um `<select>` largo empurraria a
-   grade para fora da tela em vez de encolher. */
-.filter-grid {
-  display: grid;
-  gap: 8px;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-}
-
-/* Brancos, para o campo de busca ficar sendo o único preenchido do
-   bloco. Com os cinco na mesma cor, a busca — que é o que a pessoa veio
-   fazer — tinha o mesmo peso de "Qualquer nota".
-
-   A borda sobe para `--color-border-strong`: branco sobre página branca
-   não tem contorno nenhum, e sem isso os quatro filtros virariam texto
-   solto no meio da tela. */
-.filter-grid select {
-  font-size: 0.9rem;
-  padding: 12px 14px;
-  background: var(--color-surface);
-  border-color: var(--color-border-strong);
-  box-shadow: var(--shadow-repouso);
-}
-
 /* Duas colunas também no celular estreito, mas com a letra e o recuo
    apertados o suficiente para o texto caber.
 
@@ -2152,21 +1277,6 @@ html.abrindo body {
   }
 }
 
-/* Selo de verificação ao lado do nome */
-.verified-badge {
-  color: var(--color-gold-deep);
-  flex-shrink: 0;
-  vertical-align: middle;
-}
-
-/* No cartão azul o dourado escuro perde força — ali ele sobe para o dourado
-   médio, que é o que brilha sobre fundo escuro, e ganha um halo suave para
-   se destacar do azul sem precisar de mais tamanho. */
-.card-pro .verified-badge {
-  color: var(--color-gold-mid);
-  filter: drop-shadow(0 0 6px rgba(200, 162, 74, 0.55));
-}
-
 /* Excluir conta: discreto na lista, forte só depois de confirmado. Não pode
    competir com "Sair da conta" — são ações vizinhas de consequências bem
    diferentes. */
@@ -2191,24 +1301,6 @@ html.abrindo body {
 .btn-danger-forte {
   background: var(--color-danger);
   color: #ffffff;
-}
-
-/* "Sair" no cabeçalho: alcançável de qualquer tela, sem disputar com a marca. */
-.header-sair {
-  background: none;
-  border: 1px solid var(--color-border-strong);
-  border-radius: 999px;
-  padding: 8px 16px;
-  font: inherit;
-  font-size: 0.85rem;
-  font-weight: 600;
-  color: var(--color-text-muted);
-  cursor: pointer;
-}
-
-.header-sair:hover {
-  border-color: var(--color-danger);
-  color: var(--color-danger);
 }
 
 .header-acoes {
@@ -2322,80 +1414,6 @@ html.abrindo body {
   border: 1px solid #f3c6c2;
 }
 
-.form-aviso {
-  color: #1c6b3f;
-  background: #eaf6ef;
-  border: 1px solid #c3e4d1;
-}
-
-/* Convite para anunciar, no alto da busca. Faixa fina e de contorno leve:
-   precisa ser vista por quem presta serviço sem roubar a atenção de quem
-   veio contratar. */
-/* Vermelho claro, com o claro no fundo e não na letra — mesma solução da
-   pílula "O cadastro é grátis" da tela de início. Vermelho-claro escrito
-   sobre branco dá cerca de 2,4:1, e o mínimo legível é 4,5; no celular
-   sob sol, que é onde este app é usado, some de vez.
-
-   O fundo é o mesmo #fdeceb já usado em `.btn-danger-soft` e na
-   etiqueta "grátis" da tela de início, então o app não ganha um sexto tom de vermelho. Em
-   cima dele, o texto em `--color-danger` dá 4,76:1 e o negrito em
-   #8f2c20 dá 7,21:1 — a chamada, que é o que se lê primeiro, é a parte
-   mais firme. */
-.cta-anunciar {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 6px;
-  margin-top: 14px;
-  /* O recuo maior à direita não é estética: o botão flutuante de fechar
-     (`.btn-fechar-pagina`) é fixo no canto e ocupa os 50px finais da
-     tela, na mesma altura deste aviso. Com o aviso em duas linhas a seta
-     caía abaixo dele e ninguém via; em uma linha, ela passou a ficar
-     escondida atrás do X. Medido: sem isto a seta vai até x=355 e o
-     botão começa em x=340. */
-  /* A faixa deixou de atravessar a tela inteira: com `fit-content` ela
-     passa a ter a largura da própria frase. Isso resolveu de brinde o
-     problema que os 46px de recuo à direita resolviam na marra — o botão
-     flutuante de fechar (`.btn-fechar-pagina`) fica fixo de x=310 a x=348,
-     e a pílula agora termina bem antes disso, então a seta não tem mais
-     como sumir atrás do X. */
-  width: fit-content;
-  /* Reserva o espaço do botão de fechar, em toda largura — e não só nas
-     estreitas, como era antes. O X é fixo e ocupa os 34px que terminam na
-     margem do conteúdo; 44 = esses 34 mais 10 de vão. Medido, os dois
-     chegavam a 1px de distância numa tela de 360px: encostados, liam como
-     um objeto torto em vez de dois. */
-  max-width: calc(100% - 44px);
-  padding: 6px 8px;
-  border-radius: 999px;
-  /* Era rosa sobre vermelho — a paleta de erro do app. Num convite, essa
-     cor diz "algo deu errado" antes de qualquer palavra ser lida, e é a
-     única mancha da tela que não pertence à identidade (navy e dourado).
-     No dourado ele continua chamando atenção e passa a pertencer. */
-  border: 1px solid var(--color-gold-line);
-  background: var(--color-gold-tint);
-  color: var(--color-gold-deep);
-  text-decoration: none;
-  /* Menor a pedido da dona: o convite é para quem presta serviço, e quem
-     abre o app veio procurar alguém. Ele precisa ser visto, não lido
-     primeiro. A 0,72rem a frase inteira cabe com folga — a restrição
-     antiga (0,78 era o teto por causa dos 46px reservados) caiu junto com
-     o recuo. */
-  font-size: 0.72rem;
-  line-height: 1.3;
-}
-
-/* Uma linha só. O `nowrap` sozinho seria arriscado — se um dia o texto
-   crescer, ele escapa da pílula em vez de quebrar —, então vem com
-   `min-width: 0` e reticências: o pior caso passa a ser um "…" no fim,
-   não texto vazando por cima da seta. */
-.cta-anunciar-texto {
-  min-width: 0;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
 /* Onde a frase não couber na largura que sobra, ela quebra em duas linhas
    em vez de ser cortada. Isto não é preferência: com reticências, o que
    some é o fim da frase — ou seja, justamente o "grátis", que é o motivo
@@ -2411,20 +1429,6 @@ html.abrindo body {
   .cta-anunciar-texto {
     white-space: normal;
   }
-}
-
-.cta-anunciar strong {
-  color: #8f2c20;
-}
-
-.cta-anunciar-seta {
-  flex: none;
-  color: #8f2c20;
-  font-size: 0.95rem;
-}
-
-.cta-anunciar:active {
-  background: #f9dcda;
 }
 
 /* Aviso de dados (LGPD), fixo no rodapé. Fica acima da barra de navegação
@@ -2479,58 +1483,6 @@ html.abrindo body {
   }
 }
 
-/* Confirmação do WhatsApp: o estado confirmado é discreto (é o normal
-   esperado), e o pendente é um convite visível — quem anuncia precisa
-   perceber que falta, sem que a tela pareça um erro. */
-/* Número confirmado: uma pílula, não uma linha de texto.
-   O aviso de pendência ao lado tem cartão, borda tracejada e cor — o
-   estado resolvido não tinha nada, e a tela acabava dando mais presença a
-   quem não confirmou do que a quem confirmou. Aqui ele fica quieto, mas
-   fica visível: é o único selo do cartão que a pessoa conquistou.
-
-   Verde escuro sobre verde muito claro dá 5,87:1 de contraste — acima do
-   mínimo de 4,5:1, o que importa numa etiqueta pequena e em negrito lida
-   em tela de celular, muitas vezes no sol. */
-.whats-ok {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  margin: 8px 0 0;
-  padding: 5px 12px 5px 5px;
-  border-radius: 999px;
-  background: #eaf6ef;
-  border: 1px solid #bfe3cf;
-  font-size: 0.84rem;
-  line-height: 1.3;
-  color: #1c6b3f;
-}
-
-/* O visto, dentro de um círculo cheio.
-   O traço é um SVG e não o caractere "✓": a letra não ocupa o meio da
-   própria caixa, e o quanto ela sai do meio muda com a fonte que cada
-   aparelho escolheu — dava para centrar no computador e continuar torto no
-   celular. O desenho é simétrico dentro do quadro, então centrar a caixa
-   passa a centrar o traço. */
-.whats-ok-marca {
-  flex: none;
-  width: 20px;
-  height: 20px;
-  border-radius: 50%;
-  background: #1c6b3f;
-  color: #fff;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.whats-ok-marca svg {
-  display: block;
-}
-
-.whats-ok strong {
-  font-weight: 700;
-}
-
 .whats-pendente {
   display: flex;
   align-items: center;
@@ -2555,112 +1507,10 @@ html.abrindo body {
   flex: none;
 }
 
-/* Botão de ação destrutiva. Vermelho só na borda e no texto quando é o
-   caminho secundário (o "Excluir anúncio" no meio dos outros), e cheio
-   quando é a confirmação final — ali a pessoa já decidiu, e o botão precisa
-   ser inconfundível. */
-.btn-perigo {
-  border-color: var(--color-danger);
-  color: var(--color-danger);
-  background: transparent;
-}
-
 .btn.btn-perigo.btn-block {
   background: var(--color-danger);
   border-color: var(--color-danger);
   color: #fff;
-}
-
-.btn-perigo:disabled {
-  opacity: 0.6;
-}
-
-/* Anúncio pausado pelo próprio dono. Cinza, e não vermelho: pausar é uma
-   escolha legítima de quem está sem agenda, não um castigo — a etiqueta
-   informa, sem repreender. */
-.badge-pausado {
-  background: var(--color-bg-soft);
-  color: var(--color-text-muted);
-  border: 1px solid var(--color-border);
-}
-
-/* ---------- Painel: ações do anúncio e ofertas pagas ---------- */
-
-.acoes-anuncio {
-  display: flex;
-  gap: 8px;
-  flex-wrap: wrap;
-  margin-top: 12px;
-}
-
-/* Blocos recolhidos. Fechados por padrão: quem entra no painel vem editar o
-   anúncio ou ver quem chamou — oferta que se abre sozinha vira ruído entre a
-   pessoa e o que ela veio fazer. */
-.produtos {
-  /* O recuo dos cartões e o espaço interno deles vivem aqui como variáveis
-     porque os dois precisam andar juntos: o texto solto da caixa (o resumo
-     de desempenho, a linha do "grátis para sempre") tem que começar na
-     mesma coluna do texto de dentro dos cartões, e essa coluna é a soma
-     dos dois. Escritos à mão em cada regra, bastava mexer num deles para
-     as duas colunas saírem do lugar sem ninguém perceber. */
-  --recuo-cartao: 14px;
-  --respiro-cartao: 16px;
-  margin-top: 12px;
-  /* A caixa não tinha espaço em cima. O primeiro filho é o resumo de
-     desempenho, cuja margem superior é zero — medido, o texto começava a
-     1px da borda, contra 21px que ele tem dos lados. Encostado assim, ele
-     parecia estar caindo para fora da caixa.
-
-     Embaixo o fechamento já vem da margem de 10px que todo filho carrega;
-     o que falta para igualar o de cima entra como padding, e o `max`
-     evita um valor negativo se um dia o respiro encolher abaixo disso. */
-  padding-top: var(--respiro-cartao);
-  padding-bottom: max(0px, calc(var(--respiro-cartao) - 10px));
-  border: 1px solid var(--color-border);
-  border-radius: 14px;
-  background: var(--color-bg-soft);
-  overflow: hidden;
-}
-
-/* `flex-wrap: wrap` daqui era o defeito: quando título e preço não cabiam
-   numa linha, a seta virava o terceiro item e caía sozinha numa linha
-   própria, embaixo e à direita. Sem wrap, o texto — que agora é um
-   embrulho só (`.recolhivel-titulo`) — quebra por dentro, e a seta fica
-   onde deve, centrada à direita. */
-.produtos > summary {
-  padding: 12px 14px;
-  font-weight: 600;
-  font-size: 0.9rem;
-  cursor: pointer;
-  list-style: none;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-/* A seta padrão do navegador muda de forma entre Chrome e Safari; esta é
-   igual nos dois e gira ao abrir. */
-.produtos > summary::-webkit-details-marker {
-  display: none;
-}
-
-.produtos > summary::after {
-  content: "›";
-  margin-left: auto;
-  font-size: 1.2rem;
-  color: var(--color-text-muted);
-  transform: rotate(90deg);
-  transition: transform 0.15s ease;
-}
-
-.produtos[open] > summary::after {
-  transform: rotate(270deg);
-}
-
-.produtos-intro {
-  margin: 0 calc(var(--recuo-cartao) + var(--respiro-cartao)) 10px;
-  font-size: 0.85rem;
-  line-height: 1.45;
 }
 
 /* Um plano por cartão, com respiro entre eles.
@@ -2685,35 +1535,6 @@ html.abrindo body {
   padding: var(--respiro-cartao);
   border: 1px solid var(--color-border);
   background: var(--color-surface);
-}
-
-.produto-texto {
-  flex: 1 1 240px;
-}
-
-/* `>` e não qualquer `strong` descendente: a regra existe para o título do
-   plano, que é filho direto. Solta, ela pegava também os negritos no meio
-   da descrição ("botão de WhatsApp", "peça para te chamar") e cada um
-   virava uma linha própria — o parágrafo do premium chegava à tela
-   quebrado em cinco pedaços, que era boa parte da bagunça deste bloco. */
-.produto-texto > strong {
-  display: block;
-  font-size: 1rem;
-  margin-bottom: 5px;
-}
-
-.produto-texto p {
-  margin: 0;
-  font-size: 0.85rem;
-  line-height: 1.45;
-  color: var(--color-text-muted);
-}
-
-.produto-acao {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  flex: none;
 }
 
 /* No celular estreito, preço e botão viram uma linha própria de ponta a
@@ -2743,66 +1564,6 @@ html.abrindo body {
   }
 }
 
-.produto-preco {
-  font-weight: 700;
-  font-size: 0.9rem;
-  white-space: nowrap;
-}
-
-.produto-preco small {
-  font-weight: 500;
-  color: var(--color-text-muted);
-}
-
-.produto-ativo {
-  font-weight: 700;
-  font-size: 0.85rem;
-  color: #1c6b3f;
-  white-space: nowrap;
-}
-
-/* Escolha do modo de contato: o rádio some do caminho e a linha inteira vira
-   área de toque — no celular, acertar um círculo de 14px é pedir demais. */
-.modo-contato {
-  display: flex;
-  gap: 10px;
-  align-items: flex-start;
-  padding: 14px;
-  border-top: 1px solid var(--color-border);
-  background: var(--color-surface);
-  cursor: pointer;
-}
-
-.modo-contato input {
-  width: auto;
-  margin-top: 3px;
-  flex: none;
-}
-
-.modo-contato span {
-  font-size: 0.9rem;
-}
-
-.modo-contato em {
-  display: block;
-  margin-top: 3px;
-  font-style: normal;
-  font-size: 0.83rem;
-  line-height: 1.45;
-  color: var(--color-text-muted);
-}
-
-.creditos {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  flex-wrap: wrap;
-  padding: 14px;
-  border-top: 1px solid var(--color-border);
-  background: var(--color-surface);
-  font-size: 0.85rem;
-}
-
 .creditos .btn {
   font-size: 0.8rem;
   padding: 6px 10px;
@@ -2817,50 +1578,9 @@ html.abrindo body {
   }
 }
 
-/* O preço acompanha o título da seção, em corpo normal: é ressalva, não
-   manchete, e em tamanho de h2 competia com o nome da seção. */
-.secao-preco {
-  font-size: 0.86rem;
-  font-weight: 400;
-  white-space: nowrap;
-}
-
-/* "Para qual cadastro?" — só existe para quem tem mais de um. */
-.assinatura-alvo {
-  display: grid;
-  gap: 6px;
-  margin-bottom: 12px;
-  font-size: 0.86rem;
-}
-
-/* O desempenho abre a seção dos planos: é o número que a pessoa tem, e é
-   contra ele que cada plano faz sentido. */
-.desempenho-resumo {
-  margin: 0 calc(var(--recuo-cartao) + var(--respiro-cartao)) 10px;
-  font-size: 0.88rem;
-  line-height: 1.5;
-  color: var(--color-text);
-}
-
-/* O plano principal, quando ainda não assinado. Recebe a ênfase que antes
-   vinha de uma caixa separada com preço e botão repetidos — aqui é a mesma
-   informação, uma vez só, com um pouco mais de peso. */
-.produto-principal {
-  border-color: var(--color-gold-line);
-  box-shadow: 0 0 0 1px var(--color-gold-line);
-}
-
-/* Bloco de ofertas quando ainda não há nada assinado: contorno azul em vez
-   de cinza, para se distinguir do resto do painel sem virar propaganda
-   piscante dentro da ferramenta de trabalho da pessoa. */
-.produtos-oferta {
-  border-color: var(--color-primary);
-}
-
 /* `.oferta-destaque` foi removida: era a caixa que repetia a assinatura
    premium acima da lista, com preço e botão próprios. A ênfase virou
    `.produto-principal`, no próprio item da lista. */
-
 
 /* Cabeçalho de seção com ação à direita (ex.: "Meus anúncios" + Novo). */
 .secao-topo {
@@ -2870,39 +1590,6 @@ html.abrindo body {
   gap: 12px;
   flex-wrap: wrap;
   margin-bottom: 10px;
-}
-
-.btn-novo span {
-  font-size: 1.1rem;
-  line-height: 1;
-  margin-right: 2px;
-}
-
-/* Assinaturas ativas e cancelamento, dentro do bloco de ofertas. Mesmo peso
-   visual de qualquer outra ação: esconder o cancelamento é a prática que o
-   Código de Defesa do Consumidor chama de dificultar o exercício do direito. */
-.assinaturas-ativas {
-  padding: 16px;
-  border: 1px solid var(--color-border);
-  background: var(--color-surface);
-  display: grid;
-  gap: 10px;
-  font-size: 0.9rem;
-}
-
-.assinatura-linha {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
-  flex-wrap: wrap;
-}
-
-.assinatura-linha em {
-  display: block;
-  font-style: normal;
-  font-size: 0.82rem;
-  color: var(--color-text-muted);
 }
 
 /* Volta para a tela anterior, no alto de uma tela que se abriu por cima de
@@ -2975,208 +1662,6 @@ html.abrindo body {
   border: 1px solid var(--color-border);
 }
 
-/* Estado vazio da busca. Deixa de ser só um aviso e passa a oferecer uma
-   saída: é o único momento em que a pessoa acabou de dizer exatamente o que
-   a cidade não tem. */
-.vazio-indicar {
-  grid-column: 1 / -1;
-  display: grid;
-  gap: 8px;
-  justify-items: start;
-}
-
-.vazio-indicar p {
-  margin: 0;
-  font-size: 0.9rem;
-  line-height: 1.45;
-}
-
-/* Grade de ofícios, antes de a pessoa ter pedido qualquer coisa.
-   Duas colunas em qualquer largura de celular: uma só faria uma lista
-   comprida de rolar, e três apertariam o nome a ponto de "Refrigeração e
-   ar-condicionado" virar quatro linhas. O `minmax(0, 1fr)` é o que impede
-   um nome comprido de esticar a coluna e empurrar a grade para fora da
-   tela — `1fr` sozinho tem largura mínima igual ao conteúdo. */
-.categorias-grade {
-  width: 100%;
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 10px;
-  margin-top: 14px;
-}
-
-
-.categoria-cartao {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 4px;
-  /* Alvo de toque alto: na etiqueta antiga a área era do tamanho da
-     palavra, e "DJ e som" dava um alvo de menos de 60px de largura. */
-  min-height: 104px;
-  padding: 14px 10px;
-  border: 1px solid var(--color-border);
-  border-radius: 14px;
-  background: var(--color-surface);
-  font-family: inherit;
-  color: var(--color-text);
-  cursor: pointer;
-  text-align: center;
-  transition: border-color 0.15s ease, background 0.15s ease;
-}
-
-.categoria-cartao:hover,
-.categoria-cartao:focus-visible {
-  border-color: var(--color-primary);
-  background: var(--color-bg-soft);
-}
-
-.categoria-simbolo {
-  font-size: 1.6rem;
-  line-height: 1;
-}
-
-.categoria-nome {
-  font-size: 0.92rem;
-  font-weight: 600;
-  line-height: 1.25;
-  /* Nome de ofício não tem hífen nem espaço de sobra: sem isto, o mais
-     comprido da lista sai pela borda do cartão. */
-  overflow-wrap: break-word;
-  min-width: 0;
-}
-
-.categoria-quantos {
-  font-size: 0.78rem;
-  color: var(--color-text-muted);
-}
-
-/* Ocupa a linha inteira, embaixo da grade: é a saída de quem não achou o
-   ofício ali, e uma saída centralizada e estreita se lê como enfeite. */
-.categorias-ver-mais {
-  display: block;
-  width: 100%;
-  margin-top: 14px;
-  text-align: center;
-}
-
-.categorias-dica {
-  margin-top: 12px !important;
-  font-size: 0.84rem !important;
-}
-
-/* ---------- Tela de todas as categorias ---------- */
-
-.grupo-categorias {
-  margin-top: 22px;
-}
-
-.grupo-titulo {
-  margin: 0 0 8px;
-  font-size: 0.82rem;
-  font-weight: 700;
-  letter-spacing: 0.04em;
-  text-transform: uppercase;
-  color: var(--color-text-muted);
-}
-
-.categorias-lista {
-  list-style: none;
-  margin: 0;
-  padding: 0;
-  display: grid;
-  gap: 8px;
-}
-
-/* Linha, e não cartão como na grade da busca: aqui são dezenas de ofícios,
-   e em cartão a lista viraria vários metros de rolagem. O símbolo é o
-   mesmo dos dois lados, que é o que mantém as duas telas parecendo a
-   mesma coisa. */
-.categoria-linha {
-  width: 100%;
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  padding: 12px 14px;
-  border: 1px solid var(--color-border);
-  border-radius: 12px;
-  background: var(--color-surface);
-  font-family: inherit;
-  color: var(--color-text);
-  cursor: pointer;
-  text-align: left;
-}
-
-.categoria-linha:hover,
-.categoria-linha:focus-visible {
-  border-color: var(--color-primary);
-  background: var(--color-bg-soft);
-}
-
-.categoria-linha-simbolo {
-  font-size: 1.3rem;
-  line-height: 1;
-  flex: none;
-}
-
-.categoria-linha-nome {
-  flex: 1;
-  /* `min-width: 0` para o nome comprido quebrar dentro da linha em vez de
-     empurrar a contagem para fora do cartão. */
-  min-width: 0;
-  overflow-wrap: break-word;
-  font-size: 0.94rem;
-  font-weight: 600;
-}
-
-.categoria-linha-quantos {
-  flex: none;
-  font-size: 0.8rem;
-  color: var(--color-text-muted);
-}
-
-/* Barra do que está sendo mostrado, com a saída ao lado.
-   Existe porque a grade de ofícios some assim que a busca começa: sem uma
-   volta à vista, tocar num cartão virava caminho de ida. */
-.busca-ativa {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 10px;
-  flex-wrap: wrap;
-  margin-top: 20px;
-}
-
-.busca-ativa-alvo {
-  /* `min-width: 0` para o nome comprido encolher em vez de empurrar o
-     botão de saída para fora da tela — é justamente na categoria de nome
-     grande que a saída não pode sumir. */
-  min-width: 0;
-  overflow-wrap: break-word;
-  font-weight: 600;
-  font-size: 0.95rem;
-}
-
-.busca-ativa-limpar {
-  flex: none;
-  padding: 8px 14px;
-  border-radius: 999px;
-  border: 1px solid var(--color-border);
-  background: var(--color-surface);
-  font-family: inherit;
-  font-size: 0.84rem;
-  font-weight: 600;
-  color: var(--color-primary);
-  cursor: pointer;
-}
-
-.busca-ativa-limpar:hover,
-.busca-ativa-limpar:focus-visible {
-  border-color: var(--color-primary);
-  background: var(--color-bg-soft);
-}
-
 /* Convite para instalar, na busca. Fina e dispensável: quem chegou veio
    procurar alguém, e um app que pede instalação antes de provar que serve é
    um app que a pessoa desinstala. */
@@ -3222,210 +1707,11 @@ html.abrindo body {
   cursor: pointer;
 }
 
-/* Etiqueta da avaliação de quem pediu contato pelo app. Discreta: é um
-   sinal a mais, não um carimbo que desqualifica as outras. */
-.selo-contato {
-  margin-left: 8px;
-  font-size: 0.72rem;
-  font-weight: 700;
-  color: #1c6b3f;
-  background: #eaf6ef;
-  border: 1px solid #c3e4d1;
-  border-radius: 999px;
-  padding: 2px 8px;
-  white-space: nowrap;
-}
-
-/* ---------- Perfil do profissional: cabeçalho ---------- */
-
-/* Antes o nome dividia uma coluna estreita com a foto, o selo e o coração —
-   "Maria da Silva" virava três linhas empilhadas, com cara de layout
-   quebrado logo no primeiro olhar de quem chegou pelo link. */
-.perfil-nome {
-  margin: 0;
-  font-size: clamp(1.3rem, 5.2vw, 1.7rem);
-  line-height: 1.2;
-  text-wrap: balance;
-  overflow-wrap: anywhere;
-}
-
-.perfil-nome .verified-badge {
-  vertical-align: -2px;
-  margin-left: 4px;
-}
-
-/* Os serviços ocupam a largura toda, e não a coluna ao lado da foto: em
-   coluna estreita, cada etiqueta caía numa linha e três serviços viravam
-   três linhas de nada. */
-.chip-list-perfil {
-  margin: 10px 0 0;
-  flex-wrap: wrap;
-}
-
-/* ---------- Página do profissional: blocos separados ---------- */
-
-/* Era um cartão só com treze blocos empilhados — foto, nome, categoria,
-   especialidade, endereço, tempo de casa, etiquetas, serviços, tipo de
-   pessoa, nota, cinco canais de contato, botão de retorno e ação de
-   indicar. Tudo com o mesmo peso e sem título nenhum, então não havia
-   como pular o que não interessava: quem já tinha decidido chamar lia o
-   cadastro inteiro até achar o botão verde.
-
-   Agora são três: quem é a pessoa, Contato, Informações. */
-.perfil-bloco {
-  margin-top: 16px;
-}
-
-.perfil-bloco-titulo {
-  margin: 0 0 14px;
-  font-size: 1.05rem;
-}
-
-/* A nota junto do nome, não depois da descrição. */
-.perfil-nota {
-  margin: 12px 0 0;
-}
-
-.perfil-bio {
-  margin: 12px 0 0;
-}
-
-/* Lista de conferência: um item por linha, com o ícone fora do texto para
-   as linhas de duas linhas continuarem alinhadas pela esquerda. */
-.perfil-infos {
-  list-style: none;
-  margin: 0;
-  padding: 0;
-  display: grid;
-  gap: 10px;
-  font-size: 0.94rem;
-}
-
-.perfil-infos li {
-  display: flex;
-  align-items: flex-start;
-  gap: 10px;
-  line-height: 1.45;
-}
-
-.perfil-info-tique {
-  flex: none;
-  width: 1.25em;
-  text-align: center;
-  color: var(--color-primary-deep);
-}
-
-/* Compartilhar, ao lado do coração. Mesmo tamanho de alvo que ele: são
-   duas ações irmãs, e a que tem só ícone não pode ser a mais difícil de
-   acertar. */
-.perfil-compartilhar {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 44px;
-  height: 44px;
-  padding: 0;
-  border: none;
-  border-radius: 999px;
-  background: none;
-  color: var(--color-primary-deep);
-  cursor: pointer;
-}
-
-.perfil-compartilhar svg {
-  width: 22px;
-  height: 22px;
-}
-
-.perfil-compartilhar:hover {
-  background: var(--color-bg-soft);
-}
-
-/* A explicação de por que avaliar importa, agora depois do botão. */
-.avaliacoes-motivo {
-  margin: 12px 0 0;
-  font-size: 0.86rem;
-}
-
-/* Estado vazio das avaliações, dentro do cartão da seção. */
-.avaliacoes-vazio {
-  margin: 0;
-  font-size: 0.9rem;
-}
-
-/* Aviso jurídico do rodapé: menor que os links, porque é nota e não
-   caminho. */
-.rodape-aviso {
-  margin-top: 12px;
-  font-size: 0.78rem;
-  opacity: 0.85;
-}
-
 /* Hierarquia das ações: uma principal por vez.
    O WhatsApp é a ação que a pessoa veio fazer; o resto acompanha, menor. */
 .contact-list .btn-teal {
   width: 100%;
   justify-content: center;
-}
-
-/* Iniciais no lugar da silhueta genérica. Sem foto, a lista inteira ficava
-   com o mesmo bonequinho cinza — nenhum anúncio se distinguia do outro, que
-   é o contrário do trabalho de um cartão de visita. */
-.avatar-iniciais {
-  width: 92px;
-  height: 92px;
-  flex-shrink: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  /* A cor da letra vem do componente, junto com a do fundo: as duas são
-     da mesma matiz e precisam variar juntas. Um branco fixo aqui apagaria
-     as iniciais no fundo claro. */
-  font-weight: 700;
-  font-size: 1.5rem;
-  letter-spacing: 0.02em;
-}
-
-/* Nome do card: o selo acompanha o texto em vez de ocupar coluna própria,
-   que empurrava nomes de duas palavras para duas linhas. */
-.card-nome {
-  margin: 0;
-  font-size: 1.02rem;
-  line-height: 1.25;
-  text-wrap: balance;
-}
-
-.card-nome .verified-badge {
-  vertical-align: -2px;
-}
-
-/* Cabeçalho da busca: enxuto no celular, onde a primeira tela vale ouro. */
-/* Medido antes de mexer: da borda de cima até o primeiro resultado iam
-   462px numa tela de 844 — mais da metade da tela gasta para não mostrar
-   um profissional sequer. Os oito degraus do alto tinham 14 a 18px de
-   respiro cada um, e é a soma que custa, não nenhum deles. */
-.hero-busca {
-  padding: 12px 0 10px;
-  /* À esquerda, e não centralizado. Tudo o que vem antes e depois nasce na
-     mesma margem — a pílula dourada, o campo, os quatro filtros, os chips,
-     os cartões —, e só o título e a frase de apoio flutuavam no meio. Um
-     bloco centralizado entre blocos alinhados não lê como destaque: lê
-     como peça de outro lugar. Agora a tela tem uma única borda esquerda,
-     de cima a baixo. */
-  text-align: left;
-}
-
-.hero-busca h1 {
-  font-size: clamp(1.35rem, 5.6vw, 1.9rem);
-  line-height: 1.15;
-  margin: 0 0 6px;
-  text-wrap: balance;
-}
-
-.hero-busca p {
-  margin: 0;
-  font-size: 0.92rem;
-  line-height: 1.4;
 }
 
 @media (min-width: 860px) {
@@ -3471,17 +1757,6 @@ html.abrindo body {
   vertical-align: -1px;
 }
 
-.estrelas-fundo {
-  color: var(--color-border);
-}
-
-.estrelas-frente {
-  position: absolute;
-  inset: 0;
-  overflow: hidden;
-  color: var(--color-gold-mid);
-}
-
 /* Ação terciária: existe, mas não disputa. "Indicar para alguém" é generoso
    e importante para o app crescer — e ainda assim é a terceira coisa que
    alguém quer fazer numa tela onde veio contratar. */
@@ -3521,7 +1796,6 @@ html.abrindo body {
     grid-template-columns: 1fr !important;
   }
 }
-
 
 /* A barra flutuante do computador cobria o último cartão da lista. */
 @media (min-width: 860px) {
@@ -3564,115 +1838,6 @@ h3 {
 
 .muted {
   line-height: 1.55;
-}
-
-/* O bloco pago no painel também passa a usar o ouro no contorno, em vez do
-   azul que é a cor de tudo: assim "isto custa dinheiro" tem uma cor só dele
-   em qualquer tela onde apareça. */
-.produtos-oferta {
-  border-color: var(--color-gold-line);
-}
-
-.produtos-oferta > summary::before {
-  content: "";
-  width: 4px;
-  height: 18px;
-  border-radius: 2px;
-  background: var(--color-gold-mid);
-  flex: none;
-}
-
-/* ---------- Cartão de profissional, claro ---------- */
-
-/* Era azul-marinho cheio, com todo o conteúdo invertido para branco. Numa
-   lista, aquilo virava uma parede de blocos escuros: pesado de olhar e sem
-   deixar respiro entre um anúncio e o outro. Claro, o que separa um cartão
-   do outro é o espaço em volta, não o contraste — e o pouco de cor que
-   sobra (o nome em azul, o selo dourado, o botão verde) volta a ser
-   percebido, porque não está mais competindo com o fundo.
-   O leve degradê e a borda dão o relevo que o fundo escuro dava antes. */
-.card-pro {
-  /* Tom acima do que era. O cartão ia de branco puro a quase-branco, e o
-     fundo da página também é branco: o que separava um do outro era só a
-     borda e a sombra, e num celular no sol isso some. Agora a cor faz
-     parte da separação, em vez de depender de dois fios de 1px.
-
-     O piso continua sendo o contraste do texto: com este azul, o texto
-     secundário — o mais fraco do cartão — fica em 4,62:1, acima do mínimo
-     de 4,5:1. Um passo a mais de tom derrubava para 4,40:1, e por isso
-     este é o limite. */
-  /* Quase branco, e não mais azul médio.
-     A cor forte foi escolhida quando o fundo da página era branco: o
-     cartão precisava se pintar para existir. Com a página agora num cinza
-     frio, a hierarquia se inverteu — o fim do gradiente (#e4edfa) ficava
-     mais ESCURO que o fundo, e o cartão lia como um buraco na folha em vez
-     de um objeto sobre ela. Quem está por cima é mais claro; é assim que o
-     olho lê profundidade, e é a regra que o app passa a seguir.
-     O texto secundário melhorou junto: 5,20:1 contra os 4,62:1 de antes. */
-  background: linear-gradient(165deg, #ffffff, #f7fafe);
-  border-color: var(--color-border-strong);
-  color: var(--color-text);
-  box-shadow: var(--shadow-repouso);
-}
-
-.card-pro .card-nome {
-  color: var(--color-primary-deep);
-}
-
-/* Card de empresa: mesma claridade do card de autônomo, só a matiz muda.
-   Era teal escuro com todo o conteúdo invertido para branco, e isso
-   quebrava a regra que este arquivo já tinha estabelecido em
-   `.badge-entity-pf` — "a diferença está no texto, não na cor, as duas
-   são igualmente legítimas". Num resultado de busca, um bloco escuro no
-   meio de cartões claros não é só diferente: é mais visível. Empresa
-   passava na frente de autônomo por decisão de cor, num app cuja
-   proposta é que quem decide são as avaliações.
-
-   O verde tem luminância 0,9293 contra 0,9267 do azul do outro cartão —
-   0,26% de diferença, ou seja, mesmo peso aos olhos. Dá para dizer qual
-   é qual, e nenhum dos dois se impõe.
-
-   Com o cartão claro, todas as inversões para texto branco saíram: nome,
-   texto secundário, etiquetas e o selo dourado voltam a herdar o estilo
-   normal, que já foi pensado para fundo claro. */
-.card-pro-pj {
-  /* O verde tem exatamente a mesma luminância do azul do cartão de
-     autônomo — 0,8396, casado por busca e não a olho. Não é preciosismo:
-     a regra do app é que a diferença entre autônomo e empresa esteja no
-     texto da etiqueta, não no peso da cor, porque cor mais forte numa
-     lista é vantagem de quem aparece nela. Antes os dois já eram
-     próximos, mas por acaso; agora é por construção. */
-  /* Casado em luminância com o azul do autônomo, de novo por cálculo:
-     #f7fafe dá 0,953011 e #f6fbf7 dá 0,953026 — diferença na quinta casa.
-     A regra continua valendo e é a razão de refazer a conta em vez de
-     escolher um verde bonito: cor mais forte numa lista é vantagem de
-     quem aparece nela, e empresa não deve passar na frente de autônomo
-     por decisão de cor. */
-  background: linear-gradient(165deg, #ffffff, #f6fbf7);
-  border-color: #cfe0d9;
-}
-
-/* ---- Escolha de serviços do anúncio (o "+" e a folha) ---- */
-
-/* O que a pessoa já escolheu, em linhas cheias e não em chips: cada serviço
-   carrega duas ações (promover, tirar) e um estado (principal), e isso não
-   cabe legível dentro de uma pílula. */
-.servicos-escolhidos {
-  list-style: none;
-  margin: 0 0 12px;
-  padding: 0;
-  display: grid;
-  gap: 8px;
-}
-
-.servico-escolhido {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  background: var(--color-bg-soft);
-  border: 1px solid var(--color-border);
-  border-radius: 12px;
-  padding: 10px 12px;
 }
 
 /* ── Escolha entre duas formas de pagar ────────────────────────────────
@@ -3757,30 +1922,6 @@ h3 {
   border-color: var(--color-primary);
 }
 
-.servico-nome {
-  flex: 1;
-  font-weight: 600;
-}
-
-.servico-marca {
-  font-size: 0.72rem;
-  font-weight: 700;
-  letter-spacing: 0.04em;
-  text-transform: uppercase;
-  color: var(--color-primary-deep);
-}
-
-.servico-promover {
-  background: none;
-  border: none;
-  padding: 4px;
-  font: inherit;
-  font-size: 0.78rem;
-  color: var(--color-primary-deep);
-  text-decoration: underline;
-  cursor: pointer;
-}
-
 .servico-tirar {
   background: none;
   border: none;
@@ -3830,119 +1971,15 @@ h3 {
   line-height: 1;
 }
 
-/* A lista rola dentro da folha, e não a folha inteira: o botão "Pronto"
-   precisa ficar alcançável sem percorrer 65 itens de volta. */
-.servicos-lista {
-  max-height: 46vh;
-  overflow-y: auto;
-  margin-top: 14px;
-  -webkit-overflow-scrolling: touch;
-}
-
-.servicos-grupo h3 {
-  position: sticky;
-  top: 0;
-  z-index: 1;
-  margin: 0;
-  padding: 10px 0 6px;
-  background: var(--color-surface);
-  font-size: 0.74rem;
-  font-weight: 700;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  color: var(--color-text-muted);
-}
-
-.servico-opcao {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
-  width: 100%;
-  background: none;
-  border: none;
-  border-bottom: 1px solid var(--color-border);
-  padding: 13px 2px;
-  font: inherit;
-  text-align: left;
-  color: var(--color-text);
-  cursor: pointer;
-}
-
-.servico-opcao:disabled {
-  opacity: 0.4;
-  cursor: default;
-}
-
 .servico-opcao.marcado {
   font-weight: 700;
   color: var(--color-primary-deep);
-}
-
-.servico-check {
-  flex: none;
-  width: 26px;
-  height: 26px;
-  display: grid;
-  place-items: center;
-  border-radius: 50%;
-  border: 1px solid var(--color-border-strong);
-  font-size: 0.9rem;
-  color: var(--color-text-muted);
 }
 
 .servico-opcao.marcado .servico-check {
   background: var(--color-primary);
   border-color: var(--color-primary);
   color: #ffffff;
-}
-
-/* ---- Etiquetas de atendimento ---- */
-
-.atributos-grupos {
-  display: grid;
-  gap: 14px;
-}
-
-.atributos-grupo h4 {
-  margin: 0 0 8px;
-  font-size: 0.74rem;
-  font-weight: 700;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  color: var(--color-text-muted);
-}
-
-/* No anúncio elas viram uma lista de tiques, não chips: aqui não há nada a
-   tocar, e o formato de lista deixa claro que é informação sobre o
-   atendimento — não mais um punhado de serviços. */
-.atributos-anuncio {
-  list-style: none;
-  margin: 14px 0 0;
-  padding: 0;
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-  gap: 8px 16px;
-}
-
-.atributos-anuncio li {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  font-size: 0.92rem;
-}
-
-.atributo-tique {
-  flex: none;
-  width: 20px;
-  height: 20px;
-  display: grid;
-  place-items: center;
-  border-radius: 50%;
-  background: var(--color-gold-tint);
-  color: var(--color-gold-deep);
-  font-size: 0.72rem;
-  font-weight: 700;
 }
 
 /* Passo a passo de instalação no iPhone.
@@ -3963,77 +2000,6 @@ h3 {
   margin-top: 4px;
   font-size: 0.83rem;
   color: var(--color-text-muted);
-}
-
-/* Bloco de "você já avaliou": aparece no lugar do botão de enviar, para quem
-   já deixou a sua. Sem ele, o botão continuava dizendo "Enviar avaliação" e
-   um segundo envio salvava por cima da primeira sem avisar — a pessoa achava
-   que tinha duas, e tinha uma só, trocada. */
-.minha-avaliacao {
-  background: var(--color-bg-soft);
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius);
-  padding: 16px;
-  margin-bottom: 20px;
-}
-
-.minha-avaliacao-acoes {
-  display: flex;
-  gap: 10px;
-  flex-wrap: wrap;
-  margin-top: 12px;
-}
-
-/* Foto do anúncio: grande o bastante para ser um rosto, não uma miniatura de
-   lista. Em `clamp` porque é ela que ocupa a largura junto com o nome — fixa
-   em 132px, num iPhone estreito o nome caía em quatro linhas. */
-/* Mesma forma do `.card-foto` da busca, em escala maior: quem vem da
-   lista precisa reconhecer que é a mesma pessoa, e forma diferente entre
-   as duas telas quebra esse reconhecimento. O raio cresce junto com o
-   lado — 18px num quadrado de 92 e num de 132 não são a mesma curva. */
-.perfil-foto {
-  width: clamp(104px, 30vw, 140px);
-  height: clamp(104px, 30vw, 140px);
-  border-radius: 22px;
-  object-fit: cover;
-  border: 1px solid var(--color-border);
-  flex-shrink: 0;
-  font-size: 2.6rem;
-}
-
-/* Há quanto tempo está no app e há quanto tempo tem selo. Discreto de
-   propósito: é contexto que sustenta a decisão, não manchete. */
-.desde-quando {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 6px;
-  margin: 14px 0 0;
-  font-size: 0.85rem;
-  color: var(--color-text-muted);
-}
-
-/* Aviso legal da denúncia, com a caixa a marcar. Fundo próprio porque ele
-   precisa parar o olho antes do botão — é o único ponto da tela em que a
-   pessoa está prestes a acusar alguém. */
-.aviso-denuncia {
-  display: flex;
-  gap: 10px;
-  align-items: start;
-  background: var(--color-gold-tint);
-  border: 1px solid var(--color-gold-line);
-  border-radius: 12px;
-  padding: 12px 14px;
-  font-size: 0.84rem;
-  line-height: 1.45;
-  cursor: pointer;
-}
-
-.aviso-denuncia input {
-  margin-top: 2px;
-  width: 18px;
-  height: 18px;
-  flex: none;
-  accent-color: var(--color-primary);
 }
 
 /* Links do rodapé como botões arredondados.
@@ -4103,43 +2069,6 @@ h3 {
    for copiar copia errado. */
 .rodape-grupo a[href^="mailto:"] {
   white-space: nowrap;
-}
-
-/* Autor da avaliação: foto, nome e data.
-   A avaliação aparecia só com estrelas e texto. Sem rosto e sem data, ela
-   lia como comentário anônimo de internet — não convence quem procura e não
-   serve ao profissional, que ficava sem saber de quem foi. */
-.avaliacao-autor {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  margin-bottom: 10px;
-}
-
-/* Quem avaliou também aparece em quadrado arredondado, e maior: a 38px
-   redondos a foto era um ponto, e o rosto de quem assina a avaliação é
-   parte do que faz ela valer. */
-.avaliacao-foto {
-  width: 46px;
-  height: 46px;
-  border-radius: 12px;
-  object-fit: cover;
-  flex: none;
-  border: 1px solid var(--color-border);
-}
-
-.avaliacao-foto-vazia {
-  display: grid;
-  place-items: center;
-  background: linear-gradient(135deg, var(--color-primary-soft), var(--color-primary));
-  color: #ffffff;
-  font-weight: 700;
-  border: none;
-}
-
-.avaliacao-quem {
-  display: grid;
-  line-height: 1.3;
 }
 
 .avaliacao-quem .muted {
@@ -4213,88 +2142,6 @@ h3 {
   }
 }
 
-/* Foto no card da busca. A 56px era um selo ao lado do nome; quem varre uma
-   lista de profissionais decide primeiro pelo rosto e só depois lê o nome —
-   é a foto que responde "essa pessoa eu deixo entrar em casa?". */
-/* Quadrada de cantos arredondados, e a mesma forma para pessoa e empresa.
-   Antes a forma dependia do tipo — círculo para autônomo, quadrado para
-   empresa — e isso fazia a lista inteira parecer desalinhada, com dois
-   recortes diferentes na mesma coluna. A forma não precisa carregar essa
-   informação: a etiqueta embaixo do nome já diz qual é qual.
-
-   O raio fica aqui e não mais no `style` de cada tela: eram três telas
-   repetindo a mesma condição, e bastava esquecer uma para o mesmo
-   cadastro aparecer redondo num lugar e quadrado no outro. */
-.card-foto {
-  width: 92px;
-  height: 92px;
-  border-radius: 18px;
-  object-fit: cover;
-  border: 1px solid var(--color-border);
-  flex-shrink: 0;
-}
-
-/* ---- Cartão do anúncio, na página do profissional ---- */
-
-/* Claro, como os cartões "Contato" e "Informações" logo abaixo.
-
-   Já foi azul-marinho cheio, com o conteúdo todo invertido para branco.
-   Enquanto era um cartão só numa página sem seções, o escuro se
-   sustentava: marcava o assunto da página. Com a página separada em
-   três blocos, ele virou o único escuro no meio de claros — a estrutura
-   nova já diz o que é cada coisa pelo título, e o contraste de fundo
-   passou a ser só peso a mais.
-
-   Não há regra nenhuma aqui: o cartão usa `card-pro`, que é o gradiente
-   claro, e agora simplesmente deixa de sobrescrevê-lo. Com isso caíram
-   também as dez regras que existiam só para o conteúdo sobreviver ao
-   fundo escuro — etiquetas de vidro fosco, nome em branco, estrelas
-   translúcidas, anéis claros em volta da foto e do avatar, e o link em
-   branco. Todas voltam ao estilo normal, que já foi desenhado para
-   fundo claro. */
-
-/* O que sobrou para a classe fazer: desligar o levantar-no-hover que vem
-   de `.card-pro`. Aquele movimento foi feito para os cartões da busca,
-   que são links — aqui ele promete um clique que não existe, e no
-   celular o `:hover` fica grudado depois que o dedo encosta. */
-.card-perfil:hover,
-.card-perfil:focus-visible {
-  transform: none;
-  box-shadow: 0 1px 2px rgba(16, 26, 40, 0.05), 0 6px 16px rgba(16, 26, 40, 0.06);
-}
-
-/* Linha de cima do cartão do anúncio.
-   Com a foto maior, "Destaque" e o coração eram empurrados para fora da
-   tela e o nome quebrava em três linhas ("Maria / Eletrici / sta"). As ações
-   passam a ocupar uma linha própria acima da identidade em telas estreitas:
-   elas são secundárias, e nenhuma delas merece espremer o nome de quem
-   anuncia. */
-.perfil-topo {
-  display: flex;
-  flex-direction: column-reverse;
-  align-items: stretch;
-  gap: 10px;
-}
-
-.perfil-identidade {
-  display: flex;
-  gap: 14px;
-  align-items: center;
-  /* Sem isto o bloco de texto se recusa a encolher e empurra o resto. */
-  min-width: 0;
-}
-
-.perfil-identidade > div {
-  min-width: 0;
-}
-
-.perfil-acoes {
-  display: flex;
-  gap: 8px;
-  align-items: center;
-  justify-content: flex-end;
-}
-
 /* Em tela larga volta a ser uma linha só, com as ações à direita. */
 @media (min-width: 560px) {
   .perfil-topo {
@@ -4307,42 +2154,6 @@ h3 {
   .perfil-identidade {
     align-items: flex-start;
   }
-}
-
-/* Etiqueta do selo de verificação: dourada cheia, e não o vidro fosco das
-   outras etiquetas do cartão azul.
-   É o único item pago que quem procura enxerga — a roseta discreta ao lado
-   do nome não justificava uma assinatura mensal. Quem paga precisa ver o
-   dinheiro dele na tela, e quem procura precisa reparar na diferença sem
-   caçar. Vale para dentro e fora do cartão escuro, por isso o seletor se
-   repete com `.card-pro`. */
-.badge-selo,
-.card-pro .badge-selo {
-  display: inline-flex;
-  align-items: center;
-  gap: 5px;
-  background: linear-gradient(135deg, #f0cd88, var(--color-gold-mid));
-  border: 1px solid var(--color-gold-mid);
-  color: #3d2a08;
-  font-weight: 700;
-  box-shadow: 0 2px 10px rgba(184, 134, 59, 0.45);
-}
-
-/* Dentro da etiqueta a roseta perde o halo (o fundo já é dourado) e o tique
-   fica escuro, porque agora o que está atrás dele é claro. */
-.badge-selo .verified-badge,
-.card-pro .badge-selo .verified-badge {
-  color: #3d2a08;
-  filter: none;
-}
-
-/* Fila de selos do cartão: verificado, destaque e tipo de cadastro. */
-.card-selos {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 6px;
-  margin-top: 6px;
 }
 
 /* Aviso de versão nova.
@@ -4391,250 +2202,18 @@ h3 {
   cursor: pointer;
 }
 
-/* ---- Catálogo de serviços e preços ---- */
-
-/* Bloco recolhível do painel: o catálogo aberto empurraria para baixo tudo
-   o mais, e ele não interessa a quem faz um serviço só. */
-.bloco-recolhivel {
-  margin-top: 14px;
-  border: 1px solid var(--color-border);
-  border-radius: 12px;
-  background: var(--color-surface);
-}
-
-.bloco-recolhivel > summary {
-  padding: 13px 16px;
-  cursor: pointer;
-  font-size: 0.92rem;
-  list-style: none;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-.bloco-recolhivel > summary::-webkit-details-marker {
-  display: none;
-}
-
-/* Era `float: right`, que gruda a seta na ÚLTIMA linha do texto: com o
-   título em três linhas, ela aparecia lá embaixo, desalinhada do bloco
-   que abre. Como item de flex ela fica centrada, qualquer que seja a
-   altura do texto. */
-.bloco-recolhivel > summary::after {
-  content: "▾";
-  margin-left: auto;
-  flex: none;
-  color: var(--color-text-muted);
-}
-
-/* O texto do cabeçalho recolhível é um item só, e é ele que quebra em
-   várias linhas — a seta nunca. */
-.recolhivel-titulo {
-  min-width: 0;
-}
-
-.bloco-recolhivel[open] > summary::after {
-  content: "▴";
-}
-
-.catalogo {
-  padding: 0 16px 16px;
-}
-
-.catalogo-lista,
-.catalogo-publico {
-  list-style: none;
-  margin: 0 0 14px;
-  padding: 0;
-  display: grid;
-  gap: 8px;
-}
-
-.catalogo-lista li,
-.catalogo-publico li {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  flex-wrap: wrap;
-  background: var(--color-bg-soft);
-  border: 1px solid var(--color-border);
-  border-radius: 12px;
-  padding: 11px 13px;
-}
-
-.catalogo-publico li {
-  background: var(--color-surface);
-}
-
-.catalogo-info {
-  display: grid;
-  gap: 2px;
-  flex: 1;
-  min-width: 140px;
-}
-
 .catalogo-info .muted {
   font-size: 0.83rem;
-}
-
-.catalogo-acoes {
-  display: flex;
-  gap: 10px;
-  width: 100%;
-}
-
-.catalogo-acoes button {
-  background: none;
-  border: none;
-  padding: 2px 0;
-  font: inherit;
-  font-size: 0.82rem;
-  font-weight: 600;
-  color: var(--color-primary-deep);
-  text-decoration: underline;
-  cursor: pointer;
 }
 
 .catalogo-acoes button.perigo {
   color: var(--color-danger);
 }
 
-.catalogo-form {
-  display: grid;
-  gap: 10px;
-}
-
 .catalogo-form-acoes {
   display: flex;
   gap: 10px;
   flex-wrap: wrap;
-}
-
-/* Especialidade: o recorte dentro do ofício ("Ortodontia", "Caça-vazamento").
-   Linha própria e em dourado porque é o que decide entre dois anúncios da
-   mesma categoria — na linha da categoria ela seria só mais uma palavra. */
-.card-especialidade {
-  margin: 2px 0 0;
-  font-size: 0.85rem;
-  font-weight: 600;
-  color: var(--color-gold-deep);
-}
-
-/* ---- Publicidade na busca ---- */
-
-/* Borda tracejada e fundo neutro: o banner não pode se parecer com um cartão
-   de profissional. Se parecesse, seria publicidade dissimulada — o que o
-   Código de Defesa do Consumidor proíbe (art. 36) e o que faria a pessoa
-   deixar de confiar na própria busca. */
-.banner-publicidade {
-  display: block;
-  margin-top: 20px;
-  border: 1px dashed var(--color-border-strong);
-  border-radius: var(--radius);
-  overflow: hidden;
-  background: var(--color-bg-soft);
-  text-decoration: none;
-  color: inherit;
-}
-
-.banner-publicidade img {
-  display: block;
-  width: 100%;
-  /* Proporção fixa: sem ela, uma imagem alta empurra os resultados para
-     fora da tela, e um anunciante acabaria comprando a página inteira. */
-  aspect-ratio: 3 / 1;
-  object-fit: cover;
-  background: var(--color-surface);
-}
-
-.banner-rodape {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  padding: 8px 12px;
-  font-size: 0.78rem;
-}
-
-.banner-selo {
-  flex: none;
-  padding: 2px 8px;
-  border-radius: 999px;
-  background: var(--color-border-strong);
-  color: var(--color-text);
-  font-weight: 700;
-  letter-spacing: 0.02em;
-}
-
-.banner-anunciante {
-  color: var(--color-text-muted);
-  font-weight: 600;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-/* ---- "Apareça aqui": espaço de publicidade ainda não vendido ---- */
-
-/* Contorno tracejado e fundo claro, sem imagem: tem que ficar claro à
-   primeira olhada que ali não há anúncio nenhum, e sim um lugar à venda.
-   Se parecesse campanha de verdade, o app estaria cheio de anúncio falso —
-   o oposto do que a etiqueta "Publicidade" existe para garantir. */
-.espaco-livre {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  gap: 4px;
-  padding: 16px;
-  border: 1px dashed var(--color-border-strong);
-  border-radius: var(--radius);
-  background: var(--color-bg-soft);
-  text-decoration: none;
-  color: inherit;
-}
-
-.espaco-livre-faixa {
-  margin-top: 20px;
-}
-
-.espaco-livre-etiqueta {
-  font-size: 0.72rem;
-  font-weight: 700;
-  letter-spacing: 0.04em;
-  text-transform: uppercase;
-  color: var(--color-text-muted);
-}
-
-.espaco-livre-titulo {
-  font-size: 1.05rem;
-}
-
-.espaco-livre-texto {
-  font-size: 0.88rem;
-  color: var(--color-text-muted);
-  line-height: 1.45;
-}
-
-.espaco-livre-preco {
-  margin-top: 2px;
-  font-size: 0.92rem;
-  font-weight: 700;
-  color: var(--color-text);
-}
-
-/* O cartão do preço na página de vendas: destaque por contorno, não por
-   fundo colorido — o valor precisa saltar sem virar etiqueta de promoção. */
-.destaque-preco {
-  border: 2px solid var(--color-navy);
-}
-
-.espaco-livre-botao {
-  margin-top: 8px;
-  padding: 8px 16px;
-  border-radius: 999px;
-  background: var(--color-navy);
-  color: #fff;
-  font-size: 0.88rem;
-  font-weight: 600;
 }
 
 /* ---- Números do painel administrativo ---- */
@@ -4872,18 +2451,6 @@ h3 {
   background: rgba(192, 57, 43, 0.07);
 }
 
-/* Lista da tela de anúncios: um embaixo do outro em coluna única, porque
-   banner é imagem larga — em duas colunas cada um ficaria pequeno demais
-   para se ler o que está escrito nele. */
-.anuncios-lista {
-  display: grid;
-  gap: 14px;
-}
-
-.anuncios-lista .banner-publicidade {
-  margin-top: 0;
-}
-
 /* ---- Assinatura, no Perfil ---- */
 
 .assinatura-lista {
@@ -4957,18 +2524,6 @@ h3 {
   line-height: 1.45;
 }
 
-/* ---------------------------------------------------------------
-   Comparação de planos (tela de Assinatura)
-
-   Duas colunas no celular seriam duas colunas estreitas demais para
-   ler; empilhadas, cada linha respira. Em tela larga elas ficam lado
-   a lado, que é quando a comparação realmente ajuda a decidir.
-   --------------------------------------------------------------- */
-.planos-comparacao {
-  display: grid;
-  gap: 14px;
-}
-
 @media (min-width: 560px) {
   .planos-comparacao {
     grid-template-columns: 1fr 1fr;
@@ -4976,89 +2531,15 @@ h3 {
   }
 }
 
-.plano-cartao {
-  background: var(--color-surface, #fff);
-  border: 1px solid var(--color-border, #e6e8ee);
-  border-radius: 14px;
-  padding: 16px;
-}
-
-.plano-cartao h2 {
-  margin: 0;
-  font-size: 1rem;
-}
-
-.plano-cartao-premium {
-  background: var(--color-gold-tint);
-  border-color: var(--color-gold-line);
-  border-left: 4px solid var(--color-gold-mid);
-}
-
-.plano-preco {
-  margin: 2px 0 10px;
-  font-size: 1.35rem;
-  font-weight: 700;
-  color: var(--color-navy);
-}
-
 .plano-preco .muted {
   font-size: 0.9rem;
   font-weight: 500;
-}
-
-.plano-alternar {
-  display: flex;
-  gap: 6px;
-  margin-bottom: 12px;
-}
-
-.plano-alternar button {
-  flex: 1;
-  padding: 7px 10px;
-  border-radius: 999px;
-  border: 1px solid var(--color-gold-line);
-  background: #fff;
-  color: var(--color-navy);
-  font-size: 0.85rem;
-  font-weight: 600;
-  cursor: pointer;
 }
 
 .plano-alternar button.ativo {
   background: var(--color-gold-deep);
   border-color: var(--color-gold-deep);
   color: #fff;
-}
-
-.plano-lista {
-  list-style: none;
-  margin: 0;
-  padding: 0;
-  display: grid;
-  gap: 8px;
-}
-
-.plano-lista li {
-  display: grid;
-  grid-template-columns: 18px 1fr;
-  gap: 8px;
-  font-size: 0.88rem;
-  line-height: 1.45;
-}
-
-.plano-lista li > span:first-child {
-  font-weight: 700;
-  text-align: center;
-}
-
-.plano-tem > span:first-child {
-  color: var(--color-gold-deep);
-}
-
-/* O que falta no básico fica visível, mas sem alarde: a ideia é informar
-   quem compara, não castigar quem escolheu não pagar. */
-.plano-nao-tem {
-  color: var(--color-text-muted, #5b6478);
 }
 
 /* ---------------------------------------------------------------
@@ -5092,92 +2573,6 @@ h3 {
 .anuncio-card > .muted + .views-line {
   border-top: none;
   padding-top: 0;
-}
-
-/* Os botões de ação ganham ar entre si; grudados, viravam uma barra
-   cinza única em que nada se destacava. */
-.acoes-anuncio {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-}
-
-/* Blocos recolhíveis: o título é o que a pessoa lê para decidir se
-   abre, então ele precisa parecer um título. */
-.anuncio-card > details > summary {
-  font-weight: 600;
-  padding: 4px 0;
-}
-
-/* ---------------------------------------------------------------
-   Cartão do cadastro no Painel
-
-   Era azul-marinho cheio (teal para empresa), com caixas brancas por
-   dentro para os planos e os pedidos. Duas superfícies disputando na
-   mesma tela, e o conteúdo todo invertido para branco — o que exigia
-   OITENTA E SEIS seletores de compensação, um para cada coisa que fora
-   desenhada supondo fundo claro. Cada bloco novo no Painel nascia
-   devendo mais um desses ajustes, e o que passava despercebido virava
-   texto escuro sobre fundo escuro na tela de quem usa.
-
-   Agora é claro, como os cartões da busca e do perfil. As caixas
-   brancas por dentro deixam de ser exceção e passam a ser o normal, os
-   separadores acima é que dão o ritmo entre os seis assuntos, e as
-   oitenta e seis regras viraram duas.
-   --------------------------------------------------------------- */
-
-/* Empresa segue com matiz própria, na mesma claridade do cartão de
-   autônomo — o mesmo par usado na busca (ver `.card-pro-pj`). A cor diz
-   o tipo quando o Painel tem os dois, sem que um pese mais que o outro. */
-.anuncio-card-pj {
-  background: linear-gradient(165deg, #ffffff, #f0f9f6);
-  border-color: #cfe6de;
-}
-
-/* ---------------------------------------------------------------
-   Números reais na tela de boas-vindas ("X profissionais",
-   "Y avaliações", "Z visitas"), um cartão arredondado por número.
-   O algarismo anima subindo — na primeira leitura e sempre que o
-   valor mudar de verdade enquanto a tela está aberta (ver
-   useContagemAnimada) — mas nunca é o número em si que é inventado,
-   só a maneira de revelar a mudança.
-   --------------------------------------------------------------- */
-.welcome-stats {
-  display: flex;
-  justify-content: center;
-  gap: 8px;
-  margin-top: 20px;
-  /* Sem `wrap`: os três são um conjunto — "somos isto" — e quebrado em
-     duas linhas o terceiro descia sozinho, lido como um número à parte.
-     Cabem os três em 320px porque cada um encolhe (flex: 1 1 0) em vez de
-     exigir uma largura mínima. */
-  flex-wrap: nowrap;
-}
-
-.welcome-stat-card {
-  flex: 1 1 0;
-  min-width: 0;
-  max-width: 128px;
-  text-align: center;
-  background: var(--color-surface);
-  border: 1px solid var(--color-border);
-  border-radius: 14px;
-  padding: 10px 8px;
-  box-shadow: 0 1px 2px rgba(16, 26, 40, 0.05), 0 6px 16px rgba(16, 26, 40, 0.05);
-}
-
-.welcome-stat-card strong {
-  display: block;
-  font-size: 1.15rem;
-  font-variant-numeric: tabular-nums;
-  color: var(--color-navy);
-}
-
-.welcome-stat-card span {
-  display: block;
-  font-size: 0.68rem;
-  line-height: 1.25;
-  color: var(--color-text-muted);
 }
 
 /* ---- Fechar a página: botão flutuante no alto ---- */
@@ -5237,7 +2632,6 @@ h3 {
   color: var(--color-text);
 }
 
-
 /* ---------- Painel administrativo: cadastros ---------- */
 
 /* Foto ao lado do nome. A lista existia sem imagem nenhuma, e a foto é
@@ -5277,21 +2671,6 @@ h3 {
   min-width: 0;
   flex: 1;
 }
-
-/* Aviso de que o cadastro aberto é de outra pessoa. Âmbar e não vermelho:
-   não é erro nem perigo, é uma responsabilidade — e vermelho aqui viraria
-   ruído, porque a administração abre esta tela justamente para isso. */
-.aviso-admin {
-  margin: 12px 0 0;
-  padding: 12px 14px;
-  border-radius: 12px;
-  background: #fdf3e0;
-  border: 1px solid #e9c98d;
-  color: #6b4a12;
-  font-size: 0.88rem;
-  line-height: 1.45;
-}
-
 
 /* ---------- Painel administrativo: menu de seções ---------- */
 
@@ -5358,32 +2737,6 @@ h3 {
   text-align: center;
 }
 
-
-/* A tradução da necessidade em ofício, logo abaixo da barra de busca ativa.
-   Discreta de propósito: é uma explicação, não um resultado — e quem já
-   entendeu precisa passar por ela sem tropeçar para chegar nos cartões. */
-.busca-traducao {
-  margin: 8px 0 0;
-  font-size: 0.88rem;
-  color: var(--color-text-muted);
-}
-
-/* Botão que não parece botão de formulário: é o nome do ofício, sublinhado,
-   como um link no meio da frase. Alvo de toque de 44px de altura seria
-   desproporcional dentro de uma linha de texto; o sublinhado e a cor da
-   marca é o que diz que dá para tocar. */
-.busca-traducao-oficio {
-  background: none;
-  border: none;
-  padding: 0;
-  font: inherit;
-  color: var(--color-primary);
-  font-weight: 700;
-  text-decoration: underline;
-  text-underline-offset: 2px;
-  cursor: pointer;
-}
-
 /* ============================================================
    VITRINE — a tela inicial em prateleiras
    ============================================================
@@ -5399,55 +2752,6 @@ h3 {
 
 .vitrine {
   margin-top: 18px;
-}
-
-/* --- Chips de grupo, grudados no alto ------------------------------- */
-
-/* `top` sai da altura real do cabeçalho, medida no navegador e publicada
-   pelo AppShell. Os dois são `sticky`; com um valor chutado aqui, ou os
-   chips passam por baixo da logo ou sobra uma faixa vazia entre eles — e a
-   altura do cabeçalho muda com o `safe-area` do iPhone, então não existe
-   número certo para escrever à mão. */
-.chips-grupo {
-  position: sticky;
-  top: var(--altura-header, 56px);
-  z-index: 30;
-  display: flex;
-  gap: 8px;
-  overflow-x: auto;
-  /* Sangra até a borda da tela: uma fileira que rola precisa começar e
-     terminar fora do recuo do container, senão o primeiro chip parece
-     cortado e o último parece o fim da lista quando não é. */
-  margin: 0 -20px;
-  padding: 10px 20px;
-  background: var(--color-bg);
-  scrollbar-width: none;
-}
-
-.chips-grupo::-webkit-scrollbar {
-  display: none;
-}
-
-.chip-grupo {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  flex: none;
-  padding: 8px 14px;
-  border: 1px solid var(--color-border);
-  border-radius: 999px;
-  background: var(--color-surface);
-  color: var(--color-text);
-  font-size: 0.86rem;
-  font-weight: 600;
-  text-decoration: none;
-  white-space: nowrap;
-}
-
-.chip-grupo:hover,
-.chip-grupo:focus-visible {
-  border-color: var(--color-primary);
-  background: var(--color-bg-soft);
 }
 
 /* --- A prateleira --------------------------------------------------- */
@@ -5471,246 +2775,6 @@ h3 {
   margin-right: -20px;
   padding-left: 20px;
   padding-right: 0;
-}
-
-.prateleira-topo {
-  display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-  gap: 12px;
-  padding-right: 20px;
-}
-
-.prateleira-titulos {
-  min-width: 0;
-}
-
-.prateleira-titulo {
-  margin: 0;
-  font-size: 1.02rem;
-  line-height: 1.25;
-}
-
-.prateleira-subtitulo {
-  margin: 2px 0 0;
-  font-size: 0.82rem;
-  color: var(--color-text-muted);
-}
-
-.prateleira-ver-tudo {
-  flex: none;
-  padding-top: 2px;
-  color: var(--color-primary);
-  font-size: 0.86rem;
-  font-weight: 700;
-  text-decoration: none;
-  white-space: nowrap;
-}
-
-.prateleira-fileira {
-  display: flex;
-  gap: 10px;
-  overflow-x: auto;
-  margin-top: 12px;
-  padding: 2px 20px 4px 0;
-  /* Cada cartão para alinhado à esquerda ao soltar o dedo: sem isto a
-     fileira para em qualquer lugar e o primeiro cartão visível fica sempre
-     pela metade. */
-  scroll-snap-type: x proximity;
-  scrollbar-width: none;
-}
-
-.prateleira-fileira::-webkit-scrollbar {
-  display: none;
-}
-
-.prateleira-fileira > * {
-  scroll-snap-align: start;
-}
-
-/* --- Cartão de cadastro (gente) ------------------------------------- */
-
-.cartao-vitrine {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-  flex: none;
-  /* Cartão largo, no molde dos aplicativos de hospedagem: cabem menos de
-     dois na tela, e o segundo aparece cortado — o corte é o que conta que
-     a fileira continua.
-
-     Eram 132px fixos, e a 390px isso punha quase três na largura. Três
-     cartões pequenos numa vitrine viram uma tira de miniaturas: a foto
-     fica pequena demais para dizer alguma coisa, e a foto é o que decide
-     o toque numa lista de gente.
-
-     `clamp` e não `vw` puro: abaixo de 300px de tela um cartão de 53% já
-     seria estreito demais para o nome caber, e num tablet um de 53% seria
-     do tamanho de meia tela. */
-  width: clamp(168px, 53vw, 232px);
-  padding: 10px;
-  border-radius: 16px;
-  background: var(--color-surface);
-  border: 1px solid var(--color-border);
-  box-shadow: var(--shadow-repouso);
-  color: var(--color-text);
-  text-decoration: none;
-}
-
-.cartao-vitrine:hover,
-.cartao-vitrine:focus-visible {
-  border-color: var(--color-primary);
-}
-
-.cartao-vitrine-foto {
-  position: relative;
-  display: block;
-  aspect-ratio: 1;
-  border-radius: 10px;
-  overflow: hidden;
-  background: var(--color-bg-soft);
-}
-
-.cartao-vitrine-foto img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  display: block;
-}
-
-.cartao-vitrine-iniciais {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 100%;
-  height: 100%;
-  font-size: 1.5rem;
-  font-weight: 700;
-}
-
-/* A nota sobre a foto, como nos aplicativos de entrega: é o dado que
-   decide o toque, e numa linha embaixo do nome ela se perde entre as
-   outras. */
-.cartao-vitrine-nota {
-  position: absolute;
-  left: 6px;
-  top: 6px;
-  display: inline-flex;
-  align-items: center;
-  gap: 3px;
-  padding: 2px 7px;
-  border-radius: 999px;
-  background: rgba(10, 26, 47, 0.82);
-  color: #fff;
-  font-size: 0.72rem;
-  font-weight: 700;
-}
-
-.cartao-vitrine-nome {
-  display: flex;
-  align-items: center;
-  gap: 4px;
-  /* Cresce junto com o cartão: no cartão largo, 0,86rem ficava pequeno
-     para o nome, que é a segunda coisa que se lê depois da foto. */
-  font-size: 0.95rem;
-  font-weight: 700;
-  line-height: 1.2;
-  /* Duas linhas no máximo: nome de empresa é comprido, e deixá-lo crescer
-     desalinha a altura de toda a fileira. */
-  display: -webkit-box;
-  -webkit-line-clamp: 2;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
-}
-
-.cartao-vitrine-oficio {
-  font-size: 0.82rem;
-  color: var(--color-text-muted);
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-/* --- Cartão de ofício (categoria) ----------------------------------- */
-
-/* Pastilha, não cartão.
-
-   O cartão de ofício tinha 116px de largura e 108 de altura, com o ícone em
-   26px — três deles ocupavam a tela inteira de lado, e a lista de serviços
-   da cidade virava uma rolagem sem fim. A informação de cada um é curta
-   (um desenho, um nome, um número), e não precisava de tanto. */
-.cartao-oficio {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 2px;
-  flex: none;
-  width: 92px;
-  min-height: 78px;
-  padding: 8px 6px;
-  border-radius: 12px;
-  background: var(--color-surface);
-  border: 1px solid var(--color-border);
-  color: var(--color-text);
-  font-family: inherit;
-  text-align: center;
-  cursor: pointer;
-}
-
-.cartao-oficio:hover,
-.cartao-oficio:focus-visible {
-  border-color: var(--color-primary);
-}
-
-.cartao-oficio-simbolo {
-  line-height: 1;
-}
-
-.cartao-oficio-nome {
-  font-size: 0.72rem;
-  font-weight: 600;
-  line-height: 1.15;
-  overflow-wrap: break-word;
-  min-width: 0;
-  /* Duas linhas no máximo: "Refrigeração e ar-condicionado" ocupava quatro e
-     esticava a fileira inteira para acomodar um nome só. */
-  display: -webkit-box;
-  -webkit-line-clamp: 2;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
-}
-
-.cartao-oficio-quantos {
-  font-size: 0.66rem;
-  color: var(--color-text-muted);
-}
-
-/* Duas fileiras em vez de uma.
-   `grid-auto-flow: column` enche de cima para baixo e só então anda para o
-   lado — que é o que faz a lista longa ocupar metade do comprimento sem
-   ficar mais alta do que um cartão e meio. */
-.prateleira-fileira.prateleira-duas {
-  display: grid;
-  grid-auto-flow: column;
-  grid-template-rows: repeat(2, auto);
-  gap: 8px;
-  align-items: stretch;
-}
-
-/* --- O botão do meio da barra --------------------------------------- */
-
-/* A busca num círculo elevado. Ela é a ação principal do app e estava
-   indistinguível das outras quatro: mesma lupa cinza, mesmo tamanho,
-   disputando atenção com telas que quase ninguém abre.
-
-   O círculo sobe acima da barra, então três coisas precisam acompanhar:
-   o item não pode empurrar os vizinhos (`justify-content: flex-end` alinha
-   o rótulo com os demais), a barra precisa deixar o círculo transbordar
-   (`overflow: visible`), e o conteúdo da página precisa de folga extra
-   embaixo — senão o último cartão fica escondido atrás dele. */
-.bottom-nav {
-  overflow: visible;
 }
 
 /* O círculo sobe por margem negativa, não por `position: absolute`.
@@ -5768,66 +2832,6 @@ h3 {
   position: relative;
 }
 
-/* --- A cidade no alto ----------------------------------------------- */
-
-/* A cidade decide o que a tela inteira mostra e morava num `select` entre
-   "nota mínima" e "ordenar por". Aqui em cima ela é a primeira coisa lida —
-   e continua sendo escolha de quem procura, não enfeite: é um botão, com a
-   seta que promete que algo abre. */
-/* A cidade com a forma dos outros três filtros.
-
-   Ela já foi um cartão de 55px no alto da tela e uma pílula solta abaixo
-   da busca. Nos dois casos era um objeto à parte no meio de um bloco de
-   filtros — e quem lê não tem por que saber que, por baixo, a cidade não
-   é um `<select>` como os vizinhos (ela abre uma folha com busca por
-   digitação, porque a lista de cidades cresce com a base e o seletor
-   nativo não sabe filtrar).
-
-   Aqui ela tem a mesma altura, a mesma borda e a mesma seta dos outros.
-   A seta é desenhada à mão porque a do `<select>` é do sistema e não
-   existe fora dele; as medidas abaixo foram tiradas do próprio select
-   para as quatro caixas ficarem iguais. */
-.filtro-cidade-botao {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  width: 100%;
-  font-family: inherit;
-  font-size: 0.9rem;
-  /* 26px à direita, e não 30: a seta desenhada reservava mais espaço que
-     a do `<select>` nativo, e "Todas as cidades" virava "Todas as cid…"
-     enquanto "Todos os serviços", que é maior, cabia na caixa vizinha. */
-  padding: 12px 26px 12px 14px;
-  border: 1px solid var(--color-border-strong);
-  /* 14px, e não `var(--radius)`: é o raio que os `<select>` já usam. Com
-     16px a caixa da cidade ficava com o canto visivelmente mais redondo
-     que as três vizinhas — medido, não achado. */
-  border-radius: 14px;
-  background: var(--color-surface);
-  box-shadow: var(--shadow-repouso);
-  color: var(--color-text);
-  text-align: left;
-  cursor: pointer;
-  /* A seta, no mesmo lugar e tamanho da do seletor nativo. */
-  background-image: linear-gradient(45deg, transparent 50%, var(--color-text-muted) 50%),
-    linear-gradient(135deg, var(--color-text-muted) 50%, transparent 50%);
-  background-position: calc(100% - 15px) calc(50% + 1px), calc(100% - 10px) calc(50% + 1px);
-  background-size: 5px 5px, 5px 5px;
-  background-repeat: no-repeat;
-}
-
-.filtro-cidade-botao span {
-  min-width: 0;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.filtro-cidade-botao:hover,
-.filtro-cidade-botao:focus-visible {
-  border-color: var(--color-primary);
-}
-
 /* Encolhe junto com os `<select>` vizinhos abaixo de 420px — a mesma
    regra que eles já tinham.
 
@@ -5847,31 +2851,10 @@ h3 {
   }
 }
 
-
-.lista-cidades {
-  display: flex;
-  flex-direction: column;
-  max-height: 50vh;
-  overflow-y: auto;
-}
-
-.linha-cidade {
-  padding: 14px 4px;
-  border: none;
-  border-bottom: 1px solid var(--color-border);
-  background: none;
-  font-family: inherit;
-  font-size: 1rem;
-  color: var(--color-text);
-  text-align: left;
-  cursor: pointer;
-}
-
 .linha-cidade.ativa {
   color: var(--color-primary);
   font-weight: 700;
 }
-
 
 /* "Falar com o suporte", no fim da página.
 
@@ -6143,85 +3126,6 @@ h3 {
 }
 
 /* ---------------------------------------------------------------
-   A prévia do cartão no painel do profissional
-
-   O painel mostra ao dono o mesmo cartão que o cliente vê. Antes ele
-   tinha uma versão própria — nome em negrito e "categoria · cidade" —
-   e o dono não tinha, em lugar nenhum, como ver a própria foto, a
-   própria nota ou o próprio selo. Para conferir a foto era preciso ir
-   à busca e se procurar no meio dos outros.
-   --------------------------------------------------------------- */
-.previa-titulo {
-  margin: 0 0 10px;
-  font-size: 0.78rem;
-  font-weight: 700;
-  letter-spacing: 0.04em;
-  text-transform: uppercase;
-  color: var(--color-text-muted);
-}
-
-/* `.card-pro` é um `<a>`, e `<a>` é inline. Na busca isso não aparece
-   porque ele é célula de uma grade, e grade transforma o filho em
-   bloco. Aqui, dentro do card do painel, ele é filho comum do fluxo:
-   sem esta linha, o cartão inteiro se comportava como um trecho de
-   texto — foto e nome escorrendo lado a lado, sem largura própria. */
-.card-pro {
-  display: block;
-}
-
-/* Recado de quando o CEP aponta uma cidade que o app não atende. Âmbar,
-   e não vermelho: nada deu errado — a pessoa só precisa saber por que a
-   cidade não mudou sozinha, senão ela repete o CEP achando que falhou. */
-/* O aviso de cidade não atendida saiu junto com a lista fechada de
-   cidades: agora toda cidade do Brasil é atendida, e não há o que avisar.
-   A regra fica porque `.dica-cidade` reusa o mesmo tom. */
-.dica-cidade {
-  margin: 6px 0 0;
-  font-size: 0.84rem;
-}
-
-/* Cidade escrita e estado escolhido, lado a lado. O estado é curto e tem
-   largura fixa: deixá-lo crescer junto com a cidade daria a ele metade da
-   linha para mostrar duas letras. */
-.campo-cidade-estado {
-  display: flex;
-  gap: 8px;
-}
-
-.campo-cidade-estado input {
-  flex: 1;
-  min-width: 0;
-}
-
-.campo-cidade-estado select {
-  flex: 0 0 5.5rem;
-}
-
-/* Busca dentro da folha de cidades. Só aparece quando a lista passa de
-   oito — antes disso ela cabe na tela e o campo seria um degrau a mais. */
-.filtro-cidade {
-  width: 100%;
-  margin-bottom: 12px;
-}
-
-/* Quantos profissionais há na cidade, à direita do nome. Cinza e menor: é
-   contexto para a escolha, não a escolha. */
-.linha-cidade-quantos {
-  color: var(--color-text-muted);
-  font-size: 0.82rem;
-  font-variant-numeric: tabular-nums;
-}
-
-/* A linha vira duas colunas por causa do número à direita. O seletor
-   antigo tinha só o nome, então nada aqui muda para quem já usava. */
-.lista-cidades .linha-cidade {
-  display: flex;
-  justify-content: space-between;
-  align-items: baseline;
-  gap: 12px;
-}
-
-/* ---------------------------------------------------------------
    Os números do painel de cadastros
 
    Ficam em faixa, e não em cartões grandes: são cinco números que se
@@ -6286,100 +3190,6 @@ h3 {
   font-size: 0.9rem;
 }
 
-
-/* "Sua conta já está criada" no topo do formulário.
-
-   Verde discreto, com o visto: é um passo cumprido, não um aviso. A
-   confusão que ele resolve é de quem toca em "Cadastre-se grátis", entra
-   com o Google e encontra uma tela chamada "cadastro" pedindo nome e
-   e-mail de novo — do lado de quem preenche, foram dois cadastros. Marcar
-   o primeiro como feito troca "de novo?" por "falta só isto". */
-.conta-pronta {
-  display: flex;
-  align-items: baseline;
-  gap: 8px;
-  margin: 14px 0 4px;
-  padding: 10px 14px;
-  background: #eaf3ef;
-  border: 1px solid #cfe3d8;
-  border-radius: var(--radius);
-  color: #2f6350;
-  font-size: 0.9rem;
-  line-height: 1.45;
-}
-
-/* ---------------------------------------------------------------
-   O convite dentro da faixa de destaque
-
-   Um cartão do mesmo tamanho dos vizinhos, no fim da fileira. Do
-   mesmo tamanho de propósito: ele faz parte da fileira, não é um
-   banner colado nela — e do fim, porque na frente roubaria o
-   primeiro lugar, que é exatamente o que os anunciantes pagaram.
-
-   Dourado, e não azul: é o acento da identidade, o mesmo do convite
-   "Presta serviço?" no alto da tela. Azul aqui o faria parecer mais
-   um profissional da fileira, que é o oposto do que ele é.
-   --------------------------------------------------------------- */
-.cartao-convite {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-  flex: none;
-  width: clamp(168px, 53vw, 232px);
-  padding: 16px 14px;
-  border-radius: 16px;
-  background: linear-gradient(165deg, #fffaf0, var(--color-gold-tint));
-  border: 1px solid var(--color-gold-line);
-  box-shadow: var(--shadow-repouso);
-  color: var(--color-text);
-  text-decoration: none;
-}
-
-.cartao-convite:hover,
-.cartao-convite:focus-visible {
-  border-color: var(--color-gold-mid);
-}
-
-.cartao-convite-selo {
-  font-size: 1.6rem;
-  line-height: 1;
-}
-
-.cartao-convite strong {
-  font-size: 1.02rem;
-  color: var(--color-gold-deep);
-}
-
-.cartao-convite-texto {
-  font-size: 0.82rem;
-  line-height: 1.4;
-  color: var(--color-text-muted);
-}
-
-/* O preço fica visível no cartão, e não só depois do toque: um convite
-   que esconde quanto custa faz a pessoa tocar para descobrir, e descobrir
-   o preço é o momento em que ela desiste. Dito na frente, quem toca já
-   decidiu que o valor cabe. */
-.cartao-convite-preco {
-  margin-top: auto;
-  padding-top: 6px;
-  font-size: 1.1rem;
-  font-weight: 700;
-  color: var(--color-gold-deep);
-  font-variant-numeric: tabular-nums;
-}
-
-.cartao-convite-preco small {
-  font-size: 0.74rem;
-  font-weight: 600;
-}
-
-.cartao-convite-acao {
-  font-size: 0.84rem;
-  font-weight: 700;
-  color: var(--color-primary-deep);
-}
-
 /* ---- Faixa de "sem internet" ----
 
    Fica acima de tudo e empurra o conteúdo em vez de cobri-lo: sobreposta,
@@ -6420,24 +3230,6 @@ h3 {
   height: 8px;
   border-radius: 999px;
   background: #b4741a;
-}
-
-/* Aviso de cadastro pausado, no painel.
-
-   Âmbar e não vermelho: pausar foi uma escolha da pessoa, não um erro nem
-   uma punição. Vermelho aqui leria como "seu cadastro foi bloqueado", que
-   é outra coisa e assusta à toa.
-
-   Contraste conferido: #7a4b00 sobre #fdf2e3 dá 6,7:1, acima do mínimo. */
-.aviso-pausado {
-  margin: 0 0 12px;
-  padding: 12px 14px;
-  border-radius: 14px;
-  background: #fdf2e3;
-  border: 1px solid #eed7b2;
-  color: #7a4b00;
-  font-size: 0.88rem;
-  line-height: 1.45;
 }
 
 /* ---- Perfil: nome e foto editáveis ----

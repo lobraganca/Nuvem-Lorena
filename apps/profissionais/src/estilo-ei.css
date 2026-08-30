@@ -214,7 +214,14 @@
 .ei-cartao-fundo { background: var(--ei-s2); }
 
 /* Cartão que se toca inteiro. */
+/* Link e botão usam a mesma classe, então o sublinhado precisa sair
+   explicitamente: o `a` do navegador vem sublinhado por padrão, e num
+   cartão inteiro clicável isso vira um bloco de texto todo riscado. Foi
+   visto na foto depois de a regra genérica do procurô ser podada — até
+   então, era ela que segurava. */
+.ei a { color: inherit; }
 .ei-cartao-toque {
+  text-decoration: none;
   display: block;
   width: 100%;
   text-align: left;
