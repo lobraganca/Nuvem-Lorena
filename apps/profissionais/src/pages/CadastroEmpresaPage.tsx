@@ -55,6 +55,11 @@ export function CadastroEmpresaPage() {
   const [salvando, setSalvando] = useState(false);
   const [erro, setErro] = useState("");
   const [carregandoEmpresa, setCarregandoEmpresa] = useState(false);
+  /* O estado da confirmação vem do banco e não entra no formulário: quem
+     grava esse campo é a função `confirmar_telefone_empresa`, e um valor
+     editável aqui seria só um espelho — que sai do lugar no primeiro
+     salvamento. */
+  const [empresaExistente, setEmpresaExistente] = useState<Company | null>(null);
 
   useEffect(() => {
     if (carregandoConta || !user) return;
@@ -65,6 +70,7 @@ export function CadastroEmpresaPage() {
     obterMinhaEmpresa(user.id).then((empresa) => {
       if (empresa) {
         setForm(empresa);
+        setEmpresaExistente(empresa);
       }
       setCarregandoEmpresa(false);
     });
@@ -221,8 +227,26 @@ export function CadastroEmpresaPage() {
             />
           </div>
 
+          {/* O telefone da empresa confirma-se no próprio campo.
+              ────────────────────────────────────────────────────
+              Era um campo comum aqui, e a confirmação vinha depois, num
+              aviso solto no painel — quando a empresa já tinha terminado o
+              cadastro e ido embora. É a mesma coisa que a dona apontou no
+              lado do profissional: "tem que ser algo inerente ao cadastro,
+              não uma coisa apartada".
+
+              Do lado de quem contrata isso pesa ainda mais: é por este
+              número que quem responde à vaga vai procurar a empresa de
+              volta, e é aí que mora o golpe do falso emprego. */}
           <div style={{ marginBottom: 12 }}>
-            <label htmlFor="phone">Telefone comercial *</label>
+            <label htmlFor="phone">
+              Telefone comercial *{" "}
+              {empresaExistente?.phone_verified ? (
+                <span className="ei-selo ei-selo-verde">Confirmado</span>
+              ) : (
+                <span className="ei-selo ei-selo-laranja">Falta confirmar</span>
+              )}
+            </label>
             <input
               id="phone"
               type="tel"
@@ -230,6 +254,13 @@ export function CadastroEmpresaPage() {
               value={formatPhone(form.phone)}
               onChange={(e) => setForm((f) => ({ ...f, phone: e.target.value }))}
             />
+            {!empresaExistente?.phone_verified && (
+              <p className="ei-campo-ajuda" style={{ marginTop: 6 }}>
+                Sem confirmar este número a empresa não publica vaga. Salve o cadastro e
+                a confirmação é o próximo passo — ela usa o mesmo número com que você
+                entrou no app.
+              </p>
+            )}
           </div>
 
           <div style={{ marginBottom: 12 }}>
