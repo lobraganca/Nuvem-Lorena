@@ -668,25 +668,38 @@
    pendurar duas linhas de texto, e era ele que dava altura desigual aos
    cartões, truncava ofício e obrigava a uma etiqueta de bairro cortada.
 
-   Aqui a pessoa é uma LINHA: retrato quadrado de 36px, nome, ofício em
-   cinza. Cabe o dobro de gente na mesma tela, nada corta, e é o formato
-   de lista do Notion. */
+   Aqui a pessoa é uma LINHA: retrato quadrado, nome, ofício em cinza.
+   Cabe o dobro de gente na mesma tela, nada corta, e é o formato de lista
+   do Notion. */
 .ei-pessoa {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 14px;
   width: 100%;
   min-width: 0;
-  padding: 10px 20px;
+  padding: 12px 20px;
   border-bottom: 1px solid var(--ei-fio);
   text-decoration: none;
   color: inherit;
 }
 
+/* O retrato é 64px, e não os 36px de antes.
+   ──────────────────────────────────────────
+   "No card dos profissionais colocar foto" — e havia foto ali o tempo
+   todo, num quadrado de 36px. Só que 36px é o tamanho de um ícone: quem
+   olha a lista lê nomes, e o rosto não chega a virar rosto. Numa cidade
+   em que as pessoas se conhecem, RECONHECER alguém é metade do motivo de
+   a lista existir — a empresa decide quem chamar por já ter visto aquela
+   pessoa na rua, não por ler "Profissional 59".
+
+   64px é o maior retrato que ainda deixa a linha inteira caber sem
+   empurrar nome e ofício para baixo da foto — que é justamente o "baixo
+   na foto da pessoa" que a dona mandou tirar. A tela mostra 7 pessoas em
+   vez de 10; a grade de cartões mostrava 4. */
 .ei-pessoa-retrato {
   flex: 0 0 auto;
-  width: 36px;
-  height: 36px;
+  width: 64px;
+  height: 64px;
   border-radius: 0;
   background: var(--ei-afunda-forte);
   display: grid;
@@ -695,15 +708,17 @@
   /* A inicial é tinta cheia: em cinza sobre o cinza do quadrado ela dava
      4,46:1, um décimo abaixo do mínimo. */
   color: var(--ei-tinta);
-  font-size: 0.9rem;
+  font-size: 1.4rem;
   font-weight: 600;
 }
 
 .ei-pessoa-retrato img { width: 100%; height: 100%; object-fit: cover; display: block; }
 
 .ei-pessoa-texto { flex: 1; min-width: 0; }
-.ei-pessoa-nome { font-size: 0.93rem; font-weight: 500; line-height: 1.3; }
-.ei-pessoa-oficio { font-size: 0.8rem; line-height: 1.3; color: var(--ei-tinta-fraca); }
+/* O nome cresceu junto com o retrato: 0,93rem ao lado de um quadrado de
+   64px lia como legenda da foto, e o nome é o que a pessoa procura. */
+.ei-pessoa-nome { font-size: 1rem; font-weight: 500; line-height: 1.35; }
+.ei-pessoa-oficio { font-size: 0.85rem; line-height: 1.35; color: var(--ei-tinta-fraca); }
 
 /* ── Marca da empresa, no bloco da vaga ───────────────────────────── */
 .ei-empresa-marca {

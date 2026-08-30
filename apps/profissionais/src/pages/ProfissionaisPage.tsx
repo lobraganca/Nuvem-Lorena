@@ -43,10 +43,15 @@ type Disponivel = {
  * ofício, e era ele que dava altura desigual aos cartões, cortava o ofício
  * no meio da palavra e obrigava a espremer o bairro numa etiqueta.
  *
- * Agora cada pessoa é uma LINHA, no modelo do Notion: retrato quadrado de
- * 36px, nome, ofício em cinza, fio embaixo. Cabe o dobro de gente na mesma
- * tela e nada corta. O rosto continua ali — que é o que faz a empresa
- * reconhecer alguém numa cidade em que as pessoas se conhecem.
+ * Agora cada pessoa é uma LINHA, no modelo do Notion: retrato quadrado,
+ * nome, ofício em cinza, fio embaixo. Nada corta e nada fica pendurado
+ * embaixo da foto.
+ *
+ * O retrato começou com 36px e a dona voltou pedindo "colocar foto no card"
+ * — com a foto já lá. É que 36px é tamanho de ícone: a lista lia como uma
+ * lista de nomes, com um carimbo do lado. Agora são 64px, e o rosto vira
+ * rosto: numa cidade em que as pessoas se conhecem, reconhecer alguém é
+ * metade do motivo de a lista existir.
  */
 export function ProfissionaisPage() {
   useTituloDaPagina("Profissionais disponíveis");
@@ -224,13 +229,7 @@ export function ProfissionaisPage() {
               const funcoes = p.areas_de_interesse ?? [];
               return (
                 <article key={p.id} className="ei-pessoa">
-                  <span className="ei-pessoa-retrato" aria-hidden="true">
-                    {p.photo_url ? (
-                      <img src={p.photo_url} alt="" loading="lazy" />
-                    ) : (
-                      p.name.trim().charAt(0).toLocaleUpperCase("pt-BR")
-                    )}
-                  </span>
+                  <Retrato foto={p.photo_url} nome={p.name} />
                   <div className="ei-pessoa-texto">
                     {/* Na linha inteira cabem duas funções sem cortar — no
                         cartão de 163px não cabia nem uma. */}
@@ -248,6 +247,33 @@ export function ProfissionaisPage() {
 
       </div>
     </div>
+  );
+}
+
+/**
+ * O rosto da pessoa na lista.
+ *
+ * Sem foto, a inicial do nome — e não um ícone genérico de silhueta, que
+ * faria as pessoas sem foto virarem todas o mesmo item cinza.
+ *
+ * O `onError` é o que evita o pior dos três estados: a foto que EXISTE no
+ * cadastro mas não abre mais (arquivo apagado do Storage, endereço antigo
+ * de antes da troca de bucket). Sem ele o navegador desenha o ícone de
+ * imagem quebrada no lugar do rosto, que é bem pior do que uma inicial —
+ * parece app defeituoso, e não pessoa sem foto.
+ */
+function Retrato({ foto, nome }: { foto: string | null; nome: string }) {
+  const [falhou, setFalhou] = useState(false);
+  const inicial = nome.trim().charAt(0).toLocaleUpperCase("pt-BR");
+
+  return (
+    <span className="ei-pessoa-retrato" aria-hidden="true">
+      {foto && !falhou ? (
+        <img src={foto} alt="" loading="lazy" onError={() => setFalhou(true)} />
+      ) : (
+        inicial
+      )}
+    </span>
   );
 }
 
