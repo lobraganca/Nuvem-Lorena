@@ -34,6 +34,33 @@ values
   ('44440000-0000-0000-0000-000000000001', 'c1110000-0000-0000-0000-000000000001',
    'Mecânico', 'Mecânico', 'x', 'presencial', 'Itabirito', 'MG');
 
+-- Os dois precisam ter CADASTRO e telefone CONFIRMADO.
+-- ────────────────────────────────────────────────────
+-- Antes da 0076 este teste criava aviso para duas contas sem cadastro
+-- nenhum, e passava. A regra nova fecha isso: aviso de vaga só existe para
+-- quem confirmou o telefone — e quem não tem cadastro não confirmou nada.
+--
+-- Este bloco foi acrescentado porque o teste passou a FALHAR ao aplicar a
+-- 0076, com a mensagem certa. O cenário é que estava desatualizado, não a
+-- regra.
+insert into public.professionals
+  (id, owner_id, name, category, categories, city, uf, bio, phone, whatsapp, entity_type)
+values
+  ('b1110000-0000-0000-0000-00000000000b', 'f1110000-0000-0000-0000-00000000000b',
+   'Profissional B', 'Mecânico', array['Mecânico'], 'Itabirito', 'MG', '',
+   '31955550002', '31955550002', 'pf'),
+  ('b1110000-0000-0000-0000-00000000000c', 'f1110000-0000-0000-0000-00000000000c',
+   'Profissional C', 'Mecânico', array['Mecânico'], 'Itabirito', 'MG', '',
+   '31955550003', '31955550003', 'pf');
+
+-- Ninguém nasce confirmado: o gatilho da 0024 zera o campo em todo INSERT.
+-- Confirmar é sempre um segundo passo, mesmo aqui.
+set local app.confirmando_whatsapp = 'sim';
+update public.professionals set whatsapp_verified = true, whatsapp_verified_at = now()
+ where id in ('b1110000-0000-0000-0000-00000000000b',
+              'b1110000-0000-0000-0000-00000000000c');
+set local app.confirmando_whatsapp = '';
+
 -- Dois profissionais avisados; só um tem aparelho.
 insert into public.job_notifications (job_listing_id, professional_id, wave) values
   ('44440000-0000-0000-0000-000000000001', 'f1110000-0000-0000-0000-00000000000b', 1),

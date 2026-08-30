@@ -23,7 +23,7 @@ const arquivos = readdirSync(dir)
   .filter((f) => f.slice(0, 4) >= de && f.slice(0, 4) <= ate)
   .sort();
 
-const cabecalho = `-- procurô — migrations ${de} a ${ate}, na ordem.
+const cabecalho = `-- Ei Itabirito — migrations ${de} a ${ate}, na ordem.
 --
 -- GERADO por scripts/gerar-sql-pendente.mjs. Não edite à mão.
 --
