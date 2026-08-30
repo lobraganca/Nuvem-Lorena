@@ -37,11 +37,16 @@ type Disponivel = {
  * elas; eu respondi trocando cor três vezes, até ela dizer "mais uma vez só
  * mudou as cores".
  *
- * Aqui está o que era, de fato, a diferença: busca em cápsula com a lupa
- * dentro, fileira de filtros que rola de lado, e o resultado em cartões com
- * FOTO grande, dois por linha. Numa cidade em que as pessoas se conhecem, o
- * rosto é o que faz a empresa reconhecer alguém — e uma lista de nomes em
- * cinza não tem como fazer isso, pintada de que cor for.
+ * Depois vieram os cartões com foto grande, dois por linha — e a dona
+ * apontou o problema deles: "não precisa ter o baixo na foto da pessoa". O
+ * bloco de texto pendurado embaixo da foto existia só para caber nome e
+ * ofício, e era ele que dava altura desigual aos cartões, cortava o ofício
+ * no meio da palavra e obrigava a espremer o bairro numa etiqueta.
+ *
+ * Agora cada pessoa é uma LINHA, no modelo do Notion: retrato quadrado de
+ * 36px, nome, ofício em cinza, fio embaixo. Cabe o dobro de gente na mesma
+ * tela e nada corta. O rosto continua ali — que é o que faz a empresa
+ * reconhecer alguém numa cidade em que as pessoas se conhecem.
  */
 export function ProfissionaisPage() {
   useTituloDaPagina("Profissionais disponíveis");
@@ -164,13 +169,13 @@ export function ProfissionaisPage() {
         )}
 
         {erro && (
-          <p className="ei-campo-erro" style={{ marginTop: 16 }} role="alert">
+          <p className="ei-campo-erro ei-margem" style={{ marginTop: 16 }} role="alert">
             {erro}
           </p>
         )}
 
         {carregando && (
-          <p className="ei-apoio" style={{ marginTop: 20 }}>
+          <p className="ei-apoio ei-margem" style={{ marginTop: 20 }}>
             Carregando…
           </p>
         )}
@@ -214,39 +219,25 @@ export function ProfissionaisPage() {
         )}
 
         {visiveis.length > 0 && (
-          <div className="ei-grade">
+          <div>
             {visiveis.map((p) => {
               const funcoes = p.areas_de_interesse ?? [];
               return (
-                <article key={p.id} className="ei-foto-cartao">
-                  <div className="ei-foto-cartao-imagem">
+                <article key={p.id} className="ei-pessoa">
+                  <span className="ei-pessoa-retrato" aria-hidden="true">
                     {p.photo_url ? (
                       <img src={p.photo_url} alt="" loading="lazy" />
                     ) : (
-                      <span className="ei-foto-cartao-inicial" aria-hidden="true">
-                        {p.name.trim().charAt(0).toLocaleUpperCase("pt-BR")}
-                      </span>
+                      p.name.trim().charAt(0).toLocaleUpperCase("pt-BR")
                     )}
-                  </div>
-                  <div className="ei-foto-cartao-texto">
-                    {/* Nome numa linha; ofício em até duas.
-                        ─────────────────────────────────────
-                        Com uma linha só, quase todo ofício de verdade saía
-                        cortado no meio da palavra ("Técnico em celular…",
-                        "Cuidador de idoso…") — o que a dona chamou de
-                        quebrado. Em duas linhas eles cabem inteiros, e a
-                        altura reservada mantém os cartões da mesma linha
-                        alinhados mesmo quando um usa uma linha e o outro
-                        usa duas.
-
-                        A etiqueta de bairro saiu junto: "Nossa Senhora do
-                        Carmo" não cabe em cartão de 163px de largura de
-                        jeito nenhum, e bairro é detalhe que a empresa
-                        descobre ao falar com a pessoa. */}
-                    <div className="ei-foto-cartao-nome ei-uma-linha">{p.name}</div>
-                    <div className="ei-foto-cartao-oficio">
-                      {funcoes[0] || p.especialidade || "Sem função"}
-                      {funcoes.length > 1 && ` +${funcoes.length - 1}`}
+                  </span>
+                  <div className="ei-pessoa-texto">
+                    {/* Na linha inteira cabem duas funções sem cortar — no
+                        cartão de 163px não cabia nem uma. */}
+                    <div className="ei-pessoa-nome ei-uma-linha">{p.name}</div>
+                    <div className="ei-pessoa-oficio ei-uma-linha">
+                      {funcoes.slice(0, 2).join(" · ") || p.especialidade || "Sem função"}
+                      {funcoes.length > 2 && ` +${funcoes.length - 2}`}
                     </div>
                   </div>
                 </article>

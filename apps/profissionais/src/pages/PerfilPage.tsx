@@ -459,7 +459,7 @@ export function PerfilPage() {
         )}
 
         {error && (
-          <p className="ei-campo-erro" style={{ marginTop: 16 }}>
+          <p className="ei-campo-erro ei-margem" style={{ marginTop: 16 }}>
             {error}
           </p>
         )}

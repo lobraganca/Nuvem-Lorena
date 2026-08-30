@@ -1,281 +1,287 @@
 /* ═══════════════════════════════════════════════════════════════════════
-   O DESENHO DO EI ITABIRITO
+   O DESENHO DO EI ITABIRITO — no modelo do Notion
    ═══════════════════════════════════════════════════════════════════════
 
-   Arquivo próprio, e carregado DEPOIS do theme.css, de propósito.
+   Esta é a terceira escrita deste arquivo, e as duas anteriores erraram do
+   mesmo jeito: eram o mesmo layout com outra cor. A dona disse isso com
+   todas as letras — "você está sempre fazendo o mesmo layout só que de cor
+   diferente" — e pediu o modelo do Notion, sem canto arredondado.
 
-   O theme.css é do procurô: 6.400 linhas escritas para outro produto, com
-   os componentes daquele app (vitrine de anúncio, cartão de avaliação,
-   selo, patrocínio de categoria). Mexer nele é repintar o procurô, e foi
-   isso que já se tentou duas vezes sem resolver — porque o problema nunca
-   foi a cor, foi de quem era o desenho.
+   O que muda de verdade, e por quê:
 
-   Aqui é o desenho do Ei. Tudo que a tela nova usa mora neste arquivo, com
-   prefixo `ei-`, e não depende de uma linha do outro. À medida que cada
-   tela do procurô for substituída, o theme.css encolhe até sumir.
+   1. NADA É ARREDONDADO. Zero. Nem bloco, nem botão, nem foto, nem
+      etiqueta. O canto muito redondo era a assinatura do desenho anterior
+      (e do procurô): cápsula de 999px em todo botão, 20px em todo cartão.
+      Tirar isso muda a silhueta da tela inteira, que é a primeira coisa
+      que se reconhece antes de ler qualquer palavra.
 
-   A referência é o Material 3, que é o sistema dos apps da Google. O que
-   faz um app "parecer Google" não é a cor — é isto:
+   2. NÃO EXISTE CARTÃO. O Notion não empilha caixas brancas sobre um fundo
+      cinza; põe tudo no mesmo papel branco e separa por um FIO de 1px.
+      Era o cartão que fazia toda tela daqui parecer a mesma tela — seis
+      retângulos brancos flutuando, mude-se o conteúdo que mudar.
 
-     · a elevação vem da COR da superfície, não de sombra
-     · superfície chapada: nada de degradê nem de brilho interno
-     · canto muito redondo, e botão em forma de cápsula
-     · o padrão "container": fundo claro da cor + texto escuro da cor,
-       em vez de cor forte com texto branco em tudo
-     · tipografia Roboto, com rótulo em peso médio
-     · o toque ACENDE o elemento (véu da própria cor) em vez de movê-lo
+   3. A COR SAI DE CENA. Papel branco, tinta quase preta, cinza no
+      secundário. A ação é preta com letra branca, como o botão primário do
+      próprio Notion. A dona reprovou a cor três vezes; a resposta certa
+      não era um quarto laranja, era tirar a cor do caminho. O laranja e o
+      azul da marca vivem na LOGO — que é onde marca vive num app moderno —
+      e reaparecem só como marcador de 2px e etiqueta.
 
-   As cores saem da marca: azul #031E52 e laranja #FF6A05.
+   4. A HIERARQUIA É TIPOGRÁFICA. No Notion o que separa um nível do outro
+      é tamanho e peso de letra, não caixa, sombra nem fundo colorido.
+
+   As cores saíram do próprio Notion: papel #ffffff, tinta #37352f, cinza
+   #787774, fio #e9e9e7.
    ═══════════════════════════════════════════════════════════════════════ */
 
 .ei {
-  /* ── Superfícies: cinza MORNO, não azulado ─────────────────────────
-     O fundo era #f7f9fc, um cinza puxado para o azul. O do procurô é
-     #f1f4f9 — praticamente o mesmo. Somado ao azul-marinho nos botões,
-     dava o mesmo app de antes: a dona olhou e disse que as cores
-     continuavam as do procurô, e estava certa.
+  /* ── Papel ─────────────────────────────────────────────────────────
+     Branco, e um cinza levíssimo só para o que precisa afundar (a busca,
+     uma etiqueta). Não há "superfície elevada": tudo no mesmo plano. */
+  --ei-papel: #ffffff;
+  --ei-afunda: #f7f7f5;
+  --ei-afunda-forte: #efeeec;
 
-     Agora o cinza é morno, puxado para o amarelo. Ele sozinho já muda a
-     temperatura da tela inteira, e é o oposto exato do cinza frio de lá. */
-  --ei-fundo: #faf9f7;
-  --ei-s1: #ffffff;
-  --ei-s2: #f4f2ee;
-  --ei-s3: #ece9e3;
-  --ei-s4: #e3dfd7;
+  /* ── Tinta ─────────────────────────────────────────────────────── */
+  --ei-tinta: #37352f;
+  /* Os dois cinzas foram MEDIDOS, não escolhidos de olho. O Notion usa
+     #787774 e #9b9a97; o segundo dá 3,54:1 sobre branco e reprova em
+     qualquer texto — e ele estava justamente nos rótulos da barra de
+     baixo, em corpo 11px, que é onde menos se pode economizar contraste.
+     Estes dois passam de 4,5:1 sobre o papel branco. */
+  --ei-tinta-fraca: #6b6963;
+  --ei-tinta-fraquissima: #73716c;
 
-  /* ── O laranja é a cor de AÇÃO ────────────────────────────────────
-     Esta é a virada. Antes o azul-marinho da marca era a cor dos botões —
-     e azul-marinho em botão é o procurô, por mais que o tom seja outro.
+  /* ── O fio ─────────────────────────────────────────────────────────
+     A peça mais importante deste arquivo. É ele que separa uma coisa da
+     outra, no lugar da borda de cartão e da sombra. */
+  --ei-fio: #e9e9e7;
+  --ei-fio-forte: #d7d6d2;
 
-     A referência que a dona mandou faz assim: a marca é verde escuro, mas
-     o botão principal é verde-LIMÃO e o filtro ativo é terracota. A ação é
-     a cor viva; a escura fica para a marca e o texto.
+  /* ── Ação: preta, como o botão primário do Notion ────────────────── */
+  --ei-acao: #37352f;
+  --ei-sobre-acao: #ffffff;
 
-     O laranja da marca com texto BRANCO dá 2,87:1 — reprovado. Com o navy
-     por cima dá 5,58:1, e é assim que a referência resolve o dela: botão
-     limão com texto verde escuro. Medido, não copiado de olho. */
-  --ei-cor: #ff6a05;
-  --ei-sobre-cor: #031e52;
-  --ei-cor-fraca: #ffe4d0;
-  --ei-sobre-cor-fraca: #5c2400;
-
-  /* O tom escrito, para quando o laranja precisa carregar LETRA e não
-     ser fundo: 4,75:1 sobre a barra e 5,46 sobre branco. */
-  --ei-laranja: #ff6a05;
-  --ei-laranja-tinta: #b34800;
-  --ei-laranja-fraco: #ffe4d0;
-  --ei-sobre-laranja-fraco: #5c2400;
-
-  /* ── O navy vira TINTA e marca, não ação ───────────────────────────
-     Continua sendo a cor da logo e dos títulos — é a marca. O que ele
-     deixou de ser é a cor dos botões, que era o que fazia o app inteiro
-     ler como azul. */
+  /* ── A marca, em doses pequenas ────────────────────────────────────
+     Continua sendo o navy e o laranja do logotipo. Aqui eles não pintam
+     superfície nenhuma: servem de marcador de 2px e de tinta de etiqueta,
+     que é como um app monocromático usa cor sem virar colorido. */
   --ei-marca: #031e52;
-  --ei-tinta: #1a1613;
-  --ei-tinta-fraca: #55504a;
-  --ei-linha: #ddd8d0;
-  --ei-contorno: #7d766d;
-
-  /* ── Verde de "está disponível" ────────────────────────────────────
-     O estado mais importante do perfil de quem procura trabalho merece
-     cor própria, e verde é a única leitura universal de "pode chamar". */
-  --ei-verde: #146c43;
-  --ei-verde-fraco: #d7f0e2;
-  --ei-sobre-verde-fraco: #04321c;
+  --ei-laranja: #c2410c;
+  --ei-verde: #1b6b3f;
 
   --ei-erro: #b3261e;
-  --ei-erro-fraco: #f9dedc;
-  --ei-sobre-erro-fraco: #410e0b;
 
-  /* ── Forma ─────────────────────────────────────────────────────────
-     Depois da barra de baixo, é a segunda coisa que se reconhece de
-     longe num app da Google. */
-  --ei-raio-p: 14px;
-  --ei-raio: 20px;
-  --ei-raio-g: 28px;
-  --ei-capsula: 999px;
+  /* Nomes antigos, ainda usados por telas que não foram reescritas.
+     Apontam para os novos para não haver duas paletas convivendo. */
+  --ei-fundo: var(--ei-papel);
+  --ei-s1: var(--ei-papel);
+  --ei-s2: var(--ei-afunda);
+  --ei-s3: var(--ei-afunda-forte);
+  --ei-s4: var(--ei-fio-forte);
+  --ei-cor: var(--ei-acao);
+  --ei-sobre-cor: var(--ei-sobre-acao);
+  --ei-cor-fraca: var(--ei-afunda);
+  --ei-sobre-cor-fraca: var(--ei-tinta);
+  --ei-laranja-tinta: var(--ei-laranja);
+  --ei-laranja-fraco: #fbeae1;
+  --ei-sobre-laranja-fraco: #7a2c0a;
+  --ei-verde-fraco: #e3f1e8;
+  --ei-sobre-verde-fraco: #10381f;
+  --ei-erro-fraco: #fbe9e8;
+  --ei-sobre-erro-fraco: #6b1512;
+  --ei-linha: var(--ei-fio);
+  --ei-contorno: var(--ei-fio-forte);
 
-  /* ── Elevação ──────────────────────────────────────────────────────
-     Quase nada, e só no que de fato flutua sobre o conteúdo. */
-  --ei-sombra: 0 1px 2px rgba(16, 19, 28, 0.10), 0 1px 3px 1px rgba(16, 19, 28, 0.07);
-  --ei-sombra-alta: 0 4px 8px 3px rgba(16, 19, 28, 0.10), 0 1px 3px rgba(16, 19, 28, 0.14);
+  /* ── Canto: nenhum ─────────────────────────────────────────────────
+     Os nomes continuam para não quebrar as telas ainda não reescritas,
+     mas todos valem ZERO. A dona pediu isso duas vezes na mesma
+     mensagem. */
+  --ei-raio-p: 0;
+  --ei-raio: 0;
+  --ei-raio-g: 0;
+  --ei-capsula: 0;
 
-  font-family: Roboto, "Helvetica Neue", system-ui, -apple-system, sans-serif;
+  /* ── Sombra: nenhuma. O que separa é o fio. ─────────────────────── */
+  --ei-sombra: none;
+  --ei-sombra-alta: none;
+
+  /* A pilha do Notion: Inter primeiro, as do sistema atrás. */
+  font-family: Inter, ui-sans-serif, -apple-system, "Segoe UI", Roboto,
+    "Helvetica Neue", sans-serif;
   color: var(--ei-tinta);
+  -webkit-font-smoothing: antialiased;
 }
 
 /* ── A tela ───────────────────────────────────────────────────────────
-   `min-height` com a altura real da janela (`100dvh`) e não `100vh`: no
-   celular a barra do navegador entra e sai, e com `vh` a tela fica alta
-   demais e sobra um pedaço em branco no fim do rolar. */
+   Papel branco de ponta a ponta. Sem recuo lateral no bloco: quem dá a
+   margem é cada peça, porque a lista e o fio precisam ir de BORDA A BORDA
+   — um fio que para a 20px da lateral vira um risco solto no meio da
+   tela, que é o oposto do que ele existe para fazer. */
 .ei-tela {
   min-height: 100dvh;
-  background: var(--ei-fundo);
-  /* A folga de baixo é a altura da barra (71px medidos) mais um respiro.
-     Antes eram 96px fixos, de quando a barra flutuava com 10px de vão. */
-  padding: 20px 16px calc(88px + env(safe-area-inset-bottom));
+  background: var(--ei-papel);
+  padding: 0 0 calc(76px + env(safe-area-inset-bottom));
+}
+
+/* Tudo que é TEXTO respira nas laterais; tudo que é FIO ou linha de lista
+   vai de ponta a ponta e cuida do próprio recuo interno. */
+.ei-margem {
+  padding-left: 20px;
+  padding-right: 20px;
 }
 
 /* ── Tipografia ───────────────────────────────────────────────────────
-   Títulos GRANDES e em NEGRITO.
-
-   Eu tinha posto peso 400 aqui, argumentando que título leve é o jeito da
-   Google. A referência que a dona mandou desmente: os títulos dela
-   ("Favoritos", "Mais procurados", "Tudo vazio por aqui") são pesados e
-   escuros, e é isso que dá o ar de app de produto em vez de página de
-   documento. Referência ganha de teoria.
-
-   A seção também deixa de ser MAIÚSCULA ESPAÇADA — aquilo é rótulo de
-   formulário antigo. Aqui ela é um título de verdade, um degrau abaixo do
-   principal, como o "Adicionados recentemente" da referência. */
+   É ela que faz a hierarquia. Sem caixa, sem cor de fundo, sem sombra. */
 .ei-titulo-g {
-  font-size: 1.9rem;
-  line-height: 1.15;
+  font-size: 1.75rem;
+  line-height: 1.2;
   font-weight: 700;
   letter-spacing: -0.02em;
-  margin: 0 0 4px;
+  margin: 0;
+  padding: 26px 20px 2px;
 }
 
 .ei-titulo {
-  font-size: 1.4rem;
-  line-height: 1.2;
-  font-weight: 700;
+  font-size: 1.15rem;
+  line-height: 1.3;
+  font-weight: 600;
   letter-spacing: -0.01em;
-  margin: 0 0 4px;
-}
-
-.ei-secao {
-  font-size: 1.25rem;
-  font-weight: 700;
-  letter-spacing: -0.01em;
-  text-transform: none;
-  color: var(--ei-tinta);
-  margin: 28px 0 12px;
-}
-
-/* Saudação de duas linhas, como o "Olá," + "Bem-vindo ao Amazoca" da
-   referência: a primeira linha na cor de acento, a segunda em preto. É o
-   que faz uma tela de entrada parecer um cumprimento e não um cabeçalho. */
-.ei-saudacao {
-  font-size: 1.9rem;
-  line-height: 1.15;
-  font-weight: 700;
-  letter-spacing: -0.02em;
-  margin: 0 0 20px;
-}
-
-.ei-saudacao span {
-  display: block;
-  color: var(--ei-laranja-tinta);
-}
-
-.ei-corpo {
-  font-size: 1rem;
-  line-height: 1.5;
   margin: 0;
 }
 
-.ei-apoio {
-  font-size: 0.875rem;
-  line-height: 1.43;
+/* O título de seção do Notion: pequeno, cinza e em caixa alta — e não um
+   segundo título grande competindo com o da página. */
+.ei-secao,
+.ei-secao-linha h2 {
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
   color: var(--ei-tinta-fraca);
   margin: 0;
 }
 
-/* ── Botões ───────────────────────────────────────────────────────────
-   A diferença entre eles é o PESO da ação, não a cor. */
+.ei-secao { padding: 24px 20px 8px; }
+
+.ei-secao-linha {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 24px 20px 8px;
+  margin: 0;
+}
+
+.ei-secao-acao {
+  font-size: 0.8rem;
+  font-weight: 500;
+  color: var(--ei-tinta-fraca);
+  text-decoration: none;
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  font-family: inherit;
+}
+
+.ei-secao-acao:hover { color: var(--ei-tinta); }
+
+.ei-corpo { font-size: 0.92rem; line-height: 1.55; margin: 0; }
+
+.ei-apoio {
+  font-size: 0.85rem;
+  line-height: 1.5;
+  color: var(--ei-tinta-fraca);
+  margin: 0;
+}
+
+/* A saudação deixou de ser peça própria: virou título com uma linha de
+   apoio acima. O nome fica para não quebrar telas que ainda a usam. */
+.ei-saudacao {
+  font-size: 1.75rem;
+  line-height: 1.2;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  margin: 0 0 12px;
+}
+.ei-saudacao span {
+  display: block;
+  color: var(--ei-tinta-fraca);
+  font-weight: 500;
+  font-size: 0.85rem;
+  letter-spacing: 0;
+}
+
+/* ── Botões: retângulos ───────────────────────────────────────────────
+   Sem cápsula, sem canto, sem véu de estado por cima. O principal é preto
+   com letra branca — o do Notion. O secundário é contorno fino. */
 .ei-btn {
   display: inline-flex;
   align-items: center;
   justify-content: center;
   gap: 8px;
-  min-height: 44px;
-  padding: 10px 24px;
-  border: none;
-  border-radius: var(--ei-capsula);
+  min-height: 38px;
+  padding: 9px 16px;
+  border: 1px solid transparent;
+  border-radius: 0;
   font: inherit;
-  font-size: 0.875rem;
+  font-size: 0.9rem;
   font-weight: 500;
-  letter-spacing: 0.01em;
   cursor: pointer;
   text-decoration: none;
-  position: relative;
-  overflow: hidden;
-  transition: background-color 0.15s ease;
+  transition: background-color 0.12s ease, border-color 0.12s ease;
 }
 
-/* A camada de estado: um véu da cor do texto, que aparece no toque. É como
-   o Material mostra reação sem mover nada de lugar — e mover é o que fazia
-   o botão do procurô parecer escorregar em vez de ser apertado. */
-.ei-btn::after {
-  content: "";
-  position: absolute;
-  inset: 0;
-  background: currentColor;
-  opacity: 0;
-  transition: opacity 0.15s ease;
-  pointer-events: none;
+.ei .ei-btn-cheio {
+  background: var(--ei-acao);
+  color: var(--ei-sobre-acao);
+  border-color: var(--ei-acao);
 }
+.ei .ei-btn-cheio:hover:not(:disabled) { background: #4b4842; border-color: #4b4842; }
 
-.ei-btn:hover:not(:disabled)::after { opacity: 0.08; }
-.ei-btn:active:not(:disabled)::after { opacity: 0.12; }
+.ei .ei-btn-contorno,
+.ei .ei-btn-tonal {
+  background: var(--ei-papel);
+  border-color: var(--ei-fio-forte);
+  color: var(--ei-tinta);
+}
+.ei .ei-btn-contorno:hover:not(:disabled),
+.ei .ei-btn-tonal:hover:not(:disabled) { background: var(--ei-afunda); }
 
-/* O `.ei` a mais é obrigatório, e a razão é um defeito de verdade.
-   ─────────────────────────────────────────────────────────────────
-   `.ei a { color: inherit }`, mais abaixo, vale (0,1,1) — uma classe e um
-   tipo — e ganha de `.ei-btn-cheio`, que vale (0,1,0). Resultado: TODO
-   botão que é link (e são quase todos: "Tenho interesse" é botão, mas
-   "Criar nova vaga", "Ver os planos" e "Abrir meu perfil" são links)
-   ignorava a própria cor de texto e herdava a tinta preta.
-
-   Passava despercebido porque a tinta é escura e a cor de cima era o navy,
-   também escuro: ninguém vê a diferença entre dois tons escuros sobre
-   laranja. Só apareceu ao medir o contraste de uma paleta com letra
-   BRANCA, onde o botão saiu preto no preto — 1,07:1.
-
-   Escrito assim, a cor do botão é a cor do botão em qualquer paleta. */
-.ei .ei-btn-cheio { background: var(--ei-cor); color: var(--ei-sobre-cor); }
-.ei .ei-btn-tonal { background: var(--ei-cor-fraca); color: var(--ei-sobre-cor-fraca); }
-/* Contorno e texto usam a MARCA, não o laranja: laranja em letra fina
-   sobre branco fica fraco de ler, e é aí que o navy trabalha bem. O
-   laranja fica onde ele é área — preenchimento de botão, pastilha, ponto
-   de aviso. */
-.ei .ei-btn-contorno {
+.ei .ei-btn-texto {
   background: transparent;
-  border: 1px solid var(--ei-contorno);
-  color: var(--ei-marca);
+  color: var(--ei-tinta-fraca);
+  padding: 8px 0;
+  border-color: transparent;
 }
-.ei .ei-btn-texto { background: transparent; color: var(--ei-marca); padding: 10px 12px; }
+.ei .ei-btn-texto:hover:not(:disabled) { color: var(--ei-tinta); }
 
 .ei-btn-largo { width: 100%; }
+.ei-btn-alto { min-height: 44px; }
 
-.ei-btn:disabled {
-  background: rgba(16, 19, 28, 0.10);
-  border-color: transparent;
-  color: rgba(16, 19, 28, 0.42);
+.ei .ei-btn:disabled {
+  background: var(--ei-afunda);
+  border-color: var(--ei-fio);
+  color: var(--ei-tinta-fraquissima);
   cursor: default;
 }
-.ei-btn:disabled::after { opacity: 0; }
 
-/* ── Cartão ───────────────────────────────────────────────────────────
-   Uma superfície, não um objeto levantado: ele é branco sobre um fundo que
-   não é branco, e é só isso que o separa. Sem borda e sem sombra — metade
-   do que faz uma tela parecer da Google é essa calma. */
+/* ── Bloco ────────────────────────────────────────────────────────────
+   O que era `.ei-cartao`. Não é mais um cartão: é um trecho do mesmo
+   papel, com um fio em cima, de ponta a ponta. Sem fundo próprio, sem
+   canto, sem sombra. */
 .ei-cartao {
-  background: var(--ei-s1);
-  border-radius: var(--ei-raio);
-  padding: 16px;
+  background: transparent;
+  border-radius: 0;
+  padding: 16px 20px;
+  border-top: 1px solid var(--ei-fio);
 }
 
-.ei-cartao-fundo { background: var(--ei-s2); }
+.ei-cartao-fundo { background: var(--ei-afunda); }
 
-/* Cartão que se toca inteiro. */
-/* Link e botão usam a mesma classe, então o sublinhado precisa sair
-   explicitamente: o `a` do navegador vem sublinhado por padrão, e num
-   cartão inteiro clicável isso vira um bloco de texto todo riscado. Foi
-   visto na foto depois de a regra genérica do procurô ser podada — até
-   então, era ela que segurava. */
 .ei a { color: inherit; }
+
 .ei-cartao-toque {
   text-decoration: none;
   display: block;
@@ -285,65 +291,27 @@
   font: inherit;
   color: inherit;
   cursor: pointer;
-  position: relative;
-  overflow: hidden;
 }
-.ei-cartao-toque::after {
-  content: "";
-  position: absolute;
-  inset: 0;
-  background: currentColor;
-  opacity: 0;
-  transition: opacity 0.15s ease;
-  pointer-events: none;
-}
-.ei-cartao-toque:hover::after { opacity: 0.05; }
-.ei-cartao-toque:active::after { opacity: 0.09; }
+.ei-cartao-toque:hover { background: var(--ei-afunda); }
 
 /* ── Lista ────────────────────────────────────────────────────────────
-   Itens colados num bloco único de canto redondo — o padrão de lista dos
-   apps da Google, no lugar de vários cartões soltos com espaço entre eles.
-   Uma lista de trinta cartões separados vira um acordeão visual; colada,
-   ela lê como uma coisa só. */
+   Linhas separadas por fio, de ponta a ponta. Sem bloco arredondado em
+   volta, sem espaço entre as linhas. */
 .ei-lista {
-  display: grid;
-  gap: 2px;
-  border-radius: var(--ei-raio);
-  overflow: hidden;
+  display: block;
+  border-top: 1px solid var(--ei-fio);
 }
 
-/* O `.ei` a mais não é enfeite: sem ele esta regra empata em
-   especificidade com `.ei-linha-item` (que também arredonda), e quem vence
-   um empate é a última escrita no arquivo — a linha de lista, que vem
-   depois. O efeito era a lista virar três cartõezinhos arredondados com um
-   fio de 2px entre eles, que é exatamente o "acordeão" que ela existe para
-   não ser. Visto na foto, não no código.
-
-   Os cantos de fora quem faz é o `overflow: hidden` do bloco, então os
-   filhos não precisam de canto nenhum.
-
-   O `min-width: 0` é a armadilha clássica do grid: item de grid nasce com
-   `min-width: auto`, ou seja, "nunca menor que o meu conteúdo". Uma linha
-   com título longo e `white-space: nowrap` dentro fazia a trilha inteira
-   crescer, e a lista saía 21px para fora da tela — o texto cortado no fio
-   da borda, sem reticências, com a seta empurrada para fora. Medido: a
-   linha terminava em 411px numa tela de 390px. */
 .ei .ei-lista > * {
   border-radius: 0;
   min-width: 0;
 }
 
-/* ── Campo ────────────────────────────────────────────────────────────
-   Contorno sobre a própria superfície, e não caixa cinza: num formulário
-   longo, dez retângulos cinzas empilhados viram uma parede e a pessoa
-   perde de vista onde acaba um campo e começa o outro. */
-.ei-campo {
-  display: grid;
-  gap: 6px;
-}
+/* ── Campo ──────────────────────────────────────────────────────────── */
+.ei-campo { display: grid; gap: 6px; }
 
 .ei-campo > label {
-  font-size: 0.875rem;
+  font-size: 0.8rem;
   font-weight: 500;
   color: var(--ei-tinta-fraca);
 }
@@ -352,598 +320,456 @@
 .ei-campo select,
 .ei-campo textarea {
   width: 100%;
-  background: transparent;
-  border: 1px solid var(--ei-contorno);
-  border-radius: var(--ei-raio-p);
-  padding: 15px 16px;
+  background: var(--ei-papel);
+  border: 1px solid var(--ei-fio-forte);
+  border-radius: 0;
+  padding: 10px 12px;
   font: inherit;
-  font-size: 1rem;
+  font-size: 0.92rem;
   color: var(--ei-tinta);
-  transition: border-color 0.15s ease, box-shadow 0.15s ease;
 }
 
 .ei-campo input:focus,
 .ei-campo select:focus,
 .ei-campo textarea:focus {
   outline: none;
-  border-color: var(--ei-cor);
-  /* `inset` para o contorno crescer para dentro: para fora, o campo
-     empurraria os vizinhos 1px a cada foco. */
-  box-shadow: inset 0 0 0 1px var(--ei-cor);
+  border-color: var(--ei-tinta-fraca);
 }
 
-.ei-campo-ajuda {
-  font-size: 0.75rem;
-  color: var(--ei-tinta-fraca);
-}
+.ei-campo-ajuda { font-size: 0.78rem; color: var(--ei-tinta-fraca); }
+.ei-campo-erro { font-size: 0.82rem; color: var(--ei-erro); }
 
-.ei-campo-erro {
-  font-size: 0.75rem;
-  color: var(--ei-erro);
-}
-
-/* ── Etiqueta escolhível ("chip") ─────────────────────────────────────
-   É como a Google deixa escolher várias coisas de uma lista. Substitui a
-   folha que abria por cima da tela no procurô: para oito funções, ver
-   todas de uma vez e tocar é menos passo do que abrir, procurar e fechar. */
-.ei-chips {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-}
+/* ── Etiqueta escolhível ──────────────────────────────────────────────
+   Retângulo de contorno. Escolhida = preenchida de preto. */
+.ei-chips { display: flex; flex-wrap: wrap; gap: 6px; }
 
 .ei-chip {
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  min-height: 32px;
-  padding: 6px 14px;
-  border: 1px solid var(--ei-contorno);
-  border-radius: var(--ei-raio-p);
-  background: transparent;
-  color: var(--ei-tinta);
+  min-height: 30px;
+  padding: 5px 11px;
+  border: 1px solid var(--ei-fio-forte);
+  border-radius: 0;
+  background: var(--ei-papel);
+  color: var(--ei-tinta-fraca);
   font: inherit;
-  font-size: 0.875rem;
+  font-size: 0.85rem;
   font-weight: 500;
   cursor: pointer;
-  transition: background-color 0.15s ease, border-color 0.15s ease;
 }
 
-.ei-chip[aria-pressed="true"] {
-  background: var(--ei-cor-fraca);
-  border-color: transparent;
-  color: var(--ei-sobre-cor-fraca);
+.ei-chip:hover { background: var(--ei-afunda); }
+
+.ei .ei-chip[aria-pressed="true"] {
+  background: var(--ei-acao);
+  border-color: var(--ei-acao);
+  color: var(--ei-sobre-acao);
 }
 
-.ei-chip:disabled {
-  opacity: 0.38;
-  cursor: default;
-}
+.ei-chip:disabled { opacity: 0.4; cursor: default; }
 
-/* ── Etiqueta de estado ("badge") ─────────────────────────────────────
-   Só informa; não se toca. */
+/* ── Etiqueta de estado ───────────────────────────────────────────────
+   A "tag" do Notion: fundo pastel, letra escura da mesma família,
+   retângulo. Não é pílula. */
 .ei-selo {
-  display: inline-flex;
-  align-items: center;
-  gap: 5px;
-  padding: 4px 10px;
-  border-radius: var(--ei-capsula);
-  font-size: 0.75rem;
+  display: inline-block;
+  padding: 2px 7px;
+  border-radius: 0;
+  font-size: 0.74rem;
   font-weight: 500;
+  line-height: 1.45;
+  white-space: nowrap;
 }
 
 .ei-selo-verde { background: var(--ei-verde-fraco); color: var(--ei-sobre-verde-fraco); }
 .ei-selo-laranja { background: var(--ei-laranja-fraco); color: var(--ei-sobre-laranja-fraco); }
-.ei-selo-cinza { background: var(--ei-s3); color: var(--ei-tinta-fraca); }
+.ei-selo-cinza { background: var(--ei-afunda-forte); color: var(--ei-tinta-fraca); }
 
-/* ── Interruptor ──────────────────────────────────────────────────────
-   Para "estou disponível" e "ficar oculto": duas escolhas que a pessoa
-   liga e desliga, e que precisam mostrar o estado ATUAL sem ela abrir
-   nada. Caixa de marcar não serve — ela some no meio do formulário. */
+/* ── Chave liga/desliga ───────────────────────────────────────────── */
 .ei-switch {
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  gap: 16px;
-  width: 100%;
-  padding: 14px 16px;
+  gap: 12px;
   background: none;
   border: none;
+  padding: 0;
   font: inherit;
+  cursor: pointer;
   color: inherit;
   text-align: left;
-  cursor: pointer;
+  width: 100%;
 }
 
 .ei-switch-trilho {
   flex: 0 0 auto;
-  width: 52px;
-  height: 32px;
-  border-radius: var(--ei-capsula);
-  background: var(--ei-s4);
-  border: 2px solid var(--ei-contorno);
   position: relative;
-  transition: background-color 0.18s ease, border-color 0.18s ease;
+  width: 38px;
+  height: 20px;
+  border-radius: 0;
+  background: var(--ei-fio-forte);
+  transition: background-color 0.15s ease;
 }
 
 .ei-switch-bolinha {
   position: absolute;
-  top: 50%;
-  left: 4px;
-  width: 16px;
-  height: 16px;
-  border-radius: 999px;
-  background: var(--ei-contorno);
-  transform: translateY(-50%);
-  transition: left 0.18s ease, width 0.18s ease, height 0.18s ease, background-color 0.18s ease;
+  top: 3px;
+  left: 3px;
+  width: 14px;
+  height: 14px;
+  border-radius: 0;
+  background: var(--ei-papel);
+  transition: transform 0.15s ease;
 }
 
-.ei-switch[aria-checked="true"] .ei-switch-trilho {
-  background: var(--ei-cor);
-  border-color: var(--ei-cor);
-}
+.ei-switch[aria-checked="true"] .ei-switch-trilho { background: var(--ei-acao); }
+.ei-switch[aria-checked="true"] .ei-switch-bolinha { transform: translateX(18px); }
 
-/* Ligada, a bolinha CRESCE além de andar. É o detalhe que o Material 3
-   tem e as cópias não: o tamanho é o que confirma a mudança para quem não
-   distingue bem as cores. */
-.ei-switch[aria-checked="true"] .ei-switch-bolinha {
-  left: 26px;
-  width: 24px;
-  height: 24px;
-  background: #ffffff;
-}
-
-/* ── Cabeçalho de tela ────────────────────────────────────────────────
-   Sem barra fixa colorida: o título é grande, mora na própria página e
-   rola com ela. É o que a Google faz em Gmail, Fotos e Drive. */
+/* ── Topo de tela com ação ────────────────────────────────────────── */
 .ei-topo {
   display: flex;
-  align-items: flex-start;
+  align-items: center;
   justify-content: space-between;
   gap: 12px;
-  margin-bottom: 16px;
+  padding: 0 20px 12px;
 }
 
 /* ── Estado vazio ─────────────────────────────────────────────────────
-   Nunca só "nada aqui": sempre o que a pessoa pode fazer a respeito. Uma
-   tela vazia sem saída faz concluir que o app não serve. */
+   Sem ícone dentro de círculo cinza e sem texto centralizado: no Notion o
+   vazio é uma linha de texto cinza, alinhada à esquerda, e um caminho. */
 .ei-vazio {
   display: grid;
-  justify-items: center;
-  gap: 8px;
-  padding: 40px 24px;
-  text-align: center;
+  justify-items: start;
+  gap: 10px;
+  padding: 26px 20px 30px;
+  text-align: left;
 }
 
 .ei-vazio-icone {
   display: grid;
   place-items: center;
-  width: 64px;
-  height: 64px;
-  border-radius: var(--ei-capsula);
-  background: var(--ei-s3);
-  color: var(--ei-tinta-fraca);
-  margin-bottom: 4px;
-}
-
-/* ── Foco visível ─────────────────────────────────────────────────────
-   Para quem navega por teclado. Fica por último para vencer o resto. */
-.ei a:focus-visible,
-.ei button:focus-visible,
-.ei input:focus-visible,
-.ei select:focus-visible,
-.ei textarea:focus-visible,
-.ei [tabindex]:focus-visible {
-  outline: 3px solid var(--ei-laranja);
-  outline-offset: 2px;
-}
-
-/* Botão alto, para as escolhas principais de uma tela de entrada. A
-   referência usa botões bem mais altos que os de dentro do app — ali eles
-   SÃO a tela, e não um controle no meio de um formulário. */
-.ei-btn-alto {
-  min-height: 56px;
-  font-size: 1rem;
+  width: 32px;
+  height: 32px;
+  border-radius: 0;
+  background: var(--ei-afunda);
+  color: var(--ei-tinta-fraquissima);
 }
 
 /* ═══════════════════════════════════════════════════════════════════════
-   A ANATOMIA DOS CARTÕES
-   ═══════════════════════════════════════════════════════════════════════
-   Os cartões eram caixas brancas com um título dentro — que é exatamente o
-   que a dona apontou como "ainda parece o procurô". Um retângulo branco com
-   texto não é desenho, é ausência de desenho.
-
-   A referência que ela mandou tem cartões COMPOSTOS, e cada peça tem
-   função:
-
-     · uma tarja de cor na lateral do título, que identifica o assunto sem
-       gastar uma linha de texto
-     · uma faixa cinza DENTRO do cartão, para o dado secundário — separa
-       sem precisar de linha nem de espaço em branco
-     · uma fileira de ações em círculo, com o nome embaixo
-     · um botão em cápsula ocupando a largura toda, no rodapé do cartão
-
-   É isso que faz o cartão parecer um objeto do app, e não um parágrafo com
-   fundo branco.
+   AS PEÇAS DAS TELAS
    ═══════════════════════════════════════════════════════════════════════ */
 
-/* ── Título de seção com ação à direita ───────────────────────────────
-   "Meus Saldos ......... Organizar". O título é o assunto; o link é o que
-   se pode fazer com a lista inteira. Juntos numa linha só, eles poupam a
-   linha que um subtítulo gastaria. */
-.ei-secao-linha {
-  display: flex;
-  align-items: baseline;
-  justify-content: space-between;
-  gap: 12px;
-  margin: 28px 0 12px;
-}
-
-.ei-secao-linha h2 {
-  font-size: 1.25rem;
-  font-weight: 700;
-  letter-spacing: -0.01em;
-  margin: 0;
-}
-
-.ei-secao-acao {
-  font-size: 0.9rem;
-  font-weight: 600;
-  color: var(--ei-marca);
-  text-decoration: underline;
-  background: none;
-  border: none;
-  padding: 0;
-  cursor: pointer;
-  font-family: inherit;
-}
-
-/* ── Atalhos: fileira que rola de lado ────────────────────────────────
-   Tiles pequenos com ícone em cima e nome embaixo. O selecionado se marca
-   por CONTORNO na cor de acento, não por preenchimento: preenchido, ele
-   viraria um botão apertado no meio de outros três, e some a leitura de
-   "esta é a que está aberta". */
-.ei-atalhos {
-  display: flex;
-  gap: 10px;
-  overflow-x: auto;
-  padding: 4px 0 8px;
-  /* Sem barra de rolagem visível: no celular ela não existe, e no
-     computador ela roubaria altura de uma fileira baixa. */
-  scrollbar-width: none;
-}
-.ei-atalhos::-webkit-scrollbar { display: none; }
-
-.ei-atalho {
-  flex: 0 0 auto;
-  width: 104px;
-  display: grid;
-  justify-items: center;
-  gap: 6px;
-  padding: 14px 8px;
-  background: var(--ei-s1);
-  border: 2px solid transparent;
-  border-radius: var(--ei-raio);
-  font: inherit;
-  font-size: 0.8rem;
-  font-weight: 600;
-  line-height: 1.2;
-  text-align: center;
-  color: var(--ei-tinta);
-  text-decoration: none;
-  cursor: pointer;
-}
-
-.ei-atalho[aria-current="true"] {
-  border-color: var(--ei-laranja);
-}
-
-.ei-atalho svg { width: 26px; height: 26px; }
-
-/* ── Cartão com anatomia ──────────────────────────────────────────────── */
-.ei-cartao-topo {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  margin-bottom: 14px;
-}
-
-/* A tarja: identifica o assunto sem gastar uma linha de texto. */
-.ei-tarja {
-  flex: 0 0 auto;
-  width: 4px;
-  align-self: stretch;
-  min-height: 22px;
-  border-radius: 999px;
-  background: var(--ei-laranja);
-}
-
-.ei-cartao-titulo {
-  flex: 1;
-  font-size: 1.1rem;
-  font-weight: 700;
-  margin: 0;
-  min-width: 0;
-}
-
-.ei-cartao-valor {
-  font-size: 1.1rem;
-  font-weight: 700;
-  white-space: nowrap;
-}
-
-/* ── Faixa interna ────────────────────────────────────────────────────
-   O dado secundário do cartão, num degrau de superfície abaixo. Separa
-   sem linha e sem espaço em branco. */
-.ei-faixa {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
-  padding: 12px 14px;
-  background: var(--ei-s2);
-  border-radius: var(--ei-raio-p);
-  font-size: 0.9rem;
-}
-
-.ei-faixa-valor { font-weight: 600; }
-
-/* ── Ações em círculo ─────────────────────────────────────────────────
-   Quatro cabem numa linha de celular estreito; o quinto rola. O nome vai
-   EMBAIXO e não dentro do círculo: dentro, ele obrigaria o círculo a
-   crescer até virar um botão comum. */
-.ei-acoes {
-  display: flex;
-  justify-content: space-between;
-  gap: 4px;
-  margin: 16px 0;
-  overflow-x: auto;
-  scrollbar-width: none;
-}
-.ei-acoes::-webkit-scrollbar { display: none; }
-
-.ei-acao {
-  flex: 1 0 72px;
-  display: grid;
-  justify-items: center;
-  gap: 6px;
-  background: none;
-  border: none;
-  padding: 0;
-  font: inherit;
-  font-size: 0.76rem;
-  font-weight: 500;
-  line-height: 1.2;
-  text-align: center;
-  color: var(--ei-tinta);
-  text-decoration: none;
-  cursor: pointer;
-}
-
-.ei-acao-circulo {
-  display: grid;
-  place-items: center;
-  width: 52px;
-  height: 52px;
-  border-radius: 999px;
-  background: var(--ei-s2);
-  color: var(--ei-marca);
-}
-
-.ei-acao-circulo svg { width: 24px; height: 24px; }
-
-/* ═══════════════════════════════════════════════════════════════════════
-   AS PEÇAS DA REFERÊNCIA QUE FALTAVAM
-   ═══════════════════════════════════════════════════════════════════════
-
-   A dona disse quatro vezes que o app tinha que parecer com as telas que
-   ela mandou, e eu respondi três vezes trocando COR. Na quarta ela foi
-   direta: "mais uma vez só mudou as cores". Ela estava certa — o que
-   separa aquelas telas destas nunca foi a paleta:
-
-     · o campo de busca é uma CÁPSULA com a lupa dentro, e não a caixa
-       retangular de formulário
-     · abaixo dele corre uma fileira de filtros, e o escolhido é
-       PREENCHIDO
-     · o conteúdo aparece em cartões com FOTO grande, dois por linha —
-       não em linhas de texto empilhadas
-     · o que é pessoa tem rosto; o que é empresa tem marca
-
-   Uma tela feita só de retângulo branco com texto dentro é a mesma tela em
-   qualquer app do mundo, pintada de qualquer cor. É isso que estava
-   acontecendo aqui.
-   ═══════════════════════════════════════════════════════════════════════ */
-
-/* ── Busca em cápsula ─────────────────────────────────────────────────
-   Fundo cheio e sem contorno, com a lupa dentro à esquerda. O `.ei-campo`
-   (contorno, canto pequeno) é para formulário: numa tela de procurar, ele
-   lê como "preencha aqui" em vez de "digite e veja". */
+/* ── Busca ────────────────────────────────────────────────────────────
+   Retângulo cinza-claro com a lupa dentro. Era uma cápsula de 52px de
+   altura; agora tem 38, que é a altura de campo do Notion. */
 .ei-busca {
   display: flex;
   align-items: center;
-  gap: 10px;
-  padding: 0 16px;
-  background: var(--ei-s2);
-  border-radius: var(--ei-capsula);
-  min-height: 52px;
+  gap: 8px;
+  margin: 0 20px;
+  padding: 0 10px;
+  background: var(--ei-afunda);
+  border: 1px solid var(--ei-fio);
+  border-radius: 0;
+  min-height: 38px;
 }
 
-.ei-busca svg {
-  flex: 0 0 auto;
-  width: 20px;
-  height: 20px;
-  color: var(--ei-tinta-fraca);
-}
+.ei-busca svg { flex: 0 0 auto; width: 16px; height: 16px; color: var(--ei-tinta-fraquissima); }
 
 .ei-busca input {
   flex: 1;
   min-width: 0;
   border: none;
   background: none;
-  padding: 14px 0;
+  padding: 9px 0;
   font: inherit;
-  font-size: 1rem;
+  font-size: 0.92rem;
   color: var(--ei-tinta);
 }
 
 .ei-busca input:focus { outline: none; }
-.ei-busca input::placeholder { color: var(--ei-tinta-fraca); }
+.ei-busca input::placeholder { color: var(--ei-tinta-fraquissima); }
 
-/* O X de limpar. Existe porque apagar letra por letra num celular é o
-   motivo mais comum de a pessoa desistir de refazer a busca. */
 .ei-busca-limpar {
   flex: 0 0 auto;
   display: grid;
   place-items: center;
-  width: 28px;
-  height: 28px;
+  width: 20px;
+  height: 20px;
   border: none;
-  border-radius: var(--ei-capsula);
-  background: var(--ei-s4);
-  color: var(--ei-tinta);
+  border-radius: 0;
+  background: none;
+  color: var(--ei-tinta-fraca);
   cursor: pointer;
   font: inherit;
-  font-size: 0.8rem;
-  line-height: 1;
+  font-size: 0.75rem;
 }
 
-/* ── Fileira de filtros ───────────────────────────────────────────────
-   Rola de lado em vez de quebrar em três linhas: com quebra, uma lista de
-   dez ofícios come metade da tela antes do primeiro resultado. */
+/* ── Fileira de filtros ─────────────────────────────────────────────── */
 .ei-filtros {
   display: flex;
-  gap: 8px;
+  gap: 6px;
   overflow-x: auto;
   scrollbar-width: none;
-  /* O respiro nas pontas é o que faz a fileira parecer que continua, em
-     vez de parecer cortada na borda da tela. */
-  padding: 2px 16px 2px 0;
-  margin-right: -16px;
-  /* Encostava no título logo acima (4px medidos). Título e filtro são
-     coisas diferentes e precisavam de um degrau entre eles. */
-  margin-top: 14px;
+  padding: 12px 20px;
 }
 .ei-filtros::-webkit-scrollbar { display: none; }
-
 .ei-filtros .ei-chip { flex: 0 0 auto; white-space: nowrap; }
 
-/* Aqui o escolhido é CHEIO, e não o tom fraco do `.ei-chip` comum: num
-   filtro só existe um escolhido por vez e ele precisa se separar dos
-   outros sete de relance. Nas escolhas múltiplas (as funções do perfil) o
-   tom fraco continua certo — lá metade pode estar marcada. */
-.ei .ei-filtros .ei-chip[aria-pressed="true"] {
-  background: var(--ei-cor);
-  border-color: transparent;
-  color: var(--ei-sobre-cor);
+/* ── Marcador de 2px ──────────────────────────────────────────────────
+   O que era a "tarja" de 4px arredondada. É o único lugar em que a cor da
+   marca aparece fora da logo. */
+.ei-cartao-topo {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 10px;
 }
 
-/* ── Grade de cartões com foto ────────────────────────────────────────
-   Dois por linha em celular. É o formato da referência, e a razão não é
-   estética: com foto, a lista deixa de ser um bloco de nomes e vira gente.
-   Numa cidade em que as pessoas se conhecem, o rosto é o que faz a
-   empresa reconhecer alguém. */
-.ei-grade {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
+.ei-tarja {
+  flex: 0 0 auto;
+  width: 2px;
+  align-self: stretch;
+  min-height: 16px;
+  border-radius: 0;
+  background: var(--ei-laranja);
+}
+
+.ei-cartao-titulo {
+  flex: 1;
+  font-size: 1rem;
+  font-weight: 600;
+  line-height: 1.3;
+  margin: 0;
+  min-width: 0;
+}
+
+.ei-cartao-valor { font-size: 1rem; font-weight: 600; white-space: nowrap; }
+
+/* ── Faixa de dado ────────────────────────────────────────────────────
+   Duas colunas separadas por fio, sem caixa cinza em volta. É a linha de
+   propriedade do Notion ("Status · Em andamento"). */
+.ei-faixa {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
   gap: 12px;
+  padding: 8px 0;
+  border-top: 1px solid var(--ei-fio);
+  border-bottom: 1px solid var(--ei-fio);
+  background: transparent;
+  border-radius: 0;
+  font-size: 0.85rem;
+  color: var(--ei-tinta-fraca);
 }
 
-.ei-foto-cartao {
-  display: block;
-  background: var(--ei-s1);
-  border-radius: var(--ei-raio);
-  overflow: hidden;
-  text-decoration: none;
-  color: inherit;
-  border: none;
-  padding: 0;
+.ei-faixa-valor { font-weight: 500; color: var(--ei-tinta); }
+
+/* ── Ações ────────────────────────────────────────────────────────────
+   Sem círculo de 52px. Ícone pequeno ao lado do rótulo, num retângulo de
+   contorno fino que rola de lado. */
+.ei-acoes {
+  display: flex;
+  gap: 8px;
+  padding: 14px 20px;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+.ei-acoes::-webkit-scrollbar { display: none; }
+
+.ei-acao {
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  border: 1px solid var(--ei-fio-forte);
+  border-radius: 0;
+  background: var(--ei-papel);
   font: inherit;
-  text-align: left;
+  font-size: 0.85rem;
+  font-weight: 500;
+  color: var(--ei-tinta);
+  text-decoration: none;
+  white-space: nowrap;
   cursor: pointer;
 }
 
-/* Quadrada, e a mesma altura em todos: com altura livre, uma foto em pé ao
-   lado de uma deitada desalinha a linha inteira da grade. */
-.ei-foto-cartao-imagem {
-  position: relative;
-  aspect-ratio: 1 / 1;
-  background: var(--ei-s3);
+.ei-acao:hover { background: var(--ei-afunda); }
+
+.ei-acao-circulo {
+  display: grid;
+  place-items: center;
+  width: 18px;
+  height: 18px;
+  border-radius: 0;
+  background: none;
+  color: var(--ei-tinta-fraca);
+}
+
+.ei-acao-circulo svg { width: 18px; height: 18px; }
+
+/* ── Linha de lista ───────────────────────────────────────────────────
+   O item do Notion: ícone pequeno, nome, e um fio embaixo. Sem seta
+   grande, sem quadrado cinza atrás do ícone, sem canto. */
+.ei-linha-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  min-width: 0;
+  padding: 12px 20px;
+  background: transparent;
+  border: none;
+  border-bottom: 1px solid var(--ei-fio);
+  border-radius: 0;
+  font: inherit;
+  color: var(--ei-tinta);
+  text-align: left;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.ei-linha-item:hover { background: var(--ei-afunda); }
+
+.ei-linha-icone {
+  flex: 0 0 auto;
+  display: grid;
+  place-items: center;
+  width: 20px;
+  height: 20px;
+  border-radius: 0;
+  background: none;
+  color: var(--ei-tinta-fraca);
+}
+
+.ei-linha-icone svg { width: 18px; height: 18px; }
+
+.ei-linha-nome { flex: 1; font-weight: 500; font-size: 0.93rem; min-width: 0; }
+
+.ei-linha-sub {
+  display: block;
+  font-weight: 400;
+  font-size: 0.8rem;
+  line-height: 1.35;
+  color: var(--ei-tinta-fraca);
+  overflow-wrap: anywhere;
+}
+
+.ei-linha-valor { font-size: 0.85rem; color: var(--ei-tinta-fraca); white-space: nowrap; }
+
+.ei-linha-seta { flex: 0 0 auto; color: var(--ei-tinta-fraquissima); }
+.ei-linha-seta svg { width: 14px; height: 14px; }
+
+/* ── Pessoa numa linha ────────────────────────────────────────────────
+   A grade de cartões com foto grande e um bloco de texto pendurado
+   embaixo saiu. A dona olhou e disse que não precisa "do baixo na foto da
+   pessoa", e ela tem razão de sobra: aquele bloco existia só para
+   pendurar duas linhas de texto, e era ele que dava altura desigual aos
+   cartões, truncava ofício e obrigava a uma etiqueta de bairro cortada.
+
+   Aqui a pessoa é uma LINHA: retrato quadrado de 36px, nome, ofício em
+   cinza. Cabe o dobro de gente na mesma tela, nada corta, e é o formato
+   de lista do Notion. */
+.ei-pessoa {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  min-width: 0;
+  padding: 10px 20px;
+  border-bottom: 1px solid var(--ei-fio);
+  text-decoration: none;
+  color: inherit;
+}
+
+.ei-pessoa-retrato {
+  flex: 0 0 auto;
+  width: 36px;
+  height: 36px;
+  border-radius: 0;
+  background: var(--ei-afunda-forte);
   display: grid;
   place-items: center;
   overflow: hidden;
-}
-
-.ei-foto-cartao-imagem img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  display: block;
-}
-
-/* Sem foto, a inicial grande. Trinta silhuetas iguais de "pessoa sem
-   rosto" viram ruído; a letra pelo menos distingue um cartão do outro. */
-.ei-foto-cartao-inicial {
-  font-size: 2.4rem;
-  font-weight: 700;
-  color: var(--ei-tinta-fraca);
-}
-
-/* A etiqueta sobre a foto: o bairro, o "disponível". Fica na imagem e não
-   embaixo dela para o texto do cartão não virar quatro linhas. */
-.ei-foto-cartao-selo {
-  position: absolute;
-  left: 8px;
-  bottom: 8px;
-  padding: 3px 9px;
-  border-radius: var(--ei-capsula);
-  background: var(--ei-s1);
+  /* A inicial é tinta cheia: em cinza sobre o cinza do quadrado ela dava
+     4,46:1, um décimo abaixo do mínimo. */
   color: var(--ei-tinta);
-  font-size: 0.7rem;
+  font-size: 0.9rem;
   font-weight: 600;
-  max-width: calc(100% - 16px);
+}
+
+.ei-pessoa-retrato img { width: 100%; height: 100%; object-fit: cover; display: block; }
+
+.ei-pessoa-texto { flex: 1; min-width: 0; }
+.ei-pessoa-nome { font-size: 0.93rem; font-weight: 500; line-height: 1.3; }
+.ei-pessoa-oficio { font-size: 0.8rem; line-height: 1.3; color: var(--ei-tinta-fraca); }
+
+/* ── Marca da empresa, no bloco da vaga ───────────────────────────── */
+.ei-empresa-marca {
+  flex: 0 0 auto;
+  display: grid;
+  place-items: center;
+  width: 26px;
+  height: 26px;
+  border-radius: 0;
+  background: var(--ei-afunda-forte);
+  color: var(--ei-tinta-fraca);
+  font-size: 0.78rem;
+  font-weight: 600;
   overflow: hidden;
-  text-overflow: ellipsis;
+}
+
+.ei-empresa-marca img { width: 100%; height: 100%; object-fit: cover; display: block; }
+
+/* ── Foto da pessoa, na Conta ─────────────────────────────────────── */
+.ei-foto {
+  position: relative;
+  display: block;
+  flex: 0 0 auto;
+  width: 48px;
+  height: 48px;
+  cursor: pointer;
+}
+
+.ei-foto img,
+.ei-foto-iniciais {
+  display: block;
+  width: 48px;
+  height: 48px;
+  border-radius: 0;
+  object-fit: cover;
+}
+
+.ei-foto-iniciais {
+  display: grid;
+  place-items: center;
+  background: var(--ei-afunda-forte);
+  color: var(--ei-tinta-fraca);
+  font-size: 1rem;
+  font-weight: 600;
+}
+
+/* Faixa sobre a base da foto, e não um comprimido laranja pendurado no
+   canto: o comprimido era mais uma peça arredondada e colorida. */
+.ei-foto-trocar {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  padding: 1px 0;
+  border-radius: 0;
+  /* Cor cheia, e não 85% de preto: por cima de uma foto qualquer, a
+     transparência torna o contraste impossível de garantir — e de medir. */
+  background: #37352f;
+  color: #ffffff;
+  font-size: 0.6rem;
+  font-weight: 600;
+  text-align: center;
   white-space: nowrap;
 }
 
-.ei-foto-cartao-texto { padding: 10px 12px 14px; }
-
-.ei-foto-cartao-nome {
-  font-weight: 700;
-  font-size: 0.95rem;
-  line-height: 1.25;
-  /* Duas linhas no máximo: com três, os cartões da mesma linha ficam de
-     alturas diferentes e a grade desanda. */
-  display: -webkit-box;
-  -webkit-line-clamp: 2;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
-}
-
-.ei-foto-cartao-oficio {
-  margin-top: 2px;
-  font-size: 0.8rem;
-  line-height: 1.25;
-  color: var(--ei-tinta-fraca);
-  /* Duas linhas, com a altura reservada das duas mesmo quando só uma é
-     usada: sem a reserva, um cartão de ofício curto ao lado de um de
-     ofício longo fica mais baixo e a grade desanda. */
-  min-height: 2.5em;
-  display: -webkit-box;
-  -webkit-line-clamp: 2;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
-}
-
-/* ── Cortar em vez de quebrar ─────────────────────────────────────────
-   "Está muito quebrado", disse a dona, e a foto dava razão: "Padaria Pão
-   de / Minas" em duas linhas, "Pedreiro para obra no / Centro" em duas,
-   nome de bairro cortado no meio. Texto que quebra empurra tudo para
-   baixo e faz dois cartões vizinhos terem alturas diferentes — é o que dá
-   a sensação de tela desmontada.
-
-   A regra: nome próprio (de gente, de empresa) fica em UMA linha e corta
-   com reticências; título de vaga pode ir a duas e para. Nunca três. */
+/* ── Cortar em vez de quebrar ─────────────────────────────────────── */
 .ei-uma-linha {
   display: block;
   overflow: hidden;
@@ -959,134 +785,15 @@
   overflow: hidden;
 }
 
-/* ── Marca da empresa, no cartão da vaga ──────────────────────────────
-   O cartão de vaga não tinha imagem nenhuma. Com a marca da empresa ele
-   passa a ser reconhecível de longe — e quem procura emprego numa cidade
-   pequena decide muito por "que empresa é essa". */
-.ei-empresa-marca {
-  flex: 0 0 auto;
-  display: grid;
-  place-items: center;
-  width: 44px;
-  height: 44px;
-  border-radius: var(--ei-raio-p);
-  background: var(--ei-s2);
-  color: var(--ei-marca);
-  font-weight: 700;
-  overflow: hidden;
+/* ── Foco visível ─────────────────────────────────────────────────────
+   Para quem navega por teclado. Fica por último para vencer o resto. */
+.ei a:focus-visible,
+.ei button:focus-visible,
+.ei input:focus-visible,
+.ei select:focus-visible,
+.ei textarea:focus-visible,
+.ei [tabindex]:focus-visible {
+  outline: 2px solid var(--ei-tinta);
+  outline-offset: 1px;
+  border-radius: 0;
 }
-
-.ei-empresa-marca img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  display: block;
-}
-
-/* ── Foto da pessoa ───────────────────────────────────────────────────
-   Redonda e de 64px, ao lado do nome. A do procurô era um quadrado de
-   104px com canto de 24px, centralizado no cartão e pintado com o degradê
-   azul da marca dele — e a etiqueta "Trocar" era um comprimido azul-marinho
-   pendurado embaixo.
-
-   Aqui o círculo é o degrau de superfície e as iniciais são tinta da
-   marca: sem degradê, sem sombra, como todo o resto. */
-.ei-foto {
-  position: relative;
-  display: block;
-  flex: 0 0 auto;
-  width: 64px;
-  height: 64px;
-  cursor: pointer;
-}
-
-.ei-foto img,
-.ei-foto-iniciais {
-  display: block;
-  width: 64px;
-  height: 64px;
-  border-radius: var(--ei-capsula);
-  object-fit: cover;
-}
-
-.ei-foto-iniciais {
-  display: grid;
-  place-items: center;
-  background: var(--ei-s3);
-  color: var(--ei-marca);
-  font-size: 1.25rem;
-  font-weight: 700;
-}
-
-/* Sobre a borda de baixo do círculo, e não ao lado: ao lado ela roubaria
-   largura do nome, que numa tela de 390px é o que falta. */
-.ei-foto-trocar {
-  position: absolute;
-  left: 50%;
-  bottom: -6px;
-  transform: translateX(-50%);
-  padding: 2px 9px;
-  border-radius: var(--ei-capsula);
-  background: var(--ei-cor);
-  color: var(--ei-sobre-cor);
-  font-size: 0.66rem;
-  font-weight: 700;
-  letter-spacing: 0.02em;
-  white-space: nowrap;
-}
-
-/* ── Linha de lista ───────────────────────────────────────────────────
-   Ícone, nome, valor e a seta. É o cartão de uma linha só da referência
-   ("Cashback ... Acessar >"). */
-.ei-linha-item {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  width: 100%;
-  min-width: 0;
-  padding: 16px;
-  background: var(--ei-s1);
-  border: none;
-  border-radius: var(--ei-raio);
-  font: inherit;
-  color: var(--ei-tinta);
-  text-align: left;
-  text-decoration: none;
-  cursor: pointer;
-}
-
-.ei-linha-icone {
-  flex: 0 0 auto;
-  display: grid;
-  place-items: center;
-  width: 40px;
-  height: 40px;
-  border-radius: 999px;
-  background: var(--ei-s2);
-  color: var(--ei-marca);
-}
-
-.ei-linha-icone svg { width: 22px; height: 22px; }
-
-.ei-linha-nome { flex: 1; font-weight: 600; min-width: 0; }
-
-/* A segunda linha da linha: endereço de e-mail, ofício, data. Ela quebra
-   por qualquer lugar (`anywhere`) porque o que mais aparece aqui é e-mail,
-   que não tem espaço nenhum para quebrar — sem isso ele estoura a largura
-   do celular e sai cortado. */
-.ei-linha-sub {
-  display: block;
-  font-weight: 400;
-  font-size: 0.85rem;
-  line-height: 1.35;
-  color: var(--ei-tinta-fraca);
-  overflow-wrap: anywhere;
-}
-
-.ei-linha-valor {
-  font-size: 0.9rem;
-  color: var(--ei-tinta-fraca);
-  white-space: nowrap;
-}
-
-.ei-linha-seta { flex: 0 0 auto; color: var(--ei-tinta-fraca); }

@@ -3329,24 +3329,17 @@ h3 {
 }
 
 /* ═══════════════════════════════════════════════════════════════════════
-   A BARRA DE BAIXO DO EI ITABIRITO
+   A BARRA DE BAIXO DO EI ITABIRITO — no modelo do Notion
    ═══════════════════════════════════════════════════════════════════════
-   FIXA e colada na borda de baixo, de ponta a ponta.
+   Faixa branca de ponta a ponta, colada na borda, com um FIO em cima. Sem
+   canto arredondado, sem sombra, sem pastilha colorida atrás do item
+   aberto.
 
-   Ela já foi uma cápsula flutuando, com 12px de margem dos lados e 10px do
-   chão. Eu tinha escrito aqui que aquilo era "o traço mais marcante da
-   referência". Era leitura minha: a dona mandou a tela de novo e disse "a
-   barra tem que ser fixa" — e na tela dela a barra é uma faixa branca
-   encostada no fim, com os cantos de cima arredondados, não uma pílula
-   pairando.
-
-   A diferença não é enfeite. Flutuando, ela deixa aparecer uma nesga de
-   conteúdo por baixo, no vão dos 10px, e o cartão que passa ali fica
-   cortado ao meio — foi o que apareceu em toda foto de tela cheia. Colada,
-   o conteúdo termina nela e a tela para de parecer quebrada.
-
-   O item ativo ganha uma pastilha clara atrás de ícone E rótulo juntos, do
-   jeito da referência. */
+   Ela já foi uma cápsula flutuando com pastilha laranja. A dona pediu
+   barra fixa (feito), e depois pediu o app inteiro sem canto arredondado e
+   no modelo do Notion — que é o que sobra aqui: o item aberto se marca por
+   TINTA e PESO da letra, não por uma mancha de cor atrás dele.
+   ═══════════════════════════════════════════════════════════════════════ */
 .nav-ei {
   position: fixed;
   left: 0;
@@ -3354,18 +3347,14 @@ h3 {
   bottom: 0;
   z-index: 40;
   display: flex;
-  align-items: center;
-  justify-content: space-around;
-  gap: 4px;
-  padding: 8px 8px calc(8px + env(safe-area-inset-bottom));
+  align-items: stretch;
+  gap: 0;
+  padding: 0 0 env(safe-area-inset-bottom);
   background: #ffffff;
-  /* Só os cantos de cima: embaixo ela encosta na borda do aparelho, e um
-     canto redondo ali deixaria aparecer o fundo por baixo. */
-  border-radius: 20px 20px 0 0;
+  border-radius: 0;
   border: none;
-  /* Sombra só para cima, e fraca: a barra não flutua mais, ela apenas
-     precisa se descolar do conteúdo que passa por trás ao rolar. */
-  box-shadow: 0 -1px 0 rgba(16, 19, 28, 0.06), 0 -6px 20px rgba(16, 19, 28, 0.06);
+  border-top: 1px solid var(--ei-fio, #e9e9e7);
+  box-shadow: none;
 }
 
 .nav-ei-item {
@@ -3373,42 +3362,42 @@ h3 {
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 2px;
+  gap: 3px;
   flex: 1;
   min-width: 0;
-  padding: 8px 4px;
-  border-radius: 14px;
+  padding: 9px 4px 10px;
+  border-radius: 0;
   text-decoration: none;
-  color: var(--ei-tinta-fraca, #444b5c);
-  transition: background-color 0.18s ease, color 0.18s ease;
+  /* O valor de reserva importa de verdade aqui: a barra fica FORA do
+     `.ei`, então as variáveis daquele escopo não chegam nela e é sempre
+     este número que vale. Estava #8a8883, o cinza do Notion, que dá
+     3,54:1 em corpo 11px — reprovado, e justamente no rótulo que mais
+     gente lê. Medido em 4,7:1. */
+  color: var(--ei-tinta-fraquissima, #6b6963);
+  transition: color 0.12s ease;
 }
 
-/* A pastilha é o FUNDO do item inteiro, ícone e rótulo dentro dela.
-   Laranja clara, não azul: a pastilha azul era o que mais lembrava o
-   procurô na barra, porque ela aparece em toda tela. */
+/* Sem fundo nenhum: quem marca o item aberto é a tinta escura e o peso
+   da letra. A pastilha era a última peça arredondada e colorida da
+   navegação. */
 .nav-ei-item.ativo {
-  background: var(--ei-cor-fraca, #ffe4d0);
-  color: var(--ei-sobre-cor-fraca, #5c2400);
+  background: none;
+  color: var(--ei-tinta, #37352f);
 }
 
 .nav-ei-capsula {
   display: grid;
   place-items: center;
-  width: 24px;
-  height: 24px;
-}
-
-.nav-ei-capsula svg {
   width: 22px;
   height: 22px;
 }
 
-.nav-ei-item.ativo .nav-ei-capsula svg {
-  stroke-width: 2.3;
-}
+.nav-ei-capsula svg { width: 20px; height: 20px; }
+
+.nav-ei-item.ativo .nav-ei-capsula svg { stroke-width: 2.2; }
 
 .nav-ei-rotulo {
-  font-size: 0.72rem;
+  font-size: 0.7rem;
   line-height: 1.15;
   font-weight: 500;
   max-width: 100%;
@@ -3417,15 +3406,40 @@ h3 {
   white-space: nowrap;
 }
 
-.nav-ei-item.ativo .nav-ei-rotulo {
-  font-weight: 700;
-}
+.nav-ei-item.ativo .nav-ei-rotulo { font-weight: 600; }
 
 /* O cabeçalho do Ei: a marca, e mais nada. Ver AppShell.tsx. */
+/* O cabeçalho: a marca, e um fio embaixo. O fio é o que ancora o topo no
+   papel branco — sem ele, a logo boia solta acima do título. */
 .cabecalho-ei {
   display: flex;
   align-items: center;
-  padding: 14px 16px 6px;
-  background: transparent;
+  padding: 12px 20px;
+  background: #ffffff;
   border: none;
+  border-bottom: 1px solid var(--ei-fio, #e9e9e7);
+}
+
+/* ═══════════════════════════════════════════════════════════════════════
+   CANTO RETO EM TUDO
+   ═══════════════════════════════════════════════════════════════════════
+   A dona pediu duas vezes na mesma mensagem: "Mude o formato de tudo. Não
+   quero bordas arredondadas." / "Tire as bordas arredondadas."
+
+   O `estilo-ei.css` já nasce reto, mas ele cobre só as telas reescritas.
+   O resto do app ainda usa este arquivo, que é do procurô e tem 24 regras
+   de canto redondo espalhadas — cápsula de 999px em botão, 20px em cartão,
+   50% em avatar —, além de dezenas de `borderRadius` escritos direto no
+   `style` de componentes antigos.
+
+   Corrigir uma a uma deixaria três ou quatro passando, e a próxima tela
+   nova traria de volta sem ninguém perceber. Esta regra fecha a porta: não
+   existe canto arredondado neste app, venha ele de onde vier.
+
+   É deliberadamente bruta. Se um dia algum canto precisar voltar, o lugar
+   de decidir isso é aqui, no claro — e não num `style` perdido numa tela. */
+*,
+*::before,
+*::after {
+  border-radius: 0 !important;
 }

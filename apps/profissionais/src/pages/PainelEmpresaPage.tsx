@@ -108,7 +108,7 @@ export function PainelEmpresaPage() {
     return (
       <div className="ei">
         <div className="ei-tela">
-          <p className="ei-apoio">Carregando…</p>
+          <p className="ei-apoio ei-margem" style={{ paddingTop: 24 }}>Carregando…</p>
         </div>
       </div>
     );
@@ -118,7 +118,7 @@ export function PainelEmpresaPage() {
     return (
       <div className="ei">
         <div className="ei-tela">
-          <p className="ei-apoio">Empresa não encontrada.</p>
+          <p className="ei-apoio ei-margem" style={{ paddingTop: 24 }}>Empresa não encontrada.</p>
         </div>
       </div>
     );
@@ -141,13 +141,13 @@ export function PainelEmpresaPage() {
             — e nome de empresa longo é a regra, não a exceção. O nome fica
             embaixo, numa linha só, onde ele identifica sem gritar. */}
         <h1 className="ei-titulo-g">Minhas vagas</h1>
-        <p className="ei-apoio ei-uma-linha">
+        <p className="ei-apoio ei-uma-linha ei-margem">
           {empresa.company_name}
           {empresa.neighborhood ? ` · ${empresa.neighborhood}` : ""}
         </p>
 
         {erro && (
-          <p className="ei-campo-erro" style={{ marginTop: 16 }} role="alert">
+          <p className="ei-campo-erro ei-margem" style={{ marginTop: 16 }} role="alert">
             {erro}
           </p>
         )}

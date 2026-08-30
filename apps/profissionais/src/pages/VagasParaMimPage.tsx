@@ -184,7 +184,7 @@ export function VagasParaMimPage() {
         )}
 
         {erro && (
-          <p className="ei-campo-erro" style={{ marginTop: 16 }} role="alert">
+          <p className="ei-campo-erro ei-margem" style={{ marginTop: 16 }} role="alert">
             {erro}
           </p>
         )}
@@ -221,7 +221,7 @@ export function VagasParaMimPage() {
         )}
 
         {avisoLigado && (
-          <p className="ei-corpo" style={{ marginTop: 16 }}>
+          <p className="ei-corpo ei-margem" style={{ marginTop: 16 }}>
             Pronto — o aviso está ligado neste aparelho.
           </p>
         )}
@@ -260,14 +260,14 @@ export function VagasParaMimPage() {
             </div>
 
             {mostradas.length === 0 && (
-              <p className="ei-apoio">
+              <p className="ei-apoio ei-margem">
                 {aba === "novas"
                   ? "Nenhuma vaga nova agora — você já viu todas."
                   : "Você ainda não respondeu nenhuma."}
               </p>
             )}
 
-            <div style={{ display: "grid", gap: 12 }}>
+            <div>
               {mostradas.map((v) => (
                 <article key={v.aviso_id} className="ei-cartao">
                   {/* O cartão abre pela EMPRESA, com a marca dela.
