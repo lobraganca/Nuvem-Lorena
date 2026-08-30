@@ -108,13 +108,37 @@ function SuggestionSheet({ onClose }: { onClose: () => void }) {
   );
 }
 
+/* As telas que são APP, e não site.
+   ──────────────────────────────────
+   Elas têm a barra de baixo e terminam nela, como nos apps que a dona
+   mandou de referência — que não têm rodapé nenhum. O rodapé de links
+   embaixo de um cartão de vaga era o que sobrava mais visível do procurô:
+   três colunas de letra miúda em versalete, links azuis e um botão verde,
+   tudo com o desenho do outro app.
+
+   Ele não sumiu do app: continua nas telas longas (documentos, conta),
+   onde é rodapé de página de verdade. E nada se perdeu — Termos,
+   Privacidade, sugestão e suporte estão em Conta, que é um dos três itens
+   da barra. */
+const TELAS_DE_APP = [
+  "/",
+  "/inicio",
+  "/vagas-para-mim",
+  "/meu-perfil",
+  "/painel",
+  "/painel-empresa",
+  "/criar-vaga",
+  "/vaga",
+  "/planos-empresa",
+  "/profissionais",
+  "/perfil",
+];
+
 function Footer() {
   const [suggestionOpen, setSuggestionOpen] = useState(false);
   const { pathname } = useLocation();
 
-  // A tela de início já se fecha com o próprio rodapé de texto legal — o
-  // rodapé do app ali só repetiria os mesmos links.
-  if (pathname === "/inicio") return null;
+  if (TELAS_DE_APP.some((r) => pathname === r || pathname.startsWith(r + "/"))) return null;
 
   return (
     <footer className="footer">

@@ -89,12 +89,14 @@ export function DiagnosticoPage() {
       <p className="muted">Tire uma foto desta tela inteira e mande na conversa.</p>
 
       <div className="card">
-        {/* Os dois endereços valem durante a troca de nome: quem entrar pelo
-            antigo não está com problema, está com o endereço de antes. */}
+        {/* Conferia os endereços do procurô, de onde este código veio: no
+            Ei Itabirito a linha ficava VERMELHA no endereço certo, que é o
+            pior estado possível de uma tela de diagnóstico — ela manda
+            procurar defeito onde não há. */}
         <Linha
           rotulo="Endereço"
           valor={window.location.host}
-          ok={/^www\.(procuroapp|buscaitabirito)\.com\.br$/.test(window.location.host)}
+          ok={window.location.host === "www.empregoitabirito.com.br"}
         />
         <Linha rotulo="Configuração do banco" valor={problema ?? "OK"} ok={!problema} />
         <Linha rotulo="Tem sessão?" valor={sessao} ok={sessao.startsWith("SIM")} />

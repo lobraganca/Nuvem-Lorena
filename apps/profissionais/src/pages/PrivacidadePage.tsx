@@ -34,18 +34,30 @@ export function PrivacidadePage() {
 
         <h2>O que coletamos</h2>
         <p>
-          <strong>De quem entra para buscar:</strong> nome, e-mail e foto da conta Google usada no login. Não pedimos
-          CPF para avaliar: a conta Google já identifica quem escreveu, e guardar CPF para liberar um
-          comentário seria coletar mais do que o necessário.
+          <strong>De todo mundo que entra:</strong> o número de telefone (ou o e-mail e a foto da conta
+          Google, quando o login é por ela) e a confirmação de que aquele número é seu.
         </p>
         <p>
-          <strong>De quem tem cadastro:</strong> além do acima, os dados do cadastro — nome ou razão social, foto de
-          rosto ou logo, telefone, WhatsApp, e-mail, redes sociais, cidade, serviços oferecidos, descrição, CPF
-          ou CNPJ e, no caso de empresa, o nome do responsável.
+          <strong>De quem procura trabalho:</strong> nome, telefone, e-mail, as funções que você aceita, as
+          experiências que você contar (empresa, início e fim), cursos e especializações, sua cidade e se
+          você está disponível ou oculto.
         </p>
         <p>
-          <strong>De uso:</strong> quantas vezes seu cadastro foi aberto nos últimos 30 dias, pedidos de contato
-          recebidos e registros técnicos necessários para o app funcionar e para investigar abusos.
+          <strong>De quem contrata:</strong> nome da empresa, CNPJ ou CPF, endereço, telefone e e-mail, além
+          das vagas publicadas.
+        </p>
+        <p>
+          {/* Sem esta linha, o app guardaria um identificador do aparelho e a
+              política não diria — a divergência exata que o comentário abaixo,
+              sobre localização, existe para não repetir. */}
+          <strong>Para o aviso de vaga:</strong> quando você liga a notificação, guardamos um{" "}
+          <strong>identificador do aparelho</strong> gerado pelo sistema (Google ou navegador). Ele serve
+          só para entregar o aviso naquele celular, não diz quem você é para ninguém de fora e some
+          quando você desliga a notificação ou desinstala o app.
+        </p>
+        <p>
+          <strong>De uso:</strong> quais vagas chegaram até você, quais você respondeu, e registros técnicos
+          necessários para o app funcionar e para investigar abusos.
         </p>
         <p>
           {/* Esta parte dizia "não coletamos sua localização em tempo real", e
@@ -54,11 +66,9 @@ export function PrivacidadePage() {
               divergência que reprova na revisão da Play Store, porque lá o
               formulário de dados, a política e o app são comparados entre si.
               Aqui está o que realmente acontece. */}
-          <strong>Localização:</strong> o app pode pedir a localização aproximada do seu aparelho, e{" "}
-          <strong>só para adivinhar em qual cidade você está</strong>, para já mostrar os profissionais dali.
-          Você pode recusar — o app funciona igual, e você escolhe a cidade na mão. A coordenada{" "}
-          <strong>não é enviada nem guardada</strong> em servidor nenhum: ela é usada dentro do próprio
-          aparelho e descartada. Nunca acompanhamos por onde você anda.
+          <strong>Localização: não pedimos.</strong> O app do procurô, de onde este código veio, pedia a
+          localização do aparelho para adivinhar a cidade. O Ei Itabirito é de uma cidade só — a cidade já
+          é conhecida —, e o pedido saiu do código. Nada de coordenada é lido, enviado ou guardado.
         </p>
         <p>
           <strong>Não coletamos</strong> sua lista de contatos, suas fotos, sua agenda, nem dados de cartão:
@@ -68,9 +78,18 @@ export function PrivacidadePage() {
 
         <h2 id="anuncio-publico">O que fica visível para todo mundo</h2>
         <p>
-          Publicar um cadastro é tornar público, para qualquer pessoa na internet — inclusive quem não tem conta
-          aqui —, os seguintes dados: <strong>nome, foto ou logo, cidade, serviços, descrição, telefone,
-          WhatsApp, e-mail e redes sociais que você preencher</strong>, além das avaliações que receber.
+          Ficar <strong>visível</strong> é permitir que qualquer pessoa na internet — inclusive quem não tem
+          conta aqui — veja: <strong>nome, foto, cidade, as funções que você aceita, suas experiências,
+          cursos e o telefone</strong> que você preencher. É assim que uma empresa te encontra sem que você
+          precise responder a nada.
+        </p>
+        <p>
+          {/* O modo oculto é o que a dona pediu para quem já tem emprego e não
+              quer ser visto procurando — e uma política que não o descreve
+              deixa a pessoa sem saber que ele existe. */}
+          O <strong>modo oculto</strong> tira você da busca sem te tirar do app: nesse modo o seu perfil não
+          aparece para ninguém, e você continua recebendo os avisos das vagas. A empresa só vê seus dados
+          se você responder que tem interesse.
         </p>
         <p>
           <strong>Ficam fora:</strong> seu CPF, seu CNPJ e o seu e-mail de login. Eles existem no cadastro, mas
@@ -110,8 +129,10 @@ export function PrivacidadePage() {
           <strong>Supabase</strong> (banco de dados e login), <strong>Vercel</strong> (hospedagem),{" "}
           <strong>Google</strong> (login), <strong>Mercado Pago</strong> (pagamentos, apenas para quem
           assina), <strong>Twilio</strong> (envio do SMS de confirmação — recebe o número de telefone, só
-          para entregar o código) e <strong>Resend</strong> (envio de e-mails do app, como o aviso de
-          vencimento — recebe o endereço de e-mail, só para entregar a mensagem).
+          para entregar o código), <strong>Resend</strong> (envio de e-mails do app, como o aviso de
+          vencimento — recebe o endereço de e-mail, só para entregar a mensagem) e o{" "}
+          <strong>serviço de notificação</strong> do Google ou do seu navegador, que recebe o
+          identificador do aparelho e o texto do aviso para entregá-lo na sua tela.
         </p>
         <p>
           Twilio e Resend são empresas sediadas fora do Brasil, o que significa que esses dados podem ser
@@ -124,11 +145,11 @@ export function PrivacidadePage() {
 
         <h2>Por quanto tempo guardamos</h2>
         <p>
-          Enquanto sua conta existir. Se você apagar a conta, apagamos o cadastro, os cadastros, as avaliações e
-          os favoritos. Duas exceções, e é justo você saber delas: os <strong>registros de acesso</strong>, que
-          a lei manda guardar por seis meses, e os <strong>pedidos de contato que você enviou a
-          profissionais</strong> — eles continuam no painel de quem recebeu, sem ligação com a sua conta,
-          porque são o trabalho daquela pessoa, não o seu histórico.
+          Enquanto sua conta existir. Se você apagar a conta, apagamos o seu perfil, as funções e
+          experiências, os avisos de vaga que chegaram e os aparelhos cadastrados para notificação. Duas
+          exceções, e é justo você saber delas: os <strong>registros de acesso</strong>, que a lei manda
+          guardar por seis meses, e o <strong>interesse que você enviou a uma vaga</strong> — ele continua
+          com a empresa que recebeu, porque é o recado que permite ela te retornar.
         </p>
 
         <h2>Seus direitos</h2>

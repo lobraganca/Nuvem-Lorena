@@ -68,7 +68,7 @@ export function OnboardingTipoPage() {
     <div className="container" style={{ paddingTop: 32, paddingBottom: 32 }}>
       <h1 style={{ marginBottom: 8 }}>Qual é seu tipo de conta?</h1>
       <p className="muted" style={{ marginBottom: 32 }}>
-        Escolha como você vai usar o procurô e complete seu perfil.
+        Escolha como você vai usar o Ei Itabirito e complete seu perfil.
       </p>
 
       {erro && (

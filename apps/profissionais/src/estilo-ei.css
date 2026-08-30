@@ -296,18 +296,17 @@
   overflow: hidden;
 }
 
-.ei-lista > * {
+/* O `.ei` a mais não é enfeite: sem ele esta regra empata em
+   especificidade com `.ei-linha-item` (que também arredonda), e quem vence
+   um empate é a última escrita no arquivo — a linha de lista, que vem
+   depois. O efeito era a lista virar três cartõezinhos arredondados com um
+   fio de 2px entre eles, que é exatamente o "acordeão" que ela existe para
+   não ser. Visto na foto, não no código.
+
+   Os cantos de fora quem faz é o `overflow: hidden` do bloco, então os
+   filhos não precisam de canto nenhum. */
+.ei .ei-lista > * {
   border-radius: 0;
-}
-
-.ei-lista > *:first-child {
-  border-top-left-radius: var(--ei-raio);
-  border-top-right-radius: var(--ei-raio);
-}
-
-.ei-lista > *:last-child {
-  border-bottom-left-radius: var(--ei-raio);
-  border-bottom-right-radius: var(--ei-raio);
 }
 
 /* ── Campo ────────────────────────────────────────────────────────────
@@ -522,3 +521,296 @@
   min-height: 56px;
   font-size: 1rem;
 }
+
+/* ═══════════════════════════════════════════════════════════════════════
+   A ANATOMIA DOS CARTÕES
+   ═══════════════════════════════════════════════════════════════════════
+   Os cartões eram caixas brancas com um título dentro — que é exatamente o
+   que a dona apontou como "ainda parece o procurô". Um retângulo branco com
+   texto não é desenho, é ausência de desenho.
+
+   A referência que ela mandou tem cartões COMPOSTOS, e cada peça tem
+   função:
+
+     · uma tarja de cor na lateral do título, que identifica o assunto sem
+       gastar uma linha de texto
+     · uma faixa cinza DENTRO do cartão, para o dado secundário — separa
+       sem precisar de linha nem de espaço em branco
+     · uma fileira de ações em círculo, com o nome embaixo
+     · um botão em cápsula ocupando a largura toda, no rodapé do cartão
+
+   É isso que faz o cartão parecer um objeto do app, e não um parágrafo com
+   fundo branco.
+   ═══════════════════════════════════════════════════════════════════════ */
+
+/* ── Título de seção com ação à direita ───────────────────────────────
+   "Meus Saldos ......... Organizar". O título é o assunto; o link é o que
+   se pode fazer com a lista inteira. Juntos numa linha só, eles poupam a
+   linha que um subtítulo gastaria. */
+.ei-secao-linha {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+  margin: 28px 0 12px;
+}
+
+.ei-secao-linha h2 {
+  font-size: 1.25rem;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  margin: 0;
+}
+
+.ei-secao-acao {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--ei-marca);
+  text-decoration: underline;
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  font-family: inherit;
+}
+
+/* ── Atalhos: fileira que rola de lado ────────────────────────────────
+   Tiles pequenos com ícone em cima e nome embaixo. O selecionado se marca
+   por CONTORNO na cor de acento, não por preenchimento: preenchido, ele
+   viraria um botão apertado no meio de outros três, e some a leitura de
+   "esta é a que está aberta". */
+.ei-atalhos {
+  display: flex;
+  gap: 10px;
+  overflow-x: auto;
+  padding: 4px 0 8px;
+  /* Sem barra de rolagem visível: no celular ela não existe, e no
+     computador ela roubaria altura de uma fileira baixa. */
+  scrollbar-width: none;
+}
+.ei-atalhos::-webkit-scrollbar { display: none; }
+
+.ei-atalho {
+  flex: 0 0 auto;
+  width: 104px;
+  display: grid;
+  justify-items: center;
+  gap: 6px;
+  padding: 14px 8px;
+  background: var(--ei-s1);
+  border: 2px solid transparent;
+  border-radius: var(--ei-raio);
+  font: inherit;
+  font-size: 0.8rem;
+  font-weight: 600;
+  line-height: 1.2;
+  text-align: center;
+  color: var(--ei-tinta);
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.ei-atalho[aria-current="true"] {
+  border-color: var(--ei-laranja);
+}
+
+.ei-atalho svg { width: 26px; height: 26px; }
+
+/* ── Cartão com anatomia ──────────────────────────────────────────────── */
+.ei-cartao-topo {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 14px;
+}
+
+/* A tarja: identifica o assunto sem gastar uma linha de texto. */
+.ei-tarja {
+  flex: 0 0 auto;
+  width: 4px;
+  align-self: stretch;
+  min-height: 22px;
+  border-radius: 999px;
+  background: var(--ei-laranja);
+}
+
+.ei-cartao-titulo {
+  flex: 1;
+  font-size: 1.1rem;
+  font-weight: 700;
+  margin: 0;
+  min-width: 0;
+}
+
+.ei-cartao-valor {
+  font-size: 1.1rem;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+/* ── Faixa interna ────────────────────────────────────────────────────
+   O dado secundário do cartão, num degrau de superfície abaixo. Separa
+   sem linha e sem espaço em branco. */
+.ei-faixa {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 12px 14px;
+  background: var(--ei-s2);
+  border-radius: var(--ei-raio-p);
+  font-size: 0.9rem;
+}
+
+.ei-faixa-valor { font-weight: 600; }
+
+/* ── Ações em círculo ─────────────────────────────────────────────────
+   Quatro cabem numa linha de celular estreito; o quinto rola. O nome vai
+   EMBAIXO e não dentro do círculo: dentro, ele obrigaria o círculo a
+   crescer até virar um botão comum. */
+.ei-acoes {
+  display: flex;
+  justify-content: space-between;
+  gap: 4px;
+  margin: 16px 0;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+.ei-acoes::-webkit-scrollbar { display: none; }
+
+.ei-acao {
+  flex: 1 0 72px;
+  display: grid;
+  justify-items: center;
+  gap: 6px;
+  background: none;
+  border: none;
+  padding: 0;
+  font: inherit;
+  font-size: 0.76rem;
+  font-weight: 500;
+  line-height: 1.2;
+  text-align: center;
+  color: var(--ei-tinta);
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.ei-acao-circulo {
+  display: grid;
+  place-items: center;
+  width: 52px;
+  height: 52px;
+  border-radius: 999px;
+  background: var(--ei-s2);
+  color: var(--ei-marca);
+}
+
+.ei-acao-circulo svg { width: 24px; height: 24px; }
+
+/* ── Foto da pessoa ───────────────────────────────────────────────────
+   Redonda e de 64px, ao lado do nome. A do procurô era um quadrado de
+   104px com canto de 24px, centralizado no cartão e pintado com o degradê
+   azul da marca dele — e a etiqueta "Trocar" era um comprimido azul-marinho
+   pendurado embaixo.
+
+   Aqui o círculo é o degrau de superfície e as iniciais são tinta da
+   marca: sem degradê, sem sombra, como todo o resto. */
+.ei-foto {
+  position: relative;
+  display: block;
+  flex: 0 0 auto;
+  width: 64px;
+  height: 64px;
+  cursor: pointer;
+}
+
+.ei-foto img,
+.ei-foto-iniciais {
+  display: block;
+  width: 64px;
+  height: 64px;
+  border-radius: var(--ei-capsula);
+  object-fit: cover;
+}
+
+.ei-foto-iniciais {
+  display: grid;
+  place-items: center;
+  background: var(--ei-s3);
+  color: var(--ei-marca);
+  font-size: 1.25rem;
+  font-weight: 700;
+}
+
+/* Sobre a borda de baixo do círculo, e não ao lado: ao lado ela roubaria
+   largura do nome, que numa tela de 390px é o que falta. */
+.ei-foto-trocar {
+  position: absolute;
+  left: 50%;
+  bottom: -6px;
+  transform: translateX(-50%);
+  padding: 2px 9px;
+  border-radius: var(--ei-capsula);
+  background: var(--ei-cor);
+  color: var(--ei-sobre-cor);
+  font-size: 0.66rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  white-space: nowrap;
+}
+
+/* ── Linha de lista ───────────────────────────────────────────────────
+   Ícone, nome, valor e a seta. É o cartão de uma linha só da referência
+   ("Cashback ... Acessar >"). */
+.ei-linha-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  padding: 16px;
+  background: var(--ei-s1);
+  border: none;
+  border-radius: var(--ei-raio);
+  font: inherit;
+  color: var(--ei-tinta);
+  text-align: left;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.ei-linha-icone {
+  flex: 0 0 auto;
+  display: grid;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 999px;
+  background: var(--ei-s2);
+  color: var(--ei-marca);
+}
+
+.ei-linha-icone svg { width: 22px; height: 22px; }
+
+.ei-linha-nome { flex: 1; font-weight: 600; min-width: 0; }
+
+/* A segunda linha da linha: endereço de e-mail, ofício, data. Ela quebra
+   por qualquer lugar (`anywhere`) porque o que mais aparece aqui é e-mail,
+   que não tem espaço nenhum para quebrar — sem isso ele estoura a largura
+   do celular e sai cortado. */
+.ei-linha-sub {
+  display: block;
+  font-weight: 400;
+  font-size: 0.85rem;
+  line-height: 1.35;
+  color: var(--ei-tinta-fraca);
+  overflow-wrap: anywhere;
+}
+
+.ei-linha-valor {
+  font-size: 0.9rem;
+  color: var(--ei-tinta-fraca);
+  white-space: nowrap;
+}
+
+.ei-linha-seta { flex: 0 0 auto; color: var(--ei-tinta-fraca); }

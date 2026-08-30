@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../lib/useAuth";
+import { useTituloDaPagina } from "../lib/tituloDaPagina";
 import {
   obterMinhaEmpresa,
   listarMinhasVagas,
@@ -11,14 +12,19 @@ import { mensagemDeErro } from "../lib/erros";
 import type { Company, JobListing } from "../types/domain";
 
 /**
- * Painel principal da empresa.
+ * A casa da empresa.
  *
- * - Mostra dados da empresa
- * - Lista vagas ativas
- * - Botão para criar nova vaga
- * - Acesso a respostas/ondas de cada vaga
+ * Ela responde três perguntas, nesta ordem — que é a ordem em que a dúvida
+ * aparece de verdade: quanto do meu plano ainda dá para usar, o que eu faço
+ * daqui, e quais vagas estão de pé.
+ *
+ * O cartão do plano é o "saldo" desta tela: número grande no topo e o
+ * detalhe numa faixa cinza dentro do próprio cartão. Antes era um botão
+ * solto escrito "Assinar para publicar vagas", que dizia o que fazer sem
+ * dizer onde a empresa está.
  */
 export function PainelEmpresaPage() {
+  useTituloDaPagina("Minhas vagas");
   const navegar = useNavigate();
   const { user, loading: carregandoConta } = useAuth();
 
@@ -29,7 +35,12 @@ export function PainelEmpresaPage() {
   const [confirmando, setConfirmando] = useState(false);
   /* `null` enquanto não se sabe. Começar em `false` faria o painel piscar
      "assine" para quem já paga, a cada vez que a tela abre. */
-  const [temPlano, setTemPlano] = useState<boolean | null>(null);
+  const [plano, setPlano] = useState<{
+    limite: number;
+    abertas: number;
+    temPlano: boolean;
+    cabeMais: boolean;
+  } | null>(null);
 
   /**
    * Confirma o telefone da empresa.
@@ -85,8 +96,7 @@ export function PainelEmpresaPage() {
          fica `null` e o botão segue oferecendo criar vaga — quem recusa de
          verdade é o banco, e mandar quem já paga para a tela de preço por
          causa de uma consulta que caiu seria pior que o contrário. */
-      const p = await situacaoDoPlano(minha.id);
-      setTemPlano(p.temPlano);
+      setPlano(await situacaoDoPlano(minha.id));
     } catch (err) {
       setErro(mensagemDeErro(err, "Não foi possível carregar os dados."));
     } finally {
@@ -95,165 +105,275 @@ export function PainelEmpresaPage() {
   }
 
   if (carregandoConta || carregando) {
-    return <div className="container" style={{ paddingTop: 48 }}>
-      <span className="muted">Carregando…</span>
-    </div>;
+    return (
+      <div className="ei">
+        <div className="ei-tela">
+          <p className="ei-apoio">Carregando…</p>
+        </div>
+      </div>
+    );
   }
 
   if (!empresa) {
-    return <div className="container" style={{ paddingTop: 48 }}>
-      <p className="muted">Empresa não encontrada.</p>
-    </div>;
+    return (
+      <div className="ei">
+        <div className="ei-tela">
+          <p className="ei-apoio">Empresa não encontrada.</p>
+        </div>
+      </div>
+    );
   }
 
+  const semPlano = plano?.temPlano === false;
+  /* -1 é "sem teto" no banco (`limite_de_vagas_do_plano`). Escrito por
+     extenso porque "-1 vagas" na tela é o tipo de coisa que ninguém vê em
+     revisão e todo mundo vê em produção. */
+  const limiteEmTexto =
+    plano == null ? "—" : plano.limite < 0 ? "sem limite" : String(plano.limite);
+
   return (
-    <div className="container painel-empresa" style={{ paddingTop: 24, paddingBottom: 24 }}>
-      <h1>Painel da Empresa</h1>
+    <div className="ei">
+      <div className="ei-tela">
+        <h1 className="ei-titulo-g">{empresa.company_name}</h1>
+        <p className="ei-apoio">
+          {empresa.neighborhood && `${empresa.neighborhood} · `}
+          {empresa.city}/{empresa.uf}
+        </p>
 
-      {erro && (
-        <div style={{ color: "var(--color-danger)", marginBottom: 16, padding: 12, backgroundColor: "var(--color-danger-light)", borderRadius: 8 }}>
-          {erro}
-        </div>
-      )}
-
-      {/* Dados da empresa */}
-      <section className="card" style={{ marginBottom: 24, padding: 16 }}>
-        <div style={{ display: "flex", gap: 16, alignItems: "flex-start" }}>
-          {empresa.photo_url && (
-            <img
-              src={empresa.photo_url}
-              alt={empresa.company_name}
-              style={{
-                width: 80,
-                height: 80,
-                borderRadius: 8,
-                objectFit: "cover",
-              }}
-            />
-          )}
-          <div style={{ flex: 1 }}>
-            <h2 style={{ margin: "0 0 4px 0" }}>{empresa.company_name}</h2>
-            <p className="muted" style={{ margin: "0 0 8px 0" }}>
-              {empresa.neighborhood && `${empresa.neighborhood} • `}
-              {empresa.city}/{empresa.uf}
-            </p>
-            {empresa.description && (
-              <p style={{ margin: 0, fontSize: "0.95em" }}>{empresa.description}</p>
-            )}
-          </div>
-          <button
-            className="btn btn-secondary btn-sm"
-            onClick={() => navegar("/painel/editar-empresa")}
-          >
-            Editar
-          </button>
-        </div>
-      </section>
-
-      {/* O telefone confirmado, antes de qualquer coisa.
-          ────────────────────────────────────────────────
-          Fica ACIMA do botão de criar vaga, e não escondido nas
-          configurações, porque é o que separa uma empresa de um número
-          digitado — e do lado de quem contrata isso pesa mais: quem
-          responde à vaga vai procurar essa empresa de volta, e é aí que
-          mora o golpe do falso emprego.
-
-          O botão de criar vaga continua ali, aceso: quem trava a publicação
-          é a própria tela de criação, com o motivo escrito. Desabilitar
-          aqui deixaria a empresa olhando um botão cinza sem saber o que
-          fazer para acendê-lo. */}
-      {!empresa.phone_verified && (
-        <div className="whats-pendente" style={{ marginBottom: 16 }}>
-          <p>
-            <strong>Confirme o telefone da empresa.</strong> É por ele que os
-            profissionais vão procurar vocês de volta — e sem ele a vaga não sai.
-          </p>
-          <button
-            type="button"
-            className="btn btn-outline"
-            disabled={confirmando}
-            onClick={confirmarTelefone}
-          >
-            {confirmando ? "Confirmando…" : "Confirmar agora"}
-          </button>
-        </div>
-      )}
-
-      {/* Ação principal.
-          ────────────────
-          Sem plano o botão leva à explicação, não some: some, a empresa não
-          descobre que existe o caminho. Muda só o texto — "assinar" é
-          honesto sobre o que vem depois do toque, e um "+ Criar nova vaga"
-          que abre uma tela de preço é a isca que a faz desconfiar do resto. */}
-      <div style={{ marginBottom: 24 }}>
-        <button
-          className="btn btn-primary btn-block"
-          onClick={() => navegar(temPlano === false ? "/planos-empresa" : "/criar-vaga")}
-        >
-          {temPlano === false ? "Assinar para publicar vagas" : "+ Criar nova vaga"}
-        </button>
-        {temPlano === false && (
-          <p className="muted" style={{ margin: "8px 0 0", fontSize: "0.88em" }}>
-            Procurar profissionais e falar com eles continua de graça —{" "}
-            <button
-              type="button"
-              className="entrar-link"
-              style={{ padding: 0 }}
-              onClick={() => navegar("/")}
-            >
-              é só buscar
-            </button>
-            .
+        {erro && (
+          <p className="ei-campo-erro" style={{ marginTop: 16 }} role="alert">
+            {erro}
           </p>
         )}
-      </div>
 
-      {/* Vagas ativas */}
-      <section>
-        <h2 style={{ marginTop: 0 }}>
-          Vagas ativas
-          {vagas.length > 0 && ` (${vagas.length})`}
-        </h2>
+        {/* O telefone confirmado, antes de qualquer coisa.
+            ────────────────────────────────────────────────
+            Fica ACIMA de tudo, e não escondido nas configurações, porque é
+            o que separa uma empresa de um número digitado — e do lado de
+            quem contrata isso pesa mais: quem responde à vaga vai procurar
+            essa empresa de volta, e é aí que mora o golpe do falso emprego.
+
+            O caminho de criar vaga continua aceso: quem trava a publicação
+            é a própria tela de criação, com o motivo escrito. Travar aqui
+            deixaria a empresa olhando um botão cinza sem saber o que fazer
+            para acendê-lo. */}
+        {!empresa.phone_verified && (
+          <div className="ei-cartao" style={{ marginTop: 20 }}>
+            <div className="ei-cartao-topo">
+              <span className="ei-tarja" aria-hidden="true" />
+              <h2 className="ei-cartao-titulo">Confirme o telefone</h2>
+            </div>
+            <p className="ei-apoio" style={{ marginBottom: 14 }}>
+              É por ele que os profissionais vão procurar vocês de volta — e sem ele
+              a vaga não sai.
+            </p>
+            <button
+              type="button"
+              className="ei-btn ei-btn-tonal ei-btn-largo"
+              disabled={confirmando}
+              onClick={confirmarTelefone}
+            >
+              {confirmando ? "Confirmando…" : "Confirmar agora"}
+            </button>
+          </div>
+        )}
+
+        {/* O cartão do plano: onde a empresa está, em número grande. */}
+        <div className="ei-cartao" style={{ marginTop: 20 }}>
+          <div className="ei-cartao-topo">
+            <span className="ei-tarja" aria-hidden="true" />
+            <h2 className="ei-cartao-titulo">Seu plano</h2>
+            <span className="ei-cartao-valor">
+              {semPlano ? "Sem plano" : `${plano?.abertas ?? 0}/${limiteEmTexto}`}
+            </span>
+          </div>
+
+          <div className="ei-faixa">
+            <span>{semPlano ? "Vagas anunciadas" : "Vagas no ar agora"}</span>
+            <span className="ei-faixa-valor">
+              {semPlano ? "nenhuma" : `${plano?.abertas ?? 0} de ${limiteEmTexto}`}
+            </span>
+          </div>
+
+          {semPlano ? (
+            <>
+              <p className="ei-apoio" style={{ margin: "12px 0 14px" }}>
+                Sem plano você continua vendo os profissionais e falando com eles —
+                isso é de graça. Para publicar vaga e disparar a onda, é preciso
+                assinar.
+              </p>
+              <Link
+                to="/planos-empresa"
+                className="ei-btn ei-btn-cheio ei-btn-largo ei-btn-alto"
+              >
+                Ver os planos
+              </Link>
+            </>
+          ) : (
+            <Link
+              to="/criar-vaga"
+              className="ei-btn ei-btn-cheio ei-btn-largo ei-btn-alto"
+              style={{ marginTop: 14 }}
+              /* Sem vaga sobrando, o caminho é o plano e não a criação: a
+                 tela de criar recusaria no fim, depois de a empresa ter
+                 escrito a vaga inteira. */
+              onClick={(e) => {
+                if (plano && !plano.cabeMais) {
+                  e.preventDefault();
+                  navegar("/planos-empresa");
+                }
+              }}
+            >
+              {plano && !plano.cabeMais ? "Aumentar o plano" : "Criar nova vaga"}
+            </Link>
+          )}
+        </div>
+
+        {/* As ações em círculo, como na referência: o que a empresa faz
+            daqui, sem virar quatro botões empilhados ocupando meia tela. */}
+        <div className="ei-acoes">
+          <Link to="/profissionais" className="ei-acao">
+            <span className="ei-acao-circulo" aria-hidden="true">
+              <IconePessoas />
+            </span>
+            Profissionais
+          </Link>
+          <Link to="/planos-empresa" className="ei-acao">
+            <span className="ei-acao-circulo" aria-hidden="true">
+              <IconeSelo />
+            </span>
+            Planos
+          </Link>
+          <Link to="/painel/editar-empresa" className="ei-acao">
+            <span className="ei-acao-circulo" aria-hidden="true">
+              <IconeLoja />
+            </span>
+            Editar empresa
+          </Link>
+        </div>
+
+        <div className="ei-secao-linha">
+          <h2>Vagas no ar</h2>
+          {vagas.length > 0 && !semPlano && (
+            <Link to="/criar-vaga" className="ei-secao-acao">
+              Nova vaga
+            </Link>
+          )}
+        </div>
 
         {vagas.length === 0 ? (
-          <div className="card" style={{ textAlign: "center", padding: 32 }}>
-            <p className="muted">Nenhuma vaga criada ainda.</p>
-            <p className="muted" style={{ fontSize: "0.9em" }}>
-              Comece criando uma vaga para procurar por profissionais na sua cidade.
-            </p>
+          <div className="ei-cartao" style={{ padding: 0 }}>
+            <div className="ei-vazio">
+              <span className="ei-vazio-icone" aria-hidden="true">
+                <IconeMegafone />
+              </span>
+              <h3 className="ei-titulo">Nenhuma vaga ainda</h3>
+              <p className="ei-apoio">
+                Ao publicar uma vaga, ela é disparada para quem faz esse trabalho em
+                Itabirito — e quem tiver interesse aparece aqui para você.
+              </p>
+            </div>
           </div>
         ) : (
-          <div style={{ display: "grid", gap: 12 }}>
+          /* Lista colada num bloco só, e não um cartão por vaga: cinco
+             cartões soltos com espaço entre eles viram um acordeão, e a
+             empresa quer varrer a lista, não contemplar cada uma. */
+          <div className="ei-lista">
             {vagas.map((vaga) => (
-              <div
-                key={vaga.id}
-                className="card"
-                style={{ padding: 16, cursor: "pointer" }}
-                onClick={() => navegar(`/vaga/${vaga.id}`)}
-              >
-                <h3 style={{ margin: "0 0 4px 0" }}>{vaga.title}</h3>
-                <p className="muted" style={{ margin: "0 0 8px 0", fontSize: "0.9em" }}>
-                  {vaga.profession}
-                  {vaga.specialty && ` • ${vaga.specialty}`}
-                </p>
-                <div style={{ display: "flex", gap: 16, fontSize: "0.9em" }}>
-                  <span className="muted">
-                    📅 {new Date(vaga.created_at).toLocaleDateString("pt-BR")}
+              <Link key={vaga.id} to={`/vaga/${vaga.id}`} className="ei-linha-item">
+                <span className="ei-linha-icone" aria-hidden="true">
+                  <IconeMala />
+                </span>
+                <span className="ei-linha-nome">
+                  {vaga.title}
+                  <span className="ei-linha-sub">
+                    {vaga.profession}
+                    {vaga.specialty && ` · ${vaga.specialty}`} ·{" "}
+                    {new Date(vaga.created_at).toLocaleDateString("pt-BR")}
                   </span>
-                  <span className="muted">
-                    ✉️ {vaga.work_modality}
-                  </span>
-                  {vaga.salary_range_min && vaga.salary_range_max && (
-                    <span className="muted">
-                      💰 R$ {(vaga.salary_range_min / 100).toLocaleString("pt-BR")} - R$ {(vaga.salary_range_max / 100).toLocaleString("pt-BR")}
-                    </span>
-                  )}
-                </div>
-              </div>
+                </span>
+                <span className="ei-linha-seta" aria-hidden="true">
+                  <IconeSeta />
+                </span>
+              </Link>
             ))}
           </div>
         )}
-      </section>
+      </div>
     </div>
+  );
+}
+
+/* Os ícones moram aqui e não numa biblioteca: são poucos, e uma dependência
+   de ícones custa dezenas de KB para desenhar meia dúzia deles. Todos com
+   `stroke="currentColor"`, então herdam a cor de quem os contém — é o que
+   deixa o mesmo desenho servir dentro do círculo cinza e fora dele. */
+function svgProps() {
+  return {
+    viewBox: "0 0 24 24",
+    fill: "none",
+    stroke: "currentColor",
+    strokeWidth: 1.8,
+    strokeLinecap: "round" as const,
+    strokeLinejoin: "round" as const,
+    "aria-hidden": true,
+  };
+}
+
+function IconePessoas() {
+  return (
+    <svg {...svgProps()}>
+      <circle cx="9" cy="8" r="3.2" />
+      <path d="M3 20a6 6 0 0 1 12 0" />
+      <path d="M16.5 5.4a3.2 3.2 0 0 1 0 5.2" />
+      <path d="M17.5 14.2A6 6 0 0 1 21 20" />
+    </svg>
+  );
+}
+
+function IconeSelo() {
+  return (
+    <svg {...svgProps()}>
+      <path d="M12 3l2.6 1.9 3.2-.2.6 3.1 2.3 2.2-1.6 2.8 1.6 2.8-2.3 2.2-.6 3.1-3.2-.2L12 22.6 9.4 20.7l-3.2.2-.6-3.1-2.3-2.2L4.9 12.8 3.3 10l2.3-2.2.6-3.1 3.2.2z" />
+      <path d="M9 12.2l2.1 2.1L15.4 10" />
+    </svg>
+  );
+}
+
+function IconeLoja() {
+  return (
+    <svg {...svgProps()}>
+      <path d="M4 9.5V19a1.5 1.5 0 0 0 1.5 1.5h13A1.5 1.5 0 0 0 20 19V9.5" />
+      <path d="M3 6.5L4.4 3.5h15.2L21 6.5a2.6 2.6 0 0 1-4.5 2 2.6 2.6 0 0 1-4.5 0 2.6 2.6 0 0 1-4.5 0 2.6 2.6 0 0 1-4.5-2z" />
+      <path d="M9.5 20.5v-5h5v5" />
+    </svg>
+  );
+}
+
+function IconeMegafone() {
+  return (
+    <svg {...svgProps()} width="30" height="30">
+      <path d="M3.5 10v4a1.5 1.5 0 0 0 1.5 1.5h2.5l7 4.5V5.5l-7 4.5H5A1.5 1.5 0 0 0 3.5 10z" />
+      <path d="M18 9.5a3.5 3.5 0 0 1 0 5" />
+      <path d="M7.5 15.5v3.2a1.3 1.3 0 0 0 1.3 1.3h1" />
+    </svg>
+  );
+}
+
+function IconeMala() {
+  return (
+    <svg {...svgProps()}>
+      <rect x="2.5" y="7.5" width="19" height="12" rx="2.5" />
+      <path d="M8.5 7.5V5.8a1.8 1.8 0 0 1 1.8-1.8h3.4a1.8 1.8 0 0 1 1.8 1.8v1.7" />
+      <path d="M2.5 12.5h19" />
+    </svg>
+  );
+}
+
+function IconeSeta() {
+  return (
+    <svg {...svgProps()} width="20" height="20" strokeWidth={2.2}>
+      <path d="M9 5l7 7-7 7" />
+    </svg>
   );
 }

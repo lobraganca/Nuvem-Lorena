@@ -37,13 +37,25 @@ export function FecharApp() {
 
   return (
     <>
-      <button type="button" className="settings-item" onClick={tentarFechar}>
-        <span className="settings-icon" aria-hidden="true">
-          🚪
+      {/* Linha do desenho do Ei, e não mais `settings-item` com um emoji de
+          porta. Ela mora dentro da lista da Conta: com a classe antiga era
+          a única linha do bloco com quadradinho cinza e desenho colorido, e
+          quebrava o bloco no meio. */}
+      <button type="button" className="ei-linha-item" onClick={tentarFechar}>
+        <span className="ei-linha-icone" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"
+               strokeLinecap="round" strokeLinejoin="round">
+            <path d="M14 3.5H6.5A1.5 1.5 0 0 0 5 5v14a1.5 1.5 0 0 0 1.5 1.5H14" />
+            <path d="M14.5 8.5L18.5 12l-4 3.5" />
+            <path d="M18.5 12H9.5" />
+          </svg>
         </span>
-        <span>Fechar o app</span>
-        <span className="settings-arrow" aria-hidden="true">
-          ›
+        <span className="ei-linha-nome">Fechar o app</span>
+        <span className="ei-linha-seta" aria-hidden="true">
+          <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor"
+               strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M9 5l7 7-7 7" />
+          </svg>
         </span>
       </button>
 

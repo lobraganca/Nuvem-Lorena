@@ -49,6 +49,69 @@ const professionals: Linha[] = Array.from({ length: QUANTOS }, (_, i) => ({
   created_at: emDias(-100 + i),
 }));
 
+/* A empresa de mentira, dona das vagas. */
+export const EMPRESA_FALSA = "00000000-0000-4000-8000-000000000002";
+
+/** De que lado o teste está: `?lado=empresa` abre o app pelo painel da empresa. */
+function ladoFalso(): "professional" | "company" {
+  return new URLSearchParams(location.search).get("lado") === "empresa"
+    ? "company"
+    : "professional";
+}
+
+/* `?plano=nao` exercita a empresa SEM plano — que é o estado em que ela
+   chega, e o único em que o cartão do plano tem trabalho a fazer. */
+const planoFalso = () => new URLSearchParams(location.search).get("plano") !== "nao";
+
+/* `?vagas=0` esvazia a lista: o estado vazio é uma tela de verdade, com
+   texto próprio, e sem isso ele nunca era aberto no navegador. */
+const QUANTAS_VAGAS = Number(new URLSearchParams(location.search).get("vagas") ?? 3);
+
+const VAGAS: Linha[] = [
+  {
+    title: "Pedreiro para obra no Centro",
+    profession: "Pedreiro",
+    specialty: "Alvenaria",
+    description:
+      "Obra de reforma numa casa no Centro. Serviço de alvenaria e reboco, com material no local.",
+    required_experience: "2 anos",
+    work_modality: "presencial",
+    available_immediately: true,
+  },
+  {
+    title: "Ajudante de cozinha",
+    profession: "Cozinheiro",
+    specialty: "",
+    description: "Padaria no Centro, de segunda a sábado, das 6h às 14h.",
+    required_experience: "",
+    work_modality: "presencial",
+    available_immediately: false,
+  },
+  {
+    title: "Motorista entregador",
+    profession: "Motorista",
+    specialty: "Entregas",
+    description: "Entregas na cidade com carro da empresa. CNH B.",
+    required_experience: "1 ano",
+    work_modality: "presencial",
+    available_immediately: true,
+  },
+].slice(0, QUANTAS_VAGAS).map((v, i) => ({
+  id: `vaga-${i}`,
+  company_id: EMPRESA_FALSA,
+  skills: [],
+  salary_range_min: null,
+  salary_range_max: null,
+  city: "Itabirito",
+  uf: "MG",
+  neighborhood: "Centro",
+  anunciada_ate: null,
+  status: "active",
+  created_at: emDias(-i - 1),
+  closed_at: null,
+  ...v,
+}));
+
 const TABELAS: Record<string, Linha[]> = {
   professionals,
   professionals_public: professionals,
@@ -91,7 +154,14 @@ const TABELAS: Record<string, Linha[]> = {
         ? {
             full_name: "Joana Ferreira",
             email: "joana@exemplo.com",
-            avatar_url: "https://exemplo.invalido/joana.jpg",
+            /* `?foto=nao` é o caso de quem entrou pelo SMS — a maioria —,
+               que não tem foto nenhuma e vê as iniciais. Sem esta chave o
+               teste só conseguia fotografar o outro caso, e o desenho do
+               círculo com as iniciais nunca era olhado. */
+            avatar_url:
+              new URLSearchParams(location.search).get("foto") === "nao"
+                ? null
+                : "https://exemplo.invalido/joana.jpg",
           }
         : { full_name: null, email: null, avatar_url: null }),
       phone: "5531999998888",
@@ -99,9 +169,75 @@ const TABELAS: Record<string, Linha[]> = {
       created_at: emDias(-30),
     },
   ],
+
+  /* ─── O Ei Itabirito ───────────────────────────────────────────────
+     Daqui para baixo é o app novo: empresa, vaga, onda e aviso. Estava
+     tudo faltando, e o efeito não era um erro na tela — era cada tela do
+     Ei aparecendo VAZIA no teste, que é exatamente o estado em que ela
+     não prova nada. */
+  user_onboarding: [{ user_id: DONO_FALSO, user_type: ladoFalso(), created_at: emDias(-30) }],
+
+  companies: [
+    {
+      id: EMPRESA_FALSA,
+      owner_id: DONO_FALSO,
+      company_name: "Padaria Pão de Minas",
+      cnpj_cpf: "12.345.678/0001-90",
+      phone: "5531999998888",
+      /* Confirmado só quando o teste pede o contrário: o cartão de
+         "confirme o telefone" é um estado, e testar sempre o mesmo lado
+         deixa metade da tela sem nunca ter sido aberta. */
+      phone_verified: new URLSearchParams(location.search).get("telefone") !== "nao",
+      phone_verified_at: emDias(-20),
+      email: "contato@exemplo.com",
+      address: "Rua Direita, 120",
+      neighborhood: "Centro",
+      city: "Itabirito",
+      uf: "MG",
+      description: "",
+      photo_url: null,
+      plano: planoFalso() ? "pro3" : null,
+      plano_ate: planoFalso() ? emDias(20) : null,
+      plano_recorrente: true,
+      created_at: emDias(-60),
+    },
+  ],
+
+  job_listings: VAGAS,
+  job_responses: [],
+  job_dispatches: [],
+
+  /* Avisos com a vaga JÁ embutida, como o PostgREST devolve o `select`
+     com tabela filha. A tela lê `n.job_listings.companies.company_name`,
+     então o aninhamento vai até o segundo nível. */
+  job_notifications: VAGAS.slice(0, 3).map((v, i) => ({
+    id: `aviso-${i}`,
+    professional_id: DONO_FALSO,
+    job_listing_id: v.id,
+    criado_em: emDias(-i),
+    /* A primeira nunca foi vista: é ela que carrega o selo "Nova", e sem
+       uma assim o selo não aparece em teste nenhum. */
+    visto_em: i === 0 ? null : emDias(-i),
+    job_listings: { ...v, companies: { company_name: "Padaria Pão de Minas" } },
+  })),
 };
 
 type Filtro = (l: Linha) => boolean;
+
+/**
+ * Lê `"job_listings.status"` dentro da linha.
+ *
+ * O PostgREST filtra por tabela embutida com o nome pontuado, e o falso
+ * guarda o embutido como objeto dentro da própria linha. Sem andar pelo
+ * ponto, `l["job_listings.status"]` é `undefined`, o filtro nunca casa e a
+ * lista volta VAZIA — que nesta tela é a mentira mais cara que existe, a de
+ * dizer a quem procura emprego que não há vaga nenhuma.
+ */
+function valorEm(l: Linha, caminho: string): unknown {
+  return caminho
+    .split(".")
+    .reduce<unknown>((atual, parte) => (atual as Linha | undefined)?.[parte], l);
+}
 
 class Consulta implements PromiseLike<{ data: Linha[] | Linha | null; error: unknown; count?: number }> {
   private filtros: Filtro[] = [];
@@ -114,8 +250,12 @@ class Consulta implements PromiseLike<{ data: Linha[] | Linha | null; error: unk
   constructor(private tabela: string) {}
 
   select() { return this; }
-  eq(c: string, v: unknown) { this.filtros.push((l) => l[c] === v); return this; }
-  neq(c: string, v: unknown) { this.filtros.push((l) => l[c] !== v); return this; }
+  eq(c: string, v: unknown) { this.filtros.push((l) => valorEm(l, c) === v); return this; }
+  neq(c: string, v: unknown) { this.filtros.push((l) => valorEm(l, c) !== v); return this; }
+  /* `is(coluna, null)` é como o PostgREST pergunta "está vazio?" — e é o
+     que separa "vaga que ainda não foi vista" de todas as outras. Sem ele,
+     o falso ignorava o filtro e a lista voltava inteira. */
+  is(c: string, v: unknown) { this.filtros.push((l) => (valorEm(l, c) ?? null) === v); return this; }
   gte(c: string, v: string) { this.filtros.push((l) => String(l[c] ?? "") >= v); return this; }
   lte(c: string, v: string) { this.filtros.push((l) => String(l[c] ?? "") <= v); return this; }
   in(c: string, vs: unknown[]) { this.filtros.push((l) => vs.includes(l[c])); return this; }
@@ -247,6 +387,11 @@ const clienteFalso = {
       // os quatro primeiros, como se fossem os mais vistos da semana
       return { data: professionals.slice(0, 4).map((p) => ({ professional_id: p.id })), error: null };
     }
+    /* O plano da empresa. Zero é "sem plano" e -1 é "sem teto" — os dois
+       números que o painel escreve por extenso, e que só aparecem na tela
+       se o falso souber devolvê-los. */
+    if (nome === "limite_de_vagas_do_plano") return { data: planoFalso() ? 3 : 0, error: null };
+    if (nome === "vagas_ativas_agora") return { data: VAGAS.length, error: null };
     return { data: 0, error: null };
   },
   auth,

@@ -8,7 +8,6 @@ import { AvisoSemInternet } from "./AvisoSemInternet";
 import { useAuth } from "../lib/useAuth";
 import { NavegacaoEi } from "./NavegacaoEi";
 import { useOnlineCount } from "../lib/presence";
-import { MarcaProcuro } from "./MarcaProcuro";
 import { ExigirNumero, exigeNumero } from "./ExigirNumero";
 import { CompletarPerfil, exigePerfil } from "./CompletarPerfil";
 
