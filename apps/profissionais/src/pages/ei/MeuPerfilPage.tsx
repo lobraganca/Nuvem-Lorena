@@ -11,6 +11,7 @@ import {
   salvarMeuPerfil,
   lerCursos,
   salvarCursos,
+  confirmarMeuTelefone,
   PERFIL_VAZIO,
   type MeuPerfil,
 } from "../../lib/meuPerfil";
@@ -62,6 +63,7 @@ export function MeuPerfilPage() {
      tela, e ela não sabe se deu certo — numa tela em que o que está em
      jogo é a chance de ser chamada para trabalhar. */
   const [salvo, setSalvo] = useState(false);
+  const [confirmando, setConfirmando] = useState(false);
 
   const { disponivel, oculto, funcoes } = perfil;
   const setDisponivel = (v: boolean) => setPerfil((p) => ({ ...p, disponivel: v }));
@@ -116,6 +118,42 @@ export function MeuPerfilPage() {
       }
     })();
   }, [user, carregandoConta, navegar]);
+
+  /**
+   * Confirma o telefone — item obrigatório do cadastro.
+   *
+   * Salva ANTES de confirmar, sempre. A função do banco compara o número
+   * do cadastro com o número que o Auth confirmou, e não teria o que
+   * comparar se a pessoa acabou de digitar o telefone e ainda não salvou.
+   * Sem isto, quem corrigisse o número e tocasse em confirmar receberia
+   * "o número confirmado é diferente do que está no anúncio" — sobre um
+   * número que ela acabou de acertar.
+   */
+  async function confirmarTelefone() {
+    if (!user) return;
+    setConfirmando(true);
+    setErro("");
+    try {
+      const id = perfil.id ?? (await salvarMeuPerfil(user.id, perfil));
+      await confirmarMeuTelefone(id);
+      setPerfil((p) => ({ ...p, id, confirmado: true }));
+    } catch (err) {
+      const texto = mensagemDeErro(err, "Não consegui confirmar o telefone.");
+      /* As duas mensagens do banco viram instrução. Sem tradução, a pessoa
+         lê uma frase sobre "anúncio" e "código" e não sabe o que fazer. */
+      setErro(
+        texto.includes("ainda não foi confirmado")
+          ? "Para confirmar, entre no app usando este mesmo número: saia da conta e " +
+              "entre com o celular, que a gente manda um código por SMS."
+          : texto.includes("diferente")
+            ? "O telefone escrito aqui é diferente do número com que você entrou no app. " +
+                "Corrija um dos dois para que fiquem iguais."
+            : texto
+      );
+    } finally {
+      setConfirmando(false);
+    }
+  }
 
   async function salvar() {
     if (!user) return;
@@ -179,6 +217,40 @@ export function MeuPerfilPage() {
         <p className="ei-apoio ei-margem" style={{ paddingBottom: 6 }}>
           É por ele que as vagas chegam até você.
         </p>
+
+        {/* ── O telefone confirmado, antes de tudo ──────────────────────
+            A dona: "a confirmação do telefone é item obrigatório no
+            cadastro." Fica no topo, e não escondido num campo, porque é a
+            única coisa desta tela que decide se o cadastro EXISTE para
+            alguém: sem ela a pessoa não aparece na lista (a view filtra
+            desde a 0076) e não recebe aviso de vaga.
+
+            Preencher tudo e descobrir isso no fim seria o pior caminho —
+            e era o que acontecia, porque não se dizia em lugar nenhum. */}
+        {perfil.confirmado ? (
+          <div className="ei-callout">
+            <span className="ei-callout-emoji" aria-hidden="true">✅</span>
+            <span className="ei-callout-texto">
+              Telefone confirmado. Seu cadastro pode ficar no ar.
+            </span>
+          </div>
+        ) : (
+          <div className="ei-callout ei-callout-atencao">
+            <span className="ei-callout-emoji" aria-hidden="true">📵</span>
+            <span className="ei-callout-texto">
+              <strong>Confirme seu telefone para o cadastro valer.</strong> Sem isso você
+              não aparece na lista das empresas e não recebe aviso de vaga.{" "}
+              <button
+                type="button"
+                className="ei-btn-inline"
+                disabled={confirmando}
+                onClick={confirmarTelefone}
+              >
+                {confirmando ? "Confirmando…" : "Confirmar agora"}
+              </button>
+            </span>
+          </div>
+        )}
 
         {/* ── 0. Quem é você ───────────────────────────────────────────
             Nome, telefone e e-mail, que a dona pediu por escrito e não
@@ -526,11 +598,13 @@ export function MeuPerfilPage() {
             <span className="ei-callout-emoji" aria-hidden="true">✅</span>
             <span className="ei-callout-texto">
               <strong>Perfil salvo.</strong>{" "}
-              {funcoes.length === 0
-                ? "Marque ao menos uma função para começar a receber vaga."
-                : oculto
-                  ? "Você não aparece na lista, mas continua recebendo vaga."
-                  : "As vagas do seu ofício vão chegar aqui."}
+              {!perfil.confirmado
+                ? "Falta confirmar o telefone, lá em cima — sem isso ele não vai para o ar."
+                : funcoes.length === 0
+                  ? "Marque ao menos uma função para começar a receber vaga."
+                  : oculto
+                    ? "Você não aparece na lista, mas continua recebendo vaga."
+                    : "As vagas do seu ofício vão chegar aqui."}
             </span>
           </div>
         )}

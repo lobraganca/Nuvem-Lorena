@@ -350,10 +350,14 @@ export function DetalheVagaPage() {
              uma coluna de códigos. */
           <div style={{ margin: "0 -20px" }}>
             {respostas.map((resp) => (
+              /* O link usa `cadastroId`, e não `professional_id`: aquele é
+                 o id da CONTA, e abriria "perfil não encontrado". Quem
+                 está sem cadastro visível vira linha sem toque. */
               <Link
                 key={resp.id}
-                to={`/profissional/${resp.professional_id}`}
+                to={resp.cadastroId ? `/profissional/${resp.cadastroId}` : "#"}
                 className="ei-pessoa"
+                style={resp.cadastroId ? undefined : { pointerEvents: "none", opacity: 0.6 }}
               >
                 <span className="ei-pessoa-retrato" aria-hidden="true">
                   {resp.foto ? (
@@ -371,9 +375,11 @@ export function DetalheVagaPage() {
                     respondeu em {new Date(resp.responded_at).toLocaleDateString("pt-BR")}
                   </span>
                 </span>
-                <span className="ei-linha-seta" aria-hidden="true">
-                  <IconeSeta />
-                </span>
+                {resp.cadastroId && (
+                  <span className="ei-linha-seta" aria-hidden="true">
+                    <IconeSeta />
+                  </span>
+                )}
               </Link>
             ))}
           </div>

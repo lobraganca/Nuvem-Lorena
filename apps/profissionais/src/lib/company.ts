@@ -398,34 +398,66 @@ export async function obterOndasDaVaga(vagaId: string): Promise<JobDispatch[]> {
  * caixa de entrada, é o resultado da vaga.
  */
 export type RespostaComPessoa = JobResponse & {
+  /** O id do CADASTRO, para abrir o perfil. Diferente de `professional_id`. */
+  cadastroId: string | null;
   nome: string;
   telefone: string | null;
   foto: string | null;
   bairro: string | null;
 };
 
+/**
+ * ── `professional_id` é a CONTA, não o cadastro ───────────────────────
+ *
+ * A chave estrangeira de `job_responses` aponta para `auth.users`, e não
+ * para `professionals`. Isso tem duas consequências, e as duas passaram
+ * despercebidas na primeira escrita desta função:
+ *
+ * 1. Não dá para juntar com `professionals_public` num `select` embutido:
+ *    o PostgREST junta por relação declarada, e não existe nenhuma entre
+ *    essas duas tabelas. São duas consultas, casadas por `owner_id`.
+ * 2. O link do perfil precisa do id do CADASTRO. Passar o id da conta
+ *    abriria uma página de "perfil não encontrado" — que é o que a tela
+ *    fazia antes de o teste de banco 15 revelar de onde a coluna aponta.
+ */
 export async function obterRespostasDaVaga(vagaId: string): Promise<RespostaComPessoa[]> {
   const sb = getSupabase();
   if (!sb) return [];
 
   const { data, error } = await sb
     .from("job_responses")
-    .select(
-      `*, professionals_public!inner ( name, whatsapp, phone, photo_url, neighborhood )`
-    )
+    .select("*")
     .eq("job_listing_id", vagaId)
     .order("responded_at", { ascending: false });
 
   if (error) return [];
+  const respostas = (data ?? []) as JobResponse[];
+  if (respostas.length === 0) return [];
 
-  return ((data ?? []) as Record<string, unknown>[]).map((r) => {
-    const pessoa = (r.professionals_public ?? {}) as Record<string, unknown>;
+  const contas = [...new Set(respostas.map((r) => r.professional_id))];
+  const { data: pessoas } = await sb
+    .from("professionals_public")
+    .select("id, owner_id, name, whatsapp, phone, photo_url, neighborhood")
+    .in("owner_id", contas);
+
+  const porConta = new Map<string, Record<string, unknown>>();
+  for (const p of (pessoas ?? []) as Record<string, unknown>[]) {
+    porConta.set(String(p.owner_id), p);
+  }
+
+  return respostas.map((r) => {
+    const pessoa = porConta.get(r.professional_id);
     return {
-      ...(r as unknown as JobResponse),
-      nome: String(pessoa.name ?? ""),
-      telefone: (pessoa.whatsapp as string) ?? (pessoa.phone as string) ?? null,
-      foto: (pessoa.photo_url as string) ?? null,
-      bairro: (pessoa.neighborhood as string) ?? null,
+      ...r,
+      cadastroId: pessoa ? String(pessoa.id) : null,
+      /* Sem cadastro visível — quem ficou oculto ou não confirmou o
+         telefone — a linha continua na lista, porque a pessoa respondeu de
+         verdade e sumir com ela seria esconder da empresa alguém que
+         demonstrou interesse. O que muda é que não há para onde tocar. */
+      nome: pessoa ? String(pessoa.name ?? "") : "Cadastro fora do ar",
+      telefone: pessoa ? ((pessoa.whatsapp as string) ?? (pessoa.phone as string) ?? null) : null,
+      foto: pessoa ? ((pessoa.photo_url as string) ?? null) : null,
+      bairro: pessoa ? ((pessoa.neighborhood as string) ?? null) : null,
     };
   });
 }

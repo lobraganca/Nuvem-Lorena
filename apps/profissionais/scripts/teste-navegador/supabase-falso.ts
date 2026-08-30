@@ -63,6 +63,12 @@ const professionals: Linha[] = Array.from({ length: QUANTOS }, (_, i) => ({
      nenhuma foto, a grade de cartões só era vista com iniciais — e o
      desenho que se estava julgando era justamente o com foto. */
   photo_url: i % 3 === 0 ? null : fotoFalsa(i),
+  /* Sem telefone confirmado o cadastro não aparece na lista desde a 0076,
+     então o falso precisa nascer confirmado — senão a tela de
+     profissionais abre vazia e o teste fotografa o estado errado.
+     `?confirmado=nao` exercita o outro lado. */
+  whatsapp_verified: new URLSearchParams(location.search).get("confirmado") !== "nao",
+  disponivel: true,
   verified: i % 7 === 0,
   verified_until: i % 7 === 0 ? emDias(30) : null,
   boosted: i % 6 === 0,
@@ -330,6 +336,23 @@ class Consulta implements PromiseLike<{ data: Linha[] | Linha | null; error: unk
   delete() { this.apagar = true; return this; }
 
   private resolver() {
+    /* `professionals_public` é uma VIEW, e view tem `where`.
+       ───────────────────────────────────────────────────────
+       O falso apontava para o mesmo array de `professionals`, então
+       mostrava todo mundo — inclusive quem está suspenso, oculto ou sem
+       telefone confirmado. Um teste de "quem não confirmou não aparece"
+       passava com a regra apagada, porque o falso nunca a teve.
+
+       As três condições são as mesmas da migration 0076. Se um dia elas
+       mudarem lá, mudam aqui — e é por isso que estão escritas por
+       extenso, e não escondidas atrás de um `filter` genérico. */
+    if (this.tabela === "professionals_public") {
+      TABELAS.professionals_public = (TABELAS.professionals ?? []).filter(
+        (l) =>
+          l.suspended === false && l.paused === false && l.whatsapp_verified === true
+      );
+    }
+
     const tabela = (TABELAS[this.tabela] ??= []);
 
     if (this.inserir) {
@@ -450,6 +473,15 @@ const clienteFalso = {
     /* O plano da empresa. Zero é "sem plano" e -1 é "sem teto" — os dois
        números que o painel escreve por extenso, e que só aparecem na tela
        se o falso souber devolvê-los. */
+    /* A confirmação do telefone. `?confirmado=nao` deixa o cadastro sem
+       confirmar, que é o estado em que toda pessoa nova começa — e o
+       único em que o aviso obrigatório do topo aparece. */
+    if (nome === "confirmar_whatsapp") {
+      for (const l of TABELAS.professionals ?? []) {
+        if (l.owner_id === DONO_FALSO) l.whatsapp_verified = true;
+      }
+      return { data: true, error: null };
+    }
     if (nome === "limite_de_vagas_do_plano") return { data: planoFalso() ? 3 : 0, error: null };
     if (nome === "vagas_ativas_agora") return { data: VAGAS.length, error: null };
     return { data: 0, error: null };

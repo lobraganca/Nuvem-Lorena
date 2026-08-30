@@ -29,6 +29,18 @@ export type MeuPerfil = {
   disponivel: boolean;
   /** Fora da busca pública, mas continua recebendo vaga pelas ondas. */
   oculto: boolean;
+  /**
+   * O telefone do cadastro foi confirmado por código.
+   *
+   * A dona: "a confirmação do telefone é item obrigatório no cadastro."
+   * Sem ela o cadastro é gravado mas não existe para mais ninguém — a
+   * `professionals_public` filtra por esta coluna desde a 0076, e o aviso
+   * de vaga também.
+   *
+   * Não se grava daqui: quem escreve é a função `confirmar_whatsapp`, e um
+   * gatilho zera o campo em qualquer outra escrita. Aqui é só leitura.
+   */
+  confirmado: boolean;
 };
 
 export type CursoEmEdicao = { nome: string; instituicao: string; ano: string };
@@ -42,6 +54,7 @@ export const PERFIL_VAZIO: MeuPerfil = {
   funcoes: [],
   disponivel: true,
   oculto: false,
+  confirmado: false,
 };
 
 /**
@@ -57,7 +70,9 @@ export async function lerMeuPerfil(ownerId: string): Promise<MeuPerfil | null> {
 
   const { data, error } = await sb
     .from("professionals")
-    .select("id, name, phone, email, neighborhood, areas_de_interesse, disponivel, paused")
+    .select(
+      "id, name, phone, email, neighborhood, areas_de_interesse, disponivel, paused, whatsapp_verified"
+    )
     .eq("owner_id", ownerId)
     /* `maybeSingle` e não `single`: quem ainda não tem cadastro é o caso
        normal desta tela, e o `single` trataria isso como erro. */
@@ -79,6 +94,7 @@ export async function lerMeuPerfil(ownerId: string): Promise<MeuPerfil | null> {
        "não disponível" tiraria da vitrine gente que nunca disse isso. */
     disponivel: linha.disponivel ?? true,
     oculto: linha.paused ?? false,
+    confirmado: linha.whatsapp_verified ?? false,
   };
 }
 
@@ -195,6 +211,27 @@ export async function salvarCursos(
   const { error } = await sb.from("professional_courses").insert(
     validos.map((c, i) => ({ ...c, professional_id: professionalId, ordem: i }))
   );
+  if (error) throw error;
+}
+
+/**
+ * Confirma o telefone do cadastro.
+ *
+ * Quem confere tudo é o banco: se a conta é a dona do cadastro, se o Auth
+ * já confirmou aquele número por código, e se o número confirmado é o
+ * MESMO do cadastro. Nada disso pode ser decidido no navegador — é
+ * justamente ali que alguém mexeria para se declarar confirmado.
+ *
+ * Erro sobe com a mensagem do banco, que é específica ("o número
+ * confirmado é diferente do que está no anúncio") e vale mais que
+ * qualquer texto genérico escrito aqui.
+ */
+export async function confirmarMeuTelefone(professionalId: string): Promise<void> {
+  const sb = supabase();
+  if (!sb) throw new Error("Banco não configurado");
+  const { error } = await sb.rpc("confirmar_whatsapp", {
+    p_professional_id: professionalId,
+  });
   if (error) throw error;
 }
 
