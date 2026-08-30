@@ -2,6 +2,7 @@ import { Link } from "react-router-dom";
 import { useAuth } from "../../lib/useAuth";
 import { useOnboardingStatus } from "../../lib/useOnboardingStatus";
 import { useTituloDaPagina } from "../../lib/tituloDaPagina";
+import { InstalarApp } from "../../components/InstalarApp";
 import marcaEi from "/marca-ei.png";
 
 /**
@@ -86,6 +87,19 @@ export function EntradaPage() {
         <p className="ei-apoio" style={{ textAlign: "center", marginTop: 4 }}>
           Ver quem está disponível é grátis e não precisa de conta.
         </p>
+
+        {/* Instalar, para quem ainda não entrou.
+            ──────────────────────────────────────
+            O caminho de instalar mora na Conta, e quem chega aqui pela
+            primeira vez não tem conta — ficava sem nenhum. E é justamente
+            esta pessoa que precisa dele: quem gostou do app e não o deixou
+            no celular volta uma vez e esquece o endereço.
+
+            Some sozinho dentro do app já instalado e dentro do app da
+            loja. Ver InstalarApp. */}
+        <div className="ei-lista" style={{ marginTop: 8 }}>
+          <InstalarApp />
+        </div>
       </div>
     </div>
   );

@@ -252,17 +252,31 @@ export function InstalarApp({ variante = "lista" }: { variante?: "lista" | "faix
           </span>
         </div>
       ) : (
+        /* Linha do desenho do Ei. Era `settings-item` com um emoji, a classe
+           do procurô — dentro da lista da Conta ela era a única com
+           quadradinho cinza e desenho colorido, e quebrava o bloco no meio. */
         <button
           type="button"
-          className="settings-item"
+          className="ei-linha-item"
           onClick={() => (podeInstalarDireto ? instalar() : setEnsinandoIOS(true))}
         >
-          <span className="settings-icon" aria-hidden="true">
-            📲
+          <span className="ei-linha-icone" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"
+                 strokeLinecap="round" strokeLinejoin="round">
+              <rect x="6" y="2.5" width="12" height="19" rx="2.5" />
+              <path d="M12 7.5v7" />
+              <path d="M9 11.5l3 3 3-3" />
+            </svg>
           </span>
-          <span>Adicionar à tela do celular</span>
-          <span className="settings-arrow" aria-hidden="true">
-            ›
+          <span className="ei-linha-nome">
+            Instalar o app no celular
+            <span className="ei-linha-sub">Vira ícone e abre direto, sem digitar o endereço</span>
+          </span>
+          <span className="ei-linha-seta" aria-hidden="true">
+            <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor"
+                 strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M9 5l7 7-7 7" />
+            </svg>
           </span>
         </button>
       )}

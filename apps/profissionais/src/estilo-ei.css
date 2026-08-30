@@ -218,18 +218,32 @@
 .ei-btn:hover:not(:disabled)::after { opacity: 0.08; }
 .ei-btn:active:not(:disabled)::after { opacity: 0.12; }
 
-.ei-btn-cheio { background: var(--ei-cor); color: var(--ei-sobre-cor); }
-.ei-btn-tonal { background: var(--ei-cor-fraca); color: var(--ei-sobre-cor-fraca); }
+/* O `.ei` a mais é obrigatório, e a razão é um defeito de verdade.
+   ─────────────────────────────────────────────────────────────────
+   `.ei a { color: inherit }`, mais abaixo, vale (0,1,1) — uma classe e um
+   tipo — e ganha de `.ei-btn-cheio`, que vale (0,1,0). Resultado: TODO
+   botão que é link (e são quase todos: "Tenho interesse" é botão, mas
+   "Criar nova vaga", "Ver os planos" e "Abrir meu perfil" são links)
+   ignorava a própria cor de texto e herdava a tinta preta.
+
+   Passava despercebido porque a tinta é escura e a cor de cima era o navy,
+   também escuro: ninguém vê a diferença entre dois tons escuros sobre
+   laranja. Só apareceu ao medir o contraste de uma paleta com letra
+   BRANCA, onde o botão saiu preto no preto — 1,07:1.
+
+   Escrito assim, a cor do botão é a cor do botão em qualquer paleta. */
+.ei .ei-btn-cheio { background: var(--ei-cor); color: var(--ei-sobre-cor); }
+.ei .ei-btn-tonal { background: var(--ei-cor-fraca); color: var(--ei-sobre-cor-fraca); }
 /* Contorno e texto usam a MARCA, não o laranja: laranja em letra fina
    sobre branco fica fraco de ler, e é aí que o navy trabalha bem. O
    laranja fica onde ele é área — preenchimento de botão, pastilha, ponto
    de aviso. */
-.ei-btn-contorno {
+.ei .ei-btn-contorno {
   background: transparent;
   border: 1px solid var(--ei-contorno);
   color: var(--ei-marca);
 }
-.ei-btn-texto { background: transparent; color: var(--ei-marca); padding: 10px 12px; }
+.ei .ei-btn-texto { background: transparent; color: var(--ei-marca); padding: 10px 12px; }
 
 .ei-btn-largo { width: 100%; }
 

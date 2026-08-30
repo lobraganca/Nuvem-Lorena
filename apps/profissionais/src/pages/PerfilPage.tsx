@@ -13,6 +13,7 @@ import { BotaoGoogle } from "../components/BotaoGoogle";
 import { baixarMeusDados } from "../lib/meusDados";
 import type { Profile } from "../types/domain";
 import { FecharApp } from "../components/FecharApp";
+import { InstalarApp } from "../components/InstalarApp";
 import { useTituloDaPagina } from "../lib/tituloDaPagina";
 import { useOnboardingStatus } from "../lib/useOnboardingStatus";
 import { mensagemDeErro } from "../lib/erros";
@@ -346,6 +347,23 @@ export function PerfilPage() {
               </Linha>
             </>
           )}
+        </div>
+
+        {/* Instalar o app.
+            ─────────────────
+            Some do celular de quem já está dentro do app instalado, e só
+            ali — em aba de navegador aparece sempre, inclusive para quem
+            instalou em outro aparelho. Ver InstalarApp.
+
+            Ficou um tempo sem aparecer em lugar NENHUM: saiu do cabeçalho
+            na arrumação do topo e saiu daqui na reescrita da Conta, e
+            ninguém percebeu porque o componente continuava importado. Era
+            a dona quem não achava mais como pôr o app no celular. */}
+        <div className="ei-secao-linha">
+          <h2>O app no seu celular</h2>
+        </div>
+        <div className="ei-lista">
+          <InstalarApp />
         </div>
 
         <div className="ei-secao-linha">
