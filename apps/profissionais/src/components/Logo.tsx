@@ -1,39 +1,23 @@
 import { Link } from "react-router-dom";
+import marcaEi from "/marca-ei.png";
 
 /**
- * O circunflexo do "ô" final, desenhado.
+ * O símbolo do Ei Itabirito: o "Ei" desenhado, com a bolinha e a virgula
+ * laranja.
  *
- * Precisa ser um desenho, e não o acento da fonte, por dois motivos. O
- * primeiro é a cor: dentro de uma palavra, o acento é parte da letra e não
- * há como pintá-lo de dourado sozinho. O segundo é a forma — o acento da
- * marca é largo e de pontas arredondadas, quase um telhado, e o de qualquer
- * fonte é estreito e pontudo.
+ * É imagem, e não SVG desenhado à mão, de propósito: o traço da marca é uma
+ * letra fechada com curvas próprias, e redesenhá-la em `path` seria produzir
+ * uma imitação parecida — que é pior que nenhuma, porque ninguém percebe que
+ * está errada até ver as duas lado a lado.
  *
- * As medidas são em `em`, então ele acompanha o tamanho do texto sem ajuste.
+ * O arquivo saiu da arte original com o fundo azul removido pixel a pixel
+ * (0,04% dos pixels destoam, todos na costura entre o branco e o laranja —
+ * invisível em qualquer tamanho de tela). Fundo transparente é o que permite
+ * usar a mesma marca sobre o azul da abertura e sobre o branco do cabeçalho,
+ * sem manter dois arquivos que um dia divergem.
  */
-function Circunflexo({ className }: { className?: string }) {
-  return (
-    <svg className={className} viewBox="0 0 28 12" fill="none" aria-hidden="true" focusable="false">
-      <path
-        d="M2.5 9.5 14 2.5 25.5 9.5"
-        stroke="currentColor"
-        strokeWidth="4.2"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
-    </svg>
-  );
-}
-
-/**
- * Wordmark "Ei Itabirito": marca visual da plataforma de contratação local.
- */
-function Marca() {
-  return (
-    <span className="logo-brand" aria-hidden="true">
-      Ei Itabirito
-    </span>
-  );
+function Marca({ className }: { className?: string }) {
+  return <img src={marcaEi} alt="" className={className} aria-hidden="true" />;
 }
 
 export function Logo({ size = "sm" }: { size?: "sm" | "md" | "lg" }) {
@@ -42,19 +26,26 @@ export function Logo({ size = "sm" }: { size?: "sm" | "md" | "lg" }) {
     // "voltar ao começo", e é lá que estão as duas portas do app (contratar
     // ou anunciar).
     <Link to="/inicio" className={`logo logo-${size}`} aria-label="Ei Itabirito — ir para a tela inicial">
-      <Marca />
+      <Marca className="logo-marca" />
+      <span className="logo-brand" aria-hidden="true">
+        Ei Itabirito
+      </span>
     </Link>
   );
 }
 
 /**
- * Mesmo wordmark sem o link, para a tela de início — onde ele é o próprio
- * assunto da tela, não um caminho de volta para a home.
+ * Só o símbolo, grande, para a abertura do app.
+ *
+ * Sem o nome escrito ao lado: na abertura a marca aparece por menos de um
+ * segundo, e nesse tempo ninguém lê — só reconhece. Texto ali seria uma
+ * palavra que pisca e some, que é o tipo de coisa que faz a pessoa achar
+ * que perdeu alguma informação.
  */
 export function LogoMark({
   variant = "default",
 }: {
-  /** "onBlue" inverte as cores para a marca aparecer sobre o azul da abertura. */
+  /** "onBlue" é a abertura: fundo azul, marca centralizada. */
   variant?: "default" | "onBlue";
 }) {
   return (
@@ -63,7 +54,7 @@ export function LogoMark({
       role="img"
       aria-label="Ei Itabirito"
     >
-      <Marca />
+      <Marca className="logo-marca" />
     </div>
   );
 }

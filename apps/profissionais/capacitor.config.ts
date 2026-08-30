@@ -44,10 +44,16 @@ const config: CapacitorConfig = {
        app. Agora os três são o mesmo azul, e o que a pessoa vê é uma
        abertura só — azul do primeiro instante até a marca aparecer.
 
-       Mesma cor de `@color/abertura` no Android, que é o meio do degradê da
-       tela de abertura do app. Escrita aqui à mão porque este arquivo não
-       enxerga os recursos do Android; mudando uma, mude a outra. */
-    backgroundColor: "#0E2546",
+       É o azul EXATO da marca, o mesmo de `@color/abertura` no Android e
+       do `--color-marca-azul` no theme.css. Escrito aqui à mão porque este
+       arquivo não enxerga os recursos do Android nem o CSS; mudando um,
+       mude os três — a diferença aparece como um pisca de cor entre a tela
+       do sistema e a do app.
+
+       A abertura do app deixou de ser degradê justamente por isto: com
+       degradê não existe UMA cor para casar aqui, e sobravam três azuis em
+       sequência. */
+    backgroundColor: "#031E52",
   },
 };
 

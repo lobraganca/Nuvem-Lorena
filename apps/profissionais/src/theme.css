@@ -26,6 +26,12 @@
 
   /* O navy da marca virou a cor da tinta: títulos, texto e o wordmark. */
   --color-navy: #0a1a2f;
+  /* O azul EXATO da marca, tirado do arquivo da logo. Aparece em três
+     lugares que precisam ser a mesma cor: aqui, no `backgroundColor` do
+     capacitor.config.ts e no `@color/abertura` do Android. Mudando um,
+     mude os três — a diferença aparece como um pisca de cor entre a tela
+     do sistema e a do app. */
+  --color-marca-azul: #031e52;
 
   /* Azul marinho é a cor de ação: botões, links, item ativo, foco. Três
      forças porque o `soft` só existe para dar um leve volume ao gradiente do
@@ -226,55 +232,102 @@ button {
 }
 
 
-/* Minúsculas, peso médio e entreletra levemente aberta: é o que aproxima a
-   fonte do app do desenho geométrico arredondado da marca. Sem `lowercase`
-   forçado, um `text-transform` herdado de qualquer container quebraria o
-   wordmark — e "PROCURÔ" não é a marca. */
+/* O símbolo tem tamanho próprio por classe, e não em `em` do texto.
+   ────────────────────────────────────────────────────────────────
+   Tentei `1.5em` primeiro, para ele acompanhar a fonte sozinho. Não serve:
+   o `LogoMark` da tela de início não tem texto nenhum, então o `em` caía no
+   corpo herdado do body e a marca aparecia com 24px numa tela onde ela é o
+   assunto. Foi visto na foto, não deduzido. */
+.logo-marca {
+  width: auto;
+  object-fit: contain;
+  flex-shrink: 0;
+}
+
+/* Só há margem quando existe o nome ao lado. */
+.logo-marca + .logo-brand {
+  margin-left: 0.42em;
+}
+
+/* Sobre fundo claro, a marca ganha o azul atrás dela.
+   ───────────────────────────────────────────────────
+   O "E" é BRANCO. Solto sobre o cinza claro do app ele praticamente
+   desaparece — na foto sobrava só a bolinha laranja flutuando, e a marca
+   deixava de ser lida como marca. Não é impressão: foi visto na tela.
+
+   A saída é a mesma que o botão redondo da barra de baixo já usava e que
+   funciona: o azul da marca vira o fundo dela. Assim o logotipo é sempre o
+   mesmo arquivo, sempre com as mesmas cores, e o que muda é a caixa em
+   volta — em vez de manter uma segunda versão escura, que é a cópia que um
+   dia diverge.
+
+   A regra pega só quem NÃO está na abertura: lá o fundo já é esse azul, e
+   uma caixa por cima dele apareceria como um retângulo levemente
+   destacado. */
+.logo:not(.logo-on-blue) .logo-marca {
+  background: var(--color-marca-azul);
+  border-radius: 22%;
+  /* Padding em `em` da própria altura da imagem para a folga crescer junto
+     com ela: proporcionalmente igual no cabeçalho pequeno e na tela de
+     início grande. */
+  padding: 0.16em 0.2em;
+  box-sizing: content-box;
+}
+
 .logo-brand {
   color: var(--color-text);
-  font-weight: 500;
-  letter-spacing: 0.01em;
-  text-transform: lowercase;
+  font-weight: 600;
+  letter-spacing: -0.01em;
   white-space: nowrap;
 }
 
-/* O "o" final vira a âncora do acento: o circunflexo é posicionado em
-   relação a ele, e não à palavra, para continuar centrado quando a fonte
-   mudar de largura (fallback de sistema, celular sem a fonte carregada). */
-.logo-o {
-  position: relative;
-  display: inline-block;
-}
-
-.logo-acento {
-  position: absolute;
-  left: 50%;
-  transform: translateX(-50%);
-  /* Acima da altura de x, encostando no topo das letras ascendentes. */
-  bottom: 0.72em;
-  width: 0.62em;
-  color: var(--color-gold-mid);
-}
-
-/* Sobre o azul da abertura, o dourado claro brilha mais que o médio. */
+/* Sobre o azul da abertura. */
 .logo-on-blue .logo-brand {
   color: #ffffff;
 }
 
-.logo-on-blue .logo-acento {
-  color: #f0cd88;
-}
-
 .logo-sm .logo-brand {
-  font-size: 1.3rem;
+  font-size: 1.15rem;
+}
+.logo-sm .logo-marca {
+  height: 1.7rem;
 }
 
 .logo-md .logo-brand {
-  font-size: 1.7rem;
+  font-size: 1.5rem;
+}
+
+/* No cabeçalho de tela estreita, só o símbolo.
+   ───────────────────────────────────────────
+   O nome escrito ao lado da marca ficou 90px mais largo que o wordmark
+   antigo, e empurrou o botão "Instalar App" 23px para fora da tela num
+   iPhone de 390px — medido, não estimado.
+
+   Some o nome, e não o botão: a marca sozinha já identifica o app (é o
+   mesmo símbolo do ícone na tela do celular), e o botão é uma ação que a
+   pessoa perde se não vir. Onde sobra largura, o nome volta. */
+@media (max-width: 460px) {
+  .header-marca .logo-md .logo-brand {
+    display: none;
+  }
+}
+.logo-md .logo-marca {
+  height: 2.1rem;
 }
 
 .logo-lg .logo-brand {
-  font-size: clamp(2.6rem, 12vw, 3.8rem);
+  font-size: clamp(2.2rem, 10vw, 3rem);
+}
+.logo-lg .logo-marca {
+  height: clamp(52px, 14vw, 76px);
+}
+
+/* Na abertura só existe o símbolo, e ele é o assunto da tela inteira — por
+   isso aqui a medida é da largura da tela, e maior que em qualquer outro
+   lugar. */
+.logo-on-blue .logo-marca {
+  height: auto;
+  width: clamp(120px, 38vw, 200px);
 }
 
 .nav {
@@ -1514,6 +1567,25 @@ textarea::placeholder {
 
 /* --- Abertura do app --- */
 
+/* A faixa reservada para a barra de rolagem também fica azul.
+   ───────────────────────────────────────────────────────────
+   O `html` usa `scrollbar-gutter: both-edges` e reserva 15px de cada lado
+   (ver o comentário lá em cima). Esses 15px ficam FORA do que um elemento
+   `fixed` consegue pintar — mesmo com `100vw` e margem negativa, que a
+   régua diz que cobre e a tinta desmente. Foi medido: 30px claros de cada
+   lado, na foto, com o retângulo reportando cobertura total.
+
+   Então em vez de brigar com o layout, a faixa é pintada da mesma cor. O
+   `html` vira azul enquanto a abertura está no ar e volta ao normal quando
+   ela sai.
+
+   Em celular isso nunca aparece — lá a barra é sobreposta e não reserva
+   nada. Quem via as listras era quem abre no computador. */
+html.abrindo,
+html.abrindo body {
+  background: var(--color-marca-azul);
+}
+
 .splash {
   position: fixed;
   inset: 0;
@@ -1521,8 +1593,20 @@ textarea::placeholder {
   display: flex;
   align-items: center;
   justify-content: center;
-  background: linear-gradient(160deg, var(--color-primary), var(--color-navy));
+  /* Cor chapada, e não degradê.
+     ─────────────────────────────
+     Com degradê não existe UMA cor para dar ao Android e ao WebView, e a
+     abertura vira três azuis diferentes em sequência: a tela do sistema, o
+     fundo do WebView e o topo do degradê. Chapada, os três são idênticos e
+     o que a pessoa vê é uma abertura só — que era o objetivo desde o
+     começo e o degradê impedia.
+
+     É o azul da própria marca, então o retângulo da tela e o fundo do
+     símbolo são a mesma cor: o "Ei" parece desenhado na tela, não colado
+     em cima dela. */
+  background: var(--color-marca-azul);
   animation: splash-in 0.2s ease-out;
+
 }
 
 /* Enquanto some, deixa de interceptar toques: mesmo que algo prenda a tela

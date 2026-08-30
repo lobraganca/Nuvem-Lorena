@@ -36,11 +36,30 @@ export function SplashScreen() {
     } catch {
       /* storage bloqueado: a tela some do mesmo jeito */
     }
+
+    /* Pinta de azul também a faixa que a barra de rolagem reserva.
+       ───────────────────────────────────────────────────────────
+       O `html` reserva 15px de cada lado (`scrollbar-gutter: both-edges`),
+       e esses 15px ficam fora do alcance de um elemento `fixed`: medindo a
+       foto da tela, sobravam duas listras claras nas bordas enquanto o
+       retângulo do elemento jurava cobrir tudo. Em celular isso não
+       acontece — lá a barra é sobreposta —, mas no computador a marca
+       ficava com cara de cartão colado torto.
+
+       A classe sai junto com a tela, e sai também na limpeza do efeito:
+       sem isso, um recarregamento no meio da abertura deixaria o app
+       inteiro com fundo azul para sempre. */
+    document.documentElement.classList.add("abrindo");
+
     const sair = setTimeout(() => setPhase("out"), HOLD_MS);
-    const fim = setTimeout(() => setPhase("gone"), HOLD_MS + FADE_MS);
+    const fim = setTimeout(() => {
+      setPhase("gone");
+      document.documentElement.classList.remove("abrindo");
+    }, HOLD_MS + FADE_MS);
     return () => {
       clearTimeout(sair);
       clearTimeout(fim);
+      document.documentElement.classList.remove("abrindo");
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
