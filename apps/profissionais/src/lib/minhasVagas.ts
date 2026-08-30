@@ -6,6 +6,9 @@ export type VagaParaMim = {
   aviso_id: string;
   vaga: JobListing;
   empresa: string;
+  /* A marca da empresa. O cartão de vaga não tinha imagem nenhuma, e numa
+     cidade pequena "que empresa é essa" pesa tanto quanto o que é a vaga. */
+  empresa_foto: string | null;
   criado_em: string;
   visto_em: string | null;
   respondida: boolean;
@@ -40,7 +43,7 @@ export async function vagasParaMim(userId: string): Promise<VagaParaMim[]> {
          required_experience, skills, salary_range_min, salary_range_max,
          available_immediately, work_modality, city, uf, neighborhood,
          anunciada_ate, status, created_at, closed_at,
-         companies!inner ( company_name )
+         companies!inner ( company_name, photo_url )
        )`
     )
     .eq("professional_id", userId)
@@ -71,6 +74,7 @@ export async function vagasParaMim(userId: string): Promise<VagaParaMim[]> {
     aviso_id: n.id,
     vaga: n.job_listings as JobListing,
     empresa: n.job_listings.companies?.company_name ?? "",
+    empresa_foto: n.job_listings.companies?.photo_url ?? null,
     criado_em: n.criado_em,
     visto_em: n.visto_em,
     respondida: respondidas.has(n.job_listings.id),

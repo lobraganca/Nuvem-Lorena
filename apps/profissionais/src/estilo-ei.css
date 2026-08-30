@@ -722,6 +722,224 @@
 
 .ei-acao-circulo svg { width: 24px; height: 24px; }
 
+/* ═══════════════════════════════════════════════════════════════════════
+   AS PEÇAS DA REFERÊNCIA QUE FALTAVAM
+   ═══════════════════════════════════════════════════════════════════════
+
+   A dona disse quatro vezes que o app tinha que parecer com as telas que
+   ela mandou, e eu respondi três vezes trocando COR. Na quarta ela foi
+   direta: "mais uma vez só mudou as cores". Ela estava certa — o que
+   separa aquelas telas destas nunca foi a paleta:
+
+     · o campo de busca é uma CÁPSULA com a lupa dentro, e não a caixa
+       retangular de formulário
+     · abaixo dele corre uma fileira de filtros, e o escolhido é
+       PREENCHIDO
+     · o conteúdo aparece em cartões com FOTO grande, dois por linha —
+       não em linhas de texto empilhadas
+     · o que é pessoa tem rosto; o que é empresa tem marca
+
+   Uma tela feita só de retângulo branco com texto dentro é a mesma tela em
+   qualquer app do mundo, pintada de qualquer cor. É isso que estava
+   acontecendo aqui.
+   ═══════════════════════════════════════════════════════════════════════ */
+
+/* ── Busca em cápsula ─────────────────────────────────────────────────
+   Fundo cheio e sem contorno, com a lupa dentro à esquerda. O `.ei-campo`
+   (contorno, canto pequeno) é para formulário: numa tela de procurar, ele
+   lê como "preencha aqui" em vez de "digite e veja". */
+.ei-busca {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 0 16px;
+  background: var(--ei-s2);
+  border-radius: var(--ei-capsula);
+  min-height: 52px;
+}
+
+.ei-busca svg {
+  flex: 0 0 auto;
+  width: 20px;
+  height: 20px;
+  color: var(--ei-tinta-fraca);
+}
+
+.ei-busca input {
+  flex: 1;
+  min-width: 0;
+  border: none;
+  background: none;
+  padding: 14px 0;
+  font: inherit;
+  font-size: 1rem;
+  color: var(--ei-tinta);
+}
+
+.ei-busca input:focus { outline: none; }
+.ei-busca input::placeholder { color: var(--ei-tinta-fraca); }
+
+/* O X de limpar. Existe porque apagar letra por letra num celular é o
+   motivo mais comum de a pessoa desistir de refazer a busca. */
+.ei-busca-limpar {
+  flex: 0 0 auto;
+  display: grid;
+  place-items: center;
+  width: 28px;
+  height: 28px;
+  border: none;
+  border-radius: var(--ei-capsula);
+  background: var(--ei-s4);
+  color: var(--ei-tinta);
+  cursor: pointer;
+  font: inherit;
+  font-size: 0.8rem;
+  line-height: 1;
+}
+
+/* ── Fileira de filtros ───────────────────────────────────────────────
+   Rola de lado em vez de quebrar em três linhas: com quebra, uma lista de
+   dez ofícios come metade da tela antes do primeiro resultado. */
+.ei-filtros {
+  display: flex;
+  gap: 8px;
+  overflow-x: auto;
+  scrollbar-width: none;
+  /* O respiro nas pontas é o que faz a fileira parecer que continua, em
+     vez de parecer cortada na borda da tela. */
+  padding: 2px 16px 2px 0;
+  margin-right: -16px;
+}
+.ei-filtros::-webkit-scrollbar { display: none; }
+
+.ei-filtros .ei-chip { flex: 0 0 auto; white-space: nowrap; }
+
+/* Aqui o escolhido é CHEIO, e não o tom fraco do `.ei-chip` comum: num
+   filtro só existe um escolhido por vez e ele precisa se separar dos
+   outros sete de relance. Nas escolhas múltiplas (as funções do perfil) o
+   tom fraco continua certo — lá metade pode estar marcada. */
+.ei .ei-filtros .ei-chip[aria-pressed="true"] {
+  background: var(--ei-cor);
+  border-color: transparent;
+  color: var(--ei-sobre-cor);
+}
+
+/* ── Grade de cartões com foto ────────────────────────────────────────
+   Dois por linha em celular. É o formato da referência, e a razão não é
+   estética: com foto, a lista deixa de ser um bloco de nomes e vira gente.
+   Numa cidade em que as pessoas se conhecem, o rosto é o que faz a
+   empresa reconhecer alguém. */
+.ei-grade {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.ei-foto-cartao {
+  display: block;
+  background: var(--ei-s1);
+  border-radius: var(--ei-raio);
+  overflow: hidden;
+  text-decoration: none;
+  color: inherit;
+  border: none;
+  padding: 0;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+/* Quadrada, e a mesma altura em todos: com altura livre, uma foto em pé ao
+   lado de uma deitada desalinha a linha inteira da grade. */
+.ei-foto-cartao-imagem {
+  position: relative;
+  aspect-ratio: 1 / 1;
+  background: var(--ei-s3);
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+}
+
+.ei-foto-cartao-imagem img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+/* Sem foto, a inicial grande. Trinta silhuetas iguais de "pessoa sem
+   rosto" viram ruído; a letra pelo menos distingue um cartão do outro. */
+.ei-foto-cartao-inicial {
+  font-size: 2.4rem;
+  font-weight: 700;
+  color: var(--ei-tinta-fraca);
+}
+
+/* A etiqueta sobre a foto: o bairro, o "disponível". Fica na imagem e não
+   embaixo dela para o texto do cartão não virar quatro linhas. */
+.ei-foto-cartao-selo {
+  position: absolute;
+  left: 8px;
+  bottom: 8px;
+  padding: 3px 9px;
+  border-radius: var(--ei-capsula);
+  background: var(--ei-s1);
+  color: var(--ei-tinta);
+  font-size: 0.7rem;
+  font-weight: 600;
+  max-width: calc(100% - 16px);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.ei-foto-cartao-texto { padding: 10px 12px 14px; }
+
+.ei-foto-cartao-nome {
+  font-weight: 700;
+  font-size: 0.95rem;
+  line-height: 1.25;
+  /* Duas linhas no máximo: com três, os cartões da mesma linha ficam de
+     alturas diferentes e a grade desanda. */
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.ei-foto-cartao-oficio {
+  margin-top: 2px;
+  font-size: 0.8rem;
+  color: var(--ei-tinta-fraca);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* ── Marca da empresa, no cartão da vaga ──────────────────────────────
+   O cartão de vaga não tinha imagem nenhuma. Com a marca da empresa ele
+   passa a ser reconhecível de longe — e quem procura emprego numa cidade
+   pequena decide muito por "que empresa é essa". */
+.ei-empresa-marca {
+  flex: 0 0 auto;
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  border-radius: var(--ei-raio-p);
+  background: var(--ei-s2);
+  color: var(--ei-marca);
+  font-weight: 700;
+  overflow: hidden;
+}
+
+.ei-empresa-marca img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
 /* ── Foto da pessoa ───────────────────────────────────────────────────
    Redonda e de 64px, ao lado do nome. A do procurô era um quadrado de
    104px com canto de 24px, centralizado no cartão e pintado com o degradê

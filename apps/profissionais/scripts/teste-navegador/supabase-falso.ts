@@ -22,13 +22,36 @@ const QUANTOS = Number(new URLSearchParams(location.search).get("falsos") ?? 60)
    o painel abre vazio e não dá para conferir nada do que ele mostra. */
 export const DONO_FALSO = "00000000-0000-4000-8000-000000000001";
 
+/* Retângulo colorido em SVG, embutido no próprio endereço. Não sai para
+   a rede — a política deste container bloqueia domínio de fora, e uma foto
+   que não carrega deixa a grade toda cinza no exato teste em que se quer
+   ver a grade com foto. */
+function fotoFalsa(i: number): string {
+  const cores = ["#8aa0b8", "#b89a8a", "#8ab89c", "#b8a88a", "#a08ab8", "#b88a9c"];
+  const svg =
+    `<svg xmlns="http://www.w3.org/2000/svg" width="200" height="200">` +
+    `<rect width="200" height="200" fill="${cores[i % cores.length]}"/>` +
+    `<circle cx="100" cy="78" r="34" fill="#ffffff" opacity=".85"/>` +
+    `<path d="M40 200a60 60 0 0 1 120 0z" fill="#ffffff" opacity=".85"/>` +
+    `</svg>`;
+  return `data:image/svg+xml;utf8,${encodeURIComponent(svg)}`;
+}
+
 const professionals: Linha[] = Array.from({ length: QUANTOS }, (_, i) => ({
   id: `pro-${i}`,
   owner_id: i < 2 ? DONO_FALSO : `dono-${i}`,
   name: `Profissional ${i}`,
   category: CATS[i % CATS.length],
   categories: [CATS[i % CATS.length]],
+  /* A coluna do Ei: é por ela que a tela de profissionais filtra e monta a
+     fileira de ofícios. Faltava, e a fileira nascia sempre vazia. */
+  areas_de_interesse: [CATS[i % CATS.length], CATS[(i + 7) % CATS.length]],
+  neighborhood: ["Centro", "Praia", "Vila Rica", "Nossa Senhora do Carmo"][i % 4],
   city: "Itabirito",
+  /* Faltava, e a tela de profissionais filtra por cidade E estado: sem
+     `uf` a lista voltava VAZIA e o teste fotografava a tela de "ainda não
+     há ninguém" achando que era a lista. */
+  uf: "MG",
   bio: `Faz ${CATS[i % CATS.length]} há anos.`,
   especialidade: "",
   phone: "31999990000",
@@ -36,7 +59,10 @@ const professionals: Linha[] = Array.from({ length: QUANTOS }, (_, i) => ({
   entity_type: i % 5 === 0 ? "pj" : "pf",
   company_name: i % 5 === 0 ? `Empresa ${i}` : null,
   responsible_name: i % 5 === 0 ? `Responsável ${i}` : null,
-  photo_url: null,
+  /* Foto de mentira em `data:` para uns e nenhuma para outros. Sem
+     nenhuma foto, a grade de cartões só era vista com iniciais — e o
+     desenho que se estava julgando era justamente o com foto. */
+  photo_url: i % 3 === 0 ? null : fotoFalsa(i),
   verified: i % 7 === 0,
   verified_until: i % 7 === 0 ? emDias(30) : null,
   boosted: i % 6 === 0,
@@ -195,7 +221,7 @@ const TABELAS: Record<string, Linha[]> = {
       city: "Itabirito",
       uf: "MG",
       description: "",
-      photo_url: null,
+      photo_url: fotoFalsa(2),
       plano: planoFalso() ? "pro3" : null,
       plano_ate: planoFalso() ? emDias(20) : null,
       plano_recorrente: true,
@@ -218,7 +244,10 @@ const TABELAS: Record<string, Linha[]> = {
     /* A primeira nunca foi vista: é ela que carrega o selo "Nova", e sem
        uma assim o selo não aparece em teste nenhum. */
     visto_em: i === 0 ? null : emDias(-i),
-    job_listings: { ...v, companies: { company_name: "Padaria Pão de Minas" } },
+    job_listings: {
+      ...v,
+      companies: { company_name: "Padaria Pão de Minas", photo_url: fotoFalsa(2) },
+    },
   })),
 };
 
