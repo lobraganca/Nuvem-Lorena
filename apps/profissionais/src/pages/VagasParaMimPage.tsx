@@ -11,6 +11,7 @@ import {
 } from "../lib/minhasVagas";
 import { pedirPermissaoDePush, pushServeAqui, situacaoDaPermissao } from "../lib/push";
 import { getProfile } from "../lib/profiles";
+import { Abas, Callout, Pagina } from "../components/ei/Pagina";
 
 /**
  * "Vagas para você" — o que chegou para este profissional.
@@ -148,39 +149,22 @@ export function VagasParaMimPage() {
   return (
     <div className="ei">
       <div className="ei-tela">
-        {/* Uma linha, e só.
-            ──────────────────
-            Era uma saudação de duas linhas enormes ("Olá, Joana," /
-            "Vagas em Itabirito") que comia um quarto da tela antes da
-            primeira vaga. A dona disse "muitos escritos", e a referência
-            dela abre a seção com DUAS PALAVRAS ("Meus Saldos"). O nome da
-            pessoa não some — ele vale na Conta, onde é sobre ela; aqui a
-            tela é sobre as vagas. */}
-        <h1 className="ei-titulo-g">Vagas</h1>
+        {/* Cabeçalho de página do Notion: migalha, ícone e título. */}
+        <Pagina icone="💼" titulo="Vagas" ondeEstou="Vagas" />
 
-        {/* A fileira de filtros, com o escolhido preenchido. Só aparece
-            quando há mais de uma vaga: com uma, filtrar é mexer numa lista
-            de um item. */}
+        {/* Abas de visão, como numa base de dados do Notion: texto com um
+            traço embaixo da aberta. Eram pílulas pretas, que pesavam mais
+            que a lista que filtravam. */}
         {vagas.length > 1 && (
-          <div className="ei-filtros">
-            {(
-              [
-                ["todas", `Todas (${vagas.length})`],
-                ["novas", `Novas (${quantasNovas})`],
-                ["respondidas", `Já respondi (${quantasRespondidas})`],
-              ] as const
-            ).map(([chave, rotulo]) => (
-              <button
-                key={chave}
-                type="button"
-                className="ei-chip"
-                aria-pressed={aba === chave}
-                onClick={() => setAba(chave)}
-              >
-                {rotulo}
-              </button>
-            ))}
-          </div>
+          <Abas
+            valor={aba}
+            aoTrocar={setAba}
+            opcoes={[
+              { chave: "todas", rotulo: "Todas", contagem: vagas.length },
+              { chave: "novas", rotulo: "Novas", contagem: quantasNovas },
+              { chave: "respondidas", rotulo: "Já respondi", contagem: quantasRespondidas },
+            ]}
+          />
         )}
 
         {erro && (
@@ -195,35 +179,20 @@ export function VagasParaMimPage() {
             atrás sem ir nas configurações do sistema. Pedir antes de a pessoa
             entender para quê é gastar a única chance que existe. */}
         {podeOferecerAviso && (
-          /* Uma LINHA, no formato do "Cashback · Acessar ›" da referência.
-             Era um cartão com título, quatro linhas de parágrafo e um
-             botão largo — mais texto que qualquer vaga da lista, para uma
-             coisa que é secundária. O convite continua inteiro; o que saiu
-             foi a explicação, que ninguém lê num convite de uma linha. */
-          <div className="ei-lista" style={{ marginTop: 16 }}>
-            <button
-              type="button"
-              className="ei-linha-item"
-              disabled={ligandoAviso}
-              onClick={ligarAviso}
-            >
-              <span className="ei-linha-icone" aria-hidden="true">
-                <IconeSino />
-              </span>
-              <span className="ei-linha-nome">
-                {ligandoAviso ? "Ligando…" : "Avisar no celular"}
-              </span>
-              <span className="ei-linha-seta" aria-hidden="true">
-                <IconeSeta />
-              </span>
-            </button>
-          </div>
+          /* Um callout — o bloco do Notion para o que precisa ser lido
+             antes do resto. Era um cartão com título, quatro linhas de
+             parágrafo e um botão largo, mais texto que qualquer vaga da
+             lista para uma coisa secundária. */
+          <Callout emoji="🔔">
+            <button type="button" className="ei-btn-inline" disabled={ligandoAviso} onClick={ligarAviso}>
+              {ligandoAviso ? "Ligando…" : "Avisar no celular"}
+            </button>{" "}
+            quando chegar vaga do seu ofício.
+          </Callout>
         )}
 
         {avisoLigado && (
-          <p className="ei-corpo ei-margem" style={{ marginTop: 16 }}>
-            Pronto — o aviso está ligado neste aparelho.
-          </p>
+          <Callout emoji="✅">Aviso ligado neste aparelho.</Callout>
         )}
 
         {vagas.length === 0 ? (
@@ -368,25 +337,6 @@ export function VagasParaMimPage() {
         )}
       </div>
     </div>
-  );
-}
-
-function IconeSino() {
-  return (
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"
-         strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-      <path d="M18 9a6 6 0 1 0-12 0c0 5-2 6.5-2 6.5h16S18 14 18 9z" />
-      <path d="M10.3 19.5a2 2 0 0 0 3.4 0" />
-    </svg>
-  );
-}
-
-function IconeSeta() {
-  return (
-    <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor"
-         strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-      <path d="M9 5l7 7-7 7" />
-    </svg>
   );
 }
 

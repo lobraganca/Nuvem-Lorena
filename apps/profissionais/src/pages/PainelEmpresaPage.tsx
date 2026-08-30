@@ -10,6 +10,7 @@ import {
 } from "../lib/company";
 import { mensagemDeErro } from "../lib/erros";
 import type { Company, JobListing } from "../types/domain";
+import { Callout, Pagina, Prop } from "../components/ei/Pagina";
 
 /**
  * A casa da empresa.
@@ -134,17 +135,45 @@ export function PainelEmpresaPage() {
   return (
     <div className="ei">
       <div className="ei-tela">
-        {/* O título é o nome da TELA, não o da empresa.
-            ─────────────────────────────────────────────
-            "Padaria Pão de Minas" em corpo 1,9rem quebrava em duas linhas
-            enormes e comia um terço da altura antes de qualquer coisa útil
-            — e nome de empresa longo é a regra, não a exceção. O nome fica
-            embaixo, numa linha só, onde ele identifica sem gritar. */}
-        <h1 className="ei-titulo-g">Minhas vagas</h1>
-        <p className="ei-apoio ei-uma-linha ei-margem">
-          {empresa.company_name}
-          {empresa.neighborhood ? ` · ${empresa.neighborhood}` : ""}
-        </p>
+        {/* Cabeçalho de página do Notion, e o estado da empresa em
+            PROPRIEDADES — rótulo à esquerda, valor à direita.
+            ─────────────────────────────────────────────────────
+            Era um cartão com tarja, título "Seu plano", o número 3/3 em
+            corpo grande e uma faixa cinza embaixo. Dava a um dado de
+            ficha o peso de uma manchete, e era o mesmo cartão branco que
+            aparecia em toda tela do app.
+
+            Aqui é o que o Notion faz com o estado de uma página: três
+            linhas quietas de rótulo e valor, que se lê de relance e não
+            se toca. */}
+        <Pagina icone="🏢" titulo="Minhas vagas" ondeEstou="Empresa">
+          <div className="ei-props">
+            <Prop rotulo="Empresa">
+              <span className="ei-uma-linha">{empresa.company_name}</span>
+            </Prop>
+            <Prop rotulo="Onde">
+              {empresa.neighborhood ? `${empresa.neighborhood} · ` : ""}
+              {empresa.city}/{empresa.uf}
+            </Prop>
+            <Prop rotulo="Plano">
+              {semPlano ? (
+                <span className="ei-selo ei-selo-cinza">Sem plano</span>
+              ) : (
+                <>
+                  <span className="ei-selo ei-selo-verde">Ativo</span>{" "}
+                  {plano?.abertas ?? 0} de {limiteEmTexto} vagas no ar
+                </>
+              )}
+            </Prop>
+            <Prop rotulo="Telefone">
+              {empresa.phone_verified ? (
+                <span className="ei-selo ei-selo-verde">Confirmado</span>
+              ) : (
+                <span className="ei-selo ei-selo-laranja">Falta confirmar</span>
+              )}
+            </Prop>
+          </div>
+        </Pagina>
 
         {erro && (
           <p className="ei-campo-erro ei-margem" style={{ marginTop: 16 }} role="alert">
@@ -164,62 +193,43 @@ export function PainelEmpresaPage() {
             deixaria a empresa olhando um botão cinza sem saber o que fazer
             para acendê-lo. */}
         {!empresa.phone_verified && (
-          <div className="ei-cartao" style={{ marginTop: 20 }}>
-            <div className="ei-cartao-topo">
-              <span className="ei-tarja" aria-hidden="true" />
-              <h2 className="ei-cartao-titulo">Confirme o telefone</h2>
-            </div>
-            <p className="ei-apoio" style={{ marginBottom: 14 }}>
-              Sem ele a vaga não sai.
-            </p>
+          <Callout emoji="📞" atencao>
+            <strong>Sem o telefone confirmado a vaga não sai.</strong>{" "}
             <button
               type="button"
-              className="ei-btn ei-btn-tonal ei-btn-largo"
+              className="ei-btn-inline"
               disabled={confirmando}
               onClick={confirmarTelefone}
             >
               {confirmando ? "Confirmando…" : "Confirmar agora"}
             </button>
-          </div>
+          </Callout>
         )}
 
-        {/* O cartão do plano: onde a empresa está, em número grande. */}
-        <div className="ei-cartao" style={{ marginTop: 20 }}>
-          <div className="ei-cartao-topo">
-            <span className="ei-tarja" aria-hidden="true" />
-            <h2 className="ei-cartao-titulo">Seu plano</h2>
-            <span className="ei-cartao-valor">
-              {semPlano ? "Sem plano" : `${plano?.abertas ?? 0}/${limiteEmTexto}`}
-            </span>
-          </div>
+        {semPlano && (
+          <Callout emoji="🔒">
+            Ver profissionais é grátis. Para publicar vaga e disparar a onda,{" "}
+            <Link to="/planos-empresa" className="ei-btn-inline">
+              escolha um plano
+            </Link>
+            .
+          </Callout>
+        )}
 
-          <div className="ei-faixa">
-            <span>{semPlano ? "Vagas anunciadas" : "Vagas no ar agora"}</span>
-            <span className="ei-faixa-valor">
-              {semPlano ? "nenhuma" : `${plano?.abertas ?? 0} de ${limiteEmTexto}`}
-            </span>
-          </div>
+        {/* O que a empresa faz daqui.
+            ────────────────────────────
+            "Criar nova vaga" entrou aqui porque saiu do cartão do plano,
+            que deixou de existir — e sem esta linha o caminho principal da
+            empresa ficaria só num link pequeno de cabeçalho de seção.
 
-          {semPlano ? (
-            <>
-              <p className="ei-apoio" style={{ margin: "12px 0 14px" }}>
-                Ver profissionais é grátis. Publicar vaga, não.
-              </p>
-              <Link
-                to="/planos-empresa"
-                className="ei-btn ei-btn-cheio ei-btn-largo ei-btn-alto"
-              >
-                Ver os planos
-              </Link>
-            </>
-          ) : (
+            Sem vaga sobrando no plano, o toque leva ao plano e não à
+            criação: a tela de criar recusaria no fim, depois de a empresa
+            ter escrito a vaga inteira. */}
+        <div className="ei-acoes">
+          {!semPlano && (
             <Link
               to="/criar-vaga"
-              className="ei-btn ei-btn-cheio ei-btn-largo ei-btn-alto"
-              style={{ marginTop: 14 }}
-              /* Sem vaga sobrando, o caminho é o plano e não a criação: a
-                 tela de criar recusaria no fim, depois de a empresa ter
-                 escrito a vaga inteira. */
+              className="ei-acao"
               onClick={(e) => {
                 if (plano && !plano.cabeMais) {
                   e.preventDefault();
@@ -227,14 +237,12 @@ export function PainelEmpresaPage() {
                 }
               }}
             >
-              {plano && !plano.cabeMais ? "Aumentar o plano" : "Criar nova vaga"}
+              <span className="ei-acao-circulo" aria-hidden="true">
+                <IconeMais />
+              </span>
+              {plano && !plano.cabeMais ? "Aumentar o plano" : "Nova vaga"}
             </Link>
           )}
-        </div>
-
-        {/* As ações em círculo, como na referência: o que a empresa faz
-            daqui, sem virar quatro botões empilhados ocupando meia tela. */}
-        <div className="ei-acoes">
           <Link to="/profissionais" className="ei-acao">
             <span className="ei-acao-circulo" aria-hidden="true">
               <IconePessoas />
@@ -257,25 +265,13 @@ export function PainelEmpresaPage() {
 
         <div className="ei-secao-linha">
           <h2>Vagas no ar</h2>
-          {vagas.length > 0 && !semPlano && (
-            <Link to="/criar-vaga" className="ei-secao-acao">
-              Nova vaga
-            </Link>
-          )}
+          <span className="ei-secao-acao">{vagas.length}</span>
         </div>
 
         {vagas.length === 0 ? (
-          <div className="ei-cartao" style={{ padding: 0 }}>
-            <div className="ei-vazio">
-              <span className="ei-vazio-icone" aria-hidden="true">
-                <IconeMegafone />
-              </span>
-              <h3 className="ei-titulo">Nenhuma vaga ainda</h3>
-              <p className="ei-apoio">
-                Publique uma vaga e quem tiver interesse aparece aqui.
-              </p>
-            </div>
-          </div>
+          <Callout emoji="📢">
+            Publique uma vaga e quem tiver interesse aparece aqui.
+          </Callout>
         ) : (
           /* Lista colada num bloco só, e não um cartão por vaga: cinco
              cartões soltos com espaço entre eles viram um acordeão, e a
@@ -378,6 +374,14 @@ function IconeSeta() {
   return (
     <svg {...svgProps()} width="20" height="20" strokeWidth={2.2}>
       <path d="M9 5l7 7-7 7" />
+    </svg>
+  );
+}
+
+function IconeMais() {
+  return (
+    <svg {...svgProps()}>
+      <path d="M12 5v14M5 12h14" />
     </svg>
   );
 }

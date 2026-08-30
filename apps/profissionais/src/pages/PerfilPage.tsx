@@ -14,6 +14,7 @@ import { baixarMeusDados } from "../lib/meusDados";
 import type { Profile } from "../types/domain";
 import { FecharApp } from "../components/FecharApp";
 import { InstalarApp } from "../components/InstalarApp";
+import { Pagina, Prop } from "../components/ei/Pagina";
 import { useTituloDaPagina } from "../lib/tituloDaPagina";
 import { useOnboardingStatus } from "../lib/useOnboardingStatus";
 import { mensagemDeErro } from "../lib/erros";
@@ -155,7 +156,8 @@ export function PerfilPage() {
     return (
       <div className="ei">
         <div className="ei-tela">
-          <h1 className="ei-titulo-g">Entrar</h1>
+          <Pagina icone="🔑" titulo="Entrar" ondeEstou="Entrar" />
+          <div className="ei-margem" style={{ paddingTop: 12 }}>
           {/* Mesma regra do painel: no app da loja o Google não volta, e o
               caminho passa pela tela de login. Ver `googleServeAqui`. */}
           {googleServeAqui() ? (
@@ -202,6 +204,7 @@ export function PerfilPage() {
               {error}
             </p>
           )}
+          </div>
         </div>
       </div>
     );
@@ -214,98 +217,59 @@ export function PerfilPage() {
   return (
     <div className="ei">
       <div className="ei-tela">
-        <h1 className="ei-titulo-g">Conta</h1>
+        <Pagina icone="👤" titulo="Conta" ondeEstou="Conta" />
 
         {/* Quem é você.
             ─────────────
-            Foto e nome são EDITÁVEIS aqui, e isso é consequência direta da
-            porta de entrada. Com o login só pelo Google, os dois vinham
-            prontos e ninguém precisava preenchê-los — por isso nunca houve
-            onde. Entrando pelo telefone não vem nada: a conta nasce
-            anônima e ficava assim para sempre. */}
-        <div className="ei-cartao" style={{ marginTop: 20 }}>
-          <div style={{ display: "flex", gap: 14, alignItems: "center" }}>
-            <label className="ei-foto" title="Trocar a foto">
-              {avatarUrl ? (
-                <img src={avatarUrl} alt="" />
-              ) : (
-                <span className="ei-foto-iniciais">{initials(name, user.email)}</span>
-              )}
-              <span className="ei-foto-trocar">{enviandoFoto ? "Enviando…" : "Trocar"}</span>
-              <input
-                type="file"
-                accept="image/*"
-                disabled={enviandoFoto}
-                style={{ display: "none" }}
-                onChange={async (e) => {
-                  const arquivo = e.target.files?.[0];
-                  e.target.value = "";
-                  if (!arquivo) return;
-                  setEnviandoFoto(true);
-                  setErroPerfil("");
-                  try {
-                    const url = await uploadProfessionalPhoto(user.id, arquivo);
-                    await salvarMeuPerfil(user.id, { avatar_url: url });
-                    setProfile((p) => (p ? { ...p, avatar_url: url } : p));
-                  } catch (err) {
-                    setErroPerfil(mensagemDeErro(err, "Não foi possível enviar a foto."));
-                  } finally {
-                    setEnviandoFoto(false);
-                  }
-                }}
-              />
-            </label>
+            Era um cartão branco com foto, nome, telefone e um botão de
+            contorno largo. Virou o que o Notion faz: a foto e o nome no
+            corpo da página, e o telefone como PROPRIEDADE — rótulo à
+            esquerda, valor à direita.
 
-            <div style={{ flex: 1, minWidth: 0 }}>
-              <strong style={{ fontSize: "1.1rem" }}>{name || "Sem nome"}</strong>
-              {contato && (
-                <p className="ei-apoio" style={{ marginTop: 2 }}>
-                  {contato}
-                </p>
-              )}
-            </div>
-          </div>
+            Foto e nome são editáveis aqui por causa da porta de entrada:
+            com o login só pelo Google os dois vinham prontos e nunca houve
+            onde preenchê-los. Entrando pelo telefone não vem nada — a
+            conta nasce anônima e ficava assim para sempre. */}
+        <div className="ei-margem" style={{ display: "flex", gap: 14, alignItems: "center", paddingTop: 14 }}>
+          <label className="ei-foto" title="Trocar a foto">
+            {avatarUrl ? (
+              <img src={avatarUrl} alt="" />
+            ) : (
+              <span className="ei-foto-iniciais">{initials(name, user.email)}</span>
+            )}
+            <span className="ei-foto-trocar">{enviandoFoto ? "Enviando…" : "Trocar"}</span>
+            <input
+              type="file"
+              accept="image/*"
+              disabled={enviandoFoto}
+              style={{ display: "none" }}
+              onChange={async (e) => {
+                const arquivo = e.target.files?.[0];
+                e.target.value = "";
+                if (!arquivo) return;
+                setEnviandoFoto(true);
+                setErroPerfil("");
+                try {
+                  const url = await uploadProfessionalPhoto(user.id, arquivo);
+                  await salvarMeuPerfil(user.id, { avatar_url: url });
+                  setProfile((p) => (p ? { ...p, avatar_url: url } : p));
+                } catch (err) {
+                  setErroPerfil(mensagemDeErro(err, "Não foi possível enviar a foto."));
+                } finally {
+                  setEnviandoFoto(false);
+                }
+              }}
+            />
+          </label>
 
-          {editandoNome ? (
-            <div className="ei-campo" style={{ marginTop: 14 }}>
-              <input
-                value={nomeRascunho}
-                onChange={(e) => setNomeRascunho(e.target.value)}
-                placeholder="Como você quer ser chamada"
-                maxLength={60}
-                autoFocus
-              />
-              <div style={{ display: "flex", gap: 8, marginTop: 10 }}>
-                <button
-                  className="ei-btn ei-btn-cheio"
-                  disabled={salvandoNome || !nomeRascunho.trim()}
-                  onClick={async () => {
-                    setSalvandoNome(true);
-                    setErroPerfil("");
-                    try {
-                      const limpo = nomeRascunho.trim();
-                      await salvarMeuPerfil(user.id, { full_name: limpo });
-                      setProfile((p) => (p ? { ...p, full_name: limpo } : p));
-                      setEditandoNome(false);
-                    } catch (err) {
-                      setErroPerfil(mensagemDeErro(err, "Não foi possível salvar o nome."));
-                    } finally {
-                      setSalvandoNome(false);
-                    }
-                  }}
-                >
-                  {salvandoNome ? "Salvando…" : "Salvar"}
-                </button>
-                <button className="ei-btn ei-btn-texto" onClick={() => setEditandoNome(false)}>
-                  Cancelar
-                </button>
-              </div>
-            </div>
-          ) : (
+          <div style={{ flex: 1, minWidth: 0 }}>
+            <strong className="ei-uma-linha" style={{ fontSize: "1.05rem" }}>
+              {name || "Sem nome"}
+            </strong>
             <button
               type="button"
-              className="ei-btn ei-btn-contorno ei-btn-largo"
-              style={{ marginTop: 14 }}
+              className="ei-btn-inline"
+              style={{ fontSize: "0.82rem", fontWeight: 500 }}
               onClick={() => {
                 setNomeRascunho(name ?? "");
                 setEditandoNome(true);
@@ -313,14 +277,58 @@ export function PerfilPage() {
             >
               {name ? "Editar nome" : "Escrever meu nome"}
             </button>
-          )}
-
-          {erroPerfil && (
-            <p className="ei-campo-erro" style={{ marginTop: 10 }}>
-              {erroPerfil}
-            </p>
-          )}
+          </div>
         </div>
+
+        {editandoNome && (
+          <div className="ei-campo ei-margem" style={{ marginTop: 14 }}>
+            <input
+              value={nomeRascunho}
+              onChange={(e) => setNomeRascunho(e.target.value)}
+              placeholder="Como você quer ser chamada"
+              maxLength={60}
+              autoFocus
+            />
+            <div style={{ display: "flex", gap: 8, marginTop: 10 }}>
+              <button
+                className="ei-btn ei-btn-cheio"
+                disabled={salvandoNome || !nomeRascunho.trim()}
+                onClick={async () => {
+                  setSalvandoNome(true);
+                  setErroPerfil("");
+                  try {
+                    const limpo = nomeRascunho.trim();
+                    await salvarMeuPerfil(user.id, { full_name: limpo });
+                    setProfile((p) => (p ? { ...p, full_name: limpo } : p));
+                    setEditandoNome(false);
+                  } catch (err) {
+                    setErroPerfil(mensagemDeErro(err, "Não foi possível salvar o nome."));
+                  } finally {
+                    setSalvandoNome(false);
+                  }
+                }}
+              >
+                {salvandoNome ? "Salvando…" : "Salvar"}
+              </button>
+              <button className="ei-btn ei-btn-texto" onClick={() => setEditandoNome(false)}>
+                Cancelar
+              </button>
+            </div>
+          </div>
+        )}
+
+        <div className="ei-props">
+          <Prop rotulo={user.phone ? "Telefone" : "E-mail"}>{contato || "—"}</Prop>
+          <Prop rotulo="Você é">
+            {tipo === "company" ? "Empresa" : tipo === "professional" ? "Profissional" : "—"}
+          </Prop>
+        </div>
+
+        {erroPerfil && (
+          <p className="ei-campo-erro ei-margem" style={{ marginTop: 10 }}>
+            {erroPerfil}
+          </p>
+        )}
 
         {/* O caminho de volta ao lado da pessoa. Sem ele, a Conta é um beco:
             três telas na barra, e uma delas só serve para sair. */}

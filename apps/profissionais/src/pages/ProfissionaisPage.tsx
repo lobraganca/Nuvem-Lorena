@@ -4,6 +4,7 @@ import { mensagemDeErro } from "../lib/erros";
 import { supabase } from "../lib/supabase";
 import { lerTudo } from "../lib/lerTudo";
 import { DEFAULT_CITY, DEFAULT_UF } from "../types/domain";
+import { Pagina } from "../components/ei/Pagina";
 
 type Disponivel = {
   id: string;
@@ -119,11 +120,7 @@ export function ProfissionaisPage() {
   return (
     <div className="ei">
       <div className="ei-tela">
-        {/* Só o título. O subtítulo ("Quem está em Itabirito aceitando ser
-            chamado para trabalhar") ocupava duas linhas para dizer o que a
-            própria tela já mostra. A dona pediu menos escrito, e este era
-            texto que não decide nada. */}
-        <h1 className="ei-titulo-g">Profissionais</h1>
+        <Pagina icone="👥" titulo="Profissionais" ondeEstou="Profissionais" />
 
         {/* A busca em cápsula, com a lupa dentro. */}
         <div className="ei-busca" style={{ marginTop: 14 }}>

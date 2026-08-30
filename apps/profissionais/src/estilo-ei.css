@@ -131,15 +131,58 @@
   padding-right: 20px;
 }
 
+/* ═══════════════════════════════════════════════════════════════════════
+   O CABEÇALHO DE PÁGINA DO NOTION
+   ═══════════════════════════════════════════════════════════════════════
+   A dona pediu o Notion, eu tirei os cantos e os cartões, e ela pediu de
+   novo. Faltavam as peças que SÃO o Notion — as que a pessoa reconhece
+   antes de ler qualquer palavra:
+
+     · a migalha em cinza miúdo, no topo
+     · o ÍCONE de emoji, grande, acima do título
+     · o título enorme logo abaixo dele
+     · as propriedades em linhas de rótulo e valor
+     · as abas de visão, sublinhadas — e não pílulas preenchidas
+     · o callout: retângulo tingido com um emoji do lado esquerdo
+
+   Sem elas, "sem canto e sem cartão" é só um app liso. Com elas, é uma
+   PÁGINA — que é a ideia inteira do Notion.
+   ═══════════════════════════════════════════════════════════════════════ */
+
+/* A migalha. Diz onde a pessoa está sem gastar uma barra de navegação. */
+.ei-migalha {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  padding: 14px 20px 0;
+  font-size: 0.78rem;
+  color: var(--ei-tinta-fraquissima);
+}
+
+.ei-migalha a { text-decoration: none; color: inherit; }
+.ei-migalha a:hover { color: var(--ei-tinta); }
+.ei-migalha-atual { color: var(--ei-tinta-fraca); }
+
+/* O ícone da página. É emoji de propósito: no Notion o ícone de página é
+   emoji, e é a coisa mais reconhecível da tela dele. Em todo o resto do
+   app os ícones são desenhados em traço — aqui não, porque aqui a
+   referência é literal. */
+.ei-icone-pagina {
+  display: block;
+  padding: 10px 20px 2px;
+  font-size: 2.6rem;
+  line-height: 1;
+}
+
 /* ── Tipografia ───────────────────────────────────────────────────────
    É ela que faz a hierarquia. Sem caixa, sem cor de fundo, sem sombra. */
 .ei-titulo-g {
-  font-size: 1.75rem;
-  line-height: 1.2;
+  font-size: 2.1rem;
+  line-height: 1.15;
   font-weight: 700;
-  letter-spacing: -0.02em;
+  letter-spacing: -0.025em;
   margin: 0;
-  padding: 26px 20px 2px;
+  padding: 4px 20px 2px;
 }
 
 .ei-titulo {
@@ -505,6 +548,129 @@
   font-size: 0.75rem;
 }
 
+/* ── Propriedades da página ───────────────────────────────────────────
+   As linhas que ficam logo abaixo do título de uma página do Notion:
+   rótulo pequeno e cinza à esquerda, valor à direita. Não têm caixa, nem
+   fundo, nem fio entre elas — só o alinhamento em duas colunas.
+
+   É o formato certo para "Plano: Pro · 3 vagas" e "Telefone: confirmado":
+   informação de estado, que a pessoa lê de relance e não toca. Antes isso
+   morava num cartão com número grande, que dava a um dado de cadastro o
+   peso de uma manchete. */
+.ei-props { padding: 10px 20px 4px; }
+
+.ei-prop {
+  display: flex;
+  align-items: baseline;
+  gap: 12px;
+  padding: 5px 0;
+  font-size: 0.875rem;
+}
+
+.ei-prop-rotulo {
+  flex: 0 0 116px;
+  color: var(--ei-tinta-fraca);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.ei-prop-rotulo svg { width: 14px; height: 14px; flex: 0 0 auto; }
+
+.ei-prop-valor { flex: 1; min-width: 0; color: var(--ei-tinta); }
+
+/* ── Divisor ──────────────────────────────────────────────────────────
+   O `---` do Notion: um fio de ponta a ponta, sozinho, para trocar de
+   assunto sem precisar de um título. */
+.ei-divisor {
+  height: 1px;
+  background: var(--ei-fio);
+  margin: 16px 0 0;
+  border: none;
+}
+
+/* ── Callout ──────────────────────────────────────────────────────────
+   O bloco mais reconhecível do Notion: retângulo levemente tingido, emoji
+   à esquerda, texto à direita. Serve para o que precisa ser lido antes do
+   resto — aqui, "confirme o telefone" e "sem plano você não publica".
+
+   Era um cartão com título, tarja, parágrafo e botão largo. O callout diz
+   a mesma coisa em um terço da altura. */
+.ei-callout {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  margin: 12px 20px;
+  padding: 12px 14px;
+  background: var(--ei-afunda);
+  border: 1px solid var(--ei-fio);
+  border-radius: 0;
+  font-size: 0.875rem;
+  line-height: 1.5;
+}
+
+.ei-callout-emoji { flex: 0 0 auto; font-size: 1.05rem; line-height: 1.4; }
+.ei-callout-texto { flex: 1; min-width: 0; }
+.ei-callout-texto strong { font-weight: 600; }
+
+/* O callout de aviso continua sem cor forte: um fio um pouco mais escuro
+   à esquerda basta para distingui-lo do informativo. */
+.ei-callout-atencao { border-left: 3px solid var(--ei-laranja); }
+
+/* ── Abas de visão ────────────────────────────────────────────────────
+   Como o Notion troca de visão numa base de dados: TEXTO, e a aberta se
+   marca por um traço embaixo. Não é pílula preenchida.
+
+   As pílulas pretas que estavam aqui eram o oposto disto: pesavam mais
+   que o conteúdo que filtravam, e três delas lado a lado davam à tela um
+   ar de barra de ferramentas. */
+.ei-abas {
+  display: flex;
+  gap: 4px;
+  overflow-x: auto;
+  scrollbar-width: none;
+  padding: 8px 20px 0;
+  border-bottom: 1px solid var(--ei-fio);
+}
+.ei-abas::-webkit-scrollbar { display: none; }
+
+.ei-aba {
+  flex: 0 0 auto;
+  position: relative;
+  padding: 7px 8px 9px;
+  border: none;
+  border-radius: 0;
+  background: none;
+  font: inherit;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--ei-tinta-fraca);
+  white-space: nowrap;
+  cursor: pointer;
+}
+
+.ei-aba:hover { color: var(--ei-tinta); }
+
+.ei-aba[aria-selected="true"] { color: var(--ei-tinta); }
+
+/* O traço fica no lugar do fio da fileira, sem empurrar nada: por isso é
+   um pseudo-elemento posicionado, e não uma borda no botão. */
+.ei-aba[aria-selected="true"]::after {
+  content: "";
+  position: absolute;
+  left: 4px;
+  right: 4px;
+  bottom: -1px;
+  height: 2px;
+  background: var(--ei-tinta);
+}
+
+.ei-aba-conta {
+  margin-left: 5px;
+  color: var(--ei-tinta-fraquissima);
+  font-weight: 400;
+}
+
 /* ── Fileira de filtros ─────────────────────────────────────────────── */
 .ei-filtros {
   display: flex;
@@ -812,3 +978,22 @@
   outline-offset: 1px;
   border-radius: 0;
 }
+
+/* ── Ação escrita dentro do texto ─────────────────────────────────────
+   O Notion quase não usa botão: a ação costuma ser uma palavra sublinhada
+   no meio de uma frase. Serve para o que é secundário — ligar o aviso,
+   limpar um filtro — e evita mais um retângulo preto competindo com o
+   botão que de fato importa na tela. */
+.ei-btn-inline {
+  background: none;
+  border: none;
+  padding: 0;
+  font: inherit;
+  font-weight: 600;
+  color: var(--ei-tinta);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  cursor: pointer;
+}
+
+.ei-btn-inline:disabled { color: var(--ei-tinta-fraca); cursor: default; }
