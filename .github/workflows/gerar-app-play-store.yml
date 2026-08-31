@@ -249,7 +249,7 @@ jobs:
           CODIGO: ${{ inputs.versionCode != '' && inputs.versionCode || github.run_number }}
         run: |
           set -euo pipefail
-          BASE="procuro-${{ inputs.versionName }}-envio${CODIGO}"
+          BASE="ei-itabirito-${{ inputs.versionName }}-envio${CODIGO}"
           mv android/app/build/outputs/bundle/release/*.aab \
              "android/app/build/outputs/bundle/release/${BASE}.aab"
           mv android/app/build/outputs/apk/release/*.apk \
@@ -298,12 +298,12 @@ jobs:
           CODIGO: ${{ inputs.versionCode != '' && inputs.versionCode || github.run_number }}
         run: |
           set -euo pipefail
-          BASE="procuro-${{ inputs.versionName }}-envio${CODIGO}"
+          BASE="ei-itabirito-${{ inputs.versionName }}-envio${CODIGO}"
           TAG="envio${CODIGO}"
 
           gh release create "$TAG" \
             --repo "$GITHUB_REPOSITORY" \
-            --title "procurô ${{ inputs.versionName }} — envio ${CODIGO}" \
+            --title "Ei Itabirito ${{ inputs.versionName }} — envio ${CODIGO}" \
             --notes "Versão ${{ inputs.versionName }}, envio ${CODIGO}.
 
           - **${BASE}.aab** — este é o que sobe no Play Console. Não instala no celular.
