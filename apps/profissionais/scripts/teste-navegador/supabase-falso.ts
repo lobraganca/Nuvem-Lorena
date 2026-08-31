@@ -515,13 +515,93 @@ function usuarioFalso() {
   };
 }
 
+/* Quem quer ser avisado quando a sessão muda. Ver `onAuthStateChange`. */
+const OUVINTES: Array<(evento: string, sessao: unknown) => void> = [];
+
+/* De que lado a pessoa disse que estava, na tela inicial.
+   ──────────────────────────────────────────────────────
+   A tela de entrar recebe `?lado=trabalhar` ou `?lado=contratar` — é a
+   escolha feita nas duas portas da tela inicial. Sem ler isso, quem tocava
+   em "Estou contratando" e entrava caía no lado de quem PROCURA trabalho,
+   porque o falso gravava sempre "trabalhador". A demonstração mostraria o
+   app errado para metade de quem a abrisse.
+
+   Lê do `hash` porque a demonstração roda com o roteador de `#`. */
+function ladoEscolhido(): "trabalhador" | "empresa" {
+  try {
+    return /lado=contratar/.test(location.hash) ? "empresa" : "trabalhador";
+  } catch {
+    return "trabalhador";
+  }
+}
+
+/* Cria a sessão de mentira. Os dois caminhos de entrada — SMS e Google —
+   terminam aqui.
+
+   ── POR QUE RECARREGA ──────────────────────────────────────────────────
+   As tabelas falsas são montadas UMA VEZ, quando o arquivo carrega, e a
+   linha de `user_onboarding` (a que diz se a pessoa é profissional ou
+   empresa) sai dali. Gravar `falso-lado` depois disso não muda tabela
+   nenhuma: quem escolhia "Estou contratando" e entrava caía na lista de
+   vagas de quem PROCURA trabalho, porque a tabela ainda dizia
+   "professional".
+
+   É o mesmo motivo, e a mesma saída, da barra preta da demonstração (ver
+   `escolher`, em main.demo.tsx). O `setTimeout` de 0ms também não é
+   desleixo: mexer no `#` agenda uma navegação, e um `reload()` chamado na
+   mesma linha é engolido por ela. */
+function entrar(porta: "sms" | "google") {
+  const lado = ladoEscolhido();
+  localStorage.setItem("falso-usuario", porta);
+  localStorage.setItem("falso-lado", lado);
+  const sessao = { user: usuarioFalso() };
+  /* De propósito NÃO avisa os ouvintes aqui.
+     ────────────────────────────────────────
+     Avisar fazia a tela de entrar reagir na hora — ela via a sessão nascer
+     e navegava sozinha para o destino padrão, /vagas-para-mim — e essa
+     navegação atropelava o endereço escrito duas linhas abaixo. Efeito
+     visível: quem escolhia "Estou contratando" entrava e caía na lista de
+     vagas de quem procura trabalho, mesmo com o lado gravado certo.
+
+     Quem avisa a tela é a recarga, que vem logo em seguida e refaz tudo do
+     zero — inclusive as tabelas, que é o motivo de ela existir. */
+  try {
+    location.hash = lado === "empresa" ? "#/painel-empresa" : "#/vagas-para-mim";
+    setTimeout(() => location.reload(), 0);
+  } catch {
+    /* sem `location` (teste fora do navegador): a sessão já está criada */
+  }
+  return sessao;
+}
+
 const auth = {
   getSession: async () => {
     const user = usuarioFalso();
     return { data: { session: user ? { user } : null }, error: null };
   },
   getUser: async () => ({ data: { user: usuarioFalso() }, error: null }),
-  onAuthStateChange: () => ({ data: { subscription: { unsubscribe() {} } } }),
+  /* Os ouvintes ficam guardados, e o login por SMS avisa todos eles.
+     ─────────────────────────────────────────────────────────────────
+     Isto era um no-op que devolvia uma inscrição vazia. Bastava enquanto o
+     único jeito de "entrar" era a barra preta da demonstração, que recarrega
+     a página inteira. Com o login por SMS de mentira funcionando, não
+     basta: o `verifyOtp` criava a sessão e NADA na tela mudava — a pessoa
+     digitava o código certo, o app aceitava em silêncio e continuava na
+     tela de entrar, que é exatamente o defeito que o app de verdade já
+     teve ("quem entra tem que sair da tela de login"). */
+  onAuthStateChange: (retorno: (evento: string, sessao: unknown) => void) => {
+    OUVINTES.push(retorno);
+    return {
+      data: {
+        subscription: {
+          unsubscribe() {
+            const i = OUVINTES.indexOf(retorno);
+            if (i >= 0) OUVINTES.splice(i, 1);
+          },
+        },
+      },
+    };
+  },
   signOut: async () => {
     localStorage.removeItem("falso-usuario");
     return { error: null };
@@ -530,9 +610,53 @@ const auth = {
      É o que permite conferir no navegador se o pedido de "escolha a
      conta" está sendo feito depois de sair — sem isso, a única forma de
      testar seria fazendo login de verdade. */
+  /* No app de verdade este botão SAI para o navegador e volta depois. Na
+     demonstração não há para onde sair, e um botão que não faz nada é lido
+     como quebrado — então ele entra na hora, pela conta do Google (que traz
+     nome, e-mail e foto, e nenhum telefone).
+
+     O pedido continua sendo guardado: é o que permite conferir no navegador
+     se o "escolha a conta" está sendo pedido depois de sair. */
   signInWithOAuth: async (opcoes: unknown) => {
     localStorage.setItem("ultimo-login-pedido", JSON.stringify(opcoes));
-    return { data: null, error: null };
+    const sessao = entrar("google");
+    return { data: { user: sessao.user, session: sessao }, error: null };
+  },
+
+  /* ── O login por SMS, de mentira ────────────────────────────────────
+     Estas duas faltavam, e o buraco aparecia da pior forma possível: quem
+     abria a demonstração, escolhia "Procuro trabalho", digitava o número e
+     tocava em "Receber código por SMS" recebia, na tela, o texto
+
+         "Não foi possível continuar. (t.auth.signInWithOtp is not a
+          function)"
+
+     — jargão em inglês, com nome de função e tudo, na primeira tela em que
+     alguém tenta usar a demonstração. A pessoa conclui que o app está
+     quebrado, e não que aquela porta simplesmente não existe aqui.
+
+     Agora entra de verdade: qualquer celular válido é aceito e QUALQUER
+     código de 6 dígitos serve — não há SMS nenhum para conferir contra. A
+     demonstração deixa de precisar da barra preta de cima para chegar ao
+     lado de quem procura trabalho, que é o caminho que as pessoas de
+     verdade fazem.
+
+     Note que isto NÃO existe no cliente de verdade: este arquivo só é
+     usado pela montagem da demonstração, e o `vite.demo.ts` recusa montar
+     se o cliente real estiver no lugar dele. */
+  signInWithOtp: async ({ phone }: { phone?: string }) => {
+    localStorage.setItem("falso-telefone-pedido", phone ?? "");
+    return { data: { user: null, session: null }, error: null };
+  },
+
+  verifyOtp: async ({ token }: { token?: string }) => {
+    /* Seis dígitos, como o código de verdade. Aceitar qualquer coisa
+       esconderia a tela de "código incorreto", que também é uma tela. */
+    if (!/^\d{6}$/.test((token ?? "").trim())) {
+      return { data: { user: null, session: null }, error: { message: "Token has expired or is invalid" } };
+    }
+    const sessao = entrar("sms");
+    return { data: { user: sessao.user, session: sessao }, error: null };
   },
 };
 
