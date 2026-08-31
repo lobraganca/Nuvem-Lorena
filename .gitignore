@@ -39,3 +39,7 @@ avena-app-fragment.html
 /*.png
 /*.html
 /*.mjs
+# A regra acima pega arquivo solto, não pasta — e as fotos de conferência
+# saem em lote, numa pasta. Sem esta linha o git pede a cada sessão para
+# versionar dezenas de capturas de tela que só serviram para eu medir.
+/fotos-juntos/
