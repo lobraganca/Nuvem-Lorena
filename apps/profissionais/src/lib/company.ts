@@ -143,6 +143,48 @@ export async function listarMinhasVagas(companyId: string): Promise<JobListing[]
   return data as JobListing[];
 }
 
+/**
+ * Quantas pessoas responderam cada uma destas vagas.
+ *
+ * ── Por que a lista da empresa precisa disto ──────────────────────────
+ *
+ * A dona: "quero que o app seja intuitivo e de fácil para ambas as partes."
+ *
+ * No painel, cada vaga mostrava título, ofício e data — nada sobre o que
+ * aconteceu com ela. A empresa publica três vagas e, para saber se alguém
+ * apareceu, tem que abrir uma por uma e voltar. O número de respostas é a
+ * única coisa que ela vai ali procurar, e era exatamente o que faltava.
+ *
+ * ── Uma consulta para todas as vagas, não uma por vaga ────────────────
+ *
+ * Cinco vagas seriam cinco idas ao banco no 4G da cidade. E `lerTudo` em
+ * vez de um `select` simples porque a 0062 pôs teto de 200 linhas em toda
+ * consulta: a partir da ducentésima resposta a contagem congelaria, sem
+ * nada avisando — é o mesmo defeito que já mordeu o total de pagamentos no
+ * painel administrativo.
+ *
+ * Erro SOBE. Devolver mapa vazio mostraria "0 respostas" em vaga cheia, e
+ * a empresa concluiria que ninguém quis o trabalho dela.
+ */
+export async function contarRespostasDasVagas(
+  vagaIds: string[]
+): Promise<Map<string, number>> {
+  const conta = new Map<string, number>();
+  if (vagaIds.length === 0) return conta;
+
+  const sb = getSupabase();
+  if (!sb) return conta;
+
+  const linhas = await lerTudo<{ job_listing_id: string }>(() =>
+    sb.from("job_responses").select("job_listing_id").in("job_listing_id", vagaIds)
+  );
+
+  for (const l of linhas) {
+    conta.set(l.job_listing_id, (conta.get(l.job_listing_id) ?? 0) + 1);
+  }
+  return conta;
+}
+
 /** Obtém detalhes de uma vaga. */
 export async function obterVaga(vagaId: string): Promise<JobListing | null> {
   const sb = getSupabase();

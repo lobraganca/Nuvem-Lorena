@@ -56,11 +56,24 @@ export function EntradaPage() {
             A primeira é a CHEIA agora, e não "ver os profissionais": a
             decisão desta tela é de que lado a pessoa está, e a terceira
             opção estava em preto disputando com ela. */}
+        {/* O `?lado=` não é enfeite: sem ele os dois botões apontavam para o
+            MESMO `/login`, e a escolha que a pessoa acabou de fazer era
+            jogada fora. Ela chegava a uma tela chamada "Entrar", sem
+            nenhuma menção ao lado que escolheu, e depois de entrar era
+            perguntada de novo — "Qual é seu tipo de conta?". Duas
+            perguntas para a mesma decisão é o jeito mais rápido de alguém
+            achar que errou o caminho e voltar. */}
         <div className="ei-margem" style={{ display: "grid", gap: 10 }}>
-          <Link to="/login" className="ei-btn ei-btn-cheio ei-btn-largo ei-btn-alto">
+          <Link
+            to="/login?lado=trabalhar"
+            className="ei-btn ei-btn-cheio ei-btn-largo ei-btn-alto"
+          >
             Procuro trabalho
           </Link>
-          <Link to="/login" className="ei-btn ei-btn-contorno ei-btn-largo ei-btn-alto">
+          <Link
+            to="/login?lado=contratar"
+            className="ei-btn ei-btn-contorno ei-btn-largo ei-btn-alto"
+          >
             Estou contratando
           </Link>
         </div>

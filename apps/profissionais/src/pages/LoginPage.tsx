@@ -13,12 +13,21 @@ import { BotaoGoogle } from "../components/BotaoGoogle";
 import { useTituloDaPagina } from "../lib/tituloDaPagina";
 import { mensagemDeErro } from "../lib/erros";
 import { formatPhone } from "../lib/phone";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import { LOGIN_EMAIL_ATIVO, LOGIN_TELEFONE_ATIVO } from "../config";
 import { useAuth } from "../lib/useAuth";
 import { temDestinoLogin } from "../lib/auth";
 import { googleServeAqui } from "../lib/plataforma";
 import { useOnboardingStatus } from "../lib/useOnboardingStatus";
+import { registrarTipoDeUsuario } from "../lib/company";
+import {
+  destinoDoLado,
+  esquecerLado,
+  guardarLado,
+  ladoDaUrl,
+  lerLado,
+  type Lado,
+} from "../lib/ladoEscolhido";
 
 /**
  * Entrar: pelo telefone, pelo Google, ou por e-mail e senha.
@@ -98,6 +107,17 @@ export function LoginPage() {
   const { user, loading: carregandoConta } = useAuth();
   const tipoOnboarding = useOnboardingStatus();
   const navegar = useNavigate();
+  const { search } = useLocation();
+
+  /* O lado vem da URL na primeira vez e do armazenamento nas seguintes.
+     Os dois porque o Google leva o navegador para fora do app e o traz de
+     volta num endereço que este código não escolheu — ali a consulta da
+     URL já não existe. */
+  const [lado] = useState<Lado | null>(() => {
+    const daUrl = ladoDaUrl(search);
+    if (daUrl) guardarLado(daUrl);
+    return daUrl ?? lerLado();
+  });
 
   useEffect(() => {
     if (carregandoConta || !user) return;
@@ -106,15 +126,34 @@ export function LoginPage() {
     // Se está carregando o status de onboarding, aguarda
     if (tipoOnboarding === null) return;
 
-    // Se não passou pelo onboarding, vai para escolher tipo
+    /* Ainda sem lado registrado na conta. Se a pessoa já disse de que lado
+       está, lá na tela de abertura, essa resposta VALE — perguntar de novo
+       é o defeito, não a segurança. Quem chegou aqui sem dizer (tocou em
+       "Entrar" na barra de baixo) continua indo à tela da pergunta. */
     if (tipoOnboarding === false) {
+      if (lado) {
+        registrarTipoDeUsuario(user.id, lado)
+          .then(() => {
+            esquecerLado();
+            navegar(destinoDoLado(lado), { replace: true });
+          })
+          /* Falhou o registro: cai na pergunta em vez de deixar a pessoa
+             parada numa tela de login onde ela já está logada. */
+          .catch(() => navegar("/onboarding-tipo", { replace: true }));
+        return;
+      }
       navegar("/onboarding-tipo", { replace: true });
       return;
     }
 
-    // Passou pelo onboarding, vai para o perfil
-    navegar("/perfil", { replace: true });
-  }, [user, carregandoConta, tipoOnboarding, navegar]);
+    /* Já tem lado. A escolha guardada não manda mais nada — quem tem
+       cadastro de empresa é empresa por ter a empresa, e não por um botão
+       tocado semanas atrás. */
+    esquecerLado();
+    navegar(tipoOnboarding === "company" ? "/painel-empresa" : "/vagas-para-mim", {
+      replace: true,
+    });
+  }, [user, carregandoConta, tipoOnboarding, navegar, lado]);
 
   useEffect(() => {
     if (esperaSegundos <= 0) return;
@@ -137,13 +176,26 @@ export function LoginPage() {
 
   return (
     <div className="container entrar-pagina">
-      <h1>Entrar</h1>
+      {/* O título muda com o lado que a pessoa escolheu na tela de abertura.
+          Antes era sempre "Entrar", e quem tinha acabado de tocar em "Estou
+          contratando" chegava a uma tela que não falava de contratar em
+          lugar nenhum — sem nada dizendo que o caminho ainda era aquele. */}
+      <h1>
+        {lado === "company"
+          ? "Entrar para contratar"
+          : lado === "professional"
+            ? "Entrar para procurar trabalho"
+            : "Entrar"}
+      </h1>
       <p className="muted">
         {/* Era texto do procurô — "avaliar, salvar favoritos e cadastrar
             os seus serviços" —, e nenhuma dessas três coisas existe aqui.
             Ficava na PRIMEIRA tela que qualquer pessoa nova lê. */}
-        Para receber vagas de Itabirito, ou para publicar as suas. Ver quem está disponível
-        continua livre, sem conta.
+        {lado === "company"
+          ? "Para publicar suas vagas e falar com quem responder. Ver quem está disponível continua livre, sem conta."
+          : lado === "professional"
+            ? "Para receber as vagas do seu ofício em Itabirito, assim que forem publicadas."
+            : "Para receber vagas de Itabirito, ou para publicar as suas. Ver quem está disponível continua livre, sem conta."}
       </p>
 
       {!hasDatabase() && (

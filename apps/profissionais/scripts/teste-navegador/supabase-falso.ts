@@ -91,6 +91,21 @@ function ladoFalso(): "professional" | "company" {
     : "professional";
 }
 
+/**
+ * `?lado=novo` deixa a pessoa SEM lado registrado.
+ *
+ * É o estado de quem acabou de criar a conta — e era o único estado do app
+ * que o falso não sabia produzir: ele sempre devolvia uma linha em
+ * `user_onboarding`, então "profissional" ou "empresa", nunca "ainda não
+ * disse". Por causa disso um teste mostrou a empresa com a barra de baixo
+ * do trabalhador e eu quase "consertei" um defeito que não existia: era o
+ * falso respondendo "profissional" por omissão.
+ *
+ * É também o único estado em que a tela de escolher o tipo de conta abre,
+ * e onde o atalho que aproveita o botão da tela de abertura é exercitado.
+ */
+const semLadoAinda = () => new URLSearchParams(location.search).get("lado") === "novo";
+
 /* `?plano=nao` exercita a empresa SEM plano — que é o estado em que ela
    chega, e o único em que o cartão do plano tem trabalho a fazer. */
 const planoFalso = () => new URLSearchParams(location.search).get("plano") !== "nao";
@@ -207,7 +222,9 @@ const TABELAS: Record<string, Linha[]> = {
      tudo faltando, e o efeito não era um erro na tela — era cada tela do
      Ei aparecendo VAZIA no teste, que é exatamente o estado em que ela
      não prova nada. */
-  user_onboarding: [{ user_id: DONO_FALSO, user_type: ladoFalso(), created_at: emDias(-30) }],
+  user_onboarding: semLadoAinda()
+    ? []
+    : [{ user_id: DONO_FALSO, user_type: ladoFalso(), created_at: emDias(-30) }],
 
   companies: [
     {
@@ -236,7 +253,21 @@ const TABELAS: Record<string, Linha[]> = {
   ],
 
   job_listings: VAGAS,
-  job_responses: [],
+
+  /* Respostas de verdade na PRIMEIRA vaga e nenhuma na segunda.
+     ───────────────────────────────────────────────────────────
+     Vazio, o painel da empresa mostrava "Ninguém respondeu ainda" em todas
+     as vagas — que é justamente o estado em que a contagem nova não prova
+     nada. Com as duas situações lado a lado dá para ver, numa tela só, que
+     o número aparece, que ele conta certo e que o zero tem frase própria. */
+  job_responses: VAGAS.slice(0, 1).flatMap((v) =>
+    [0, 1, 2].map((i) => ({
+      id: `resposta-${i}`,
+      job_listing_id: v.id,
+      professional_id: DONO_FALSO,
+      responded_at: emDias(-i),
+    }))
+  ),
   job_dispatches: [],
 
   /* Avisos com a vaga JÁ embutida, como o PostgREST devolve o `select`

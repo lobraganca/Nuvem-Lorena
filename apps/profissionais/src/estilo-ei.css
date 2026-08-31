@@ -776,17 +776,25 @@
 /* ── Ações ────────────────────────────────────────────────────────────
    Sem círculo de 52px. Ícone pequeno ao lado do rótulo, num retângulo de
    contorno fino que rola de lado. */
+/* Duas colunas, e não uma fila que rola de lado.
+   ───────────────────────────────────────────────
+   A fila cortava na borda direita SEM dizer que continuava: no painel da
+   empresa apareciam "Nova vaga" e "Profissionais" inteiros, "Planos" pela
+   metade e "Editar empresa" não aparecia de jeito nenhum. Rolagem lateral
+   sem barra e sem sombra na beirada é um esconderijo — quem não arrastar
+   por acaso nunca descobre que existem quatro caminhos.
+
+   Empilhadas em duas colunas cabem as quatro na mesma tela, e a empresa vê
+   de uma vez tudo o que pode fazer daqui. */
 .ei-acoes {
-  display: flex;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
   gap: 8px;
   padding: 14px 20px;
-  overflow-x: auto;
-  scrollbar-width: none;
 }
-.ei-acoes::-webkit-scrollbar { display: none; }
 
 .ei-acao {
-  flex: 0 0 auto;
+  min-width: 0;
   display: flex;
   align-items: center;
   gap: 8px;

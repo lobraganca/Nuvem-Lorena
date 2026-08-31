@@ -7,10 +7,23 @@ import {
   listarMinhasVagas,
   confirmarTelefoneDaEmpresa,
   situacaoDoPlano,
+  contarRespostasDasVagas,
 } from "../lib/company";
 import { mensagemDeErro } from "../lib/erros";
 import type { Company, JobListing } from "../types/domain";
 import { Callout, Pagina, Prop } from "../components/ei/Pagina";
+
+/**
+ * "Ninguém respondeu" / "1 pessoa respondeu" / "4 pessoas responderam".
+ *
+ * O zero tem frase própria porque "0 pessoas responderam" soa a erro de
+ * sistema, e o que aconteceu ali é normal: a vaga acabou de sair.
+ */
+function textoDeRespostas(n: number): string {
+  if (n === 0) return "Ninguém respondeu ainda";
+  if (n === 1) return "1 pessoa respondeu";
+  return `${n} pessoas responderam`;
+}
 
 /**
  * A casa da empresa.
@@ -31,6 +44,10 @@ export function PainelEmpresaPage() {
 
   const [empresa, setEmpresa] = useState<Company | null>(null);
   const [vagas, setVagas] = useState<JobListing[]>([]);
+  /* Quantas pessoas responderam cada vaga. `null` é "não deu para saber" e
+     é diferente de zero: um mapa vazio escreveria "ninguém respondeu" em
+     vaga cheia, e a empresa concluiria que ninguém quis o trabalho dela. */
+  const [respostas, setRespostas] = useState<Map<string, number> | null>(new Map());
   const [carregando, setCarregando] = useState(true);
   const [erro, setErro] = useState("");
   const [confirmando, setConfirmando] = useState(false);
@@ -92,6 +109,15 @@ export function PainelEmpresaPage() {
 
       const minhasVagas = await listarMinhasVagas(minha.id);
       setVagas(minhasVagas);
+
+      /* A contagem vem DEPOIS da lista e num `catch` próprio: é informação
+         a mais numa tela que já funciona sem ela. Se a consulta cair, a
+         empresa continua vendo as vagas dela — derrubar o painel inteiro
+         por causa de um número ao lado do título seria trocar uma tela útil
+         por uma mensagem de erro. */
+      contarRespostasDasVagas(minhasVagas.map((v) => v.id))
+        .then(setRespostas)
+        .catch(() => setRespostas(null));
 
       /* O plano decide o texto do botão principal. Se a leitura falhar,
          fica `null` e o botão segue oferecendo criar vaga — quem recusa de
@@ -288,8 +314,29 @@ export function PainelEmpresaPage() {
                       ela a linha quebrava em duas ("Pedreiro · Alvenaria ·"
                       / "29/08/2026") e o item de lista ficava mais alto que
                       os vizinhos. E ela já está no título da vaga. */}
+                  {/* O número de respostas vem PRIMEIRO na linha de baixo.
+                      É a única coisa que a empresa vem procurar aqui: sem
+                      ele, saber se alguém apareceu exigia abrir vaga por
+                      vaga e voltar.
+
+                      Escrito por extenso e não como "3": um número solto ao
+                      lado de uma data pode ser lido como qualquer coisa.
+
+                      E o ofício saiu desta linha. Com ele os três dados não
+                      cabiam e a DATA é que era cortada ("30/0…") — uma data
+                      pela metade não informa nada. O ofício é o que menos
+                      falta: quase sempre já está no título, como em
+                      "Pedreiro para obra no Centro · Pedreiro". */}
                   <span className="ei-linha-sub ei-uma-linha">
-                    {vaga.profession} · {new Date(vaga.created_at).toLocaleDateString("pt-BR")}
+                    {respostas !== null && (
+                      <>
+                        <strong style={{ fontWeight: 600, color: "var(--ei-tinta)" }}>
+                          {textoDeRespostas(respostas.get(vaga.id) ?? 0)}
+                        </strong>
+                        {" · "}
+                      </>
+                    )}
+                    {new Date(vaga.created_at).toLocaleDateString("pt-BR")}
                   </span>
                 </span>
                 <span className="ei-linha-seta" aria-hidden="true">

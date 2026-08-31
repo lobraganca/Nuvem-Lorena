@@ -22,6 +22,7 @@ import {
 } from "../types/domain";
 import { podeVender } from "../lib/plataforma";
 import { mensagemDeErro } from "../lib/erros";
+import { Callout, Pagina } from "../components/ei/Pagina";
 
 /* `anunciada_ate` fica de fora: ela é gravada depois que a vaga existe, por
    `anunciarVaga`. O plano é que dá direito ao anúncio — quem não tem plano
@@ -235,37 +236,51 @@ export function CriarVagaPage() {
      descobrir a busca, que é de graça e resolve o problema de muita gente. */
   if (plano && !plano.temPlano) {
     return (
-      <div className="container" style={{ paddingTop: 32, paddingBottom: 32 }}>
-        <h1 style={{ marginBottom: 8 }}>Para publicar vaga, precisa de um plano</h1>
-        <p className="muted" style={{ marginTop: 0 }}>
-          Com o plano, sua vaga é avisada por SMS para quem faz aquele serviço na
-          cidade, e as pessoas interessadas chegam até você.
-        </p>
+      /* No visual do resto do app, e não no antigo.
+         ───────────────────────────────────────────
+         Estas duas telas de bloqueio tinham ficado para trás no redesenho:
+         `container`, `card`, botão laranja cheio — o único laranja gritante
+         que sobrou no app. E é a tela que a empresa vê quando leva um
+         "não": justo nela o app parecia outro produto, o que faz um
+         bloqueio comum parecer defeito.
 
-        <div className="card" style={{ padding: 14, margin: "20px 0" }}>
-          <strong style={{ fontSize: "0.95em" }}>Sem plano você já pode, agora:</strong>
-          <ul style={{ margin: "8px 0 0", paddingLeft: 20, lineHeight: 1.6 }}>
-            <li>Ver e procurar todos os profissionais de Itabirito.</li>
-            <li>Falar com cada um direto, pelo telefone que está no cadastro.</li>
-          </ul>
-          <p className="muted" style={{ margin: "8px 0 0", fontSize: "0.88em" }}>
-            Isso é grátis e não precisa nem de conta. O plano serve para não ter
-            que chamar um por um.
-          </p>
-        </div>
+         O caminho de saída também é o mesmo: cabeçalho de página, aviso e
+         a fila de ações. Nada aqui é decoração — o que muda é a empresa
+         reconhecer onde está. */
+      <div className="ei">
+        <div className="ei-tela">
+          <Pagina icone="🔒" titulo="Para publicar vaga, precisa de um plano" ondeEstou="Empresa">
+            <p className="ei-corpo ei-margem">
+              Com o plano, sua vaga é avisada por SMS para quem faz aquele serviço na
+              cidade, e as pessoas interessadas chegam até você.
+            </p>
+          </Pagina>
 
-        <div style={{ display: "grid", gap: 10 }}>
-          {podeVender() && (
+          <Callout emoji="✅">
+            <strong>Sem plano você já pode, agora:</strong> ver e procurar todos os
+            profissionais de Itabirito, e falar com cada um direto, pelo telefone que
+            está no cadastro. É grátis e não precisa nem de conta — o plano serve para
+            não ter que chamar um por um.
+          </Callout>
+
+          <div className="ei-margem" style={{ display: "grid", gap: 10, marginTop: 18 }}>
+            {podeVender() && (
+              <button
+                type="button"
+                className="ei-btn ei-btn-cheio ei-btn-largo ei-btn-alto"
+                onClick={() => navegar("/planos-empresa")}
+              >
+                Ver os planos
+              </button>
+            )}
             <button
-              className="btn btn-primary btn-block"
-              onClick={() => navegar("/planos-empresa")}
+              type="button"
+              className="ei-btn ei-btn-contorno ei-btn-largo ei-btn-alto"
+              onClick={() => navegar("/profissionais")}
             >
-              Ver os planos
+              Procurar profissionais
             </button>
-          )}
-          <button className="btn btn-outline btn-block" onClick={() => navegar("/")}>
-            Procurar profissionais
-          </button>
+          </div>
         </div>
       </div>
     );
@@ -276,28 +291,39 @@ export function CriarVagaPage() {
      para o upgrade antes de saber que basta fechar a que já encheu. */
   if (plano && plano.temPlano && !plano.cabeMais) {
     return (
-      <div className="container" style={{ paddingTop: 32, paddingBottom: 32 }}>
-        <h1 style={{ marginBottom: 8 }}>Suas vagas já estão todas abertas</h1>
-        <p className="muted" style={{ marginTop: 0 }}>
-          Seu plano permite {plano.limite} {plano.limite === 1 ? "vaga aberta" : "vagas abertas"} por
-          vez, e {plano.limite === 1 ? "ela já está no ar" : "todas já estão no ar"}. Feche uma que
-          já encheu para abrir outra — ou mude de plano.
-        </p>
-        <div style={{ display: "grid", gap: 10, marginTop: 20 }}>
-          <button
-            className="btn btn-primary btn-block"
-            onClick={() => navegar("/painel-empresa")}
-          >
-            Ver minhas vagas
-          </button>
-          {podeVender() && (
+      <div className="ei">
+        <div className="ei-tela">
+          {/* O título dizia "Suas vagas já estão todas abertas" — que lido
+              rápido soa a elogio, e não a "não dá para abrir mais uma". A
+              empresa veio publicar; o título tem que dizer o que houve com
+              o que ela veio fazer. */}
+          <Pagina icone="📋" titulo="O plano já está cheio" ondeEstou="Empresa">
+            <p className="ei-corpo ei-margem">
+              Seu plano permite {plano.limite}{" "}
+              {plano.limite === 1 ? "vaga aberta" : "vagas abertas"} por vez, e{" "}
+              {plano.limite === 1 ? "ela já está no ar" : "todas já estão no ar"}. Feche
+              uma que já encheu para abrir outra — ou mude de plano.
+            </p>
+          </Pagina>
+
+          <div className="ei-margem" style={{ display: "grid", gap: 10, marginTop: 18 }}>
             <button
-              className="btn btn-outline btn-block"
-              onClick={() => navegar("/planos-empresa")}
+              type="button"
+              className="ei-btn ei-btn-cheio ei-btn-largo ei-btn-alto"
+              onClick={() => navegar("/painel-empresa")}
             >
-              Ver os planos
+              Ver minhas vagas
             </button>
-          )}
+            {podeVender() && (
+              <button
+                type="button"
+                className="ei-btn ei-btn-contorno ei-btn-largo ei-btn-alto"
+                onClick={() => navegar("/planos-empresa")}
+              >
+                Ver os planos
+              </button>
+            )}
+          </div>
         </div>
       </div>
     );
