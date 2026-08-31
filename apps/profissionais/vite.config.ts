@@ -29,6 +29,25 @@ const CARIMBO = new Date().toLocaleString("pt-BR", {
 const COMMIT = process.env.VERCEL_GIT_COMMIT_SHA ?? "";
 
 /**
+ * A build sabia com qual banco falar?
+ *
+ * `VITE_SUPABASE_URL` e a chave sao assadas AQUI, na hora da build. Sem
+ * elas o site sobe bonito e nao fala com banco nenhum: as telas abrem, a
+ * lista vem vazia e o botao de entrar fica desligado.
+ *
+ * Foi o que aconteceu em 31/08. Os dois projetos da Vercel tinham acabado
+ * de ser separados, o projeto novo nasceu sem as variaveis, e nada
+ * apontou a diferenca — o workflow de publicacao ficou VERDE, porque ele
+ * so perguntava qual commit o site servia, e o commit estava certo. O
+ * defeito so apareceu quando alguem tentou entrar.
+ *
+ * Este booleano existe para o workflow poder perguntar tambem "e essa
+ * build sabia com qual banco falar?". Nao vaza nada: e um sim ou nao, e o
+ * endereco e a chave anon sao publicos por natureza.
+ */
+const TEM_BANCO = Boolean((process.env.VITE_SUPABASE_URL ?? "").trim());
+
+/**
  * Publica `versao.json` na raiz do site, com o carimbo e o commit.
  *
  * Existe para responder de fora do app uma pergunta que hoje só dá para
@@ -52,7 +71,7 @@ function publicarVersao() {
       this.emitFile({
         type: "asset",
         fileName: "versao.json",
-        source: JSON.stringify({ carimbo: CARIMBO, commit: COMMIT }, null, 2),
+        source: JSON.stringify({ carimbo: CARIMBO, commit: COMMIT, banco: TEM_BANCO }, null, 2),
       });
     },
   };

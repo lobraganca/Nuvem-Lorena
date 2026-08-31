@@ -60,11 +60,56 @@ jobs:
           esperado="${{ github.sha }}"
           echo "Esperando o site servir o commit $esperado"
           for tentativa in $(seq 1 40); do
-            servido=$(curl -sS --max-time 10 "$SITE/versao.json?t=$(date +%s)" \
+            resposta=$(curl -sS --max-time 10 "$SITE/versao.json?t=$(date +%s)" || echo "")
+            servido=$(echo "$resposta" \
               | python3 -c "import sys,json; print(json.load(sys.stdin).get('commit',''))" 2>/dev/null || echo "")
             if [ "$servido" = "$esperado" ]; then
-              echo "Publicado: o site está servindo $servido"
-              exit 0
+              echo "O site está servindo $servido"
+
+              # ── A SEGUNDA PERGUNTA ────────────────────────────────────
+              # Servir o commit certo não basta. Em 31/08 o site serviu o
+              # commit certo o dia inteiro e NINGUÉM conseguia entrar: os
+              # dois projetos da Vercel tinham acabado de ser separados, o
+              # projeto novo nasceu sem VITE_SUPABASE_URL e VITE_SUPABASE_
+              # ANON_KEY, e o app subiu sem saber com qual banco falar.
+              #
+              # Este workflow ficou VERDE o tempo todo, porque só
+              # perguntava o commit. Agora pergunta também se a build sabia
+              # com qual banco falar — o `banco` do versao.json, que o
+              # vite.config.ts carimba.
+              banco=$(echo "$resposta" \
+                | python3 -c "import sys,json; print(json.load(sys.stdin).get('banco'))" 2>/dev/null || echo "None")
+              if [ "$banco" = "True" ]; then
+                echo "Publicado: e a build sabe com qual banco falar."
+                exit 0
+              fi
+              if [ "$banco" = "None" ]; then
+                echo "Publicado. (Versão antiga do versao.json, sem o campo 'banco' — nada a conferir.)"
+                exit 0
+              fi
+              echo ""
+              echo "O SITE ESTÁ NO AR, MAS SEM BANCO — ninguém consegue entrar."
+              echo ""
+              echo "O app foi construído sem VITE_SUPABASE_URL e/ou"
+              echo "VITE_SUPABASE_ANON_KEY. Sem elas o site abre normalmente, a"
+              echo "lista vem vazia e o botão de entrar fica desligado. Foi assim"
+              echo "em 31/08, e o defeito só apareceu quando alguém tentou entrar."
+              echo ""
+              echo "Onde resolver — é na VERCEL, não no Supabase:"
+              echo "  vercel.com > projeto ei-itabirito > Settings >"
+              echo "  Environment Variables"
+              echo ""
+              echo "  VITE_SUPABASE_URL       https://dfdinrimxqoqjedemjbw.supabase.co"
+              echo "                          (sem /rest/v1 no fim)"
+              echo "  VITE_SUPABASE_ANON_KEY  a chave anon public, do Supabase"
+              echo ""
+              echo "As duas como Config, NÃO como Secret: o prefixo VITE_ já as"
+              echo "expõe ao navegador de propósito, e Secret não dá para corrigir"
+              echo "depois de salvo."
+              echo ""
+              echo "Depois de salvar, publique de novo — a Vercel só assa as"
+              echo "variáveis numa build nova."
+              exit 1
             fi
             echo "  tentativa $tentativa — servindo: ${servido:-<sem resposta>}"
             sleep 15
