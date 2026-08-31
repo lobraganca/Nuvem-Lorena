@@ -106,6 +106,27 @@
   --ei-sombra: none;
   --ei-sombra-alta: none;
 
+  /* ── O ritmo vertical ──────────────────────────────────────────────
+     A dona: "há texto muito juntos."
+
+     Estava certa, e medido dava para ver onde: o emoji da página encostava
+     no título a 3,6px, o título encostava na linha de apoio a 5,6px, e nas
+     41 linhas da lista o nome encostava no ofício a 3,6px. Nenhum desses
+     números foi escolhido — cada um era o resto de um `padding` de 2px
+     posto para um caso e herdado por todos os outros.
+
+     A régua que os pegou, e que vale para conferir de novo: entre duas
+     linhas de texto que NÃO são o mesmo parágrafo, o vão precisa de pelo
+     menos 30% do tamanho da letra maior. Abaixo disso o olho lê os dois
+     pedaços como um bloco só — que é exatamente a queixa.
+
+     Daí quatro degraus, e só quatro. Espaço inventado peça por peça é o
+     que produziu o aperto. */
+  --ei-e1: 4px;   /* dentro de um item: o nome e o ofício da mesma pessoa */
+  --ei-e2: 10px;  /* entre um texto e o apoio dele */
+  --ei-e3: 18px;  /* entre blocos diferentes da mesma seção */
+  --ei-e4: 30px;  /* entre seções */
+
   /* A pilha do Notion: Inter primeiro, as do sistema atrás. */
   font-family: Inter, ui-sans-serif, -apple-system, "Segoe UI", Roboto,
     "Helvetica Neue", sans-serif;
@@ -154,7 +175,7 @@
   display: flex;
   align-items: center;
   gap: 5px;
-  padding: 14px 20px 0;
+  padding: 16px 20px 0;
   font-size: 0.78rem;
   color: var(--ei-tinta-fraquissima);
 }
@@ -167,9 +188,12 @@
    emoji, e é a coisa mais reconhecível da tela dele. Em todo o resto do
    app os ícones são desenhados em traço — aqui não, porque aqui a
    referência é literal. */
+/* Os `2px` de baixo eram o pior aperto do app: o desenho do emoji parava a
+   3,6px do título. Emoji com `line-height: 1` não tem folga própria para
+   emprestar — o que separa tem que estar escrito aqui. */
 .ei-icone-pagina {
   display: block;
-  padding: 10px 20px 2px;
+  padding: 12px 20px var(--ei-e3);
   font-size: 2.6rem;
   line-height: 1;
 }
@@ -187,13 +211,20 @@
 
 /* ── Tipografia ───────────────────────────────────────────────────────
    É ela que faz a hierarquia. Sem caixa, sem cor de fundo, sem sombra. */
+/* 1,8rem, e não 2,1rem.
+   ─────────────────────
+   Letra grande precisa de mais espaço em volta, não de menos — e a 2,1rem
+   (33,6px) o título ocupava um terço da tela de um celular de 390px e ainda
+   encostava na linha de apoio a 5,6px. Diminuir a letra e afastar o que
+   vem depois resolvem a mesma queixa: em 1,8rem o título continua sendo o
+   maior texto da página, com folga para respirar. */
 .ei-titulo-g {
-  font-size: 2.1rem;
-  line-height: 1.15;
+  font-size: 1.8rem;
+  line-height: 1.2;
   font-weight: 700;
-  letter-spacing: -0.025em;
+  letter-spacing: -0.02em;
   margin: 0;
-  padding: 4px 20px 2px;
+  padding: 0 20px var(--ei-e2);
 }
 
 .ei-titulo {
@@ -891,7 +922,15 @@
 
 .ei-pessoa-retrato img { width: 100%; height: 100%; object-fit: cover; display: block; }
 
-.ei-pessoa-texto { flex: 1; min-width: 0; }
+/* O `gap` é o conserto do aperto que aparecia 41 vezes numa tela só: nome e
+   ofício ficavam a 3,6px um do outro, e a 3,6px o olho lê as duas linhas
+   como um bloco de texto e não como "quem é" e "o que faz". */
+.ei-pessoa-texto {
+  flex: 1;
+  min-width: 0;
+  display: grid;
+  gap: var(--ei-e1);
+}
 /* O nome cresceu junto com o retrato: 0,93rem ao lado de um quadrado de
    64px lia como legenda da foto, e o nome é o que a pessoa procura. */
 .ei-pessoa-nome { font-size: 1rem; font-weight: 500; line-height: 1.35; }
