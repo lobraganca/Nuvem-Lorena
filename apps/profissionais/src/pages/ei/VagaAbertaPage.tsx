@@ -154,7 +154,7 @@ export function VagaAbertaPage() {
     return (
       <div className="ei">
         <div className="ei-tela">
-          <Pagina icone="💼" titulo="Vaga" ondeEstou="Vagas" />
+          <Pagina titulo="Vaga" />
           <p className="ei-apoio ei-margem">{erro || "Esta vaga não está mais disponível."}</p>
           <div className="ei-margem" style={{ marginTop: 16 }}>
             <button className="ei-btn ei-btn-contorno" onClick={() => navegar("/vagas-para-mim")}>
@@ -181,13 +181,20 @@ export function VagaAbertaPage() {
             Numa cidade em que as pessoas se conhecem, "que empresa é essa"
             é a PRIMEIRA pergunta — e a resposta estava do tamanho da
             última. */}
-        <div className="ei-migalha">
-          <Link to="/">Ei Itabirito</Link>
-          <span aria-hidden="true">/</span>
-          <Link to="/vagas-para-mim">Vagas</Link>
-          <span aria-hidden="true">/</span>
-          <span className="ei-migalha-atual ei-uma-linha">{vaga.title}</span>
-        </div>
+        {/* Um caminho de volta, e não uma migalha de três níveis.
+            ──────────────────────────────────────────────────────
+            A migalha terminava com o título da vaga — que aparece de novo,
+            inteiro e em corpo grande, doze linhas abaixo. O nome da vaga
+            duas vezes na mesma tela não orienta ninguém; só empurra o
+            conteúdo para baixo.
+
+            E "Ei Itabirito / Vagas / …" prometia uma hierarquia que não
+            existe: Vagas é uma aba, não uma pasta. Quem chega aqui veio da
+            lista e quer voltar para ela — é isso, e só isso, que o link
+            precisa oferecer. */}
+        <Link to="/vagas-para-mim" className="ei-voltar">
+          <span aria-hidden="true">‹</span> Vagas
+        </Link>
 
         {/* 1 — A EMPRESA, com a logo. Abre a tela. */}
         <div className="ei-empresa-topo">
@@ -215,7 +222,7 @@ export function VagaAbertaPage() {
         </h1>
 
         {vaga.available_immediately && (
-          <Callout emoji="⚡">A empresa precisa de alguém para começar logo.</Callout>
+          <Callout>A empresa precisa de alguém para começar logo.</Callout>
         )}
 
         {vaga.description?.trim() && (
@@ -304,10 +311,13 @@ export function VagaAbertaPage() {
             </div>
           ) : interessado === false ? (
             <>
-              <div className="ei-faixa">
-                <span>Você disse que não é para você</span>
-                <span className="ei-faixa-valor">a empresa não é avisada</span>
-              </div>
+              {/* Uma linha, não a faixa de duas colunas — ver o comentário
+                  igual a este em VagasParaMimPage: os dois textos somam 53
+                  letras e o `space-between` quebrava cada um em duas
+                  linhas, com cara de tabela torta. */}
+              <p className="ei-nota-resposta">
+                Você marcou que não é para você — a empresa não é avisada.
+              </p>
               <button
                 type="button"
                 className="ei-btn-inline"

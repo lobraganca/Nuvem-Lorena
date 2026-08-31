@@ -77,8 +77,20 @@ const vizinhos: Desenho = () => (
   </>
 );
 
+/* Sino do aviso. Aparece nos callouts que oferecem ligar a notificação —
+   onde antes havia o emoji 🔔, que é justamente o que o comentário do topo
+   deste arquivo manda não fazer. Ele tinha sobrado nas telas de Vagas e de
+   Avisos. */
+const sino: Desenho = () => (
+  <>
+    <path d="M18 8.8a6 6 0 1 0-12 0c0 5-2 6.4-2 6.4h16s-2-1.4-2-6.4Z" />
+    <path d="M13.7 19a2 2 0 0 1-3.4 0" />
+  </>
+);
+
 const DESENHOS: Record<string, Desenho> = {
   lupa,
+  sino,
   maleta,
   alfinete,
   estrela,

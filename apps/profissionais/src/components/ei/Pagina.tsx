@@ -1,59 +1,67 @@
 import type { ReactNode } from "react";
-import { Link } from "react-router-dom";
 
 /**
- * O cabeçalho de página do Notion.
+ * O cabeçalho de página.
  *
- * Migalha em cinza miúdo, ícone de emoji grande, título enorme embaixo
- * dele. É a assinatura visual do Notion — o que se reconhece antes de ler
- * qualquer palavra — e faltava.
+ * ── POR QUE ELE ENCOLHEU ───────────────────────────────────────────────
  *
- * Está aqui, e não copiado em cada tela, porque quatro telas usam o mesmo
- * cabeçalho e a quinta que fosse escrita à mão sairia diferente. Foi assim
- * que o app acabou com três tamanhos de título ao mesmo tempo na versão
- * anterior.
+ * Ele era o cabeçalho de página do Notion, copiado ao pé da letra: migalha
+ * ("Ei Itabirito / Vagas"), emoji de 2,6rem e título de 1,8rem, um embaixo
+ * do outro. Medido no celular, custava 235px antes de qualquer conteúdo —
+ * a primeira vaga começava a 45% da altura da tela.
+ *
+ * O problema não era o gosto, era a superfície. O Notion é um lugar onde a
+ * pessoa CRIA páginas, e o cabeçalho dele é a página se apresentando: o
+ * ícone e o título são coisas que o próprio usuário escolheu. Aqui não há
+ * página nenhuma para criar. São quatro telas fixas, com uma barra embaixo
+ * que já diz o nome de cada uma — o app repetia "Vagas" três vezes na
+ * mesma tela (migalha, título e aba acesa) e gastava meia dobra nisso.
+ *
+ * E a migalha prometia uma coisa que não existe: hierarquia. "Ei Itabirito
+ * / Vagas" sugere que Vagas fica dentro de alguma coisa. Não fica — é uma
+ * das quatro abas, irmã das outras três. Migalha em app de aba é enfeite
+ * com cara de navegação.
+ *
+ * O que ficou: o título, num tamanho de app, e ao lado dele o lugar da
+ * ação principal da tela. O resto do desenho não mudou — sem canto
+ * redondo, sem cartão, hierarquia por tipografia.
  */
 export function Pagina({
-  icone,
-  foto,
   titulo,
-  ondeEstou,
+  foto,
+  acao,
   children,
 }: {
-  /** O emoji da página. No Notion o ícone de página é emoji, e é literal. */
-  icone: string;
+  titulo: string;
   /**
-   * Uma imagem no lugar do emoji — o Notion também aceita isso, e numa
-   * página que É uma pessoa o rosto dela vale mais que um bonequinho azul
-   * genérico. Cai no emoji sozinho quando não há foto.
+   * Um retrato no lugar de nada, para a página que É uma pessoa. Continua
+   * existindo porque numa tela de perfil o rosto identifica melhor que
+   * qualquer palavra — mas agora em 32px, ao lado do título, e não como
+   * um ícone de 62px numa linha só dele.
    */
   foto?: string | null;
-  titulo: string;
-  /** A migalha: "Ei Itabirito / Vagas". A última parte é a página atual. */
-  ondeEstou?: string;
+  /**
+   * A ação principal desta tela, à direita do título.
+   *
+   * Existe porque o app não tinha onde pôr a ação de uma tela inteira, e
+   * ela acabava no meio do conteúdo ou em nenhum lugar: o painel da
+   * empresa não tinha o botão de publicar vaga em canto nenhum, que é a
+   * única coisa que uma empresa vai lá fazer.
+   */
+  acao?: ReactNode;
   children?: ReactNode;
 }) {
   return (
     <>
-      <div className="ei-migalha">
-        {/* A marca leva ao começo, como o nome do espaço de trabalho na
-            migalha do Notion. */}
-        <Link to="/">Ei Itabirito</Link>
-        <span aria-hidden="true">/</span>
-        <span className="ei-migalha-atual">{ondeEstou ?? titulo}</span>
+      <div className="ei-cabeca">
+        {foto && (
+          <span className="ei-cabeca-foto" aria-hidden="true">
+            <img src={foto} alt="" />
+          </span>
+        )}
+        <h1 className="ei-cabeca-titulo">{titulo}</h1>
+        {acao && <div className="ei-cabeca-acao">{acao}</div>}
       </div>
-
-      {foto ? (
-        <span className="ei-icone-pagina ei-icone-foto" aria-hidden="true">
-          <img src={foto} alt="" />
-        </span>
-      ) : (
-        <span className="ei-icone-pagina" aria-hidden="true">
-          {icone}
-        </span>
-      )}
-
-      <h1 className="ei-titulo-g">{titulo}</h1>
 
       {children}
     </>
@@ -84,27 +92,30 @@ export function Prop({
 }
 
 /**
- * O callout: retângulo tingido, emoji à esquerda, texto à direita.
+ * O callout: retângulo tingido, ícone à esquerda, texto à direita.
  *
- * O bloco mais reconhecível do Notion, e o formato certo para o que
- * precisa ser lido antes do resto. Substituiu cartões que gastavam
- * título, tarja, parágrafo e botão largo para dizer uma frase.
+ * O emoji saiu daqui pelo mesmo motivo que saiu do cabeçalho — ver
+ * `IconesInicio`: o mesmo código vira um desenho diferente em cada
+ * aparelho, e ao lado de ícones de traço ele denuncia que as duas coisas
+ * foram feitas em momentos diferentes. Agora recebe um ícone desenhado.
  */
 export function Callout({
-  emoji,
+  icone,
   atencao = false,
   children,
 }: {
-  emoji: string;
+  icone?: ReactNode;
   /** Um fio na lateral, para o que trava alguma coisa. Sem cor de fundo. */
   atencao?: boolean;
   children: ReactNode;
 }) {
   return (
     <div className={atencao ? "ei-callout ei-callout-atencao" : "ei-callout"}>
-      <span className="ei-callout-emoji" aria-hidden="true">
-        {emoji}
-      </span>
+      {icone && (
+        <span className="ei-callout-icone" aria-hidden="true">
+          {icone}
+        </span>
+      )}
       <span className="ei-callout-texto">{children}</span>
     </div>
   );

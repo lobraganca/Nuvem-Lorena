@@ -133,6 +133,12 @@ function SuggestionSheet({ onClose }: { onClose: () => void }) {
 const TELAS_DE_APP = [
   "/",
   "/inicio",
+  /* `/login` faltava, e o efeito era o mais visível do app inteiro: a tela
+     de entrar — a primeira que qualquer pessoa nova lê — terminava com o
+     rodapé de SITE embaixo. Três colunas de links, o e-mail de contato e
+     um botão verde de WhatsApp que era, de longe, a coisa mais colorida da
+     tela: mais chamativo que o próprio botão de entrar, logo acima dele. */
+  "/login",
   "/vagas-para-mim",
   "/meu-perfil",
   "/painel",

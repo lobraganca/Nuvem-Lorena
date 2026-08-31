@@ -7,6 +7,7 @@ import { marcarVagaComoVista, todosOsAvisos, type Aviso } from "../../lib/minhas
 import { pedirPermissaoDePush, pushServeAqui, situacaoDaPermissao } from "../../lib/push";
 import { Callout, Pagina } from "../../components/ei/Pagina";
 import { nomeDoContrato, salarioEmTexto } from "../../types/domain";
+import { IconeInicio } from "../../components/IconesInicio";
 
 /**
  * Os avisos: tudo o que chegou para esta pessoa pelos disparos.
@@ -104,7 +105,7 @@ export function AvisosPage() {
   return (
     <div className="ei">
       <div className="ei-tela">
-        <Pagina icone="🔔" titulo="Avisos" ondeEstou="Avisos" />
+        <Pagina titulo="Avisos" />
 
         {erro && (
           <p className="ei-campo-erro ei-margem" style={{ marginTop: 12 }} role="alert">
@@ -113,7 +114,7 @@ export function AvisosPage() {
         )}
 
         {podeOferecerAviso && (
-          <Callout emoji="🔔">
+          <Callout icone={<IconeInicio nome="sino" tamanho={17} />}>
             Quer receber no celular assim que chegar vaga do seu ofício?{" "}
             <button
               type="button"
@@ -127,7 +128,7 @@ export function AvisosPage() {
         )}
 
         {avisos.length === 0 ? (
-          <Callout emoji="📭">
+          <Callout>
             Ainda não chegou nenhum aviso. Assim que uma empresa publicar vaga do seu
             ofício em Itabirito, ela aparece aqui — e no seu celular, se o aviso
             estiver ligado.

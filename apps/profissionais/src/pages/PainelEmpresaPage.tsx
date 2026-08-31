@@ -191,7 +191,35 @@ export function PainelEmpresaPage() {
             Aqui é o que o Notion faz com o estado de uma página: três
             linhas quietas de rótulo e valor, que se lê de relance e não
             se toca. */}
-        <Pagina icone="🏢" titulo="Minhas vagas" ondeEstou="Empresa">
+        {/* A ação principal no cabeçalho, e não só numa grade lá embaixo.
+            ────────────────────────────────────────────────────────────
+            Publicar vaga é a única coisa que uma empresa vem fazer aqui, e
+            estava como um dos quatro quadradinhos iguais do meio da tela,
+            com o mesmo peso de "Editar empresa". Agora fica onde a mão
+            alcança sem rolar e onde o olho chega primeiro.
+
+            Sem plano ele não aparece: quem não pode publicar não deve ver
+            um botão que só leva a uma recusa. Para essa empresa o callout
+            logo abaixo é que diz o caminho. */}
+        <Pagina
+          titulo="Minhas vagas"
+          acao={
+            semPlano ? undefined : (
+              <Link
+                to="/criar-vaga"
+                className="ei-btn ei-btn-cheio ei-btn-mini"
+                onClick={(e) => {
+                  if (plano && !plano.cabeMais) {
+                    e.preventDefault();
+                    navegar("/planos-empresa");
+                  }
+                }}
+              >
+                {plano && !plano.cabeMais ? "Aumentar plano" : "Nova vaga"}
+              </Link>
+            )
+          }
+        >
           <div className="ei-props">
             <Prop rotulo="Empresa">
               <span className="ei-uma-linha">{empresa.company_name}</span>
@@ -238,7 +266,7 @@ export function PainelEmpresaPage() {
             deixaria a empresa olhando um botão cinza sem saber o que fazer
             para acendê-lo. */}
         {!empresa.phone_verified && (
-          <Callout emoji="📞" atencao>
+          <Callout atencao>
             <strong>Sem o telefone confirmado a vaga não sai.</strong>{" "}
             <button
               type="button"
@@ -252,7 +280,7 @@ export function PainelEmpresaPage() {
         )}
 
         {semPlano && (
-          <Callout emoji="🔒">
+          <Callout>
             Ver profissionais é grátis. Para publicar vaga e disparar a onda,{" "}
             <Link to="/planos-empresa" className="ei-btn-inline">
               escolha um plano
@@ -270,36 +298,32 @@ export function PainelEmpresaPage() {
             Sem vaga sobrando no plano, o toque leva ao plano e não à
             criação: a tela de criar recusaria no fim, depois de a empresa
             ter escrito a vaga inteira. */}
+        {/* A grade dos caminhos secundários.
+            ───────────────────────────────────
+            Ela tinha QUATRO quadrados, e dois iam para o mesmo lugar: com
+            o plano cheio, o primeiro virava "Aumentar o plano" e o
+            terceiro já era "Planos" — os dois abrindo /planos-empresa,
+            lado a lado, com desenhos diferentes. Quem visse isso ia supor
+            que fazem coisas diferentes e tocar nos dois para descobrir.
+
+            Agora a ação principal mora no cabeçalho e aqui ficam só os
+            caminhos que ela não cobre. "Planos" some quando o cabeçalho já
+            está oferecendo aumentar o plano. */}
         <div className="ei-acoes">
-          {!semPlano && (
-            <Link
-              to="/criar-vaga"
-              className="ei-acao"
-              onClick={(e) => {
-                if (plano && !plano.cabeMais) {
-                  e.preventDefault();
-                  navegar("/planos-empresa");
-                }
-              }}
-            >
-              <span className="ei-acao-circulo" aria-hidden="true">
-                <IconeMais />
-              </span>
-              {plano && !plano.cabeMais ? "Aumentar o plano" : "Nova vaga"}
-            </Link>
-          )}
           <Link to="/profissionais" className="ei-acao">
             <span className="ei-acao-circulo" aria-hidden="true">
               <IconePessoas />
             </span>
             Profissionais
           </Link>
-          <Link to="/planos-empresa" className="ei-acao">
-            <span className="ei-acao-circulo" aria-hidden="true">
-              <IconeSelo />
-            </span>
-            Planos
-          </Link>
+          {!(plano && !plano.cabeMais) && (
+            <Link to="/planos-empresa" className="ei-acao">
+              <span className="ei-acao-circulo" aria-hidden="true">
+                <IconeSelo />
+              </span>
+              Planos
+            </Link>
+          )}
           <Link to="/painel/editar-empresa" className="ei-acao">
             <span className="ei-acao-circulo" aria-hidden="true">
               <IconeLoja />
@@ -324,7 +348,7 @@ export function PainelEmpresaPage() {
               <h2>Vagas no ar</h2>
               <span className="ei-secao-acao">0</span>
             </div>
-            <Callout emoji="📢">
+            <Callout>
               Publique uma vaga e quem tiver interesse aparece aqui.
             </Callout>
           </>
@@ -344,7 +368,7 @@ export function PainelEmpresaPage() {
                 </div>
 
                 {doGrupo.length === 0 ? (
-                  <Callout emoji="📢">{vazio}</Callout>
+                  <Callout>{vazio}</Callout>
                 ) : (
                   /* Lista colada num bloco só, e não um cartão por vaga:
                      cinco cartões soltos com espaço entre eles viram um
@@ -569,10 +593,3 @@ function IconeSeta() {
   );
 }
 
-function IconeMais() {
-  return (
-    <svg {...svgProps()}>
-      <path d="M12 5v14M5 12h14" />
-    </svg>
-  );
-}

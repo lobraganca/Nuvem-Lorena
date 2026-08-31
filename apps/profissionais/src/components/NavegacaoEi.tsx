@@ -180,6 +180,17 @@ export function NavegacaoEi() {
 
   const itens = destinos(tipo, !!user);
 
+  /* Uma barra de navegação com UM botão só, que aponta para a tela onde a
+     pessoa já está, não é navegação — é um enfeite que parece quebrado.
+     Era o que acontecia na tela de entrar: quem não tem conta recebe um
+     único destino, "Entrar", e ele acendia apontando para si mesmo.
+
+     Não confundir com esconder a barra do visitante em geral: em
+     Profissionais o mesmo botão único é a única porta para dentro do app,
+     e continua aparecendo. O que some é a barra que não leva a lugar
+     nenhum. */
+  if (itens.length === 1 && itens[0].casa(pathname)) return null;
+
   return (
     <nav className="nav-ei" aria-label="Navegação principal">
       {itens.map((d) => {

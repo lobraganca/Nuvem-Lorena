@@ -156,7 +156,7 @@ export function PerfilPage() {
     return (
       <div className="ei">
         <div className="ei-tela">
-          <Pagina icone="🔑" titulo="Entrar" ondeEstou="Entrar" />
+          <Pagina titulo="Entrar" />
           <div className="ei-margem" style={{ paddingTop: 12 }}>
           {/* Mesma regra do painel: no app da loja o Google não volta, e o
               caminho passa pela tela de login. Ver `googleServeAqui`. */}
@@ -217,7 +217,7 @@ export function PerfilPage() {
   return (
     <div className="ei">
       <div className="ei-tela">
-        <Pagina icone="👤" titulo="Conta" ondeEstou="Conta" />
+        <Pagina titulo="Conta" />
 
         {/* Quem é você.
             ─────────────

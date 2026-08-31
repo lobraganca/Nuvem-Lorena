@@ -116,7 +116,7 @@ export function PerfilPublicoPage() {
     return (
       <div className="ei">
         <div className="ei-tela">
-          <Pagina icone="🔎" titulo="Perfil" ondeEstou="Profissional" />
+          <Pagina titulo="Perfil" />
           <p className="ei-apoio ei-margem" style={{ paddingTop: 8 }}>
             {erro || "Este perfil não está disponível. A pessoa pode ter saído da lista."}
           </p>
@@ -136,7 +136,7 @@ export function PerfilPublicoPage() {
   return (
     <div className="ei">
       <div className="ei-tela">
-        <Pagina icone="👤" foto={p.photo_url} titulo={p.name} ondeEstou="Profissional">
+        <Pagina foto={p.photo_url} titulo={p.name}>
           <div className="ei-props">
             <Prop rotulo="Situação">
               {p.disponivel === false ? (

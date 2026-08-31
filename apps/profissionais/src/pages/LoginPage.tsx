@@ -191,11 +191,15 @@ export function LoginPage() {
         {/* Era texto do procurô — "avaliar, salvar favoritos e cadastrar
             os seus serviços" —, e nenhuma dessas três coisas existe aqui.
             Ficava na PRIMEIRA tela que qualquer pessoa nova lê. */}
+        {/* Uma linha, e curta. As três anteriores tinham duas frases cada,
+            e a segunda sempre explicava o que NÃO precisa de conta — numa
+            tela onde a pessoa já decidiu entrar. Explicação que chega
+            depois da decisão não ajuda: ocupa a tela e atrasa o campo. */}
         {lado === "company"
-          ? "Para publicar suas vagas e falar com quem responder. Ver quem está disponível continua livre, sem conta."
+          ? "Para publicar suas vagas."
           : lado === "professional"
-            ? "Para receber as vagas do seu ofício em Itabirito, assim que forem publicadas."
-            : "Para receber vagas de Itabirito, ou para publicar as suas. Ver quem está disponível continua livre, sem conta."}
+            ? "Para receber as vagas do seu ofício."
+            : "Para receber vagas, ou publicar as suas."}
       </p>
 
       {!hasDatabase() && (
@@ -243,9 +247,6 @@ export function LoginPage() {
                   ? `Aguarde ${esperaSegundos}s para pedir outro`
                   : "Receber código por SMS"}
             </button>
-            <p className="muted entrar-dica">
-              Sem senha para criar nem lembrar. O número fica sendo seu jeito de entrar.
-            </p>
           </>
         ) : (
           <>
@@ -402,9 +403,6 @@ export function LoginPage() {
       {aviso && <p className="entrar-aviso">{aviso}</p>}
       {error && <p className="entrar-erro">{error}</p>}
 
-      <p className="muted entrar-dica">
-        Você continua conectado neste aparelho — só sai quando tocar em <strong>Sair</strong>.
-      </p>
     </div>
   );
 }

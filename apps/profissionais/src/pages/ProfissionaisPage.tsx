@@ -146,7 +146,7 @@ export function ProfissionaisPage() {
   return (
     <div className="ei">
       <div className="ei-tela">
-        <Pagina icone="👥" titulo="Profissionais" ondeEstou="Profissionais" />
+        <Pagina titulo="Profissionais" />
 
         {/* A busca em cápsula, com a lupa dentro. */}
         <div className="ei-busca" style={{ marginTop: 14 }}>

@@ -1449,25 +1449,33 @@ html.abrindo body {
    para não cobri-la, e some assim que a pessoa confirma que leu. */
 .aviso-dados {
   position: fixed;
-  left: 12px;
-  right: 12px;
-  bottom: calc(var(--bottom-nav-height) + env(safe-area-inset-bottom) + 12px);
+  /* Faixa de ponta a ponta, encostada na barra de baixo — e não um cartão
+     flutuante com 16px de canto e 12px de folga nas laterais.
+
+     Era a única peça arredondada do app inteiro (o desenho não tem canto
+     redondo em lugar nenhum, de propósito) e a única que boiava separada
+     de tudo. Na tela inicial, que é a única onde ele aparece, o efeito era
+     o de um pedaço solto largado no meio do vazio — exatamente o que faz
+     uma tela parecer inacabada. */
+  left: 0;
+  right: 0;
+  bottom: calc(var(--bottom-nav-height) + env(safe-area-inset-bottom));
   z-index: 60;
   display: flex;
   align-items: center;
   gap: 14px;
   flex-wrap: wrap;
   justify-content: space-between;
-  max-width: 720px;
-  margin: 0 auto;
-  padding: 14px 16px;
-  border-radius: 16px;
+  margin: 0;
+  padding: 14px 20px;
+  border-radius: 0;
   /* Um callout do Notion, como todo aviso do app: papel branco, fio fino
      em volta, sem tarja colorida. A tarja dourada (depois laranja) e o
      botão laranja eram as últimas peças coloridas que sobravam — e ficavam
      na PRIMEIRA tela que qualquer pessoa nova vê. */
   background: #ffffff;
-  border: 1px solid var(--ei-fio, #e9e9e7);
+  border: 0;
+  border-top: 1px solid var(--ei-fio, #e9e9e7);
   box-shadow: none;
 }
 
@@ -1479,8 +1487,11 @@ html.abrindo body {
   color: var(--color-text-muted);
 }
 
+/* O link segue a tinta do texto, como todo link do app. Ele estava em azul
+   — `--color-primary-deep`, do procurô — e era a única mancha de cor da
+   primeira tela. */
 .aviso-dados a {
-  color: var(--color-primary-deep);
+  color: inherit;
   text-underline-offset: 2px;
 }
 
@@ -1489,11 +1500,7 @@ html.abrindo body {
   padding: 8px 18px;
 }
 
-@media (min-width: 860px) {
-  .aviso-dados {
-    bottom: calc(var(--bottom-nav-height) + env(safe-area-inset-bottom) + 24px);
-  }
-}
+
 
 .whats-pendente {
   display: flex;
@@ -2950,10 +2957,6 @@ h3 {
   margin-top: 2px;
 }
 
-.entrar-dica {
-  margin: 6px 0 0;
-  font-size: 0.8rem;
-}
 
 /* O "ou" com um risco de cada lado — é o que diz que os caminhos são
    alternativos, e não etapas de uma sequência. */
@@ -3043,99 +3046,26 @@ h3 {
    duas telas que a pessoa pode ver em sequência, e mudar a caixa entre
    uma e outra dá a impressão de ter mudado de app.
    --------------------------------------------------------------- */
-.completar-perfil {
-  max-width: 460px;
-  padding-top: 28px;
-  padding-bottom: 40px;
-}
 
-.completar-intro {
-  margin-top: 8px;
-}
 
-.completar-card {
-  margin-top: 18px;
-}
 
 /* A foto é o primeiro elemento e é um alvo grande: no celular, um botão
    de foto pequeno é o campo que mais faz errar o toque. O rótulo inteiro
    é clicável — o <input type=file> mora escondido dentro dele. */
-.completar-foto {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 8px;
-  cursor: pointer;
-  margin-bottom: 6px;
-}
 
-.completar-foto-img,
-.completar-foto-vazia {
-  width: 78px;
-  height: 78px;
-  border-radius: 50%;
-  object-fit: cover;
-  border: 2px solid var(--color-border);
-}
 
-.completar-foto-vazia {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: var(--color-bg-soft);
-  color: var(--color-text-muted);
-  font-size: 2.1rem;
-  font-weight: 600;
-  border-style: dashed;
-}
 
-.completar-foto-acao {
-  font-size: 0.86rem;
-  font-weight: 600;
-  color: var(--color-marca);
-}
 
 /* O convite, não a exigência. Explica o que a foto muda em vez de só
    dizer "opcional": quem lê "opcional" pula, quem lê "sua avaliação tem
    rosto" às vezes põe. */
-.completar-foto-nota {
-  margin: 0 0 10px;
-  text-align: center;
-  font-size: 0.82rem;
-  line-height: 1.45;
-  color: var(--color-text-muted);
-}
 
-.completar-rotulo {
-  display: block;
-  margin: 14px 0 6px;
-  font-size: 0.86rem;
-  font-weight: 600;
-}
 
-.completar-dica {
-  margin: 8px 0 0;
-  font-size: 0.82rem;
-  color: var(--color-text-muted);
-}
 
-.completar-erro {
-  margin: 14px 0 0;
-  font-size: 0.88rem;
-  color: var(--color-danger);
-}
 
-.completar-card .btn-primary {
-  margin-top: 20px;
-}
 
 /* A saída, sempre visível. Mesma razão da barreira do número: barreira
    sem saída perde a pessoa em vez de ganhar o dado. */
-.completar-saida {
-  margin-top: 18px;
-  text-align: center;
-  font-size: 0.9rem;
-}
 
 /* ---------------------------------------------------------------
    Os números do painel de cadastros

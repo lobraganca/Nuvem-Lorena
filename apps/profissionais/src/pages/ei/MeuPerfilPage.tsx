@@ -196,7 +196,7 @@ export function MeuPerfilPage() {
         {/* Era a única tela principal sem o cabeçalho de página — sem
             migalha, sem ícone, e com o título centralizado enquanto todas
             as outras alinham à esquerda. */}
-        <Pagina icone="🧰" titulo="Meu perfil" ondeEstou="Meu perfil" />
+        <Pagina titulo="Meu perfil" />
         <p className="ei-apoio ei-margem" style={{ paddingBottom: 6 }}>
           É por ele que as vagas chegam até você.
         </p>

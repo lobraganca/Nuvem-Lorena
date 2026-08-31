@@ -309,7 +309,7 @@ export function CriarVagaPage() {
          reconhecer onde está. */
       <div className="ei">
         <div className="ei-tela">
-          <Pagina icone="🔒" titulo="Para publicar vaga, precisa de um plano" ondeEstou="Empresa">
+          <Pagina titulo="Para publicar vaga, precisa de um plano">
             {/* "por SMS" era MENTIRA, e a única do app.
                 ─────────────────────────────────────────
                 O aviso de vaga sempre foi notificação no celular — a
@@ -328,7 +328,7 @@ export function CriarVagaPage() {
             </p>
           </Pagina>
 
-          <Callout emoji="✅">
+          <Callout>
             <strong>Sem plano você já pode, agora:</strong> ver e procurar todos os
             profissionais de Itabirito, e falar com cada um direto, pelo telefone que
             está no cadastro. É grátis e não precisa nem de conta — o plano serve para
@@ -369,7 +369,7 @@ export function CriarVagaPage() {
               rápido soa a elogio, e não a "não dá para abrir mais uma". A
               empresa veio publicar; o título tem que dizer o que houve com
               o que ela veio fazer. */}
-          <Pagina icone="📋" titulo="O plano já está cheio" ondeEstou="Empresa">
+          <Pagina titulo="O plano já está cheio">
             <p className="ei-corpo ei-margem">
               Seu plano permite {plano.limite}{" "}
               {plano.limite === 1 ? "vaga aberta" : "vagas abertas"} por vez, e{" "}

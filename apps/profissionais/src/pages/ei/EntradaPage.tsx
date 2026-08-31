@@ -58,74 +58,74 @@ export function EntradaPage() {
 
   return (
     <div className="ei">
-      <div className="ei-tela">
-        {/* A marca aparecia DUAS vezes: no cabeçalho e de novo aqui, grande,
-            num quadrado azul que era a única mancha de cor forte do app
-            inteiro. Saiu a segunda — a do cabeçalho já identifica o app, e
-            uma marca repetida a 60px de distância da outra não informa
-            nada, só ocupa o lugar do que decide a tela.
+      {/* A tela inicial é uma COLUNA que ocupa a altura toda, e não um
+          bloco de conteúdo no alto de uma página em branco.
 
-            E "quem procura serviço" era linguagem do procurô. Aqui não se
-            contrata serviço, se contrata gente. */}
-        <h1 className="ei-titulo-g" style={{ paddingTop: 34 }}>
-          Emprego em Itabirito
-        </h1>
-        <p className="ei-apoio ei-margem" style={{ paddingBottom: 26 }}>
-          De um lado quem procura trabalho. Do outro, quem está contratando.
-        </p>
+          Antes: título, apoio, dois botões e um link terminavam a 45% da
+          tela; o resto era vazio até o aviso de privacidade aparecer
+          sozinho, boiando no meio do nada, e a barra de baixo. Num
+          celular de 390×844 sobravam quase 300px de papel liso — a
+          primeira coisa que se lia como "não terminaram isto".
 
-        {/* As duas portas. Ordem deliberada: quem procura trabalho primeiro.
-            São muito mais pessoas, e é o lado que precisa estar cheio antes
-            de o outro valer alguma coisa.
+          Agora a escolha fica no meio da tela (é a decisão desta tela,
+          merece o centro óptico) e o que é rodapé — ver sem conta,
+          instalar, privacidade — se junta embaixo, num bloco só. */}
+      <div className="ei-tela ei-entrada">
+        <div className="ei-entrada-topo">
+          <h1 className="ei-entrada-titulo">Emprego em Itabirito</h1>
+          {/* Uma linha. A anterior tinha duas orações e dizia, com vinte
+              palavras, o que os dois botões logo abaixo dizem com seis. */}
+          <p className="ei-entrada-apoio">De que lado você está?</p>
+        </div>
 
-            A primeira é a CHEIA agora, e não "ver os profissionais": a
-            decisão desta tela é de que lado a pessoa está, e a terceira
-            opção estava em preto disputando com ela. */}
-        {/* O `?lado=` não é enfeite: sem ele os dois botões apontavam para o
+        {/* As duas portas.
+            ────────────────
+            Ordem deliberada: quem procura trabalho primeiro. São muito
+            mais pessoas, e é o lado que precisa estar cheio antes de o
+            outro valer alguma coisa.
+
+            Cada uma virou um BLOCO, e não um botão de uma linha. O que
+            muda: cabe o ofício embaixo do rótulo, em cinza, e a pessoa
+            reconhece o próprio caso sem ler explicação — que é o que ela
+            pediu ao dizer "direcionamentos claros, sem muita explicação
+            escrita".
+
+            O `?lado=` não é enfeite: sem ele os dois apontavam para o
             MESMO `/login`, e a escolha que a pessoa acabou de fazer era
-            jogada fora. Ela chegava a uma tela chamada "Entrar", sem
-            nenhuma menção ao lado que escolheu, e depois de entrar era
-            perguntada de novo — "Qual é seu tipo de conta?". Duas
-            perguntas para a mesma decisão é o jeito mais rápido de alguém
-            achar que errou o caminho e voltar. */}
-        <div className="ei-margem" style={{ display: "grid", gap: 10 }}>
-          <Link
-            to="/login?lado=trabalhar"
-            className="ei-btn ei-btn-cheio ei-btn-largo ei-btn-alto"
-          >
-            Procuro trabalho
+            jogada fora — ela chegava a uma tela chamada "Entrar", sem
+            nenhuma menção ao lado que escolheu, e era perguntada de novo
+            depois de entrar. */}
+        <div className="ei-portas">
+          <Link to="/login?lado=trabalhar" className="ei-porta ei-porta-cheia">
+            <span className="ei-porta-nome">Procuro trabalho</span>
+            <span className="ei-porta-nota">Receba as vagas do seu ofício</span>
           </Link>
-          <Link
-            to="/login?lado=contratar"
-            className="ei-btn ei-btn-contorno ei-btn-largo ei-btn-alto"
-          >
-            Estou contratando
+          <Link to="/login?lado=contratar" className="ei-porta">
+            <span className="ei-porta-nome">Estou contratando</span>
+            <span className="ei-porta-nota">Publique e avise a cidade</span>
           </Link>
         </div>
 
-        <div className="ei-margem" style={{ marginTop: 18 }}>
+        {/* O rodapé da tela. Três coisas quietas, do mesmo tamanho, no
+            mesmo bloco — e não espalhadas pela altura da página. */}
+        <div className="ei-entrada-pe">
           <Link to="/profissionais" className="ei-btn-inline">
-            Ver quem está disponível na cidade
+            Ver quem está disponível — sem conta
           </Link>
-          <p className="ei-apoio" style={{ marginTop: 4 }}>
-            É grátis e não precisa de conta.
-          </p>
-        </div>
 
-        {/* Instalar, para quem ainda não entrou.
-            ──────────────────────────────────────
-            O caminho de instalar mora na Conta, e quem chega aqui pela
-            primeira vez não tem conta — ficava sem nenhum. E é justamente
-            esta pessoa que precisa dele: quem gostou do app e não o deixou
-            no celular volta uma vez e esquece o endereço.
+          {/* Instalar, para quem ainda não entrou. O caminho mora na Conta,
+              e quem chega aqui pela primeira vez não tem conta — ficava sem
+              nenhum. E é justamente esta pessoa que precisa dele: quem
+              gostou do app e não o deixou no celular volta uma vez e
+              esquece o endereço.
 
-            Some sozinho dentro do app já instalado e dentro do app da
-            loja. Ver InstalarApp. */}
-        <div className="ei-lista" style={{ marginTop: 26 }}>
-          <InstalarApp />
+              Some sozinho dentro do app já instalado e dentro do app da
+              loja. Ver InstalarApp. */}
+          <div className="ei-lista">
+            <InstalarApp />
+          </div>
         </div>
       </div>
     </div>
   );
 }
-

@@ -145,6 +145,80 @@
   padding: 0 0 calc(76px + env(safe-area-inset-bottom));
 }
 
+/* ── A tela inicial ───────────────────────────────────────────────────
+   Um grupo só, encostado no alto, e não peças espalhadas pela altura da
+   página.
+
+   O defeito era esse: título e apoio no topo, dois botões, um link — e
+   depois ~300px de papel liso até o aviso de privacidade aparecer boiando
+   sozinho, com a barra de baixo mais embaixo ainda. Peça solta no meio do
+   vazio é o que faz uma tela parecer inacabada.
+
+   Tentou-se antes uma coluna de altura cheia, com a escolha centrada
+   verticalmente. Não serve aqui: `.ei-tela` já pede `100dvh` e o app tem
+   um cabeçalho fixo por cima, então a coluna sempre termina mais baixo que
+   a janela e o rodapé dela cai fora da tela. Encostar tudo no alto é mais
+   simples e não depende de acertar altura nenhuma. */
+.ei-entrada { display: grid; gap: 22px; align-content: start; }
+
+.ei-entrada-topo { padding: 36px 20px 0; }
+
+.ei-entrada-titulo {
+  font-size: 1.9rem;
+  line-height: 1.15;
+  font-weight: 700;
+  letter-spacing: -0.025em;
+  margin: 0 0 6px;
+  text-wrap: balance;
+}
+
+.ei-entrada-apoio {
+  margin: 0;
+  font-size: 1rem;
+  color: var(--ei-tinta-fraca);
+}
+
+.ei-portas { display: grid; gap: 10px; padding: 0 20px; }
+
+/* Bloco, e não botão de uma linha: cabe o rótulo e, embaixo, o que aquele
+   lado recebe. Duas linhas curtas que dispensam o parágrafo de explicação
+   que estava em cima. */
+.ei-porta {
+  display: grid;
+  gap: 3px;
+  padding: 16px 18px;
+  border: 1px solid var(--ei-fio-forte);
+  background: var(--ei-papel);
+  text-decoration: none;
+  text-align: left;
+  transition: background-color 0.12s ease, border-color 0.12s ease;
+}
+.ei-porta:hover { background: var(--ei-afunda); }
+
+.ei-porta-nome { font-size: 1.05rem; font-weight: 600; line-height: 1.25; }
+.ei-porta-nota { font-size: 0.85rem; color: var(--ei-tinta-fraca); line-height: 1.35; }
+
+/* A primeira porta é a cheia. Uma só — duas ações de mesmo peso não são
+   direcionamento, são um empate que a pessoa desempata sozinha.
+
+   O seletor precisa do `.ei` na frente por causa do `.ei a { color:
+   inherit }` lá de cima: com especificidade menor, o `inherit` vencia e o
+   rótulo saía com a tinta escura sobre o bloco escuro — sumia. Foi o que
+   aconteceu na primeira escrita desta regra: o bloco preto aparecia com a
+   segunda linha visível e a primeira invisível. */
+.ei .ei-porta-cheia {
+  background: var(--ei-acao);
+  border-color: var(--ei-acao);
+  color: var(--ei-sobre-acao);
+}
+.ei .ei-porta-cheia:hover { background: #4b4842; border-color: #4b4842; }
+.ei .ei-porta-cheia .ei-porta-nota { color: rgba(255, 255, 255, 0.72); }
+
+/* O pé da tela, junto do resto e não no fim da página. */
+.ei-entrada-pe { display: grid; gap: 14px; justify-items: start; }
+.ei-entrada-pe > .ei-btn-inline { margin: 0 20px; }
+.ei-entrada-pe > .ei-lista { justify-self: stretch; }
+
 /* Tudo que é TEXTO respira nas laterais; tudo que é FIO ou linha de lista
    vai de ponta a ponta e cuida do próprio recuo interno. */
 .ei-margem {
@@ -170,40 +244,53 @@
    PÁGINA — que é a ideia inteira do Notion.
    ═══════════════════════════════════════════════════════════════════════ */
 
-/* A migalha. Diz onde a pessoa está sem gastar uma barra de navegação. */
-.ei-migalha {
+/* ── O cabeçalho de página ────────────────────────────────────────────
+   Antes daqui saíam três blocos empilhados — migalha, emoji de 2,6rem e
+   título de 1,8rem — que juntos custavam 235px medidos num celular de
+   390px: a primeira vaga da lista começava a 45% da altura da tela, e a
+   palavra "Vagas" aparecia três vezes antes dela (migalha, título e a aba
+   acesa da barra de baixo).
+
+   Agora é uma linha só: título à esquerda, ação da tela à direita. Custa
+   58px. O que se ganhou não foi espaço em branco — foi conteúdo: a lista
+   começa acima da dobra, que é a diferença entre um app e um folheto.
+
+   A migalha saiu inteira. Ver o comentário do componente `Pagina`. */
+.ei-cabeca {
   display: flex;
   align-items: center;
-  gap: 5px;
-  padding: 16px 20px 0;
-  font-size: 0.78rem;
-  color: var(--ei-tinta-fraquissima);
+  gap: 10px;
+  padding: 14px 20px 10px;
+  min-height: 34px;
 }
 
-.ei-migalha a { text-decoration: none; color: inherit; }
-.ei-migalha a:hover { color: var(--ei-tinta); }
-.ei-migalha-atual { color: var(--ei-tinta-fraca); }
+.ei-cabeca-titulo {
+  font-size: 1.35rem;
+  line-height: 1.25;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  margin: 0;
+  flex: 1;
+  min-width: 0;
+}
 
-/* O ícone da página. É emoji de propósito: no Notion o ícone de página é
-   emoji, e é a coisa mais reconhecível da tela dele. Em todo o resto do
-   app os ícones são desenhados em traço — aqui não, porque aqui a
-   referência é literal. */
-/* Os `2px` de baixo eram o pior aperto do app: o desenho do emoji parava a
-   3,6px do título. Emoji com `line-height: 1` não tem folga própria para
-   emprestar — o que separa tem que estar escrito aqui. */
-.ei-icone-pagina {
+/* A ação encosta na direita e nunca encolhe: numa tela estreita quem cede
+   é o título, que tem reticências, e não o botão — um botão pela metade
+   não se toca. */
+.ei-cabeca-acao { flex: 0 0 auto; }
+
+/* O retrato, quando a página é uma pessoa. 32px: identifica sem virar
+   capa. */
+.ei-cabeca-foto {
+  flex: 0 0 auto;
+  width: 32px;
+  height: 32px;
   display: block;
-  padding: 12px 20px var(--ei-e3);
-  font-size: 2.6rem;
-  line-height: 1;
+  background: var(--ei-afunda-forte);
 }
-
-/* Quando o ícone é uma foto, ele tem o tamanho do emoji — senão a página
-   passa a abrir com um retrato grande e vira outra coisa. */
-.ei-icone-foto { width: 62px; height: 62px; box-sizing: content-box; }
-.ei-icone-foto img {
-  width: 42px;
-  height: 42px;
+.ei-cabeca-foto img {
+  width: 32px;
+  height: 32px;
   object-fit: cover;
   display: block;
   border-radius: 0;
@@ -344,6 +431,17 @@
 
 .ei-btn-largo { width: 100%; }
 .ei-btn-alto { min-height: 44px; }
+
+/* O botão do cabeçalho de página. Menor que os do corpo de propósito: ele
+   divide a linha com o título e não pode competir com ele em tamanho — o
+   que o destaca é ser o único preenchido ali em cima. */
+.ei-btn-mini {
+  min-height: 32px;
+  padding: 6px 12px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  white-space: nowrap;
+}
 
 .ei .ei-btn:disabled {
   background: var(--ei-afunda);
@@ -651,7 +749,15 @@
   line-height: 1.5;
 }
 
-.ei-callout-emoji { flex: 0 0 auto; font-size: 1.05rem; line-height: 1.4; }
+/* O ícone do callout é desenhado, não emoji: alinhado ao topo da primeira
+   linha do texto, e no mesmo cinza dela. */
+.ei-callout-icone {
+  flex: 0 0 auto;
+  display: block;
+  margin-top: 1px;
+  color: var(--ei-tinta-fraca);
+}
+.ei-callout-icone svg { display: block; width: 17px; height: 17px; }
 .ei-callout-texto { flex: 1; min-width: 0; }
 .ei-callout-texto strong { font-weight: 600; }
 
@@ -772,6 +878,17 @@
 }
 
 .ei-faixa-valor { font-weight: 500; color: var(--ei-tinta); }
+
+/* A nota da resposta já dada. Uma linha corrida, no cinza do apoio, com um
+   fio em cima que a separa do corpo da vaga sem virar caixa. */
+.ei-nota-resposta {
+  margin: 14px 0 0;
+  padding-top: 10px;
+  border-top: 1px solid var(--ei-fio);
+  font-size: 0.85rem;
+  line-height: 1.45;
+  color: var(--ei-tinta-fraca);
+}
 
 /* ── Ações ────────────────────────────────────────────────────────────
    Sem círculo de 52px. Ícone pequeno ao lado do rótulo, num retângulo de
@@ -1085,3 +1202,43 @@
 }
 
 .ei-btn-inline:disabled { color: var(--ei-tinta-fraca); cursor: default; }
+
+/* ── A foto na tela de completar a conta ──────────────────────────────
+   Quadrado de 84px centrado, com a inicial dentro quando não há retrato, e
+   o convite logo abaixo. Sem canto redondo, como tudo aqui. */
+.ei-foto-escolha {
+  display: grid;
+  justify-items: center;
+  gap: 8px;
+  cursor: pointer;
+  padding: 4px 0 2px;
+}
+
+.ei-foto-escolha-img,
+.ei-foto-escolha-vazia {
+  width: 84px;
+  height: 84px;
+  display: grid;
+  place-items: center;
+  background: var(--ei-afunda-forte);
+  border-radius: 0;
+}
+
+.ei-foto-escolha-img { object-fit: cover; }
+
+.ei-foto-escolha-vazia {
+  color: var(--ei-tinta);
+  font-size: 1.9rem;
+  font-weight: 600;
+}
+
+/* O caminho de volta de uma tela de detalhe. Discreto e alto na tela: é a
+   primeira coisa que a mão procura quando a pessoa quer sair. */
+.ei-voltar {
+  display: inline-block;
+  padding: 14px 20px 2px;
+  font-size: 0.85rem;
+  color: var(--ei-tinta-fraca);
+  text-decoration: none;
+}
+.ei-voltar:hover { color: var(--ei-tinta); }

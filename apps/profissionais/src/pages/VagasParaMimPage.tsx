@@ -13,6 +13,7 @@ import { pedirPermissaoDePush, pushServeAqui, situacaoDaPermissao } from "../lib
 import { getProfile } from "../lib/profiles";
 import { Abas, Callout, Pagina } from "../components/ei/Pagina";
 import { nomeDoContrato, salarioEmTexto } from "../types/domain";
+import { IconeInicio } from "../components/IconesInicio";
 
 /**
  * "Vagas para você" — o que chegou para este profissional.
@@ -160,7 +161,7 @@ export function VagasParaMimPage() {
     <div className="ei">
       <div className="ei-tela">
         {/* Cabeçalho de página do Notion: migalha, ícone e título. */}
-        <Pagina icone="💼" titulo="Vagas" ondeEstou="Vagas" />
+        <Pagina titulo="Vagas" />
 
         {/* Abas de visão, como numa base de dados do Notion: texto com um
             traço embaixo da aberta. Eram pílulas pretas, que pesavam mais
@@ -193,7 +194,7 @@ export function VagasParaMimPage() {
              antes do resto. Era um cartão com título, quatro linhas de
              parágrafo e um botão largo, mais texto que qualquer vaga da
              lista para uma coisa secundária. */
-          <Callout emoji="🔔">
+          <Callout icone={<IconeInicio nome="sino" tamanho={17} />}>
             <button type="button" className="ei-btn-inline" disabled={ligandoAviso} onClick={ligarAviso}>
               {ligandoAviso ? "Ligando…" : "Avisar no celular"}
             </button>{" "}
@@ -202,7 +203,7 @@ export function VagasParaMimPage() {
         )}
 
         {avisoLigado && (
-          <Callout emoji="✅">Aviso ligado neste aparelho.</Callout>
+          <Callout>Aviso ligado neste aparelho.</Callout>
         )}
 
         {vagas.length === 0 ? (
@@ -384,10 +385,20 @@ export function VagasParaMimPage() {
                     </div>
                   ) : v.interessado === false ? (
                     <div style={{ marginTop: 14 }}>
-                      <div className="ei-faixa">
-                        <span>Você disse que não é para você</span>
-                        <span className="ei-faixa-valor">a empresa não é avisada</span>
-                      </div>
+                      {/* Uma linha, e não a faixa de duas colunas.
+                          ─────────────────────────────────────────
+                          "Você disse que não é para você" de um lado e "a
+                          empresa não é avisada" do outro somam 53 letras
+                          numa tela de 390px: o `space-between` quebrava as
+                          duas em duas linhas cada e o resultado parecia
+                          uma tabela desalinhada, não um aviso.
+
+                          A faixa continua certa para o caso do interesse
+                          enviado, onde os dois textos são curtos e cabem
+                          lado a lado. */}
+                      <p className="ei-nota-resposta">
+                        Você marcou que não é para você — a empresa não é avisada.
+                      </p>
                       <button
                         type="button"
                         className="ei-btn-inline"

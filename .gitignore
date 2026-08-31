@@ -43,3 +43,4 @@ avena-app-fragment.html
 # saem em lote, numa pasta. Sem esta linha o git pede a cada sessão para
 # versionar dezenas de capturas de tela que só serviram para eu medir.
 /fotos-juntos/
+/fotos/
