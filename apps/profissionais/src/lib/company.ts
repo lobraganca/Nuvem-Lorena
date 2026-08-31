@@ -176,7 +176,14 @@ export async function contarRespostasDasVagas(
   if (!sb) return conta;
 
   const linhas = await lerTudo<{ job_listing_id: string }>(() =>
-    sb.from("job_responses").select("job_listing_id").in("job_listing_id", vagaIds)
+    sb
+      .from("job_responses")
+      .select("job_listing_id")
+      .in("job_listing_id", vagaIds)
+      /* Interessados, e não respostas. O painel dizia "3 pessoas
+         responderam" contando também quem respondeu que a vaga NÃO era para
+         ela — e a empresa abriria esperando três nomes para achar um. */
+      .eq("interessado", true)
   );
 
   for (const l of linhas) {
@@ -224,53 +231,59 @@ function consultaDaOnda(
      `overlaps` são métodos do cliente, que escapam o valor sozinhos. */
   coluna: "categories" | "areas_de_interesse"
 ) {
-  let q = sb
-    .from("professionals_public")
-    .select("id, owner_id, name, categories, areas_de_interesse, especialidade")
-    .eq("city", vaga.city)
-    /* Sem telefone confirmado, ninguém entra em onda nenhuma.
-       O aviso da vaga é uma mensagem no número da pessoa: mandar para um
-       número que ninguém provou ser dela é, na melhor hipótese, avisar o
-       vazio — e na pior, avisar um estranho. A view pública já deixa de
-       fora quem está pausado ou suspenso (migration 0053); esta linha
-       acrescenta a terceira condição para ser alcançável.
+  /* ── Uma função do banco, e não mais a view pública ──────────────────
+     A dona: "oculto ele recebe oportunidades pelas ondas de disparos."
 
-       Quem se cadastrou e não confirmou fica invisível para as vagas, e
-       isso é grave o bastante para a pessoa PRECISAR saber — o cartão do
-       painel avisa, com o botão de confirmar do lado. Cadastro que não
-       recebe nada e não explica por quê é o defeito mais caro que existe:
-       ninguém reclama, todo mundo some. */
-    .eq("whatsapp_verified", true);
+     A consulta lia `professionals_public`, e essa view filtra
+     `paused = false`. Quem se escondia da busca sumia também das ondas — o
+     contrário do que a chave da tela promete, com estas palavras: "pode se
+     esconder da lista e continuar recebendo vaga".
 
-  /* O estado anda junto com a cidade, sempre: há "Bom Jesus" em mais de
-     vinte estados, e filtrar só pelo nome mistura cidades distantes numa
-     lista que chega cheia, sem erro nenhum na tela. */
-  if (vaga.uf) q = q.eq("uf", vaga.uf);
+     Era o defeito mais silencioso que este app já teve. A pessoa se
+     esconde para o patrão não ver, acha que continua na fila das
+     oportunidades, e nunca recebe uma. Ninguém reclama de vaga que não
+     chegou.
 
-  if (onda === 3) {
-    // Ofícios vizinhos: o grupo inteiro da profissão, ela incluída.
-    q = q.overlaps(coluna, categoriasDoMesmoGrupo(vaga.profession));
-  } else {
-    q = q.contains(coluna, [vaga.profession]);
-  }
+     A função da 0077 enxerga quem está pausado, e devolve `id` e
+     `owner_id` e MAIS NADA — sem nome, sem telefone. Uma view que
+     incluísse os pausados teria de ser legível por alguém, e aí daria para
+     LISTAR quem se escondeu: desfazer o esconderijo para consertar o
+     esconderijo. O nome, aliás, nunca foi usado — a tela só mostra
+     quantas pessoas a onda alcança.
 
-  /* Onda 1 é a única que olha especialidade — e só quando a vaga pediu uma.
-     Vaga sem especialidade não tem como ser mais exata que o ofício, então
-     a onda 1 já é a onda 2, e a 2 não terá o que acrescentar. É de
-     propósito: melhor uma onda que sobra vazia do que uma que finge
-     precisão que não existe.
+     As outras duas condições continuam: suspenso não recebe, e sem
+     telefone confirmado não entra em onda nenhuma — o aviso é uma mensagem
+     no número da pessoa, e mandar para um número que ninguém provou ser
+     dela é, na melhor hipótese, avisar o vazio. */
+  return sb.rpc("candidatos_da_onda", {
+    p_cidade: vaga.city,
+    /* O estado anda junto com a cidade, sempre: há "Bom Jesus" em mais de
+       vinte estados, e filtrar só pelo nome mistura cidades distantes numa
+       lista que chega cheia, sem erro nenhum na tela. */
+    p_uf: vaga.uf ?? null,
+    p_oficios:
+      onda === 3
+        ? // Ofícios vizinhos: o grupo inteiro da profissão, ela incluída.
+          categoriasDoMesmoGrupo(vaga.profession)
+        : [vaga.profession],
+    p_coluna: coluna,
+    /* Onda 1 é a única que olha especialidade — e só quando a vaga pediu
+       uma. Vaga sem especialidade não tem como ser mais exata que o ofício,
+       então a onda 1 já é a onda 2, e a 2 não terá o que acrescentar. É de
+       propósito: melhor uma onda que sobra vazia do que uma que finge
+       precisão que não existe.
 
-     Só vale para quem OFERECE o serviço: especialidade é um recorte do que
-     a pessoa faz, e quem marcou o ofício como interesse ainda não tem
-     recorte nenhum dentro dele. */
-  if (onda === 1 && coluna === "categories" && vaga.specialty?.trim()) {
-    q = q.ilike("especialidade", `%${vaga.specialty.trim()}%`);
-  }
-
-  return q;
+       Só vale para quem OFERECE o serviço: especialidade é um recorte do
+       que a pessoa faz, e quem marcou o ofício como interesse ainda não tem
+       recorte nenhum dentro dele. */
+    p_especialidade:
+      onda === 1 && coluna === "categories" ? (vaga.specialty?.trim() ?? null) : null,
+  });
 }
 
-type AlcancadoPelaOnda = { id: string; owner_id: string; name: string };
+/* Sem `name`: a função do banco não devolve nome, de propósito — e a tela
+   nunca usou. Ver o comentário em `consultaDaOnda`. */
+type AlcancadoPelaOnda = { id: string; owner_id: string };
 
 /**
  * Quantas pessoas cada onda alcançaria, sem avisar ninguém.
@@ -470,6 +483,13 @@ export async function obterRespostasDaVaga(vagaId: string): Promise<RespostaComP
     .from("job_responses")
     .select("*")
     .eq("job_listing_id", vagaId)
+    /* Só quem TEM interesse.
+       ──────────────────────
+       A dona: "a lista de interessados aparece em um painel para o
+       anunciante." Interessados, e não respondentes: desde a 0078 a pessoa
+       também pode dizer que a vaga não é para ela, e essa resposta é para o
+       app parar de cobrá-la — não para a empresa ligar mesmo assim. */
+    .eq("interessado", true)
     .order("responded_at", { ascending: false });
 
   if (error) return [];

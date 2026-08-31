@@ -12,6 +12,16 @@ export type VagaParaMim = {
   criado_em: string;
   visto_em: string | null;
   respondida: boolean;
+  /**
+   * O que a pessoa respondeu: `true` tem interesse, `false` não tem,
+   * `undefined` ainda não respondeu.
+   *
+   * São três estados e não dois, e é essa a diferença que faltava. Antes
+   * havia só `respondida`, e "não quis" ficava indistinguível de "ainda não
+   * abriu": a vaga recusada voltava à lista com o mesmo botão pedindo
+   * resposta, e a contagem de novas cobrava uma decisão já tomada.
+   */
+  interessado?: boolean;
 };
 
 /**
@@ -60,14 +70,22 @@ export async function vagasParaMim(userId: string): Promise<VagaParaMim[]> {
      declarada — e forçar isso deixaria a consulta principal frágil a
      qualquer mexida no schema. */
   const ids = (data ?? []).map((n: any) => n.job_listings.id);
-  const respondidas = new Set<string>();
+  /* A resposta agora tem DUAS: `true` é "tenho interesse", `false` é "não
+     tenho". `undefined` é a terceira, e a mais importante de distinguir —
+     ainda não respondeu. Um `Set` de "respondidas" não dava conta disso:
+     ele misturava o não com o sim, e a tela mostrava as duas iguais. */
+  const resposta = new Map<string, boolean>();
   if (ids.length > 0) {
-    const { data: r } = await sb
+    const { data: r, error: erroResposta } = await sb
       .from("job_responses")
-      .select("job_listing_id")
+      .select("job_listing_id, interessado")
       .eq("professional_id", userId)
       .in("job_listing_id", ids);
-    (r ?? []).forEach((x: any) => respondidas.add(x.job_listing_id));
+    /* Erro SOBE. Tratar como "não respondeu nenhuma" faria a tela pedir
+       resposta de novo para tudo que a pessoa já respondeu — e um segundo
+       "tenho interesse" na mesma vaga é constrangimento com a empresa. */
+    if (erroResposta) throw erroResposta;
+    (r ?? []).forEach((x: any) => resposta.set(x.job_listing_id, x.interessado !== false));
   }
 
   return (data ?? []).map((n: any) => ({
@@ -77,7 +95,8 @@ export async function vagasParaMim(userId: string): Promise<VagaParaMim[]> {
     empresa_foto: n.job_listings.companies?.photo_url ?? null,
     criado_em: n.criado_em,
     visto_em: n.visto_em,
-    respondida: respondidas.has(n.job_listings.id),
+    respondida: resposta.has(n.job_listings.id),
+    interessado: resposta.get(n.job_listings.id),
   }));
 }
 
@@ -113,17 +132,59 @@ export async function marcarVagaComoVista(avisoId: string): Promise<void> {
     .is("visto_em", null);
 }
 
-/** Diz à empresa que este profissional tem interesse. */
-export async function responderVaga(vagaId: string, userId: string): Promise<void> {
+/**
+ * A resposta da pessoa ao aviso de compatibilidade: tem interesse, ou não.
+ *
+ * ── Por que o "não" existe ────────────────────────────────────────────
+ *
+ * A dona: "a pessoa escolhe se quer estar disponível ou se não tem
+ * interesse."
+ *
+ * Antes só havia o sim, e um botão só. Sem o não, o app não distinguia
+ * "ainda não abriu" de "abriu e não quis": a vaga recusada ficava na lista
+ * para sempre, com o mesmo botão pedindo resposta, e a contagem de novas
+ * cobrava uma decisão que já tinha sido tomada.
+ *
+ * ── `insert` e `update` separados, e nunca `upsert` ───────────────────
+ *
+ * O `upsert` do PostgREST é um `insert ... on conflict`, então quem manda
+ * passa pela policy de INSERT mesmo estando só trocando o próprio sim por
+ * não. É o defeito que já impediu a administração de salvar cadastro de
+ * outra pessoa neste mesmo projeto.
+ */
+export async function responderVaga(
+  vagaId: string,
+  userId: string,
+  interessado: boolean
+): Promise<void> {
   const sb = supabase();
   if (!sb) throw new Error("Banco não configurado");
 
-  const { error } = await sb
+  const { data: jaExiste, error: erroLer } = await sb
     .from("job_responses")
-    .upsert(
-      { job_listing_id: vagaId, professional_id: userId, status: "new" },
-      { onConflict: "job_listing_id,professional_id", ignoreDuplicates: true }
-    );
+    .select("id")
+    .eq("job_listing_id", vagaId)
+    .eq("professional_id", userId)
+    .maybeSingle();
+  if (erroLer) throw erroLer;
 
+  if (jaExiste) {
+    /* Só `interessado`. `status` é a triagem da empresa, e a 0078 tem um
+       gatilho que recusa a pessoa mexendo nela — mandar daqui derrubaria a
+       gravação inteira. */
+    const { error } = await sb
+      .from("job_responses")
+      .update({ interessado })
+      .eq("id", (jaExiste as { id: string }).id);
+    if (error) throw error;
+    return;
+  }
+
+  const { error } = await sb.from("job_responses").insert({
+    job_listing_id: vagaId,
+    professional_id: userId,
+    status: "new",
+    interessado,
+  });
   if (error) throw error;
 }

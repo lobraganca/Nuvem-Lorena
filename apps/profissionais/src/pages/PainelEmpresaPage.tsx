@@ -20,9 +20,13 @@ import { Callout, Pagina, Prop } from "../components/ei/Pagina";
  * sistema, e o que aconteceu ali é normal: a vaga acabou de sair.
  */
 function textoDeRespostas(n: number): string {
-  if (n === 0) return "Ninguém respondeu ainda";
-  if (n === 1) return "1 pessoa respondeu";
-  return `${n} pessoas responderam`;
+  /* "Interessadas", e não "responderam". Desde a 0078 a pessoa também pode
+     responder que a vaga não é para ela, e essa resposta não vira nome no
+     painel — contá-la aqui faria a empresa abrir esperando três pessoas
+     para encontrar uma. */
+  if (n === 0) return "Ninguém se interessou ainda";
+  if (n === 1) return "1 pessoa interessada";
+  return `${n} pessoas interessadas`;
 }
 
 /**

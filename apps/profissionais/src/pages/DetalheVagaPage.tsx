@@ -341,7 +341,14 @@ export function DetalheVagaPage() {
         </h2>
 
         {respostas.length === 0 ? (
-          <p className="muted">Nenhum profissional respondeu ainda.</p>
+          /* "Ainda não se interessou" e não "não respondeu": desde a 0078 a
+             pessoa também pode responder que a vaga não é para ela, e essa
+             resposta não aparece aqui. Dizer "ninguém respondeu" sobre uma
+             vaga que já teve respostas seria falso. */
+          <p className="muted">
+            Ninguém se interessou ainda. Quem tocar em “tenho interesse” aparece aqui,
+            com o telefone.
+          </p>
         ) : (
           /* Cada pessoa vira uma LINHA com nome, rosto e caminho para o
              perfil — onde está o telefone. Antes era "Profissional ID:

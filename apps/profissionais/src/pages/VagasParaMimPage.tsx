@@ -101,17 +101,26 @@ export function VagasParaMimPage() {
     setLigandoAviso(false);
   }
 
-  async function responder(v: VagaParaMim) {
+  async function responder(v: VagaParaMim, interessado: boolean) {
     if (!user) return;
     setRespondendo(v.vaga.id);
     setErro("");
     try {
-      await responderVaga(v.vaga.id, user.id);
+      await responderVaga(v.vaga.id, user.id, interessado);
       setVagas((atual) =>
-        atual.map((x) => (x.vaga.id === v.vaga.id ? { ...x, respondida: true } : x))
+        atual.map((x) =>
+          x.vaga.id === v.vaga.id ? { ...x, respondida: true, interessado } : x
+        )
       );
     } catch (err) {
-      setErro(mensagemDeErro(err, "Não consegui enviar seu interesse."));
+      setErro(
+        mensagemDeErro(
+          err,
+          interessado
+            ? "Não consegui enviar seu interesse."
+            : "Não consegui guardar sua resposta."
+        )
+      );
     } finally {
       setRespondendo(null);
     }
@@ -267,7 +276,17 @@ export function VagasParaMimPage() {
                     {novas.has(v.aviso_id) && !v.respondida && (
                       <span className="ei-selo ei-selo-laranja">Nova</span>
                     )}
-                    {v.respondida && <span className="ei-selo ei-selo-verde">Respondida</span>}
+                    {/* "Respondida" cobria as duas respostas e não dizia
+                        qual foi. Quem recusou uma vaga e voltou dias depois
+                        lia "Respondida" e não sabia se tinha demonstrado
+                        interesse ou não — a diferença entre esperar uma
+                        ligação e não esperar. */}
+                    {v.interessado === true && (
+                      <span className="ei-selo ei-selo-verde">Tenho interesse</span>
+                    )}
+                    {v.interessado === false && (
+                      <span className="ei-selo ei-selo-cinza">Não é para mim</span>
+                    )}
                   </div>
 
                   {/* O que é a vaga, com a tarja ao lado do título. */}
@@ -275,7 +294,10 @@ export function VagasParaMimPage() {
                     <span
                       className="ei-tarja"
                       aria-hidden="true"
-                      style={v.respondida ? { background: "var(--ei-verde)" } : undefined}
+                      /* Verde só para o SIM. Pintar de verde a vaga que a
+                         pessoa recusou daria a ela o mesmo sinal de
+                         "encaminhado" das que ela quer. */
+                      style={v.interessado === true ? { background: "var(--ei-verde)" } : undefined}
                     />
                     <h3 className="ei-cartao-titulo ei-duas-linhas">{v.vaga.title}</h3>
                   </div>
@@ -311,7 +333,21 @@ export function VagasParaMimPage() {
                     )}
                   </div>
 
-                  {v.respondida ? (
+                  {/* As DUAS respostas, e o estado de cada uma.
+                      ───────────────────────────────────────────
+                      A dona: "a pessoa escolhe se quer estar disponível ou
+                      se não tem interesse."
+
+                      Havia um botão só, o do sim. Quem não queria aquela
+                      vaga não tinha o que tocar — e a vaga recusada
+                      continuava na lista para sempre, com o mesmo botão
+                      pedindo resposta.
+
+                      "Não é para mim" e não "recusar": a pessoa não está
+                      recusando um convite, está dizendo que aquele trabalho
+                      não serve para ela. E fica desfazível, porque mudar de
+                      ideia sobre uma vaga é a coisa mais normal do mundo. */}
+                  {v.interessado === true ? (
                     /* Estado que precisa aparecer: sem ele a pessoa toca de novo
                        achando que não funcionou, e depois fica sem saber se a
                        empresa recebeu. */
@@ -319,16 +355,41 @@ export function VagasParaMimPage() {
                       <span>Interesse enviado</span>
                       <span className="ei-faixa-valor">a empresa te liga</span>
                     </div>
+                  ) : v.interessado === false ? (
+                    <div style={{ marginTop: 14 }}>
+                      <div className="ei-faixa">
+                        <span>Você disse que não é para você</span>
+                        <span className="ei-faixa-valor">a empresa não é avisada</span>
+                      </div>
+                      <button
+                        type="button"
+                        className="ei-btn-inline"
+                        style={{ marginTop: 8 }}
+                        disabled={respondendo === v.vaga.id}
+                        onClick={() => responder(v, true)}
+                      >
+                        {respondendo === v.vaga.id ? "Enviando…" : "Mudei de ideia, tenho interesse"}
+                      </button>
+                    </div>
                   ) : (
-                    <button
-                      type="button"
-                      className="ei-btn ei-btn-cheio ei-btn-largo ei-btn-alto"
-                      style={{ marginTop: 14 }}
-                      disabled={respondendo === v.vaga.id}
-                      onClick={() => responder(v)}
-                    >
-                      {respondendo === v.vaga.id ? "Enviando…" : "Tenho interesse"}
-                    </button>
+                    <div style={{ display: "grid", gap: 8, marginTop: 14 }}>
+                      <button
+                        type="button"
+                        className="ei-btn ei-btn-cheio ei-btn-largo ei-btn-alto"
+                        disabled={respondendo === v.vaga.id}
+                        onClick={() => responder(v, true)}
+                      >
+                        {respondendo === v.vaga.id ? "Enviando…" : "Tenho interesse"}
+                      </button>
+                      <button
+                        type="button"
+                        className="ei-btn ei-btn-contorno ei-btn-largo"
+                        disabled={respondendo === v.vaga.id}
+                        onClick={() => responder(v, false)}
+                      >
+                        Não é para mim
+                      </button>
+                    </div>
                   )}
                 </article>
               ))}
