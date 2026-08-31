@@ -1,7 +1,8 @@
 import type { ReactNode } from "react";
+import { Link } from "react-router-dom";
 
 /**
- * O cabeçalho de página.
+ * A barra de topo da tela.
  *
  * ── POR QUE ELE ENCOLHEU ───────────────────────────────────────────────
  *
@@ -25,42 +26,66 @@ import type { ReactNode } from "react";
  * O que ficou: o título, num tamanho de app, e ao lado dele o lugar da
  * ação principal da tela. O resto do desenho não mudou — sem canto
  * redondo, sem cartão, hierarquia por tipografia.
+ *
+ * ── SEGUNDA VOLTA: A BARRA DE TOPO ────────────────────────────────────
+ *
+ * A dona mandou prints do app da Conta Azul e pediu a ORGANIZAÇÃO dele,
+ * mantendo o preto e branco daqui. A primeira coisa que os cinco prints
+ * têm em comum é esta: TODA tela abre com uma barra de altura fixa, e
+ * dentro dela, sempre na mesma ordem — seta de voltar à esquerda, título
+ * ao lado dela, ações como ícones à direita.
+ *
+ *     ← Fluxo de caixa diário
+ *     ← Solicitação de pagamento
+ *     ← Orçamentos e vendas          [lista] [lupa] [+]
+ *
+ * O que isso resolve aqui: a volta deixa de ser uma linha SOLTA acima do
+ * título (era assim na tela da vaga, gastando uma fileira inteira para
+ * uma seta) e passa a morar dentro da barra, onde o polegar já procura.
+ *
+ * A seta só aparece nas telas de detalhe. As quatro abas da barra de
+ * baixo são irmãs — não há de onde voltar, e uma seta ali mentiria sobre
+ * a hierarquia, que foi o mesmo defeito da migalha antiga.
  */
 export function Pagina({
   titulo,
+  voltar,
   foto,
   acao,
   children,
 }: {
   titulo: string;
   /**
-   * Um retrato no lugar de nada, para a página que É uma pessoa. Continua
-   * existindo porque numa tela de perfil o rosto identifica melhor que
-   * qualquer palavra — mas agora em 32px, ao lado do título, e não como
-   * um ícone de 62px numa linha só dele.
+   * Para onde a seta de voltar leva. Só as telas de DETALHE têm — as
+   * quatro abas da barra de baixo são irmãs, não têm de onde voltar.
+   */
+  voltar?: string;
+  /**
+   * Um retrato no lugar de nada, para a página que É uma pessoa. Em 30px,
+   * dentro da barra: identifica sem virar capa.
    */
   foto?: string | null;
-  /**
-   * A ação principal desta tela, à direita do título.
-   *
-   * Existe porque o app não tinha onde pôr a ação de uma tela inteira, e
-   * ela acabava no meio do conteúdo ou em nenhum lugar: o painel da
-   * empresa não tinha o botão de publicar vaga em canto nenhum, que é a
-   * única coisa que uma empresa vai lá fazer.
-   */
+  /** A ação principal desta tela, à direita do título. */
   acao?: ReactNode;
   children?: ReactNode;
 }) {
   return (
     <>
-      <div className="ei-cabeca">
+      <div className="ei-barra">
+        {voltar && (
+          <Link to={voltar} className="ei-barra-voltar" aria-label="Voltar">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+              <path d="M15 5l-7 7 7 7" />
+            </svg>
+          </Link>
+        )}
         {foto && (
-          <span className="ei-cabeca-foto" aria-hidden="true">
+          <span className="ei-barra-foto" aria-hidden="true">
             <img src={foto} alt="" />
           </span>
         )}
-        <h1 className="ei-cabeca-titulo">{titulo}</h1>
-        {acao && <div className="ei-cabeca-acao">{acao}</div>}
+        <h1 className="ei-barra-titulo">{titulo}</h1>
+        {acao && <div className="ei-barra-acao">{acao}</div>}
       </div>
 
       {children}

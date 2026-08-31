@@ -220,32 +220,34 @@ export function PainelEmpresaPage() {
             )
           }
         >
-          <div className="ei-props">
-            <Prop rotulo="Empresa">
-              <span className="ei-uma-linha">{empresa.company_name}</span>
-            </Prop>
-            <Prop rotulo="Onde">
-              {empresa.neighborhood ? `${empresa.neighborhood} · ` : ""}
-              {empresa.city}/{empresa.uf}
-            </Prop>
-            <Prop rotulo="Plano">
-              {semPlano ? (
-                <span className="ei-selo ei-selo-cinza">Sem plano</span>
-              ) : (
-                <>
-                  <span className="ei-selo ei-selo-verde">Ativo</span>{" "}
-                  {plano?.abertas ?? 0} de {limiteEmTexto} vagas no ar
-                </>
-              )}
-            </Prop>
-            <Prop rotulo="Telefone">
-              {empresa.phone_verified ? (
-                <span className="ei-selo ei-selo-verde">Confirmado</span>
-              ) : (
-                <span className="ei-selo ei-selo-laranja">Falta confirmar</span>
-              )}
-            </Prop>
+          {/* ── O RESUMO ABRE A TELA, NÃO A FICHA ──────────────────────
+              Vindo dos prints do Conta Azul: a tela de pagamentos abre com
+              "Saldo disponível / R$ 10.000,00" — rótulo pequeno em cima,
+              número grande embaixo — e só DEPOIS vem a lista. O número que
+              a pessoa veio ver ocupa o primeiro lugar da tela.
+
+              Aqui era o contrário. O painel abria com quatro linhas de
+              ficha — Empresa, Onde, Plano, Telefone — que nunca mudam, e
+              "quantas pessoas se interessaram", que é a única coisa que
+              muda e a única razão de a empresa abrir o app, ficava abaixo
+              da dobra, depois da lista de vagas.
+
+              A ficha não sumiu: desceu para depois dos atalhos, que é o
+              lugar de dado de cadastro. */}
+          <div className="ei-resumo">
+            <div className="ei-resumo-item">
+              <span className="ei-resumo-rotulo">Pessoas interessadas</span>
+              <span className="ei-resumo-numero">{interessados?.length ?? 0}</span>
+            </div>
+            <div className="ei-resumo-item">
+              <span className="ei-resumo-rotulo">Vagas no ar</span>
+              <span className="ei-resumo-numero">
+                {plano?.abertas ?? 0}
+                <span className="ei-resumo-de"> de {limiteEmTexto}</span>
+              </span>
+            </div>
           </div>
+
         </Pagina>
 
         {erro && (
@@ -432,6 +434,47 @@ export function PainelEmpresaPage() {
             );
           })
         )}
+
+        {/* ── A FICHA, NO FIM ─────────────────────────────────────────
+            Ela abria a tela: quatro linhas de cadastro que não mudam nunca,
+            ocupando o primeiro lugar. Nos prints do Conta Azul o primeiro
+            lugar é do número que a pessoa veio ver — "Saldo disponível / R$
+            10.000,00" — e o cadastro não aparece na tela de trabalho.
+
+            Aqui ela vira o que é: dado de consulta, no fim, com título
+            próprio. Quem precisa conferir o telefone ou o bairro rola até
+            ela; quem veio ver quem respondeu não passa mais por ela. */}
+        <h2 className="ei-secao">Dados da empresa</h2>
+        <div className="ei-lista">
+          <div className="ei-props">
+            <Prop rotulo="Empresa">
+              <span className="ei-uma-linha">{empresa.company_name}</span>
+            </Prop>
+            <Prop rotulo="Onde">
+              {empresa.neighborhood ? `${empresa.neighborhood} · ` : ""}
+              {empresa.city}/{empresa.uf}
+            </Prop>
+            <Prop rotulo="Plano">
+              {semPlano ? (
+                <span className="ei-selo ei-selo-cinza">Sem plano</span>
+              ) : (
+                <>
+                  {/* Só o estado. A contagem "3 de 3" já abre a tela, na
+                      faixa de resumo — repeti-la aqui é dizer duas vezes o
+                      mesmo número com palavras diferentes. */}
+                  <span className="ei-selo ei-selo-verde">Ativo</span>
+                </>
+              )}
+            </Prop>
+            <Prop rotulo="Telefone">
+              {empresa.phone_verified ? (
+                <span className="ei-selo ei-selo-verde">Confirmado</span>
+              ) : (
+                <span className="ei-selo ei-selo-laranja">Falta confirmar</span>
+              )}
+            </Prop>
+          </div>
+        </div>
 
         {/* ── AS PESSOAS INTERESSADAS ─────────────────────────────────────
             A dona: "na tela do empresário ter as vagas que ela

@@ -173,7 +173,7 @@ export function DetalheVagaPage() {
     return (
       <div className="ei">
         <div className="ei-tela">
-          <Pagina titulo="Vaga" />
+          <Pagina titulo="Vaga" voltar="/painel-empresa" />
           <p className="ei-apoio ei-margem" style={{ paddingTop: 8 }}>
             {erro || "Vaga não encontrada."}
           </p>
@@ -210,7 +210,7 @@ export function DetalheVagaPage() {
             vezes — em cima e embaixo. A migalha do cabeçalho de página faz
             o trabalho dos dois botões, e faz melhor: diz onde a pessoa
             está, não só que dá para sair. */}
-        <Pagina titulo={vaga.title}>
+        <Pagina titulo={vaga.title} voltar="/painel-empresa">
           <div className="ei-props">
             {/* O estado vem primeiro, e só quando NÃO é o normal. Uma vaga
                 no ar não precisa dizer que está no ar; uma pausada precisa,

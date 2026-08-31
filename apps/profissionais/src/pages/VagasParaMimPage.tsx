@@ -318,15 +318,20 @@ export function VagasParaMimPage() {
                     )}
                   </p>
 
-                  {v.vaga.description && (
-                    /* Duas linhas e para. Sem o corte, uma vaga bem escrita
-                       enchia meio cartão de parágrafo e empurrava o botão
-                       para fora da tela — e o que decide se a pessoa toca é
-                       o ofício e a empresa, não o texto inteiro. */
-                    <p className="ei-corpo ei-duas-linhas" style={{ marginTop: 10 }}>
-                      {v.vaga.description}
-                    </p>
-                  )}
+                  {/* A DESCRIÇÃO SAIU DA LISTA.
+                      ─────────────────────────
+                      Ela já vinha cortada em duas linhas, e mesmo assim era
+                      o pedaço mais alto de cada vaga. Nos prints do Conta
+                      Azul que a dona mandou, NENHUMA linha de lista tem
+                      parágrafo: uma venda é "R$ 2.800,00 / Águas de
+                      Joinville – SC / 10/12/2023 · Nº 222" — três linhas
+                      curtas, com o dado que decide em negrito no topo.
+
+                      Duas linhas de descrição cortadas no meio de uma frase
+                      não informam nem convencem: quem quer saber abre a
+                      vaga, e é para isso que existe "Ver a vaga inteira",
+                      logo abaixo. O que decide o toque é o ofício, a
+                      empresa e o salário — e os três continuam aqui. */}
 
                   {/* O caminho para a vaga inteira. Sem ele, o cartão era
                       tudo o que existia: a pessoa decidia com a descrição

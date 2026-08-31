@@ -154,7 +154,7 @@ export function VagaAbertaPage() {
     return (
       <div className="ei">
         <div className="ei-tela">
-          <Pagina titulo="Vaga" />
+          <Pagina titulo="Vaga" voltar="/vagas-para-mim" />
           <p className="ei-apoio ei-margem">{erro || "Esta vaga não está mais disponível."}</p>
           <div className="ei-margem" style={{ marginTop: 16 }}>
             <button className="ei-btn ei-btn-contorno" onClick={() => navegar("/vagas-para-mim")}>
@@ -181,20 +181,9 @@ export function VagaAbertaPage() {
             Numa cidade em que as pessoas se conhecem, "que empresa é essa"
             é a PRIMEIRA pergunta — e a resposta estava do tamanho da
             última. */}
-        {/* Um caminho de volta, e não uma migalha de três níveis.
-            ──────────────────────────────────────────────────────
-            A migalha terminava com o título da vaga — que aparece de novo,
-            inteiro e em corpo grande, doze linhas abaixo. O nome da vaga
-            duas vezes na mesma tela não orienta ninguém; só empurra o
-            conteúdo para baixo.
-
-            E "Ei Itabirito / Vagas / …" prometia uma hierarquia que não
-            existe: Vagas é uma aba, não uma pasta. Quem chega aqui veio da
-            lista e quer voltar para ela — é isso, e só isso, que o link
-            precisa oferecer. */}
-        <Link to="/vagas-para-mim" className="ei-voltar">
-          <span aria-hidden="true">‹</span> Vagas
-        </Link>
+        {/* A volta agora mora DENTRO da barra de topo (ver `Pagina`), como
+            nos prints do Conta Azul. Aqui ela era uma linha só dela, acima
+            do título — uma fileira inteira da tela para uma seta. */}
 
         {/* 1 — A EMPRESA, com a logo. Abre a tela. */}
         <div className="ei-empresa-topo">

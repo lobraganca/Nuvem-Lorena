@@ -69,7 +69,7 @@ export function PlanosEmpresaPage() {
        cartão cinza e botão laranja no meio de um app preto e branco. */
     <div className="ei">
       <div className="ei-tela">
-        <Pagina titulo="Planos" />
+        <Pagina titulo="Planos" voltar="/painel-empresa" />
 
         {/* Mensal ou avulso — antes dos preços, porque é o que muda os
             números que vêm logo abaixo. */}
