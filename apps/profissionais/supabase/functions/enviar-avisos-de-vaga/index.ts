@@ -14,20 +14,24 @@
 //
 // Variáveis de ambiente exigidas:
 //   SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY
-//   FCM_SERVER_KEY     — chave do Firebase, para o app da Play Store
+//   FCM_SERVICE_ACCOUNT — o JSON da conta de serviço do Firebase, para o
+//                         app da Play Store. Ver `_shared/fcm.ts`.
 //   VAPID_PUBLICA      — o par da que está no app (VITE_VAPID_PUBLICA)
 //   VAPID_PRIVADA      — a que assina o envio. NUNCA vai para o app.
 //   VAPID_SUBJECT      — "mailto:algo@dominio", exigido pelo Web Push
+//
+// A antiga `FCM_SERVER_KEY` não é mais usada: o Google desligou a API que a
+// aceitava em junho de 2024. Pode ser apagada do painel.
 //
 // Deploy: supabase functions deploy enviar-avisos-de-vaga
 
 // deno-lint-ignore-file no-explicit-any
 import { createClient } from "jsr:@supabase/supabase-js@2";
 import webpush from "npm:web-push@3.6.7";
+import { fcmConfigurado, mandarPeloFirebase } from "../_shared/fcm.ts";
 
 const SUPABASE_URL = Deno.env.get("SUPABASE_URL") ?? "";
 const SUPABASE_SERVICE_ROLE_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "";
-const FCM_SERVER_KEY = Deno.env.get("FCM_SERVER_KEY") ?? "";
 const VAPID_PUBLICA = Deno.env.get("VAPID_PUBLICA") ?? "";
 const VAPID_PRIVADA = Deno.env.get("VAPID_PRIVADA") ?? "";
 const VAPID_SUBJECT = Deno.env.get("VAPID_SUBJECT") ?? "";
@@ -54,34 +58,7 @@ async function mandar(
 ): Promise<{ entregue: boolean; sumiu: boolean }> {
   // ── App da Play Store: Firebase ──────────────────────────────────────
   if (aparelho.token) {
-    if (!FCM_SERVER_KEY) return { entregue: false, sumiu: false };
-
-    const r = await fetch("https://fcm.googleapis.com/fcm/send", {
-      method: "POST",
-      headers: {
-        Authorization: `key=${FCM_SERVER_KEY}`,
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        to: aparelho.token,
-        notification: { title: aviso.titulo, body: aviso.corpo },
-        // O `data` é o que o app lê ao ser aberto pelo toque.
-        data: { url: aviso.url },
-        // Agrupa por vaga: dois avisos da mesma vaga viram um. Quem recebe
-        // três notificações da mesma coisa desliga o aviso — e aí perde a
-        // próxima, que era a que importava.
-        android: { collapse_key: aviso.tag },
-      }),
-    });
-
-    const corpo = await r.json().catch(() => ({}));
-    /* Token inválido significa app desinstalado, ou reinstalado com token
-       novo. O aparelho sai da tabela: insistir nele é gastar tentativa a
-       cada onda, para sempre. */
-    const sumiu =
-      corpo?.results?.[0]?.error === "NotRegistered" ||
-      corpo?.results?.[0]?.error === "InvalidRegistration";
-    return { entregue: r.ok && corpo?.success === 1, sumiu };
+    return await mandarPeloFirebase(aparelho.token, aviso);
   }
 
   // ── Site: Web Push ───────────────────────────────────────────────────
@@ -138,13 +115,28 @@ Deno.serve(async (req) => {
   let enviados = 0;
   let semAparelho = 0;
 
+  /* Os aparelhos de TODA a leva, numa consulta só.
+     ──────────────────────────────────────────────
+     Era uma consulta por linha da fila: com o teto de 200, até 200 idas ao
+     banco por chamada, em série. Numa onda grande isso sozinho consumia o
+     tempo da função — e a função morrer no meio é o que deixa metade da
+     fila sem sair. Uma consulta com `in` traz tudo e o laço só distribui. */
+  const contas = [...new Set((fila ?? []).map((l: any) => l.professional_id))];
+  const { data: todosAparelhos } = await sb
+    .from("push_devices")
+    .select("*")
+    .in("user_id", contas);
+
+  const aparelhosPorConta = new Map<string, any[]>();
+  for (const a of todosAparelhos ?? []) {
+    const lista = aparelhosPorConta.get((a as any).user_id) ?? [];
+    lista.push(a);
+    aparelhosPorConta.set((a as any).user_id, lista);
+  }
+
   for (const linha of fila ?? []) {
     const vaga: any = (linha as any).job_listings;
-
-    const { data: aparelhos } = await sb
-      .from("push_devices")
-      .select("*")
-      .eq("user_id", (linha as any).professional_id);
+    const aparelhos = aparelhosPorConta.get((linha as any).professional_id) ?? [];
 
     /* Sem aparelho, a linha é marcada como enviada do mesmo jeito.
        ────────────────────────────────────────────────────────────
@@ -191,8 +183,30 @@ Deno.serve(async (req) => {
     }
   }
 
+  /* A resposta DIZ quando um dos dois caminhos está desligado.
+     ──────────────────────────────────────────────────────────
+     Antes, sem a chave do Firebase, a função devolvia `enviados: 0` e nada
+     mais — indistinguível de "não havia nada a enviar". É o número que
+     mente calado: quem olhasse concluiria que a fila estava vazia, e não
+     que o envio inteiro estava desligado por falta de configuração.
+
+     `pendentes` existe pelo mesmo motivo: com o teto de 200 por chamada,
+     uma onda maior deixa resto — e sem este número ninguém saberia que ele
+     existe. */
+  const { count: pendentes } = await sb
+    .from("job_notifications")
+    .select("id", { count: "exact", head: true })
+    .is("enviado_em", null);
+
   return new Response(
-    JSON.stringify({ enviados, semAparelho, naFila: (fila ?? []).length }),
+    JSON.stringify({
+      enviados,
+      semAparelho,
+      naFila: (fila ?? []).length,
+      pendentes: pendentes ?? null,
+      firebaseConfigurado: fcmConfigurado(),
+      webPushConfigurado: Boolean(VAPID_PRIVADA && VAPID_PUBLICA && VAPID_SUBJECT),
+    }),
     { headers: { ...cors, "Content-Type": "application/json" } }
   );
 });

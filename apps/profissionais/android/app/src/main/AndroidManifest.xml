@@ -32,4 +32,19 @@
     <!-- Permissions -->
 
     <uses-permission android:name="android.permission.INTERNET" />
+
+    <!--
+        SEM ESTA LINHA O AVISO DE VAGA NUNCA CHEGA NO ANDROID 13 OU MAIS NOVO.
+
+        A partir do Android 13 (API 33) mostrar notificação exige uma
+        permissão que a pessoa concede, e permissão que não está declarada
+        aqui não pode ser pedida: o `requestPermissions()` do app volta
+        "negado" na hora, sem nunca abrir a caixa de diálogo.
+
+        O sintoma engana. Não há erro, não há tela quebrada — a pessoa toca
+        em "Avisar no celular", o app responde que não deu, e quem for
+        investigar vai olhar o Firebase, a chave, o servidor. A causa está
+        neste arquivo, e ela vale para a maioria dos aparelhos em uso.
+    -->
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
 </manifest>

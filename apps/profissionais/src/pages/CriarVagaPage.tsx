@@ -250,9 +250,21 @@ export function CriarVagaPage() {
       <div className="ei">
         <div className="ei-tela">
           <Pagina icone="🔒" titulo="Para publicar vaga, precisa de um plano" ondeEstou="Empresa">
+            {/* "por SMS" era MENTIRA, e a única do app.
+                ─────────────────────────────────────────
+                O aviso de vaga sempre foi notificação no celular — a
+                `enviar-avisos-de-vaga` manda por Firebase no app da loja e
+                por Web Push no site, e não há uma linha de código que mande
+                torpedo de vaga. SMS no Ei Itabirito existe só para o código
+                de entrar.
+
+                Prometer SMS aqui criava dois problemas de uma vez: a
+                empresa comprava esperando uma coisa que o app não faz, e
+                quem não instalou o app achava que seria avisado do mesmo
+                jeito — e ficava esperando um torpedo que nunca vem. */}
             <p className="ei-corpo ei-margem">
-              Com o plano, sua vaga é avisada por SMS para quem faz aquele serviço na
-              cidade, e as pessoas interessadas chegam até você.
+              Com o plano, sua vaga vira notificação no celular de quem faz aquele
+              serviço na cidade, e as pessoas interessadas chegam até você.
             </p>
           </Pagina>
 

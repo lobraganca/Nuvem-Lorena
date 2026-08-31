@@ -1,0 +1,102 @@
+# Esvazia a fila de avisos de vaga, de quinze em quinze minutos.
+#
+# ── O DEFEITO QUE ISTO CONSERTA ─────────────────────────────────────────
+#
+# A `enviar-avisos-de-vaga` tinha UM chamador: o próprio app, logo depois de
+# a empresa abrir a onda — e com o erro engolido de propósito
+# (`.catch(() => {})`), para a empresa não ficar esperando os envios.
+#
+# A intenção estava certa e a consequência não: quando essa única chamada
+# falhava — rede da empresa caiu, a função demorou a acordar, o navegador
+# fechou antes —, as linhas ficavam na fila e NINGUÉM voltava para pegá-las.
+# Não havia segunda tentativa em lugar nenhum do sistema. O comentário da
+# própria função dizia "também pode ser chamada por rotina, para pegar o que
+# ficou para trás", e essa rotina nunca existiu.
+#
+# O mesmo vale para onda grande: a função manda no máximo 200 por chamada,
+# de propósito, para não estourar o tempo dela. O resto ficava para "a
+# próxima chamada" — que também não vinha.
+#
+# ── POR QUE 15 MINUTOS, E POR QUE ISSO NÃO É EXAGERO ────────────────────
+#
+# O aviso de vaga vale pelo que é: uma vaga na cidade, agora. Um aviso que
+# chega no dia seguinte não é um aviso atrasado, é um aviso inútil — a
+# empresa já falou com alguém. A rotina diária existente não serve aqui.
+#
+# O agendamento do GitHub é "quando der": em hora de pico ele atrasa, e às
+# vezes pula. Por isso ele é a REDE, e não o caminho principal — quem avisa
+# em segundos continua sendo a chamada do app.
+#
+# Cada execução custa poucos segundos e só faz trabalho quando há fila.
+#
+# Segredo exigido:
+#   VITE_SUPABASE_ANON_KEY — a chave pública do banco, a mesma que já está
+#     configurada para gerar o app. A função é publicada com conferência de
+#     JWT ligada, e a chave pública é um JWT válido — é assim que o próprio
+#     app a chama. Não dá acesso a nada além do que o site já dá.
+
+name: Esvaziar fila de avisos
+
+on:
+  schedule:
+    - cron: "*/15 * * * *"
+  workflow_dispatch:
+
+# Duas execuções ao mesmo tempo mandariam o mesmo aviso duas vezes: a
+# primeira ainda não marcou `enviado_em` quando a segunda lê a fila.
+concurrency:
+  group: fila-de-avisos
+  cancel-in-progress: false
+
+jobs:
+  esvaziar:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Mandar o que está na fila
+        env:
+          CHAVE: ${{ secrets.VITE_SUPABASE_ANON_KEY }}
+        run: |
+          if [ -z "$CHAVE" ]; then
+            echo "O segredo VITE_SUPABASE_ANON_KEY não está configurado."
+            echo "Crie em: Settings > Secrets and variables > Actions."
+            exit 1
+          fi
+
+          URL="https://dfdinrimxqoqjedemjbw.functions.supabase.co/enviar-avisos-de-vaga"
+
+          # Até 5 voltas: a função manda 200 por vez, então uma onda de mil
+          # pessoas sai inteira numa execução em vez de esperar mais uma
+          # hora e quinze. O laço para sozinho quando a fila zera.
+          for volta in 1 2 3 4 5; do
+            codigo=$(curl -sS -o /tmp/resposta.json -w "%{http_code}" \
+              -X POST "$URL" \
+              -H "Content-Type: application/json" \
+              -H "Authorization: Bearer $CHAVE" \
+              -H "apikey: $CHAVE" \
+              -d '{}')
+
+            echo "Volta $volta — código $codigo — $(cat /tmp/resposta.json)"
+
+            if [ "$codigo" != "200" ]; then
+              echo "A função não respondeu 200."
+              exit 1
+            fi
+
+            # AVISA quando o envio está desligado por falta de configuração.
+            # Sem isto a rotina passaria verde para sempre, mandando zero, e
+            # o silêncio pareceria "não havia vaga nenhuma".
+            if grep -q '"pendentes":0' /tmp/resposta.json ||
+               grep -q '"pendentes":null' /tmp/resposta.json; then
+              echo "Fila vazia."
+              break
+            fi
+          done
+
+          if grep -q '"firebaseConfigurado":false' /tmp/resposta.json; then
+            echo "::warning::O Firebase não está configurado (FCM_SERVICE_ACCOUNT)."
+            echo "::warning::Quem usa o app da Play Store NÃO recebe aviso nenhum."
+          fi
+          if grep -q '"webPushConfigurado":false' /tmp/resposta.json; then
+            echo "::warning::As chaves VAPID não estão configuradas."
+            echo "::warning::Quem usa o app pelo navegador NÃO recebe aviso nenhum."
+          fi
