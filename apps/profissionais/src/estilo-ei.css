@@ -1242,3 +1242,67 @@
   text-decoration: none;
 }
 .ei-voltar:hover { color: var(--ei-tinta); }
+
+/* ── O seletor de como pagar, no desenho do Ei ────────────────────────
+   O `.segmentado` do tema antigo tem 12px de canto, 9px nas opções e uma
+   sombra na opção acesa — três coisas que não existem em lugar nenhum
+   deste app. Dentro do `.ei` ele vira o que o resto é: retângulo, fio, e
+   a opção acesa marcada por preenchimento, não por sombra. */
+.ei .segmentado {
+  border-radius: 0;
+  background: var(--ei-afunda);
+  border: 1px solid var(--ei-fio-forte);
+  padding: 3px;
+  gap: 3px;
+}
+
+.ei .segmentado-opcao {
+  border-radius: 0;
+  color: var(--ei-tinta-fraca);
+}
+
+.ei .segmentado-opcao.ativa {
+  background: var(--ei-papel);
+  color: var(--ei-tinta);
+  box-shadow: none;
+}
+
+/* ── O plano ──────────────────────────────────────────────────────────
+   Nome e preço na mesma linha, o resumo embaixo, o botão no fim. Sem
+   cartão: o fio da lista já separa um do outro. */
+.ei-plano { padding: 16px 20px; display: grid; gap: 8px; }
+
+.ei-plano-linha {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 12px;
+}
+
+.ei-plano-nome { font-size: 1.05rem; font-weight: 600; }
+
+.ei-plano-preco {
+  font-size: 1.15rem;
+  font-weight: 700;
+  /* Os preços ficam um embaixo do outro numa lista de três: com algarismo
+     de largura fixa eles alinham na vírgula em vez de dançar. */
+  font-variant-numeric: tabular-nums;
+}
+
+.ei-plano-ciclo {
+  font-size: 0.75em;
+  font-weight: 400;
+  color: var(--ei-tinta-fraca);
+}
+
+.ei-plano-resumo { margin: 0; font-size: 0.9rem; color: var(--ei-tinta-fraca); }
+
+/* Uma linha de texto dentro de uma lista de fios. Para enumerar sem o
+   marcador de bolinha, que numa lista de três itens curtos só serve para
+   afastar o texto da margem. */
+.ei-linha-texto {
+  padding: 12px 20px;
+  border-bottom: 1px solid var(--ei-fio);
+  font-size: 0.92rem;
+  line-height: 1.45;
+}
