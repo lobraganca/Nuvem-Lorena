@@ -1575,3 +1575,95 @@
   color: var(--ei-tinta-fraca);
   letter-spacing: 0;
 }
+
+/* ═══════════════════════════════════════════════════════════════════════
+   O DESENHO NO MODELO DO CONTA AZUL
+   ═══════════════════════════════════════════════════════════════════════
+   A dona mandou os prints do app da Conta Azul pela segunda vez, dizendo
+   "preciso que o app seja mais parecido". Na primeira vez ela escolheu "só
+   a organização, mantendo o preto e branco" — isso foi feito (barra de
+   topo, resumo antes da lista, linha de lista sem parágrafo) e não bastou.
+
+   O que salta nos prints e faltava aqui é a COR e a FORMA:
+
+     · barra de topo pintada, com título e seta em branco
+     · chão levemente azulado (#F0F4F8), não cinza neutro
+     · cartão branco com canto arredondado e fio suave
+     · o azul como tinta de link e de botão
+
+   As cores foram MEDIDAS nos prints, não escolhidas de olho — a contagem
+   de pixels da tela "Solicitação de pagamento" deu #01AEEF para a marca
+   deles, #F0F4F8 para o chão e #FEFEFE para o cartão.
+
+   O `--ei-acento` existe para a dona escolher olhando: o azul do Conta
+   Azul, ou o navy da marca dela. Ver as duas versões renderizadas. */
+.ei {
+  --ei-acento: #01aeef;          /* trocado para comparar */
+  --ei-sobre-acento: #ffffff;
+
+  --ei-papel: #ffffff;
+  --ei-afunda: #f0f4f8;
+  --ei-afunda-forte: #e4ebf2;
+  --ei-fio: #e2e8f0;
+  --ei-fio-forte: #cbd5e1;
+
+  --ei-acao: var(--ei-acento);
+  --ei-sobre-acao: var(--ei-sobre-acento);
+
+  --ei-raio: 8px;
+}
+
+/* A barra de topo pintada, com o conteúdo em branco. */
+.ei .ei-barra {
+  background: var(--ei-acento);
+  border-bottom: 0;
+}
+.ei .ei-barra-titulo,
+.ei .ei-barra-voltar { color: var(--ei-sobre-acento); }
+.ei .ei-barra-voltar:hover { background: rgba(255,255,255,.16); }
+
+/* Cartão: canto arredondado, fio suave, e um vão do chão em volta. */
+.ei .ei-cartao,
+.ei .ei-lista,
+.ei .ei-props,
+.ei .ei-acoes,
+.ei .ei-resumo {
+  border-radius: var(--ei-raio);
+  border: 1px solid var(--ei-fio);
+  margin-left: 12px;
+  margin-right: 12px;
+}
+.ei .ei-cartao + .ei-cartao { margin-top: 10px; border-top: 1px solid var(--ei-fio); }
+.ei .ei-lista .ei-cartao + .ei-cartao { margin-top: 0; }
+.ei .ei-lista .ei-cartao { border: 0; border-radius: 0; margin: 0; }
+
+/* Botão e link na cor da marca. */
+.ei .ei-btn-cheio { background: var(--ei-acento); border-color: var(--ei-acento); color: var(--ei-sobre-acento); }
+.ei .ei-btn-cheio:hover:not(:disabled) { filter: brightness(.93); }
+.ei .ei-btn-contorno { color: var(--ei-acento); border-color: var(--ei-acento); }
+.ei .ei-btn-inline { color: var(--ei-acento); }
+.ei .ei-btn, .ei .ei-porta, .ei input, .ei select, .ei textarea { border-radius: var(--ei-raio); }
+.ei .ei-porta-cheia { background: var(--ei-acento); border-color: var(--ei-acento); }
+
+/* Cartão dentro de cartão não repete borda nem margem — senão aparece a
+   borda dupla que a "Dados da empresa" mostrou. */
+.ei .ei-lista .ei-props,
+.ei .ei-lista .ei-acoes,
+.ei .ei-lista .ei-resumo {
+  border: 0;
+  border-radius: 0;
+  margin: 0;
+}
+
+/* O botão do cabeçalho sobre a barra pintada: contorno branco, não o
+   preenchido de sempre — preenchido com a cor da barra ele sumia dentro
+   dela, virando um texto solto que não parece botão. */
+.ei .ei-barra .ei-btn-cheio {
+  background: transparent;
+  border-color: rgba(255, 255, 255, .7);
+  color: var(--ei-sobre-acento);
+}
+.ei .ei-barra .ei-btn-cheio:hover:not(:disabled) {
+  background: rgba(255, 255, 255, .16);
+  filter: none;
+}
