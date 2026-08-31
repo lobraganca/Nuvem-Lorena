@@ -1,0 +1,177 @@
+# Quantas pessoas já se cadastraram, e se continuam chegando.
+#
+# Por que um workflow e não uma consulta direta: de dentro da sessão de
+# trabalho não dá para alcançar nem o banco nem o site — a política de rede
+# bloqueia os dois (403 no CONNECT do proxy). Quem tem internet de verdade
+# é o runner do GitHub, e é daqui que a pergunta tem resposta.
+#
+# Usa a MESMA chave pública que o site usa (VITE_SUPABASE_ANON_KEY), de
+# propósito: assim o que este relatório conta é exatamente o que um visitante
+# vê na busca. Se aparece aqui, está no ar. Não há chave de administração
+# neste repositório, e é bom que não haja.
+#
+# O que ele NÃO enxerga, e por isso não afirma: cadastro pausado pelo dono
+# ou suspenso pela administração. A view `professionals_public` já os
+# exclui — que é o certo para o site, e é a razão de a contagem daqui poder
+# ser menor que a do painel administrativo.
+#
+# O resultado sai na aba "Summary" da execução, que é uma página legível no
+# celular — não no log, que exige entrar na conta e rolar texto de máquina.
+
+name: Conferir cadastros
+
+on:
+  workflow_dispatch:
+
+jobs:
+  contar:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Contar e listar
+        env:
+          URL: ${{ secrets.VITE_SUPABASE_URL }}
+          CHAVE: ${{ secrets.VITE_SUPABASE_ANON_KEY }}
+        run: |
+          set -euo pipefail
+
+          if [ -z "${URL:-}" ] || [ -z "${CHAVE:-}" ]; then
+            echo "Faltam os segredos VITE_SUPABASE_URL e/ou VITE_SUPABASE_ANON_KEY."
+            echo "Ficam em: Settings > Secrets and variables > Actions."
+            exit 1
+          fi
+
+          # A contagem vem do cabeçalho Content-Range, não do tamanho da
+          # lista. É o único jeito imune ao teto de 200 linhas que a
+          # migration 0062 pôs no PostgREST: pedir as linhas e contar aqui
+          # pararia no ducentésimo cadastro e nunca mais subiria, sem nada
+          # avisando.
+          contar() {
+            curl -sS -D - -o /dev/null \
+              "$URL/rest/v1/professionals_public?select=id&$1" \
+              -H "apikey: $CHAVE" -H "Authorization: Bearer $CHAVE" \
+              -H "Range: 0-0" -H "Prefer: count=exact" \
+            | tr -d '\r' | awk -F'/' '/^[Cc]ontent-[Rr]ange:/ {print $2}'
+          }
+
+          hoje=$(date -u +%Y-%m-%d)
+          ha7=$(date -u -d '7 days ago' +%Y-%m-%d)
+          ha30=$(date -u -d '30 days ago' +%Y-%m-%d)
+
+          total=$(contar "id=not.is.null")
+          semana=$(contar "created_at=gte.$ha7")
+          mes=$(contar "created_at=gte.$ha30")
+          selo=$(contar "verified=is.true")
+
+          # Os 15 mais recentes, para ver gente de verdade e não só um número.
+          curl -sS -o /tmp/recentes.json \
+            "$URL/rest/v1/professionals_public?select=name,city,category,verified,created_at&order=created_at.desc&limit=15" \
+            -H "apikey: $CHAVE" -H "Authorization: Bearer $CHAVE"
+
+          # Todas as datas, para o desenho dia a dia.
+          #
+          # Um total sozinho não distingue "entra gente toda semana" de
+          # "entrou tudo de uma vez e parou" — e as duas pedem coisas
+          # opostas de quem cuida do app. O desenho por dia mostra qual é.
+          #
+          # `limit=1000` esbarraria no teto de 200 do PostgREST se um dia
+          # houver mais que isso; por ora são dezenas, e o cabeçalho contado
+          # acima é quem manda no total. Quando passar de 200, esta parte
+          # precisa paginar (é o que o `lerTudo` do app faz).
+          curl -sS -o /tmp/datas.json \
+            "$URL/rest/v1/professionals_public?select=created_at&order=created_at.desc&limit=200" \
+            -H "apikey: $CHAVE" -H "Authorization: Bearer $CHAVE"
+
+          # Tem gente ENTRANDO no site, ou só parou de chegar?
+          #
+          # É a pergunta que separa "o cadastro quebrou" de "ninguém veio".
+          # As duas dão o mesmo zero de cadastros novos, e pedem coisas
+          # opostas: uma é conserto, a outra é divulgação.
+          #
+          # `profile_views` não pode ser lida por visitante — a policy só
+          # deixa o dono ver as visitas do próprio anúncio, o que é certo.
+          # A porta que existe é `mais_vistos`, uma função `security
+          # definer` liberada para `anon` na 0059. Ela devolve quem passou
+          # de 3 visitas no período.
+          #
+          # O erro é separado do vazio de propósito. Se a 0059 nunca foi
+          # aplicada, a função não existe e a chamada dá erro — e ler esse
+          # erro como "ninguém visitou" seria a mentira mais calma
+          # possível: a tela pareceria normal e o defeito não apareceria em
+          # lugar nenhum.
+          visitados() {
+            local codigo
+            codigo=$(curl -sS -o /tmp/vis.json -w "%{http_code}" \
+              -X POST "$URL/rest/v1/rpc/mais_vistos" \
+              -H "apikey: $CHAVE" -H "Authorization: Bearer $CHAVE" \
+              -H "Content-Type: application/json" \
+              -d "{\"dias\": $1, \"quantos\": 200}") || true
+            if [ "$codigo" != "200" ]; then
+              echo "ERRO($codigo): $(head -c 200 /tmp/vis.json | tr -d '\n')"
+            else
+              jq -r 'length' /tmp/vis.json
+            fi
+          }
+
+          vis7=$(visitados 7)
+          vis30=$(visitados 30)
+
+          primeiro=$(jq -r 'sort_by(.created_at) | .[0].created_at[0:10] // "—"' /tmp/datas.json)
+          ultimo=$(jq -r '.[0].created_at[0:10] // "—"' /tmp/datas.json)
+          dias_parado=$(( ( $(date -u +%s) - $(date -u -d "$ultimo" +%s) ) / 86400 ))
+
+          {
+            echo "## Cadastros no ar em $hoje"
+            echo
+            echo "| | |"
+            echo "|---|---|"
+            echo "| **Aparecendo na busca agora** | **$total** |"
+            echo "| Entraram nos últimos 7 dias | $semana |"
+            echo "| Entraram nos últimos 30 dias | $mes |"
+            echo "| Com selo de verificado | $selo |"
+            echo
+            if [ "${semana:-0}" = "0" ]; then
+              echo "**Ninguém novo nos últimos 7 dias.** O último entrou em"
+              echo "$ultimo — faz $dias_parado dia(s)."
+            else
+              echo "**Continua entrando gente:** $semana cadastro(s) nos últimos 7 dias."
+            fi
+            echo
+            echo "### Ainda entra gente no site?"
+            echo
+            echo "| Período | Cadastros com 3+ visitas |"
+            echo "|---|---|"
+            echo "| Últimos 7 dias | $vis7 |"
+            echo "| Últimos 30 dias | $vis30 |"
+            echo
+            echo "> Se aqui aparecer **ERRO**, a conta não foi feita — não leia"
+            echo "> como \"ninguém visitou\". Zero de verdade quer dizer que nenhum"
+            echo "> cadastro passou de 3 visitas no período."
+            echo
+            echo "### Dia a dia"
+            echo
+            echo "Do primeiro ($primeiro) ao último ($ultimo). Cada ▇ é um cadastro."
+            echo
+            echo '```'
+            jq -r 'group_by(.created_at[0:10]) | sort_by(.[0].created_at) | reverse | .[]
+                   | "\(.[0].created_at[0:10])  \(length | tostring | (" " * (3 - length)) + .)  \("▇" * length)"' /tmp/datas.json
+            echo '```'
+            echo
+            echo "### Os últimos que entraram"
+            echo
+            echo "| Nome | Cidade | Serviço | Selo | Entrou em |"
+            echo "|---|---|---|---|---|"
+            jq -r '.[] | "| \(.name // "—") | \(.city // "—") | \(.category // "—") | \(if .verified then "sim" else "não" end) | \(.created_at[0:10]) |"' /tmp/recentes.json
+            echo
+            echo "> Esta conta usa a mesma chave pública do site: o que está aqui"
+            echo "> está no ar. Cadastro pausado pelo dono ou suspenso pela"
+            echo "> administração não aparece nesta lista — para esses, o lugar"
+            echo "> é o painel administrativo do app."
+          } >> "$GITHUB_STEP_SUMMARY"
+
+          # O mesmo no log, para quem estiver lendo por aqui.
+          echo "Total no ar: $total | 7 dias: $semana | 30 dias: $mes | com selo: $selo"
+          echo "Primeiro: $primeiro | Último: $ultimo | parado ha $dias_parado dia(s)"
+          echo "Cadastros com 3+ visitas — 7 dias: $vis7 | 30 dias: $vis30"
+          jq -r 'group_by(.created_at[0:10]) | sort_by(.[0].created_at) | reverse | .[]
+                 | "\(.[0].created_at[0:10])  \(length)"' /tmp/datas.json
+          jq -r '.[] | "\(.created_at[0:10])  \(.name)  —  \(.city)  —  \(.category)"' /tmp/recentes.json

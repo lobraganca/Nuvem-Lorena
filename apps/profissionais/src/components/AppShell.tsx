@@ -58,6 +58,17 @@ function IconUser() {
   );
 }
 
+/* Só existe pelo app da loja: no lugar de "Anúncios" nesse modo. Mesmo
+   traço das outras (viewBox 24, stroke 2), para não destoar do resto da
+   barra — é um substituto, não um item de segunda categoria. */
+function IconCoracao() {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M12 20.5s-7.5-4.6-9.7-9.1C.9 8.2 2.2 5 5.4 4.2 7.6 3.6 9.8 4.6 12 7c2.2-2.4 4.4-3.4 6.6-2.8 3.2.8 4.5 4 3.1 7.2C19.5 15.9 12 20.5 12 20.5Z" />
+    </svg>
+  );
+}
+
 function NavItem({
   to,
   label,
@@ -341,7 +352,9 @@ export function AppShell({ children }: { children: ReactNode }) {
           trabalho: "Anúncios" leva a banners pagos e "Buscar" era A ação do
           produto antigo.
 
-          A nova é por papel e tem três itens. Ver NavegacaoEi.tsx. */}
+          A nova é por papel: quem trabalha tem Vagas, Avisos, Meu perfil e
+          Conta; quem contrata tem Minhas vagas, Profissionais e Empresa.
+          Ver NavegacaoEi.tsx. */}
       <NavegacaoEi />
     </>
   );
