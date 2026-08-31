@@ -1463,3 +1463,21 @@
   border-radius: 0;
   background: var(--ei-acao);
 }
+
+/* A barra dos passos do cadastro, na faixa branca do cabeçalho. */
+.ei-passos-faixa {
+  background: var(--ei-papel);
+  padding-top: 2px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid var(--ei-fio);
+}
+
+/* O pé do cadastro em etapas: a ação principal em cima, e as saídas
+   embaixo dela, em texto. Empilhados e com folga entre si — lado a lado,
+   "Voltar" e "Continuar" têm o mesmo peso, e o dedo erra. */
+.ei-pe-etapas {
+  display: grid;
+  gap: 6px;
+  margin-top: 20px;
+  padding-bottom: 8px;
+}

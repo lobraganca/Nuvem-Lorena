@@ -65,6 +65,44 @@ export function MeuPerfilPage() {
      jogo é a chance de ser chamada para trabalhar. */
   const [salvo, setSalvo] = useState(false);
 
+  /* ── O CADASTRO EM ETAPAS ─────────────────────────────────────────────
+     A dona: "o cadastro do usuário, pode ser por etapa, acho que fica mais
+     fácil de visualização."
+
+     Esta tela tem 3.900px de altura: cinco seções, cinquenta campos e um
+     Salvar lá no fim. Para quem já tem cadastro e veio trocar o bairro,
+     isso é o certo — a pessoa rola até o campo e mexe. Para quem está
+     preenchendo pela PRIMEIRA vez, é uma parede: não dá para ver quanto
+     falta, não há onde parar, e a única confirmação de que valeu a pena
+     está a quatro telas de distância.
+
+     Então: quem ainda NÃO tem cadastro vê uma seção por vez, com a barra
+     de passos em cima. Quem já tem continua vendo a tela inteira. É a
+     mesma tela, e o que muda é só quanto dela aparece de cada vez.
+
+     E isto finalmente cumpre o "Passo 1 de 4" que a tela de entrar na
+     conta promete desde sempre: lá é o passo 1, aqui são o 2, o 3 e o 4.
+     Até agora os passos 2 a 4 não existiam — a promessa quebrava na
+     primeira tela depois dela. */
+  const [etapa, setEtapa] = useState(1);
+
+  /* Cadastro novo é o que ainda não tem linha no banco. Depois do primeiro
+     Salvar a tela vira a de edição sozinha, que é o que a pessoa espera:
+     ela terminou o cadastro, agora está mexendo nele. */
+  const emEtapas = !perfil.id;
+
+  /* O nome do passo tem que casar com o que está NA TELA. "O que você
+     faz" anunciava um passo que abre em "Seus dados" — pequeno, mas é o
+     tipo de desencontro que faz a pessoa achar que pulou alguma coisa. */
+  const ETAPAS = [
+    "Você e o que faz",
+    "Sua experiência",
+    "Quando receber vaga",
+  ];
+
+  /** Esta seção aparece agora? Fora do modo de etapas, todas aparecem. */
+  const mostra = (n: number) => !emEtapas || etapa === n;
+
   const { disponivel, oculto, funcoes } = perfil;
   const setDisponivel = (v: boolean) => setPerfil((p) => ({ ...p, disponivel: v }));
   const setOculto = (v: boolean) => setPerfil((p) => ({ ...p, oculto: v }));
@@ -252,16 +290,34 @@ export function MeuPerfilPage() {
         {/* Era a única tela principal sem o cabeçalho de página — sem
             migalha, sem ícone, e com o título centralizado enquanto todas
             as outras alinham à esquerda. */}
-        <Pagina titulo="Meu perfil" />
+        <Pagina titulo={emEtapas ? "Seu cadastro" : "Meu perfil"} />
         <p className="ei-apoio ei-margem" style={{ paddingBottom: 6 }}>
-          É por ele que as vagas chegam até você.
+          {emEtapas
+            ? `Passo ${etapa + 1} de 4 · ${ETAPAS[etapa - 1]}`
+            : "É por ele que as vagas chegam até você."}
         </p>
+
+        {/* A barra dos passos. Começa em 2 de 4 porque o passo 1 é a tela
+            de entrar na conta — a promessa que ela faz há muito tempo e
+            que só agora tem para onde ir. */}
+        {emEtapas && (
+          <div className="ei-margem ei-passos-faixa">
+            <div className="passos-barra" aria-hidden="true">
+              <div
+                className="passos-preenchido"
+                style={{ width: `${((etapa + 1) / 4) * 100}%` }}
+              />
+            </div>
+          </div>
+        )}
 
         {/* ── 0. Quem é você ───────────────────────────────────────────
             Nome, telefone e e-mail, que a dona pediu por escrito e não
             existiam nesta tela. O nome é o que a empresa lê primeiro; o
             telefone é como ela chama. Sem os dois, o cadastro não serve
             para nada — por isso vêm antes de tudo. */}
+        {mostra(1) && (
+        <>
         <h2 className="ei-secao">Seus dados</h2>
         <div className="ei-cartao" style={{ display: "grid", gap: 12 }}>
           <div className="ei-campo">
@@ -324,6 +380,11 @@ export function MeuPerfilPage() {
             entre "Seus dados" e "O que você aceita fazer", sem dizer do que
             tratavam. Num app em que toda seção se anuncia, a que não se
             anuncia parece sobra da seção anterior. */}
+        </>
+        )}
+
+        {mostra(3) && (
+        <>
         <h2 className="ei-secao">Quando você quer receber vaga</h2>
         <div className="ei-lista">
           <div className="ei-cartao" style={{ padding: 0 }}>
@@ -368,7 +429,12 @@ export function MeuPerfilPage() {
           </p>
         </div>
 
+        </>
+        )}
+
         {/* ── 2. Funções ───────────────────────────────────────────────── */}
+        {mostra(1) && (
+        <>
         <h2 className="ei-secao">O que você aceita fazer</h2>
         <div className="ei-cartao">
           <p className="ei-apoio" style={{ marginBottom: 12 }}>
@@ -478,7 +544,12 @@ export function MeuPerfilPage() {
           )}
         </div>
 
+        </>
+        )}
+
         {/* ── 3. Experiências ──────────────────────────────────────────── */}
+        {mostra(2) && (
+        <>
         <h2 className="ei-secao">Onde você já trabalhou</h2>
         <div className="ei-cartao">
           {experiencias.length === 0 && (
@@ -654,6 +725,9 @@ export function MeuPerfilPage() {
           </button>
         </div>
 
+        </>
+        )}
+
         {/* O aviso de que deu certo, e o de que não deu.
             ───────────────────────────────────────────────
             O botão não tinha ação nenhuma; agora tem, e avisa nos dois
@@ -667,7 +741,6 @@ export function MeuPerfilPage() {
         )}
         {salvo && !erro && (
           <div className="ei-callout" style={{ marginTop: 16 }}>
-            <span className="ei-callout-emoji" aria-hidden="true">✅</span>
             <span className="ei-callout-texto">
               <strong>Perfil salvo.</strong>{" "}
               {funcoes.length === 0
@@ -679,15 +752,68 @@ export function MeuPerfilPage() {
           </div>
         )}
 
-        <div className="ei-margem" style={{ marginTop: 20 }}>
-          <button
-            type="button"
-            className="ei-btn ei-btn-cheio ei-btn-largo ei-btn-alto"
-            disabled={salvando}
-            onClick={salvar}
-          >
-            {salvando ? "Salvando…" : "Salvar"}
-          </button>
+        {/* O pé da tela.
+            ─────────────
+            Em etapas ele é "Voltar / Continuar", e só o ÚLTIMO passo
+            salva. Salvar no meio do caminho gravaria um cadastro pela
+            metade — e, pior, o aviso de "perfil salvo" apareceria antes de
+            a pessoa ter dito o que faz.
+
+            O passo da experiência tem "Pular": ele é opcional por
+            definição, e um passo obrigatório que não tem resposta é onde
+            se perde quem está começando agora. */}
+        <div className="ei-margem ei-pe-etapas">
+          {emEtapas ? (
+            <>
+              {etapa < 3 ? (
+                <button
+                  type="button"
+                  className="ei-btn ei-btn-cheio ei-btn-largo ei-btn-alto"
+                  onClick={() => setEtapa((n) => n + 1)}
+                >
+                  Continuar
+                </button>
+              ) : (
+                <button
+                  type="button"
+                  className="ei-btn ei-btn-cheio ei-btn-largo ei-btn-alto"
+                  disabled={salvando}
+                  onClick={salvar}
+                >
+                  {salvando ? "Salvando…" : "Terminar cadastro"}
+                </button>
+              )}
+
+              {etapa === 2 && (
+                <button
+                  type="button"
+                  className="ei-btn ei-btn-texto ei-btn-largo"
+                  onClick={() => setEtapa(3)}
+                >
+                  Pular por enquanto
+                </button>
+              )}
+
+              {etapa > 1 && (
+                <button
+                  type="button"
+                  className="ei-btn ei-btn-texto ei-btn-largo"
+                  onClick={() => setEtapa((n) => n - 1)}
+                >
+                  Voltar
+                </button>
+              )}
+            </>
+          ) : (
+            <button
+              type="button"
+              className="ei-btn ei-btn-cheio ei-btn-largo ei-btn-alto"
+              disabled={salvando}
+              onClick={salvar}
+            >
+              {salvando ? "Salvando…" : "Salvar"}
+            </button>
+          )}
         </div>
       </div>
     </div>
