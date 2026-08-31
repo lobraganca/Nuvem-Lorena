@@ -12,6 +12,7 @@ import {
 import { pedirPermissaoDePush, pushServeAqui, situacaoDaPermissao } from "../lib/push";
 import { getProfile } from "../lib/profiles";
 import { Abas, Callout, Pagina } from "../components/ei/Pagina";
+import { nomeDoContrato, salarioEmTexto } from "../types/domain";
 
 /**
  * "Vagas para você" — o que chegou para este profissional.
@@ -302,6 +303,20 @@ export function VagasParaMimPage() {
                     <h3 className="ei-cartao-titulo ei-duas-linhas">{v.vaga.title}</h3>
                   </div>
 
+                  {/* O SALÁRIO no cartão, antes da descrição.
+                      ─────────────────────────────────────────
+                      O cartão não mostrava salário nenhum — a pessoa
+                      percorria a lista inteira sem a informação que mais
+                      decide se ela abre a vaga. */}
+                  <p className="ei-linha-sub" style={{ marginTop: 8 }}>
+                    <strong style={{ fontWeight: 600, color: "var(--ei-tinta)" }}>
+                      {salarioEmTexto(v.vaga) ?? "Salário não informado"}
+                    </strong>
+                    {nomeDoContrato(v.vaga.tipo_contrato) && (
+                      <> · {nomeDoContrato(v.vaga.tipo_contrato)}</>
+                    )}
+                  </p>
+
                   {v.vaga.description && (
                     /* Duas linhas e para. Sem o corte, uma vaga bem escrita
                        enchia meio cartão de parágrafo e empurrava o botão
@@ -311,6 +326,18 @@ export function VagasParaMimPage() {
                       {v.vaga.description}
                     </p>
                   )}
+
+                  {/* O caminho para a vaga inteira. Sem ele, o cartão era
+                      tudo o que existia: a pessoa decidia com a descrição
+                      cortada em duas linhas e sem ver horário, benefício
+                      nem o resto do que a empresa escreveu. */}
+                  <Link
+                    to={`/vaga-aberta/${v.vaga.id}`}
+                    className="ei-btn-inline"
+                    style={{ display: "inline-block", marginTop: 10 }}
+                  >
+                    Ver a vaga inteira
+                  </Link>
 
                   {/* Duas etiquetas no máximo. Eram três e enchiam a linha
                       inteira, quebrando para uma segunda fileira — mais um

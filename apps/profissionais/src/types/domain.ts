@@ -867,6 +867,118 @@ export interface JobListing {
   status: "active" | "paused" | "closed";
   created_at: string;
   closed_at: string | null;
+
+  /* ── O que a vaga passou a dizer (migration 0080) ──────────────────
+     A dona: "tem que ter todos os campos descritos."
+
+     São as três perguntas que decidem se alguém responde, e nenhuma delas
+     existia: se é registrado, que horário, e se tem benefício. Sem elas,
+     quem procura só descobria no telefonema — e o telefonema é o que o app
+     existe para não desperdiçar.
+
+     Aceitam nulo porque as vagas antigas não têm. Quem exige é o
+     formulário, que sabe apontar QUAL campo faltou; um `not null` recusaria
+     com um erro do banco, sem dizer qual. */
+  tipo_contrato: TipoContrato | null;
+  jornada: Jornada | null;
+  beneficios: string[];
+  /** "A combinar" é uma resposta escrita, e é diferente de campo em branco:
+      em branco some da tela e vira indistinguível de esquecimento. */
+  salario_a_combinar: boolean;
+}
+
+export type TipoContrato =
+  | "clt"
+  | "temporario"
+  | "diaria"
+  | "freelance"
+  | "estagio"
+  | "aprendiz";
+
+export type Jornada =
+  | "integral"
+  | "meio_periodo"
+  | "turnos"
+  | "fins_de_semana"
+  | "a_combinar";
+
+/* Os nomes em português moram AQUI, e não em cada tela.
+   ─────────────────────────────────────────────────────
+   A empresa escolhe numa tela e a pessoa lê em outra. Com a tradução
+   escrita duas vezes, uma delas envelhece — e o app passa a chamar a mesma
+   coisa por dois nomes, sem nada quebrando para avisar. */
+export const TIPOS_DE_CONTRATO: Array<{ valor: TipoContrato; nome: string }> = [
+  { valor: "clt", nome: "Registrado em carteira (CLT)" },
+  { valor: "temporario", nome: "Temporário" },
+  { valor: "diaria", nome: "Diária" },
+  { valor: "freelance", nome: "Freelance / por conta própria" },
+  { valor: "estagio", nome: "Estágio" },
+  { valor: "aprendiz", nome: "Jovem aprendiz" },
+];
+
+export const JORNADAS: Array<{ valor: Jornada; nome: string }> = [
+  { valor: "integral", nome: "Integral (o dia todo)" },
+  { valor: "meio_periodo", nome: "Meio período" },
+  { valor: "turnos", nome: "Por turno ou escala" },
+  { valor: "fins_de_semana", nome: "Fins de semana" },
+  { valor: "a_combinar", nome: "A combinar" },
+];
+
+/* Os benefícios que aparecem como sugestão. A empresa pode escrever outros:
+   a lista é atalho, não gaiola — "cesta básica" e "plano odontológico"
+   existem em Itabirito e não caberiam numa lista fechada. */
+export const BENEFICIOS_SUGERIDOS = [
+  "Vale-transporte",
+  "Vale-refeição",
+  "Vale-alimentação",
+  "Almoço no local",
+  "Plano de saúde",
+  "Comissão",
+  "Adiantamento quinzenal",
+];
+
+export function nomeDoContrato(v: TipoContrato | null): string | null {
+  return TIPOS_DE_CONTRATO.find((t) => t.valor === v)?.nome ?? null;
+}
+
+export function nomeDaJornada(v: Jornada | null): string | null {
+  return JORNADAS.find((j) => j.valor === v)?.nome ?? null;
+}
+
+/**
+ * O salário, escrito como a pessoa lê.
+ *
+ * Devolve `null` só quando não há resposta nenhuma — e aí a tela diz isso
+ * com todas as letras, em vez de omitir a linha. Salário ausente é a
+ * informação que mais faz gente não responder a uma vaga; escondê-la não a
+ * torna menos ausente, só torna a vaga mais suspeita.
+ */
+export function salarioEmTexto(v: {
+  salario_a_combinar: boolean;
+  salary_range_min: number | null;
+  salary_range_max: number | null;
+}): string | null {
+  if (v.salario_a_combinar) return "A combinar";
+  /* DIVIDIR POR 100. As colunas guardam CENTAVOS — o formulário grava
+     `valor * 100`. Sem esta divisão, um salário de R$ 1.800 aparecia como
+     "R$ 180.000" na tela de quem procura: cem vezes maior, com cara de
+     número real, e sem nada quebrando para avisar. Passou pela conferência
+     de tipos e pelo build; só apareceu ao abrir a tela. */
+  const reais = (n: number) =>
+    (n / 100).toLocaleString("pt-BR", {
+      style: "currency",
+      currency: "BRL",
+      maximumFractionDigits: 0,
+    });
+  const { salary_range_min: min, salary_range_max: max } = v;
+  if (min != null && max != null) {
+    /* Mínimo igual ao máximo é salário FIXO, e escrever "de R$ 2.000 a
+       R$ 2.000" faz a empresa parecer que não sabe o que paga. */
+    return min === max ? reais(min) : `${reais(min)} a ${reais(max)}`;
+  }
+  if (min != null) return `A partir de ${reais(min)}`;
+  if (max != null) return `Até ${reais(max)}`;
+  return null;
 }
 
 /** Onda de disparo (onda 1, 2 ou 3). */

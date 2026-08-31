@@ -44,6 +44,13 @@ export async function vagasParaMim(userId: string): Promise<VagaParaMim[]> {
   const sb = supabase();
   if (!sb) return [];
 
+  /* A lista de colunas é escrita à mão, uma a uma. Coluna nova que
+     ninguém acrescente aqui chega como indefinida, sem nenhum erro para
+     avisar — e o cartão passaria a dizer "Salário não informado" em toda
+     vaga. As quatro do fim são da 0080.
+
+     E o comentário fica AQUI FORA: dentro da string ele viraria parte da
+     consulta, e o PostgREST recusaria tudo. */
   const { data, error } = await sb
     .from("job_notifications")
     .select(
@@ -53,6 +60,7 @@ export async function vagasParaMim(userId: string): Promise<VagaParaMim[]> {
          required_experience, skills, salary_range_min, salary_range_max,
          available_immediately, work_modality, city, uf, neighborhood,
          anunciada_ate, status, created_at, closed_at,
+         tipo_contrato, jornada, beneficios, salario_a_combinar,
          companies!inner ( company_name, photo_url )
        )`
     )

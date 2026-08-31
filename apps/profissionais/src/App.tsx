@@ -52,6 +52,11 @@ const VagasParaMimPage = lazy(importarPagina(() => import("./pages/VagasParaMimP
 const PlanosEmpresaPage = lazy(importarPagina(() => import("./pages/PlanosEmpresaPage").then((m) => ({ default: m.PlanosEmpresaPage }))));
 const DetalheVagaPage = lazy(importarPagina(() => import("./pages/DetalheVagaPage").then((m) => ({ default: m.DetalheVagaPage }))));
 const PerfilPublicoPage = lazy(importarPagina(() => import("./pages/PerfilPublicoPage").then((m) => ({ default: m.PerfilPublicoPage }))));
+/* A vaga vista por QUEM PROCURA. É outra tela que a `/vaga/:id`, que é o
+   painel de quem anunciou (ondas, alcance, lista de interessados). Antes só
+   existia a do anunciante — a pessoa decidia se queria a vaga sem nunca ter
+   lido a vaga inteira. */
+const VagaAbertaPage = lazy(importarPagina(() => import("./pages/ei/VagaAbertaPage").then((m) => ({ default: m.VagaAbertaPage }))));
 
 
 /**
@@ -253,6 +258,7 @@ export default function App() {
             gratuita da oferta da empresa — ver e falar um a um — e não
             existia: a lista não levava a lugar nenhum. */}
         <Route path="/profissional/:id" element={<PerfilPublicoPage />} />
+        <Route path="/vaga-aberta/:id" element={<VagaAbertaPage />} />
 
         {/* Conta e documentos */}
         <Route path="/perfil" element={<PerfilPage />} />

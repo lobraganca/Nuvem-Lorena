@@ -124,6 +124,15 @@ const VAGAS: Linha[] = [
     required_experience: "2 anos",
     work_modality: "presencial",
     available_immediately: true,
+    /* As colunas da 0080, com os TRÊS casos de salário na mesma lista:
+       faixa, valor fixo e "a combinar". Sem os três, o teste exercitaria um
+       caminho só e diria que está tudo certo. */
+    tipo_contrato: "diaria",
+    jornada: "integral",
+    beneficios: ["Almoço no local", "Vale-transporte"],
+    salario_a_combinar: false,
+    salary_range_min: 18000,
+    salary_range_max: 25000,
   },
   {
     title: "Ajudante de cozinha",
@@ -133,6 +142,12 @@ const VAGAS: Linha[] = [
     required_experience: "",
     work_modality: "presencial",
     available_immediately: false,
+    tipo_contrato: "clt",
+    jornada: "turnos",
+    beneficios: ["Vale-transporte"],
+    salario_a_combinar: false,
+    salary_range_min: 180000,
+    salary_range_max: 180000,
   },
   {
     title: "Motorista entregador",
@@ -142,6 +157,10 @@ const VAGAS: Linha[] = [
     required_experience: "1 ano",
     work_modality: "presencial",
     available_immediately: true,
+    tipo_contrato: "clt",
+    jornada: "integral",
+    beneficios: [],
+    salario_a_combinar: true,
   },
 ].slice(0, QUANTAS_VAGAS).map((v, i) => ({
   id: `vaga-${i}`,
@@ -327,6 +346,10 @@ class Consulta implements PromiseLike<{ data: Linha[] | Linha | null; error: unk
   gte(c: string, v: string) { this.filtros.push((l) => String(l[c] ?? "") >= v); return this; }
   lte(c: string, v: string) { this.filtros.push((l) => String(l[c] ?? "") <= v); return this; }
   in(c: string, vs: unknown[]) { this.filtros.push((l) => vs.includes(l[c])); return this; }
+  /* Uma porta para o teste pôr um filtro que o falso não tem método para
+     exprimir — hoje, a especialidade da onda 1. */
+  filtroExtra(f: Filtro) { this.filtros.push(f); return this; }
+
   overlaps(c: string, vs: unknown[]) {
     this.filtros.push((l) => vs.some((v) => (l[c] as unknown[] | undefined)?.includes(v)));
     return this;
@@ -496,7 +519,39 @@ if (typeof window !== "undefined") {
 
 const clienteFalso = {
   from: (tabela: string) => new Consulta(tabela),
-  rpc: async (nome: string) => {
+  rpc: (nome: string, args?: Record<string, unknown>) => {
+    /* `candidatos_da_onda` devolve um CONJUNTO, e o cliente de verdade
+       devolve um construtor de consulta para ele — com `.range()`, que é o
+       que a `lerTudo` chama para ler em páginas.
+
+       O falso devolvia uma promessa simples para todo `rpc`, e o efeito era
+       "fazerConsulta(...).range is not a function" na tela de criar vaga.
+       Parecia defeito do app; era o falso não sabendo imitar essa metade do
+       cliente. */
+    if (nome === "candidatos_da_onda") {
+      const oficios = (args?.p_oficios as string[]) ?? [];
+      const coluna = (args?.p_coluna as string) ?? "categories";
+      const especialidade = ((args?.p_especialidade as string) ?? "").toLowerCase();
+      const q = new Consulta("professionals");
+      /* O que a função do banco faz: mesma cidade, não suspenso, telefone
+         confirmado — e SEM filtrar `paused`, que é a regra inteira da
+         migration 0077. */
+      return q
+        .eq("city", args?.p_cidade)
+        .eq("suspended", false)
+        .eq("whatsapp_verified", true)
+        .overlaps(coluna, oficios)
+        .filtroExtra((l: Linha) =>
+          !especialidade ||
+          String((l as Record<string, unknown>).especialidade ?? "")
+            .toLowerCase()
+            .includes(especialidade)
+        );
+    }
+    return clienteFalso.rpcSimples(nome);
+  },
+
+  rpcSimples: async (nome: string) => {
     if (nome === "mais_vistos") {
       // os quatro primeiros, como se fossem os mais vistos da semana
       return { data: professionals.slice(0, 4).map((p) => ({ professional_id: p.id })), error: null };
