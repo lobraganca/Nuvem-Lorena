@@ -33,6 +33,11 @@
  * - **Com o app aberto na frente**, nunca troca sozinho. A ronda de hora em
  *   hora e o `focus` continuam só avisando; ninguém pode ter a tela trocada
  *   debaixo do dedo.
+ *
+ * A quarta, de hoje, acrescenta a PRIMEIRA CARGA à lista de momentos em que
+ * troca sozinho — ver o comentário de `aplicarSozinho`. Quem abre o site no
+ * navegador não estava coberto por nada: a troca dependia da transição
+ * "segundo plano → voltou", que numa aba recém-aberta nunca acontece.
  */
 
 import { ehAppDaLoja } from "./plataforma";
@@ -217,11 +222,33 @@ export function cuidarDasAtualizacoes() {
   }
 
   let recarregando = false;
-  /* Liga só depois de a aba voltar do segundo plano. Na primeira carga
-     fica desligado: se o app abrir já com uma versão esperando, trocar
-     antes de a pessoa ver qualquer coisa faria a tela piscar duas vezes na
-     abertura, que é onde a impressão de app quebrado se forma. */
-  let aplicarSozinho = false;
+  /* ── A QUARTA VOLTA: A PRIMEIRA CARGA TAMBÉM TROCA ───────────────────
+     Isto começava DESLIGADO na primeira carga, e o motivo estava escrito
+     aqui: trocar antes de a pessoa ver qualquer coisa faz a tela piscar
+     duas vezes na abertura, "que é onde a impressão de app quebrado se
+     forma".
+
+     O argumento é real, mas o outro lado é pior e já foi medido — está no
+     cabeçalho deste mesmo arquivo: "a dona do app continuava vendo a tela
+     de três horas antes — três vezes numa semana, cada uma delas
+     terminando em 'não mudou nada'". Aconteceu de novo hoje, com o site
+     comprovadamente publicado: o log do workflow mostrou o servidor
+     trocando de commit no meio da execução, e a resposta foi "não vi
+     alteração nenhuma no site".
+
+     Quem abre o site no navegador — não o app instalado — não estava
+     coberto por nada: a troca automática dependia da transição "segundo
+     plano → voltou", que numa aba recém-aberta nunca acontece. Sobrava só
+     o aviso com o botão "Atualizar", e o cabeçalho deste arquivo já
+     explica por que um aviso não basta: "um aviso que depende de alguém
+     notar e tocar não é atualização".
+
+     Trocar na primeira carga é seguro pelo mesmo motivo de sempre: quem
+     decide continua sendo `podeTrocarDeVersaoAgora()`, e na abertura não
+     há nada digitado, nenhuma folha aberta e ninguém no meio do cadastro
+     — então ele diz sim, e o custo real é um piscar, uma vez, contra a
+     pessoa concluir que o conserto não foi feito. */
+  let aplicarSozinho = true;
   navigator.serviceWorker.addEventListener("controllerchange", () => {
     if (recarregando) return;
     recarregando = true;
