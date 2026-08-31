@@ -570,13 +570,25 @@
 .ei-selo-cinza { background: var(--ei-afunda-forte); color: var(--ei-tinta-fraca); }
 
 /* ── Chave liga/desliga ───────────────────────────────────────────── */
+/* A linha da chave é a linha INTEIRA, de ponta a ponta e com o mesmo recuo
+   lateral do resto da tela.
+
+   Ela vinha com `padding: 0` e ficava dentro de um `.ei-cartao` também
+   zerado à mão, então o rótulo começava a 15px enquanto todo o resto da
+   tela começa a 35px — as duas chaves de "Meu perfil" apareciam saltadas
+   para fora da margem, e a descrição passava por baixo do interruptor. Era
+   a única coisa desalinhada da tela.
+
+   O recuo mora aqui, e não no `.ei-cartao` em volta, porque assim a linha
+   toda é área de toque: numa chave, errar o alvo e não saber se mudou é
+   pior que em qualquer outro controle. */
 .ei-switch {
   display: flex;
   align-items: center;
   gap: 12px;
   background: none;
   border: none;
-  padding: 0;
+  padding: 14px 20px;
   font: inherit;
   cursor: pointer;
   color: inherit;
