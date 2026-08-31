@@ -7,7 +7,7 @@ import {
   recuperarSenha,
   signInWithGoogle,
 } from "../lib/auth";
-import { hasDatabase } from "../lib/supabase";
+import { hasDatabase, problemaDeConfiguracao } from "../lib/supabase";
 import { BotaoApple } from "../components/BotaoApple";
 import { BotaoGoogle } from "../components/BotaoGoogle";
 import { useTituloDaPagina } from "../lib/tituloDaPagina";
@@ -202,10 +202,40 @@ export function LoginPage() {
             : "Para receber vagas, ou publicar as suas."}
       </p>
 
+      {/* Quando o app nao consegue falar com o banco.
+          ─────────────────────────────────────────────
+          Isto apareceu NO AR, em 31/08, para qualquer pessoa que abrisse o
+          site: os dois botoes desligados e, no lugar da explicacao, a
+          frase "Configure VITE_SUPABASE_URL/ANON_KEY no Supabase para
+          habilitar a entrada".
+
+          Dois defeitos numa linha so.
+
+          O primeiro: e nome de variavel de programador, na PRIMEIRA tela
+          que um pedreiro de Itabirito ve. Ele nao tem o que fazer com
+          isso; so aprende que o app esta quebrado.
+
+          O segundo, e o pior, porque enganava quem PODIA consertar: as
+          variaveis nao ficam "no Supabase". Elas ficam nas variaveis de
+          ambiente do projeto na VERCEL, que e quem constroi o site — o
+          Supabase so entrega os valores. Quem seguisse a instrucao ia
+          procurar no lugar errado.
+
+          Agora: uma frase de gente para quem chegou, e a instrucao certa,
+          separada e endereçada a quem administra. */}
       {!hasDatabase() && (
-        <p className="muted" style={{ marginTop: 10 }}>
-          Configure VITE_SUPABASE_URL/ANON_KEY no Supabase para habilitar a entrada.
-        </p>
+        <div className="ei-callout ei-callout-atencao" style={{ marginTop: 12 }}>
+          <span className="ei-callout-texto">
+            <strong>O app não está conseguindo falar com o banco agora.</strong>{" "}
+            Por isso não dá para entrar. Tente de novo daqui a pouco.
+            <br />
+            <span className="ei-apoio" style={{ display: "block", marginTop: 8 }}>
+              Se você administra o app: {problemaDeConfiguracao()} Elas ficam nas
+              variáveis de ambiente do projeto na <strong>Vercel</strong> (não no
+              Supabase), e é preciso publicar de novo depois de salvar.
+            </span>
+          </span>
+        </div>
       )}
 
       {/* --- Telefone: o caminho principal ---------------------------- */}
