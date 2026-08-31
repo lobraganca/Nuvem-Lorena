@@ -961,6 +961,36 @@
 
 .ei-empresa-marca img { width: 100%; height: 100%; object-fit: cover; display: block; }
 
+/* ── O cabeçalho da empresa, na tela da vaga ──────────────────────────
+   A dona: "na tela da vaga é necessário ter a empresa com a logo. Bem
+   organizado. Empresa / Vaga / E especificações."
+
+   A empresa era uma LINHA da tabela de propriedades, do mesmo tamanho de
+   "Experiência" — e numa cidade pequena "que empresa é essa" é a primeira
+   pergunta, não a sexta. Aqui ela abre a tela, com a marca em 56px: grande
+   o bastante para reconhecer de relance uma padaria conhecida, pequeno o
+   bastante para não empurrar o título da vaga para fora da tela. */
+.ei-empresa-topo {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 16px 20px;
+  border-bottom: 1px solid var(--ei-fio);
+  text-decoration: none;
+  color: inherit;
+}
+
+.ei-empresa-topo .ei-empresa-marca {
+  width: 56px;
+  height: 56px;
+  font-size: 1.3rem;
+  color: var(--ei-tinta);
+}
+
+.ei-empresa-topo-texto { flex: 1; min-width: 0; display: grid; gap: var(--ei-e1); }
+.ei-empresa-topo-nome { font-size: 1.05rem; font-weight: 600; line-height: 1.3; }
+.ei-empresa-topo-onde { font-size: 0.85rem; color: var(--ei-tinta-fraca); line-height: 1.3; }
+
 /* ── Foto da pessoa, na Conta ─────────────────────────────────────── */
 .ei-foto {
   position: relative;

@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useNavigate, useParams } from "react-router-dom";
+import { Link, useNavigate, useParams } from "react-router-dom";
 import { useAuth } from "../../lib/useAuth";
 import { useTituloDaPagina } from "../../lib/tituloDaPagina";
 import { obterVaga } from "../../lib/company";
@@ -32,12 +32,26 @@ import {
  * Pedir mais campos à empresa sem esta tela seria pedir que ela escrevesse
  * para ninguém.
  *
- * ── A ordem das informações é a ordem da dúvida ───────────────────────
+ * ── Três blocos, nesta ordem ──────────────────────────────────────────
  *
- * Salário, contratação e horário primeiro — nesta ordem, e antes da
- * descrição. São as três perguntas que decidem se vale continuar lendo, e
- * enterrá-las embaixo de um parágrafo faz a pessoa desistir antes de
- * chegar nelas.
+ * A dona: "na tela da vaga é necessário ter a empresa com a logo. Bem
+ * organizado. Empresa / Vaga / E especificações."
+ *
+ *   1. EMPRESA   logo, nome e onde fica — abrindo a tela
+ *   2. VAGA      o título e o que a pessoa vai fazer
+ *   3. ESPECIFICAÇÕES  salário, contratação, horário, onde, experiência
+ *                      e benefícios, todos juntos
+ *
+ * A primeira versão desta tela era uma tabela só, e a empresa aparecia
+ * como mais uma linha dela — do mesmo tamanho de "Experiência", espremida
+ * entre o salário e o bairro. Numa cidade em que as pessoas se conhecem,
+ * "que empresa é essa" é a PRIMEIRA pergunta, e a resposta estava do
+ * tamanho da última.
+ *
+ * Dentro das especificações o salário vem primeiro: é o que decide se a
+ * pessoa continua lendo. E quando um dado falta, a linha aparece dizendo
+ * que falta, em vez de sumir — omitir o salário não o torna menos ausente,
+ * só torna a vaga mais suspeita.
  */
 export function VagaAbertaPage() {
   const { id } = useParams<{ id: string }>();
@@ -159,70 +173,114 @@ export function VagaAbertaPage() {
   return (
     <div className="ei">
       <div className="ei-tela">
-        <Pagina icone="💼" titulo={vaga.title} ondeEstou="Vagas">
-          <div className="ei-props">
-            <Prop rotulo="Empresa">
-              <span className="ei-uma-linha">{empresa?.nome || "Empresa"}</span>
-            </Prop>
+        {/* ── Três blocos, nesta ordem ───────────────────────────────────
+            A dona: "empresa / vaga / e especificações."
 
-            {/* Salário PRIMEIRO. É a pergunta que decide se a pessoa
-                continua lendo, e enterrá-la embaixo do parágrafo faz ela
-                desistir antes de chegar. Quando não há resposta nenhuma, a
-                linha aparece dizendo isso — omitir não torna o salário menos
-                ausente, só torna a vaga mais suspeita. */}
-            <Prop rotulo="Salário">
-              {salario ?? <span className="ei-apoio">A empresa não informou</span>}
-            </Prop>
+            Era tudo uma tabela só: a empresa aparecia como mais uma linha,
+            do mesmo tamanho de "Experiência", entre o salário e o bairro.
+            Numa cidade em que as pessoas se conhecem, "que empresa é essa"
+            é a PRIMEIRA pergunta — e a resposta estava do tamanho da
+            última. */}
+        <div className="ei-migalha">
+          <Link to="/">Ei Itabirito</Link>
+          <span aria-hidden="true">/</span>
+          <Link to="/vagas-para-mim">Vagas</Link>
+          <span aria-hidden="true">/</span>
+          <span className="ei-migalha-atual ei-uma-linha">{vaga.title}</span>
+        </div>
 
-            {contrato && <Prop rotulo="Contratação">{contrato}</Prop>}
-            {jornada && <Prop rotulo="Horário">{jornada}</Prop>}
+        {/* 1 — A EMPRESA, com a logo. Abre a tela. */}
+        <div className="ei-empresa-topo">
+          <span className="ei-empresa-marca" aria-hidden="true">
+            {empresa?.foto ? (
+              <img src={empresa.foto} alt="" />
+            ) : (
+              (empresa?.nome || "?").trim().charAt(0).toLocaleUpperCase("pt-BR")
+            )}
+          </span>
+          <span className="ei-empresa-topo-texto">
+            <span className="ei-empresa-topo-nome ei-uma-linha">
+              {empresa?.nome || "Empresa"}
+            </span>
+            <span className="ei-empresa-topo-onde ei-uma-linha">
+              {vaga.neighborhood ? `${vaga.neighborhood} · ` : ""}
+              {vaga.city}/{vaga.uf}
+            </span>
+          </span>
+        </div>
 
-            <Prop rotulo="Onde">
-              {vaga.work_modality === "remoto"
-                ? "De casa"
-                : vaga.work_modality === "hibrido"
-                  ? "Parte no local, parte de casa"
-                  : `${vaga.neighborhood ? vaga.neighborhood + " · " : ""}${vaga.city}/${vaga.uf}`}
-            </Prop>
-
-            <Prop rotulo="Experiência">
-              {vaga.required_experience || "Não precisa de experiência"}
-            </Prop>
-          </div>
-        </Pagina>
+        {/* 2 — A VAGA: o que é, e o que a pessoa vai fazer. */}
+        <h1 className="ei-titulo-g" style={{ paddingTop: 18 }}>
+          {vaga.title}
+        </h1>
 
         {vaga.available_immediately && (
           <Callout emoji="⚡">A empresa precisa de alguém para começar logo.</Callout>
         )}
 
         {vaga.description?.trim() && (
-          <>
-            <div className="ei-secao">
-              <h2>O que você vai fazer</h2>
-            </div>
-            {/* `white-space: pre-line` guarda as quebras que a empresa
-                escreveu. Sem isso, uma lista de tarefas escrita em linhas
-                vira um parágrafo corrido e ilegível. */}
-            <p className="ei-corpo ei-margem" style={{ whiteSpace: "pre-line" }}>
-              {vaga.description}
-            </p>
-          </>
+          /* `white-space: pre-line` guarda as quebras que a empresa
+             escreveu. Sem isso, uma lista de tarefas escrita em linhas vira
+             um parágrafo corrido e ilegível. */
+          <p className="ei-corpo ei-margem" style={{ whiteSpace: "pre-line" }}>
+            {vaga.description}
+          </p>
         )}
 
-        {vaga.beneficios?.length > 0 && (
-          <>
-            <div className="ei-secao">
-              <h2>Além do salário</h2>
-            </div>
-            <div className="ei-chips ei-margem">
-              {vaga.beneficios.map((b) => (
-                <span key={b} className="ei-selo ei-selo-verde">
-                  {b}
-                </span>
-              ))}
-            </div>
-          </>
-        )}
+        {/* 3 — AS ESPECIFICAÇÕES, todas juntas e com título próprio.
+            Salário em primeiro: é a pergunta que decide se a pessoa
+            continua lendo. Quando não há resposta nenhuma, a linha aparece
+            dizendo isso — omitir não torna o salário menos ausente, só
+            torna a vaga mais suspeita. */}
+        <div className="ei-secao">
+          <h2>Especificações</h2>
+        </div>
+        <div className="ei-props">
+          <Prop rotulo="Salário">
+            {salario ?? <span className="ei-apoio">A empresa não informou</span>}
+          </Prop>
+
+          <Prop rotulo="Contratação">
+            {contrato ?? <span className="ei-apoio">A empresa não informou</span>}
+          </Prop>
+
+          <Prop rotulo="Horário">
+            {jornada ?? <span className="ei-apoio">A empresa não informou</span>}
+          </Prop>
+
+          {/* O JEITO de trabalhar, e não o endereço.
+              ────────────────────────────────────────
+              O endereço já está embaixo do nome da empresa, ali em cima —
+              e repetir "Centro · Itabirito/MG" a dez linhas de distância
+              não acrescenta nada, só faz a lista parecer mais cheia do que
+              é. O que falta saber aqui é se a pessoa vai até lá todo dia. */}
+          <Prop rotulo="Trabalho">
+            {vaga.work_modality === "remoto"
+              ? "De casa"
+              : vaga.work_modality === "hibrido"
+                ? "Parte no local, parte de casa"
+                : "No local da empresa"}
+          </Prop>
+
+          <Prop rotulo="Experiência">
+            {vaga.required_experience || "Não precisa de experiência"}
+          </Prop>
+
+          {/* Os benefícios entram como especificação, e não numa seção
+              solta lá embaixo: quem lê esta lista está comparando vagas, e
+              vale-transporte pertence à mesma comparação que o salário. */}
+          {vaga.beneficios?.length > 0 && (
+            <Prop rotulo="Benefícios">
+              <span className="ei-chips">
+                {vaga.beneficios.map((b) => (
+                  <span key={b} className="ei-selo ei-selo-verde">
+                    {b}
+                  </span>
+                ))}
+              </span>
+            </Prop>
+          )}
+        </div>
 
         {erro && (
           <p className="ei-campo-erro ei-margem" style={{ marginTop: 16 }} role="alert">
