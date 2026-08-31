@@ -49,6 +49,31 @@ export function mensagemDeErro(err: unknown, padrao: string): string {
   if (/duplicate key/i.test(bruto)) {
     return "Já existe um cadastro com esses dados.";
   }
+
+  /* A parte do banco ainda não foi criada.
+     ──────────────────────────────────────
+     `42P01` é tabela que não existe, `42703` é coluna que não existe, e
+     `PGRST205` é o PostgREST não achando a tabela no cache do schema. Os
+     três significam a mesma coisa para quem está olhando a tela: falta
+     aplicar uma migration.
+
+     Sem esta tradução, a pessoa lia
+     `relation "public.job_notifications" does not exist` — que não diz
+     nada para ela e faz o app parecer defeituoso. Foi visto exatamente
+     assim ao simular o banco no estado em que ele está hoje.
+
+     A frase não pede nada a quem lê: quem aplica migration é a dona, e
+     mandar um profissional "avisar o suporte" sobre uma tabela é jogar
+     nas costas dele um problema que não é dele. */
+  if (
+    codigo === "42P01" ||
+    codigo === "42703" ||
+    codigo === "PGRST205" ||
+    /does not exist|schema cache/i.test(bruto)
+  ) {
+    return "Esta parte do app ainda não está ligada. Já estamos preparando — tente de novo mais tarde.";
+  }
+
   return `${padrao} (${bruto})`;
 }
 

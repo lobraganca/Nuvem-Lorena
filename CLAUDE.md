@@ -53,6 +53,31 @@ git push origin claude/professional-search-app-vuryc8:claude/professional-search
 
 Nunca empurrar para outra branch sem a dona pedir.
 
+### CONFIRA EM QUE BRANCH VOCÊ ESTÁ, NA PRIMEIRA MENSAGEM
+
+Uma sessão inteira foi trabalhada numa branch que não publica —
+`claude/local-hiring-mvp-swacej` — e ninguém percebeu por 27 commits.
+
+O sintoma não parece um problema de branch. A dona olhava o site, via o
+app ANTIGO, e dizia "está muito parecido com o procurô", "as cores estão
+horríveis", "está muito quebrado". Tudo verdade: era o procurô. As
+respostas foram redesenhos sucessivos — três paletas, dois sistemas de
+design inteiros — todos julgados contra um site que nunca recebeu
+nenhum deles.
+
+O que teria evitado, em dez segundos, na primeira mensagem:
+
+```bash
+git fetch origin claude/professional-search-app-duqnk8
+git merge-base --is-ancestor HEAD origin/claude/professional-search-app-duqnk8 \
+  && echo "publica" || echo "NÃO PUBLICA — nada do que eu fizer vai aparecer"
+```
+
+E, quando a dona reclamar da aparência ou do funcionamento do site, a
+primeira pergunta não é "o que mudo?" — é **"o que está no ar é o meu
+código?"**. Foto de tela do ambiente local não responde isso; ela mostra
+o que ainda não existe para ninguém.
+
 A `claude/app-play-store` existiu e está **aposentada** — o app da loja
 saiu da mesma base de código (ver a seção do aplicativo, abaixo). Ela ficou
 4 commits atrás em um único dia; branch velha de app é pior que nenhuma,
