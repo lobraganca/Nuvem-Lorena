@@ -203,6 +203,84 @@ export async function contarRespostasDasVagas(
   return conta;
 }
 
+/**
+ * Todas as pessoas interessadas nas vagas desta empresa, de uma vez.
+ *
+ * ── Por que o painel precisa disto ────────────────────────────────────
+ *
+ * A dona: "na tela do empresário ter as vagas que ela disponibilizou e as
+ * pessoas que interessaram."
+ *
+ * O painel mostrava as vagas e o NÚMERO de interessados — "3 pessoas
+ * interessadas" — e mais nada. Para ver quem eram, a empresa tinha que
+ * abrir vaga por vaga e voltar. Numa cidade em que as pessoas se conhecem,
+ * o nome e o rosto são o que ela veio ver: reconhecer alguém decide o
+ * telefonema antes de qualquer currículo.
+ *
+ * Uma consulta para todas as vagas, e não uma por vaga: cinco vagas seriam
+ * cinco idas ao banco no 4G. E `lerTudo` porque a 0062 pôs teto de 200
+ * linhas em toda consulta — a partir da ducentésima resposta a lista
+ * pararia de crescer, sem nada avisando.
+ */
+export type InteressadoNoPainel = RespostaComPessoa & {
+  vagaId: string;
+  vagaTitulo: string;
+};
+
+export async function interessadosDasVagas(
+  vagas: Array<{ id: string; title: string }>
+): Promise<InteressadoNoPainel[]> {
+  if (vagas.length === 0) return [];
+
+  const sb = getSupabase();
+  if (!sb) return [];
+
+  const ids = vagas.map((v) => v.id);
+  const respostas = await lerTudo<JobResponse>(() =>
+    sb
+      .from("job_responses")
+      .select("*")
+      .in("job_listing_id", ids)
+      .eq("interessado", true)
+      .order("responded_at", { ascending: false })
+  );
+  if (respostas.length === 0) return [];
+
+  /* `professional_id` aponta para a CONTA (`auth.users`), e não para a
+     linha de `professionals` — por isso são duas consultas casadas por
+     `owner_id`, e não um `select` embutido. O PostgREST junta por relação
+     declarada, e não existe nenhuma entre essas duas tabelas. */
+  const contas = [...new Set(respostas.map((r) => r.professional_id))];
+  const { data: pessoas } = await sb
+    .from("professionals_public")
+    .select("id, owner_id, name, whatsapp, phone, photo_url, neighborhood")
+    .in("owner_id", contas);
+
+  const porConta = new Map<string, Record<string, unknown>>();
+  for (const p of (pessoas ?? []) as Record<string, unknown>[]) {
+    porConta.set(String(p.owner_id), p);
+  }
+  const tituloDaVaga = new Map(vagas.map((v) => [v.id, v.title]));
+
+  return respostas.map((r) => {
+    const pessoa = porConta.get(r.professional_id);
+    return {
+      ...r,
+      vagaId: r.job_listing_id,
+      vagaTitulo: tituloDaVaga.get(r.job_listing_id) ?? "",
+      cadastroId: pessoa ? String(pessoa.id) : null,
+      /* Sem cadastro visível — quem ficou oculto ou não confirmou o
+         telefone — a linha continua na lista, porque a pessoa se interessou
+         de verdade e sumir com ela seria esconder da empresa alguém que
+         levantou a mão. O que muda é que não há para onde tocar. */
+      nome: pessoa ? String(pessoa.name ?? "") : "Cadastro fora do ar",
+      telefone: pessoa ? ((pessoa.whatsapp as string) ?? (pessoa.phone as string) ?? null) : null,
+      foto: pessoa ? ((pessoa.photo_url as string) ?? null) : null,
+      bairro: pessoa ? ((pessoa.neighborhood as string) ?? null) : null,
+    };
+  });
+}
+
 /** Obtém detalhes de uma vaga. */
 export async function obterVaga(vagaId: string): Promise<JobListing | null> {
   const sb = getSupabase();

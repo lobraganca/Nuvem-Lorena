@@ -285,6 +285,16 @@ const TABELAS: Record<string, Linha[]> = {
       job_listing_id: v.id,
       professional_id: DONO_FALSO,
       responded_at: emDias(-i),
+      status: "new",
+      /* `interessado` PRECISA estar aqui. No banco a coluna nasce `true`
+         (migration 0078), e o painel da empresa filtra por ela. Sem o
+         campo, o filtro derrubava as três respostas e a tela dizia que
+         ninguém tinha se interessado — parecia defeito do painel, era o
+         falso não tendo a coluna.
+
+         A terceira é um NÃO de propósito: sem ela o teste nunca exercitaria
+         o filtro, só a ausência dele. */
+      interessado: i < 2,
     }))
   ),
   job_dispatches: [],

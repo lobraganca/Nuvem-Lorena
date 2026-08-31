@@ -1,7 +1,9 @@
 import type { ReactNode } from "react";
 import { Link, useLocation } from "react-router-dom";
+import { useEffect, useState } from "react";
 import { useAuth } from "../lib/useAuth";
 import { useOnboardingStatus } from "../lib/useOnboardingStatus";
+import { quantasVagasNovas } from "../lib/minhasVagas";
 
 /**
  * A barra de baixo do Ei Itabirito.
@@ -24,16 +26,27 @@ import { useOnboardingStatus } from "../lib/useOnboardingStatus";
  * inútil para cada uma — que é exatamente o defeito que a barra antiga
  * tinha ("Anúncios" e "Painel" existiam para quase ninguém).
  *
- *   quem trabalha   Vagas · Meu perfil · Conta
+ *   quem trabalha   Vagas · Avisos · Meu perfil · Conta
  *   quem contrata   Minhas vagas · Profissionais · Empresa
  *   sem conta       Entrar
  *
- * Três itens, não cinco. O botão redondo do meio saiu junto: ele existia
- * para destacar a busca, que era A ação do procurô. Aqui não há uma ação
- * que domine as outras — há dois lados, cada um com o seu caminho.
+ * Quatro itens no máximo, não cinco. O botão redondo do meio saiu junto:
+ * ele existia para destacar a busca, que era A ação do procurô. Aqui não há
+ * uma ação que domine as outras — há dois lados, cada um com o seu caminho.
+ *
+ * "Avisos" leva o selo com quantos ainda não foram abertos. O número já
+ * estava escrito em `quantasVagasNovas` desde o começo, com o comentário
+ * "para o aviso no menu" — e não era chamado em lugar nenhum.
  */
 
-type Destino = { to: string; label: string; icone: ReactNode; casa: (p: string) => boolean };
+type Destino = {
+  to: string;
+  label: string;
+  icone: ReactNode;
+  casa: (p: string) => boolean;
+  /** Este item mostra o selo com quantos avisos ainda não foram abertos. */
+  contaNovos?: boolean;
+};
 
 /* Ícones em traço, no peso do Material. Desenhados aqui e não importados de
    uma biblioteca porque são cinco, e uma dependência inteira para cinco
@@ -78,6 +91,13 @@ const IconePredio = (
   </Svg>
 );
 
+const IconeSino = (
+  <Svg>
+    <path d="M18 8.6a6 6 0 1 0-12 0c0 5-2 6.4-2 6.4h16s-2-1.4-2-6.4" />
+    <path d="M13.7 19a2 2 0 0 1-3.4 0" />
+  </Svg>
+);
+
 const IconeEntrar = (
   <Svg>
     <path d="M14 4h4.5A1.5 1.5 0 0 1 20 5.5v13a1.5 1.5 0 0 1-1.5 1.5H14" />
@@ -104,10 +124,25 @@ function destinos(tipo: "professional" | "company" | false | null, temConta: boo
 
   /* Profissional, e também quem entrou e ainda não escolheu o tipo: para
      esse último, a lista de vagas é a tela que explica o app melhor do que
-     qualquer texto. */
+     qualquer texto.
+
+     ── "Avisos" entrou aqui ─────────────────────────────────────────
+     A dona: "coloque também as notificações que as pessoas receberem dos
+     disparos."
+
+     Não é a mesma coisa que "Vagas", e a diferença é o motivo de ele
+     existir: Vagas mostra só o que está ABERTO, para responder — vaga
+     encerrada some de lá, e é o certo. Só que aí o aviso desaparece: a
+     pessoa recebe a notificação, demora dois dias para abrir o app, a
+     empresa já encerrou, e não sobra nada. Nem a vaga, nem o registro de
+     que ela existiu. Fica parecendo engano do app.
+
+     Avisos é o histórico: tudo o que chegou, com o que aconteceu depois. */
   return [
     { to: "/vagas-para-mim", label: "Vagas", icone: IconeVagas,
       casa: (p) => p.startsWith("/vagas-para-mim") },
+    { to: "/avisos", label: "Avisos", icone: IconeSino, contaNovos: true,
+      casa: (p) => p.startsWith("/avisos") },
     { to: "/painel", label: "Meu perfil", icone: IconePessoa,
       casa: (p) => p.startsWith("/painel") },
     { to: "/perfil", label: "Conta", icone: IconePredio,
@@ -119,6 +154,29 @@ export function NavegacaoEi() {
   const { pathname } = useLocation();
   const { user } = useAuth();
   const tipo = useOnboardingStatus();
+
+  /* Quantos avisos chegaram e ainda não foram abertos.
+     ──────────────────────────────────────────────────
+     Recarrega a cada troca de tela, e não só uma vez: quem abre os Avisos
+     zera a conta, e sem isto o selo continuaria aceso com um número que já
+     não é verdade — um número que mente é pior que nenhum.
+
+     Erro aqui não aparece: é um selo, e derrubar a navegação inteira por
+     causa dele seria trocar o que importa pelo que não importa. */
+  const [novos, setNovos] = useState(0);
+  useEffect(() => {
+    if (!user) {
+      setNovos(0);
+      return;
+    }
+    let valeAinda = true;
+    quantasVagasNovas(user.id)
+      .then((n) => valeAinda && setNovos(n))
+      .catch(() => {});
+    return () => {
+      valeAinda = false;
+    };
+  }, [user, pathname]);
 
   const itens = destinos(tipo, !!user);
 
@@ -137,8 +195,25 @@ export function NavegacaoEi() {
                 ela precisa envolver SÓ o ícone, com o nome embaixo e fora.
                 Um fundo no item inteiro vira um retângulo alto que engole o
                 rótulo — o erro clássico de quem copia isto de olho. */}
-            <span className="nav-ei-capsula">{d.icone}</span>
-            <span className="nav-ei-rotulo">{d.label}</span>
+            <span className="nav-ei-capsula">
+              {d.icone}
+              {/* O selo fica na CÁPSULA do ícone, e não no item inteiro:
+                  no item ele iria parar ao lado do rótulo, embaixo, que é
+                  onde ninguém procura um contador. */}
+              {d.contaNovos && novos > 0 && (
+                <span className="nav-ei-selo" aria-hidden="true">
+                  {novos > 9 ? "9+" : novos}
+                </span>
+              )}
+            </span>
+            <span className="nav-ei-rotulo">
+              {d.label}
+              {/* O número precisa existir para quem usa leitor de tela, e o
+                  selo acima é `aria-hidden` porque "3" solto não diz nada. */}
+              {d.contaNovos && novos > 0 && (
+                <span className="ei-so-leitor"> — {novos} não lidos</span>
+              )}
+            </span>
           </Link>
         );
       })}

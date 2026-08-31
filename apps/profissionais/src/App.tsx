@@ -57,6 +57,10 @@ const PerfilPublicoPage = lazy(importarPagina(() => import("./pages/PerfilPublic
    existia a do anunciante — a pessoa decidia se queria a vaga sem nunca ter
    lido a vaga inteira. */
 const VagaAbertaPage = lazy(importarPagina(() => import("./pages/ei/VagaAbertaPage").then((m) => ({ default: m.VagaAbertaPage }))));
+/* O histórico dos disparos que chegaram para esta pessoa. Diferente de
+   "Vagas": lá só o que está aberto, para responder; aqui tudo o que chegou,
+   inclusive as vagas já encerradas — senão o aviso some e parece engano. */
+const AvisosPage = lazy(importarPagina(() => import("./pages/ei/AvisosPage").then((m) => ({ default: m.AvisosPage }))));
 
 
 /**
@@ -135,6 +139,13 @@ const TELAS_DE_APP = [
   "/painel-empresa",
   "/criar-vaga",
   "/vaga",
+  /* `/vaga-aberta` precisa estar escrito à parte: a comparação é por
+     caminho exato ou com barra depois, então "/vaga" casa com "/vaga/123" e
+     NÃO casa com "/vaga-aberta/123". Sem esta linha, a tela da vaga de quem
+     procura trabalho terminava com o rodapé de links do site embaixo da
+     barra do app — o pedaço mais visível que sobrou do procurô. */
+  "/vaga-aberta",
+  "/avisos",
   "/planos-empresa",
   "/profissionais",
   "/profissional",
@@ -259,6 +270,7 @@ export default function App() {
             existia: a lista não levava a lugar nenhum. */}
         <Route path="/profissional/:id" element={<PerfilPublicoPage />} />
         <Route path="/vaga-aberta/:id" element={<VagaAbertaPage />} />
+        <Route path="/avisos" element={<AvisosPage />} />
 
         {/* Conta e documentos */}
         <Route path="/perfil" element={<PerfilPage />} />

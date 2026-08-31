@@ -3388,6 +3388,52 @@ h3 {
   place-items: center;
   width: 22px;
   height: 22px;
+  /* `relative` para o selo de não lidos se pendurar no canto do ícone. */
+  position: relative;
+}
+
+/* ── O selo de avisos não lidos ────────────────────────────────────────
+   A contagem existia no código desde o começo, com o comentário "para o
+   aviso no menu", e não era chamada em lugar nenhum: o número estava
+   pronto e o menu que ele servia nunca tinha sido feito.
+
+   Fica na CÁPSULA e não no item: pendurado no item, ele iria parar ao lado
+   do rótulo, embaixo — que é onde ninguém procura um contador. */
+.nav-ei-selo {
+  position: absolute;
+  top: -5px;
+  left: 12px;
+  min-width: 16px;
+  height: 16px;
+  padding: 0 4px;
+  border-radius: 999px;
+  background: var(--ei-laranja, #c2410c);
+  color: #ffffff;
+  font-size: 0.62rem;
+  font-weight: 700;
+  line-height: 16px;
+  text-align: center;
+  font-variant-numeric: tabular-nums;
+  /* O único canto arredondado que sobrou no app, e de propósito: um
+     contador quadrado no canto de um ícone lê como erro de layout, não
+     como aviso. O `!important` é para vencer a regra global que zera todo
+     canto — regra que existe porque a dona pediu duas vezes na mesma
+     mensagem, e esta é a exceção que ela não pediu para tirar. */
+  border-radius: 999px !important;
+}
+
+/* Texto que só o leitor de tela lê. O selo acima é `aria-hidden` porque um
+   "3" solto não diz nada a quem não vê o sino do lado. */
+.ei-so-leitor {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
 }
 
 .nav-ei-capsula svg { width: 20px; height: 20px; }

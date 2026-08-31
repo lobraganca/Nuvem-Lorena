@@ -8,6 +8,8 @@ import {
   confirmarTelefoneDaEmpresa,
   situacaoDoPlano,
   contarRespostasDasVagas,
+  interessadosDasVagas,
+  type InteressadoNoPainel,
 } from "../lib/company";
 import { mensagemDeErro } from "../lib/erros";
 import type { Company, JobListing } from "../types/domain";
@@ -52,6 +54,11 @@ export function PainelEmpresaPage() {
      é diferente de zero: um mapa vazio escreveria "ninguém respondeu" em
      vaga cheia, e a empresa concluiria que ninguém quis o trabalho dela. */
   const [respostas, setRespostas] = useState<Map<string, number> | null>(new Map());
+  /* Quem se interessou, com nome e rosto. `null` é "não deu para saber" e é
+     diferente de lista vazia: uma lista vazia por erro escreveria "ninguém
+     se interessou" numa vaga cheia, e a empresa concluiria que ninguém quis
+     o trabalho dela. */
+  const [interessados, setInteressados] = useState<InteressadoNoPainel[] | null>([]);
   const [carregando, setCarregando] = useState(true);
   const [erro, setErro] = useState("");
   const [confirmando, setConfirmando] = useState(false);
@@ -122,6 +129,14 @@ export function PainelEmpresaPage() {
       contarRespostasDasVagas(minhasVagas.map((v) => v.id))
         .then(setRespostas)
         .catch(() => setRespostas(null));
+
+      /* Também depois da lista, e também num `catch` próprio: é informação
+         a mais numa tela que já funciona sem ela. Derrubar o painel inteiro
+         por causa da lista de nomes seria trocar uma tela útil por uma
+         mensagem de erro. */
+      interessadosDasVagas(minhasVagas.map((v) => ({ id: v.id, title: v.title })))
+        .then(setInteressados)
+        .catch(() => setInteressados(null));
 
       /* O plano decide o texto do botão principal. Se a leitura falhar,
          fica `null` e o botão segue oferecendo criar vaga — quem recusa de
@@ -393,8 +408,69 @@ export function PainelEmpresaPage() {
             );
           })
         )}
+
+        {/* ── AS PESSOAS INTERESSADAS ─────────────────────────────────────
+            A dona: "na tela do empresário ter as vagas que ela
+            disponibilizou e as pessoas que interessaram."
+
+            O painel mostrava as vagas e o NÚMERO — "3 pessoas interessadas"
+            — e mais nada. Para saber quem eram, a empresa tinha que abrir
+            vaga por vaga e voltar. Numa cidade em que as pessoas se
+            conhecem, o nome e o rosto são o que ela veio ver: reconhecer
+            alguém decide o telefonema antes de qualquer currículo.
+
+            Todas as vagas juntas, e não uma seção por vaga: quem contrata
+            olha "quem apareceu hoje", e a vaga de cada pessoa vem escrita
+            do lado. */}
+        {interessados !== null && interessados.length > 0 && (
+          <>
+            <div className="ei-secao-linha">
+              <h2>Pessoas interessadas</h2>
+              <span className="ei-secao-acao">{interessados.length}</span>
+            </div>
+            <div className="ei-lista">
+              {interessados.map((i) =>
+                i.cadastroId ? (
+                  <Link key={i.id} to={`/profissional/${i.cadastroId}`} className="ei-pessoa">
+                    <LinhaDoInteressado i={i} />
+                  </Link>
+                ) : (
+                  /* Sem cadastro visível — quem ficou oculto ou não
+                     confirmou o telefone — a linha FICA, porque a pessoa
+                     levantou a mão de verdade. O que muda é que não há para
+                     onde tocar, e por isso não é um link. */
+                  <div key={i.id} className="ei-pessoa">
+                    <LinhaDoInteressado i={i} />
+                  </div>
+                )
+              )}
+            </div>
+          </>
+        )}
       </div>
     </div>
+  );
+}
+
+/** O retrato, o nome e a vaga em que a pessoa se interessou. */
+function LinhaDoInteressado({ i }: { i: InteressadoNoPainel }) {
+  return (
+    <>
+      <span className="ei-pessoa-retrato" aria-hidden="true">
+        {i.foto ? (
+          <img src={i.foto} alt="" loading="lazy" />
+        ) : (
+          i.nome.trim().charAt(0).toLocaleUpperCase("pt-BR")
+        )}
+      </span>
+      <span className="ei-pessoa-texto">
+        <span className="ei-pessoa-nome ei-uma-linha">{i.nome}</span>
+        {/* A VAGA em que ela se interessou, e não o bairro: com três vagas
+            abertas ao mesmo tempo, "Joana" sozinha não diz para qual delas
+            ela levantou a mão. */}
+        <span className="ei-pessoa-oficio ei-uma-linha">{i.vagaTitulo}</span>
+      </span>
+    </>
   );
 }
 

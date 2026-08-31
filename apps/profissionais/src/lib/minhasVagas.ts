@@ -108,7 +108,89 @@ export async function vagasParaMim(userId: string): Promise<VagaParaMim[]> {
   }));
 }
 
-/** Quantas vagas chegaram e ainda não foram abertas. Para o aviso no menu. */
+/**
+ * TODOS os avisos que chegaram para esta pessoa — o histórico.
+ *
+ * ── Como isto é diferente de `vagasParaMim` ───────────────────────────
+ *
+ * A dona: "na barra, vagas, meu perfil e conta, coloque também as
+ * notificações que as pessoas receberem dos disparos."
+ *
+ * `vagasParaMim` é a lista do que dá para RESPONDER: só vaga aberta, porque
+ * uma vaga que já encheu ali é pior que lista vazia — a pessoa se anima,
+ * responde, e não recebe resposta nenhuma.
+ *
+ * Só que essa regra tem um custo que ninguém via: o aviso SOME. A pessoa
+ * recebe a notificação no celular, demora dois dias para abrir o app, a
+ * empresa já encerrou — e não há nada. Nem a vaga, nem o registro de que
+ * ela existiu. Fica parecendo que a notificação foi engano.
+ *
+ * Aqui está tudo o que chegou, aberto ou não, na ordem em que chegou. É o
+ * histórico: o que a pessoa recebeu, o que ela respondeu, e o que aconteceu
+ * com cada uma.
+ */
+export type Aviso = VagaParaMim & {
+  /** A vaga ainda está no ar? Encerrada, ela vira histórico e não ação. */
+  aberta: boolean;
+};
+
+export async function todosOsAvisos(userId: string): Promise<Aviso[]> {
+  const sb = supabase();
+  if (!sb) return [];
+
+  const { data, error } = await sb
+    .from("job_notifications")
+    .select(
+      `id, criado_em, visto_em,
+       job_listings!inner (
+         id, company_id, title, description, profession, specialty,
+         required_experience, skills, salary_range_min, salary_range_max,
+         available_immediately, work_modality, city, uf, neighborhood,
+         anunciada_ate, status, created_at, closed_at,
+         tipo_contrato, jornada, beneficios, salario_a_combinar,
+         companies!inner ( company_name, photo_url )
+       )`
+    )
+    .eq("professional_id", userId)
+    /* Sem filtro de `status`: é justamente o que separa esta consulta da
+       outra. Vaga encerrada continua aqui, marcada como encerrada. */
+    .order("criado_em", { ascending: false });
+
+  if (error) throw error;
+
+  const ids = (data ?? []).map((n: any) => n.job_listings.id);
+  const resposta = new Map<string, boolean>();
+  if (ids.length > 0) {
+    const { data: r, error: erroResposta } = await sb
+      .from("job_responses")
+      .select("job_listing_id, interessado")
+      .eq("professional_id", userId)
+      .in("job_listing_id", ids);
+    if (erroResposta) throw erroResposta;
+    (r ?? []).forEach((x: any) => resposta.set(x.job_listing_id, x.interessado !== false));
+  }
+
+  return (data ?? []).map((n: any) => ({
+    aviso_id: n.id,
+    vaga: n.job_listings as JobListing,
+    empresa: n.job_listings.companies?.company_name ?? "",
+    empresa_foto: n.job_listings.companies?.photo_url ?? null,
+    criado_em: n.criado_em,
+    visto_em: n.visto_em,
+    respondida: resposta.has(n.job_listings.id),
+    interessado: resposta.get(n.job_listings.id),
+    aberta: n.job_listings.status === "active",
+  }));
+}
+
+/**
+ * Quantas vagas chegaram e ainda não foram abertas. É o número do selo na
+ * barra de baixo.
+ *
+ * Esta função existia desde o começo, com este mesmo comentário — "para o
+ * aviso no menu" — e NÃO ERA CHAMADA EM LUGAR NENHUM. O contador estava
+ * escrito e o menu que ele servia nunca tinha sido feito.
+ */
 export async function quantasVagasNovas(userId: string): Promise<number> {
   const sb = supabase();
   if (!sb) return 0;
