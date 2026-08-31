@@ -128,6 +128,18 @@ export async function criarVaga(
 }
 
 /** Lista vagas ativas da empresa. */
+/**
+ * As vagas desta empresa, em TODOS os estados.
+ *
+ * Antes pedia só `status = 'active'`, e o efeito era que arquivar uma vaga
+ * a fazia sumir do painel inteiro — junto com a lista de quem se
+ * interessou. A tela de arquivar prometia o contrário, por escrito: "quem
+ * já respondeu continua nesta lista". A lista continuava mesmo; era o
+ * caminho até ela que deixava de existir.
+ *
+ * A policy de leitura da 0067 sempre deixou a dona ver a própria vaga em
+ * qualquer estado. Faltava pedir.
+ */
 export async function listarMinhasVagas(companyId: string): Promise<JobListing[]> {
   const sb = getSupabase();
   if (!sb) return [];
@@ -136,7 +148,6 @@ export async function listarMinhasVagas(companyId: string): Promise<JobListing[]
     .from("job_listings")
     .select("*")
     .eq("company_id", companyId)
-    .eq("status", "active")
     .order("created_at", { ascending: false });
 
   if (error) return [];
@@ -627,14 +638,95 @@ export async function anunciarVaga(vagaId: string): Promise<void> {
   if (error) throw error;
 }
 
-/** Fecha uma vaga. */
-export async function fecharVaga(vagaId: string): Promise<void> {
-  if (!supabase) throw new Error("Banco não configurado");
+/**
+ * Arquiva uma vaga. Ela sai do ar e LIBERA uma vaga do plano.
+ *
+ * Arquivar não é apagar: a vaga continua no painel, na seção das
+ * encerradas, com a lista de quem se interessou. É essa lista que a empresa
+ * volta a consultar depois de contratar alguém — e ela nunca esteve
+ * perdida, só inalcançável, porque o painel pedia apenas as vagas ativas.
+ */
+export async function arquivarVaga(vagaId: string): Promise<void> {
+  const sb = getSupabase();
+  if (!sb) throw new Error("Banco não configurado");
 
-  const { error } = await supabase
+  const { error } = await sb
     .from("job_listings")
     .update({ status: "closed", closed_at: new Date().toISOString() })
     .eq("id", vagaId);
 
+  if (error) throw error;
+}
+
+/** Nome antigo, mantido para não quebrar tela que ainda o chame. */
+export const fecharVaga = arquivarVaga;
+
+/**
+ * Pausa uma vaga: ela some de quem procura, mas não é encerrada.
+ *
+ * ── Pausar não é arquivar, e a diferença importa ──────────────────────
+ *
+ * A empresa que recebeu gente demais e quer parar de receber por uns dias
+ * não quer encerrar o processo — encerrar é o que ela faz quando contratou.
+ * Sem a pausa, as duas viravam a mesma coisa, e a única saída para "chega
+ * de currículo por ora" era fechar de vez e ter que criar tudo de novo
+ * depois.
+ *
+ * Isto já funcionava no banco desde sempre e ninguém tinha percebido: a
+ * coluna aceita o estado e o gatilho da 0073 trata os dois sentidos. O que
+ * faltava era a tela.
+ *
+ * Pausada, a vaga NÃO conta no teto do plano — e é o certo: o plano limita
+ * quantas vagas ficam no ar, e pausada não está no ar. Reabrir passa pelo
+ * teto de novo, então ninguém acumula vaga escondida para soltar de uma vez.
+ */
+export async function pausarVaga(vagaId: string): Promise<void> {
+  const sb = getSupabase();
+  if (!sb) throw new Error("Banco não configurado");
+
+  const { error } = await sb
+    .from("job_listings")
+    .update({ status: "paused" })
+    .eq("id", vagaId);
+
+  if (error) throw error;
+}
+
+/**
+ * Reabre uma vaga pausada ou arquivada.
+ *
+ * Aqui o banco pode dizer não, e com razão: reabrir é ocupar de novo uma
+ * vaga do plano. Se o plano venceu ou já está cheio, o gatilho da 0073
+ * recusa com a mensagem explicando qual das duas coisas é — e essa mensagem
+ * é melhor que qualquer texto genérico escrito aqui, por isso o erro sobe
+ * como veio.
+ */
+export async function reabrirVaga(vagaId: string): Promise<void> {
+  const sb = getSupabase();
+  if (!sb) throw new Error("Banco não configurado");
+
+  const { error } = await sb
+    .from("job_listings")
+    .update({ status: "active", closed_at: null })
+    .eq("id", vagaId);
+
+  if (error) throw error;
+}
+
+/**
+ * Apaga a vaga de vez, e com ela as respostas e os avisos.
+ *
+ * É irreversível, e por isso a tela pergunta antes dizendo quantas pessoas
+ * interessadas somem junto — sem esse número, "excluir" parece apagar um
+ * rascunho, e apaga o trabalho de quem respondeu.
+ *
+ * Quem quer só tirar do ar deve ARQUIVAR: guarda a lista e libera a vaga do
+ * plano do mesmo jeito. Excluir é para quem publicou errado.
+ */
+export async function excluirVaga(vagaId: string): Promise<void> {
+  const sb = getSupabase();
+  if (!sb) throw new Error("Banco não configurado");
+
+  const { error } = await sb.from("job_listings").delete().eq("id", vagaId);
   if (error) throw error;
 }

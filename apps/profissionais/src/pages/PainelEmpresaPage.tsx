@@ -293,21 +293,50 @@ export function PainelEmpresaPage() {
           </Link>
         </div>
 
-        <div className="ei-secao-linha">
-          <h2>Vagas no ar</h2>
-          <span className="ei-secao-acao">{vagas.length}</span>
-        </div>
+        {/* Três grupos, e não uma lista só.
+            ─────────────────────────────────
+            Arquivar uma vaga a fazia SUMIR do painel — junto com a lista de
+            quem se interessou por ela. E a tela de arquivar promete o
+            contrário, por escrito: "quem já respondeu continua nesta lista".
+            A lista continuava mesmo; era o caminho até ela que deixava de
+            existir.
 
+            No ar primeiro, porque é o que a empresa vem ver. As encerradas
+            por último, porque só se procura por elas quando se procura. */}
         {vagas.length === 0 ? (
-          <Callout emoji="📢">
-            Publique uma vaga e quem tiver interesse aparece aqui.
-          </Callout>
+          <>
+            <div className="ei-secao-linha">
+              <h2>Vagas no ar</h2>
+              <span className="ei-secao-acao">0</span>
+            </div>
+            <Callout emoji="📢">
+              Publique uma vaga e quem tiver interesse aparece aqui.
+            </Callout>
+          </>
         ) : (
-          /* Lista colada num bloco só, e não um cartão por vaga: cinco
-             cartões soltos com espaço entre eles viram um acordeão, e a
-             empresa quer varrer a lista, não contemplar cada uma. */
-          <div className="ei-lista">
-            {vagas.map((vaga) => (
+          GRUPOS_DE_VAGA.map(({ estado, titulo, vazio }) => {
+            const doGrupo = vagas.filter((v) => v.status === estado);
+            /* Grupo vazio não aparece — menos o das que estão no ar, que
+               some do painel de quem tem só vagas arquivadas e aí a tela
+               deixa de dizer que dá para publicar. */
+            if (doGrupo.length === 0 && estado !== "active") return null;
+
+            return (
+              <div key={estado}>
+                <div className="ei-secao-linha">
+                  <h2>{titulo}</h2>
+                  <span className="ei-secao-acao">{doGrupo.length}</span>
+                </div>
+
+                {doGrupo.length === 0 ? (
+                  <Callout emoji="📢">{vazio}</Callout>
+                ) : (
+                  /* Lista colada num bloco só, e não um cartão por vaga:
+                     cinco cartões soltos com espaço entre eles viram um
+                     acordeão, e a empresa quer varrer a lista, não
+                     contemplar cada uma. */
+                  <div className="ei-lista">
+                    {doGrupo.map((vaga) => (
               <Link key={vaga.id} to={`/vaga/${vaga.id}`} className="ei-linha-item">
                 <span className="ei-linha-icone" aria-hidden="true">
                   <IconeMala />
@@ -343,17 +372,52 @@ export function PainelEmpresaPage() {
                     {new Date(vaga.created_at).toLocaleDateString("pt-BR")}
                   </span>
                 </span>
+                {/* A etiqueta repete o título do grupo de propósito. Quem
+                    rola a lista inteira perde de vista sob qual cabeçalho
+                    está — e confundir uma vaga pausada com uma no ar é
+                    deixar de reabrir a que devia estar recebendo. */}
+                {vaga.status === "paused" && (
+                  <span className="ei-selo ei-selo-laranja">Pausada</span>
+                )}
+                {vaga.status === "closed" && (
+                  <span className="ei-selo ei-selo-cinza">Encerrada</span>
+                )}
                 <span className="ei-linha-seta" aria-hidden="true">
                   <IconeSeta />
                 </span>
               </Link>
-            ))}
-          </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            );
+          })
         )}
       </div>
     </div>
   );
 }
+
+/* Os três estados de uma vaga, na ordem em que a empresa pensa neles.
+   "Encerradas" e não "fechadas": a empresa encerra um processo seletivo,
+   não fecha um arquivo. */
+const GRUPOS_DE_VAGA = [
+  {
+    estado: "active" as const,
+    titulo: "Vagas no ar",
+    vazio: "Publique uma vaga e quem tiver interesse aparece aqui.",
+  },
+  {
+    estado: "paused" as const,
+    titulo: "Pausadas",
+    vazio: "",
+  },
+  {
+    estado: "closed" as const,
+    titulo: "Encerradas",
+    vazio: "",
+  },
+];
 
 /* Os ícones moram aqui e não numa biblioteca: são poucos, e uma dependência
    de ícones custa dezenas de KB para desenhar meia dúzia deles. Todos com

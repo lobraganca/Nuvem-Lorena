@@ -5,7 +5,10 @@ import {
   obterVaga,
   obterOndasDaVaga,
   obterRespostasDaVaga,
-  fecharVaga,
+  arquivarVaga,
+  pausarVaga,
+  reabrirVaga,
+  excluirVaga,
   calcularOndas,
   abrirOnda,
   type RespostaComPessoa,
@@ -104,15 +107,54 @@ export function DetalheVagaPage() {
     }
   }
 
-  async function fecharVagaFunc() {
+  /**
+   * Pausar, reabrir e arquivar num caminho só.
+   *
+   * Depois de mudar o estado a tela RECARREGA em vez de voltar ao painel.
+   * Arquivar mandava embora, e isso escondia o que a empresa acabou de
+   * fazer: ela ficava sem ver que a vaga continua ali, com a lista de quem
+   * se interessou — que é justamente o que a frase embaixo do botão
+   * promete.
+   */
+  async function mudarEstado(
+    acao: () => Promise<void>,
+    seDerErrado: string
+  ) {
     if (!vagaId) return;
     setFechando(true);
-
+    setErro("");
     try {
-      await fecharVaga(vagaId);
+      await acao();
+      await carregarDados();
+    } catch (err) {
+      /* O erro do banco vem como veio: quem recusa reabrir é o gatilho do
+         plano, e a mensagem dele diz QUAL das duas coisas faltou (plano
+         vencido ou plano cheio). Um texto genérico aqui apagaria isso. */
+      setErro(mensagemDeErro(err, seDerErrado));
+    } finally {
+      setFechando(false);
+    }
+  }
+
+  async function excluirVagaFunc() {
+    if (!vagaId) return;
+    /* A confirmação DIZ O NÚMERO. "Tem certeza?" não informa nada; saber
+       que três pessoas interessadas somem junto é o que faz a empresa
+       parar e escolher arquivar. */
+    const quantos = respostas.length;
+    const aviso =
+      quantos > 0
+        ? `Excluir apaga esta vaga e ${quantos === 1 ? "a pessoa interessada" : `as ${quantos} pessoas interessadas`} nela. Não dá para desfazer.\n\nSe você só quer tirar do ar, use "Arquivar" — a lista fica guardada.`
+        : "Excluir apaga esta vaga de vez. Não dá para desfazer.";
+    if (!window.confirm(aviso)) return;
+
+    setFechando(true);
+    setErro("");
+    try {
+      await excluirVaga(vagaId);
       navegar("/painel-empresa", { replace: true });
     } catch (err) {
-      setErro(mensagemDeErro(err, "Não foi possível fechar a vaga."));
+      setErro(mensagemDeErro(err, "Não foi possível excluir a vaga."));
       setFechando(false);
     }
   }
@@ -170,6 +212,21 @@ export function DetalheVagaPage() {
             está, não só que dá para sair. */}
         <Pagina icone="📋" titulo={vaga.title} ondeEstou="Vaga">
           <div className="ei-props">
+            {/* O estado vem primeiro, e só quando NÃO é o normal. Uma vaga
+                no ar não precisa dizer que está no ar; uma pausada precisa,
+                porque a tela é idêntica nos dois casos e a empresa pode
+                passar semanas achando que está recebendo gente. */}
+            {vaga.status !== "active" && (
+              <Prop rotulo="Situação">
+                {vaga.status === "paused" ? (
+                  <span className="ei-selo ei-selo-laranja">
+                    Pausada — não está recebendo
+                  </span>
+                ) : (
+                  <span className="ei-selo ei-selo-cinza">Encerrada</span>
+                )}
+              </Prop>
+            )}
             <Prop rotulo="Ofício">{vaga.profession}</Prop>
             <Prop rotulo="Jeito">
               {vaga.work_modality === "presencial"
@@ -393,22 +450,77 @@ export function DetalheVagaPage() {
         )}
       </section>
 
-      {/* Só "Fechar vaga". O "Voltar" daqui era o segundo da tela — o
-          primeiro estava no topo —, e a migalha já leva de volta. */}
-      {vaga.status === "active" && (
-        <div className="ei-margem" style={{ marginTop: 24 }}>
+      {/* O que fazer com a vaga.
+          ────────────────────────
+          Havia um botão só, "Fechar esta vaga", e ele era as três coisas ao
+          mesmo tempo: quem queria parar de receber por uns dias, quem tinha
+          contratado, e quem publicou errado tinham todos a mesma saída.
+
+          Agora são três, e a diferença está escrita embaixo de cada uma —
+          porque "pausar", "arquivar" e "excluir" só parecem óbvios para
+          quem já sabe qual é qual. Excluir fica por último e sem cor, para
+          não ser tocado por engano. */}
+      <div className="ei-margem" style={{ marginTop: 24, display: "grid", gap: 18 }}>
+        {vaga.status === "active" && (
+          <div>
+            <button
+              className="ei-btn ei-btn-contorno ei-btn-largo"
+              onClick={() => mudarEstado(() => pausarVaga(vaga.id), "Não foi possível pausar a vaga.")}
+              disabled={fechando}
+            >
+              Pausar por enquanto
+            </button>
+            <p className="ei-apoio" style={{ marginTop: 8 }}>
+              Some de quem procura, sem encerrar o processo. Você reabre quando quiser.
+            </p>
+          </div>
+        )}
+
+        {vaga.status !== "active" && (
+          <div>
+            <button
+              className="ei-btn ei-btn-cheio ei-btn-largo"
+              onClick={() => mudarEstado(() => reabrirVaga(vaga.id), "Não foi possível reabrir a vaga.")}
+              disabled={fechando}
+            >
+              {vaga.status === "paused" ? "Voltar a receber interessados" : "Reabrir esta vaga"}
+            </button>
+            <p className="ei-apoio" style={{ marginTop: 8 }}>
+              Reabrir ocupa uma vaga do seu plano de novo.
+            </p>
+          </div>
+        )}
+
+        {vaga.status !== "closed" && (
+          <div>
+            <button
+              className="ei-btn ei-btn-contorno ei-btn-largo"
+              onClick={() => mudarEstado(() => arquivarVaga(vaga.id), "Não foi possível arquivar a vaga.")}
+              disabled={fechando}
+            >
+              Arquivar — já contratei
+            </button>
+            <p className="ei-apoio" style={{ marginTop: 8 }}>
+              Libera uma vaga do seu plano. A lista de interessados continua aqui, em
+              “Encerradas”, no seu painel.
+            </p>
+          </div>
+        )}
+
+        <div>
           <button
-            className="ei-btn ei-btn-contorno ei-btn-largo"
-            onClick={fecharVagaFunc}
+            className="ei-btn ei-btn-texto"
+            onClick={excluirVagaFunc}
             disabled={fechando}
+            style={{ color: "var(--ei-erro)" }}
           >
-            {fechando ? "Fechando…" : "Fechar esta vaga"}
+            Excluir esta vaga
           </button>
-          <p className="ei-apoio" style={{ marginTop: 8 }}>
-            Fechar libera uma vaga do seu plano. Quem já respondeu continua nesta lista.
+          <p className="ei-apoio" style={{ marginTop: 4 }}>
+            Apaga a vaga e a lista de quem se interessou. Não dá para desfazer.
           </p>
         </div>
-      )}
+      </div>
       </div>
     </div>
   );
