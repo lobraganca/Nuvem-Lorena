@@ -30,3 +30,7 @@ dist
 #
 # O que continua fora é a saída do build (ver o .gitignore de android/).
 ios
+
+# A montagem da demonstração num arquivo só (vite.demo.ts). É saída de
+# build, como a dist: se refaz em um comando e não vai para o repositório.
+dist-demo

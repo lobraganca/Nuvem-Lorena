@@ -5,6 +5,24 @@
 
 type Linha = Record<string, unknown>;
 
+/**
+ * Um ajuste do teste: `?lado=empresa` na URL, ou guardado no navegador.
+ *
+ * A URL continua mandando — é como os testes de Playwright dirigem tudo.
+ * O armazenamento existe para a DEMONSTRAÇÃO publicada, que roda num
+ * endereço fixo onde não dá para acrescentar `?lado=`: lá o seletor do topo
+ * grava a escolha e recarrega.
+ */
+function ajuste(nome: string): string | null {
+  const daUrl = new URLSearchParams(location.search).get(nome);
+  if (daUrl !== null) return daUrl;
+  try {
+    return localStorage.getItem("falso-" + nome);
+  } catch {
+    return null;
+  }
+}
+
 const AGORA = Date.now();
 const emDias = (d: number) => new Date(AGORA + d * 86400000).toISOString();
 
@@ -16,7 +34,7 @@ const CATS = ["Encanador", "Eletricista", "Pedreiro", "Pintor", "Marceneiro", "S
 
 /* Quantos cadastros o banco falso tem. Trocar para 3 exercita a cidade
    quase vazia, que é onde a tela inicial em prateleiras pode ficar feia. */
-const QUANTOS = Number(new URLSearchParams(location.search).get("falsos") ?? 60);
+const QUANTOS = Number(ajuste("falsos") ?? 60);
 
 /* O dono da sessão de mentira. Os dois primeiros cadastros são dele, senão
    o painel abre vazio e não dá para conferir nada do que ele mostra. */
@@ -67,7 +85,7 @@ const professionals: Linha[] = Array.from({ length: QUANTOS }, (_, i) => ({
      então o falso precisa nascer confirmado — senão a tela de
      profissionais abre vazia e o teste fotografa o estado errado.
      `?confirmado=nao` exercita o outro lado. */
-  whatsapp_verified: new URLSearchParams(location.search).get("confirmado") !== "nao",
+  whatsapp_verified: ajuste("confirmado") !== "nao",
   disponivel: true,
   verified: i % 7 === 0,
   verified_until: i % 7 === 0 ? emDias(30) : null,
@@ -86,7 +104,7 @@ export const EMPRESA_FALSA = "00000000-0000-4000-8000-000000000002";
 
 /** De que lado o teste está: `?lado=empresa` abre o app pelo painel da empresa. */
 function ladoFalso(): "professional" | "company" {
-  return new URLSearchParams(location.search).get("lado") === "empresa"
+  return ajuste("lado") === "empresa"
     ? "company"
     : "professional";
 }
@@ -104,15 +122,15 @@ function ladoFalso(): "professional" | "company" {
  * É também o único estado em que a tela de escolher o tipo de conta abre,
  * e onde o atalho que aproveita o botão da tela de abertura é exercitado.
  */
-const semLadoAinda = () => new URLSearchParams(location.search).get("lado") === "novo";
+const semLadoAinda = () => ajuste("lado") === "novo";
 
 /* `?plano=nao` exercita a empresa SEM plano — que é o estado em que ela
    chega, e o único em que o cartão do plano tem trabalho a fazer. */
-const planoFalso = () => new URLSearchParams(location.search).get("plano") !== "nao";
+const planoFalso = () => ajuste("plano") !== "nao";
 
 /* `?vagas=0` esvazia a lista: o estado vazio é uma tela de verdade, com
    texto próprio, e sem isso ele nunca era aberto no navegador. */
-const QUANTAS_VAGAS = Number(new URLSearchParams(location.search).get("vagas") ?? 3);
+const QUANTAS_VAGAS = Number(ajuste("vagas") ?? 3);
 
 const VAGAS: Linha[] = [
   {
@@ -225,7 +243,7 @@ const TABELAS: Record<string, Linha[]> = {
                teste só conseguia fotografar o outro caso, e o desenho do
                círculo com as iniciais nunca era olhado. */
             avatar_url:
-              new URLSearchParams(location.search).get("foto") === "nao"
+              ajuste("foto") === "nao"
                 ? null
                 : "https://exemplo.invalido/joana.jpg",
           }
@@ -255,7 +273,7 @@ const TABELAS: Record<string, Linha[]> = {
       /* Confirmado só quando o teste pede o contrário: o cartão de
          "confirme o telefone" é um estado, e testar sempre o mesmo lado
          deixa metade da tela sem nunca ter sido aberta. */
-      phone_verified: new URLSearchParams(location.search).get("telefone") !== "nao",
+      phone_verified: ajuste("telefone") !== "nao",
       phone_verified_at: emDias(-20),
       email: "contato@exemplo.com",
       address: "Rua Direita, 120",

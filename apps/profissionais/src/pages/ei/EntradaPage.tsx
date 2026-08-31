@@ -1,4 +1,5 @@
-import { Link } from "react-router-dom";
+import { useEffect } from "react";
+import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../../lib/useAuth";
 import { useOnboardingStatus } from "../../lib/useOnboardingStatus";
 import { useTituloDaPagina } from "../../lib/tituloDaPagina";
@@ -23,13 +24,37 @@ export function EntradaPage() {
   useTituloDaPagina("Emprego em Itabirito");
   const { user, loading } = useAuth();
   const tipo = useOnboardingStatus();
+  const navegar = useNavigate();
 
   /* Quem já tem conta vai direto ao que veio fazer. Mostrar a porta de
      entrada para quem já entrou é fazer a pessoa escolher de novo uma coisa
-     que ela já escolheu. */
-  if (!loading && user && tipo) {
-    return <Navegar para={tipo === "company" ? "/painel-empresa" : "/vagas-para-mim"} />;
-  }
+     que ela já escolheu.
+
+     ── Pelo roteador, e não mexendo no endereço à mão ─────────────────
+     Isto era um `window.history.replaceState` seguido de um `popstate`
+     disparado na mão. O motivo estava escrito e era legítimo: um
+     `<Navigate>` dentro de um `if` ANTES dos hooks quebraria a ordem
+     deles. Mas a saída escolhida trocou um problema por outro — o desvio
+     passou a escrever o endereço por fora do react-router, e portanto a
+     supor que o roteador é o de endereço de verdade.
+
+     Quebrou na primeira vez que o app rodou com outro tipo de roteador (a
+     demonstração de um arquivo só, que precisa do de `#`): o desvio
+     escrevia `/vagas-para-mim` como caminho real, o servidor não tinha
+     esse arquivo, e a tela virava um 404 — sem nenhum erro de JavaScript
+     para apontar a causa.
+
+     O `useEffect` resolve os dois: fica no topo, com os outros hooks, e
+     desvia pelo roteador que estiver montado. */
+  const paraOnde = !loading && user && tipo
+    ? tipo === "company" ? "/painel-empresa" : "/vagas-para-mim"
+    : null;
+
+  useEffect(() => {
+    if (paraOnde) navegar(paraOnde, { replace: true });
+  }, [paraOnde, navegar]);
+
+  if (paraOnde) return null;
 
   return (
     <div className="ei">
@@ -104,13 +129,3 @@ export function EntradaPage() {
   );
 }
 
-/* Redirecionamento sem depender do react-router: um `<Navigate>` dentro de
-   um `if` antes dos hooks quebraria a ordem deles. Assim o desvio acontece
-   depois da montagem, que é sempre seguro. */
-function Navegar({ para }: { para: string }) {
-  if (typeof window !== "undefined" && window.location.pathname !== para) {
-    window.history.replaceState({}, "", para);
-    window.dispatchEvent(new PopStateEvent("popstate"));
-  }
-  return null;
-}
