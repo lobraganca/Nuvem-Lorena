@@ -191,6 +191,18 @@ export function NavegacaoEi() {
      nenhum. */
   if (itens.length === 1 && itens[0].casa(pathname)) return null;
 
+  /* Na tela que PERGUNTA de que lado a pessoa está, a barra não aparece.
+     ────────────────────────────────────────────────────────────────────
+     Quem ainda não escolheu recebe a barra de quem procura trabalho — o
+     que é decisão tomada de propósito (ver `destinos`): a lista de vagas
+     explica o app melhor que qualquer texto.
+
+     Só que nesta tela isso vira contradição: o app pergunta "de que lado
+     você está?" e oferece, no rodapé, "Meu perfil" — que leva ao cadastro
+     PROFISSIONAL e grava o lado sem perguntar. A barra respondia a
+     pergunta no lugar da pessoa. */
+  if (pathname.startsWith("/onboarding-tipo")) return null;
+
   return (
     <nav className="nav-ei" aria-label="Navegação principal">
       {itens.map((d) => {

@@ -139,6 +139,12 @@ const TELAS_DE_APP = [
      um botão verde de WhatsApp que era, de longe, a coisa mais colorida da
      tela: mais chamativo que o próprio botão de entrar, logo acima dele. */
   "/login",
+  /* As duas telas do caminho de criar conta, pelo mesmo motivo do
+     `/login`: são passo de app, e traziam o rodapé de site — com "Publicar
+     vaga" e "Enviar sugestão" — logo abaixo da pergunta de que lado a
+     pessoa está. */
+  "/onboarding-tipo",
+  "/cadastro-empresa",
   "/vagas-para-mim",
   "/meu-perfil",
   "/painel",

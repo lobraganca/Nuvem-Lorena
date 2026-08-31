@@ -183,17 +183,27 @@
 /* Bloco, e não botão de uma linha: cabe o rótulo e, embaixo, o que aquele
    lado recebe. Duas linhas curtas que dispensam o parágrafo de explicação
    que estava em cima. */
+/* Serve para `<a>` (tela inicial) e para `<button>` (a mesma pergunta,
+   depois de criar a conta, onde escolher GRAVA em vez de navegar). Daí o
+   `font: inherit` e a largura cheia: sem eles o botão sai com a fonte do
+   sistema e encolhido ao tamanho do texto. */
 .ei-porta {
   display: grid;
   gap: 3px;
+  width: 100%;
   padding: 16px 18px;
   border: 1px solid var(--ei-fio-forte);
   background: var(--ei-papel);
+  font: inherit;
+  color: var(--ei-tinta);
   text-decoration: none;
   text-align: left;
+  cursor: pointer;
   transition: background-color 0.12s ease, border-color 0.12s ease;
 }
-.ei-porta:hover { background: var(--ei-afunda); }
+
+.ei-porta:disabled { opacity: 0.55; cursor: default; }
+.ei-porta:hover:not(:disabled) { background: var(--ei-afunda); }
 
 .ei-porta-nome { font-size: 1.05rem; font-weight: 600; line-height: 1.25; }
 .ei-porta-nota { font-size: 0.85rem; color: var(--ei-tinta-fraca); line-height: 1.35; }
@@ -211,7 +221,7 @@
   border-color: var(--ei-acao);
   color: var(--ei-sobre-acao);
 }
-.ei .ei-porta-cheia:hover { background: #4b4842; border-color: #4b4842; }
+.ei .ei-porta-cheia:hover:not(:disabled) { background: #4b4842; border-color: #4b4842; }
 .ei .ei-porta-cheia .ei-porta-nota { color: rgba(255, 255, 255, 0.72); }
 
 /* O pé da tela, junto do resto e não no fim da página. */

@@ -57,7 +57,9 @@ function fotoFalsa(i: number): string {
 
 const professionals: Linha[] = Array.from({ length: QUANTOS }, (_, i) => ({
   id: `pro-${i}`,
-  owner_id: i < 2 ? DONO_FALSO : `dono-${i}`,
+  /* Numa conta nova nenhum cadastro é da pessoa: a cidade continua cheia
+     (senão não há o que olhar), mas ela não é dona de nada. */
+  owner_id: i < 2 && !contaNova() ? DONO_FALSO : `dono-${i}`,
   name: `Profissional ${i}`,
   category: CATS[i % CATS.length],
   categories: [CATS[i % CATS.length]],
@@ -122,7 +124,32 @@ function ladoFalso(): "professional" | "company" {
  * É também o único estado em que a tela de escolher o tipo de conta abre,
  * e onde o atalho que aproveita o botão da tela de abertura é exercitado.
  */
-const semLadoAinda = () => ajuste("lado") === "novo";
+const semLadoAinda = () => ajuste("lado") === "novo" || contaNova();
+
+/**
+ * `?conta=nova` — a conta RECÉM-CRIADA, com tudo em branco.
+ *
+ * O `?lado=novo` já tirava a linha de `user_onboarding`, mas só ela: a
+ * pessoa continuava dona de dois cadastros profissionais e de uma padaria
+ * com três vagas no ar. Ou seja, "acabei de criar a conta" nunca podia ser
+ * aberto no navegador — e é justamente o estado por onde TODO MUNDO passa
+ * uma vez, o único em que a tela de escolher o lado e a de "falta pouco"
+ * aparecem de verdade, uma atrás da outra.
+ *
+ * Aqui a conta não tem: lado escolhido, nome, e-mail, foto, cadastro
+ * profissional, empresa, vaga nem favorito. Só o login.
+ *
+ * O telefone é a exceção, e não é descuido: quem entra pelo SMS entra COM
+ * o número — é o que a porta entrega. Zerá-lo produziria uma conta que o
+ * app de verdade não sabe criar.
+ */
+/* `function`, e não `const`: a lista `professionals` é montada lá em cima,
+   antes desta linha, e uma seta em `const` ainda não existe naquele ponto —
+   a página inteira morria com "ei is not a function" e o corpo em branco.
+   Declaração de função sobe; atribuição a `const`, não. */
+function contaNova(): boolean {
+  return ajuste("conta") === "nova";
+}
 
 /* `?plano=nao` exercita a empresa SEM plano — que é o estado em que ela
    chega, e o único em que o cartão do plano tem trabalho a fazer. */
@@ -218,7 +245,9 @@ const TABELAS: Record<string, Linha[]> = {
   /* Três favoritos do dono falso — um deles com selo, para exercitar o
      "Chamar no WhatsApp" que só aparece em cadastro verificado. Vazio,
      a tela de favoritos nunca era testada de verdade. */
-  favorites: [0, 7, 9].map((i) => ({ user_id: DONO_FALSO, professional_id: `pro-${i}` })),
+  favorites: contaNova()
+    ? []
+    : [0, 7, 9].map((i) => ({ user_id: DONO_FALSO, professional_id: `pro-${i}` })),
   contatos_registrados: [],
   app_visits: [],
   /* O perfil do dono falso nasce como nasce uma conta de SMS: só o
@@ -266,7 +295,10 @@ const TABELAS: Record<string, Linha[]> = {
   companies: [
     {
       id: EMPRESA_FALSA,
-      owner_id: DONO_FALSO,
+      /* Numa conta nova a padaria continua na cidade — as vagas precisam
+         de uma empresa, senão a lista sai com o nome em branco —, mas ela
+         não é mais desta pessoa. */
+      owner_id: contaNova() ? "dono-empresa" : DONO_FALSO,
       company_name: "Padaria Pão de Minas",
       cnpj_cpf: "12.345.678/0001-90",
       phone: "5531999998888",
@@ -297,7 +329,9 @@ const TABELAS: Record<string, Linha[]> = {
      as vagas — que é justamente o estado em que a contagem nova não prova
      nada. Com as duas situações lado a lado dá para ver, numa tela só, que
      o número aparece, que ele conta certo e que o zero tem frase própria. */
-  job_responses: VAGAS.slice(0, 1).flatMap((v) =>
+  /* Conta nova não respondeu nada ainda: as abas "Novas" e "Já respondi"
+     precisam abrir zeradas, que é como a pessoa de verdade as encontra. */
+  job_responses: contaNova() ? [] : VAGAS.slice(0, 1).flatMap((v) =>
     [0, 1, 2].map((i) => ({
       id: `resposta-${i}`,
       job_listing_id: v.id,

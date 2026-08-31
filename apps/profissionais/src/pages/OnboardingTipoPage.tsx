@@ -4,7 +4,7 @@ import { useAuth } from "../lib/useAuth";
 import { useTituloDaPagina } from "../lib/tituloDaPagina";
 import { registrarTipoDeUsuario, marcarOnboardingCompleto } from "../lib/company";
 import { mensagemDeErro } from "../lib/erros";
-import { IconeInicio } from "../components/IconesInicio";
+import { Pagina } from "../components/ei/Pagina";
 
 /**
  * Primeira página após login/criar conta: escolhe se é profissional ou empresa.
@@ -14,7 +14,7 @@ import { IconeInicio } from "../components/IconesInicio";
  * - Empresa → CadastroEmpresaPage (razão social, CNPJ, endereço, etc)
  */
 export function OnboardingTipoPage() {
-  useTituloDaPagina("Qual é seu tipo de conta?");
+  useTituloDaPagina("De que lado você está?");
   const navegar = useNavigate();
   const { user, loading } = useAuth();
   const [enviando, setEnviando] = useState(false);
@@ -65,115 +65,60 @@ export function OnboardingTipoPage() {
   }
 
   return (
-    <div className="container" style={{ paddingTop: 32, paddingBottom: 32 }}>
-      <h1 style={{ marginBottom: 8 }}>Qual é seu tipo de conta?</h1>
-      <p className="muted" style={{ marginBottom: 32 }}>
-        Escolha como você vai usar o Ei Itabirito e complete seu perfil.
-      </p>
+    /* A MESMA pergunta da tela inicial, com as MESMAS palavras.
+       ────────────────────────────────────────────────────────
+       Esta tela só aparece para quem acabou de criar a conta e ainda não
+       disse de que lado está — por isso passou tanto tempo sem ser aberta,
+       e por isso era a mais atrasada do app.
 
-      {erro && (
-        <p style={{ color: "var(--color-danger)", marginBottom: 16 }}>
-          {erro}
-        </p>
-      )}
+       Ela perguntava "Qual é seu tipo de conta?" e oferecia "Sou
+       profissional" e "Sou empresa/contratante". A tela inicial faz a
+       MESMA pergunta, três toques antes, assim: "De que lado você está?",
+       "Procuro trabalho", "Estou contratando". Duas linguagens para a
+       mesma decisão fazem a pessoa achar que são decisões diferentes — e
+       "tipo de conta" é palavra de sistema, não de gente.
 
-      <div style={{ display: "grid", gap: 16, marginBottom: 24 }}>
-        {/* Profissional */}
-        <button
-          type="button"
-          className="card"
-          onClick={escolherProfissional}
-          disabled={enviando}
-          style={{
-            padding: 20,
-            textAlign: "left",
-            cursor: "pointer",
-            border: "2px solid transparent",
-            transition: "all 0.2s ease",
-            background: "var(--color-bg-card)",
-          }}
-          onMouseEnter={(e) => {
-            e.currentTarget.style.borderColor = "var(--color-primary)";
-          }}
-          onMouseLeave={(e) => {
-            e.currentTarget.style.borderColor = "transparent";
-          }}
-        >
-          <div style={{ display: "flex", gap: 16, alignItems: "flex-start" }}>
-            <div
-              style={{
-                width: 48,
-                height: 48,
-                borderRadius: 12,
-                backgroundColor: "var(--color-primary-light)",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                flexShrink: 0,
-              }}
-            >
-              <IconeInicio nome="maleta" tamanho={24} />
-            </div>
-            <div style={{ flex: 1 }}>
-              <h3 style={{ margin: "0 0 4px 0" }}>Sou profissional</h3>
-              <p className="muted" style={{ margin: 0, fontSize: "0.9em" }}>
-                Encanador, eletricista, manicure, professor — apareça aqui e receba clientes.
-              </p>
-            </div>
-            <span style={{ fontSize: 20, color: "var(--color-muted)" }}>›</span>
-          </div>
-        </button>
+       O texto de apoio era do procurô, palavra por palavra: "apareça aqui
+       e receba CLIENTES" (aqui não se recebe cliente, se recebe vaga) e
+       "preciso de profissionais — BUSQUE aqui" (a empresa não busca, ela
+       publica a vaga e o app avisa quem encaixa). O ícone do lado da
+       empresa era uma LUPA, pelo mesmo motivo.
 
-        {/* Empresa/Contratante */}
-        <button
-          type="button"
-          className="card"
-          onClick={escolherEmpresa}
-          disabled={enviando}
-          style={{
-            padding: 20,
-            textAlign: "left",
-            cursor: "pointer",
-            border: "2px solid transparent",
-            transition: "all 0.2s ease",
-            background: "var(--color-bg-card)",
-          }}
-          onMouseEnter={(e) => {
-            e.currentTarget.style.borderColor = "var(--color-primary)";
-          }}
-          onMouseLeave={(e) => {
-            e.currentTarget.style.borderColor = "transparent";
-          }}
-        >
-          <div style={{ display: "flex", gap: 16, alignItems: "flex-start" }}>
-            <div
-              style={{
-                width: 48,
-                height: 48,
-                borderRadius: 12,
-                backgroundColor: "var(--color-primary-light)",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                flexShrink: 0,
-              }}
-            >
-              <IconeInicio nome="lupa" tamanho={24} />
-            </div>
-            <div style={{ flex: 1 }}>
-              <h3 style={{ margin: "0 0 4px 0" }}>Sou empresa/contratante</h3>
-              <p className="muted" style={{ margin: 0, fontSize: "0.9em" }}>
-                Preciso de profissionais: vendedora, recepcionista, eletricista — busque aqui.
-              </p>
-            </div>
-            <span style={{ fontSize: 20, color: "var(--color-muted)" }}>›</span>
-          </div>
-        </button>
+       E sumiu o "você pode mudar de ideia depois, mas preencha seu tipo
+       principal primeiro": ninguém sabe o que é um "tipo principal", e a
+       frase pedia calma para uma dúvida que a tela não criou. */
+    <div className="ei">
+      <div className="ei-tela">
+        <Pagina titulo="De que lado você está?" />
+
+        <div className="ei-portas" style={{ marginTop: 4 }}>
+          <button
+            type="button"
+            className="ei-porta ei-porta-cheia"
+            disabled={enviando}
+            onClick={escolherProfissional}
+          >
+            <span className="ei-porta-nome">Procuro trabalho</span>
+            <span className="ei-porta-nota">Receba as vagas do seu ofício</span>
+          </button>
+
+          <button
+            type="button"
+            className="ei-porta"
+            disabled={enviando}
+            onClick={escolherEmpresa}
+          >
+            <span className="ei-porta-nome">Estou contratando</span>
+            <span className="ei-porta-nota">Publique e avise a cidade</span>
+          </button>
+        </div>
+
+        {erro && (
+          <p className="ei-campo-erro ei-margem" style={{ marginTop: 14 }} role="alert">
+            {erro}
+          </p>
+        )}
       </div>
-
-      <p className="muted" style={{ fontSize: "0.9em", textAlign: "center" }}>
-        Você pode mudar de ideia depois, mas preencha seu tipo principal primeiro.
-      </p>
     </div>
   );
 }

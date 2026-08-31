@@ -22,11 +22,12 @@ import "./estilo-ei.css";
 import App from "./App";
 import { ErrorBoundary } from "./components/ErrorBoundary";
 
-type Papel = "visitante" | "trabalhador" | "empresa";
+type Papel = "visitante" | "nova" | "trabalhador" | "empresa";
 
 function papelAgora(): Papel {
   try {
     if (localStorage.getItem("falso-usuario") === null) return "visitante";
+    if (localStorage.getItem("falso-conta") === "nova") return "nova";
     return localStorage.getItem("falso-lado") === "empresa" ? "empresa" : "trabalhador";
   } catch {
     return "visitante";
@@ -35,9 +36,23 @@ function papelAgora(): Papel {
 
 function escolher(papel: Papel) {
   try {
+    /* A chave da conta nova é limpa em todos os casos e reposta só no dela:
+       esquecer isso deixava a pessoa presa no estado em branco depois de
+       trocar de papel — e o sintoma (nenhuma vaga, nenhum cadastro) parece
+       app quebrado, não filtro ligado. */
+    localStorage.removeItem("falso-conta");
     if (papel === "visitante") {
       localStorage.removeItem("falso-usuario");
       localStorage.removeItem("falso-lado");
+    } else if (papel === "nova") {
+      /* Conta recém-criada: entrou pelo SMS (que é a porta que traz o
+         número) e mais nada. Sem lado escolhido, sem nome, sem e-mail, sem
+         foto, sem cadastro, sem empresa. É por aqui que passa todo mundo
+         uma vez, e era o único estado que a demonstração não sabia
+         mostrar. */
+      localStorage.setItem("falso-usuario", "sms");
+      localStorage.setItem("falso-lado", "novo");
+      localStorage.setItem("falso-conta", "nova");
     } else if (papel === "trabalhador") {
       localStorage.setItem("falso-usuario", "sms");
       localStorage.setItem("falso-lado", "trabalhador");
@@ -72,6 +87,7 @@ function BarraDaDemonstracao() {
   const atual = papelAgora();
   const opcoes: Array<[Papel, string]> = [
     ["visitante", "Sem conta"],
+    ["nova", "Conta nova (em branco)"],
     ["trabalhador", "Procurando trabalho"],
     ["empresa", "Empresa"],
   ];
