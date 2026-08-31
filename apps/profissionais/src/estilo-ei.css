@@ -1422,3 +1422,44 @@
   padding-bottom: 8px;
   border-bottom: 1px solid var(--ei-fio);
 }
+
+/* ── O bloco do cabeçalho é UM bloco ──────────────────────────────────
+   O título fica no papel branco (`.ei-cabeca`), mas a linha de apoio logo
+   abaixo dele é um `<p>` solto — e caía no chão cinza. O resultado era uma
+   faixa cinza atravessando o cabeçalho pelo meio, entre o título e a frase
+   que o explica: as duas metades da mesma coisa em planos diferentes.
+
+   Vale para o parágrafo E para a barra de passos, que abre a tela de
+   completar a conta. */
+.ei-cabeca + .ei-margem,
+.ei-cabeca + p.ei-apoio,
+.ei-cabeca + p.ei-corpo {
+  background: var(--ei-papel);
+  padding-top: 0;
+  padding-bottom: 14px;
+  margin-top: 0;
+  border-bottom: 1px solid var(--ei-fio);
+}
+
+/* A barra de passos vem ANTES do título, então é ela que abre a faixa
+   branca. */
+.ei-tela > .ei-margem:has(.passos-barra) {
+  background: var(--ei-papel);
+  padding-top: 18px;
+  padding-bottom: 4px;
+}
+
+/* A barra de progresso era um degradê azul→laranja — `--color-primary` do
+   tema do procurô, e a única mancha de cor da tela de entrar na conta.
+   Aqui ela é o que todo indicador deste app é: tinta cheia sobre o cinza
+   fundo, sem canto redondo. */
+.ei .passos-barra {
+  border-radius: 0;
+  height: 4px;
+  background: var(--ei-afunda-forte);
+}
+
+.ei .passos-preenchido {
+  border-radius: 0;
+  background: var(--ei-acao);
+}

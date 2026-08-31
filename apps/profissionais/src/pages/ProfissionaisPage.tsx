@@ -247,7 +247,12 @@ export function ProfissionaisPage() {
         )}
 
         {visiveis.length > 0 && (
-          <div>
+          /* `ei-lista`, e não um `div` pelado: sem ela a lista inteira de
+             pessoas ficava direto no chão cinza da tela, sem superfície
+             branca embaixo — a única lista do app assim. Os fios entre as
+             linhas viravam riscos soltos no cinza, e a tela parecia não ter
+             terminado de carregar. */
+          <div className="ei-lista">
             {visiveis.map((p) => {
               const funcoes = p.areas_de_interesse ?? [];
               return (
