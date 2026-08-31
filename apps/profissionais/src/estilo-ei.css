@@ -66,7 +66,8 @@
      Continua sendo o navy e o laranja do logotipo. Aqui eles não pintam
      superfície nenhuma: servem de marcador de 2px e de tinta de etiqueta,
      que é como um app monocromático usa cor sem virar colorido. */
-  --ei-marca: #031e52;
+  /* Medido na arte da marca, igual ao --color-marca-azul. */
+  --ei-marca: #020f3a;
   --ei-laranja: #c2410c;
   --ei-verde: #1b6b3f;
 

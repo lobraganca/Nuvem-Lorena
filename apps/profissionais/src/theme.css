@@ -116,7 +116,11 @@
      capacitor.config.ts e no `@color/abertura` do Android. Mudando um,
      mude os três — a diferença aparece como um pisca de cor entre a tela
      do sistema e a do app. */
-  --color-marca-azul: #031e52;
+  /* O azul da marca, MEDIDO na arte que a dona mandou (mediana do fundo do
+     PNG), e não escolhido de olho. Era #031e52 — um azul parecido, mas
+     diferente: o cabeçalho punha um quadrado de um tom atrás de uma marca
+     de outro, e os dois encostados denunciam a diferença. */
+  --color-marca-azul: #020f3a;
   /* Sobrou do desenho antigo e ainda é usado como cor de tinta em algumas
      telas. Aponta para a tinta nova até cada uma ser revisitada. */
   --color-navy: var(--color-text);
@@ -306,7 +310,12 @@ button {
   /* Padding em `em` da própria altura da imagem para a folga crescer junto
      com ela: proporcionalmente igual no cabeçalho pequeno e na tela de
      início grande. */
-  padding: 0.16em 0.2em;
+  /* A folga foi refeita quando a marca nova entrou (31/08). A anterior era
+     0.16/0.2em e vinha calibrada para o desenho antigo; com o novo, que é
+     um pouco mais alto, a bolinha do "i" quase encostava no topo do
+     quadrado. Na arte que a dona mandou a marca ocupa ~2/3 do quadrado —
+     estes valores reproduzem esse respiro. */
+  padding: 0.26em 0.3em;
   box-sizing: content-box;
 }
 
