@@ -139,10 +139,43 @@
    margem é cada peça, porque a lista e o fio precisam ir de BORDA A BORDA
    — um fio que para a 20px da lateral vira um risco solto no meio da
    tela, que é o oposto do que ele existe para fazer. */
+/* ── PROFUNDIDADE: DOIS PLANOS, NÃO UM ────────────────────────────────
+   A dona, três vezes seguidas: "está muito mal demarcado", "separe bem as
+   seções para não ficar confuso", "o app precisa de uma profundidade
+   melhor, está muito confuso".
+
+   A causa estava escrita aqui, como decisão: papel branco de ponta a
+   ponta, tudo no mesmo plano, separado só por um fio de 1px. Levado ao
+   limite, o resultado é que NADA agrupa — e o defeito específico é este:
+   o fio que separa uma SEÇÃO da outra é o mesmo fio que separa duas
+   LINHAS dentro da mesma seção. São hierarquias diferentes desenhadas
+   igual. O olho não tem como saber onde um assunto termina e o outro
+   começa; sobra uma coluna de linhas cinzas do topo ao rodapé.
+
+   Agora são dois planos:
+
+     · o CHÃO da tela é o cinza (`--ei-afunda`);
+     · cada grupo de conteúdo é uma faixa BRANCA sobre ele.
+
+   O que demarca a seção passa a ser o vão de chão cinza entre os grupos —
+   uma faixa de 14px que se enxerga de longe, sem ler nada. O fio de 1px
+   continua fazendo o que sabe fazer: separar linha de linha DENTRO do
+   grupo. Cada um no seu nível.
+
+   E isto não é a cor voltando pela janela. Segue tudo monocromático, sem
+   canto redondo e sem sombra — a profundidade vem de superfície, que é o
+   que estava faltando, não de tinta, que já foi recusada três vezes. */
 .ei-tela {
   min-height: 100dvh;
-  background: var(--ei-papel);
+  background: var(--ei-afunda);
   padding: 0 0 calc(76px + env(safe-area-inset-bottom));
+}
+
+/* O cabeçalho da tela fica no papel branco, colado no topo: ele é o título
+   da tela, não um grupo de conteúdo. */
+.ei-cabeca,
+.ei-tela > .ei-margem:first-child {
+  background: var(--ei-papel);
 }
 
 /* ── A tela inicial ───────────────────────────────────────────────────
@@ -334,24 +367,37 @@
 
 /* O título de seção do Notion: pequeno, cinza e em caixa alta — e não um
    segundo título grande competindo com o da página. */
+/* ── O título de seção ────────────────────────────────────────────────
+   Ele era MENOR e MAIS CLARO que o texto que apresentava: 0,72rem em
+   versalete cinza-fraco, anunciando um corpo de 0,92rem em tinta cheia. O
+   título pesando menos que o conteúdo inverte a hierarquia — o olho lê o
+   conteúdo primeiro e volta para descobrir do que se tratava.
+
+   Agora tem tamanho de título (0,82rem), a tinta forte do app e mora no
+   CHÃO cinza, fora da faixa branca do conteúdo. É essa combinação que faz
+   a seção se enxergar de longe: rótulo escuro sobre o cinza, conteúdo
+   branco embaixo. */
 .ei-secao,
 .ei-secao-linha h2 {
-  font-size: 0.72rem;
+  font-size: 0.82rem;
   font-weight: 600;
-  letter-spacing: 0.06em;
+  letter-spacing: 0.04em;
   text-transform: uppercase;
-  color: var(--ei-tinta-fraca);
+  color: var(--ei-tinta);
   margin: 0;
 }
 
-.ei-secao { padding: 24px 20px 8px; }
+/* 26px em cima e 10px embaixo: o rótulo tem que estar claramente mais
+   perto do que ele apresenta do que do que veio antes. Antes eram 24 e 8,
+   perto demais um do outro para a diferença ser lida. */
+.ei-secao { padding: 26px 20px 10px; }
 
 .ei-secao-linha {
   display: flex;
   align-items: baseline;
   justify-content: space-between;
   gap: 12px;
-  padding: 24px 20px 8px;
+  padding: 26px 20px 10px;
   margin: 0;
 }
 
@@ -464,12 +510,28 @@
    O que era `.ei-cartao`. Não é mais um cartão: é um trecho do mesmo
    papel, com um fio em cima, de ponta a ponta. Sem fundo próprio, sem
    canto, sem sombra. */
+/* O grupo de conteúdo: faixa branca sobre o chão cinza, com fio em cima e
+   embaixo. Era `transparent` com um fio só no topo — ou seja, não era
+   grupo nenhum, era um parágrafo com um risco em cima. */
 .ei-cartao {
-  background: transparent;
+  background: var(--ei-papel);
   border-radius: 0;
   padding: 16px 20px;
   border-top: 1px solid var(--ei-fio);
+  border-bottom: 1px solid var(--ei-fio);
 }
+
+/* DENTRO de uma `.ei-lista` os irmãos são LINHAS de um mesmo grupo — as
+   duas chaves de "Meu perfil", por exemplo. Aí não há vão: um fio de 1px
+   separa, e o grupo continua sendo um só. */
+.ei-lista .ei-cartao + .ei-cartao { border-top: 0; margin-top: 0; }
+
+/* FORA dela, cada `.ei-cartao` é uma UNIDADE de conteúdo — uma vaga, na
+   lista de vagas —, e aí o vão de chão cinza entre elas é justamente o que
+   faz uma vaga terminar e a outra começar. Sem ele a lista virava um bloco
+   branco corrido com riscos dentro, e era preciso LER para saber onde
+   acabava uma. */
+.ei-cartao + .ei-cartao { margin-top: 10px; }
 
 .ei-cartao-fundo { background: var(--ei-afunda); }
 
@@ -492,7 +554,9 @@
    volta, sem espaço entre as linhas. */
 .ei-lista {
   display: block;
+  background: var(--ei-papel);
   border-top: 1px solid var(--ei-fio);
+  border-bottom: 1px solid var(--ei-fio);
 }
 
 .ei .ei-lista > * {
@@ -719,7 +783,14 @@
    informação de estado, que a pessoa lê de relance e não toca. Antes isso
    morava num cartão com número grande, que dava a um dado de cadastro o
    peso de uma manchete. */
-.ei-props { padding: 10px 20px 4px; }
+/* A ficha e os atalhos ficam na faixa BRANCA, como todo grupo de
+   conteúdo. Sem isto eles boiavam direto no chão cinza — as únicas peças
+   da tela sem superfície embaixo, e por isso as que pareciam soltas. */
+.ei-props {
+  padding: 12px 20px 6px;
+  background: var(--ei-papel);
+  border-top: 1px solid var(--ei-fio);
+}
 
 .ei-prop {
   display: flex;
@@ -929,8 +1000,13 @@
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 8px;
-  padding: 14px 20px;
+  padding: 14px 20px 18px;
+  background: var(--ei-papel);
+  border-bottom: 1px solid var(--ei-fio);
 }
+
+/* Colados, ficha e atalhos são um grupo só: sem o fio no meio deles. */
+.ei-props + .ei-acoes { border-top: 0; }
 
 .ei-acao {
   min-width: 0;
@@ -1327,4 +1403,22 @@
   border-bottom: 1px solid var(--ei-fio);
   font-size: 0.92rem;
   line-height: 1.45;
+}
+
+/* A função que a pessoa escreveu, e que por isso ainda não recebe onda.
+   O "+" na frente é a marca, e a linha de apoio embaixo do grupo explica o
+   que ele quer dizer — marca sem legenda é enigma. */
+.ei-chip-nova::before {
+  content: "+";
+  font-weight: 700;
+  margin-right: 4px;
+}
+
+/* A grade de ofícios que rola dentro do grupo. O fio embaixo é o que diz
+   que a lista continua — sem ele o corte parece o fim dela. */
+.ei-chips-rolagem {
+  max-height: 232px;
+  overflow-y: auto;
+  padding-bottom: 8px;
+  border-bottom: 1px solid var(--ei-fio);
 }

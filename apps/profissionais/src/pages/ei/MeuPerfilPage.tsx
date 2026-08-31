@@ -7,6 +7,7 @@ import { Switch } from "../../components/ei/Switch";
 import { CampoTelefone } from "../../components/ei/CampoTelefone";
 import { Pagina } from "../../components/ei/Pagina";
 import { CATEGORIES, MAX_FUNCOES } from "../../types/domain";
+import { sendSuggestion } from "../../lib/suggestions";
 import {
   lerMeuPerfil,
   salvarMeuPerfil,
@@ -180,6 +181,61 @@ export function MeuPerfilPage() {
     ? CATEGORIES.filter((c) => c.toLocaleLowerCase("pt-BR").includes(busca.toLocaleLowerCase("pt-BR")))
     : CATEGORIES;
 
+  /* ── ESCREVER A PRÓPRIA FUNÇÃO ────────────────────────────────────────
+     A dona: "do jeito que está a pessoa tem que procurar e pode ser que a
+     função dela não esteja na lista."
+
+     Está certo, e o beco era completo: o campo só FILTRAVA a lista. Quem
+     faz soldagem de tubulação, ou opera empilhadeira, digitava, não achava
+     nada, e a tela não oferecia saída nenhuma — nem um "não achou?", nem
+     um caminho. A pessoa conclui que o app não é para ela.
+
+     ── E POR QUE A FUNÇÃO ESCRITA VEM MARCADA ──────────────────────────
+     Porque senão isto vira a pior classe de defeito deste projeto: o que
+     parece funcionar.
+
+     A onda que avisa das vagas cruza o que a pessoa marcou com a profissão
+     que a EMPRESA escolheu — e a empresa escolhe de uma lista fechada
+     (`CATEGORIES`, no formulário da vaga). Duas listas que não se
+     encontram: uma função escrita à mão nunca cruza com nada. A pessoa
+     escreveria "Soldador", veria salvo, e esperaria para sempre por uma
+     vaga que jamais chega. Ninguém reclama de vaga que não chegou.
+
+     Então a função escrita entra no cadastro — ela aparece no perfil, e a
+     empresa que procura na lista de profissionais lê —, mas a tela DIZ que
+     por ela a vaga ainda não chega, e o que foi escrito é mandado para a
+     administração como pedido de função nova. É assim que a lista cresce
+     com o que as pessoas de verdade fazem, em vez de com o que se
+     imaginou. */
+  const escrita = busca.trim();
+  const jaExisteNaLista = CATEGORIES.some(
+    (c) => c.toLocaleLowerCase("pt-BR") === escrita.toLocaleLowerCase("pt-BR")
+  );
+  const jaMarcada = funcoes.some(
+    (f) => f.toLocaleLowerCase("pt-BR") === escrita.toLocaleLowerCase("pt-BR")
+  );
+  /* Duas letras é curto demais para ser função e é o que sobra quando a
+     pessoa está no meio de digitar. */
+  const podeCriar = escrita.length >= 3 && !jaExisteNaLista && !jaMarcada && !cheio;
+
+  /** A função não está na lista fechada — logo, não recebe onda ainda. */
+  const foraDaLista = (f: string) => !CATEGORIES.includes(f);
+
+  async function criarFuncao() {
+    const nome = escrita;
+    if (!nome) return;
+    alternar(nome);
+    setBusca("");
+    /* Avisa a administração, para a lista crescer. Falha aqui não pode
+       derrubar nada: a função já está no cadastro da pessoa, que é o que
+       ela pediu. O pedido perdido é menos grave que a tela travada. */
+    try {
+      await sendSuggestion(`Função que faltava na lista: "${nome}"`, user?.id ?? null);
+    } catch {
+      /* segue em frente de propósito */
+    }
+  }
+
   if (carregandoConta || carregando) {
     return (
       <div className="ei">
@@ -264,7 +320,12 @@ export function MeuPerfilPage() {
         {/* ── 1. Disponível ────────────────────────────────────────────
             No topo porque é o que muda toda semana. Quem arrumou emprego
             precisa desligar em dois toques, sem procurar. */}
-        <div className="ei-lista" style={{ marginBottom: 8 }}>
+        {/* As duas chaves não tinham título de seção nenhum: ficavam soltas
+            entre "Seus dados" e "O que você aceita fazer", sem dizer do que
+            tratavam. Num app em que toda seção se anuncia, a que não se
+            anuncia parece sobra da seção anterior. */}
+        <h2 className="ei-secao">Quando você quer receber vaga</h2>
+        <div className="ei-lista">
           <div className="ei-cartao" style={{ padding: 0 }}>
             <Switch
               ligado={disponivel}
@@ -294,14 +355,18 @@ export function MeuPerfilPage() {
               }
             />
           </div>
-        </div>
 
-        {/* Este é o motivo de a opção existir, e dizê-lo evita a pergunta
-           "por que eu esconderia meu perfil?". */}
-        <p className="ei-apoio" style={{ margin: "0 0 8px", padding: "0 4px" }}>
-          Quem está empregado e não quer ser encontrado pelo patrão pode se esconder
-          da lista e continuar recebendo vaga.
-        </p>
+          {/* Este é o motivo de a opção existir, e dizê-lo evita a pergunta
+              "por que eu esconderia meu perfil?".
+
+              Fica DENTRO do grupo branco, e não solto no chão cinza depois
+              dele: é a explicação da chave logo acima, e fora do grupo
+              parecia um aviso avulso, sem dono. */}
+          <p className="ei-apoio" style={{ margin: 0, padding: "0 20px 14px" }}>
+            Quem está empregado e não quer ser encontrado pelo patrão pode se
+            esconder da lista e continuar recebendo vaga.
+          </p>
+        </div>
 
         {/* ── 2. Funções ───────────────────────────────────────────────── */}
         <h2 className="ei-secao">O que você aceita fazer</h2>
@@ -312,14 +377,42 @@ export function MeuPerfilPage() {
           </p>
 
           <div className="ei-campo" style={{ marginBottom: 12 }}>
+            {/* "ou escrever" no rótulo, e não só "procurar": era a tela
+                inteira dizendo que a única coisa possível ali era achar o
+                que já existe. */}
             <input
               type="search"
-              placeholder="Procurar função"
+              placeholder="Procurar ou escrever sua função"
               value={busca}
               onChange={(e) => setBusca(e.target.value)}
-              aria-label="Procurar função"
+              aria-label="Procurar ou escrever sua função"
+              onKeyDown={(e) => {
+                if (e.key === "Enter" && podeCriar) {
+                  e.preventDefault();
+                  criarFuncao();
+                }
+              }}
             />
           </div>
+
+          {/* A saída para quem não achou. Aparece assim que o que foi
+              digitado não existe na lista — antes de a pessoa desistir. */}
+          {podeCriar && (
+            <button
+              type="button"
+              className="ei-btn ei-btn-contorno ei-btn-largo"
+              style={{ marginBottom: 12 }}
+              onClick={criarFuncao}
+            >
+              Adicionar “{escrita}”
+            </button>
+          )}
+
+          {escrita.length >= 3 && visiveis.length === 0 && !podeCriar && jaMarcada && (
+            <p className="ei-apoio" style={{ marginBottom: 12 }}>
+              “{escrita}” já está nas suas funções.
+            </p>
+          )}
 
           {/* As marcadas sobem para o topo: com oito escolhidas no meio de
               oitenta, a pessoa perde de vista o que já marcou. */}
@@ -329,9 +422,14 @@ export function MeuPerfilPage() {
                 <button
                   key={f}
                   type="button"
-                  className="ei-chip"
+                  className={foraDaLista(f) ? "ei-chip ei-chip-nova" : "ei-chip"}
                   aria-pressed={true}
                   onClick={() => alternar(f)}
+                  title={
+                    foraDaLista(f)
+                      ? "Função escrita por você — ainda não recebe vaga por ela"
+                      : undefined
+                  }
                 >
                   {f} <span aria-hidden="true">✕</span>
                 </button>
@@ -339,7 +437,11 @@ export function MeuPerfilPage() {
             </div>
           )}
 
-          <div className="ei-chips" style={{ maxHeight: 220, overflowY: "auto" }}>
+          {/* A altura fixa cortava a última fileira NO MEIO, e um bloco que
+              termina em meia etiqueta parece tela quebrada, não lista que
+              rola. 232px fecham em fileira inteira, e o fio de baixo diz
+              que há mais para rolar. */}
+          <div className="ei-chips ei-chips-rolagem">
             {visiveis
               .filter((c) => !funcoes.includes(c))
               .map((c) => (
@@ -355,6 +457,19 @@ export function MeuPerfilPage() {
                 </button>
               ))}
           </div>
+
+          {/* O aviso que impede a mentira calma. Ver o comentário de
+              `criarFuncao`: a onda cruza o que a pessoa marcou com a
+              profissão que a EMPRESA escolheu de uma lista fechada, então
+              função escrita à mão não cruza com nada — e sem esta linha a
+              pessoa esperaria para sempre uma vaga que não vem. */}
+          {funcoes.some(foraDaLista) && (
+            <p className="ei-apoio" style={{ marginTop: 10 }}>
+              As funções com <strong>+</strong> foram escritas por você. Elas
+              aparecem no seu perfil para quem procurar, mas a vaga ainda não
+              chega por elas — mandamos para a gente incluir na lista.
+            </p>
+          )}
 
           {cheio && (
             <p className="ei-apoio" style={{ marginTop: 10 }}>
