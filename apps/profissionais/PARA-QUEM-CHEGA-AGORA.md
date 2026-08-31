@@ -112,6 +112,13 @@ não do app. Confirme no app de verdade antes de consertar qualquer coisa.
 
 O que publica é a `duqnk8`. Empurrar nela publica o site em minutos.
 
+**Combine quem empurra antes de empurrar.** Em 31/08 duas sessões do
+Claude empurraram para a `duqnk8` em menos de uma hora. Deu certo só
+porque mexeram em arquivos diferentes — o único conflito foi o nome do
+app no workflow da Play Store. Se as duas tocarem no mesmo arquivo, uma
+sobrescreve a outra sem aviso, e o site vai ao ar com metade do
+trabalho.
+
 **A `procuro-producao` está congelada** no commit `d96e017`. Ela serve o
 `procuroapp.com.br`, que é outro produto da Lorena. Qualquer commit nela
 republica aquele site. Não commite nada ali.
@@ -159,6 +166,39 @@ commit antigo. Nada no GitHub nem na Vercel apontava a diferença.
 
 Por isso o `vite.config.ts` publica um `versao.json` com o commit, e o
 workflow confere se o site devolve aquele commit exato.
+
+### E "no ar" ainda não quer dizer que ela vai VER
+
+Esta é a segunda causa de "não mudou nada", e ela sobrevive ao check
+verde. Aconteceu em 31/08: o log do workflow mostrava o site trocando de
+commit no meio da execução — `606cf8f` → `b5b8141` — e a resposta foi
+"não vi alteração nenhuma no site".
+
+O app é uma PWA. O *service worker* guarda cópias dos arquivos para a
+próxima visita abrir rápido, e continua entregando as antigas depois de
+uma publicação. Do lado de quem olha, publicar e não publicar são
+idênticos.
+
+O tratamento está em `src/lib/atualizacao.ts`, e o cabeçalho dele conta a
+história inteira — vale ler antes de mexer. Em resumo, a versão nova
+entra sozinha quando não há nada em jogo na tela (nada digitado, nenhuma
+folha aberta, ninguém no meio do cadastro), e só avisa quando há.
+
+Até 31/08 essa troca automática só valia na transição "segundo plano →
+voltou". Quem abre o SITE numa aba nunca passa por ela: a aba nasce
+visível. Agora a primeira carga também troca.
+
+**Quando ela disser que não mudou nada, o roteiro é este, nesta ordem:**
+
+1. o workflow ficou verde? Se não, é publicação — veja acima.
+2. ficou verde? Então peça **Conta > Forçar atualização** (fim da tela de
+   Conta). Ele apaga os caches e busca do servidor.
+3. continua? Pergunte o endereço EXATO que ela abriu. O workflow confere
+   `www.empregoitabirito.com.br`.
+
+E a armadilha do conserto: uma correção no próprio `atualizacao.ts` só
+começa a valer da atualização SEGUINTE — ela mora justamente na versão
+que o aparelho ainda não recebeu.
 
 ---
 
@@ -341,7 +381,12 @@ para conversar. Foi proposto e nunca decidido pela Lorena.
 - Não há monitoramento de erro em produção.
 - Não há teste de tela.
 - `allowBackup="true"` no Android — revisar.
-- Algumas telas antigas ainda não receberam o visual novo.
+- Algumas telas antigas ainda não receberam o visual novo. Medido em
+  31/08, procurando `className="container"`, `className="card"` e
+  `btn btn-primary`: AdminPage (14 ocorrências), CriarVagaPage (6),
+  ConfiguracaoPage (5), LoginPage (4), DiagnosticoPage (3),
+  CadastroEmpresaPage (3), PrivacidadePage (2), ExcluirContaPage (2).
+  O caminho principal já foi convertido; sobrou o que fica nas beiradas.
 
 ---
 
