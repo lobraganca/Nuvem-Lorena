@@ -12,6 +12,7 @@ import { ExigirNumero, exigeNumero } from "./ExigirNumero";
 import { CompletarPerfil, exigePerfil } from "./CompletarPerfil";
 import { ExigirConta } from "./ei/ExigirConta";
 import { ExigirSenha, exigeSenha } from "./ei/ExigirSenha";
+import { ExigirDesbloqueio, exigeDesbloqueio } from "./ei/ExigirDesbloqueio";
 
 /* Etiqueta de preço: diz "aqui tem oferta" sem a agressividade do megafone,
    que num app de serviços lê como spam. */
@@ -278,6 +279,11 @@ function envolverTelaDeConta(caminho: string, conteudo: ReactNode): ReactNode {
      conta (só faz sentido para quem já entrou) e FORA das outras — não
      adianta pedir para completar o perfil de quem vai ser levado para a
      tela da senha no quadro seguinte. */
+  /* Pedir a senha a cada ABERTURA do app fica por DENTRO da criação da
+     senha — ou seja, é embrulhado primeiro. A ordem importa: quem ainda
+     não criou senha não pode topar com uma tela que pede exatamente o que
+     ela não tem. Primeiro cria, depois é que passa a ser perguntada. */
+  if (exigeDesbloqueio(caminho)) saida = <ExigirDesbloqueio>{saida}</ExigirDesbloqueio>;
   if (exigeSenha(caminho)) saida = <ExigirSenha>{saida}</ExigirSenha>;
   /* A conta é a barreira mais EXTERNA, e por isso é a última a embrulhar:
      sem ela nem a lista de gente abre. Se viesse antes, "completar perfil"
