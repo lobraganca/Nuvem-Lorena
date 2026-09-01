@@ -89,19 +89,22 @@ export function LoginPage() {
      armazenamento é só uma lembrança de conveniência — errar nela não
      tranca ninguém, os dois caminhos estão sempre a um toque. */
   const [modo, setModo] = useState<"senha" | "sms">(() => {
-    /* O botão da tela inicial manda o caminho no endereço: "Criar conta"
-       abre no SMS (ninguém tem senha antes de existir), "Já tenho conta"
-       abre na senha. Sem isso as duas pessoas caíam na mesma tela e uma
-       das duas tinha que descobrir sozinha que precisava trocar de modo. */
+    /* ── A SENHA É O CAMINHO NORMAL; O SMS É O CONSERTO ────────────────
+       A dona: "toda vez que entra está me pedindo pra enviar o sms. a
+       partir do momento que tem o sms confirmado, deve abrir uma tela pra
+       cadastrar a senha, após isso a pessoa só consegue abrir com o número
+       e senha. ou se esquecer a senha, aí manda outro sms."
+
+       Antes o padrão era o SMS, e a senha só aparecia se o aparelho
+       lembrasse que ela existia. O efeito é o que ela descreve: quem já
+       tem senha era recebido, toda vez, pela tela que gasta uma mensagem.
+
+       Agora abre na senha, sempre. O SMS continua a um toque, com o nome
+       do que ele resolve — "esqueci a senha" —, e é ele que cria a conta
+       de quem chega pelo botão "Criar conta". */
     const pedido = new URLSearchParams(window.location.search || "").get("acao")
       ?? new URLSearchParams(window.location.hash.split("?")[1] ?? "").get("acao");
-    if (pedido === "criar") return "sms";
-    if (pedido === "entrar") return "senha";
-    try {
-      return localStorage.getItem("ei-tem-senha") === "1" ? "senha" : "sms";
-    } catch {
-      return "sms";
-    }
+    return pedido === "criar" ? "sms" : "senha";
   });
   const [senhaEntrada, setSenhaEntrada] = useState("");
   /* Acabou de entrar por SMS e ainda não tem senha: a tela oferece criar
@@ -232,9 +235,10 @@ export function LoginPage() {
   if (ofereceSenha && !user?.user_metadata?.tem_senha) {
     return (
       <div className="container entrar-pagina">
-        <h1>Pronto, você entrou</h1>
+        <h1>Agora crie sua senha</h1>
         <p className="muted">
-          Quer criar uma senha? Assim, da próxima vez, você entra sem esperar SMS.
+          É com ela que você entra daqui em diante. O SMS fica guardado para o dia
+          em que você esquecer.
         </p>
 
         <section className="entrar-bloco">
@@ -271,14 +275,31 @@ export function LoginPage() {
           >
             {enviando ? "Salvando…" : "Criar senha e continuar"}
           </button>
-          <button
-            type="button"
-            className="btn btn-outline btn-block entrar-secundario"
-            disabled={enviando}
-            onClick={() => setOfereceSenha(false)}
-          >
-            Agora não
-          </button>
+
+          {/* ── SEM "AGORA NÃO" ─────────────────────────────────────────
+              A dona pediu que a senha deixasse de ser opcional: "a partir
+              do momento que tem o sms confirmado, deve abrir uma tela pra
+              cadastrar a senha, após isso a pessoa só consegue abrir com o
+              número e senha."
+
+              O "Agora não" saiu por isso — e porque ele criava um estado
+              ruim: gente com conta e sem senha, recebida toda vez pela
+              tela do SMS, gastando mensagem a cada entrada.
+
+              A saída de emergência abaixo só aparece se guardar a senha
+              FALHAR. Sem ela, um erro de rede aqui prenderia a pessoa numa
+              tela obrigatória, já logada, sem nenhum caminho — que é pior
+              do que uma conta sem senha. */}
+          {error && (
+            <button
+              type="button"
+              className="entrar-link"
+              disabled={enviando}
+              onClick={() => setOfereceSenha(false)}
+            >
+              Não consegui agora — continuar e criar depois na Conta
+            </button>
+          )}
         </section>
 
         {aviso && <p className="entrar-aviso">{aviso}</p>}
@@ -454,7 +475,7 @@ export function LoginPage() {
               }}
             >
               {modo === "senha"
-                ? "Não tenho senha — entrar com código por SMS"
+                ? "Esqueci minha senha — receber código por SMS"
                 : "Já tenho senha — entrar com ela"}
             </button>
           </>
