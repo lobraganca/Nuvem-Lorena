@@ -17,6 +17,7 @@ import {
   type MeuPerfil,
 } from "../../lib/meuPerfil";
 import { lerExperiencias, salvarExperiencias } from "../../lib/experiencias";
+import { numeroJaConfirmadoNaConta, marcarAnuncioConfirmado } from "../../lib/whatsappVerify";
 
 /**
  * O perfil de quem procura trabalho.
@@ -85,6 +86,8 @@ export function MeuPerfilPage() {
      Até agora os passos 2 a 4 não existiam — a promessa quebrava na
      primeira tela depois dela. */
   const [etapa, setEtapa] = useState(1);
+  /** O número do cadastro é o mesmo que a conta já confirmou por SMS. */
+  const [foneDaConta, setFoneDaConta] = useState(false);
 
   /* Cadastro novo é o que ainda não tem linha no banco. Depois do primeiro
      Salvar a tela vira a de edição sozinha, que é o que a pessoa espera:
@@ -157,6 +160,28 @@ export function MeuPerfilPage() {
     })();
   }, [user, carregandoConta, navegar]);
 
+  /* ── O TELEFONE DO LOGIN JÁ VEM CONFIRMADO ──────────────────────────
+     A dona: "quando o celular confirma na entrada ele fica como confirmado
+     no cadastro."
+
+     Está certíssimo, e antes não era assim: quem entrava por SMS — ou
+     seja, todo mundo — chegava no cadastro com o mesmo número e um selo
+     "Falta confirmar" do lado. O atalho existia, mas exigia um toque em
+     "Confirmar este número", e recusar o salvamento por causa dele era
+     pedir a mesma prova duas vezes.
+
+     Agora a tela pergunta ao Auth, na abertura, se o número do cadastro é
+     o número já confirmado da conta. Se for, o selo fica verde na hora, e
+     o carimbo no banco acontece sozinho no primeiro salvamento. */
+  useEffect(() => {
+    if (!perfil.phone) return;
+    let vivo = true;
+    numeroJaConfirmadoNaConta(perfil.phone).then((sim) => {
+      if (vivo) setFoneDaConta(sim);
+    });
+    return () => { vivo = false; };
+  }, [perfil.phone]);
+
   async function salvar() {
     if (!user) return;
 
@@ -170,7 +195,7 @@ export function MeuPerfilPage() {
 
        Não se perde nada do que foi digitado: continua tudo na tela, e o
        próprio botão de confirmar grava o cadastro ao ser usado. */
-    if (!perfil.confirmado) {
+    if (!perfil.confirmado && !foneDaConta) {
       setSalvo(false);
       setErro(
         "Falta confirmar o telefone. Toque em “Confirmar este número”, ali em cima, " +
@@ -185,6 +210,20 @@ export function MeuPerfilPage() {
     try {
       const id = await salvarMeuPerfil(user.id, perfil);
       setPerfil((p) => ({ ...p, id }));
+
+      /* O carimbo do telefone, para quem entrou por SMS com este mesmo
+         número. Só dá para fazer aqui: a função do banco compara o número
+         do CADASTRO com o da conta, e o cadastro acabou de existir.
+         Falhar aqui não derruba o salvamento — o perfil já está gravado, e
+         o campo continua oferecendo a confirmação manual. */
+      if (foneDaConta && !perfil.confirmado) {
+        try {
+          await marcarAnuncioConfirmado(id);
+          setPerfil((p) => ({ ...p, confirmado: true }));
+        } catch {
+          /* silêncio proposital: ver comentário acima */
+        }
+      }
       await Promise.all([
         salvarExperiencias(
           id,
@@ -334,7 +373,7 @@ export function MeuPerfilPage() {
               lugar onde a confirmação acontece. Ver CampoTelefone. */}
           <CampoTelefone
             valor={perfil.phone}
-            confirmado={perfil.confirmado}
+            confirmado={perfil.confirmado || foneDaConta}
             onChange={(v) => setPerfil((x) => ({ ...x, phone: v, confirmado: false }))}
             onConfirmado={(id) => setPerfil((x) => ({ ...x, id, confirmado: true }))}
             aoPrecisarSalvar={async () => {

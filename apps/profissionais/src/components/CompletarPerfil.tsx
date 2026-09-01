@@ -9,6 +9,7 @@ import { mensagemDeErro } from "../lib/erros";
 import { formatPhone, onlyPhoneDigits, ehCelular, doFormatoDoBanco } from "../lib/phone";
 import type { Profile } from "../types/domain";
 import { Pagina } from "./ei/Pagina";
+import { AjustarFoto } from "./ei/AjustarFoto";
 
 /**
  * As telas de conta que só abrem com o perfil preenchido.
@@ -120,6 +121,7 @@ export function CompletarPerfil({ children }: { children: React.ReactNode }) {
   const [foto, setFoto] = useState<string | null>(null);
 
   const [enviandoFoto, setEnviandoFoto] = useState(false);
+  const [aEnquadrar, setAEnquadrar] = useState<File | null>(null);
   const [salvando, setSalvando] = useState(false);
   const [erro, setErro] = useState("");
 
@@ -151,6 +153,22 @@ export function CompletarPerfil({ children }: { children: React.ReactNode }) {
 
   if (loading || carregando) return null;
   if (!user || !incompleto(perfil)) return <>{children}</>;
+
+  /* A imagem escolhida espera o enquadramento antes de subir: quem envia
+     é esta função, já com o recorte pronto. */
+  async function guardarFoto(recortada: File) {
+    if (!user) return;
+    setAEnquadrar(null);
+    setEnviandoFoto(true);
+    setErro("");
+    try {
+      setFoto(await uploadProfessionalPhoto(user.id, recortada));
+    } catch (err) {
+      setErro(mensagemDeErro(err, "Não foi possível enviar a foto."));
+    } finally {
+      setEnviandoFoto(false);
+    }
+  }
 
   const digitos = onlyPhoneDigits(telefone);
   const falta =
@@ -214,6 +232,15 @@ export function CompletarPerfil({ children }: { children: React.ReactNode }) {
 
         <Pagina titulo="Falta pouco" />
 
+        {aEnquadrar && (
+          <AjustarFoto
+            arquivo={aEnquadrar}
+            redondo
+            aoConfirmar={guardarFoto}
+            aoCancelar={() => setAEnquadrar(null)}
+          />
+        )}
+
         <p className="ei-apoio ei-margem" style={{ marginTop: -4 }}>
           {ehEmpresa
             ? "É por aqui que quem responder à sua vaga fala com você."
@@ -238,18 +265,14 @@ export function CompletarPerfil({ children }: { children: React.ReactNode }) {
               disabled={enviandoFoto}
               style={{ display: "none" }}
               onChange={async (e) => {
+                /* Escolher não envia: abre o enquadramento. A foto de
+                   rosto aparece redonda na lista, e o corte automático do
+                   navegador (o meio da imagem) cortava a testa de quem
+                   mandava foto em pé. */
                 const arquivo = e.target.files?.[0];
                 e.target.value = "";
                 if (!arquivo || !user) return;
-                setEnviandoFoto(true);
-                setErro("");
-                try {
-                  setFoto(await uploadProfessionalPhoto(user.id, arquivo));
-                } catch (err) {
-                  setErro(mensagemDeErro(err, "Não foi possível enviar a foto."));
-                } finally {
-                  setEnviandoFoto(false);
-                }
+                setAEnquadrar(arquivo);
               }}
             />
           </label>

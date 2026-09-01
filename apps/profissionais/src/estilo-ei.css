@@ -1803,3 +1803,157 @@
   top: 0;
   z-index: 20;
 }
+
+/* ═══════════════════════════════════════════════════════════════════════
+   A TRILHA DE ETAPAS EM CARTÕES — 01/09
+   ═══════════════════════════════════════════════════════════════════════
+   "o cadastro da empresa e do profissional pode ser em cards por etapas,
+   pra ficar mais dinâmico."
+
+   Um cartãozinho por etapa, rolando na horizontal. O de agora é pintado
+   com a cor da ação; os já feitos ficam com o visto e um fio na cor; os
+   que ainda vêm ficam apagados, mas LEGÍVEIS — cinza fraco demais numa
+   etapa futura vira enfeite, e a pessoa perde justamente a informação do
+   que falta.
+
+   A rolagem some a barra (`scrollbar-width: none`): ela ocupa altura no
+   Android e não acrescenta nada, porque a trilha já se move sozinha
+   quando a etapa muda. */
+.ei-etapas {
+  display: flex;
+  gap: 8px;
+  list-style: none;
+  margin: 0 0 14px;
+  padding: 2px 16px 2px;
+  overflow-x: auto;
+  scrollbar-width: none;
+  -webkit-overflow-scrolling: touch;
+}
+.ei-etapas::-webkit-scrollbar { display: none; }
+
+.ei-etapa {
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 9px 14px 9px 9px;
+  border: 1px solid var(--ei-fio);
+  border-radius: var(--ei-raio);
+  background: var(--ei-papel);
+  color: var(--ei-tinta-fraca);
+  font-size: 0.9rem;
+  line-height: 1.2;
+}
+
+.ei-etapa-numero {
+  display: grid;
+  place-items: center;
+  width: 24px;
+  height: 24px;
+  border-radius: var(--ei-raio-redondo);
+  background: var(--ei-afunda-forte);
+  color: var(--ei-tinta-fraca);
+  font-size: 0.8rem;
+  font-weight: 700;
+}
+
+/* A de agora: pintada, e é a única com peso na letra. */
+.ei-etapa-agora {
+  background: var(--ei-acao);
+  border-color: var(--ei-acao);
+  color: var(--ei-sobre-acao);
+  font-weight: 600;
+}
+.ei-etapa-agora .ei-etapa-numero {
+  background: rgba(255, 255, 255, 0.24);
+  color: var(--ei-sobre-acao);
+}
+
+/* As feitas: fio na cor e visto, sem preencher — preenchidas também, a
+   trilha inteira ficaria azul e a etapa de agora deixaria de se destacar,
+   que é a única coisa que ela precisa fazer. */
+.ei-etapa-feita {
+  border-color: var(--ei-acao);
+  color: var(--ei-acao);
+}
+.ei-etapa-feita .ei-etapa-numero {
+  background: var(--ei-acao);
+  color: var(--ei-sobre-acao);
+}
+
+/* O cabeçalho de dentro do cartão de etapa: o título do que se pede ali. */
+.ei-etapa-titulo {
+  margin: 0 0 4px;
+  font-size: 1.05rem;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+}
+.ei-etapa-apoio {
+  margin: 0 0 14px;
+  color: var(--ei-tinta-fraca);
+  font-size: 0.92rem;
+  line-height: 1.45;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════
+   ENQUADRAR A FOTO — 01/09
+   ═══════════════════════════════════════════════════════════════════════
+   A janela que abre depois de escolher a imagem. Ver AjustarFoto.tsx para
+   o porquê; aqui só o desenho.
+
+   `touch-action: none` no palco é obrigatório: sem ele o Android trata o
+   arrasto como rolagem da página, a foto não se move, e o controle parece
+   simplesmente quebrado — sem erro nenhum para investigar. */
+.ei-folha-fundo {
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+  display: grid;
+  place-items: center;
+  padding: 16px;
+  background: rgba(15, 23, 42, 0.55);
+}
+
+.ei-folha {
+  width: min(360px, 100%);
+  max-height: 92dvh;
+  overflow-y: auto;
+  padding: 18px;
+  background: var(--ei-papel);
+  border-radius: var(--ei-raio);
+  box-shadow: 0 18px 48px rgba(15, 23, 42, 0.28);
+}
+
+.ei-palco {
+  position: relative;
+  width: 264px;
+  height: 264px;
+  max-width: 100%;
+  margin: 4px auto 14px;
+  overflow: hidden;
+  border-radius: var(--ei-raio);
+  background: var(--ei-afunda-forte);
+  touch-action: none;
+  cursor: grab;
+}
+.ei-palco:active { cursor: grabbing; }
+
+.ei-palco img {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  max-width: none;
+  user-select: none;
+  -webkit-user-drag: none;
+}
+
+/* O círculo por cima, para foto de pessoa: mostra na hora de enquadrar o
+   mesmo recorte que a lista vai mostrar depois. */
+.ei-palco-redondo::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: var(--ei-raio-redondo);
+  box-shadow: 0 0 0 999px rgba(255, 255, 255, 0.72);
+  pointer-events: none;
+}
