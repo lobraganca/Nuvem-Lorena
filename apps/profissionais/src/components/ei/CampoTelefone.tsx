@@ -60,6 +60,20 @@ export function CampoTelefone({
   aoPrecisarSalvar: () => Promise<string>;
 }) {
   const [passo, setPasso] = useState<"digitando" | "codigo">("digitando");
+  /* ── O NÚMERO CONFIRMADO NÃO SE APAGA SEM QUERER ────────────────────
+     A dona, com o cadastro aberto: "ao confirmar o telefone ele não pode
+     sair do cadastro."
+
+     Estava certo o incômodo. O campo continuava aberto depois de
+     confirmado, e qualquer toque nele — um dedo na tela ao rolar, um
+     backspace — apagava dígitos, o que derruba a confirmação na hora
+     (aqui e no banco, pela 0052). A pessoa saía do cadastro com o selo
+     laranja de novo, sem entender o que fez, e o cadastro dela deixava de
+     aparecer para as empresas.
+
+     Agora o número confirmado fica travado, e trocar exige um toque
+     deliberado num botão que diz o que vai acontecer. */
+  const [destravado, setDestravado] = useState(false);
   const [codigo, setCodigo] = useState("");
   const [ocupado, setOcupado] = useState(false);
   const [erro, setErro] = useState("");
@@ -130,6 +144,7 @@ export function CampoTelefone({
         inputMode="tel"
         value={valor}
         placeholder="(31) 99999-8888"
+        readOnly={confirmado && !destravado}
         onChange={(e) => {
           onChange(e.target.value);
           /* Mexeu no número, some o pedido de código que estava no ar: ele
@@ -141,9 +156,23 @@ export function CampoTelefone({
       />
 
       {confirmado ? (
-        <span className="ei-campo-ajuda">
-          É por aqui que a empresa vai te chamar. Trocar o número pede uma confirmação nova.
-        </span>
+        <>
+          <span className="ei-campo-ajuda">
+            É por aqui que a empresa vai te chamar.{" "}
+            {destravado
+              ? "Ao salvar um número diferente, ele volta a pedir confirmação."
+              : "Ele está travado para não sumir sem querer."}
+          </span>
+          {!destravado && (
+            <button
+              type="button"
+              className="ei-btn-inline"
+              onClick={() => setDestravado(true)}
+            >
+              Trocar o número
+            </button>
+          )}
+        </>
       ) : passo === "digitando" ? (
         <>
           <span className="ei-campo-ajuda">

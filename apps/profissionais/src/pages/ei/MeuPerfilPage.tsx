@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { useTituloDaPagina } from "../../lib/tituloDaPagina";
 import { useAuth } from "../../lib/useAuth";
 import { mensagemDeErro } from "../../lib/erros";
+import { formatPhone, doFormatoDoBanco } from "../../lib/phone";
 import { Switch } from "../../components/ei/Switch";
 import { CampoTelefone } from "../../components/ei/CampoTelefone";
 import { Pagina } from "../../components/ei/Pagina";
@@ -151,7 +152,16 @@ export function MeuPerfilPage() {
           /* Sem cadastro ainda: o telefone da conta já entra preenchido.
              É o dado que a pessoa acabou de confirmar por SMS, e pedir de
              novo é o tipo de atrito que faz desistir no primeiro campo. */
-          setPerfil({ ...PERFIL_VAZIO, phone: user.phone ?? "", email: user.email ?? "" });
+          /* O telefone da conta vem do Auth em formato internacional e sem
+             pontuação — "5531988224938". Jogado cru no campo, é o que a
+             dona viu na tela: um número que ninguém reconhece como o seu.
+             `doFormatoDoBanco` tira o 55 e `formatPhone` escreve como se
+             lê aqui: (31) 98822-4938. */
+          setPerfil({
+            ...PERFIL_VAZIO,
+            phone: formatPhone(doFormatoDoBanco(user.phone)),
+            email: user.email ?? "",
+          });
         }
       } catch (err) {
         setErro(mensagemDeErro(err, "Não consegui carregar o seu perfil."));
