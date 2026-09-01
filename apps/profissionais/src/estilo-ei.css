@@ -2014,14 +2014,21 @@
 .ei-plano-cartao { align-content: start; }
 .ei-plano-cartao > .ei-btn { align-self: end; }
 
-/* No computador não há polegar, e a tela é larga: os quatro cabem lado a
-   lado sem rolagem nenhuma. */
+/* No computador a rolagem CONTINUA.
+   ─────────────────────────────────
+   Aqui havia uma regra que, a partir de 760px, punha os quatro planos lado
+   a lado sem rolagem. Ela parecia certa e produziu a tela que a dona
+   fotografou: as colunas dividiam a largura do app — que é uma coluna de
+   620px, não a tela inteira — e cada plano ficava com uns 140px. O preço
+   quebrava no meio ("R$ 79," numa linha, o resto na outra) e as quatro
+   listas viravam sopa.
+
+   Quatro cartões com lista não cabem em 620px, e alargar a coluna do app
+   só para esta tela desalinharia todas as outras. Rolando, cada cartão
+   ocupa a largura confortável dele em qualquer tela. */
 @media (min-width: 760px) {
   .ei-planos {
-    grid-auto-columns: minmax(0, 1fr);
-    overflow-x: visible;
-    margin: 16px 12px 0;
-    padding: 2px 0 10px;
+    grid-auto-columns: 320px;
   }
 }
 
