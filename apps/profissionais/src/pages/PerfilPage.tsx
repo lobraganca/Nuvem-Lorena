@@ -1,7 +1,7 @@
 import { useEffect, useState, type ReactNode } from "react";
 import { Link } from "react-router-dom";
 import { useAuth } from "../lib/useAuth";
-import { signOut } from "../lib/auth";
+import { signOut, definirSenha } from "../lib/auth";
 import { registrarTipoDeUsuario } from "../lib/company";
 import { hasDatabase } from "../lib/supabase";
 import { getProfile, salvarMeuPerfil } from "../lib/profiles";
@@ -109,6 +109,10 @@ export function PerfilPage() {
   const [error, setError] = useState("");
   /** Trocando o lado mostrado (profissional ↔ empresa). */
   const [trocando, setTrocando] = useState(false);
+  const [mostrandoSenha, setMostrandoSenha] = useState(false);
+  const [senhaNova, setSenhaNova] = useState("");
+  const [salvandoSenha, setSalvandoSenha] = useState(false);
+  const [avisoSenha, setAvisoSenha] = useState("");
   const [confirmarExclusao, setConfirmarExclusao] = useState(false);
   const [textoConfirmacao, setTextoConfirmacao] = useState("");
   const [excluindo, setExcluindo] = useState(false);
@@ -378,6 +382,87 @@ export function PerfilPage() {
                 : "Também contrato — abrir meu lado de empresa"}
           </button>
         </div>
+
+        {/* ── CRIAR OU TROCAR A SENHA, A QUALQUER HORA ────────────────
+            A oferta de senha aparecia só uma vez, logo depois de entrar
+            por SMS. Quem tocasse "Agora não" — ou quem, como a dona, não
+            chegou a ver a oferta por causa de um defeito — não tinha
+            nenhum outro lugar para criar uma.
+
+            Aqui ela fica para sempre, e serve para os dois casos: criar a
+            primeira e trocar a que existe. Não pede a senha antiga porque
+            quem está aqui já provou quem é (entrou), e pedir uma senha que
+            a pessoa não tem seria trancar justamente quem veio criar. */}
+        <div className="ei-secao-linha">
+          <h2>Entrar sem SMS</h2>
+        </div>
+        <div className="ei-lista">
+          {!mostrandoSenha ? (
+            <button
+              type="button"
+              className="ei-linha-item"
+              onClick={() => setMostrandoSenha(true)}
+            >
+              Criar ou trocar minha senha
+            </button>
+          ) : (
+            <div style={{ padding: 16, display: "grid", gap: 10 }}>
+              <div className="ei-campo">
+                <label htmlFor="conta-senha-nova">Nova senha</label>
+                <input
+                  id="conta-senha-nova"
+                  type="password"
+                  autoComplete="new-password"
+                  placeholder="Pelo menos 8 caracteres"
+                  value={senhaNova}
+                  onChange={(e) => setSenhaNova(e.target.value)}
+                />
+                <span className="ei-campo-ajuda">
+                  Com senha, você entra digitando o celular e ela — sem esperar SMS.
+                </span>
+              </div>
+              <button
+                type="button"
+                className="ei-btn ei-btn-cheio"
+                disabled={salvandoSenha || senhaNova.length < 8}
+                onClick={async () => {
+                  setSalvandoSenha(true);
+                  setError("");
+                  try {
+                    await definirSenha(senhaNova);
+                    try {
+                      localStorage.setItem("ei-tem-senha", "1");
+                    } catch {
+                      /* segue sem lembrar */
+                    }
+                    setSenhaNova("");
+                    setMostrandoSenha(false);
+                    setAvisoSenha("Senha guardada. Da próxima vez, entre com ela.");
+                  } catch (err) {
+                    setError(mensagemDeErro(err, "Não consegui guardar a senha."));
+                  } finally {
+                    setSalvandoSenha(false);
+                  }
+                }}
+              >
+                {salvandoSenha ? "Guardando…" : "Guardar senha"}
+              </button>
+              <button
+                type="button"
+                className="ei-btn-inline"
+                onClick={() => {
+                  setMostrandoSenha(false);
+                  setSenhaNova("");
+                }}
+              >
+                Cancelar
+              </button>
+            </div>
+          )}
+        </div>
+        {avisoSenha && (
+          <p className="ei-apoio ei-margem" style={{ marginTop: 8 }}>{avisoSenha}</p>
+        )}
 
         {/* Instalar o app.
             ─────────────────

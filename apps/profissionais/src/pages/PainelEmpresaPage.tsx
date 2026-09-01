@@ -113,7 +113,19 @@ export function PainelEmpresaPage() {
     try {
       const minha = await obterMinhaEmpresa(user?.id || "");
       if (!minha) {
-        navegar("/cadastro-empresa", { replace: true });
+        /* ── SEM EMPRESA, O PAINEL NÃO EMPURRA MAIS PARA O FORMULÁRIO ──
+           Isto era `navegar("/cadastro-empresa", { replace: true })`, e
+           virou uma armadilha: a dona abria o app e caía sempre no
+           cadastro da empresa, sem entender por quê. O caminho era este —
+           o app abre no painel, o painel vê que não há empresa e joga no
+           formulário; e como a ida é `replace`, nem o botão de voltar
+           salvava.
+
+           Agora o painel se mostra vazio, com um convite claro para
+           cadastrar. A diferença é quem manda: a pessoa entra no
+           formulário quando decide entrar, e continua com o app inteiro à
+           volta — Avisos, Talentos, Conta, e a troca de lado. */
+        setEmpresa(null);
         return;
       }
       setEmpresa(minha);
@@ -161,10 +173,26 @@ export function PainelEmpresaPage() {
   }
 
   if (!empresa) {
+    /* O painel de quem ainda não cadastrou a empresa. Diz o que falta, o
+       que se ganha, e oferece a saída para quem entrou no lado errado. */
     return (
       <div className="ei">
         <div className="ei-tela">
-          <p className="ei-apoio ei-margem" style={{ paddingTop: 24 }}>Empresa não encontrada.</p>
+          <Pagina titulo="Minhas vagas" />
+          <section className="ei-cartao" style={{ marginTop: 12 }}>
+            <h2 className="ei-etapa-titulo">Falta cadastrar sua empresa</h2>
+            <p className="ei-etapa-apoio">
+              São três passos curtos. Depois disso você publica vagas, e o app
+              avisa quem faz aquele serviço na cidade.
+            </p>
+            <Link className="ei-btn ei-btn-cheio ei-btn-largo ei-btn-alto" to="/cadastro-empresa">
+              Cadastrar minha empresa
+            </Link>
+          </section>
+          <p className="ei-apoio ei-margem" style={{ marginTop: 12 }}>
+            Você contrata como pessoa física? Também vale — é uma opção dentro do
+            cadastro.
+          </p>
         </div>
       </div>
     );

@@ -214,7 +214,22 @@ export function LoginPage() {
      assim que a senha existe. "Agora não" é um botão de verdade e leva
      adiante sem cobrar nada: quem não quiser senha continua entrando por
      SMS a vida toda, que é como funcionava até hoje. */
-  if (ofereceSenha && user && !user.user_metadata?.tem_senha) {
+  /* ── A OFERTA NÃO ESPERA O `user` CHEGAR ────────────────────────────
+     A dona: "ainda estou tendo problemas pra entrar, não me pediu para
+     criar senha."
+
+     A condição era `ofereceSenha && user && !tem_senha`. O `user` vem do
+     `useAuth`, que ouve a sessão — e a sessão leva alguns quadros para
+     chegar depois do código conferido. Nesse intervalo a condição era
+     falsa, a tela caía no formulário de sempre, e o desvio para dentro do
+     app estava segurado pelo `ofereceSenha`: a pessoa ficava vendo o
+     login, já logada, sem oferta nenhuma.
+
+     Agora quem manda é só o `ofereceSenha`, que só vira `true` DEPOIS de
+     `conferirCodigoDeEntrada` passar — ou seja, com a sessão já criada. O
+     `tem_senha` continua valendo, mas só quando o `user` já existe: se
+     ainda não chegou, a oferta aparece e o `definirSenha` resolve o resto. */
+  if (ofereceSenha && !user?.user_metadata?.tem_senha) {
     return (
       <div className="container entrar-pagina">
         <h1>Pronto, você entrou</h1>
