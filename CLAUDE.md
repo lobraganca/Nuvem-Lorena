@@ -11,10 +11,12 @@ verdade, não uma precaução hipotética.
 | Onde | Qual | Site |
 |---|---|---|
 | **raiz** (`src/`, `supabase/`) | Avena — turismo, reservas, passeios | outro |
-| **`apps/profissionais/`** | **procurô** — busca de profissionais em Itabirito, MG | procuroapp.com.br |
+| **`apps/profissionais/`** | **procurô** — busca de profissionais em Itabirito, Ouro Preto, Belo Horizonte e Congonhas | procuroapp.com.br |
 
 **Quase todo o trabalho é no `apps/profissionais/`.** A raiz tem outro app,
-com outro banco, outras migrations e outra dona da decisão.
+com outro banco e outras migrations. Lorena é dona dos dois (confirmado em
+30/08/2026 — uma versão anterior deste arquivo dizia "outra dona da
+decisão" para o Avena, e isso estava desatualizado).
 
 Duas armadilhas que já pegaram, as duas pelo mesmo motivo — comando rodado
 da pasta errada:
