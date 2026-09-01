@@ -58,22 +58,30 @@ export function EntradaPage() {
 
      Ninguém entenderia. Agora quem está nesse meio do caminho vai para a
      pergunta que falta responder. */
-  const paraOnde =
-    loading || !user
-      ? null
-      : tipo === "company"
-        ? "/painel-empresa"
-        : tipo === "professional"
-          ? "/vagas-para-mim"
-          : tipo === false
-            ? "/onboarding-tipo"
-            : null;
+  /* ── ABRIR O APP CAI SEMPRE AQUI ─────────────────────────────────────
+     A dona, duas vezes: "sempre que o app for aberto, ele tem que cair na
+     tela inicial" e "quando abro o site continua a cair na tela de vagas e
+     do cadastro".
+
+     Esta tela desviava quem já tinha entrado — ia direto para as vagas ou
+     para o painel. A intenção era boa (poupar um toque de quem já sabe o
+     que veio fazer), mas o efeito era o oposto: o app abria no meio de uma
+     lista, ou pior, dentro de um formulário, e não havia um lugar
+     reconhecível de "começo". Quem abre um app quer primeiro se situar.
+
+     Agora ela é a casa dos dois casos. Sem conta, mostra as portas de
+     entrar e criar conta. Com conta, mostra o nome de quem entrou e os
+     caminhos daquele lado — e o desvio automático fica só para quem ainda
+     não escolheu o lado, porque aí falta uma resposta, não um caminho. */
+  const paraOnde = !loading && user && tipo === false ? "/onboarding-tipo" : null;
 
   useEffect(() => {
     if (paraOnde) navegar(paraOnde, { replace: true });
   }, [paraOnde, navegar]);
 
   if (paraOnde) return null;
+
+  const entrou = !loading && !!user;
 
   return (
     <div className="ei">
@@ -97,7 +105,11 @@ export function EntradaPage() {
           {/* Era "De que lado você está?", que fazia par com as duas
               portas. Com a pergunta adiada para depois da conta, a frase
               ficou anunciando uma escolha que não está mais nesta tela. */}
-          <p className="ei-entrada-apoio">Vagas e serviços da cidade, no seu celular.</p>
+          <p className="ei-entrada-apoio">
+            {entrou
+              ? "Por onde você quer começar?"
+              : "Vagas e serviços da cidade, no seu celular."}
+          </p>
         </div>
 
         {/* ── A ORDEM MUDOU: PRIMEIRO A CONTA, DEPOIS O LADO ─────────
@@ -120,31 +132,50 @@ export function EntradaPage() {
             As duas portas viraram uma. O texto embaixo continua dizendo
             que o app serve aos dois lados — a informação não se perdeu,
             só deixou de exigir uma decisão cedo demais. */}
-        {/* Dois botões, e não um "entrar ou criar conta".
-            ───────────────────────────────────────────────
-            A dona: "no início pode ter entrar e criar conta em botões
-            diferentes."
-
-            O que isso resolve: as duas pessoas que chegam nesta tela
-            querem coisas opostas. Quem já tem conta quer digitar a senha e
-            passar; quem é nova precisa do código por SMS. Com um botão só,
-            as duas caíam na mesma tela e uma delas tinha que trocar o modo
-            à mão — e quem não entendeu que precisava trocar ficava batendo
-            numa senha que nunca criou.
-
-            Cada botão abre o login já no caminho certo (`?acao=`), e criar
-            conta vem primeiro porque é o que a maioria fará nos primeiros
-            meses: o app é novo, quase todo mundo é gente nova. */}
-        <div className="ei-portas">
-          <Link to="/login?acao=criar" className="ei-porta ei-porta-cheia">
-            <span className="ei-porta-nome">Criar conta</span>
-            <span className="ei-porta-nota">Pelo celular, com um código por SMS</span>
-          </Link>
-          <Link to="/login?acao=entrar" className="ei-porta">
-            <span className="ei-porta-nome">Já tenho conta</span>
-            <span className="ei-porta-nota">Entrar com celular e senha</span>
-          </Link>
-        </div>
+        {/* Com conta: os caminhos do lado da pessoa. Sem conta: as duas
+            portas. Os mesmos blocos, o mesmo lugar na tela — o que muda é
+            para onde levam. */}
+        {entrou ? (
+          <div className="ei-portas">
+            {tipo === "company" ? (
+              <>
+                <Link to="/painel-empresa" className="ei-porta ei-porta-cheia">
+                  <span className="ei-porta-nome">Minhas vagas</span>
+                  <span className="ei-porta-nota">Publicar, acompanhar e ver quem respondeu</span>
+                </Link>
+                <Link to="/profissionais" className="ei-porta">
+                  <span className="ei-porta-nome">Banco de talentos</span>
+                  <span className="ei-porta-nota">Quem está disponível na cidade</span>
+                </Link>
+              </>
+            ) : (
+              <>
+                <Link to="/vagas-para-mim" className="ei-porta ei-porta-cheia">
+                  <span className="ei-porta-nome">Vagas para mim</span>
+                  <span className="ei-porta-nota">O que chegou para o seu ofício</span>
+                </Link>
+                <Link to="/painel" className="ei-porta">
+                  <span className="ei-porta-nome">Meu cadastro</span>
+                  <span className="ei-porta-nota">Suas funções, horários e contato</span>
+                </Link>
+              </>
+            )}
+          </div>
+        ) : (
+          /* Dois botões, e não um "entrar ou criar conta": quem já tem
+             conta quer digitar a senha e passar; quem é novo precisa do
+             código por SMS. Cada botão abre o login no caminho certo. */
+          <div className="ei-portas">
+            <Link to="/login?acao=criar" className="ei-porta ei-porta-cheia">
+              <span className="ei-porta-nome">Criar conta</span>
+              <span className="ei-porta-nota">Pelo celular, com um código por SMS</span>
+            </Link>
+            <Link to="/login?acao=entrar" className="ei-porta">
+              <span className="ei-porta-nome">Já tenho conta</span>
+              <span className="ei-porta-nota">Entrar com celular e senha</span>
+            </Link>
+          </div>
+        )}
 
         {/* O rodapé da tela. Três coisas quietas, do mesmo tamanho, no
             mesmo bloco — e não espalhadas pela altura da página. */}
