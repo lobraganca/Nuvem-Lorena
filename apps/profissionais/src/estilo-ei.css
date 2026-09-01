@@ -2047,3 +2047,74 @@
   color: var(--ei-acao);
   font-weight: 700;
 }
+
+/* ═══════════════════════════════════════════════════════════════════════
+   O TOPO, E A LARGURA DAS SEÇÕES — 01/09
+   ═══════════════════════════════════════════════════════════════════════
+
+   Relato da dona, olhando o app no celular: "achei que o app está
+   quebrado, coloca largura nas seções. o topo está bem confuso."
+
+   ── O TOPO ────────────────────────────────────────────────────────────
+   Eram TRÊS faixas empilhadas antes de qualquer conteúdo: a branca com a
+   marca, a azul com o título da tela, e às vezes ainda uma linha de apoio
+   embaixo. Três começos de página, um em cima do outro — e o olho não
+   sabe qual deles é o cabeçalho.
+
+   Agora a faixa da marca é do mesmo azul da barra: as duas leem como UM
+   bloco de topo, marca em cima, título embaixo. E o quadrado azul de trás
+   da marca sai (a arte é branca com a bolinha laranja, e sobre azul ela
+   se lê sozinha) — dois azuis parecidos encostados era exatamente a
+   emenda que já tinha aparecido no cabeçalho antes.
+
+   ── A LARGURA ─────────────────────────────────────────────────────────
+   No celular o conteúdo ia de ponta a ponta, encostado nas duas bordas; e
+   no computador ele esticava pela tela inteira, com linhas de texto de 30
+   centímetros. Os dois casos parecem defeito. Uma coluna com largura
+   máxima resolve os dois: no celular ela é a tela inteira menos a
+   margem; no computador ela para de crescer e fica centralizada. */
+.ei .ei-tela {
+  max-width: 620px;
+  margin: 0 auto;
+}
+
+/* A faixa da marca, no mesmo azul da barra de título. */
+.cabecalho-ei {
+  background: var(--ei-acao, #0a72c4);
+  border-bottom: 0;
+  padding-top: calc(12px + env(safe-area-inset-top));
+  max-width: 620px;
+  margin: 0 auto;
+}
+.cabecalho-ei .logo-marca {
+  background: transparent;
+  padding: 0;
+}
+.cabecalho-ei .logo-brand {
+  color: #ffffff;
+}
+
+/* Com a marca reservando o recorte do aparelho, a barra de título não
+   precisa reservar de novo — reservavam as duas, e sobrava um vão azul
+   vazio entre a marca e o título. */
+.ei .ei-barra {
+  padding-top: 10px;
+}
+
+/* A seta de voltar agora é um `button` (ela desfaz o último passo, e não
+   leva a um endereço fixo) — e botão herda o desenho de botão do tema
+   antigo: fundo branco, borda, cápsula. Na barra azul isso virou um disco
+   branco enorme ao lado do título. Ela não é um botão de ação: é um
+   controle de barra, e tem que ser só o desenho da seta. */
+.ei .ei-barra-voltar {
+  background: transparent;
+  border: 0;
+  box-shadow: none;
+  padding: 0;
+  min-height: 0;
+  color: var(--ei-sobre-acento, #ffffff);
+  cursor: pointer;
+}
+.ei .ei-barra-voltar:hover {
+  background: rgba(255, 255, 255, 0.16);
+}

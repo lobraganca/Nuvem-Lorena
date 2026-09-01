@@ -1,5 +1,5 @@
 import type { ReactNode } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 
 /**
  * A barra de topo da tela.
@@ -43,9 +43,24 @@ import { Link } from "react-router-dom";
  * título (era assim na tela da vaga, gastando uma fileira inteira para
  * uma seta) e passa a morar dentro da barra, onde o polegar já procura.
  *
- * A seta só aparece nas telas de detalhe. As quatro abas da barra de
- * baixo são irmãs — não há de onde voltar, e uma seta ali mentiria sobre
- * a hierarquia, que foi o mesmo defeito da migalha antiga.
+ * ── TERCEIRA VOLTA: A SETA EM TODA TELA ────────────────────────────────
+ *
+ * A regra acima era "seta só nas telas de detalhe", porque as quatro abas
+ * da barra de baixo são irmãs e não têm de onde voltar. Bonito no papel; a
+ * dona usou o app e pediu o contrário: "colocar voltar a tela anterior em
+ * todas as páginas."
+ *
+ * Ela tem razão, e o erro do raciocínio anterior foi confundir HIERARQUIA
+ * com HISTÓRICO. A seta não promete que esta tela está dentro de outra —
+ * promete desfazer o último toque. E o último toque existe em qualquer
+ * tela: quem chegou nas Vagas vindo do Perfil quer voltar ao Perfil.
+ *
+ * Então: quem passa `voltar` continua indo para aquele endereço fixo (é o
+ * certo para tela de detalhe, que pode ter sido aberta por um link de
+ * fora, sem histórico nenhum). Quem não passa ganha a seta que desfaz o
+ * último passo do navegador — e ela some sozinha quando não há passo
+ * nenhum para desfazer, que é o caso de quem abriu o app direto naquele
+ * endereço. Seta que não leva a lugar nenhum é pior que seta nenhuma.
  */
 export function Pagina({
   titulo,
@@ -69,9 +84,29 @@ export function Pagina({
   acao?: ReactNode;
   children?: ReactNode;
 }) {
+  const navegar = useNavigate();
+  /* `history.length > 1` responde "há um passo para desfazer?". Numa aba
+     aberta direto no endereço da tela, ele é 1 e a seta não aparece. */
+  const temHistorico = typeof window !== "undefined" && window.history.length > 1;
+  const seta = (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+      <path d="M15 5l-7 7 7 7" />
+    </svg>
+  );
+
   return (
     <>
       <div className="ei-barra">
+        {!voltar && temHistorico && (
+          <button
+            type="button"
+            className="ei-barra-voltar"
+            aria-label="Voltar"
+            onClick={() => navegar(-1)}
+          >
+            {seta}
+          </button>
+        )}
         {voltar && (
           <Link to={voltar} className="ei-barra-voltar" aria-label="Voltar">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
