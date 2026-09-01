@@ -94,28 +94,79 @@ export function OnboardingTipoPage() {
     <div className="ei">
       <div className="ei-tela">
         <Pagina titulo="De que lado você está?" />
+        <p className="ei-apoio ei-margem">
+          Só para o app saber o que te mostrar.
+        </p>
 
-        <div className="ei-portas" style={{ marginTop: 4 }}>
+        {/* ── ESTA TELA ERA SÓ DUAS CAIXAS ────────────────────────────
+            A dona: "melhorar essa tela. está muito sem graça."
+
+            E estava: dois retângulos com duas linhas de texto cada, num
+            fundo cinza, sem nada que ajudasse a decidir além das palavras.
+            É a pergunta mais importante do app — ela decide o que a pessoa
+            vai ver de agora em diante — e parecia um formulário.
+
+            O que entrou, e por que cada coisa:
+
+            · um DESENHO em cada lado. Numa decisão entre dois caminhos, a
+              figura é lida antes do texto e diz de que se trata sem que
+              ninguém precise ler;
+            · o que cada lado GANHA, em três linhas com visto — a pergunta
+              real de quem está aí não é "quem sou eu", é "o que acontece
+              se eu tocar aqui";
+            · a promessa de que dá para ter os dois, embaixo. Ela existe
+              porque a escolha assusta: numa cidade pequena, quem tem loja
+              também é eletricista à noite, e a pessoa trava com medo de
+              escolher errado. Escolher errado aqui não custa nada, e a
+              tela precisa dizer isso. */}
+        <div className="ei-lados">
           <button
             type="button"
-            className="ei-porta ei-porta-cheia"
+            className="ei-lado ei-lado-cheio"
             disabled={enviando}
             onClick={escolherProfissional}
           >
-            <span className="ei-porta-nome">Procuro trabalho</span>
-            <span className="ei-porta-nota">Receba as vagas do seu ofício</span>
+            <svg viewBox="0 0 120 120" className="ei-lado-arte" aria-hidden="true">
+              <circle cx="60" cy="60" r="52" fill="rgba(255,255,255,.16)" />
+              <circle cx="60" cy="46" r="16" fill="#fff" />
+              <path d="M30 92a30 30 0 0 1 60 0z" fill="#fff" />
+              <circle cx="92" cy="30" r="9" fill="#f7a64a" />
+            </svg>
+            <span className="ei-lado-nome">Procuro trabalho</span>
+            <span className="ei-lado-lista">
+              <span>As vagas do seu ofício chegam no seu celular</span>
+              <span>A empresa te chama pelo telefone confirmado</span>
+              <span>Sem currículo e sem custo</span>
+            </span>
           </button>
 
           <button
             type="button"
-            className="ei-porta"
+            className="ei-lado"
             disabled={enviando}
             onClick={escolherEmpresa}
           >
-            <span className="ei-porta-nome">Estou contratando</span>
-            <span className="ei-porta-nota">Publique e avise a cidade</span>
+            <svg viewBox="0 0 120 120" className="ei-lado-arte" aria-hidden="true">
+              <circle cx="60" cy="60" r="52" fill="rgba(10,114,196,.10)" />
+              <path d="M34 88V44a4 4 0 0 1 4-4h26a4 4 0 0 1 4 4v44" fill="#0a72c4" />
+              <path d="M68 88V60h16a4 4 0 0 1 4 4v24" fill="#7fb9e6" />
+              <rect x="44" y="52" width="8" height="8" rx="2" fill="#fff" />
+              <rect x="44" y="68" width="8" height="8" rx="2" fill="#fff" />
+              <circle cx="92" cy="32" r="8" fill="#f7a64a" />
+            </svg>
+            <span className="ei-lado-nome">Estou contratando</span>
+            <span className="ei-lado-lista">
+              <span>Publique a vaga e a cidade fica sabendo</span>
+              <span>O app avisa quem faz aquele serviço</span>
+              <span>Pessoa física ou empresa</span>
+            </span>
           </button>
         </div>
+
+        <p className="ei-apoio ei-margem" style={{ marginTop: 14 }}>
+          Escolheu e era o outro? Dá para trocar de lado a qualquer hora, na
+          sua Conta — e dá para ter os dois no mesmo número.
+        </p>
 
         {erro && (
           <p className="ei-campo-erro ei-margem" style={{ marginTop: 14 }} role="alert">

@@ -2277,3 +2277,90 @@
   color: var(--ei-tinta);
   margin-bottom: 2px;
 }
+
+/* ═══════════════════════════════════════════════════════════════════════
+   OS DOIS LADOS — 01/09
+   ═══════════════════════════════════════════════════════════════════════
+   A tela que pergunta "de que lado você está?". Ver OnboardingTipoPage.
+
+   Empilhados no celular e lado a lado no computador: são duas opções
+   irmãs, e no telefone a comparação é vertical (rolando) enquanto na tela
+   larga elas cabem juntas — que é quando comparar fica mais fácil ainda.
+
+   O cartão do lado escolhido primeiro (procurar trabalho) é o pintado. Não
+   é destaque de venda: é o lado com muito mais gente, e a ordem existe
+   porque o app só vale para quem contrata depois de estar cheio de quem
+   trabalha. */
+.ei-lados {
+  display: grid;
+  gap: 12px;
+  margin: 4px 12px 0;
+}
+
+@media (min-width: 720px) {
+  .ei-lados {
+    grid-template-columns: 1fr 1fr;
+    align-items: stretch;
+  }
+}
+
+.ei-lado {
+  display: grid;
+  justify-items: start;
+  gap: 10px;
+  width: 100%;
+  padding: 20px;
+  text-align: left;
+  font: inherit;
+  color: var(--ei-tinta);
+  background: var(--ei-papel);
+  border: 1px solid var(--ei-fio-forte);
+  border-radius: var(--ei-raio);
+  cursor: pointer;
+  transition: border-color .12s, box-shadow .12s;
+}
+.ei-lado:hover:not(:disabled) {
+  border-color: var(--ei-acao);
+  box-shadow: 0 6px 18px rgba(2, 15, 58, 0.08);
+}
+.ei-lado:disabled { opacity: .6; cursor: default; }
+
+.ei .ei-lado-cheio {
+  background: var(--ei-acao);
+  border-color: var(--ei-acao);
+  color: var(--ei-sobre-acao);
+}
+
+.ei-lado-arte {
+  width: 84px;
+  height: 84px;
+}
+
+.ei-lado-nome {
+  font-size: 1.18rem;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+}
+
+/* Cada linha com um visto na frente. No cartão pintado o visto é branco;
+   no claro, azul — em vez de uma cor só que sumiria num dos dois. */
+.ei-lado-lista {
+  display: grid;
+  gap: 6px;
+  font-size: 0.94rem;
+  line-height: 1.4;
+}
+.ei-lado-lista > span {
+  display: grid;
+  grid-template-columns: 16px 1fr;
+  gap: 8px;
+  align-items: start;
+}
+.ei-lado-lista > span::before {
+  content: "✓";
+  font-weight: 700;
+  color: var(--ei-acao);
+}
+.ei .ei-lado-cheio .ei-lado-lista > span::before {
+  color: #ffffff;
+}
