@@ -105,6 +105,31 @@ export function ProfissionaisPage() {
         .select("id, name, photo_url, areas_de_interesse, especialidade, neighborhood")
         .eq("city", DEFAULT_CITY)
         .eq("uf", DEFAULT_UF)
+        /* ── SÓ QUEM FEZ O CADASTRO DO EI ITABIRITO ────────────────────
+           A dona: "o app está com dados de pessoas que se cadastraram no
+           procurô."
+
+           Está — e é o MESMO banco: os dois apps leem a mesma tabela. Ela
+           conferiu abrindo o procuroapp.com.br e são as mesmas pessoas.
+           Apagar resolveria aqui e esvaziaria o procurô, que está no ar.
+
+           O que separa um do outro é a coluna. `categories` é o que a
+           pessoa FAZ como serviço, e é a do procurô. `areas_de_interesse`
+           é onde ela ACEITARIA trabalhar, nasceu na 0070 e é a do Ei —
+           é por ela que esta lista filtra e é por ela que a onda encontra
+           gente.
+
+           Quem se cadastrou no procurô nunca preencheu essa coluna: ela
+           não existia. Então aparecia nesta lista sem função nenhuma, e —
+           o que é pior — sem poder receber vaga, porque a onda cruza
+           justamente por ela. Era gente que a empresa podia chamar e que o
+           app nunca ia avisar de nada.
+
+           Este filtro não apaga ninguém. Tira da lista do Ei quem não fez
+           o cadastro do Ei, e deixa o procurô intacto. É reversível: sai
+           daqui e todo mundo volta. */
+        .not("areas_de_interesse", "is", null)
+        .neq("areas_de_interesse", "{}")
         .order("created_at", { ascending: false })
     )
       .then(setLista)
