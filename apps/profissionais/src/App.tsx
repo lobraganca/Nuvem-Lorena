@@ -3,6 +3,7 @@ import { Routes, Route, Link, useLocation } from "react-router-dom";
 import { Logo } from "./components/Logo";
 import { BotaoSuporte } from "./components/BotaoSuporte";
 import { AppShell } from "./components/AppShell";
+import { BoasVindas, jaViuAsBoasVindas } from "./components/ei/BoasVindas";
 import { SplashScreen } from "./components/SplashScreen";
 import { BottomSheet } from "./components/BottomSheet";
 import { Suspense, lazy } from "react";
@@ -231,9 +232,21 @@ function Footer() {
 }
 
 export default function App() {
+  /* ── As boas-vindas do primeiro acesso ────────────────────────────────
+     Ficam ANTES de tudo, cobrindo a tela, e não como uma rota: rota teria
+     endereço, e endereço vai parar em link compartilhado, em favorito e no
+     botão de voltar. Isto não é uma página do app — é a porta, e ela abre
+     uma vez só.
+
+     O estado é lido no primeiro render (função dentro do `useState`, não
+     efeito depois): com efeito, a tela do app apareceria por um instante
+     antes de a porta cobrir, e o primeiro acesso começaria com um susto. */
+  const [mostrarBoasVindas, setMostrarBoasVindas] = useState(() => !jaViuAsBoasVindas());
+
   return (
     <>
       <SplashScreen />
+      {mostrarBoasVindas && <BoasVindas aoTerminar={() => setMostrarBoasVindas(false)} />}
       <AppShell>
       <RetomarDestinoLogin />
       <AvisoErroLogin />

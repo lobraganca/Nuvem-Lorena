@@ -2118,3 +2118,107 @@
 .ei .ei-barra-voltar:hover {
   background: rgba(255, 255, 255, 0.16);
 }
+
+/* ═══════════════════════════════════════════════════════════════════════
+   BOAS-VINDAS DO PRIMEIRO ACESSO — 01/09
+   ═══════════════════════════════════════════════════════════════════════
+   Ver BoasVindas.tsx. Aqui só o desenho, e ele copia a estrutura das telas
+   que a dona mandou: fundo azul cheio, a arte no meio da altura, título
+   grande, uma linha de apoio, os pontinhos, e um botão de contorno branco
+   ocupando a largura embaixo.
+
+   `100dvh` e não `100vh`: no celular a barra do navegador some e aparece
+   conforme a rolagem, e com `vh` o botão de baixo fica escondido atrás
+   dela justamente na primeira tela que a pessoa vê. */
+.ei-bv {
+  position: fixed;
+  inset: 0;
+  z-index: 80;
+  display: grid;
+  grid-template-rows: 1fr auto auto;
+  gap: 18px;
+  padding: calc(24px + env(safe-area-inset-top)) 24px
+    calc(24px + env(safe-area-inset-bottom));
+  background: var(--ei-marca, #12a5fa);
+  color: #ffffff;
+  text-align: center;
+  overflow: hidden;
+}
+
+.ei-bv-meio {
+  display: grid;
+  align-content: center;
+  justify-items: center;
+  gap: 10px;
+}
+
+.ei-bv-arte {
+  width: min(62vw, 240px);
+  height: auto;
+  margin-bottom: 18px;
+}
+
+.ei-bv-titulo {
+  margin: 0;
+  font-size: 2rem;
+  font-weight: 400;
+  letter-spacing: -0.02em;
+  color: #ffffff;
+}
+
+.ei-bv-frase {
+  margin: 0;
+  max-width: 22rem;
+  font-size: 1.12rem;
+  line-height: 1.45;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.95);
+}
+
+.ei-bv-pontos {
+  display: flex;
+  gap: 8px;
+  justify-content: center;
+}
+.ei-bv-ponto {
+  width: 9px;
+  height: 9px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.42);
+}
+.ei-bv-ponto.aceso {
+  background: #ffffff;
+}
+
+.ei-bv-pe {
+  display: grid;
+  gap: 10px;
+}
+
+/* Contorno branco, e não botão cheio: sobre o azul, o cheio branco vira
+   uma barra que puxa o olho para longe da frase — que é o que a tela veio
+   dizer. É a mesma escolha do modelo. */
+.ei-bv-btn {
+  width: 100%;
+  padding: 15px 20px;
+  font: inherit;
+  font-weight: 700;
+  color: #ffffff;
+  background: transparent;
+  border: 1.5px solid rgba(255, 255, 255, 0.85);
+  border-radius: 10px;
+  cursor: pointer;
+}
+.ei-bv-btn:active {
+  background: rgba(255, 255, 255, 0.16);
+}
+
+.ei-bv-pular {
+  background: none;
+  border: 0;
+  padding: 6px;
+  font: inherit;
+  color: rgba(255, 255, 255, 0.9);
+  text-decoration: underline;
+  cursor: pointer;
+}
