@@ -46,9 +46,28 @@ export function EntradaPage() {
 
      O `useEffect` resolve os dois: fica no topo, com os outros hooks, e
      desvia pelo roteador que estiver montado. */
-  const paraOnde = !loading && user && tipo
-    ? tipo === "company" ? "/painel-empresa" : "/vagas-para-mim"
-    : null;
+  /* ── QUEM ENTROU NUNCA MAIS VÊ ESTA TELA ─────────────────────────────
+     Faltava um caso, e ele apareceu na primeira pessoa que usou o app de
+     verdade: quem ENTROU mas ainda não disse de que lado está.
+
+     `tipo` é `false` nesse caso (não é nulo — nulo é "ainda carregando"),
+     e a conta antiga só desviava quando `tipo` tinha valor. Resultado: a
+     dona digitou o código, entrou, e caiu de volta nesta tela oferecendo
+     "Criar conta" — com a barra de baixo já mostrando Avisos e Painel,
+     ou seja, logada. "Coloquei o SMS e caí nessa tela. Não entendi."
+
+     Ninguém entenderia. Agora quem está nesse meio do caminho vai para a
+     pergunta que falta responder. */
+  const paraOnde =
+    loading || !user
+      ? null
+      : tipo === "company"
+        ? "/painel-empresa"
+        : tipo === "professional"
+          ? "/vagas-para-mim"
+          : tipo === false
+            ? "/onboarding-tipo"
+            : null;
 
   useEffect(() => {
     if (paraOnde) navegar(paraOnde, { replace: true });
