@@ -120,13 +120,9 @@ const IconeVoltar = (
   </Svg>
 );
 
-const IconeEntrar = (
-  <Svg>
-    <path d="M14 4h4.5A1.5 1.5 0 0 1 20 5.5v13a1.5 1.5 0 0 1-1.5 1.5H14" />
-    <path d="M10 8l4 4-4 4" />
-    <path d="M14 12H3.5" />
-  </Svg>
-);
+/* O ícone de "Entrar" saiu com o item: sem conta a barra inteira some
+   (ver `destinos`), e um desenho sem uso é código que o próximo leitor
+   tenta entender à toa. */
 
 function destinos(tipo: "professional" | "company" | false | null, temConta: boolean): Destino[] {
   /* Voltar abre a barra em todos os casos: é a única que serve mesmo a
@@ -147,13 +143,17 @@ function destinos(tipo: "professional" | "company" | false | null, temConta: boo
   };
 
   if (!temConta) {
-    /* Sem conta não há avisos nem painel — os dois exigem saber quem é a
-       pessoa. Sobram os dois que funcionam sem ela, e a porta de entrada. */
-    return [
-      voltar,
-      talentos,
-      { to: "/login", label: "Entrar", icone: IconeEntrar, casa: (p) => p === "/login" },
-    ];
+    /* Sem conta a barra não existe.
+       ─────────────────────────────
+       A dona olhou a tela de entrar e perguntou: "a barra nessa tela serve
+       pra que?". Não servia para nada, e era pior que inútil: "Entrar"
+       apontava para a tela onde ela já estava, e "Talentos" — depois que
+       ver passou a exigir conta — devolvia a pessoa para o login de onde
+       ela tinha acabado de sair. Três botões, nenhum destino.
+
+       Uma barra de navegação num app onde ainda não há para onde navegar é
+       enfeite com cara de app quebrado. */
+    return [];
   }
 
   const avisos: Destino = {
@@ -240,6 +240,7 @@ export function NavegacaoEi() {
      Profissionais o mesmo botão único é a única porta para dentro do app,
      e continua aparecendo. O que some é a barra que não leva a lugar
      nenhum. */
+  if (itens.length === 0) return null;
   if (itens.length === 1 && itens[0].casa(pathname)) return null;
 
   /* Na tela que PERGUNTA de que lado a pessoa está, a barra não aparece.
