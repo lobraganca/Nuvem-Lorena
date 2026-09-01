@@ -101,11 +101,23 @@ export function ExigirSenha({ children }: { children: ReactNode }) {
                 } catch {
                   /* segue sem lembrar */
                 }
-                /* Recarrega para o app reler a conta: o `tem_senha` que
-                   acabou de ser gravado é lido da sessão, e sem uma volta
-                   ao começo a barreira continuaria de pé sobre um dado
-                   velho. */
-                window.location.href = "/";
+                /* Depois da senha, a escolha do ambiente.
+                   ─────────────────────────────────────────
+                   A dona: "depois de colocar a senha, deve ter uma página
+                   onde a pessoa escolhe o ambiente que quer acessar, o
+                   ambiente de candidata ou se empresa."
+
+                   É o fim natural da sequência: entrar → provar o número →
+                   criar a senha → dizer o que veio fazer. Antes, a
+                   pergunta do lado aparecia solta em outro momento, e quem
+                   acabava de criar a senha caía direto no app sem nunca
+                   ter escolhido nada.
+
+                   Vai por `location.href` e não pelo roteador: o
+                   `tem_senha` recém-gravado é lido da sessão, e sem uma
+                   volta ao começo esta mesma barreira continuaria de pé
+                   sobre um dado velho. */
+                window.location.href = "/onboarding-tipo";
               } catch (err) {
                 setErro(mensagemDeErro(err, "Não consegui guardar a senha."));
                 setSalvando(false);

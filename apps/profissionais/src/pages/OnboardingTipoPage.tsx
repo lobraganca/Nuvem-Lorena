@@ -95,7 +95,10 @@ export function OnboardingTipoPage() {
       <div className="ei-tela">
         <Pagina titulo="De que lado você está?" />
         <p className="ei-apoio ei-margem">
-          Só para o app saber o que te mostrar.
+          {/* "Ambiente" é a palavra da dona ("a pessoa escolhe o ambiente
+              que quer acessar"), e ela diz melhor o que a escolha faz: não
+              define quem a pessoa É, define qual app ela abre agora. */}
+          Escolha o ambiente que você quer abrir agora.
         </p>
 
         {/* ── ESTA TELA ERA SÓ DUAS CAIXAS ────────────────────────────
