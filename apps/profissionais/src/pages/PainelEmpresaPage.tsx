@@ -113,19 +113,22 @@ export function PainelEmpresaPage() {
     try {
       const minha = await obterMinhaEmpresa(user?.id || "");
       if (!minha) {
-        /* ── SEM EMPRESA, O PAINEL NÃO EMPURRA MAIS PARA O FORMULÁRIO ──
-           Isto era `navegar("/cadastro-empresa", { replace: true })`, e
-           virou uma armadilha: a dona abria o app e caía sempre no
-           cadastro da empresa, sem entender por quê. O caminho era este —
-           o app abre no painel, o painel vê que não há empresa e joga no
-           formulário; e como a ida é `replace`, nem o botão de voltar
-           salvava.
+        /* ── SEM EMPRESA, O PAINEL LEVA AO CADASTRO ────────────────────
+           Isto tinha sido tirado hoje de manhã, porque a dona caía sempre
+           no formulário sem saber por quê — mas o defeito real era outro:
+           não havia saída dele. Com a saída no lugar ("não é empresa? ir
+           para o lado de quem procura trabalho"), o desvio volta, e volta
+           a pedido dela:
 
-           Agora o painel se mostra vazio, com um convite claro para
-           cadastrar. A diferença é quem manda: a pessoa entra no
-           formulário quando decide entrar, e continua com o app inteiro à
-           volta — Avisos, Talentos, Conta, e a troca de lado. */
-        setEmpresa(null);
+             "quando a pessoa escolher o painel de empresa, se não tiver
+              cadastrado a empresa, tem que cair na tela de cadastro.
+              senão ela consegue verificar o banco de talentos e eu não
+              consigo ter dados para oferecer planos depois."
+
+           É decisão de negócio, e é dela: o banco de talentos é o que o
+           lado da empresa tem de valioso, e entregá-lo a quem não se
+           identificou é dar o produto sem saber para quem. */
+        navegar("/cadastro-empresa", { replace: true });
         return;
       }
       setEmpresa(minha);

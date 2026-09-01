@@ -1,11 +1,14 @@
 import { useEffect, useMemo, useState } from "react";
-import { Link, useSearchParams } from "react-router-dom";
+import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { useTituloDaPagina } from "../lib/tituloDaPagina";
 import { mensagemDeErro } from "../lib/erros";
 import { supabase } from "../lib/supabase";
 import { lerTudo } from "../lib/lerTudo";
 import { DEFAULT_CITY, DEFAULT_UF } from "../types/domain";
 import { Pagina } from "../components/ei/Pagina";
+import { useAuth } from "../lib/useAuth";
+import { useOnboardingStatus } from "../lib/useOnboardingStatus";
+import { obterMinhaEmpresa } from "../lib/company";
 
 type Disponivel = {
   id: string;
@@ -57,6 +60,31 @@ type Disponivel = {
  */
 export function ProfissionaisPage() {
   useTituloDaPagina("Profissionais disponíveis");
+
+  const { user } = useAuth();
+
+  /* ── O BANCO DE TALENTOS PEDE EMPRESA CADASTRADA ────────────────────
+     A dona: "senão ela consegue verificar o banco de talentos e eu não
+     consigo ter dados para oferecer planos depois."
+
+     Vale só para quem está no ambiente de EMPRESA: é o lado que usa a
+     lista para contratar, e é dele que vem a venda de plano. Quem está no
+     ambiente de quem procura trabalho continua vendo a lista — ali ela
+     serve para a pessoa comparar o próprio cadastro com o dos outros, e
+     não há nada a vender.
+
+     O desvio é `replace` para o botão de voltar não trazer de volta a uma
+     tela que vai desviar de novo. */
+  const tipoDeConta = useOnboardingStatus();
+  const navegar = useNavigate();
+  useEffect(() => {
+    if (tipoDeConta !== "company" || !user) return;
+    let vivo = true;
+    obterMinhaEmpresa(user.id).then((empresa) => {
+      if (vivo && !empresa) navegar("/cadastro-empresa", { replace: true });
+    });
+    return () => { vivo = false; };
+  }, [tipoDeConta, user, navegar]);
 
   const [lista, setLista] = useState<Disponivel[]>([]);
   const [carregando, setCarregando] = useState(true);
