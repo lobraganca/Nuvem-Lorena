@@ -101,12 +101,29 @@ export function EntradaPage() {
             As duas portas viraram uma. O texto embaixo continua dizendo
             que o app serve aos dois lados — a informação não se perdeu,
             só deixou de exigir uma decisão cedo demais. */}
+        {/* Dois botões, e não um "entrar ou criar conta".
+            ───────────────────────────────────────────────
+            A dona: "no início pode ter entrar e criar conta em botões
+            diferentes."
+
+            O que isso resolve: as duas pessoas que chegam nesta tela
+            querem coisas opostas. Quem já tem conta quer digitar a senha e
+            passar; quem é nova precisa do código por SMS. Com um botão só,
+            as duas caíam na mesma tela e uma delas tinha que trocar o modo
+            à mão — e quem não entendeu que precisava trocar ficava batendo
+            numa senha que nunca criou.
+
+            Cada botão abre o login já no caminho certo (`?acao=`), e criar
+            conta vem primeiro porque é o que a maioria fará nos primeiros
+            meses: o app é novo, quase todo mundo é gente nova. */}
         <div className="ei-portas">
-          <Link to="/login" className="ei-porta ei-porta-cheia">
-            <span className="ei-porta-nome">Entrar ou criar conta</span>
-            <span className="ei-porta-nota">
-              Pelo celular. Depois você escolhe se procura trabalho ou contrata
-            </span>
+          <Link to="/login?acao=criar" className="ei-porta ei-porta-cheia">
+            <span className="ei-porta-nome">Criar conta</span>
+            <span className="ei-porta-nota">Pelo celular, com um código por SMS</span>
+          </Link>
+          <Link to="/login?acao=entrar" className="ei-porta">
+            <span className="ei-porta-nome">Já tenho conta</span>
+            <span className="ei-porta-nota">Entrar com celular e senha</span>
           </Link>
         </div>
 

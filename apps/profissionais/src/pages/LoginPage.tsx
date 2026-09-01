@@ -93,6 +93,14 @@ export function LoginPage() {
      armazenamento é só uma lembrança de conveniência — errar nela não
      tranca ninguém, os dois caminhos estão sempre a um toque. */
   const [modo, setModo] = useState<"senha" | "sms">(() => {
+    /* O botão da tela inicial manda o caminho no endereço: "Criar conta"
+       abre no SMS (ninguém tem senha antes de existir), "Já tenho conta"
+       abre na senha. Sem isso as duas pessoas caíam na mesma tela e uma
+       das duas tinha que descobrir sozinha que precisava trocar de modo. */
+    const pedido = new URLSearchParams(window.location.search || "").get("acao")
+      ?? new URLSearchParams(window.location.hash.split("?")[1] ?? "").get("acao");
+    if (pedido === "criar") return "sms";
+    if (pedido === "entrar") return "senha";
     try {
       return localStorage.getItem("ei-tem-senha") === "1" ? "senha" : "sms";
     } catch {
@@ -275,7 +283,9 @@ export function LoginPage() {
           contratando" chegava a uma tela que não falava de contratar em
           lugar nenhum — sem nada dizendo que o caminho ainda era aquele. */}
       <h1>
-        {lado === "company"
+        {modo === "sms" && !comEmail
+          ? "Criar conta ou entrar"
+          : lado === "company"
           ? "Entrar para contratar"
           : lado === "professional"
             ? "Entrar para procurar trabalho"
