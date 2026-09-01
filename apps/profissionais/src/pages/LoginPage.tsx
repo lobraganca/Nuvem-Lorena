@@ -407,7 +407,8 @@ export function LoginPage() {
                         setAviso(
                           jaTinhaConta
                             ? "Esse número já tem conta aqui. Mandamos o código para você entrar — " +
-                                "ou volte e use a sua senha, se você criou uma."
+                                "e, se você já criou uma senha, dá para usar ela em “Prefiro entrar " +
+                                "com a minha senha”, logo abaixo."
                             : "Enviamos um código por SMS. Ele chega em alguns segundos."
                         );
                       }
@@ -508,6 +509,29 @@ export function LoginPage() {
               }}
             >
               Trocar o número
+            </button>
+            {/* O caminho de volta para a senha.
+                ────────────────────────────────
+                O aviso "esse número já tem conta — ou volte e use a sua
+                senha" mandava a pessoa "voltar" para uma tela que não
+                existia: daqui só havia "Trocar o número", que apaga o
+                número e volta ao SMS. A dona perguntou, com o aviso na
+                tela: "como volta nessa tela?". Não voltava.
+
+                Agora volta, com o número preservado — quem tem senha
+                digita e entra sem esperar SMS nenhum. */}
+            <button
+              type="button"
+              className="entrar-link"
+              disabled={enviando}
+              onClick={() => {
+                setModo("senha");
+                setPassoTelefone("numero");
+                setCodigo("");
+                limpar();
+              }}
+            >
+              Prefiro entrar com a minha senha
             </button>
           </>
         )}
