@@ -61,6 +61,22 @@ export function PlanosEmpresaPage() {
   const antesDoCadastro = busca.get("antes") === "cadastro";
 
   function seguir(escolha: PlanoEmpresa | "gratuito") {
+    /* O gratuito não leva ao formulário: leva ao banco de talentos.
+       ────────────────────────────────────────────────────────────
+       A dona: "no plano gratuito também deve ter opção de aderir e a tela
+       ir para o banco de talentos."
+
+       Faz sentido e conserta uma incoerência que estava ali: o gratuito
+       não publica vaga, então mandar quem o escolheu preencher treze
+       campos de cadastro de empresa é pedir trabalho por nada. O que o
+       gratuito DÁ é a lista de gente da cidade — então é para lá que o
+       botão vai. O cadastro continua esperando, no dia em que ela quiser
+       publicar. */
+    if (escolha === "gratuito") {
+      navegar("/profissionais");
+      return;
+    }
+
     /* Guarda a intenção para o painel oferecer o pagamento depois, quando
        a cobrança existir. `try` porque navegador em aba anônima recusa o
        armazenamento — e perder a escolha não pode travar o cadastro. */
@@ -161,7 +177,7 @@ export function PlanosEmpresaPage() {
                 className="ei-btn ei-btn-cheio ei-btn-largo ei-btn-alto"
                 onClick={() => seguir("gratuito")}
               >
-                Continuar de graça
+                Aderir e ver o banco de talentos
               </button>
             ) : (
               <p className="ei-plano-resumo">É o que você já tem, sem assinar nada.</p>

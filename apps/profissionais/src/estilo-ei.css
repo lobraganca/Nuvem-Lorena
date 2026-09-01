@@ -2222,3 +2222,14 @@
   text-decoration: underline;
   cursor: pointer;
 }
+
+/* O item "Voltar" da barra de baixo é um `button` (voltar é ação, não
+   endereço), e botão herda fundo branco, borda e cápsula do tema antigo —
+   na barra ele virava um retângulo destacado no meio dos outros três. */
+.nav-ei button.nav-ei-item {
+  background: none;
+  border: 0;
+  box-shadow: none;
+  font: inherit;
+  cursor: pointer;
+}

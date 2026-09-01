@@ -1,5 +1,5 @@
 import type { ReactNode } from "react";
-import { Link, useLocation } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { useAuth } from "../lib/useAuth";
 import { useOnboardingStatus } from "../lib/useOnboardingStatus";
@@ -39,6 +39,20 @@ import { quantasVagasNovas } from "../lib/minhasVagas";
  * "para o aviso no menu" — e não era chamado em lugar nenhum.
  */
 
+/* ── A BARRA PEDIDA EM 01/09 ──────────────────────────────────────────
+   A dona: "na barra de baixo, deve ter opção de retornar a página
+   anterior, as notificações, banco de talentos, painel da empresa ou do
+   profissional."
+
+   São quatro, e a primeira não é um destino: é uma AÇÃO. Voltar não tem
+   endereço — ela desfaz o último passo —, e por isso o item ganhou a
+   forma de botão. Foi a mudança que obrigou a mexer no tipo: até aqui
+   todo item da barra era um `to`, e um `to: "voltar"` de mentira
+   acenderia como página ativa e apareceria no histórico.
+
+   O "banco de talentos" é a lista de profissionais, com o nome que a dona
+   usa. Ela vale para os dois lados: quem contrata procura gente ali, e
+   quem trabalha vê como o próprio cadastro aparece. */
 type Destino = {
   to: string;
   label: string;
@@ -46,6 +60,8 @@ type Destino = {
   casa: (p: string) => boolean;
   /** Este item mostra o selo com quantos avisos ainda não foram abertos. */
   contaNovos?: boolean;
+  /** Item de AÇÃO (voltar), sem endereço: vira botão, nunca acende. */
+  acao?: "voltar";
 };
 
 /* Ícones em traço, no peso do Material. Desenhados aqui e não importados de
@@ -98,6 +114,12 @@ const IconeSino = (
   </Svg>
 );
 
+const IconeVoltar = (
+  <Svg>
+    <path d="M15 5l-7 7 7 7" />
+  </Svg>
+);
+
 const IconeEntrar = (
   <Svg>
     <path d="M14 4h4.5A1.5 1.5 0 0 1 20 5.5v13a1.5 1.5 0 0 1-1.5 1.5H14" />
@@ -107,51 +129,80 @@ const IconeEntrar = (
 );
 
 function destinos(tipo: "professional" | "company" | false | null, temConta: boolean): Destino[] {
-  if (!temConta) {
-    return [{ to: "/login", label: "Entrar", icone: IconeEntrar, casa: (p) => p === "/login" }];
-  }
+  /* Voltar abre a barra em todos os casos: é a única que serve mesmo a
+     quem ainda não entrou, e o lugar dela não muda com o papel. */
+  const voltar: Destino = {
+    to: "",
+    acao: "voltar",
+    label: "Voltar",
+    icone: IconeVoltar,
+    casa: () => false,
+  };
 
-  if (tipo === "company") {
+  const talentos: Destino = {
+    to: "/profissionais",
+    label: "Talentos",
+    icone: IconePessoas,
+    casa: (p) => p.startsWith("/profissionais"),
+  };
+
+  if (!temConta) {
+    /* Sem conta não há avisos nem painel — os dois exigem saber quem é a
+       pessoa. Sobram os dois que funcionam sem ela, e a porta de entrada. */
     return [
-      { to: "/painel-empresa", label: "Minhas vagas", icone: IconeVagas,
-        casa: (p) => p.startsWith("/painel-empresa") || p.startsWith("/vaga") || p.startsWith("/criar-vaga") },
-      { to: "/profissionais", label: "Profissionais", icone: IconePessoas,
-        casa: (p) => p.startsWith("/profissionais") },
-      { to: "/perfil", label: "Empresa", icone: IconePredio,
-        casa: (p) => p.startsWith("/perfil") || p.startsWith("/cadastro-empresa") || p.startsWith("/planos-empresa") },
+      voltar,
+      talentos,
+      { to: "/login", label: "Entrar", icone: IconeEntrar, casa: (p) => p === "/login" },
     ];
   }
 
-  /* Profissional, e também quem entrou e ainda não escolheu o tipo: para
-     esse último, a lista de vagas é a tela que explica o app melhor do que
-     qualquer texto.
+  const avisos: Destino = {
+    to: "/avisos",
+    label: "Avisos",
+    icone: IconeSino,
+    contaNovos: true,
+    casa: (p) => p.startsWith("/avisos"),
+  };
 
-     ── "Avisos" entrou aqui ─────────────────────────────────────────
+  if (tipo === "company") {
+    return [
+      voltar,
+      avisos,
+      talentos,
+      { to: "/painel-empresa", label: "Painel", icone: IconePredio,
+        casa: (p) => p.startsWith("/painel-empresa") || p.startsWith("/vaga") ||
+          p.startsWith("/criar-vaga") || p.startsWith("/cadastro-empresa") ||
+          p.startsWith("/planos-empresa") },
+    ];
+  }
+
+  /* Profissional, e também quem entrou e ainda não escolheu o lado.
+
+     ── "Avisos" é o histórico, e por isso ele fica ────────────────────
      A dona: "coloque também as notificações que as pessoas receberem dos
      disparos."
 
-     Não é a mesma coisa que "Vagas", e a diferença é o motivo de ele
-     existir: Vagas mostra só o que está ABERTO, para responder — vaga
-     encerrada some de lá, e é o certo. Só que aí o aviso desaparece: a
-     pessoa recebe a notificação, demora dois dias para abrir o app, a
+     Não é a mesma coisa que a lista de vagas, e a diferença é o motivo de
+     ele existir: a lista mostra só o que está ABERTO, para responder —
+     vaga encerrada some de lá, e é o certo. Só que aí o aviso desaparece:
+     a pessoa recebe a notificação, demora dois dias para abrir o app, a
      empresa já encerrou, e não sobra nada. Nem a vaga, nem o registro de
      que ela existiu. Fica parecendo engano do app.
 
-     Avisos é o histórico: tudo o que chegou, com o que aconteceu depois. */
+     A lista de vagas saiu da barra para caber o Voltar e o banco de
+     talentos, que a dona pediu — ela continua a um toque, no Painel. */
   return [
-    { to: "/vagas-para-mim", label: "Vagas", icone: IconeVagas,
-      casa: (p) => p.startsWith("/vagas-para-mim") },
-    { to: "/avisos", label: "Avisos", icone: IconeSino, contaNovos: true,
-      casa: (p) => p.startsWith("/avisos") },
-    { to: "/painel", label: "Meu perfil", icone: IconePessoa,
-      casa: (p) => p.startsWith("/painel") },
-    { to: "/perfil", label: "Conta", icone: IconePredio,
-      casa: (p) => p.startsWith("/perfil") },
+    voltar,
+    avisos,
+    talentos,
+    { to: "/painel", label: "Painel", icone: IconePessoa,
+      casa: (p) => p.startsWith("/painel") || p.startsWith("/vagas-para-mim") },
   ];
 }
 
 export function NavegacaoEi() {
   const { pathname } = useLocation();
+  const navegar = useNavigate();
   const { user } = useAuth();
   const tipo = useOnboardingStatus();
 
@@ -207,13 +258,31 @@ export function NavegacaoEi() {
     <nav className="nav-ei" aria-label="Navegação principal">
       {itens.map((d) => {
         const ativo = d.casa(pathname);
+        /* O item de ação é um botão; os outros, links. O miolo é o mesmo
+           nos dois, então ele é montado uma vez e embrulhado depois — sem
+           isso, seriam dois blocos de JSX iguais que um dia divergem. */
+        const Caixa = ({ children }: { children: ReactNode }) =>
+          d.acao === "voltar" ? (
+            <button
+              type="button"
+              className="nav-ei-item"
+              onClick={() => navegar(-1)}
+              aria-label="Voltar para a tela anterior"
+            >
+              {children}
+            </button>
+          ) : (
+            <Link
+              to={d.to}
+              className={ativo ? "nav-ei-item ativo" : "nav-ei-item"}
+              aria-current={ativo ? "page" : undefined}
+            >
+              {children}
+            </Link>
+          );
+
         return (
-          <Link
-            key={d.to}
-            to={d.to}
-            className={ativo ? "nav-ei-item ativo" : "nav-ei-item"}
-            aria-current={ativo ? "page" : undefined}
-          >
+          <Caixa key={d.to || d.label}>
             {/* A cápsula é um elemento próprio, e não um fundo no item:
                 ela precisa envolver SÓ o ícone, com o nome embaixo e fora.
                 Um fundo no item inteiro vira um retângulo alto que engole o
@@ -237,7 +306,7 @@ export function NavegacaoEi() {
                 <span className="ei-so-leitor"> — {novos} não lidos</span>
               )}
             </span>
-          </Link>
+          </Caixa>
         );
       })}
     </nav>
