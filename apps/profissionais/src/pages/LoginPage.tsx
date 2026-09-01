@@ -5,7 +5,6 @@ import {
   entrarComEmail,
   entrarComTelefone,
   entrarComTelefoneESenha,
-  definirSenha,
   recuperarSenha,
 } from "../lib/auth";
 import { hasDatabase, problemaDeConfiguracao } from "../lib/supabase";
@@ -107,11 +106,6 @@ export function LoginPage() {
     return pedido === "criar" ? "sms" : "senha";
   });
   const [senhaEntrada, setSenhaEntrada] = useState("");
-  /* Acabou de entrar por SMS e ainda não tem senha: a tela oferece criar
-     uma antes de seguir. Segura a ida para o painel, senão a oferta
-     apareceria e sumiria no mesmo instante. */
-  const [ofereceSenha, setOfereceSenha] = useState(false);
-  const [senhaNova, setSenhaNova] = useState("");
 
   const [comEmail, setComEmail] = useState(false);
   const [criando, setCriando] = useState(false);
@@ -156,10 +150,6 @@ export function LoginPage() {
 
   useEffect(() => {
     if (carregandoConta || !user) return;
-    /* A oferta de criar senha acontece DEPOIS de a sessão existir. Sem
-       esta linha, o redirecionamento levaria a pessoa embora no mesmo
-       instante e a oferta piscaria sem ser lida. */
-    if (ofereceSenha) return;
     if (temDestinoLogin()) return;
 
     // Se está carregando o status de onboarding, aguarda
@@ -191,7 +181,7 @@ export function LoginPage() {
     navegar(tipoOnboarding === "company" ? "/painel-empresa" : "/vagas-para-mim", {
       replace: true,
     });
-  }, [user, carregandoConta, tipoOnboarding, navegar, lado, ofereceSenha]);
+  }, [user, carregandoConta, tipoOnboarding, navegar, lado]);
 
   useEffect(() => {
     if (esperaSegundos <= 0) return;
@@ -212,102 +202,13 @@ export function LoginPage() {
     }
   }
 
-  /* ── A OFERTA DE CRIAR SENHA ────────────────────────────────────────
-     Aparece uma vez, logo depois de entrar por SMS, e some para sempre
-     assim que a senha existe. "Agora não" é um botão de verdade e leva
-     adiante sem cobrar nada: quem não quiser senha continua entrando por
-     SMS a vida toda, que é como funcionava até hoje. */
-  /* ── A OFERTA NÃO ESPERA O `user` CHEGAR ────────────────────────────
-     A dona: "ainda estou tendo problemas pra entrar, não me pediu para
-     criar senha."
-
-     A condição era `ofereceSenha && user && !tem_senha`. O `user` vem do
-     `useAuth`, que ouve a sessão — e a sessão leva alguns quadros para
-     chegar depois do código conferido. Nesse intervalo a condição era
-     falsa, a tela caía no formulário de sempre, e o desvio para dentro do
-     app estava segurado pelo `ofereceSenha`: a pessoa ficava vendo o
-     login, já logada, sem oferta nenhuma.
-
-     Agora quem manda é só o `ofereceSenha`, que só vira `true` DEPOIS de
-     `conferirCodigoDeEntrada` passar — ou seja, com a sessão já criada. O
-     `tem_senha` continua valendo, mas só quando o `user` já existe: se
-     ainda não chegou, a oferta aparece e o `definirSenha` resolve o resto. */
-  if (ofereceSenha && !user?.user_metadata?.tem_senha) {
-    return (
-      <div className="container entrar-pagina">
-        <h1>Agora crie sua senha</h1>
-        <p className="muted">
-          É com ela que você entra daqui em diante. O SMS fica guardado para o dia
-          em que você esquecer.
-        </p>
-
-        <section className="entrar-bloco">
-          <label className="entrar-rotulo" htmlFor="entrar-senha-nova">
-            Nova senha
-          </label>
-          <input
-            id="entrar-senha-nova"
-            type="password"
-            autoComplete="new-password"
-            placeholder="Pelo menos 8 caracteres"
-            value={senhaNova}
-            onChange={(e) => setSenhaNova(e.target.value)}
-            disabled={enviando}
-          />
-          <button
-            type="button"
-            className="btn btn-primary btn-block"
-            disabled={enviando || senhaNova.length < 8}
-            onClick={() =>
-              tentar(
-                () => definirSenha(senhaNova),
-                () => {
-                  try {
-                    localStorage.setItem("ei-tem-senha", "1");
-                  } catch {
-                    /* segue sem lembrar */
-                  }
-                  setSenhaNova("");
-                  setOfereceSenha(false);
-                }
-              )
-            }
-          >
-            {enviando ? "Salvando…" : "Criar senha e continuar"}
-          </button>
-
-          {/* ── SEM "AGORA NÃO" ─────────────────────────────────────────
-              A dona pediu que a senha deixasse de ser opcional: "a partir
-              do momento que tem o sms confirmado, deve abrir uma tela pra
-              cadastrar a senha, após isso a pessoa só consegue abrir com o
-              número e senha."
-
-              O "Agora não" saiu por isso — e porque ele criava um estado
-              ruim: gente com conta e sem senha, recebida toda vez pela
-              tela do SMS, gastando mensagem a cada entrada.
-
-              A saída de emergência abaixo só aparece se guardar a senha
-              FALHAR. Sem ela, um erro de rede aqui prenderia a pessoa numa
-              tela obrigatória, já logada, sem nenhum caminho — que é pior
-              do que uma conta sem senha. */}
-          {error && (
-            <button
-              type="button"
-              className="entrar-link"
-              disabled={enviando}
-              onClick={() => setOfereceSenha(false)}
-            >
-              Não consegui agora — continuar e criar depois na Conta
-            </button>
-          )}
-        </section>
-
-        {aviso && <p className="entrar-aviso">{aviso}</p>}
-        {error && <p className="entrar-erro">{error}</p>}
-      </div>
-    );
-  }
-
+  /* A criação da senha saiu daqui.
+     ────────────────────────────────
+     Ela morava nesta tela, logo depois do código conferido, e não
+     aparecia: no instante em que a sessão nasce, o `RetomarDestinoLogin`
+     leva a pessoa para o destino guardado e a LoginPage sai da tela junto.
+     Virou barreira global (`ExigirSenha`), que não depende de nenhuma rota
+     continuar montada. */
   return (
     <div className="container entrar-pagina">
       {/* O título muda com o lado que a pessoa escolheu na tela de abertura.
@@ -499,14 +400,7 @@ export function LoginPage() {
               className="btn btn-primary btn-block"
               disabled={enviando || codigo.length < 4}
               onClick={() =>
-                tentar(
-                  () => conferirCodigoDeEntrada(telefone, codigo),
-                  /* Quem já tem senha não precisa ver a oferta de novo.
-                     O Supabase não responde "esta conta tem senha?", então
-                     a marca fica no próprio usuário quando ela é criada
-                     (ver `definirSenha`). */
-                  () => setOfereceSenha(true)
-                )
+                tentar(() => conferirCodigoDeEntrada(telefone, codigo))
               }
             >
               {enviando ? "Conferindo…" : "Entrar"}
