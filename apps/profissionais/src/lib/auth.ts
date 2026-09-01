@@ -182,7 +182,9 @@ export async function signInWithApple(voltarPara?: string): Promise<void> {
    acesso ao próprio cadastro. */
 
 /** Manda o código de entrada por SMS. Cria a conta se ainda não existir. */
-export async function entrarComTelefone(telefone: string): Promise<void> {
+export async function entrarComTelefone(
+  telefone: string,
+): Promise<{ jaTinhaConta: boolean }> {
   const client = supabase();
   if (!client) throw new Error("Banco de dados não configurado.");
 
@@ -198,8 +200,35 @@ export async function entrarComTelefone(telefone: string): Promise<void> {
     throw new Error("Esse número parece ser de telefone fixo, e o código só chega em celular.");
   }
 
+  /* ── "ESSE NÚMERO JÁ TEM CONTA" ──────────────────────────────────────
+     A dona: "quando a pessoa já tem o telefone cadastrado, ao inserir o
+     número novamente pra receber o código deve aparecer uma mensagem
+     falando que já tem conta pra entrar."
+
+     O Supabase não responde "este telefone existe?" — e não responde de
+     propósito, para ninguém ficar testando números alheios. Mas ele
+     responde a uma pergunta vizinha, que serve: `shouldCreateUser: false`
+     manda o código APENAS se a conta já existir, e recusa se não existir.
+
+     Então são duas tentativas, nesta ordem:
+
+       1ª  "manda só se já existir" — se passar, a conta existe, o código
+           já foi enviado, e a tela avisa que o caso é entrar, não criar.
+           Ninguém recebe dois SMS.
+       2ª  só acontece quando a primeira recusou: aí a conta é nova mesmo,
+           e o código sai criando o cadastro.
+
+     Se a segunda também falhar, o erro que sobe é o dela — o da primeira
+     seria "usuário não existe", que aqui não é erro, é a resposta. */
+  const { error: erroSeExiste } = await client.auth.signInWithOtp({
+    phone: `+55${digitos}`,
+    options: { shouldCreateUser: false },
+  });
+  if (!erroSeExiste) return { jaTinhaConta: true };
+
   const { error } = await client.auth.signInWithOtp({ phone: `+55${digitos}` });
   if (error) throw new Error(traduzirErroDeEntrada(error.message));
+  return { jaTinhaConta: false };
 }
 
 /** Confere o código e entra. */

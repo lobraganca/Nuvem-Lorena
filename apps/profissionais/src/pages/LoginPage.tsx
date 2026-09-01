@@ -196,12 +196,12 @@ export function LoginPage() {
     return () => clearTimeout(t);
   }, [esperaSegundos]);
 
-  async function tentar(acao: () => Promise<void>, aoDarCerto?: () => void) {
+  async function tentar<T>(acao: () => Promise<T>, aoDarCerto?: (r: T) => void) {
     limpar();
     setEnviando(true);
     try {
-      await acao();
-      aoDarCerto?.();
+      const resultado = await acao();
+      aoDarCerto?.(resultado);
     } catch (err) {
       setError(mensagemDeErro(err, "Não foi possível continuar."));
     } finally {
@@ -396,10 +396,20 @@ export function LoginPage() {
                     })
                   : tentar(
                       () => entrarComTelefone(telefone),
-                      () => {
+                      ({ jaTinhaConta }) => {
                         setPassoTelefone("codigo");
                         setEsperaSegundos(60);
-                        setAviso("Enviamos um código por SMS. Ele chega em alguns segundos.");
+                        /* Quem já tem conta precisa saber disso ANTES de
+                           refazer um cadastro que já existe — e precisa
+                           saber que há um caminho mais curto, a senha. O
+                           código vai do mesmo jeito: recusar aqui deixaria
+                           de fora justamente quem esqueceu a senha. */
+                        setAviso(
+                          jaTinhaConta
+                            ? "Esse número já tem conta aqui. Mandamos o código para você entrar — " +
+                                "ou volte e use a sua senha, se você criou uma."
+                            : "Enviamos um código por SMS. Ele chega em alguns segundos."
+                        );
                       }
                     )
               }
