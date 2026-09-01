@@ -18,7 +18,10 @@ name: Publicar Busca Itabirito
 on:
   push:
     branches:
-      - claude/professional-search-app-duqnk8
+      # O Ei publica da sua propria branch. A duqnk8 passou a receber o
+      # procuro por engano, e o endereco do Ei chegou a mostrar o app errado:
+      # separar as branches e o que impede os dois apps de se atropelarem.
+      - ei-itabirito
     # Só o app dos profissionais. Mudanças na pasta do Avena não têm por que
     # republicar este site.
     paths:
