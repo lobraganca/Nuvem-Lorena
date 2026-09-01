@@ -59,6 +59,21 @@ function estaNaMesmaAbertura(): boolean {
   }
 }
 
+/**
+ * "Esta abertura do app já está liberada."
+ *
+ * Exportada porque quem ENTRA não passa por esta barreira: a tela de
+ * entrar é livre (senão a barreira apareceria por cima do próprio
+ * formulário), e quem acabou de digitar celular e senha ali era parado, na
+ * tela seguinte, por uma tela pedindo... a mesma senha. Foi o que
+ * aconteceu com a dona no primeiro uso: entrou, e caiu no "Olá de novo".
+ *
+ * Então a tela de entrar avisa aqui assim que a sessão nasce.
+ */
+export function marcarAppAberto() {
+  marcarAbertura();
+}
+
 function marcarAbertura() {
   try {
     sessionStorage.setItem(MARCA_ABERTURA, "1");
@@ -142,7 +157,18 @@ export function ExigirDesbloqueio({ children }: { children: ReactNode }) {
               {/* "Gravar a senha", no sentido que a dona pediu: não pedir de
                   novo neste aparelho. A senha não é guardada — o que se
                   guarda é a decisão. */}
-              <label className="ei-linha-item" style={{ gap: 10, cursor: "pointer" }}>
+              {/* Caixa e texto lado a lado, colados. Com `ei-linha-item` a
+                  caixinha ficava numa ponta e o texto na outra, e a foto da
+                  dona mostrou os dois separados por meia tela. */}
+              <label
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 10,
+                  marginTop: 12,
+                  cursor: "pointer",
+                }}
+              >
                 <input
                   type="checkbox"
                   checked={lembrar}

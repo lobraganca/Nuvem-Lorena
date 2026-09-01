@@ -8,6 +8,7 @@ import {
   recuperarSenha,
 } from "../lib/auth";
 import { hasDatabase, problemaDeConfiguracao } from "../lib/supabase";
+import { marcarAppAberto } from "../components/ei/ExigirDesbloqueio";
 import { useTituloDaPagina } from "../lib/tituloDaPagina";
 import { mensagemDeErro } from "../lib/erros";
 import { formatPhone } from "../lib/phone";
@@ -330,6 +331,11 @@ export function LoginPage() {
                       } catch {
                         /* segue sem lembrar */
                       }
+                      /* Quem acabou de entrar não pode ser parado pela tela
+                         que pede a senha a cada abertura: ela é para quem
+                         ABRE o app já logado, não para quem acabou de
+                         digitar a senha aqui. */
+                      marcarAppAberto();
                     })
                   : tentar(
                       () => entrarComTelefone(telefone),
@@ -400,7 +406,7 @@ export function LoginPage() {
               className="btn btn-primary btn-block"
               disabled={enviando || codigo.length < 4}
               onClick={() =>
-                tentar(() => conferirCodigoDeEntrada(telefone, codigo))
+                tentar(() => conferirCodigoDeEntrada(telefone, codigo), marcarAppAberto)
               }
             >
               {enviando ? "Conferindo…" : "Entrar"}
