@@ -1,4 +1,5 @@
 import { createClient, type SupabaseClient } from "@supabase/supabase-js";
+import { continuarConectado } from "./continuarConectado";
 
 /**
  * Cliente Supabase deste app (marketplace de profissionais).
@@ -48,6 +49,67 @@ export function hasDatabase(): boolean {
   return problemaDeConfiguracao() === null;
 }
 
+/**
+ * Onde a sessão é guardada — e isso depende do que a pessoa escolheu na
+ * tela de entrada (ver `continuarConectado.ts`).
+ *
+ * ── Por que um adaptador, e não `storage: localStorage` direto ───────
+ * O cliente do Supabase é criado UMA vez, quando o app abre, e a escolha
+ * é feita depois, na tela de login. Um `storage:` fixo congelaria a
+ * decisão antes de ela ser tomada.
+ *
+ * Este adaptador decide a cada gravação, então marcar ou desmarcar a
+ * caixa vale imediatamente, sem recarregar o app.
+ *
+ * A leitura procura nos DOIS lugares porque a escolha pode mudar com
+ * uma sessão já guardada: quem entrou "conectado" e depois desmarca não
+ * pode ser expulso na hora — a sessão dele está no `localStorage`, e a
+ * próxima gravação (a renovação do token, que acontece de hora em hora)
+ * a move sozinha para o lugar certo.
+ *
+ * Tudo dentro de `try` porque em aba anônima, ou com armazenamento
+ * bloqueado nas configurações do navegador, qualquer um destes acessos
+ * LANÇA — e uma exceção aqui derruba o app inteiro em tela branca, sem
+ * dizer nada a quem só queria entrar.
+ */
+const armazenamentoDaSessao = {
+  getItem(chave: string): string | null {
+    try {
+      return sessionStorage.getItem(chave) ?? localStorage.getItem(chave);
+    } catch {
+      return null;
+    }
+  },
+  setItem(chave: string, valor: string): void {
+    try {
+      if (continuarConectado()) {
+        localStorage.setItem(chave, valor);
+        sessionStorage.removeItem(chave);
+      } else {
+        sessionStorage.setItem(chave, valor);
+        localStorage.removeItem(chave);
+      }
+    } catch {
+      /* Sem onde guardar, a sessão vale só enquanto o app estiver aberto.
+         Continuar funcionando assim é melhor que não deixar entrar. */
+    }
+  },
+  removeItem(chave: string): void {
+    /* Sair tem que limpar os dois — senão a sessão "apagada" reaparece
+       na próxima abertura, vinda do outro armazenamento. */
+    try {
+      localStorage.removeItem(chave);
+    } catch {
+      /* nada a fazer */
+    }
+    try {
+      sessionStorage.removeItem(chave);
+    } catch {
+      /* nada a fazer */
+    }
+  },
+};
+
 let client: SupabaseClient | null = null;
 
 export function supabase(): SupabaseClient | null {
@@ -55,7 +117,12 @@ export function supabase(): SupabaseClient | null {
   if (!client) {
     try {
       client = createClient(url, key, {
-        auth: { persistSession: true, autoRefreshToken: true, detectSessionInUrl: true },
+        auth: {
+          persistSession: true,
+          autoRefreshToken: true,
+          detectSessionInUrl: true,
+          storage: armazenamentoDaSessao,
+        },
       });
     } catch (err) {
       // createClient lança com valores malformados. Sem este try, a exceção

@@ -18,6 +18,7 @@ import { LOGIN_EMAIL_ATIVO, LOGIN_TELEFONE_ATIVO } from "../config";
 import { useAuth } from "../lib/useAuth";
 import { temDestinoLogin } from "../lib/auth";
 import { googleServeAqui } from "../lib/plataforma";
+import { continuarConectado, definirContinuarConectado } from "../lib/continuarConectado";
 import { useOnboardingStatus } from "../lib/useOnboardingStatus";
 import { registrarTipoDeUsuario } from "../lib/company";
 import {
@@ -77,6 +78,10 @@ export function LoginPage() {
      resolve o caso comum, que é a maioria. */
   const [esperaSegundos, setEsperaSegundos] = useState(0);
   const [enviando, setEnviando] = useState(false);
+
+  /* A escolha já feita antes é o valor inicial: quem marcou uma vez não
+     precisa marcar de novo a cada entrada. */
+  const [seguirConectado, setSeguirConectado] = useState(continuarConectado);
 
   const [comEmail, setComEmail] = useState(false);
   const [criando, setCriando] = useState(false);
@@ -203,6 +208,36 @@ export function LoginPage() {
           Configure VITE_SUPABASE_URL/ANON_KEY no Supabase para habilitar a entrada.
         </p>
       )}
+
+      {/* --- Continuar conectado -------------------------------------- */}
+      {/* Fica ANTES dos caminhos de entrada, e não dentro de um deles,
+          porque a escolha vale para os três: telefone, Google e e-mail.
+          Repetida em cada bloco, seriam três caixas dizendo a mesma
+          coisa — e três chances de a pessoa marcar uma e achar que
+          marcou todas.
+
+          A gravação é imediata, no `onChange`, e não no momento de
+          entrar. Tem que ser assim: o caminho do Google sai do app para
+          o navegador e volta depois, e o que não estiver guardado antes
+          dessa viagem se perde. */}
+      <label className="entrar-lembrar">
+        <input
+          type="checkbox"
+          checked={seguirConectado}
+          onChange={(e) => {
+            setSeguirConectado(e.target.checked);
+            definirContinuarConectado(e.target.checked);
+          }}
+        />
+        <span>
+          Continuar conectado neste aparelho
+          <small className="muted">
+            {seguirConectado
+              ? "Você não precisa entrar de novo nas próximas vezes."
+              : "Vamos pedir para entrar de novo quando você fechar o app. Bom para aparelho emprestado."}
+          </small>
+        </span>
+      </label>
 
       {/* --- Telefone: o caminho principal ---------------------------- */}
       {LOGIN_TELEFONE_ATIVO && (
