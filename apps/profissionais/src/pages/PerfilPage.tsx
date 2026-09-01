@@ -2,6 +2,7 @@ import { useEffect, useState, type ReactNode } from "react";
 import { Link } from "react-router-dom";
 import { useAuth } from "../lib/useAuth";
 import { signOut } from "../lib/auth";
+import { registrarTipoDeUsuario } from "../lib/company";
 import { hasDatabase } from "../lib/supabase";
 import { getProfile, salvarMeuPerfil } from "../lib/profiles";
 import { isAdmin } from "../lib/admin";
@@ -106,6 +107,8 @@ export function PerfilPage() {
   const [erroPerfil, setErroPerfil] = useState("");
   const [admin, setAdmin] = useState(false);
   const [error, setError] = useState("");
+  /** Trocando o lado mostrado (profissional ↔ empresa). */
+  const [trocando, setTrocando] = useState(false);
   const [confirmarExclusao, setConfirmarExclusao] = useState(false);
   const [textoConfirmacao, setTextoConfirmacao] = useState("");
   const [excluindo, setExcluindo] = useState(false);
@@ -322,6 +325,58 @@ export function PerfilPage() {
               </Linha>
             </>
           )}
+        </div>
+
+        {/* ── OS DOIS LADOS NO MESMO NÚMERO ────────────────────────────
+            A dona: "e se for o mesmo número e quiser ter os dois
+            cadastros de profissional ou de empresa."
+
+            Acontece o tempo todo numa cidade pequena: quem tem uma loja
+            também é eletricista à noite, e quem faz faxina contrata um
+            pedreiro para a própria casa. A conta é a mesma — o telefone —
+            e os dois cadastros podem existir lado a lado no banco:
+            `professionals` e `companies` são tabelas diferentes, cada uma
+            presa ao mesmo dono.
+
+            O que o app guardava era só qual dos dois MOSTRAR: um campo
+            único, escolhido uma vez, sem caminho de volta. Quem tocasse
+            errado na pergunta inicial ficava preso do lado errado — foi o
+            que aconteceu com a própria dona, que entrou com senha e caiu
+            no cadastro de empresa sem ter pedido.
+
+            Este botão troca o lado mostrado. Não apaga nada: o cadastro do
+            outro lado continua exatamente onde estava, e voltar é tocar de
+            novo. Na primeira vez de cada lado, a tela seguinte é o
+            cadastro daquele lado — que é o certo, porque ele ainda não
+            existe. */}
+        <div className="ei-lista" style={{ marginTop: 12 }}>
+          <button
+            type="button"
+            className="ei-linha-item"
+            disabled={trocando}
+            onClick={async () => {
+              if (!user) return;
+              setTrocando(true);
+              try {
+                const outro = tipo === "company" ? "professional" : "company";
+                await registrarTipoDeUsuario(user.id, outro);
+                /* Recarrega o app inteiro no endereço do lado novo: a
+                   barra de baixo e as telas leem o tipo uma vez, na
+                   abertura, e uma navegação comum deixaria metade do app
+                   mostrando o lado antigo. */
+                window.location.href = outro === "company" ? "/painel-empresa" : "/painel";
+              } catch (err) {
+                setError(mensagemDeErro(err, "Não consegui trocar de lado."));
+                setTrocando(false);
+              }
+            }}
+          >
+            {trocando
+              ? "Trocando…"
+              : tipo === "company"
+                ? "Também procuro trabalho — abrir meu lado de profissional"
+                : "Também contrato — abrir meu lado de empresa"}
+          </button>
         </div>
 
         {/* Instalar o app.

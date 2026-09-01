@@ -10,7 +10,7 @@ import {
 import { numeroJaConfirmadoNaConta } from "../lib/whatsappVerify";
 import { uploadProfessionalPhoto } from "../lib/storage";
 import { DEFAULT_CITY, DEFAULT_UF, CITIES, UFS, type Company } from "../types/domain";
-import { formatDocument, isValidDocument } from "../lib/documents";
+import { formatDocument, isValidDocument, onlyDigits } from "../lib/documents";
 import { formatPhone, isValidPhone } from "../lib/phone";
 import { mensagemDeErro } from "../lib/erros";
 import { Pagina } from "../components/ei/Pagina";
@@ -104,6 +104,24 @@ export function CadastroEmpresaPage() {
      a pessoa disser onde é o corte. */
   const [aEnquadrar, setAEnquadrar] = useState<File | null>(null);
   const [enviandoFoto, setEnviandoFoto] = useState(false);
+  /* ── PESSOA FÍSICA OU EMPRESA ────────────────────────────────────────
+     A dona: "no cadastro de quem contrata, tem que ter opção de pessoa
+     física ou PJ."
+
+     É o caso mais comum aqui, e o formulário anterior o ignorava: quem
+     contrata uma diarista, um pedreiro ou uma babá é uma FAMÍLIA, não uma
+     empresa — e a primeira coisa que o cadastro pedia era o CNPJ. Isso
+     sozinho manda embora metade de quem vai publicar vaga em Itabirito.
+
+     O tipo não tem coluna própria no banco (isso pediria migration, e
+     migration precisa ser aplicada à mão antes de o código subir — a
+     regra que custou um dia inteiro na 0060). Ele é DEDUZIDO do documento
+     guardado: 11 dígitos é CPF, 14 é CNPJ, e o campo `cnpj` passa a
+     guardar os dois. Quando houver uma migration para outra coisa, vale
+     acrescentar a coluna e trocar esta dedução por leitura direta. */
+  const [tipoDono, setTipoDono] = useState<"pf" | "pj">(() =>
+    onlyDigits(EMPTY.cnpj ?? "").length === 11 ? "pf" : "pj",
+  );
 
   /** Em etapas só quem está cadastrando agora. Editando, vê tudo. */
   const emEtapas = !empresaExistente;
@@ -119,6 +137,10 @@ export function CadastroEmpresaPage() {
       if (empresa) {
         setForm(empresa);
         setEmpresaExistente(empresa);
+        /* Cadastro que já existe: o tipo vem do que está guardado, e não
+           do padrão da tela — senão editar uma pessoa física mostraria a
+           máscara de CNPJ em cima de um CPF. */
+        if (onlyDigits(empresa.cnpj ?? "").length === 11) setTipoDono("pf");
       }
       setCarregandoEmpresa(false);
     });
@@ -158,7 +180,8 @@ export function CadastroEmpresaPage() {
   function conferirEtapa(n: number): string {
     if (n === 1) {
       if (!form.company_name.trim()) return "Escreva o nome da empresa.";
-      if (form.cnpj && !isValidDocument(form.cnpj, "pj")) return "Esse CNPJ não confere.";
+      if (form.cnpj && !isValidDocument(form.cnpj, tipoDono))
+        return tipoDono === "pf" ? "Esse CPF não confere." : "Esse CNPJ não confere.";
     }
     if (n === 2) {
       if (!form.city.trim()) return "Escolha a cidade.";
@@ -277,24 +300,64 @@ export function CadastroEmpresaPage() {
             </p>
 
             <div className="ei-campo">
-              <label htmlFor="company_name">Nome da empresa</label>
+              <label htmlFor="company_name">
+                {tipoDono === "pf" ? "Seu nome ou o da casa/obra" : "Nome da empresa"}
+              </label>
               <input
                 id="company_name"
                 type="text"
-                placeholder="Como as pessoas conhecem sua empresa"
+                placeholder={
+                  tipoDono === "pf"
+                    ? "É o que aparece na vaga"
+                    : "Como as pessoas conhecem sua empresa"
+                }
                 value={form.company_name}
                 onChange={(e) => setForm((f) => ({ ...f, company_name: e.target.value }))}
               />
             </div>
 
+            {/* Quem contrata: pessoa ou empresa. A escolha muda o rótulo,
+                a máscara e a validação do campo de baixo — e muda também o
+                que a tela pede no nome ("nome da empresa" não serve para
+                uma família). */}
             <div className="ei-campo">
-              <label htmlFor="cnpj">CNPJ (opcional)</label>
+              <label>Você contrata como</label>
+              <div className="segmentado" role="group" aria-label="Pessoa física ou empresa">
+                <button
+                  type="button"
+                  className={tipoDono === "pf" ? "segmentado-opcao ativa" : "segmentado-opcao"}
+                  aria-pressed={tipoDono === "pf"}
+                  onClick={() => {
+                    setTipoDono("pf");
+                    setForm((f) => ({ ...f, cnpj: "" }));
+                  }}
+                >
+                  Pessoa física
+                </button>
+                <button
+                  type="button"
+                  className={tipoDono === "pj" ? "segmentado-opcao ativa" : "segmentado-opcao"}
+                  aria-pressed={tipoDono === "pj"}
+                  onClick={() => {
+                    setTipoDono("pj");
+                    setForm((f) => ({ ...f, cnpj: "" }));
+                  }}
+                >
+                  Empresa (CNPJ)
+                </button>
+              </div>
+            </div>
+
+            <div className="ei-campo">
+              <label htmlFor="cnpj">
+                {tipoDono === "pf" ? "CPF (opcional)" : "CNPJ (opcional)"}
+              </label>
               <input
                 id="cnpj"
                 type="text"
                 inputMode="numeric"
-                placeholder="00.000.000/0000-00"
-                value={formatDocument(form.cnpj || "", "pj")}
+                placeholder={tipoDono === "pf" ? "000.000.000-00" : "00.000.000/0000-00"}
+                value={formatDocument(form.cnpj || "", tipoDono)}
                 onChange={(e) => setForm((f) => ({ ...f, cnpj: e.target.value }))}
               />
             </div>
