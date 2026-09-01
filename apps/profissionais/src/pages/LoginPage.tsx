@@ -21,9 +21,7 @@ import { useAuth } from "../lib/useAuth";
 import { temDestinoLogin } from "../lib/auth";
 import { googleServeAqui } from "../lib/plataforma";
 import { useOnboardingStatus } from "../lib/useOnboardingStatus";
-import { registrarTipoDeUsuario } from "../lib/company";
 import {
-  destinoDoLado,
   esquecerLado,
   guardarLado,
   ladoDaUrl,
@@ -160,22 +158,21 @@ export function LoginPage() {
     // Se está carregando o status de onboarding, aguarda
     if (tipoOnboarding === null) return;
 
-    /* Ainda sem lado registrado na conta. Se a pessoa já disse de que lado
-       está, lá na tela de abertura, essa resposta VALE — perguntar de novo
-       é o defeito, não a segurança. Quem chegou aqui sem dizer (tocou em
-       "Entrar" na barra de baixo) continua indo à tela da pergunta. */
+    /* Ainda sem lado registrado: a pergunta é a próxima tela.
+       ──────────────────────────────────────────────────────
+       Aqui existia um atalho: se a pessoa tinha tocado em "Procuro
+       trabalho" ou "Estou contratando" na tela de abertura, o lado era
+       gravado automaticamente e a pergunta não aparecia.
+
+       Ele saiu junto com as duas portas daquela tela. A dona pediu a
+       ordem inversa — "antes de perguntar se é empresa ou se é
+       profissional, tinha que ter a tela pra entrar no app e criar senha.
+       depois de criar a pessoa escolhe o perfil" —, e o atalho gravava
+       exatamente aquilo que ela quer que seja escolhido DEPOIS, com
+       calma, numa tela feita para isso.
+
+       Quem chega aqui sem lado agora vai sempre à pergunta. */
     if (tipoOnboarding === false) {
-      if (lado) {
-        registrarTipoDeUsuario(user.id, lado)
-          .then(() => {
-            esquecerLado();
-            navegar(destinoDoLado(lado), { replace: true });
-          })
-          /* Falhou o registro: cai na pergunta em vez de deixar a pessoa
-             parada numa tela de login onde ela já está logada. */
-          .catch(() => navegar("/onboarding-tipo", { replace: true }));
-        return;
-      }
       navegar("/onboarding-tipo", { replace: true });
       return;
     }

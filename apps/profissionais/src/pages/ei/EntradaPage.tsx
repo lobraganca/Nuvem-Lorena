@@ -75,34 +75,38 @@ export function EntradaPage() {
           <h1 className="ei-entrada-titulo">Emprego em Itabirito</h1>
           {/* Uma linha. A anterior tinha duas orações e dizia, com vinte
               palavras, o que os dois botões logo abaixo dizem com seis. */}
-          <p className="ei-entrada-apoio">De que lado você está?</p>
+          {/* Era "De que lado você está?", que fazia par com as duas
+              portas. Com a pergunta adiada para depois da conta, a frase
+              ficou anunciando uma escolha que não está mais nesta tela. */}
+          <p className="ei-entrada-apoio">Vagas e serviços da cidade, no seu celular.</p>
         </div>
 
-        {/* As duas portas.
-            ────────────────
-            Ordem deliberada: quem procura trabalho primeiro. São muito
-            mais pessoas, e é o lado que precisa estar cheio antes de o
-            outro valer alguma coisa.
+        {/* ── A ORDEM MUDOU: PRIMEIRO A CONTA, DEPOIS O LADO ─────────
+            A dona: "acho que antes de perguntar se é empresa ou se é
+            profissional, tinha que ter a tela pra entrar no app e criar
+            senha. depois de criar a pessoa escolhe o perfil de empresa ou
+            de profissional."
 
-            Cada uma virou um BLOCO, e não um botão de uma linha. O que
-            muda: cabe o ofício embaixo do rótulo, em cinza, e a pessoa
-            reconhece o próprio caso sem ler explicação — que é o que ela
-            pediu ao dizer "direcionamentos claros, sem muita explicação
-            escrita".
+            Ela está certa, e o desenho anterior tinha um problema real:
+            as duas portas ("Procuro trabalho" / "Estou contratando")
+            faziam a pessoa escolher um LADO antes de existir como conta.
+            Quem tocasse errado — e "estou contratando" é ambíguo para
+            quem está montando um serviço próprio — só descobria depois de
+            entrar, com o lado já gravado.
 
-            O `?lado=` não é enfeite: sem ele os dois apontavam para o
-            MESMO `/login`, e a escolha que a pessoa acabou de fazer era
-            jogada fora — ela chegava a uma tela chamada "Entrar", sem
-            nenhuma menção ao lado que escolheu, e era perguntada de novo
-            depois de entrar. */}
+            Agora a ordem é a natural: entra (ou cria a conta, com senha),
+            e só então escolhe de que lado está, numa tela que existe só
+            para isso e pode explicar cada opção com calma.
+
+            As duas portas viraram uma. O texto embaixo continua dizendo
+            que o app serve aos dois lados — a informação não se perdeu,
+            só deixou de exigir uma decisão cedo demais. */}
         <div className="ei-portas">
-          <Link to="/login?lado=trabalhar" className="ei-porta ei-porta-cheia">
-            <span className="ei-porta-nome">Procuro trabalho</span>
-            <span className="ei-porta-nota">Receba as vagas do seu ofício</span>
-          </Link>
-          <Link to="/login?lado=contratar" className="ei-porta">
-            <span className="ei-porta-nome">Estou contratando</span>
-            <span className="ei-porta-nota">Publique e avise a cidade</span>
+          <Link to="/login" className="ei-porta ei-porta-cheia">
+            <span className="ei-porta-nome">Entrar ou criar conta</span>
+            <span className="ei-porta-nota">
+              Pelo celular. Depois você escolhe se procura trabalho ou contrata
+            </span>
           </Link>
         </div>
 
