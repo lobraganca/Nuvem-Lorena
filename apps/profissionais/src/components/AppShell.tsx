@@ -10,6 +10,7 @@ import { NavegacaoEi } from "./NavegacaoEi";
 import { useOnlineCount } from "../lib/presence";
 import { ExigirNumero, exigeNumero } from "./ExigirNumero";
 import { CompletarPerfil, exigePerfil } from "./CompletarPerfil";
+import { ExigirConta } from "./ei/ExigirConta";
 
 /* Etiqueta de preço: diz "aqui tem oferta" sem a agressividade do megafone,
    que num app de serviços lê como spam. */
@@ -271,6 +272,11 @@ function envolverTelaDeConta(caminho: string, conteudo: ReactNode): ReactNode {
   let saida = conteudo;
   if (exigePerfil(caminho)) saida = <CompletarPerfil>{saida}</CompletarPerfil>;
   if (exigeNumero(caminho)) saida = <ExigirNumero>{saida}</ExigirNumero>;
+  /* A conta é a barreira mais EXTERNA, e por isso é a última a embrulhar:
+     sem ela nem a lista de gente abre. Se viesse antes, "completar perfil"
+     e "confirmar número" rodariam por fora dela — pedindo dados de quem
+     ainda nem entrou. */
+  saida = <ExigirConta>{saida}</ExigirConta>;
   return saida;
 }
 

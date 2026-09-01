@@ -6,6 +6,7 @@ import { mensagemDeErro } from "../../lib/erros";
 import { Switch } from "../../components/ei/Switch";
 import { CampoTelefone } from "../../components/ei/CampoTelefone";
 import { Pagina } from "../../components/ei/Pagina";
+import { Etapas } from "../../components/ei/Etapas";
 import { CATEGORIES, MAX_FUNCOES } from "../../types/domain";
 import { sendSuggestion } from "../../lib/suggestions";
 import {
@@ -332,23 +333,15 @@ export function MeuPerfilPage() {
         <Pagina titulo={emEtapas ? "Seu cadastro" : "Meu perfil"} />
         <p className="ei-apoio ei-margem" style={{ paddingBottom: 6 }}>
           {emEtapas
-            ? `Passo ${etapa + 1} de 4 · ${ETAPAS[etapa - 1]}`
+            ? "Três passos. Dá para mudar tudo depois."
             : "É por ele que as vagas chegam até você."}
         </p>
 
-        {/* A barra dos passos. Começa em 2 de 4 porque o passo 1 é a tela
-            de entrar na conta — a promessa que ela faz há muito tempo e
-            que só agora tem para onde ir. */}
-        {emEtapas && (
-          <div className="ei-margem ei-passos-faixa">
-            <div className="passos-barra" aria-hidden="true">
-              <div
-                className="passos-preenchido"
-                style={{ width: `${((etapa + 1) / 4) * 100}%` }}
-              />
-            </div>
-          </div>
-        )}
+        {/* A trilha em cartões, a mesma do cadastro da empresa. Era uma
+            barrinha de 4px preenchida pela metade: ela informava o
+            progresso e não dizia o NOME do que vinha. A dona pediu os dois
+            cadastros iguais, "em cards por etapas". */}
+        {emEtapas && <Etapas passos={ETAPAS} atual={etapa} />}
 
         {/* ── 0. Quem é você ───────────────────────────────────────────
             Nome, telefone e e-mail, que a dona pediu por escrito e não

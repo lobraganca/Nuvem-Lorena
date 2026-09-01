@@ -2233,3 +2233,13 @@
   font: inherit;
   cursor: pointer;
 }
+
+/* A linha de apoio logo abaixo da barra azul estava com `padding-top: 0`,
+   herdado de quando a barra era branca e as duas se liam como um bloco só.
+   Com a barra pintada, o texto encosta na cor e a primeira letra parece
+   cortada — foi visto na tela do "Falta pouco". Um respiro resolve. */
+.ei .ei-barra + .ei-margem,
+.ei .ei-barra + p.ei-apoio,
+.ei .ei-barra + p.ei-corpo {
+  padding-top: 12px;
+}

@@ -113,9 +113,10 @@ export function EntradaPage() {
         {/* O rodapé da tela. Três coisas quietas, do mesmo tamanho, no
             mesmo bloco — e não espalhadas pela altura da página. */}
         <div className="ei-entrada-pe">
-          <Link to="/profissionais" className="ei-btn-inline">
-            Ver quem está disponível — sem conta
-          </Link>
+          {/* O link "ver sem conta" saiu: a partir de 01/09 ver a lista
+              também exige conta ("todos devem criar conta ao entrar, até
+              mesmo pra ver"). Ele continuaria clicável e devolveria a
+              pessoa ao login — prometendo uma porta que não existe mais. */}
 
           {/* Instalar, para quem ainda não entrou. O caminho mora na Conta,
               e quem chega aqui pela primeira vez não tem conta — ficava sem
