@@ -405,6 +405,17 @@ class Consulta implements PromiseLike<{ data: Linha[] | Linha | null; error: unk
      que separa "vaga que ainda não foi vista" de todas as outras. Sem ele,
      o falso ignorava o filtro e a lista voltava inteira. */
   is(c: string, v: unknown) { this.filtros.push((l) => (valorEm(l, c) ?? null) === v); return this; }
+  /* `not(coluna, "is", null)` é o contrário do `is` — o app usa isso para
+     mostrar só quem preencheu as áreas de interesse. Sem este método a tela
+     de profissionais caía com "not is not a function", e o defeito só
+     aparecia na demonstração, nunca na conferência de tipos. */
+  not(c: string, op: string, v: unknown) {
+    this.filtros.push((l) => {
+      const valor = valorEm(l, c) ?? null;
+      return op === "is" ? valor !== v : valor !== v;
+    });
+    return this;
+  }
   gte(c: string, v: string) { this.filtros.push((l) => String(l[c] ?? "") >= v); return this; }
   lte(c: string, v: string) { this.filtros.push((l) => String(l[c] ?? "") <= v); return this; }
   in(c: string, vs: unknown[]) { this.filtros.push((l) => vs.includes(l[c])); return this; }

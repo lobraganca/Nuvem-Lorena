@@ -67,7 +67,7 @@
      superfície nenhuma: servem de marcador de 2px e de tinta de etiqueta,
      que é como um app monocromático usa cor sem virar colorido. */
   /* Medido na arte da marca, igual ao --color-marca-azul. */
-  --ei-marca: #020f3a;
+  --ei-marca: #12a5fa;
   --ei-laranja: #c2410c;
   --ei-verde: #1b6b3f;
 
@@ -1598,7 +1598,11 @@
    O `--ei-acento` existe para a dona escolher olhando: o azul do Conta
    Azul, ou o navy da marca dela. Ver as duas versões renderizadas. */
 .ei {
-  --ei-acento: #01aeef;          /* trocado para comparar */
+  /* O azul da acao. Nao e o azul da marca: aquele (#12a5fa) da 2,7:1 com
+     letra branca e reprovaria a barra de topo inteira, que e onde o titulo
+     mora. Este da 4,98:1. A marca clara aparece no simbolo e na abertura,
+     onde nao ha texto por cima. */
+  --ei-acento: #0a72c4;
   --ei-sobre-acento: #ffffff;
 
   --ei-papel: #ffffff;
@@ -1666,4 +1670,136 @@
 .ei .ei-barra .ei-btn-cheio:hover:not(:disabled) {
   background: rgba(255, 255, 255, .16);
   filter: none;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════
+   CANTO ARREDONDADO — 01/09
+   ═══════════════════════════════════════════════════════════════════════
+
+   O desenho deste arquivo nasceu do Notion, e no Notion NADA é
+   arredondado: o cabeçalho lá em cima explica por quê, e na época era a
+   resposta certa — o canto de 999px em todo botão era a assinatura do
+   procurô, e tirá-lo foi o que fez a silhueta do app deixar de ser a dele.
+
+   Só que a marca mudou (azul claro) e o pedido mudou junto: "mais
+   moderno, com bordas arredondadas". Então o canto volta — mas com
+   medida, e não como era antes:
+
+   · o retângulo vivo (cartão, lista, bloco) ganha 14px, que é o canto que
+     o Conta Azul usa e que lê como "cartão", não como "cápsula";
+   · o que se toca (botão, campo) ganha 12px;
+   · só o que é redondo POR NATUREZA vira círculo — foto de pessoa, botão
+     de ícone, chave liga-desliga, etiqueta. Cápsula em botão de texto era
+     justamente o que a dona reprovou, e não volta.
+
+   As regras vêm depois de tudo e com `.ei` na frente porque os `0` que
+   elas substituem estão espalhados em 30 lugares deste arquivo: sobrepor
+   no fim custa menos que caçar um a um, e deixa o histórico legível. */
+.ei {
+  --ei-raio: 14px;
+  --ei-raio-toque: 12px;
+  --ei-raio-redondo: 999px;
+}
+
+/* Superfície: o que é bloco de conteúdo. */
+.ei .ei-cartao,
+.ei .ei-lista,
+.ei .ei-props,
+.ei .ei-acoes,
+.ei .ei-resumo,
+.ei .ei-callout,
+.ei .ei-faixa,
+.ei .ei-porta,
+.ei .ei-plano,
+.ei .ei-empresa-marca,
+.ei .ei-vazio-icone,
+.ei .ei-foto-escolha-img,
+.ei .ei-foto-escolha-vazia,
+.ei .ei-foto img,
+.ei .ei-segmentado,
+.ei .segmentado {
+  border-radius: var(--ei-raio);
+}
+
+/* A lista arredonda por fora, e os itens de dentro acompanham as pontas —
+   sem isso o primeiro item quadrado aparece "vazando" pelo canto do bloco,
+   que é o defeito clássico de arredondar só o pai. */
+.ei .ei-lista { overflow: hidden; }
+
+/* Toque: o que se aperta ou onde se escreve. */
+.ei .ei-btn,
+.ei .ei-busca,
+.ei .ei-campo input,
+.ei .ei-campo select,
+.ei .ei-campo textarea,
+.ei input,
+.ei select,
+.ei textarea,
+.ei .ei-aba,
+.ei .segmentado-opcao,
+.ei .ei-linha-item,
+.ei .ei-linha-icone {
+  border-radius: var(--ei-raio-toque);
+}
+
+/* Redondo de verdade: gente, ícone e chave. */
+.ei .ei-foto-iniciais,
+.ei .ei-pessoa-retrato,
+.ei .ei-barra-foto img,
+.ei .ei-barra-voltar,
+.ei .ei-acao-circulo,
+.ei .ei-busca-limpar,
+.ei .ei-foto-trocar,
+.ei .ei-switch-trilho,
+.ei .ei-switch-bolinha,
+.ei .ei-chip,
+.ei .ei-selo,
+.ei .ei-tarja,
+.ei .passos-barra,
+.ei .passos-preenchido {
+  border-radius: var(--ei-raio-redondo);
+}
+
+/* O anel de foco segue o canto de quem ele contorna, senão fica um
+   retângulo reto em volta de um botão redondo. */
+.ei a:focus-visible,
+.ei button:focus-visible,
+.ei input:focus-visible,
+.ei select:focus-visible,
+.ei textarea:focus-visible,
+.ei [tabindex]:focus-visible {
+  border-radius: var(--ei-raio-toque);
+}
+.ei .ei-barra-voltar:focus-visible,
+.ei .ei-acao-circulo:focus-visible,
+.ei .ei-chip:focus-visible {
+  border-radius: var(--ei-raio-redondo);
+}
+
+/* ═══════════════════════════════════════════════════════════════════════
+   A BARRA DE TOPO E A BARRA DO CELULAR — 01/09
+   ═══════════════════════════════════════════════════════════════════════
+
+   Relato da dona: "no celular, o topo está se confundindo com os ícones do
+   telefone". É literal — o `index.html` pede `viewport-fit=cover`, então a
+   página começa ATRÁS do relógio e da bateria, e a barra pintada de azul
+   ficava encostada neles: dois azuis colados, o título quase na mesma
+   linha da hora.
+
+   Duas coisas resolvem, e as duas são necessárias:
+
+   1. A barra reserva a altura do recorte do aparelho (`safe-area-inset-top`).
+      Sem isso o título sobe por baixo do relógio em qualquer celular com
+      entalhe ou ilha.
+   2. O `theme-color` do `index.html` passa a ser o MESMO azul da barra
+      (ver o arquivo). Assim a faixa do sistema e a barra do app são uma
+      cor só e a emenda some — em vez de duas faixas de azul diferente.
+
+   `min-height` continua valendo para a parte de baixo da barra: o recuo
+   entra como espaço acima do conteúdo, não como barra mais alta e vazia. */
+.ei .ei-barra {
+  padding-top: calc(8px + env(safe-area-inset-top));
+  position: sticky;
+  top: 0;
+  z-index: 20;
 }

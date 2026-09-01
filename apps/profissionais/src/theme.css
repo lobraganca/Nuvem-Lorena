@@ -54,10 +54,16 @@
   /* Laranja, como no estilo-ei: era o azul-marinho, e botão azul-marinho
      é o procurô por mais que o tom seja outro. Texto navy por cima porque
      com branco o laranja dá 2,87:1 — reprovado. */
-  --color-primary: #ff6a05;
-  --color-on-primary: #031e52;
+  /* 01/09: a acao passa a ser azul, nao laranja — a dona escolheu "azul em
+     tudo" quando a marca nova entrou. O laranja fica para a bolinha do
+     simbolo e para aviso. */
+  --color-primary: #0a72c4;
+  --color-on-primary: #ffffff;
   /* O navy continua existindo como MARCA e tinta, não como ação. */
-  --color-marca: #031e52;
+  /* O azul de ESCREVER. O da marca (#12a5fa) da 2,7:1 sobre branco e
+     reprova em qualquer texto; este da 4,98:1 com letra branca por cima e
+     5,2:1 como tinta sobre o papel. Mesma familia, contraste de verdade. */
+  --color-marca: #0a72c4;
 
   /* Dois nomes do desenho antigo que sobrevivem em 32 regras espalhadas.
      ────────────────────────────────────────────────────────────────────
@@ -120,7 +126,11 @@
      PNG), e não escolhido de olho. Era #031e52 — um azul parecido, mas
      diferente: o cabeçalho punha um quadrado de um tom atrás de uma marca
      de outro, e os dois encostados denunciam a diferença. */
-  --color-marca-azul: #020f3a;
+  /* 01/09: a marca nova e azul CLARO, nao mais o navy. Este token pinta o
+     quadrado atras da logo e a tela de abertura; a arte e transparente,
+     entao ele e literalmente o fundo do simbolo — trocar aqui troca a
+     marca inteira de uma vez. */
+  --color-marca-azul: #12a5fa;
   /* Sobrou do desenho antigo e ainda é usado como cor de tinta em algumas
      telas. Aponta para a tinta nova até cada uma ser revisitada. */
   --color-navy: var(--color-text);
@@ -3404,25 +3414,19 @@ h3 {
 }
 
 /* ═══════════════════════════════════════════════════════════════════════
-   CANTO RETO EM TUDO
+   CANTO RETO EM TUDO — DESFEITO EM 01/09
    ═══════════════════════════════════════════════════════════════════════
-   A dona pediu duas vezes na mesma mensagem: "Mude o formato de tudo. Não
-   quero bordas arredondadas." / "Tire as bordas arredondadas."
+   Aqui existia um `* { border-radius: 0 !important }`, escrito quando a
+   dona pediu, duas vezes na mesma mensagem, que nada fosse arredondado.
 
-   O `estilo-ei.css` já nasce reto, mas ele cobre só as telas reescritas.
-   O resto do app ainda usa este arquivo, que é do procurô e tem 24 regras
-   de canto redondo espalhadas — cápsula de 999px em botão, 20px em cartão,
-   50% em avatar —, além de dezenas de `borderRadius` escritos direto no
-   `style` de componentes antigos.
+   Em 01/09 ela pediu o contrário: "reformule o app para mais moderno, com
+   bordas arredondadas". A regra saiu inteira, e não podia ser só afrouxada:
+   com `!important` num seletor universal, ela vencia QUALQUER canto — as
+   regras novas do `estilo-ei.css` foram escritas, entraram na build e não
+   apareceram na tela. Meia hora de procura até achar que o culpado era
+   esta linha, e não elas.
 
-   Corrigir uma a uma deixaria três ou quatro passando, e a próxima tela
-   nova traria de volta sem ninguém perceber. Esta regra fecha a porta: não
-   existe canto arredondado neste app, venha ele de onde vier.
-
-   É deliberadamente bruta. Se um dia algum canto precisar voltar, o lugar
-   de decidir isso é aqui, no claro — e não num `style` perdido numa tela. */
-*,
-*::before,
-*::after {
-  border-radius: 0 !important;
-}
+   Fica o registro para a próxima vez: canto redondo neste app se decide no
+   fim do `estilo-ei.css`, no bloco "CANTO ARREDONDADO". Se algum dia o
+   pedido virar de novo, é lá — nunca com `!important` universal, que
+   esconde a causa de quem vier depois. */
