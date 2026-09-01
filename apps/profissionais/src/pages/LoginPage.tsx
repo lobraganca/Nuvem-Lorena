@@ -7,11 +7,8 @@ import {
   entrarComTelefoneESenha,
   definirSenha,
   recuperarSenha,
-  signInWithGoogle,
 } from "../lib/auth";
 import { hasDatabase, problemaDeConfiguracao } from "../lib/supabase";
-import { BotaoApple } from "../components/BotaoApple";
-import { BotaoGoogle } from "../components/BotaoGoogle";
 import { useTituloDaPagina } from "../lib/tituloDaPagina";
 import { mensagemDeErro } from "../lib/erros";
 import { formatPhone } from "../lib/phone";
@@ -19,7 +16,6 @@ import { useLocation, useNavigate } from "react-router-dom";
 import { LOGIN_EMAIL_ATIVO, LOGIN_TELEFONE_ATIVO } from "../config";
 import { useAuth } from "../lib/useAuth";
 import { temDestinoLogin } from "../lib/auth";
-import { googleServeAqui } from "../lib/plataforma";
 import { useOnboardingStatus } from "../lib/useOnboardingStatus";
 import {
   esquecerLado,
@@ -508,17 +504,33 @@ export function LoginPage() {
       </section>
       )}
 
-      {/* Google e Apple só onde eles voltam. Dentro do app instalado o
-          login abre no navegador e não tem caminho de volta — ver
-          `googleServeAqui`. O "ou" acompanha: sem nada depois dele, ele
-          anuncia uma alternativa que não vem. */}
-      {googleServeAqui() && (
-        <>
-          {LOGIN_TELEFONE_ATIVO && <p className="entrar-ou">ou</p>}
-          <BotaoGoogle onClick={() => tentar(() => signInWithGoogle("/perfil"))} disabled={!hasDatabase()} />
-          <BotaoApple voltarPara="/perfil" onErro={setError} />
-        </>
-      )}
+      {/* ── O GOOGLE SAIU — 01/09 ─────────────────────────────────────
+          A dona: "acho que pode tirar o login do Google."
+
+          Aqui existiam o botão do Google e o da Apple, com um "ou" em
+          cima, mostrados só onde eles conseguem voltar para o app (ver
+          `googleServeAqui`). Saíram os dois, e o "ou" com eles.
+
+          Faz sentido agora, e não fazia antes: quando o Google era a ÚNICA
+          porta, tirá-lo trancava o app. Hoje o caminho é o telefone — que
+          é melhor para este produto por um motivo que o Google não
+          resolve: ele entrega o número confirmado, e é o número que
+          permite avisar alguém de que apareceu uma vaga. Uma conta Google
+          não dá isso; ela só evita digitar uma senha.
+
+          O que se ganha ao tirar: uma porta a menos para manter (chave,
+          endereço de volta, tela de consentimento), um botão a menos na
+          primeira tela, e o fim de um caso confuso — quem entrava pelo
+          Google numa vez e pelo SMS na outra criava DUAS contas, com dois
+          cadastros, e não entendia por que o perfil "sumiu".
+
+          O código de `signInWithGoogle` e `BotaoGoogle` continua no
+          repositório de propósito: religar é devolver este bloco, e
+          apagar tudo agora só tornaria a volta cara.
+
+          A Apple saiu junto porque ela existia como companheira do Google
+          (a loja da Apple exige a alternativa quando há login social); sem
+          o Google, ela não tem par nem uso — este app é PWA e Play Store. */}
 
       {/* --- E-mail e senha: recolhido ------------------------------- */}
       {!LOGIN_EMAIL_ATIVO ? null : !comEmail ? (

@@ -1,15 +1,13 @@
 import { useEffect, useState, type ReactNode } from "react";
 import { Link } from "react-router-dom";
 import { useAuth } from "../lib/useAuth";
-import { signInWithGoogle, signOut } from "../lib/auth";
+import { signOut } from "../lib/auth";
 import { hasDatabase } from "../lib/supabase";
 import { getProfile, salvarMeuPerfil } from "../lib/profiles";
 import { isAdmin } from "../lib/admin";
 import { forcarAtualizacao } from "../lib/atualizacao";
 import { excluirMinhaConta } from "../lib/account";
 import { BottomSheet } from "../components/BottomSheet";
-import { BotaoApple } from "../components/BotaoApple";
-import { BotaoGoogle } from "../components/BotaoGoogle";
 import { baixarMeusDados } from "../lib/meusDados";
 import type { Profile } from "../types/domain";
 import { FecharApp } from "../components/FecharApp";
@@ -18,9 +16,8 @@ import { Pagina, Prop } from "../components/ei/Pagina";
 import { useTituloDaPagina } from "../lib/tituloDaPagina";
 import { useOnboardingStatus } from "../lib/useOnboardingStatus";
 import { mensagemDeErro } from "../lib/erros";
-import { googleServeAqui } from "../lib/plataforma";
 import { uploadProfessionalPhoto } from "../lib/storage";
-import { LOGIN_TELEFONE_ATIVO, SUPORTE_WHATSAPP, CONTATO_EMAIL } from "../config";
+import { SUPORTE_WHATSAPP, CONTATO_EMAIL } from "../config";
 
 /**
  * A Conta — o terceiro item da barra de baixo, dos dois lados.
@@ -141,15 +138,6 @@ export function PerfilPage() {
     isAdmin(user.id).then(setAdmin);
   }, [user]);
 
-  async function handleGoogleLogin() {
-    setError("");
-    try {
-      await signInWithGoogle("/perfil");
-    } catch (err) {
-      setError(mensagemDeErro(err, "Não foi possível iniciar o login."));
-    }
-  }
-
   if (loading) return null;
 
   if (!user) {
@@ -158,45 +146,21 @@ export function PerfilPage() {
         <div className="ei-tela">
           <Pagina titulo="Entrar" />
           <div className="ei-margem" style={{ paddingTop: 12 }}>
-          {/* Mesma regra do painel: no app da loja o Google não volta, e o
-              caminho passa pela tela de login. Ver `googleServeAqui`. */}
-          {googleServeAqui() ? (
-            <>
-              <p className="ei-apoio" style={{ marginBottom: 24 }}>
-                Entre para receber vagas de Itabirito ou para publicar as suas.
-              </p>
-              <BotaoGoogle onClick={handleGoogleLogin} disabled={!hasDatabase()} />
-              <div style={{ marginTop: 10 }}>
-                <BotaoApple voltarPara="/perfil" onErro={setError} />
-              </div>
-              {/* O telefone existe e é o caminho principal desde que o app
-                  passou a ser instalável — mas esta tela continuava
-                  oferecendo só o Google, e quem não usa Google saía daqui
-                  achando que não tinha como entrar. */}
-              {LOGIN_TELEFONE_ATIVO && (
-                <Link
-                  className="ei-btn ei-btn-contorno ei-btn-largo ei-btn-alto"
-                  style={{ marginTop: 12 }}
-                  to="/login"
-                >
-                  Entrar com meu celular
-                </Link>
-              )}
-            </>
-          ) : (
-            <>
-              <p className="ei-apoio" style={{ marginBottom: 24 }}>
-                Entre com seu celular. A gente manda um código por SMS — sem senha nova.
-              </p>
-              <Link className="ei-btn ei-btn-cheio ei-btn-largo ei-btn-alto" to="/login">
-                Entrar com meu celular
-              </Link>
-            </>
-          )}
+          {/* O Google saiu daqui junto com o da tela de entrar (01/09, a
+              pedido da dona). Sobrou o caminho único, que é o do celular —
+              e sobrou mais simples: eram dois blocos alternativos, um com
+              Google e outro sem, e agora é um só. */}
+          <p className="ei-apoio" style={{ marginBottom: 24 }}>
+            Entre com seu celular. A gente manda um código por SMS, e depois você
+            pode criar uma senha.
+          </p>
+          <Link className="ei-btn ei-btn-cheio ei-btn-largo ei-btn-alto" to="/login">
+            Entrar com meu celular
+          </Link>
           {!hasDatabase() && (
             <p className="ei-apoio" style={{ marginTop: 12 }}>
-              Configure VITE_SUPABASE_URL/ANON_KEY e o provider Google no Supabase para habilitar
-              o login.
+              O app não está conseguindo falar com o banco agora. Tente de novo
+              daqui a pouco.
             </p>
           )}
           {error && (
