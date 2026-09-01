@@ -11,10 +11,23 @@ verdade, não uma precaução hipotética.
 | Onde | Qual | Site |
 |---|---|---|
 | **raiz** (`src/`, `supabase/`) | Avena — turismo, reservas, passeios | outro |
-| **`apps/profissionais/`** | **Ei Itabirito** — busca de profissionais em Itabirito, MG | www.empregoitabirito.com.br |
+| **`apps/profissionais/`** | **Ei Itabirito** — busca de trabalho e contratação em Itabirito, MG | www.empregoitabirito.com.br |
+
+**E o procurô?** Ele saiu desta MESMA pasta: o Ei Itabirito é o procurô
+renomeado e refeito, não um app novo em outro lugar. O procurô que está no
+ar em `procuroapp.com.br` é esta pasta **congelada** na branch
+`procuro-producao`, no commit `d96e017` — a última versão antes do
+rebrand. Não commite nada naquela branch: qualquer commit republica aquele
+site.
+
+Isto já confundiu outra sessão, que leu "apps/profissionais" e concluiu que
+a pasta era do procurô. É das duas coisas, em momentos diferentes da
+história — e o presente dela é o Ei Itabirito.
 
 **Quase todo o trabalho é no `apps/profissionais/`.** A raiz tem outro app,
-com outro banco, outras migrations e outra dona da decisão.
+com outro banco e outras migrations. Lorena é dona dos dois (confirmado em
+30/08/2026 — uma versão anterior deste arquivo dizia "outra dona da
+decisão" para o Avena, e isso estava desatualizado).
 
 Duas armadilhas que já pegaram, as duas pelo mesmo motivo — comando rodado
 da pasta errada:
