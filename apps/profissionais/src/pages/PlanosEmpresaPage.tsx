@@ -121,40 +121,54 @@ export function PlanosEmpresaPage() {
           voltar={antesDoCadastro ? undefined : "/painel-empresa"}
         />
 
+        {/* Uma linha só, e curta: ela vive na faixa branca logo abaixo da
+            barra azul, e cada palavra a mais empurra o primeiro preço para
+            baixo. Era "Dá para começar de graça e assinar depois, quando
+            precisar publicar uma vaga." — duas linhas no celular. */}
         {antesDoCadastro && (
-          <p className="ei-apoio ei-margem">
-            Dá para começar de graça e assinar depois, quando precisar publicar
-            uma vaga.
-          </p>
+          <p className="ei-apoio ei-margem">Comece de graça. Assine quando for publicar.</p>
         )}
 
-        {/* Mensal ou avulso — antes dos preços, porque é o que muda os
-            números que vêm logo abaixo. */}
-        <div className="ei-margem">
-          <div className="segmentado" role="group" aria-label="Como pagar">
-            <button
-              type="button"
-              className={ciclo === "recorrente" ? "segmentado-opcao ativa" : "segmentado-opcao"}
-              aria-pressed={ciclo === "recorrente"}
-              onClick={() => setCiclo("recorrente")}
-            >
-              Renova sozinho
-            </button>
-            <button
-              type="button"
-              className={ciclo === "avulso" ? "segmentado-opcao ativa" : "segmentado-opcao"}
-              aria-pressed={ciclo === "avulso"}
-              onClick={() => setCiclo("avulso")}
-            >
-              Pagar uma vez
-            </button>
+        {/* ── O TOPO DESTA TELA ESTAVA COM QUATRO FAIXAS ───────────────
+            A dona, com o print na mão: "o topo está muito confuso."
+
+            Eram, de cima para baixo: a marca, o título da tela, uma linha
+            de apoio em faixa branca, o seletor "Renova sozinho / Pagar uma
+            vez" e mais uma linha explicando o seletor. Cinco alturas
+            diferentes antes do primeiro preço — e o preço é o que a pessoa
+            veio ver.
+
+            O seletor sai de cena ANTES do cadastro: nesse momento a
+            empresa está decidindo SE quer um plano, não como pagar. Quem
+            já é cliente continua vendo o seletor no acesso pelo menu, que
+            é onde a pergunta "mensal ou avulso?" nasce de verdade. */}
+        {!antesDoCadastro && (
+          <div className="ei-margem">
+            <div className="segmentado" role="group" aria-label="Como pagar">
+              <button
+                type="button"
+                className={ciclo === "recorrente" ? "segmentado-opcao ativa" : "segmentado-opcao"}
+                aria-pressed={ciclo === "recorrente"}
+                onClick={() => setCiclo("recorrente")}
+              >
+                Renova sozinho
+              </button>
+              <button
+                type="button"
+                className={ciclo === "avulso" ? "segmentado-opcao ativa" : "segmentado-opcao"}
+                aria-pressed={ciclo === "avulso"}
+                onClick={() => setCiclo("avulso")}
+              >
+                Pagar uma vez
+              </button>
+            </div>
+            <p className="ei-apoio" style={{ marginTop: 8 }}>
+              {ciclo === "recorrente"
+                ? "Cancela quando quiser, no seu painel."
+                : `Vale ${DIAS_ANUNCIO_VAGA} dias e acaba. Não cobra de novo.`}
+            </p>
           </div>
-          <p className="ei-apoio" style={{ marginTop: 8 }}>
-            {ciclo === "recorrente"
-              ? "Cancela quando quiser, no seu painel."
-              : `Vale ${DIAS_ANUNCIO_VAGA} dias e acaba. Não cobra de novo.`}
-          </p>
-        </div>
+        )}
 
         <div className="ei-planos">
           {/* O de graça vem primeiro, e não por modéstia: ele é o degrau em
