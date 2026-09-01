@@ -6,6 +6,7 @@ import {
   obterMinhaEmpresa,
   marcarOnboardingCompleto,
   confirmarTelefoneDaEmpresa,
+  registrarTipoDeUsuario,
 } from "../lib/company";
 import { numeroJaConfirmadoNaConta } from "../lib/whatsappVerify";
 import { uploadProfessionalPhoto } from "../lib/storage";
@@ -104,6 +105,7 @@ export function CadastroEmpresaPage() {
      a pessoa disser onde é o corte. */
   const [aEnquadrar, setAEnquadrar] = useState<File | null>(null);
   const [enviandoFoto, setEnviandoFoto] = useState(false);
+  const [trocandoLado, setTrocandoLado] = useState(false);
   /* ── PESSOA FÍSICA OU EMPRESA ────────────────────────────────────────
      A dona: "no cadastro de quem contrata, tem que ter opção de pessoa
      física ou PJ."
@@ -586,6 +588,47 @@ export function CadastroEmpresaPage() {
         <p className="ei-apoio ei-margem">
           Dá para mudar tudo isso depois, no painel da empresa.
         </p>
+
+        {/* ── A PORTA DE SAÍDA ────────────────────────────────────────
+            A dona: "ao abrir o app está caindo sempre na tela de cadastro
+            da empresa."
+
+            E caía mesmo — sem saída. A conta dela está marcada como
+            "empresa"; quem é empresa e ainda não tem cadastro é levado
+            direto para cá; e a barra de baixo leva ao Painel, que traz de
+            volta para cá. A troca de lado existe, mas mora na tela de
+            Conta, que saiu da barra quando ela virou Voltar/Avisos/
+            Talentos/Painel. Ou seja: um beco, e a única saída era saber o
+            endereço de cor.
+
+            Este link é a saída, no lugar onde a pessoa percebe que entrou
+            na porta errada — e não três telas adiante. */}
+        {emEtapas && (
+          <div className="ei-margem" style={{ paddingBottom: 8 }}>
+            <button
+              type="button"
+              className="ei-btn-inline"
+              disabled={trocandoLado}
+              onClick={async () => {
+                if (!user) return;
+                setTrocandoLado(true);
+                try {
+                  await registrarTipoDeUsuario(user.id, "professional");
+                  /* Recarrega no endereço do outro lado: a barra de baixo
+                     e as telas leem o lado uma vez, na abertura. */
+                  window.location.href = "/painel";
+                } catch (err) {
+                  setErro(mensagemDeErro(err, "Não consegui trocar de lado."));
+                  setTrocandoLado(false);
+                }
+              }}
+            >
+              {trocandoLado
+                ? "Trocando…"
+                : "Não é empresa? Ir para o lado de quem procura trabalho"}
+            </button>
+          </div>
+        )}
       </div>
     </div>
   );
