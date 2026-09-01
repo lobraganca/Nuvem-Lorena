@@ -1797,11 +1797,21 @@
 
    `min-height` continua valendo para a parte de baixo da barra: o recuo
    entra como espaço acima do conteúdo, não como barra mais alta e vazia. */
+/* A barra NÃO é grudada no topo.
+   ─────────────────────────────
+   Ela foi `position: sticky` por algumas horas, e o efeito apareceu na
+   primeira foto que a dona mandou: ao rolar o cadastro, a barra azul
+   subia e ficava POR BAIXO do relógio e da bateria — "Cadastre sua
+   empresa" escrito por cima de "12:36". Grudada no topo ela precisaria
+   reservar o recorte do aparelho; sem rolar, essa reserva vira um vão
+   azul vazio entre a marca e o título.
+
+   Sem `sticky` os dois problemas somem: quem reserva o recorte é a faixa
+   da marca, lá em cima, e a barra rola junto com o conteúdo. O preço é
+   perder o título de vista ao rolar — e numa tela de formulário, onde o
+   que importa é o campo debaixo do dedo, isso não custa nada. */
 .ei .ei-barra {
-  padding-top: calc(8px + env(safe-area-inset-top));
-  position: sticky;
-  top: 0;
-  z-index: 20;
+  padding-top: 8px;
 }
 
 /* ═══════════════════════════════════════════════════════════════════════
@@ -2242,4 +2252,28 @@
 .ei .ei-barra + p.ei-apoio,
 .ei .ei-barra + p.ei-corpo {
   padding-top: 12px;
+}
+
+
+/* ── AR ENTRE OS CAMPOS — 01/09 ────────────────────────────────────────
+   "Está muito embaralhado." O cartão da etapa 1 tem seis campos, e entre
+   o rótulo de um e a caixa do outro havia os mesmos 6px que separam o
+   rótulo do seu próprio campo. Sem diferença de espaço, o olho não sabe o
+   que pertence a quê: vira uma coluna de caixas e textos alternados.
+
+   A regra é simples e vale para o formulário inteiro: DENTRO de um campo,
+   pouco espaço (rótulo colado na sua caixa); ENTRE campos, bastante. */
+.ei .ei-cartao .ei-campo + .ei-campo,
+.ei .ei-cartao .ei-campo + .segmentado,
+.ei .ei-cartao .segmentado + .ei-campo {
+  margin-top: 18px;
+}
+
+/* O rótulo é a pergunta; a caixa é a resposta. Um respiro pequeno entre
+   os dois, e peso na letra, para o rótulo não se confundir com a dica
+   cinza que às vezes vem embaixo da caixa. */
+.ei .ei-cartao .ei-campo > label {
+  font-weight: 600;
+  color: var(--ei-tinta);
+  margin-bottom: 2px;
 }

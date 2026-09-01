@@ -1,0 +1,12 @@
+import { chromium } from 'playwright';
+const b = await chromium.launch({ executablePath: '/opt/pw-browsers/chromium' });
+const p = await b.newPage({ viewport:{width:390,height:844}, deviceScaleFactor:2 });
+const base='file:///home/user/Nuvem-Lorena/apps/profissionais/dist-demo/index.demo.html';
+await p.goto(base+'#/'); await p.waitForTimeout(1500);
+await p.evaluate(() => localStorage.setItem('ei-boas-vindas-vistas','1'));
+await p.reload(); await p.waitForTimeout(2000);
+await p.click('text=Empresa'); await p.waitForTimeout(2500);
+await p.goto(base+'#/cadastro-empresa'); await p.waitForTimeout(2500);
+await p.screenshot({path:'/tmp/claude-0/emp2.png'});
+console.log(p.url().split('#')[1]);
+await b.close();
