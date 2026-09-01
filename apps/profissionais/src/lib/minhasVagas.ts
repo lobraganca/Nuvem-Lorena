@@ -51,6 +51,12 @@ export async function vagasParaMim(userId: string): Promise<VagaParaMim[]> {
 
      E o comentário fica AQUI FORA: dentro da string ele viraria parte da
      consulta, e o PostgREST recusaria tudo. */
+    /* É `companies_public`, e não `companies`, porque a tabela só tem a
+       policy de leitura do próprio dono (0066): quem procura trabalho não
+       enxerga empresa nenhuma, e o `!inner` derruba a vaga junto — as duas
+       telas voltavam ZERO linhas, sem erro. A 0100 criou a view com nome,
+       foto e cidade (sem CNPJ nem telefone). O apelido `companies:` mantém
+       o nome da chave na resposta. */
   const { data, error } = await sb
     .from("job_notifications")
     .select(
@@ -61,7 +67,7 @@ export async function vagasParaMim(userId: string): Promise<VagaParaMim[]> {
          available_immediately, work_modality, city, uf, neighborhood,
          anunciada_ate, status, created_at, closed_at,
          tipo_contrato, jornada, beneficios, salario_a_combinar,
-         companies!inner ( company_name, photo_url )
+         companies:companies_public!inner ( company_name, photo_url )
        )`
     )
     .eq("professional_id", userId)
@@ -148,7 +154,7 @@ export async function todosOsAvisos(userId: string): Promise<Aviso[]> {
          available_immediately, work_modality, city, uf, neighborhood,
          anunciada_ate, status, created_at, closed_at,
          tipo_contrato, jornada, beneficios, salario_a_combinar,
-         companies!inner ( company_name, photo_url )
+         companies:companies_public!inner ( company_name, photo_url )
        )`
     )
     .eq("professional_id", userId)
