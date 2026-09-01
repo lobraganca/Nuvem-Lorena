@@ -1957,3 +1957,58 @@
   box-shadow: 0 0 0 999px rgba(255, 255, 255, 0.72);
   pointer-events: none;
 }
+
+/* ═══════════════════════════════════════════════════════════════════════
+   OS PLANOS EM CARTÕES — 01/09
+   ═══════════════════════════════════════════════════════════════════════
+   "em cards bonitos e arredondados com andamento vertical os planos
+   disponíveis, desde o free. com preços, especificações e se deseja
+   aderir."
+
+   Antes era uma lista: três linhas com nome, preço e uma frase de resumo,
+   coladas uma na outra dentro do mesmo bloco. Serve para conferir preço,
+   não para escolher — comparar exige ver o que cada um DÁ, e isso não
+   cabia numa linha.
+
+   Cada plano virou um cartão com a lista do que inclui e o próprio botão.
+   Empilhados na vertical, e não lado a lado: num celular, três colunas dão
+   100px cada e a especificação vira sopa de letras. Rolar é mais barato
+   que espremer. */
+.ei-planos {
+  display: grid;
+  gap: 12px;
+  margin: 16px 12px 0;
+}
+
+.ei-plano-cartao {
+  display: grid;
+  gap: 12px;
+  padding: 18px;
+  background: var(--ei-papel);
+  border: 1px solid var(--ei-fio);
+  border-radius: var(--ei-raio);
+}
+
+/* O que o plano inclui. Sem bolinha: o visto diz "está incluído", que é a
+   informação, enquanto a bolinha só diz "item de lista". */
+.ei-plano-lista {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  gap: 7px;
+  font-size: 0.92rem;
+  line-height: 1.4;
+  color: var(--ei-tinta);
+}
+.ei-plano-lista li {
+  display: grid;
+  grid-template-columns: 18px 1fr;
+  gap: 8px;
+  align-items: start;
+}
+.ei-plano-lista li::before {
+  content: "✓";
+  color: var(--ei-acao);
+  font-weight: 700;
+}

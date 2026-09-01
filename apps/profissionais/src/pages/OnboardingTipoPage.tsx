@@ -50,8 +50,12 @@ export function OnboardingTipoPage() {
 
     try {
       await registrarTipoDeUsuario(user.id, "company");
-      // Vai para cadastro de empresa (não marca completo ainda)
-      navegar("/cadastro-empresa", { replace: true });
+      /* Os planos ANTES do formulário. A empresa decide o que está
+         comprando enquanto ainda tem paciência para ler — depois de
+         preencher treze campos, qualquer preço parece cobrança. A tela
+         some sozinha dentro do app da loja (ver `podeVender`) e leva
+         direto ao cadastro. */
+      navegar("/planos-empresa?antes=cadastro", { replace: true });
     } catch (err) {
       setErro(mensagemDeErro(err, "Não foi possível continuar."));
       setEnviando(false);

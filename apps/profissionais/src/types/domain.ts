@@ -798,26 +798,72 @@ export type PlanoEmpresa = "pro" | "tres" | "ilimitado";
  */
 export const PLANOS_EMPRESA: Record<
   PlanoEmpresa,
-  { nome: string; centavos: number; vagas: number; resumo: string }
+  { nome: string; centavos: number; vagas: number; resumo: string; beneficios: string[] }
 > = {
   pro: {
     nome: "Pro",
-    centavos: 2990,
+    centavos: 3990,
     vagas: 1,
     resumo: "1 vaga aberta por vez. Fechou uma, abre outra",
+    beneficios: [
+      "1 vaga aberta por vez",
+      "30 dias no ar por vaga, contados da publicação",
+      "Aviso para quem tem a função que você procura",
+      "Recebe quem se interessou, com telefone",
+    ],
   },
   tres: {
-    nome: "Três vagas",
-    centavos: 5990,
+    nome: "Premium",
+    centavos: 7990,
     vagas: 3,
     resumo: "3 vagas abertas ao mesmo tempo",
+    beneficios: [
+      "3 vagas abertas ao mesmo tempo",
+      "30 dias no ar por vaga, contados da publicação",
+      "Aviso para quem tem a função que você procura",
+      "Sua vaga aparece na lista de vagas em aberto",
+    ],
   },
   ilimitado: {
-    nome: "Ilimitado",
-    centavos: 8990,
+    nome: "Multi",
+    centavos: 11990,
     vagas: -1,
     resumo: "quantas vagas abertas quiser",
+    beneficios: [
+      "Vagas abertas sem limite",
+      "30 dias no ar por vaga, contados da publicação",
+      "Aviso para quem tem a função que você procura",
+      "Sua vaga aparece na lista de vagas em aberto",
+    ],
   },
+};
+
+/**
+ * O plano de graça, que não é um plano no banco.
+ *
+ * Ele não entra em `PLANOS_EMPRESA` de propósito: `companies.plano` guarda
+ * o que foi PAGO, e um valor "gratuito" ali seria uma assinatura que
+ * ninguém assinou — a mesma confusão que faria `cabeVagaNoPlano` achar que
+ * há um teto quando não há plano nenhum. Sem plano é `null`, e continua
+ * sendo.
+ *
+ * Ele existe como texto porque a tela precisa mostrá-lo: a dona pediu os
+ * planos "desde o free", e omitir o de graça faz o app parecer trancado
+ * para quem só quer procurar gente — que é livre, e sempre foi.
+ */
+export const PLANO_GRATUITO = {
+  nome: "Gratuito",
+  centavos: 0,
+  resumo: "procurar e falar com os profissionais da cidade",
+  beneficios: [
+    "Ver todos os profissionais da cidade",
+    "Falar com cada um pelo telefone do cadastro",
+    "Guardar quem te interessou",
+  ],
+  /* Fora da lista de vistos de propósito: um ✓ verde ao lado de "não
+     publica vaga" diz o contrário do que a frase diz. Limitação se escreve
+     como limitação. */
+  limite: "Não publica vaga e não dispara aviso.",
 };
 
 /** "R$ 29,90" — escrito como se lê. */

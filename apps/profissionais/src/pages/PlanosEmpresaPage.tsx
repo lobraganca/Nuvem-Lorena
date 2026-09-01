@@ -1,10 +1,11 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { useTituloDaPagina } from "../lib/tituloDaPagina";
 import { Pagina } from "../components/ei/Pagina";
 import { podeVender } from "../lib/plataforma";
 import {
   PLANOS_EMPRESA,
+  PLANO_GRATUITO,
   precoDoPlano,
   DIAS_ANUNCIO_VAGA,
   ONDAS_POR_VAGA,
@@ -41,12 +42,42 @@ export function PlanosEmpresaPage() {
      do avulso. Quem prefere pagar uma vez troca num toque. */
   const [ciclo, setCiclo] = useState<CicloDoPlano>("recorrente");
 
+  /* ── A MESMA TELA, DOIS MOMENTOS ────────────────────────────────────
+     A dona: "antes de cadastrar a empresa o app deve mostrar em cards
+     bonitos e arredondados com andamento vertical os planos disponíveis,
+     desde o free. com preços, especificações e se deseja aderir".
+
+     Então esta tela passou a ser também a PRIMEIRA coisa que a empresa vê,
+     antes do formulário — e não só um item de menu para quem já está
+     dentro. O que muda entre os dois momentos é pouco e importa: o título,
+     o botão de voltar (que não existe antes do cadastro, porque não há
+     para onde voltar) e o texto do botão de cada cartão, que ali é uma
+     escolha e não uma compra.
+
+     Escolher um plano pago aqui não cobra nada: a cobrança ainda não está
+     ligada. A escolha fica guardada e o cadastro continua — prometer o
+     contrário seria vender o que não existe. */
+  const [busca] = useSearchParams();
+  const antesDoCadastro = busca.get("antes") === "cadastro";
+
+  function seguir(escolha: PlanoEmpresa | "gratuito") {
+    /* Guarda a intenção para o painel oferecer o pagamento depois, quando
+       a cobrança existir. `try` porque navegador em aba anônima recusa o
+       armazenamento — e perder a escolha não pode travar o cadastro. */
+    try {
+      localStorage.setItem("ei-plano-escolhido", escolha);
+    } catch {
+      /* segue sem guardar */
+    }
+    navegar("/cadastro-empresa", { replace: true });
+  }
+
   /* Dentro do app da loja esta tela não existe. Não é "escondida": ela
      redireciona, porque uma tela em branco com o menu em volta faz a pessoa
      achar que o app quebrou. E em lugar nenhum aparece "assine no site" —
      convidar a pagar fora é a mesma violação que vender. */
   if (!podeVender()) {
-    navegar("/painel-empresa", { replace: true });
+    navegar(antesDoCadastro ? "/cadastro-empresa" : "/painel-empresa", { replace: true });
     return null;
   }
 
@@ -69,7 +100,17 @@ export function PlanosEmpresaPage() {
        cartão cinza e botão laranja no meio de um app preto e branco. */
     <div className="ei">
       <div className="ei-tela">
-        <Pagina titulo="Planos" voltar="/painel-empresa" />
+        <Pagina
+          titulo={antesDoCadastro ? "Escolha seu plano" : "Planos"}
+          voltar={antesDoCadastro ? undefined : "/painel-empresa"}
+        />
+
+        {antesDoCadastro && (
+          <p className="ei-apoio ei-margem">
+            Dá para começar de graça e assinar depois, quando precisar publicar
+            uma vaga.
+          </p>
+        )}
 
         {/* Mensal ou avulso — antes dos preços, porque é o que muda os
             números que vêm logo abaixo. */}
@@ -99,11 +140,38 @@ export function PlanosEmpresaPage() {
           </p>
         </div>
 
-        <div className="ei-lista" style={{ marginTop: 16 }}>
+        <div className="ei-planos">
+          {/* O de graça vem primeiro, e não por modéstia: ele é o degrau em
+              que a empresa já está. Ver os pagos depois dele é comparar com
+              o que ela tem hoje, em vez de escolher no escuro. */}
+          <section className="ei-plano-cartao">
+            <div className="ei-plano-linha">
+              <span className="ei-plano-nome">{PLANO_GRATUITO.nome}</span>
+              <span className="ei-plano-preco">R$ 0</span>
+            </div>
+            <ul className="ei-plano-lista">
+              {PLANO_GRATUITO.beneficios.map((b) => (
+                <li key={b}>{b}</li>
+              ))}
+            </ul>
+            <p className="ei-plano-resumo">{PLANO_GRATUITO.limite}</p>
+            {antesDoCadastro ? (
+              <button
+                type="button"
+                className="ei-btn ei-btn-cheio ei-btn-largo ei-btn-alto"
+                onClick={() => seguir("gratuito")}
+              >
+                Continuar de graça
+              </button>
+            ) : (
+              <p className="ei-plano-resumo">É o que você já tem, sem assinar nada.</p>
+            )}
+          </section>
+
           {ordem.map((chave) => {
             const p = PLANOS_EMPRESA[chave];
             return (
-              <div key={chave} className="ei-plano">
+              <section key={chave} className="ei-plano-cartao">
                 <div className="ei-plano-linha">
                   <span className="ei-plano-nome">{p.nome}</span>
                   <span className="ei-plano-preco">
@@ -113,60 +181,89 @@ export function PlanosEmpresaPage() {
                     </span>
                   </span>
                 </div>
-                <p className="ei-plano-resumo">{p.resumo}.</p>
-                <button
-                  type="button"
-                  className="ei-btn ei-btn-contorno ei-btn-largo ei-btn-alto"
-                  disabled
-                >
-                  Em breve
-                </button>
-              </div>
+                <ul className="ei-plano-lista">
+                  {p.beneficios.map((b) => (
+                    <li key={b}>{b}</li>
+                  ))}
+                </ul>
+                {antesDoCadastro ? (
+                  <>
+                    <button
+                      type="button"
+                      className="ei-btn ei-btn-contorno ei-btn-largo ei-btn-alto"
+                      onClick={() => seguir(chave)}
+                    >
+                      Quero o {p.nome}
+                    </button>
+                    <p className="ei-plano-resumo">
+                      A cobrança ainda está sendo ligada. Você faz o cadastro agora e a
+                      gente combina o pagamento depois.
+                    </p>
+                  </>
+                ) : (
+                  <button
+                    type="button"
+                    className="ei-btn ei-btn-contorno ei-btn-largo ei-btn-alto"
+                    disabled
+                  >
+                    Em breve
+                  </button>
+                )}
+              </section>
             );
           })}
         </div>
 
+        {/* Estes três blocos repetem, em lista, o que os cartões já dizem
+            item por item. Antes do cadastro isso é ruído: a pessoa acabou
+            de ler tudo isso dentro do cartão do plano. Ficam só no acesso
+            pelo menu, onde quem chega já é cliente e vem conferir o que
+            tem direito. */}
+        {!antesDoCadastro && (
+          <>
         {/* O botão está desligado e diz por quê.
-            ─────────────────────────────────────
-            A cobrança ainda não existe: falta a Edge Function que fala com
-            o Mercado Pago, como já acontece com as assinaturas de
-            profissional. Um botão que abre um checkout inexistente é pior
-            que um desligado — e "Em breve" sem explicação é o que faz a
-            pessoa tocar três vezes. */}
-        <p className="ei-apoio ei-margem" style={{ marginTop: 14 }}>
-          A cobrança está sendo ligada. Enquanto isso, fale com o suporte que
-          a gente libera o seu plano na mão.
-        </p>
+                ─────────────────────────────────────
+                A cobrança ainda não existe: falta a Edge Function que fala com
+                o Mercado Pago, como já acontece com as assinaturas de
+                profissional. Um botão que abre um checkout inexistente é pior
+                que um desligado — e "Em breve" sem explicação é o que faz a
+                pessoa tocar três vezes. */}
+            <p className="ei-apoio ei-margem" style={{ marginTop: 14 }}>
+              A cobrança está sendo ligada. Enquanto isso, fale com o suporte que
+              a gente libera o seu plano na mão.
+            </p>
 
-        {/* O argumento, agora embaixo e em uma linha cada.
-            ───────────────────────────────────────────────
-            Eram duas listas com marcador dentro de dois cartões, com frases
-            de duas linhas — trinta e três palavras para dizer três coisas.
+            {/* O argumento, agora embaixo e em uma linha cada.
+                ───────────────────────────────────────────────
+                Eram duas listas com marcador dentro de dois cartões, com frases
+                de duas linhas — trinta e três palavras para dizer três coisas.
 
-            O "de graça" continua aqui, e não é modéstia comercial: sem ele
-            "assine para publicar" soa como se o app inteiro estivesse
-            trancado, e a empresa vai embora sem descobrir a lista de
-            profissionais, que resolve o problema de muita gente sem custar
-            nada. */}
-        <h2 className="ei-secao">Com o plano</h2>
-        <div className="ei-lista">
-          <div className="ei-linha-texto">Publica a vaga.</div>
-          <div className="ei-linha-texto">
-            Avisa quem encaixa — {ONDAS_POR_VAGA} ondas por vaga.
-          </div>
-          <div className="ei-linha-texto">
-            Recebe quem se interessou, e {DIAS_ANUNCIO_VAGA} dias de anúncio.
-          </div>
-        </div>
+                O "de graça" continua aqui, e não é modéstia comercial: sem ele
+                "assine para publicar" soa como se o app inteiro estivesse
+                trancado, e a empresa vai embora sem descobrir a lista de
+                profissionais, que resolve o problema de muita gente sem custar
+                nada. */}
+            <h2 className="ei-secao">Com o plano</h2>
+            <div className="ei-lista">
+              <div className="ei-linha-texto">Publica a vaga.</div>
+              <div className="ei-linha-texto">
+                Avisa quem encaixa — {ONDAS_POR_VAGA} ondas por vaga.
+              </div>
+              <div className="ei-linha-texto">
+                Recebe quem se interessou, e {DIAS_ANUNCIO_VAGA} dias de anúncio.
+              </div>
+            </div>
 
-        <h2 className="ei-secao">Sempre de graça</h2>
-        <div className="ei-lista">
-          <div className="ei-linha-texto">Ver todos os profissionais da cidade.</div>
-          <div className="ei-linha-texto">Falar com cada um pelo telefone do cadastro.</div>
-        </div>
-        <p className="ei-apoio ei-margem" style={{ marginTop: 10 }}>
-          Nem conta precisa. O plano serve para não ter que chamar um por um.
-        </p>
+            <h2 className="ei-secao">Sempre de graça</h2>
+            <div className="ei-lista">
+              <div className="ei-linha-texto">Ver todos os profissionais da cidade.</div>
+              <div className="ei-linha-texto">Falar com cada um pelo telefone do cadastro.</div>
+            </div>
+            <p className="ei-apoio ei-margem" style={{ marginTop: 10 }}>
+              Nem conta precisa. O plano serve para não ter que chamar um por um.
+            </p>
+          </>
+        )}
       </div>
     </div>
   );
