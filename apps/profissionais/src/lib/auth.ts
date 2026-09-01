@@ -243,6 +243,64 @@ export async function conferirCodigoDeEntrada(telefone: string, codigo: string):
   }
 }
 
+/**
+ * Entrar com o celular e uma senha — sem gastar SMS.
+ *
+ * ── POR QUE ISTO EXISTE ────────────────────────────────────────────────
+ *
+ * A dona: "acho que podemos inserir a pessoa cadastrar uma conta depois
+ * que confirma o número de telefone, assim ele não precisa ficar gastando
+ * sms toda vez que entrar."
+ *
+ * São duas economias, e a segunda é maior que a primeira. A óbvia é o
+ * custo: cada entrada custava uma mensagem no Twilio, para sempre. A
+ * outra é a pessoa: esperar o SMS, sair do app para ler, voltar e digitar
+ * seis dígitos é meio minuto e três chances de desistir — toda vez.
+ *
+ * O telefone continua sendo a identidade da conta. A senha é só um
+ * segundo jeito de provar que ela é dela; quem esquecer a senha volta
+ * pelo SMS, que nunca deixa de funcionar.
+ */
+export async function entrarComTelefoneESenha(telefone: string, senha: string): Promise<void> {
+  const client = supabase();
+  if (!client) throw new Error("Banco de dados não configurado.");
+
+  const digitos = onlyPhoneDigits(telefone);
+  if (digitos.length !== 10 && digitos.length !== 11) {
+    throw new Error("Confira o número: precisa ter DDD e 8 ou 9 dígitos.");
+  }
+
+  const { error } = await client.auth.signInWithPassword({
+    phone: `+55${digitos}`,
+    password: senha,
+  });
+  if (error) throw new Error(traduzirErroDeEntrada(error.message));
+}
+
+/**
+ * Guarda uma senha na conta que já está aberta.
+ *
+ * Só funciona logada, e é de propósito: quem chega aqui acabou de provar o
+ * número por SMS. Definir senha sem essa prova seria deixar qualquer um
+ * escolher a senha de um telefone alheio.
+ *
+ * O `data.tem_senha` é o que a tela lê depois para saber se ainda precisa
+ * oferecer. O Supabase não conta se a conta tem senha — perguntar
+ * "tem senha?" não existe na API —, e sem esta marca o app ofereceria
+ * criar senha para sempre, inclusive para quem já criou.
+ */
+export async function definirSenha(senha: string): Promise<void> {
+  const client = supabase();
+  if (!client) throw new Error("Banco de dados não configurado.");
+  if (senha.length < 8) throw new Error("A senha precisa de pelo menos 8 caracteres.");
+
+  const { error } = await client.auth.updateUser({
+    password: senha,
+    data: { tem_senha: true },
+  });
+  if (error) throw new Error(traduzirErroDeEntrada(error.message));
+}
+
 export async function entrarComEmail(email: string, senha: string): Promise<void> {
   const client = supabase();
   if (!client) throw new Error("Banco de dados não configurado.");

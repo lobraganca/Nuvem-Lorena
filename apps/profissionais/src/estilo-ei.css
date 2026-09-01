@@ -1974,10 +1974,45 @@
    Empilhados na vertical, e não lado a lado: num celular, três colunas dão
    100px cada e a especificação vira sopa de letras. Rolar é mais barato
    que espremer. */
+/* 01/09, segunda volta: "quero que os planos rolem na horizontal."
+   Empilhados, os quatro cartões davam quase três telas de rolagem, e
+   comparar exigia lembrar do que ficou para trás. Lado a lado, o polegar
+   passa de um para o outro e a comparação é o próprio gesto.
+
+   `scroll-snap` para o cartão parar inteiro na tela — sem ele a rolagem
+   para no meio de dois e nenhum dos dois se lê. 86% de largura de
+   propósito: a fatia do seguinte que aparece na borda é o que avisa que há
+   mais planos ali. Sem essa pista, carrossel vira lista de um item só. */
 .ei-planos {
   display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: 86%;
   gap: 12px;
-  margin: 16px 12px 0;
+  margin: 16px 0 0;
+  padding: 2px 12px 10px;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  scrollbar-width: none;
+  -webkit-overflow-scrolling: touch;
+}
+.ei-planos::-webkit-scrollbar { display: none; }
+.ei-planos > * { scroll-snap-align: center; }
+
+/* Os cartões ficam da mesma altura, com o botão no fim de cada um: com
+   alturas diferentes o botão dança de lugar a cada rolagem, e o dedo erra
+   o alvo que estava mirando. */
+.ei-plano-cartao { align-content: start; }
+.ei-plano-cartao > .ei-btn { align-self: end; }
+
+/* No computador não há polegar, e a tela é larga: os quatro cabem lado a
+   lado sem rolagem nenhuma. */
+@media (min-width: 760px) {
+  .ei-planos {
+    grid-auto-columns: minmax(0, 1fr);
+    overflow-x: visible;
+    margin: 16px 12px 0;
+    padding: 2px 0 10px;
+  }
 }
 
 .ei-plano-cartao {

@@ -2952,19 +2952,10 @@ h3 {
   margin-bottom: 4px;
 }
 
-/* Cada caminho num bloco próprio, com contorno: sem isso, os campos do
-   telefone e os do e-mail viram uma coluna só de caixas, e não fica claro
-   qual botão pertence a quê. */
-.entrar-bloco {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-  margin-top: 18px;
-  padding: 16px;
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius);
-  background: var(--color-surface);
-}
+/* O `.entrar-bloco` foi reescrito no fim deste arquivo (faixa azul e
+   cartão branco, no modelo que a dona mandou). A versão antiga — contorno
+   cinza, canto pequeno — saiu daqui para não ficarem duas definições
+   discordando no mesmo arquivo. */
 
 .entrar-rotulo {
   font-size: 0.82rem;
@@ -3430,3 +3421,67 @@ h3 {
    fim do `estilo-ei.css`, no bloco "CANTO ARREDONDADO". Se algum dia o
    pedido virar de novo, é lá — nunca com `!important` universal, que
    esconde a causa de quem vier depois. */
+
+/* ═══════════════════════════════════════════════════════════════════════
+   ENTRAR: A FAIXA AZUL E O CARTÃO — 01/09
+   ═══════════════════════════════════════════════════════════════════════
+   A dona mandou o print do "Conta Azul De Bolso" e disse: "olha esse
+   modelo". O que esse desenho faz, e o nosso não fazia:
+
+   · a marca respira numa faixa colorida em cima, sem competir com nada;
+   · os campos vivem num cartão BRANCO que sobe por cima dessa faixa —
+     é ele que diz "a tarefa é aqui", antes de qualquer texto;
+   · uma ação só, cheia e larga; o resto vira link.
+
+   O nosso era: título, parágrafo, e três blocos com contorno cinza de
+   mesmo peso — telefone, Google, e-mail — sem nada dizendo por onde
+   começar.
+
+   A faixa é pintada no `body` por trás, e não como bloco: assim ela
+   continua atrás da barra do sistema no celular (a página começa embaixo
+   do relógio), e não fica uma tira branca acima do azul. */
+.entrar-pagina {
+  max-width: 420px;
+  padding-top: calc(28px + env(safe-area-inset-top));
+  padding-bottom: 40px;
+  /* A faixa azul é um degradê do PRÓPRIO bloco, e não um retângulo fixo
+     atrás da página. A primeira tentativa usou `position: fixed` com
+     `z-index: -1`: ela pintou o app inteiro de azul, inclusive por trás de
+     tudo que não tem fundo próprio, e o cartão pareceu translúcido. Um
+     degradê com parada dura resolve sem tirar nada do lugar — e acaba onde
+     a página acaba. */
+  background: linear-gradient(
+    to bottom,
+    var(--color-marca-azul) 0,
+    var(--color-marca-azul) 300px,
+    transparent 300px
+  );
+}
+
+/* O título e a linha de apoio ficam DENTRO da faixa: letra branca. */
+.entrar-pagina h1 {
+  margin-bottom: 4px;
+  color: #ffffff;
+}
+.entrar-pagina > .muted {
+  color: rgba(255, 255, 255, 0.92);
+}
+
+/* O cartão. Branco explícito e sombra em vez de contorno cinza: sobre
+   azul, o contorno some e o cartão parece um retângulo colado. */
+.entrar-bloco {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 22px;
+  padding: 18px;
+  border: 0;
+  border-radius: 14px;
+  background: #ffffff;
+  box-shadow: 0 12px 32px rgba(2, 15, 58, 0.18);
+}
+
+.entrar-bloco .entrar-link {
+  color: var(--color-marca);
+  align-self: flex-start;
+}

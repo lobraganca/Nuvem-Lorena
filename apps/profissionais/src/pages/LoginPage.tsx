@@ -4,6 +4,8 @@ import {
   criarContaComEmail,
   entrarComEmail,
   entrarComTelefone,
+  entrarComTelefoneESenha,
+  definirSenha,
   recuperarSenha,
   signInWithGoogle,
 } from "../lib/auth";
@@ -78,6 +80,34 @@ export function LoginPage() {
   const [esperaSegundos, setEsperaSegundos] = useState(0);
   const [enviando, setEnviando] = useState(false);
 
+  /* ── SENHA: A CONTA QUE NÃO GASTA SMS ───────────────────────────────
+     A dona: "acho que podemos inserir a pessoa cadastrar uma conta depois
+     que confirma o número de telefone, assim ele não precisa ficar
+     gastando sms toda vez que entrar."
+
+     O telefone continua sendo a conta. A senha é um segundo caminho para
+     provar que ela é dela — e quem esquecer volta pelo SMS, que nunca
+     deixa de funcionar.
+
+     O modo que abre PRIMEIRO depende do aparelho: quem já entrou com
+     senha aqui vê o campo de senha; quem nunca entrou vê o caminho do
+     SMS, porque senha que ainda não existe não serve de porta. A marca no
+     armazenamento é só uma lembrança de conveniência — errar nela não
+     tranca ninguém, os dois caminhos estão sempre a um toque. */
+  const [modo, setModo] = useState<"senha" | "sms">(() => {
+    try {
+      return localStorage.getItem("ei-tem-senha") === "1" ? "senha" : "sms";
+    } catch {
+      return "sms";
+    }
+  });
+  const [senhaEntrada, setSenhaEntrada] = useState("");
+  /* Acabou de entrar por SMS e ainda não tem senha: a tela oferece criar
+     uma antes de seguir. Segura a ida para o painel, senão a oferta
+     apareceria e sumiria no mesmo instante. */
+  const [ofereceSenha, setOfereceSenha] = useState(false);
+  const [senhaNova, setSenhaNova] = useState("");
+
   const [comEmail, setComEmail] = useState(false);
   const [criando, setCriando] = useState(false);
   const [email, setEmail] = useState("");
@@ -121,6 +151,10 @@ export function LoginPage() {
 
   useEffect(() => {
     if (carregandoConta || !user) return;
+    /* A oferta de criar senha acontece DEPOIS de a sessão existir. Sem
+       esta linha, o redirecionamento levaria a pessoa embora no mesmo
+       instante e a oferta piscaria sem ser lida. */
+    if (ofereceSenha) return;
     if (temDestinoLogin()) return;
 
     // Se está carregando o status de onboarding, aguarda
@@ -153,7 +187,7 @@ export function LoginPage() {
     navegar(tipoOnboarding === "company" ? "/painel-empresa" : "/vagas-para-mim", {
       replace: true,
     });
-  }, [user, carregandoConta, tipoOnboarding, navegar, lado]);
+  }, [user, carregandoConta, tipoOnboarding, navegar, lado, ofereceSenha]);
 
   useEffect(() => {
     if (esperaSegundos <= 0) return;
@@ -172,6 +206,69 @@ export function LoginPage() {
     } finally {
       setEnviando(false);
     }
+  }
+
+  /* ── A OFERTA DE CRIAR SENHA ────────────────────────────────────────
+     Aparece uma vez, logo depois de entrar por SMS, e some para sempre
+     assim que a senha existe. "Agora não" é um botão de verdade e leva
+     adiante sem cobrar nada: quem não quiser senha continua entrando por
+     SMS a vida toda, que é como funcionava até hoje. */
+  if (ofereceSenha && user && !user.user_metadata?.tem_senha) {
+    return (
+      <div className="container entrar-pagina">
+        <h1>Pronto, você entrou</h1>
+        <p className="muted">
+          Quer criar uma senha? Assim, da próxima vez, você entra sem esperar SMS.
+        </p>
+
+        <section className="entrar-bloco">
+          <label className="entrar-rotulo" htmlFor="entrar-senha-nova">
+            Nova senha
+          </label>
+          <input
+            id="entrar-senha-nova"
+            type="password"
+            autoComplete="new-password"
+            placeholder="Pelo menos 8 caracteres"
+            value={senhaNova}
+            onChange={(e) => setSenhaNova(e.target.value)}
+            disabled={enviando}
+          />
+          <button
+            type="button"
+            className="btn btn-primary btn-block"
+            disabled={enviando || senhaNova.length < 8}
+            onClick={() =>
+              tentar(
+                () => definirSenha(senhaNova),
+                () => {
+                  try {
+                    localStorage.setItem("ei-tem-senha", "1");
+                  } catch {
+                    /* segue sem lembrar */
+                  }
+                  setSenhaNova("");
+                  setOfereceSenha(false);
+                }
+              )
+            }
+          >
+            {enviando ? "Salvando…" : "Criar senha e continuar"}
+          </button>
+          <button
+            type="button"
+            className="btn btn-outline btn-block entrar-secundario"
+            disabled={enviando}
+            onClick={() => setOfereceSenha(false)}
+          >
+            Agora não
+          </button>
+        </section>
+
+        {aviso && <p className="entrar-aviso">{aviso}</p>}
+        {error && <p className="entrar-erro">{error}</p>}
+      </div>
+    );
   }
 
   return (
@@ -256,26 +353,80 @@ export function LoginPage() {
               onChange={(e) => setTelefone(formatPhone(e.target.value))}
               disabled={!hasDatabase() || enviando}
             />
+            {/* A senha só aparece no modo senha. Um campo de senha vazio
+                ao lado do caminho do SMS faria a pessoa achar que precisa
+                inventar uma para receber o código. */}
+            {modo === "senha" && (
+              <>
+                <label className="entrar-rotulo" htmlFor="entrar-senha-fone">
+                  Sua senha
+                </label>
+                <input
+                  id="entrar-senha-fone"
+                  type="password"
+                  autoComplete="current-password"
+                  placeholder="Sua senha"
+                  value={senhaEntrada}
+                  onChange={(e) => setSenhaEntrada(e.target.value)}
+                  disabled={!hasDatabase() || enviando}
+                />
+              </>
+            )}
+
             <button
               type="button"
               className="btn btn-primary btn-block"
-              disabled={!hasDatabase() || enviando || telefone.length < 14 || esperaSegundos > 0}
+              disabled={
+                !hasDatabase() ||
+                enviando ||
+                telefone.length < 14 ||
+                (modo === "senha" ? senhaEntrada.length < 4 : esperaSegundos > 0)
+              }
               onClick={() =>
-                tentar(
-                  () => entrarComTelefone(telefone),
-                  () => {
-                    setPassoTelefone("codigo");
-                    setEsperaSegundos(60);
-                    setAviso("Enviamos um código por SMS. Ele chega em alguns segundos.");
-                  }
-                )
+                modo === "senha"
+                  ? tentar(() => entrarComTelefoneESenha(telefone, senhaEntrada), () => {
+                      try {
+                        localStorage.setItem("ei-tem-senha", "1");
+                      } catch {
+                        /* segue sem lembrar */
+                      }
+                    })
+                  : tentar(
+                      () => entrarComTelefone(telefone),
+                      () => {
+                        setPassoTelefone("codigo");
+                        setEsperaSegundos(60);
+                        setAviso("Enviamos um código por SMS. Ele chega em alguns segundos.");
+                      }
+                    )
               }
             >
               {enviando
-                ? "Enviando…"
-                : esperaSegundos > 0
-                  ? `Aguarde ${esperaSegundos}s para pedir outro`
-                  : "Receber código por SMS"}
+                ? modo === "senha"
+                  ? "Entrando…"
+                  : "Enviando…"
+                : modo === "senha"
+                  ? "Entrar"
+                  : esperaSegundos > 0
+                    ? `Aguarde ${esperaSegundos}s para pedir outro`
+                    : "Receber código por SMS"}
+            </button>
+
+            {/* A troca entre os dois caminhos, sempre visível. É também o
+                "esqueci a senha": entrar por SMS funciona mesmo sem ela, e
+                dentro do app dá para definir outra. */}
+            <button
+              type="button"
+              className="entrar-link"
+              onClick={() => {
+                setModo(modo === "senha" ? "sms" : "senha");
+                setSenhaEntrada("");
+                limpar();
+              }}
+            >
+              {modo === "senha"
+                ? "Não tenho senha — entrar com código por SMS"
+                : "Já tenho senha — entrar com ela"}
             </button>
           </>
         ) : (
@@ -297,7 +448,16 @@ export function LoginPage() {
               type="button"
               className="btn btn-primary btn-block"
               disabled={enviando || codigo.length < 4}
-              onClick={() => tentar(() => conferirCodigoDeEntrada(telefone, codigo))}
+              onClick={() =>
+                tentar(
+                  () => conferirCodigoDeEntrada(telefone, codigo),
+                  /* Quem já tem senha não precisa ver a oferta de novo.
+                     O Supabase não responde "esta conta tem senha?", então
+                     a marca fica no próprio usuário quando ela é criada
+                     (ver `definirSenha`). */
+                  () => setOfereceSenha(true)
+                )
+              }
             >
               {enviando ? "Conferindo…" : "Entrar"}
             </button>
