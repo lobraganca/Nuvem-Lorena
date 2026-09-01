@@ -34,19 +34,22 @@ jobs:
   disparar:
     runs-on: ubuntu-latest
     steps:
-      - name: Chamar o Deploy Hook da Vercel
-        env:
-          HOOK: ${{ secrets.VERCEL_DEPLOY_HOOK }}
-        run: |
-          if [ -z "$HOOK" ]; then
-            echo "O segredo VERCEL_DEPLOY_HOOK não está configurado."
-            echo "Crie em: Settings > Secrets and variables > Actions > New repository secret."
-            exit 1
-          fi
-          # -f faz o passo falhar quando a Vercel responde com erro, em vez
-          # de fingir sucesso e deixar o site velho no ar sem aviso.
-          resposta=$(curl -sS -f -X POST "$HOOK")
-          echo "Resposta da Vercel: $resposta"
+      # ── O GATILHO SAIU DE CENA — 01/09 ────────────────────────────────
+      # Aqui havia uma chamada ao Deploy Hook da Vercel. Ela parou de
+      # funcionar no meio da tarde, e do jeito mais traiçoeiro possível:
+      # em vez de construir a ponta da branch, a Vercel passou a REFAZER a
+      # última build que ela conhecia. A tela de Deployments mostrava
+      # linha nova a cada disparo, verde, com o rótulo "Redeploy of…" — e
+      # sempre o mesmo commit velho, `ac2dd16`. Quatro correções ficaram
+      # de fora do ar sem nada apontar a diferença.
+      #
+      # O projeto está ligado ao GitHub direto (Settings > Git), e essa
+      # ligação já publica sozinha a cada push na branch de produção. Duas
+      # portas para a mesma coisa é uma a mais: fica a do GitHub, que é a
+      # que sabe qual é o commit.
+      #
+      # O passo de conferência abaixo continua, e é ele que importa: sem
+      # ele, "verde" volta a querer dizer "pedi", e não "está no ar".
 
       # Chamar o gatilho não é publicar. A Vercel responde "recebi" na hora e
       # constrói depois; se a build falhar, este workflow ficava verde e o
