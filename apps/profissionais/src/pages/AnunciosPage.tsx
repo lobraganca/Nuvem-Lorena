@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, Navigate } from "react-router-dom";
 import { contarClique, contarExibicao, getBannersDeAnuncios } from "../lib/banners";
 import { searchProfessionals } from "../lib/professionals";
 import { DEFAULT_CITY, type Banner } from "../types/domain";
@@ -7,6 +7,7 @@ import type { ProfessionalWithRating } from "../lib/professionals";
 import { CartaoProfissional } from "../components/CartaoProfissional";
 import { EspacoLivre } from "../components/EspacoLivre";
 import { useTituloDaPagina } from "../lib/tituloDaPagina";
+import { ehAppDaLoja } from "../lib/plataforma";
 import { NOME_PLATAFORMA } from "../config";
 
 /**
@@ -30,6 +31,11 @@ import { NOME_PLATAFORMA } from "../config";
  */
 export function AnunciosPage() {
   useTituloDaPagina("Anúncios");
+  /* Segunda trava, além de a barra de baixo não ter mais o botão: um
+     endereço guardado de antes desta mudança, ou a tela que já estava
+     aberta quando o app atualizou, ainda levariam para cá. A rota em si
+     precisa recusar, não só o caminho até ela. */
+  if (ehAppDaLoja()) return <Navigate to="/" replace />;
   const [banners, setBanners] = useState<Banner[]>([]);
   const [destaques, setDestaques] = useState<ProfessionalWithRating[]>([]);
   const [carregando, setCarregando] = useState(true);

@@ -30,6 +30,13 @@ on:
         description: 'Versão que aparece para as pessoas (ex.: 1.0.3)'
         required: true
         default: '1.0.0'
+      versionCode:
+        description: 'Número do envio. Deixe vazio para usar o número da execução. Preencha com um número MAIOR quando a loja disser que o código já foi usado.'
+        required: false
+        default: ''
+
+permissions:
+  contents: write   # necessário para publicar a release com os arquivos
 
 jobs:
   montar:
@@ -143,6 +150,16 @@ jobs:
       # O número do envio é o número da execução do workflow: sobe sozinho,
       # nunca repete, e ninguém precisa lembrar de somar 1. A Play Store
       # recusa um envio cujo número já foi usado.
+      #
+      # Só que "nunca repete" vale para as execuções DESTE workflow, e não
+      # para o que a loja já viu. Um envio feito de outro jeito, um arquivo
+      # antigo reenviado, uma execução recontada — qualquer um desses deixa
+      # a loja com um número que a contagem daqui não conhece, e aí ela
+      # recusa sem que haja o que consertar no código.
+      #
+      # Por isso o campo existe: quando a loja disser "o código da versão já
+      # foi usado", basta montar de novo com um número maior. Vazio, o
+      # comportamento é o de sempre.
       # Os DOIS formatos, na mesma montagem.
       #
       # `.aab` é o que a Play Store aceita, e SÓ ela: o arquivo não instala
@@ -168,7 +185,7 @@ jobs:
           cd android
           chmod +x gradlew
           ./gradlew bundleRelease assembleRelease --no-daemon \
-            -PversionCode=${{ github.run_number }} \
+            -PversionCode=${{ inputs.versionCode != '' && inputs.versionCode || github.run_number }} \
             -PversionName=${{ inputs.versionName }}
 
       # Confere o que saiu antes de entregar. Um .aab existe mesmo quando o
@@ -194,7 +211,7 @@ jobs:
           echo "| | |" >> $GITHUB_STEP_SUMMARY
           echo "|---|---|" >> $GITHUB_STEP_SUMMARY
           echo "| Versão | ${{ inputs.versionName }} |" >> $GITHUB_STEP_SUMMARY
-          echo "| Número do envio | ${{ github.run_number }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Número do envio (versionCode) | ${{ inputs.versionCode != '' && inputs.versionCode || github.run_number }} |" >> $GITHUB_STEP_SUMMARY
           echo "| Para a loja (.aab) | $(du -h "$AAB" | cut -f1) |" >> $GITHUB_STEP_SUMMARY
           echo "| Para o seu celular (.apk) | $(du -h "$APK" | cut -f1) |" >> $GITHUB_STEP_SUMMARY
           if [ "${{ steps.chave.outputs.assinado }}" = "sim" ]; then
@@ -214,10 +231,37 @@ jobs:
       # quem baixa descobrir qual é qual — no celular, olhando extensão. Aí
       # se instala o errado, não acontece nada, e a conclusão é que o app
       # não funciona.
+      # Cada arquivo passa a dizer, no próprio nome, qual envio ele é.
+      #
+      # O Gradle nomeia TODO arquivo como `app-release.aab` — o mesmo nome
+      # em toda montagem. Baixados um por vez, eles se acumulam na pasta de
+      # downloads com nomes idênticos (ou `app-release(1).aab`, que é pior
+      # porque parece uma cópia e não uma versão diferente), e na hora de
+      # enviar não há como saber qual é qual.
+      #
+      # Foi o que aconteceu: a loja recusou dizendo que o arquivo já tinha
+      # sido usado, e a causa mais provável não era o número gerado aqui —
+      # era um arquivo ANTIGO sendo enviado no lugar do novo. O nome do
+      # pacote já trazia o envio; o arquivo lá dentro, não, e é o arquivo
+      # que se arrasta para o Play Console.
+      - name: Dar nome próprio aos arquivos
+        env:
+          CODIGO: ${{ inputs.versionCode != '' && inputs.versionCode || github.run_number }}
+        run: |
+          set -euo pipefail
+          BASE="procuro-${{ inputs.versionName }}-envio${CODIGO}"
+          mv android/app/build/outputs/bundle/release/*.aab \
+             "android/app/build/outputs/bundle/release/${BASE}.aab"
+          mv android/app/build/outputs/apk/release/*.apk \
+             "android/app/build/outputs/apk/release/${BASE}.apk"
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "Os arquivos se chamam **${BASE}.aab** e **${BASE}.apk**." >> $GITHUB_STEP_SUMMARY
+          echo "Confira o nome antes de enviar: a loja recusa um envio repetido." >> $GITHUB_STEP_SUMMARY
+
       - name: Guardar o .apk (para instalar e testar)
         uses: actions/upload-artifact@v4
         with:
-          name: procuro-celular-${{ inputs.versionName }}-envio${{ github.run_number }}
+          name: procuro-celular-${{ inputs.versionName }}-envio${{ inputs.versionCode != '' && inputs.versionCode || github.run_number }}
           path: apps/profissionais/android/app/build/outputs/apk/release/*.apk
           retention-days: 30
           if-no-files-found: error
@@ -225,7 +269,57 @@ jobs:
       - name: Guardar o .aab (para enviar à loja)
         uses: actions/upload-artifact@v4
         with:
-          name: procuro-loja-${{ inputs.versionName }}-envio${{ github.run_number }}
+          name: procuro-loja-${{ inputs.versionName }}-envio${{ inputs.versionCode != '' && inputs.versionCode || github.run_number }}
           path: apps/profissionais/android/app/build/outputs/bundle/release/*.aab
           retention-days: 30
           if-no-files-found: error
+
+      # E, por fim, os mesmos arquivos como RELEASE — que é o único jeito
+      # de baixá-los sem entrar na conta.
+      #
+      # Artefato de Actions exige login, sempre, mesmo em repositório
+      # público. Quem publica este app trabalha do celular e nem sempre
+      # está logada no GitHub no aparelho que tem à mão; o resultado é
+      # ficar com o arquivo pronto e sem conseguir pegá-lo — já aconteceu
+      # mais de uma vez, e trava tudo o que vem depois.
+      #
+      # A release, num repositório público, é um endereço direto: abre em
+      # qualquer navegador, sem conta, e entrega o arquivo em si — não um
+      # zip para descompactar, que no celular é outra parede.
+      #
+      # Nada aqui é sigiloso. O endereço e a chave pública do banco viajam
+      # dentro do app de qualquer jeito, e quem protege os dados é a RLS no
+      # servidor; a chave de ASSINATURA não vai no arquivo, fica nos
+      # segredos. O que se publica é o mesmo app que a loja vai distribuir
+      # de graça.
+      - name: Publicar os arquivos para download direto
+        env:
+          GH_TOKEN: ${{ github.token }}
+          CODIGO: ${{ inputs.versionCode != '' && inputs.versionCode || github.run_number }}
+        run: |
+          set -euo pipefail
+          BASE="procuro-${{ inputs.versionName }}-envio${CODIGO}"
+          TAG="envio${CODIGO}"
+
+          gh release create "$TAG" \
+            --repo "$GITHUB_REPOSITORY" \
+            --title "procurô ${{ inputs.versionName }} — envio ${CODIGO}" \
+            --notes "Versão ${{ inputs.versionName }}, envio ${CODIGO}.
+
+          - **${BASE}.aab** — este é o que sobe no Play Console. Não instala no celular.
+          - **${BASE}.apk** — este instala no celular, para testar antes.
+
+          Baixe clicando no nome do arquivo, logo abaixo." \
+            "android/app/build/outputs/bundle/release/${BASE}.aab" \
+            "android/app/build/outputs/apk/release/${BASE}.apk"
+
+          URL="${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/releases/download/${TAG}"
+          {
+            echo ""
+            echo "### Baixar sem precisar entrar na conta"
+            echo ""
+            echo "- [${BASE}.aab](${URL}/${BASE}.aab) — para o Play Console"
+            echo "- [${BASE}.apk](${URL}/${BASE}.apk) — para instalar no celular"
+          } >> $GITHUB_STEP_SUMMARY
+          echo "AAB: ${URL}/${BASE}.aab"
+          echo "APK: ${URL}/${BASE}.apk"
