@@ -8,7 +8,7 @@ import { Switch } from "../../components/ei/Switch";
 import { CampoTelefone } from "../../components/ei/CampoTelefone";
 import { Pagina } from "../../components/ei/Pagina";
 import { Etapas } from "../../components/ei/Etapas";
-import { CATEGORIES, MAX_FUNCOES } from "../../types/domain";
+import { CATEGORIES, MAX_FUNCOES, DISPONIBILIDADE } from "../../types/domain";
 import { sendSuggestion } from "../../lib/suggestions";
 import {
   lerMeuPerfil,
@@ -109,6 +109,16 @@ export function MeuPerfilPage() {
   const mostra = (n: number) => !emEtapas || etapa === n;
 
   const { disponivel, oculto, funcoes } = perfil;
+  /* Os quatro campos da 0101 seguem o mesmo padrão dos de cima: leitura
+     por desestruturação, escrita por um `set` que mexe só naquele pedaço
+     do perfil. */
+  const { pretensao, pretensaoCombinar, disponibilidade, aceitaViajar } = perfil;
+  const setPretensao = (v: string) => setPerfil((p) => ({ ...p, pretensao: v }));
+  const setPretensaoCombinar = (v: boolean) =>
+    setPerfil((p) => ({ ...p, pretensaoCombinar: v }));
+  const setDisponibilidade = (f: (a: string[]) => string[]) =>
+    setPerfil((p) => ({ ...p, disponibilidade: f(p.disponibilidade) }));
+  const setAceitaViajar = (v: boolean) => setPerfil((p) => ({ ...p, aceitaViajar: v }));
   const setDisponivel = (v: boolean) => setPerfil((p) => ({ ...p, disponivel: v }));
   const setOculto = (v: boolean) => setPerfil((p) => ({ ...p, oculto: v }));
   const setFuncoes = (f: (a: string[]) => string[]) =>
@@ -427,6 +437,89 @@ export function MeuPerfilPage() {
 
         {mostra(3) && (
         <>
+        {/* ── O QUE VOCÊ QUER (0101) ──────────────────────────────────
+            A dona: "o cadastro do candidato está muito simples. tem que
+            ter pretensão salarial, horário melhor, se aceita viajar."
+
+            Os três ficam nesta etapa, junto de "quando receber vaga",
+            porque respondem à mesma pergunta: em que condições esta
+            pessoa topa. Todos opcionais — quem não quiser dizer o quanto
+            ganha segue sem dizer, e continua recebendo vaga. */}
+        <h2 className="ei-secao">O que você quer</h2>
+        <div className="ei-lista">
+          <div className="ei-cartao">
+            <div className="ei-campo">
+              <label htmlFor="meu-pretensao">Quanto você quer ganhar por mês</label>
+              <input
+                id="meu-pretensao"
+                inputMode="decimal"
+                placeholder="1.500,00"
+                value={pretensao}
+                disabled={pretensaoCombinar}
+                onChange={(e) => setPretensao(e.target.value)}
+              />
+              <span className="ei-campo-ajuda">
+                Opcional. Serve para a empresa não te chamar para uma vaga que não
+                fecha — e para você não perder tempo.
+              </span>
+            </div>
+
+            <div className="ei-cartao" style={{ padding: 0, marginTop: 12 }}>
+              <Switch
+                ligado={pretensaoCombinar}
+                onChange={(v) => {
+                  setPretensaoCombinar(v);
+                  if (v) setPretensao("");
+                }}
+                titulo="Prefiro combinar"
+                descricao="Aparece “a combinar” no lugar do valor."
+              />
+            </div>
+          </div>
+
+          <div className="ei-cartao">
+            <div className="ei-campo">
+              <label>Melhor horário</label>
+              <span className="ei-campo-ajuda">
+                Pode marcar mais de um. Quem pode de manhã e no sábado marca os dois.
+              </span>
+            </div>
+            <div className="ei-chips-rolagem" style={{ marginTop: 8 }}>
+              {DISPONIBILIDADE.map((h) => {
+                const marcado = disponibilidade.includes(h);
+                return (
+                  <button
+                    key={h}
+                    type="button"
+                    className={marcado ? "ei-chip ativo" : "ei-chip"}
+                    aria-pressed={marcado}
+                    onClick={() =>
+                      setDisponibilidade((atual) =>
+                        marcado ? atual.filter((x) => x !== h) : [...atual, h],
+                      )
+                    }
+                  >
+                    {h}
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+
+          <div className="ei-cartao" style={{ padding: 0 }}>
+            <Switch
+              ligado={aceitaViajar}
+              onChange={setAceitaViajar}
+              titulo="Aceito viajar"
+              descricao={
+                aceitaViajar
+                  ? "Você aparece também para vaga que exige sair da cidade."
+                  : "Só vagas na sua cidade e na região."
+              }
+            />
+          </div>
+        </div>
+
         <h2 className="ei-secao">Quando você quer receber vaga</h2>
         <div className="ei-lista">
           <div className="ei-cartao" style={{ padding: 0 }}>

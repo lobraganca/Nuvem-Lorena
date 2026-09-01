@@ -41,6 +41,23 @@ export type MeuPerfil = {
    * gatilho zera o campo em qualquer outra escrita. Aqui é só leitura.
    */
   confirmado: boolean;
+  /* ── O QUE A PESSOA QUER (0101) ────────────────────────────────────
+     A dona: "o cadastro do candidato está muito simples. tem que ter
+     pretensão salarial, horário melhor, se aceita viajar."
+
+     Os três decidem se o encontro vale a pena, e sem eles os dois lados
+     perdiam tempo: a empresa ligava para dez pessoas para descobrir que
+     oito não podem no horário dela.
+
+     `pretensao` fica como TEXTO aqui, do jeito que a pessoa digita
+     ("1.500", "1500,00"), e vira centavos só na hora de gravar. Guardar
+     número no estado obrigaria a formatar a cada tecla, e é assim que se
+     perde a vírgula que a pessoa acabou de escrever. */
+  pretensao: string;
+  /** "A combinar" é resposta, e é diferente de não ter respondido. */
+  pretensaoCombinar: boolean;
+  disponibilidade: string[];
+  aceitaViajar: boolean;
 };
 
 export type CursoEmEdicao = { nome: string; instituicao: string; ano: string };
@@ -55,6 +72,10 @@ export const PERFIL_VAZIO: MeuPerfil = {
   disponivel: true,
   oculto: false,
   confirmado: false,
+  pretensao: "",
+  pretensaoCombinar: false,
+  disponibilidade: [],
+  aceitaViajar: false,
 };
 
 /**
@@ -71,7 +92,8 @@ export async function lerMeuPerfil(ownerId: string): Promise<MeuPerfil | null> {
   const { data, error } = await sb
     .from("professionals")
     .select(
-      "id, name, phone, email, neighborhood, areas_de_interesse, disponivel, paused, whatsapp_verified"
+      "id, name, phone, email, neighborhood, areas_de_interesse, disponivel, paused, whatsapp_verified, " +
+      "pretensao_centavos, pretensao_combinar, disponibilidade, aceita_viajar"
     )
     .eq("owner_id", ownerId)
     /* `maybeSingle` e não `single`: quem ainda não tem cadastro é o caso
@@ -95,6 +117,16 @@ export async function lerMeuPerfil(ownerId: string): Promise<MeuPerfil | null> {
     disponivel: linha.disponivel ?? true,
     oculto: linha.paused ?? false,
     confirmado: linha.whatsapp_verified ?? false,
+    pretensao:
+      linha.pretensao_centavos == null
+        ? ""
+        : (linha.pretensao_centavos / 100).toLocaleString("pt-BR", {
+            minimumFractionDigits: 2,
+            maximumFractionDigits: 2,
+          }),
+    pretensaoCombinar: linha.pretensao_combinar ?? false,
+    disponibilidade: linha.disponibilidade ?? [],
+    aceitaViajar: linha.aceita_viajar ?? false,
   };
 }
 
@@ -138,6 +170,14 @@ export async function salvarMeuPerfil(
     category: perfil.funcoes[0] ?? "",
     disponivel: perfil.disponivel,
     paused: perfil.oculto,
+    /* Centavos, inteiro: valor com vírgula em ponto flutuante rende
+       diferença de um centavo, e é a diferença que a pessoa percebe.
+       Campo vazio grava `null` — que quer dizer "não respondeu", e é
+       diferente de zero. */
+    pretensao_centavos: emCentavos(perfil.pretensao),
+    pretensao_combinar: perfil.pretensaoCombinar,
+    disponibilidade: perfil.disponibilidade,
+    aceita_viajar: perfil.aceitaViajar,
     city: DEFAULT_CITY,
     uf: DEFAULT_UF,
   };
@@ -233,6 +273,23 @@ export async function confirmarMeuTelefone(professionalId: string): Promise<void
     p_professional_id: professionalId,
   });
   if (error) throw error;
+}
+
+/**
+ * "1.500,00", "1500", "R$ 1.500" → 150000 centavos. Vazio → null.
+ *
+ * Aceita o jeito brasileiro de escrever (ponto de milhar, vírgula de
+ * centavo) porque é o que sai do teclado de quem preenche — recusar
+ * "1.500,00" seria recusar a forma certa de escrever mil e quinhentos.
+ */
+function emCentavos(texto: string): number | null {
+  const limpo = texto.replace(/[^\d,.]/g, "").trim();
+  if (!limpo) return null;
+  /* Tira os pontos de milhar e troca a vírgula decimal por ponto. */
+  const normal = limpo.replace(/\.(?=\d{3}(\D|$))/g, "").replace(",", ".");
+  const valor = Number(normal);
+  if (!Number.isFinite(valor) || valor < 0) return null;
+  return Math.round(valor * 100);
 }
 
 /** "(31) 99999-8888" e "+55 31 99999 8888" viram a mesma coisa. */

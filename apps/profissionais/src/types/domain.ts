@@ -74,6 +74,15 @@ export interface Professional {
    * As ondas de uma vaga alcançam pelas duas colunas (ver `ONDAS`).
    */
   areas_de_interesse: string[];
+  /* ── O QUE A PESSOA QUER (migration 0101) ─────────────────────────
+     Pretensão, horário e viagem. Os três são opcionais: cadastro que
+     exige tudo é cadastro que não se termina. `pretensao_centavos` nulo
+     quer dizer "não respondeu", e é diferente de `pretensao_combinar`,
+     que é uma resposta ("prefiro conversar"). */
+  pretensao_centavos: number | null;
+  pretensao_combinar: boolean;
+  disponibilidade: string[];
+  aceita_viajar: boolean;
   suspended: boolean; // tirado do ar pelo painel admin (denúncia procedente ou violação das regras)
   suspended_reason: string | null;
   contact_mode: ContactMode; // "whatsapp_livre" (grátis) ou "pay_per_lead" (cobra crédito por contato)
@@ -851,6 +860,24 @@ export const PLANOS_EMPRESA: Record<
  * planos "desde o free", e omitir o de graça faz o app parecer trancado
  * para quem só quer procurar gente — que é livre, e sempre foi.
  */
+/**
+ * Os horários que a pessoa pode trabalhar.
+ *
+ * Mora aqui, e não no banco, para a lista mudar sem migration — a coluna
+ * é `text[]` justamente por isso, e o `check` de lá limita só a
+ * quantidade. As palavras são as que se usam na cidade: "comercial" diz
+ * mais que "período integral" para quem procura vaga de balcão.
+ */
+export const DISPONIBILIDADE = [
+  "Manhã",
+  "Tarde",
+  "Noite",
+  "Horário comercial",
+  "Fim de semana",
+  "Turnos / escala",
+  "Qualquer horário",
+] as const;
+
 export const PLANO_GRATUITO = {
   nome: "Gratuito",
   centavos: 0,
