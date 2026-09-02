@@ -3,7 +3,8 @@ import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../lib/useAuth";
 import { useTituloDaPagina } from "../lib/tituloDaPagina";
 import {
-  obterMinhaEmpresa,
+  empresaAtual,
+  minhasEmpresas,
   listarMinhasVagas,
   confirmarTelefoneDaEmpresa,
   situacaoDoPlano,
@@ -103,6 +104,10 @@ export function PainelEmpresaPage() {
     }
   }
 
+  /* Quantas empresas esta conta tem. Decide se o botão "trocar" aparece:
+     com uma só, ele levaria a uma tela de escolha entre uma opção. */
+  const [quantasEmpresas, setQuantasEmpresas] = useState(1);
+
   useEffect(() => {
     if (carregandoConta || !user) return;
 
@@ -111,7 +116,16 @@ export function PainelEmpresaPage() {
 
   async function carregarDados() {
     try {
-      const minha = await obterMinhaEmpresa(user?.id || "");
+      /* `empresaAtual` e não "a minha empresa": desde a 0102 uma conta
+         pode ter várias, e o painel mostra a que está ABERTA — a escolhida
+         na tela de escolha, ou a primeira quando ninguém escolheu ainda. */
+      const minha = await empresaAtual(user?.id || "");
+      /* Quantas existem, para o painel saber se oferece "trocar". Falhar
+         aqui não derruba nada: sem o número o botão simplesmente não
+         aparece, e o painel continua servindo. */
+      minhasEmpresas(user?.id || "")
+        .then((todas) => setQuantasEmpresas(todas.length))
+        .catch(() => setQuantasEmpresas(1));
       if (!minha) {
         /* ── SEM EMPRESA, O PAINEL LEVA AO CADASTRO ────────────────────
            Isto tinha sido tirado hoje de manhã, porque a dona caía sempre
@@ -265,6 +279,27 @@ export function PainelEmpresaPage() {
 
               A ficha não sumiu: desceu para depois dos atalhos, que é o
               lugar de dado de cadastro. */}
+          {/* ── QUAL EMPRESA ESTÁ ABERTA, E COMO TROCAR (itens 4 e 6) ──
+              A dona: "ter um botão onde tem a informação da empresa
+              'trocar' pra outra empresa se ele tiver cadastrado" e "ter
+              como ver a empresa que está selecionada".
+
+              Com duas lojas, o painel é idêntico nas duas — mesmas
+              seções, mesmos botões. Sem esta linha, publicar a vaga da
+              lanchonete na padaria é um engano que não dá nenhum sinal
+              na hora e só aparece quando o telefone toca. */}
+          <div className="ei-empresa-aberta">
+            <span className="ei-empresa-aberta-nome">{empresa.company_name}</span>
+            {quantasEmpresas > 1 ? (
+              <Link to="/minhas-empresas" className="ei-btn-inline">Trocar</Link>
+            ) : (
+              /* Com uma empresa só, "trocar" não teria para onde ir — mas
+                 "cadastrar outra" tem, e é daqui que a pessoa lembra de
+                 fazê-lo: ela está olhando a loja que já cadastrou. */
+              <Link to="/cadastro-empresa?nova=1" className="ei-btn-inline">Cadastrar outra</Link>
+            )}
+          </div>
+
           <div className="ei-resumo">
             <div className="ei-resumo-item">
               <span className="ei-resumo-rotulo">Pessoas interessadas</span>

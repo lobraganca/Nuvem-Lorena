@@ -189,13 +189,27 @@ export function LoginPage() {
       return;
     }
 
-    /* Já tem lado. A escolha guardada não manda mais nada — quem tem
-       cadastro de empresa é empresa por ter a empresa, e não por um botão
-       tocado semanas atrás. */
+    /* ── DEPOIS DE ENTRAR, SEMPRE A ESCOLHA DO AMBIENTE (item 4) ──────
+       A dona: "logo após fazer login, sempre deve ter opção de escolher o
+       ambiente que quer utilizar, se empresa ou candidato."
+
+       O "sempre" é a palavra que muda o que estava aqui. Antes, quem já
+       tinha um lado gravado ia direto ao painel daquele lado, e a escolha
+       só aparecia uma vez na vida — para quem estava criando a conta. Numa
+       cidade pequena isso é errado com frequência: quem tem loja também é
+       eletricista à noite, e quem contratou uma diarista em março procura
+       trabalho em setembro. Essa pessoa entrava e caía num app que decidiu
+       por ela.
+
+       Custa um toque a quem sempre usa o mesmo lado. É o preço de a outra
+       metade conseguir chegar ao lado dela — e a tela de escolha marca qual
+       é o lado atual, então o toque é sempre o mesmo botão, no mesmo lugar.
+
+       A escolha guardada no aparelho não manda mais nada: quem tem cadastro
+       de empresa é empresa por ter a empresa, e não por um botão tocado
+       semanas atrás. */
     esquecerLado();
-    navegar(tipoOnboarding === "company" ? "/painel-empresa" : "/vagas-para-mim", {
-      replace: true,
-    });
+    navegar("/onboarding-tipo", { replace: true });
   }, [user, carregandoConta, tipoOnboarding, navegar, lado]);
 
   useEffect(() => {

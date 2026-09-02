@@ -2534,3 +2534,118 @@
 .ei-compat-media { color: #8a5a12; }
 .ei-compat-baixa { color: var(--ei-tinta-fraca); }
 .ei-compat-respondida { color: var(--ei-acento); }
+
+/* ── A escolha de empresa (itens 3, 4 e 6) ──────────────────────────────
+   Grade de dois, com o "+" ocupando um lugar igual aos outros — foi como a
+   dona desenhou ("pode ter um botão ao lado do card escrito +"). Do mesmo
+   tamanho de propósito: menor, ele lê como enfeite e ninguém toca. */
+.ei-empresas {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 10px;
+  /* 20px, o mesmo da `.ei-margem` — a fileira precisa alinhar com o
+     título e com o texto de apoio logo acima dela. */
+  padding: 0 20px;
+  margin-top: 12px;
+}
+@media (max-width: 340px) {
+  /* Em tela muito estreita dois cartões deixam o nome da empresa em duas
+     letras por linha. Um por linha continua legível. */
+  .ei-empresas { grid-template-columns: 1fr; }
+}
+
+.ei-empresa-cartao {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 4px;
+  padding: 14px;
+  min-height: 132px;
+  border: 1px solid var(--ei-fio-forte);
+  border-radius: var(--ei-raio, 14px);
+  background: var(--ei-papel);
+  color: var(--ei-tinta);
+  text-align: left;
+  text-decoration: none;
+  cursor: pointer;
+}
+.ei-empresa-cartao:hover { background: var(--ei-afunda); }
+
+/* A que está aberta agora. Contorno azul de 2px e não um fundo colorido:
+   o fundo apagaria a logo da empresa, que é justamente o que distingue um
+   cartão do outro num relance. */
+.ei-empresa-cartao.aberta {
+  border-color: var(--ei-acento);
+  box-shadow: inset 0 0 0 1px var(--ei-acento);
+}
+
+.ei-empresa-logo {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  margin-bottom: 6px;
+  border-radius: var(--ei-raio-toque, 12px);
+  background: var(--ei-afunda-forte);
+  color: var(--ei-tinta-fraca);
+  font-size: 1.15rem;
+  font-weight: 700;
+  overflow: hidden;
+  flex: 0 0 auto;
+}
+.ei-empresa-logo img { width: 100%; height: 100%; object-fit: cover; }
+
+.ei-empresa-nome {
+  font-size: 0.95rem;
+  font-weight: 600;
+  line-height: 1.25;
+}
+.ei-empresa-onde {
+  font-size: 0.8rem;
+  color: var(--ei-tinta-fraca);
+  line-height: 1.3;
+}
+.ei-empresa-marca {
+  margin-top: auto;
+  padding-top: 6px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--ei-acento);
+}
+
+/* O "+": tracejado, para dizer "aqui ainda não tem nada" sem precisar de
+   texto explicando. */
+.ei-empresa-nova {
+  border-style: dashed;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+}
+.ei-empresa-mais {
+  font-size: 2rem;
+  line-height: 1;
+  color: var(--ei-acento);
+  font-weight: 300;
+}
+
+/* ── Qual empresa está aberta, no painel (item 6) ───────────────────────
+   Uma linha fina acima do resumo. Com duas lojas o painel é idêntico nas
+   duas, e publicar a vaga na errada é um engano que não dá sinal nenhum na
+   hora — só quando o telefone toca. */
+.ei-empresa-aberta {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+  margin: 2px 0 12px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid var(--ei-fio);
+}
+.ei-empresa-aberta-nome {
+  font-size: 1rem;
+  font-weight: 600;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}

@@ -1,9 +1,11 @@
 import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { useAuth } from "../lib/useAuth";
 import {
-  upsertCompany,
-  obterMinhaEmpresa,
+  criarEmpresa,
+  atualizarEmpresa,
+  minhasEmpresas,
+  escolherEmpresa,
   marcarOnboardingCompleto,
   confirmarTelefoneDaEmpresa,
   registrarTipoDeUsuario,
@@ -55,7 +57,22 @@ const EMPTY: FormState = {
 /* Os nomes vêm do que a empresa RESPONDE em cada passo, não do nome da
    tabela: "Onde fica" diz mais que "Localização", e é assim que a pessoa
    pensaria na pergunta se alguém a fizesse em voz alta. */
-const ETAPAS = ["A empresa", "Onde fica", "Contato"];
+/* ── PESSOA FÍSICA OU EMPRESA GANHOU ETAPA PRÓPRIA (item 9) ──────────
+   A dona: "a opção entre escolher pessoa física ou jurídica deve ser em
+   uma sessão separada para flagrar a opção que deseja."
+
+   Ela estava certa duas vezes. Primeiro porque a escolha mudava tudo o
+   que vinha depois — o rótulo do nome, a máscara do documento, a
+   validação — e mesmo assim aparecia como um controlezinho no MEIO da
+   etapa 1, depois do campo de nome que ela própria renomeia. Quem
+   preenchia primeiro e escolhia depois via o rótulo trocar por baixo do
+   que já tinha digitado.
+
+   Segundo porque, sozinha numa tela, ela pode ser explicada: "contrato
+   para a minha casa" e "contrato pela minha empresa" são duas frases
+   que a pessoa reconhece — "pessoa física ou jurídica" é vocabulário de
+   contador. */
+const ETAPAS = ["Quem contrata", "A empresa", "Onde fica", "Contato"];
 
 /**
  * Cadastro de empresa, em etapas.
@@ -129,24 +146,61 @@ export function CadastroEmpresaPage() {
   const emEtapas = !empresaExistente;
   const mostra = (n: number) => !emEtapas || etapa === n;
 
+  /* ── QUAL EMPRESA ESTA TELA ESTÁ EDITANDO ──────────────────────────
+     Com mais de uma empresa por conta (item 3, migration 0102), "a minha
+     empresa" deixou de ser uma pergunta com uma resposta só. Agora o
+     endereço diz:
+
+       /cadastro-empresa            a primeira vez, ou a empresa aberta
+       /cadastro-empresa?nova=1     cadastrar mais uma (o botão "+")
+       /cadastro-empresa?id=xxx     editar aquela
+
+     O `?nova=1` precisa existir e não podia ser só "sem id": sem ele, o
+     botão "+" abriria a tela, ela leria a empresa que já existe e a
+     pessoa acabaria EDITANDO a padaria achando que estava cadastrando a
+     lanchonete — e o nome antigo já viria escrito no campo. */
+  const [params] = useSearchParams();
+  const idPedido = params.get("id");
+  const querNova = params.get("nova") === "1";
+
   useEffect(() => {
     if (carregandoConta || !user) return;
 
     setForm((f) => ({ ...f, owner_id: user.id }));
     setCarregandoEmpresa(true);
 
-    obterMinhaEmpresa(user.id).then((empresa) => {
-      if (empresa) {
-        setForm(empresa);
-        setEmpresaExistente(empresa);
-        /* Cadastro que já existe: o tipo vem do que está guardado, e não
-           do padrão da tela — senão editar uma pessoa física mostraria a
-           máscara de CNPJ em cima de um CPF. */
-        if (onlyDigits(empresa.cnpj ?? "").length === 11) setTipoDono("pf");
-      }
-      setCarregandoEmpresa(false);
-    });
-  }, [user, carregandoConta]);
+    minhasEmpresas(user.id)
+      .then((lista) => {
+        if (querNova) {
+          /* Cadastro novo: o formulário fica em branco, com o dono
+             preenchido. Nada da empresa anterior entra aqui. */
+          setForm({ ...EMPTY, owner_id: user.id });
+          setEmpresaExistente(null);
+          setTipoDono("pj");
+          return;
+        }
+        const empresa = idPedido
+          ? lista.find((e) => e.id === idPedido) ?? null
+          : lista[0] ?? null;
+        if (empresa) {
+          setForm(empresa);
+          setEmpresaExistente(empresa);
+          /* Cadastro que já existe: o tipo vem do que está guardado, e não
+             do padrão da tela — senão editar uma pessoa física mostraria a
+             máscara de CNPJ em cima de um CPF. */
+          if (onlyDigits(empresa.cnpj ?? "").length === 11) setTipoDono("pf");
+        }
+      })
+      .catch((err) => {
+        /* A leitura falhou. NÃO segue como se a pessoa não tivesse
+           empresa: seguir assim abriria o formulário em branco e o
+           salvamento criaria uma SEGUNDA empresa por cima de uma que
+           existe — e ninguém entenderia de onde ela veio. */
+        setErro(mensagemDeErro(err, "Não consegui ler os seus cadastros de empresa."));
+      })
+      .finally(() => setCarregandoEmpresa(false));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [user, carregandoConta, idPedido, querNova]);
 
   /* ── O TELEFONE DO LOGIN JÁ VEM CONFIRMADO ──────────────────────────
      Mesma regra do lado do profissional: quem entrou por SMS já provou
@@ -180,15 +234,19 @@ export function CadastroEmpresaPage() {
 
   /** O que cada etapa exige para deixar seguir. Devolve o erro, ou "". */
   function conferirEtapa(n: number): string {
-    if (n === 1) {
+    /* A etapa 1 (quem contrata) não confere nada: ela sempre tem uma
+       resposta marcada, porque começa em "empresa". Uma etapa que nunca
+       pode dar erro é uma etapa que nunca prende ninguém — e é o certo
+       para uma pergunta que só muda rótulos. */
+    if (n === 2) {
       if (!form.company_name.trim()) return "Escreva o nome da empresa.";
       if (form.cnpj && !isValidDocument(form.cnpj, tipoDono))
         return tipoDono === "pf" ? "Esse CPF não confere." : "Esse CNPJ não confere.";
     }
-    if (n === 2) {
+    if (n === 3) {
       if (!form.city.trim()) return "Escolha a cidade.";
     }
-    if (n === 3) {
+    if (n === 4) {
       if (!form.responsible_name?.trim()) return "Escreva o nome de quem responde pela empresa.";
       if (!form.phone || !isValidPhone(form.phone)) return "Esse telefone não confere.";
     }
@@ -216,7 +274,7 @@ export function CadastroEmpresaPage() {
 
     /* Fora do modo de etapas ninguém passou pelas conferências acima, e o
        salvamento precisa das três mesmo assim. */
-    for (const n of [1, 2, 3]) {
+    for (const n of [2, 3, 4]) {
       const problema = conferirEtapa(n);
       if (problema) {
         setErro(problema);
@@ -228,8 +286,25 @@ export function CadastroEmpresaPage() {
     setErro("");
     setSalvando(true);
     try {
-      const empresa = await upsertCompany({ ...form, owner_id: user.id });
+      /* `insert` ou `update`, nunca mais `upsert`.
+         ─────────────────────────────────────────
+         O upsert usava `on conflict (owner_id)`, e o alvo dele era o
+         `unique` que a 0102 tira. Com a 0102 aplicada ele responderia
+         42P10 e o cadastro de empresa pararia INTEIRO — não só o segundo.
+
+         E `update` também é o certo por outra razão, que o CLAUDE.md
+         registra: o upsert do PostgREST é `insert ... on conflict`, então
+         quem manda passa pela policy de INSERT mesmo editando uma linha
+         que já existe. */
+      const empresa = empresaExistente
+        ? await atualizarEmpresa(empresaExistente.id, { ...form, owner_id: user.id })
+        : await criarEmpresa({ ...form, owner_id: user.id });
       await marcarOnboardingCompleto(user.id);
+
+      /* A empresa recém-salva passa a ser a aberta. Sem isto, quem
+         cadastra a segunda loja é devolvido ao painel da PRIMEIRA, e
+         parece que o cadastro não foi gravado. */
+      escolherEmpresa(empresa.id);
 
       /* Só aqui dá para carimbar: a função do banco compara o telefone do
          CADASTRO com o da conta, e o cadastro acabou de ser gravado.
@@ -293,8 +368,64 @@ export function CadastroEmpresaPage() {
           <p className="ei-campo-erro ei-margem" role="alert">{erro}</p>
         )}
 
-        {/* ── 1. A empresa ───────────────────────────────────────────── */}
+        {/* ── 1. Quem contrata (item 9) ──────────────────────────────
+            Sozinha numa tela, a escolha pode ser explicada em vez de
+            rotulada. "Pessoa física ou jurídica" é vocabulário de
+            contador; "contrato para a minha casa" e "contrato pela minha
+            empresa" são frases que a pessoa reconhece.
+
+            Dois cartões grandes, e não um controle segmentado: aqui a
+            escolha é a única coisa da tela, e um botãozinho de 40px de
+            altura no meio do branco lê como enfeite. */}
         {mostra(1) && (
+          <section className="ei-cartao">
+            <h2 className="ei-etapa-titulo">Quem está contratando</h2>
+            <p className="ei-etapa-apoio">
+              Isso muda o que a gente pergunta a seguir. Dá para trocar depois.
+            </p>
+
+            <div className="ei-lados" style={{ marginTop: 12 }}>
+              <button
+                type="button"
+                className={tipoDono === "pf" ? "ei-lado ei-lado-cheio" : "ei-lado"}
+                aria-pressed={tipoDono === "pf"}
+                onClick={() => {
+                  setTipoDono("pf");
+                  /* Limpa o documento: um CNPJ digitado e depois marcado
+                     como CPF ficaria guardado com 14 dígitos, e a
+                     validação passaria a recusar o cadastro inteiro sem
+                     dizer qual campo está errado. */
+                  setForm((f) => ({ ...f, cnpj: "" }));
+                }}
+              >
+                <span className="ei-lado-nome">Sou pessoa física</span>
+                <span className="ei-lado-nota">
+                  Contrato para a minha casa, uma obra ou um serviço meu.
+                  Diarista, pedreiro, babá, cuidador.
+                </span>
+              </button>
+
+              <button
+                type="button"
+                className={tipoDono === "pj" ? "ei-lado ei-lado-cheio" : "ei-lado"}
+                aria-pressed={tipoDono === "pj"}
+                onClick={() => {
+                  setTipoDono("pj");
+                  setForm((f) => ({ ...f, cnpj: "" }));
+                }}
+              >
+                <span className="ei-lado-nome">Sou empresa</span>
+                <span className="ei-lado-nota">
+                  Contrato pela loja, oficina, restaurante ou escritório.
+                  Tenho CNPJ.
+                </span>
+              </button>
+            </div>
+          </section>
+        )}
+
+        {/* ── 2. A empresa ───────────────────────────────────────────── */}
+        {mostra(2) && (
           <section className="ei-cartao">
             <h2 className="ei-etapa-titulo">A empresa</h2>
             <p className="ei-etapa-apoio">
@@ -318,37 +449,13 @@ export function CadastroEmpresaPage() {
               />
             </div>
 
-            {/* Quem contrata: pessoa ou empresa. A escolha muda o rótulo,
-                a máscara e a validação do campo de baixo — e muda também o
-                que a tela pede no nome ("nome da empresa" não serve para
-                uma família). */}
-            <div className="ei-campo">
-              <label>Você contrata como</label>
-              <div className="segmentado" role="group" aria-label="Pessoa física ou empresa">
-                <button
-                  type="button"
-                  className={tipoDono === "pf" ? "segmentado-opcao ativa" : "segmentado-opcao"}
-                  aria-pressed={tipoDono === "pf"}
-                  onClick={() => {
-                    setTipoDono("pf");
-                    setForm((f) => ({ ...f, cnpj: "" }));
-                  }}
-                >
-                  Pessoa física
-                </button>
-                <button
-                  type="button"
-                  className={tipoDono === "pj" ? "segmentado-opcao ativa" : "segmentado-opcao"}
-                  aria-pressed={tipoDono === "pj"}
-                  onClick={() => {
-                    setTipoDono("pj");
-                    setForm((f) => ({ ...f, cnpj: "" }));
-                  }}
-                >
-                  Empresa (CNPJ)
-                </button>
-              </div>
-            </div>
+            {/* O controle segmentado que ficava aqui saiu: a escolha
+                virou a etapa 1 (item 9). No meio desta etapa ela mudava,
+                por baixo, o rótulo do campo que está LOGO ACIMA dela — e
+                quem preenchia o nome antes de escolher via o rótulo
+                trocar depois de digitar. Editando um cadastro que já
+                existe, ela continua visível na etapa 1, que aí aparece
+                junto com as outras. */}
 
             <div className="ei-campo">
               <label htmlFor="cnpj">
@@ -404,8 +511,8 @@ export function CadastroEmpresaPage() {
           </section>
         )}
 
-        {/* ── 2. Onde fica ───────────────────────────────────────────── */}
-        {mostra(2) && (
+        {/* ── 3. Onde fica ───────────────────────────────────────────── */}
+        {mostra(3) && (
           <section className="ei-cartao">
             <h2 className="ei-etapa-titulo">Onde fica</h2>
             <p className="ei-etapa-apoio">
@@ -463,8 +570,8 @@ export function CadastroEmpresaPage() {
           </section>
         )}
 
-        {/* ── 3. Contato ─────────────────────────────────────────────── */}
-        {mostra(3) && (
+        {/* ── 4. Contato ─────────────────────────────────────────────── */}
+        {mostra(4) && (
           <section className="ei-cartao">
             <h2 className="ei-etapa-titulo">Contato</h2>
             <p className="ei-etapa-apoio">

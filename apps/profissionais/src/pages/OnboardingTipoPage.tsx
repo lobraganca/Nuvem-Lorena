@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../lib/useAuth";
 import { useTituloDaPagina } from "../lib/tituloDaPagina";
-import { registrarTipoDeUsuario, marcarOnboardingCompleto } from "../lib/company";
+import { registrarTipoDeUsuario, marcarOnboardingCompleto, minhasEmpresas } from "../lib/company";
 import { mensagemDeErro } from "../lib/erros";
 import { Pagina } from "../components/ei/Pagina";
 
@@ -35,8 +35,15 @@ export function OnboardingTipoPage() {
     try {
       await registrarTipoDeUsuario(user.id, "professional");
       await marcarOnboardingCompleto(user.id);
-      // Vai para cadastro de profissional
-      navegar("/painel/novo", { replace: true });
+      /* `/painel` e não `/painel/novo`.
+         ──────────────────────────────
+         Quem decide entre os dois é o próprio painel, que já sabe
+         distinguir "não tem cadastro" (abre o formulário) de "a rede caiu"
+         (mostra o erro). Apontar direto para o formulário jogava fora essa
+         distinção — e agora que esta tela aparece a cada login (item 4),
+         mandaria quem JÁ tem cadastro para um formulário em branco toda
+         vez que abrisse o app. */
+      navegar("/painel", { replace: true });
     } catch (err) {
       setErro(mensagemDeErro(err, "Não foi possível continuar."));
       setEnviando(false);
@@ -50,6 +57,34 @@ export function OnboardingTipoPage() {
 
     try {
       await registrarTipoDeUsuario(user.id, "company");
+
+      /* ── QUEM JÁ TEM EMPRESA NÃO VÊ A TELA DE PREÇO DE NOVO ─────────
+         A dona: "ao escolher a empresa, se o cadastro tiver feito, deve
+         aparecer cards com a foto e nome das empresas cadastradas."
+
+         Antes esta tela mandava TODO MUNDO para os planos, o que fazia
+         sentido quando ela só aparecia uma vez, para quem estava criando
+         a conta. Agora ela aparece a cada login (item 4), e quem já paga
+         um plano cairia na vitrine de preços toda vez que abrisse o app.
+
+         Se a leitura falhar, segue pelo caminho dos planos: é o
+         comportamento antigo, e ele não perde nada — no pior caso a
+         empresa vê um preço que já conhece. Derrubar a escolha do lado por
+         causa desta consulta seria trocar um incômodo por um bloqueio. */
+      let temEmpresa = false;
+      try {
+        temEmpresa = (await minhasEmpresas(user.id)).length > 0;
+      } catch {
+        /* ver acima */
+      }
+
+      if (temEmpresa) {
+        /* A tela de escolha decide sozinha o que fazer com uma empresa só
+           (abre direto o painel dela) e com várias (mostra os cartões). */
+        navegar("/minhas-empresas", { replace: true });
+        return;
+      }
+
       /* Os planos ANTES do formulário. A empresa decide o que está
          comprando enquanto ainda tem paciência para ler — depois de
          preencher treze campos, qualquer preço parece cobrança. A tela

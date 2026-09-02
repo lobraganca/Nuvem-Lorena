@@ -51,6 +51,7 @@ const MeuPerfilPage = lazy(importarPagina(() => import("./pages/ei/MeuPerfilPage
 const ProfissionaisPage = lazy(importarPagina(() => import("./pages/ProfissionaisPage").then((m) => ({ default: m.ProfissionaisPage }))));
 const VagasParaMimPage = lazy(importarPagina(() => import("./pages/VagasParaMimPage").then((m) => ({ default: m.VagasParaMimPage }))));
 const BancoDeVagasPage = lazy(importarPagina(() => import("./pages/ei/BancoDeVagasPage").then((m) => ({ default: m.BancoDeVagasPage }))));
+const MinhasEmpresasPage = lazy(importarPagina(() => import("./pages/ei/MinhasEmpresasPage").then((m) => ({ default: m.MinhasEmpresasPage }))));
 const PlanosEmpresaPage = lazy(importarPagina(() => import("./pages/PlanosEmpresaPage").then((m) => ({ default: m.PlanosEmpresaPage }))));
 const DetalheVagaPage = lazy(importarPagina(() => import("./pages/DetalheVagaPage").then((m) => ({ default: m.DetalheVagaPage }))));
 const PerfilPublicoPage = lazy(importarPagina(() => import("./pages/PerfilPublicoPage").then((m) => ({ default: m.PerfilPublicoPage }))));
@@ -153,6 +154,7 @@ const TELAS_DE_APP = [
      WhatsApp, o pedaço mais visível que sobrou do procurô. É o mesmo
      esquecimento que já aconteceu com `/login` e com `/vaga-aberta`. */
   "/vagas",
+  "/minhas-empresas",
   "/meu-perfil",
   "/painel",
   "/painel-empresa",
@@ -295,6 +297,10 @@ export default function App() {
         <Route path="/onboarding-tipo" element={<OnboardingTipoPage />} />
         <Route path="/cadastro-empresa" element={<CadastroEmpresaPage />} />
         <Route path="/painel/editar-empresa" element={<CadastroEmpresaPage />} />
+        {/* A escolha de qual empresa abrir, quando a conta tem mais de
+            uma (itens 3, 4 e 6). Com uma só ela desvia sozinha para o
+            painel — ver MinhasEmpresasPage. */}
+        <Route path="/minhas-empresas" element={<MinhasEmpresasPage />} />
         <Route path="/painel-empresa" element={<PainelEmpresaPage />} />
         <Route path="/criar-vaga" element={<CriarVagaPage />} />
         <Route path="/vaga/:id" element={<DetalheVagaPage />} />

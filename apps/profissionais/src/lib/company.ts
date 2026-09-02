@@ -62,7 +62,169 @@ export async function marcarOnboardingCompleto(userId: string): Promise<void> {
   if (error) throw error;
 }
 
-/** Cria ou atualiza o cadastro de uma empresa. */
+/**
+ * ═══════════════════════════════════════════════════════════════════════
+ * MAIS DE UMA EMPRESA POR CONTA (item 3 das 16, migration 0102)
+ * ═══════════════════════════════════════════════════════════════════════
+ *
+ * A dona: "ter opção de cadastrar mais de uma empresa."
+ *
+ * Em Itabirito é o caso comum: quem tem a padaria e a lanchonete é a mesma
+ * pessoa, com o mesmo telefone. Antes precisaria de dois celulares.
+ *
+ * ── POR QUE O `upsert` SAIU ───────────────────────────────────────────
+ *
+ * A gravação era `upsert(company, { onConflict: "owner_id" })`, e ela
+ * dependia do `unique` que a 0102 tira. Sem o índice, o PostgREST responde
+ * `42P10: there is no unique or exclusion constraint matching the ON
+ * CONFLICT specification` e o cadastro de empresa para de funcionar
+ * INTEIRO — não só o segundo.
+ *
+ * No lugar entram as duas operações separadas, que é o que sempre foram:
+ * `criarEmpresa` (insert) e `atualizarEmpresa` (update por id). Elas
+ * funcionam antes e depois da 0102 — o que a 0102 muda é só se a SEGUNDA
+ * empresa é aceita.
+ *
+ * ── A EMPRESA ESCOLHIDA ───────────────────────────────────────────────
+ *
+ * Com várias, o app precisa saber em qual a pessoa está trabalhando agora.
+ * Isso mora no aparelho (`localStorage`), e não no banco, porque é estado
+ * de NAVEGAÇÃO e não do cadastro: a mesma pessoa pode estar com a padaria
+ * aberta no celular e a lanchonete no computador, e nenhuma das duas está
+ * "errada".
+ */
+
+const EMPRESA_ESCOLHIDA = "ei-empresa-escolhida";
+
+/** Todas as empresas desta conta, da mais antiga para a mais nova. */
+export async function minhasEmpresas(ownerId: string): Promise<Company[]> {
+  const sb = getSupabase();
+  if (!sb) return [];
+
+  const { data, error } = await sb
+    .from("companies")
+    .select("*")
+    .eq("owner_id", ownerId)
+    .order("created_at", { ascending: true });
+
+  /* Erro SOBE. Devolver lista vazia diria "você não tem empresa nenhuma" a
+     quem tem duas — e a tela seguinte manda essa pessoa para o formulário
+     de cadastro, por cima do que já existe. É a mesma regra que o
+     CLAUDE.md registra: função de dados que falha nunca devolve lista
+     vazia. */
+  if (error) throw error;
+  return (data ?? []) as Company[];
+}
+
+/** Qual empresa está aberta agora, ou `null` se ainda não escolheu. */
+export function idDaEmpresaEscolhida(): string | null {
+  try {
+    return localStorage.getItem(EMPRESA_ESCOLHIDA);
+  } catch {
+    return null;
+  }
+}
+
+export function escolherEmpresa(id: string | null) {
+  try {
+    if (id) localStorage.setItem(EMPRESA_ESCOLHIDA, id);
+    else localStorage.removeItem(EMPRESA_ESCOLHIDA);
+  } catch {
+    /* segue sem lembrar: a tela de escolha aparece de novo, e isso é o
+       pior que acontece */
+  }
+}
+
+/**
+ * A empresa em que a pessoa está trabalhando agora.
+ *
+ * A escolha guardada vale só se a empresa ainda existir — quem apagou a
+ * padaria não pode continuar vendo o painel dela. Com uma empresa só, ela
+ * é a escolhida sem ninguém precisar escolher: perguntar "qual das uma?"
+ * é um toque a mais para nada.
+ */
+export async function empresaAtual(ownerId: string): Promise<Company | null> {
+  const lista = await minhasEmpresas(ownerId);
+  if (lista.length === 0) return null;
+  const escolhida = idDaEmpresaEscolhida();
+  return lista.find((e) => e.id === escolhida) ?? lista[0];
+}
+
+/** Cria uma empresa nova. */
+export async function criarEmpresa(
+  company: Omit<
+    Company,
+    | "id"
+    | "created_at"
+    | "phone_verified"
+    | "phone_verified_at"
+    | "plano"
+    | "plano_ate"
+    | "plano_recorrente"
+  >
+): Promise<Company> {
+  const sb = getSupabase();
+  if (!sb) throw new Error("Banco não configurado");
+
+  const { data, error } = await sb.from("companies").insert(company).select().single();
+
+  if (error) {
+    /* `23505` é o `unique` do owner_id, que só existe ANTES da 0102. A
+       mensagem crua do Postgres ("duplicate key value violates unique
+       constraint") não diz nada a quem está cadastrando a segunda loja. */
+    if ((error as { code?: string }).code === "23505") {
+      throw new Error(
+        "Ainda não dá para ter duas empresas nesta conta. Falta aplicar uma atualização no banco."
+      );
+    }
+    throw error;
+  }
+  if (!data) throw new Error("Falha ao criar a empresa");
+  return data as Company;
+}
+
+/** Atualiza uma empresa que já existe, pelo id dela. */
+export async function atualizarEmpresa(
+  id: string,
+  company: Partial<Company>
+): Promise<Company> {
+  const sb = getSupabase();
+  if (!sb) throw new Error("Banco não configurado");
+
+  /* `update` e não `upsert`.
+     ────────────────────────
+     O CLAUDE.md registra por quê: o upsert do PostgREST é
+     `insert ... on conflict`, então quem manda passa pela policy de
+     INSERT mesmo editando linha que já existe — foi o que impedia a
+     administração de salvar cadastro de outra pessoa. */
+  const { data, error } = await sb
+    .from("companies")
+    .update(company)
+    .eq("id", id)
+    .select()
+    .single();
+
+  if (error) throw error;
+  if (!data) throw new Error("Falha ao salvar a empresa");
+  return data as Company;
+}
+
+/** Apaga uma empresa. As vagas dela caem junto (cascade da 0067). */
+export async function apagarEmpresa(id: string): Promise<void> {
+  const sb = getSupabase();
+  if (!sb) throw new Error("Banco não configurado");
+  const { error } = await sb.from("companies").delete().eq("id", id);
+  if (error) throw error;
+  if (idDaEmpresaEscolhida() === id) escolherEmpresa(null);
+}
+
+/**
+ * Cria ou atualiza o cadastro de uma empresa.
+ *
+ * @deprecated Use `criarEmpresa` ou `atualizarEmpresa`. Esta função depende
+ * do `unique` em `owner_id` que a 0102 tira, e para de funcionar com ela
+ * aplicada (42P10). Fica aqui só enquanto houver chamada antiga.
+ */
 export async function upsertCompany(
   /* Sem o selo do telefone na assinatura: quem o grava é a função do banco,
      e mandá-lo daqui seria recusado pelo gatilho da 0071 — que é o

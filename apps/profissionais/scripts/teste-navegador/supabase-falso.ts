@@ -325,6 +325,30 @@ const TABELAS: Record<string, Linha[]> = {
       plano_recorrente: true,
       created_at: emDias(-60),
     },
+    /* Uma SEGUNDA empresa, para a tela de escolha (item 4) ter o que
+       escolher. Com uma só ela desvia sozinha para o painel, e o teste
+       nunca exercitaria os cartões nem o botao "trocar". */
+    {
+      id: "empresa-2",
+      owner_id: DONO_FALSO,
+      company_name: "Lanchonete da Praça",
+      cnpj: "",
+      city: "Itabirito",
+      uf: "MG",
+      neighborhood: "Praça da Estação",
+      address: "",
+      phone: "31988224938",
+      phone_verified: true,
+      email: "",
+      website: "",
+      responsible_name: "Lorena",
+      description: "Lanches e salgados.",
+      photo_url: fotoFalsa(3),
+      plano: null,
+      plano_ate: null,
+      plano_recorrente: false,
+      created_at: emDias(-10),
+    },
   ],
 
   job_listings: VAGAS,
