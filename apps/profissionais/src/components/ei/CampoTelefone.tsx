@@ -38,11 +38,21 @@ import { mensagemDeErro } from "../../lib/erros";
  * SMS para quem acabou de receber um seria cobrar duas vezes pela mesma
  * prova.
  *
- * ── Trocar o número derruba a confirmação ─────────────────────────────
+ * ── O NÚMERO CONFIRMADO NÃO SE TROCA POR AQUI — 02/09 ─────────────────
  *
- * E é o certo: o banco faz o mesmo (migration 0052). Confirmar um número
- * e divulgar outro é exatamente o buraco que a confirmação existe para
- * fechar.
+ * A dona: "no cadastro do profissional não pode dar opção de trocar de
+ * número que foi confirmado. Tem que dar opção de adicionar outros."
+ *
+ * Havia um "Trocar o número" que destravava o campo. Ele fazia uma coisa
+ * pior do que parece: trocar derruba a confirmação (aqui e no banco, pela
+ * 0052), e cadastro sem número confirmado SAI da lista pública e para de
+ * receber vaga. Quem tocasse ali para acrescentar o telefone de casa
+ * apagaria o próprio cadastro da busca sem entender o que fez — e o único
+ * sinal seria o selo laranja.
+ *
+ * Quem tem um segundo número acrescenta em "Outro telefone", logo abaixo.
+ * Quem MUDOU de número de verdade muda a conta pela entrada por SMS, que é
+ * onde a troca é provada — e não num campo de formulário.
  */
 export function CampoTelefone({
   valor,
@@ -60,20 +70,6 @@ export function CampoTelefone({
   aoPrecisarSalvar: () => Promise<string>;
 }) {
   const [passo, setPasso] = useState<"digitando" | "codigo">("digitando");
-  /* ── O NÚMERO CONFIRMADO NÃO SE APAGA SEM QUERER ────────────────────
-     A dona, com o cadastro aberto: "ao confirmar o telefone ele não pode
-     sair do cadastro."
-
-     Estava certo o incômodo. O campo continuava aberto depois de
-     confirmado, e qualquer toque nele — um dedo na tela ao rolar, um
-     backspace — apagava dígitos, o que derruba a confirmação na hora
-     (aqui e no banco, pela 0052). A pessoa saía do cadastro com o selo
-     laranja de novo, sem entender o que fez, e o cadastro dela deixava de
-     aparecer para as empresas.
-
-     Agora o número confirmado fica travado, e trocar exige um toque
-     deliberado num botão que diz o que vai acontecer. */
-  const [destravado, setDestravado] = useState(false);
   const [codigo, setCodigo] = useState("");
   const [ocupado, setOcupado] = useState(false);
   const [erro, setErro] = useState("");
@@ -144,7 +140,11 @@ export function CampoTelefone({
         inputMode="tel"
         value={valor}
         placeholder="(31) 99999-8888"
-        readOnly={confirmado && !destravado}
+        /* Confirmado é confirmado: o campo não abre mais. Antes bastava
+           um dedo na tela ao rolar, ou um backspace, para apagar um
+           dígito — e isso derruba a confirmação na hora, tirando o
+           cadastro da lista pública sem nenhum aviso. */
+        readOnly={confirmado}
         onChange={(e) => {
           onChange(e.target.value);
           /* Mexeu no número, some o pedido de código que estava no ar: ele
@@ -156,23 +156,11 @@ export function CampoTelefone({
       />
 
       {confirmado ? (
-        <>
-          <span className="ei-campo-ajuda">
-            É por aqui que a empresa vai te chamar.{" "}
-            {destravado
-              ? "Ao salvar um número diferente, ele volta a pedir confirmação."
-              : "Ele está travado para não sumir sem querer."}
-          </span>
-          {!destravado && (
-            <button
-              type="button"
-              className="ei-btn-inline"
-              onClick={() => setDestravado(true)}
-            >
-              Trocar o número
-            </button>
-          )}
-        </>
+        <span className="ei-campo-ajuda">
+          É por aqui que a empresa vai te chamar. Este número está confirmado e não
+          muda mais aqui — se você tiver outro, acrescente em “Outro telefone”,
+          logo abaixo.
+        </span>
       ) : passo === "digitando" ? (
         <>
           <span className="ei-campo-ajuda">
