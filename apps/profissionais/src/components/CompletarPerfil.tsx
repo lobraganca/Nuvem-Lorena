@@ -261,7 +261,7 @@ export function CompletarPerfil({ children }: { children: React.ReactNode }) {
               </span>
             )}
             <span className="ei-btn-inline">
-              {enviandoFoto ? "Enviando…" : foto ? "Trocar foto" : "Pôr foto (opcional)"}
+              {enviandoFoto ? "Enviando…" : foto ? "Trocar foto" : "Incluir foto"}
             </span>
             <input
               type="file"

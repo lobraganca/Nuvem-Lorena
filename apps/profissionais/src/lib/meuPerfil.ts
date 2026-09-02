@@ -22,6 +22,15 @@ export type MeuPerfil = {
   name: string;
   phone: string;
   email: string;
+  /* A foto pública, na coluna que a lista de profissionais já lê
+     (`photo_url`). Faltava aqui — a única tela que enviava foto era a
+     `CompletarPerfil`, que grava em `profiles.avatar_url`. Coluna
+     diferente, tabela diferente: a foto enviada por ali NUNCA aparecia na
+     lista de talentos, porque `ProfissionaisPage` lê `professionals.photo_url`,
+     não `profiles.avatar_url`. A dona: "o cadastro deve ser único, onde o
+     profissional cadastra tudo de uma vez" — a foto tinha que estar AQUI,
+     na coluna que a busca de verdade consulta. */
+  photoUrl: string | null;
   neighborhood: string;
   /** As funções que a pessoa aceita ser chamada para fazer. Até 8. */
   funcoes: string[];
@@ -112,6 +121,7 @@ export const PERFIL_VAZIO: MeuPerfil = {
   name: "",
   phone: "",
   email: "",
+  photoUrl: null,
   neighborhood: "",
   funcoes: [],
   disponivel: true,
@@ -145,7 +155,7 @@ export async function lerMeuPerfil(ownerId: string): Promise<MeuPerfil | null> {
   const { data, error } = await sb
     .from("professionals")
     .select(
-      "id, name, phone, email, neighborhood, areas_de_interesse, disponivel, paused, whatsapp_verified, " +
+      "id, name, phone, email, photo_url, neighborhood, areas_de_interesse, disponivel, paused, whatsapp_verified, " +
       "pretensao_centavos, pretensao_combinar, pretensao_periodo, disponibilidade, aceita_viajar, " +
       /* As sete da 0103. A lista é escrita à mão, uma a uma: coluna nova
          que ninguém acrescente aqui chega como indefinida, sem erro
@@ -168,6 +178,7 @@ export async function lerMeuPerfil(ownerId: string): Promise<MeuPerfil | null> {
     name: linha.name ?? "",
     phone: linha.phone ?? "",
     email: linha.email ?? "",
+    photoUrl: linha.photo_url ?? null,
     neighborhood: linha.neighborhood ?? "",
     funcoes: linha.areas_de_interesse ?? [],
     /* `?? true` porque a coluna nasceu com `default true` na 0075: um
@@ -235,6 +246,11 @@ export async function salvarMeuPerfil(
     phone: telefone,
     whatsapp: telefone,
     email: perfil.email.trim() || null,
+    /* Vem do próprio estado, que já chegou carregado com a foto que
+       existia (`lerMeuPerfil` lê `photo_url`) — mexer noutro campo e
+       salvar não apaga a foto, porque `perfil.photoUrl` continua com o
+       valor que veio do banco até alguém trocar. */
+    photo_url: perfil.photoUrl,
     neighborhood: perfil.neighborhood.trim() || null,
     areas_de_interesse: perfil.funcoes,
     categories: perfil.funcoes,

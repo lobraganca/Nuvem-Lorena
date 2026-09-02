@@ -7,7 +7,8 @@ import { formatPhone, doFormatoDoBanco } from "../../lib/phone";
 import { Switch } from "../../components/ei/Switch";
 import { CampoTelefone } from "../../components/ei/CampoTelefone";
 import { Pagina, Callout } from "../../components/ei/Pagina";
-import { Etapas } from "../../components/ei/Etapas";
+import { AjustarFoto } from "../../components/ei/AjustarFoto";
+import { uploadProfessionalPhoto } from "../../lib/storage";
 import { CATEGORIES, MAX_FUNCOES, DISPONIBILIDADE, PERIODOS_DE_SALARIO } from "../../types/domain";
 import { sendSuggestion } from "../../lib/suggestions";
 import {
@@ -89,45 +90,27 @@ export function MeuPerfilPage() {
      jogo é a chance de ser chamada para trabalhar. */
   const [salvo, setSalvo] = useState(false);
 
-  /* ── O CADASTRO EM ETAPAS ─────────────────────────────────────────────
-     A dona: "o cadastro do usuário, pode ser por etapa, acho que fica mais
-     fácil de visualização."
+  /* ── O CADASTRO ÚNICO ─────────────────────────────────────────────────
+     Isto já foi um cadastro em três passos ("Você e o que faz" / "Sua
+     experiência" / "Quando receber vaga"), pedido para quem estava
+     preenchendo pela primeira vez. A dona voltou atrás: "o cadastro deve
+     ser único, onde o profissional cadastra tudo de uma vez."
 
-     Esta tela tem 3.900px de altura: cinco seções, cinquenta campos e um
-     Salvar lá no fim. Para quem já tem cadastro e veio trocar o bairro,
-     isso é o certo — a pessoa rola até o campo e mexe. Para quem está
-     preenchendo pela PRIMEIRA vez, é uma parede: não dá para ver quanto
-     falta, não há onde parar, e a única confirmação de que valeu a pena
-     está a quatro telas de distância.
-
-     Então: quem ainda NÃO tem cadastro vê uma seção por vez, com a barra
-     de passos em cima. Quem já tem continua vendo a tela inteira. É a
-     mesma tela, e o que muda é só quanto dela aparece de cada vez.
-
-     E isto finalmente cumpre o "Passo 1 de 4" que a tela de entrar na
-     conta promete desde sempre: lá é o passo 1, aqui são o 2, o 3 e o 4.
-     Até agora os passos 2 a 4 não existiam — a promessa quebrava na
-     primeira tela depois dela. */
-  const [etapa, setEtapa] = useState(1);
+     E fazia sentido voltar: a passagem por `CompletarPerfil` (a tela
+     "Falta pouco", que pede nome/e-mail/telefone/foto logo depois de
+     entrar) já era um primeiro cadastro pela metade — e o de três passos
+     era um SEGUNDO, pedindo nome, telefone e e-mail de novo no primeiro
+     passo. Duas telas, duas vezes as mesmas perguntas, e só depois de
+     tudo isso é que a pessoa chegava às funções e vagas. Uma tela só, com
+     tudo dentro, é mais curta que a soma das duas. */
   /** O número do cadastro é o mesmo que a conta já confirmou por SMS. */
   const [foneDaConta, setFoneDaConta] = useState(false);
-
-  /* Cadastro novo é o que ainda não tem linha no banco. Depois do primeiro
-     Salvar a tela vira a de edição sozinha, que é o que a pessoa espera:
-     ela terminou o cadastro, agora está mexendo nele. */
-  const emEtapas = !perfil.id;
-
-  /* O nome do passo tem que casar com o que está NA TELA. "O que você
-     faz" anunciava um passo que abre em "Seus dados" — pequeno, mas é o
-     tipo de desencontro que faz a pessoa achar que pulou alguma coisa. */
-  const ETAPAS = [
-    "Você e o que faz",
-    "Sua experiência",
-    "Quando receber vaga",
-  ];
-
-  /** Esta seção aparece agora? Fora do modo de etapas, todas aparecem. */
-  const mostra = (n: number) => !emEtapas || etapa === n;
+  /* A foto — que faltava aqui. Só existia na `CompletarPerfil`, gravando
+     numa coluna (`profiles.avatar_url`) que a lista de talentos nem lê:
+     `ProfissionaisPage` mostra `professionals.photo_url`. A foto enviada
+     por ali nunca aparecia para ninguém. */
+  const [enviandoFoto, setEnviandoFoto] = useState(false);
+  const [aEnquadrar, setAEnquadrar] = useState<File | null>(null);
 
   const { disponivel, oculto, funcoes } = perfil;
   /* Os quatro campos da 0101 seguem o mesmo padrão dos de cima: leitura
@@ -388,7 +371,7 @@ export function MeuPerfilPage() {
         {/* O MESMO nome da porta e da barra de baixo: "Meu perfil" aqui,
             "Meu cadastro" na porta e "Painel" na barra eram três nomes
             para uma tela só. */}
-        <Pagina titulo={emEtapas ? "Seu cadastro" : "Meu cadastro"} />
+        <Pagina titulo="Meu cadastro" />
 
         {/* Quem chegou aqui barrado numa candidatura precisa entender POR
             QUE está nesta tela — senão ela parece um desvio aleatório, e a
@@ -401,26 +384,68 @@ export function MeuPerfilPage() {
           </Callout>
         )}
         <p className="ei-apoio ei-margem" style={{ paddingBottom: 6 }}>
-          {emEtapas
-            ? "Três passos. Dá para mudar tudo depois."
-            : "É por ele que as vagas chegam até você."}
+          É por ele que as vagas chegam até você.
         </p>
 
-        {/* A trilha em cartões, a mesma do cadastro da empresa. Era uma
-            barrinha de 4px preenchida pela metade: ela informava o
-            progresso e não dizia o NOME do que vinha. A dona pediu os dois
-            cadastros iguais, "em cards por etapas". */}
-        {emEtapas && <Etapas passos={ETAPAS} atual={etapa} />}
-
         {/* ── 0. Quem é você ───────────────────────────────────────────
-            Nome, telefone e e-mail, que a dona pediu por escrito e não
-            existiam nesta tela. O nome é o que a empresa lê primeiro; o
-            telefone é como ela chama. Sem os dois, o cadastro não serve
-            para nada — por isso vêm antes de tudo. */}
-        {mostra(1) && (
-        <>
+            Nome, foto, telefone e e-mail, que a dona pediu por escrito e
+            não existiam nesta tela. O nome é o que a empresa lê primeiro; o
+            telefone é como ela chama. Sem eles, o cadastro não serve para
+            nada — por isso vêm antes de tudo. */}
         <h2 className="ei-secao">Seus dados</h2>
         <div className="ei-cartao" style={{ display: "grid", gap: 12 }}>
+          {/* A foto — mesma mecânica da `CompletarPerfil` (enquadrar antes
+              de subir, para não cortar a testa de quem manda foto em pé),
+              mas gravando na coluna que a lista de talentos realmente lê. */}
+          {aEnquadrar && (
+            <AjustarFoto
+              arquivo={aEnquadrar}
+              redondo
+              aoConfirmar={async (recortada) => {
+                if (!user) return;
+                setAEnquadrar(null);
+                setEnviandoFoto(true);
+                setErro("");
+                try {
+                  const url = await uploadProfessionalPhoto(user.id, recortada);
+                  setPerfil((x) => ({ ...x, photoUrl: url }));
+                } catch (err) {
+                  setErro(mensagemDeErro(err, "Não foi possível enviar a foto."));
+                } finally {
+                  setEnviandoFoto(false);
+                }
+              }}
+              aoCancelar={() => setAEnquadrar(null)}
+            />
+          )}
+          <label className="ei-foto-escolha" title="Escolher foto">
+            {perfil.photoUrl ? (
+              <img src={perfil.photoUrl} alt="" className="ei-foto-escolha-img" />
+            ) : (
+              <span className="ei-foto-escolha-vazia" aria-hidden="true">
+                {perfil.name.trim().charAt(0).toLocaleUpperCase("pt-BR") || "+"}
+              </span>
+            )}
+            {/* "Pôr foto (opcional)" virou "Incluir foto" — a dona pediu a
+                troca, e o texto novo já não carrega o "opcional" embutido:
+                a foto continua sem ser exigida (o botão de Salvar não olha
+                para ela), só deixou de anunciar isso na própria etiqueta. */}
+            <span className="ei-btn-inline">
+              {enviandoFoto ? "Enviando…" : perfil.photoUrl ? "Trocar foto" : "Incluir foto"}
+            </span>
+            <input
+              type="file"
+              accept="image/*"
+              disabled={enviandoFoto}
+              style={{ display: "none" }}
+              onChange={(e) => {
+                const arquivo = e.target.files?.[0];
+                e.target.value = "";
+                if (!arquivo || !user) return;
+                setAEnquadrar(arquivo);
+              }}
+            />
+          </label>
           <div className="ei-campo">
             <label htmlFor="meu-nome">Nome</label>
             <input
@@ -604,16 +629,12 @@ export function MeuPerfilPage() {
             entre "Seus dados" e "O que você aceita fazer", sem dizer do que
             tratavam. Num app em que toda seção se anuncia, a que não se
             anuncia parece sobra da seção anterior. */}
-        </>
-        )}
 
-        {mostra(3) && (
-        <>
         {/* ── O QUE VOCÊ QUER (0101) ──────────────────────────────────
             A dona: "o cadastro do candidato está muito simples. tem que
             ter pretensão salarial, horário melhor, se aceita viajar."
 
-            Os três ficam nesta etapa, junto de "quando receber vaga",
+            Os três ficam juntos, ao lado de "quando receber vaga",
             porque respondem à mesma pergunta: em que condições esta
             pessoa topa. Todos opcionais — quem não quiser dizer o quanto
             ganha segue sem dizer, e continua recebendo vaga. */}
@@ -820,12 +841,7 @@ export function MeuPerfilPage() {
           </p>
         </div>
 
-        </>
-        )}
-
         {/* ── 2. Funções ───────────────────────────────────────────────── */}
-        {mostra(1) && (
-        <>
         <h2 className="ei-secao">O que você aceita fazer</h2>
         <div className="ei-cartao">
           <p className="ei-apoio" style={{ marginBottom: 12 }}>
@@ -935,12 +951,7 @@ export function MeuPerfilPage() {
           )}
         </div>
 
-        </>
-        )}
-
         {/* ── 3. Experiências ──────────────────────────────────────────── */}
-        {mostra(2) && (
-        <>
         <h2 className="ei-secao">Onde você já trabalhou</h2>
         <div className="ei-cartao">
           {experiencias.length === 0 && (
@@ -1222,9 +1233,6 @@ export function MeuPerfilPage() {
           </button>
         </div>
 
-        </>
-        )}
-
         {/* O aviso de que deu certo, e o de que não deu.
             ───────────────────────────────────────────────
             O botão não tinha ação nenhuma; agora tem, e avisa nos dois
@@ -1251,66 +1259,19 @@ export function MeuPerfilPage() {
 
         {/* O pé da tela.
             ─────────────
-            Em etapas ele é "Voltar / Continuar", e só o ÚLTIMO passo
-            salva. Salvar no meio do caminho gravaria um cadastro pela
-            metade — e, pior, o aviso de "perfil salvo" apareceria antes de
-            a pessoa ter dito o que faz.
-
-            O passo da experiência tem "Pular": ele é opcional por
-            definição, e um passo obrigatório que não tem resposta é onde
-            se perde quem está começando agora. */}
+            Era "Voltar / Continuar", com "Terminar cadastro" só no
+            último dos três passos — cadastro em etapas, cada um com o seu
+            botão. Sem etapas, sobra o que sempre valeu para quem já tinha
+            cadastro: um botão só, sempre visível. */}
         <div className="ei-margem ei-pe-etapas">
-          {emEtapas ? (
-            <>
-              {etapa < 3 ? (
-                <button
-                  type="button"
-                  className="ei-btn ei-btn-cheio ei-btn-largo ei-btn-alto"
-                  onClick={() => setEtapa((n) => n + 1)}
-                >
-                  Continuar
-                </button>
-              ) : (
-                <button
-                  type="button"
-                  className="ei-btn ei-btn-cheio ei-btn-largo ei-btn-alto"
-                  disabled={salvando}
-                  onClick={salvar}
-                >
-                  {salvando ? "Salvando…" : "Terminar cadastro"}
-                </button>
-              )}
-
-              {etapa === 2 && (
-                <button
-                  type="button"
-                  className="ei-btn ei-btn-texto ei-btn-largo"
-                  onClick={() => setEtapa(3)}
-                >
-                  Pular por enquanto
-                </button>
-              )}
-
-              {etapa > 1 && (
-                <button
-                  type="button"
-                  className="ei-btn ei-btn-texto ei-btn-largo"
-                  onClick={() => setEtapa((n) => n - 1)}
-                >
-                  Voltar
-                </button>
-              )}
-            </>
-          ) : (
-            <button
-              type="button"
-              className="ei-btn ei-btn-cheio ei-btn-largo ei-btn-alto"
-              disabled={salvando}
-              onClick={salvar}
-            >
-              {salvando ? "Salvando…" : "Salvar"}
-            </button>
-          )}
+          <button
+            type="button"
+            className="ei-btn ei-btn-cheio ei-btn-largo ei-btn-alto"
+            disabled={salvando}
+            onClick={salvar}
+          >
+            {salvando ? "Salvando…" : "Salvar"}
+          </button>
         </div>
       </div>
     </div>
