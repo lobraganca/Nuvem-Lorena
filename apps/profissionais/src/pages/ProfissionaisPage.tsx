@@ -292,7 +292,10 @@ export function ProfissionaisPage() {
   return (
     <div className="ei">
       <div className="ei-tela">
-        <Pagina titulo="Profissionais" />
+        {/* O mesmo nome da porta e da barra de baixo: a barra dizia
+            "Talentos", a porta "Banco de talentos" e o título
+            "Profissionais". Três nomes para uma tela só. */}
+        <Pagina titulo="Banco de talentos" />
 
         {/* A busca em cápsula, com a lupa dentro. */}
         <div className="ei-busca" style={{ marginTop: 14 }}>
@@ -444,7 +447,12 @@ export function ProfissionaisPage() {
                     {/* Na linha inteira cabem duas funções sem cortar — no
                         cartão de 163px não cabia nem uma. */}
                     <div className="ei-pessoa-nome ei-uma-linha">{p.name}</div>
-                    <div className="ei-pessoa-oficio ei-uma-linha">
+                    {/* Duas linhas, e não uma: o ofício é o ÚNICO campo
+                        que a empresa lê para decidir se abre a ficha, e
+                        cortá-lo em "Técnico em celular…" esconde
+                        justamente a parte que diferencia uma pessoa da
+                        outra. */}
+                    <div className="ei-pessoa-oficio ei-duas-linhas">
                       {funcoes.slice(0, 2).join(" · ") || p.especialidade || "Sem função"}
                       {funcoes.length > 2 && ` +${funcoes.length - 2}`}
                     </div>

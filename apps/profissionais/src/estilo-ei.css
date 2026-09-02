@@ -3227,3 +3227,12 @@
   cursor: pointer;
 }
 .ei .ei-btn-laranja:hover:not(:disabled) { filter: brightness(0.96); }
+
+/* Duas linhas e reticências na terceira. Usado no ofício da lista de
+   pessoas: uma linha só cortava o que distingue um cadastro do outro. */
+.ei-duas-linhas {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
