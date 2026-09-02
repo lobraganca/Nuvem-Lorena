@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Link, useParams, useNavigate } from "react-router-dom";
+import { Link, useParams, useNavigate, useSearchParams } from "react-router-dom";
 import { useAuth } from "../lib/useAuth";
 import {
   obterVaga,
@@ -14,7 +14,7 @@ import {
   type RespostaComPessoa,
 } from "../lib/company";
 import { mensagemDeErro } from "../lib/erros";
-import { Pagina, Prop } from "../components/ei/Pagina";
+import { Pagina, Prop, Callout } from "../components/ei/Pagina";
 import {
   ONDAS,
   ONDAS_POR_VAGA,
@@ -28,6 +28,11 @@ import {
  */
 export function DetalheVagaPage() {
   const { id: vagaId } = useParams<{ id: string }>();
+  /* Vem da tela de criar quando a vaga foi gravada mas alguma etapa
+     seguinte falhou (o aviso às pessoas, o anúncio). Ver o `catch` de
+     `confirmarEAbrirPrimeiraOnda`. */
+  const [busca] = useSearchParams();
+  const chegouPelaMetade = busca.get("parcial") === "1";
   const navegar = useNavigate();
   const { user } = useAuth();
 
@@ -218,6 +223,16 @@ export function DetalheVagaPage() {
             o trabalho dos dois botões, e faz melhor: diz onde a pessoa
             está, não só que dá para sair. */}
         <Pagina titulo={vaga.title} voltar="/painel-empresa">
+          {/* A vaga existe — o que faltou tem botão próprio nesta tela.
+              Antes a empresa lia "não foi possível criar a vaga" e a vaga
+              estava criada. */}
+          {chegouPelaMetade && (
+            <Callout atencao>
+              <strong>A vaga foi publicada.</strong> Só o aviso para os
+              profissionais não chegou a sair — dá para disparar aqui embaixo,
+              em "Avisar mais gente".
+            </Callout>
+          )}
           <div className="ei-props">
             {/* O estado vem primeiro, e só quando NÃO é o normal. Uma vaga
                 no ar não precisa dizer que está no ar; uma pausada precisa,

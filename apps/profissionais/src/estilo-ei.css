@@ -3613,3 +3613,46 @@
   line-height: 1.45;
 }
 .ei .ei-rascunho > span { flex: 1 1 200px; min-width: 0; }
+
+/* ═══════════════════════════════════════════════════════════════════════
+   OS CAMPOS DE DATA NO IPHONE — 02/09
+   ═══════════════════════════════════════════════════════════════════════
+   A dona: "campos de datas está desalinhado e quebrado."
+
+   No Chrome eles alinham; no Safari do iPhone, não — e é lá que ela usa.
+   O Safari desenha `input[type=date]` como um controle próprio: ele NÃO
+   ocupa a largura que a gente dá (encolhe até o tamanho do texto), o valor
+   fica centrado na vertical de um jeito diferente do resto dos campos, e o
+   ícone de calendário some para um canto imprevisível. Uma linha com um
+   campo de texto de largura cheia e um de data encolhido é exatamente a
+   aparência de tela quebrada.
+
+   As três regras abaixo desligam o desenho nativo (`appearance: none`),
+   forçam a largura e trazem o valor e o ícone para as mesmas posições dos
+   outros campos. Os seletores `::-webkit-*` são justamente os do Safari e
+   do Chrome; navegador que não os conhece ignora a linha, sem efeito. */
+.ei input[type="date"] {
+  -webkit-appearance: none;
+  appearance: none;
+  display: block;
+  width: 100%;
+  /* `min-height` e não `height`: com altura fixa o Safari corta o valor
+     quando a letra do sistema está aumentada — e quem aumenta a letra é
+     quem mais precisa dela. */
+  min-height: 48px;
+  text-align: left;
+  background-color: var(--ei-papel);
+}
+
+/* O valor ("14/09/2026") dentro do controle nativo. Sem isto ele vem
+   centrado no Safari, enquanto todos os outros campos alinham à esquerda. */
+.ei input[type="date"]::-webkit-date-and-time-value {
+  text-align: left;
+  margin: 0;
+}
+
+/* O calendário vai para a direita, sempre — é onde a mão procura. */
+.ei input[type="date"]::-webkit-calendar-picker-indicator {
+  margin-left: auto;
+  opacity: 0.6;
+}

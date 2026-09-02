@@ -347,8 +347,20 @@ export function CriarVagaPage() {
     setSalvando(true);
     setErro("");
 
+    /* Guardado fora do `try` para o `catch` saber se a vaga chegou a
+       existir: é a diferença entre "não deu" e "deu, mas faltou o resto". */
+    let vagaCriada: string | null = null;
+
     try {
-      const vaga = await criarVaga({ ...form, status: "active" });
+      const vaga = await criarVaga({
+        ...form,
+        /* O campo pode estar vazio (0) se a pessoa tocou em publicar sem
+           sair dele. O banco recusaria com um `check`, e a recusa chegaria
+           como texto técnico depois de a vaga inteira escrita. */
+        quantidade_vagas: form.quantidade_vagas < 1 ? 1 : form.quantidade_vagas,
+        status: "active",
+      });
+      vagaCriada = vaga.id;
 
       /* A vaga saiu: o rascunho cumpriu o papel e vai embora. Sem isto ele
          reapareceria dentro da PRÓXIMA vaga, já preenchido com a anterior —
@@ -376,6 +388,25 @@ export function CriarVagaPage() {
 
       navegar(`/vaga/${vaga.id}`, { replace: true });
     } catch (err) {
+      /* ── "DIZ QUE NÃO SALVOU, MAS SALVOU" — 02/09 ─────────────────────
+         A dona: "ao salvar a vaga fala que não é possível salvar. Mas
+         depois salvou."
+
+         Era isto: o `try` fazia TRÊS coisas — criar a vaga, abrir a onda 1
+         e (às vezes) anunciar. A vaga é a primeira. Se qualquer uma das
+         seguintes falhasse, o `catch` dizia "não foi possível criar a
+         vaga" — e a vaga já estava criada. A empresa lia o erro, achava
+         que tinha perdido tudo, e encontrava a vaga publicada depois.
+
+         Agora o erro sabe onde parou. Com a vaga já criada, a tela LEVA
+         para ela e conta o que faltou: a vaga existe, e o que falhou (o
+         aviso às pessoas, o anúncio) tem botão próprio lá dentro. Voltar
+         para o formulário seria pior — a empresa preencheria tudo de novo
+         e publicaria a segunda cópia da mesma vaga. */
+      if (vagaCriada) {
+        navegar(`/vaga/${vagaCriada}?parcial=1`, { replace: true });
+        return;
+      }
       setErro(mensagemDeErro(err, "Não foi possível criar a vaga."));
       setSalvando(false);
     }
@@ -791,20 +822,44 @@ export function CriarVagaPage() {
                   conserto de posição de dicas feito por busca e troca. */}
           <div className="ei-campo">
             <label htmlFor="quantidade_vagas">Quantas vagas</label>
+            {/* ── NÃO DAVA PARA TROCAR O NÚMERO — 02/09 ──────────────────
+                A dona: "não dá pra alterar a quantidade de vagas."
+
+                E não dava mesmo. O campo forçava o valor para 1 a CADA
+                tecla: apagar o "1" para escrever "2" fazia o `Number("")`
+                virar 0, o `|| 1` devolver 1, e o campo se reescrever com 1
+                antes de a segunda tecla chegar. Só quem digitasse por cima
+                do dígito selecionado conseguia — o que no celular
+                praticamente ninguém faz.
+
+                Agora o campo aceita ficar VAZIO enquanto se digita, e o
+                mínimo é cobrado ao SAIR do campo (`onBlur`). O banco
+                continua sendo a garantia final: ele tem um `check` de 1 a
+                999, e um campo vazio no envio vira 1. */}
             <input
               id="quantidade_vagas"
               type="number"
               inputMode="numeric"
               min={1}
               max={999}
-              value={form.quantidade_vagas}
-              onChange={(e) =>
+              value={form.quantidade_vagas === 0 ? "" : form.quantidade_vagas}
+              onChange={(e) => {
+                const cru = e.target.value;
+                /* 0 é o "vazio" interno: `quantidade_vagas` é `number` no
+                   tipo da vaga, e usar `null` aqui obrigaria a mexer no
+                   tipo inteiro só para um estado que dura dois segundos. */
+                if (cru === "") {
+                  setForm((f) => ({ ...f, quantidade_vagas: 0 }));
+                  return;
+                }
+                const n = Number(cru);
+                if (!Number.isFinite(n)) return;
+                setForm((f) => ({ ...f, quantidade_vagas: Math.min(999, Math.max(0, Math.floor(n))) }));
+              }}
+              onBlur={() =>
                 setForm((f) => ({
                   ...f,
-                  /* Nunca abaixo de 1: o banco recusa com um `check`, e a
-                     recusa chegaria como texto técnico na hora de publicar,
-                     depois de quatro telas preenchidas. */
-                  quantidade_vagas: Math.max(1, Math.min(999, Number(e.target.value) || 1)),
+                  quantidade_vagas: f.quantidade_vagas < 1 ? 1 : f.quantidade_vagas,
                 }))
               }
             />
