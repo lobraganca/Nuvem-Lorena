@@ -323,7 +323,25 @@ export function PainelEmpresaPage() {
                   {[empresa.neighborhood, empresa.city].filter(Boolean).join(" · ")}
                 </span>
               </span>
-              <Link to="/minhas-empresas" className="ei-btn-inline">Trocar</Link>
+              {/* Os dois botões da empresa ficam juntos, na linha dela —
+                  02/09
+                  ────────────────────────────────────────────────────────
+                  A dona: "na tela de minhas vagas, do lado do botão de
+                  trocar, coloque o de editar empresa e tire o botão de
+                  profissionais."
+
+                  Faz sentido: os dois falam da MESMA empresa que está
+                  escrita ao lado — trocar por outra, ou mexer nesta. Numa
+                  grade de atalhos lá embaixo, "Editar empresa" ficava sem
+                  dizer qual empresa, a três blocos de distância do nome.
+
+                  "Profissionais" saiu: o banco de talentos é da cidade,
+                  não desta empresa, e ele está na tela inicial e na barra
+                  de baixo — que é onde ele estava sendo procurado. */}
+              <span className="ei-painel-topo-botoes">
+                <Link to="/painel/editar-empresa" className="ei-btn-inline">Editar</Link>
+                <Link to="/minhas-empresas" className="ei-btn-inline">Trocar</Link>
+              </span>
             </div>
 
             {/* Os dois números saíram daqui.
@@ -432,33 +450,6 @@ export function PainelEmpresaPage() {
             Agora a ação principal mora no cabeçalho e aqui ficam só os
             caminhos que ela não cobre. "Planos" some quando o cabeçalho já
             está oferecendo aumentar o plano. */}
-        {/* "Planos" saiu daqui — 02/09
-            ────────────────────────────
-            A dona: "a parte de planos continua na tela de vagas."
-
-            Continuava: um atalho "Planos" nesta grade. O plano agora mora
-            na tela das empresas, que é onde a pergunta "ainda cabe vaga?"
-            é feita — aqui a pessoa já entrou para cuidar das vagas de uma
-            empresa.
-
-            O botão de publicar continua levando aos planos quando não cabe
-            mais nenhuma: recusar no fim, depois de a empresa ter escrito a
-            vaga inteira, seria pior. */}
-        <div className="ei-acoes">
-          <Link to="/profissionais" className="ei-acao">
-            <span className="ei-acao-circulo" aria-hidden="true">
-              <IconePessoas />
-            </span>
-            Profissionais
-          </Link>
-          <Link to="/painel/editar-empresa" className="ei-acao">
-            <span className="ei-acao-circulo" aria-hidden="true">
-              <IconeLoja />
-            </span>
-            Editar empresa
-          </Link>
-        </div>
-
         {/* Três grupos, e não uma lista só.
             ─────────────────────────────────
             Arquivar uma vaga a fazia SUMIR do painel — junto com a lista de
@@ -652,27 +643,8 @@ function svgProps() {
   };
 }
 
-function IconePessoas() {
-  return (
-    <svg {...svgProps()}>
-      <circle cx="9" cy="8" r="3.2" />
-      <path d="M3 20a6 6 0 0 1 12 0" />
-      <path d="M16.5 5.4a3.2 3.2 0 0 1 0 5.2" />
-      <path d="M17.5 14.2A6 6 0 0 1 21 20" />
-    </svg>
-  );
-}
 
 
-function IconeLoja() {
-  return (
-    <svg {...svgProps()}>
-      <path d="M4 9.5V19a1.5 1.5 0 0 0 1.5 1.5h13A1.5 1.5 0 0 0 20 19V9.5" />
-      <path d="M3 6.5L4.4 3.5h15.2L21 6.5a2.6 2.6 0 0 1-4.5 2 2.6 2.6 0 0 1-4.5 0 2.6 2.6 0 0 1-4.5 0 2.6 2.6 0 0 1-4.5-2z" />
-      <path d="M9.5 20.5v-5h5v5" />
-    </svg>
-  );
-}
 
 function IconeMegafone() {
   return (

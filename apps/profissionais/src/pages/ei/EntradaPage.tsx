@@ -250,10 +250,6 @@ export function EntradaPage() {
                     destaque e viraria só mais uma cor — então este é o
                     único lugar da tela que o usa, e "Minhas vagas" fica no
                     azul cheio. */}
-                <Link to="/profissionais" className="ei-porta ei-porta-laranja">
-                  <span className="ei-porta-nome">Banco de talentos</span>
-                  <span className="ei-porta-nota">Quem está disponível na cidade</span>
-                </Link>
               </>
             ) : (
               <>
@@ -327,6 +323,24 @@ export function EntradaPage() {
               O que ele FAZ continua sendo decidido pelo aparelho: no
               Android o toque instala de verdade; no iPhone abre o passo a
               passo, porque lá quem instala é o próprio Safari. */}
+          {/* O banco de talentos desceu para cá — 02/09
+              ────────────────────────────────────────────
+              A dona: "o botão de banco de talentos também pode ficar no
+              final da página."
+
+              Ele era a segunda porta, do mesmo tamanho de "Minhas
+              empresas". Só que as duas não têm o mesmo peso: quem abre o
+              app do lado da empresa vem cuidar das vagas dela, e olhar
+              quem está disponível é o que se faz DEPOIS. Duas portas
+              grandes lado a lado fazem a pessoa escolher entre coisas que
+              não competem. */}
+          {tipo === "company" && entrou && (
+            <Link to="/profissionais" className="ei-porta ei-porta-laranja">
+              <span className="ei-porta-nome">Banco de talentos</span>
+              <span className="ei-porta-nota">Quem está disponível na cidade</span>
+            </Link>
+          )}
+
           <InstalarApp variante="botao" />
         </div>
       </div>

@@ -225,10 +225,16 @@ export function InstalarApp({ variante = "lista" }: { variante?: "lista" | "faix
             <path d="M12 7.5v7" />
             <path d="M9 11.5l3 3 3-3" />
           </svg>
-          {/* No iPhone o toque não instala: abre o passo a passo. Prometer
-              "instalar" ali seria mentir sobre o que o botão faz, e a pessoa
-              que espera um ícone aparecer acha que o app travou. */}
-          {podeInstalarDireto ? "Instalar o app" : "Deixar na tela do celular"}
+          {/* "Baixar App" nos dois casos, a pedido da dona (02/09). Eram
+              dois textos conforme o aparelho — "Instalar o app" no Android
+              e "Deixar na tela do celular" no iPhone — e o segundo é longo
+              e ninguém procura por ele: quem quer o app na tela procura
+              "baixar".
+
+              O que o botão FAZ continua diferente, e isso não é o rótulo:
+              no Android ele instala; no iPhone abre o passo a passo, porque
+              lá quem instala é o próprio Safari. */}
+          Baixar App
         </button>
         {ensinandoIOS && (ehIOS() ? folhaIOS : folhaNavegador)}
       </>

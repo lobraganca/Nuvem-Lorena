@@ -433,6 +433,38 @@ export function LoginPage() {
                 ? "Esqueci minha senha — receber código por SMS"
                 : "Já tenho senha — entrar com ela"}
             </button>
+
+            {/* ── "CRIAR CONTA", NO PÉ DA TELA DE ENTRAR — 02/09 ─────────
+                A dona: "a tela de login já está caindo pra quem já tem
+                senha cadastrada. Preciso que tenha um botão embaixo
+                escrito criar conta."
+
+                A tela passou a abrir na senha (e é o certo: quem já tem
+                conta é a maioria de quem volta). Só que quem AINDA NÃO TEM
+                caía numa tela que pede uma senha que ele nunca criou, e a
+                única saída dizia "esqueci minha senha" — que é a frase de
+                quem tem conta. Não havia porta para quem é novo.
+
+                Fica separado por um fio e com o texto da pergunta em cima:
+                um segundo botão colado no "entrar" seria mais uma coisa
+                para errar com o dedo, e a pergunta é o que diz a quem ele
+                serve. */}
+            {modo === "senha" && (
+              <div className="entrar-rodape">
+                <span className="entrar-rodape-nota">Ainda não tem conta?</span>
+                <button
+                  type="button"
+                  className="btn btn-block"
+                  onClick={() => {
+                    setModo("sms");
+                    setSenhaEntrada("");
+                    limpar();
+                  }}
+                >
+                  Criar conta
+                </button>
+              </div>
+            )}
           </>
         ) : (
           <>

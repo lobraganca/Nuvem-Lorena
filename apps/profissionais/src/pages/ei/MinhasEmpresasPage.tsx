@@ -263,9 +263,10 @@ export function MinhasEmpresasPage() {
         <div className="ei-margem" style={{ marginTop: 18 }}>
           <Link to="/profissionais" className="ei-porta ei-porta-laranja">
             <span className="ei-porta-nome">Banco de talentos</span>
-            <span className="ei-porta-nota">
-              Quem está procurando trabalho na cidade — vale para as suas empresas
-            </span>
+            {/* "— vale para as suas empresas" saiu a pedido da dona: a
+                lista é da cidade, e explicar que ela serve às duas lojas
+                era responder uma pergunta que ninguém faz. */}
+            <span className="ei-porta-nota">Quem está procurando trabalho na cidade</span>
           </Link>
         </div>
       </div>

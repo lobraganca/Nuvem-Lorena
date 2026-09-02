@@ -168,6 +168,20 @@ export function BoasVindas({ aoTerminar }: { aoTerminar: () => void }) {
         setInicioX(null);
       }}
     >
+      {/* ── O CARTÃO NO MEIO, E NÃO A TELA INTEIRA — 02/09 ──────────────
+          A dona: "a demonstração de entrada está ocupando a tela toda.
+          Preciso que seja mais no meio e menor."
+
+          Era uma tela cheia de azul: quatro delas, uma depois da outra,
+          antes de o app aparecer. Ocupando tudo, a apresentação parece o
+          app — e quem abre pela primeira vez fica sem ver que existe
+          alguma coisa atrás dela.
+
+          Agora é um cartão centrado sobre o app esmaecido: continua sendo
+          a única coisa em que se pode tocar (o `aria-modal` e o fundo
+          escuro dizem isso), mas dá para ver que ela está POR CIMA de
+          alguma coisa — e "Pular" deixa de ser um salto no escuro. */}
+      <div className="ei-bv-cartao">
       <div className="ei-bv-meio">
         {tela.arte}
         <h1 className="ei-bv-titulo">{tela.titulo}</h1>
@@ -191,6 +205,7 @@ export function BoasVindas({ aoTerminar }: { aoTerminar: () => void }) {
             Pular
           </button>
         )}
+      </div>
       </div>
     </div>
   );

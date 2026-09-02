@@ -2204,19 +2204,43 @@
    `100dvh` e não `100vh`: no celular a barra do navegador some e aparece
    conforme a rolagem, e com `vh` o botão de baixo fica escondido atrás
    dela justamente na primeira tela que a pessoa vê. */
+/* A APRESENTAÇÃO É UM CARTÃO NO MEIO — 02/09
+   ──────────────────────────────────────────
+   "A demonstração de entrada está ocupando a tela toda. Preciso que seja
+   mais no meio e menor."
+
+   `.ei-bv` deixou de ser a tela azul e virou o FUNDO: escuro, translúcido,
+   e centrando o cartão. O azul foi todo para dentro do cartão. */
 .ei-bv {
   position: fixed;
   inset: 0;
   z-index: 80;
   display: grid;
-  grid-template-rows: 1fr auto auto;
-  gap: 18px;
-  padding: calc(24px + env(safe-area-inset-top)) 24px
-    calc(24px + env(safe-area-inset-bottom));
-  background: var(--ei-marca, #12a5fa);
+  place-items: center;
+  padding: calc(20px + env(safe-area-inset-top)) 20px
+    calc(20px + env(safe-area-inset-bottom));
+  background: rgba(20, 19, 17, 0.55);
   color: #ffffff;
   text-align: center;
   overflow: hidden;
+}
+
+/* O cartão: largura de celular com folga nas laterais, altura pelo
+   conteúdo. `max-height` com rolagem interna para a tela pequena de
+   ônibus, onde quatro linhas de frase e dois botões não caberiam — sem
+   isso o "Continuar" ficaria fora da tela, que é o pior lugar possível
+   para o único botão que faz a apresentação andar. */
+.ei-bv-cartao {
+  display: grid;
+  grid-template-rows: auto auto auto;
+  gap: 16px;
+  width: min(100%, 340px);
+  max-height: 100%;
+  overflow-y: auto;
+  padding: 26px 22px 22px;
+  border-radius: var(--ei-raio, 14px);
+  background: var(--ei-marca, #12a5fa);
+  box-shadow: 0 10px 30px rgba(20, 19, 17, 0.25);
 }
 
 .ei-bv-meio {
@@ -2226,15 +2250,17 @@
   gap: 10px;
 }
 
+/* Menor junto com o cartão: 240px de desenho dentro de um cartão de 340px
+   não deixaria espaço para a frase, que é o que a tela veio dizer. */
 .ei-bv-arte {
-  width: min(62vw, 240px);
+  width: min(42vw, 150px);
   height: auto;
-  margin-bottom: 18px;
+  margin-bottom: 10px;
 }
 
 .ei-bv-titulo {
   margin: 0;
-  font-size: 2rem;
+  font-size: 1.5rem;
   font-weight: 400;
   letter-spacing: -0.02em;
   color: #ffffff;
@@ -2243,7 +2269,7 @@
 .ei-bv-frase {
   margin: 0;
   max-width: 22rem;
-  font-size: 1.12rem;
+  font-size: 1rem;
   line-height: 1.45;
   font-weight: 600;
   color: rgba(255, 255, 255, 0.95);
@@ -2507,9 +2533,22 @@
   cursor: pointer;
 }
 .ei .ei-btn-instalar-pilula:hover { background: var(--ei-afunda); }
-/* O pé da tela centraliza a pílula. Sem isto ela cola na margem esquerda,
-   que num bloco de rodapé lê como coisa esquecida no lugar errado. */
-.ei .ei-entrada-pe { display: flex; justify-content: center; }
+/* O pé da tela: uma coluna, e não uma fileira.
+   ────────────────────────────────────────────
+   Era `flex` numa linha só, para centralizar a pílula de instalar quando
+   ela era a única coisa daqui. Com o banco de talentos descendo para o
+   rodapé (02/09), os dois passaram a dividir a largura: a porta laranja
+   ficou espremida e o "Baixar App" saiu cortado pela borda.
+
+   Agora empilha — a porta ocupa a largura, e a pílula fica centrada
+   embaixo, que é onde a dona a pediu desde o começo. */
+.ei .ei-entrada-pe {
+  display: grid;
+  justify-items: center;
+  gap: 14px;
+  padding: 0 20px 4px;
+}
+.ei .ei-entrada-pe > .ei-porta { justify-self: stretch; }
 
 /* ── O aviso de cadastro pela metade ────────────────────────────────────
    Cor de atenção, não de erro: não há nada quebrado, só falta preencher.
@@ -3033,7 +3072,8 @@
 .ei-painel-topo-linha {
   display: flex;
   align-items: center;
-  gap: 12px;
+  flex-wrap: wrap;
+  gap: 10px 12px;
   padding: 12px 20px;
   min-width: 0;
   border-bottom: 1px solid var(--ei-fio);
@@ -3042,9 +3082,12 @@
   display: flex;
   flex-direction: column;
   gap: 2px;
-  /* `min-width: 0` para o nome comprido ganhar reticências em vez de
-     empurrar o "Trocar" para fora do cartão. */
-  min-width: 0;
+  /* O nome tem PRIORIDADE sobre os botões: com os dois na mesma linha e
+     `min-width: 0`, "Construtora e Empreendimentos" era espremido até
+     virar "C…" — o cartão perdia justamente a informação que ele existe
+     para dar. Com um mínimo de 9rem, os botões é que descem para a linha
+     de baixo em tela estreita. */
+  min-width: 9rem;
   flex: 1 1 auto;
   overflow: hidden;
 }
@@ -3082,6 +3125,17 @@
 .ei-painel-topo-linha .ei-btn-inline {
   flex: 0 0 auto;
   white-space: nowrap;
+}
+
+/* Os dois botões da empresa, lado a lado na linha dela. Em tela estreita
+   eles passam para a linha de baixo em vez de espremer o nome — que já tem
+   reticências e não deve encolher mais. */
+.ei-painel-topo-botoes {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 6px;
+  flex: 0 0 auto;
 }
 
 /* O plano fecha o cartão num fundo levemente afundado: é dado de conta, e
@@ -3389,4 +3443,20 @@
   font-size: 0.82rem;
   color: var(--ei-tinta-fraca);
   overflow-wrap: anywhere;
+}
+
+/* O pé da tela de entrar: a porta de quem ainda não tem conta.
+   Separado por um fio, porque é outro assunto — e não mais um botão na
+   mesma pilha do "Entrar". */
+.entrar-rodape {
+  display: grid;
+  gap: 10px;
+  margin-top: 18px;
+  padding-top: 16px;
+  border-top: 1px solid var(--ei-fio, #e6e3dd);
+  text-align: center;
+}
+.entrar-rodape-nota {
+  font-size: 0.85rem;
+  color: var(--ei-tinta-fraca, #6b6963);
 }
