@@ -333,27 +333,18 @@ export function EntradaPage() {
               quem está disponível é o que se faz DEPOIS. Duas portas
               grandes lado a lado fazem a pessoa escolher entre coisas que
               não competem. */}
-          {/* Cada lado tem a SUA porta de rodapé, e é a mesma ideia nos
-              dois: o que se olha depois de resolver o assunto principal.
+          {/* A porta de rodapé do lado da empresa: quem está disponível,
+              que é o que se olha depois de cuidar das vagas.
 
-              Na empresa, quem está disponível. Em quem procura trabalho,
-              todas as vagas abertas da cidade — ela saiu das três portas
-              de cima quando a dona escolheu a ordem "meu cadastro, vagas
-              compatíveis, banco de talentos", e desceu para cá em vez de
-              sumir: é ela que salva quem a onda não encontrou, porque a
-              onda compara texto e erra (quem se cadastrou como "auxiliar
-              de limpeza" não recebe a vaga de "camareira" sendo
-              exatamente a pessoa). */}
+              Do lado de quem procura trabalho não há nenhuma. O "Banco de
+              vagas" esteve aqui por um dia e a dona mandou tirar — a tela
+              dela tem as três portas que ela escolheu, e mais nada. A TELA
+              continua existindo (/vagas): quem abre o perfil de uma
+              empresa chega nela por "Ver todas as vagas abertas". */}
           {entrou && tipo === "company" && (
             <Link to="/profissionais" className="ei-porta ei-porta-laranja">
               <span className="ei-porta-nome">Banco de talentos</span>
               <span className="ei-porta-nota">Quem está disponível na cidade</span>
-            </Link>
-          )}
-          {entrou && tipo === "professional" && (
-            <Link to="/vagas" className="ei-porta">
-              <span className="ei-porta-nome">Banco de vagas</span>
-              <span className="ei-porta-nota">Todas as vagas abertas da cidade</span>
             </Link>
           )}
 
