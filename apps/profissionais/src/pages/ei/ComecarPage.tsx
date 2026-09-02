@@ -58,6 +58,26 @@ export function ComecarPage({ lado }: { lado: "professional" | "company" }) {
             longe das portas, ela já teria saído da tela antes de ler. */}
         {entrou && tipo === lado && <AvisoPerfilIncompleto lado={lado} />}
 
+        {/* Banco de talentos e Banco de vagas — quadrados, e a ORDEM
+            mudou de novo — 02/09
+            ─────────────────────────────────────────────────────────
+            A dona, em três mensagens seguidas: "podem ser quadrado e no
+            final da página" (rodapé, perto do Instalar) → "podem ficar
+            debaixo do botão de minhas empresas, espaçado" (logo após as
+            portas principais) → "na tela de procuro trabalho... ainda
+            estão embaixo, deve ficar acima dos outros botões".
+
+            Do lado da empresa a ordem de antes já estava certa: uma
+            porta só (Minhas empresas), e os atalhos vinham depois dela —
+            não tem "embaixo de tudo" numa tela com uma porta só. Do lado
+            de quem procura trabalho há DUAS portas (Meu cadastro, Vagas
+            compatíveis), e os atalhos ficavam depois das duas — visível
+            como "lá embaixo" mesmo estando logo em seguida. Por isso a
+            ordem agora depende do lado: para quem contrata, atalhos
+            DEPOIS da porta; para quem procura trabalho, atalhos ANTES
+            das duas. */}
+        {lado === "professional" && <Atalhos />}
+
         <div className="ei-portas">
           {lado === "company" ? (
             /* Vai para a escolha da empresa, e não para o painel de uma
@@ -92,37 +112,34 @@ export function ComecarPage({ lado }: { lado: "professional" | "company" }) {
           )}
         </div>
 
-        {/* Banco de talentos e Banco de vagas — quadrados, logo abaixo
-            das portas principais — 02/09
-            ─────────────────────────────────────────────────────────
-            A dona, em duas mensagens: primeiro "podem ser quadrado e no
-            final da página" (foram para o rodapé, perto do Instalar);
-            depois "podem ficar debaixo do botão de minhas empresas,
-            espaçado, e também na tela dos profissionais" — mais perto das
-            portas principais do que do rodapé, com respiro entre os dois
-            blocos.
-
-            Continuam quadrados e em par — a razão de serem atalhos, e não
-            portas do tamanho de "Minhas empresas"/"Meu cadastro", não
-            mudou: valem para os dois lados por igual. Só a DISTÂNCIA do
-            que vem antes é que encolheu — o espaço vem de graça do
-            `gap: 22px` que a coluna de `.ei-entrada` já aplica entre
-            cada bloco direto dela, o mesmo respiro do resto da tela. */}
-        <div className="ei-atalhos">
-          <Link to="/profissionais" className="ei-atalho">
-            <IconePorta desenho="pessoas" />
-            <span>Banco de talentos</span>
-          </Link>
-          <Link to="/vagas" className="ei-atalho">
-            <IconePorta desenho="mala" />
-            <span>Banco de vagas</span>
-          </Link>
-        </div>
+        {lado === "company" && <Atalhos />}
 
         <div className="ei-entrada-pe">
           <InstalarApp variante="botao" />
         </div>
       </div>
+    </div>
+  );
+}
+
+/**
+ * Banco de talentos + Banco de vagas, lado a lado, quadrados.
+ *
+ * Extraído porque a ORDEM em que este par aparece muda com o lado (ver o
+ * comentário em `ComecarPage`), e repetir o par duas vezes no JSX é como
+ * uma das duas cópias fica para trás na próxima mudança de texto.
+ */
+function Atalhos() {
+  return (
+    <div className="ei-atalhos">
+      <Link to="/profissionais" className="ei-atalho">
+        <IconePorta desenho="pessoas" />
+        <span>Banco de talentos</span>
+      </Link>
+      <Link to="/vagas" className="ei-atalho">
+        <IconePorta desenho="mala" />
+        <span>Banco de vagas</span>
+      </Link>
     </div>
   );
 }
