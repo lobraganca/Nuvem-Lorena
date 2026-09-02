@@ -253,10 +253,13 @@ export function MinhasEmpresasPage() {
           {/* O "+" ao lado dos cartões, como ela desenhou. Do mesmo tamanho
               deles, para a fileira não ficar torta — e com a palavra junto,
               porque um "+" sozinho não diz o que vai acontecer. */}
+          {/* 02/09: "tirar legendas e colocar cadastrar outra empresa."
+              A linha "uma segunda loja, obra ou serviço" era explicação de
+              uma coisa que o próprio botão já diz — e o nome dele estava
+              pela metade: "cadastrar outra" o quê? */}
           <Link to="/cadastro-empresa?nova=1" className="ei-empresa-cartao ei-empresa-nova">
             <span className="ei-empresa-mais" aria-hidden="true">+</span>
-            <span className="ei-empresa-nome">Cadastrar outra</span>
-            <span className="ei-empresa-onde">Uma segunda loja, obra ou serviço</span>
+            <span className="ei-empresa-nome">Cadastrar outra empresa</span>
           </Link>
         </div>
 

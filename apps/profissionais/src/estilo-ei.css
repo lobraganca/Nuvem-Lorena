@@ -254,9 +254,7 @@
    fixa. */
 .ei-porta {
   display: grid;
-  grid-template-columns: auto 1fr;
-  align-items: center;
-  gap: 3px 14px;
+  gap: 3px;
   width: 100%;
   padding: 16px 18px;
   border: 1px solid var(--ei-fio-forte);
@@ -275,8 +273,25 @@
 .ei-porta-nome { font-size: 1.05rem; font-weight: 600; line-height: 1.25; }
 .ei-porta-nota { font-size: 0.85rem; color: var(--ei-tinta-fraca); line-height: 1.35; }
 
-/* O ícone ocupa as duas linhas de texto, e o texto vai para a coluna 2.
-   Sem esta regra o ícone empurraria o nome para a linha de baixo. */
+/* As DUAS COLUNAS só existem quando há ícone — 02/09
+   ──────────────────────────────────────────────────
+   A regra estava no `.ei-porta` e valia para todas: nas portas SEM ícone
+   (o banco de talentos da tela das empresas, o "criar conta" de quem ainda
+   não entrou) o nome caía na coluna 1 e a nota na coluna 2, lado a lado —
+   o título sumia espremido e sobrava a explicação. Foi o que a foto da
+   dona mostrou: um bloco laranja com "Quem está" e nada mais.
+
+   `:has()` é o seletor que pergunta "este elemento contém aquilo?". Onde
+   ele não existir (navegador muito antigo), a porta fica de uma coluna e o
+   ícone empilha em cima do texto — feio, mas legível, e nada some.
+
+   O ícone ocupa as duas linhas de texto; sem isso ele empurraria o nome
+   para baixo. */
+.ei-porta:has(> .ei-porta-icone) {
+  grid-template-columns: auto 1fr;
+  align-items: center;
+  gap: 3px 14px;
+}
 .ei-porta-icone {
   grid-row: 1 / span 2;
   display: grid;
@@ -2799,18 +2814,26 @@
 
 /* O "+": tracejado, para dizer "aqui ainda não tem nada" sem precisar de
    texto explicando. */
+/* O cartão do "+" perdeu a legenda (02/09) e, com ela, a altura de sobra:
+   era um bloco do tamanho de um cartão de empresa para dizer uma frase que
+   o próprio botão já dizia. Agora é uma linha: o "+" ao lado do texto, e
+   não em cima dele. */
 .ei-empresa-nova {
   border-style: dashed;
+  flex-direction: row;
   align-items: center;
   justify-content: center;
+  gap: 10px;
+  padding: 16px 14px;
   text-align: center;
 }
 .ei-empresa-mais {
-  font-size: 2rem;
+  font-size: 1.5rem;
   line-height: 1;
   color: var(--ei-acento);
   font-weight: 300;
 }
+.ei-empresa-nova .ei-empresa-nome { font-size: 0.98rem; }
 
 /* ── Qual empresa está aberta, no painel (item 6) ───────────────────────
    Uma linha fina acima do resumo. Com duas lojas o painel é idêntico nas
