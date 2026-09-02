@@ -136,7 +136,7 @@ export function MinhasEmpresasPage() {
               {/* "Qual está selecionada" — a dona pediu isso duas vezes, no
                   item 4 e no 6. Sem a marca, a pessoa com duas lojas não
                   tem como saber em qual publicou a vaga. */}
-              {e.id === escolhida && <span className="ei-empresa-marca">Aberta agora</span>}
+              {e.id === escolhida && <span className="ei-empresa-aberta-selo">Aberta agora</span>}
             </button>
           ))}
 

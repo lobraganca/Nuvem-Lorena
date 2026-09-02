@@ -2606,7 +2606,16 @@
   color: var(--ei-tinta-fraca);
   line-height: 1.3;
 }
-.ei-empresa-marca {
+/* ── O NOME DESTA CLASSE COLIDIA ────────────────────────────────────────
+   Era `.ei-empresa-marca`, que JÁ EXISTE desde antes e é a bolinha de 44px
+   com a logo da empresa (tela da vaga, avisos, empresa pública). As duas
+   regras se somavam: o selo "Aberta agora" virava um disco de 44x44 com o
+   texto cortado no meio.
+
+   A varredura de layout pegou isso — "cortado: span.ei-empresa-marca:
+   'Aberta agora'" — e nenhuma leitura de código teria pegado, porque as
+   duas regras estão a 1300 linhas de distância neste arquivo. */
+.ei-empresa-aberta-selo {
   margin-top: auto;
   padding-top: 6px;
   font-size: 0.75rem;
@@ -2635,11 +2644,15 @@
    hora — só quando o telefone toca. */
 .ei-empresa-aberta {
   display: flex;
-  align-items: baseline;
+  align-items: center;
   justify-content: space-between;
   gap: 12px;
-  margin: 2px 0 12px;
-  padding-bottom: 10px;
+  /* 20px de lado, o mesmo de `.ei-props`, `.ei-resumo` e `.ei-secao`.
+     Sem isto a linha herdava 15px de um container acima e ficava CINCO
+     pixels à esquerda de tudo o que vem abaixo dela — a diferença que não
+     se nomeia olhando, e se lê como "torto". */
+  padding: 4px 20px 10px;
+  background: var(--ei-papel);
   border-bottom: 1px solid var(--ei-fio);
 }
 .ei-empresa-aberta-nome {
@@ -2656,12 +2669,13 @@
    este é um dado de estado, do tipo que se lê de relance e não se toca. */
 .ei-plano-linha {
   display: flex;
-  align-items: baseline;
+  align-items: center;
   gap: 10px;
   flex-wrap: wrap;
-  margin-top: 12px;
-  padding-top: 12px;
-  border-top: 1px solid var(--ei-fio);
+  /* Mesma margem de 20px do resto da coluna — ver `.ei-empresa-aberta`. */
+  padding: 12px 20px 14px;
+  background: var(--ei-papel);
+  border-bottom: 1px solid var(--ei-fio);
 }
 .ei-plano-nome { font-weight: 600; font-size: 0.95rem; }
 .ei-plano-nota {
@@ -2805,3 +2819,119 @@
   color: inherit;
 }
 .ei .ei-empresa-topo-link:hover { background: var(--ei-afunda); }
+
+/* ═══════════════════════════════════════════════════════════════════════
+   RESPIRO ENTRE OS CAMPOS — a varredura de 02/09
+   ═══════════════════════════════════════════════════════════════════════
+   A dona: "a tela de cadastro de vaga está muito pesada. Muitas
+   explicações. Tudo muito junto."
+
+   As explicações foram cortadas pela metade no CriarVagaPage. O "tudo
+   muito junto" era outra coisa, e estava no CSS: `.ei-campo` tem um `gap`
+   de 6px DENTRO dele (entre rótulo, caixa e dica), e nada entre um campo e
+   o seguinte. Num cartão com sete campos, a dica cinza de um encostava no
+   rótulo do próximo — e os dois textos pequenos, cinza e colados, liam
+   como um parágrafo só.
+
+   Aqui os campos irmãos de um cartão ganham distância. O número não é
+   escolhido a olho: é `--ei-e3` (18px), o degrau que o próprio sistema já
+   define como "entre blocos diferentes da mesma seção", que é exatamente o
+   que dois campos são. */
+.ei .ei-cartao > .ei-campo + .ei-campo,
+.ei .ei-cartao > .ei-campo + div:not(.ei-chips),
+.ei .ei-cartao > div:not(.ei-chips) + .ei-campo {
+  margin-top: var(--ei-e3, 18px);
+}
+
+/* O título da etapa e o primeiro campo. O apoio já tinha 14px embaixo, que
+   é menos que o vão entre dois campos — o primeiro campo parecia colado no
+   texto de introdução, e o segundo parecia mais separado que o primeiro. */
+.ei .ei-cartao .ei-etapa-apoio { margin-bottom: var(--ei-e3, 18px); }
+.ei .ei-cartao .ei-etapa-titulo + .ei-campo { margin-top: 14px; }
+
+/* O cartão respira mais em cima e embaixo. Com sete campos dentro, 16px
+   de padding contra 18px de vão entre eles fazia o conteúdo parecer que
+   escapava pelas bordas. */
+.ei .ei-cartao { padding-top: 18px; padding-bottom: 20px; }
+
+/* A dica cinza fica mais longe da caixa que o rótulo — ela pertence ao
+   campo de cima, e colada nos dois ela flutua entre os dois. */
+.ei .ei-campo > .ei-campo-ajuda { margin-top: 2px; line-height: 1.4; }
+
+/* ═══════════════════════════════════════════════════════════════════════
+   ALVOS DE TOQUE — a varredura de 02/09
+   ═══════════════════════════════════════════════════════════════════════
+   A dona: "verifique sobre a usabilidade."
+
+   Uma varredura automática mediu cada botão e link das dezessete telas e
+   achou os que o dedo não acerta. Nenhum deles PARECE quebrado numa foto —
+   é por isso que dez revisões visuais não pegaram:
+
+     "Trocar" (empresa) ............ 49 x 18
+     "Mudar" (plano) ............... 48 x 18
+     "Editar nome" ................. 71 x 15
+     "Trocar o número" ............. 294 x 18
+     "Ligar o aviso" ............... 86 x 21
+     "Minhas funções" .............. 90 x 15
+     "Política de Privacidade" ..... 143 x 16
+     as caixas de marcar ........... 13 x 13
+
+   O mínimo que se erra pouco é 44px de altura (é o número da Apple, e o
+   Material usa 48). Quinze pixels é um terço disso: numa mão apressada,
+   num ônibus, o toque cai no texto ao lado — e o efeito não é "não
+   funcionou", é "abriu a coisa errada", que é pior.
+
+   A altura vem de PADDING e não de `height`, e o texto continua do mesmo
+   tamanho: aumentar a letra mudaria a hierarquia da tela (um link de apoio
+   viraria um título), e é a área de toque que estava errada, não o
+   desenho. */
+.ei .ei-btn-inline,
+.ei .ei-secao-acao,
+.ei .rodape-links a,
+.ei-aviso-perfil-fechar {
+  /* `inline-flex` para o padding vertical valer: num `<a>` ou `<button>`
+     inline o padding de cima e de baixo é pintado, mas não empurra a
+     linha nem entra na área de toque. */
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  /* Sem padding lateral: estes ficam no meio de frases ("...dá para usar
+     em Prefiro entrar com a minha senha, logo abaixo"), e um respiro
+     horizontal abriria buracos dentro do texto. */
+  padding-top: 0;
+  padding-bottom: 0;
+}
+
+/* Onde o link é a única coisa da linha, o vão vertical dele já é o
+   respiro — sem isto, os 44px se somam à margem e abrem um vão de 60px. */
+.ei .ei-pe-etapas .ei-btn-inline,
+.ei .ei-margem > .ei-btn-inline { margin-top: 0; margin-bottom: 0; }
+
+/* As caixas de marcar. 13x13 é o padrão do navegador e é o menor alvo do
+   app inteiro — e das mais erradas, porque marcar sem querer "não estou
+   disponível" tira a pessoa da busca sem ela perceber. */
+.ei input[type="checkbox"],
+.ei input[type="radio"] {
+  width: 20px;
+  height: 20px;
+  /* O `accent-color` faz o navegador pintar a caixa marcada com o azul do
+     app, em vez do azul do sistema — que no Android é outro azul e no
+     iPhone é outro ainda. */
+  accent-color: var(--ei-acento, #0a72c4);
+  flex: 0 0 auto;
+}
+
+/* A caixa e o texto formam UM alvo só: o `label` inteiro fica clicável e
+   ganha altura de dedo. Uma caixa de 20px ao lado de um texto que não
+   responde ao toque é o alvo de 20px de novo. */
+.ei .ei-caixa {
+  min-height: 44px;
+  padding-top: 4px;
+  padding-bottom: 4px;
+}
+
+/* O ✕ de dispensar o aviso do cadastro: 25x28 virou um alvo de dedo. */
+.ei-aviso-perfil-fechar {
+  min-width: 44px;
+  justify-content: center;
+}

@@ -558,8 +558,7 @@ export function CriarVagaPage() {
           <section className="ei-cartao">
             <h2 className="ei-etapa-titulo">Sobre a vaga</h2>
             <p className="ei-etapa-apoio">
-              O que a pessoa vai fazer, e para quem. É o que aparece primeiro na
-              tela de quem procura trabalho.
+              É o que aparece primeiro para quem procura trabalho.
             </p>
 
           <div className="ei-campo">
@@ -572,8 +571,7 @@ export function CriarVagaPage() {
               onChange={(e) => setForm((f) => ({ ...f, title: e.target.value }))}
             />
             <span className="ei-campo-ajuda">
-              É a primeira linha que a pessoa lê. Escreva como se falasse: “Vendedora
-              para loja no Centro”.
+              É a primeira linha que a pessoa lê.
             </span>
           </div>
 
@@ -617,8 +615,7 @@ export function CriarVagaPage() {
               ))}
             </datalist>
             <span className="ei-campo-ajuda">
-              Não achou na lista? Escreva do seu jeito. É por ela que o app acha
-              quem avisar.
+              Não achou na lista? Escreva do seu jeito.
             </span>
           </div>
 
@@ -632,8 +629,7 @@ export function CriarVagaPage() {
               onChange={(e) => setForm((f) => ({ ...f, specialty: e.target.value || null }))}
             />
             <span className="ei-campo-ajuda">
-              Um recorte dentro da profissão. A primeira onda procura quem tem
-              exatamente esta especialidade; deixe em branco se qualquer um serve.
+              Deixe em branco se qualquer um do ofício serve.
             </span>
           </div>
 
@@ -647,8 +643,7 @@ export function CriarVagaPage() {
               onChange={(e) => setForm((f) => ({ ...f, description: e.target.value }))}
             />
             <span className="ei-campo-ajuda">
-              O dia a dia do trabalho, em duas ou três linhas. Vaga sem isso quase
-              não recebe resposta — a pessoa não sabe no que está se metendo.
+              Duas ou três linhas. Vaga sem isso quase não recebe resposta.
             </span>
           </div>
 
@@ -700,8 +695,7 @@ export function CriarVagaPage() {
               }
             />
             <span className="ei-campo-ajuda">
-              Opcional. Sem prazo a vaga fica no ar até você fechar — e o banco
-              de vagas vira cemitério.
+              Sem prazo, a vaga fica no ar até você fechar.
             </span>
           </div>
 
@@ -713,8 +707,7 @@ export function CriarVagaPage() {
           <section className="ei-cartao">
             <h2 className="ei-etapa-titulo">Horário e local</h2>
             <p className="ei-etapa-apoio">
-              Quando e onde. São as perguntas que fazem alguém não responder sem
-              nunca ter ligado.
+              As perguntas que fazem alguém desistir sem nunca ter ligado.
             </p>
 
           {/* Tipo de contrato e jornada são NOVOS, e são as duas perguntas
@@ -739,9 +732,6 @@ export function CriarVagaPage() {
                 </option>
               ))}
             </select>
-            <span className="ei-campo-ajuda">
-              Muda tudo para quem está decidindo se larga o que já tem.
-            </span>
           </div>
 
           <div className="ei-campo">
@@ -760,9 +750,6 @@ export function CriarVagaPage() {
                 </option>
               ))}
             </select>
-            <span className="ei-campo-ajuda">
-              Quem tem filho na escola ou já trabalha meio período decide por aqui.
-            </span>
           </div>
 
           <div className="ei-campo">
@@ -777,7 +764,7 @@ export function CriarVagaPage() {
               <option value="hibrido">Parte no local, parte de casa</option>
             </select>
             <span className="ei-campo-ajuda">
-              Quase toda vaga em Itabirito é no local. Só mude se for o caso.
+              Quase toda vaga aqui é no local.
             </span>
           </div>
 
@@ -796,9 +783,6 @@ export function CriarVagaPage() {
               value={form.horario ?? ""}
               onChange={(e) => setForm((f) => ({ ...f, horario: e.target.value || null }))}
             />
-            <span className="ei-campo-ajuda">
-              Escreva como você diria no telefone. É a pergunta que mais aparece.
-            </span>
           </div>
 
           <div className="ei-campo">
@@ -828,7 +812,7 @@ export function CriarVagaPage() {
               <span>Aceito candidato de outras cidades</span>
             </label>
             <span className="ei-campo-ajuda">
-              Ouro Preto, Moeda e Rio Acima ficam a menos de meia hora daqui.
+              Ouro Preto e Rio Acima ficam a meia hora.
             </span>
           </div>
 
@@ -846,7 +830,7 @@ export function CriarVagaPage() {
               <span>Preciso de alguém para começar logo</span>
             </label>
             <span className="ei-campo-ajuda">
-              A vaga ganha a etiqueta “Urgente” na tela de quem procura.
+              A vaga ganha a etiqueta “Urgente”.
             </span>
           </div>
 
@@ -858,8 +842,7 @@ export function CriarVagaPage() {
           <section className="ei-cartao">
             <h2 className="ei-etapa-titulo">Salário e benefícios</h2>
             <p className="ei-etapa-apoio">
-              Salário ausente é o que mais faz gente não responder a uma vaga.
-              “A combinar” também é resposta — e é melhor que o silêncio.
+              Salário em branco é o que mais faz gente não responder.
             </p>
 
           {/* Benefícios: sugestões para tocar, e campo livre ao lado.
@@ -932,8 +915,7 @@ export function CriarVagaPage() {
               }}
             />
             <span className="ei-campo-ajuda">
-              Opcional, mas conta muito: vale-transporte decide quem mora longe, e
-              refeição pesa num salário de piso.
+              Vale-transporte decide quem mora longe.
             </span>
           </div>
 
@@ -949,9 +931,6 @@ export function CriarVagaPage() {
               value={form.comissao ?? ""}
               onChange={(e) => setForm((f) => ({ ...f, comissao: e.target.value || null }))}
             />
-            <span className="ei-campo-ajuda">
-              Deixe em branco se não tem. Comissão bem escrita atrai vendedor bom.
-            </span>
           </div>
 
           <div className="ei-campo">
@@ -999,8 +978,7 @@ export function CriarVagaPage() {
               <span>Salário a combinar</span>
             </label>
             <span className="ei-campo-ajuda">
-              Marque se prefere conversar o valor. A vaga vai dizer “A combinar” —
-              que é melhor que não dizer nada.
+              A vaga vai dizer “A combinar”, que é melhor que não dizer nada.
             </span>
           </div>
 
@@ -1016,9 +994,6 @@ export function CriarVagaPage() {
                   value={form.salary_range_min ? form.salary_range_min / 100 : ""}
                   onChange={(e) => setForm((f) => ({ ...f, salary_range_min: e.target.value ? Math.round(parseFloat(e.target.value) * 100) : null }))}
                 />
-                <span className="ei-campo-ajuda">
-                  Se o valor é fixo, preencha só este campo.
-                </span>
               </div>
 
               <div className="ei-campo">
@@ -1032,8 +1007,7 @@ export function CriarVagaPage() {
                   onChange={(e) => setForm((f) => ({ ...f, salary_range_max: e.target.value ? Math.round(parseFloat(e.target.value) * 100) : null }))}
                 />
                 <span className="ei-campo-ajuda">
-                  Só para quem paga mais conforme a experiência. A vaga mostra
-                  “R$ 1.800 a R$ 2.400”.
+                  Só se você paga mais conforme a experiência.
                 </span>
               </div>
             </>
@@ -1047,8 +1021,7 @@ export function CriarVagaPage() {
           <section className="ei-cartao">
             <h2 className="ei-etapa-titulo">Requisitos</h2>
             <p className="ei-etapa-apoio">
-              O que a pessoa precisa ter. Exigir o que a vaga não exige afasta
-              gente boa — e em Itabirito a fila é curta.
+              Só o que a vaga realmente exige. Aqui a fila é curta.
             </p>
 
             <div className="ei-campo">
@@ -1064,8 +1037,7 @@ export function CriarVagaPage() {
                 <option value="5+ anos">Mais de 5 anos</option>
               </select>
               <span className="ei-campo-ajuda">
-                Pedir experiência que a vaga não exige afasta gente boa. Na dúvida,
-                deixe “não precisa”.
+                Exigir o que a vaga não pede afasta gente boa.
               </span>
             </div>
 
@@ -1092,8 +1064,7 @@ export function CriarVagaPage() {
                 <option value="doutorado">Doutorado</option>
               </select>
               <span className="ei-campo-ajuda">
-                Em Itabirito, exigir superior numa vaga de balcão é a forma mais
-                rápida de ficar sem candidato.
+                Exigir demais é o jeito mais rápido de ficar sem candidato.
               </span>
             </div>
 
@@ -1168,7 +1139,7 @@ export function CriarVagaPage() {
                 <span>A vaga exige viajar</span>
               </label>
               <span className="ei-campo-ajuda">
-                Marcado, a vaga só alcança quem disse que aceita sair da cidade.
+                A vaga só alcança quem aceita sair da cidade.
               </span>
             </div>
 
@@ -1198,7 +1169,7 @@ export function CriarVagaPage() {
                 })}
               </div>
               <span className="ei-campo-ajuda">
-                Deixe em branco se não precisa — que é o caso de quase toda vaga aqui.
+                Quase nenhuma vaga aqui precisa.
               </span>
             </div>
 
@@ -1236,8 +1207,7 @@ export function CriarVagaPage() {
           <section className="ei-cartao">
             <h2 className="ei-etapa-titulo">O que pesa nesta vaga</h2>
             <p className="ei-etapa-apoio">
-              Marque o que realmente decide. O app usa isso para ordenar quem
-              aparece primeiro — e para dizer a cada pessoa o quanto ela combina.
+              O app usa isso para ordenar quem aparece primeiro.
             </p>
 
             <div className="ei-chips" style={{ marginTop: 12 }}>
