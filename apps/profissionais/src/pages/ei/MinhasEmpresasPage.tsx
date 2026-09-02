@@ -263,15 +263,15 @@ export function MinhasEmpresasPage() {
           </Link>
         </div>
 
-        <div className="ei-margem" style={{ marginTop: 18 }}>
-          <Link to="/profissionais" className="ei-porta ei-porta-laranja">
-            <span className="ei-porta-nome">Banco de talentos</span>
-            {/* "— vale para as suas empresas" saiu a pedido da dona: a
-                lista é da cidade, e explicar que ela serve às duas lojas
-                era responder uma pergunta que ninguém faz. */}
-            <span className="ei-porta-nota">Quem está procurando trabalho na cidade</span>
-          </Link>
-        </div>
+        {/* O "Banco de talentos" que morava aqui saiu — 02/09
+            ─────────────────────────────────────────────────
+            A dona: "tirar o botão de banco de talentos da tela de suas
+            empresas, já tem na tela anterior."
+
+            "A tela anterior" é a `ComecarPage` de quem contrata — quem
+            chega em Minhas empresas já passou por ela e viu o mesmo
+            atalho lá. Repeti-lo aqui era o mesmo destino em duas telas
+            seguidas da mesma jornada. */}
       </div>
     </div>
   );
