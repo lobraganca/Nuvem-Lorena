@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { useAuth } from "../lib/useAuth";
+import { useRascunho, CHAVE_RASCUNHO_EMPRESA } from "../lib/rascunho";
 import {
   criarEmpresa,
   atualizarEmpresa,
@@ -116,6 +117,19 @@ export function CadastroEmpresaPage() {
      salvamento. */
   const [empresaExistente, setEmpresaExistente] = useState<Company | null>(null);
   const [etapa, setEtapa] = useState(1);
+  /* ── RASCUNHO AUTOMÁTICO, e SÓ no cadastro novo ──────────────────────
+     A dona: "ter opção de salvar rascunho nas telas de cadastro pra evitar
+     de ter que reescrever tudo quando não tem um dado."
+
+     É o caso exato desta tela: a pessoa para para procurar o CNPJ e volta
+     depois. Mas o rascunho vale só para o cadastro NOVO — numa empresa que
+     já existe, o formulário vem do banco, e um rascunho velho por cima
+     ressuscitaria uma edição abandonada semanas atrás em cima do que está
+     no ar. Editar cadastro publicado já tem "salvar"; quem precisa de
+     rascunho é quem ainda não tem nada gravado. */
+  const [prontoParaGravar, setProntoParaGravar] = useState(false);
+  const rascunho = useRascunho(CHAVE_RASCUNHO_EMPRESA, form, etapa, prontoParaGravar);
+  const [avisoRascunho, setAvisoRascunho] = useState(false);
   /** O telefone digitado é o mesmo que a conta já confirmou por SMS. */
   const [foneDaConta, setFoneDaConta] = useState(false);
   /* A imagem escolhida fica esperando o enquadramento: só sobe depois que
@@ -173,10 +187,17 @@ export function CadastroEmpresaPage() {
       .then((lista) => {
         if (querNova) {
           /* Cadastro novo: o formulário fica em branco, com o dono
-             preenchido. Nada da empresa anterior entra aqui. */
-          setForm({ ...EMPTY, owner_id: user.id });
+             preenchido — ou com o rascunho, se a pessoa tinha parado no
+             meio. Nada da empresa anterior entra aqui. */
+          const guardado = rascunho.inicial;
+          setForm({ ...EMPTY, ...(guardado ? guardado.dados : null), owner_id: user.id });
           setEmpresaExistente(null);
           setTipoDono("pj");
+          if (guardado) {
+            setEtapa(guardado.etapa);
+            setAvisoRascunho(true);
+          }
+          setProntoParaGravar(true);
           return;
         }
         const empresa = idPedido
@@ -189,6 +210,16 @@ export function CadastroEmpresaPage() {
              do padrão da tela — senão editar uma pessoa física mostraria a
              máscara de CNPJ em cima de um CPF. */
           if (onlyDigits(empresa.cnpj ?? "").length === 11) setTipoDono("pf");
+        } else {
+          /* Ninguém cadastrado ainda: é cadastro novo do mesmo jeito, e o
+             rascunho vale. */
+          const guardado = rascunho.inicial;
+          if (guardado) {
+            setForm((f) => ({ ...f, ...guardado.dados, owner_id: user.id }));
+            setEtapa(guardado.etapa);
+            setAvisoRascunho(true);
+          }
+          setProntoParaGravar(true);
         }
       })
       .catch((err) => {
@@ -317,6 +348,9 @@ export function CadastroEmpresaPage() {
           /* silêncio proposital: ver comentário acima */
         }
       }
+      /* Gravou: o rascunho cumpriu o papel. Sem isto ele voltaria dentro
+         do cadastro da PRÓXIMA empresa, já preenchido com esta. */
+      rascunho.limpar();
       navegar("/painel-empresa", { replace: true });
     } catch (err) {
       setErro(mensagemDeErro(err, "Não foi possível salvar a empresa."));
@@ -364,6 +398,30 @@ export function CadastroEmpresaPage() {
 
         {emEtapas && <Etapas passos={ETAPAS} atual={etapa} />}
 
+        {/* Sem este aviso, quem volta encontra os campos preenchidos e acha
+            que o app se confundiu. Com ele, e com o botão de zerar ao lado,
+            o susto vira comodidade. */}
+        {avisoRascunho && (
+          <div className="ei-rascunho ei-margem" role="status">
+            <span>
+              <strong>Voltamos de onde você parou.</strong> O que você escreve aqui fica
+              guardado neste aparelho até salvar.
+            </span>
+            <button
+              type="button"
+              className="ei-btn-inline"
+              onClick={() => {
+                rascunho.descartar();
+                setForm({ ...EMPTY, owner_id: user?.id ?? "" });
+                setEtapa(1);
+                setAvisoRascunho(false);
+              }}
+            >
+              Começar do zero
+            </button>
+          </div>
+        )}
+
         {erro && (
           <p className="ei-campo-erro ei-margem" role="alert">{erro}</p>
         )}
@@ -380,9 +438,6 @@ export function CadastroEmpresaPage() {
         {mostra(1) && (
           <section className="ei-cartao">
             <h2 className="ei-etapa-titulo">Quem está contratando</h2>
-            <p className="ei-etapa-apoio">
-              Isso muda o que a gente pergunta a seguir. Dá para trocar depois.
-            </p>
 
             <div className="ei-lados" style={{ marginTop: 12 }}>
               <button
@@ -428,9 +483,6 @@ export function CadastroEmpresaPage() {
         {mostra(2) && (
           <section className="ei-cartao">
             <h2 className="ei-etapa-titulo">A empresa</h2>
-            <p className="ei-etapa-apoio">
-              É esse nome que aparece na vaga, para quem procura trabalho.
-            </p>
 
             <div className="ei-campo">
               <label htmlFor="company_name">
@@ -515,10 +567,6 @@ export function CadastroEmpresaPage() {
         {mostra(3) && (
           <section className="ei-cartao">
             <h2 className="ei-etapa-titulo">Onde fica</h2>
-            <p className="ei-etapa-apoio">
-              A cidade é o que aproxima a vaga de quem mora perto. Rua e número são
-              opcionais.
-            </p>
 
             <div className="ei-campo">
               <label htmlFor="city">Cidade</label>
@@ -574,9 +622,6 @@ export function CadastroEmpresaPage() {
         {mostra(4) && (
           <section className="ei-cartao">
             <h2 className="ei-etapa-titulo">Contato</h2>
-            <p className="ei-etapa-apoio">
-              É por aqui que quem responde à vaga vai procurar vocês de volta.
-            </p>
 
             <div className="ei-campo">
               <label htmlFor="responsible_name">Quem responde pela empresa</label>

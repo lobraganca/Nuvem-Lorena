@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../lib/useAuth";
+import { useRascunho, CHAVE_RASCUNHO_VAGA } from "../lib/rascunho";
 import {
   empresaAtual,
   criarVaga,
@@ -140,6 +141,13 @@ export function CriarVagaPage() {
   const navegar = useNavigate();
   const { user, loading: carregandoConta } = useAuth();
 
+  /* ── RASCUNHO AUTOMÁTICO ─────────────────────────────────────────────
+     A dona: "ter opção de salvar rascunho nas telas de cadastro pra evitar
+     de ter que reescrever tudo quando não tem um dado. Verifique se tem
+     como salvar automático."
+
+     Tem, e é este. O formulário começa do que estava guardado no aparelho
+     — se houver — em vez do vazio. Ver `useRascunho`. */
   const [form, setForm] = useState<FormState>(EMPTY_FORM);
   const [passo, setPasso] = useState<"formulario" | "preview">("formulario");
   /* Em qual tema a empresa está. Começa no 1 e nunca pula: cada um confere
@@ -147,6 +155,12 @@ export function CriarVagaPage() {
      que acabou de ser digitado — e não quatro telas adiante, no clique de
      publicar, como acontecia antes. */
   const [etapa, setEtapa] = useState(1);
+  /* `prontoParaGravar` só liga depois que a empresa foi lida do banco: até
+     lá o formulário ainda é o vazio, e gravá-lo apagaria o rascunho de quem
+     voltou para continuar. */
+  const [prontoParaGravar, setProntoParaGravar] = useState(false);
+  const rascunho = useRascunho(CHAVE_RASCUNHO_VAGA, form, etapa, prontoParaGravar);
+  const [avisoRascunho, setAvisoRascunho] = useState(false);
   const [salvando, setSalvando] = useState(false);
   const [erro, setErro] = useState("");
   const [conferindo, setConferindo] = useState(false);
@@ -191,13 +205,24 @@ export function CriarVagaPage() {
         navegar("/cadastro-empresa", { replace: true });
         return;
       }
+      /* O rascunho entra por baixo dos dados da empresa: o que foi
+         digitado volta, mas a empresa é sempre a que está selecionada
+         AGORA — quem trocou de loja no meio do caminho não pode publicar a
+         vaga na errada por causa de um rascunho antigo. */
+      const guardado = rascunho.inicial;
       setForm((f) => ({
         ...f,
+        ...(guardado ? guardado.dados : null),
         company_id: empresa.id,
         city: empresa.city,
         uf: empresa.uf,
         neighborhood: empresa.neighborhood,
       }));
+      if (guardado) {
+        setEtapa(guardado.etapa);
+        setAvisoRascunho(true);
+      }
+      setProntoParaGravar(true);
 
       /* O telefone da empresa também precisa estar confirmado. Vale para
          todo mundo, e aqui tem uma razão a mais: quem responde à vaga vai
@@ -324,6 +349,12 @@ export function CriarVagaPage() {
 
     try {
       const vaga = await criarVaga({ ...form, status: "active" });
+
+      /* A vaga saiu: o rascunho cumpriu o papel e vai embora. Sem isto ele
+         reapareceria dentro da PRÓXIMA vaga, já preenchido com a anterior —
+         que é o jeito mais fácil de publicar duas vagas iguais sem
+         perceber. */
+      rascunho.limpar();
 
       /* A onda 1 sempre sai — é o disparo. As outras só se a empresa
          marcou, e em ordem: a 2 antes da 3, porque cada onda desconta quem
@@ -540,6 +571,45 @@ export function CriarVagaPage() {
 
         {passo === "formulario" && <Etapas passos={ETAPAS} atual={etapa} />}
 
+        {/* ── "VOLTAMOS DE ONDE VOCÊ PAROU" ──────────────────────────────
+            O aviso existe por uma razão só: sem ele, quem abre a tela para
+            publicar uma vaga NOVA encontra os campos preenchidos com a
+            anterior e acha que o app se confundiu. Dizer que é rascunho, e
+            dar o botão de zerar ao lado, transforma um susto em uma
+            comodidade.
+
+            Some depois do primeiro toque em qualquer coisa? Não: fica até
+            a pessoa fechar ou zerar. Ele é discreto, e sumir sozinho
+            deixaria sem saída quem leu tarde. */}
+        {avisoRascunho && passo === "formulario" && (
+          <div className="ei-rascunho ei-margem" role="status">
+            <span>
+              <strong>Voltamos de onde você parou.</strong> O que você escreve aqui fica
+              guardado neste aparelho até publicar.
+            </span>
+            <button
+              type="button"
+              className="ei-btn-inline"
+              onClick={() => {
+                rascunho.descartar();
+                setForm((f) => ({
+                  ...EMPTY_FORM,
+                  /* A empresa e o endereço dela não são rascunho: vieram do
+                     cadastro, e zerá-los deixaria a vaga sem dono. */
+                  company_id: f.company_id,
+                  city: f.city,
+                  uf: f.uf,
+                  neighborhood: f.neighborhood,
+                }));
+                setEtapa(1);
+                setAvisoRascunho(false);
+              }}
+            >
+              Começar do zero
+            </button>
+          </div>
+        )}
+
         {erro && (
           <p className="ei-campo-erro ei-margem" role="alert">{erro}</p>
         )}
@@ -563,9 +633,6 @@ export function CriarVagaPage() {
         {mostra(1) && (
           <section className="ei-cartao">
             <h2 className="ei-etapa-titulo">Sobre a vaga</h2>
-            <p className="ei-etapa-apoio">
-              É o que aparece primeiro para quem procura trabalho.
-            </p>
 
           {/* ── UM CAMPO SÓ, E NÃO DOIS DIZENDO O MESMO — 02/09 ───────
               A dona: "no cadastro da vaga está redundante qual profissão
@@ -648,9 +715,6 @@ export function CriarVagaPage() {
         {mostra(2) && (
           <section className="ei-cartao">
             <h2 className="ei-etapa-titulo">Horário e local</h2>
-            <p className="ei-etapa-apoio">
-              As perguntas que fazem alguém desistir sem nunca ter ligado.
-            </p>
 
           {/* Tipo de contrato e jornada são NOVOS, e são as duas perguntas
               que mais decidem se alguém responde. Antes não existiam em
@@ -879,9 +943,6 @@ export function CriarVagaPage() {
         {mostra(3) && (
           <section className="ei-cartao">
             <h2 className="ei-etapa-titulo">Salário e benefícios</h2>
-            <p className="ei-etapa-apoio">
-              Salário em branco é o que mais faz gente não responder.
-            </p>
 
           {/* Benefícios: sugestões para tocar, e campo livre ao lado.
               Lista fechada não caberia — "cesta básica" e "plano
@@ -1096,9 +1157,6 @@ export function CriarVagaPage() {
 {mostra(4) && (
           <section className="ei-cartao">
             <h2 className="ei-etapa-titulo">Requisitos</h2>
-            <p className="ei-etapa-apoio">
-              Só o que a vaga realmente exige. Aqui a fila é curta.
-            </p>
 
             <div className="ei-campo">
               <label htmlFor="required_experience">Precisa de experiência?</label>
@@ -1301,9 +1359,6 @@ export function CriarVagaPage() {
         {mostra(5) && (
           <section className="ei-cartao">
             <h2 className="ei-etapa-titulo">O que pesa nesta vaga</h2>
-            <p className="ei-etapa-apoio">
-              O app usa isso para ordenar quem aparece primeiro.
-            </p>
 
             <div className="ei-chips" style={{ marginTop: 12 }}>
               {CAMPOS_DE_COMPATIBILIDADE.map((c) => {

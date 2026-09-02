@@ -3595,3 +3595,21 @@
 /* Dentro do bloco o primeiro campo não precisa da folga de 24px: o fio de
    cima já separa. */
 .ei .ei-mais-corpo > .ei-campo:first-child { margin-top: 14px; }
+
+/* O aviso de rascunho recuperado. Tom de informação, e não de erro: não há
+   nada quebrado — o app guardou o que estava sendo escrito. */
+.ei .ei-rascunho {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+  margin-top: 12px;
+  padding: 12px 14px;
+  border: 1px solid var(--ei-fio-forte);
+  border-left: 3px solid var(--ei-acento);
+  border-radius: var(--ei-raio, 14px);
+  background: var(--ei-papel);
+  font-size: 0.86rem;
+  line-height: 1.45;
+}
+.ei .ei-rascunho > span { flex: 1 1 200px; min-width: 0; }
