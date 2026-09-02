@@ -35,6 +35,7 @@ import { useState, type ReactNode } from "react";
 import { useAuth } from "../../lib/useAuth";
 import { definirSenha } from "../../lib/auth";
 import { mensagemDeErro } from "../../lib/erros";
+import { CampoSenha } from "./CampoSenha";
 
 /* As telas que a barreira não cobre. `/termos` e `/privacidade` porque
    precisam ser alcançáveis sempre (Play Store e LGPD), e `/login` porque
@@ -69,19 +70,20 @@ export function ExigirSenha({ children }: { children: ReactNode }) {
         </div>
 
         <section className="ei-cartao" style={{ marginTop: 14 }}>
+          {/* Aqui o olho pesa ainda mais que na tela de entrar: a pessoa
+              está INVENTANDO uma senha e não tem como conferir depois. Uma
+              senha criada com erro de digitação só aparece na próxima
+              abertura do app, quando ela já esqueceu o que digitou. */}
           <div className="ei-campo">
-            <label htmlFor="criar-senha">Sua senha</label>
-            <input
+            <CampoSenha
               id="criar-senha"
-              type="password"
+              rotulo="Sua senha"
               autoComplete="new-password"
               placeholder="Pelo menos 8 caracteres"
-              value={senha}
-              onChange={(e) => setSenha(e.target.value)}
+              valor={senha}
+              onChange={setSenha}
+              ajuda="Guarde num lugar seguro. Ninguém do Ei Itabirito vai te pedir a sua senha."
             />
-            <span className="ei-campo-ajuda">
-              Guarde num lugar seguro. Ninguém do Ei Itabirito vai te pedir a sua senha.
-            </span>
           </div>
 
           {erro && <p className="ei-campo-erro" role="alert">{erro}</p>}

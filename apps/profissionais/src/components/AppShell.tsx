@@ -314,19 +314,27 @@ export function AppShell({ children }: { children: ReactNode }) {
      favoritos"), e o coração de salvar continua em cada cartão da busca,
      que é onde a pessoa realmente usa. */
 
-  /* A tela de início esconde o cabeçalho, mas não a barra de baixo.
+  /* ── A BARRA AZUL FICA EM TODAS AS TELAS ────────────────────────────
+     A dona: "tirou a barra azul do topo, tem que voltar. Está embaralhando
+     com os ícones de cima do telefone."
 
-     O argumento para escondê-la era que aquela tela vem antes de qualquer
-     escolha, e oferecer cinco caminhos ali atrapalharia a pergunta que ela
-     faz. Só que a tela de início não é mais só a porta de entrada: dá para
-     voltar a ela pela casinha do cabeçalho, a qualquer momento, e quem faz
-     isso ficava sem saída nenhuma — a única forma de sair era a casinha,
-     que desaparece justamente ali. A dona pediu a barra nesta tela por
-     isso.
+     Havia uma exceção aqui: a tela de início escondia o cabeçalho, com o
+     argumento de que a marca é o assunto dela e repeti-la menor no alto
+     duplicaria. O argumento era razoável e o efeito era ruim — e por um
+     motivo que não tem nada a ver com duplicar.
 
-     O cabeçalho continua fora: a marca é o assunto da tela, e repeti-la
-     menor no alto só duplicaria. */
-  const isWelcome = path === "/inicio";
+     A barra azul não é só decoração: é ela que RESERVA o recorte do
+     aparelho, com `padding-top: calc(12px + env(safe-area-inset-top))`.
+     Sem ela, e com o `viewport-fit=cover` do index.html, a tela desenha
+     por baixo da faixa de status — e o título encosta no relógio e no
+     sinal, que foi exatamente o que a dona viu.
+
+     Escondê-la exigiria repetir a reserva em cada tela que a esconde, e
+     essa é a conta que ninguém refaz na tela seguinte. Uma barra só, em
+     todo lugar, é a versão que não tem como quebrar.
+
+     (E a duplicação some junto: a tela de início deixou de ter o "Ei"
+     gigante, que agora vive na barra.) */
 
   return (
     <>
@@ -335,7 +343,7 @@ export function AppShell({ children }: { children: ReactNode }) {
       {/* Antes do cabeçalho: se não há internet, isso vem antes de qualquer
           coisa que a pessoa possa interpretar como defeito do app. */}
       <AvisoSemInternet />
-      {!isWelcome && <Header />}
+      <Header />
       {/* O "×" flutuante saiu.
           ─────────────────────
           Era do procurô: uma tela de vitrine que a pessoa abria de um link

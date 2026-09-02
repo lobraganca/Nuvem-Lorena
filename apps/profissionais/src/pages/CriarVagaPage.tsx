@@ -578,22 +578,47 @@ export function CriarVagaPage() {
           </div>
 
           <div className="ei-campo">
-            <label htmlFor="profession">Profissão/Categoria *</label>
-            <select
+            {/* ── A PROFISSÃO PASSOU A ACEITAR TEXTO ─────────────────
+                A dona: "onde coloca o profissional que procura, tem que
+                abrir a empresa escrever. Pode ser que a vaga não tenha na
+                lista."
+
+                E não tem mesmo. A lista tem 80 ofícios e foi escrita para
+                o outro produto, o de achar um encanador para a sua casa —
+                não há "auxiliar de produção", "operador de empilhadeira",
+                "repositor" nem metade do que uma cidade com mineração
+                contrata. A empresa que não achava o que procurava tinha
+                duas saídas: escolher o mais parecido (e a onda avisa as
+                pessoas erradas) ou desistir.
+
+                A forma é um `input` com `list`: escreve-se à vontade, e o
+                navegador oferece a lista enquanto se digita. É melhor que
+                as duas alternativas — o `select` fechado não deixa
+                escrever, e o campo pelado sem lista faz cada empresa
+                inventar um nome, o que quebraria a comparação com o
+                cadastro de quem procura.
+
+                O `datalist` é HTML puro, sem biblioteca: um combo escrito
+                à mão precisaria de teclado, foco, rolagem e toque — e é
+                justamente o tipo de coisa que fica quebrada no celular. */}
+            <label htmlFor="profession">Que profissão é? *</label>
+            <input
               id="profession"
+              type="text"
+              list="lista-profissoes"
+              autoComplete="off"
+              placeholder="Escreva ou escolha da lista"
               value={form.profession}
               onChange={(e) => setForm((f) => ({ ...f, profession: e.target.value }))}
-            >
-              <option value="">Escolha uma profissão</option>
+            />
+            <datalist id="lista-profissoes">
               {CATEGORIES.map((cat) => (
-                <option key={cat} value={cat}>
-                  {cat}
-                </option>
+                <option key={cat} value={cat} />
               ))}
-            </select>
+            </datalist>
             <span className="ei-campo-ajuda">
-              É por ela que o app acha quem avisar. Escolher errado avisa as pessoas
-              erradas — e gasta uma das ondas da vaga.
+              Não achou na lista? Escreva do seu jeito. É por ela que o app acha
+              quem avisar.
             </span>
           </div>
 

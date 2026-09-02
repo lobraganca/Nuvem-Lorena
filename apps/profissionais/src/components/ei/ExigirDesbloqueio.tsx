@@ -45,6 +45,7 @@ import { useAuth } from "../../lib/useAuth";
 import { entrarComTelefoneESenha, entrarComTelefone, conferirCodigoDeEntrada } from "../../lib/auth";
 import { formatPhone, doFormatoDoBanco } from "../../lib/phone";
 import { mensagemDeErro } from "../../lib/erros";
+import { CampoSenha } from "./CampoSenha";
 
 const MARCA_ABERTURA = "ei-app-aberto";
 const NAO_PEDIR = "ei-nao-pedir-senha";
@@ -162,13 +163,11 @@ export function ExigirDesbloqueio({ children }: { children: ReactNode }) {
           {!pedindoCodigo ? (
             <>
               <div className="ei-campo">
-                <label htmlFor="desbloqueio-senha">Sua senha</label>
-                <input
+                <CampoSenha
                   id="desbloqueio-senha"
-                  type="password"
-                  autoComplete="current-password"
-                  value={senha}
-                  onChange={(e) => setSenha(e.target.value)}
+                  rotulo="Sua senha"
+                  valor={senha}
+                  onChange={setSenha}
                 />
               </div>
 

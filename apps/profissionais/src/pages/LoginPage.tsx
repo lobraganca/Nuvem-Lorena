@@ -9,6 +9,7 @@ import {
 } from "../lib/auth";
 import { hasDatabase, problemaDeConfiguracao } from "../lib/supabase";
 import { marcarAppAberto, gravarSenhaNesteAparelho } from "../components/ei/ExigirDesbloqueio";
+import { CampoSenha } from "../components/ei/CampoSenha";
 import { useTituloDaPagina } from "../lib/tituloDaPagina";
 import { mensagemDeErro } from "../lib/erros";
 import { formatPhone } from "../lib/phone";
@@ -327,17 +328,18 @@ export function LoginPage() {
                 inventar uma para receber o código. */}
             {modo === "senha" && (
               <>
-                <label className="entrar-rotulo" htmlFor="entrar-senha-fone">
-                  Sua senha
-                </label>
-                <input
+                {/* O olho de mostrar a senha (a dona: "ícone pra mostrar
+                    a senha no login"). Num celular o teclado erra letra e
+                    o campo escondido não deixa conferir — e quem erra duas
+                    vezes desiste de entrar. Ver CampoSenha. */}
+                <CampoSenha
                   id="entrar-senha-fone"
-                  type="password"
-                  autoComplete="current-password"
+                  classeRotulo="entrar-rotulo"
+                  rotulo="Sua senha"
                   placeholder="Sua senha"
-                  value={senhaEntrada}
-                  onChange={(e) => setSenhaEntrada(e.target.value)}
-                  disabled={!hasDatabase() || enviando}
+                  valor={senhaEntrada}
+                  onChange={setSenhaEntrada}
+                  desabilitado={!hasDatabase() || enviando}
                 />
                 {/* Caixa e texto colados, lado a lado. Com a classe de item
                     de lista a caixinha ia para uma ponta e o texto para a

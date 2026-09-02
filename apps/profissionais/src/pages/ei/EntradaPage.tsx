@@ -100,17 +100,19 @@ export function EntradaPage() {
           instalar, privacidade — se junta embaixo, num bloco só. */}
       <div className="ei-tela ei-entrada">
         <div className="ei-entrada-topo">
-          {/* "Ei", e não "Emprego em Itabirito".
-              ─────────────────────────────────────
-              A dona: "nas telas onde tem escrito 'Emprego em Itabirito',
-              acho melhor mudar para Ei".
+          {/* O "Ei" gigante saiu daqui.
+              ─────────────────────────
+              Ele entrou quando esta tela era a única sem a barra azul do
+              topo — e fazia sentido: a marca precisava aparecer em algum
+              lugar. Agora a barra está em todas as telas (ver AppShell), e
+              duas marcas na mesma dobra é uma marca a mais.
 
-              O nome comprido era descrição, não marca: dizia o que o app
-              faz, o que a linha logo abaixo já diz melhor, e ocupava duas
-              linhas no celular. "Ei" é o que está no ícone, no aparelho e
-              na boca das pessoas — e é o que a pessoa procura quando quer
-              achar o app de novo. */}
-          <h1 className="ei-entrada-titulo ei-marca-titulo">Ei</h1>
+              O que fica é a pergunta que a tela faz. "Emprego em
+              Itabirito" continua fora, como a dona pediu no item 12: quem
+              diz o nome agora é a barra. */}
+          <h1 className="ei-entrada-titulo">
+            {entrou ? "Por onde começamos?" : "Vagas e serviços de Itabirito"}
+          </h1>
           {/* Uma linha. A anterior tinha duas orações e dizia, com vinte
               palavras, o que os dois botões logo abaixo dizem com seis. */}
           {/* Era "De que lado você está?", que fazia par com as duas
@@ -118,8 +120,8 @@ export function EntradaPage() {
               ficou anunciando uma escolha que não está mais nesta tela. */}
           <p className="ei-entrada-apoio">
             {entrou
-              ? "Por onde você quer começar?"
-              : "Vagas e serviços da cidade, no seu celular."}
+              ? "Escolha por onde entrar. Dá para trocar quando quiser."
+              : "Quem contrata e quem procura trabalho, no mesmo lugar."}
           </p>
         </div>
 

@@ -2715,3 +2715,33 @@
   .ei .ei-competencia { flex-wrap: wrap; }
   .ei .ei-competencia input { flex: 1 1 100%; }
 }
+
+/* ── O campo de senha com o olho ────────────────────────────────────────
+   O botão fica DENTRO da moldura do campo, e não ao lado: ao lado ele
+   empurraria o campo e a linha ficaria com duas alturas diferentes —
+   além de roubar 44px de largura numa tela de 390px.
+
+   O `padding-right` do input é o que impede o texto de passar por baixo
+   do olho. Sem ele, uma senha longa desliza para debaixo do ícone e a
+   pessoa lê metade dela. */
+.ei-senha { position: relative; display: block; }
+.ei-senha input { width: 100%; padding-right: 46px; }
+.ei-senha-olho {
+  position: absolute;
+  top: 50%;
+  right: 6px;
+  transform: translateY(-50%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 38px;
+  height: 38px;
+  padding: 0;
+  border: 0;
+  border-radius: var(--ei-raio-redondo, 999px);
+  background: transparent;
+  color: var(--ei-tinta-fraca);
+  cursor: pointer;
+  min-height: 0;
+}
+.ei-senha-olho:hover { background: var(--ei-afunda); }
