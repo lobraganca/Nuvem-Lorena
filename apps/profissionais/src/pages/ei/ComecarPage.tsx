@@ -92,33 +92,34 @@ export function ComecarPage({ lado }: { lado: "professional" | "company" }) {
           )}
         </div>
 
+        {/* Banco de talentos e Banco de vagas — quadrados, logo abaixo
+            das portas principais — 02/09
+            ─────────────────────────────────────────────────────────
+            A dona, em duas mensagens: primeiro "podem ser quadrado e no
+            final da página" (foram para o rodapé, perto do Instalar);
+            depois "podem ficar debaixo do botão de minhas empresas,
+            espaçado, e também na tela dos profissionais" — mais perto das
+            portas principais do que do rodapé, com respiro entre os dois
+            blocos.
+
+            Continuam quadrados e em par — a razão de serem atalhos, e não
+            portas do tamanho de "Minhas empresas"/"Meu cadastro", não
+            mudou: valem para os dois lados por igual. Só a DISTÂNCIA do
+            que vem antes é que encolheu — o espaço vem de graça do
+            `gap: 22px` que a coluna de `.ei-entrada` já aplica entre
+            cada bloco direto dela, o mesmo respiro do resto da tela. */}
+        <div className="ei-atalhos">
+          <Link to="/profissionais" className="ei-atalho">
+            <IconePorta desenho="pessoas" />
+            <span>Banco de talentos</span>
+          </Link>
+          <Link to="/vagas" className="ei-atalho">
+            <IconePorta desenho="mala" />
+            <span>Banco de vagas</span>
+          </Link>
+        </div>
+
         <div className="ei-entrada-pe">
-          {/* Banco de talentos e Banco de vagas viraram QUADRADOS, no
-              final da página — 02/09
-              ─────────────────────────────────────────────────────────
-              A dona: "em ambas as telas (empresa e profissional) os
-              botões de banco de talentos e de vagas podem ser quadrado e
-              no final da página."
-
-              Antes eram portas do mesmo tamanho das principais (Minhas
-              empresas / Meu cadastro), competindo por atenção com o que a
-              pessoa veio fazer nesta tela. Os dois valem para os dois
-              lados — quem contrata também quer ver quem mais está
-              contratando, e quem procura trabalho também quer ver quem
-              mais procura — então descem para um par de atalhos iguais,
-              no rodapé, onde se olha DEPOIS de resolver o assunto
-              principal. */}
-          <div className="ei-atalhos">
-            <Link to="/profissionais" className="ei-atalho">
-              <IconePorta desenho="pessoas" />
-              <span>Banco de talentos</span>
-            </Link>
-            <Link to="/vagas" className="ei-atalho">
-              <IconePorta desenho="mala" />
-              <span>Banco de vagas</span>
-            </Link>
-          </div>
-
           <InstalarApp variante="botao" />
         </div>
       </div>

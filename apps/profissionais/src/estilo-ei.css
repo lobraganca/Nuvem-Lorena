@@ -334,13 +334,16 @@
 .ei-entrada-pe > .ei-btn-inline { margin: 0 20px; }
 .ei-entrada-pe > .ei-lista { justify-self: stretch; }
 
-/* Banco de talentos e Banco de vagas — quadrados, no rodapé — 02/09
+/* Banco de talentos e Banco de vagas — quadrados, logo abaixo das
+   portas principais — 02/09
    ──────────────────────────────────────────────────────────────────
-   A dona: "os botões de banco de talentos e de vagas podem ser
-   quadrado e no final da página." Dois lado a lado, e não empilhados
-   como as portas principais: são pares — vale a mesma coisa para os
-   dois lados do app —, e lado a lado o par se lê de uma vez. */
-.ei-entrada-pe > .ei-atalhos { justify-self: stretch; }
+   A dona, em duas mensagens: primeiro "podem ser quadrado e no final
+   da página" (foram bloco irmão de `.ei-entrada-pe`, o rodapé);
+   depois "podem ficar debaixo do botão de minhas empresas, espaçado" —
+   subiram para logo após `.ei-portas`, na mesma coluna flex de
+   `.ei-entrada` (ver ComecarPage.tsx). Dois lado a lado, e não
+   empilhados como as portas principais: são pares — vale a mesma coisa
+   para os dois lados do app —, e lado a lado o par se lê de uma vez. */
 .ei-atalhos {
   display: grid;
   grid-template-columns: 1fr 1fr;
