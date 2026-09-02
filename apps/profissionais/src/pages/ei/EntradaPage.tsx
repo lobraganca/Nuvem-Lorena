@@ -253,33 +253,32 @@ export function EntradaPage() {
               </>
             ) : (
               <>
-                <Link to="/vagas-para-mim" className="ei-porta ei-porta-cheia">
-                  <span className="ei-porta-nome">Vagas para mim</span>
-                  <span className="ei-porta-nota">O que chegou para o seu ofício</span>
-                </Link>
-                {/* O banco de vagas.
-                    ─────────────────
-                    A dona: "tem que criar um banco de vagas, assim como o
-                    de talentos, nela as pessoas poderão acessar as vagas
-                    que estão em aberto das empresas."
+                {/* ── A ORDEM DAS PORTAS, PEDIDA PELA DONA — 02/09 ───────
+                    "Na tela de procuro trabalho, ter os botões nessa
+                    ordem: meu cadastro — vagas compatíveis — banco de
+                    talentos."
 
-                    A porta de cima mostra o que a ONDA escolheu mandar;
-                    esta mostra TUDO que está no ar. A diferença importa
-                    porque a onda compara texto e erra: quem se cadastrou
-                    como "auxiliar de limpeza" não recebe a vaga de
-                    "camareira" sendo exatamente a pessoa.
+                    A ordem tem lógica de uso, e não só de gosto: sem o
+                    cadastro preenchido nenhuma vaga chega (a onda procura
+                    por ofício), então ele vem primeiro — e é a única coisa
+                    desta tela que depende da pessoa. Depois o que ela veio
+                    ver, e por último a lista de quem mais está procurando.
 
-                    Fica fora da barra de baixo de propósito — a barra tem
-                    quatro lugares, e os quatro foram escolhidos pela dona
-                    ("retornar, as notificações, banco de talentos, painel").
-                    Um quinto item espremeria os outros quatro. */}
-                <Link to="/vagas" className="ei-porta">
-                  <span className="ei-porta-nome">Banco de vagas</span>
-                  <span className="ei-porta-nota">Todas as vagas abertas da cidade</span>
-                </Link>
-                <Link to="/painel" className="ei-porta">
+                    "Vagas compatíveis" no lugar de "Vagas para mim": o
+                    nome antigo não dizia POR QUE aquelas vagas estão ali,
+                    e a diferença para o banco de vagas — que mostra tudo —
+                    ficava invisível. */}
+                <Link to="/painel" className="ei-porta ei-porta-cheia">
                   <span className="ei-porta-nome">Meu cadastro</span>
                   <span className="ei-porta-nota">Suas funções, horários e contato</span>
+                </Link>
+                <Link to="/vagas-para-mim" className="ei-porta">
+                  <span className="ei-porta-nome">Vagas compatíveis</span>
+                  <span className="ei-porta-nota">O que combina com o seu ofício</span>
+                </Link>
+                <Link to="/profissionais" className="ei-porta ei-porta-laranja">
+                  <span className="ei-porta-nome">Banco de talentos</span>
+                  <span className="ei-porta-nota">Quem está procurando trabalho na cidade</span>
                 </Link>
               </>
             )}
@@ -334,10 +333,27 @@ export function EntradaPage() {
               quem está disponível é o que se faz DEPOIS. Duas portas
               grandes lado a lado fazem a pessoa escolher entre coisas que
               não competem. */}
-          {tipo === "company" && entrou && (
+          {/* Cada lado tem a SUA porta de rodapé, e é a mesma ideia nos
+              dois: o que se olha depois de resolver o assunto principal.
+
+              Na empresa, quem está disponível. Em quem procura trabalho,
+              todas as vagas abertas da cidade — ela saiu das três portas
+              de cima quando a dona escolheu a ordem "meu cadastro, vagas
+              compatíveis, banco de talentos", e desceu para cá em vez de
+              sumir: é ela que salva quem a onda não encontrou, porque a
+              onda compara texto e erra (quem se cadastrou como "auxiliar
+              de limpeza" não recebe a vaga de "camareira" sendo
+              exatamente a pessoa). */}
+          {entrou && tipo === "company" && (
             <Link to="/profissionais" className="ei-porta ei-porta-laranja">
               <span className="ei-porta-nome">Banco de talentos</span>
               <span className="ei-porta-nota">Quem está disponível na cidade</span>
+            </Link>
+          )}
+          {entrou && tipo === "professional" && (
+            <Link to="/vagas" className="ei-porta">
+              <span className="ei-porta-nome">Banco de vagas</span>
+              <span className="ei-porta-nota">Todas as vagas abertas da cidade</span>
             </Link>
           )}
 
