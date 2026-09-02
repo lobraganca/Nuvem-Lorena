@@ -176,29 +176,6 @@ export function ExigirDesbloqueio({ children }: { children: ReactNode }) {
                 />
               </div>
 
-              {/* "Gravar a senha", no sentido que a dona pediu: não pedir de
-                  novo neste aparelho. A senha não é guardada — o que se
-                  guarda é a decisão. */}
-              {/* Caixa e texto lado a lado, colados. Com `ei-linha-item` a
-                  caixinha ficava numa ponta e o texto na outra, e a foto da
-                  dona mostrou os dois separados por meia tela. */}
-              <label
-                style={{
-                  display: "flex",
-                  alignItems: "center",
-                  gap: 10,
-                  marginTop: 12,
-                  cursor: "pointer",
-                }}
-              >
-                <input
-                  type="checkbox"
-                  checked={lembrar}
-                  onChange={(e) => setLembrar(e.target.checked)}
-                />
-                <span>Não pedir de novo neste aparelho</span>
-              </label>
-
               {erro && <p className="ei-campo-erro" role="alert">{erro}</p>}
 
               <button
@@ -221,27 +198,34 @@ export function ExigirDesbloqueio({ children }: { children: ReactNode }) {
                 {ocupado ? "Entrando…" : "Entrar"}
               </button>
 
-              <button
-                type="button"
-                className="ei-btn-inline"
-                style={{ marginTop: 10 }}
-                disabled={ocupado}
-                onClick={async () => {
-                  setOcupado(true);
-                  setErro("");
-                  try {
-                    await entrarComTelefone(telefone);
-                    setPedindoCodigo(true);
-                    setAviso("Mandamos um código por SMS.");
-                  } catch (err) {
-                    setErro(mensagemDeErro(err, "Não consegui mandar o código."));
-                  } finally {
-                    setOcupado(false);
-                  }
+              {/* "Gravar a senha", no sentido que a dona pediu: não pedir de
+                  novo neste aparelho. A senha não é guardada — o que se
+                  guarda é a decisão.
+
+                  Desceu para debaixo do botão de Entrar, e ficou menor — a
+                  dona: "'não pedir de novo neste aparelho' pode ficar
+                  debaixo do botão de entrar e bem menor". Antes disputava
+                  altura com o campo de senha, do mesmo tamanho de um botão;
+                  é uma opção, não uma decisão do peso de "Entrar". */}
+              <label
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 7,
+                  marginTop: 12,
+                  cursor: "pointer",
+                  fontSize: "0.82rem",
+                  color: "var(--ei-tinta-fraca)",
                 }}
               >
-                Esqueci minha senha — receber código por SMS
-              </button>
+                <input
+                  type="checkbox"
+                  checked={lembrar}
+                  onChange={(e) => setLembrar(e.target.checked)}
+                  style={{ width: 15, height: 15 }}
+                />
+                <span>Não pedir de novo neste aparelho</span>
+              </label>
 
               {/* ── ENTRAR EM OUTRA CONTA — 02/09 ─────────────────────────
                   A dona: "nessa tela ter opção com botão de entrar em outra
@@ -263,7 +247,7 @@ export function ExigirDesbloqueio({ children }: { children: ReactNode }) {
               <button
                 type="button"
                 className="ei-btn-inline"
-                style={{ marginTop: 10 }}
+                style={{ marginTop: 14 }}
                 disabled={ocupado}
                 onClick={async () => {
                   setOcupado(true);
@@ -277,6 +261,33 @@ export function ExigirDesbloqueio({ children }: { children: ReactNode }) {
                 }}
               >
                 Entrar em outra conta
+              </button>
+
+              {/* Abaixo de "Entrar em outra conta", e mais curto — a dona:
+                  "esqueci minha senha - tirar o 'receber código por SMS' e
+                  colocar debaixo do botão de entrar em outra conta". O que
+                  o botão FAZ não mudou (ainda manda o código por SMS); só
+                  parou de anunciar o mecanismo no próprio rótulo. */}
+              <button
+                type="button"
+                className="ei-btn-inline"
+                style={{ marginTop: 10 }}
+                disabled={ocupado}
+                onClick={async () => {
+                  setOcupado(true);
+                  setErro("");
+                  try {
+                    await entrarComTelefone(telefone);
+                    setPedindoCodigo(true);
+                    setAviso("Mandamos um código por SMS.");
+                  } catch (err) {
+                    setErro(mensagemDeErro(err, "Não consegui mandar o código."));
+                  } finally {
+                    setOcupado(false);
+                  }
+                }}
+              >
+                Esqueci minha senha
               </button>
             </>
           ) : (
