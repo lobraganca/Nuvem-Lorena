@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import { lerMeuPerfil } from "../lib/meuPerfil";
 import { useAuth } from "../lib/useAuth";
 import { useTituloDaPagina } from "../lib/tituloDaPagina";
 import { mensagemDeErro } from "../lib/erros";
@@ -103,8 +104,37 @@ export function VagasParaMimPage() {
     setLigandoAviso(false);
   }
 
+  /* Ver o comentário em `responder`. Erro de leitura vira "ok": barrar a
+     candidatura por causa de uma consulta que caiu seria punir a pessoa por
+     um defeito nosso, e quem recusa de verdade é o banco. */
+  const [cadastro, setCadastro] = useState<"sem" | "falta" | "ok" | null>(null);
+
+  useEffect(() => {
+    if (!user) return;
+    let vivo = true;
+    lerMeuPerfil(user.id)
+      .then((p) => {
+        if (!vivo) return;
+        if (!p) setCadastro("sem");
+        else if (!p.confirmado) setCadastro("falta");
+        else setCadastro("ok");
+      })
+      .catch(() => vivo && setCadastro("ok"));
+    return () => {
+      vivo = false;
+    };
+  }, [user]);
+
   async function responder(v: VagaParaMim, interessado: boolean) {
     if (!user) return;
+    /* Mesma trava da tela da vaga (02/09): sem cadastro preenchido e
+       telefone confirmado, a empresa recebe uma linha sem nome nem
+       telefone — "Cadastro fora do ar" — e não tem como chamar ninguém.
+       Vale só para o SIM: dizer "não é para mim" continua livre. */
+    if (interessado && cadastro !== "ok") {
+      navegar("/painel?motivo=candidatura");
+      return;
+    }
     setRespondendo(v.vaga.id);
     setErro("");
     try {

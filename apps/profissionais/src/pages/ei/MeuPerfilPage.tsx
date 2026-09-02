@@ -1,12 +1,12 @@
 import { useEffect, useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { useTituloDaPagina } from "../../lib/tituloDaPagina";
 import { useAuth } from "../../lib/useAuth";
 import { mensagemDeErro } from "../../lib/erros";
 import { formatPhone, doFormatoDoBanco } from "../../lib/phone";
 import { Switch } from "../../components/ei/Switch";
 import { CampoTelefone } from "../../components/ei/CampoTelefone";
-import { Pagina } from "../../components/ei/Pagina";
+import { Pagina, Callout } from "../../components/ei/Pagina";
 import { Etapas } from "../../components/ei/Etapas";
 import { CATEGORIES, MAX_FUNCOES, DISPONIBILIDADE, PERIODOS_DE_SALARIO } from "../../types/domain";
 import { sendSuggestion } from "../../lib/suggestions";
@@ -60,6 +60,10 @@ type Experiencia = { empresa: string; cargo: string; inicio: string; fim: string
    que aconteceu com a `disponivel` na 0101. */
 
 export function MeuPerfilPage() {
+  /* De onde a pessoa veio: "candidatura" quer dizer que ela tentou
+     responder a uma vaga sem cadastro. */
+  const [paramsDaUrl] = useSearchParams();
+  const motivo = paramsDaUrl.get("motivo");
   useTituloDaPagina("Meu cadastro");
   const navegar = useNavigate();
   const { user, loading: carregandoConta } = useAuth();
@@ -385,6 +389,17 @@ export function MeuPerfilPage() {
             "Meu cadastro" na porta e "Painel" na barra eram três nomes
             para uma tela só. */}
         <Pagina titulo={emEtapas ? "Seu cadastro" : "Meu cadastro"} />
+
+        {/* Quem chegou aqui barrado numa candidatura precisa entender POR
+            QUE está nesta tela — senão ela parece um desvio aleatório, e a
+            pessoa volta para a vaga e tenta de novo. Ver VagaAbertaPage. */}
+        {motivo === "candidatura" && (
+          <Callout atencao>
+            <strong>Falta o seu cadastro para se candidatar.</strong> A empresa precisa
+            do seu nome e do seu telefone confirmado para te chamar. Preencha aqui e
+            volte para a vaga.
+          </Callout>
+        )}
         <p className="ei-apoio ei-margem" style={{ paddingBottom: 6 }}>
           {emEtapas
             ? "Três passos. Dá para mudar tudo depois."

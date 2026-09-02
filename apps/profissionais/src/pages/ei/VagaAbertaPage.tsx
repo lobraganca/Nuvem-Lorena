@@ -4,6 +4,7 @@ import { useAuth } from "../../lib/useAuth";
 import { useTituloDaPagina } from "../../lib/tituloDaPagina";
 import { obterVaga } from "../../lib/company";
 import { responderVaga } from "../../lib/minhasVagas";
+import { lerMeuPerfil } from "../../lib/meuPerfil";
 import { supabase } from "../../lib/supabase";
 import { mensagemDeErro } from "../../lib/erros";
 import { Callout, Pagina, Prop } from "../../components/ei/Pagina";
@@ -65,6 +66,31 @@ export function VagaAbertaPage() {
      Três estados, como na lista — sem isso, "não quis" e "não abriu"
      mostrariam a mesma tela. */
   const [interessado, setInteressado] = useState<boolean | undefined>(undefined);
+  /* O estado do cadastro de quem está olhando:
+       null      → ainda lendo
+       "sem"     → nunca preencheu
+       "falta"   → preencheu, mas o número não está confirmado
+       "ok"      → pode se candidatar
+     Erro de leitura NÃO vira "sem": bloquear a candidatura por causa de uma
+     consulta que caiu seria impedir a pessoa de responder por um defeito
+     nosso. Nesse caso passa, e quem recusa é o banco. */
+  const [cadastro, setCadastro] = useState<"sem" | "falta" | "ok" | null>(null);
+
+  useEffect(() => {
+    if (!user) return;
+    let vivo = true;
+    lerMeuPerfil(user.id)
+      .then((p) => {
+        if (!vivo) return;
+        if (!p) setCadastro("sem");
+        else if (!p.confirmado) setCadastro("falta");
+        else setCadastro("ok");
+      })
+      .catch(() => vivo && setCadastro("ok"));
+    return () => {
+      vivo = false;
+    };
+  }, [user]);
   const [carregando, setCarregando] = useState(true);
   const [enviando, setEnviando] = useState(false);
   const [erro, setErro] = useState("");
@@ -124,6 +150,21 @@ export function VagaAbertaPage() {
     }
   }
 
+  /* ── QUEM SE CANDIDATA PRECISA DE CADASTRO — 02/09 ───────────────────
+     A dona, vendo "Cadastro fora do ar" na lista de interessados da vaga
+     dela: "se for porque não tem cadastro, deve ter tudo cadastrado
+     primeiro."
+
+     Era isso mesmo. Responder à vaga só exigia CONTA — e conta é telefone
+     confirmado, mais nada. Quem nunca preencheu o cadastro (ou preencheu e
+     não confirmou o número) aparecia para a empresa como uma linha sem
+     nome, sem telefone e sem foto: "Cadastro fora do ar". Do outro lado é
+     pior do que parece — a empresa vê que alguém se interessou e não tem
+     como chamar.
+
+     Agora o cadastro é conferido ANTES: sem ele, os botões dão lugar a um
+     aviso com o caminho. É o mesmo princípio do lado da empresa, que não
+     publica vaga sem telefone confirmado. */
   async function responder(quero: boolean) {
     if (!user || !id) {
       /* Sem conta não dá para responder, e mandar embora sem explicação
@@ -131,6 +172,14 @@ export function VagaAbertaPage() {
       navegar("/login?lado=trabalhar");
       return;
     }
+    /* A trava vale para o SIM. O "não é para mim" continua livre: ele
+       serve para o app parar de mostrar a vaga, e exigir cadastro para
+       alguém dizer "não quero" seria cobrar trabalho para recusar. */
+    if (quero && cadastro !== "ok") {
+      navegar("/painel?motivo=candidatura");
+      return;
+    }
+
     setEnviando(true);
     setErro("");
     try {
@@ -421,10 +470,29 @@ export function VagaAbertaPage() {
             </>
           ) : (
             <div style={{ display: "grid", gap: 8 }}>
+              {/* O aviso aparece no lugar do "tenho interesse", e não como
+                  um erro DEPOIS do toque: a pessoa precisa saber o que
+                  falta antes de tentar, e o caminho tem que estar do lado
+                  da frase. */}
+              {user && (cadastro === "sem" || cadastro === "falta") && (
+                <Callout atencao>
+                  <strong>
+                    {cadastro === "sem"
+                      ? "Preencha seu cadastro para se candidatar."
+                      : "Confirme seu telefone para se candidatar."}
+                  </strong>{" "}
+                  {cadastro === "sem"
+                    ? "A empresa precisa do seu nome e do seu telefone para te chamar — sem isso, você aparece para ela como um cadastro fora do ar."
+                    : "É por ele que a empresa vai te chamar."}{" "}
+                  <Link to="/painel" className="ei-btn-inline">
+                    {cadastro === "sem" ? "Preencher agora" : "Confirmar agora"}
+                  </Link>
+                </Callout>
+              )}
               <button
                 type="button"
                 className="ei-btn ei-btn-cheio ei-btn-largo ei-btn-alto"
-                disabled={enviando}
+                disabled={enviando || (!!user && (cadastro === "sem" || cadastro === "falta"))}
                 onClick={() => responder(true)}
               >
                 {enviando ? "Enviando…" : "Tenho interesse"}
