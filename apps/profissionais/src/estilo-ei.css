@@ -1420,12 +1420,7 @@
    cartão: o fio da lista já separa um do outro. */
 .ei-plano { padding: 16px 20px; display: grid; gap: 8px; }
 
-.ei-plano-linha {
-  display: flex;
-  justify-content: space-between;
-  align-items: baseline;
-  gap: 12px;
-}
+
 
 .ei-plano-nome { font-size: 1.05rem; font-weight: 600; }
 
@@ -2642,19 +2637,7 @@
    Uma linha fina acima do resumo. Com duas lojas o painel é idêntico nas
    duas, e publicar a vaga na errada é um engano que não dá sinal nenhum na
    hora — só quando o telefone toca. */
-.ei-empresa-aberta {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
-  /* 20px de lado, o mesmo de `.ei-props`, `.ei-resumo` e `.ei-secao`.
-     Sem isto a linha herdava 15px de um container acima e ficava CINCO
-     pixels à esquerda de tudo o que vem abaixo dela — a diferença que não
-     se nomeia olhando, e se lê como "torto". */
-  padding: 4px 20px 10px;
-  background: var(--ei-papel);
-  border-bottom: 1px solid var(--ei-fio);
-}
+
 .ei-empresa-aberta-nome {
   font-size: 1rem;
   font-weight: 600;
@@ -2934,4 +2917,128 @@
 .ei-aviso-perfil-fechar {
   min-width: 44px;
   justify-content: center;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════
+   O CARTÃO DE IDENTIFICAÇÃO DO PAINEL — 02/09
+   ═══════════════════════════════════════════════════════════════════════
+   A dona: "tela extremamente quebrada e fora dos padrões que já escrevi."
+
+   Eram três blocos empilhados com três desenhos: uma linha solta com o
+   nome da empresa, um cartão com os números, outra linha solta com o
+   plano. As duas linhas soltas eram texto sobre branco, sem cartão e sem
+   título de seção — e como cada uma vinha logo acima de um cartão, liam
+   como o TÍTULO dele. "Plano Pro · Cabe mais 1 vaga" parecia ser o nome
+   do quadro de atalhos logo abaixo.
+
+   O app tem duas formas e só duas: título de seção e cartão branco.
+   Qualquer coisa fora disso parece sobra de outra tela.
+
+   Agora é um cartão com três faixas: quem está aberta, os números, e o
+   plano. As `.ei-empresa-aberta` e `.ei-plano-linha` saíram do arquivo —
+   deixá-las sem uso seria deixar duas classes que o próximo leitor tenta
+   entender à toa. */
+.ei .ei-painel-topo {
+  padding: 0;
+  overflow: hidden;
+}
+
+.ei-painel-topo-linha {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 4px 20px 4px;
+  border-bottom: 1px solid var(--ei-fio);
+}
+.ei-painel-topo-nome {
+  font-size: 1rem;
+  font-weight: 600;
+  min-width: 0;
+}
+
+/* Dentro do cartão o resumo perde o fio de baixo (o cartão já tem borda) e
+   a faixa de fundo — senão são duas superfícies brancas com um fio no
+   meio, que é a mesma coisa que uma. */
+/* Dentro do cartão o resumo perde a moldura INTEIRA — borda, canto
+   arredondado e as margens laterais que ele tem quando fica solto na tela.
+   Sem isto ele virava um cartão dentro do cartão: uma caixa com borda a
+   12px das bordas de outra caixa com borda, que é o desenho que faz uma
+   tela parecer montada por engano. */
+.ei .ei-resumo-no-cartao {
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  margin: 0;
+  padding: 16px 20px 18px;
+}
+
+/* O link da direita não quebra nunca. Com um nome comprido de empresa
+   ("Construtora e Empreendimentos Imobiliários Itabirito") o flex apertava
+   o "Trocar" até ele virar duas linhas — "Tro / car" —, que foi como
+   apareceu na conferência. O nome é quem encolhe: ele já tem reticências. */
+.ei-painel-topo-linha .ei-btn-inline {
+  flex: 0 0 auto;
+  white-space: nowrap;
+}
+
+/* O plano fecha o cartão num fundo levemente afundado: é dado de conta, e
+   não de operação, e o degrau de cor diz isso sem precisar de rótulo. */
+.ei-painel-plano {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  padding: 10px 20px 12px;
+  background: var(--ei-afunda);
+  border-top: 1px solid var(--ei-fio);
+}
+.ei-plano-nome { font-weight: 600; font-size: 0.95rem; }
+.ei-plano-nota {
+  flex: 1 1 auto;
+  font-size: 0.85rem;
+  color: var(--ei-tinta-fraca);
+}
+
+/* ═══════════════════════════════════════════════════════════════════════
+   PALAVRA COMPRIDA NÃO EMPURRA A TELA — 02/09
+   ═══════════════════════════════════════════════════════════════════════
+   A dona: "a tela está desproporcional à tela do celular. Está sobrando
+   pra fora e não tá ficando ajustado quando entra."
+
+   Estava, e a varredura de layout passava LIMPA — porque os dados de
+   teste eram curtos ("Padaria", "Centro"), e texto curto nunca estoura. Só
+   ao pôr na demonstração um e-mail de verdade
+   (contato.recursos.humanos@construtoraexemplodeitabirito.com.br) as duas
+   telas de vaga passaram a rolar para o lado.
+
+   É o defeito mais antigo da web: uma palavra SEM ESPAÇO não tem onde
+   quebrar, então ela empurra a coluna, e a coluna empurra a página. Um
+   e-mail, um endereço de site, um nome emendado — tudo que a empresa
+   escreve na descrição da vaga.
+
+   `anywhere` e não `break-word`: os dois quebram a palavra, mas só o
+   `anywhere` conta isso no tamanho MÍNIMO do elemento. Com `break-word`, o
+   pai de um flex/grid continua reservando a largura da palavra inteira e a
+   página estoura do mesmo jeito — é a diferença que faz esta linha
+   funcionar.
+
+   Vale para o app inteiro, e não só para as duas telas que apareceram:
+   qualquer campo que a pessoa escreve pode receber um e-mail. */
+.ei,
+.ei * {
+  overflow-wrap: anywhere;
+}
+
+/* O par do anterior: num flex, o filho tem `min-width: auto` por padrão,
+   o que quer dizer "nunca menor que o meu conteúdo". Um filho com texto
+   comprido ignora o `flex: 1` e estoura o pai — e nenhuma quebra de
+   palavra resolve isso, porque o problema é o tamanho mínimo, não o
+   texto. */
+.ei .ei-pessoa-texto,
+.ei .ei-resumo-item,
+.ei .ei-empresa-topo-texto,
+.ei .ei-plano-nota,
+.ei .ei-aviso-perfil-texto {
+  min-width: 0;
 }

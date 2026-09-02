@@ -20,14 +20,16 @@ import { AvisoPerfilIncompleto } from "../../components/ei/AvisoPerfilIncompleto
  * cadastradas e o botão do banco de talentos. Ao escolher a empresa, aí sim
  * abre outra tela com opções de vagas disponíveis daquela empresa."
  *
- * ── COM UMA EMPRESA SÓ, ESTA TELA NÃO APARECE ──────────────────────────
+ * ── ELA APARECE SEMPRE, INCLUSIVE COM UMA EMPRESA SÓ ──────────────────
  *
- * Ela é uma pergunta, e uma pergunta com uma resposta só é um toque a mais
- * para nada. Quem tem a padaria e nada além dela vai direto ao painel da
- * padaria; a tela existe a partir da segunda.
+ * Houve uma versão em que esta tela se pulava sozinha quando havia uma
+ * empresa só — "uma pergunta com uma resposta só é um toque a mais para
+ * nada". A dona pediu a tela duas vezes depois disso, e o motivo é que ela
+ * nunca chegou a vê-la.
  *
- * O "+" continua alcançável de lá, pelo botão "trocar" do painel — que é
- * onde a pessoa está quando lembra que quer cadastrar a segunda loja.
+ * O argumento estava errado porque a tela não é só uma pergunta: é onde se
+ * cadastra a SEGUNDA empresa, com o "+" ao lado dos cartões. Quem tem uma
+ * só é justamente quem precisa achar esse botão.
  *
  * ── O BANCO DE TALENTOS FICA AQUI ──────────────────────────────────────
  *
@@ -65,12 +67,24 @@ export function MinhasEmpresasPage() {
           navegar("/cadastro-empresa", { replace: true });
           return;
         }
-        /* Uma só: abre direto. Ver o comentário do topo. */
-        if (empresas.length === 1) {
-          escolherEmpresa(empresas[0].id);
-          navegar("/painel-empresa", { replace: true });
-          return;
-        }
+        /* ── A TELA APARECE SEMPRE, INCLUSIVE COM UMA EMPRESA SÓ ─────
+           A dona: "nas minhas alterações, pedi pra fazer uma tela onde a
+           empresa escolhe a empresa e depois entra nas vagas disponíveis."
+
+           Ela pediu, e ela não estava vendo — porque aqui havia um desvio
+           que pulava a tela quando existia uma empresa só. O argumento era
+           razoável ("uma pergunta com uma resposta só é um toque a mais
+           para nada"), e estava errado por dois motivos:
+
+             · a tela não é só uma pergunta. É onde se CADASTRA a segunda
+               empresa, com o "+" do lado — e quem tem uma só é exatamente
+               quem precisa achar esse botão;
+             · e o desvio fazia a tela que ela desenhou não existir na
+               prática. Ela pediu duas vezes justamente por isso.
+
+           Fica o desvio de quem não tem NENHUMA empresa: ali não há
+           escolha nem "+" que faça sentido, e o cadastro é o único caminho
+           possível. */
         setLista(empresas);
       })
       .catch((err) => {

@@ -568,6 +568,9 @@ export function CriarVagaPage() {
 
           <div className="ei-campo">
             <label htmlFor="title">Qual profissional você procura? *</label>
+            <span className="ei-campo-ajuda">
+              É a primeira linha que a pessoa lê.
+            </span>
             <input
               id="title"
               type="text"
@@ -575,9 +578,6 @@ export function CriarVagaPage() {
               value={form.title}
               onChange={(e) => setForm((f) => ({ ...f, title: e.target.value }))}
             />
-            <span className="ei-campo-ajuda">
-              É a primeira linha que a pessoa lê.
-            </span>
           </div>
 
           <div className="ei-campo">
@@ -605,6 +605,9 @@ export function CriarVagaPage() {
                 à mão precisaria de teclado, foco, rolagem e toque — e é
                 justamente o tipo de coisa que fica quebrada no celular. */}
             <label htmlFor="profession">Que profissão é? *</label>
+            <span className="ei-campo-ajuda">
+              Não achou na lista? Escreva do seu jeito.
+            </span>
             <input
               id="profession"
               type="text"
@@ -619,13 +622,13 @@ export function CriarVagaPage() {
                 <option key={cat} value={cat} />
               ))}
             </datalist>
-            <span className="ei-campo-ajuda">
-              Não achou na lista? Escreva do seu jeito.
-            </span>
           </div>
 
           <div className="ei-campo">
             <label htmlFor="specialty">Especialidade (opcional)</label>
+            <span className="ei-campo-ajuda">
+              Deixe em branco se qualquer um do ofício serve.
+            </span>
             <input
               id="specialty"
               type="text"
@@ -633,13 +636,13 @@ export function CriarVagaPage() {
               value={form.specialty || ""}
               onChange={(e) => setForm((f) => ({ ...f, specialty: e.target.value || null }))}
             />
-            <span className="ei-campo-ajuda">
-              Deixe em branco se qualquer um do ofício serve.
-            </span>
           </div>
 
           <div className="ei-campo">
             <label htmlFor="description">O que a pessoa vai fazer? *</label>
+            <span className="ei-campo-ajuda">
+              Duas ou três linhas. Vaga sem isso quase não recebe resposta.
+            </span>
             <textarea
               id="description"
               placeholder="Ex: Atender no balcão, organizar as prateleiras e fechar o caixa no fim do dia."
@@ -647,9 +650,6 @@ export function CriarVagaPage() {
               value={form.description}
               onChange={(e) => setForm((f) => ({ ...f, description: e.target.value }))}
             />
-            <span className="ei-campo-ajuda">
-              Duas ou três linhas. Vaga sem isso quase não recebe resposta.
-            </span>
           </div>
 
           {/* Quantidade e as duas datas (item 15, colunas da 0105).
@@ -660,7 +660,10 @@ export function CriarVagaPage() {
           <div style={{ display: "grid", gridTemplateColumns: "110px 1fr", gap: 10 }}>
             <div className="ei-campo">
               <label htmlFor="quantidade_vagas">Quantas vagas</label>
-              <input
+            <span className="ei-campo-ajuda">
+              Sem prazo, a vaga fica no ar até você fechar.
+            </span>
+            <input
                 id="quantidade_vagas"
                 type="number"
                 inputMode="numeric"
@@ -699,9 +702,6 @@ export function CriarVagaPage() {
                 setForm((f) => ({ ...f, prazo_candidatura: e.target.value || null }))
               }
             />
-            <span className="ei-campo-ajuda">
-              Sem prazo, a vaga fica no ar até você fechar.
-            </span>
           </div>
 
           </section>
@@ -723,6 +723,9 @@ export function CriarVagaPage() {
               desperdiçar. */}
           <div className="ei-campo">
             <label htmlFor="tipo_contrato">Como é a contratação? *</label>
+            <span className="ei-campo-ajuda">
+              Quase toda vaga aqui é no local.
+            </span>
             <select
               id="tipo_contrato"
               value={form.tipo_contrato || ""}
@@ -768,9 +771,6 @@ export function CriarVagaPage() {
               <option value="remoto">De casa</option>
               <option value="hibrido">Parte no local, parte de casa</option>
             </select>
-            <span className="ei-campo-ajuda">
-              Quase toda vaga aqui é no local.
-            </span>
           </div>
 
           {/* Horário e escala em TEXTO, e não em lista (item 15, 0105).
@@ -781,6 +781,9 @@ export function CriarVagaPage() {
               com o candidato descobrindo a verdade depois. */}
           <div className="ei-campo">
             <label htmlFor="horario">Que horas entra e sai?</label>
+            <span className="ei-campo-ajuda">
+              Ouro Preto e Rio Acima ficam a meia hora.
+            </span>
             <input
               id="horario"
               type="text"
@@ -816,9 +819,6 @@ export function CriarVagaPage() {
               />
               <span>Aceito candidato de outras cidades</span>
             </label>
-            <span className="ei-campo-ajuda">
-              Ouro Preto e Rio Acima ficam a meia hora.
-            </span>
           </div>
 
           {/* Caixa e texto na mesma linha, e a ajuda embaixo dos dois.
@@ -856,6 +856,9 @@ export function CriarVagaPage() {
               quem mora longe; refeição pesa num salário de piso. */}
           <div className="ei-campo">
             <label htmlFor="beneficio-novo">O que a vaga oferece além do salário?</label>
+            <span className="ei-campo-ajuda">
+              Vale-transporte decide quem mora longe.
+            </span>
             <div className="ei-chips" style={{ marginBottom: 8 }}>
               {BENEFICIOS_SUGERIDOS.map((b) => {
                 const marcado = form.beneficios.includes(b);
@@ -919,9 +922,6 @@ export function CriarVagaPage() {
                 setBeneficioNovo("");
               }}
             />
-            <span className="ei-campo-ajuda">
-              Vale-transporte decide quem mora longe.
-            </span>
           </div>
 
           {/* Comissão em TEXTO (item 15, 0105): "5% sobre a venda" e "R$ 50
@@ -929,6 +929,9 @@ export function CriarVagaPage() {
               de comissão aqui. */}
           <div className="ei-campo">
             <label htmlFor="comissao">Tem comissão?</label>
+            <span className="ei-campo-ajuda">
+              A vaga vai dizer “A combinar”, que é melhor que não dizer nada.
+            </span>
             <input
               id="comissao"
               type="text"
@@ -982,9 +985,6 @@ export function CriarVagaPage() {
               />
               <span>Salário a combinar</span>
             </label>
-            <span className="ei-campo-ajuda">
-              A vaga vai dizer “A combinar”, que é melhor que não dizer nada.
-            </span>
           </div>
 
           {!form.salario_a_combinar && (
@@ -998,6 +998,9 @@ export function CriarVagaPage() {
                   publicado como mensal. */}
               <div className="ei-campo">
                 <label htmlFor="salario_periodo">O salário é</label>
+                <span className="ei-campo-ajuda">
+                  Só se você paga mais conforme a experiência.
+                </span>
                 <select
                   id="salario_periodo"
                   value={form.salario_periodo}
@@ -1039,9 +1042,6 @@ export function CriarVagaPage() {
                   value={form.salary_range_max ? form.salary_range_max / 100 : ""}
                   onChange={(e) => setForm((f) => ({ ...f, salary_range_max: e.target.value ? Math.round(parseFloat(e.target.value) * 100) : null }))}
                 />
-                <span className="ei-campo-ajuda">
-                  Só se você paga mais conforme a experiência.
-                </span>
               </div>
             </>
           )}
@@ -1059,6 +1059,9 @@ export function CriarVagaPage() {
 
             <div className="ei-campo">
               <label htmlFor="required_experience">Precisa de experiência?</label>
+              <span className="ei-campo-ajuda">
+                Exigir o que a vaga não pede afasta gente boa.
+              </span>
               <select
                 id="required_experience"
                 value={form.required_experience || ""}
@@ -1069,9 +1072,6 @@ export function CriarVagaPage() {
                 <option value="2-5 anos">De 2 a 5 anos</option>
                 <option value="5+ anos">Mais de 5 anos</option>
               </select>
-              <span className="ei-campo-ajuda">
-                Exigir o que a vaga não pede afasta gente boa.
-              </span>
             </div>
 
             {/* Escolaridade mínima: os MESMOS valores que o candidato usa
@@ -1080,6 +1080,9 @@ export function CriarVagaPage() {
                 leitura humana. */}
             <div className="ei-campo">
               <label htmlFor="escolaridade_minima">Escolaridade mínima</label>
+              <span className="ei-campo-ajuda">
+                Exigir demais é o jeito mais rápido de ficar sem candidato.
+              </span>
               <select
                 id="escolaridade_minima"
                 value={form.escolaridade_minima ?? ""}
@@ -1096,13 +1099,13 @@ export function CriarVagaPage() {
                 <option value="mestrado">Mestrado</option>
                 <option value="doutorado">Doutorado</option>
               </select>
-              <span className="ei-campo-ajuda">
-                Exigir demais é o jeito mais rápido de ficar sem candidato.
-              </span>
             </div>
 
             <div className="ei-campo">
               <label htmlFor="curso_especifico">Precisa de algum curso?</label>
+              <span className="ei-campo-ajuda">
+                A vaga só alcança quem aceita sair da cidade.
+              </span>
               <input
                 id="curso_especifico"
                 type="text"
@@ -1171,9 +1174,6 @@ export function CriarVagaPage() {
                 />
                 <span>A vaga exige viajar</span>
               </label>
-              <span className="ei-campo-ajuda">
-                A vaga só alcança quem aceita sair da cidade.
-              </span>
             </div>
 
             <div className="ei-campo">
@@ -1213,6 +1213,11 @@ export function CriarVagaPage() {
                 baixo já perguntam. */}
             <div className="ei-campo">
               <label htmlFor="observacoes">Mais alguma coisa?</label>
+              <span className="ei-campo-ajuda">
+                {form.aceita_sem_compatibilidade
+                  ? "Quem não bate consegue responder, e a tela dela mostra o quanto combina."
+                  : "Quem não bate é avisado ANTES, em vez de responder e nunca receber retorno."}
+              </span>
               <textarea
                 id="observacoes"
                 rows={3}
@@ -1293,11 +1298,6 @@ export function CriarVagaPage() {
                 />
                 <span>Aceito candidatura de quem não bate com tudo isso</span>
               </label>
-              <span className="ei-campo-ajuda">
-                {form.aceita_sem_compatibilidade
-                  ? "Quem não bate consegue responder, e a tela dela mostra o quanto combina."
-                  : "Quem não bate é avisado ANTES, em vez de responder e nunca receber retorno."}
-              </span>
             </div>
           </section>
         )}

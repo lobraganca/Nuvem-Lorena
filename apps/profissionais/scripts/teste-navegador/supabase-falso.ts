@@ -60,7 +60,7 @@ const professionals: Linha[] = Array.from({ length: QUANTOS }, (_, i) => ({
   /* Numa conta nova nenhum cadastro é da pessoa: a cidade continua cheia
      (senão não há o que olhar), mas ela não é dona de nada. */
   owner_id: i < 2 && !contaNova() ? DONO_FALSO : `dono-${i}`,
-  name: `Profissional ${i}`,
+  name: i === 0 ? "Mariaeduardadesouzaeoliveira Nascimento" : `Profissional ${i}`,
   category: CATS[i % CATS.length],
   categories: [CATS[i % CATS.length]],
   /* A coluna do Ei: é por ela que a tela de profissionais filtra e monta a
@@ -182,11 +182,16 @@ const QUANTAS_VAGAS = Number(ajuste("vagas") ?? 3);
 
 const VAGAS: Linha[] = [
   {
+    /* Texto COMPRIDO de proposito. Os dados falsos eram todos curtos
+       ("Padaria", "Centro"), e texto curto nunca estoura — entao a
+       varredura de layout passava limpa e a dona via a tela "sobrando pra
+       fora" com os dados dela. Uma palavra sem espaco (um e-mail, um
+       endereco de site, um nome emendado) e o que empurra a coluna. */
     title: "Pedreiro para obra no Centro",
     profession: "Pedreiro",
     specialty: "Alvenaria",
     description:
-      "Obra de reforma numa casa no Centro. Serviço de alvenaria e reboco, com material no local.",
+      "Obra de reforma numa casa no Centro. Fale pelo site www.construtoraexemplodeitabirito.com.br ou pelo e-mail contato.recursos.humanos@construtoraexemplodeitabirito.com.br",
     required_experience: "2 anos",
     work_modality: "presencial",
     available_immediately: true,
@@ -346,7 +351,7 @@ const TABELAS: Record<string, Linha[]> = {
          de uma empresa, senão a lista sai com o nome em branco —, mas ela
          não é mais desta pessoa. */
       owner_id: contaNova() ? "dono-empresa" : DONO_FALSO,
-      company_name: "Padaria Pão de Minas",
+      company_name: "Construtora e Empreendimentos Imobiliários Itabirito",
       cnpj_cpf: "12.345.678/0001-90",
       phone: "5531999998888",
       /* Confirmado só quando o teste pede o contrário: o cartão de
@@ -354,7 +359,7 @@ const TABELAS: Record<string, Linha[]> = {
          deixa metade da tela sem nunca ter sido aberta. */
       phone_verified: ajuste("telefone") !== "nao",
       phone_verified_at: emDias(-20),
-      email: "contato@exemplo.com",
+      email: "contato.recursos.humanos@construtoraexemplodeitabirito.com.br",
       address: "Rua Direita, 120",
       neighborhood: "Centro",
       city: "Itabirito",

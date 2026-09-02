@@ -311,55 +311,71 @@ export function PainelEmpresaPage() {
               seções, mesmos botões. Sem esta linha, publicar a vaga da
               lanchonete na padaria é um engano que não dá nenhum sinal
               na hora e só aparece quando o telefone toca. */}
-          <div className="ei-empresa-aberta">
-            <span className="ei-empresa-aberta-nome">{empresa.company_name}</span>
-            {quantasEmpresas > 1 ? (
-              <Link to="/minhas-empresas" className="ei-btn-inline">Trocar</Link>
-            ) : (
-              /* Com uma empresa só, "trocar" não teria para onde ir — mas
-                 "cadastrar outra" tem, e é daqui que a pessoa lembra de
-                 fazê-lo: ela está olhando a loja que já cadastrou. */
-              <Link to="/cadastro-empresa?nova=1" className="ei-btn-inline">Cadastrar outra</Link>
-            )}
-          </div>
+          {/* ── UM CARTÃO SÓ, E NÃO TRÊS BLOCOS SOLTOS ─────────────────
+              A dona, olhando o painel no celular: "tela extremamente
+              quebrada e fora dos padrões que já escrevi."
 
-          <div className="ei-resumo">
-            <div className="ei-resumo-item">
-              <span className="ei-resumo-rotulo">Pessoas interessadas</span>
-              <span className="ei-resumo-numero">{interessados?.length ?? 0}</span>
+              Estava. Eram três coisas empilhadas com desenhos diferentes:
+              uma LINHA solta com o nome da empresa, um CARTÃO com os dois
+              números, e outra LINHA solta com o plano. As duas linhas
+              soltas eram texto sobre branco, sem cartão e sem título de
+              seção — e como cada uma ficava logo acima de um cartão, elas
+              liam como o TÍTULO do cartão de baixo. "Plano Pro · Cabe mais
+              1 vaga" parecia ser o nome do quadro de atalhos.
+
+              O resto do app tem duas formas, e só duas: título de seção
+              (VAGAS NO AR, DADOS DA EMPRESA) e cartão branco. Qualquer
+              coisa fora dessas duas parece sobra de outra tela — e é
+              exatamente o que ela viu.
+
+              Agora é UM cartão de identificação: a empresa, os dois
+              números e o plano. É também o que ela tinha pedido no item
+              10, com todas as letras: "no início ter um card com
+              informação sobre o plano e quantas vagas estão disponíveis
+              dentro do plano escolhido". */}
+          <div className="ei-cartao ei-painel-topo">
+            {/* Quem está aberta, e como trocar (itens 4 e 6). Com duas
+                lojas o painel é idêntico nas duas, e publicar a vaga na
+                errada é um engano que não dá sinal na hora — só quando o
+                telefone toca. */}
+            <div className="ei-painel-topo-linha">
+              <span className="ei-painel-topo-nome ei-uma-linha">{empresa.company_name}</span>
+              {quantasEmpresas > 1 ? (
+                <Link to="/minhas-empresas" className="ei-btn-inline">Trocar</Link>
+              ) : (
+                /* Com uma empresa só, "trocar" não teria para onde ir — mas
+                   "cadastrar outra" tem, e é daqui que a pessoa lembra de
+                   fazê-lo: ela está olhando a loja que já cadastrou. */
+                <Link to="/cadastro-empresa?nova=1" className="ei-btn-inline">Cadastrar outra</Link>
+              )}
             </div>
-            <div className="ei-resumo-item">
-              <span className="ei-resumo-rotulo">Vagas no ar</span>
-              <span className="ei-resumo-numero">
-                {plano?.abertas ?? 0}
-                <span className="ei-resumo-de"> de {limiteEmTexto}</span>
-              </span>
+
+            <div className="ei-resumo ei-resumo-no-cartao">
+              <div className="ei-resumo-item">
+                <span className="ei-resumo-rotulo">Pessoas interessadas</span>
+                <span className="ei-resumo-numero">{interessados?.length ?? 0}</span>
+              </div>
+              <div className="ei-resumo-item">
+                <span className="ei-resumo-rotulo">Vagas no ar</span>
+                <span className="ei-resumo-numero">
+                  {plano?.abertas ?? 0}
+                  <span className="ei-resumo-de"> de {limiteEmTexto}</span>
+                </span>
+              </div>
             </div>
-          </div>
 
-          {/* ── O PLANO, COM NOME (item 10) ────────────────────────────
-              A dona: "após cadastrar a empresa, no painel da empresa, no
-              início ter um card com informação sobre o plano e quantas
-              vagas estão disponíveis dentro do plano escolhido."
-
-              A metade das vagas já estava ali em cima ("3 de 3"). Faltava
-              a outra: QUAL plano. O painel dizia só "Ativo", lá embaixo na
-              ficha — e "Ativo" não responde à pergunta que a empresa faz
-              quando pensa em publicar a quarta vaga, que é "o que eu
-              assinei mesmo?".
-
-              Quantas ainda cabem vem escrito por extenso, e não como
-              conta: "faltam 0" é a informação que decide se vale abrir a
-              tela de criar vaga, e ninguém deveria ter de subtrair dois
-              números para chegar nela. */}
-          <div className="ei-plano-linha">
-            <span className="ei-plano-nome">
-              {nomeDoPlanoAtual}
-            </span>
-            <span className="ei-plano-nota">{quantasAindaCabem}</span>
-            <Link to="/planos-empresa" className="ei-btn-inline">
-              {semPlano ? "Ver planos" : "Mudar"}
-            </Link>
+            {/* O plano fecha o cartão, sobre um fundo levemente afundado:
+                é dado de conta, e não de operação. "Cabe mais 1 vaga" vem
+                por extenso porque é a informação que decide se vale abrir
+                a tela de criar vaga, e ninguém deveria ter de subtrair dois
+                números para chegar nela. */}
+            <div className="ei-painel-plano">
+              <span className="ei-plano-nome">{nomeDoPlanoAtual}</span>
+              <span className="ei-plano-nota">{quantasAindaCabem}</span>
+              <Link to="/planos-empresa" className="ei-btn-inline">
+                {semPlano ? "Ver planos" : "Mudar"}
+              </Link>
+            </div>
           </div>
 
         </Pagina>
@@ -549,46 +565,28 @@ export function PainelEmpresaPage() {
           })
         )}
 
-        {/* ── A FICHA, NO FIM ─────────────────────────────────────────
-            Ela abria a tela: quatro linhas de cadastro que não mudam nunca,
-            ocupando o primeiro lugar. Nos prints do Conta Azul o primeiro
-            lugar é do número que a pessoa veio ver — "Saldo disponível / R$
-            10.000,00" — e o cadastro não aparece na tela de trabalho.
+        {/* ── A FICHA DA EMPRESA SAIU DAQUI — 02/09 ──────────────────
+            A dona, olhando o painel: "na tela tem duas vezes a informação
+            da empresa. Informação de telefone confirmado porque?"
 
-            Aqui ela vira o que é: dado de consulta, no fim, com título
-            próprio. Quem precisa conferir o telefone ou o bairro rola até
-            ela; quem veio ver quem respondeu não passa mais por ela. */}
-        <h2 className="ei-secao">Dados da empresa</h2>
-        <div className="ei-lista">
-          <div className="ei-props">
-            <Prop rotulo="Empresa">
-              <span className="ei-uma-linha">{empresa.company_name}</span>
-            </Prop>
-            <Prop rotulo="Onde">
-              {empresa.neighborhood ? `${empresa.neighborhood} · ` : ""}
-              {empresa.city}/{empresa.uf}
-            </Prop>
-            <Prop rotulo="Plano">
-              {semPlano ? (
-                <span className="ei-selo ei-selo-cinza">Sem plano</span>
-              ) : (
-                <>
-                  {/* Só o estado. A contagem "3 de 3" já abre a tela, na
-                      faixa de resumo — repeti-la aqui é dizer duas vezes o
-                      mesmo número com palavras diferentes. */}
-                  <span className="ei-selo ei-selo-verde">Ativo</span>
-                </>
-              )}
-            </Prop>
-            <Prop rotulo="Telefone">
-              {empresa.phone_verified ? (
-                <span className="ei-selo ei-selo-verde">Confirmado</span>
-              ) : (
-                <span className="ei-selo ei-selo-laranja">Falta confirmar</span>
-              )}
-            </Prop>
-          </div>
-        </div>
+            As duas perguntas têm a mesma resposta. Havia uma seção "Dados
+            da empresa" no fim com quatro linhas — Empresa, Onde, Plano,
+            Telefone — e as três primeiras já estavam no cartão do topo,
+            ditas com outras palavras. Ler o mesmo nome duas vezes na mesma
+            tela faz a pessoa procurar a diferença entre os dois, e não há
+            nenhuma.
+
+            A quarta — "Telefone: Confirmado" — era pior: não é dado, é o
+            resultado de uma conferência que já aconteceu. Um selo verde
+            dizendo que está tudo certo ocupa uma linha para não pedir nada
+            e não informar nada. O que a empresa precisa saber sobre o
+            telefone é o CONTRÁRIO: quando ele NÃO está confirmado — e isso
+            já aparece em destaque, no aviso do topo da tela, com o botão
+            de confirmar do lado.
+
+            Os dados de cadastro moram onde se mexe neles: em "Editar
+            empresa", ali nos atalhos. O painel volta a ser só o que muda:
+            quem se interessou, e quais vagas estão no ar. */}
 
         {/* ── AS PESSOAS INTERESSADAS ─────────────────────────────────────
             A dona: "na tela do empresário ter as vagas que ela

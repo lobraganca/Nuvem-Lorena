@@ -601,6 +601,28 @@ export function PerfilPage() {
           </button>
         </div>
 
+        {/* ── A VERSÃO QUE ESTE APARELHO ESTÁ RODANDO ─────────────────────
+            A dona, três vezes: "as alterações não estão chegando no app."
+
+            Ela estava certa, e a causa era o service worker guardando a
+            versão de antes (ver vite.config.ts). Mas houve dias em que a
+            versão ESTAVA no ar e o problema era outro — e nós dois não
+            tínhamos como distinguir os dois casos.
+
+            Este carimbo resolve isso num print: é a data e a hora em que a
+            build que está rodando NESTE aparelho foi feita. Se ele estiver
+            velho, o app não atualizou; se estiver de agora, o defeito é
+            outro e a conversa começa do lugar certo.
+
+            Fica no fim da Conta, pequeno e cinza: não é para ser lido todo
+            dia, é para ser encontrado quando alguém perguntar. */}
+        <p
+          className="ei-apoio ei-margem"
+          style={{ textAlign: "center", marginTop: 28, fontSize: "0.78rem" }}
+        >
+          Versão de {__VERSAO__}
+        </p>
+
         {confirmarExclusao && (
           <BottomSheet
             title="Excluir minha conta"

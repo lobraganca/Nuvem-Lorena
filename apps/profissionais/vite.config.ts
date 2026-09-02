@@ -85,11 +85,12 @@ export default defineConfig({
     react(),
     publicarVersao(),
     VitePWA({
-      // 'prompt', e não 'autoUpdate': com autoUpdate a versão nova assume o
-      // controle sozinha e a página recarrega no meio do que a pessoa estiver
-      // fazendo. Num app cujo formulário mais importante é um cadastro longo
-      // — foto, endereço, serviços, telefone —, recarregar sem avisar apaga o
-      // trabalho de quem estava digitando. Quem decide a hora é ela.
+      // 'prompt' continua: quem RECARREGA a página aberta é a pessoa, no
+      // aviso de versão nova. Recarregar sozinho no meio de um cadastro
+      // longo — foto, endereço, serviços, telefone — apaga o que ela estava
+      // digitando, e esse cuidado não mudou.
+      //
+      // O que mudou foi o `skipWaiting` lá embaixo. Ver o comentário lá.
       registerType: 'prompt',
       manifest: false, // usamos public/manifest.json manualmente (linkado no index.html)
       includeAssets: ['icon-192.png', 'icon-512.png', 'icon-maskable-512.png', 'apple-touch-icon.png'],
@@ -124,13 +125,39 @@ export default defineConfig({
         // tinha instalado, e não havia como perceber isso de fora.
         navigateFallback: null,
         cleanupOutdatedCaches: true,
-        // Os dois desligados pelo mesmo motivo: a versão nova fica esperando
-        // em segundo plano e só entra quando a pessoa tocar em "Atualizar".
-        // Com skipWaiting ligado, os arquivos antigos são apagados debaixo da
-        // página que ainda está aberta — e aí um pedaço do app que só carrega
-        // quando a pessoa navega deixa de existir no meio do caminho.
-        clientsClaim: false,
-        skipWaiting: false,
+        // ── A ESPERA SAIU — 02/09 ──────────────────────────────────
+        // A dona, três vezes em dois dias: "as alterações não estão
+        // chegando no app."
+        //
+        // E não estavam. Os dois ficavam desligados, e o efeito combinado
+        // era este: a versão nova baixava, ficava PARADA em segundo plano,
+        // e só assumia quando alguém tocasse em "Atualizar" no aviso de
+        // versão. Quem não visse o aviso — ou o dispensasse uma vez —
+        // continuava no app de antes para sempre, com o site já publicado
+        // e verde havia horas.
+        //
+        // Foi a causa de "está muito parecido com o procurô" e de
+        // "extremamente quebrada", com prints de telas que eu já tinha
+        // consertado. É o defeito mais caro desta semana, porque ele faz
+        // TODO o resto do trabalho parecer que não aconteceu.
+        //
+        // O medo que os mantinha desligados era real, e continua tratado:
+        // com `skipWaiting` os arquivos antigos são apagados debaixo da
+        // página aberta, e um pedaço do app que só carrega ao navegar pode
+        // sumir no meio do caminho. Só que:
+        //
+        //   · a página ABERTA não recarrega (o `registerType` segue em
+        //     'prompt'), então nada do que está sendo digitado se perde;
+        //   · os arquivos têm nome com hash, e a Vercel continua servindo
+        //     os antigos por um tempo — um pedaço pedido depois da troca
+        //     vem da rede em vez de faltar;
+        //   · e o `ErrorBoundary` cobre o caso raro que restar, com um
+        //     botão de recarregar.
+        //
+        // Entre "pode faltar um pedaço uma vez, com saída" e "nunca mais
+        // recebe atualização nenhuma", o segundo é muito pior.
+        clientsClaim: true,
+        skipWaiting: true,
       },
     }),
   ],
