@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useTituloDaPagina } from "../../lib/tituloDaPagina";
 import { useAuth } from "../../lib/useAuth";
 import { mensagemDeErro } from "../../lib/erros";
@@ -8,7 +8,7 @@ import { Switch } from "../../components/ei/Switch";
 import { CampoTelefone } from "../../components/ei/CampoTelefone";
 import { Pagina } from "../../components/ei/Pagina";
 import { Etapas } from "../../components/ei/Etapas";
-import { CATEGORIES, MAX_FUNCOES, DISPONIBILIDADE } from "../../types/domain";
+import { CATEGORIES, MAX_FUNCOES, DISPONIBILIDADE, PERIODOS_DE_SALARIO } from "../../types/domain";
 import { sendSuggestion } from "../../lib/suggestions";
 import {
   lerMeuPerfil,
@@ -23,6 +23,7 @@ import {
   type CompetenciaEmEdicao,
 } from "../../lib/meuPerfil";
 import { lerExperiencias, salvarExperiencias } from "../../lib/experiencias";
+import { quemViuMeuPerfil, type QuemViu } from "../../lib/quemMeViu";
 import { numeroJaConfirmadoNaConta, marcarAnuncioConfirmado } from "../../lib/whatsappVerify";
 
 /**
@@ -70,6 +71,11 @@ export function MeuPerfilPage() {
      (básico | intermediário | avançado), informática, atendimento — ter
      campo + pra adicionar e metrificar". */
   const [competencias, setCompetencias] = useState<CompetenciaEmEdicao[]>([]);
+  /* As empresas que abriram este cadastro (0106). Quem procura trabalho
+     passa semanas sem sinal nenhum e lê o silêncio como "não estou
+     servindo para nada" — some do app calada. Isto é o primeiro sinal de
+     que o app está funcionando para ela. */
+  const [quemViu, setQuemViu] = useState<QuemViu[]>([]);
   const [busca, setBusca] = useState("");
   const [carregando, setCarregando] = useState(true);
   const [salvando, setSalvando] = useState(false);
@@ -160,6 +166,14 @@ export function MeuPerfilPage() {
               lerCompetencias(meu.id),
             ]);
             setCompetencias(comps);
+
+            /* À parte, e num `catch` próprio: é informação a mais numa
+               tela que funciona sem ela. Derrubar o cadastro inteiro
+               porque a lista de visitas falhou seria trocar a tela que a
+               pessoa veio usar por uma mensagem de erro. */
+            quemViuMeuPerfil(meu.id)
+              .then(setQuemViu)
+              .catch(() => setQuemViu([]));
             setExperiencias(
               exps.map((e) => ({
                 cargo: e.cargo,
@@ -588,19 +602,47 @@ export function MeuPerfilPage() {
         <h2 className="ei-secao">O que você quer</h2>
         <div className="ei-lista">
           <div className="ei-cartao">
+            {/* O período ANTES do valor (a dona: "na opção de salário
+                colocar opção da de mensal / hora / diária").
+
+                O rótulo do campo de baixo muda com a escolha, porque
+                "quanto você quer ganhar por mês" com uma diarista pensando
+                em diária é a pergunta errada — e ela responde "200", que
+                lido como mensal a tira de todas as vagas. */}
             <div className="ei-campo">
-              <label htmlFor="meu-pretensao">Quanto você quer ganhar por mês</label>
+              <label htmlFor="meu-periodo">Você pensa em ganhar</label>
+              <select
+                id="meu-periodo"
+                value={perfil.pretensaoPeriodo}
+                disabled={pretensaoCombinar}
+                onChange={(e) => setPerfil((x) => ({ ...x, pretensaoPeriodo: e.target.value }))}
+              >
+                {PERIODOS_DE_SALARIO.map((per) => (
+                  <option key={per.valor} value={per.valor}>
+                    {per.nome}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            <div className="ei-campo">
+              <label htmlFor="meu-pretensao">
+                {perfil.pretensaoPeriodo === "dia"
+                  ? "Quanto por diária"
+                  : perfil.pretensaoPeriodo === "hora"
+                    ? "Quanto por hora"
+                    : "Quanto por mês"}
+              </label>
               <input
                 id="meu-pretensao"
                 inputMode="decimal"
-                placeholder="1.500,00"
+                placeholder={perfil.pretensaoPeriodo === "mes" ? "1.500,00" : "180,00"}
                 value={pretensao}
                 disabled={pretensaoCombinar}
                 onChange={(e) => setPretensao(e.target.value)}
               />
               <span className="ei-campo-ajuda">
-                Opcional. Serve para a empresa não te chamar para uma vaga que não
-                fecha — e para você não perder tempo.
+                Opcional. Evita que te chamem para uma vaga que não fecha.
               </span>
             </div>
 
@@ -979,6 +1021,51 @@ export function MeuPerfilPage() {
             + {experiencias.length ? "Outra experiência" : "Acrescentar experiência"}
           </button>
         </div>
+
+        {/* ── QUEM VIU O SEU CADASTRO (0106) ─────────────────────────
+            Fica antes da formação e depois das funções: é notícia, e
+            notícia vem antes de formulário. Só aparece quando há alguém —
+            uma seção dizendo "ninguém ainda" é a frase mais desanimadora
+            que esta tela poderia dar, e ela apareceria justamente para
+            quem acabou de se cadastrar. */}
+        {quemViu.length > 0 && (
+          <>
+            <h2 className="ei-secao">Quem viu seu cadastro</h2>
+            <div className="ei-lista">
+              {quemViu.map((v) => (
+                <Link key={v.empresaId} to={`/empresa/${v.empresaId}`} className="ei-pessoa">
+                  <span className="ei-pessoa-retrato" aria-hidden="true">
+                    {v.foto ? (
+                      <img src={v.foto} alt="" loading="lazy" />
+                    ) : (
+                      v.empresa.trim().charAt(0).toLocaleUpperCase("pt-BR")
+                    )}
+                  </span>
+                  <div className="ei-pessoa-texto">
+                    <div className="ei-pessoa-nome ei-uma-linha">{v.empresa}</div>
+                    <div className="ei-pessoa-oficio ei-uma-linha">
+                      {quandoFoi(v.quando)}
+                      {/* "Voltou 3 vezes" é o sinal que vale esperar o
+                          telefone tocar: uma visita é curiosidade, três em
+                          dois dias é uma empresa decidindo. */}
+                      {v.vezes > 1 && ` · voltou ${v.vezes} vezes`}
+                    </div>
+                  </div>
+                  <span className="ei-linha-seta" aria-hidden="true">
+                    <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor"
+                         strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+                      <path d="M9 5l7 7-7 7" />
+                    </svg>
+                  </span>
+                </Link>
+              ))}
+            </div>
+            <p className="ei-apoio ei-margem" style={{ marginTop: 10 }}>
+              Ver o cadastro não é o mesmo que chamar. Mas é sinal de que a sua
+              função está sendo procurada na cidade.
+            </p>
+          </>
+        )}
 
         {/* ── 4. Formação e cursos (item 14) ───────────────────────────
             A dona pediu dois blocos com os MESMOS campos: "última
@@ -1360,4 +1447,19 @@ function ListaDeCursos({
       </button>
     </>
   );
+}
+
+/**
+ * "hoje", "ontem", "há 3 dias", "em 12/08".
+ *
+ * Data crua ("02/09/2026") obriga a pessoa a fazer a conta de quantos dias
+ * faz — e é a conta, e não a data, que ela quer. Passada uma semana a
+ * contagem perde a graça e a data volta a ser mais útil.
+ */
+function quandoFoi(iso: string): string {
+  const dias = Math.floor((Date.now() - new Date(iso).getTime()) / 86_400_000);
+  if (dias <= 0) return "Viu hoje";
+  if (dias === 1) return "Viu ontem";
+  if (dias < 7) return `Viu há ${dias} dias`;
+  return `Viu em ${new Date(iso).toLocaleDateString("pt-BR")}`;
 }

@@ -56,6 +56,10 @@ export type MeuPerfil = {
   pretensao: string;
   /** "A combinar" é resposta, e é diferente de não ter respondido. */
   pretensaoCombinar: boolean;
+  /** mes, dia ou hora (0106). Uma diarista pensa em diária; comparar
+      "R$ 200" dela com "R$ 2.000 por mês" de uma vaga sem os períodos é
+      comparar dois números que não são a mesma coisa. */
+  pretensaoPeriodo: string;
   disponibilidade: string[];
   aceitaViajar: boolean;
 
@@ -115,6 +119,7 @@ export const PERFIL_VAZIO: MeuPerfil = {
   confirmado: false,
   pretensao: "",
   pretensaoCombinar: false,
+  pretensaoPeriodo: "mes",
   disponibilidade: [],
   aceitaViajar: false,
   nascimento: "",
@@ -141,7 +146,7 @@ export async function lerMeuPerfil(ownerId: string): Promise<MeuPerfil | null> {
     .from("professionals")
     .select(
       "id, name, phone, email, neighborhood, areas_de_interesse, disponivel, paused, whatsapp_verified, " +
-      "pretensao_centavos, pretensao_combinar, disponibilidade, aceita_viajar, " +
+      "pretensao_centavos, pretensao_combinar, pretensao_periodo, disponibilidade, aceita_viajar, " +
       /* As sete da 0103. A lista é escrita à mão, uma a uma: coluna nova
          que ninguém acrescente aqui chega como indefinida, sem erro
          nenhum para avisar — e o campo aparece em branco na tela como se
@@ -179,6 +184,7 @@ export async function lerMeuPerfil(ownerId: string): Promise<MeuPerfil | null> {
             maximumFractionDigits: 2,
           }),
     pretensaoCombinar: linha.pretensao_combinar ?? false,
+    pretensaoPeriodo: linha.pretensao_periodo ?? "mes",
     disponibilidade: linha.disponibilidade ?? [],
     aceitaViajar: linha.aceita_viajar ?? false,
     /* A data vem do banco como "1995-04-10", que é exatamente o formato
@@ -241,6 +247,7 @@ export async function salvarMeuPerfil(
        diferente de zero. */
     pretensao_centavos: emCentavos(perfil.pretensao),
     pretensao_combinar: perfil.pretensaoCombinar,
+    pretensao_periodo: perfil.pretensaoPeriodo,
     disponibilidade: perfil.disponibilidade,
     aceita_viajar: perfil.aceitaViajar,
     /* Data vazia grava `null`, e não "": o Postgres recusa string vazia

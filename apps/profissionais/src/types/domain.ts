@@ -81,6 +81,8 @@ export interface Professional {
      que é uma resposta ("prefiro conversar"). */
   pretensao_centavos: number | null;
   pretensao_combinar: boolean;
+  /** mes, dia ou hora (0106). Ver `salarioEmTexto`. */
+  pretensao_periodo: string;
   disponibilidade: string[];
   aceita_viajar: boolean;
   /* ── QUEM A PESSOA É (migration 0103) ─────────────────────────────
@@ -977,6 +979,9 @@ export interface JobListing {
   /** "A combinar" é uma resposta escrita, e é diferente de campo em branco:
       em branco some da tela e vira indistinguível de esquecimento. */
   salario_a_combinar: boolean;
+  /** mes, dia ou hora (0106). "R$ 180" é diária no pedreiro e absurdo no
+      balconista — sem isto, quem lê adivinha pelo ofício. */
+  salario_periodo: string;
 
   /* ── A VAGA INTEIRA (migration 0105) ───────────────────────────────
      Os seis temas que a dona listou no item 15. Cada campo existe porque
@@ -1125,6 +1130,19 @@ export function salarioEmTexto(v: {
   salario_a_combinar: boolean;
   salary_range_min: number | null;
   salary_range_max: number | null;
+  /* ── POR QUANTO TEMPO (migration 0106) ────────────────────────────
+     A dona: "na opção de salário colocar opção da de mensal / hora /
+     diária."
+
+     "R$ 180" numa vaga de pedreiro é diária; numa de balconista seria um
+     absurdo. Até aqui o app escrevia o número sem dizer por quanto tempo,
+     e quem lia adivinhava pelo ofício — o que só funciona para quem já
+     conhece o ofício.
+
+     Opcional na assinatura para as telas que ainda não passam o campo
+     continuarem compilando; ausente, vale `mes`, que é o padrão da
+     coluna. */
+  salario_periodo?: string | null;
 }): string | null {
   if (v.salario_a_combinar) return "A combinar";
   /* DIVIDIR POR 100. As colunas guardam CENTAVOS — o formulário grava
@@ -1138,16 +1156,39 @@ export function salarioEmTexto(v: {
       currency: "BRL",
       maximumFractionDigits: 0,
     });
+  /* O período vira sufixo, e não prefixo: "R$ 180 por dia" se lê de uma
+     vez; "por dia, R$ 180" faz a pessoa esperar o número.
+
+     E o mês fica IMPLÍCITO. Escrever "R$ 1.800 por mês" em toda vaga
+     acrescenta duas palavras a 90% das linhas para dizer o que todo mundo
+     já supõe — e enche o cartão da lista, onde a linha corta em 34
+     caracteres. Aparece só o que surpreende: dia e hora. */
+  const porQuanto =
+    v.salario_periodo === "dia" ? " por dia"
+      : v.salario_periodo === "hora" ? " por hora"
+      : "";
+
   const { salary_range_min: min, salary_range_max: max } = v;
   if (min != null && max != null) {
     /* Mínimo igual ao máximo é salário FIXO, e escrever "de R$ 2.000 a
        R$ 2.000" faz a empresa parecer que não sabe o que paga. */
-    return min === max ? reais(min) : `${reais(min)} a ${reais(max)}`;
+    return (min === max ? reais(min) : `${reais(min)} a ${reais(max)}`) + porQuanto;
   }
-  if (min != null) return `A partir de ${reais(min)}`;
-  if (max != null) return `Até ${reais(max)}`;
+  if (min != null) return `A partir de ${reais(min)}${porQuanto}`;
+  if (max != null) return `Até ${reais(max)}${porQuanto}`;
   return null;
 }
+
+/** "por mês" / "por dia" / "por hora", escrito por extenso. */
+export function nomeDoPeriodo(v: string | null | undefined): string {
+  return v === "dia" ? "por dia" : v === "hora" ? "por hora" : "por mês";
+}
+
+export const PERIODOS_DE_SALARIO = [
+  { valor: "mes", nome: "Por mês" },
+  { valor: "dia", nome: "Por dia (diária)" },
+  { valor: "hora", nome: "Por hora" },
+] as const;
 
 /** Onda de disparo (onda 1, 2 ou 3). */
 export type WaveNumber = 1 | 2 | 3;

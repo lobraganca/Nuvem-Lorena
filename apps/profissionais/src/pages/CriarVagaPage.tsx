@@ -18,6 +18,7 @@ import {
   ONDAS_POR_VAGA,
   BENEFICIOS_SUGERIDOS,
   CAMPOS_DE_COMPATIBILIDADE,
+  PERIODOS_DE_SALARIO,
   JORNADAS,
   TIPOS_DE_CONTRATO,
   type Jornada,
@@ -58,6 +59,10 @@ const EMPTY_FORM: FormState = {
   jornada: null,
   beneficios: [],
   salario_a_combinar: false,
+  /* Mês, que é o caso da maioria das vagas com carteira. Um período em
+     branco faria a tela escolher um por conta própria, e escolher errado
+     é o que o campo existe para evitar. */
+  salario_periodo: "mes",
   /* ── A VAGA INTEIRA (migration 0105, item 15) ─────────────────────
      Os campos que a dona listou por tema. Os padrões não são neutros:
 
@@ -984,8 +989,36 @@ export function CriarVagaPage() {
 
           {!form.salario_a_combinar && (
             <>
+              {/* O período ANTES do valor (a dona: "na opção de salário
+                  colocar opção da de mensal / hora / diária").
+
+                  Nesta ordem de propósito: quem vai escrever "180" precisa
+                  ter dito "por dia" ANTES, senão digita pensando no mês e
+                  corrige depois — e é aí que fica um salário de pedreiro
+                  publicado como mensal. */}
               <div className="ei-campo">
-                <label htmlFor="salary_min">Salário (R$) *</label>
+                <label htmlFor="salario_periodo">O salário é</label>
+                <select
+                  id="salario_periodo"
+                  value={form.salario_periodo}
+                  onChange={(e) => setForm((f) => ({ ...f, salario_periodo: e.target.value }))}
+                >
+                  {PERIODOS_DE_SALARIO.map((per) => (
+                    <option key={per.valor} value={per.valor}>
+                      {per.nome}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              <div className="ei-campo">
+                <label htmlFor="salary_min">
+                  {form.salario_periodo === "dia"
+                    ? "Valor da diária (R$) *"
+                    : form.salario_periodo === "hora"
+                      ? "Valor da hora (R$) *"
+                      : "Salário por mês (R$) *"}
+                </label>
                 <input
                   id="salary_min"
                   type="number"

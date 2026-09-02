@@ -66,7 +66,7 @@ export async function vagasParaMim(userId: string): Promise<VagaParaMim[]> {
          required_experience, skills, salary_range_min, salary_range_max,
          available_immediately, work_modality, city, uf, neighborhood,
          anunciada_ate, status, created_at, closed_at,
-         tipo_contrato, jornada, beneficios, salario_a_combinar,
+         tipo_contrato, jornada, beneficios, salario_a_combinar, salario_periodo,
          companies:companies_public!inner ( company_name, photo_url )
        )`
     )
@@ -153,7 +153,7 @@ export async function todosOsAvisos(userId: string): Promise<Aviso[]> {
          required_experience, skills, salary_range_min, salary_range_max,
          available_immediately, work_modality, city, uf, neighborhood,
          anunciada_ate, status, created_at, closed_at,
-         tipo_contrato, jornada, beneficios, salario_a_combinar,
+         tipo_contrato, jornada, beneficios, salario_a_combinar, salario_periodo,
          companies:companies_public!inner ( company_name, photo_url )
        )`
     )

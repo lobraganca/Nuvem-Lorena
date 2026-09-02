@@ -396,6 +396,29 @@ const TABELAS: Record<string, Linha[]> = {
     },
   ],
 
+  /* Duas empresas viram o cadastro desta pessoa (0106). Sem estas linhas
+     a seção "Quem viu seu cadastro" nunca aparece no teste — e ela só
+     aparece quando há alguém, então o teste diria que está tudo certo por
+     não ter o que mostrar. */
+  profile_views: contaNova()
+    ? []
+    : [
+        {
+          professional_id: "pro-0",
+          company_id: EMPRESA_FALSA,
+          viewed_at: emDias(0),
+          vezes: 3,
+          companies: { company_name: "Padaria Pão de Minas", photo_url: fotoFalsa(2) },
+        },
+        {
+          professional_id: "pro-0",
+          company_id: "empresa-2",
+          viewed_at: emDias(-4),
+          vezes: 1,
+          companies: { company_name: "Lanchonete da Praça", photo_url: fotoFalsa(3) },
+        },
+      ],
+
   job_listings: VAGAS,
 
   /* A face pública da empresa (view da 0100). O app lê daqui, e não de

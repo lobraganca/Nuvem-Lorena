@@ -75,7 +75,7 @@ export function EmpresaPublicaPage() {
           sb
             .from("job_listings")
             .select(
-              "id, company_id, title, description, profession, specialty, required_experience, skills, salary_range_min, salary_range_max, available_immediately, work_modality, city, uf, neighborhood, anunciada_ate, status, created_at, closed_at, tipo_contrato, jornada, beneficios, salario_a_combinar"
+              "id, company_id, title, description, profession, specialty, required_experience, skills, salary_range_min, salary_range_max, available_immediately, work_modality, city, uf, neighborhood, anunciada_ate, status, created_at, closed_at, tipo_contrato, jornada, beneficios, salario_a_combinar, salario_periodo"
             )
             .eq("company_id", id)
             .eq("status", "active")

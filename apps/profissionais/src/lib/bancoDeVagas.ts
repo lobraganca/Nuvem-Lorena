@@ -263,7 +263,7 @@ export async function bancoDeVagas(userId?: string): Promise<VagaNoBanco[]> {
        required_experience, skills, salary_range_min, salary_range_max,
        available_immediately, work_modality, city, uf, neighborhood,
        anunciada_ate, status, created_at, closed_at,
-       tipo_contrato, jornada, beneficios, salario_a_combinar,
+       tipo_contrato, jornada, beneficios, salario_a_combinar, salario_periodo,
        quantidade_vagas, data_inicio, prazo_candidatura, horario, escala,
        aceita_outras_cidades, comissao, outros_beneficios,
        escolaridade_minima, curso_especifico, cnh_exigida, cnh_categorias,

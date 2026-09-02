@@ -5,6 +5,9 @@ import { mensagemDeErro } from "../lib/erros";
 import { useTituloDaPagina } from "../lib/tituloDaPagina";
 import { Pagina, Prop } from "../components/ei/Pagina";
 import type { ProfessionalExperience } from "../types/domain";
+import { useAuth } from "../lib/useAuth";
+import { empresaAtual } from "../lib/company";
+import { registrarVisita } from "../lib/quemMeViu";
 
 type Publico = {
   id: string;
@@ -45,6 +48,7 @@ type Curso = { nome: string; instituicao: string | null; ano: string | null };
  * contato de todo mundo e obriga a empresa a pagar para conversar.
  */
 export function PerfilPublicoPage() {
+  const { user } = useAuth();
   const { id = "" } = useParams();
   const [p, setP] = useState<Publico | null>(null);
   const [experiencias, setExperiencias] = useState<ProfessionalExperience[]>([]);
@@ -53,6 +57,27 @@ export function PerfilPublicoPage() {
   const [erro, setErro] = useState("");
 
   useTituloDaPagina(p?.name ?? "Profissional");
+
+  /**
+   * Registra a visita, se quem está olhando for uma empresa.
+   *
+   * Só o lado de quem CONTRATA gera visita: um profissional espiando o
+   * cadastro de outro não é notícia para ninguém, e apareceria na tela do
+   * outro como "uma empresa te viu" — o que seria falso.
+   *
+   * A conferência de que a empresa é mesmo desta conta acontece no banco
+   * (a função da 0106 roda como `security definer` e checa o dono). Aqui
+   * é só descobrir QUAL empresa está aberta.
+   */
+  async function registrarVisitaSePossivel() {
+    if (!user || !id) return;
+    try {
+      const empresa = await empresaAtual(user.id);
+      if (empresa) await registrarVisita(id, empresa.id);
+    } catch {
+      /* silêncio proposital */
+    }
+  }
 
   useEffect(() => {
     const sb = supabase();
@@ -72,6 +97,19 @@ export function PerfilPublicoPage() {
           .eq("id", id)
           .maybeSingle();
         if (error) throw error;
+
+        /* ── REGISTRA QUE ESTA EMPRESA VIU ESTE CADASTRO ─────────────
+           A dona: "criar opção do candidato ver que a empresa visualizou
+           seu perfil."
+
+           Fica aqui, e não num efeito à parte, porque é exatamente este
+           o momento: o cadastro foi encontrado e a tela dele abriu. E vem
+           DEPOIS do `throw`: uma tela que não abriu não é uma visita.
+
+           Não é esperado (`void`) e nunca levanta erro — quem está aqui
+           veio ver o cadastro, e derrubar isso por causa de uma
+           contabilidade que não é dela seria a troca errada. */
+        void registrarVisitaSePossivel();
         if (!data) {
           /* Não achou é diferente de deu erro: quem ficou oculto some da
              view pública, e o certo é dizer isso — não fingir defeito. */
