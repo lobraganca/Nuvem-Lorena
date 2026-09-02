@@ -2621,13 +2621,22 @@
   padding: 0 20px;
   margin-top: 12px;
 }
+/* O cartão da empresa: uma LINHA em cima, os números embaixo — 02/09
+   ─────────────────────────────────────────────────────────────────
+   "O card das empresas pode ter design mais aproveitado, com foto da
+   empresa."
+
+   Era uma pilha de quatro peças de largura cheia usando um terço dela, e
+   132px de altura mínima reservados no escuro. Agora o cartão se organiza
+   como a linha de pessoa do banco de talentos, que é o desenho que o app
+   já usa para "uma coisa com foto e nome": foto grande à esquerda, texto
+   ao lado, seta na ponta. Sem altura mínima — o conteúdo é que manda. */
 .ei-empresa-cartao {
   display: flex;
   flex-direction: column;
-  align-items: flex-start;
-  gap: 4px;
+  align-items: stretch;
+  gap: 0;
   padding: 14px;
-  min-height: 132px;
   border: 1px solid var(--ei-fio-forte);
   border-radius: var(--ei-raio, 14px);
   background: var(--ei-papel);
@@ -2646,13 +2655,16 @@
   box-shadow: inset 0 0 0 1px var(--ei-acento);
 }
 
+/* 64px, o mesmo do retrato do banco de talentos: 44px é tamanho de ícone
+   e fazia a lista ler como uma lista de nomes com um carimbo do lado. É a
+   foto que diz de qual loja se trata antes de qualquer palavra. */
 .ei-empresa-logo {
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 44px;
-  height: 44px;
-  margin-bottom: 6px;
+  width: 64px;
+  height: 64px;
+  font-size: 1.5rem;
   border-radius: var(--ei-raio-toque, 12px);
   background: var(--ei-afunda-forte);
   color: var(--ei-tinta-fraca);
@@ -3288,3 +3300,41 @@
   -webkit-box-orient: vertical;
   overflow: hidden;
 }
+
+/* A linha de cima do cartão da empresa: foto | texto | seta.
+
+   Os `min-width: 0` não são enfeite: um item de grade e um item de flex
+   têm largura mínima igual à do CONTEÚDO, então um nome comprido em uma
+   linha só empurrava o cartão inteiro para fora da tela em vez de ganhar
+   reticências. Foi exatamente o que a varredura pegou — "rola para o
+   lado" na tela das empresas. */
+.ei-empresa-cartao { min-width: 0; }
+.ei-empresa-cabeca {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  min-width: 0;
+}
+.ei-empresa-texto {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 2px;
+  /* `min-width: 0` para o nome comprido encolher com reticências em vez
+     de empurrar a seta para fora do cartão. */
+  min-width: 0;
+  flex: 1 1 auto;
+  overflow: hidden;
+}
+.ei-empresa-cartao .ei-empresa-nome,
+.ei-empresa-cartao .ei-empresa-onde {
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+/* O selo é uma etiqueta ao pé do nome, e não uma linha solta empurrada
+   para o fim do cartão pelo `margin-top: auto` do desenho antigo — que
+   agora abriria um vão no meio da linha. */
+.ei-empresa-cartao .ei-empresa-aberta-selo { margin-top: 0; padding-top: 0; }

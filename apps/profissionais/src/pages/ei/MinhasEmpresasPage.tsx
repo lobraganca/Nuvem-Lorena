@@ -164,15 +164,42 @@ export function MinhasEmpresasPage() {
                 navegar("/painel-empresa");
               }}
             >
-              <Logo foto={e.photo_url} nome={e.company_name} />
-              <span className="ei-empresa-nome">{e.company_name}</span>
-              <span className="ei-empresa-onde">
-                {[e.neighborhood, e.city].filter(Boolean).join(" · ")}
+              {/* ── O CARTÃO É UMA LINHA, NÃO UMA PILHA — 02/09 ────────
+                  A dona: "o card das empresas pode ter design mais
+                  aproveitado, com foto da empresa."
+
+                  Era uma pilha: logo de 44px, nome, bairro e selo, um
+                  embaixo do outro, cada um ocupando a largura toda e
+                  usando um terço dela. Num cartão de tela cheia isso é
+                  muito alto para pouca informação — e a foto, que é o que
+                  distingue uma loja da outra num relance, era a menor
+                  coisa ali.
+
+                  Agora a foto é grande e fica à ESQUERDA, com o nome, o
+                  bairro e o selo ao lado, ocupando a largura que sobrava.
+                  Os números seguem embaixo, cruzando o cartão inteiro. */}
+              <span className="ei-empresa-cabeca">
+                <Logo foto={e.photo_url} nome={e.company_name} />
+                <span className="ei-empresa-texto">
+                  <span className="ei-empresa-nome">{e.company_name}</span>
+                  <span className="ei-empresa-onde">
+                    {[e.neighborhood, e.city].filter(Boolean).join(" · ")}
+                  </span>
+                  {/* "Qual está selecionada" — a dona pediu isso duas
+                      vezes, no item 4 e no 6. Sem a marca, a pessoa com
+                      duas lojas não tem como saber em qual publicou a
+                      vaga. */}
+                  {e.id === escolhida && (
+                    <span className="ei-empresa-aberta-selo">Aberta agora</span>
+                  )}
+                </span>
+                <span className="ei-linha-seta" aria-hidden="true">
+                  <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor"
+                       strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M9 5l7 7-7 7" />
+                  </svg>
+                </span>
               </span>
-              {/* "Qual está selecionada" — a dona pediu isso duas vezes, no
-                  item 4 e no 6. Sem a marca, a pessoa com duas lojas não
-                  tem como saber em qual publicou a vaga. */}
-              {e.id === escolhida && <span className="ei-empresa-aberta-selo">Aberta agora</span>}
 
               {/* AS MÉTRICAS DENTRO DO CARTÃO — 02/09
                   "As métricas das vagas ficam dentro desse card."
