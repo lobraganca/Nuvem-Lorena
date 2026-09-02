@@ -60,84 +60,65 @@ export function ComecarPage({ lado }: { lado: "professional" | "company" }) {
 
         <div className="ei-portas">
           {lado === "company" ? (
-            <>
-              {/* Vai para a escolha da empresa, e não para o painel de
-                  uma delas: quem tem duas lojas escolhe qual abrir, e
-                  quem tem uma vê ali o "+" para cadastrar a segunda. */}
-              <Link to="/minhas-empresas" className="ei-porta ei-porta-cheia">
-                <IconePorta desenho="predio" />
-                <span className="ei-porta-nome">Minhas empresas</span>
-                <span className="ei-porta-nota">Escolha a empresa e veja as vagas dela</span>
-              </Link>
-              {/* O laranja da logo, e só aqui.
-                  ───────────────────────────────
-                  A dona: "o botão de banco de dados pode ter a mesma cor
-                  laranja da logo."
-
-                  O laranja é a bolinha do "Ei": no desenho da marca ele
-                  aparece uma vez, pequeno, e é isso que o faz saltar.
-                  Usado em dois botões da mesma tela ele deixaria de ser
-                  destaque e viraria só mais uma cor — então este é o
-                  único lugar da tela que o usa. */}
-              <Link to="/profissionais" className="ei-porta ei-porta-laranja">
-                <IconePorta desenho="pessoas" />
-                <span className="ei-porta-nome">Banco de talentos</span>
-                <span className="ei-porta-nota">Quem está disponível na cidade</span>
-              </Link>
-              <Link to="/vagas" className="ei-porta">
-                <IconePorta desenho="mala" />
-                <span className="ei-porta-nome">Banco de vagas</span>
-                <span className="ei-porta-nota">Todas as vagas abertas da cidade</span>
-              </Link>
-            </>
+            /* Vai para a escolha da empresa, e não para o painel de uma
+               delas: quem tem duas lojas escolhe qual abrir, e quem tem
+               uma vê ali o "+" para cadastrar a segunda. */
+            <Link to="/minhas-empresas" className="ei-porta ei-porta-cheia">
+              <IconePorta desenho="predio" />
+              <span className="ei-porta-nome">Minhas empresas</span>
+              <span className="ei-porta-nota">Escolha a empresa e veja as vagas dela</span>
+            </Link>
           ) : (
             <>
-              {/* ── A ORDEM DAS PORTAS, PEDIDA PELA DONA — 02/09 ───────
-                  "Na tela de procuro trabalho, ter os botões nessa
-                  ordem: meu cadastro — vagas compatíveis — banco de
-                  talentos."
-
-                  A ordem tem lógica de uso, e não só de gosto: sem o
+              {/* A ordem tem lógica de uso, e não só de gosto: sem o
                   cadastro preenchido nenhuma vaga chega (a onda procura
                   por ofício), então ele vem primeiro — e é a única coisa
-                  desta tela que depende da pessoa. Depois o que ela veio
-                  ver, e por último a lista de quem mais está procurando.
-
-                  "Vagas compatíveis" no lugar de "Vagas para mim": o
-                  nome antigo não dizia POR QUE aquelas vagas estão ali,
-                  e a diferença para o banco de vagas — que mostra tudo —
-                  ficava invisível. */}
+                  desta tela que depende da pessoa. */}
               <Link to="/painel" className="ei-porta ei-porta-cheia">
                 <IconePorta desenho="pessoa" />
                 <span className="ei-porta-nome">Meu cadastro</span>
                 <span className="ei-porta-nota">Suas funções, horários e contato</span>
               </Link>
+              {/* "Vagas compatíveis" no lugar de "Vagas para mim": o nome
+                  antigo não dizia POR QUE aquelas vagas estão ali, e a
+                  diferença para o banco de vagas — que mostra tudo —
+                  ficava invisível. */}
               <Link to="/vagas-para-mim" className="ei-porta">
                 <IconePorta desenho="mala" />
                 <span className="ei-porta-nome">Vagas compatíveis</span>
                 <span className="ei-porta-nota">O que combina com o seu ofício</span>
-              </Link>
-              <Link to="/profissionais" className="ei-porta ei-porta-laranja">
-                <IconePorta desenho="pessoas" />
-                <span className="ei-porta-nome">Banco de talentos</span>
-                <span className="ei-porta-nota">Quem está procurando trabalho na cidade</span>
-              </Link>
-              {/* A dona: "criar opção de ver as vagas em ambos os casos
-                  profissional e empresas." Para quem procura trabalho, o
-                  banco de vagas é a rede embaixo do aviso automático, que
-                  compara texto e erra (quem se cadastrou como "auxiliar de
-                  limpeza" não recebe a vaga de "camareira" sendo
-                  exatamente a pessoa). */}
-              <Link to="/vagas" className="ei-porta">
-                <IconePorta desenho="mala" />
-                <span className="ei-porta-nome">Banco de vagas</span>
-                <span className="ei-porta-nota">Todas as vagas abertas da cidade</span>
               </Link>
             </>
           )}
         </div>
 
         <div className="ei-entrada-pe">
+          {/* Banco de talentos e Banco de vagas viraram QUADRADOS, no
+              final da página — 02/09
+              ─────────────────────────────────────────────────────────
+              A dona: "em ambas as telas (empresa e profissional) os
+              botões de banco de talentos e de vagas podem ser quadrado e
+              no final da página."
+
+              Antes eram portas do mesmo tamanho das principais (Minhas
+              empresas / Meu cadastro), competindo por atenção com o que a
+              pessoa veio fazer nesta tela. Os dois valem para os dois
+              lados — quem contrata também quer ver quem mais está
+              contratando, e quem procura trabalho também quer ver quem
+              mais procura — então descem para um par de atalhos iguais,
+              no rodapé, onde se olha DEPOIS de resolver o assunto
+              principal. */}
+          <div className="ei-atalhos">
+            <Link to="/profissionais" className="ei-atalho">
+              <IconePorta desenho="pessoas" />
+              <span>Banco de talentos</span>
+            </Link>
+            <Link to="/vagas" className="ei-atalho">
+              <IconePorta desenho="mala" />
+              <span>Banco de vagas</span>
+            </Link>
+          </div>
+
           <InstalarApp variante="botao" />
         </div>
       </div>

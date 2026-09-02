@@ -334,6 +334,44 @@
 .ei-entrada-pe > .ei-btn-inline { margin: 0 20px; }
 .ei-entrada-pe > .ei-lista { justify-self: stretch; }
 
+/* Banco de talentos e Banco de vagas — quadrados, no rodapé — 02/09
+   ──────────────────────────────────────────────────────────────────
+   A dona: "os botões de banco de talentos e de vagas podem ser
+   quadrado e no final da página." Dois lado a lado, e não empilhados
+   como as portas principais: são pares — vale a mesma coisa para os
+   dois lados do app —, e lado a lado o par se lê de uma vez. */
+.ei-entrada-pe > .ei-atalhos { justify-self: stretch; }
+.ei-atalhos {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  width: 100%;
+  padding: 0 20px;
+}
+.ei-atalho {
+  aspect-ratio: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 12px;
+  border: 1px solid var(--ei-fio-forte);
+  border-radius: var(--ei-raio, 14px);
+  background: var(--ei-papel);
+  color: var(--ei-tinta);
+  text-decoration: none;
+  text-align: center;
+  font-size: 0.85rem;
+  font-weight: 600;
+  line-height: 1.25;
+  cursor: pointer;
+  transition: background-color 0.12s ease;
+}
+.ei-atalho:hover { background: var(--ei-afunda); }
+.ei-atalho .ei-porta-icone { width: 44px; height: 44px; }
+.ei-atalho .ei-porta-icone svg { width: 22px; height: 22px; }
+
 /* Tudo que é TEXTO respira nas laterais; tudo que é FIO ou linha de lista
    vai de ponta a ponta e cuida do próprio recuo interno. */
 .ei-margem {
