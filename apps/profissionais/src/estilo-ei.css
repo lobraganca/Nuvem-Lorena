@@ -3068,3 +3068,53 @@
    "tem algo errado com esta pessoa". */
 .ei .ei-coracao.marcado { color: var(--ei-laranja-marca, #f7a64a); }
 .ei .ei-coracao:disabled { opacity: 1; cursor: default; }
+
+/* ── A escolha do ambiente, na tela inicial ─────────────────────────────
+   Dois botões lado a lado com o lado atual marcado. Não é um `select` nem
+   uma folha: a dona procurou "o botão onde a pessoa escolhe" três vezes, e
+   o que ela procurava é algo que se VÊ sem tocar. Um controle que esconde
+   o estado atrás de um toque não responde à metade da pergunta ("em qual
+   eu estou?").
+
+   Fica acima das portas e abaixo do título: é o contexto do que vem
+   depois — as portas mudam conforme o lado — e ler o contexto antes das
+   opções é a ordem em que se decide. */
+.ei-ambiente {
+  padding: 0 20px;
+  margin-bottom: 14px;
+}
+.ei-ambiente-rotulo {
+  display: block;
+  font-size: 0.78rem;
+  font-weight: 500;
+  color: var(--ei-tinta-fraca);
+  margin-bottom: 6px;
+}
+.ei-ambiente-botoes {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 6px;
+  padding: 4px;
+  border-radius: var(--ei-raio, 14px);
+  background: var(--ei-afunda-forte);
+}
+.ei .ei-ambiente-botao {
+  min-height: 44px;
+  padding: 8px 6px;
+  border: 0;
+  border-radius: calc(var(--ei-raio, 14px) - 5px);
+  background: transparent;
+  color: var(--ei-tinta-fraca);
+  font-size: 0.9rem;
+  font-weight: 500;
+  cursor: pointer;
+}
+/* O lado atual é o pintado de branco, com sombra: é o desenho de aba que
+   todo mundo já leu em algum app, e diz "você está aqui" sem uma palavra. */
+.ei .ei-ambiente-botao.ativo {
+  background: var(--ei-papel);
+  color: var(--ei-tinta);
+  font-weight: 600;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.08);
+}
+.ei .ei-ambiente-botao:disabled { opacity: 0.6; cursor: default; }

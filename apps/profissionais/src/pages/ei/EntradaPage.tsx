@@ -1,7 +1,8 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../../lib/useAuth";
 import { useOnboardingStatus } from "../../lib/useOnboardingStatus";
+import { registrarTipoDeUsuario } from "../../lib/company";
 import { useTituloDaPagina } from "../../lib/tituloDaPagina";
 import { InstalarApp } from "../../components/InstalarApp";
 import { AvisoPerfilIncompleto } from "../../components/ei/AvisoPerfilIncompleto";
@@ -74,6 +75,31 @@ export function EntradaPage() {
      entrar e criar conta. Com conta, mostra o nome de quem entrou e os
      caminhos daquele lado — e o desvio automático fica só para quem ainda
      não escolheu o lado, porque aí falta uma resposta, não um caminho. */
+  /* Trocando de lado agora. Segura os dois botões: dois toques rápidos
+     gravariam os dois lados em ordem imprevisível. */
+  const [trocando, setTrocando] = useState(false);
+
+  /**
+   * Troca o ambiente e leva para o lado escolhido.
+   *
+   * Recarrega por `location.href` em vez de navegar pelo roteador: o lado
+   * é lido uma vez, na abertura, pela barra de baixo e por várias telas.
+   * Trocar pelo roteador deixaria a barra mostrando os itens do lado
+   * antigo — e a pessoa acharia que a troca não funcionou.
+   */
+  async function trocarAmbiente(novo: "professional" | "company") {
+    if (!user || novo === tipo || trocando) return;
+    setTrocando(true);
+    try {
+      await registrarTipoDeUsuario(user.id, novo);
+      /* Empresa vai para a escolha da empresa; quem procura trabalho vai
+         para a tela inicial, que já mostra as portas do lado dela. */
+      window.location.href = novo === "company" ? "/minhas-empresas" : "/";
+    } catch {
+      setTrocando(false);
+    }
+  }
+
   const paraOnde = !loading && user && tipo === false ? "/onboarding-tipo" : null;
 
   useEffect(() => {
@@ -155,6 +181,51 @@ export function EntradaPage() {
             tela antes de ler. */}
         {entrou && (tipo === "company" || tipo === "professional") && (
           <AvisoPerfilIncompleto lado={tipo} />
+        )}
+
+        {/* ── A ESCOLHA DO AMBIENTE, NA TELA QUE O APP SEMPRE ABRE ────
+            A dona, depois de eu já ter feito o item 4: "ainda não consegui
+            ver no app o botão onde a pessoa pode escolher se quer acessar
+            a empresa ou profissional."
+
+            Ela não estava vendo porque eu pus a escolha no lugar errado.
+            O item 4 diz "logo após fazer login, sempre deve ter opção de
+            escolher o ambiente", e eu li "logo após fazer login" como o
+            momento — mandei a tela de entrar desviar para a pergunta.
+
+            Só que ninguém faz login toda vez. Ela abre o app já logado, cai
+            aqui, e daqui só havia as portas de UM lado. A tela da escolha
+            existia e era inalcançável — o mesmo erro da tela de escolher a
+            empresa, que eu pulava quando havia uma só.
+
+            Agora a escolha mora nesta tela, que é a que o app sempre abre.
+            Dois botões lado a lado, com o lado atual marcado: dá para ver
+            em que ambiente se está sem tocar em nada, que é metade do que
+            ela pediu, e trocar num toque, que é a outra metade. */}
+        {entrou && (tipo === "company" || tipo === "professional") && (
+          <div className="ei-ambiente">
+            <span className="ei-ambiente-rotulo">Você está em</span>
+            <div className="ei-ambiente-botoes" role="group" aria-label="Escolher o ambiente">
+              <button
+                type="button"
+                className={tipo === "professional" ? "ei-ambiente-botao ativo" : "ei-ambiente-botao"}
+                aria-pressed={tipo === "professional"}
+                disabled={trocando}
+                onClick={() => trocarAmbiente("professional")}
+              >
+                Procuro trabalho
+              </button>
+              <button
+                type="button"
+                className={tipo === "company" ? "ei-ambiente-botao ativo" : "ei-ambiente-botao"}
+                aria-pressed={tipo === "company"}
+                disabled={trocando}
+                onClick={() => trocarAmbiente("company")}
+              >
+                Quero contratar
+              </button>
+            </div>
+          </div>
         )}
 
         {entrou ? (
