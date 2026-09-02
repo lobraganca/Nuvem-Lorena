@@ -503,98 +503,74 @@ export function DetalheVagaPage() {
         )}
       </section>
 
-      {/* O que fazer com a vaga.
-          ────────────────────────
-          Havia um botão só, "Fechar esta vaga", e ele era as três coisas ao
-          mesmo tempo: quem queria parar de receber por uns dias, quem tinha
-          contratado, e quem publicou errado tinham todos a mesma saída.
+      {/* O que fazer com a vaga — 02/09, sem as legendas
+          ────────────────────────────────────────────────
+          A dona: "tirar legendas, está ocupando muito espaço. Faça os
+          botões menores."
 
-          Agora são três, e a diferença está escrita embaixo de cada uma —
-          porque "pausar", "arquivar" e "excluir" só parecem óbvios para
-          quem já sabe qual é qual. Excluir fica por último e sem cor, para
-          não ser tocado por engano. */}
-      <div className="ei-margem" style={{ marginTop: 24, display: "grid", gap: 18 }}>
-        {/* ── EDITAR, ANTES DE TUDO ─────────────────────────────────────
-            A dona: "opção de editar uma vaga feita."
+          Cada um dos quatro botões tinha duas linhas de explicação embaixo:
+          quatro botões viraram doze linhas e mais de meia tela de rolagem,
+          e o que a empresa vem fazer aqui — ver quem se interessou — ficava
+          espremido acima disso.
 
-            Vem primeiro porque é a mais branda das quatro: as outras três
-            tiram a vaga do ar de algum jeito. E existe justamente para que
-            elas não sejam usadas no lugar dela — sem "editar", corrigir um
-            salário digitado errado obrigava a arquivar e publicar de novo,
-            o que gasta uma vaga do plano, joga fora quem já tinha se
-            interessado e faz a vaga renascer no fim da lista.
+          As palavras dos botões já dizem o que eles fazem ("Arquivar — já
+          contratei", "Pausar por enquanto"). O que a legenda acrescentava
+          era a CONSEQUÊNCIA no plano, e essa continua onde ela pesa: na
+          confirmação do excluir, que é a única irreversível, e no aviso de
+          reabrir, que ocupa vaga.
 
-            Vale em qualquer estado: uma vaga pausada é justamente a que se
-            costuma corrigir antes de reabrir. */}
-        <div>
-          <Link className="ei-btn ei-btn-contorno ei-btn-largo" to={`/vaga/${vaga.id}/editar`}>
-            Editar esta vaga
-          </Link>
-          <p className="ei-apoio" style={{ marginTop: 6 }}>
-            Muda o texto, o salário, o horário. Quem já se interessou continua aqui, e
-            não gasta vaga do seu plano.
-          </p>
-        </div>
+          Agora são botões pequenos, numa fileira que quebra sozinha quando
+          não cabe — e não quatro barras de largura cheia. Excluir continua
+          por último, sem cor e à parte, para não ser tocado por engano. */}
+      <div className="ei-margem ei-acoes-vaga">
+        <Link className="ei-btn ei-btn-contorno ei-btn-curto" to={`/vaga/${vaga.id}/editar`}>
+          Editar
+        </Link>
 
         {vaga.status === "active" && (
-          <div>
-            <button
-              className="ei-btn ei-btn-contorno ei-btn-largo"
-              onClick={() => mudarEstado(() => pausarVaga(vaga.id), "Não foi possível pausar a vaga.")}
-              disabled={fechando}
-            >
-              Pausar por enquanto
-            </button>
-            <p className="ei-apoio" style={{ marginTop: 8 }}>
-              Some de quem procura, sem encerrar o processo. Você reabre quando quiser.
-            </p>
-          </div>
+          <button
+            className="ei-btn ei-btn-contorno ei-btn-curto"
+            onClick={() => mudarEstado(() => pausarVaga(vaga.id), "Não foi possível pausar a vaga.")}
+            disabled={fechando}
+          >
+            Pausar
+          </button>
         )}
 
         {vaga.status !== "active" && (
-          <div>
-            <button
-              className="ei-btn ei-btn-cheio ei-btn-largo"
-              onClick={() => mudarEstado(() => reabrirVaga(vaga.id), "Não foi possível reabrir a vaga.")}
-              disabled={fechando}
-            >
-              {vaga.status === "paused" ? "Voltar a receber interessados" : "Reabrir esta vaga"}
-            </button>
-            <p className="ei-apoio" style={{ marginTop: 8 }}>
-              Reabrir ocupa uma vaga do seu plano de novo.
-            </p>
-          </div>
+          <button
+            className="ei-btn ei-btn-cheio ei-btn-curto"
+            onClick={() => mudarEstado(() => reabrirVaga(vaga.id), "Não foi possível reabrir a vaga.")}
+            disabled={fechando}
+            /* O aviso que era legenda vira `title`: reabrir ocupa uma vaga
+               do plano de novo, e isso é consequência de dinheiro. */
+            title="Reabrir ocupa uma vaga do seu plano de novo."
+          >
+            {vaga.status === "paused" ? "Reabrir" : "Reabrir vaga"}
+          </button>
         )}
 
         {vaga.status !== "closed" && (
-          <div>
-            <button
-              className="ei-btn ei-btn-contorno ei-btn-largo"
-              onClick={() => mudarEstado(() => arquivarVaga(vaga.id), "Não foi possível arquivar a vaga.")}
-              disabled={fechando}
-            >
-              Arquivar — já contratei
-            </button>
-            <p className="ei-apoio" style={{ marginTop: 8 }}>
-              Libera uma vaga do seu plano. A lista de interessados continua aqui, em
-              “Encerradas”, no seu painel.
-            </p>
-          </div>
+          <button
+            className="ei-btn ei-btn-contorno ei-btn-curto"
+            onClick={() => mudarEstado(() => arquivarVaga(vaga.id), "Não foi possível arquivar a vaga.")}
+            disabled={fechando}
+            title="Libera uma vaga do seu plano. A lista de interessados continua no painel, em Encerradas."
+          >
+            Arquivar
+          </button>
         )}
 
-        <div>
-          <button
-            className="ei-btn ei-btn-texto"
-            onClick={excluirVagaFunc}
-            disabled={fechando}
-            style={{ color: "var(--ei-erro)" }}
-          >
-            Excluir esta vaga
-          </button>
-          <p className="ei-apoio" style={{ marginTop: 4 }}>
-            Apaga a vaga e a lista de quem se interessou. Não dá para desfazer.
-          </p>
-        </div>
+        {/* Fora da fileira e sem cor: apagar leva junto a lista de quem se
+            interessou, e a confirmação já explica isso por extenso. */}
+        <button
+          className="ei-btn ei-btn-texto ei-acoes-vaga-excluir"
+          onClick={excluirVagaFunc}
+          disabled={fechando}
+          style={{ color: "var(--ei-erro)" }}
+        >
+          Excluir
+        </button>
       </div>
       </div>
     </div>

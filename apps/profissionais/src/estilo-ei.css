@@ -3691,3 +3691,41 @@
   margin-left: auto;
   opacity: 0.6;
 }
+
+/* A fileira de ações da vaga — 02/09
+   ──────────────────────────────────
+   Eram quatro botões de largura cheia, cada um com duas linhas de legenda:
+   meia tela de rolagem para as ações que se usam uma vez na vida da vaga,
+   empurrando para cima o que a empresa vem ver — quem se interessou.
+
+   Agora é uma fileira que quebra sozinha: cabem três num celular comum, e
+   em tela estreita eles descem sem espremer. O excluir vai para o fim da
+   linha, sem cor. */
+.ei .ei-acoes-vaga {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  margin-top: 24px;
+}
+
+.ei .ei-btn-curto {
+  width: auto;
+  min-height: 40px;
+  padding: 8px 16px;
+  font-size: 0.88rem;
+  /* `flex: 0 1 auto` e não `1`: com `1` os três esticariam para preencher a
+     linha e "Editar" ficaria do tamanho de "Arquivar", o que faz três
+     ações diferentes parecerem a mesma coisa. */
+  flex: 0 1 auto;
+}
+
+/* O excluir empurrado para a direita, longe do dedo que vai em "Arquivar".
+   Em tela estreita ele cai para a linha de baixo e o `auto` deixa de ter
+   efeito — que é o certo: ali ele já está separado por estar sozinho. */
+.ei .ei-acoes-vaga-excluir {
+  margin-left: auto;
+  min-height: 40px;
+  padding: 8px 10px;
+  font-size: 0.85rem;
+}
