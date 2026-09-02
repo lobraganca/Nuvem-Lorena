@@ -146,7 +146,11 @@ export function EntradaPage() {
               ficou anunciando uma escolha que não está mais nesta tela. */}
           <p className="ei-entrada-apoio">
             {entrou
-              ? "Escolha por onde entrar. Dá para trocar quando quiser."
+              /* 02/09: "Dá para trocar quando quiser" saiu a pedido da
+                 dona. Ela explicava o controle de lado que está logo
+                 abaixo, e que já diz o mesmo com todas as letras: "Você
+                 está em — toque para trocar de lado". */
+              ? "Escolha por onde entrar."
               : "Quem contrata e quem procura trabalho, no mesmo lugar."}
           </p>
         </div>
