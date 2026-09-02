@@ -8,7 +8,7 @@ import {
   escolherEmpresa,
   idDaEmpresaEscolhida,
   resumoDasEmpresas,
-  type ResumoDaEmpresa,
+  type ResumoDasEmpresas,
 } from "../../lib/company";
 import {
   PLANOS_EMPRESA,
@@ -58,7 +58,7 @@ export function MinhasEmpresasPage() {
   /* As métricas chegam DEPOIS dos cartões, numa segunda consulta. Esperar
      as duas para desenhar deixaria a tela em branco enquanto o banco conta
      respostas — e o nome da empresa é o que a pessoa veio ver. */
-  const [resumos, setResumos] = useState<Map<string, ResumoDaEmpresa> | null>(null);
+  const [resumo, setResumo] = useState<ResumoDasEmpresas | null>(null);
   const [erro, setErro] = useState("");
 
   /* Qual está aberta AGORA. Sem nada guardado, é a primeira — que é
@@ -105,7 +105,7 @@ export function MinhasEmpresasPage() {
            aparecem já, e os números entram quando chegarem. */
         resumoDasEmpresas(empresas)
           .then((r) => {
-            if (vivo) setResumos(r);
+            if (vivo) setResumo(r);
           })
           .catch(() => {
             /* Números que não vieram simplesmente não aparecem. Mostrar
@@ -156,6 +156,21 @@ export function MinhasEmpresasPage() {
         </p>
 
         <AvisoPerfilIncompleto lado="company" />
+
+        {/* ── O PLANO DA CONTA, UMA VEZ SÓ (0107) ────────────────────────
+            A dona: "o plano é pelo usuário, então se ele quiser utilizar
+            as vagas em outras empresas cadastradas ele pode."
+
+            Desde a 0107 o teto é da conta e é somado entre as lojas: com o
+            Premium dá para abrir 2 na padaria e 1 na lanchonete. Por isso
+            ele aparece aqui em cima, e não dentro de cada cartão —
+            repetido em três cartões, "3 de 3" diria que cada loja tem
+            três, que é o contrário da regra.
+
+            Fica ACIMA dos cartões porque é ele que responde à pergunta que
+            traz a pessoa a esta tela quando ela vem publicar: "ainda cabe
+            vaga?". A resposta não muda conforme a loja escolhida. */}
+        <PlanoDaConta empresas={lista} resumo={resumo} />
 
         <div className="ei-empresas">
           {lista.map((e) => (
@@ -208,7 +223,7 @@ export function MinhasEmpresasPage() {
                       Ficou o que decide a escolha: o plano desta empresa e
                       quantas vagas ele ainda comporta. */}
                   <span className="ei-empresa-onde">
-                    <PlanoEVagas empresa={e} resumo={resumos?.get(e.id)} />
+                    <VagasDaEmpresa quantas={resumo?.porEmpresa.get(e.id)} />
                   </span>
                   {/* "Qual está selecionada" — a dona pediu isso duas
                       vezes, no item 4 e no 6. Sem a marca, a pessoa com
@@ -284,54 +299,66 @@ function Logo({ foto, nome }: { foto: string | null; nome: string }) {
 }
 
 /**
- * A segunda linha do cartão: o plano da empresa e quantas vagas ele cabe.
+ * A segunda linha do cartão: quantas vagas ESTA loja tem no ar.
  *
- * ── Por que os dois juntos, e nesta tela ──────────────────────────────
- *
- * A dona: "as informações do plano não têm que ficar dentro da tela de
- * vagas, ela pode ficar na tela das empresas mostrando o plano atual e
- * quantas vagas 1 de 2."
- *
- * Faz sentido e não é só arrumação: com duas lojas, cada uma tem o SEU
- * plano — e a pergunta que essa tela responde é "em qual eu entro agora?".
- * Saber que a padaria já está com as três vagas cheias e a lanchonete tem
- * duas sobrando é o que decide a resposta, e antes exigia entrar nas duas.
- *
- * Enquanto a consulta não volta fica só o nome do plano: um "0 de 3" que
- * depois vira "3 de 3" é uma mentira curta, e é a que faz a pessoa achar
- * que ainda pode publicar.
+ * Só o número desta empresa — o teto é da conta e está lá em cima. Enquanto
+ * a consulta não volta fica um traço: um "0" que depois vira "2" é uma
+ * mentira curta, e é a que faz a pessoa achar que a loja está parada.
  */
-function PlanoEVagas({
-  empresa,
+function VagasDaEmpresa({ quantas }: { quantas: number | undefined }) {
+  if (quantas === undefined) return <>—</>;
+  if (quantas === 0) return <>Nenhuma vaga no ar</>;
+  return <>{quantas === 1 ? "1 vaga no ar" : `${quantas} vagas no ar`}</>;
+}
+
+/**
+ * O plano da conta e quanto dele já está usado.
+ *
+ * O nome sai do que foi PAGO (`companies.plano`), e não do teto: dois
+ * planos podem acabar com o mesmo teto depois de uma promoção, e aí a tela
+ * diria o nome errado. Sem nada pago em dia, é o gratuito — que não é um
+ * valor no banco (ver PLANO_GRATUITO).
+ */
+function PlanoDaConta({
+  empresas,
   resumo,
 }: {
-  empresa: Company;
-  resumo: ResumoDaEmpresa | undefined;
+  empresas: Company[];
+  resumo: ResumoDasEmpresas | null;
 }) {
-  /* O nome sai do que a empresa PAGOU, e não do limite: dois planos podem
-     acabar com o mesmo limite depois de uma promoção. Sem nada pago, é o
-     gratuito — que não é um valor no banco (ver PLANO_GRATUITO). */
-  const venceu = !empresa.plano_ate || new Date(empresa.plano_ate).getTime() < Date.now();
-  const nome =
-    !empresa.plano || venceu
-      ? PLANO_GRATUITO.nome
-      : `Plano ${PLANOS_EMPRESA[empresa.plano]?.nome ?? empresa.plano}`;
-
-  if (!resumo) return <>{nome}</>;
+  const agora = Date.now();
+  const forca = { pro: 1, tres: 2, ilimitado: 3 } as const;
+  let melhorNome: string | null = null;
+  let melhor = 0;
+  for (const e of empresas) {
+    if (!e.plano || !e.plano_ate || new Date(e.plano_ate).getTime() < agora) continue;
+    const f = forca[e.plano as keyof typeof forca] ?? 0;
+    if (f > melhor) {
+      melhor = f;
+      melhorNome = `Plano ${PLANOS_EMPRESA[e.plano]?.nome ?? e.plano}`;
+    }
+  }
+  const nome = melhorNome ?? PLANO_GRATUITO.nome;
 
   /* Sem plano não há "de quantas": o gratuito não publica vaga, e "0 de 0"
-     lê como defeito. `-1` é o sem teto do banco, e "3 de -1" seria o
-     número mágico vazando para a tela. */
-  const vagas =
-    resumo.limite === 0
-      ? "não publica vaga"
-      : resumo.limite < 0
-        ? `${resumo.abertas} ${resumo.abertas === 1 ? "vaga no ar" : "vagas no ar"}`
-        : `${resumo.abertas} de ${resumo.limite} ${resumo.limite === 1 ? "vaga" : "vagas"}`;
+     lê como defeito. `-1` é o sem teto, e "3 de -1" seria o número mágico
+     vazando para a tela. */
+  const quanto =
+    resumo == null
+      ? ""
+      : resumo.limite === 0
+        ? "não publica vaga"
+        : resumo.limite < 0
+          ? `${resumo.abertas} ${resumo.abertas === 1 ? "vaga no ar" : "vagas no ar"}`
+          : `${resumo.abertas} de ${resumo.limite} ${resumo.limite === 1 ? "vaga" : "vagas"}`;
 
   return (
-    <>
-      {nome} · {vagas}
-    </>
+    <div className="ei-conta-plano ei-margem">
+      <span className="ei-conta-plano-nome">{nome}</span>
+      {quanto && <span className="ei-conta-plano-nota">{quanto}</span>}
+      <Link to="/planos-empresa" className="ei-btn-inline">
+        {melhorNome ? "Mudar" : "Ver planos"}
+      </Link>
+    </div>
   );
 }

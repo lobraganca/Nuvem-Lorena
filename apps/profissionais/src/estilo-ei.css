@@ -3356,3 +3356,37 @@
    para o fim do cartão pelo `margin-top: auto` do desenho antigo — que
    agora abriria um vão no meio da linha. */
 .ei-empresa-cartao .ei-empresa-aberta-selo { margin-top: 0; padding-top: 0; }
+
+/* ═══════════════════════════════════════════════════════════════════════
+   O PLANO DA CONTA, NO ALTO DA TELA DAS EMPRESAS — 02/09
+   ═══════════════════════════════════════════════════════════════════════
+   Desde a 0107 o plano é da conta e o teto é somado entre as lojas, então
+   ele aparece uma vez só — acima dos cartões, porque é ele que responde
+   "ainda cabe vaga?" antes de a pessoa escolher em qual entrar.
+
+   Uma faixa e não um cartão: cartão branco aqui competiria com os cartões
+   das empresas, que são o assunto da tela. Isto é o estado da conta, e
+   estado se lê de relance. */
+.ei-conta-plano {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 12px;
+  padding-top: 12px;
+  padding-bottom: 12px;
+  background: var(--ei-afunda-forte);
+  border-radius: var(--ei-raio, 14px);
+}
+.ei-conta-plano-nome {
+  font-size: 0.92rem;
+  font-weight: 600;
+}
+.ei-conta-plano-nota {
+  /* Cresce e encolhe: com "Não publica vaga" numa tela de 320px, o botão
+     tem de continuar inteiro. */
+  flex: 1 1 auto;
+  min-width: 0;
+  font-size: 0.82rem;
+  color: var(--ei-tinta-fraca);
+  overflow-wrap: anywhere;
+}

@@ -117,99 +117,79 @@ export async function minhasEmpresas(ownerId: string): Promise<Company[]> {
 }
 
 /**
- * O resumo de cada empresa, para os cartões da tela de escolha.
+ * O que a tela de escolha das empresas precisa saber.
  *
- * ── O PEDIDO ───────────────────────────────────────────────────────────
+ * ── O PLANO É DA CONTA, E NÃO DE CADA EMPRESA (0107) ──────────────────
  *
- * A dona: "quero que tenha cards das empresas com foto e nome da empresa.
- * E ao clicar na empresa desejada abre as vagas que a empresa tem
- * disponível. As métricas das vagas ficam dentro desse card."
+ * A dona: "o plano é pelo usuário, então se ele quiser utilizar as vagas
+ * em outras empresas cadastradas ele pode."
  *
- * Ou seja: quem tem duas lojas precisa ver, ANTES de entrar, qual delas
- * tem gente esperando resposta. Sem isso a escolha é às cegas — abre uma,
- * confere, volta, abre a outra.
+ * Então são duas coisas diferentes, e por isso o retorno tem duas partes:
  *
- * ── DUAS CONSULTAS PARA TODAS AS EMPRESAS, NÃO DUAS POR EMPRESA ───────
+ *   · `porEmpresa` — quantas vagas CADA loja tem no ar. É o que vai na
+ *     segunda linha do cartão, e é diferente em cada uma;
+ *   · `limite` e `abertas` — o teto da CONTA e o total somado entre todas
+ *     as lojas. Isso é igual para todas, e por isso aparece uma vez só, no
+ *     alto da tela. Repetir "3 de 3" dentro de cada cartão diria que cada
+ *     loja tem três, que é justamente o contrário da 0107.
  *
- * Três lojas dariam seis idas ao banco no 4G da cidade, e esta é a
- * primeira tela do lado da empresa — a que não pode demorar.
+ * A conta do teto é a mesma da função `limite_de_vagas_do_plano` no banco,
+ * copiada porque perguntar custaria uma chamada e a resposta sai das linhas
+ * de `companies` que esta tela já tem em mãos. Se a regra mudar lá, muda
+ * aqui.
  *
- * `lerTudo` nas duas: a 0062 pôs teto de 200 linhas em TODA consulta, e
- * contagem que bate no teto congela sem avisar. Já mordeu o total de
- * pagamentos do painel administrativo.
+ * ── UMA CONSULTA, NÃO UMA POR EMPRESA ─────────────────────────────────
  *
- * ── O LIMITE DO PLANO É CALCULADO AQUI, DE PROPÓSITO ──────────────────
+ * Três lojas dariam três idas ao banco no 4G da cidade, e esta é a primeira
+ * tela do lado da empresa. `lerTudo` porque a 0062 pôs teto de 200 linhas
+ * em toda consulta, e contagem que bate no teto congela sem avisar.
  *
- * A conta é a mesma da função `limite_de_vagas_do_plano` no banco, copiada
- * porque perguntar ao banco custaria uma chamada POR EMPRESA — e a
- * resposta viria da mesma linha de `companies` que esta tela já tem em
- * mãos. Se a regra mudar lá, muda aqui.
- *
- * Erro SOBE. Cartão dizendo "0 interessados" numa loja com gente esperando
- * é pior que cartão sem número nenhum: o primeiro faz desistir.
+ * Erro SOBE. Cartão dizendo "0 vagas" numa loja que tem três é pior que
+ * cartão sem número nenhum.
  */
-export type ResumoDaEmpresa = {
-  abertas: number;
+export type ResumoDasEmpresas = {
+  /** Vagas no ar de cada empresa, pela id. */
+  porEmpresa: Map<string, number>;
+  /** Teto de vagas abertas da CONTA. 0 = sem plano; -1 = sem teto. */
   limite: number;
-  interessados: number;
+  /** Vagas no ar somadas em todas as empresas da conta. */
+  abertas: number;
 };
 
-export async function resumoDasEmpresas(
-  empresas: Company[]
-): Promise<Map<string, ResumoDaEmpresa>> {
-  const mapa = new Map<string, ResumoDaEmpresa>();
-  if (empresas.length === 0) return mapa;
+export async function resumoDasEmpresas(empresas: Company[]): Promise<ResumoDasEmpresas> {
+  const porEmpresa = new Map<string, number>();
+  for (const e of empresas) porEmpresa.set(e.id, 0);
+
+  /* O plano mais alto EM DIA entre as empresas da conta — e a escolha é
+     pelo plano, não pelo teto: o sem teto é `-1`, o MENOR número da lista,
+     e pegar o maior teto escolheria justamente o pior plano. */
+  const agora = Date.now();
+  const forca = { pro: 1, tres: 2, ilimitado: 3 } as const;
+  let melhor = 0;
+  for (const e of empresas) {
+    if (!e.plano || !e.plano_ate || new Date(e.plano_ate).getTime() < agora) continue;
+    melhor = Math.max(melhor, forca[e.plano as keyof typeof forca] ?? 0);
+  }
+  const limite = melhor === 3 ? -1 : melhor === 2 ? 3 : melhor === 1 ? 1 : 0;
 
   const sb = getSupabase();
-  if (!sb) return mapa;
+  if (!sb || empresas.length === 0) return { porEmpresa, limite, abertas: 0 };
 
-  const ids = empresas.map((e) => e.id);
-  const agora = Date.now();
-
-  for (const e of empresas) {
-    const vencido = !e.plano_ate || new Date(e.plano_ate).getTime() < agora;
-    const limite = vencido
-      ? 0
-      : e.plano === "pro"
-        ? 1
-        : e.plano === "tres"
-          ? 3
-          : e.plano === "ilimitado"
-            ? -1
-            : 0;
-    mapa.set(e.id, { abertas: 0, limite, interessados: 0 });
-  }
-
-  const vagas = await lerTudo<{ id: string; company_id: string; status: string }>(() =>
-    sb.from("job_listings").select("id, company_id, status").in("company_id", ids)
+  const vagas = await lerTudo<{ company_id: string; status: string }>(() =>
+    sb
+      .from("job_listings")
+      .select("company_id, status")
+      .in("company_id", empresas.map((e) => e.id))
   );
 
-  const abertas = vagas.filter((v) => v.status === "active");
-  for (const v of abertas) {
-    const r = mapa.get(v.company_id);
-    if (r) r.abertas += 1;
+  let abertas = 0;
+  for (const v of vagas) {
+    if (v.status !== "active") continue;
+    abertas += 1;
+    porEmpresa.set(v.company_id, (porEmpresa.get(v.company_id) ?? 0) + 1);
   }
 
-  /* Interessados só das vagas NO AR: quem respondeu uma vaga já fechada
-     não está esperando telefonema, e contá-lo faria o cartão prometer
-     gente que não existe mais. */
-  if (abertas.length > 0) {
-    const deQuemEAVaga = new Map(abertas.map((v) => [v.id, v.company_id]));
-    const respostas = await lerTudo<{ job_listing_id: string }>(() =>
-      sb
-        .from("job_responses")
-        .select("job_listing_id")
-        .in("job_listing_id", [...deQuemEAVaga.keys()])
-        .eq("interessado", true)
-    );
-    for (const r of respostas) {
-      const dono = deQuemEAVaga.get(r.job_listing_id);
-      const resumo = dono ? mapa.get(dono) : undefined;
-      if (resumo) resumo.interessados += 1;
-    }
-  }
-
-  return mapa;
+  return { porEmpresa, limite, abertas };
 }
 
 /** Qual empresa está aberta agora, ou `null` se ainda não escolheu. */
