@@ -3027,17 +3027,35 @@
   overflow: hidden;
 }
 
+/* A linha de identificação do painel: foto | nome e bairro | Trocar.
+   O mesmo desenho do cartão da tela anterior, de propósito — quem tocou
+   naquele cartão tem que reconhecer que chegou nele. */
 .ei-painel-topo-linha {
   display: flex;
   align-items: center;
-  justify-content: space-between;
   gap: 12px;
-  padding: 4px 20px 4px;
+  padding: 12px 20px;
+  min-width: 0;
   border-bottom: 1px solid var(--ei-fio);
+}
+.ei-painel-topo-texto {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  /* `min-width: 0` para o nome comprido ganhar reticências em vez de
+     empurrar o "Trocar" para fora do cartão. */
+  min-width: 0;
+  flex: 1 1 auto;
+  overflow: hidden;
 }
 .ei-painel-topo-nome {
   font-size: 1rem;
   font-weight: 600;
+  min-width: 0;
+}
+.ei-painel-topo-onde {
+  font-size: 0.8rem;
+  color: var(--ei-tinta-fraca);
   min-width: 0;
 }
 

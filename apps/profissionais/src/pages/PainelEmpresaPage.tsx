@@ -9,8 +9,6 @@ import {
   confirmarTelefoneDaEmpresa,
   situacaoDoPlano,
   contarRespostasDasVagas,
-  interessadosDasVagas,
-  type InteressadoNoPainel,
 } from "../lib/company";
 import { mensagemDeErro } from "../lib/erros";
 import { PLANOS_EMPRESA, PLANO_GRATUITO } from "../types/domain";
@@ -60,7 +58,6 @@ export function PainelEmpresaPage() {
      diferente de lista vazia: uma lista vazia por erro escreveria "ninguém
      se interessou" numa vaga cheia, e a empresa concluiria que ninguém quis
      o trabalho dela. */
-  const [interessados, setInteressados] = useState<InteressadoNoPainel[] | null>([]);
   const [carregando, setCarregando] = useState(true);
   const [erro, setErro] = useState("");
   const [confirmando, setConfirmando] = useState(false);
@@ -159,14 +156,6 @@ export function PainelEmpresaPage() {
       contarRespostasDasVagas(minhasVagas.map((v) => v.id))
         .then(setRespostas)
         .catch(() => setRespostas(null));
-
-      /* Também depois da lista, e também num `catch` próprio: é informação
-         a mais numa tela que já funciona sem ela. Derrubar o painel inteiro
-         por causa da lista de nomes seria trocar uma tela útil por uma
-         mensagem de erro. */
-      interessadosDasVagas(minhasVagas.map((v) => ({ id: v.id, title: v.title })))
-        .then(setInteressados)
-        .catch(() => setInteressados(null));
 
       /* O plano decide o texto do botão principal. Se a leitura falhar,
          fica `null` e o botão segue oferecendo criar vaga — quem recusa de
@@ -328,31 +317,55 @@ export function PainelEmpresaPage() {
                 lojas o painel é idêntico nas duas, e publicar a vaga na
                 errada é um engano que não dá sinal na hora — só quando o
                 telefone toca. */}
+            {/* ── QUEM É ESTA EMPRESA, COM A FOTO ────────────────────
+                A dona: "quando clica na empresa, tem um botão de cadastrar
+                outra, esse botão não tinha que ficar na tela onde tem
+                opção de entrar nas empresas? Está muito desconfigurado."
+
+                Tinha, e ele saiu daqui: cadastrar a segunda loja é ação da
+                tela ANTERIOR, onde ela já é o cartão tracejado com o "+".
+                Duas portas para a mesma coisa, em duas telas seguidas, é o
+                que faz um app parecer desarrumado — e aqui a porta ficava
+                justamente onde a pessoa acabou de escolher em qual empresa
+                queria entrar.
+
+                Ficou só "Trocar", que volta para aquela tela — e é de lá
+                que se cadastra outra. Vale mesmo com uma empresa só: antes
+                o botão mudava de nome conforme a quantidade, então a mesma
+                tela tinha dois desenhos diferentes sem nenhum motivo
+                visível para quem usa.
+
+                E a foto entrou: é ela que diz de qual loja é este painel
+                antes de qualquer palavra — a mesma que a pessoa acabou de
+                tocar na tela anterior. */}
             <div className="ei-painel-topo-linha">
-              <span className="ei-painel-topo-nome ei-uma-linha">{empresa.company_name}</span>
-              {quantasEmpresas > 1 ? (
-                <Link to="/minhas-empresas" className="ei-btn-inline">Trocar</Link>
-              ) : (
-                /* Com uma empresa só, "trocar" não teria para onde ir — mas
-                   "cadastrar outra" tem, e é daqui que a pessoa lembra de
-                   fazê-lo: ela está olhando a loja que já cadastrou. */
-                <Link to="/cadastro-empresa?nova=1" className="ei-btn-inline">Cadastrar outra</Link>
-              )}
+              <span className="ei-empresa-logo" aria-hidden="true">
+                {empresa.photo_url ? (
+                  <img src={empresa.photo_url} alt="" />
+                ) : (
+                  empresa.company_name.trim().charAt(0).toLocaleUpperCase("pt-BR")
+                )}
+              </span>
+              <span className="ei-painel-topo-texto">
+                <span className="ei-painel-topo-nome ei-uma-linha">{empresa.company_name}</span>
+                <span className="ei-painel-topo-onde ei-uma-linha">
+                  {[empresa.neighborhood, empresa.city].filter(Boolean).join(" · ")}
+                </span>
+              </span>
+              <Link to="/minhas-empresas" className="ei-btn-inline">Trocar</Link>
             </div>
 
-            <div className="ei-resumo ei-resumo-no-cartao">
-              <div className="ei-resumo-item">
-                <span className="ei-resumo-rotulo">Pessoas interessadas</span>
-                <span className="ei-resumo-numero">{interessados?.length ?? 0}</span>
-              </div>
-              <div className="ei-resumo-item">
-                <span className="ei-resumo-rotulo">Vagas no ar</span>
-                <span className="ei-resumo-numero">
-                  {plano?.abertas ?? 0}
-                  <span className="ei-resumo-de"> de {limiteEmTexto}</span>
-                </span>
-              </div>
-            </div>
+            {/* Os dois números saíram daqui.
+                ─────────────────────────────
+                Eles são os MESMOS que agora aparecem no cartão da empresa
+                na tela anterior — a pessoa acabou de lê-los para escolher
+                em qual entrar, e reencontrá-los idênticos na tela seguinte
+                é o que dava a sensação de repetição.
+
+                Nenhum dos dois sumiu do app: "Cabe mais 1 vaga" continua na
+                linha do plano, logo abaixo, e quem se interessou tem uma
+                seção própria mais adiante, com nome e telefone — que é o
+                que a empresa vem procurar de verdade. */}
 
             {/* O plano fecha o cartão, sobre um fundo levemente afundado:
                 é dado de conta, e não de operação. "Cabe mais 1 vaga" vem
@@ -362,9 +375,17 @@ export function PainelEmpresaPage() {
             <div className="ei-painel-plano">
               <span className="ei-plano-nome">{nomeDoPlanoAtual}</span>
               <span className="ei-plano-nota">{quantasAindaCabem}</span>
-              <Link to="/planos-empresa" className="ei-btn-inline">
-                {semPlano ? "Ver planos" : "Mudar"}
-              </Link>
+              {/* Com o plano cheio, o botão laranja logo abaixo já diz
+                  "Aumentar plano" e vai para o mesmo lugar. Dois caminhos
+                  para a mesma tela, um do lado do outro, fazem supor que
+                  são coisas diferentes — foi o defeito que já tinha
+                  acontecido na grade de atalhos, com "Aumentar o plano" e
+                  "Planos" lado a lado. */}
+              {(semPlano || (plano?.cabeMais ?? true)) && (
+                <Link to="/planos-empresa" className="ei-btn-inline">
+                  {semPlano ? "Ver planos" : "Mudar"}
+                </Link>
+              )}
             </div>
 
             {/* Sem plano ele não aparece: quem não pode publicar não deve
@@ -609,55 +630,22 @@ export function PainelEmpresaPage() {
             Todas as vagas juntas, e não uma seção por vaga: quem contrata
             olha "quem apareceu hoje", e a vaga de cada pessoa vem escrita
             do lado. */}
-        {interessados !== null && interessados.length > 0 && (
-          <>
-            <div className="ei-secao-linha">
-              <h2>Pessoas interessadas</h2>
-              <span className="ei-secao-acao">{interessados.length}</span>
-            </div>
-            <div className="ei-lista">
-              {interessados.map((i) =>
-                i.cadastroId ? (
-                  <Link key={i.id} to={`/profissional/${i.cadastroId}`} className="ei-pessoa">
-                    <LinhaDoInteressado i={i} />
-                  </Link>
-                ) : (
-                  /* Sem cadastro visível — quem ficou oculto ou não
-                     confirmou o telefone — a linha FICA, porque a pessoa
-                     levantou a mão de verdade. O que muda é que não há para
-                     onde tocar, e por isso não é um link. */
-                  <div key={i.id} className="ei-pessoa">
-                    <LinhaDoInteressado i={i} />
-                  </div>
-                )
-              )}
-            </div>
-          </>
-        )}
+        {/* A LISTA DE INTERESSADOS SAIU DAQUI — 02/09
+            ───────────────────────────────────────────
+            A dona: "debaixo do card da empresa aparece as pessoas
+            interessadas, isso não teria que ser na tela das vagas?"
+
+            Teria, e já era: a tela de cada vaga tem a seção "Profissionais
+            interessados", com quem respondeu AQUELA vaga. Aqui embaixo
+            vinha a mesma gente de novo, de todas as vagas misturadas, com
+            o título da vaga escrito ao lado de cada nome para desfazer a
+            mistura — ou seja, o painel juntava o que a pessoa depois tinha
+            de separar com os olhos.
+
+            Cada linha da lista de vagas já diz quantos se interessaram, e
+            um toque abre a vaga com os nomes. Um caminho, e não dois. */}
       </div>
     </div>
-  );
-}
-
-/** O retrato, o nome e a vaga em que a pessoa se interessou. */
-function LinhaDoInteressado({ i }: { i: InteressadoNoPainel }) {
-  return (
-    <>
-      <span className="ei-pessoa-retrato" aria-hidden="true">
-        {i.foto ? (
-          <img src={i.foto} alt="" loading="lazy" />
-        ) : (
-          i.nome.trim().charAt(0).toLocaleUpperCase("pt-BR")
-        )}
-      </span>
-      <span className="ei-pessoa-texto">
-        <span className="ei-pessoa-nome ei-uma-linha">{i.nome}</span>
-        {/* A VAGA em que ela se interessou, e não o bairro: com três vagas
-            abertas ao mesmo tempo, "Joana" sozinha não diz para qual delas
-            ela levantou a mão. */}
-        <span className="ei-pessoa-oficio ei-uma-linha">{i.vagaTitulo}</span>
-      </span>
-    </>
   );
 }
 
