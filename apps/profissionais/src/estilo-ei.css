@@ -1737,10 +1737,28 @@
   border-radius: var(--ei-raio-toque);
 }
 
-/* Redondo de verdade: gente, ícone e chave. */
+/* A FOTO É QUADRADA — 02/09
+   ─────────────────────────
+   "A foto das empresas e dos profissionais devem ser quadradas."
+
+   Antes o retrato de pessoa era círculo e o da empresa, quadrado de canto
+   14px. Duas formas na mesma lista fazem a vista tratá-las como coisas
+   diferentes, e a dona quis uma só. Fica o quadrado de canto 14px — o
+   mesmo do cartão — porque é ele que combina com o resto do app.
+
+   O canto arredondado NÃO é o círculo de volta disfarçado: 14px num
+   retrato de 64px é um canto, não uma bolha.
+
+   Isso muda também o que a pessoa vê ao ENQUADRAR a foto: a máscara do
+   ajuste vira quadrada junto (`.ei-palco-redondo`), senão ela mira num
+   recorte redondo e a lista mostra outro. */
 .ei .ei-foto-iniciais,
 .ei .ei-pessoa-retrato,
-.ei .ei-barra-foto img,
+.ei .ei-barra-foto img {
+  border-radius: var(--ei-raio);
+}
+
+/* Redondo de verdade: ícone e chave. */
 .ei .ei-barra-voltar,
 .ei .ei-acao-circulo,
 .ei .ei-busca-limpar,
@@ -1952,13 +1970,15 @@
   -webkit-user-drag: none;
 }
 
-/* O círculo por cima, para foto de pessoa: mostra na hora de enquadrar o
-   mesmo recorte que a lista vai mostrar depois. */
+/* A máscara por cima, para foto de pessoa: mostra na hora de enquadrar o
+   mesmo recorte que a lista vai mostrar depois. Quadrada desde 02/09,
+   junto com o retrato — enquadrar num círculo e ver um quadrado depois
+   corta cabeça e ombro de quem centralizou pelo círculo. */
 .ei-palco-redondo::after {
   content: "";
   position: absolute;
   inset: 0;
-  border-radius: var(--ei-raio-redondo);
+  border-radius: var(--ei-raio);
   box-shadow: 0 0 0 999px rgba(255, 255, 255, 0.72);
   pointer-events: none;
 }
