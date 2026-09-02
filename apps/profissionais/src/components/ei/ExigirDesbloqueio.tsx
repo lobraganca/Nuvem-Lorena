@@ -74,6 +74,27 @@ export function marcarAppAberto() {
   marcarAbertura();
 }
 
+/**
+ * "Gravar a senha neste aparelho" — a decisão, nunca a senha.
+ *
+ * Exportada porque a tela de ENTRAR também oferece a caixinha (a dona:
+ * "ter opção de gravar a senha na tela de inicio"), e ela é livre desta
+ * barreira. Antes a opção só existia aqui dentro, e para chegar até aqui a
+ * pessoa precisava já ter entrado, fechado o app e aberto de novo.
+ *
+ * Recebe `false` de propósito em vez de só ligar: sem isso, quem gravou uma
+ * vez ficaria preso à decisão, porque desmarcar a caixinha não teria efeito
+ * nenhum e o único jeito de voltar atrás seria limpar os dados do site.
+ */
+export function gravarSenhaNesteAparelho(gravar: boolean) {
+  try {
+    if (gravar) localStorage.setItem(NAO_PEDIR, "1");
+    else localStorage.removeItem(NAO_PEDIR);
+  } catch {
+    /* segue sem gravar */
+  }
+}
+
 function marcarAbertura() {
   try {
     sessionStorage.setItem(MARCA_ABERTURA, "1");
@@ -120,13 +141,10 @@ export function ExigirDesbloqueio({ children }: { children: ReactNode }) {
 
   function liberar() {
     marcarAbertura();
-    if (lembrar) {
-      try {
-        localStorage.setItem(NAO_PEDIR, "1");
-      } catch {
-        /* segue sem lembrar */
-      }
-    }
+    /* Só grava quando marcada. Aqui, ao contrário da tela de entrar, a
+       caixinha desmarcada não apaga nada: quem já gravou não passa por
+       esta tela, então uma desmarcação aqui nunca é "mudei de ideia". */
+    if (lembrar) gravarSenhaNesteAparelho(true);
     setLiberado(true);
   }
 

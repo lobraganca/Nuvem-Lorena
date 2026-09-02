@@ -2371,3 +2371,135 @@
 .ei .ei-lado-cheio .ei-lado-lista > span::before {
   color: #ffffff;
 }
+
+/* ═══════════════════════════════════════════════════════════════════════
+   As 16 mudanças — o que é só aparência
+   ═══════════════════════════════════════════════════════════════════════ */
+
+/* ── O laranja da logo, medido ──────────────────────────────────────────
+   A dona: "o botão de banco de dados pode ter a mesma cor laranja da logo."
+
+   O laranja da logo é #F7A64A — lido do arquivo da marca, pixel a pixel,
+   e não escolhido de memória. Ele é CLARO, e isso decide o texto por cima:
+
+     branco sobre ele ......... 2,0:1   (ilegível; o mínimo é 4,5:1)
+     tinta escura sobre ele ... 6,14:1  (passa com folga)
+
+   Por isso o botão é laranja com texto ESCURO. Trocar por um laranja mais
+   fechado para poder usar branco seria deixar de ser a cor da logo, que é
+   exatamente o que ela pediu. E `--ei-laranja` (#c2410c) continua onde
+   está: aquele é o laranja de AVISO, que precisa de branco por cima. */
+:root {
+  --ei-laranja-marca: #f7a64a;
+  --ei-sobre-laranja-marca: #37352f;
+}
+
+.ei .ei-porta-laranja {
+  background: var(--ei-laranja-marca);
+  border-color: var(--ei-laranja-marca);
+  color: var(--ei-sobre-laranja-marca);
+}
+.ei .ei-porta-laranja:hover:not(:disabled) {
+  background: #f0982f;
+  border-color: #f0982f;
+}
+/* A nota da porta é cinza claro nas outras. Sobre o laranja ela sumiria —
+   e é a linha que diz o que o botão faz. */
+.ei .ei-porta-laranja .ei-porta-nota {
+  color: rgba(55, 53, 47, 0.78);
+}
+
+/* ── "Ei" como marca, e não como palavra solta ──────────────────────────
+   Duas letras num tamanho de título viram um erro de digitação. No tamanho
+   de marca elas viram a marca — que é o que a dona pediu ao trocar
+   "Emprego em Itabirito" por "Ei". */
+.ei .ei-marca-titulo {
+  font-size: 3.4rem;
+  line-height: 1;
+  letter-spacing: -0.04em;
+  color: var(--ei-acento);
+  margin-bottom: 10px;
+}
+
+/* ── O botão pequeno de instalar, no fim da tela ────────────────────────
+   Pílula, discreta, largura do conteúdo — não da tela. Antes era uma linha
+   de lista da mesma largura das portas principais, e disputava a atenção
+   com a decisão que a tela existe para tomar. */
+.ei .ei-btn-instalar-pilula {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  margin: 0 auto;
+  padding: 9px 16px;
+  border: 1px solid var(--ei-fio-forte);
+  border-radius: var(--ei-raio-redondo, 999px);
+  background: var(--ei-papel);
+  color: var(--ei-tinta-fraca);
+  font-size: 0.86rem;
+  font-weight: 500;
+  cursor: pointer;
+}
+.ei .ei-btn-instalar-pilula:hover { background: var(--ei-afunda); }
+/* O pé da tela centraliza a pílula. Sem isto ela cola na margem esquerda,
+   que num bloco de rodapé lê como coisa esquecida no lugar errado. */
+.ei .ei-entrada-pe { display: flex; justify-content: center; }
+
+/* ── O aviso de cadastro pela metade ────────────────────────────────────
+   Cor de atenção, não de erro: não há nada quebrado, só falta preencher.
+   Vermelho aqui faria a pessoa procurar um defeito que não existe. */
+.ei-aviso-perfil {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  margin: 14px 0 4px;
+  padding: 13px 14px;
+  border: 1px solid #f3d9b8;
+  border-left: 3px solid var(--ei-laranja-marca);
+  border-radius: var(--ei-raio, 14px);
+  background: #fdf6ec;
+  color: #5a4526;
+  font-size: 0.9rem;
+  line-height: 1.45;
+}
+.ei-aviso-perfil-texto { flex: 1 1 auto; }
+.ei-aviso-perfil-acoes {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex: 0 0 auto;
+}
+.ei-aviso-perfil-acoes .ei-btn {
+  padding: 7px 13px;
+  font-size: 0.85rem;
+  white-space: nowrap;
+}
+.ei-aviso-perfil-fechar {
+  border: 0;
+  background: none;
+  color: #8a6d43;
+  font-size: 1rem;
+  line-height: 1;
+  padding: 6px;
+  cursor: pointer;
+}
+/* No celular o botão embaixo do texto: lado a lado, com "Completar" e o
+   ✕ na mesma linha, o texto ficava com 40% da largura e quebrava em cinco
+   linhas de duas palavras. */
+@media (max-width: 460px) {
+  .ei-aviso-perfil { flex-direction: column; }
+  .ei-aviso-perfil-acoes { align-self: stretch; justify-content: space-between; }
+}
+
+/* ── "Gravar minha senha neste aparelho" ────────────────────────────────
+   Caixa e texto colados, lado a lado. Com a classe de item de lista a
+   caixinha ia para uma ponta e o texto para a outra, separados por meia
+   tela — foi o que a foto da dona mostrou na tela "Olá de novo". */
+.entrar-gravar {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 12px 0 2px;
+  font-size: 0.9rem;
+  cursor: pointer;
+}
+.entrar-gravar input { width: auto; margin: 0; }

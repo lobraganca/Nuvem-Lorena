@@ -552,9 +552,16 @@ function usuarioFalso() {
     phone: peloGoogle ? "" : "5531999998888",
     phone_confirmed_at: peloGoogle ? null : new Date().toISOString(),
     app_metadata: {},
-    user_metadata: peloGoogle
-      ? { full_name: "Pessoa do Google", avatar_url: "" }
-      : {},
+    /* `tem_senha` é a marca que a barreira `ExigirSenha` procura — sem
+       ela, TODA tela do app fica atrás do "Agora crie sua senha", e a
+       demonstração para na primeira barreira sem conseguir chegar em
+       nenhuma das telas que se quer olhar. Aqui ela é ligada pelo mesmo
+       mecanismo do resto do falso: uma chave no armazenamento, para que o
+       teste possa exercitar os dois estados (com senha e sem). */
+    user_metadata: {
+      ...(peloGoogle ? { full_name: "Pessoa do Google", avatar_url: "" } : {}),
+      ...(localStorage.getItem("falso-tem-senha") === "1" ? { tem_senha: true } : {}),
+    },
     aud: "authenticated",
     created_at: new Date().toISOString(),
   };

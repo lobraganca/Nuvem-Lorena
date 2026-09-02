@@ -4,6 +4,7 @@ import { useAuth } from "../../lib/useAuth";
 import { useOnboardingStatus } from "../../lib/useOnboardingStatus";
 import { useTituloDaPagina } from "../../lib/tituloDaPagina";
 import { InstalarApp } from "../../components/InstalarApp";
+import { AvisoPerfilIncompleto } from "../../components/ei/AvisoPerfilIncompleto";
 
 /**
  * A porta de entrada do Ei Itabirito.
@@ -21,7 +22,7 @@ import { InstalarApp } from "../../components/InstalarApp";
  * Quem já entrou nunca vê esta tela: é levado direto para o lado dele.
  */
 export function EntradaPage() {
-  useTituloDaPagina("Emprego em Itabirito");
+  useTituloDaPagina("Início");
   const { user, loading } = useAuth();
   const tipo = useOnboardingStatus();
   const navegar = useNavigate();
@@ -99,7 +100,17 @@ export function EntradaPage() {
           instalar, privacidade — se junta embaixo, num bloco só. */}
       <div className="ei-tela ei-entrada">
         <div className="ei-entrada-topo">
-          <h1 className="ei-entrada-titulo">Emprego em Itabirito</h1>
+          {/* "Ei", e não "Emprego em Itabirito".
+              ─────────────────────────────────────
+              A dona: "nas telas onde tem escrito 'Emprego em Itabirito',
+              acho melhor mudar para Ei".
+
+              O nome comprido era descrição, não marca: dizia o que o app
+              faz, o que a linha logo abaixo já diz melhor, e ocupava duas
+              linhas no celular. "Ei" é o que está no ícone, no aparelho e
+              na boca das pessoas — e é o que a pessoa procura quando quer
+              achar o app de novo. */}
+          <h1 className="ei-entrada-titulo ei-marca-titulo">Ei</h1>
           {/* Uma linha. A anterior tinha duas orações e dizia, com vinte
               palavras, o que os dois botões logo abaixo dizem com seis. */}
           {/* Era "De que lado você está?", que fazia par com as duas
@@ -135,6 +146,15 @@ export function EntradaPage() {
         {/* Com conta: os caminhos do lado da pessoa. Sem conta: as duas
             portas. Os mesmos blocos, o mesmo lugar na tela — o que muda é
             para onde levam. */}
+        {/* O aviso do cadastro pela metade (a dona: "ao escolher o
+            ambiente, se o perfil não estiver preenchido, deve ter um aviso
+            na tela"). Fica acima das portas porque é sobre o que a pessoa
+            vai fazer ao tocar numa delas — embaixo, ela já teria saído da
+            tela antes de ler. */}
+        {entrou && (tipo === "company" || tipo === "professional") && (
+          <AvisoPerfilIncompleto lado={tipo} />
+        )}
+
         {entrou ? (
           <div className="ei-portas">
             {tipo === "company" ? (
@@ -143,7 +163,18 @@ export function EntradaPage() {
                   <span className="ei-porta-nome">Minhas vagas</span>
                   <span className="ei-porta-nota">Publicar, acompanhar e ver quem respondeu</span>
                 </Link>
-                <Link to="/profissionais" className="ei-porta">
+                {/* O laranja da logo, e só aqui.
+                    ───────────────────────────────
+                    A dona: "o botão de banco de dados pode ter a mesma cor
+                    laranja da logo."
+
+                    O laranja é a bolinha do "Ei": no desenho da marca ele
+                    aparece uma vez, pequeno, e é isso que o faz saltar.
+                    Usado em dois botões da mesma tela ele deixaria de ser
+                    destaque e viraria só mais uma cor — então este é o
+                    único lugar da tela que o usa, e "Minhas vagas" fica no
+                    azul cheio. */}
+                <Link to="/profissionais" className="ei-porta ei-porta-laranja">
                   <span className="ei-porta-nome">Banco de talentos</span>
                   <span className="ei-porta-nota">Quem está disponível na cidade</span>
                 </Link>
@@ -193,9 +224,14 @@ export function EntradaPage() {
 
               Some sozinho dentro do app já instalado e dentro do app da
               loja. Ver InstalarApp. */}
-          <div className="ei-lista">
-            <InstalarApp />
-          </div>
+          {/* Botão pequeno e redondo, no fim da tela — a forma que a
+              dona pediu. Antes era uma linha de lista larga, do tamanho
+              das portas principais, competindo com a decisão desta tela.
+
+              O que ele FAZ continua sendo decidido pelo aparelho: no
+              Android o toque instala de verdade; no iPhone abre o passo a
+              passo, porque lá quem instala é o próprio Safari. */}
+          <InstalarApp variante="botao" />
         </div>
       </div>
     </div>

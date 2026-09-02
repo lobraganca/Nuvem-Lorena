@@ -8,7 +8,7 @@ import {
   recuperarSenha,
 } from "../lib/auth";
 import { hasDatabase, problemaDeConfiguracao } from "../lib/supabase";
-import { marcarAppAberto } from "../components/ei/ExigirDesbloqueio";
+import { marcarAppAberto, gravarSenhaNesteAparelho } from "../components/ei/ExigirDesbloqueio";
 import { useTituloDaPagina } from "../lib/tituloDaPagina";
 import { mensagemDeErro } from "../lib/erros";
 import { formatPhone } from "../lib/phone";
@@ -107,6 +107,20 @@ export function LoginPage() {
     return pedido === "criar" ? "sms" : "senha";
   });
   const [senhaEntrada, setSenhaEntrada] = useState("");
+  /* "Gravar a senha", na tela de início.
+     ─────────────────────────────────────
+     A dona: "ter opção de gravar a senha na tela de inicio."
+
+     A caixinha existia, mas só na tela "Olá de novo" — a que aparece
+     quando o app é ABERTO de novo. Ou seja: para chegar até ela a pessoa
+     precisava já ter entrado uma vez, fechado o app, e aberto outra. Na
+     primeira vez, que é quando alguém decide se vai digitar senha todo dia,
+     a opção não estava em lugar nenhum.
+
+     O que se grava é a DECISÃO de não pedir de novo neste aparelho, e nunca
+     a senha. Senha guardada em navegador é o tipo de atalho que vira
+     notícia ruim, e aqui não resolveria nada que a decisão não resolva. */
+  const [gravarSenha, setGravarSenha] = useState(false);
 
   const [comEmail, setComEmail] = useState(false);
   const [criando, setCriando] = useState(false);
@@ -311,6 +325,19 @@ export function LoginPage() {
                   onChange={(e) => setSenhaEntrada(e.target.value)}
                   disabled={!hasDatabase() || enviando}
                 />
+                {/* Caixa e texto colados, lado a lado. Com a classe de item
+                    de lista a caixinha ia para uma ponta e o texto para a
+                    outra, separados por meia tela — foi o que a foto da
+                    dona mostrou na tela "Olá de novo". */}
+                <label className="entrar-gravar">
+                  <input
+                    type="checkbox"
+                    checked={gravarSenha}
+                    onChange={(e) => setGravarSenha(e.target.checked)}
+                    disabled={!hasDatabase() || enviando}
+                  />
+                  <span>Gravar minha senha neste aparelho</span>
+                </label>
               </>
             )}
 
@@ -336,6 +363,11 @@ export function LoginPage() {
                          ABRE o app já logado, não para quem acabou de
                          digitar a senha aqui. */
                       marcarAppAberto();
+                      /* Marcou a caixinha: este aparelho para de pedir a
+                         senha a cada abertura. Desmarcada, ela LIMPA uma
+                         decisão anterior — senão quem gravou uma vez nunca
+                         mais conseguiria voltar atrás sem saber onde mexer. */
+                      gravarSenhaNesteAparelho(gravarSenha);
                     })
                   : tentar(
                       () => entrarComTelefone(telefone),

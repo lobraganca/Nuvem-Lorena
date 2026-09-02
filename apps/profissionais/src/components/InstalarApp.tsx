@@ -48,7 +48,7 @@ function ehIOS(): boolean {
   return /iphone|ipad|ipod/i.test(navigator.userAgent);
 }
 
-export function InstalarApp({ variante = "lista" }: { variante?: "lista" | "faixa" | "cabecalho" }) {
+export function InstalarApp({ variante = "lista" }: { variante?: "lista" | "faixa" | "cabecalho" | "botao" }) {
   /* Dentro do app instalado pela loja, convidar a instalar o app é o
      absurdo que parece. Ele já sumia quando o navegador dizia que não há
      o que instalar — mas o app da loja não é navegador, e a pergunta nunca
@@ -197,6 +197,43 @@ export function InstalarApp({ variante = "lista" }: { variante?: "lista" | "faix
       </p>
     </BottomSheet>
   );
+
+  if (variante === "botao") {
+    /* O botão pequeno e redondo do fim da tela.
+       ─────────────────────────────────────────
+       A dona: "a opção de instalar o app deve ter duas vertentes: android
+       já adiciona na tela e iphone abre a instrução de como faz pra colocar
+       o ícone na área de trabalho. O botão pode ser um botão pequeno
+       arredondado mais no fim da tela."
+
+       As duas vertentes já eram assim (é o que `podeInstalarDireto` decide
+       logo abaixo: no Android existe o `beforeinstallprompt` e o toque
+       instala de verdade; no iPhone não existe evento nenhum e o único
+       caminho é ensinar). O que faltava era a FORMA — na tela de início ele
+       aparecia como uma linha larga de lista, do tamanho das duas portas
+       principais, competindo com a decisão que a tela existe para tomar. */
+    return (
+      <>
+        <button
+          type="button"
+          className="ei-btn-instalar-pilula"
+          onClick={() => (podeInstalarDireto ? instalar() : setEnsinandoIOS(true))}
+        >
+          <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor"
+               strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+            <rect x="6" y="2.5" width="12" height="19" rx="2.5" />
+            <path d="M12 7.5v7" />
+            <path d="M9 11.5l3 3 3-3" />
+          </svg>
+          {/* No iPhone o toque não instala: abre o passo a passo. Prometer
+              "instalar" ali seria mentir sobre o que o botão faz, e a pessoa
+              que espera um ícone aparecer acha que o app travou. */}
+          {podeInstalarDireto ? "Instalar o app" : "Deixar na tela do celular"}
+        </button>
+        {ensinandoIOS && (ehIOS() ? folhaIOS : folhaNavegador)}
+      </>
+    );
+  }
 
   if (variante === "cabecalho") {
     /* No cabeçalho, ao lado da marca: fica alcançável de qualquer tela, sem
