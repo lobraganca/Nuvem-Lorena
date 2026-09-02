@@ -2503,3 +2503,34 @@
   cursor: pointer;
 }
 .entrar-gravar input { width: auto; margin: 0; }
+
+/* ── A linha do banco de vagas ──────────────────────────────────────────
+   Herda de `.ei-pessoa` e muda duas coisas: o alinhamento e a altura.
+
+   A linha de PESSOA tem duas linhas de texto e centraliza o retrato na
+   vertical, o que é o certo lá. A de vaga tem quatro (título, empresa e
+   cidade, salário e contrato, compatibilidade) — e com o retrato
+   centralizado ele descia para o meio do bloco, deixando um buraco branco
+   em cima do logo. */
+.ei .ei-vaga-linha { align-items: flex-start; }
+.ei .ei-vaga-linha .ei-pessoa-retrato { margin-top: 2px; }
+.ei-vaga-linha-detalhe {
+  font-size: 0.88rem;
+  color: var(--ei-tinta);
+  margin-top: 2px;
+}
+
+/* A compatibilidade. Faixas, e não porcentagem — ver o comentário em
+   `rotuloDaCompat`. As cores dizem "vale a pena olhar primeiro", e nunca
+   "não tente": a mais fraca é cinza, e não vermelha, porque responder a
+   uma vaga fora do ofício é uma decisão legítima de quem está procurando
+   trabalho — e a conta erra justamente com quem não sabe se descrever. */
+.ei-compat {
+  margin-top: 4px;
+  font-size: 0.8rem;
+  font-weight: 500;
+}
+.ei-compat-alta { color: var(--ei-verde, #1b6b3f); }
+.ei-compat-media { color: #8a5a12; }
+.ei-compat-baixa { color: var(--ei-tinta-fraca); }
+.ei-compat-respondida { color: var(--ei-acento); }

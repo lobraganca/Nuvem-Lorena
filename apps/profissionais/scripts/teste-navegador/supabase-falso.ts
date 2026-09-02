@@ -220,6 +220,12 @@ const VAGAS: Linha[] = [
   status: "active",
   created_at: emDias(-i - 1),
   closed_at: null,
+  /* A empresa vem EMBUTIDA, como o PostgREST devolve o `select` com tabela
+     filha. O banco de vagas lê `v.companies.company_name` — sem isto, cada
+     cartão da lista aparecia sem nome e sem logo de empresa, que é
+     exatamente a informação que decide se alguém responde. É o mesmo
+     aninhamento que `job_notifications` já fazia. */
+  companies: { company_name: "Padaria Pão de Minas", photo_url: fotoFalsa(2) },
   ...v,
 }));
 
@@ -322,6 +328,22 @@ const TABELAS: Record<string, Linha[]> = {
   ],
 
   job_listings: VAGAS,
+
+  /* A face pública da empresa (view da 0100). O app lê daqui, e não de
+     `companies`, porque a tabela só tem policy de leitura do próprio dono
+     — quem procura trabalho lê zero linhas nela. Sem esta entrada, a tela
+     da vaga aberta abria sem nome nem foto de empresa no falso, escondendo
+     justamente o defeito que a 0100 existe para consertar. */
+  companies_public: [
+    {
+      id: EMPRESA_FALSA,
+      company_name: "Padaria Pão de Minas",
+      photo_url: fotoFalsa(2),
+      city: "Itabirito",
+      uf: "MG",
+      neighborhood: "Centro",
+    },
+  ],
 
   /* Respostas de verdade na PRIMEIRA vaga e nenhuma na segunda.
      ───────────────────────────────────────────────────────────

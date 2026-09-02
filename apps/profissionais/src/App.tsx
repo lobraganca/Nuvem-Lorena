@@ -50,6 +50,7 @@ const EntradaPage = lazy(importarPagina(() => import("./pages/ei/EntradaPage").t
 const MeuPerfilPage = lazy(importarPagina(() => import("./pages/ei/MeuPerfilPage").then((m) => ({ default: m.MeuPerfilPage }))));
 const ProfissionaisPage = lazy(importarPagina(() => import("./pages/ProfissionaisPage").then((m) => ({ default: m.ProfissionaisPage }))));
 const VagasParaMimPage = lazy(importarPagina(() => import("./pages/VagasParaMimPage").then((m) => ({ default: m.VagasParaMimPage }))));
+const BancoDeVagasPage = lazy(importarPagina(() => import("./pages/ei/BancoDeVagasPage").then((m) => ({ default: m.BancoDeVagasPage }))));
 const PlanosEmpresaPage = lazy(importarPagina(() => import("./pages/PlanosEmpresaPage").then((m) => ({ default: m.PlanosEmpresaPage }))));
 const DetalheVagaPage = lazy(importarPagina(() => import("./pages/DetalheVagaPage").then((m) => ({ default: m.DetalheVagaPage }))));
 const PerfilPublicoPage = lazy(importarPagina(() => import("./pages/PerfilPublicoPage").then((m) => ({ default: m.PerfilPublicoPage }))));
@@ -147,6 +148,11 @@ const TELAS_DE_APP = [
   "/onboarding-tipo",
   "/cadastro-empresa",
   "/vagas-para-mim",
+  /* O banco de vagas. Sem esta linha ele terminava com o rodapé de SITE
+     embaixo da barra do app — três colunas de links e um botão verde de
+     WhatsApp, o pedaço mais visível que sobrou do procurô. É o mesmo
+     esquecimento que já aconteceu com `/login` e com `/vaga-aberta`. */
+  "/vagas",
   "/meu-perfil",
   "/painel",
   "/painel-empresa",
@@ -273,6 +279,10 @@ export default function App() {
 
         {/* Quem procura trabalho */}
         <Route path="/vagas-para-mim" element={<VagasParaMimPage />} />
+        {/* O banco de vagas: tudo que está no ar, para quem quiser procurar
+            sozinha — e não só o que a onda escolheu mandar. Ver a
+            BancoDeVagasPage. */}
+        <Route path="/vagas" element={<BancoDeVagasPage />} />
         <Route path="/meu-perfil" element={<MeuPerfilPage />} />
         {/* `/painel` era o painel do profissional no procurô, com
             assinaturas, destaque e pedidos de contato. O que resta dele

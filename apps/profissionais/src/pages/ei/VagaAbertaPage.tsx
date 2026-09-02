@@ -89,8 +89,16 @@ export function VagaAbertaPage() {
 
       const sb = supabase();
       if (sb) {
+        /* `companies_public`, e não `companies`.
+           ───────────────────────────────────────
+           A tabela só tem policy de leitura do PRÓPRIO DONO (0066): quem
+           procura trabalho lê zero linhas aqui — sem erro, só sem
+           resultado. Efeito na tela: a vaga abria com o nome e a foto da
+           empresa em branco, exatamente para o público a quem ela
+           interessa. É o mesmo defeito que a 0100 consertou nas duas
+           listas, e que ficou de fora desta tela. */
         const { data: emp } = await sb
-          .from("companies")
+          .from("companies_public")
           .select("company_name, photo_url")
           .eq("id", v.company_id)
           .maybeSingle();

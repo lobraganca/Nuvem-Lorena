@@ -185,6 +185,26 @@ export function EntradaPage() {
                   <span className="ei-porta-nome">Vagas para mim</span>
                   <span className="ei-porta-nota">O que chegou para o seu ofício</span>
                 </Link>
+                {/* O banco de vagas.
+                    ─────────────────
+                    A dona: "tem que criar um banco de vagas, assim como o
+                    de talentos, nela as pessoas poderão acessar as vagas
+                    que estão em aberto das empresas."
+
+                    A porta de cima mostra o que a ONDA escolheu mandar;
+                    esta mostra TUDO que está no ar. A diferença importa
+                    porque a onda compara texto e erra: quem se cadastrou
+                    como "auxiliar de limpeza" não recebe a vaga de
+                    "camareira" sendo exatamente a pessoa.
+
+                    Fica fora da barra de baixo de propósito — a barra tem
+                    quatro lugares, e os quatro foram escolhidos pela dona
+                    ("retornar, as notificações, banco de talentos, painel").
+                    Um quinto item espremeria os outros quatro. */}
+                <Link to="/vagas" className="ei-porta">
+                  <span className="ei-porta-nome">Banco de vagas</span>
+                  <span className="ei-porta-nota">Todas as vagas abertas da cidade</span>
+                </Link>
                 <Link to="/painel" className="ei-porta">
                   <span className="ei-porta-nome">Meu cadastro</span>
                   <span className="ei-porta-nota">Suas funções, horários e contato</span>
