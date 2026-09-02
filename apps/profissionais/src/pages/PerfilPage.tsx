@@ -18,6 +18,7 @@ import { useTituloDaPagina } from "../lib/tituloDaPagina";
 import { useOnboardingStatus } from "../lib/useOnboardingStatus";
 import { mensagemDeErro } from "../lib/erros";
 import { uploadProfessionalPhoto } from "../lib/storage";
+import { sendSuggestion } from "../lib/suggestions";
 import { SUPORTE_WHATSAPP, CONTATO_EMAIL } from "../config";
 
 /**
@@ -113,6 +114,13 @@ export function PerfilPage() {
   const [senhaNova, setSenhaNova] = useState("");
   const [salvandoSenha, setSalvandoSenha] = useState(false);
   const [avisoSenha, setAvisoSenha] = useState("");
+  /* "Enviar sugestão" — a dona pediu na Conta, junto de "como funciona"
+     e dos documentos. O mesmo canal que já existia para "função que
+     faltava na lista" (MeuPerfilPage), aqui aberto para qualquer coisa. */
+  const [mostrandoSugestao, setMostrandoSugestao] = useState(false);
+  const [textoSugestao, setTextoSugestao] = useState("");
+  const [enviandoSugestao, setEnviandoSugestao] = useState(false);
+  const [sugestaoEnviada, setSugestaoEnviada] = useState(false);
   const [confirmarExclusao, setConfirmarExclusao] = useState(false);
   const [textoConfirmacao, setTextoConfirmacao] = useState("");
   const [excluindo, setExcluindo] = useState(false);
@@ -491,6 +499,13 @@ export function PerfilPage() {
           <h2>Ajuda</h2>
         </div>
         <div className="ei-lista">
+          {/* A dona pediu "como funciona" junto de sugestão, termos e
+              suporte — o roteiro de quem não sabe se o app está fazendo o
+              que devia, antes de escrever para o suporte. Por isso vem
+              primeiro nesta lista. */}
+          <Linha para="/como-funciona" icone={<IconeAjuda />}>
+            Como funciona
+          </Linha>
           {/* O suporte era um botão verde grande no rodapé — a peça mais
               reconhecível do procurô numa tela. Como linha da lista ele
               continua a um toque, sem pintar a tela de outro app. */}
@@ -510,6 +525,65 @@ export function PerfilPage() {
             Escrever um e-mail
             <span className="ei-linha-sub">{CONTATO_EMAIL}</span>
           </Linha>
+          {/* "Enviar sugestão" — a dona pediu explicitamente. Mesmo canal
+              (`sendSuggestion`) que já recebia os pedidos de função nova
+              do cadastro profissional; aqui aberto para qualquer ideia,
+              sem exigir que seja sobre uma função específica. */}
+          {!mostrandoSugestao ? (
+            <Linha
+              icone={<IconeLampada />}
+              onClick={() => {
+                setSugestaoEnviada(false);
+                setMostrandoSugestao(true);
+              }}
+            >
+              Enviar sugestão
+            </Linha>
+          ) : (
+            <div style={{ padding: 16, display: "grid", gap: 10 }}>
+              <div className="ei-campo">
+                <label htmlFor="conta-sugestao">Sua sugestão</label>
+                <textarea
+                  id="conta-sugestao"
+                  rows={3}
+                  value={textoSugestao}
+                  onChange={(e) => setTextoSugestao(e.target.value)}
+                  placeholder="O que podia funcionar melhor, ou o que está faltando"
+                />
+              </div>
+              <button
+                type="button"
+                className="ei-btn ei-btn-cheio"
+                disabled={enviandoSugestao || !textoSugestao.trim()}
+                onClick={async () => {
+                  setEnviandoSugestao(true);
+                  setError("");
+                  try {
+                    await sendSuggestion(textoSugestao.trim(), user.id);
+                    setTextoSugestao("");
+                    setMostrandoSugestao(false);
+                    setSugestaoEnviada(true);
+                  } catch (err) {
+                    setError(mensagemDeErro(err, "Não consegui enviar a sugestão."));
+                  } finally {
+                    setEnviandoSugestao(false);
+                  }
+                }}
+              >
+                {enviandoSugestao ? "Enviando…" : "Enviar"}
+              </button>
+              <button
+                type="button"
+                className="ei-btn ei-btn-texto"
+                onClick={() => {
+                  setMostrandoSugestao(false);
+                  setTextoSugestao("");
+                }}
+              >
+                Cancelar
+              </button>
+            </div>
+          )}
           {/* Não é informação, é conserto: a saída de quando o app trava
               numa versão antiga e nem recarregar nem fechar e reabrir
               resolvem. Já foi preciso mais de uma vez. */}
@@ -527,6 +601,11 @@ export function PerfilPage() {
               o gesto — ver FecharApp. */}
           <FecharApp />
         </div>
+        {sugestaoEnviada && (
+          <p className="ei-apoio ei-margem" style={{ marginTop: 8 }}>
+            Sugestão enviada. Obrigado!
+          </p>
+        )}
 
         <div className="ei-secao-linha">
           <h2>Dados e documentos</h2>
@@ -757,6 +836,26 @@ function IconeConversa() {
   return (
     <svg {...traco}>
       <path d="M20.5 11.6a8 8 0 0 1-11.8 7l-5.2 1.4 1.4-5A8 8 0 1 1 20.5 11.6z" />
+    </svg>
+  );
+}
+
+function IconeAjuda() {
+  return (
+    <svg {...traco}>
+      <circle cx="12" cy="12" r="9.2" />
+      <path d="M9.2 9.5a2.8 2.8 0 1 1 4.3 2.4c-.9.6-1.5 1.1-1.5 2.3" />
+      <circle cx="12" cy="17.3" r="0.15" fill="currentColor" stroke="none" />
+    </svg>
+  );
+}
+
+function IconeLampada() {
+  return (
+    <svg {...traco}>
+      <path d="M9 18.5h6" />
+      <path d="M8.2 15.5a6 6 0 1 1 7.6 0c-.7.6-1.2 1.4-1.2 2.5H9.4c0-1.1-.5-1.9-1.2-2.5z" />
+      <path d="M12 2.5v1.6M4.2 6.7l1.3 1M19.8 6.7l-1.3 1" />
     </svg>
   );
 }

@@ -35,6 +35,7 @@ import { mensagemDeErro } from "./lib/erros";
 const LoginPage = lazy(importarPagina(() => import("./pages/LoginPage").then((m) => ({ default: m.LoginPage }))));
 const AdminPage = lazy(importarPagina(() => import("./pages/AdminPage").then((m) => ({ default: m.AdminPage }))));
 const TermosPage = lazy(importarPagina(() => import("./pages/TermosPage").then((m) => ({ default: m.TermosPage }))));
+const ComoFuncionaPage = lazy(importarPagina(() => import("./pages/ComoFuncionaPage").then((m) => ({ default: m.ComoFuncionaPage }))));
 const PrivacidadePage = lazy(importarPagina(() => import("./pages/PrivacidadePage").then((m) => ({ default: m.PrivacidadePage }))));
 const DiagnosticoPage = lazy(importarPagina(() => import("./pages/DiagnosticoPage").then((m) => ({ default: m.DiagnosticoPage }))));
 const ExcluirContaPage = lazy(importarPagina(() => import("./pages/ExcluirContaPage").then((m) => ({ default: m.ExcluirContaPage }))));
@@ -340,6 +341,7 @@ export default function App() {
         <Route path="/perfil" element={<PerfilPage />} />
         <Route path="/configuracao" element={<ConfiguracaoPage />} />
         <Route path="/termos" element={<TermosPage />} />
+        <Route path="/como-funciona" element={<ComoFuncionaPage />} />
         <Route path="/privacidade" element={<PrivacidadePage />} />
         <Route path="/excluir-conta" element={<ExcluirContaPage />} />
         {/* Sem link em lugar nenhum: existe para depurar login a distância. */}
