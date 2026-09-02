@@ -33,7 +33,7 @@
  */
 import { useState, type ReactNode } from "react";
 import { useAuth } from "../../lib/useAuth";
-import { definirSenha } from "../../lib/auth";
+import { definirSenha, signOut } from "../../lib/auth";
 import { mensagemDeErro } from "../../lib/erros";
 import { CampoSenha } from "./CampoSenha";
 
@@ -139,6 +139,26 @@ export function ExigirSenha({ children }: { children: ReactNode }) {
               Não consegui agora — criar depois, na Conta
             </button>
           )}
+
+          {/* Mesma saída da tela de desbloqueio (02/09): esta barreira
+              também é de uma conta específica, e quem chegou nela com a
+              conta errada não tinha por onde sair — o botão de sair mora
+              na Conta, que fica atrás desta tela. */}
+          <button
+            type="button"
+            className="ei-btn-inline"
+            style={{ marginTop: 10 }}
+            onClick={async () => {
+              try {
+                await signOut();
+              } catch {
+                /* Seguir para a tela de entrar é melhor que travar aqui. */
+              }
+              window.location.href = "/login";
+            }}
+          >
+            Entrar em outra conta
+          </button>
         </section>
       </div>
     </div>

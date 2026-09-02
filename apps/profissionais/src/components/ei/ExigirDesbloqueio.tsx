@@ -42,7 +42,12 @@
  */
 import { useState, type ReactNode } from "react";
 import { useAuth } from "../../lib/useAuth";
-import { entrarComTelefoneESenha, entrarComTelefone, conferirCodigoDeEntrada } from "../../lib/auth";
+import {
+  entrarComTelefoneESenha,
+  entrarComTelefone,
+  conferirCodigoDeEntrada,
+  signOut,
+} from "../../lib/auth";
 import { formatPhone, doFormatoDoBanco } from "../../lib/phone";
 import { mensagemDeErro } from "../../lib/erros";
 import { CampoSenha } from "./CampoSenha";
@@ -236,6 +241,42 @@ export function ExigirDesbloqueio({ children }: { children: ReactNode }) {
                 }}
               >
                 Esqueci minha senha — receber código por SMS
+              </button>
+
+              {/* ── ENTRAR EM OUTRA CONTA — 02/09 ─────────────────────────
+                  A dona: "nessa tela ter opção com botão de entrar em outra
+                  conta."
+
+                  Faltava, e prendia de verdade: esta tela mostra um número
+                  e pede a senha DELE. Quem pegou o celular de outra pessoa,
+                  ou tem duas contas (a da loja e a sua), não tinha saída —
+                  as duas opções eram "entrar" e "receber o código", as duas
+                  do mesmo número. Sair pelo botão da Conta exigia estar
+                  dentro, e estar dentro é exatamente o que esta tela
+                  impede.
+
+                  `signOut` de verdade, e não só liberar a barreira: entrar
+                  em outra conta é justamente derrubar a sessão desta. Vai
+                  por `location.href` para o app recarregar limpo — sem
+                  isso, telas já montadas continuariam mostrando dados da
+                  conta anterior. */}
+              <button
+                type="button"
+                className="ei-btn-inline"
+                style={{ marginTop: 10 }}
+                disabled={ocupado}
+                onClick={async () => {
+                  setOcupado(true);
+                  try {
+                    await signOut();
+                  } catch {
+                    /* Se a saída falhar, seguir para a tela de entrar é
+                       melhor que travar aqui: lá dá para entrar de novo. */
+                  }
+                  window.location.href = "/login";
+                }}
+              >
+                Entrar em outra conta
               </button>
             </>
           ) : (
