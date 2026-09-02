@@ -662,9 +662,6 @@ export function CriarVagaPage() {
               ofício é a Especialidade, logo abaixo. */}
           <div className="ei-campo">
             <label htmlFor="profession">Qual profissional você procura? *</label>
-            <span className="ei-campo-ajuda">
-              É a primeira linha que a pessoa lê. Não achou na lista? Escreva do seu jeito.
-            </span>
             <input
               id="profession"
               type="text"
@@ -684,9 +681,6 @@ export function CriarVagaPage() {
 
           <div className="ei-campo">
             <label htmlFor="specialty">Especialidade (opcional)</label>
-            <span className="ei-campo-ajuda">
-              Deixe em branco se qualquer um do ofício serve.
-            </span>
             <input
               id="specialty"
               type="text"
@@ -697,9 +691,6 @@ export function CriarVagaPage() {
 
           <div className="ei-campo">
             <label htmlFor="description">O que a pessoa vai fazer? *</label>
-            <span className="ei-campo-ajuda">
-              Duas ou três linhas. Vaga sem isso quase não recebe resposta.
-            </span>
             <textarea
               id="description"
               rows={4}
@@ -800,10 +791,6 @@ export function CriarVagaPage() {
                   conserto de posição de dicas feito por busca e troca. */}
           <div className="ei-campo">
             <label htmlFor="quantidade_vagas">Quantas vagas</label>
-            <span className="ei-campo-ajuda">
-              Mais de uma muda quem responde: numa vaga só, quem se acha segundo
-              colocado nem tenta.
-            </span>
             <input
               id="quantidade_vagas"
               type="number"
@@ -825,9 +812,6 @@ export function CriarVagaPage() {
 
           <div className="ei-campo">
             <label htmlFor="data_inicio">Começa quando</label>
-            <span className="ei-campo-ajuda">
-              Deixe em branco se ainda não tem data.
-            </span>
             <input
               id="data_inicio"
               type="date"
@@ -838,9 +822,6 @@ export function CriarVagaPage() {
 
           <div className="ei-campo">
             <label htmlFor="prazo_candidatura">Recebe candidatura até</label>
-            <span className="ei-campo-ajuda">
-              Sem prazo, a vaga fica no ar até você fechar.
-            </span>
             <input
               id="prazo_candidatura"
               type="date"
@@ -855,9 +836,6 @@ export function CriarVagaPage() {
 
           <div className="ei-campo">
             <label htmlFor="work_modality">Onde a pessoa trabalha?</label>
-            <span className="ei-campo-ajuda">
-              Quase toda vaga aqui é no local.
-            </span>
             <select
               id="work_modality"
               value={form.work_modality}
@@ -877,9 +855,6 @@ export function CriarVagaPage() {
               com o candidato descobrindo a verdade depois. */}
           <div className="ei-campo">
             <label htmlFor="horario">Que horas entra e sai?</label>
-            <span className="ei-campo-ajuda">
-              Ouro Preto e Rio Acima ficam a meia hora.
-            </span>
             <input
               id="horario"
               type="text"
@@ -928,9 +903,6 @@ export function CriarVagaPage() {
               />
               <span>Preciso de alguém para começar logo</span>
             </label>
-            <span className="ei-campo-ajuda">
-              A vaga ganha a etiqueta “Urgente”.
-            </span>
           </div>
 
             </div>
@@ -968,9 +940,6 @@ export function CriarVagaPage() {
             </label>
             {/* A dica estava pendurada em "Tem comissão?", onde não dizia
                 nada — é desta caixa que ela fala, e voltou para cá. */}
-            <span className="ei-campo-ajuda">
-              A vaga vai dizer “A combinar”, que é melhor que não dizer nada.
-            </span>
           </div>
 
           {!form.salario_a_combinar && (
@@ -1018,9 +987,6 @@ export function CriarVagaPage() {
                 <label htmlFor="salary_max">Até quanto pode pagar? (R$)</label>
                 {/* Esta dica estava em "O salário é", falando de uma coisa
                     que aquele campo não faz. É deste, e voltou. */}
-                <span className="ei-campo-ajuda">
-                  Só se você paga mais conforme a experiência.
-                </span>
                 <input
                   id="salary_max"
                   type="number"
@@ -1043,9 +1009,6 @@ export function CriarVagaPage() {
             <div className="ei-mais-corpo">
           <div className="ei-campo">
             <label htmlFor="beneficio-novo">O que a vaga oferece além do salário?</label>
-            <span className="ei-campo-ajuda">
-              Vale-transporte decide quem mora longe.
-            </span>
             <div className="ei-chips" style={{ marginBottom: 8 }}>
               {BENEFICIOS_SUGERIDOS.map((b) => {
                 const marcado = form.beneficios.includes(b);
@@ -1160,9 +1123,6 @@ export function CriarVagaPage() {
 
             <div className="ei-campo">
               <label htmlFor="required_experience">Precisa de experiência?</label>
-              <span className="ei-campo-ajuda">
-                Exigir o que a vaga não pede afasta gente boa.
-              </span>
               <select
                 id="required_experience"
                 value={form.required_experience || ""}
@@ -1181,9 +1141,6 @@ export function CriarVagaPage() {
                 leitura humana. */}
             <div className="ei-campo">
               <label htmlFor="escolaridade_minima">Escolaridade mínima</label>
-              <span className="ei-campo-ajuda">
-                Exigir demais é o jeito mais rápido de ficar sem candidato.
-              </span>
               <select
                 id="escolaridade_minima"
                 value={form.escolaridade_minima ?? ""}
@@ -1281,9 +1238,6 @@ export function CriarVagaPage() {
               </label>
               {/* A dica estava em "Precisa de algum curso?", falando de
                   viagem. É deste campo, e voltou para cá. */}
-              <span className="ei-campo-ajuda">
-                A vaga só alcança quem aceita sair da cidade.
-              </span>
             </div>
 
             <div className="ei-campo">
@@ -1311,9 +1265,6 @@ export function CriarVagaPage() {
                   );
                 })}
               </div>
-              <span className="ei-campo-ajuda">
-                Quase nenhuma vaga aqui precisa.
-              </span>
             </div>
 
             {/* Informações complementares: o campo aberto que a dona pediu
@@ -1328,9 +1279,6 @@ export function CriarVagaPage() {
                   Foi parar aqui num conserto de posição de dicas feito por
                   busca e troca, e ficou dizendo uma coisa que o campo não
                   faz. */}
-              <span className="ei-campo-ajuda">
-                Se quiser, escreva o que mais importa nesta vaga.
-              </span>
               <textarea
                 id="observacoes"
                 rows={3}
