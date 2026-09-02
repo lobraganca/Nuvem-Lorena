@@ -1348,19 +1348,56 @@
    no meio de uma frase. Serve para o que é secundário — ligar o aviso,
    limpar um filtro — e evita mais um retângulo preto competindo com o
    botão que de fato importa na tela. */
-.ei-btn-inline {
-  background: none;
+/* A AÇÃO SECUNDÁRIA VIRA BOTÃO ARREDONDADO CLARO — 02/09
+   ──────────────────────────────────────────────────────
+   A dona: "onde tem opções como 'agora não' é demais botões sublinhado,
+   trocar por botões arredondados laranjas claros."
+
+   Eram 19 lugares com o mesmo desenho: texto sublinhado. Três defeitos
+   nisso, e ela viu os três de uma vez:
+
+     · sublinhado é o desenho de LINK — "leva para outra página" —, e a
+       maioria destes faz coisa: liga o aviso, some com a faixa, troca de
+       empresa;
+     · texto sublinhado não tem tamanho de dedo. Uma linha de 18px de
+       altura no meio de um parágrafo erra o toque, e errar num "agora
+       não" é entrar onde não queria;
+     · e, com tantos deles na mesma tela, nenhum parecia um botão.
+
+   Agora é uma pastilha laranja clara: o mesmo laranja dos outros botões
+   do app, arredondada e com altura de toque. Clara de propósito — ela é
+   a ação SECUNDÁRIA, e não pode competir com o botão azul cheio que está
+   sempre do lado.
+
+   Fica `inline-flex` porque alguns aparecem no meio de uma frase
+   ("Avisar no celular quando chegar vaga"), e ali um bloco quebraria a
+   linha no meio. */
+.ei .ei-btn-inline {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 36px;
+  padding: 7px 14px;
   border: none;
-  padding: 0;
+  border-radius: 999px;
+  background: var(--ei-laranja-botao);
+  color: var(--ei-sobre-laranja-marca);
   font: inherit;
+  font-size: 0.85rem;
   font-weight: 600;
-  color: var(--ei-tinta);
-  text-decoration: underline;
-  text-underline-offset: 2px;
+  line-height: 1.2;
+  text-align: center;
+  text-decoration: none;
   cursor: pointer;
 }
 
-.ei-btn-inline:disabled { color: var(--ei-tinta-fraca); cursor: default; }
+.ei .ei-btn-inline:hover:not(:disabled) { filter: brightness(0.96); }
+
+.ei .ei-btn-inline:disabled {
+  background: var(--ei-afunda-forte);
+  color: var(--ei-tinta-fraca);
+  cursor: default;
+}
 
 /* ── A foto na tela de completar a conta ──────────────────────────────
    Quadrado de 84px centrado, com a inicial dentro quando não há retrato, e
@@ -1640,7 +1677,12 @@
 .ei .ei-btn-cheio { background: var(--ei-acento); border-color: var(--ei-acento); color: var(--ei-sobre-acento); }
 .ei .ei-btn-cheio:hover:not(:disabled) { filter: brightness(.93); }
 .ei .ei-btn-contorno { color: var(--ei-acento); border-color: var(--ei-acento); }
-.ei .ei-btn-inline { color: var(--ei-acento); }
+/* 02/09: a pastilha laranja tem tinta escura, e não o azul da marca.
+   Esta regra vem depois da que desenha a pastilha (procure por "A AÇÃO
+   SECUNDÁRIA VIRA BOTÃO ARREDONDADO CLARO") e por isso é ela que decide a
+   cor do texto — azul sobre laranja claro é ilegível e ainda diz "link",
+   que é justamente o que ela mandou tirar. */
+.ei .ei-btn-inline { color: var(--ei-sobre-laranja-marca); }
 .ei .ei-btn, .ei .ei-porta, .ei input, .ei select, .ei textarea { border-radius: var(--ei-raio); }
 .ei .ei-porta-cheia { background: var(--ei-acento); border-color: var(--ei-acento); }
 
@@ -3139,13 +3181,23 @@
   font-weight: 500;
   cursor: pointer;
 }
-/* O lado atual é o pintado de branco, com sombra: é o desenho de aba que
-   todo mundo já leu em algum app, e diz "você está aqui" sem uma palavra. */
+/* O lado atual é pintado no LARANJA CLARO — 02/09
+   ───────────────────────────────────────────────
+   "Onde escolhe procuro emprego ou quero contratar, a parte que fica
+   marcada fica em laranja claro."
+
+   Era branco com sombra: o desenho de aba, que funciona, mas num trilho
+   cinza-claro o branco e o cinza são quase a mesma coisa numa tela ao sol
+   — o mesmo motivo pelo qual a barra de baixo precisou de cor.
+
+   O laranja da marca resolve porque não existe em mais nada nesta tela: o
+   olho acha o lado marcado antes de ler as palavras. Texto escuro por
+   cima, como em todo laranja do app — o claro é o que dá contraste. */
 .ei .ei-ambiente-botao.ativo {
-  background: var(--ei-papel);
-  color: var(--ei-tinta);
+  background: var(--ei-laranja-botao);
+  color: var(--ei-sobre-laranja-marca);
   font-weight: 600;
-  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.08);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.06);
 }
 .ei .ei-ambiente-botao:disabled { opacity: 0.6; cursor: default; }
 
