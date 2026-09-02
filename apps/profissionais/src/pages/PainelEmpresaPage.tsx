@@ -432,6 +432,18 @@ export function PainelEmpresaPage() {
             Agora a ação principal mora no cabeçalho e aqui ficam só os
             caminhos que ela não cobre. "Planos" some quando o cabeçalho já
             está oferecendo aumentar o plano. */}
+        {/* "Planos" saiu daqui — 02/09
+            ────────────────────────────
+            A dona: "a parte de planos continua na tela de vagas."
+
+            Continuava: um atalho "Planos" nesta grade. O plano agora mora
+            na tela das empresas, que é onde a pergunta "ainda cabe vaga?"
+            é feita — aqui a pessoa já entrou para cuidar das vagas de uma
+            empresa.
+
+            O botão de publicar continua levando aos planos quando não cabe
+            mais nenhuma: recusar no fim, depois de a empresa ter escrito a
+            vaga inteira, seria pior. */}
         <div className="ei-acoes">
           <Link to="/profissionais" className="ei-acao">
             <span className="ei-acao-circulo" aria-hidden="true">
@@ -439,14 +451,6 @@ export function PainelEmpresaPage() {
             </span>
             Profissionais
           </Link>
-          {!(plano && !plano.cabeMais) && (
-            <Link to="/planos-empresa" className="ei-acao">
-              <span className="ei-acao-circulo" aria-hidden="true">
-                <IconeSelo />
-              </span>
-              Planos
-            </Link>
-          )}
           <Link to="/painel/editar-empresa" className="ei-acao">
             <span className="ei-acao-circulo" aria-hidden="true">
               <IconeLoja />
@@ -659,14 +663,6 @@ function IconePessoas() {
   );
 }
 
-function IconeSelo() {
-  return (
-    <svg {...svgProps()}>
-      <path d="M12 3l2.6 1.9 3.2-.2.6 3.1 2.3 2.2-1.6 2.8 1.6 2.8-2.3 2.2-.6 3.1-3.2-.2L12 22.6 9.4 20.7l-3.2.2-.6-3.1-2.3-2.2L4.9 12.8 3.3 10l2.3-2.2.6-3.1 3.2.2z" />
-      <path d="M9 12.2l2.1 2.1L15.4 10" />
-    </svg>
-  );
-}
 
 function IconeLoja() {
   return (
