@@ -603,7 +603,6 @@ export function CriarVagaPage() {
               type="text"
               list="lista-profissoes"
               autoComplete="off"
-              placeholder="Ex: Vendedor, Recepcionista, Eletricista"
               value={form.profession}
               onChange={(e) =>
                 setForm((f) => ({ ...f, profession: e.target.value, title: e.target.value }))
@@ -624,7 +623,6 @@ export function CriarVagaPage() {
             <input
               id="specialty"
               type="text"
-              placeholder="Ex: Vendas em loja de roupas"
               value={form.specialty || ""}
               onChange={(e) => setForm((f) => ({ ...f, specialty: e.target.value || null }))}
             />
@@ -637,62 +635,9 @@ export function CriarVagaPage() {
             </span>
             <textarea
               id="description"
-              placeholder="Ex: Atender no balcão, organizar as prateleiras e fechar o caixa no fim do dia."
               rows={4}
               value={form.description}
               onChange={(e) => setForm((f) => ({ ...f, description: e.target.value }))}
-            />
-          </div>
-
-          {/* Quantidade e as duas datas (item 15, colunas da 0105).
-              "2 vagas" muda quem responde: numa vaga só, quem se acha
-              segundo colocado nem tenta. E as datas são o que a pessoa
-              pergunta no telefonema — o telefonema que o app existe para
-              não desperdiçar. */}
-          <div style={{ display: "grid", gridTemplateColumns: "110px 1fr", gap: 10 }}>
-            <div className="ei-campo">
-              <label htmlFor="quantidade_vagas">Quantas vagas</label>
-            <span className="ei-campo-ajuda">
-              Sem prazo, a vaga fica no ar até você fechar.
-            </span>
-            <input
-                id="quantidade_vagas"
-                type="number"
-                inputMode="numeric"
-                min={1}
-                max={999}
-                value={form.quantidade_vagas}
-                onChange={(e) =>
-                  setForm((f) => ({
-                    ...f,
-                    /* Nunca abaixo de 1: o banco recusa com um `check`, e a
-                       recusa chegaria como texto técnico na hora de
-                       publicar, depois de quatro telas preenchidas. */
-                    quantidade_vagas: Math.max(1, Math.min(999, Number(e.target.value) || 1)),
-                  }))
-                }
-              />
-            </div>
-            <div className="ei-campo">
-              <label htmlFor="data_inicio">Começa quando</label>
-              <input
-                id="data_inicio"
-                type="date"
-                value={form.data_inicio ?? ""}
-                onChange={(e) => setForm((f) => ({ ...f, data_inicio: e.target.value || null }))}
-              />
-            </div>
-          </div>
-
-          <div className="ei-campo">
-            <label htmlFor="prazo_candidatura">Recebe candidatura até</label>
-            <input
-              id="prazo_candidatura"
-              type="date"
-              value={form.prazo_candidatura ?? ""}
-              onChange={(e) =>
-                setForm((f) => ({ ...f, prazo_candidatura: e.target.value || null }))
-              }
             />
           </div>
 
@@ -715,9 +660,11 @@ export function CriarVagaPage() {
               desperdiçar. */}
           <div className="ei-campo">
             <label htmlFor="tipo_contrato">Como é a contratação? *</label>
-            <span className="ei-campo-ajuda">
-              Quase toda vaga aqui é no local.
-            </span>
+            {/* A dica que estava aqui — "quase toda vaga aqui é no local" —
+                é do campo "Onde a pessoa trabalha?", e voltou para lá. Ela
+                tinha sido movida para cá por engano num conserto de posição
+                de dicas feito com busca e troca, e não dizia nada sobre
+                contratação. */}
             <select
               id="tipo_contrato"
               value={form.tipo_contrato || ""}
@@ -752,8 +699,101 @@ export function CriarVagaPage() {
             </select>
           </div>
 
+          {/* ── O QUE É OPCIONAL FICA GUARDADO — 02/09 ─────────────────
+              A dona: "a tela de cadastro de vaga está muito quebrada e bem
+              difícil de cadastrar. Tem que ser algo fácil."
+
+              A etapa tinha dez campos seguidos, e só dois são obrigatórios.
+              Os outros oito são refinamentos — horário exato, escala,
+              bairro, prazo — que quase nenhuma vaga de balcão precisa. Uma
+              coluna de dez perguntas não parece "preencha o que quiser":
+              parece uma prova, e é aí que a pessoa fecha o app.
+
+              Agora a etapa mostra as duas que decidem se alguém responde, e
+              o resto fica atrás de "Mais detalhes (opcional)" — fechado por
+              padrão, aberto com um toque, e com a palavra "opcional" no
+              rótulo para ninguém achar que está pulando algo obrigatório.
+
+              É um `<details>` do HTML, sem biblioteca: abre e fecha sozinho,
+              funciona sem JavaScript e o leitor de tela já sabe anunciá-lo.
+              Um acordeão escrito à mão precisaria de foco, teclado e
+              animação — e é justamente o tipo de coisa que quebra no
+              celular. */}
+          <details className="ei-mais">
+            <summary>Mais detalhes (opcional)</summary>
+            <div className="ei-mais-corpo">
+              {/* Quantidade e datas: uma por linha.
+
+                  Antes "Quantas vagas" e "Começa quando" dividiam uma
+                  linha de duas colunas de larguras fixas — rótulos de
+                  tamanhos diferentes, uma caixa de número ao lado de um
+                  seletor de data, nada alinhava. Era isso que lia como
+                  tela quebrada.
+
+                  E a dica "sem prazo, a vaga fica no ar até você fechar"
+                  estava pendurada em "Quantas vagas", onde não faz sentido
+                  nenhum: ela é do prazo de candidatura, e foi parar ali num
+                  conserto de posição de dicas feito por busca e troca. */}
+          <div className="ei-campo">
+            <label htmlFor="quantidade_vagas">Quantas vagas</label>
+            <span className="ei-campo-ajuda">
+              Mais de uma muda quem responde: numa vaga só, quem se acha segundo
+              colocado nem tenta.
+            </span>
+            <input
+              id="quantidade_vagas"
+              type="number"
+              inputMode="numeric"
+              min={1}
+              max={999}
+              value={form.quantidade_vagas}
+              onChange={(e) =>
+                setForm((f) => ({
+                  ...f,
+                  /* Nunca abaixo de 1: o banco recusa com um `check`, e a
+                     recusa chegaria como texto técnico na hora de publicar,
+                     depois de quatro telas preenchidas. */
+                  quantidade_vagas: Math.max(1, Math.min(999, Number(e.target.value) || 1)),
+                }))
+              }
+            />
+          </div>
+
+          <div className="ei-campo">
+            <label htmlFor="data_inicio">Começa quando</label>
+            <span className="ei-campo-ajuda">
+              Deixe em branco se ainda não tem data.
+            </span>
+            <input
+              id="data_inicio"
+              type="date"
+              value={form.data_inicio ?? ""}
+              onChange={(e) => setForm((f) => ({ ...f, data_inicio: e.target.value || null }))}
+            />
+          </div>
+
+          <div className="ei-campo">
+            <label htmlFor="prazo_candidatura">Recebe candidatura até</label>
+            <span className="ei-campo-ajuda">
+              Sem prazo, a vaga fica no ar até você fechar.
+            </span>
+            <input
+              id="prazo_candidatura"
+              type="date"
+              value={form.prazo_candidatura ?? ""}
+              onChange={(e) =>
+                setForm((f) => ({ ...f, prazo_candidatura: e.target.value || null }))
+              }
+            />
+          </div>
+
+
+
           <div className="ei-campo">
             <label htmlFor="work_modality">Onde a pessoa trabalha?</label>
+            <span className="ei-campo-ajuda">
+              Quase toda vaga aqui é no local.
+            </span>
             <select
               id="work_modality"
               value={form.work_modality}
@@ -779,7 +819,6 @@ export function CriarVagaPage() {
             <input
               id="horario"
               type="text"
-              placeholder="8h às 18h, de segunda a sexta"
               value={form.horario ?? ""}
               onChange={(e) => setForm((f) => ({ ...f, horario: e.target.value || null }))}
             />
@@ -790,7 +829,6 @@ export function CriarVagaPage() {
             <input
               id="escala"
               type="text"
-              placeholder="6x1, 12x36, de segunda a sábado"
               value={form.escala ?? ""}
               onChange={(e) => setForm((f) => ({ ...f, escala: e.target.value || null }))}
             />
@@ -831,6 +869,9 @@ export function CriarVagaPage() {
             </span>
           </div>
 
+            </div>
+          </details>
+
           </section>
         )}
 
@@ -846,6 +887,99 @@ export function CriarVagaPage() {
               Lista fechada não caberia — "cesta básica" e "plano
               odontológico" existem em Itabirito. E vale-transporte decide
               quem mora longe; refeição pesa num salário de piso. */}
+          <div className="ei-campo">
+            <label className="ei-caixa">
+              <input
+                type="checkbox"
+                checked={form.salario_a_combinar}
+                onChange={(e) =>
+                  setForm((f) => ({
+                    ...f,
+                    salario_a_combinar: e.target.checked,
+                    /* Marcar "a combinar" limpa os valores: a vaga não pode
+                       dizer as duas coisas ao mesmo tempo. */
+                    salary_range_min: e.target.checked ? null : f.salary_range_min,
+                    salary_range_max: e.target.checked ? null : f.salary_range_max,
+                  }))
+                }
+              />
+              <span>Salário a combinar</span>
+            </label>
+            {/* A dica estava pendurada em "Tem comissão?", onde não dizia
+                nada — é desta caixa que ela fala, e voltou para cá. */}
+            <span className="ei-campo-ajuda">
+              A vaga vai dizer “A combinar”, que é melhor que não dizer nada.
+            </span>
+          </div>
+
+          {!form.salario_a_combinar && (
+            <>
+              {/* O período ANTES do valor (a dona: "na opção de salário
+                  colocar opção da de mensal / hora / diária").
+
+                  Nesta ordem de propósito: quem vai escrever "180" precisa
+                  ter dito "por dia" ANTES, senão digita pensando no mês e
+                  corrige depois — e é aí que fica um salário de pedreiro
+                  publicado como mensal. */}
+              <div className="ei-campo">
+                <label htmlFor="salario_periodo">O salário é</label>
+                <select
+                  id="salario_periodo"
+                  value={form.salario_periodo}
+                  onChange={(e) => setForm((f) => ({ ...f, salario_periodo: e.target.value }))}
+                >
+                  {PERIODOS_DE_SALARIO.map((per) => (
+                    <option key={per.valor} value={per.valor}>
+                      {per.nome}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              <div className="ei-campo">
+                <label htmlFor="salary_min">
+                  {form.salario_periodo === "dia"
+                    ? "Valor da diária (R$) *"
+                    : form.salario_periodo === "hora"
+                      ? "Valor da hora (R$) *"
+                      : "Salário por mês (R$) *"}
+                </label>
+                <input
+                  id="salary_min"
+                  type="number"
+                  inputMode="decimal"
+                  value={form.salary_range_min ? form.salary_range_min / 100 : ""}
+                  onChange={(e) => setForm((f) => ({ ...f, salary_range_min: e.target.value ? Math.round(parseFloat(e.target.value) * 100) : null }))}
+                />
+              </div>
+
+              <div className="ei-campo">
+                <label htmlFor="salary_max">Até quanto pode pagar? (R$)</label>
+                {/* Esta dica estava em "O salário é", falando de uma coisa
+                    que aquele campo não faz. É deste, e voltou. */}
+                <span className="ei-campo-ajuda">
+                  Só se você paga mais conforme a experiência.
+                </span>
+                <input
+                  id="salary_max"
+                  type="number"
+                  inputMode="decimal"
+                  value={form.salary_range_max ? form.salary_range_max / 100 : ""}
+                  onChange={(e) => setForm((f) => ({ ...f, salary_range_max: e.target.value ? Math.round(parseFloat(e.target.value) * 100) : null }))}
+                />
+              </div>
+            </>
+          )}
+
+        {/* ── 4. Requisitos ──────────────────────────────────────────── */}
+        
+          {/* Benefícios, comissão e "outros" são refinamento: a etapa é
+              sobre SALÁRIO, e era ele que estava lá embaixo, depois de três
+              campos de benefício. Quem abre esta tela vem escrever quanto
+              paga. */}
+          <details className="ei-mais">
+            <summary>Benefícios e comissão (opcional)</summary>
+            <div className="ei-mais-corpo">
           <div className="ei-campo">
             <label htmlFor="beneficio-novo">O que a vaga oferece além do salário?</label>
             <span className="ei-campo-ajuda">
@@ -899,7 +1033,6 @@ export function CriarVagaPage() {
             <input
               id="beneficio-novo"
               type="text"
-              placeholder="Outro benefício — escreva e aperte Enter"
               value={beneficioNovo}
               onChange={(e) => setBeneficioNovo(e.target.value)}
               onKeyDown={(e) => {
@@ -921,13 +1054,9 @@ export function CriarVagaPage() {
               de comissão aqui. */}
           <div className="ei-campo">
             <label htmlFor="comissao">Tem comissão?</label>
-            <span className="ei-campo-ajuda">
-              A vaga vai dizer “A combinar”, que é melhor que não dizer nada.
-            </span>
             <input
               id="comissao"
               type="text"
-              placeholder="5% sobre a venda, ou R$ 50 por entrega"
               value={form.comissao ?? ""}
               onChange={(e) => setForm((f) => ({ ...f, comissao: e.target.value || null }))}
             />
@@ -938,7 +1067,6 @@ export function CriarVagaPage() {
             <textarea
               id="outros_beneficios"
               rows={2}
-              placeholder="Cesta básica, plano odontológico, folga no aniversário"
               value={form.outros_beneficios ?? ""}
               onChange={(e) =>
                 setForm((f) => ({ ...f, outros_beneficios: e.target.value || null }))
@@ -959,90 +1087,13 @@ export function CriarVagaPage() {
               vaga — e "a combinar", dito com todas as letras, é uma
               resposta: a pessoa sabe que o assunto se conversa, em vez de
               suspeitar que estão escondendo. */}
-          <div className="ei-campo">
-            <label className="ei-caixa">
-              <input
-                type="checkbox"
-                checked={form.salario_a_combinar}
-                onChange={(e) =>
-                  setForm((f) => ({
-                    ...f,
-                    salario_a_combinar: e.target.checked,
-                    /* Marcar "a combinar" limpa os valores: a vaga não pode
-                       dizer as duas coisas ao mesmo tempo. */
-                    salary_range_min: e.target.checked ? null : f.salary_range_min,
-                    salary_range_max: e.target.checked ? null : f.salary_range_max,
-                  }))
-                }
-              />
-              <span>Salário a combinar</span>
-            </label>
-          </div>
-
-          {!form.salario_a_combinar && (
-            <>
-              {/* O período ANTES do valor (a dona: "na opção de salário
-                  colocar opção da de mensal / hora / diária").
-
-                  Nesta ordem de propósito: quem vai escrever "180" precisa
-                  ter dito "por dia" ANTES, senão digita pensando no mês e
-                  corrige depois — e é aí que fica um salário de pedreiro
-                  publicado como mensal. */}
-              <div className="ei-campo">
-                <label htmlFor="salario_periodo">O salário é</label>
-                <span className="ei-campo-ajuda">
-                  Só se você paga mais conforme a experiência.
-                </span>
-                <select
-                  id="salario_periodo"
-                  value={form.salario_periodo}
-                  onChange={(e) => setForm((f) => ({ ...f, salario_periodo: e.target.value }))}
-                >
-                  {PERIODOS_DE_SALARIO.map((per) => (
-                    <option key={per.valor} value={per.valor}>
-                      {per.nome}
-                    </option>
-                  ))}
-                </select>
-              </div>
-
-              <div className="ei-campo">
-                <label htmlFor="salary_min">
-                  {form.salario_periodo === "dia"
-                    ? "Valor da diária (R$) *"
-                    : form.salario_periodo === "hora"
-                      ? "Valor da hora (R$) *"
-                      : "Salário por mês (R$) *"}
-                </label>
-                <input
-                  id="salary_min"
-                  type="number"
-                  inputMode="decimal"
-                  placeholder="Ex: 1800"
-                  value={form.salary_range_min ? form.salary_range_min / 100 : ""}
-                  onChange={(e) => setForm((f) => ({ ...f, salary_range_min: e.target.value ? Math.round(parseFloat(e.target.value) * 100) : null }))}
-                />
-              </div>
-
-              <div className="ei-campo">
-                <label htmlFor="salary_max">Até quanto pode pagar? (R$)</label>
-                <input
-                  id="salary_max"
-                  type="number"
-                  inputMode="decimal"
-                  placeholder="Deixe em branco se o valor é fixo"
-                  value={form.salary_range_max ? form.salary_range_max / 100 : ""}
-                  onChange={(e) => setForm((f) => ({ ...f, salary_range_max: e.target.value ? Math.round(parseFloat(e.target.value) * 100) : null }))}
-                />
-              </div>
-            </>
-          )}
+            </div>
+          </details>
 
           </section>
         )}
 
-        {/* ── 4. Requisitos ──────────────────────────────────────────── */}
-        {mostra(4) && (
+{mostra(4) && (
           <section className="ei-cartao">
             <h2 className="ei-etapa-titulo">Requisitos</h2>
             <p className="ei-etapa-apoio">
@@ -1093,15 +1144,19 @@ export function CriarVagaPage() {
               </select>
             </div>
 
+            {/* Curso, CNH, viagem, idioma e observações são exigências
+                que quase nenhuma vaga de cidade pequena tem — e cinco
+                campos vazios seguidos fazem a etapa parecer um formulário
+                de concurso. Ficam guardados; experiência e escolaridade,
+                que toda vaga responde, ficam à vista. */}
+            <details className="ei-mais">
+              <summary>Outras exigências (opcional)</summary>
+              <div className="ei-mais-corpo">
             <div className="ei-campo">
               <label htmlFor="curso_especifico">Precisa de algum curso?</label>
-              <span className="ei-campo-ajuda">
-                A vaga só alcança quem aceita sair da cidade.
-              </span>
               <input
                 id="curso_especifico"
                 type="text"
-                placeholder="NR-35, curso de cabeleireiro, manipulação de alimentos"
                 value={form.curso_especifico ?? ""}
                 onChange={(e) =>
                   setForm((f) => ({ ...f, curso_especifico: e.target.value || null }))
@@ -1166,6 +1221,11 @@ export function CriarVagaPage() {
                 />
                 <span>A vaga exige viajar</span>
               </label>
+              {/* A dica estava em "Precisa de algum curso?", falando de
+                  viagem. É deste campo, e voltou para cá. */}
+              <span className="ei-campo-ajuda">
+                A vaga só alcança quem aceita sair da cidade.
+              </span>
             </div>
 
             <div className="ei-campo">
@@ -1205,19 +1265,24 @@ export function CriarVagaPage() {
                 baixo já perguntam. */}
             <div className="ei-campo">
               <label htmlFor="observacoes">Mais alguma coisa?</label>
+              {/* Era um texto sobre quem NÃO bate com a vaga poder
+                  responder — que é a caixa da etapa 5, e não este campo.
+                  Foi parar aqui num conserto de posição de dicas feito por
+                  busca e troca, e ficou dizendo uma coisa que o campo não
+                  faz. */}
               <span className="ei-campo-ajuda">
-                {form.aceita_sem_compatibilidade
-                  ? "Quem não bate consegue responder, e a tela dela mostra o quanto combina."
-                  : "Quem não bate é avisado ANTES, em vez de responder e nunca receber retorno."}
+                Se quiser, escreva o que mais importa nesta vaga.
               </span>
               <textarea
                 id="observacoes"
                 rows={3}
-                placeholder="O que mais a pessoa precisa saber antes de responder"
                 value={form.observacoes ?? ""}
                 onChange={(e) => setForm((f) => ({ ...f, observacoes: e.target.value || null }))}
               />
             </div>
+              </div>
+            </details>
+
           </section>
         )}
 

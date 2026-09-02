@@ -3532,3 +3532,66 @@
   font-size: 0.85rem;
   color: var(--ei-tinta-fraca, #6b6963);
 }
+
+/* ═══════════════════════════════════════════════════════════════════════
+   "MAIS DETALHES (OPCIONAL)" — 02/09
+   ═══════════════════════════════════════════════════════════════════════
+   A dona: "a tela de cadastro de vaga está muito quebrada e bem difícil de
+   cadastrar. Tem que ser algo fácil."
+
+   Uma etapa com dez campos seguidos, dos quais dois são obrigatórios, não
+   lê como "preencha o que quiser": lê como prova. O que é refinamento vai
+   para dentro deste bloco, fechado.
+
+   O `summary` é um alvo de toque de verdade (48px) com a setinha à
+   direita, e não o triângulo minúsculo que o navegador desenha sozinho —
+   aquele tem 10px e ninguém acerta. */
+.ei .ei-mais {
+  margin-top: 24px;
+  border: 1px solid var(--ei-fio-forte);
+  border-radius: var(--ei-raio, 14px);
+  background: var(--ei-afunda);
+  overflow: hidden;
+}
+
+.ei .ei-mais > summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  min-height: 48px;
+  padding: 12px 16px;
+  font-size: 0.92rem;
+  font-weight: 600;
+  color: var(--ei-tinta);
+  cursor: pointer;
+  list-style: none;
+}
+/* O triângulo padrão sai nos dois motores. */
+.ei .ei-mais > summary::-webkit-details-marker { display: none; }
+.ei .ei-mais > summary::marker { content: ""; }
+
+/* A seta, desenhada com borda: gira ao abrir, e diz que o bloco abre antes
+   de a pessoa tocar. */
+.ei .ei-mais > summary::after {
+  content: "";
+  width: 9px;
+  height: 9px;
+  border-right: 2px solid var(--ei-tinta-fraca);
+  border-bottom: 2px solid var(--ei-tinta-fraca);
+  transform: rotate(45deg);
+  transform-origin: center;
+  margin-bottom: 3px;
+  flex: 0 0 auto;
+  transition: transform 0.15s ease;
+}
+.ei .ei-mais[open] > summary::after { transform: rotate(-135deg); margin-bottom: -3px; }
+
+.ei .ei-mais-corpo {
+  padding: 4px 16px 18px;
+  background: var(--ei-papel);
+  border-top: 1px solid var(--ei-fio);
+}
+/* Dentro do bloco o primeiro campo não precisa da folga de 24px: o fio de
+   cima já separa. */
+.ei .ei-mais-corpo > .ei-campo:first-child { margin-top: 14px; }
