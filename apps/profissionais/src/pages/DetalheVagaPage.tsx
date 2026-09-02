@@ -202,6 +202,13 @@ export function DetalheVagaPage() {
      que não tinha como prever. */
   const aindaTemOnda = ondas.length < ONDAS_POR_VAGA;
 
+  /* Dias inteiros desde a publicação, e nunca negativo: um relógio
+     adiantado no celular faria a tela dizer "no ar há -1 dias". */
+  const diasNoAr = Math.max(
+    0,
+    Math.floor((Date.now() - new Date(vaga.created_at).getTime()) / 86_400_000)
+  );
+
   return (
     <div className="ei">
       <div className="ei-tela detalhe-vaga">
@@ -247,6 +254,37 @@ export function DetalheVagaPage() {
             <Prop rotulo="Publicada">
               {new Date(vaga.created_at).toLocaleDateString("pt-BR")}
             </Prop>
+          </div>
+
+          {/* ── AS MÉTRICAS DA VAGA (item 10) ──────────────────────────
+              A dona: "ao clicar nas vagas terão acesso às métricas da vaga
+              e as pessoas que se interessaram."
+
+              Os dois números já existiam nesta tela, mas espalhados: as
+              avisadas dentro do bloco de ondas, no meio de uma explicação
+              de três parágrafos, e as interessadas só como título de uma
+              seção lá embaixo. Quem abria a vaga para saber "isso está
+              funcionando?" tinha de ler a tela inteira e somar de cabeça.
+
+              São três, e a terceira é a que dá sentido às outras duas: 40
+              avisadas e 2 interessadas em um dia é ótimo; em três semanas,
+              é a vaga que ninguém quis. */}
+          <div className="ei-resumo">
+            <div className="ei-resumo-item">
+              <span className="ei-resumo-rotulo">Avisadas</span>
+              <span className="ei-resumo-numero">{totalProfissionais}</span>
+            </div>
+            <div className="ei-resumo-item">
+              <span className="ei-resumo-rotulo">Interessadas</span>
+              <span className="ei-resumo-numero">{respostas.length}</span>
+            </div>
+            <div className="ei-resumo-item">
+              <span className="ei-resumo-rotulo">No ar há</span>
+              <span className="ei-resumo-numero">
+                {diasNoAr}
+                <span className="ei-resumo-de"> {diasNoAr === 1 ? "dia" : "dias"}</span>
+              </span>
+            </div>
           </div>
         </Pagina>
 

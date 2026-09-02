@@ -28,6 +28,7 @@ import {
 import { podeVender } from "../lib/plataforma";
 import { mensagemDeErro } from "../lib/erros";
 import { Callout, Pagina } from "../components/ei/Pagina";
+import { Etapas } from "../components/ei/Etapas";
 
 /* `anunciada_ate` fica de fora: ela é gravada depois que a vaga existe, por
    `anunciarVaga`. O plano é que dá direito ao anúncio — quem não tem plano
@@ -58,10 +59,32 @@ const EMPTY_FORM: FormState = {
   salario_a_combinar: false,
 };
 
+/* ── OS TEMAS DA VAGA (item 13) ──────────────────────────────────────
+   A dona: "a tela de abertura de vaga está horrível, seguir o mesmo
+   esquema do cadastro da empresa em sequência de telas por tema."
+
+   Ela estava certa por dois motivos, e o segundo é o que mais custava.
+
+   O primeiro é o tamanho: eram TREZE campos empilhados numa coluna só —
+   título, profissão, especialidade, descrição, contrato, jornada,
+   experiência, modalidade, urgência, benefícios, "a combinar", salário
+   mínimo e máximo. Num celular são cinco dobras de rolagem antes de
+   qualquer botão, e a empresa desiste no meio.
+
+   O segundo é que esta tela nunca saiu do visual do procurô: `container`,
+   `card`, `btn btn-primary`, cores por `style` inline. Era a única tela do
+   lado da empresa ainda no desenho antigo, e por isso parecia de outro
+   app — que é exatamente a palavra que ela usou.
+
+   Os nomes dos temas são os que ela escreveu no item 15, na ordem dela.
+   Os campos de cada um também: o que ainda não existe no banco entra
+   quando a 0105 for aplicada, e o lugar dele já está reservado aqui. */
+const ETAPAS = ["Sobre a vaga", "Horário e local", "Salário", "Requisitos"];
+
 /**
  * Criar uma vaga de trabalho.
  *
- * Dois passos: o formulário e a conferência. Na conferência a tela mostra
+ * Dois passos: o formulário (em etapas por tema) e a conferência. Na conferência a tela mostra
  * quantas pessoas cada onda alcançaria — números lidos do banco, não
  * estimados. Uma versão anterior desta tela sorteava os três números com
  * `Math.random()` para "ilustrar", e ilustração com cara de dado é a
@@ -77,6 +100,11 @@ export function CriarVagaPage() {
 
   const [form, setForm] = useState<FormState>(EMPTY_FORM);
   const [passo, setPasso] = useState<"formulario" | "preview">("formulario");
+  /* Em qual tema a empresa está. Começa no 1 e nunca pula: cada um confere
+     o que é dele antes de deixar seguir, para o erro aparecer ao lado do
+     que acabou de ser digitado — e não quatro telas adiante, no clique de
+     publicar, como acontecia antes. */
+  const [etapa, setEtapa] = useState(1);
   const [salvando, setSalvando] = useState(false);
   const [erro, setErro] = useState("");
   const [conferindo, setConferindo] = useState(false);
@@ -401,19 +429,70 @@ export function CriarVagaPage() {
     );
   }
 
-  return (
-    <div className="container criar-vaga" style={{ paddingTop: 24, paddingBottom: 24 }}>
-      <h1>Criar vaga</h1>
+  /** Esta etapa está visível? Fora do modo de etapas, todas estão. */
+  const mostra = (n: number) => passo !== "formulario" || etapa === n;
 
-      {erro && (
-        <div style={{ color: "var(--color-danger)", marginBottom: 16, padding: 12, backgroundColor: "var(--color-danger-light)", borderRadius: 8 }}>
-          {erro}
-        </div>
-      )}
+  /**
+   * O que cada tema exige para deixar seguir. Devolve o erro, ou "".
+   *
+   * A conferência mudou de lugar junto com as etapas. Antes tudo era
+   * conferido no clique de publicar: quem esquecia o salário descobria
+   * depois de preencher treze campos, e ainda tinha de achar qual era.
+   * Agora o erro aparece ao lado do que acabou de ser digitado.
+   */
+  function conferirEtapa(n: number): string {
+    if (n === 1) {
+      if (!form.title.trim()) return "Escreva qual profissional você procura.";
+      if (!form.profession.trim()) return "Escolha a profissão.";
+      if (!form.description.trim()) return "Escreva o que a pessoa vai fazer.";
+    }
+    if (n === 2) {
+      if (!form.tipo_contrato) return "Diga como é a contratação.";
+      if (!form.jornada) return "Diga que horário é.";
+    }
+    if (n === 3) {
+      /* Ou um valor, ou "a combinar" — nunca os dois em branco. Salário
+         ausente some da tela e vira indistinguível de esquecimento, e é o
+         que mais faz gente não responder. */
+      if (!form.salario_a_combinar && !form.salary_range_min)
+        return "Escreva o salário, ou marque “a combinar”.";
+      if (
+        form.salary_range_min &&
+        form.salary_range_max &&
+        form.salary_range_max < form.salary_range_min
+      )
+        return "O valor máximo não pode ser menor que o mínimo.";
+    }
+    return "";
+  }
+
+  function continuarEtapa() {
+    const problema = conferirEtapa(etapa);
+    if (problema) {
+      setErro(problema);
+      return;
+    }
+    setErro("");
+    setEtapa((e) => e + 1);
+    /* Volta ao topo: sem isto, quem rolou até o fim de uma etapa começa a
+       seguinte no meio dela, e parece que nada mudou. */
+    window.scrollTo({ top: 0 });
+  }
+
+  return (
+    <div className="ei">
+      <div className="ei-tela criar-vaga">
+        <Pagina titulo="Nova vaga" voltar="/painel-empresa" />
+
+        {passo === "formulario" && <Etapas passos={ETAPAS} atual={etapa} />}
+
+        {erro && (
+          <p className="ei-campo-erro ei-margem" role="alert">{erro}</p>
+        )}
 
       {passo === "formulario" ? (
-        // FORMULÁRIO
-        <div style={{ display: "grid", gap: 16 }}>
+        // FORMULÁRIO, em etapas por tema
+        <>
           {/* Cada campo tem uma linha embaixo dizendo O QUE ESCREVER e
               POR QUE importa.
               ──────────────────────────────────────────────────────────
@@ -425,7 +504,17 @@ export function CriarVagaPage() {
               A explicação diz a consequência, e não a regra: "sem isso
               quase ninguém responde" faz a empresa preencher; "campo
               obrigatório" faz ela procurar um jeito de pular. */}
-          <div>
+
+        {/* ── 1. Sobre a vaga ────────────────────────────────────────── */}
+        {mostra(1) && (
+          <section className="ei-cartao">
+            <h2 className="ei-etapa-titulo">Sobre a vaga</h2>
+            <p className="ei-etapa-apoio">
+              O que a pessoa vai fazer, e para quem. É o que aparece primeiro na
+              tela de quem procura trabalho.
+            </p>
+
+          <div className="ei-campo">
             <label htmlFor="title">Qual profissional você procura? *</label>
             <input
               id="title"
@@ -440,7 +529,7 @@ export function CriarVagaPage() {
             </span>
           </div>
 
-          <div>
+          <div className="ei-campo">
             <label htmlFor="profession">Profissão/Categoria *</label>
             <select
               id="profession"
@@ -460,7 +549,7 @@ export function CriarVagaPage() {
             </span>
           </div>
 
-          <div>
+          <div className="ei-campo">
             <label htmlFor="specialty">Especialidade (opcional)</label>
             <input
               id="specialty"
@@ -475,7 +564,7 @@ export function CriarVagaPage() {
             </span>
           </div>
 
-          <div>
+          <div className="ei-campo">
             <label htmlFor="description">O que a pessoa vai fazer? *</label>
             <textarea
               id="description"
@@ -490,13 +579,25 @@ export function CriarVagaPage() {
             </span>
           </div>
 
+          </section>
+        )}
+
+        {/* ── 2. Horário e local ─────────────────────────────────────── */}
+        {mostra(2) && (
+          <section className="ei-cartao">
+            <h2 className="ei-etapa-titulo">Horário e local</h2>
+            <p className="ei-etapa-apoio">
+              Quando e onde. São as perguntas que fazem alguém não responder sem
+              nunca ter ligado.
+            </p>
+
           {/* Tipo de contrato e jornada são NOVOS, e são as duas perguntas
               que mais decidem se alguém responde. Antes não existiam em
               campo nenhum: quem procurava só descobria no telefonema se a
               vaga era registrada ou diária, integral ou de fim de semana —
               e o telefonema é justamente o que o app existe para não
               desperdiçar. */}
-          <div>
+          <div className="ei-campo">
             <label htmlFor="tipo_contrato">Como é a contratação? *</label>
             <select
               id="tipo_contrato"
@@ -517,7 +618,7 @@ export function CriarVagaPage() {
             </span>
           </div>
 
-          <div>
+          <div className="ei-campo">
             <label htmlFor="jornada">Que horário? *</label>
             <select
               id="jornada"
@@ -538,25 +639,7 @@ export function CriarVagaPage() {
             </span>
           </div>
 
-          <div>
-            <label htmlFor="required_experience">Precisa de experiência?</label>
-            <select
-              id="required_experience"
-              value={form.required_experience || ""}
-              onChange={(e) => setForm((f) => ({ ...f, required_experience: e.target.value || null }))}
-            >
-              <option value="">Não precisa de experiência</option>
-              <option value="0-2 anos">Até 2 anos</option>
-              <option value="2-5 anos">De 2 a 5 anos</option>
-              <option value="5+ anos">Mais de 5 anos</option>
-            </select>
-            <span className="ei-campo-ajuda">
-              Pedir experiência que a vaga não exige afasta gente boa. Na dúvida,
-              deixe “não precisa”.
-            </span>
-          </div>
-
-          <div>
+          <div className="ei-campo">
             <label htmlFor="work_modality">Onde a pessoa trabalha?</label>
             <select
               id="work_modality"
@@ -572,25 +655,41 @@ export function CriarVagaPage() {
             </span>
           </div>
 
-          <div>
-            <label>
+          {/* Caixa e texto na mesma linha, e a ajuda embaixo dos dois.
+              Sem a moldura, a caixinha flutuava acima do rótulo e a linha
+              de ajuda colava no fim dele — "começar logoA vaga ganha a
+              etiqueta". */}
+          <div className="ei-campo">
+            <label className="ei-caixa">
               <input
                 type="checkbox"
                 checked={form.available_immediately}
                 onChange={(e) => setForm((f) => ({ ...f, available_immediately: e.target.checked }))}
               />
-              {" "}Preciso de alguém para começar logo
+              <span>Preciso de alguém para começar logo</span>
             </label>
             <span className="ei-campo-ajuda">
               A vaga ganha a etiqueta “Urgente” na tela de quem procura.
             </span>
           </div>
 
+          </section>
+        )}
+
+        {/* ── 3. Salário e benefícios ────────────────────────────────── */}
+        {mostra(3) && (
+          <section className="ei-cartao">
+            <h2 className="ei-etapa-titulo">Salário e benefícios</h2>
+            <p className="ei-etapa-apoio">
+              Salário ausente é o que mais faz gente não responder a uma vaga.
+              “A combinar” também é resposta — e é melhor que o silêncio.
+            </p>
+
           {/* Benefícios: sugestões para tocar, e campo livre ao lado.
               Lista fechada não caberia — "cesta básica" e "plano
               odontológico" existem em Itabirito. E vale-transporte decide
               quem mora longe; refeição pesa num salário de piso. */}
-          <div>
+          <div className="ei-campo">
             <label htmlFor="beneficio-novo">O que a vaga oferece além do salário?</label>
             <div className="ei-chips" style={{ marginBottom: 8 }}>
               {BENEFICIOS_SUGERIDOS.map((b) => {
@@ -674,8 +773,8 @@ export function CriarVagaPage() {
               vaga — e "a combinar", dito com todas as letras, é uma
               resposta: a pessoa sabe que o assunto se conversa, em vez de
               suspeitar que estão escondendo. */}
-          <div>
-            <label>
+          <div className="ei-campo">
+            <label className="ei-caixa">
               <input
                 type="checkbox"
                 checked={form.salario_a_combinar}
@@ -690,7 +789,7 @@ export function CriarVagaPage() {
                   }))
                 }
               />
-              {" "}Salário a combinar
+              <span>Salário a combinar</span>
             </label>
             <span className="ei-campo-ajuda">
               Marque se prefere conversar o valor. A vaga vai dizer “A combinar” —
@@ -700,7 +799,7 @@ export function CriarVagaPage() {
 
           {!form.salario_a_combinar && (
             <>
-              <div>
+              <div className="ei-campo">
                 <label htmlFor="salary_min">Salário (R$) *</label>
                 <input
                   id="salary_min"
@@ -715,7 +814,7 @@ export function CriarVagaPage() {
                 </span>
               </div>
 
-              <div>
+              <div className="ei-campo">
                 <label htmlFor="salary_max">Até quanto pode pagar? (R$)</label>
                 <input
                   id="salary_max"
@@ -733,22 +832,82 @@ export function CriarVagaPage() {
             </>
           )}
 
-          <div style={{ display: "flex", gap: 12 }}>
-            <button
-              className="btn btn-secondary"
-              onClick={() => navegar("/painel-empresa")}
-            >
-              Cancelar
+          </section>
+        )}
+
+        {/* ── 4. Requisitos ──────────────────────────────────────────── */}
+        {mostra(4) && (
+          <section className="ei-cartao">
+            <h2 className="ei-etapa-titulo">Requisitos</h2>
+            <p className="ei-etapa-apoio">
+              O que a pessoa precisa ter. Exigir o que a vaga não exige afasta
+              gente boa — e em Itabirito a fila é curta.
+            </p>
+
+            <div className="ei-campo">
+              <label htmlFor="required_experience">Precisa de experiência?</label>
+              <select
+                id="required_experience"
+                value={form.required_experience || ""}
+                onChange={(e) => setForm((f) => ({ ...f, required_experience: e.target.value || null }))}
+              >
+                <option value="">Não precisa de experiência</option>
+                <option value="0-2 anos">Até 2 anos</option>
+                <option value="2-5 anos">De 2 a 5 anos</option>
+                <option value="5+ anos">Mais de 5 anos</option>
+              </select>
+              <span className="ei-campo-ajuda">
+                Pedir experiência que a vaga não exige afasta gente boa. Na dúvida,
+                deixe “não precisa”.
+              </span>
+            </div>
+
+            {/* Escolaridade mínima, curso específico, CNH, viagem e idiomas
+                entram aqui quando a 0105 estiver aplicada. Eles são colunas
+                que ainda não existem no banco, e mandar coluna que o banco
+                não conhece derruba a gravação INTEIRA — o erro da 0060, que
+                deixou um dia sem ninguém conseguir se cadastrar. */}
+          </section>
+        )}
+
+        {/* O rodapé muda com a etapa: no meio do caminho leva adiante, no
+            fim confere quem a vaga alcança. Um "publicar" visível na etapa 1
+            convidaria a criar vaga sem salário e sem horário. */}
+        <div className="ei-margem ei-pe-etapas">
+          {etapa < ETAPAS.length ? (
+            <button className="ei-btn ei-btn-cheio" onClick={continuarEtapa}>
+              Continuar
             </button>
+          ) : (
             <button
-              className="btn btn-primary"
+              className="ei-btn ei-btn-cheio"
               onClick={previsualizarOndas}
               disabled={conferindo}
             >
               {conferindo ? "Contando…" : "Ver quem esta vaga alcança"}
             </button>
-          </div>
+          )}
+          {etapa > 1 ? (
+            <button
+              className="ei-btn ei-btn-contorno"
+              onClick={() => {
+                setErro("");
+                setEtapa((e) => e - 1);
+                window.scrollTo({ top: 0 });
+              }}
+            >
+              Voltar
+            </button>
+          ) : (
+            <button
+              className="ei-btn ei-btn-contorno"
+              onClick={() => navegar("/painel-empresa")}
+            >
+              Cancelar
+            </button>
+          )}
         </div>
+        </>
       ) : (
         // PREVIEW DAS ONDAS
         <div style={{ display: "grid", gap: 20 }}>
@@ -891,24 +1050,35 @@ export function CriarVagaPage() {
           </div>
 
 
-          <div style={{ display: "flex", gap: 12 }}>
+          {/* Os dois botões no desenho do app, e não os do procurô: esta
+              era a última tela ainda com `btn btn-primary` — o azul do
+              outro produto, no fim do caminho mais importante do lado da
+              empresa. */}
+          <div className="ei-margem ei-pe-etapas">
             <button
-              className="btn btn-secondary"
-              onClick={() => setPasso("formulario")}
-              disabled={salvando}
-            >
-              Voltar
-            </button>
-            <button
-              className="btn btn-primary"
+              className="ei-btn ei-btn-cheio"
               onClick={confirmarEAbrirPrimeiraOnda}
               disabled={salvando}
             >
               {salvando ? "Criando…" : "Criar vaga e avisar a onda 1"}
             </button>
+            <button
+              className="ei-btn ei-btn-contorno"
+              onClick={() => {
+                setPasso("formulario");
+                /* Volta na ÚLTIMA etapa, e não na primeira: quem chegou até
+                   a conferência e quer mudar algo não deve percorrer os
+                   quatro temas de novo. */
+                setEtapa(ETAPAS.length);
+              }}
+              disabled={salvando}
+            >
+              Voltar e mudar alguma coisa
+            </button>
           </div>
         </div>
       )}
+      </div>
     </div>
   );
 }

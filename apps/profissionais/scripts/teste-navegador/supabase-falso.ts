@@ -320,7 +320,11 @@ const TABELAS: Record<string, Linha[]> = {
       uf: "MG",
       description: "",
       photo_url: fotoFalsa(2),
-      plano: planoFalso() ? "pro3" : null,
+      /* "tres" (o Premium), e não "pro3": o banco só aceita 'pro', 'tres'
+         e 'ilimitado' (check da 0072), e um valor fora da lista fazia o
+         painel escrever "Plano pro3" na tela — o nome cru da coluna, que
+         no banco de verdade nunca poderia chegar ali. */
+      plano: planoFalso() ? "tres" : null,
       plano_ate: planoFalso() ? emDias(20) : null,
       plano_recorrente: true,
       created_at: emDias(-60),

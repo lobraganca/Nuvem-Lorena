@@ -2649,3 +2649,41 @@
   text-overflow: ellipsis;
   white-space: nowrap;
 }
+
+/* ── O plano no painel da empresa (item 10) ─────────────────────────────
+   Uma linha quieta abaixo do resumo: nome do plano, quantas ainda cabem e
+   o caminho para mudar. Não é cartão — o painel já tem cartões demais, e
+   este é um dado de estado, do tipo que se lê de relance e não se toca. */
+.ei-plano-linha {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 1px solid var(--ei-fio);
+}
+.ei-plano-nome { font-weight: 600; font-size: 0.95rem; }
+.ei-plano-nota {
+  flex: 1 1 auto;
+  font-size: 0.85rem;
+  color: var(--ei-tinta-fraca);
+}
+
+/* ── Caixa de marcar, com o texto do lado ───────────────────────────────
+   Sem esta classe, `<label><input type="checkbox"> texto</label>` deixava
+   a caixinha flutuando ACIMA do texto e a linha de ajuda colava no fim do
+   rótulo: "Salário a combinarMarque se prefere conversar o valor". Foi
+   assim que a tela de criar vaga apareceu na conferência. */
+.ei .ei-caixa {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  cursor: pointer;
+  font-weight: 500;
+}
+.ei .ei-caixa input {
+  width: auto;
+  margin: 0;
+  flex: 0 0 auto;
+}

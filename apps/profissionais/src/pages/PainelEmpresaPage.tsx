@@ -13,6 +13,7 @@ import {
   type InteressadoNoPainel,
 } from "../lib/company";
 import { mensagemDeErro } from "../lib/erros";
+import { PLANOS_EMPRESA, PLANO_GRATUITO } from "../types/domain";
 import type { Company, JobListing } from "../types/domain";
 import { Callout, Pagina, Prop } from "../components/ei/Pagina";
 
@@ -222,6 +223,28 @@ export function PainelEmpresaPage() {
   const limiteEmTexto =
     plano == null ? "—" : plano.limite < 0 ? "sem limite" : String(plano.limite);
 
+  /* O nome do plano sai do que a empresa PAGOU (`companies.plano`), e não
+     do limite: dois planos podem acabar com o mesmo limite depois de uma
+     promoção, e aí a tela diria o nome errado. Sem nada pago, é o
+     gratuito — que não é um valor no banco, e por isso vem de outro
+     lugar (ver PLANO_GRATUITO). */
+  const nomeDoPlanoAtual =
+    !empresa.plano || semPlano
+      ? PLANO_GRATUITO.nome
+      : `Plano ${PLANOS_EMPRESA[empresa.plano]?.nome ?? empresa.plano}`;
+
+  /* Quantas ainda cabem, por extenso. `plano.limite < 0` é o "sem teto" do
+     banco — escrito assim porque "faltam -1 vagas" é o tipo de coisa que
+     ninguém vê em revisão e todo mundo vê em produção. */
+  const quantasAindaCabem = (() => {
+    if (plano == null) return "";
+    if (!plano.temPlano) return PLANO_GRATUITO.limite;
+    if (plano.limite < 0) return "Publique quantas quiser";
+    const faltam = Math.max(0, plano.limite - plano.abertas);
+    if (faltam === 0) return "Não cabe mais nenhuma agora";
+    return faltam === 1 ? "Cabe mais 1 vaga" : `Cabem mais ${faltam} vagas`;
+  })();
+
   return (
     <div className="ei">
       <div className="ei-tela">
@@ -312,6 +335,31 @@ export function PainelEmpresaPage() {
                 <span className="ei-resumo-de"> de {limiteEmTexto}</span>
               </span>
             </div>
+          </div>
+
+          {/* ── O PLANO, COM NOME (item 10) ────────────────────────────
+              A dona: "após cadastrar a empresa, no painel da empresa, no
+              início ter um card com informação sobre o plano e quantas
+              vagas estão disponíveis dentro do plano escolhido."
+
+              A metade das vagas já estava ali em cima ("3 de 3"). Faltava
+              a outra: QUAL plano. O painel dizia só "Ativo", lá embaixo na
+              ficha — e "Ativo" não responde à pergunta que a empresa faz
+              quando pensa em publicar a quarta vaga, que é "o que eu
+              assinei mesmo?".
+
+              Quantas ainda cabem vem escrito por extenso, e não como
+              conta: "faltam 0" é a informação que decide se vale abrir a
+              tela de criar vaga, e ninguém deveria ter de subtrair dois
+              números para chegar nela. */}
+          <div className="ei-plano-linha">
+            <span className="ei-plano-nome">
+              {nomeDoPlanoAtual}
+            </span>
+            <span className="ei-plano-nota">{quantasAindaCabem}</span>
+            <Link to="/planos-empresa" className="ei-btn-inline">
+              {semPlano ? "Ver planos" : "Mudar"}
+            </Link>
           </div>
 
         </Pagina>
