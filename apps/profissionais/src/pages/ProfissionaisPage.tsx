@@ -8,7 +8,7 @@ import { DEFAULT_CITY, DEFAULT_UF } from "../types/domain";
 import { Pagina } from "../components/ei/Pagina";
 import { useAuth } from "../lib/useAuth";
 import { useOnboardingStatus } from "../lib/useOnboardingStatus";
-import { obterMinhaEmpresa } from "../lib/company";
+import { empresaAtual } from "../lib/company";
 import { BottomSheet } from "../components/BottomSheet";
 import { BotaoFavorito } from "../components/ei/BotaoFavorito";
 import { lerFavoritos, SEM_FAVORITOS, type Favoritos } from "../lib/favoritos";
@@ -107,7 +107,7 @@ export function ProfissionaisPage() {
   useEffect(() => {
     if (tipoDeConta !== "company" || !user) return;
     let vivo = true;
-    obterMinhaEmpresa(user.id).then((empresa) => {
+    empresaAtual(user.id).then((empresa) => {
       if (vivo && !empresa) navegar("/cadastro-empresa", { replace: true });
     });
     return () => { vivo = false; };

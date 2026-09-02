@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../lib/useAuth";
 import {
-  obterMinhaEmpresa,
+  empresaAtual,
   criarVaga,
   abrirOnda,
   calcularOndas,
@@ -183,7 +183,10 @@ export function CriarVagaPage() {
   useEffect(() => {
     if (carregandoConta || !user) return;
 
-    obterMinhaEmpresa(user.id).then((empresa) => {
+    /* `empresaAtual` e não "a minha empresa": desde a 0102 a conta pode
+       ter várias, e a vaga é publicada na que está SELECIONADA na tela de
+       escolha. Ver o comentário em obterMinhaEmpresa, que saiu por isto. */
+    empresaAtual(user.id).then((empresa) => {
       if (!empresa) {
         navegar("/cadastro-empresa", { replace: true });
         return;

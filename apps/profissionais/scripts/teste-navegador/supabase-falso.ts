@@ -643,7 +643,40 @@ class Consulta implements PromiseLike<{ data: Linha[] | Linha | null; error: unk
     }
     if (this.faixa) linhas = linhas.slice(this.faixa[0], this.faixa[1] + 1);
     if (this.limite !== null) linhas = linhas.slice(0, this.limite);
-    if (this.unico) return { data: linhas[0] ?? null, error: null, count: linhas.length };
+    /* `single()` DÁ ERRO com mais de uma linha, e é assim no PostgREST.
+       ─────────────────────────────────────────────────────────────────
+       O falso devolvia a primeira, e com isso um defeito real passou
+       despercebido: `obterMinhaEmpresa` usava `.single()` em `companies`,
+       e depois da 0102 (mais de uma empresa por conta) ela passou a falhar
+       para quem tinha duas — as telas liam o `null` como "não tem empresa"
+       e mandavam para o cadastro. "Nova vaga" caía na tela de cadastrar
+       empresa, e o teste aqui continuava passando.
+
+       `maybeSingle()` também recusa mais de uma no PostgREST; o que ele
+       aceita, e `single()` não, é NENHUMA. */
+    if (this.unico) {
+      if (linhas.length > 1) {
+        return {
+          data: null,
+          error: {
+            code: "PGRST116",
+            message: "JSON object requested, multiple (or no) rows returned",
+          },
+          count: linhas.length,
+        };
+      }
+      if (linhas.length === 0 && this.unico === "single") {
+        return {
+          data: null,
+          error: {
+            code: "PGRST116",
+            message: "JSON object requested, multiple (or no) rows returned",
+          },
+          count: 0,
+        };
+      }
+      return { data: linhas[0] ?? null, error: null, count: linhas.length };
+    }
     return { data: linhas, error: null, count: linhas.length };
   }
 

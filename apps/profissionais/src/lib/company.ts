@@ -330,20 +330,22 @@ export async function upsertCompany(
   return data as Company;
 }
 
-/** Obtém a empresa do usuário logado. */
-export async function obterMinhaEmpresa(ownerId: string): Promise<Company | null> {
-  const sb = getSupabase();
-  if (!sb) return null;
+/* `obterMinhaEmpresa` saiu — 02/09
+   ─────────────────────────────────
+   Ela lia `companies` com `.single()`, que dá ERRO quando vem mais de uma
+   linha. Desde a 0102 a conta pode ter várias empresas, então para quem
+   tinha duas ela devolvia `null` — e as duas telas que a chamavam liam
+   esse `null` como "esta pessoa não tem empresa" e mandavam para o
+   cadastro.
 
-  const { data, error } = await sb
-    .from("companies")
-    .select("*")
-    .eq("owner_id", ownerId)
-    .single();
+   Foi assim que "Nova vaga" passou a cair na tela de cadastrar empresa
+   para quem cadastrou a segunda loja, e o banco de talentos junto. O
+   defeito não estava nas telas: estava numa função cujo nome prometia uma
+   coisa que deixou de ser verdade.
 
-  if (error) return null;
-  return data as Company;
-}
+   Quem quer "a empresa desta pessoa agora" usa `empresaAtual`, que
+   respeita a escolhida na tela das empresas.
+*/
 
 /** Cria uma vaga de trabalho. */
 export async function criarVaga(
