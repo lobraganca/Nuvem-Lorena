@@ -239,13 +239,12 @@ export function CriarVagaPage() {
 
        Cada recusa aponta O CAMPO e diz por que ele importa. "Preencha os
        campos obrigatórios" manda a empresa procurar sozinha qual é. */
-    if (!form.title.trim()) {
-      setErro("Escreva o título da vaga — é a primeira linha que a pessoa lê.");
-      return;
-    }
-
-    if (!form.profession) {
-      setErro("Escolha a profissão. É por ela que o app acha quem avisar.");
+    /* Um campo só desde 02/09: `title` e `profession` são preenchidos
+       juntos, então uma recusa basta — e ela nomeia o campo como ele está
+       escrito na tela. Duas mensagens para um campo mandavam a empresa
+       procurar um segundo que não existe mais. */
+    if (!form.profession.trim()) {
+      setErro("Escreva qual profissional você procura — é a primeira linha que a pessoa lê.");
       return;
     }
 
@@ -487,8 +486,7 @@ export function CriarVagaPage() {
    */
   function conferirEtapa(n: number): string {
     if (n === 1) {
-      if (!form.title.trim()) return "Escreva qual profissional você procura.";
-      if (!form.profession.trim()) return "Escolha a profissão.";
+      if (!form.profession.trim()) return "Escreva qual profissional você procura.";
       if (!form.description.trim()) return "Escreva o que a pessoa vai fazer.";
       /* Prazo depois do início é erro de digitação, e é silencioso: a vaga
          sai do banco de vagas antes de a empresa entender por quê. O banco
@@ -569,56 +567,47 @@ export function CriarVagaPage() {
               É o que aparece primeiro para quem procura trabalho.
             </p>
 
+          {/* ── UM CAMPO SÓ, E NÃO DOIS DIZENDO O MESMO — 02/09 ───────
+              A dona: "no cadastro da vaga está redundante qual profissão
+              procura e qual profissão é. Troque por qual profissional você
+              procura."
+
+              Estava mesmo. Eram dois campos seguidos — "Qual profissional
+              você procura?" e "Que profissão é?" — e a resposta honesta
+              dos dois é a mesma palavra: "Vendedor". A empresa escrevia
+              "Vendedor", lia a pergunta seguinte, e ficava procurando que
+              diferença o app esperava. Quem inventasse uma diferença para
+              justificar o segundo campo ("Vendedor de loja") estragava a
+              busca sem saber: é ele, e não o primeiro, que a onda compara
+              com o cadastro de quem procura trabalho.
+
+              Agora é um campo, e ele preenche os dois por baixo: o título
+              da vaga e o ofício que a onda procura passam a ser sempre a
+              mesma palavra — que é o que já acontecia quando alguém
+              respondia direito.
+
+              O `input` com `list` fica: escreve-se à vontade e o navegador
+              oferece a lista enquanto se digita. A lista tem 80 ofícios do
+              outro produto e não cobre "auxiliar de produção" nem
+              "operador de empilhadeira" — e a dona já tinha pedido que
+              desse para escrever ("pode ser que a vaga não tenha na
+              lista"). O que diferencia uma vaga da outra dentro do mesmo
+              ofício é a Especialidade, logo abaixo. */}
           <div className="ei-campo">
-            <label htmlFor="title">Qual profissional você procura? *</label>
+            <label htmlFor="profession">Qual profissional você procura? *</label>
             <span className="ei-campo-ajuda">
-              É a primeira linha que a pessoa lê.
-            </span>
-            <input
-              id="title"
-              type="text"
-              placeholder="Ex: Vendedor, Recepcionista, Eletricista"
-              value={form.title}
-              onChange={(e) => setForm((f) => ({ ...f, title: e.target.value }))}
-            />
-          </div>
-
-          <div className="ei-campo">
-            {/* ── A PROFISSÃO PASSOU A ACEITAR TEXTO ─────────────────
-                A dona: "onde coloca o profissional que procura, tem que
-                abrir a empresa escrever. Pode ser que a vaga não tenha na
-                lista."
-
-                E não tem mesmo. A lista tem 80 ofícios e foi escrita para
-                o outro produto, o de achar um encanador para a sua casa —
-                não há "auxiliar de produção", "operador de empilhadeira",
-                "repositor" nem metade do que uma cidade com mineração
-                contrata. A empresa que não achava o que procurava tinha
-                duas saídas: escolher o mais parecido (e a onda avisa as
-                pessoas erradas) ou desistir.
-
-                A forma é um `input` com `list`: escreve-se à vontade, e o
-                navegador oferece a lista enquanto se digita. É melhor que
-                as duas alternativas — o `select` fechado não deixa
-                escrever, e o campo pelado sem lista faz cada empresa
-                inventar um nome, o que quebraria a comparação com o
-                cadastro de quem procura.
-
-                O `datalist` é HTML puro, sem biblioteca: um combo escrito
-                à mão precisaria de teclado, foco, rolagem e toque — e é
-                justamente o tipo de coisa que fica quebrada no celular. */}
-            <label htmlFor="profession">Que profissão é? *</label>
-            <span className="ei-campo-ajuda">
-              Não achou na lista? Escreva do seu jeito.
+              É a primeira linha que a pessoa lê. Não achou na lista? Escreva do seu jeito.
             </span>
             <input
               id="profession"
               type="text"
               list="lista-profissoes"
               autoComplete="off"
-              placeholder="Escreva ou escolha da lista"
+              placeholder="Ex: Vendedor, Recepcionista, Eletricista"
               value={form.profession}
-              onChange={(e) => setForm((f) => ({ ...f, profession: e.target.value }))}
+              onChange={(e) =>
+                setForm((f) => ({ ...f, profession: e.target.value, title: e.target.value }))
+              }
             />
             <datalist id="lista-profissoes">
               {CATEGORIES.map((cat) => (

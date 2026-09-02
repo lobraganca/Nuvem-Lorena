@@ -2986,6 +2986,43 @@
 .ei .ei-campo > .ei-campo-ajuda { margin-top: 2px; line-height: 1.4; }
 
 /* ═══════════════════════════════════════════════════════════════════════
+   A TELA DE CADASTRAR VAGA RESPIRA — 02/09
+   ═══════════════════════════════════════════════════════════════════════
+   A dona: "essa tela deve ficar mais espaçosa. Para ficar mais intuitivo."
+
+   O formulário é longo por natureza (a vaga inteira, em seis temas), e o
+   vão entre um campo e outro era o mesmo vão que separa o rótulo da caixa
+   de texto dentro do campo. Com tudo igualmente perto, os campos deixam de
+   ser blocos e viram uma parede de texto — e é aí que a pessoa perde o
+   lugar e desiste no meio.
+
+   Três folgas diferentes, e é a diferença entre elas que faz a leitura:
+
+     · 6px  entre o rótulo, a dica e a caixa   (são o MESMO campo)
+     · 24px entre um campo e o seguinte        (são campos diferentes)
+     · 48px de altura na caixa                 (dedo, e não cursor)
+
+   Vale nas etapas do cadastro de vaga e do cadastro de empresa, que são as
+   duas telas compridas do app. */
+.ei .ei-etapas-corpo .ei-campo + .ei-campo,
+.ei .ei-cartao .ei-campo + .ei-campo {
+  margin-top: 24px;
+}
+
+.ei .ei-cartao .ei-campo input,
+.ei .ei-cartao .ei-campo select,
+.ei .ei-cartao .ei-campo textarea {
+  min-height: 48px;
+  padding: 12px 14px;
+  font-size: 0.98rem;
+}
+.ei .ei-cartao .ei-campo textarea { min-height: 96px; }
+
+/* O título de cada tema ganha ar em cima quando vem depois de um campo —
+   ele abre um assunto novo, e assunto novo não começa colado no anterior. */
+.ei .ei-cartao .ei-campo + .ei-etapa-titulo { margin-top: 30px; }
+
+/* ═══════════════════════════════════════════════════════════════════════
    ALVOS DE TOQUE — a varredura de 02/09
    ═══════════════════════════════════════════════════════════════════════
    A dona: "verifique sobre a usabilidade."
