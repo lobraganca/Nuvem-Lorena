@@ -2405,13 +2405,23 @@
    exatamente o que ela pediu. E `--ei-laranja` (#c2410c) continua onde
    está: aquele é o laranja de AVISO, que precisa de branco por cima. */
 :root {
+  /* 02/09: "diminua o tom do laranja dos botões. Está escuro."
+     ─────────────────────────────────────────────────────────
+     O #f7a64a é o laranja medido no arquivo da marca, e continua sendo a
+     identidade — é ele no coração dos favoritos e nos fios de destaque.
+     O que mudou é o PREENCHIMENTO de botão: um retângulo grande de cor
+     cheia pesa muito mais que o mesmo tom num ícone de 20px, e era o que
+     ela estava vendo. `--ei-laranja-botao` é o mesmo laranja clareado,
+     ainda reconhecível como o da logo, e com o texto escuro por cima ele
+     ganha contraste em vez de perder. */
   --ei-laranja-marca: #f7a64a;
+  --ei-laranja-botao: #fbc98d;
   --ei-sobre-laranja-marca: #37352f;
 }
 
 .ei .ei-porta-laranja {
-  background: var(--ei-laranja-marca);
-  border-color: var(--ei-laranja-marca);
+  background: var(--ei-laranja-botao);
+  border-color: var(--ei-laranja-botao);
   color: var(--ei-sobre-laranja-marca);
 }
 .ei .ei-porta-laranja:hover:not(:disabled) {
@@ -3177,3 +3187,43 @@
   line-height: 1.15;
   color: var(--ei-tinta);
 }
+
+/* ═══════════════════════════════════════════════════════════════════════
+   O BOTÃO LARANJA DE AÇÃO — 02/09
+   ═══════════════════════════════════════════════════════════════════════
+   "O botão de incluir nova vaga fica dentro da parte branca com um botão
+   laranja igual ao da logo."
+
+   Ele estava na barra azul do topo, pequeno e branco sobre azul. Duas
+   coisas erradas ali: sumia dentro do cabeçalho (mesma cor de fundo da
+   barra, mesmo tamanho do título) e ficava longe do cartão que diz quantas
+   vagas ainda cabem — que é o que faz a pessoa decidir publicar.
+
+   Laranja, e não azul, porque no cartão já existem dois links azuis
+   ("Mudar", "Trocar"). Sendo a única coisa laranja da tela, ele é o que o
+   olho acha primeiro — que é o certo: publicar vaga é a razão de a empresa
+   abrir o app.
+
+   Largura cheia porque é a ação principal, e o polegar não deve ter de
+   mirar. */
+.ei .ei-btn-laranja {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  /* A margem lateral de 20px é a mesma do resto do cartão: sem ela o
+     botão encosta nas bordas e lê como um bloco separado, colado embaixo
+     do cartão, em vez de uma ação DENTRO dele. */
+  width: auto;
+  min-height: 48px;
+  margin: 14px 20px 16px;
+  padding: 12px 16px;
+  border: 1px solid var(--ei-laranja-botao);
+  background: var(--ei-laranja-botao);
+  color: var(--ei-sobre-laranja-marca);
+  font-size: 0.95rem;
+  font-weight: 700;
+  text-decoration: none;
+  cursor: pointer;
+}
+.ei .ei-btn-laranja:hover:not(:disabled) { filter: brightness(0.96); }

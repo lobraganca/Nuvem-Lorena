@@ -36,7 +36,9 @@ export function AvisoDeDados() {
   // Antes ele acompanhava a pessoa por todas as telas, e no perfil do
   // profissional chegava a cobrir o botão de contato: o aviso de privacidade
   // atrapalhando justamente o ato que o app existe para permitir.
-  if (!visivel || pathname !== "/") return null;
+  const aparece = visivel && pathname === "/";
+
+  if (!aparece) return null;
 
   function aceitar() {
     try {

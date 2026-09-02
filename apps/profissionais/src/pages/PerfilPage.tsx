@@ -322,7 +322,7 @@ export function PerfilPage() {
                   chegaram para mim" quebravam em duas linhas e faziam a
                   linha da lista crescer, cada uma com uma altura. */}
               <Linha para="/meu-perfil" icone={<IconePessoa />}>
-                Meu perfil
+                Meu cadastro
               </Linha>
               <Linha para="/vagas-para-mim" icone={<IconeMala />}>
                 Vagas para mim

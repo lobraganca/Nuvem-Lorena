@@ -1474,8 +1474,19 @@ html.abrindo body {
 
 /* Aviso de dados (LGPD), fixo no rodapé. Fica acima da barra de navegação
    para não cobri-la, e some assim que a pessoa confirma que leu. */
+/* 02/09: DEIXOU DE FLUTUAR POR CIMA DA TELA
+   ─────────────────────────────────────────
+   Ele era fixo, encostado na barra de baixo — e a única tela em que
+   aparece é a inicial, onde o fim da tela são justamente as PORTAS do app.
+   O aviso de privacidade tapava "Vagas para mim". É o mesmo defeito que já
+   tinha acontecido no perfil do profissional, com o botão de contato.
+
+   Agora ele fica no fim da página, em fluxo: continua sendo a última coisa
+   da tela inicial (é depois do rodapé no documento), e não cobre nada.
+   Aviso que esconde o que a pessoa veio fazer não é cuidado com dados: é
+   obstáculo. */
 .aviso-dados {
-  position: fixed;
+  position: static;
   /* Faixa de ponta a ponta, encostada na barra de baixo — e não um cartão
      flutuante com 16px de canto e 12px de folga nas laterais.
 
@@ -1484,10 +1495,7 @@ html.abrindo body {
      de tudo. Na tela inicial, que é a única onde ele aparece, o efeito era
      o de um pedaço solto largado no meio do vazio — exatamente o que faz
      uma tela parecer inacabada. */
-  left: 0;
-  right: 0;
-  bottom: calc(var(--bottom-nav-height) + env(safe-area-inset-bottom));
-  z-index: 60;
+  margin-bottom: calc(var(--bottom-nav-height) + env(safe-area-inset-bottom));
   display: flex;
   align-items: center;
   gap: 14px;
@@ -3323,12 +3331,36 @@ h3 {
   transition: color 0.12s ease;
 }
 
-/* Sem fundo nenhum: quem marca o item aberto é a tinta escura e o peso
-   da letra. A pastilha era a última peça arredondada e colorida da
-   navegação. */
+/* A BARRA PRECISA DIZER EM QUE TELA VOCÊ ESTÁ — 02/09
+   ───────────────────────────────────────────────────
+   "Quando tiver na página, a barra tem que demonstrar em qual está."
+
+   Marcava, mas quase invisível: tinta um tom mais escura e a letra em 600
+   contra 500. Lado a lado, em quatro itens cinzas de 11px, isso não se
+   enxerga — ainda mais no sol, que é onde este app é usado.
+
+   Agora são três sinais somados, e não um: a cor AZUL do app (a mesma do
+   botão principal, então "azul = onde estou/o que faço"), a letra mais
+   forte, e um fio azul de 3px encostado no topo do item. O fio é o que se
+   vê de relance sem ler nada — que é justamente como se olha uma barra de
+   navegação.
+
+   Sem pastilha arredondada atrás do ícone: aquilo foi tirado a pedido da
+   dona e não volta por esta porta. */
 .nav-ei-item.ativo {
   background: none;
-  color: var(--ei-tinta, #37352f);
+  color: var(--ei-acento, #0a72c4);
+  position: relative;
+}
+
+.nav-ei-item.ativo::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 14%;
+  right: 14%;
+  height: 3px;
+  background: currentColor;
 }
 
 .nav-ei-capsula {

@@ -269,25 +269,15 @@ export function PainelEmpresaPage() {
             Sem plano ele não aparece: quem não pode publicar não deve ver
             um botão que só leva a uma recusa. Para essa empresa o callout
             logo abaixo é que diz o caminho. */}
-        <Pagina
-          titulo="Minhas vagas"
-          acao={
-            semPlano ? undefined : (
-              <Link
-                to="/criar-vaga"
-                className="ei-btn ei-btn-cheio ei-btn-mini"
-                onClick={(e) => {
-                  if (plano && !plano.cabeMais) {
-                    e.preventDefault();
-                    navegar("/planos-empresa");
-                  }
-                }}
-              >
-                {plano && !plano.cabeMais ? "Aumentar plano" : "Nova vaga"}
-              </Link>
-            )
-          }
-        >
+        {/* 02/09: o botão saiu da barra azul e desceu para dentro do
+            cartão branco — "o botão de incluir nova vaga fica dentro da
+            parte branca com um botão laranja igual ao da logo".
+
+            Na barra ele era branco sobre azul, do tamanho do título, e
+            longe da linha que diz quantas vagas ainda cabem. Agora fica
+            logo abaixo dela: quem lê "cabe mais 1 vaga" tem o botão
+            embaixo do dedo. */}
+        <Pagina titulo="Minhas vagas">
           {/* ── O RESUMO ABRE A TELA, NÃO A FICHA ──────────────────────
               Vindo dos prints do Conta Azul: a tela de pagamentos abre com
               "Saldo disponível / R$ 10.000,00" — rótulo pequeno em cima,
@@ -376,6 +366,24 @@ export function PainelEmpresaPage() {
                 {semPlano ? "Ver planos" : "Mudar"}
               </Link>
             </div>
+
+            {/* Sem plano ele não aparece: quem não pode publicar não deve
+                ver um botão que só leva a uma recusa. Para essa empresa o
+                caminho é o "Ver planos" da linha acima. */}
+            {!semPlano && (
+              <Link
+                to="/criar-vaga"
+                className="ei-btn-laranja"
+                onClick={(e) => {
+                  if (plano && !plano.cabeMais) {
+                    e.preventDefault();
+                    navegar("/planos-empresa");
+                  }
+                }}
+              >
+                {plano && !plano.cabeMais ? "Aumentar plano" : "+ Nova vaga"}
+              </Link>
+            )}
           </div>
 
         </Pagina>

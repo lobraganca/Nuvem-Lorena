@@ -60,7 +60,7 @@ type Experiencia = { empresa: string; cargo: string; inicio: string; fim: string
    que aconteceu com a `disponivel` na 0101. */
 
 export function MeuPerfilPage() {
-  useTituloDaPagina("Meu perfil");
+  useTituloDaPagina("Meu cadastro");
   const navegar = useNavigate();
   const { user, loading: carregandoConta } = useAuth();
 
@@ -381,7 +381,10 @@ export function MeuPerfilPage() {
         {/* Era a única tela principal sem o cabeçalho de página — sem
             migalha, sem ícone, e com o título centralizado enquanto todas
             as outras alinham à esquerda. */}
-        <Pagina titulo={emEtapas ? "Seu cadastro" : "Meu perfil"} />
+        /* O MESMO nome da porta e da barra de baixo: "Meu perfil" aqui,
+           "Meu cadastro" na porta e "Painel" na barra eram três nomes para
+           uma tela só. */
+        <Pagina titulo={emEtapas ? "Seu cadastro" : "Meu cadastro"} />
         <p className="ei-apoio ei-margem" style={{ paddingBottom: 6 }}>
           {emEtapas
             ? "Três passos. Dá para mudar tudo depois."

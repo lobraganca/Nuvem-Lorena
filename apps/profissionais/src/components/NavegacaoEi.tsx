@@ -179,7 +179,12 @@ function destinos(tipo: "professional" | "company" | false | null, temConta: boo
          `/minhas-empresas` manda para o cadastro sozinha quando não há
          empresa nenhuma, então quem está começando não vê uma escolha
          vazia. */
-      { to: "/minhas-empresas", label: "Painel", icone: IconePredio,
+      /* O rótulo é o MESMO NOME da tela que abre. Estava "Painel", e a
+         tela se chama "Suas empresas" — três nomes para a mesma coisa
+         (a porta da tela inicial dizia "Minhas empresas") é o tipo de
+         coisa que faz um app parecer confuso sem nenhuma tela estar
+         errada. */
+      { to: "/minhas-empresas", label: "Empresas", icone: IconePredio,
         casa: (p) => p.startsWith("/minhas-empresas") ||
           p.startsWith("/painel-empresa") || p.startsWith("/vaga") ||
           p.startsWith("/criar-vaga") || p.startsWith("/cadastro-empresa") ||
@@ -206,7 +211,9 @@ function destinos(tipo: "professional" | "company" | false | null, temConta: boo
     voltar,
     avisos,
     talentos,
-    { to: "/painel", label: "Painel", icone: IconePessoa,
+    /* Mesmo motivo do lado da empresa: a tela se chama "Meu cadastro" na
+       porta da tela inicial, e "Painel" aqui abria um formulário. */
+    { to: "/painel", label: "Meu cadastro", icone: IconePessoa,
       casa: (p) => p.startsWith("/painel") || p.startsWith("/vagas-para-mim") },
   ];
 }
