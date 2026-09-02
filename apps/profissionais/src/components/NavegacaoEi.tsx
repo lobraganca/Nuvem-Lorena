@@ -291,6 +291,17 @@ export function NavegacaoEi() {
      pergunta no lugar da pessoa. */
   if (pathname.startsWith("/onboarding-tipo")) return null;
 
+  /* A dona: "a barra ainda continua na tela 'por onde começamos'."
+     ─────────────────────────────────────────────────────────────
+     `/` e `/inicio` são a EntradaPage — a mesma pergunta de cima, só que
+     para quem JÁ tem lado escolhido e está trocando (ver `EntradaPage`,
+     item "Por onde começamos?"). Como o lado já existe, `destinos` não
+     devolve `[]` como devolveria para quem não tem lado — devolve a
+     barra do lado atual, que aqui é a mesma contradição de cima: a tela
+     pergunta "por onde começamos?" com a barra do lado de UM dos dois já
+     acesa ao lado da pergunta. */
+  if (pathname === "/" || pathname === "/inicio") return null;
+
   return (
     <nav className="nav-ei" aria-label="Navegação principal">
       {itens.map((d) => {
