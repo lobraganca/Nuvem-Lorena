@@ -5,6 +5,9 @@ import { useTituloDaPagina } from "../../lib/tituloDaPagina";
 import { mensagemDeErro } from "../../lib/erros";
 import { nomeDoContrato, salarioEmTexto, type JobListing } from "../../types/domain";
 import { Pagina } from "../../components/ei/Pagina";
+import { BotaoFavorito } from "../../components/ei/BotaoFavorito";
+import { useAuth } from "../../lib/useAuth";
+import { lerFavoritos } from "../../lib/favoritos";
 
 /**
  * A empresa, vista por quem procura trabalho.
@@ -46,10 +49,12 @@ type EmpresaPublica = {
 
 export function EmpresaPublicaPage() {
   const { id } = useParams<{ id: string }>();
+  const { user } = useAuth();
   const [empresa, setEmpresa] = useState<EmpresaPublica | null>(null);
   const [vagas, setVagas] = useState<JobListing[]>([]);
   const [carregando, setCarregando] = useState(true);
   const [erro, setErro] = useState("");
+  const [favorita, setFavorita] = useState(false);
 
   useTituloDaPagina(empresa?.company_name ?? "Empresa");
 
@@ -89,6 +94,15 @@ export function EmpresaPublicaPage() {
            e a tela diz isso em vez de mostrar um defeito. */
         setEmpresa((e as EmpresaPublica | null) ?? null);
         setVagas((v ?? []) as JobListing[]);
+
+        /* Se esta empresa já está guardada. Depois das duas de cima e sem
+           `await` na mesma corrente: o coração aceso é detalhe, e a tela
+           não pode esperar por ele para abrir. */
+        if (user) {
+          lerFavoritos(user.id).then((f) => {
+            if (vivo) setFavorita(f.empresas.has(id));
+          });
+        }
       } catch (err) {
         /* Erro nunca vira "empresa sem vagas". As duas telas seriam
            iguais e as duas coisas são opostas — e esta é a tela em que a
@@ -102,7 +116,7 @@ export function EmpresaPublicaPage() {
     return () => {
       vivo = false;
     };
-  }, [id]);
+  }, [id, user]);
 
   if (carregando) {
     return (
@@ -138,8 +152,22 @@ export function EmpresaPublicaPage() {
       <div className="ei-tela">
         {/* "Empresa" na barra, e não o nome: ele já está no bloco logo
             abaixo, em corpo grande e com a logo do lado. Nos dois lugares,
-            o mesmo nome aparecia duas vezes em três centímetros de tela. */}
-        <Pagina titulo="Empresa" />
+            o mesmo nome aparecia duas vezes em três centímetros de tela.
+
+            O coração vai na barra, e não solto no meio da tela: é a ação
+            secundária daqui (a principal é abrir uma vaga), e a barra é
+            onde o app já põe a ação secundária de cada página. */}
+        <Pagina
+          titulo="Empresa"
+          acao={
+            <BotaoFavorito
+              empresa={empresa.id}
+              marcado={favorita}
+              rotulo={empresa.company_name}
+              aoMudar={setFavorita}
+            />
+          }
+        />
 
         {/* O mesmo bloco de topo da tela da vaga, de propósito: quem chega
             aqui vindo de lá tem que reconhecer que é a mesma empresa. */}

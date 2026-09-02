@@ -3042,3 +3042,29 @@
 .ei .ei-aviso-perfil-texto {
   min-width: 0;
 }
+
+/* ── O coração dos favoritos ────────────────────────────────────────────
+   44px de alvo, como todo botão do app depois da varredura de 02/09 — e
+   aqui ele importa mais que na média: fica ao lado de um link que ocupa a
+   linha inteira, e errar o toque abre outra tela em vez de guardar. */
+.ei .ei-coracao {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  min-height: 0;
+  padding: 0;
+  border: 0;
+  border-radius: var(--ei-raio-redondo, 999px);
+  background: transparent;
+  color: var(--ei-tinta-fraca);
+  cursor: pointer;
+  flex: 0 0 auto;
+}
+.ei .ei-coracao:hover { background: var(--ei-afunda); }
+/* Marcado no laranja da marca, e não em vermelho: vermelho neste app é a
+   cor de erro, e um coração vermelho ao lado de um cadastro leria como
+   "tem algo errado com esta pessoa". */
+.ei .ei-coracao.marcado { color: var(--ei-laranja-marca, #f7a64a); }
+.ei .ei-coracao:disabled { opacity: 1; cursor: default; }

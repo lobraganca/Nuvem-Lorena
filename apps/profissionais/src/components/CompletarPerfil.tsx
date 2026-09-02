@@ -18,7 +18,11 @@ import { AjustarFoto } from "./ei/AjustarFoto";
  * existir e funciona sem conta nenhuma. Quem só quer achar um eletricista
  * não deve topar com formulário nenhum.
  */
-const TELAS_DE_CONTA = ["/painel", "/perfil", "/favoritos"];
+/* `/favoritos` saiu daqui em 02/09. A tela nasceu depois desta lista e
+   entrou nela por herança do procurô — mas guardar um cartão não precisa
+   de nome, e-mail nem telefone preenchidos. Exigir o formulário para ver
+   o que a pessoa já guardou é cobrar por uma coisa que ela já fez. */
+const TELAS_DE_CONTA = ["/painel", "/perfil"];
 
 export function exigePerfil(caminho: string): boolean {
   return TELAS_DE_CONTA.some((t) => caminho === t || caminho.startsWith(`${t}/`));

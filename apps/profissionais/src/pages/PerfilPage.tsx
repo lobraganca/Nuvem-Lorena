@@ -329,6 +329,12 @@ export function PerfilPage() {
               </Linha>
             </>
           )}
+          {/* Favoritos vale para os DOIS lados, e por isso fica fora do
+              ternário: quem contrata guarda candidatos, quem procura
+              trabalho guarda empresas, e a mesma conta pode ser os dois. */}
+          <Linha para="/favoritos" icone={<IconeCoracao />}>
+            Meus favoritos
+          </Linha>
         </div>
 
         {/* ── OS DOIS LADOS NO MESMO NÚMERO ────────────────────────────
@@ -815,6 +821,14 @@ function IconeEngrenagem() {
     <svg {...traco}>
       <circle cx="12" cy="12" r="3.2" />
       <path d="M12 2.5l1.4 2.2 2.6-.5.6 2.6 2.4 1.1-1 2.4 1 2.4-2.4 1.1-.6 2.6-2.6-.5L12 21.5l-1.4-2.2-2.6.5-.6-2.6-2.4-1.1 1-2.4-1-2.4 2.4-1.1.6-2.6 2.6.5z" />
+    </svg>
+  );
+}
+
+function IconeCoracao() {
+  return (
+    <svg {...traco}>
+      <path d="M12 20.3s-7.5-4.6-7.5-9.6a4.3 4.3 0 0 1 7.5-2.9 4.3 4.3 0 0 1 7.5 2.9c0 5-7.5 9.6-7.5 9.6z" />
     </svg>
   );
 }

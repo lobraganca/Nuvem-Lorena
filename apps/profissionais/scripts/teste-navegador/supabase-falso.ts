@@ -424,6 +424,15 @@ const TABELAS: Record<string, Linha[]> = {
         },
       ],
 
+  /* Um favorito de cada tipo. Sem eles a tela de favoritos so exercita o
+     estado vazio — e e nas duas listas cheias que o desenho pode quebrar. */
+  favoritos: contaNova()
+    ? []
+    : [
+        { id: "fav-1", user_id: DONO_FALSO, company_id: EMPRESA_FALSA, professional_id: null, created_at: emDias(-1) },
+        { id: "fav-2", user_id: DONO_FALSO, company_id: null, professional_id: "pro-3", created_at: emDias(-2) },
+      ],
+
   job_listings: VAGAS,
 
   /* A face pública da empresa (view da 0100). O app lê daqui, e não de

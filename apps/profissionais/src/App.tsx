@@ -53,6 +53,7 @@ const VagasParaMimPage = lazy(importarPagina(() => import("./pages/VagasParaMimP
 const BancoDeVagasPage = lazy(importarPagina(() => import("./pages/ei/BancoDeVagasPage").then((m) => ({ default: m.BancoDeVagasPage }))));
 const MinhasEmpresasPage = lazy(importarPagina(() => import("./pages/ei/MinhasEmpresasPage").then((m) => ({ default: m.MinhasEmpresasPage }))));
 const EmpresaPublicaPage = lazy(importarPagina(() => import("./pages/ei/EmpresaPublicaPage").then((m) => ({ default: m.EmpresaPublicaPage }))));
+const FavoritosPage = lazy(importarPagina(() => import("./pages/ei/FavoritosPage").then((m) => ({ default: m.FavoritosPage }))));
 const PlanosEmpresaPage = lazy(importarPagina(() => import("./pages/PlanosEmpresaPage").then((m) => ({ default: m.PlanosEmpresaPage }))));
 const DetalheVagaPage = lazy(importarPagina(() => import("./pages/DetalheVagaPage").then((m) => ({ default: m.DetalheVagaPage }))));
 const PerfilPublicoPage = lazy(importarPagina(() => import("./pages/PerfilPublicoPage").then((m) => ({ default: m.PerfilPublicoPage }))));
@@ -157,6 +158,7 @@ const TELAS_DE_APP = [
   "/vagas",
   "/minhas-empresas",
   "/empresa",
+  "/favoritos",
   "/meu-perfil",
   "/painel",
   "/painel-empresa",
@@ -316,6 +318,9 @@ export default function App() {
         {/* A empresa vista por quem procura trabalho, com as vagas dela no
             ar. Ver EmpresaPublicaPage. */}
         <Route path="/empresa/:id" element={<EmpresaPublicaPage />} />
+        {/* Empresas e candidatos guardados, na mesma tela: a mesma conta
+            pode ser os dois lados. Ver FavoritosPage. */}
+        <Route path="/favoritos" element={<FavoritosPage />} />
         <Route path="/avisos" element={<AvisosPage />} />
 
         {/* Conta e documentos */}

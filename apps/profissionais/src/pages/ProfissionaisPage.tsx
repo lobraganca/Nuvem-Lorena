@@ -10,6 +10,8 @@ import { useAuth } from "../lib/useAuth";
 import { useOnboardingStatus } from "../lib/useOnboardingStatus";
 import { obterMinhaEmpresa } from "../lib/company";
 import { BottomSheet } from "../components/BottomSheet";
+import { BotaoFavorito } from "../components/ei/BotaoFavorito";
+import { lerFavoritos, SEM_FAVORITOS, type Favoritos } from "../lib/favoritos";
 
 type Disponivel = {
   id: string;
@@ -112,6 +114,9 @@ export function ProfissionaisPage() {
   }, [tipoDeConta, user, navegar]);
 
   const [lista, setLista] = useState<Disponivel[]>([]);
+  /* O que esta conta já guardou. Vem numa consulta só, antes de a lista
+     desenhar: perguntar por pessoa seriam sessenta viagens ao banco. */
+  const [favoritos, setFavoritos] = useState<Favoritos>(SEM_FAVORITOS);
   const [carregando, setCarregando] = useState(true);
   const [erro, setErro] = useState("");
 
@@ -155,6 +160,21 @@ export function ProfissionaisPage() {
   const bairro = params.get("b");
   const ligados = FILTROS_SIM.filter((f) => params.get(f.chave) === "1");
   const quantosFiltros = ligados.length + (bairro ? 1 : 0);
+
+  /* Os favoritos, à parte da lista e sem derrubar nada se falharem: sem
+     eles os corações ficam apagados, que é o mesmo que "ainda não
+     guardei" — e o toque conserta. Derrubar a lista de gente por causa
+     disso seria trocar o que a empresa veio ver por uma mensagem. */
+  useEffect(() => {
+    if (!user) return;
+    let vivo = true;
+    lerFavoritos(user.id).then((f) => {
+      if (vivo) setFavoritos(f);
+    });
+    return () => {
+      vivo = false;
+    };
+  }, [user]);
 
   useEffect(() => {
     const sb = supabase();
@@ -429,6 +449,25 @@ export function ProfissionaisPage() {
                       {funcoes.length > 2 && ` +${funcoes.length - 2}`}
                     </div>
                   </div>
+                  {/* O coração ANTES da seta: a seta diz "abre", o coração
+                      diz "guarda". Depois dela, o coração pareceria parte
+                      do gesto de abrir. */}
+                  <BotaoFavorito
+                    pessoa={p.id}
+                    marcado={favoritos.pessoas.has(p.id)}
+                    rotulo={p.name}
+                    aoMudar={(novo) =>
+                      setFavoritos((f) => {
+                        /* Conjunto NOVO, e não o mesmo mudado por dentro: o
+                           React compara por identidade, e mexer no conjunto
+                           existente não redesenha coração nenhum. */
+                        const pessoas = new Set(f.pessoas);
+                        if (novo) pessoas.add(p.id);
+                        else pessoas.delete(p.id);
+                        return { ...f, pessoas };
+                      })
+                    }
+                  />
                   <span className="ei-linha-seta" aria-hidden="true">
                     <IconeSeta />
                   </span>

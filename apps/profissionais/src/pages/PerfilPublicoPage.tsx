@@ -8,6 +8,8 @@ import type { ProfessionalExperience } from "../types/domain";
 import { useAuth } from "../lib/useAuth";
 import { empresaAtual } from "../lib/company";
 import { registrarVisita } from "../lib/quemMeViu";
+import { BotaoFavorito } from "../components/ei/BotaoFavorito";
+import { lerFavoritos } from "../lib/favoritos";
 
 type Publico = {
   id: string;
@@ -49,6 +51,7 @@ type Curso = { nome: string; instituicao: string | null; ano: string | null };
  */
 export function PerfilPublicoPage() {
   const { user } = useAuth();
+  const [favorito, setFavorito] = useState(false);
   const { id = "" } = useParams();
   const [p, setP] = useState<Publico | null>(null);
   const [experiencias, setExperiencias] = useState<ProfessionalExperience[]>([]);
@@ -110,6 +113,12 @@ export function PerfilPublicoPage() {
            veio ver o cadastro, e derrubar isso por causa de uma
            contabilidade que não é dela seria a troca errada. */
         void registrarVisitaSePossivel();
+
+        /* Se esta pessoa já está guardada. Sem `await`: o coração aceso é
+           detalhe, e a tela não espera por ele para abrir. */
+        if (user) {
+          lerFavoritos(user.id).then((f) => setFavorito(f.pessoas.has(id!)));
+        }
         if (!data) {
           /* Não achou é diferente de deu erro: quem ficou oculto some da
              view pública, e o certo é dizer isso — não fingir defeito. */
@@ -174,7 +183,22 @@ export function PerfilPublicoPage() {
   return (
     <div className="ei">
       <div className="ei-tela">
-        <Pagina foto={p.photo_url} titulo={p.name} voltar="/profissionais">
+        {/* O coração na barra: guardar esta pessoa é a ação secundária da
+            tela (a principal é o telefone), e a barra é onde o app já põe
+            a ação secundária de cada página. */}
+        <Pagina
+          foto={p.photo_url}
+          titulo={p.name}
+          voltar="/profissionais"
+          acao={
+            <BotaoFavorito
+              pessoa={p.id}
+              marcado={favorito}
+              rotulo={p.name}
+              aoMudar={setFavorito}
+            />
+          }
+        >
           <div className="ei-props">
             <Prop rotulo="Situação">
               {p.disponivel === false ? (
