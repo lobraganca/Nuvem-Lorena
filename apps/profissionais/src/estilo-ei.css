@@ -3355,15 +3355,13 @@
   padding: 0 20px;
   margin-bottom: 14px;
 }
-/* O rótulo diz o que fazer, e não só onde se está: "Você está em" sozinho
-   descreve um estado, e estado ninguém tenta tocar. */
-.ei-ambiente-rotulo {
-  display: block;
-  font-size: 0.82rem;
-  font-weight: 500;
-  color: var(--ei-tinta-fraca);
-  margin-bottom: 6px;
-}
+/* O rótulo "Você está em — toque para trocar de lado" saiu — 02/09
+   ──────────────────────────────────────────────────────────────
+   A dona pediu para tirar. Quem já sabe qual lado está ativo vê pelo
+   próprio botão marcado em laranja — a frase só repetia por extenso o
+   que a cor já diz, e sem os dois botões lado a lado ela também perdeu
+   o par que fazia dela fazer sentido ("você está em X — toque para ir
+   a Y" precisa dos dois visíveis juntos). */
 /* 02/09: "os botões de procuro trabalho ou quero contratar não ficou
    muito visível pra pessoa alterar quando necessário."
 
@@ -3383,17 +3381,44 @@
   border-radius: var(--ei-raio, 14px);
   background: var(--ei-afunda-forte);
 }
+/* Um debaixo do outro, com ícone — 02/09
+   ────────────────────────────────────────
+   A dona: "os botões de procuro trabalho e quero contratar podem ter
+   ícones e ficar um debaixo do outro."
+
+   Uma coluna só, e não duas: lado a lado o ícone e o nome ficavam
+   espremidos na metade da largura. Empilhados, cada botão usa a tela
+   inteira — o mesmo raciocínio das portas desta tela (`.ei-porta`), que
+   já são de coluna única com o ícone à esquerda. */
+.ei-ambiente-empilhado {
+  grid-template-columns: 1fr;
+  gap: 8px;
+}
 .ei .ei-ambiente-botao {
-  min-height: 52px;
-  padding: 10px 8px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-height: 56px;
+  padding: 10px 14px;
   border: 1px solid var(--ei-fio-forte);
   border-radius: calc(var(--ei-raio, 14px) - 5px);
   background: var(--ei-papel);
   color: var(--ei-tinta);
   font-size: 0.95rem;
   font-weight: 600;
+  text-align: left;
   cursor: pointer;
 }
+/* O ícone reaproveita a caixinha das portas (`.ei-porta-icone`), mas sem
+   as regras de grid dela — aqui o botão é `flex`, de uma linha só, e não
+   precisa do ícone ocupando duas linhas de texto. */
+.ei .ei-ambiente-botao .ei-porta-icone {
+  grid-row: auto;
+  flex: 0 0 auto;
+  width: 36px;
+  height: 36px;
+}
+.ei .ei-ambiente-botao .ei-porta-icone svg { width: 19px; height: 19px; }
 /* O lado atual é pintado no LARANJA CLARO — 02/09
    ───────────────────────────────────────────────
    "Onde escolhe procuro emprego ou quero contratar, a parte que fica
@@ -3412,6 +3437,13 @@
   color: var(--ei-sobre-laranja-marca);
   font-weight: 700;
   box-shadow: 0 1px 2px rgba(0, 0, 0, 0.06);
+}
+/* Sem isto o quadradinho cinza do ícone (pensado para o fundo branco das
+   portas) sobrava por cima do laranja do botão ativo — a mesma correção
+   que `.ei-porta-cheia`/`.ei-porta-laranja` já fazem lá. */
+.ei .ei-ambiente-botao.ativo .ei-porta-icone {
+  background: transparent;
+  color: inherit;
 }
 .ei .ei-ambiente-botao:disabled { opacity: 0.6; cursor: default; }
 

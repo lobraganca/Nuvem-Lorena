@@ -5,6 +5,7 @@ import { useOnboardingStatus } from "../../lib/useOnboardingStatus";
 import { registrarTipoDeUsuario } from "../../lib/company";
 import { useTituloDaPagina } from "../../lib/tituloDaPagina";
 import { InstalarApp } from "../../components/InstalarApp";
+import { IconePorta } from "./ComecarPage";
 
 /**
  * A porta de entrada do Ei Itabirito.
@@ -209,8 +210,17 @@ export function EntradaPage() {
             `ComecarPage.tsx`. */}
         {entrou && (tipo === "company" || tipo === "professional") && (
           <div className="ei-ambiente">
-            <span className="ei-ambiente-rotulo">Você está em — toque para trocar de lado</span>
-            <div className="ei-ambiente-botoes" role="group" aria-label="Escolher o ambiente">
+            {/* O rótulo "Você está em — toque para trocar de lado" saiu.
+                ─────────────────────────────────────────────────────────
+                A dona pediu para tirar. Quem já sabe qual lado está ativo
+                vê pelo próprio botão marcado (`ativo`, `aria-pressed`) —
+                a frase só repetia por extenso o que a cor já dizia. */}
+            {/* Um debaixo do outro, com ícone — a dona: "os botões de
+                procuro trabalho e quero contratar podem ter ícones e
+                ficar um debaixo do outro". Empilhados em vez de lado a
+                lado: cada botão ganha a largura toda para o ícone, o nome
+                e ficar do tamanho de um alvo de toque confortável. */}
+            <div className="ei-ambiente-botoes ei-ambiente-empilhado" role="group" aria-label="Escolher o ambiente">
               <button
                 type="button"
                 className={tipo === "professional" ? "ei-ambiente-botao ativo" : "ei-ambiente-botao"}
@@ -218,6 +228,7 @@ export function EntradaPage() {
                 disabled={trocando}
                 onClick={() => irParaOLado("professional")}
               >
+                <IconePorta desenho="pessoa" />
                 Procuro trabalho
               </button>
               <button
@@ -227,6 +238,7 @@ export function EntradaPage() {
                 disabled={trocando}
                 onClick={() => irParaOLado("company")}
               >
+                <IconePorta desenho="predio" />
                 Quero contratar
               </button>
             </div>

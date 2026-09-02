@@ -162,7 +162,7 @@ export function ComecarPage({ lado }: { lado: "professional" | "company" }) {
  * tela que anunciasse "imagem, mala" antes de "Vagas compatíveis" só
  * atrapalharia.
  */
-function IconePorta({ desenho }: { desenho: "pessoa" | "pessoas" | "mala" | "predio" }) {
+export function IconePorta({ desenho }: { desenho: "pessoa" | "pessoas" | "mala" | "predio" }) {
   return (
     <span className="ei-porta-icone" aria-hidden="true">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"
