@@ -193,8 +193,15 @@ export function VagaAbertaPage() {
             nos prints do Conta Azul. Aqui ela era uma linha só dela, acima
             do título — uma fileira inteira da tela para uma seta. */}
 
-        {/* 1 — A EMPRESA, com a logo. Abre a tela. */}
-        <div className="ei-empresa-topo">
+        {/* 1 — A EMPRESA, com a logo. Abre a tela — e agora LEVA a algum
+            lugar (a dona: "o candidato pode acessar o perfil da empresa e
+            ver as vagas que estão em aberto").
+
+            Antes este bloco era o mais visível da tela e não era clicável:
+            "que empresa é essa" é a primeira pergunta de quem lê uma vaga
+            numa cidade pequena, e a resposta ficava com o nome escrito e
+            nenhum caminho. */}
+        <Link to={`/empresa/${vaga.company_id}`} className="ei-empresa-topo ei-empresa-topo-link">
           <span className="ei-empresa-marca" aria-hidden="true">
             {empresa?.foto ? (
               <img src={empresa.foto} alt="" />
@@ -211,7 +218,16 @@ export function VagaAbertaPage() {
               {vaga.city}/{vaga.uf}
             </span>
           </span>
-        </div>
+          {/* A seta diz que dá para tocar. Sem ela o bloco vira um link
+              que ninguém descobre — e um link que ninguém descobre é o
+              mesmo que não existir. */}
+          <span className="ei-linha-seta" aria-hidden="true">
+            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor"
+                 strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M9 5l7 7-7 7" />
+            </svg>
+          </span>
+        </Link>
 
         {/* 2 — A VAGA: o que é, e o que a pessoa vai fazer. */}
         <h1 className="ei-titulo-g" style={{ paddingTop: 18 }}>

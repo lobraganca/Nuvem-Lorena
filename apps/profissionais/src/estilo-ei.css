@@ -2745,3 +2745,63 @@
   min-height: 0;
 }
 .ei-senha-olho:hover { background: var(--ei-afunda); }
+
+/* ── O botão de filtros e a folha ───────────────────────────────────────
+   O botão fica numa linha só dele, abaixo da busca. Ao lado dela ele
+   roubaria 90px de um campo que já é apertado em 390px — e a busca é o
+   que se usa a toda hora. */
+.ei-linha-filtros {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-top: 12px;
+}
+.ei .ei-chip-filtro {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+}
+/* O número de filtros ligados. Existe porque um filtro esquecido devolve
+   uma tela vazia, e a pessoa conclui que não há ninguém na cidade — o
+   jeito mais comum de um filtro estragar uma busca. */
+.ei .ei-chip-conta {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 18px;
+  height: 18px;
+  padding: 0 5px;
+  border-radius: 999px;
+  background: var(--ei-acento);
+  color: #ffffff;
+  font-size: 0.7rem;
+  font-weight: 700;
+}
+.ei .ei-chip-filtro.ativo .ei-chip-conta {
+  background: #ffffff;
+  color: var(--ei-acento);
+}
+
+.ei-filtros-folha {
+  display: grid;
+  gap: 2px;
+}
+/* Na folha a caixa ocupa a linha inteira e ganha altura de toque: são
+   cinco seguidas, e caixas coladas de 20px viram um alvo em que se erra. */
+.ei .ei-caixa-larga {
+  padding: 11px 2px;
+  border-bottom: 1px solid var(--ei-fio);
+}
+.ei .ei-caixa-larga:last-of-type { border-bottom: 0; }
+
+/* ── O bloco da empresa virou link ──────────────────────────────────────
+   Ele já existia com este desenho; o que muda é ser tocável. `display:
+   flex` porque `<a>` é inline por padrão e o bloco desmontaria — as três
+   partes (logo, texto, seta) voltariam a ser uma linha corrida de texto. */
+.ei .ei-empresa-topo-link {
+  display: flex;
+  align-items: center;
+  text-decoration: none;
+  color: inherit;
+}
+.ei .ei-empresa-topo-link:hover { background: var(--ei-afunda); }

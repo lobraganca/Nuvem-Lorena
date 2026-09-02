@@ -52,6 +52,7 @@ const ProfissionaisPage = lazy(importarPagina(() => import("./pages/Profissionai
 const VagasParaMimPage = lazy(importarPagina(() => import("./pages/VagasParaMimPage").then((m) => ({ default: m.VagasParaMimPage }))));
 const BancoDeVagasPage = lazy(importarPagina(() => import("./pages/ei/BancoDeVagasPage").then((m) => ({ default: m.BancoDeVagasPage }))));
 const MinhasEmpresasPage = lazy(importarPagina(() => import("./pages/ei/MinhasEmpresasPage").then((m) => ({ default: m.MinhasEmpresasPage }))));
+const EmpresaPublicaPage = lazy(importarPagina(() => import("./pages/ei/EmpresaPublicaPage").then((m) => ({ default: m.EmpresaPublicaPage }))));
 const PlanosEmpresaPage = lazy(importarPagina(() => import("./pages/PlanosEmpresaPage").then((m) => ({ default: m.PlanosEmpresaPage }))));
 const DetalheVagaPage = lazy(importarPagina(() => import("./pages/DetalheVagaPage").then((m) => ({ default: m.DetalheVagaPage }))));
 const PerfilPublicoPage = lazy(importarPagina(() => import("./pages/PerfilPublicoPage").then((m) => ({ default: m.PerfilPublicoPage }))));
@@ -155,6 +156,7 @@ const TELAS_DE_APP = [
      esquecimento que já aconteceu com `/login` e com `/vaga-aberta`. */
   "/vagas",
   "/minhas-empresas",
+  "/empresa",
   "/meu-perfil",
   "/painel",
   "/painel-empresa",
@@ -311,6 +313,9 @@ export default function App() {
             existia: a lista não levava a lugar nenhum. */}
         <Route path="/profissional/:id" element={<PerfilPublicoPage />} />
         <Route path="/vaga-aberta/:id" element={<VagaAbertaPage />} />
+        {/* A empresa vista por quem procura trabalho, com as vagas dela no
+            ar. Ver EmpresaPublicaPage. */}
+        <Route path="/empresa/:id" element={<EmpresaPublicaPage />} />
         <Route path="/avisos" element={<AvisosPage />} />
 
         {/* Conta e documentos */}

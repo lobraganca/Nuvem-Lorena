@@ -74,6 +74,27 @@ const professionals: Linha[] = Array.from({ length: QUANTOS }, (_, i) => ({
   uf: "MG",
   bio: `Faz ${CATS[i % CATS.length]} há anos.`,
   especialidade: "",
+  /* As colunas da 0101 e da 0103, que os filtros do banco de talentos
+     leem. Sem elas TODO filtro devolvia zero pessoas — e o teste diria
+     que o filtro funciona, quando na verdade ele só não achava nada.
+
+     Os restos de divisão são propositais e diferentes entre si: se todos
+     seguissem o mesmo, marcar dois filtros devolveria sempre o mesmo
+     grupo, e o teste nunca exercitaria a combinação. */
+  disponivel: i % 5 !== 0,
+  aceita_viajar: i % 3 === 0,
+  fim_de_semana: i % 4 === 0,
+  inicio_imediato: i % 2 === 0,
+  cnh: i % 3 === 1,
+  cnh_categorias: i % 3 === 1 ? ["B"] : [],
+  disponibilidade: i % 2 === 0 ? ["Manhã", "Tarde"] : ["Horário comercial"],
+  modo_trabalho: "presencial",
+  telefones_extra: [],
+  data_nascimento: "1990-01-01",
+  idade: 36,
+  pretensao_centavos: i % 3 === 0 ? null : 180000 + i * 1000,
+  pretensao_combinar: i % 3 === 0,
+  pretensao_periodo: "mes",
   phone: "31999990000",
   whatsapp: "31999990000",
   entity_type: i % 5 === 0 ? "pj" : "pf",

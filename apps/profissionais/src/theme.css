@@ -965,14 +965,22 @@ textarea::placeholder {
   font-size: 1.2rem;
 }
 
+/* O botão de fechar é um disco de 46px a 12px da borda — ou seja, ele
+   ocupa 58px do canto direito. O título já reservava 32px, que não bastava
+   e ainda por cima deixava a LINHA DE APOIO passando por baixo dele: na
+   folha de filtros lia-se "Some quem não responde ao que você marcaı"
+   com a última letra atrás do ✕.
+
+   Os dois reservam o mesmo espaço agora, e a conta sai do tamanho do
+   botão em vez de um número escolhido a olho. */
 .sheet-title {
-  margin: 0 32px 4px 0;
+  margin: 0 58px 4px 0;
   font-size: 1.25rem;
   font-weight: 700;
 }
 
 .sheet-subtitle {
-  margin: 0 0 18px;
+  margin: 0 58px 18px 0;
   color: var(--color-text-muted);
   font-size: 0.9rem;
 }

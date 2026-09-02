@@ -9,6 +9,7 @@ import { Pagina } from "../components/ei/Pagina";
 import { useAuth } from "../lib/useAuth";
 import { useOnboardingStatus } from "../lib/useOnboardingStatus";
 import { obterMinhaEmpresa } from "../lib/company";
+import { BottomSheet } from "../components/BottomSheet";
 
 type Disponivel = {
   id: string;
@@ -17,7 +18,31 @@ type Disponivel = {
   areas_de_interesse: string[];
   especialidade: string | null;
   neighborhood: string | null;
+  /* ── O QUE OS FILTROS PRECISAM (colunas da 0101 e da 0103) ─────────
+     A dona: "fazer filtros na busca do banco de talentos."
+
+     A lista tinha uma busca por texto e uma fileira de ofícios, e mais
+     nada. Numa cidade com poucas centenas de cadastros isso basta para
+     achar UMA pessoa pelo nome — mas quem contrata não procura uma
+     pessoa, procura QUEM SERVE: quem pode no fim de semana, quem tem
+     CNH, quem começa segunda. Sem isso a empresa lê a lista inteira e
+     liga para descobrir. */
+  disponivel: boolean | null;
+  aceita_viajar: boolean | null;
+  fim_de_semana: boolean | null;
+  inicio_imediato: boolean | null;
+  cnh: boolean | null;
+  disponibilidade: string[] | null;
 };
+
+/** Os filtros de sim/não da folha. A chave é a que vai para a URL. */
+const FILTROS_SIM = [
+  { chave: "d", campo: "disponivel", nome: "Disponível agora" },
+  { chave: "i", campo: "inicio_imediato", nome: "Começa imediato" },
+  { chave: "f", campo: "fim_de_semana", nome: "Trabalha fim de semana" },
+  { chave: "v", campo: "aceita_viajar", nome: "Aceita viajar" },
+  { chave: "c", campo: "cnh", nome: "Tem CNH" },
+] as const;
 
 /**
  * Quem está disponível na cidade.
@@ -103,7 +128,7 @@ export function ProfissionaisPage() {
   const filtro = params.get("q") ?? "";
   const oficio = params.get("f");
 
-  function mudarParams(mudanca: { q?: string; f?: string | null }) {
+  function mudarParams(mudanca: Record<string, string | null | undefined>) {
     const novo = new URLSearchParams(params);
     for (const [chave, valor] of Object.entries(mudanca)) {
       if (valor) novo.set(chave, valor);
@@ -116,6 +141,20 @@ export function ProfissionaisPage() {
 
   const setFiltro = (v: string) => mudarParams({ q: v });
   const setOficio = (v: string | null) => mudarParams({ f: v });
+
+  /* ── A FOLHA DE FILTROS ─────────────────────────────────────────────
+     Os filtros de sim/não e o bairro moram numa folha, e não soltos na
+     tela. São seis, e seis fileiras de botões acima da lista empurrariam
+     as pessoas para a terceira dobra — numa tela cujo assunto É a lista.
+
+     O que fica visível é o que se usa a toda hora: a busca e os ofícios.
+     O resto abre num toque, e o botão diz quantos estão ligados, para
+     ninguém ficar com um filtro esquecido e uma tela vazia sem entender
+     por quê — que é o jeito mais comum de um filtro estragar uma busca. */
+  const [folhaAberta, setFolhaAberta] = useState(false);
+  const bairro = params.get("b");
+  const ligados = FILTROS_SIM.filter((f) => params.get(f.chave) === "1");
+  const quantosFiltros = ligados.length + (bairro ? 1 : 0);
 
   useEffect(() => {
     const sb = supabase();
@@ -130,7 +169,15 @@ export function ProfissionaisPage() {
     lerTudo<Disponivel>(() =>
       sb
         .from("professionals_public")
-        .select("id, name, photo_url, areas_de_interesse, especialidade, neighborhood")
+        /* A lista de colunas é UMA string literal, e não uma soma de
+           pedaços: o supabase-js lê o texto dela para saber o formato da
+           resposta, e uma concatenação vira `string` — a conferência de
+           tipos passa a não reconhecer nenhuma coluna.
+
+           E é escrita à mão, uma por uma: coluna nova que ninguém
+           acrescente aqui chega indefinida, sem erro para avisar, e o
+           filtro dela passa a não achar ninguém. */
+        .select("id, name, photo_url, areas_de_interesse, especialidade, neighborhood, disponivel, aceita_viajar, fim_de_semana, inicio_imediato, cnh, disponibilidade")
         .eq("city", DEFAULT_CITY)
         .eq("uf", DEFAULT_UF)
         /* ── SÓ QUEM FEZ O CADASTRO DO EI ITABIRITO ────────────────────
@@ -184,17 +231,43 @@ export function ProfissionaisPage() {
       .map(([f]) => f);
   }, [lista]);
 
+  /* Os bairros saem do que existe de verdade na lista, e não de uma
+     lista fixa da cidade: um filtro "Praia" numa cidade sem praia é um
+     botão que só sabe devolver tela vazia. */
+  const bairros = useMemo(() => {
+    const conta = new Map<string, number>();
+    for (const p of lista) {
+      const b = p.neighborhood?.trim();
+      if (b) conta.set(b, (conta.get(b) ?? 0) + 1);
+    }
+    return [...conta.entries()]
+      .sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0], "pt-BR"))
+      .map(([b]) => b);
+  }, [lista]);
+
   const visiveis = useMemo(() => {
     const t = filtro.trim().toLocaleLowerCase("pt-BR");
     return lista.filter((p) => {
       if (oficio && !(p.areas_de_interesse ?? []).includes(oficio)) return false;
+      if (bairro && p.neighborhood?.trim() !== bairro) return false;
+
+      /* Cada filtro ligado exige um SIM. `null` (a coluna que a pessoa
+         nunca respondeu) NÃO passa: quem procura "tem CNH" está
+         perguntando quem TEM, e devolver quem não disse seria devolver
+         uma lista que não responde a pergunta. É o contrário da regra da
+         compatibilidade das vagas — lá o silêncio não pune ninguém,
+         porque lá ninguém está filtrando. */
+      for (const f of ligados) {
+        if (p[f.campo] !== true) return false;
+      }
+
       if (!t) return true;
       return (
         p.name.toLocaleLowerCase("pt-BR").includes(t) ||
         (p.areas_de_interesse ?? []).some((f) => f.toLocaleLowerCase("pt-BR").includes(t))
       );
     });
-  }, [lista, filtro, oficio]);
+  }, [lista, filtro, oficio, bairro, ligados]);
 
   return (
     <div className="ei">
@@ -219,6 +292,38 @@ export function ProfissionaisPage() {
               onClick={() => setFiltro("")}
             >
               ✕
+            </button>
+          )}
+        </div>
+
+        {/* O botão da folha, logo abaixo da busca. Leva o número de
+            filtros ligados: sem ele, quem esquece um filtro marcado vê
+            uma tela vazia e conclui que não há ninguém na cidade. */}
+        <div className="ei-margem ei-linha-filtros">
+          <button
+            type="button"
+            className={quantosFiltros ? "ei-chip ei-chip-filtro ativo" : "ei-chip ei-chip-filtro"}
+            aria-pressed={quantosFiltros > 0}
+            onClick={() => setFolhaAberta(true)}
+          >
+            <IconeFiltro />
+            Filtros
+            {quantosFiltros > 0 && <span className="ei-chip-conta">{quantosFiltros}</span>}
+          </button>
+          {quantosFiltros > 0 && (
+            <button
+              type="button"
+              className="ei-btn-inline"
+              onClick={() =>
+                mudarParams(
+                  Object.fromEntries([
+                    ...FILTROS_SIM.map((f) => [f.chave, null]),
+                    ["b", null],
+                  ])
+                )
+              }
+            >
+              Limpar
             </button>
           )}
         </div>
@@ -333,6 +438,62 @@ export function ProfissionaisPage() {
           </div>
         )}
 
+        {folhaAberta && (
+          <BottomSheet
+            title="Filtrar"
+            subtitle="Some quem não responde ao que você marcar."
+            onClose={() => setFolhaAberta(false)}
+          >
+            <div className="ei-filtros-folha">
+              {FILTROS_SIM.map((f) => {
+                const ligado = params.get(f.chave) === "1";
+                return (
+                  <label key={f.chave} className="ei-caixa ei-caixa-larga">
+                    <input
+                      type="checkbox"
+                      checked={ligado}
+                      onChange={() => mudarParams({ [f.chave]: ligado ? null : "1" })}
+                    />
+                    <span>{f.nome}</span>
+                  </label>
+                );
+              })}
+
+              {/* O bairro só aparece com mais de um: numa cidade em que
+                  todo mundo cadastrado mora no Centro, ele seria um botão
+                  que não filtra nada. */}
+              {bairros.length > 1 && (
+                <div className="ei-campo" style={{ marginTop: 6 }}>
+                  <label htmlFor="filtro-bairro">Bairro</label>
+                  <select
+                    id="filtro-bairro"
+                    value={bairro ?? ""}
+                    onChange={(e) => mudarParams({ b: e.target.value || null })}
+                  >
+                    <option value="">Qualquer bairro</option>
+                    {bairros.map((b) => (
+                      <option key={b} value={b}>
+                        {b}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              )}
+            </div>
+
+            {/* O botão diz QUANTAS pessoas sobraram, e não só "aplicar":
+                é a resposta que a pessoa foi buscar ao abrir a folha, e
+                dá-la aqui evita fechar, olhar, e abrir de novo. */}
+            <button
+              type="button"
+              className="ei-btn ei-btn-cheio ei-btn-largo ei-btn-alto"
+              style={{ marginTop: 16 }}
+              onClick={() => setFolhaAberta(false)}
+            >
+              Ver {visiveis.length} {visiveis.length === 1 ? "pessoa" : "pessoas"}
+            </button>
+          </BottomSheet>
+        )}
       </div>
     </div>
   );
@@ -388,6 +549,15 @@ function IconeLupa({ grande = false }: { grande?: boolean }) {
     >
       <circle cx="10.5" cy="10.5" r="6.5" />
       <path d="M15.5 15.5L21 21" />
+    </svg>
+  );
+}
+
+function IconeFiltro() {
+  return (
+    <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor"
+         strokeWidth="2" strokeLinecap="round" aria-hidden="true">
+      <path d="M3.5 6h17M6.5 12h11M10 18h4" />
     </svg>
   );
 }
