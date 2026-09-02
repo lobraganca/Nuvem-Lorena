@@ -2554,21 +2554,21 @@
    Grade de dois, com o "+" ocupando um lugar igual aos outros — foi como a
    dona desenhou ("pode ter um botão ao lado do card escrito +"). Do mesmo
    tamanho de propósito: menor, ele lê como enfeite e ninguém toca. */
+/* UM CARTÃO POR LINHA — 02/09
+   ───────────────────────────
+   Eram dois por linha. Com as métricas dentro ("as métricas das vagas
+   ficam dentro desse card"), meia largura de celular põe "3 de 1 vagas no
+   ar" em quatro linhas de duas palavras. A empresa é uma escolha de duas
+   ou três, não uma vitrine: caber mais por tela não vale nada aqui. */
 .ei-empresas {
   display: grid;
-  grid-template-columns: repeat(2, 1fr);
+  grid-template-columns: 1fr;
   gap: 10px;
   /* 20px, o mesmo da `.ei-margem` — a fileira precisa alinhar com o
      título e com o texto de apoio logo acima dela. */
   padding: 0 20px;
   margin-top: 12px;
 }
-@media (max-width: 340px) {
-  /* Em tela muito estreita dois cartões deixam o nome da empresa em duas
-     letras por linha. Um por linha continua legível. */
-  .ei-empresas { grid-template-columns: 1fr; }
-}
-
 .ei-empresa-cartao {
   display: flex;
   flex-direction: column;
@@ -3138,3 +3138,42 @@
   box-shadow: 0 1px 2px rgba(0, 0, 0, 0.08);
 }
 .ei .ei-ambiente-botao:disabled { opacity: 0.6; cursor: default; }
+
+/* ═══════════════════════════════════════════════════════════════════════
+   AS MÉTRICAS DENTRO DO CARTÃO DA EMPRESA — 02/09
+   ═══════════════════════════════════════════════════════════════════════
+   "As métricas das vagas ficam dentro desse card."
+
+   Duas colunas dentro do cartão, com o número grande em cima do rótulo:
+   é o mesmo desenho que o painel já usava, e repetir a forma faz a pessoa
+   reconhecer o número sem ler o rótulo.
+
+   `border-top` e não um bloco cinza: a métrica é rodapé do cartão, não
+   uma caixa dentro de outra caixa. */
+.ei-empresa-metricas {
+  display: flex;
+  gap: 18px;
+  width: 100%;
+  margin-top: 10px;
+  padding-top: 10px;
+  border-top: 1px solid var(--ei-fio);
+}
+
+.ei-empresa-metrica {
+  display: flex;
+  flex-direction: column;
+  /* `min-width: 0` para o rótulo longo quebrar dentro da coluna em vez de
+     empurrar o cartão para fora da tela — foi o defeito que a varredura
+     achou em duas telas de uma vez. */
+  min-width: 0;
+  font-size: 0.74rem;
+  line-height: 1.25;
+  color: var(--ei-tinta-fraca);
+  overflow-wrap: anywhere;
+}
+.ei-empresa-metrica strong {
+  font-size: 1.25rem;
+  font-weight: 700;
+  line-height: 1.15;
+  color: var(--ei-tinta);
+}

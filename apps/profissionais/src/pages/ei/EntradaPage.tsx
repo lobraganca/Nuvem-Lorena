@@ -232,9 +232,12 @@ export function EntradaPage() {
           <div className="ei-portas">
             {tipo === "company" ? (
               <>
-                <Link to="/painel-empresa" className="ei-porta ei-porta-cheia">
-                  <span className="ei-porta-nome">Minhas vagas</span>
-                  <span className="ei-porta-nota">Publicar, acompanhar e ver quem respondeu</span>
+                {/* Vai para a escolha da empresa, e não para o painel de
+                    uma delas: quem tem duas lojas escolhe qual abrir, e
+                    quem tem uma vê ali o "+" para cadastrar a segunda. */}
+                <Link to="/minhas-empresas" className="ei-porta ei-porta-cheia">
+                  <span className="ei-porta-nome">Minhas empresas</span>
+                  <span className="ei-porta-nota">Escolha a empresa e veja as vagas dela</span>
                 </Link>
                 {/* O laranja da logo, e só aqui.
                     ───────────────────────────────

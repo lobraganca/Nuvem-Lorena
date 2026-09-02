@@ -169,8 +169,19 @@ function destinos(tipo: "professional" | "company" | false | null, temConta: boo
       voltar,
       avisos,
       talentos,
-      { to: "/painel-empresa", label: "Painel", icone: IconePredio,
-        casa: (p) => p.startsWith("/painel-empresa") || p.startsWith("/vaga") ||
+      /* "Painel" abre a ESCOLHA DA EMPRESA, e não o painel de uma delas.
+         ─────────────────────────────────────────────────────────────────
+         A dona pediu três vezes a tela de cartões das empresas, e três
+         vezes ela existiu sem ser alcançada: quem toca em "Painel" caía
+         direto no painel de uma empresa, e a tela de escolha só aparecia
+         para quem soubesse o endereço dela.
+
+         `/minhas-empresas` manda para o cadastro sozinha quando não há
+         empresa nenhuma, então quem está começando não vê uma escolha
+         vazia. */
+      { to: "/minhas-empresas", label: "Painel", icone: IconePredio,
+        casa: (p) => p.startsWith("/minhas-empresas") ||
+          p.startsWith("/painel-empresa") || p.startsWith("/vaga") ||
           p.startsWith("/criar-vaga") || p.startsWith("/cadastro-empresa") ||
           p.startsWith("/planos-empresa") },
     ];

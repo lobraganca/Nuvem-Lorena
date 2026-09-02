@@ -116,6 +116,102 @@ export async function minhasEmpresas(ownerId: string): Promise<Company[]> {
   return (data ?? []) as Company[];
 }
 
+/**
+ * O resumo de cada empresa, para os cartões da tela de escolha.
+ *
+ * ── O PEDIDO ───────────────────────────────────────────────────────────
+ *
+ * A dona: "quero que tenha cards das empresas com foto e nome da empresa.
+ * E ao clicar na empresa desejada abre as vagas que a empresa tem
+ * disponível. As métricas das vagas ficam dentro desse card."
+ *
+ * Ou seja: quem tem duas lojas precisa ver, ANTES de entrar, qual delas
+ * tem gente esperando resposta. Sem isso a escolha é às cegas — abre uma,
+ * confere, volta, abre a outra.
+ *
+ * ── DUAS CONSULTAS PARA TODAS AS EMPRESAS, NÃO DUAS POR EMPRESA ───────
+ *
+ * Três lojas dariam seis idas ao banco no 4G da cidade, e esta é a
+ * primeira tela do lado da empresa — a que não pode demorar.
+ *
+ * `lerTudo` nas duas: a 0062 pôs teto de 200 linhas em TODA consulta, e
+ * contagem que bate no teto congela sem avisar. Já mordeu o total de
+ * pagamentos do painel administrativo.
+ *
+ * ── O LIMITE DO PLANO É CALCULADO AQUI, DE PROPÓSITO ──────────────────
+ *
+ * A conta é a mesma da função `limite_de_vagas_do_plano` no banco, copiada
+ * porque perguntar ao banco custaria uma chamada POR EMPRESA — e a
+ * resposta viria da mesma linha de `companies` que esta tela já tem em
+ * mãos. Se a regra mudar lá, muda aqui.
+ *
+ * Erro SOBE. Cartão dizendo "0 interessados" numa loja com gente esperando
+ * é pior que cartão sem número nenhum: o primeiro faz desistir.
+ */
+export type ResumoDaEmpresa = {
+  abertas: number;
+  limite: number;
+  interessados: number;
+};
+
+export async function resumoDasEmpresas(
+  empresas: Company[]
+): Promise<Map<string, ResumoDaEmpresa>> {
+  const mapa = new Map<string, ResumoDaEmpresa>();
+  if (empresas.length === 0) return mapa;
+
+  const sb = getSupabase();
+  if (!sb) return mapa;
+
+  const ids = empresas.map((e) => e.id);
+  const agora = Date.now();
+
+  for (const e of empresas) {
+    const vencido = !e.plano_ate || new Date(e.plano_ate).getTime() < agora;
+    const limite = vencido
+      ? 0
+      : e.plano === "pro"
+        ? 1
+        : e.plano === "tres"
+          ? 3
+          : e.plano === "ilimitado"
+            ? -1
+            : 0;
+    mapa.set(e.id, { abertas: 0, limite, interessados: 0 });
+  }
+
+  const vagas = await lerTudo<{ id: string; company_id: string; status: string }>(() =>
+    sb.from("job_listings").select("id, company_id, status").in("company_id", ids)
+  );
+
+  const abertas = vagas.filter((v) => v.status === "active");
+  for (const v of abertas) {
+    const r = mapa.get(v.company_id);
+    if (r) r.abertas += 1;
+  }
+
+  /* Interessados só das vagas NO AR: quem respondeu uma vaga já fechada
+     não está esperando telefonema, e contá-lo faria o cartão prometer
+     gente que não existe mais. */
+  if (abertas.length > 0) {
+    const deQuemEAVaga = new Map(abertas.map((v) => [v.id, v.company_id]));
+    const respostas = await lerTudo<{ job_listing_id: string }>(() =>
+      sb
+        .from("job_responses")
+        .select("job_listing_id")
+        .in("job_listing_id", [...deQuemEAVaga.keys()])
+        .eq("interessado", true)
+    );
+    for (const r of respostas) {
+      const dono = deQuemEAVaga.get(r.job_listing_id);
+      const resumo = dono ? mapa.get(dono) : undefined;
+      if (resumo) resumo.interessados += 1;
+    }
+  }
+
+  return mapa;
+}
+
 /** Qual empresa está aberta agora, ou `null` se ainda não escolheu. */
 export function idDaEmpresaEscolhida(): string | null {
   try {

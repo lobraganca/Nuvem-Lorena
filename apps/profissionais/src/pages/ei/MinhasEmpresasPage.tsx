@@ -3,7 +3,13 @@ import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../../lib/useAuth";
 import { useTituloDaPagina } from "../../lib/tituloDaPagina";
 import { mensagemDeErro } from "../../lib/erros";
-import { minhasEmpresas, escolherEmpresa, idDaEmpresaEscolhida } from "../../lib/company";
+import {
+  minhasEmpresas,
+  escolherEmpresa,
+  idDaEmpresaEscolhida,
+  resumoDasEmpresas,
+  type ResumoDaEmpresa,
+} from "../../lib/company";
 import type { Company } from "../../types/domain";
 import { Pagina } from "../../components/ei/Pagina";
 import { AvisoPerfilIncompleto } from "../../components/ei/AvisoPerfilIncompleto";
@@ -45,6 +51,10 @@ export function MinhasEmpresasPage() {
   const { user, loading } = useAuth();
 
   const [lista, setLista] = useState<Company[] | null>(null);
+  /* As métricas chegam DEPOIS dos cartões, numa segunda consulta. Esperar
+     as duas para desenhar deixaria a tela em branco enquanto o banco conta
+     respostas — e o nome da empresa é o que a pessoa veio ver. */
+  const [resumos, setResumos] = useState<Map<string, ResumoDaEmpresa> | null>(null);
   const [erro, setErro] = useState("");
 
   /* Qual está aberta AGORA. Sem nada guardado, é a primeira — que é
@@ -86,6 +96,18 @@ export function MinhasEmpresasPage() {
            escolha nem "+" que faça sentido, e o cadastro é o único caminho
            possível. */
         setLista(empresas);
+
+        /* Sem `await` na mesma corrente, pelo mesmo motivo: os cartões
+           aparecem já, e os números entram quando chegarem. */
+        resumoDasEmpresas(empresas)
+          .then((r) => {
+            if (vivo) setResumos(r);
+          })
+          .catch(() => {
+            /* Números que não vieram simplesmente não aparecem. Mostrar
+               "0 interessados" numa loja com gente esperando é pior que
+               não mostrar nada: o zero faz desistir de entrar. */
+          });
       })
       .catch((err) => {
         /* Erro NÃO vira "você não tem empresa": esse caminho manda quem
@@ -151,6 +173,15 @@ export function MinhasEmpresasPage() {
                   item 4 e no 6. Sem a marca, a pessoa com duas lojas não
                   tem como saber em qual publicou a vaga. */}
               {e.id === escolhida && <span className="ei-empresa-aberta-selo">Aberta agora</span>}
+
+              {/* AS MÉTRICAS DENTRO DO CARTÃO — 02/09
+                  "As métricas das vagas ficam dentro desse card."
+
+                  Quem tem duas lojas precisa ver, sem entrar em nenhuma,
+                  qual delas tem gente esperando resposta. Antes esses
+                  números só existiam depois de abrir o painel: abria uma,
+                  conferia, voltava, abria a outra. */}
+              <Metricas resumo={resumos?.get(e.id)} />
             </button>
           ))}
 
@@ -198,6 +229,44 @@ function Logo({ foto, nome }: { foto: string | null; nome: string }) {
       ) : (
         inicial
       )}
+    </span>
+  );
+}
+
+/**
+ * Os dois números do cartão: quem está esperando e quantas vagas estão no ar.
+ *
+ * Enquanto a consulta não volta, o espaço fica reservado com um traço em
+ * vez de "0" — um zero que depois vira 4 é uma mentira curta, e é
+ * justamente a que faz a pessoa não entrar na loja que tem gente
+ * esperando.
+ */
+function Metricas({ resumo }: { resumo: ResumoDaEmpresa | undefined }) {
+  const nada = "—";
+  /* Três casos, e cada um por um motivo:
+       · `-1` é o plano sem teto (Multi) — escrever "3 de -1" seria o
+         número mágico vazando para a tela;
+       · `0` é NÃO TER plano. "0 de 0" lê como defeito; sem plano o que
+         existe é o número de vagas, e o convite a assinar está no painel;
+       · o resto mostra quanto ainda cabe, que é o que decide se dá para
+         publicar mais uma. */
+  const cabe =
+    resumo === undefined
+      ? nada
+      : resumo.limite <= 0
+        ? `${resumo.abertas}`
+        : `${resumo.abertas} de ${resumo.limite}`;
+
+  return (
+    <span className="ei-empresa-metricas">
+      <span className="ei-empresa-metrica">
+        <strong>{resumo === undefined ? nada : resumo.interessados}</strong>
+        {resumo?.interessados === 1 ? "pessoa interessada" : "pessoas interessadas"}
+      </span>
+      <span className="ei-empresa-metrica">
+        <strong>{cabe}</strong>
+        {resumo?.abertas === 1 ? "vaga no ar" : "vagas no ar"}
+      </span>
     </span>
   );
 }

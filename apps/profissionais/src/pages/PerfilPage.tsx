@@ -374,7 +374,7 @@ export function PerfilPage() {
                    barra de baixo e as telas leem o tipo uma vez, na
                    abertura, e uma navegação comum deixaria metade do app
                    mostrando o lado antigo. */
-                window.location.href = outro === "company" ? "/painel-empresa" : "/painel";
+                window.location.href = outro === "company" ? "/minhas-empresas" : "/painel";
               } catch (err) {
                 setError(mensagemDeErro(err, "Não consegui trocar de lado."));
                 setTrocando(false);
