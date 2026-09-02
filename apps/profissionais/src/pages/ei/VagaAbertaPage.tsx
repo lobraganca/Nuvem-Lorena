@@ -270,6 +270,65 @@ export function VagaAbertaPage() {
             {vaga.required_experience || "Não precisa de experiência"}
           </Prop>
 
+          {/* ── O QUE A VAGA PASSOU A DIZER (item 15, colunas da 0105) ──
+              Cada linha só aparece quando tem resposta. Uma ficha cheia de
+              "não informado" não informa mais do que uma ficha curta — só
+              faz a empresa parecer descuidada, e a lista, mais longa de
+              ler.
+
+              A exceção continua sendo o SALÁRIO, lá em cima: ausente ele
+              aparece dizendo que está ausente, porque escondê-lo não o
+              torna menos ausente, só torna a vaga mais suspeita. */}
+          {vaga.quantidade_vagas > 1 && (
+            <Prop rotulo="Vagas">{vaga.quantidade_vagas} vagas abertas</Prop>
+          )}
+
+          {vaga.horario && <Prop rotulo="Que horas">{vaga.horario}</Prop>}
+          {vaga.escala && <Prop rotulo="Escala">{vaga.escala}</Prop>}
+
+          {vaga.data_inicio && (
+            <Prop rotulo="Começa em">
+              {new Date(`${vaga.data_inicio}T12:00:00`).toLocaleDateString("pt-BR")}
+            </Prop>
+          )}
+
+          {/* O prazo é o que faz a pessoa responder HOJE em vez de deixar
+              para depois — e "depois" é como se perde uma vaga. */}
+          {vaga.prazo_candidatura && (
+            <Prop rotulo="Responder até">
+              {new Date(`${vaga.prazo_candidatura}T12:00:00`).toLocaleDateString("pt-BR")}
+            </Prop>
+          )}
+
+          {vaga.comissao && <Prop rotulo="Comissão">{vaga.comissao}</Prop>}
+
+          {vaga.escolaridade_minima && (
+            <Prop rotulo="Escolaridade">{nomeDaEscolaridade(vaga.escolaridade_minima)}</Prop>
+          )}
+          {vaga.curso_especifico && <Prop rotulo="Curso">{vaga.curso_especifico}</Prop>}
+
+          {vaga.cnh_exigida && (
+            <Prop rotulo="CNH">
+              {vaga.cnh_categorias.length > 0
+                ? `Categoria ${vaga.cnh_categorias.join(", ")}`
+                : "Precisa ter"}
+            </Prop>
+          )}
+
+          {vaga.exige_viagem && <Prop rotulo="Viagem">A vaga exige viajar</Prop>}
+
+          {vaga.idiomas?.length > 0 && (
+            <Prop rotulo="Idiomas">{vaga.idiomas.join(", ")}</Prop>
+          )}
+
+          {/* Só aparece quando a empresa FECHOU: aceitar candidato de fora
+              é o padrão, e anunciar o padrão enche a ficha sem dizer nada.
+              Fechado, porém, é informação que muda a decisão de quem mora
+              em Ouro Preto. */}
+          {vaga.aceita_outras_cidades === false && (
+            <Prop rotulo="De onde">Só quem mora em {vaga.city}</Prop>
+          )}
+
           {/* Os benefícios entram como especificação, e não numa seção
               solta lá embaixo: quem lê esta lista está comparando vagas, e
               vale-transporte pertence à mesma comparação que o salário. */}
@@ -284,7 +343,26 @@ export function VagaAbertaPage() {
               </span>
             </Prop>
           )}
+
+          {vaga.outros_beneficios && (
+            <Prop rotulo="Também oferece">{vaga.outros_beneficios}</Prop>
+          )}
         </div>
+
+        {/* As informações complementares vêm DEPOIS da ficha, e como
+            parágrafo: é texto corrido escrito pela empresa, e espremê-lo
+            numa linha de "rótulo à esquerda, valor à direita" cortaria a
+            frase no meio. */}
+        {vaga.observacoes?.trim() && (
+          <>
+            <div className="ei-secao">
+              <h2>Mais sobre a vaga</h2>
+            </div>
+            <p className="ei-corpo ei-margem" style={{ whiteSpace: "pre-line" }}>
+              {vaga.observacoes}
+            </p>
+          </>
+        )}
 
         {erro && (
           <p className="ei-campo-erro ei-margem" style={{ marginTop: 16 }} role="alert">
@@ -349,4 +427,25 @@ export function VagaAbertaPage() {
       </div>
     </div>
   );
+}
+
+/**
+ * "medio" vira "Ensino médio".
+ *
+ * O banco guarda o valor curto porque é ele que se compara com a formação
+ * do candidato (0104 e 0105); a tela mostra a palavra que a pessoa usa.
+ * Um valor desconhecido volta como veio — melhor mostrar "tecnico" torto
+ * do que sumir com a exigência da vaga.
+ */
+function nomeDaEscolaridade(v: string): string {
+  const nomes: Record<string, string> = {
+    fundamental: "Ensino fundamental",
+    medio: "Ensino médio",
+    tecnico: "Técnico",
+    superior: "Superior",
+    pos: "Pós-graduação",
+    mestrado: "Mestrado",
+    doutorado: "Doutorado",
+  };
+  return nomes[v] ?? v;
 }

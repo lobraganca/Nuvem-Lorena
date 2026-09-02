@@ -241,10 +241,19 @@ export function BancoDeVagasPage() {
                   ) : (
                     v.compatibilidade !== null && (
                       <div className={`ei-compat ei-uma-linha ${classeDaCompat(v.compatibilidade)}`}>
-                        {rotuloDaCompat(v.compatibilidade)}
+                        {/* A empresa marcou que NÃO aceita quem não bate
+                            (item 16, 0105). A pessoa fica sabendo AQUI, e
+                            não depois de responder e nunca receber
+                            retorno — que é a única forma pior de não ser
+                            chamada. */}
+                        {!v.vaga.aceita_sem_compatibilidade && v.compatibilidade < 75
+                          ? "Esta empresa só chama quem bate com o pedido"
+                          : rotuloDaCompat(v.compatibilidade)}
                         {/* Só o primeiro motivo: dois estouram a linha, e o segundo
                             nunca é o que decide. */}
-                        {v.porque.length > 0 && ` · ${v.porque[0]}`}
+                        {v.vaga.aceita_sem_compatibilidade !== false &&
+                          v.porque.length > 0 &&
+                          ` · ${v.porque[0]}`}
                       </div>
                     )
                   )}

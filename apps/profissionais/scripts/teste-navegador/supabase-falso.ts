@@ -226,6 +226,26 @@ const VAGAS: Linha[] = [
      exatamente a informação que decide se alguém responde. É o mesmo
      aninhamento que `job_notifications` já fazia. */
   companies: { company_name: "Padaria Pão de Minas", photo_url: fotoFalsa(2) },
+  /* As colunas da 0105. Sem elas a tela da vaga aberta esconde justamente
+     as linhas novas, e o teste diria que está tudo certo por não ter o que
+     mostrar. */
+  quantidade_vagas: i === 0 ? 2 : 1,
+  data_inicio: "2026-10-01",
+  prazo_candidatura: "2026-09-20",
+  horario: "8h às 17h",
+  escala: i === 0 ? "6x1" : null,
+  aceita_outras_cidades: i !== 1,
+  comissao: i === 2 ? "R$ 50 por entrega" : null,
+  outros_beneficios: i === 0 ? "Café da manhã" : null,
+  escolaridade_minima: i === 1 ? "medio" : null,
+  curso_especifico: i === 0 ? "NR-35" : null,
+  cnh_exigida: i === 2,
+  cnh_categorias: i === 2 ? ["B"] : [],
+  exige_viagem: false,
+  idiomas: [],
+  observacoes: i === 0 ? "Ferramenta é por conta da obra." : null,
+  campos_compatibilidade: i === 0 ? ["profissao", "cidade", "cnh"] : [],
+  aceita_sem_compatibilidade: i !== 1,
   ...v,
 }));
 

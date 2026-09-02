@@ -2687,3 +2687,31 @@
   margin: 0;
   flex: 0 0 auto;
 }
+
+/* ── Uma linha com um campo e o botão de tirar ──────────────────────────
+   Usada nos telefones extras e nas competências. Sem ela o botão "Tirar"
+   ia para a linha de baixo, e a lista de três telefones virava seis
+   linhas — metade delas com uma palavra só. */
+.ei .ei-linha-com-tirar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+.ei .ei-linha-com-tirar input { flex: 1 1 auto; }
+
+/* A competência: nome, nível e o botão de tirar, na mesma linha.
+   O nível é um `select` estreito de propósito — os três valores cabem, e
+   dar a ele a mesma largura do nome faria "Básico" ocupar meia tela. */
+.ei .ei-competencia {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.ei .ei-competencia input { flex: 1 1 auto; min-width: 0; }
+.ei .ei-competencia select { flex: 0 0 auto; width: 132px; }
+@media (max-width: 380px) {
+  /* Em tela estreita os três não cabem: o nome fica sozinho em cima. */
+  .ei .ei-competencia { flex-wrap: wrap; }
+  .ei .ei-competencia input { flex: 1 1 100%; }
+}

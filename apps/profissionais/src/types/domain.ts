@@ -83,6 +83,25 @@ export interface Professional {
   pretensao_combinar: boolean;
   disponibilidade: string[];
   aceita_viajar: boolean;
+  /* ── QUEM A PESSOA É (migration 0103) ─────────────────────────────
+     `data_nascimento` NÃO sai na view pública: ela devolve `idade`. A
+     empresa precisa saber se a pessoa tem 17 (muda jornada e
+     aprendizagem) ou 58; não precisa do dia do aniversário de ninguém.
+
+     `cnh` e `cnh_categorias` são separados porque "não tem" e "tem, mas
+     não disse qual" são respostas diferentes — num campo só virariam o
+     mesmo vazio, e metade das vagas de entrega da cidade começa por essa
+     pergunta.
+
+     `telefones_extra` são números digitados à mão, SEM confirmação. O
+     `phone` continua sendo o único provado por SMS. */
+  data_nascimento: string | null;
+  cnh: boolean;
+  cnh_categorias: string[];
+  telefones_extra: string[];
+  modo_trabalho: string | null;
+  fim_de_semana: boolean;
+  inicio_imediato: boolean;
   suspended: boolean; // tirado do ar pelo painel admin (denúncia procedente ou violação das regras)
   suspended_reason: string | null;
   contact_mode: ContactMode; // "whatsapp_livre" (grátis) ou "pay_per_lead" (cobra crédito por contato)
@@ -958,7 +977,83 @@ export interface JobListing {
   /** "A combinar" é uma resposta escrita, e é diferente de campo em branco:
       em branco some da tela e vira indistinguível de esquecimento. */
   salario_a_combinar: boolean;
+
+  /* ── A VAGA INTEIRA (migration 0105) ───────────────────────────────
+     Os seis temas que a dona listou no item 15. Cada campo existe porque
+     é uma pergunta que hoje só se responde no telefonema:
+
+     `horario` e `escala` são TEXTO livre, e não listas: `jornada` já
+     classifica em integral/meio período/turnos; aqui é o "8h às 18h, de
+     segunda a sexta" e o "12x36" que ninguém consegue escolher numa
+     lista. Fechada, ela faria a empresa marcar a opção mais parecida — e
+     o candidato descobrir a verdade depois.
+
+     `comissao` também é texto: "5% sobre a venda" e "R$ 50 por entrega"
+     não cabem no mesmo número, e é assim que se fala de comissão aqui.
+
+     `cnh_exigida`, `exige_viagem` e `escolaridade_minima` espelham as
+     colunas que o candidato ganhou na 0103 e 0104. Espelhar não é
+     enfeite: é o que permite a comparação sair de uma conta, e não de
+     leitura humana. */
+  quantidade_vagas: number;
+  data_inicio: string | null;
+  prazo_candidatura: string | null;
+  horario: string | null;
+  escala: string | null;
+  aceita_outras_cidades: boolean;
+  comissao: string | null;
+  /** O "Outros" ao lado de VT, VA e planos — que são marcações e moram
+      em `beneficios`. Este é a linha escrita. */
+  outros_beneficios: string | null;
+  escolaridade_minima: string | null;
+  curso_especifico: string | null;
+  cnh_exigida: boolean;
+  cnh_categorias: string[];
+  exige_viagem: boolean;
+  idiomas: string[];
+  observacoes: string | null;
+
+  /* ── O QUE PESA NA COMPATIBILIDADE (item 16) ───────────────────────
+     Os NOMES dos campos que a empresa marcou como o que importa nesta
+     vaga. Não é um peso por campo, e não é por acaso: pedir "quanto vale
+     cada um, de 0 a 10" é um formulário que ninguém termina, e a
+     resposta seria inventada de qualquer jeito.
+
+     Lista VAZIA tem significado próprio — a empresa não quis escolher, e
+     aí vale a comparação padrão (função e cidade). É diferente de uma
+     lista com um item só. */
+  campos_compatibilidade: string[];
+  /** Aceita candidatura de quem não bate com os campos marcados. Padrão
+      SIM: a compatibilidade é um palpite sobre texto, e barrar por ele
+      descarta justamente quem não se descreveu direito. */
+  aceita_sem_compatibilidade: boolean;
 }
+
+/**
+ * Os campos que a empresa pode marcar como o que pesa na compatibilidade.
+ *
+ * A lista é a MESMA do `check` da 0105. Se as duas discordarem, a tela
+ * oferece uma marcação que o banco recusa — e a recusa chega como texto
+ * técnico, na hora de publicar, sem dizer qual caixinha causou.
+ */
+export const CAMPOS_DE_COMPATIBILIDADE: { valor: string; nome: string }[] = [
+  { valor: "profissao", nome: "A função" },
+  { valor: "especialidade", nome: "A especialidade" },
+  { valor: "cidade", nome: "Morar na cidade" },
+  { valor: "modo_trabalho", nome: "Presencial, remoto ou híbrido" },
+  { valor: "jornada", nome: "O horário" },
+  { valor: "escolaridade", nome: "A escolaridade" },
+  { valor: "curso", nome: "O curso específico" },
+  { valor: "experiencia", nome: "A experiência" },
+  { valor: "competencias", nome: "As competências" },
+  { valor: "cnh", nome: "Ter CNH" },
+  { valor: "viagem", nome: "Aceitar viajar" },
+  { valor: "idiomas", nome: "Os idiomas" },
+  { valor: "disponibilidade", nome: "Os horários que a pessoa pode" },
+  { valor: "pretensao", nome: "A pretensão de salário" },
+  { valor: "inicio_imediato", nome: "Poder começar imediato" },
+  { valor: "fim_de_semana", nome: "Trabalhar fim de semana" },
+];
 
 export type TipoContrato =
   | "clt"

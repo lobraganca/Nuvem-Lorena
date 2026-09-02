@@ -58,9 +58,50 @@ export type MeuPerfil = {
   pretensaoCombinar: boolean;
   disponibilidade: string[];
   aceitaViajar: boolean;
+
+  /* ── QUEM A PESSOA É (0103) ────────────────────────────────────────
+     A dona, no item 14: "data de nascimento / possui CNH? qual
+     categoria? / telefones / trabalha em final de semana? /
+     disponibilidade pra começar imediato? / modo de trabalho".
+
+     `nascimento` fica como TEXTO no formato do campo de data do
+     navegador (aaaa-mm-dd), e vira `null` quando vazio. Guardar `Date`
+     no estado obrigaria a converter a cada tecla, e é assim que se perde
+     o dia que a pessoa acabou de digitar.
+
+     A tela NUNCA mostra a data de volta para quem contrata: a view
+     pública devolve só a idade. Ver a 0103. */
+  nascimento: string;
+  temCnh: boolean;
+  cnhCategorias: string[];
+  /** Outros números, digitados à mão. O `phone` é o confirmado por SMS. */
+  telefonesExtra: string[];
+  modoTrabalho: string;
+  fimDeSemana: boolean;
+  inicioImediato: boolean;
 };
 
-export type CursoEmEdicao = { nome: string; instituicao: string; ano: string };
+/**
+ * Uma linha de formação OU de curso complementar.
+ *
+ * As duas moram na mesma tabela desde a 0104, separadas pelo `tipo`: os
+ * campos que a dona pediu para as duas são os mesmos (instituição, curso,
+ * situação, ano), e só o rótulo da tela muda. Duas listas iguais lado a
+ * lado seriam duas telas que um dia divergem.
+ *
+ * `nivel` só existe na formação — um curso de NR-35 não tem escolaridade.
+ */
+export type CursoEmEdicao = {
+  nome: string;
+  instituicao: string;
+  ano: string;
+  tipo: "formacao" | "complementar";
+  situacao: string;
+  nivel: string;
+};
+
+/** Uma competência com o nível que a pessoa se dá. */
+export type CompetenciaEmEdicao = { nome: string; nivel: "basico" | "intermediario" | "avancado" };
 
 export const PERFIL_VAZIO: MeuPerfil = {
   id: null,
@@ -76,6 +117,13 @@ export const PERFIL_VAZIO: MeuPerfil = {
   pretensaoCombinar: false,
   disponibilidade: [],
   aceitaViajar: false,
+  nascimento: "",
+  temCnh: false,
+  cnhCategorias: [],
+  telefonesExtra: [],
+  modoTrabalho: "",
+  fimDeSemana: false,
+  inicioImediato: false,
 };
 
 /**
@@ -93,7 +141,13 @@ export async function lerMeuPerfil(ownerId: string): Promise<MeuPerfil | null> {
     .from("professionals")
     .select(
       "id, name, phone, email, neighborhood, areas_de_interesse, disponivel, paused, whatsapp_verified, " +
-      "pretensao_centavos, pretensao_combinar, disponibilidade, aceita_viajar"
+      "pretensao_centavos, pretensao_combinar, disponibilidade, aceita_viajar, " +
+      /* As sete da 0103. A lista é escrita à mão, uma a uma: coluna nova
+         que ninguém acrescente aqui chega como indefinida, sem erro
+         nenhum para avisar — e o campo aparece em branco na tela como se
+         a pessoa nunca o tivesse preenchido. */
+      "data_nascimento, cnh, cnh_categorias, telefones_extra, modo_trabalho, " +
+      "fim_de_semana, inicio_imediato"
     )
     .eq("owner_id", ownerId)
     /* `maybeSingle` e não `single`: quem ainda não tem cadastro é o caso
@@ -127,6 +181,17 @@ export async function lerMeuPerfil(ownerId: string): Promise<MeuPerfil | null> {
     pretensaoCombinar: linha.pretensao_combinar ?? false,
     disponibilidade: linha.disponibilidade ?? [],
     aceitaViajar: linha.aceita_viajar ?? false,
+    /* A data vem do banco como "1995-04-10", que é exatamente o formato
+       que o campo de data do navegador espera. Nulo vira string vazia —
+       `null` num input controlado faz o React reclamar e trocar o campo
+       para não controlado no meio da digitação. */
+    nascimento: linha.data_nascimento ?? "",
+    temCnh: linha.cnh ?? false,
+    cnhCategorias: linha.cnh_categorias ?? [],
+    telefonesExtra: linha.telefones_extra ?? [],
+    modoTrabalho: linha.modo_trabalho ?? "",
+    fimDeSemana: linha.fim_de_semana ?? false,
+    inicioImediato: linha.inicio_imediato ?? false,
   };
 }
 
@@ -178,6 +243,23 @@ export async function salvarMeuPerfil(
     pretensao_combinar: perfil.pretensaoCombinar,
     disponibilidade: perfil.disponibilidade,
     aceita_viajar: perfil.aceitaViajar,
+    /* Data vazia grava `null`, e não "": o Postgres recusa string vazia
+       numa coluna `date` com 22007, e o erro chega na tela como texto
+       técnico sem dizer qual campo o causou. */
+    data_nascimento: perfil.nascimento.trim() || null,
+    cnh: perfil.temCnh,
+    /* Sem CNH, a lista de categorias é apagada. Senão, quem marcou "B" e
+       depois desmarcou "tenho CNH" ficaria com uma categoria guardada de
+       uma habilitação que a pessoa acabou de dizer que não tem — e a
+       comparação com a vaga usaria isso. */
+    cnh_categorias: perfil.temCnh ? perfil.cnhCategorias : [],
+    telefones_extra: perfil.telefonesExtra
+      .map((t) => soDigitos(t))
+      .filter((t) => t.length >= 10)
+      .slice(0, 3),
+    modo_trabalho: perfil.modoTrabalho || null,
+    fim_de_semana: perfil.fimDeSemana,
+    inicio_imediato: perfil.inicioImediato,
     city: DEFAULT_CITY,
     uf: DEFAULT_UF,
   };
@@ -204,7 +286,7 @@ export async function lerCursos(professionalId: string): Promise<CursoEmEdicao[]
 
   const { data, error } = await sb
     .from("professional_courses")
-    .select("nome, instituicao, ano")
+    .select("nome, instituicao, ano, tipo, situacao, nivel")
     .eq("professional_id", professionalId)
     .order("ordem", { ascending: true });
 
@@ -213,7 +295,80 @@ export async function lerCursos(professionalId: string): Promise<CursoEmEdicao[]
     nome: String(c.nome ?? ""),
     instituicao: String(c.instituicao ?? ""),
     ano: String(c.ano ?? ""),
+    /* `?? "complementar"` porque a coluna nasceu com esse default na
+       0104: os cursos gravados ANTES dela não tinham tipo nenhum, e ler
+       isso como formação transformaria um curso de NR-35 em
+       escolaridade. */
+    tipo: (c.tipo === "formacao" ? "formacao" : "complementar") as "formacao" | "complementar",
+    situacao: String(c.situacao ?? ""),
+    nivel: String(c.nivel ?? ""),
   }));
+}
+
+/** As competências deste cadastro, na ordem que a pessoa escolheu. */
+export async function lerCompetencias(professionalId: string): Promise<CompetenciaEmEdicao[]> {
+  const sb = supabase();
+  if (!sb) return [];
+
+  const { data, error } = await sb
+    .from("professional_skills")
+    .select("nome, nivel")
+    .eq("professional_id", professionalId)
+    .order("ordem", { ascending: true });
+
+  /* Erro SOBE, nunca vira lista vazia. Lista vazia diria à pessoa que ela
+     não tem competência nenhuma cadastrada, e o salvamento seguinte
+     apagaria as que estão lá. */
+  if (error) throw error;
+  return (data ?? []).map((c: Record<string, unknown>) => ({
+    nome: String(c.nome ?? ""),
+    nivel: (c.nivel === "avancado" || c.nivel === "intermediario"
+      ? c.nivel
+      : "basico") as CompetenciaEmEdicao["nivel"],
+  }));
+}
+
+/**
+ * Grava a lista inteira de competências: apaga o que saiu, insere o resto.
+ *
+ * Mesma escolha dos cursos e das experiências — são poucos itens, nada
+ * aponta para eles, e a ordem da tela vira a coluna `ordem`, então ela
+ * sobrevive à volta.
+ *
+ * A repetida é descartada AQUI, e não deixada para o banco: a 0104 tem um
+ * índice único por (dono, nome em minúsculas), e deixar o erro subir faria
+ * o cadastro inteiro falhar por causa de um "Excel" digitado duas vezes.
+ */
+export async function salvarCompetencias(
+  professionalId: string,
+  lista: CompetenciaEmEdicao[]
+): Promise<void> {
+  const sb = supabase();
+  if (!sb) throw new Error("Banco não configurado");
+
+  const vistas = new Set<string>();
+  const validos = lista
+    .map((c) => ({ nome: c.nome.trim(), nivel: c.nivel }))
+    .filter((c) => {
+      if (!c.nome) return false;
+      const chave = c.nome.toLocaleLowerCase("pt-BR");
+      if (vistas.has(chave)) return false;
+      vistas.add(chave);
+      return true;
+    });
+
+  const { error: erroApagar } = await sb
+    .from("professional_skills")
+    .delete()
+    .eq("professional_id", professionalId);
+  if (erroApagar) throw erroApagar;
+
+  if (validos.length === 0) return;
+
+  const { error } = await sb.from("professional_skills").insert(
+    validos.map((c, i) => ({ ...c, professional_id: professionalId, ordem: i }))
+  );
+  if (error) throw error;
 }
 
 /**
@@ -237,6 +392,15 @@ export async function salvarCursos(
       nome: c.nome.trim(),
       instituicao: c.instituicao.trim() || null,
       ano: c.ano.trim() || null,
+      tipo: c.tipo,
+      /* Vazio grava `null`, e não "": o `check` da 0104 aceita nulo mas
+         recusa string vazia, e a recusa derruba a gravação inteira sem
+         dizer qual das linhas estava errada. */
+      situacao: c.situacao || null,
+      /* Nível só na formação. Num curso complementar ele seria uma
+         escolaridade inventada — e a comparação com a exigência da vaga
+         passaria a usar esse valor. */
+      nivel: c.tipo === "formacao" ? c.nivel || null : null,
     }))
     .filter((c) => c.nome.length > 0);
 

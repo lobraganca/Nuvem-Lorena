@@ -15,8 +15,12 @@ import {
   salvarMeuPerfil,
   lerCursos,
   salvarCursos,
+  lerCompetencias,
+  salvarCompetencias,
   PERFIL_VAZIO,
   type MeuPerfil,
+  type CursoEmEdicao,
+  type CompetenciaEmEdicao,
 } from "../../lib/meuPerfil";
 import { lerExperiencias, salvarExperiencias } from "../../lib/experiencias";
 import { numeroJaConfirmadoNaConta, marcarAnuncioConfirmado } from "../../lib/whatsappVerify";
@@ -49,7 +53,10 @@ import { numeroJaConfirmadoNaConta, marcarAnuncioConfirmado } from "../../lib/wh
  * é `areas_de_interesse` que a onda consulta para achar quem avisar.
  */
 type Experiencia = { empresa: string; cargo: string; inicio: string; fim: string };
-type Curso = { nome: string; instituicao: string; ano: string };
+/* O tipo local do curso saiu: agora ele é o `CursoEmEdicao` da lib, que
+   ganhou `tipo`, `situacao` e `nivel` na 0104. Dois tipos com o mesmo
+   nome e campos diferentes é como se perde uma coluna no caminho — foi o
+   que aconteceu com a `disponivel` na 0101. */
 
 export function MeuPerfilPage() {
   useTituloDaPagina("Meu perfil");
@@ -58,7 +65,11 @@ export function MeuPerfilPage() {
 
   const [perfil, setPerfil] = useState<MeuPerfil>(PERFIL_VAZIO);
   const [experiencias, setExperiencias] = useState<Experiencia[]>([]);
-  const [cursos, setCursos] = useState<Curso[]>([]);
+  const [cursos, setCursos] = useState<CursoEmEdicao[]>([]);
+  /* As competências, com nível (0104). A dona, no item 14: "Excel
+     (básico | intermediário | avançado), informática, atendimento — ter
+     campo + pra adicionar e metrificar". */
+  const [competencias, setCompetencias] = useState<CompetenciaEmEdicao[]>([]);
   const [busca, setBusca] = useState("");
   const [carregando, setCarregando] = useState(true);
   const [salvando, setSalvando] = useState(false);
@@ -140,10 +151,15 @@ export function MeuPerfilPage() {
             /* As duas listas juntas: uma falha em qualquer uma derruba as
                duas, e é isso que se quer — meia tela carregada é a que faz
                a pessoa salvar por cima do que não apareceu. */
-            const [exps, curs] = await Promise.all([
+            /* As três listas juntas: uma falha em qualquer uma derruba as
+               outras, e é isso que se quer — meia tela carregada é a que
+               faz a pessoa salvar por cima do que não apareceu. */
+            const [exps, curs, comps] = await Promise.all([
               lerExperiencias(meu.id),
               lerCursos(meu.id),
+              lerCompetencias(meu.id),
             ]);
+            setCompetencias(comps);
             setExperiencias(
               exps.map((e) => ({
                 cargo: e.cargo,
@@ -255,6 +271,7 @@ export function MeuPerfilPage() {
           }))
         ),
         salvarCursos(id, cursos),
+        salvarCompetencias(id, competencias),
       ]);
       setSalvo(true);
     } catch (err) {
@@ -423,6 +440,129 @@ export function MeuPerfilPage() {
               onChange={(e) => setPerfil((x) => ({ ...x, neighborhood: e.target.value }))}
             />
           </div>
+
+          {/* ── OUTROS TELEFONES (item 14, coluna da 0103) ─────────────
+              A dona: "ao confirmar o telefone ele não pode sair do
+              cadastro. A pessoa pode adicionar outros."
+
+              O de cima é o CONFIRMADO por SMS e fica trancado. Estes são
+              outros, digitados à mão e sem confirmação nenhuma — e por
+              isso moram noutra coluna: guardar os dois no mesmo lugar
+              apagaria a diferença entre número provado e número que
+              alguém escreveu. */}
+          <div className="ei-campo">
+            <label>Outro telefone (opcional)</label>
+            {perfil.telefonesExtra.map((t, i) => (
+              <div key={i} className="ei-linha-com-tirar">
+                <input
+                  aria-label={`Outro telefone ${i + 1}`}
+                  inputMode="tel"
+                  value={t}
+                  placeholder="(31) 99999-8888"
+                  onChange={(e) =>
+                    setPerfil((x) => ({
+                      ...x,
+                      telefonesExtra: x.telefonesExtra.map((v, j) =>
+                        j === i ? formatPhone(e.target.value) : v
+                      ),
+                    }))
+                  }
+                />
+                <button
+                  type="button"
+                  className="ei-btn ei-btn-texto"
+                  style={{ minHeight: 0, padding: "0 4px" }}
+                  onClick={() =>
+                    setPerfil((x) => ({
+                      ...x,
+                      telefonesExtra: x.telefonesExtra.filter((_, j) => j !== i),
+                    }))
+                  }
+                >
+                  Tirar
+                </button>
+              </div>
+            ))}
+            {/* Três é mais do que qualquer pessoa usa, e é o teto que o
+                banco cobra (0103). Escondê-lo depois do terceiro evita o
+                erro que só apareceria ao salvar. */}
+            {perfil.telefonesExtra.length < 3 && (
+              <button
+                type="button"
+                className="ei-btn ei-btn-tonal ei-btn-largo"
+                style={{ marginTop: perfil.telefonesExtra.length ? 10 : 0 }}
+                onClick={() =>
+                  setPerfil((x) => ({ ...x, telefonesExtra: [...x.telefonesExtra, ""] }))
+                }
+              >
+                + {perfil.telefonesExtra.length ? "Mais um telefone" : "Acrescentar telefone"}
+              </button>
+            )}
+            <span className="ei-campo-ajuda">
+              Um recado, o telefone de casa. Só o de cima é o confirmado.
+            </span>
+          </div>
+
+          <div className="ei-campo">
+            <label htmlFor="meu-nascimento">Data de nascimento</label>
+            <input
+              id="meu-nascimento"
+              type="date"
+              value={perfil.nascimento}
+              onChange={(e) => setPerfil((x) => ({ ...x, nascimento: e.target.value }))}
+            />
+            {/* A empresa vê a IDADE, nunca a data. Dizer isso aqui é o que
+                faz a pessoa preencher: sem a frase, um campo de
+                aniversário num cadastro de emprego parece intrusão. */}
+            <span className="ei-campo-ajuda">
+              A empresa vê só a sua idade — a data não aparece para ninguém.
+            </span>
+          </div>
+
+          {/* CNH: a pergunta que abre metade das vagas de entrega da
+              cidade. "Tem" e "qual categoria" são separados de propósito —
+              "não tenho" e "tenho, mas não disse qual" são respostas
+              diferentes, e num campo só virariam o mesmo vazio. */}
+          <div className="ei-campo">
+            <label className="ei-caixa">
+              <input
+                type="checkbox"
+                checked={perfil.temCnh}
+                onChange={(e) => setPerfil((x) => ({ ...x, temCnh: e.target.checked }))}
+              />
+              <span>Tenho CNH</span>
+            </label>
+            {perfil.temCnh && (
+              <div className="ei-chips" style={{ marginTop: 10 }}>
+                {["A", "B", "C", "D", "E", "AB"].map((cat) => {
+                  const marcada = perfil.cnhCategorias.includes(cat);
+                  return (
+                    <button
+                      key={cat}
+                      type="button"
+                      className="ei-chip"
+                      aria-pressed={marcada}
+                      onClick={() =>
+                        setPerfil((x) => ({
+                          ...x,
+                          cnhCategorias: marcada
+                            ? x.cnhCategorias.filter((c) => c !== cat)
+                            : [...x.cnhCategorias, cat],
+                        }))
+                      }
+                    >
+                      {cat}
+                    </button>
+                  );
+                })}
+              </div>
+            )}
+            {perfil.temCnh && (
+              <span className="ei-campo-ajuda">
+                Marque as categorias que você tem. A vaga de entrega procura por aqui.
+              </span>
+            )}
+          </div>
         </div>
 
         {/* ── 1. Disponível ────────────────────────────────────────────
@@ -517,6 +657,62 @@ export function MeuPerfilPage() {
                   : "Só vagas na sua cidade e na região."
               }
             />
+          </div>
+
+          {/* ── AS DUAS PERGUNTAS QUE FALTAVAM (item 14, colunas da 0103)
+              A dona: "trabalha em final de semana?" e "disponibilidade pra
+              começar imediato?".
+
+              As duas são fechadas e a resposta padrão é NÃO — quem não
+              respondeu não vira candidato a plantão de domingo. */}
+          <div className="ei-cartao" style={{ padding: 0 }}>
+            <Switch
+              ligado={perfil.fimDeSemana}
+              onChange={(v) => setPerfil((x) => ({ ...x, fimDeSemana: v }))}
+              titulo="Trabalho em fim de semana"
+              descricao={
+                perfil.fimDeSemana
+                  ? "Você aparece para vaga de escala e plantão."
+                  : "Vagas de sábado e domingo não chegam para você."
+              }
+            />
+          </div>
+
+          <div className="ei-cartao" style={{ padding: 0 }}>
+            <Switch
+              ligado={perfil.inicioImediato}
+              onChange={(v) => setPerfil((x) => ({ ...x, inicioImediato: v }))}
+              titulo="Posso começar imediato"
+              descricao={
+                perfil.inicioImediato
+                  ? "Aparece na vaga urgente antes de quem tem aviso a cumprir."
+                  : "Marque se você está livre para começar esta semana."
+              }
+            />
+          </div>
+
+          {/* Modo de trabalho. O "tanto faz" existe e é a resposta mais
+              comum aqui: numa cidade pequena quase tudo é presencial, e
+              obrigar a escolher faz a pessoa marcar qualquer coisa para o
+              formulário parar de reclamar. */}
+          <div className="ei-cartao">
+            <div className="ei-campo">
+              <label htmlFor="modo-trabalho">Como você prefere trabalhar</label>
+              <select
+                id="modo-trabalho"
+                value={perfil.modoTrabalho}
+                onChange={(e) => setPerfil((x) => ({ ...x, modoTrabalho: e.target.value }))}
+              >
+                <option value="">Não informado</option>
+                <option value="presencial">No local da empresa</option>
+                <option value="remoto">De casa</option>
+                <option value="hibrido">Parte no local, parte de casa</option>
+                <option value="tanto_faz">Tanto faz</option>
+              </select>
+              <span className="ei-campo-ajuda">
+                Quase toda vaga em Itabirito é presencial. “Tanto faz” é resposta.
+              </span>
+            </div>
           </div>
         </div>
 
@@ -784,79 +980,140 @@ export function MeuPerfilPage() {
           </button>
         </div>
 
-        {/* ── 4. Cursos ────────────────────────────────────────────────── */}
-        <h2 className="ei-secao">Cursos e especializações</h2>
+        {/* ── 4. Formação e cursos (item 14) ───────────────────────────
+            A dona pediu dois blocos com os MESMOS campos: "última
+            escolaridade (instituição / curso / situação / ano)" e "cursos
+            complementares (idem)", os dois com opção de acrescentar mais.
+
+            No banco é uma tabela só, separada pela coluna `tipo` (0104):
+            os campos são iguais, e duas tabelas iguais lado a lado seriam
+            duas telas que um dia divergem. Aqui viram duas listas, porque
+            na cabeça de quem preenche são coisas diferentes — o ensino
+            médio e o curso de NR-35 não se misturam. */}
+        <h2 className="ei-secao">Formação</h2>
         <div className="ei-cartao">
-          {cursos.length === 0 && (
+          {cursos.filter((c) => c.tipo === "formacao").length === 0 && (
             <p className="ei-apoio" style={{ marginBottom: 12 }}>
-              NR-35, curso técnico, CNH categoria D — o que te habilita a alguma vaga.
+              Ensino médio, técnico, faculdade. Pode pôr mais de uma.
+            </p>
+          )}
+          <ListaDeCursos
+            cursos={cursos}
+            setCursos={setCursos}
+            tipo="formacao"
+            rotuloCurso="Curso ou série"
+            exemplo="Técnico em Enfermagem"
+          />
+        </div>
+
+        <h2 className="ei-secao">Cursos complementares</h2>
+        <div className="ei-cartao">
+          {cursos.filter((c) => c.tipo === "complementar").length === 0 && (
+            <p className="ei-apoio" style={{ marginBottom: 12 }}>
+              NR-35, informática, direção defensiva — o que te habilita a alguma vaga.
+            </p>
+          )}
+          <ListaDeCursos
+            cursos={cursos}
+            setCursos={setCursos}
+            tipo="complementar"
+            rotuloCurso="Curso"
+            exemplo="NR-35 — trabalho em altura"
+          />
+        </div>
+
+        {/* ── 5. Competências (item 14) ────────────────────────────────
+            A dona: "Excel (básico | intermediário | avançado), informática
+            (idem), atendimento (idem). Ter campo + pra adicionar e
+            metrificar."
+
+            As três que ela nomeou vêm SUGERIDAS, não gravadas: tocar numa
+            delas acrescenta a linha já com o nível para escolher. Deixá-las
+            fixas na lista faria toda pessoa aparecer com "Excel: básico",
+            inclusive quem nunca abriu um. */}
+        <h2 className="ei-secao">Competências</h2>
+        <div className="ei-cartao">
+          {competencias.length === 0 && (
+            <p className="ei-apoio" style={{ marginBottom: 12 }}>
+              O que você sabe fazer, e o quanto. É por aqui que a empresa
+              compara duas pessoas do mesmo ofício.
             </p>
           )}
 
-          <div style={{ display: "grid", gap: 16 }}>
-            {cursos.map((c, i) => (
-              <div key={i} style={{ display: "grid", gap: 8 }}>
-                <div style={{ display: "flex", justifyContent: "space-between" }}>
-                  <span className="ei-apoio">{i + 1}º curso</span>
-                  <button
-                    type="button"
-                    className="ei-btn ei-btn-texto"
-                    style={{ minHeight: 0, padding: "0 4px" }}
-                    onClick={() => setCursos((a) => a.filter((_, j) => j !== i))}
-                  >
-                    Tirar
-                  </button>
-                </div>
-                <div className="ei-campo">
-                  <label htmlFor={`curso-${i}`}>Curso</label>
-                  <input
-                    id={`curso-${i}`}
-                    value={c.nome}
-                    placeholder="NR-35 — trabalho em altura"
-                    onChange={(e) =>
-                      setCursos((a) => a.map((x, j) => (j === i ? { ...x, nome: e.target.value } : x)))
-                    }
-                  />
-                </div>
-                <div style={{ display: "grid", gridTemplateColumns: "1fr 96px", gap: 8 }}>
-                  <div className="ei-campo">
-                    <label htmlFor={`inst-${i}`}>Onde fez</label>
-                    <input
-                      id={`inst-${i}`}
-                      value={c.instituicao}
-                      placeholder="SENAI"
-                      onChange={(e) =>
-                        setCursos((a) =>
-                          a.map((x, j) => (j === i ? { ...x, instituicao: e.target.value } : x))
-                        )
-                      }
-                    />
-                  </div>
-                  <div className="ei-campo">
-                    <label htmlFor={`ano-${i}`}>Ano</label>
-                    <input
-                      id={`ano-${i}`}
-                      inputMode="numeric"
-                      maxLength={4}
-                      value={c.ano}
-                      placeholder="2021"
-                      onChange={(e) =>
-                        setCursos((a) => a.map((x, j) => (j === i ? { ...x, ano: e.target.value } : x)))
-                      }
-                    />
-                  </div>
-                </div>
+          <div style={{ display: "grid", gap: 12 }}>
+            {competencias.map((c, i) => (
+              <div key={i} className="ei-competencia">
+                <input
+                  aria-label={`Competência ${i + 1}`}
+                  value={c.nome}
+                  placeholder="Excel"
+                  onChange={(e) =>
+                    setCompetencias((a) =>
+                      a.map((x, j) => (j === i ? { ...x, nome: e.target.value } : x))
+                    )
+                  }
+                />
+                <select
+                  aria-label={`Nível de ${c.nome || "competência " + (i + 1)}`}
+                  value={c.nivel}
+                  onChange={(e) =>
+                    setCompetencias((a) =>
+                      a.map((x, j) =>
+                        j === i
+                          ? { ...x, nivel: e.target.value as CompetenciaEmEdicao["nivel"] }
+                          : x
+                      )
+                    )
+                  }
+                >
+                  <option value="basico">Básico</option>
+                  <option value="intermediario">Intermediário</option>
+                  <option value="avancado">Avançado</option>
+                </select>
+                <button
+                  type="button"
+                  className="ei-btn ei-btn-texto"
+                  style={{ minHeight: 0, padding: "0 4px" }}
+                  onClick={() => setCompetencias((a) => a.filter((_, j) => j !== i))}
+                >
+                  Tirar
+                </button>
               </div>
             ))}
+          </div>
+
+          {/* As sugestões da dona, e só as que ainda não estão na lista:
+              oferecer "Excel" a quem já pôs Excel é um botão que não faz
+              nada — e o banco recusaria a repetida. */}
+          <div className="ei-chips" style={{ marginTop: competencias.length ? 14 : 0 }}>
+            {["Excel", "Informática", "Atendimento", "Caixa", "Vendas", "Direção"]
+              .filter(
+                (nome) =>
+                  !competencias.some(
+                    (c) => c.nome.toLocaleLowerCase("pt-BR") === nome.toLocaleLowerCase("pt-BR")
+                  )
+              )
+              .map((nome) => (
+                <button
+                  key={nome}
+                  type="button"
+                  className="ei-chip"
+                  onClick={() =>
+                    setCompetencias((a) => [...a, { nome, nivel: "basico" }])
+                  }
+                >
+                  + {nome}
+                </button>
+              ))}
           </div>
 
           <button
             type="button"
             className="ei-btn ei-btn-tonal ei-btn-largo"
-            style={{ marginTop: cursos.length ? 16 : 0 }}
-            onClick={() => setCursos((a) => [...a, { nome: "", instituicao: "", ano: "" }])}
+            style={{ marginTop: 14 }}
+            onClick={() => setCompetencias((a) => [...a, { nome: "", nivel: "basico" }])}
           >
-            + {cursos.length ? "Outro curso" : "Acrescentar curso"}
+            + Outra competência
           </button>
         </div>
 
@@ -952,5 +1209,155 @@ export function MeuPerfilPage() {
         </div>
       </div>
     </div>
+  );
+}
+
+/**
+ * A lista de formação, ou a de cursos complementares.
+ *
+ * Uma função só para as duas porque os campos são os mesmos — é o mesmo
+ * motivo de elas dividirem uma tabela no banco (0104). O que muda é o
+ * rótulo, o exemplo, e o fato de a FORMAÇÃO ter nível (fundamental, médio,
+ * técnico…) e o curso complementar não: um curso de NR-35 não é uma
+ * escolaridade, e um nível ali viraria uma exigência que a vaga compara.
+ *
+ * O índice vem do array INTEIRO, e não da lista filtrada. Filtrar e depois
+ * gravar pelo índice da filtrada apagaria a linha errada assim que
+ * houvesse uma formação e um curso ao mesmo tempo.
+ */
+function ListaDeCursos({
+  cursos,
+  setCursos,
+  tipo,
+  rotuloCurso,
+  exemplo,
+}: {
+  cursos: CursoEmEdicao[];
+  setCursos: React.Dispatch<React.SetStateAction<CursoEmEdicao[]>>;
+  tipo: "formacao" | "complementar";
+  rotuloCurso: string;
+  exemplo: string;
+}) {
+  const indices = cursos
+    .map((c, i) => (c.tipo === tipo ? i : -1))
+    .filter((i) => i >= 0);
+
+  const mudar = (i: number, campo: Partial<CursoEmEdicao>) =>
+    setCursos((a) => a.map((x, j) => (j === i ? { ...x, ...campo } : x)));
+
+  return (
+    <>
+      <div style={{ display: "grid", gap: 16 }}>
+        {indices.map((i, ordem) => {
+          const c = cursos[i];
+          return (
+            <div key={i} style={{ display: "grid", gap: 8 }}>
+              <div style={{ display: "flex", justifyContent: "space-between" }}>
+                <span className="ei-apoio">
+                  {ordem + 1}º {tipo === "formacao" ? "" : "curso"}
+                </span>
+                <button
+                  type="button"
+                  className="ei-btn ei-btn-texto"
+                  style={{ minHeight: 0, padding: "0 4px" }}
+                  onClick={() => setCursos((a) => a.filter((_, j) => j !== i))}
+                >
+                  Tirar
+                </button>
+              </div>
+
+              {tipo === "formacao" && (
+                <div className="ei-campo">
+                  <label htmlFor={`nivel-${i}`}>Escolaridade</label>
+                  <select
+                    id={`nivel-${i}`}
+                    value={c.nivel}
+                    onChange={(e) => mudar(i, { nivel: e.target.value })}
+                  >
+                    <option value="">Escolha</option>
+                    <option value="fundamental">Ensino fundamental</option>
+                    <option value="medio">Ensino médio</option>
+                    <option value="tecnico">Técnico</option>
+                    <option value="superior">Superior</option>
+                    <option value="pos">Pós-graduação</option>
+                    <option value="mestrado">Mestrado</option>
+                    <option value="doutorado">Doutorado</option>
+                  </select>
+                </div>
+              )}
+
+              <div className="ei-campo">
+                <label htmlFor={`curso-${i}`}>{rotuloCurso}</label>
+                <input
+                  id={`curso-${i}`}
+                  value={c.nome}
+                  placeholder={exemplo}
+                  onChange={(e) => mudar(i, { nome: e.target.value })}
+                />
+              </div>
+
+              <div className="ei-campo">
+                <label htmlFor={`inst-${i}`}>Onde fez</label>
+                <input
+                  id={`inst-${i}`}
+                  value={c.instituicao}
+                  placeholder={tipo === "formacao" ? "E.E. Itabirito" : "SENAI"}
+                  onChange={(e) => mudar(i, { instituicao: e.target.value })}
+                />
+              </div>
+
+              <div style={{ display: "grid", gridTemplateColumns: "1fr 96px", gap: 8 }}>
+                <div className="ei-campo">
+                  <label htmlFor={`sit-${i}`}>Situação</label>
+                  <select
+                    id={`sit-${i}`}
+                    value={c.situacao}
+                    onChange={(e) => mudar(i, { situacao: e.target.value })}
+                  >
+                    <option value="">Não informado</option>
+                    {/* "Cursando" é informação, e não ausência dela: quem
+                        termina o técnico em dezembro é candidato hoje. */}
+                    <option value="cursando">Cursando</option>
+                    <option value="concluido">Concluído</option>
+                    <option value="trancado">Trancado</option>
+                  </select>
+                </div>
+                <div className="ei-campo">
+                  <label htmlFor={`ano-${i}`}>Ano</label>
+                  <input
+                    id={`ano-${i}`}
+                    inputMode="numeric"
+                    maxLength={4}
+                    value={c.ano}
+                    placeholder="2021"
+                    onChange={(e) => mudar(i, { ano: e.target.value })}
+                  />
+                </div>
+              </div>
+            </div>
+          );
+        })}
+      </div>
+
+      <button
+        type="button"
+        className="ei-btn ei-btn-tonal ei-btn-largo"
+        style={{ marginTop: indices.length ? 16 : 0 }}
+        onClick={() =>
+          setCursos((a) => [
+            ...a,
+            { nome: "", instituicao: "", ano: "", tipo, situacao: "", nivel: "" },
+          ])
+        }
+      >
+        + {indices.length
+          ? tipo === "formacao"
+            ? "Outra formação"
+            : "Outro curso"
+          : tipo === "formacao"
+            ? "Acrescentar formação"
+            : "Acrescentar curso"}
+      </button>
+    </>
   );
 }

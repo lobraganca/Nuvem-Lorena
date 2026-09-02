@@ -17,6 +17,7 @@ import {
   ONDAS,
   ONDAS_POR_VAGA,
   BENEFICIOS_SUGERIDOS,
+  CAMPOS_DE_COMPATIBILIDADE,
   JORNADAS,
   TIPOS_DE_CONTRATO,
   type Jornada,
@@ -57,6 +58,36 @@ const EMPTY_FORM: FormState = {
   jornada: null,
   beneficios: [],
   salario_a_combinar: false,
+  /* ── A VAGA INTEIRA (migration 0105, item 15) ─────────────────────
+     Os campos que a dona listou por tema. Os padrões não são neutros:
+
+     `quantidade_vagas` começa em 1 porque é o caso comum, e "2 vagas"
+     muda quem responde — numa vaga só, quem se acha segundo colocado nem
+     tenta.
+
+     `aceita_outras_cidades` começa em TRUE, e isso é uma decisão:
+     Itabirito faz par com Ouro Preto, Moeda e Rio Acima todo dia. Fechar
+     por omissão cortaria metade de quem serviria, sem ninguém ter
+     marcado nada. */
+  quantidade_vagas: 1,
+  data_inicio: null,
+  prazo_candidatura: null,
+  horario: null,
+  escala: null,
+  aceita_outras_cidades: true,
+  comissao: null,
+  outros_beneficios: null,
+  escolaridade_minima: null,
+  curso_especifico: null,
+  cnh_exigida: false,
+  cnh_categorias: [],
+  exige_viagem: false,
+  idiomas: [],
+  observacoes: null,
+  /* Lista vazia = a empresa não escolheu, e vale a comparação padrão
+     (função e cidade). É diferente de uma lista com um item só. */
+  campos_compatibilidade: [],
+  aceita_sem_compatibilidade: true,
 };
 
 /* ── OS TEMAS DA VAGA (item 13) ──────────────────────────────────────
@@ -79,7 +110,13 @@ const EMPTY_FORM: FormState = {
    Os nomes dos temas são os que ela escreveu no item 15, na ordem dela.
    Os campos de cada um também: o que ainda não existe no banco entra
    quando a 0105 for aplicada, e o lugar dele já está reservado aqui. */
-const ETAPAS = ["Sobre a vaga", "Horário e local", "Salário", "Requisitos"];
+const ETAPAS = [
+  "Sobre a vaga",
+  "Horário e local",
+  "Salário",
+  "Requisitos",
+  "Compatibilidade",
+];
 
 /**
  * Criar uma vaga de trabalho.
@@ -445,6 +482,17 @@ export function CriarVagaPage() {
       if (!form.title.trim()) return "Escreva qual profissional você procura.";
       if (!form.profession.trim()) return "Escolha a profissão.";
       if (!form.description.trim()) return "Escreva o que a pessoa vai fazer.";
+      /* Prazo depois do início é erro de digitação, e é silencioso: a vaga
+         sai do banco de vagas antes de a empresa entender por quê. O banco
+         também recusa (0105), mas aqui o erro aparece ao lado dos campos
+         em vez de chegar como texto técnico no fim. */
+      if (
+        form.data_inicio &&
+        form.prazo_candidatura &&
+        form.prazo_candidatura > form.data_inicio
+      ) {
+        return "O prazo para receber candidatura tem que ser ANTES do começo.";
+      }
     }
     if (n === 2) {
       if (!form.tipo_contrato) return "Diga como é a contratação.";
@@ -579,6 +627,59 @@ export function CriarVagaPage() {
             </span>
           </div>
 
+          {/* Quantidade e as duas datas (item 15, colunas da 0105).
+              "2 vagas" muda quem responde: numa vaga só, quem se acha
+              segundo colocado nem tenta. E as datas são o que a pessoa
+              pergunta no telefonema — o telefonema que o app existe para
+              não desperdiçar. */}
+          <div style={{ display: "grid", gridTemplateColumns: "110px 1fr", gap: 10 }}>
+            <div className="ei-campo">
+              <label htmlFor="quantidade_vagas">Quantas vagas</label>
+              <input
+                id="quantidade_vagas"
+                type="number"
+                inputMode="numeric"
+                min={1}
+                max={999}
+                value={form.quantidade_vagas}
+                onChange={(e) =>
+                  setForm((f) => ({
+                    ...f,
+                    /* Nunca abaixo de 1: o banco recusa com um `check`, e a
+                       recusa chegaria como texto técnico na hora de
+                       publicar, depois de quatro telas preenchidas. */
+                    quantidade_vagas: Math.max(1, Math.min(999, Number(e.target.value) || 1)),
+                  }))
+                }
+              />
+            </div>
+            <div className="ei-campo">
+              <label htmlFor="data_inicio">Começa quando</label>
+              <input
+                id="data_inicio"
+                type="date"
+                value={form.data_inicio ?? ""}
+                onChange={(e) => setForm((f) => ({ ...f, data_inicio: e.target.value || null }))}
+              />
+            </div>
+          </div>
+
+          <div className="ei-campo">
+            <label htmlFor="prazo_candidatura">Recebe candidatura até</label>
+            <input
+              id="prazo_candidatura"
+              type="date"
+              value={form.prazo_candidatura ?? ""}
+              onChange={(e) =>
+                setForm((f) => ({ ...f, prazo_candidatura: e.target.value || null }))
+              }
+            />
+            <span className="ei-campo-ajuda">
+              Opcional. Sem prazo a vaga fica no ar até você fechar — e o banco
+              de vagas vira cemitério.
+            </span>
+          </div>
+
           </section>
         )}
 
@@ -652,6 +753,57 @@ export function CriarVagaPage() {
             </select>
             <span className="ei-campo-ajuda">
               Quase toda vaga em Itabirito é no local. Só mude se for o caso.
+            </span>
+          </div>
+
+          {/* Horário e escala em TEXTO, e não em lista (item 15, 0105).
+              `jornada`, logo acima, já classifica em integral, meio
+              período e turnos. Aqui é o "8h às 18h, de segunda a sexta" e
+              o "12x36" que ninguém consegue escolher numa lista — e uma
+              lista fechada faria a empresa marcar a opção mais parecida,
+              com o candidato descobrindo a verdade depois. */}
+          <div className="ei-campo">
+            <label htmlFor="horario">Que horas entra e sai?</label>
+            <input
+              id="horario"
+              type="text"
+              placeholder="8h às 18h, de segunda a sexta"
+              value={form.horario ?? ""}
+              onChange={(e) => setForm((f) => ({ ...f, horario: e.target.value || null }))}
+            />
+            <span className="ei-campo-ajuda">
+              Escreva como você diria no telefone. É a pergunta que mais aparece.
+            </span>
+          </div>
+
+          <div className="ei-campo">
+            <label htmlFor="escala">Escala (se tiver)</label>
+            <input
+              id="escala"
+              type="text"
+              placeholder="6x1, 12x36, de segunda a sábado"
+              value={form.escala ?? ""}
+              onChange={(e) => setForm((f) => ({ ...f, escala: e.target.value || null }))}
+            />
+          </div>
+
+          {/* Aceita gente de fora: marcado por padrão, e isso é decisão.
+              Itabirito faz par com Ouro Preto, Moeda e Rio Acima todo dia.
+              Fechar por omissão cortaria metade de quem serviria, sem
+              ninguém ter marcado nada. */}
+          <div className="ei-campo">
+            <label className="ei-caixa">
+              <input
+                type="checkbox"
+                checked={form.aceita_outras_cidades}
+                onChange={(e) =>
+                  setForm((f) => ({ ...f, aceita_outras_cidades: e.target.checked }))
+                }
+              />
+              <span>Aceito candidato de outras cidades</span>
+            </label>
+            <span className="ei-campo-ajuda">
+              Ouro Preto, Moeda e Rio Acima ficam a menos de meia hora daqui.
             </span>
           </div>
 
@@ -760,6 +912,36 @@ export function CriarVagaPage() {
             </span>
           </div>
 
+          {/* Comissão em TEXTO (item 15, 0105): "5% sobre a venda" e "R$ 50
+              por entrega" não cabem no mesmo número, e é assim que se fala
+              de comissão aqui. */}
+          <div className="ei-campo">
+            <label htmlFor="comissao">Tem comissão?</label>
+            <input
+              id="comissao"
+              type="text"
+              placeholder="5% sobre a venda, ou R$ 50 por entrega"
+              value={form.comissao ?? ""}
+              onChange={(e) => setForm((f) => ({ ...f, comissao: e.target.value || null }))}
+            />
+            <span className="ei-campo-ajuda">
+              Deixe em branco se não tem. Comissão bem escrita atrai vendedor bom.
+            </span>
+          </div>
+
+          <div className="ei-campo">
+            <label htmlFor="outros_beneficios">Outros benefícios</label>
+            <textarea
+              id="outros_beneficios"
+              rows={2}
+              placeholder="Cesta básica, plano odontológico, folga no aniversário"
+              value={form.outros_beneficios ?? ""}
+              onChange={(e) =>
+                setForm((f) => ({ ...f, outros_beneficios: e.target.value || null }))
+              }
+            />
+          </div>
+
           {/* Não há campo de raio em quilômetros, e não é esquecimento: o
               cadastro de profissional não guarda latitude nem longitude, e
               Itabirito inteira se atravessa em dez minutos. Ver `ONDAS` em
@@ -862,11 +1044,233 @@ export function CriarVagaPage() {
               </span>
             </div>
 
-            {/* Escolaridade mínima, curso específico, CNH, viagem e idiomas
-                entram aqui quando a 0105 estiver aplicada. Eles são colunas
-                que ainda não existem no banco, e mandar coluna que o banco
-                não conhece derruba a gravação INTEIRA — o erro da 0060, que
-                deixou um dia sem ninguém conseguir se cadastrar. */}
+            {/* Escolaridade mínima: os MESMOS valores que o candidato usa
+                na formação dele (0104). Os dois lados falando a mesma
+                língua é o que permite comparar por conta, e não por
+                leitura humana. */}
+            <div className="ei-campo">
+              <label htmlFor="escolaridade_minima">Escolaridade mínima</label>
+              <select
+                id="escolaridade_minima"
+                value={form.escolaridade_minima ?? ""}
+                onChange={(e) =>
+                  setForm((f) => ({ ...f, escolaridade_minima: e.target.value || null }))
+                }
+              >
+                <option value="">Não exijo escolaridade</option>
+                <option value="fundamental">Ensino fundamental</option>
+                <option value="medio">Ensino médio</option>
+                <option value="tecnico">Técnico</option>
+                <option value="superior">Superior</option>
+                <option value="pos">Pós-graduação</option>
+                <option value="mestrado">Mestrado</option>
+                <option value="doutorado">Doutorado</option>
+              </select>
+              <span className="ei-campo-ajuda">
+                Em Itabirito, exigir superior numa vaga de balcão é a forma mais
+                rápida de ficar sem candidato.
+              </span>
+            </div>
+
+            <div className="ei-campo">
+              <label htmlFor="curso_especifico">Precisa de algum curso?</label>
+              <input
+                id="curso_especifico"
+                type="text"
+                placeholder="NR-35, curso de cabeleireiro, manipulação de alimentos"
+                value={form.curso_especifico ?? ""}
+                onChange={(e) =>
+                  setForm((f) => ({ ...f, curso_especifico: e.target.value || null }))
+                }
+              />
+            </div>
+
+            {/* CNH: exigência e categoria separadas, como no cadastro de
+                quem procura. "Não exijo" e "exijo, mas não disse qual" são
+                coisas diferentes, e num campo só virariam o mesmo vazio. */}
+            <div className="ei-campo">
+              <label className="ei-caixa">
+                <input
+                  type="checkbox"
+                  checked={form.cnh_exigida}
+                  onChange={(e) =>
+                    setForm((f) => ({
+                      ...f,
+                      cnh_exigida: e.target.checked,
+                      /* Desmarcar limpa as categorias: senão a vaga guarda
+                         a exigência de uma CNH que a empresa acabou de
+                         dizer que não pede — e a comparação usaria isso. */
+                      cnh_categorias: e.target.checked ? f.cnh_categorias : [],
+                    }))
+                  }
+                />
+                <span>Precisa ter CNH</span>
+              </label>
+              {form.cnh_exigida && (
+                <div className="ei-chips" style={{ marginTop: 10 }}>
+                  {["A", "B", "C", "D", "E", "AB"].map((cat) => {
+                    const marcada = form.cnh_categorias.includes(cat);
+                    return (
+                      <button
+                        key={cat}
+                        type="button"
+                        className="ei-chip"
+                        aria-pressed={marcada}
+                        onClick={() =>
+                          setForm((f) => ({
+                            ...f,
+                            cnh_categorias: marcada
+                              ? f.cnh_categorias.filter((c) => c !== cat)
+                              : [...f.cnh_categorias, cat],
+                          }))
+                        }
+                      >
+                        {cat}
+                      </button>
+                    );
+                  })}
+                </div>
+              )}
+            </div>
+
+            <div className="ei-campo">
+              <label className="ei-caixa">
+                <input
+                  type="checkbox"
+                  checked={form.exige_viagem}
+                  onChange={(e) => setForm((f) => ({ ...f, exige_viagem: e.target.checked }))}
+                />
+                <span>A vaga exige viajar</span>
+              </label>
+              <span className="ei-campo-ajuda">
+                Marcado, a vaga só alcança quem disse que aceita sair da cidade.
+              </span>
+            </div>
+
+            <div className="ei-campo">
+              <label htmlFor="idiomas">Precisa de algum idioma?</label>
+              <div className="ei-chips" style={{ marginBottom: 8 }}>
+                {["Inglês", "Espanhol", "Libras"].map((idioma) => {
+                  const marcado = form.idiomas.includes(idioma);
+                  return (
+                    <button
+                      key={idioma}
+                      type="button"
+                      className="ei-chip"
+                      aria-pressed={marcado}
+                      onClick={() =>
+                        setForm((f) => ({
+                          ...f,
+                          idiomas: marcado
+                            ? f.idiomas.filter((x) => x !== idioma)
+                            : [...f.idiomas, idioma],
+                        }))
+                      }
+                    >
+                      {idioma}
+                    </button>
+                  );
+                })}
+              </div>
+              <span className="ei-campo-ajuda">
+                Deixe em branco se não precisa — que é o caso de quase toda vaga aqui.
+              </span>
+            </div>
+
+            {/* Informações complementares: o campo aberto que a dona pediu
+                como sexto tema. Fica no fim porque é o que sobra depois de
+                as perguntas fechadas terem sido feitas — e um campo aberto
+                no começo faz a empresa escrever ali o que os campos de
+                baixo já perguntam. */}
+            <div className="ei-campo">
+              <label htmlFor="observacoes">Mais alguma coisa?</label>
+              <textarea
+                id="observacoes"
+                rows={3}
+                placeholder="O que mais a pessoa precisa saber antes de responder"
+                value={form.observacoes ?? ""}
+                onChange={(e) => setForm((f) => ({ ...f, observacoes: e.target.value || null }))}
+              />
+            </div>
+          </section>
+        )}
+
+        {/* ── 5. Compatibilidade (item 16) ────────────────────────────
+            A dona: "depois de cadastrar, ter opção de marcar os campos que
+            terão a compatibilidade."
+
+            Marcado ou não, e nunca um peso de 0 a 10: "quanto vale a
+            escolaridade nesta vaga?" é um formulário que ninguém termina, e
+            a resposta seria inventada. Duas caixinhas se respondem em dois
+            toques.
+
+            Nenhum marcado tem significado próprio — a empresa não quis
+            escolher, e aí vale a comparação padrão (função e cidade). É
+            diferente de marcar um só. */}
+        {mostra(5) && (
+          <section className="ei-cartao">
+            <h2 className="ei-etapa-titulo">O que pesa nesta vaga</h2>
+            <p className="ei-etapa-apoio">
+              Marque o que realmente decide. O app usa isso para ordenar quem
+              aparece primeiro — e para dizer a cada pessoa o quanto ela combina.
+            </p>
+
+            <div className="ei-chips" style={{ marginTop: 12 }}>
+              {CAMPOS_DE_COMPATIBILIDADE.map((c) => {
+                const marcado = form.campos_compatibilidade.includes(c.valor);
+                return (
+                  <button
+                    key={c.valor}
+                    type="button"
+                    className="ei-chip"
+                    aria-pressed={marcado}
+                    onClick={() =>
+                      setForm((f) => ({
+                        ...f,
+                        campos_compatibilidade: marcado
+                          ? f.campos_compatibilidade.filter((x) => x !== c.valor)
+                          : [...f.campos_compatibilidade, c.valor],
+                      }))
+                    }
+                  >
+                    {c.nome}
+                  </button>
+                );
+              })}
+            </div>
+
+            {form.campos_compatibilidade.length === 0 && (
+              <p className="ei-campo-ajuda" style={{ marginTop: 12 }}>
+                Nenhum marcado: o app compara pela função e pela cidade, que é o
+                que ele sempre fez. Está tudo bem deixar assim.
+              </p>
+            )}
+
+            {/* A pergunta que a dona deixou em aberto no item 11:
+                "verificar se poderão se candidatar sem ter compatibilidade
+                / perguntar isso pra empresa ao cadastrar a vaga?"
+
+                Pergunta-se, e o padrão é SIM. A compatibilidade é um
+                palpite sobre texto que duas pessoas escreveram à mão;
+                barrar por ele descarta justamente quem não sabe se
+                descrever — que costuma ser quem mais precisa. */}
+            <div className="ei-campo" style={{ marginTop: 18 }}>
+              <label className="ei-caixa">
+                <input
+                  type="checkbox"
+                  checked={form.aceita_sem_compatibilidade}
+                  onChange={(e) =>
+                    setForm((f) => ({ ...f, aceita_sem_compatibilidade: e.target.checked }))
+                  }
+                />
+                <span>Aceito candidatura de quem não bate com tudo isso</span>
+              </label>
+              <span className="ei-campo-ajuda">
+                {form.aceita_sem_compatibilidade
+                  ? "Quem não bate consegue responder, e a tela dela mostra o quanto combina."
+                  : "Quem não bate é avisado ANTES, em vez de responder e nunca receber retorno."}
+              </span>
+            </div>
           </section>
         )}
 
