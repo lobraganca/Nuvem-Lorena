@@ -51,6 +51,10 @@ export function VagasParaMimPage() {
      ver; "respondidas" é a pergunta que ela faz depois ("eu já mandei?"),
      e sem ele a única resposta era rolar a lista inteira relendo cartão. */
   const [aba, setAba] = useState<"todas" | "novas" | "respondidas">("todas");
+  /* A dona: "o filtro para as vagas tem de ter a opção de escrever nome
+     da empresa ou da vaga." O Banco de vagas já tinha esse campo; esta
+     lista, que é mais curta, nunca precisou dele até crescer. */
+  const [busca, setBusca] = useState("");
   /* O nome vem do PERFIL, e não do `user_metadata`: quem entra pelo
      telefone chega sem nome nenhum no Auth — só o Google traz — e a
      saudação sairia "Olá," seco para a maioria das pessoas. */
@@ -180,18 +184,54 @@ export function VagasParaMimPage() {
   const quantasNovas = vagas.filter((v) => novas.has(v.aviso_id) && !v.respondida).length;
   const quantasRespondidas = vagas.filter((v) => v.respondida).length;
 
-  const mostradas =
+  const daAba =
     aba === "novas"
       ? vagas.filter((v) => novas.has(v.aviso_id) && !v.respondida)
       : aba === "respondidas"
         ? vagas.filter((v) => v.respondida)
         : vagas;
 
+  const t = busca.trim().toLocaleLowerCase("pt-BR");
+  const mostradas = t
+    ? daAba.filter(
+        (v) =>
+          v.vaga.title.toLocaleLowerCase("pt-BR").includes(t) ||
+          v.empresa.toLocaleLowerCase("pt-BR").includes(t)
+      )
+    : daAba;
+
   return (
     <div className="ei">
       <div className="ei-tela">
         {/* Cabeçalho de página do Notion: migalha, ícone e título. */}
         <Pagina titulo="Vagas" />
+
+        {/* A dona: "o filtro para as vagas tem de ter a opção de
+            escrever nome da empresa ou da vaga." Mesmo campo do Banco de
+            vagas (`ei-busca`), e só aparece com mais de uma vaga — com
+            uma só não há o que filtrar. */}
+        {vagas.length > 1 && (
+          <div className="ei-busca" style={{ marginTop: 14 }}>
+            <IconeLupa />
+            <input
+              type="search"
+              placeholder="Empresa ou vaga"
+              value={busca}
+              onChange={(e) => setBusca(e.target.value)}
+              aria-label="Procurar por empresa ou vaga"
+            />
+            {busca && (
+              <button
+                type="button"
+                className="ei-busca-limpar"
+                aria-label="Limpar a busca"
+                onClick={() => setBusca("")}
+              >
+                ✕
+              </button>
+            )}
+          </div>
+        )}
 
         {/* Abas de visão, como numa base de dados do Notion: texto com um
             traço embaixo da aberta. Eram pílulas pretas, que pesavam mais
@@ -271,9 +311,11 @@ export function VagasParaMimPage() {
 
             {mostradas.length === 0 && (
               <p className="ei-apoio ei-margem">
-                {aba === "novas"
-                  ? "Nenhuma vaga nova agora — você já viu todas."
-                  : "Você ainda não respondeu nenhuma."}
+                {t
+                  ? "Nada com esse nome, nesta aba."
+                  : aba === "novas"
+                    ? "Nenhuma vaga nova agora — você já viu todas."
+                    : "Você ainda não respondeu nenhuma."}
               </p>
             )}
 
@@ -492,6 +534,19 @@ function IconeMala() {
       <rect x="2.5" y="7.5" width="19" height="12" rx="2.5" />
       <path d="M8.5 7.5V5.8a1.8 1.8 0 0 1 1.8-1.8h3.4a1.8 1.8 0 0 1 1.8 1.8v1.7" />
       <path d="M2.5 12.5h19" />
+    </svg>
+  );
+}
+
+/* A mesma lupa do Banco de vagas (BancoDeVagasPage) — duplicada, e não
+   importada de lá: aquele arquivo não exporta o ícone, e criar um módulo
+   só para uma lupa de 20px é mais peça do que o ícone merece. */
+function IconeLupa() {
+  return (
+    <svg viewBox="0 0 24 24" width="20" height="20"
+         fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" aria-hidden="true">
+      <circle cx="10.5" cy="10.5" r="6.5" />
+      <path d="M15.5 15.5L21 21" />
     </svg>
   );
 }
