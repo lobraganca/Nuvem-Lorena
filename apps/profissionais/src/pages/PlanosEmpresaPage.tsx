@@ -1,5 +1,6 @@
 import { useState } from "react";
-import { useNavigate, useSearchParams } from "react-router-dom";
+import { Link, useNavigate, useSearchParams } from "react-router-dom";
+import { SUPORTE_WHATSAPP } from "../config";
 import { useTituloDaPagina } from "../lib/tituloDaPagina";
 import { Pagina } from "../components/ei/Pagina";
 import { podeVender } from "../lib/plataforma";
@@ -292,6 +293,51 @@ export function PlanosEmpresaPage() {
             <p className="ei-apoio ei-margem" style={{ marginTop: 10 }}>
               Nem conta precisa. O plano serve para não ter que chamar um por um.
             </p>
+
+            {/* ── ARREPENDIMENTO EM 7 DIAS (art. 49 do CDC) — 02/09 ──────
+                A dona: "criar política de reembolso, se a pessoa fizer o
+                pedido dentro dos 7 dias previstos em lei."
+
+                A regra já estava escrita nos Termos desde sempre. O que
+                faltava era ela aparecer ONDE a pessoa decide pagar: um
+                direito que só existe numa página que ninguém abre não
+                tranquiliza ninguém — e é justamente a garantia que faz
+                assinar quem está em dúvida.
+
+                E faltava o CAMINHO. "Você tem direito a reembolso" sem
+                dizer como pedir devolve a pessoa ao mesmo lugar de antes.
+                Como a cobrança do plano de empresa ainda é feita na mão
+                pelo suporte, o pedido vai pelo mesmo canal — com o texto
+                já escrito, para ela não ter que formular nada. */}
+            <h2 className="ei-secao">Se você se arrepender</h2>
+            <div className="ei-cartao">
+              <p className="ei-corpo" style={{ marginTop: 0 }}>
+                <strong>Até 7 dias corridos da contratação, devolvemos tudo.</strong> É o
+                direito de arrependimento do art. 49 do Código de Defesa do Consumidor:
+                não precisa justificar, e o valor volta integralmente pelo mesmo meio de
+                pagamento.
+              </p>
+              <p className="ei-corpo">
+                Depois dos 7 dias, cancelar interrompe as próximas cobranças e o período
+                já pago continua valendo até o fim — sem multa e sem corte no meio de um
+                mês quitado.
+              </p>
+              <a
+                className="ei-btn-inline"
+                href={`https://wa.me/${SUPORTE_WHATSAPP}?text=${encodeURIComponent(
+                  "Olá! Quero pedir o reembolso do meu plano do Ei Itabirito, dentro dos 7 dias de arrependimento."
+                )}`}
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                Pedir reembolso
+              </a>
+              <p className="ei-apoio" style={{ marginTop: 10, marginBottom: 0 }}>
+                O estorno aparece na fatura no prazo do seu banco ou da administradora do
+                cartão. Regras completas nos{" "}
+                <Link to="/termos">Termos de Uso</Link>.
+              </p>
+            </div>
           </>
         )}
       </div>

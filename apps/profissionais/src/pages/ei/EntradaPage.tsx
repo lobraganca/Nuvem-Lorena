@@ -204,7 +204,7 @@ export function EntradaPage() {
             ela pediu, e trocar num toque, que é a outra metade. */}
         {entrou && (tipo === "company" || tipo === "professional") && (
           <div className="ei-ambiente">
-            <span className="ei-ambiente-rotulo">Você está em</span>
+            <span className="ei-ambiente-rotulo">Você está em — toque para trocar de lado</span>
             <div className="ei-ambiente-botoes" role="group" aria-label="Escolher o ambiente">
               <button
                 type="button"

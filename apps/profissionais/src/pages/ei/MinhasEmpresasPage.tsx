@@ -358,7 +358,9 @@ function PlanoDaConta({
       <span className="ei-conta-plano-nome">{nome}</span>
       {quanto && <span className="ei-conta-plano-nota">{quanto}</span>}
       <Link to="/planos-empresa" className="ei-btn-inline">
-        {melhorNome ? "Mudar" : "Ver planos"}
+        {/* "Alterar plano" e não "Mudar": sozinho no meio de uma
+            faixa, "Mudar" não diz mudar o quê. */}
+        {melhorNome ? "Alterar plano" : "Ver planos"}
       </Link>
     </div>
   );

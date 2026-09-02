@@ -193,7 +193,28 @@
    um cabeçalho fixo por cima, então a coluna sempre termina mais baixo que
    a janela e o rodapé dela cai fora da tela. Encostar tudo no alto é mais
    simples e não depende de acertar altura nenhuma. */
-.ei-entrada { display: grid; gap: 22px; align-content: start; }
+/* A coluna ocupa a altura da tela para o rodapé poder ir ao PISO — a
+   dona: "o botão de baixar app pode ficar no piso da página". Com
+   `align-content: start` o bloco terminava logo abaixo das portas e o
+   botão ficava boiando no meio do vazio. `min-height: 100%` e a última
+   linha empurrada (ver `.ei-entrada-pe`) encostam-no embaixo, sem precisar
+   de posição fixa — fixo ele cobriria conteúdo, que é o defeito que o
+   aviso de privacidade acabou de ter. */
+.ei-entrada {
+  /* COLUNA FLEX, e não grade — 02/09
+     ───────────────────────────────
+     Com `display: grid` e `align-content: start` as linhas ficam
+     empacotadas no alto e a sobra de altura não é distribuída: o
+     `margin-top: auto` do rodapé não tinha espaço nenhum para consumir, e
+     o "Baixar App" parava no meio da tela (medido: base em 500px de uma
+     janela de 844px). Em coluna flex o `auto` come a sobra, que é o
+     jeito de encostar um bloco no piso sem posição fixa — e fixo cobriria
+     conteúdo, que é o defeito que o aviso de privacidade acabou de ter. */
+  display: flex;
+  flex-direction: column;
+  gap: 22px;
+}
+.ei-entrada > .ei-entrada-pe { margin-top: auto; }
 
 .ei-entrada-topo { padding: 36px 20px 0; }
 
@@ -3239,30 +3260,43 @@
   padding: 0 20px;
   margin-bottom: 14px;
 }
+/* O rótulo diz o que fazer, e não só onde se está: "Você está em" sozinho
+   descreve um estado, e estado ninguém tenta tocar. */
 .ei-ambiente-rotulo {
   display: block;
-  font-size: 0.78rem;
+  font-size: 0.82rem;
   font-weight: 500;
   color: var(--ei-tinta-fraca);
   margin-bottom: 6px;
 }
+/* 02/09: "os botões de procuro trabalho ou quero contratar não ficou
+   muito visível pra pessoa alterar quando necessário."
+
+   Não estava mesmo. O lado apagado era texto cinza sobre um trilho cinza,
+   sem borda e sem fundo: não parecia um botão, parecia o RÓTULO do lado
+   aceso. Quem quisesse trocar não tinha por que supor que aquilo se toca.
+
+   Três mudanças, todas na mesma direção: o lado apagado ganhou fundo
+   branco e contorno (agora são dois botões, e não um botão e uma legenda),
+   o trilho ficou mais alto, e a letra subiu de tamanho. */
 .ei-ambiente-botoes {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 6px;
-  padding: 4px;
+  padding: 5px;
+  border: 1px solid var(--ei-fio-forte);
   border-radius: var(--ei-raio, 14px);
   background: var(--ei-afunda-forte);
 }
 .ei .ei-ambiente-botao {
-  min-height: 44px;
-  padding: 8px 6px;
-  border: 0;
+  min-height: 52px;
+  padding: 10px 8px;
+  border: 1px solid var(--ei-fio-forte);
   border-radius: calc(var(--ei-raio, 14px) - 5px);
-  background: transparent;
-  color: var(--ei-tinta-fraca);
-  font-size: 0.9rem;
-  font-weight: 500;
+  background: var(--ei-papel);
+  color: var(--ei-tinta);
+  font-size: 0.95rem;
+  font-weight: 600;
   cursor: pointer;
 }
 /* O lado atual é pintado no LARANJA CLARO — 02/09
@@ -3279,8 +3313,9 @@
    cima, como em todo laranja do app — o claro é o que dá contraste. */
 .ei .ei-ambiente-botao.ativo {
   background: var(--ei-laranja-botao);
+  border-color: var(--ei-laranja-botao);
   color: var(--ei-sobre-laranja-marca);
-  font-weight: 600;
+  font-weight: 700;
   box-shadow: 0 1px 2px rgba(0, 0, 0, 0.06);
 }
 .ei .ei-ambiente-botao:disabled { opacity: 0.6; cursor: default; }
