@@ -10,7 +10,11 @@ import {
   resumoDasEmpresas,
   type ResumoDaEmpresa,
 } from "../../lib/company";
-import type { Company } from "../../types/domain";
+import {
+  PLANOS_EMPRESA,
+  PLANO_GRATUITO,
+  type Company,
+} from "../../types/domain";
 import { Pagina } from "../../components/ei/Pagina";
 import { AvisoPerfilIncompleto } from "../../components/ei/AvisoPerfilIncompleto";
 
@@ -182,8 +186,29 @@ export function MinhasEmpresasPage() {
                 <Logo foto={e.photo_url} nome={e.company_name} />
                 <span className="ei-empresa-texto">
                   <span className="ei-empresa-nome">{e.company_name}</span>
+                  {/* ── O QUE FICA NA SEGUNDA LINHA — 02/09 ────────────
+                      A dona: "o card pode ter só o nome da empresa, o
+                      número de pessoas interessadas pode tirar e vagas em
+                      aberto pode deixar onde tem o nome da cidade (que
+                      pode tirar também). As informações do plano não têm
+                      que ficar dentro da tela de vagas, ela pode ficar na
+                      tela das empresas mostrando o plano atual e quantas
+                      vagas 1 de 2."
+
+                      O bairro e a cidade saíram: são as MESMAS em todas as
+                      empresas de quem só trabalha em Itabirito, e uma
+                      linha igual em todos os cartões não ajuda a escolher
+                      nenhum — só ocupa a linha que faltava para o que
+                      ajuda.
+
+                      Os interessados saíram porque cada vaga já diz
+                      quantos tem, e é lá que se faz alguma coisa com esse
+                      número.
+
+                      Ficou o que decide a escolha: o plano desta empresa e
+                      quantas vagas ele ainda comporta. */}
                   <span className="ei-empresa-onde">
-                    {[e.neighborhood, e.city].filter(Boolean).join(" · ")}
+                    <PlanoEVagas empresa={e} resumo={resumos?.get(e.id)} />
                   </span>
                   {/* "Qual está selecionada" — a dona pediu isso duas
                       vezes, no item 4 e no 6. Sem a marca, a pessoa com
@@ -207,15 +232,6 @@ export function MinhasEmpresasPage() {
                   </svg>
                 </span>
               </span>
-
-              {/* AS MÉTRICAS DENTRO DO CARTÃO — 02/09
-                  "As métricas das vagas ficam dentro desse card."
-
-                  Quem tem duas lojas precisa ver, sem entrar em nenhuma,
-                  qual delas tem gente esperando resposta. Antes esses
-                  números só existiam depois de abrir o painel: abria uma,
-                  conferia, voltava, abria a outra. */}
-              <Metricas resumo={resumos?.get(e.id)} />
             </button>
           ))}
 
@@ -268,39 +284,54 @@ function Logo({ foto, nome }: { foto: string | null; nome: string }) {
 }
 
 /**
- * Os dois números do cartão: quem está esperando e quantas vagas estão no ar.
+ * A segunda linha do cartão: o plano da empresa e quantas vagas ele cabe.
  *
- * Enquanto a consulta não volta, o espaço fica reservado com um traço em
- * vez de "0" — um zero que depois vira 4 é uma mentira curta, e é
- * justamente a que faz a pessoa não entrar na loja que tem gente
- * esperando.
+ * ── Por que os dois juntos, e nesta tela ──────────────────────────────
+ *
+ * A dona: "as informações do plano não têm que ficar dentro da tela de
+ * vagas, ela pode ficar na tela das empresas mostrando o plano atual e
+ * quantas vagas 1 de 2."
+ *
+ * Faz sentido e não é só arrumação: com duas lojas, cada uma tem o SEU
+ * plano — e a pergunta que essa tela responde é "em qual eu entro agora?".
+ * Saber que a padaria já está com as três vagas cheias e a lanchonete tem
+ * duas sobrando é o que decide a resposta, e antes exigia entrar nas duas.
+ *
+ * Enquanto a consulta não volta fica só o nome do plano: um "0 de 3" que
+ * depois vira "3 de 3" é uma mentira curta, e é a que faz a pessoa achar
+ * que ainda pode publicar.
  */
-function Metricas({ resumo }: { resumo: ResumoDaEmpresa | undefined }) {
-  const nada = "—";
-  /* Três casos, e cada um por um motivo:
-       · `-1` é o plano sem teto (Multi) — escrever "3 de -1" seria o
-         número mágico vazando para a tela;
-       · `0` é NÃO TER plano. "0 de 0" lê como defeito; sem plano o que
-         existe é o número de vagas, e o convite a assinar está no painel;
-       · o resto mostra quanto ainda cabe, que é o que decide se dá para
-         publicar mais uma. */
-  const cabe =
-    resumo === undefined
-      ? nada
-      : resumo.limite <= 0
-        ? `${resumo.abertas}`
-        : `${resumo.abertas} de ${resumo.limite}`;
+function PlanoEVagas({
+  empresa,
+  resumo,
+}: {
+  empresa: Company;
+  resumo: ResumoDaEmpresa | undefined;
+}) {
+  /* O nome sai do que a empresa PAGOU, e não do limite: dois planos podem
+     acabar com o mesmo limite depois de uma promoção. Sem nada pago, é o
+     gratuito — que não é um valor no banco (ver PLANO_GRATUITO). */
+  const venceu = !empresa.plano_ate || new Date(empresa.plano_ate).getTime() < Date.now();
+  const nome =
+    !empresa.plano || venceu
+      ? PLANO_GRATUITO.nome
+      : `Plano ${PLANOS_EMPRESA[empresa.plano]?.nome ?? empresa.plano}`;
+
+  if (!resumo) return <>{nome}</>;
+
+  /* Sem plano não há "de quantas": o gratuito não publica vaga, e "0 de 0"
+     lê como defeito. `-1` é o sem teto do banco, e "3 de -1" seria o
+     número mágico vazando para a tela. */
+  const vagas =
+    resumo.limite === 0
+      ? "não publica vaga"
+      : resumo.limite < 0
+        ? `${resumo.abertas} ${resumo.abertas === 1 ? "vaga no ar" : "vagas no ar"}`
+        : `${resumo.abertas} de ${resumo.limite} ${resumo.limite === 1 ? "vaga" : "vagas"}`;
 
   return (
-    <span className="ei-empresa-metricas">
-      <span className="ei-empresa-metrica">
-        <strong>{resumo === undefined ? nada : resumo.interessados}</strong>
-        {resumo?.interessados === 1 ? "pessoa interessada" : "pessoas interessadas"}
-      </span>
-      <span className="ei-empresa-metrica">
-        <strong>{cabe}</strong>
-        {resumo?.abertas === 1 ? "vaga no ar" : "vagas no ar"}
-      </span>
-    </span>
+    <>
+      {nome} · {vagas}
+    </>
   );
 }

@@ -11,7 +11,6 @@ import {
   contarRespostasDasVagas,
 } from "../lib/company";
 import { mensagemDeErro } from "../lib/erros";
-import { PLANOS_EMPRESA, PLANO_GRATUITO } from "../types/domain";
 import type { Company, JobListing } from "../types/domain";
 import { Callout, Pagina, Prop } from "../components/ei/Pagina";
 
@@ -206,34 +205,6 @@ export function PainelEmpresaPage() {
   }
 
   const semPlano = plano?.temPlano === false;
-  /* -1 é "sem teto" no banco (`limite_de_vagas_do_plano`). Escrito por
-     extenso porque "-1 vagas" na tela é o tipo de coisa que ninguém vê em
-     revisão e todo mundo vê em produção. */
-  const limiteEmTexto =
-    plano == null ? "—" : plano.limite < 0 ? "sem limite" : String(plano.limite);
-
-  /* O nome do plano sai do que a empresa PAGOU (`companies.plano`), e não
-     do limite: dois planos podem acabar com o mesmo limite depois de uma
-     promoção, e aí a tela diria o nome errado. Sem nada pago, é o
-     gratuito — que não é um valor no banco, e por isso vem de outro
-     lugar (ver PLANO_GRATUITO). */
-  const nomeDoPlanoAtual =
-    !empresa.plano || semPlano
-      ? PLANO_GRATUITO.nome
-      : `Plano ${PLANOS_EMPRESA[empresa.plano]?.nome ?? empresa.plano}`;
-
-  /* Quantas ainda cabem, por extenso. `plano.limite < 0` é o "sem teto" do
-     banco — escrito assim porque "faltam -1 vagas" é o tipo de coisa que
-     ninguém vê em revisão e todo mundo vê em produção. */
-  const quantasAindaCabem = (() => {
-    if (plano == null) return "";
-    if (!plano.temPlano) return PLANO_GRATUITO.limite;
-    if (plano.limite < 0) return "Publique quantas quiser";
-    const faltam = Math.max(0, plano.limite - plano.abertas);
-    if (faltam === 0) return "Não cabe mais nenhuma agora";
-    return faltam === 1 ? "Cabe mais 1 vaga" : `Cabem mais ${faltam} vagas`;
-  })();
-
   return (
     <div className="ei">
       <div className="ei-tela">
@@ -367,27 +338,18 @@ export function PainelEmpresaPage() {
                 seção própria mais adiante, com nome e telefone — que é o
                 que a empresa vem procurar de verdade. */}
 
-            {/* O plano fecha o cartão, sobre um fundo levemente afundado:
-                é dado de conta, e não de operação. "Cabe mais 1 vaga" vem
-                por extenso porque é a informação que decide se vale abrir
-                a tela de criar vaga, e ninguém deveria ter de subtrair dois
-                números para chegar nela. */}
-            <div className="ei-painel-plano">
-              <span className="ei-plano-nome">{nomeDoPlanoAtual}</span>
-              <span className="ei-plano-nota">{quantasAindaCabem}</span>
-              {/* Com o plano cheio, o botão laranja logo abaixo já diz
-                  "Aumentar plano" e vai para o mesmo lugar. Dois caminhos
-                  para a mesma tela, um do lado do outro, fazem supor que
-                  são coisas diferentes — foi o defeito que já tinha
-                  acontecido na grade de atalhos, com "Aumentar o plano" e
-                  "Planos" lado a lado. */}
-              {(semPlano || (plano?.cabeMais ?? true)) && (
-                <Link to="/planos-empresa" className="ei-btn-inline">
-                  {semPlano ? "Ver planos" : "Mudar"}
-                </Link>
-              )}
-            </div>
+            {/* O BLOCO DO PLANO SAIU DAQUI — 02/09
+                ─────────────────────────────────────
+                A dona: "as informações do plano não têm que ficar dentro
+                da tela de vagas, ela pode ficar na tela das empresas
+                mostrando o plano atual e quantas vagas 1 de 2."
 
+                Faz sentido: com duas lojas cada uma tem o seu plano, e a
+                pergunta "qual delas ainda cabe vaga?" é da tela ANTERIOR,
+                onde se escolhe em qual entrar. Aqui a pessoa já escolheu.
+
+                O que o plano ainda decide nesta tela é o botão: com as
+                vagas cheias ele vira "Aumentar plano" e leva aos planos. */}
             {/* Sem plano ele não aparece: quem não pode publicar não deve
                 ver um botão que só leva a uma recusa. Para essa empresa o
                 caminho é o "Ver planos" da linha acima. */}
