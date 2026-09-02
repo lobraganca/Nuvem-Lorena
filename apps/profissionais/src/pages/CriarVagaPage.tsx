@@ -1,9 +1,11 @@
 import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { useAuth } from "../lib/useAuth";
 import { useRascunho, CHAVE_RASCUNHO_VAGA } from "../lib/rascunho";
 import {
   empresaAtual,
+  obterVaga,
+  atualizarVaga,
   criarVaga,
   abrirOnda,
   calcularOndas,
@@ -139,6 +141,21 @@ const ETAPAS = [
  */
 export function CriarVagaPage() {
   const navegar = useNavigate();
+  /* ── A MESMA TELA CRIA E EDITA — 02/09 ───────────────────────────────
+     A dona: "opção de editar uma vaga feita."
+
+     Com `:id` na rota (/vaga/:id/editar) a tela abre a vaga do banco e
+     salva por cima; sem ele, cria uma nova. É a mesma tela de propósito:
+     são os mesmos vinte e poucos campos, com as mesmas regras de conferir
+     etapa por etapa, e manter duas cópias disso é garantir que um dia elas
+     divirjam — a segunda esquece um campo, e a empresa edita a vaga e
+     apaga o horário sem saber.
+
+     O que MUDA no modo edição: não tem prévia de ondas (a vaga já foi
+     disparada; disparar de novo é outro botão, na tela da vaga), não tem
+     rascunho (o formulário vem do banco), e o botão diz "Salvar". */
+  const { id: idParaEditar } = useParams<{ id: string }>();
+  const editando = !!idParaEditar;
   const { user, loading: carregandoConta } = useAuth();
 
   /* ── RASCUNHO AUTOMÁTICO ─────────────────────────────────────────────
@@ -205,6 +222,20 @@ export function CriarVagaPage() {
         navegar("/cadastro-empresa", { replace: true });
         return;
       }
+      /* Editando: os dados vêm da VAGA, e não do rascunho nem do vazio. */
+      if (idParaEditar) {
+        obterVaga(idParaEditar)
+          .then((vaga) => {
+            if (!vaga) {
+              setErro("Não achei esta vaga.");
+              return;
+            }
+            setForm((f) => ({ ...f, ...vaga }));
+          })
+          .catch((err) => setErro(mensagemDeErro(err, "Não consegui abrir esta vaga.")));
+        return;
+      }
+
       /* O rascunho entra por baixo dos dados da empresa: o que foi
          digitado volta, mas a empresa é sempre a que está selecionada
          AGORA — quem trocou de loja no meio do caminho não pode publicar a
@@ -249,7 +280,7 @@ export function CriarVagaPage() {
           setPlano(null);
         });
     });
-  }, [user, carregandoConta, navegar]);
+  }, [user, carregandoConta, navegar, idParaEditar]);
 
   async function previsualizarOndas() {
     setErro("");
@@ -324,6 +355,50 @@ export function CriarVagaPage() {
       setErro(mensagemDeErro(err, "Não foi possível contar os profissionais."));
     } finally {
       setConferindo(false);
+    }
+  }
+
+  /**
+   * Grava as mudanças de uma vaga que já existe.
+   *
+   * Confere as mesmas etapas que a criação — uma edição pode apagar o
+   * salário ou o horário do mesmo jeito que um cadastro incompleto, e a
+   * vaga já está NO AR enquanto isso: uma vaga publicada sem horário é
+   * pior que um formulário mal preenchido.
+   *
+   * `company_id` e `status` ficam de fora do que é enviado (ver
+   * `atualizarVaga`): mudar a empresa levaria os interessados junto, e
+   * pausar/arquivar têm botões próprios com as regras de plano.
+   */
+  async function salvarEdicao() {
+    if (!idParaEditar) return;
+
+    for (let n = 1; n <= ETAPAS.length; n++) {
+      const problema = conferirEtapa(n);
+      if (problema) {
+        setErro(problema);
+        setEtapa(n);
+        window.scrollTo({ top: 0 });
+        return;
+      }
+    }
+
+    setSalvando(true);
+    setErro("");
+    try {
+      /* `status` já está fora do FormState (ver o tipo, no topo). Aqui sai
+         só a empresa: mudar o dono de uma vaga que já recebeu gente levaria
+         os interessados junto. */
+      const { company_id: _empresa, ...mudancas } = form;
+      void _empresa;
+      await atualizarVaga(idParaEditar, {
+        ...mudancas,
+        quantidade_vagas: form.quantidade_vagas < 1 ? 1 : form.quantidade_vagas,
+      });
+      navegar(`/vaga/${idParaEditar}`, { replace: true });
+    } catch (err) {
+      setErro(mensagemDeErro(err, "Não consegui salvar as mudanças."));
+      setSalvando(false);
     }
   }
 
@@ -598,7 +673,10 @@ export function CriarVagaPage() {
   return (
     <div className="ei">
       <div className="ei-tela criar-vaga">
-        <Pagina titulo="Nova vaga" voltar="/painel-empresa" />
+        <Pagina
+          titulo={editando ? "Editar vaga" : "Nova vaga"}
+          voltar={editando ? `/vaga/${idParaEditar}` : "/painel-empresa"}
+        />
 
         {passo === "formulario" && <Etapas passos={ETAPAS} atual={etapa} />}
 
@@ -1426,13 +1504,22 @@ export function CriarVagaPage() {
               Continuar
             </button>
           ) : (
-            <button
-              className="ei-btn ei-btn-cheio"
-              onClick={previsualizarOndas}
-              disabled={conferindo}
-            >
-              {conferindo ? "Contando…" : "Ver quem esta vaga alcança"}
-            </button>
+            /* Editando não há prévia de ondas: a vaga já foi disparada, e
+               disparar de novo é outro botão, na tela dela. Aqui o fim do
+               caminho é gravar. */
+            editando ? (
+              <button className="ei-btn ei-btn-cheio" onClick={salvarEdicao} disabled={salvando}>
+                {salvando ? "Salvando…" : "Salvar as mudanças"}
+              </button>
+            ) : (
+              <button
+                className="ei-btn ei-btn-cheio"
+                onClick={previsualizarOndas}
+                disabled={conferindo}
+              >
+                {conferindo ? "Contando…" : "Ver quem esta vaga alcança"}
+              </button>
+            )
           )}
           {etapa > 1 ? (
             <button
@@ -1448,7 +1535,7 @@ export function CriarVagaPage() {
           ) : (
             <button
               className="ei-btn ei-btn-contorno"
-              onClick={() => navegar("/painel-empresa")}
+              onClick={() => navegar(editando ? `/vaga/${idParaEditar}` : "/painel-empresa")}
             >
               Cancelar
             </button>

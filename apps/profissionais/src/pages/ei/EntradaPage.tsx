@@ -236,6 +236,7 @@ export function EntradaPage() {
                     uma delas: quem tem duas lojas escolhe qual abrir, e
                     quem tem uma vê ali o "+" para cadastrar a segunda. */}
                 <Link to="/minhas-empresas" className="ei-porta ei-porta-cheia">
+                  <IconePorta desenho="predio" />
                   <span className="ei-porta-nome">Minhas empresas</span>
                   <span className="ei-porta-nota">Escolha a empresa e veja as vagas dela</span>
                 </Link>
@@ -269,14 +270,17 @@ export function EntradaPage() {
                     e a diferença para o banco de vagas — que mostra tudo —
                     ficava invisível. */}
                 <Link to="/painel" className="ei-porta ei-porta-cheia">
+                  <IconePorta desenho="pessoa" />
                   <span className="ei-porta-nome">Meu cadastro</span>
                   <span className="ei-porta-nota">Suas funções, horários e contato</span>
                 </Link>
                 <Link to="/vagas-para-mim" className="ei-porta">
+                  <IconePorta desenho="mala" />
                   <span className="ei-porta-nome">Vagas compatíveis</span>
                   <span className="ei-porta-nota">O que combina com o seu ofício</span>
                 </Link>
                 <Link to="/profissionais" className="ei-porta ei-porta-laranja">
+                  <IconePorta desenho="pessoas" />
                   <span className="ei-porta-nome">Banco de talentos</span>
                   <span className="ei-porta-nota">Quem está procurando trabalho na cidade</span>
                 </Link>
@@ -333,18 +337,34 @@ export function EntradaPage() {
               quem está disponível é o que se faz DEPOIS. Duas portas
               grandes lado a lado fazem a pessoa escolher entre coisas que
               não competem. */}
-          {/* A porta de rodapé do lado da empresa: quem está disponível,
-              que é o que se olha depois de cuidar das vagas.
+          {/* O rodapé da tela inicial, nos dois lados.
+              ──────────────────────────────────────────
+              A dona: "criar opção de ver as vagas em ambos os casos
+              profissional e empresas."
 
-              Do lado de quem procura trabalho não há nenhuma. O "Banco de
-              vagas" esteve aqui por um dia e a dona mandou tirar — a tela
-              dela tem as três portas que ela escolheu, e mais nada. A TELA
-              continua existindo (/vagas): quem abre o perfil de uma
-              empresa chega nela por "Ver todas as vagas abertas". */}
+              O banco de vagas — tudo que está no ar na cidade — volta, e
+              agora para os dois. Para quem procura trabalho ele é a rede
+              embaixo do aviso automático, que compara texto e erra (quem se
+              cadastrou como "auxiliar de limpeza" não recebe a vaga de
+              "camareira" sendo exatamente a pessoa). Para quem contrata ele
+              mostra o que a cidade está oferecendo — que é o que decide o
+              salário que ela vai anunciar.
+
+              Fica no rodapé, e não entre as portas de cima: é o que se olha
+              DEPOIS de resolver o assunto principal de cada lado. */}
           {entrou && tipo === "company" && (
             <Link to="/profissionais" className="ei-porta ei-porta-laranja">
+              <IconePorta desenho="pessoas" />
               <span className="ei-porta-nome">Banco de talentos</span>
               <span className="ei-porta-nota">Quem está disponível na cidade</span>
+            </Link>
+          )}
+
+          {entrou && (
+            <Link to="/vagas" className="ei-porta">
+              <IconePorta desenho="mala" />
+              <span className="ei-porta-nome">Banco de vagas</span>
+              <span className="ei-porta-nota">Todas as vagas abertas da cidade</span>
             </Link>
           )}
 
@@ -352,5 +372,61 @@ export function EntradaPage() {
         </div>
       </div>
     </div>
+  );
+}
+
+/**
+ * O ícone de uma porta da tela inicial.
+ *
+ * A dona: "colocar ícones nas opções de meu cadastro, vagas compatíveis,
+ * banco de talentos."
+ *
+ * Desenhados aqui, e não trazidos de uma biblioteca de ícones: são quatro,
+ * e uma dependência inteira para quatro desenhos é peso que o 4G da cidade
+ * paga toda vez que alguém abre o app. É a mesma decisão da barra de baixo
+ * (ver NavegacaoEi), e os traços são os mesmos de lá de propósito — o
+ * ícone de "pessoas" da porta tem que ser reconhecível como o mesmo do
+ * botão "Talentos".
+ *
+ * `aria-hidden` porque o nome da porta está escrito ao lado: um leitor de
+ * tela que anunciasse "imagem, mala" antes de "Vagas compatíveis" só
+ * atrapalharia.
+ */
+function IconePorta({ desenho }: { desenho: "pessoa" | "pessoas" | "mala" | "predio" }) {
+  return (
+    <span className="ei-porta-icone" aria-hidden="true">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"
+           strokeLinecap="round" strokeLinejoin="round">
+        {desenho === "pessoa" && (
+          <>
+            <circle cx="12" cy="8" r="3.6" />
+            <path d="M4.8 20a7.2 7.2 0 0 1 14.4 0" />
+          </>
+        )}
+        {desenho === "pessoas" && (
+          <>
+            <circle cx="9" cy="8.5" r="3.2" />
+            <path d="M3 19.5a6 6 0 0 1 12 0" />
+            <path d="M16.5 6.2a3.2 3.2 0 0 1 0 6.1" />
+            <path d="M18 15.2a6 6 0 0 1 3 4.3" />
+          </>
+        )}
+        {desenho === "mala" && (
+          <>
+            <rect x="3" y="7" width="18" height="13" rx="2.5" />
+            <path d="M8.5 7V5.5A1.5 1.5 0 0 1 10 4h4a1.5 1.5 0 0 1 1.5 1.5V7" />
+            <path d="M3 12h18" />
+          </>
+        )}
+        {desenho === "predio" && (
+          <>
+            <path d="M4 20V6.5A1.5 1.5 0 0 1 5.5 5h7A1.5 1.5 0 0 1 14 6.5V20" />
+            <path d="M14 11h4.5A1.5 1.5 0 0 1 20 12.5V20" />
+            <path d="M2.5 20h19" />
+            <path d="M7 9h4M7 13h4M17 15h1" />
+          </>
+        )}
+      </svg>
+    </span>
   );
 }

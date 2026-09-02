@@ -242,9 +242,21 @@
    depois de criar a conta, onde escolher GRAVA em vez de navegar). Daí o
    `font: inherit` e a largura cheia: sem eles o botão sai com a fonte do
    sistema e encolhido ao tamanho do texto. */
+/* A porta pode ter ÍCONE — 02/09
+   ──────────────────────────────
+   A dona: "colocar ícones nas opções de meu cadastro, vagas compatíveis,
+   banco de talentos."
+
+   A grade passa a ter duas colunas: o ícone à esquerda, ocupando as duas
+   linhas de texto; o nome e a nota à direita. Sem ícone (as portas de
+   entrar/criar conta) a primeira coluna simplesmente não é usada, e o
+   desenho continua igual ao de antes — por isso `auto` e não uma largura
+   fixa. */
 .ei-porta {
   display: grid;
-  gap: 3px;
+  grid-template-columns: auto 1fr;
+  align-items: center;
+  gap: 3px 14px;
   width: 100%;
   padding: 16px 18px;
   border: 1px solid var(--ei-fio-forte);
@@ -262,6 +274,29 @@
 
 .ei-porta-nome { font-size: 1.05rem; font-weight: 600; line-height: 1.25; }
 .ei-porta-nota { font-size: 0.85rem; color: var(--ei-tinta-fraca); line-height: 1.35; }
+
+/* O ícone ocupa as duas linhas de texto, e o texto vai para a coluna 2.
+   Sem esta regra o ícone empurraria o nome para a linha de baixo. */
+.ei-porta-icone {
+  grid-row: 1 / span 2;
+  display: grid;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  border-radius: var(--ei-raio-toque, 12px);
+  background: var(--ei-afunda-forte);
+  color: var(--ei-tinta-fraca);
+  flex: 0 0 auto;
+}
+.ei-porta-icone svg { width: 21px; height: 21px; }
+/* Nas portas coloridas o quadradinho cinza sumiria dentro da cor: ali o
+   ícone é só o desenho, na tinta do próprio texto. */
+.ei .ei-porta-cheia .ei-porta-icone,
+.ei .ei-porta-laranja .ei-porta-icone {
+  background: rgba(255, 255, 255, 0.22);
+  color: inherit;
+}
+.ei .ei-porta-laranja .ei-porta-icone { background: rgba(55, 53, 47, 0.12); }
 
 /* A primeira porta é a cheia. Uma só — duas ações de mesmo peso não são
    direcionamento, são um empate que a pessoa desempata sozinha.

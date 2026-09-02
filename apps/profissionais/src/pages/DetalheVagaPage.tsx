@@ -514,6 +514,28 @@ export function DetalheVagaPage() {
           quem já sabe qual é qual. Excluir fica por último e sem cor, para
           não ser tocado por engano. */}
       <div className="ei-margem" style={{ marginTop: 24, display: "grid", gap: 18 }}>
+        {/* ── EDITAR, ANTES DE TUDO ─────────────────────────────────────
+            A dona: "opção de editar uma vaga feita."
+
+            Vem primeiro porque é a mais branda das quatro: as outras três
+            tiram a vaga do ar de algum jeito. E existe justamente para que
+            elas não sejam usadas no lugar dela — sem "editar", corrigir um
+            salário digitado errado obrigava a arquivar e publicar de novo,
+            o que gasta uma vaga do plano, joga fora quem já tinha se
+            interessado e faz a vaga renascer no fim da lista.
+
+            Vale em qualquer estado: uma vaga pausada é justamente a que se
+            costuma corrigir antes de reabrir. */}
+        <div>
+          <Link className="ei-btn ei-btn-contorno ei-btn-largo" to={`/vaga/${vaga.id}/editar`}>
+            Editar esta vaga
+          </Link>
+          <p className="ei-apoio" style={{ marginTop: 6 }}>
+            Muda o texto, o salário, o horário. Quem já se interessou continua aqui, e
+            não gasta vaga do seu plano.
+          </p>
+        </div>
+
         {vaga.status === "active" && (
           <div>
             <button

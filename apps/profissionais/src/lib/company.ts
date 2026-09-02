@@ -367,6 +367,50 @@ export async function criarVaga(
   return data as JobListing;
 }
 
+/**
+ * Salva as alterações de uma vaga que já existe.
+ *
+ * ── O PEDIDO ───────────────────────────────────────────────────────────
+ *
+ * A dona: "opção de editar uma vaga feita."
+ *
+ * Faltava mesmo: dava para publicar, pausar, arquivar e excluir — mas um
+ * salário digitado errado ou um horário que mudou obrigavam a ENCERRAR a
+ * vaga e publicar outra. Isso custa caro de três jeitos: gasta uma vaga do
+ * plano, joga fora a lista de quem já tinha se interessado, e faz a vaga
+ * nascer de novo no fim da lista de quem procura.
+ *
+ * ── O QUE NÃO SE EDITA, E POR QUÊ ─────────────────────────────────────
+ *
+ * `company_id` não entra: mudar a empresa de uma vaga que já recebeu gente
+ * transferiria os interessados para outro dono. `status` também não —
+ * pausar, reabrir e arquivar têm cada um a sua função, com as regras de
+ * plano que este `update` não confere.
+ *
+ * O gatilho `job_listings_exige_plano` (0073) deixa passar a edição de uma
+ * vaga que já estava ativa, então salvar não esbarra no teto do plano —
+ * que é o certo: a vaga já ocupa o lugar dela.
+ */
+export async function atualizarVaga(
+  vagaId: string,
+  mudancas: Partial<Omit<JobListing, "id" | "company_id" | "status" | "created_at">>
+): Promise<JobListing> {
+  const sb = getSupabase();
+  if (!sb) throw new Error("Banco não configurado");
+
+  const { data, error } = await sb
+    .from("job_listings")
+    .update(mudancas)
+    .eq("id", vagaId)
+    .select()
+    .single();
+
+  if (error) throw error;
+  if (!data) throw new Error("Não consegui salvar as mudanças da vaga.");
+
+  return data as JobListing;
+}
+
 /** Lista vagas ativas da empresa. */
 /**
  * As vagas desta empresa, em TODOS os estados.

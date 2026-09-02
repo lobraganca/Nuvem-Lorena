@@ -307,6 +307,8 @@ export default function App() {
         <Route path="/minhas-empresas" element={<MinhasEmpresasPage />} />
         <Route path="/painel-empresa" element={<PainelEmpresaPage />} />
         <Route path="/criar-vaga" element={<CriarVagaPage />} />
+        {/* A MESMA tela de criar, no modo edição — ver CriarVagaPage. */}
+        <Route path="/vaga/:id/editar" element={<CriarVagaPage />} />
         <Route path="/vaga/:id" element={<DetalheVagaPage />} />
         <Route path="/planos-empresa" element={<PlanosEmpresaPage />} />
         <Route path="/profissionais" element={<ProfissionaisPage />} />
