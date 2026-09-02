@@ -188,9 +188,16 @@ export function MinhasEmpresasPage() {
                   {/* "Qual está selecionada" — a dona pediu isso duas
                       vezes, no item 4 e no 6. Sem a marca, a pessoa com
                       duas lojas não tem como saber em qual publicou a
-                      vaga. */}
+                      vaga.
+
+                      Dizia "Aberta agora", e a dona perguntou o que era —
+                      com razão: numa lista de lojas, "aberta agora" lê
+                      como horário de funcionamento, que é o que a palavra
+                      significa para qualquer comerciante. O selo não fala
+                      da loja, fala do APP: é esta que está selecionada, e
+                      é nela que a próxima vaga vai ser publicada. */}
                   {e.id === escolhida && (
-                    <span className="ei-empresa-aberta-selo">Aberta agora</span>
+                    <span className="ei-empresa-aberta-selo">Selecionada</span>
                   )}
                 </span>
                 <span className="ei-linha-seta" aria-hidden="true">
