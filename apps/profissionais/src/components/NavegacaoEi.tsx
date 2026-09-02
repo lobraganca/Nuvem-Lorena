@@ -142,9 +142,9 @@ function destinos(tipo: "professional" | "company" | false | null, temConta: boo
     casa: (p) => p.startsWith("/profissionais"),
   };
 
-  if (!temConta) {
-    /* Sem conta a barra não existe.
-       ─────────────────────────────
+  if (!temConta || tipo === false || tipo === null) {
+    /* Sem conta, OU com conta mas sem lado escolhido, a barra não existe.
+       ────────────────────────────────────────────────────────────────
        A dona olhou a tela de entrar e perguntou: "a barra nessa tela serve
        pra que?". Não servia para nada, e era pior que inútil: "Entrar"
        apontava para a tela onde ela já estava, e "Talentos" — depois que
@@ -152,7 +152,21 @@ function destinos(tipo: "professional" | "company" | false | null, temConta: boo
        ela tinha acabado de sair. Três botões, nenhum destino.
 
        Uma barra de navegação num app onde ainda não há para onde navegar é
-       enfeite com cara de app quebrado. */
+       enfeite com cara de app quebrado.
+
+       ── E o mesmo vale para quem TEM conta e ainda não escolheu lado ──
+       A dona: "os botões da barra fixa: avisos, talentos e cadastro, bem
+       como os da empresa só devem aparecer quando for selecionado o
+       perfil que você quer, empresa ou profissional."
+
+       Isto era um bug, não uma escolha: só havia `if (tipo === "company")`
+       antes deste retorno, e o `return` de profissional no fim da função
+       cobria QUALQUER outro valor — inclusive `false` (conta sem lado) e
+       `null` (ainda carregando). Uma pessoa que tinha acabado de criar
+       conta e ainda não dissera se procura trabalho ou contrata já via
+       Avisos, Talentos e "Cadastro" — três atalhos para telas de um papel
+       que ela não tinha escolhido, e que empurrar por engano leva ao
+       cadastro errado. */
     return [];
   }
 
@@ -192,7 +206,9 @@ function destinos(tipo: "professional" | "company" | false | null, temConta: boo
     ];
   }
 
-  /* Profissional, e também quem entrou e ainda não escolheu o lado.
+  /* Só chega aqui quem já escolheu ser profissional — o `if` anterior já
+     tirou quem contrata, e o `return []` do topo já tirou quem ainda não
+     tem lado nenhum.
 
      ── "Avisos" é o histórico, e por isso ele fica ────────────────────
      A dona: "coloque também as notificações que as pessoas receberem dos
