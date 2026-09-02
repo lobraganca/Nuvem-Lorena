@@ -47,6 +47,7 @@ const CadastroEmpresaPage = lazy(importarPagina(() => import("./pages/CadastroEm
 const PainelEmpresaPage = lazy(importarPagina(() => import("./pages/PainelEmpresaPage").then((m) => ({ default: m.PainelEmpresaPage }))));
 const CriarVagaPage = lazy(importarPagina(() => import("./pages/CriarVagaPage").then((m) => ({ default: m.CriarVagaPage }))));
 const EntradaPage = lazy(importarPagina(() => import("./pages/ei/EntradaPage").then((m) => ({ default: m.EntradaPage }))));
+const ComecarPage = lazy(importarPagina(() => import("./pages/ei/ComecarPage").then((m) => ({ default: m.ComecarPage }))));
 const MeuPerfilPage = lazy(importarPagina(() => import("./pages/ei/MeuPerfilPage").then((m) => ({ default: m.MeuPerfilPage }))));
 const ProfissionaisPage = lazy(importarPagina(() => import("./pages/ProfissionaisPage").then((m) => ({ default: m.ProfissionaisPage }))));
 const VagasParaMimPage = lazy(importarPagina(() => import("./pages/VagasParaMimPage").then((m) => ({ default: m.VagasParaMimPage }))));
@@ -149,6 +150,11 @@ const TELAS_DE_APP = [
      vaga" e "Enviar sugestão" — logo abaixo da pergunta de que lado a
      pessoa está. */
   "/onboarding-tipo",
+  /* As telas que "Procuro trabalho" e "Quero contratar" abrem — mesmo
+     motivo das duas linhas acima: são o passo seguinte da mesma
+     sequência, e ficariam com o rodapé de site sem esta linha. */
+  "/comecar-profissional",
+  "/comecar-empresa",
   "/cadastro-empresa",
   "/vagas-para-mim",
   /* O banco de vagas. Sem esta linha ele terminava com o rodapé de SITE
@@ -296,9 +302,14 @@ export default function App() {
             quebrar a barra de baixo nem o que já estava aberto no celular
             de alguém. */}
         <Route path="/painel" element={<MeuPerfilPage />} />
+        {/* A tela que "Procuro trabalho" abre, na porta de entrada — os
+            botões que moraram na EntradaPage até 02/09. Ver ComecarPage. */}
+        <Route path="/comecar-profissional" element={<ComecarPage lado="professional" />} />
 
         {/* Quem contrata */}
         <Route path="/onboarding-tipo" element={<OnboardingTipoPage />} />
+        {/* O par de cima: a tela que "Quero contratar" abre. */}
+        <Route path="/comecar-empresa" element={<ComecarPage lado="company" />} />
         <Route path="/cadastro-empresa" element={<CadastroEmpresaPage />} />
         <Route path="/painel/editar-empresa" element={<CadastroEmpresaPage />} />
         {/* A escolha de qual empresa abrir, quando a conta tem mais de

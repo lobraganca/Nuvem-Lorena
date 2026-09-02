@@ -5,7 +5,6 @@ import { useOnboardingStatus } from "../../lib/useOnboardingStatus";
 import { registrarTipoDeUsuario } from "../../lib/company";
 import { useTituloDaPagina } from "../../lib/tituloDaPagina";
 import { InstalarApp } from "../../components/InstalarApp";
-import { AvisoPerfilIncompleto } from "../../components/ei/AvisoPerfilIncompleto";
 
 /**
  * A porta de entrada do Ei Itabirito.
@@ -20,8 +19,12 @@ import { AvisoPerfilIncompleto } from "../../components/ei/AvisoPerfilIncompleto
  * procurando trabalho ou está procurando gente, e as duas coisas começam
  * com um cadastro, não com uma busca.
  *
- * Quem já entrou nunca vê esta tela: é levado direto para o lado dele.
- */
+ * Quem já entrou não sai desta pergunta — o app sempre abre aqui — mas
+ * esta tela responde só a ela. Os botões de cada lado (Meu cadastro,
+ * Minhas empresas, Banco de talentos...) moraram aqui até 02/09 e foram
+ * para `ComecarPage.tsx`, a tela que cada escolha abre. A dona: "na tela
+ * de por onde começamos só deveria ter a opção de procuro trabalho ou
+ * quero contratar, daí dentro dessas telas teriam os demais botões." */
 export function EntradaPage() {
   useTituloDaPagina("Início");
   const { user, loading } = useAuth();
@@ -75,26 +78,44 @@ export function EntradaPage() {
      entrar e criar conta. Com conta, mostra o nome de quem entrou e os
      caminhos daquele lado — e o desvio automático fica só para quem ainda
      não escolheu o lado, porque aí falta uma resposta, não um caminho. */
-  /* Trocando de lado agora. Segura os dois botões: dois toques rápidos
-     gravariam os dois lados em ordem imprevisível. */
+  /* Segura os dois botões: dois toques rápidos levariam a pessoa para
+     dois lugares em sequência, e o segundo toque só faz sentido depois
+     que o primeiro terminou de gravar. */
   const [trocando, setTrocando] = useState(false);
 
   /**
-   * Troca o ambiente e leva para o lado escolhido.
+   * Escolhe o ambiente e vai para a tela DELE.
+   *
+   * A dona: "na tela de por onde começamos só deveria ter a opção de
+   * procuro trabalho ou quero contratar, daí dentro dessas telas teriam
+   * os demais botões."
+   *
+   * Antes esta função só fazia sentido para TROCAR de lado — quem já
+   * estava no lado tocado nem chamava o clique (`novo === tipo` saía sem
+   * fazer nada), porque as portas daquele lado já estavam logo abaixo, na
+   * mesma tela. Agora esta tela não tem mais porta nenhuma: os dois
+   * botões são a única forma de chegar a qualquer um dos dois lados,
+   * então tocar no que já é o seu tem que navegar do mesmo jeito.
+   *
+   * Só grava um lado novo no banco quando ele muda — gravar de novo o
+   * mesmo lado seria uma escrita à toa a cada visita.
    *
    * Recarrega por `location.href` em vez de navegar pelo roteador: o lado
    * é lido uma vez, na abertura, pela barra de baixo e por várias telas.
    * Trocar pelo roteador deixaria a barra mostrando os itens do lado
    * antigo — e a pessoa acharia que a troca não funcionou.
    */
-  async function trocarAmbiente(novo: "professional" | "company") {
-    if (!user || novo === tipo || trocando) return;
+  async function irParaOLado(lado: "professional" | "company") {
+    if (!user || trocando) return;
+    const destino = lado === "company" ? "/comecar-empresa" : "/comecar-profissional";
+    if (lado === tipo) {
+      window.location.href = destino;
+      return;
+    }
     setTrocando(true);
     try {
-      await registrarTipoDeUsuario(user.id, novo);
-      /* Empresa vai para a escolha da empresa; quem procura trabalho vai
-         para a tela inicial, que já mostra as portas do lado dela. */
-      window.location.href = novo === "company" ? "/minhas-empresas" : "/";
+      await registrarTipoDeUsuario(user.id, lado);
+      window.location.href = destino;
     } catch {
       setTrocando(false);
     }
@@ -170,42 +191,22 @@ export function EntradaPage() {
 
             Agora a ordem é a natural: entra (ou cria a conta, com senha),
             e só então escolhe de que lado está, numa tela que existe só
-            para isso e pode explicar cada opção com calma.
+            para isso e pode explicar cada opção com calma. */}
+        {/* ── SÓ A ESCOLHA, NADA MAIS — 02/09 ─────────────────────────
+            A dona: "na tela de por onde começamos só deveria ter a opção
+            de procuro trabalho ou quero contratar, daí dentro dessas
+            telas teriam os demais botões."
 
-            As duas portas viraram uma. O texto embaixo continua dizendo
-            que o app serve aos dois lados — a informação não se perdeu,
-            só deixou de exigir uma decisão cedo demais. */}
-        {/* Com conta: os caminhos do lado da pessoa. Sem conta: as duas
-            portas. Os mesmos blocos, o mesmo lugar na tela — o que muda é
-            para onde levam. */}
-        {/* O aviso do cadastro pela metade (a dona: "ao escolher o
-            ambiente, se o perfil não estiver preenchido, deve ter um aviso
-            na tela"). Fica acima das portas porque é sobre o que a pessoa
-            vai fazer ao tocar numa delas — embaixo, ela já teria saído da
-            tela antes de ler. */}
-        {entrou && (tipo === "company" || tipo === "professional") && (
-          <AvisoPerfilIncompleto lado={tipo} />
-        )}
+            Antes esta tela acumulava duas coisas: a escolha do lado E os
+            caminhos daquele lado (Meu cadastro, Vagas compatíveis, Banco
+            de talentos — ou os da empresa), tudo junto embaixo da escolha.
+            Quem só queria trocar de lado via uma lista inteira de botões
+            que não pediu.
 
-        {/* ── A ESCOLHA DO AMBIENTE, NA TELA QUE O APP SEMPRE ABRE ────
-            A dona, depois de eu já ter feito o item 4: "ainda não consegui
-            ver no app o botão onde a pessoa pode escolher se quer acessar
-            a empresa ou profissional."
-
-            Ela não estava vendo porque eu pus a escolha no lugar errado.
-            O item 4 diz "logo após fazer login, sempre deve ter opção de
-            escolher o ambiente", e eu li "logo após fazer login" como o
-            momento — mandei a tela de entrar desviar para a pergunta.
-
-            Só que ninguém faz login toda vez. Ela abre o app já logado, cai
-            aqui, e daqui só havia as portas de UM lado. A tela da escolha
-            existia e era inalcançável — o mesmo erro da tela de escolher a
-            empresa, que eu pulava quando havia uma só.
-
-            Agora a escolha mora nesta tela, que é a que o app sempre abre.
-            Dois botões lado a lado, com o lado atual marcado: dá para ver
-            em que ambiente se está sem tocar em nada, que é metade do que
-            ela pediu, e trocar num toque, que é a outra metade. */}
+            Agora esta tela pergunta uma coisa e uma coisa só. As portas de
+            cada lado — e o aviso de perfil incompleto, que é sobre elas —
+            se mudaram para dentro da tela que cada botão abre. Ver
+            `ComecarPage.tsx`. */}
         {entrou && (tipo === "company" || tipo === "professional") && (
           <div className="ei-ambiente">
             <span className="ei-ambiente-rotulo">Você está em — toque para trocar de lado</span>
@@ -215,7 +216,7 @@ export function EntradaPage() {
                 className={tipo === "professional" ? "ei-ambiente-botao ativo" : "ei-ambiente-botao"}
                 aria-pressed={tipo === "professional"}
                 disabled={trocando}
-                onClick={() => trocarAmbiente("professional")}
+                onClick={() => irParaOLado("professional")}
               >
                 Procuro trabalho
               </button>
@@ -224,7 +225,7 @@ export function EntradaPage() {
                 className={tipo === "company" ? "ei-ambiente-botao ativo" : "ei-ambiente-botao"}
                 aria-pressed={tipo === "company"}
                 disabled={trocando}
-                onClick={() => trocarAmbiente("company")}
+                onClick={() => irParaOLado("company")}
               >
                 Quero contratar
               </button>
@@ -232,66 +233,7 @@ export function EntradaPage() {
           </div>
         )}
 
-        {entrou ? (
-          <div className="ei-portas">
-            {tipo === "company" ? (
-              <>
-                {/* Vai para a escolha da empresa, e não para o painel de
-                    uma delas: quem tem duas lojas escolhe qual abrir, e
-                    quem tem uma vê ali o "+" para cadastrar a segunda. */}
-                <Link to="/minhas-empresas" className="ei-porta ei-porta-cheia">
-                  <IconePorta desenho="predio" />
-                  <span className="ei-porta-nome">Minhas empresas</span>
-                  <span className="ei-porta-nota">Escolha a empresa e veja as vagas dela</span>
-                </Link>
-                {/* O laranja da logo, e só aqui.
-                    ───────────────────────────────
-                    A dona: "o botão de banco de dados pode ter a mesma cor
-                    laranja da logo."
-
-                    O laranja é a bolinha do "Ei": no desenho da marca ele
-                    aparece uma vez, pequeno, e é isso que o faz saltar.
-                    Usado em dois botões da mesma tela ele deixaria de ser
-                    destaque e viraria só mais uma cor — então este é o
-                    único lugar da tela que o usa, e "Minhas vagas" fica no
-                    azul cheio. */}
-              </>
-            ) : (
-              <>
-                {/* ── A ORDEM DAS PORTAS, PEDIDA PELA DONA — 02/09 ───────
-                    "Na tela de procuro trabalho, ter os botões nessa
-                    ordem: meu cadastro — vagas compatíveis — banco de
-                    talentos."
-
-                    A ordem tem lógica de uso, e não só de gosto: sem o
-                    cadastro preenchido nenhuma vaga chega (a onda procura
-                    por ofício), então ele vem primeiro — e é a única coisa
-                    desta tela que depende da pessoa. Depois o que ela veio
-                    ver, e por último a lista de quem mais está procurando.
-
-                    "Vagas compatíveis" no lugar de "Vagas para mim": o
-                    nome antigo não dizia POR QUE aquelas vagas estão ali,
-                    e a diferença para o banco de vagas — que mostra tudo —
-                    ficava invisível. */}
-                <Link to="/painel" className="ei-porta ei-porta-cheia">
-                  <IconePorta desenho="pessoa" />
-                  <span className="ei-porta-nome">Meu cadastro</span>
-                  <span className="ei-porta-nota">Suas funções, horários e contato</span>
-                </Link>
-                <Link to="/vagas-para-mim" className="ei-porta">
-                  <IconePorta desenho="mala" />
-                  <span className="ei-porta-nome">Vagas compatíveis</span>
-                  <span className="ei-porta-nota">O que combina com o seu ofício</span>
-                </Link>
-                <Link to="/profissionais" className="ei-porta ei-porta-laranja">
-                  <IconePorta desenho="pessoas" />
-                  <span className="ei-porta-nome">Banco de talentos</span>
-                  <span className="ei-porta-nota">Quem está procurando trabalho na cidade</span>
-                </Link>
-              </>
-            )}
-          </div>
-        ) : (
+        {!entrou && (
           /* Dois botões, e não um "entrar ou criar conta": quem já tem
              conta quer digitar a senha e passar; quem é novo precisa do
              código por SMS. Cada botão abre o login no caminho certo. */
@@ -330,107 +272,12 @@ export function EntradaPage() {
               O que ele FAZ continua sendo decidido pelo aparelho: no
               Android o toque instala de verdade; no iPhone abre o passo a
               passo, porque lá quem instala é o próprio Safari. */}
-          {/* O banco de talentos desceu para cá — 02/09
-              ────────────────────────────────────────────
-              A dona: "o botão de banco de talentos também pode ficar no
-              final da página."
-
-              Ele era a segunda porta, do mesmo tamanho de "Minhas
-              empresas". Só que as duas não têm o mesmo peso: quem abre o
-              app do lado da empresa vem cuidar das vagas dela, e olhar
-              quem está disponível é o que se faz DEPOIS. Duas portas
-              grandes lado a lado fazem a pessoa escolher entre coisas que
-              não competem. */}
-          {/* O rodapé da tela inicial, nos dois lados.
-              ──────────────────────────────────────────
-              A dona: "criar opção de ver as vagas em ambos os casos
-              profissional e empresas."
-
-              O banco de vagas — tudo que está no ar na cidade — volta, e
-              agora para os dois. Para quem procura trabalho ele é a rede
-              embaixo do aviso automático, que compara texto e erra (quem se
-              cadastrou como "auxiliar de limpeza" não recebe a vaga de
-              "camareira" sendo exatamente a pessoa). Para quem contrata ele
-              mostra o que a cidade está oferecendo — que é o que decide o
-              salário que ela vai anunciar.
-
-              Fica no rodapé, e não entre as portas de cima: é o que se olha
-              DEPOIS de resolver o assunto principal de cada lado. */}
-          {entrou && tipo === "company" && (
-            <Link to="/profissionais" className="ei-porta ei-porta-laranja">
-              <IconePorta desenho="pessoas" />
-              <span className="ei-porta-nome">Banco de talentos</span>
-              <span className="ei-porta-nota">Quem está disponível na cidade</span>
-            </Link>
-          )}
-
-          {entrou && (
-            <Link to="/vagas" className="ei-porta">
-              <IconePorta desenho="mala" />
-              <span className="ei-porta-nome">Banco de vagas</span>
-              <span className="ei-porta-nota">Todas as vagas abertas da cidade</span>
-            </Link>
-          )}
-
+          {/* "Banco de talentos" e "Banco de vagas" moraram aqui até
+              02/09. Foram para o rodapé das telas de `ComecarPage` — esta
+              tela deixou de ter porta nenhuma, e as duas são portas. */}
           <InstalarApp variante="botao" />
         </div>
       </div>
     </div>
-  );
-}
-
-/**
- * O ícone de uma porta da tela inicial.
- *
- * A dona: "colocar ícones nas opções de meu cadastro, vagas compatíveis,
- * banco de talentos."
- *
- * Desenhados aqui, e não trazidos de uma biblioteca de ícones: são quatro,
- * e uma dependência inteira para quatro desenhos é peso que o 4G da cidade
- * paga toda vez que alguém abre o app. É a mesma decisão da barra de baixo
- * (ver NavegacaoEi), e os traços são os mesmos de lá de propósito — o
- * ícone de "pessoas" da porta tem que ser reconhecível como o mesmo do
- * botão "Talentos".
- *
- * `aria-hidden` porque o nome da porta está escrito ao lado: um leitor de
- * tela que anunciasse "imagem, mala" antes de "Vagas compatíveis" só
- * atrapalharia.
- */
-function IconePorta({ desenho }: { desenho: "pessoa" | "pessoas" | "mala" | "predio" }) {
-  return (
-    <span className="ei-porta-icone" aria-hidden="true">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"
-           strokeLinecap="round" strokeLinejoin="round">
-        {desenho === "pessoa" && (
-          <>
-            <circle cx="12" cy="8" r="3.6" />
-            <path d="M4.8 20a7.2 7.2 0 0 1 14.4 0" />
-          </>
-        )}
-        {desenho === "pessoas" && (
-          <>
-            <circle cx="9" cy="8.5" r="3.2" />
-            <path d="M3 19.5a6 6 0 0 1 12 0" />
-            <path d="M16.5 6.2a3.2 3.2 0 0 1 0 6.1" />
-            <path d="M18 15.2a6 6 0 0 1 3 4.3" />
-          </>
-        )}
-        {desenho === "mala" && (
-          <>
-            <rect x="3" y="7" width="18" height="13" rx="2.5" />
-            <path d="M8.5 7V5.5A1.5 1.5 0 0 1 10 4h4a1.5 1.5 0 0 1 1.5 1.5V7" />
-            <path d="M3 12h18" />
-          </>
-        )}
-        {desenho === "predio" && (
-          <>
-            <path d="M4 20V6.5A1.5 1.5 0 0 1 5.5 5h7A1.5 1.5 0 0 1 14 6.5V20" />
-            <path d="M14 11h4.5A1.5 1.5 0 0 1 20 12.5V20" />
-            <path d="M2.5 20h19" />
-            <path d="M7 9h4M7 13h4M17 15h1" />
-          </>
-        )}
-      </svg>
-    </span>
   );
 }
