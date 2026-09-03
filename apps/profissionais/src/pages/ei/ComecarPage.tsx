@@ -4,6 +4,7 @@ import { useOnboardingStatus } from "../../lib/useOnboardingStatus";
 import { useTituloDaPagina } from "../../lib/tituloDaPagina";
 import { InstalarApp } from "../../components/InstalarApp";
 import { AvisoPerfilIncompleto } from "../../components/ei/AvisoPerfilIncompleto";
+import { PortaDosAvisos } from "../../components/ei/PortaDosAvisos";
 import { PortaDoPlano } from "../../components/ei/PortaDoPlano";
 
 /**
@@ -102,6 +103,17 @@ export function ComecarPage({ lado }: { lado: "professional" | "company" }) {
                 <span className="ei-porta-nome">Vagas compatíveis</span>
                 <span className="ei-porta-nota">O que combina com o seu ofício</span>
               </Link>
+              {/* ── A PORTA DOS AVISOS — 03/09 ─────────────────────────
+                  A dona: "na tela de procuro emprego pode ter um botão de
+                  notificações que mostre se a pessoa foi chamada por
+                  alguma onda."
+
+                  Os avisos já estavam na barra de baixo, mas ali eles são
+                  um sino pequeno no meio de cinco ícones — e é justamente
+                  esta a notícia que a pessoa abre o app para ver. Aqui a
+                  porta DIZ o que tem dentro: quantas vagas chegaram e se
+                  alguma ainda não foi aberta. */}
+              <PortaDosAvisos />
             </>
           )}
         </div>
@@ -164,7 +176,7 @@ function Atalhos() {
 export function IconePorta({
   desenho,
 }: {
-  desenho: "pessoa" | "pessoas" | "mala" | "predio" | "selo";
+  desenho: "pessoa" | "pessoas" | "mala" | "predio" | "selo" | "sino";
 }) {
   return (
     <span className="ei-porta-icone" aria-hidden="true">
@@ -195,6 +207,14 @@ export function IconePorta({
             o que a empresa TEM contratado — a tela de preços é que vende,
             e um símbolo de dinheiro na porta faria a pessoa achar que
             tocar já é comprar. */}
+        {/* O sino dos avisos. Mesmo traço dos outros — um sino cheio
+            pareceria um alerta de erro, e isto aqui é boa notícia. */}
+        {desenho === "sino" && (
+          <>
+            <path d="M18 8.5a6 6 0 1 0-12 0c0 5-2 6.5-2 6.5h16s-2-1.5-2-6.5" />
+            <path d="M13.7 19a2 2 0 0 1-3.4 0" />
+          </>
+        )}
         {desenho === "selo" && (
           <>
             <path d="M12 3.2l2.4 1.6 2.9.2.9 2.8 2 2.1-1.3 2.6.3 2.9-2.7 1.1-1.8 2.3-2.7-.8-2.7.8-1.8-2.3-2.7-1.1.3-2.9L4 9.9l2-2.1.9-2.8 2.9-.2z" />
