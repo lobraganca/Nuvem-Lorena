@@ -16,9 +16,9 @@ insert into public.profiles (id)
 delete from public.professionals where id in
   ('aaaa1111-0000-0000-0000-0000000000aa', 'aaaa1111-0000-0000-0000-0000000000bb');
 
-insert into public.professionals (id, owner_id, name, category, city, phone, entity_type)
+insert into public.professionals (id, owner_id, name, category, city, uf, phone, entity_type)
 values ('aaaa1111-0000-0000-0000-0000000000aa', 'aaaa1111-0000-0000-0000-000000000001',
-        'Hotel Serra', 'Hotel', 'Itabirito', '31999990000', 'pj');
+        'Hotel Serra', 'Hotel', 'Itabirito', 'MG', '31999990000', 'pj');
 
 \echo '1) item simples e aceito: esperado 1'
 insert into public.servicos_oferecidos (professional_id, nome)
@@ -35,9 +35,9 @@ delete from public.professionals where id = 'aaaa1111-0000-0000-0000-0000000000a
 select count(*) from public.servicos_oferecidos
  where professional_id = 'aaaa1111-0000-0000-0000-0000000000aa';
 
-insert into public.professionals (id, owner_id, name, category, city, phone, entity_type)
+insert into public.professionals (id, owner_id, name, category, city, uf, phone, entity_type)
 values ('aaaa1111-0000-0000-0000-0000000000bb', 'aaaa1111-0000-0000-0000-000000000001',
-        'Laboratório Teste', 'Laboratório de análises', 'Itabirito', '31999990001', 'pj');
+        'Laboratório Teste', 'Laboratório de análises', 'Itabirito', 'MG', '31999990001', 'pj');
 insert into public.servicos_oferecidos (professional_id, nome)
 select 'aaaa1111-0000-0000-0000-0000000000bb', 'Exame ' || g from generate_series(1, 40) g;
 

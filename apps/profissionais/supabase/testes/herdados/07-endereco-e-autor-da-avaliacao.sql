@@ -18,9 +18,9 @@ insert into public.profiles (id, full_name, avatar_url, cpf)
 
 delete from public.professionals where id = 'ffffffff-0000-0000-0000-0000000000aa';
 insert into public.professionals
-  (id, owner_id, name, category, city, phone, cep, street, street_number, neighborhood)
+  (id, owner_id, name, category, city, uf, phone, cep, street, street_number, neighborhood)
 values ('ffffffff-0000-0000-0000-0000000000aa', 'ffffffff-0000-0000-0000-000000000001',
-        'Casa do Bolo', 'Confeiteira', 'Itabirito', '31999990000',
+        'Casa do Bolo', 'Confeiteira', 'Itabirito', 'MG', '31999990000',
         '35450000', 'Rua Secreta', '42', 'Centro');
 
 \echo '1) sem marcar: cep/rua/numero nulos, bairro presente'

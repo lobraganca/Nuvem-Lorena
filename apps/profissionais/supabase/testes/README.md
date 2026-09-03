@@ -12,7 +12,22 @@ execução real encontrou três defeitos que nenhuma revisão de código pegou:
 3. `create or replace function` não troca o **nome** de um parâmetro, só o
    corpo — a correção do item 2 precisava de um `drop function` antes.
 
-## Como rodar
+## Como rodar (o jeito curto)
+
+```bash
+bash supabase/testes/rodar.sh
+```
+
+Ele monta um banco NOVO — schema completo, todas as migrations —, roda
+cada teste e imprime um resumo. Banco novo a cada execução é o que torna o
+resultado confiável: teste que roda sobre a sobra do anterior passa a
+depender da ordem e um dia mente.
+
+Hoje: **19 passam, 0 falham**. Os cinco que vinham do outro produto estão
+em `herdados/` — ver o LEIA.md de lá, e o motivo de terem saído da
+bateria principal.
+
+## Como rodar (à mão, passo a passo)
 
 ```bash
 # sobe um Postgres descartável

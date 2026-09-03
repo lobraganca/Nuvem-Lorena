@@ -12,13 +12,26 @@ insert into auth.users (id, email) values
   ('dddddddd-0000-0000-0000-000000000001', 'dono2@teste.com'),
   ('dddddddd-0000-0000-0000-000000000002', 'admin2@teste.com');
 
-insert into public.professionals (id, owner_id, name, category, city, bio, phone, entity_type)
+/* `whatsapp_verified` entrou aqui em 04/09: desde a 0076 (e de novo pela
+   0117) a lista pública só mostra quem confirmou o telefone. Sem isso o
+   teste media outra coisa — o anúncio nunca aparecia, pausado ou não. */
+insert into public.professionals (id, owner_id, name, category, city, uf, bio, phone, entity_type)
 values (
   'dddddddd-0000-0000-0000-000000000003',
   'dddddddd-0000-0000-0000-000000000001',
-  'Serralheiro do Bairro', 'Serralheiro', 'Itabirito', 'Portões e grades',
+  'Serralheiro do Bairro', 'Serralheiro', 'Itabirito', 'MG', 'Portões e grades',
   '(31) 98888-0000', 'pf'
 );
+
+/* O telefone precisa estar confirmado para o cadastro aparecer na lista
+   pública (regra da 0076, devolvida à view pela 0117). O gatilho da 0052
+   não deixa ligar o selo por `update` comum — quem liga é a confirmação
+   por código, que se identifica por esta variável de sessão. Sem isto o
+   teste media outra coisa: o anúncio nunca aparecia, pausado ou não. */
+set local app.confirmando_whatsapp = 'sim';
+update public.professionals set whatsapp_verified = true
+ where id = 'dddddddd-0000-0000-0000-000000000003';
+set local app.confirmando_whatsapp = '';
 
 create or replace function auth.uid() returns uuid language sql stable as
   $$ select 'dddddddd-0000-0000-0000-000000000001'::uuid $$;

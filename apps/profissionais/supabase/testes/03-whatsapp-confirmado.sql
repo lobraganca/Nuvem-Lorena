@@ -17,11 +17,11 @@ values
 -- `profiles` não é inserido aqui: o trigger de criação de perfil já cria uma
 -- linha para cada usuário novo do Auth.
 
-insert into public.professionals (id, owner_id, name, category, city, bio, phone, whatsapp, entity_type)
+insert into public.professionals (id, owner_id, name, category, city, uf, bio, phone, whatsapp, entity_type)
 values (
   'cccccccc-0000-0000-0000-000000000003',
   'cccccccc-0000-0000-0000-000000000001',
-  'Costureira da Serra', 'Costureira', 'Itabirito', 'Conserto e ajuste',
+  'Costureira da Serra', 'Costureira', 'Itabirito', 'MG', 'Conserto e ajuste',
   '(31) 99999-1111', '(31) 99999-1111', 'pf'
 );
 

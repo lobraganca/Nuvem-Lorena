@@ -42,13 +42,23 @@ begin
   insert into public.job_dispatches (job_listing_id, wave, professionals_count, status)
   values ('22220000-0000-0000-0000-000000000001', 2, 11, 'sent');
 
-  -- A terceira não abre: cada vaga tem direito a 2 ondas.
+  -- A TERCEIRA ABRE desde a 0108 — a dona pediu três ondas por vaga
+  -- ("cada vaga pode usar as 3 ondas"). Este teste nasceu quando eram
+  -- duas, e continuou cobrando o limite antigo: ficou meses acusando
+  -- defeito onde havia uma regra nova. Agora ele confere a regra de hoje.
+  insert into public.job_dispatches (job_listing_id, wave, professionals_count, status)
+  values ('22220000-0000-0000-0000-000000000001', 3, 30, 'sent');
+
+  -- A QUARTA é que não abre.
   begin
     insert into public.job_dispatches (job_listing_id, wave, professionals_count, status)
-    values ('22220000-0000-0000-0000-000000000001', 3, 30, 'sent');
-    raise exception 'FALHOU: abriu a terceira onda da mesma vaga';
+    values ('22220000-0000-0000-0000-000000000001', 4, 30, 'sent');
+    raise exception 'FALHOU: abriu a quarta onda da mesma vaga';
   exception when others then
-    if position('2 ondas' in sqlerrm) = 0 then raise; end if;
+    /* Confere que a recusa é a REGRA e não outro erro qualquer. O texto
+       da mensagem mudou junto com o limite (de "2 ondas" para "3 ondas"),
+       e o teste tem de acompanhar. */
+    if position('3 ondas' in sqlerrm) = 0 then raise; end if;
   end;
 
   -- O teto é por VAGA: outra vaga começa do zero. É o que garante que
@@ -56,7 +66,7 @@ begin
   insert into public.job_dispatches (job_listing_id, wave, professionals_count, status)
   values ('22220000-0000-0000-0000-000000000002', 1, 4, 'sent');
 
-  raise notice 'PASSOU: duas ondas por vaga, e cada vaga tem as suas';
+  raise notice 'PASSOU: três ondas por vaga, e cada vaga tem as suas';
 end $$;
 
 rollback;

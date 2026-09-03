@@ -16,9 +16,9 @@ insert into public.profiles (id)
   on conflict do nothing;
 
 delete from public.professionals where id = 'eeeeeeee-0000-0000-0000-0000000000aa';
-insert into public.professionals (id, owner_id, name, category, city, phone)
+insert into public.professionals (id, owner_id, name, category, city, uf, phone)
 values ('eeeeeeee-0000-0000-0000-0000000000aa', 'eeeeeeee-0000-0000-0000-000000000001',
-        'Teste do selo', 'Pedreiro', 'Itabirito', '31999990000');
+        'Teste do selo', 'Pedreiro', 'Itabirito', 'MG', '31999990000');
 
 \echo '1) sem selo: esperado t'
 select verified_since is null as sem_data

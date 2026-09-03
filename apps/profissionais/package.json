@@ -9,7 +9,8 @@
     "preview": "vite preview",
     "typecheck": "tsc --noEmit",
     "cap:sync": "npm run build && npx cap sync",
-    "sql:unico": "node scripts/gerar-sql-unico.mjs"
+    "sql:unico": "node scripts/gerar-sql-unico.mjs",
+    "test": "node testes/rodar.mjs"
   },
   "dependencies": {
     "@capacitor/android": "^8.5.0",

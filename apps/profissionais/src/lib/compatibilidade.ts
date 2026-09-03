@@ -103,7 +103,32 @@ export function calcular(
   const padrao = marcados.length === 0;
   const conta = (campo: string) => padrao || marcados.includes(campo);
 
-  const criterios: { campo: string; bate: boolean; peso: number; porque: string }[] = [];
+  /* ── UM CRITÉRIO SÓ CONTA QUANDO A VAGA PEDE AQUILO — 04/09 ────────
+     `vale` é a novidade, e ela conserta um defeito que inflava TODAS as
+     notas do app.
+
+     A regra antiga era "campo que ninguém preencheu não pune ninguém":
+     o critério da CNH, por exemplo, BATIA quando a vaga não exigia CNH.
+     Só que ele batia somando os 20 pontos dele — e o mesmo valia para
+     viagem, início imediato, fim de semana, escolaridade e pretensão.
+
+     O efeito, medido: uma manicure de OUTRA cidade tirava 47% numa vaga
+     de pedreiro. Quarenta e sete por cento é a faixa da onda 2 ("quem
+     combina em boa parte"), então a vaga de pedreiro era oferecida a ela
+     — e a tela dizia "combina em parte" para todo mundo do app.
+
+     Não punir continua valendo; o que muda é COMO: o critério que a vaga
+     não pede sai da conta inteira, em vez de entrar como acerto. Quem não
+     tem CNH não perde ponto numa vaga que não pede CNH, e também não
+     ganha. */
+  const criterios: {
+    campo: string;
+    bate: boolean;
+    peso: number;
+    porque: string;
+    /** A vaga pede este critério? Quando não, ele não entra na conta. */
+    vale?: boolean;
+  }[] = [];
 
   const alvo = normalizar(`${vaga.profession ?? ""} ${vaga.specialty ?? ""} ${vaga.title ?? ""}`);
   const bateFuncao = quem.funcoes.some((f) => {
@@ -114,13 +139,25 @@ export function calcular(
        perderia as duas. */
     return n.length > 2 && (alvo.includes(n) || n.includes(normalizar(vaga.profession ?? "")));
   });
-  criterios.push({ campo: "profissao", bate: bateFuncao, peso: 60, porque: "seu ofício" });
+  /* O ofício conta SEMPRE, marcado ou não.
+     ────────────────────────────────────
+     Antes ele obedecia à marcação como os outros, e isso abria um buraco
+     grande: uma vaga de pedreiro que marcasse só "CNH" dava 100% para uma
+     manicure com carteira de motorista — e a onda 1, que é a que a
+     empresa dispara primeiro, avisava justamente essa pessoa.
+
+     Marcar campos serve para dizer o que MAIS pesa, não para desligar o
+     ofício: uma vaga sem ofício não é uma vaga, é um convite aberto. */
+  criterios.push({ campo: "profissao", bate: bateFuncao, peso: 60, porque: "seu ofício", vale: true });
 
   criterios.push({
     campo: "cidade",
     bate: !!(quem.cidade && vaga.city && normalizar(quem.cidade) === normalizar(vaga.city)),
     peso: 25,
     porque: "sua cidade",
+    /* Os dois lados sempre têm cidade (o cadastro e a vaga são da
+       cidade), então este critério sempre pode ser respondido. */
+    vale: !!(quem.cidade && vaga.city),
   });
 
   criterios.push({
@@ -128,13 +165,12 @@ export function calcular(
     /* Sem resposta de um dos lados o critério BATE, e não falha: um campo
        que ninguém preencheu não é uma incompatibilidade, e tratá-lo como
        tal puniria quem deixou o cadastro pela metade. */
-    bate:
-      !quem.modo ||
-      !vaga.work_modality ||
-      quem.modo === "tanto_faz" ||
-      quem.modo === vaga.work_modality,
+    bate: quem.modo === "tanto_faz" || quem.modo === vaga.work_modality,
     peso: 15,
     porque: "seu jeito de trabalhar",
+    /* Só entra quando os DOIS responderam. Antes, o silêncio de qualquer
+       um dos lados fazia o critério bater e somar 15 pontos de graça. */
+    vale: !!quem.modo && !!vaga.work_modality,
   });
 
   /* Os critérios abaixo só entram na conta quando a EMPRESA os marcou.
@@ -144,44 +180,48 @@ export function calcular(
   criterios.push({
     campo: "escolaridade",
     bate:
-      !vaga.escolaridade_minima ||
-      (quem.escolaridade != null &&
-        ESCADA_ESCOLARIDADE.indexOf(quem.escolaridade) >=
-          ESCADA_ESCOLARIDADE.indexOf(vaga.escolaridade_minima)),
+      quem.escolaridade != null &&
+      vaga.escolaridade_minima != null &&
+      ESCADA_ESCOLARIDADE.indexOf(quem.escolaridade) >=
+        ESCADA_ESCOLARIDADE.indexOf(vaga.escolaridade_minima),
     peso: 20,
     porque: "sua formação",
+    vale: !!vaga.escolaridade_minima,
   });
 
   criterios.push({
     campo: "cnh",
     bate:
-      !vaga.cnh_exigida ||
-      (quem.temCnh &&
-        (vaga.cnh_categorias.length === 0 ||
-          vaga.cnh_categorias.some((c) => quem.cnhCategorias.includes(c)))),
+      quem.temCnh &&
+      (vaga.cnh_categorias.length === 0 ||
+        vaga.cnh_categorias.some((c) => quem.cnhCategorias.includes(c))),
     peso: 20,
     porque: "sua CNH",
+    vale: !!vaga.cnh_exigida,
   });
 
   criterios.push({
     campo: "viagem",
-    bate: !vaga.exige_viagem || quem.aceitaViajar,
+    bate: quem.aceitaViajar,
     peso: 15,
     porque: "você aceita viajar",
+    vale: !!vaga.exige_viagem,
   });
 
   criterios.push({
     campo: "inicio_imediato",
-    bate: !vaga.available_immediately || quem.inicioImediato,
+    bate: quem.inicioImediato,
     peso: 10,
     porque: "você começa logo",
+    vale: !!vaga.available_immediately,
   });
 
   criterios.push({
     campo: "fim_de_semana",
-    bate: vaga.jornada !== "fins_de_semana" || quem.fimDeSemana,
+    bate: quem.fimDeSemana,
     peso: 10,
     porque: "você topa fim de semana",
+    vale: vaga.jornada === "fins_de_semana",
   });
 
   criterios.push({
@@ -194,15 +234,26 @@ export function calcular(
        R$ 2.000 numa vaga de "R$ 1.800 a R$ 2.400" cabe. */
     bate:
       quem.pretensaoCombinar ||
-      quem.pretensaoCentavos == null ||
       vaga.salario_a_combinar ||
-      (vaga.salary_range_max ?? vaga.salary_range_min) == null ||
-      quem.pretensaoCentavos <= (vaga.salary_range_max ?? vaga.salary_range_min ?? 0),
+      (quem.pretensaoCentavos != null &&
+        quem.pretensaoCentavos <= (vaga.salary_range_max ?? vaga.salary_range_min ?? 0)),
     peso: 15,
     porque: "sua pretensão cabe",
+    /* Só quando os dois falaram de dinheiro. Se a vaga não diz salário e
+       a pessoa não diz pretensão, não há nada para comparar — e somar
+       quinze pontos por esse silêncio era parte do que inflava a nota. */
+    vale:
+      (vaga.salario_a_combinar ||
+        (vaga.salary_range_max ?? vaga.salary_range_min) != null) &&
+      (quem.pretensaoCombinar || quem.pretensaoCentavos != null),
   });
 
-  const valendo = criterios.filter((c) => conta(c.campo));
+  /* Entra na conta o que a vaga PEDE (`vale`) e o que a empresa marcou
+     como importante (`conta`). O ofício é a exceção que já vem marcada:
+     ele conta sempre. */
+  const valendo = criterios.filter(
+    (c) => c.vale !== false && (c.campo === "profissao" || conta(c.campo))
+  );
   /* Nenhum critério em jogo é impossível (a lista vazia liga todos), mas a
      divisão por zero não pode depender disso: um valor novo em
      `campos_compatibilidade` que nenhum critério reconheça deixaria
