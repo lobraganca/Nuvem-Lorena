@@ -185,7 +185,7 @@ function Atalhos() {
 export function IconePorta({
   desenho,
 }: {
-  desenho: "pessoa" | "pessoas" | "mala" | "predio" | "selo" | "sino";
+  desenho: "pessoa" | "pessoas" | "mala" | "predio" | "selo" | "sino" | "escudo";
 }) {
   return (
     <span className="ei-porta-icone" aria-hidden="true">
@@ -216,6 +216,12 @@ export function IconePorta({
             o que a empresa TEM contratado — a tela de preços é que vende,
             e um símbolo de dinheiro na porta faria a pessoa achar que
             tocar já é comprar. */}
+        {/* O escudo da administração. Mesmo desenho da linha que ele
+            substituiu na tela de Conta, para quem já o conhecia não
+            precisar reconhecer outro. */}
+        {desenho === "escudo" && (
+          <path d="M12 2.8l7.5 2.8v6c0 4.4-3 8.1-7.5 9.6-4.5-1.5-7.5-5.2-7.5-9.6v-6z" />
+        )}
         {/* O sino dos avisos. Mesmo traço dos outros — um sino cheio
             pareceria um alerta de erro, e isto aqui é boa notícia. */}
         {desenho === "sino" && (

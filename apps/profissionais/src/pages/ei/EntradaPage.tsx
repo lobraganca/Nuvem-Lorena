@@ -3,6 +3,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../../lib/useAuth";
 import { useOnboardingStatus } from "../../lib/useOnboardingStatus";
 import { registrarTipoDeUsuario } from "../../lib/company";
+import { isAdmin } from "../../lib/admin";
 import { useTituloDaPagina } from "../../lib/tituloDaPagina";
 import { InstalarApp } from "../../components/InstalarApp";
 import { IconePorta } from "./ComecarPage";
@@ -83,6 +84,21 @@ export function EntradaPage() {
      dois lugares em sequência, e o segundo toque só faz sentido depois
      que o primeiro terminou de gravar. */
   const [trocando, setTrocando] = useState(false);
+
+  /* Quem administra vê a porta do painel logo aqui. `false` enquanto não
+     se sabe: mostrar o atalho e escondê-lo meio segundo depois pisca na
+     tela de quem não é administração. */
+  const [ehAdmin, setEhAdmin] = useState(false);
+  useEffect(() => {
+    if (!user) return;
+    let vivo = true;
+    isAdmin(user.id)
+      .then((sim) => vivo && setEhAdmin(sim))
+      .catch(() => {});
+    return () => {
+      vivo = false;
+    };
+  }, [user]);
 
   /* ── OS BOTÕES TRAVAVAM AO VOLTAR — 03/09 ────────────────────────────
      A dona: "quando clica em voltar pra tela de início os botões de
@@ -290,6 +306,30 @@ export function EntradaPage() {
             <Link to="/login?acao=entrar" className="ei-porta">
               <span className="ei-porta-nome">Já tenho conta</span>
               <span className="ei-porta-nota">Entrar com celular e senha</span>
+            </Link>
+          </div>
+        )}
+
+        {/* ── O PAINEL DA ADMINISTRAÇÃO, PARA QUEM ADMINISTRA — 04/09 ──
+            A dona: "o botão do painel adm deve ficar na tela por onde
+            começamos."
+
+            Ele morava no fim da tela de Conta, depois de senha, instalação
+            e ajuda. Para quem administra o app isso está trocado: ver como
+            está a cidade é a primeira coisa do dia, não algo que se
+            procura no fim de outra tela.
+
+            Aparece SÓ para quem está em `admins` — e quem decide é o
+            banco, não esta tela: a rota `/admin` confere de novo, e sem a
+            permissão ela não abre nada. Isto aqui é atalho, não porteiro. */}
+        {ehAdmin && (
+          /* Dentro de `.ei-portas` para pegar a margem e o espaçamento das
+             outras portas: solto, ele encostava nas bordas da tela. */
+          <div className="ei-portas">
+            <Link to="/admin" className="ei-porta">
+              <IconePorta desenho="escudo" />
+              <span className="ei-porta-nome">Painel administrativo</span>
+              <span className="ei-porta-nota">Empresas, vagas, planos e o resto</span>
             </Link>
           </div>
         )}

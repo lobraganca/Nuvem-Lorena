@@ -620,10 +620,22 @@ export function PerfilPage() {
             <div className="ei-secao-linha">
               <h2>Administração</h2>
             </div>
+            {/* O "Painel administrativo" saiu daqui — 04/09
+                ─────────────────────────────────────────────
+                A dona: "o botão do painel adm deve ficar na tela por onde
+                começamos."
+
+                Faz sentido para quem administra: ela abre o app para ver
+                como está a cidade, e isso é a primeira coisa do dia — não
+                algo que se procura no fim da tela de Conta, depois de
+                senha, instalação e ajuda. Agora ele é uma porta na tela
+                inicial (ver `EntradaPage`), visível só para quem está em
+                `admins`.
+
+                "Configuração do app" fica: ela é ajuste de aparelho, do
+                mesmo naipe de "forçar atualização", e é aqui que se
+                procura isso. */}
             <div className="ei-lista">
-              <Linha para="/admin" icone={<IconeEscudo />}>
-                Painel administrativo
-              </Linha>
               <Linha para="/configuracao" icone={<IconeEngrenagem />}>
                 Configuração do app
               </Linha>
@@ -938,13 +950,6 @@ function IconeBaixar() {
   );
 }
 
-function IconeEscudo() {
-  return (
-    <svg {...traco}>
-      <path d="M12 2.8l7.5 2.8v6c0 4.4-3 8.1-7.5 9.6-4.5-1.5-7.5-5.2-7.5-9.6v-6z" />
-    </svg>
-  );
-}
 
 function IconeEngrenagem() {
   return (
