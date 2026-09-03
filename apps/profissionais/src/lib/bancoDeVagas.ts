@@ -97,7 +97,19 @@ export async function bancoDeVagas(userId?: string): Promise<VagaNoBanco[]> {
   let quem: QuemOlha | null = null;
   const respondidas = new Map<string, boolean>();
   if (userId) {
-    const { data: p, error: erroPerfil } = await sb
+    /* `order` + `limit(1)`, e nunca `maybeSingle()`.
+       ─────────────────────────────────────────────
+       `maybeSingle()` aceita nenhuma linha e ERRA com mais de uma
+       (PGRST116). Só que existe gente com DOIS cadastros: eles foram
+       possíveis até 03/09, quando a dona pediu "a pessoa só pode ter um" —
+       e os antigos continuam no banco. Para essas pessoas o banco de vagas
+       inteiro virava a mensagem "não consegui carregar as vagas", sem
+       nada que explicasse o motivo.
+
+       É o mesmo defeito que já apareceu três vezes neste projeto
+       (`obterMinhaEmpresa`, `lerMeuPerfil`, `responderVaga`), e foi
+       encontrado aqui exercitando o app com uma conta de dois cadastros. */
+    const { data: perfis, error: erroPerfil } = await sb
       .from("professionals")
       .select(
         "id, areas_de_interesse, city, modo_trabalho, cnh, cnh_categorias, " +
@@ -105,8 +117,10 @@ export async function bancoDeVagas(userId?: string): Promise<VagaNoBanco[]> {
           "pretensao_centavos, pretensao_combinar, disponibilidade"
       )
       .eq("owner_id", userId)
-      .maybeSingle();
+      .order("created_at", { ascending: true })
+      .limit(1);
     if (erroPerfil) throw erroPerfil;
+    const p = (perfis ?? [])[0] ?? null;
     if (p) {
       const linha = p as Record<string, any>;
 

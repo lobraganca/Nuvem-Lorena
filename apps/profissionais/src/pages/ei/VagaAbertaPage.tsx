@@ -8,6 +8,7 @@ import { lerMeuPerfil } from "../../lib/meuPerfil";
 import { supabase } from "../../lib/supabase";
 import { mensagemDeErro } from "../../lib/erros";
 import { Callout, Pagina, Prop } from "../../components/ei/Pagina";
+import { BotaoCompartilhar } from "../../components/ei/BotaoCompartilhar";
 import {
   nomeDaJornada,
   nomeDoContrato,
@@ -314,9 +315,24 @@ export function VagaAbertaPage() {
         </Link>
 
         {/* 2 — A VAGA: o que é, e o que a pessoa vai fazer. */}
-        <h1 className="ei-titulo-g" style={{ paddingTop: 18 }}>
-          {vaga.title}
-        </h1>
+        {/* ── COMPARTILHAR, AO LADO DO TÍTULO — 04/09 ────────────────
+            A dona: "ter ícone para compartilhar a vaga com uma pessoa."
+
+            Aqui, e não junto do "Tenho interesse" lá embaixo: numa cidade
+            pequena a vaga circula de mão em mão, e quem manda para outra
+            pessoa costuma decidir isso no primeiro instante — ao ler o
+            título e pensar "isso é a cara do fulano". Embaixo, depois de
+            toda a ficha, é onde estão as ações de QUEM VAI se candidatar. */}
+        <div className="ei-titulo-com-acao">
+          <h1 className="ei-titulo-g" style={{ paddingTop: 18 }}>
+            {vaga.title}
+          </h1>
+          <BotaoCompartilhar
+            titulo={vaga.title}
+            texto={`Vaga de ${vaga.profession || vaga.title} em ${vaga.city}. Vi no Ei Emprego:`}
+            caminho={`/vaga-aberta/${vaga.id}`}
+          />
+        </div>
 
         {/* ── A FRASE DE ABERTURA SAIU — 04/09 ────────────────────────
             A dona: "essa frase de início está horrível."

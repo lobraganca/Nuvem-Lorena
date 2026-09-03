@@ -13,6 +13,7 @@ import {
 } from "../lib/company";
 import { mensagemDeErro } from "../lib/erros";
 import { Pagina, Prop, Callout } from "../components/ei/Pagina";
+import { BotaoCompartilhar } from "../components/ei/BotaoCompartilhar";
 import {
   ONDAS,
   ONDAS_POR_VAGA,
@@ -162,7 +163,23 @@ export function DetalheVagaPage() {
             vezes — em cima e embaixo. A migalha do cabeçalho de página faz
             o trabalho dos dois botões, e faz melhor: diz onde a pessoa
             está, não só que dá para sair. */}
-        <Pagina titulo={vaga.title} voltar="/painel-empresa">
+        {/* O compartilhar mora na barra de topo, e não entre os botões de
+            ação: Editar, Pausar e Arquivar mexem NA vaga; mandar o link
+            para alguém não mexe em nada, e misturado com os outros três
+            seria o quarto botão de uma fileira em que os outros mudam o
+            estado da coisa. */}
+        <Pagina
+          titulo={vaga.title}
+          voltar="/painel-empresa"
+          acao={
+            <BotaoCompartilhar
+              titulo={vaga.title}
+              texto={`Vaga de ${vaga.profession || vaga.title} em ${vaga.city}. Veja no Ei Emprego:`}
+              caminho={`/vaga-aberta/${vaga.id}`}
+              rotulo=""
+            />
+          }
+        >
           {/* A vaga existe — o que faltou tem botão próprio nesta tela.
               Antes a empresa lia "não foi possível criar a vaga" e a vaga
               estava criada. */}
@@ -420,12 +437,24 @@ export function DetalheVagaPage() {
           </span>
         </Link>
 
-        <Link to={`/vaga/${vaga.id}/ondas`} className="ei-porta">
-          <span className="ei-porta-nome">Ondas de aviso</span>
+        {/* ── A SEGUNDA PORTA VIROU AS PESSOAS — 04/09 ──────────────
+            A dona: "no painel da empresa, ter duas opções: quem se
+            interessou pela vaga e as pessoas que são mais compatíveis com
+            a vaga."
+
+            Ela se chamava "Ondas de aviso" e prometia um mecanismo, não
+            gente: a empresa abria esperando ver quem era e encontrava três
+            botões de disparo. Agora a porta promete as PESSOAS — que é o
+            que a empresa quer — e o disparo continua lá dentro, embaixo da
+            lista, onde ele faz sentido: primeiro se olha, depois se
+            avisa. */}
+        <Link to={`/vaga/${vaga.id}/compativeis`} className="ei-porta">
+          <span className="ei-porta-nome">Mais compatíveis com a vaga</span>
           <span className="ei-porta-nota">
+            Quem mais combina, em ordem
             {ondas.length === 0
-              ? `Nenhuma disparada ainda — são ${ONDAS_POR_VAGA} por vaga`
-              : `${ondas.length} de ${ONDAS_POR_VAGA} disparadas`}
+              ? ` · nenhuma das ${ONDAS_POR_VAGA} ondas disparada`
+              : ` · ${ondas.length} de ${ONDAS_POR_VAGA} ondas disparadas`}
             {aindaTemOnda && vaga.status === "active" ? " · dá para avisar mais gente" : ""}
           </span>
         </Link>

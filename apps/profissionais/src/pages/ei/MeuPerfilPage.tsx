@@ -454,7 +454,13 @@ export function MeuPerfilPage() {
             telefone é como ela chama. Sem eles, o cadastro não serve para
             nada — por isso vêm antes de tudo. */}
         <h2 className="ei-secao">Seus dados</h2>
-        <div className="ei-cartao" style={{ display: "grid", gap: 12 }}>
+        {/* Sem `display: grid` com `gap`: o vão do grid SOMAVA com a margem
+            que separa dois campos (12 + 22 = 34px), e era por isso que o
+            primeiro cartão do cadastro respirava mais que todos os outros
+            — o defeito que a dona viu como "respiros maiores uns dos
+            outros". Quem decide a distância entre campos é uma regra só,
+            no fim do estilo-ei.css. */}
+        <div className="ei-cartao">
           {/* A foto — mesma mecânica da `CompletarPerfil` (enquadrar antes
               de subir, para não cortar a testa de quem manda foto em pé),
               mas gravando na coluna que a lista de talentos realmente lê. */}
@@ -591,7 +597,7 @@ export function MeuPerfilPage() {
               <button
                 type="button"
                 className="ei-btn ei-btn-tonal ei-btn-largo"
-                style={{ marginTop: perfil.telefonesExtra.length ? 10 : 0 }}
+                style={{ marginTop: perfil.telefonesExtra.length ? 22 : 0 }}
                 onClick={() =>
                   setPerfil((x) => ({ ...x, telefonesExtra: [...x.telefonesExtra, ""] }))
                 }
@@ -664,7 +670,7 @@ export function MeuPerfilPage() {
               <span>Tenho CNH</span>
             </label>
             {perfil.temCnh && (
-              <div className="ei-chips" style={{ marginTop: 10 }}>
+              <div className="ei-chips">
                 {["A", "B", "C", "D", "E", "AB"].map((cat) => {
                   const marcada = perfil.cnhCategorias.includes(cat);
                   return (
@@ -753,16 +759,30 @@ export function MeuPerfilPage() {
               </span>
             </div>
 
-            <div className="ei-cartao" style={{ padding: 0, marginTop: 12 }}>
-              <Switch
-                ligado={pretensaoCombinar}
-                onChange={(v) => {
-                  setPretensaoCombinar(v);
-                  if (v) setPretensao("");
-                }}
-                titulo="Prefiro combinar"
-              />
-            </div>
+          </div>
+
+          {/* ── A CHAVE SAIU DE DENTRO DO CARTÃO — 04/09 ──────────────
+              A dona: "alguns campos dentro do cadastro estão desalinhados,
+              e com respiros maiores uns dos outros. Alinhe tudo."
+
+              "Prefiro combinar" era um `.ei-cartao` DENTRO de outro
+              `.ei-cartao`: os 20px de recuo de cada um se somavam, e a
+              chave começava 40px da borda enquanto todo o resto da tela
+              começava a 20px. Do lado de fora ela era só "uma linha
+              torta", e é exatamente esse tipo de coisa que faz uma tela
+              parecer quebrada sem que dê para dizer por quê.
+
+              Agora ela é irmã do cartão do salário, como as outras três
+              chaves desta mesma seção — mesmo recuo, mesmo vão. */}
+          <div className="ei-cartao" style={{ padding: 0 }}>
+            <Switch
+              ligado={pretensaoCombinar}
+              onChange={(v) => {
+                setPretensaoCombinar(v);
+                if (v) setPretensao("");
+              }}
+              titulo="Prefiro combinar"
+            />
           </div>
 
           <div className="ei-cartao">
@@ -787,7 +807,7 @@ export function MeuPerfilPage() {
                 lista tinha oitenta itens (as funções); com sete, ela só
                 criava uma caixa que rola dentro de uma página que já
                 rola. */}
-            <div className="ei-opcoes" style={{ marginTop: 10 }}>
+            <div className="ei-opcoes">
               {DISPONIBILIDADE.map((h) => {
                 const marcado = disponibilidade.includes(h);
                 return (
@@ -1124,7 +1144,7 @@ export function MeuPerfilPage() {
           <button
             type="button"
             className="ei-btn ei-btn-tonal ei-btn-largo"
-            style={{ marginTop: experiencias.length ? 16 : 0 }}
+            style={{ marginTop: experiencias.length ? 22 : 0 }}
             onClick={() =>
               setExperiencias((a) => [...a, { empresa: "", cargo: "", inicio: "", fim: "" }])
             }
@@ -1296,7 +1316,7 @@ export function MeuPerfilPage() {
               horário": são a mesma coisa — opções para tocar —, e duas
               formas diferentes para a mesma coisa fazem a pessoa
               reaprender no meio do formulário. */}
-          <div className="ei-opcoes" style={{ marginTop: competencias.length ? 18 : 0 }}>
+          <div className="ei-opcoes" style={{ marginTop: competencias.length ? 22 : 0 }}>
             {["Excel", "Informática", "Atendimento", "Caixa", "Vendas", "Direção"]
               .filter(
                 (nome) =>
@@ -1321,7 +1341,6 @@ export function MeuPerfilPage() {
           <button
             type="button"
             className="ei-btn ei-btn-tonal ei-btn-largo"
-            style={{ marginTop: 14 }}
             onClick={() => setCompetencias((a) => [...a, { nome: "", nivel: "basico" }])}
           >
             + Outra competência
@@ -1517,7 +1536,7 @@ function ListaDeCursos({
       <button
         type="button"
         className="ei-btn ei-btn-tonal ei-btn-largo"
-        style={{ marginTop: indices.length ? 16 : 0 }}
+        style={{ marginTop: indices.length ? 22 : 0 }}
         onClick={() =>
           setCursos((a) => [
             ...a,

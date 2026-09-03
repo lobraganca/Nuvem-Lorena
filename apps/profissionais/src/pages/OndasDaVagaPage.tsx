@@ -7,9 +7,12 @@ import {
   abrirOnda,
 } from "../lib/company";
 import { mensagemDeErro } from "../lib/erros";
+import { compativeisComAVaga, contarAparicaoEmBusca, type CandidatoCompativel } from "../lib/compativeis";
+import { Link } from "react-router-dom";
 import { Pagina } from "../components/ei/Pagina";
 import { useTituloDaPagina } from "../lib/tituloDaPagina";
 import {
+  FAIXAS_DAS_ONDAS,
   ONDAS,
   ONDAS_POR_VAGA,
   type JobListing,
@@ -36,11 +39,25 @@ import {
  *
  * Disparar continua sendo um ATO da empresa, nunca automático: quem já
  * achou gente não incomoda mais ninguém.
+ *
+ * ── E agora ela mostra AS PESSOAS — 04/09 ────────────────────────────
+ *
+ * A dona: "no painel da empresa, ter duas opções: quem se interessou pela
+ * vaga e as pessoas que são mais compatíveis com a vaga."
+ *
+ * A tela contava quantas pessoas a onda alcança, e não dizia QUEM são. Era
+ * o número sem os nomes: a empresa disparava no escuro e esperava. Agora a
+ * lista vem primeiro — nome, foto, quanto combina e por quê — e o disparo
+ * continua embaixo, que é o lugar dele: primeiro se olha, depois se avisa.
+ *
+ * Nada aqui é mais do que a empresa já podia ver: é a mesma view pública
+ * do banco de talentos, que é aberto até para quem não tem conta. O que
+ * muda é a ordem e o motivo.
  */
 export function OndasDaVagaPage() {
   const { id: vagaId } = useParams<{ id: string }>();
   const navegar = useNavigate();
-  useTituloDaPagina("Ondas da vaga");
+  useTituloDaPagina("Pessoas mais compatíveis com a vaga");
 
   const [vaga, setVaga] = useState<JobListing | null>(null);
   const [ondas, setOndas] = useState<JobDispatch[]>([]);
@@ -51,6 +68,10 @@ export function OndasDaVagaPage() {
   const [alcanceProximaOnda, setAlcanceProximaOnda] = useState<number | null>(null);
   const [contando, setContando] = useState(false);
   const [abrindo, setAbrindo] = useState(false);
+  /* `null` = ainda carregando. Lista vazia é resposta legítima ("não há
+     ninguém cadastrado nessa cidade ainda") e precisa de texto próprio. */
+  const [compativeis, setCompativeis] = useState<CandidatoCompativel[] | null>(null);
+  const [erroLista, setErroLista] = useState("");
 
   useEffect(() => {
     if (!vagaId) {
@@ -66,6 +87,23 @@ export function OndasDaVagaPage() {
         }
         setVaga(v);
         setOndas(await obterOndasDaVaga(vagaId));
+
+        /* A lista de gente é carregada à parte, e o erro dela é guardado à
+           parte: se a leitura dos candidatos falhar, as ondas continuam
+           funcionando. Juntar os dois num `try` só faria a tela inteira
+           virar uma mensagem de erro por causa da metade que quebrou. */
+        try {
+          const gente = await compativeisComAVaga(v);
+          setCompativeis(gente);
+          /* Aparecer numa lista de candidatos É aparecer numa busca — é
+             isto que alimenta o "você apareceu em N buscas" da tela de
+             desempenho de quem procura trabalho. */
+          contarAparicaoEmBusca(gente.slice(0, 50).map((c) => c.id));
+        } catch (err) {
+          setErroLista(
+            mensagemDeErro(err, "Não foi possível carregar as pessoas mais compatíveis.")
+          );
+        }
       } catch (err) {
         setErro(mensagemDeErro(err, "Não foi possível carregar as ondas."));
       } finally {
@@ -118,7 +156,7 @@ export function OndasDaVagaPage() {
     return (
       <div className="ei">
         <div className="ei-tela">
-          <Pagina titulo="Ondas" voltar="/painel-empresa" />
+          <Pagina titulo="Mais compatíveis" voltar="/painel-empresa" />
           <p className="ei-apoio ei-margem">{erro || "Vaga não encontrada."}</p>
         </div>
       </div>
@@ -133,7 +171,7 @@ export function OndasDaVagaPage() {
   return (
     <div className="ei">
       <div className="ei-tela detalhe-vaga">
-        <Pagina titulo="Ondas" voltar={`/vaga/${vaga.id}`}>
+        <Pagina titulo="Mais compatíveis" voltar={`/vaga/${vaga.id}`}>
           <p className="ei-apoio ei-margem" style={{ marginTop: 4 }}>
             {vaga.title}
           </p>
@@ -144,6 +182,73 @@ export function OndasDaVagaPage() {
             {erro}
           </p>
         )}
+
+      {/* ── A LISTA DE GENTE, ANTES DAS ONDAS — 04/09 ───────────────────
+          Primeiro quem são, depois avisar. A ordem contrária (o disparo em
+          cima, os nomes embaixo) faria a empresa disparar sem ter olhado —
+          e onda gasta: são três por vaga, e não voltam. */}
+      {erroLista && (
+        <p className="ei-campo-erro ei-margem" style={{ marginTop: 12 }} role="alert">
+          {erroLista}
+        </p>
+      )}
+
+      {compativeis !== null && !erroLista && (
+        <>
+          <h2 className="ei-secao">
+            {compativeis.length === 0
+              ? "Quem combina com a vaga"
+              : `${compativeis.length} ${
+                  compativeis.length === 1 ? "pessoa cadastrada" : "pessoas cadastradas"
+                } em ${vaga.city}`}
+          </h2>
+
+          {compativeis.length === 0 ? (
+            <p className="ei-apoio ei-margem">
+              Ainda não há cadastros em {vaga.city} para comparar com esta vaga.
+            </p>
+          ) : (
+            <div className="ei-lista">
+              {compativeis.slice(0, 40).map((c) => (
+                /* O mesmo desenho de linha do banco de talentos (retrato
+                   de 64px, nome, ofício), com a nota à direita: é a mesma
+                   informação, e duas listas de gente com desenhos
+                   diferentes fariam a empresa achar que são coisas
+                   diferentes. */
+                <Link key={c.id} to={`/profissional/${c.id}`} className="ei-pessoa">
+                  <span className="ei-pessoa-retrato" aria-hidden="true">
+                    {c.foto ? (
+                      <img src={c.foto} alt="" />
+                    ) : (
+                      (c.nome || "?").trim().charAt(0).toLocaleUpperCase("pt-BR")
+                    )}
+                  </span>
+                  <span className="ei-pessoa-texto">
+                    <span className="ei-pessoa-nome ei-uma-linha">{c.nome}</span>
+                    {/* O "por quê" é o que impede o número de virar
+                        adivinhação: 85% sem explicação é um palpite que a
+                        empresa não tem como conferir. */}
+                    <span className="ei-pessoa-oficio">
+                      {c.porque.length > 0
+                        ? `Combina em ${c.porque.join(", ")}`
+                        : c.funcoes.slice(0, 3).join(", ") || c.cidade}
+                    </span>
+                  </span>
+                  <span className={`ei-nota-compat ${faixaDaNota(c.nota)}`}>{c.nota}%</span>
+                </Link>
+              ))}
+            </div>
+          )}
+
+          {compativeis.length > 40 && (
+            <p className="ei-apoio ei-margem" style={{ marginTop: 8 }}>
+              Mostrando as 40 que mais combinam, de {compativeis.length}.
+            </p>
+          )}
+        </>
+      )}
+
+      <h2 className="ei-secao">Avisar essas pessoas</h2>
 
       {/* ── AS TRÊS ONDAS, UMA POR BLOCO — 03/09 ─────────────────────────
           A dona: "a parte de disparo de ondas tem que ficar melhor.
@@ -246,4 +351,18 @@ export function OndasDaVagaPage() {
       </div>
     </div>
   );
+}
+
+/**
+ * A cor da nota, na mesma régua das ondas (0113).
+ *
+ * As faixas são as que a dona definiu — 80 a 100, 40 a 79, 0 a 39 —, e por
+ * isso são LIDAS de `FAIXAS_DAS_ONDAS` em vez de escritas de novo aqui:
+ * mudar a régua num lugar e não no outro faria a tela pintar de verde uma
+ * pessoa que a onda 1 não alcança.
+ */
+function faixaDaNota(nota: number): string {
+  if (nota >= FAIXAS_DAS_ONDAS[1].de) return "ei-nota-alta";
+  if (nota >= FAIXAS_DAS_ONDAS[2].de) return "ei-nota-media";
+  return "ei-nota-baixa";
 }

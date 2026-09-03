@@ -234,18 +234,31 @@ export function PlanosEmpresaPage() {
                       Quero o {p.nome}
                     </button>
                     <p className="ei-plano-resumo">
-                      A cobrança ainda está sendo ligada. Você faz o cadastro agora e a
-                      gente combina o pagamento depois.
+                      Você escolhe agora e paga na hora de publicar a primeira vaga.
                     </p>
                   </>
                 ) : (
-                  <button
-                    type="button"
+                  /* ── O BOTÃO DEIXOU DE SER UM BECO — 04/09 ─────────────
+                     Ele dizia "Em breve", desligado, e logo abaixo vinha
+                     um parágrafo explicando que a cobrança ainda estava
+                     sendo ligada. A dona mandou tirar esse parágrafo — e
+                     um botão desligado SEM a explicação é pior que os
+                     dois juntos: a empresa toca três vezes e desiste.
+
+                     Então o botão passa a fazer a única coisa que hoje
+                     resolve de verdade: abrir a conversa com o suporte já
+                     com o nome do plano escrito. Nada é prometido que não
+                     exista. */
+                  <a
                     className="ei-btn ei-btn-contorno ei-btn-largo ei-btn-alto"
-                    disabled
+                    href={`https://wa.me/${SUPORTE_WHATSAPP}?text=${encodeURIComponent(
+                      `Olá! Quero assinar o plano ${p.nome} do Ei Emprego.`
+                    )}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
                   >
-                    Em breve
-                  </button>
+                    Quero o {p.nome}
+                  </a>
                 )}
               </section>
             );
@@ -269,14 +282,19 @@ export function PlanosEmpresaPage() {
             {/* O que é IGUAL nos três, dito uma vez só — ver o comentário
                 em `PLANOS_EMPRESA`. Antes eram duas linhas repetidas dentro
                 de cada um dos três cartões. */}
-            <p className="ei-apoio ei-margem" style={{ marginTop: 16 }}>
-              Todos incluem: aviso para quem tem a função que você procura e{" "}
-              {DIAS_ANUNCIO_VAGA} dias de anúncio por vaga.
-            </p>
+            {/* ── A FRASE DOS TRÊS PLANOS, REESCRITA — 04/09 ────────────
+                A dona: "tem uma fala que tem que revisar: 'todos incluem
+                aviso que pra quem tem a função que você procura'."
 
-            <p className="ei-apoio ei-margem" style={{ marginTop: 12 }}>
-              A cobrança está sendo ligada. Enquanto isso, fale com o suporte que
-              a gente libera o seu plano na mão.
+                Estava escrita como uma etiqueta de embalagem — "Todos
+                incluem: aviso para quem tem a função que você procura" —,
+                com dois-pontos no meio e sem sujeito nenhum. Quem lia
+                tinha de montar a frase sozinha para descobrir QUEM avisa
+                QUEM. Agora é uma frase inteira, com quem faz a ação na
+                frente. */}
+            <p className="ei-apoio ei-margem" style={{ marginTop: 16 }}>
+              Em qualquer um dos três, o app avisa quem tem a função que você
+              procura, e a vaga fica {DIAS_ANUNCIO_VAGA} dias no ar.
             </p>
 
             {/* ── AS DUAS LISTAS DE ARGUMENTO SAÍRAM — 04/09 ────────────

@@ -339,6 +339,11 @@ export default function App() {
         <Route path="/vaga/:id/editar" element={<CriarVagaPage />} />
         {/* Os dois assuntos que saíram da tela da vaga em 04/09 — ver o
             comentário das duas portas em `DetalheVagaPage`. */}
+        {/* Dois endereços para a mesma tela: ela deixou de se chamar
+            "Ondas" quando passou a mostrar as pessoas (04/09), e o
+            endereço antigo continua valendo — quem tiver o link guardado
+            ou o app aberto numa aba velha não cai num "não encontrado". */}
+        <Route path="/vaga/:id/compativeis" element={<OndasDaVagaPage />} />
         <Route path="/vaga/:id/ondas" element={<OndasDaVagaPage />} />
         <Route path="/vaga/:id/interessados" element={<InteressadosDaVagaPage />} />
         <Route path="/vaga/:id" element={<DetalheVagaPage />} />

@@ -4476,3 +4476,247 @@
   white-space: pre-line;
   overflow-wrap: anywhere;
 }
+
+/* ── COMPARTILHAR A VAGA — 04/09 ───────────────────────────────────────
+   A dona: "ter ícone para compartilhar a vaga com uma pessoa."
+
+   Botão de texto com ícone, e não um botão de contorno: ele fica ao lado
+   do título da vaga e dentro da barra de topo, onde um botão desenhado
+   competiria com a ação principal da tela ("Tenho interesse"). O alvo de
+   toque continua alto — 40px —, porque um ícone de 18px sem área em volta
+   é o botão que ninguém acerta no ônibus. */
+.ei .ei-compartilhar {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  min-height: 40px;
+  padding: 6px 10px;
+  border: 0;
+  border-radius: var(--ei-raio);
+  background: transparent;
+  color: var(--ei-acento);
+  font: inherit;
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.ei .ei-compartilhar:active { background: rgba(0, 0, 0, 0.06); }
+
+/* Dentro da barra azul o botão é branco como o título e a seta. */
+.ei .ei-barra-acao .ei-compartilhar { color: inherit; }
+
+/* Título grande com uma ação pequena à direita (o compartilhar da vaga).
+   `align-items: end` alinha o botão pela BASE do título, e não pelo meio:
+   com o título em duas linhas, centralizado, o botão flutuava no vão à
+   direita sem se ligar a nada. */
+.ei .ei-titulo-com-acao {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 10px;
+  padding-right: 12px;
+}
+.ei .ei-titulo-com-acao > .ei-titulo-g { flex: 1 1 auto; }
+.ei .ei-titulo-com-acao > .ei-compartilhar { flex: 0 0 auto; margin-bottom: 2px; }
+
+/* ── A NOTA DE COMPATIBILIDADE NA LISTA — 04/09 ────────────────────────
+   Na tela de "mais compatíveis" de uma vaga. As três faixas são as três
+   ondas (80-100, 40-79, 0-39): a mesma régua com que a empresa dispara o
+   aviso, para o verde da lista querer dizer "esta é a onda 1".
+
+   Cor sozinha não informa (quem não distingue vermelho de verde vê dois
+   cinzas iguais), então o NÚMERO está sempre escrito — a cor só apressa a
+   leitura de quem enxerga as duas. */
+.ei .ei-nota-compat {
+  flex: 0 0 auto;
+  min-width: 48px;
+  padding: 4px 8px;
+  border-radius: var(--ei-raio);
+  font-size: 0.85rem;
+  font-weight: 700;
+  text-align: center;
+  font-variant-numeric: tabular-nums;
+}
+.ei .ei-nota-alta { background: #E6F4EA; color: #1E7B34; }
+.ei .ei-nota-media { background: #FFF3E0; color: #A85B00; }
+.ei .ei-nota-baixa { background: var(--ei-afunda); color: var(--ei-tinta-fraca); }
+
+/* ── AS VAGAS UMA POR UMA, DESLIZANDO — 04/09 ──────────────────────────
+   A dona: "quando abre o banco de vagas, precisamos pensar em ter um jeito
+   das vagas disponíveis irem deslizando horizontalmente, onde a pessoa
+   pode ir escolhendo se tem interesse ou não."
+
+   O cartão é UM só na tela, do tamanho da mão. `touch-action: pan-y`
+   é o que faz o gesto conviver com a rolagem: sem ele, o navegador
+   entrega o dedo inteiro para o arrasto lateral e a página trava na
+   vertical — o cartão desliza e a pessoa não consegue mais descer a
+   tela. */
+.ei .ei-baralho {
+  display: grid;
+  gap: 12px;
+  padding: 4px 12px 20px;
+}
+
+.ei .ei-baralho-conta {
+  margin: 0;
+  font-size: 0.82rem;
+  color: var(--ei-tinta-fraca);
+  text-align: center;
+  font-variant-numeric: tabular-nums;
+}
+
+.ei .ei-baralho-cartao {
+  display: grid;
+  gap: 12px;
+  padding: 18px 18px 20px;
+  border: 1px solid var(--ei-fio);
+  border-radius: var(--ei-raio);
+  background: var(--ei-papel);
+  touch-action: pan-y;
+  cursor: grab;
+  user-select: none;
+}
+.ei .ei-baralho-cartao:active { cursor: grabbing; }
+
+.ei .ei-baralho-topo { display: flex; align-items: center; gap: 12px; min-width: 0; }
+
+.ei .ei-baralho-titulo {
+  margin: 0;
+  font-size: 1.35rem;
+  line-height: 1.25;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+}
+
+/* Duas fichas lado a lado — salário e contratação, que é o par que decide
+   se a pessoa continua lendo. */
+.ei .ei-baralho-fichas {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin: 0;
+  padding: 12px 0;
+  border-top: 1px solid var(--ei-fio);
+  border-bottom: 1px solid var(--ei-fio);
+}
+.ei .ei-baralho-fichas dt {
+  font-size: 0.78rem;
+  color: var(--ei-tinta-fraca);
+  margin-bottom: 2px;
+}
+.ei .ei-baralho-fichas dd { margin: 0; font-size: 0.95rem; font-weight: 600; }
+
+/* Três linhas da descrição: o suficiente para dar o tom da vaga, e pouco
+   o bastante para os botões continuarem visíveis sem rolar — que é o
+   ponto inteiro deste modo. */
+.ei .ei-baralho-texto {
+  margin: 0;
+  font-size: 0.9rem;
+  line-height: 1.5;
+  color: var(--ei-tinta-fraca);
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.ei .ei-baralho-acoes {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+/* O laranja nasceu para ser o único botão de um cartão, com margem
+   própria (ver `.ei-btn-laranja`). Aqui ele é metade de um par, e a
+   margem dele desalinharia os dois. */
+.ei .ei-baralho-acoes > .ei-btn-laranja { margin: 0; width: 100%; }
+/* Os dois botões do par têm de ter a MESMA altura: o de contorno vinha
+   com a altura do texto e o laranja com 48px, e um par desigual lê como
+   se um dos dois fosse o botão de verdade. */
+.ei .ei-baralho-acoes > .ei-btn { min-height: 48px; }
+
+/* "Ver a vaga inteira" é um caminho lateral, não uma ação: dentro da
+   grade do cartão o `ei-btn-inline` esticava de ponta a ponta e virava o
+   botão mais chamativo da tela — competindo justamente com as duas
+   respostas que este modo existe para colher. */
+.ei .ei-baralho-cartao > .ei-btn-inline {
+  justify-self: start;
+  background: transparent;
+  border: 0;
+  padding: 4px 0;
+  color: var(--ei-acento);
+  text-decoration: underline;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════
+   UM VÃO SÓ ENTRE OS CAMPOS DO CADASTRO — 04/09
+   ═══════════════════════════════════════════════════════════════════════
+   A dona: "alguns campos dentro do cadastro estão desalinhados, e com
+   respiros maiores uns dos outros. Alinhe tudo."
+
+   Ela tem razão, e dá para medir: numa passada pelo cadastro do
+   profissional, os vãos entre um campo e o seguinte eram 10, 12, 14, 16,
+   18 e 30px — seis distâncias diferentes na mesma tela. O motivo é o
+   histórico: cada pedido de "dar respiro" acrescentou uma regra nova sem
+   apagar a anterior, e três regras diferentes disputavam o mesmo par de
+   campos (`.ei-cartao > .ei-campo + .ei-campo` valia 18, a de descendente
+   valia 24, e o `style` na tag valia 10).
+
+   O olho não lê 18 contra 24 como "dois tamanhos"; lê como torto. E entre
+   dois campos o vão não deveria depender de qual cartão eles moram.
+
+   Daqui em diante é UM número — 22px — e ele vale para tudo que é irmão
+   dentro de um cartão: campo, fileira de opções, fileira de etiquetas,
+   botão de "acrescentar". As distâncias DENTRO de um campo (rótulo, caixa
+   e a dica cinza) continuam pequenas, porque é isso que faz o campo ser
+   lido como uma coisa só.
+
+   Esta regra fica no fim do arquivo de propósito: com a mesma força das
+   antigas, quem vem por último é quem vale — e assim ela não precisa de
+   `!important` nem de apagar a história de cada uma delas. */
+.ei .ei-cartao > .ei-campo + .ei-campo,
+.ei .ei-cartao .ei-campo + .ei-campo,
+.ei .ei-cartao .ei-campo + .segmentado,
+.ei .ei-cartao .segmentado + .ei-campo,
+.ei .ei-cartao > .ei-campo + .ei-opcoes,
+.ei .ei-cartao > .ei-campo + .ei-chips,
+.ei .ei-cartao > .ei-opcoes + .ei-btn,
+.ei .ei-cartao > .ei-chips + .ei-btn,
+.ei .ei-cartao > .ei-campo + div:not(.ei-chips),
+.ei .ei-cartao > div:not(.ei-chips) + .ei-campo {
+  margin-top: 22px;
+}
+
+/* Os três casos que sobraram da varredura de vãos (a medição encontrou
+   0px, 12px e 14px onde o resto da tela usa 22px): a foto no topo do
+   cadastro, a linha "2 de 8 funções" e a fileira de sugestões antes do
+   botão de acrescentar. */
+.ei .ei-cartao > .ei-foto-escolha + .ei-campo,
+.ei .ei-cartao > .ei-apoio + .ei-campo,
+.ei .ei-cartao .ei-opcoes + .ei-btn,
+.ei .ei-cartao .ei-chips + .ei-btn {
+  margin-top: 22px;
+}
+
+/* ── A FOTO ALINHA COM O RESTO — 04/09 ────────────────────────────────
+   Ela era o único bloco centralizado de um formulário inteiro alinhado à
+   esquerda: o retrato e o botão "Incluir foto" ficavam no meio, e o olho
+   que desce pela coluna de rótulos batia num degrau logo no primeiro
+   item. Encostada à esquerda, ela entra na mesma régua do "Nome" que vem
+   logo abaixo. */
+.ei .ei-cartao > .ei-foto-escolha { justify-items: start; }
+
+/* ── OS TÍTULOS DE SEÇÃO NA MESMA RÉGUA DOS CAMPOS — 04/09 ────────────
+   Medindo o cadastro: o rótulo de cada campo começa a 48px da borda da
+   tela (12px de recuo do cartão + 1px de fio + 20px de folga interna), e
+   o título da seção começava a 35px. Treze pixels de degrau em cada
+   troca de assunto — pouco para se apontar, o bastante para a tela
+   parecer torta ao rolar.
+
+   Os títulos são irmãos dos cartões, não filhos, então o recuo tem de ser
+   somado à mão. */
+.ei .ei-secao,
+.ei .ei-secao-linha {
+  padding-left: 33px;
+  padding-right: 33px;
+}
