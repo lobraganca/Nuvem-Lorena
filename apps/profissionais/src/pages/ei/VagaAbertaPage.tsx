@@ -61,7 +61,12 @@ export function VagaAbertaPage() {
   useTituloDaPagina("Vaga");
 
   const [vaga, setVaga] = useState<JobListing | null>(null);
-  const [empresa, setEmpresa] = useState<{ nome: string; foto: string | null } | null>(null);
+  const [empresa, setEmpresa] = useState<{
+    nome: string;
+    foto: string | null;
+    onde: string;
+    descricao: string | null;
+  } | null>(null);
   /* `undefined` = ainda não respondeu; `true`/`false` = a resposta dela.
      Três estados, como na lista — sem isso, "não quis" e "não abriu"
      mostrariam a mesma tela. */
@@ -123,14 +128,32 @@ export function VagaAbertaPage() {
            empresa em branco, exatamente para o público a quem ela
            interessa. É o mesmo defeito que a 0100 consertou nas duas
            listas, e que ficou de fora desta tela. */
+        /* A prévia da empresa quer mais do que nome e foto — a dona: "em
+           cima pode ter um prévia do perfil da empresa". O que ela faz, em
+           uma linha, é o que responde "dá para confiar nesta vaga?" antes
+           de qualquer especificação. */
         const { data: emp } = await sb
           .from("companies_public")
-          .select("company_name, photo_url")
+          .select("company_name, photo_url, city, uf, neighborhood, description")
           .eq("id", v.company_id)
           .maybeSingle();
         if (emp) {
-          const e = emp as { company_name?: string; photo_url?: string | null };
-          setEmpresa({ nome: e.company_name ?? "", foto: e.photo_url ?? null });
+          const e = emp as {
+            company_name?: string;
+            photo_url?: string | null;
+            city?: string | null;
+            uf?: string | null;
+            neighborhood?: string | null;
+            description?: string | null;
+          };
+          setEmpresa({
+            nome: e.company_name ?? "",
+            foto: e.photo_url ?? null,
+            onde: [e.neighborhood, [e.city, e.uf].filter(Boolean).join("/")]
+              .filter(Boolean)
+              .join(" · "),
+            descricao: e.description ?? null,
+          });
         }
 
         if (user) {
@@ -250,6 +273,14 @@ export function VagaAbertaPage() {
             "que empresa é essa" é a primeira pergunta de quem lê uma vaga
             numa cidade pequena, e a resposta ficava com o nome escrito e
             nenhum caminho. */}
+        {/* 04/09: virou uma PRÉVIA do perfil, e não só o nome — a dona:
+            "em cima pode ter um prévia do perfil da empresa e depois todos
+            os dados que a vaga teve de preenchimento pelo dono."
+
+            O que a prévia acrescentou foi a frase que a empresa escreveu
+            sobre si, em duas linhas: numa cidade pequena, "quem é essa
+            empresa" decide se a pessoa continua lendo — e o nome sozinho
+            não responde isso quando a empresa é nova. */}
         <Link to={`/empresa/${vaga.company_id}`} className="ei-empresa-topo ei-empresa-topo-link">
           <span className="ei-empresa-marca" aria-hidden="true">
             {empresa?.foto ? (
@@ -263,9 +294,13 @@ export function VagaAbertaPage() {
               {empresa?.nome || "Empresa"}
             </span>
             <span className="ei-empresa-topo-onde ei-uma-linha">
-              {vaga.neighborhood ? `${vaga.neighborhood} · ` : ""}
-              {vaga.city}/{vaga.uf}
+              {empresa?.onde ||
+                `${vaga.neighborhood ? `${vaga.neighborhood} · ` : ""}${vaga.city}/${vaga.uf}`}
             </span>
+            {empresa?.descricao?.trim() && (
+              <span className="ei-empresa-topo-sobre">{empresa.descricao}</span>
+            )}
+            <span className="ei-empresa-topo-ver">Ver o perfil e as outras vagas</span>
           </span>
           {/* A seta diz que dá para tocar. Sem ela o bloco vira um link
               que ninguém descobre — e um link que ninguém descobre é o
@@ -283,8 +318,25 @@ export function VagaAbertaPage() {
           {vaga.title}
         </h1>
 
-        {vaga.available_immediately && (
-          <Callout>A empresa precisa de alguém para começar logo.</Callout>
+        {/* ── A FRASE DE ABERTURA SAIU — 04/09 ────────────────────────
+            A dona: "essa frase de início está horrível."
+
+            Era um quadro cinza de largura cheia, logo abaixo do título,
+            com "A empresa precisa de alguém para começar logo." — o
+            primeiro bloco da tela, do tamanho de um aviso importante, para
+            dizer uma coisa que é um detalhe da vaga.
+
+            Vira um selo junto do título, do lado das outras marcas: a
+            informação continua, com o peso que ela tem. */}
+        {(vaga.available_immediately || vaga.quantidade_vagas > 1) && (
+          <div className="ei-margem ei-chips" style={{ marginTop: 8 }}>
+            {vaga.available_immediately && (
+              <span className="ei-selo ei-selo-laranja">Começa logo</span>
+            )}
+            {vaga.quantidade_vagas > 1 && (
+              <span className="ei-selo ei-selo-cinza">{vaga.quantidade_vagas} vagas</span>
+            )}
+          </div>
         )}
 
         {vaga.description?.trim() && (
@@ -296,107 +348,32 @@ export function VagaAbertaPage() {
           </p>
         )}
 
-        {/* 3 — AS ESPECIFICAÇÕES, todas juntas e com título próprio.
-            Salário em primeiro: é a pergunta que decide se a pessoa
-            continua lendo. Quando não há resposta nenhuma, a linha aparece
-            dizendo isso — omitir não torna o salário menos ausente, só
-            torna a vaga mais suspeita. */}
+        {/* ── 3. A FICHA, EM SEÇÕES — 04/09 ─────────────────────────
+            A dona: "depois todos os dados que a vaga teve de preenchimento
+            pelo dono, separado por seções."
+
+            Era uma lista só, com o título "Especificações", empilhando
+            catorze linhas de assuntos diferentes: salário, horário, CNH,
+            idiomas, benefícios. Quem procurava uma coisa lia todas.
+
+            As seções são as MESMAS do formulário que a empresa preencheu —
+            dinheiro, horário e local, requisitos, datas. Duas telas com a
+            mesma ordem se leem sem reaprender, e é a ordem em que a
+            própria empresa pensou a vaga.
+
+            Cada seção só existe quando tem alguma linha: uma ficha cheia
+            de "não informado" não informa mais que uma ficha curta — só faz
+            a empresa parecer descuidada. A exceção é o SALÁRIO, que
+            aparece ausente dizendo que está ausente, porque escondê-lo não
+            o torna menos ausente: torna a vaga mais suspeita. */}
         <div className="ei-secao">
-          <h2>Especificações</h2>
+          <h2>Salário e benefícios</h2>
         </div>
         <div className="ei-props">
           <Prop rotulo="Salário">
             {salario ?? <span className="ei-apoio">A empresa não informou</span>}
           </Prop>
-
-          <Prop rotulo="Contratação">
-            {contrato ?? <span className="ei-apoio">A empresa não informou</span>}
-          </Prop>
-
-          <Prop rotulo="Horário">
-            {jornada ?? <span className="ei-apoio">A empresa não informou</span>}
-          </Prop>
-
-          {/* O JEITO de trabalhar, e não o endereço.
-              ────────────────────────────────────────
-              O endereço já está embaixo do nome da empresa, ali em cima —
-              e repetir "Centro · Itabirito/MG" a dez linhas de distância
-              não acrescenta nada, só faz a lista parecer mais cheia do que
-              é. O que falta saber aqui é se a pessoa vai até lá todo dia. */}
-          <Prop rotulo="Trabalho">
-            {vaga.work_modality === "remoto"
-              ? "De casa"
-              : vaga.work_modality === "hibrido"
-                ? "Parte no local, parte de casa"
-                : "No local da empresa"}
-          </Prop>
-
-          <Prop rotulo="Experiência">
-            {vaga.required_experience || "Não precisa de experiência"}
-          </Prop>
-
-          {/* ── O QUE A VAGA PASSOU A DIZER (item 15, colunas da 0105) ──
-              Cada linha só aparece quando tem resposta. Uma ficha cheia de
-              "não informado" não informa mais do que uma ficha curta — só
-              faz a empresa parecer descuidada, e a lista, mais longa de
-              ler.
-
-              A exceção continua sendo o SALÁRIO, lá em cima: ausente ele
-              aparece dizendo que está ausente, porque escondê-lo não o
-              torna menos ausente, só torna a vaga mais suspeita. */}
-          {vaga.quantidade_vagas > 1 && (
-            <Prop rotulo="Vagas">{vaga.quantidade_vagas} vagas abertas</Prop>
-          )}
-
-          {vaga.horario && <Prop rotulo="Que horas">{vaga.horario}</Prop>}
-          {vaga.escala && <Prop rotulo="Escala">{vaga.escala}</Prop>}
-
-          {vaga.data_inicio && (
-            <Prop rotulo="Começa em">
-              {new Date(`${vaga.data_inicio}T12:00:00`).toLocaleDateString("pt-BR")}
-            </Prop>
-          )}
-
-          {/* O prazo é o que faz a pessoa responder HOJE em vez de deixar
-              para depois — e "depois" é como se perde uma vaga. */}
-          {vaga.prazo_candidatura && (
-            <Prop rotulo="Responder até">
-              {new Date(`${vaga.prazo_candidatura}T12:00:00`).toLocaleDateString("pt-BR")}
-            </Prop>
-          )}
-
           {vaga.comissao && <Prop rotulo="Comissão">{vaga.comissao}</Prop>}
-
-          {vaga.escolaridade_minima && (
-            <Prop rotulo="Escolaridade">{nomeDaEscolaridade(vaga.escolaridade_minima)}</Prop>
-          )}
-          {vaga.curso_especifico && <Prop rotulo="Curso">{vaga.curso_especifico}</Prop>}
-
-          {vaga.cnh_exigida && (
-            <Prop rotulo="CNH">
-              {vaga.cnh_categorias.length > 0
-                ? `Categoria ${vaga.cnh_categorias.join(", ")}`
-                : "Precisa ter"}
-            </Prop>
-          )}
-
-          {vaga.exige_viagem && <Prop rotulo="Viagem">A vaga exige viajar</Prop>}
-
-          {vaga.idiomas?.length > 0 && (
-            <Prop rotulo="Idiomas">{vaga.idiomas.join(", ")}</Prop>
-          )}
-
-          {/* Só aparece quando a empresa FECHOU: aceitar candidato de fora
-              é o padrão, e anunciar o padrão enche a ficha sem dizer nada.
-              Fechado, porém, é informação que muda a decisão de quem mora
-              em Ouro Preto. */}
-          {vaga.aceita_outras_cidades === false && (
-            <Prop rotulo="De onde">Só quem mora em {vaga.city}</Prop>
-          )}
-
-          {/* Os benefícios entram como especificação, e não numa seção
-              solta lá embaixo: quem lê esta lista está comparando vagas, e
-              vale-transporte pertence à mesma comparação que o salário. */}
           {vaga.beneficios?.length > 0 && (
             <Prop rotulo="Benefícios">
               <span className="ei-chips">
@@ -408,11 +385,85 @@ export function VagaAbertaPage() {
               </span>
             </Prop>
           )}
-
           {vaga.outros_beneficios && (
             <Prop rotulo="Também oferece">{vaga.outros_beneficios}</Prop>
           )}
         </div>
+
+        <div className="ei-secao">
+          <h2>Horário e local</h2>
+        </div>
+        <div className="ei-props">
+          <Prop rotulo="Contratação">
+            {contrato ?? <span className="ei-apoio">A empresa não informou</span>}
+          </Prop>
+          <Prop rotulo="Horário">
+            {jornada ?? <span className="ei-apoio">A empresa não informou</span>}
+          </Prop>
+          {vaga.horario && <Prop rotulo="Que horas">{vaga.horario}</Prop>}
+          {vaga.escala && <Prop rotulo="Escala">{vaga.escala}</Prop>}
+          {/* O JEITO de trabalhar, e não o endereço: o endereço já está
+              embaixo do nome da empresa, lá em cima. O que falta saber
+              aqui é se a pessoa vai até lá todo dia. */}
+          <Prop rotulo="Trabalho">
+            {vaga.work_modality === "remoto"
+              ? "De casa"
+              : vaga.work_modality === "hibrido"
+                ? "Parte no local, parte de casa"
+                : "No local da empresa"}
+          </Prop>
+          {vaga.exige_viagem && <Prop rotulo="Viagem">A vaga exige viajar</Prop>}
+          {vaga.aceita_outras_cidades === false && (
+            <Prop rotulo="De onde">Só quem mora em {vaga.city}</Prop>
+          )}
+        </div>
+
+        <div className="ei-secao">
+          <h2>O que a vaga pede</h2>
+        </div>
+        <div className="ei-props">
+          <Prop rotulo="Experiência">
+            {vaga.required_experience || "Não precisa de experiência"}
+          </Prop>
+          {vaga.escolaridade_minima && (
+            <Prop rotulo="Escolaridade">{nomeDaEscolaridade(vaga.escolaridade_minima)}</Prop>
+          )}
+          {vaga.curso_especifico && <Prop rotulo="Curso">{vaga.curso_especifico}</Prop>}
+          {vaga.cnh_exigida && (
+            <Prop rotulo="CNH">
+              {vaga.cnh_categorias.length > 0
+                ? `Categoria ${vaga.cnh_categorias.join(", ")}`
+                : "Precisa ter"}
+            </Prop>
+          )}
+          {vaga.idiomas?.length > 0 && (
+            <Prop rotulo="Idiomas">{vaga.idiomas.join(", ")}</Prop>
+          )}
+        </div>
+
+        {/* As datas ficam por último e juntas: são as duas linhas que a
+            pessoa confere DEPOIS de decidir que quer — e "responder até" é
+            o que faz responder hoje em vez de deixar para depois, que é
+            como se perde uma vaga. */}
+        {(vaga.data_inicio || vaga.prazo_candidatura) && (
+          <>
+            <div className="ei-secao">
+              <h2>Datas</h2>
+            </div>
+            <div className="ei-props">
+              {vaga.data_inicio && (
+                <Prop rotulo="Começa em">
+                  {new Date(`${vaga.data_inicio}T12:00:00`).toLocaleDateString("pt-BR")}
+                </Prop>
+              )}
+              {vaga.prazo_candidatura && (
+                <Prop rotulo="Responder até">
+                  {new Date(`${vaga.prazo_candidatura}T12:00:00`).toLocaleDateString("pt-BR")}
+                </Prop>
+              )}
+            </div>
+          </>
+        )}
 
         {/* As informações complementares vêm DEPOIS da ficha, e como
             parágrafo: é texto corrido escrito pela empresa, e espremê-lo
@@ -489,9 +540,18 @@ export function VagaAbertaPage() {
                   </Link>
                 </Callout>
               )}
+              {/* Laranja, a pedido da dona — e é o certo: o laranja é a
+                  cor de AÇÃO deste app (o "+ Nova vaga" do outro lado usa
+                  ela), e aqui está a única coisa que a pessoa veio fazer
+                  nesta tela. Em azul ele competia com todos os links. */}
               <button
                 type="button"
-                className="ei-btn ei-btn-cheio ei-btn-largo ei-btn-alto"
+                className="ei-btn-laranja"
+                /* Sem a margem lateral da classe: ela existe para o botão
+                   que mora DENTRO de um cartão (o "+ Nova vaga"), e aqui o
+                   bloco já tem a margem da tela — somadas, o botão ficava
+                   40px mais estreito que os outros. */
+                style={{ margin: 0, width: "100%" }}
                 disabled={enviando || (!!user && (cadastro === "sem" || cadastro === "falta"))}
                 onClick={() => responder(true)}
               >

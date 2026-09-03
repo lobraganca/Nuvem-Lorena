@@ -4182,3 +4182,31 @@
   color: #ffffff;
   font-variant-numeric: tabular-nums;
 }
+
+/* A prévia do perfil da empresa, no alto da vaga — a dona: "em cima pode
+   ter uma prévia do perfil da empresa".
+
+   A frase que a empresa escreveu sobre si entra em duas linhas: numa
+   cidade pequena, "quem é essa empresa" decide se a pessoa continua lendo,
+   e o nome sozinho não responde isso quando a empresa é nova. Mais que
+   duas linhas viraria a tela da empresa dentro da tela da vaga. */
+.ei .ei-empresa-topo-sobre {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  margin-top: 4px;
+  font-size: 0.84rem;
+  line-height: 1.4;
+  color: var(--ei-tinta-fraca);
+}
+
+/* O convite de tocar, escrito. A seta sozinha diz que ALGO acontece, não
+   o quê — e "ver as outras vagas" é justamente o que faz alguém tocar. */
+.ei .ei-empresa-topo-ver {
+  display: block;
+  margin-top: 6px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--ei-acao);
+}
