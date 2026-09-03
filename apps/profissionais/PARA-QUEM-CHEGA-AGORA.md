@@ -208,7 +208,8 @@ São **dois projetos Supabase** na conta dela:
 
 | Projeto | Qual app |
 |---|---|
-| `dfdinrimxqoqjedemjbw` | **Ei Itabirito** (aparece como "Busca Itabirito") |
+| `ahigenhenzmsjxlmrzhz` | **Ei Emprego** — é este que vale (confirmado em 04/09) |
+| `dfdinrimxqoqjedemjbw` | projeto antigo do mesmo app; as tabelas não estão lá |
 | `wkuwwzcucsxonhsblkmc` | Avena |
 
 No projeto errado, uma conferência de coluna responde "não existe" **sem

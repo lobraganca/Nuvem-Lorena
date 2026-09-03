@@ -128,7 +128,7 @@ projeto certo, e sem ele a dona tem de achar o projeto no meio da lista,
 que é onde nasce o erro de aplicar no banco do Avena:
 
 ```
-https://supabase.com/dashboard/project/dfdinrimxqoqjedemjbw/sql/new
+https://supabase.com/dashboard/project/ahigenhenzmsjxlmrzhz/sql/new
 ```
 
 - Numeração sequencial: a última hoje é a `0060`.
@@ -222,7 +222,8 @@ rows returned" e engole a resposta da conferência.
 
 | Projeto | Qual app |
 |---|---|
-| `dfdinrimxqoqjedemjbw` | **Ei Itabirito** |
+| `ahigenhenzmsjxlmrzhz` | **Ei Emprego** — confirmado pela dona em 04/09 |
+| `dfdinrimxqoqjedemjbw` | um projeto ANTIGO do mesmo app. Um link para ele em 03/09 fez a SQL responder `relation "public.companies" does not exist` — as tabelas não estão lá. Não use. |
 | `wkuwwzcucsxonhsblkmc` | Avena |
 
 O endereço do painel mostra qual está aberto. No projeto errado, uma
