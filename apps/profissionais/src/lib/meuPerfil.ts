@@ -31,6 +31,14 @@ export type MeuPerfil = {
      profissional cadastra tudo de uma vez" — a foto tinha que estar AQUI,
      na coluna que a busca de verdade consulta. */
   photoUrl: string | null;
+  /* O "resumo sobre você" que o AvisoPerfilIncompleto cobra desde sempre
+     sem que esta tela tivesse onde escrevê-lo. A coluna já existia —
+     `bio` é herança do procurô, onde alimentava a busca por texto — mas
+     o cadastro do Ei foi reescrito do zero (ver o comentário no topo de
+     MeuPerfilPage.tsx) e nunca trouxe o campo de volta. A dona: "aparece
+     um aviso dizendo que falta um resumo sobre você, mas não tem onde
+     escrever." */
+  bio: string;
   neighborhood: string;
   /** As funções que a pessoa aceita ser chamada para fazer. Até 8. */
   funcoes: string[];
@@ -122,6 +130,7 @@ export const PERFIL_VAZIO: MeuPerfil = {
   phone: "",
   email: "",
   photoUrl: null,
+  bio: "",
   neighborhood: "",
   funcoes: [],
   disponivel: true,
@@ -155,7 +164,7 @@ export async function lerMeuPerfil(ownerId: string): Promise<MeuPerfil | null> {
   const { data, error } = await sb
     .from("professionals")
     .select(
-      "id, name, phone, email, photo_url, neighborhood, areas_de_interesse, disponivel, paused, whatsapp_verified, " +
+      "id, name, phone, email, photo_url, bio, neighborhood, areas_de_interesse, disponivel, paused, whatsapp_verified, " +
       "pretensao_centavos, pretensao_combinar, pretensao_periodo, disponibilidade, aceita_viajar, " +
       /* As sete da 0103. A lista é escrita à mão, uma a uma: coluna nova
          que ninguém acrescente aqui chega como indefinida, sem erro
@@ -179,6 +188,7 @@ export async function lerMeuPerfil(ownerId: string): Promise<MeuPerfil | null> {
     phone: linha.phone ?? "",
     email: linha.email ?? "",
     photoUrl: linha.photo_url ?? null,
+    bio: linha.bio ?? "",
     neighborhood: linha.neighborhood ?? "",
     funcoes: linha.areas_de_interesse ?? [],
     /* `?? true` porque a coluna nasceu com `default true` na 0075: um
@@ -251,6 +261,7 @@ export async function salvarMeuPerfil(
        salvar não apaga a foto, porque `perfil.photoUrl` continua com o
        valor que veio do banco até alguém trocar. */
     photo_url: perfil.photoUrl,
+    bio: perfil.bio.trim() || null,
     neighborhood: perfil.neighborhood.trim() || null,
     areas_de_interesse: perfil.funcoes,
     categories: perfil.funcoes,

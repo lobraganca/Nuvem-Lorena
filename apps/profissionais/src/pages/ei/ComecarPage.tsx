@@ -58,26 +58,6 @@ export function ComecarPage({ lado }: { lado: "professional" | "company" }) {
             longe das portas, ela já teria saído da tela antes de ler. */}
         {entrou && tipo === lado && <AvisoPerfilIncompleto lado={lado} />}
 
-        {/* Banco de talentos e Banco de vagas — quadrados, e a ORDEM
-            mudou de novo — 02/09
-            ─────────────────────────────────────────────────────────
-            A dona, em três mensagens seguidas: "podem ser quadrado e no
-            final da página" (rodapé, perto do Instalar) → "podem ficar
-            debaixo do botão de minhas empresas, espaçado" (logo após as
-            portas principais) → "na tela de procuro trabalho... ainda
-            estão embaixo, deve ficar acima dos outros botões".
-
-            Do lado da empresa a ordem de antes já estava certa: uma
-            porta só (Minhas empresas), e os atalhos vinham depois dela —
-            não tem "embaixo de tudo" numa tela com uma porta só. Do lado
-            de quem procura trabalho há DUAS portas (Meu cadastro, Vagas
-            compatíveis), e os atalhos ficavam depois das duas — visível
-            como "lá embaixo" mesmo estando logo em seguida. Por isso a
-            ordem agora depende do lado: para quem contrata, atalhos
-            DEPOIS da porta; para quem procura trabalho, atalhos ANTES
-            das duas. */}
-        {lado === "professional" && <Atalhos />}
-
         <div className="ei-portas">
           {lado === "company" ? (
             /* Vai para a escolha da empresa, e não para o painel de uma
@@ -112,7 +92,13 @@ export function ComecarPage({ lado }: { lado: "professional" | "company" }) {
           )}
         </div>
 
-        {lado === "company" && <Atalhos />}
+        {/* Banco de talentos e Banco de vagas — quadrados, sempre DEPOIS
+            das portas principais, nos dois lados. A ordem já mudou várias
+            vezes (ver histórico no git); a última palavra da dona foi
+            "na tela de procuro emprego: os botões de banco de talentos e
+            de vagas devem ficar de baixo de vagas compatíveis" — ou seja,
+            depois de TODAS as portas, não entre elas nem antes. */}
+        <Atalhos />
 
         <div className="ei-entrada-pe">
           <InstalarApp variante="botao" />

@@ -239,18 +239,39 @@ export function LoginPage() {
      leva a pessoa para o destino guardado e a LoginPage sai da tela junto.
      Virou barreira global (`ExigirSenha`), que não depende de nenhuma rota
      continuar montada. */
+  /* ── O TÍTULO NÃO PODE FINGIR QUE O LOGIN É DE UM LADO SÓ — 03/09 ─────
+     A dona: "na tela de login tá escrito, entrar pra contratar, mas não
+     é um login só da empresa."
+
+     Ela está certa, e o motivo é a própria reordenação que ela pediu
+     antes: "entra (ou cria a conta, com senha), e só então escolhe de
+     que lado está" — o lado agora é escolhido DEPOIS de entrar, em
+     `EntradaPage`/`onboarding-tipo`. As duas portas que levam a esta
+     tela (`/login?acao=criar` e `/login?acao=entrar`, em EntradaPage) não
+     mandam lado nenhum na URL — nenhum caminho hoje leva a
+     `/login?lado=contratar`. O "Entrar para contratar" só aparecia
+     puxado do `localStorage` (`lerLado`), sobra de uma escolha de dias
+     atrás, sem relação com o que a pessoa veio fazer agora — e ainda por
+     cima dava a entender que este login é exclusivo de empresa, quando é
+     o mesmo campo de telefone e senha para todo mundo.
+
+     Por isso o título e a linha de apoio usam só `ladoDaUrl(search)` —
+     o que veio na URL DESTA visita —, nunca o valor guardado. O caso que
+     continua legítimo é o outro: `VagaAbertaPage` e `AvisosPage` mandam
+     para cá com `?lado=trabalhar` quando alguém sem conta tenta responder
+     a uma vaga — aí faz sentido explicar por quê, porque é o motivo real
+     de ter caído aqui agora, não um resto de visita antiga. Não existe
+     o equivalente para empresa porque nenhuma tela redireciona um dono de
+     empresa para o login no meio de uma ação — por isso a mensagem para
+     "company" foi embora, e não só reescrita. */
+  const ladoContextual = ladoDaUrl(search);
+
   return (
     <div className="container entrar-pagina">
-      {/* O título muda com o lado que a pessoa escolheu na tela de abertura.
-          Antes era sempre "Entrar", e quem tinha acabado de tocar em "Estou
-          contratando" chegava a uma tela que não falava de contratar em
-          lugar nenhum — sem nada dizendo que o caminho ainda era aquele. */}
       <h1>
         {modo === "sms" && !comEmail
           ? "Criar conta ou entrar"
-          : lado === "company"
-          ? "Entrar para contratar"
-          : lado === "professional"
+          : ladoContextual === "professional"
             ? "Entrar para procurar trabalho"
             : "Entrar"}
       </h1>
@@ -262,11 +283,9 @@ export function LoginPage() {
             e a segunda sempre explicava o que NÃO precisa de conta — numa
             tela onde a pessoa já decidiu entrar. Explicação que chega
             depois da decisão não ajuda: ocupa a tela e atrasa o campo. */}
-        {lado === "company"
-          ? "Para publicar suas vagas."
-          : lado === "professional"
-            ? "Para receber as vagas do seu ofício."
-            : "Para receber vagas, ou publicar as suas."}
+        {ladoContextual === "professional"
+          ? "Para receber as vagas do seu ofício."
+          : "Para receber vagas, ou publicar as suas."}
       </p>
 
       {/* Quando o app nao consegue falar com o banco.
