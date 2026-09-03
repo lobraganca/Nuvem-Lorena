@@ -766,6 +766,16 @@ export interface Company {
    */
   plano: PlanoEmpresa | null;
   plano_ate: string | null;
+  /**
+   * Quando este plano começou a valer. A 0110 criou a coluna e um gatilho
+   * que a carimba sozinho a cada ativação ou renovação.
+   *
+   * Opcional de propósito: a tela de planos passou a mostrar "começou em"
+   * ANTES de a SQL ser aplicada no banco da dona, e uma coluna obrigatória
+   * faria a tela quebrar no dia em que ela ainda não existisse. Faltando,
+   * a tela mostra só até quando vale — que é o dado que já existia.
+   */
+  plano_desde?: string | null;
   plano_recorrente: boolean;
   created_at: string;
 }

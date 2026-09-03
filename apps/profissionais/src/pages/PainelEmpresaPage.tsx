@@ -371,18 +371,22 @@ export function PainelEmpresaPage() {
             {/* Sem plano ele não aparece: quem não pode publicar não deve
                 ver um botão que só leva a uma recusa. Para essa empresa o
                 caminho é o "Ver planos" da linha acima. */}
+            {/* ── O BOTÃO NÃO VIRA MAIS "AUMENTAR PLANO" — 03/09 ────────
+                A dona: "tirar o botão aumentar o plano de dentro do módulo
+                minhas vagas."
+
+                Ele trocava de nome sozinho quando as vagas enchiam, e o
+                lugar onde a empresa vem publicar virava, sem aviso, o
+                lugar onde ela é convidada a pagar mais. Pior: o mesmo
+                botão, na mesma posição, passava a fazer outra coisa.
+
+                Agora ele é sempre "+ Nova vaga" e sempre leva à criação.
+                Quem esbarrar no teto é recebido lá pela tela que explica
+                o que houve e oferece os dois caminhos — fechar uma vaga
+                ou mudar de plano. Ver `CriarVagaPage`. */}
             {!semPlano && (
-              <Link
-                to="/criar-vaga"
-                className="ei-btn-laranja"
-                onClick={(e) => {
-                  if (plano && !plano.cabeMais) {
-                    e.preventDefault();
-                    navegar("/planos-empresa");
-                  }
-                }}
-              >
-                {plano && !plano.cabeMais ? "Aumentar plano" : "+ Nova vaga"}
+              <Link to="/criar-vaga" className="ei-btn-laranja">
+                + Nova vaga
               </Link>
             )}
           </div>

@@ -4013,3 +4013,50 @@
   color: var(--ei-tinta-fraca);
 }
 .ei .ei-pronto-pe { display: grid; gap: 10px; }
+
+/* ── "Seu plano agora", no alto da tela de planos ────────────────────────
+   A dona: "dentro da tela de planos, colocar data de início, a vigência."
+
+   Cartão, e não faixa: aqui ele é o único bloco que fala do que a empresa
+   JÁ tem, no meio de três cartões de preço — precisa ler como um deles, e
+   não como um rodapé.
+
+   As datas ficam numa `dl` em duas colunas: rótulo pequeno em cima, data
+   grande embaixo. Data é o que a pessoa veio conferir, então é ela que
+   ganha o tamanho. */
+.ei-assinatura {
+  margin-top: 12px;
+  padding: 14px 16px;
+  background: var(--ei-papel, #fff);
+  border: 1px solid var(--ei-borda);
+  border-radius: var(--ei-raio, 14px);
+}
+.ei-assinatura-nome {
+  display: block;
+  font-size: 1rem;
+  font-weight: 700;
+}
+.ei-assinatura-datas {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px 28px;
+  margin: 10px 0 0;
+}
+.ei-assinatura-datas dt {
+  font-size: 0.78rem;
+  color: var(--ei-tinta-fraca);
+}
+.ei-assinatura-datas dd {
+  margin: 2px 0 0;
+  font-size: 1.05rem;
+  font-weight: 600;
+  /* Tabular para as duas datas alinharem a vírgula do dia/mês/ano quando
+     ficam lado a lado. */
+  font-variant-numeric: tabular-nums;
+}
+.ei-assinatura-nota {
+  margin: 10px 0 0;
+  font-size: 0.82rem;
+  color: var(--ei-tinta-fraca);
+  overflow-wrap: anywhere;
+}

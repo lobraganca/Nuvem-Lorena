@@ -330,9 +330,28 @@ export function MeuPerfilPage() {
   /* A lista inteira é longa demais para rolar atrás de uma função, e curta
      demais para justificar abrir outra tela. O campo de procurar resolve os
      dois: quem sabe o nome digita, quem não sabe rola. */
+  /* ── A PAREDE DE BOTÕES SAIU — 03/09 ─────────────────────────────────
+     A dona: "na seção o que você aceita fazer, tirar os botões e deixar
+     campo para escrever e acrescentar."
+
+     Eram oitenta e tantas etiquetas numa caixa com rolagem própria, dentro
+     de uma página que já rola — a rolagem de dentro engolia o dedo de quem
+     tentava passar pela seção, e a lista era longa demais para se achar
+     alguma coisa nela sem procurar assim mesmo.
+
+     Agora só o campo. E as sugestões continuam existindo, mas SÓ enquanto
+     a pessoa digita: são elas que fazem a vaga chegar, porque a onda cruza
+     o que foi marcado com a profissão que a empresa escolheu de uma lista
+     fechada. Sem sugestão nenhuma, todo mundo escreveria à mão e ninguém
+     receberia vaga — o defeito que parece funcionar.
+
+     Seis, e não todas: passar disso vira a mesma parede, agora embaixo do
+     campo. */
   const visiveis = busca.trim()
-    ? CATEGORIES.filter((c) => c.toLocaleLowerCase("pt-BR").includes(busca.toLocaleLowerCase("pt-BR")))
-    : CATEGORIES;
+    ? CATEGORIES.filter((c) =>
+        c.toLocaleLowerCase("pt-BR").includes(busca.toLocaleLowerCase("pt-BR"))
+      ).slice(0, 6)
+    : [];
 
   /* ── ESCREVER A PRÓPRIA FUNÇÃO ────────────────────────────────────────
      A dona: "do jeito que está a pessoa tem que procurar e pode ser que a
@@ -898,8 +917,8 @@ export function MeuPerfilPage() {
         <h2 className="ei-secao">O que você aceita fazer</h2>
         <div className="ei-cartao">
           <p className="ei-apoio" style={{ marginBottom: 12 }}>
-            Escolha até {MAX_FUNCOES}. É por aqui que a vaga te encontra —{" "}
-            <strong>{funcoes.length} de {MAX_FUNCOES}</strong> marcadas.
+            Escreva o que você faz e toque em acrescentar. Até {MAX_FUNCOES} —{" "}
+            <strong>{funcoes.length} de {MAX_FUNCOES}</strong> por enquanto.
           </p>
 
           <div className="ei-campo" style={{ marginBottom: 12 }}>
@@ -907,16 +926,29 @@ export function MeuPerfilPage() {
                 inteira dizendo que a única coisa possível ali era achar o
                 que já existe. */}
             <input
-              type="search"
-              placeholder="Procurar ou escrever sua função"
+              type="text"
+              placeholder="Pedreiro, cozinheira, motorista…"
               value={busca}
               onChange={(e) => setBusca(e.target.value)}
-              aria-label="Procurar ou escrever sua função"
+              aria-label="Escrever o que você faz"
               onKeyDown={(e) => {
-                if (e.key === "Enter" && podeCriar) {
-                  e.preventDefault();
-                  criarFuncao();
+                if (e.key !== "Enter") return;
+                e.preventDefault();
+                /* O teclado do celular manda "ir" e não "acrescentar": se
+                   o que foi escrito é uma função da lista, o Enter marca
+                   ela — senão, cria a escrita. Sem isto, apertar "ir"
+                   dentro de um formulário tentava SALVAR o cadastro no
+                   meio da digitação. */
+                const igual = CATEGORIES.find(
+                  (c) =>
+                    c.toLocaleLowerCase("pt-BR") === escrita.toLocaleLowerCase("pt-BR")
+                );
+                if (igual && !funcoes.includes(igual) && !cheio) {
+                  alternar(igual);
+                  setBusca("");
+                  return;
                 }
+                if (podeCriar) criarFuncao();
               }}
             />
           </div>
@@ -930,8 +962,34 @@ export function MeuPerfilPage() {
               style={{ marginBottom: 12 }}
               onClick={criarFuncao}
             >
-              Adicionar “{escrita}”
+              Acrescentar “{escrita}”
             </button>
+          )}
+
+          {/* As sugestões que aparecem enquanto se digita. São o caminho
+              que faz a vaga chegar (ver o comentário de `visiveis`), então
+              ficam LOGO ABAIXO do campo — e não no fim da seção, onde a
+              pessoa já teria escrito à mão antes de vê-las. */}
+          {visiveis.filter((c) => !funcoes.includes(c)).length > 0 && (
+            <div className="ei-chips" style={{ marginBottom: 12 }}>
+              {visiveis
+                .filter((c) => !funcoes.includes(c))
+                .map((c) => (
+                  <button
+                    key={c}
+                    type="button"
+                    className="ei-chip"
+                    aria-pressed={false}
+                    disabled={cheio}
+                    onClick={() => {
+                      alternar(c);
+                      setBusca("");
+                    }}
+                  >
+                    + {c}
+                  </button>
+                ))}
+            </div>
           )}
 
           {escrita.length >= 3 && visiveis.length === 0 && !podeCriar && jaMarcada && (
@@ -962,27 +1020,6 @@ export function MeuPerfilPage() {
               ))}
             </div>
           )}
-
-          {/* A altura fixa cortava a última fileira NO MEIO, e um bloco que
-              termina em meia etiqueta parece tela quebrada, não lista que
-              rola. 232px fecham em fileira inteira, e o fio de baixo diz
-              que há mais para rolar. */}
-          <div className="ei-chips ei-chips-rolagem">
-            {visiveis
-              .filter((c) => !funcoes.includes(c))
-              .map((c) => (
-                <button
-                  key={c}
-                  type="button"
-                  className="ei-chip"
-                  aria-pressed={false}
-                  disabled={cheio}
-                  onClick={() => alternar(c)}
-                >
-                  {c}
-                </button>
-              ))}
-          </div>
 
           {/* O aviso que impede a mentira calma. Ver o comentário de
               `criarFuncao`: a onda cruza o que a pessoa marcou com a
@@ -1320,6 +1357,25 @@ export function MeuPerfilPage() {
           >
             {salvando ? "Salvando…" : "Salvar"}
           </button>
+        </div>
+
+        {/* ── EXCLUIR, NO FIM DA PÁGINA — 03/09 ────────────────────────
+            A dona: "dentro da opção cadastro, ter opção de excluir no
+            final da página."
+
+            Ela existia só em "Conta", que é onde quem quer apagar tudo
+            costuma NÃO procurar: a pessoa vai ao próprio cadastro, rola
+            até o fim atrás do botão, e não acha nada — e escrever para o
+            suporte pedindo para apagar não é caminho de app.
+
+            Fica depois do "Salvar", separado e sem cor de destaque: é uma
+            ação sem volta, e o pé desta tela é o lugar mais provável de um
+            toque errado com o polegar. E não apaga nada daqui — leva à
+            tela que explica o que some junto e pede confirmação. */}
+        <div className="ei-margem" style={{ textAlign: "center", padding: "22px 0 8px" }}>
+          <Link to="/excluir-conta" className="link-perigo">
+            Excluir meu cadastro
+          </Link>
         </div>
       </div>
     </div>

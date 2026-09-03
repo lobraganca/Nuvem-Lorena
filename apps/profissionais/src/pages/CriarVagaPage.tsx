@@ -581,32 +581,54 @@ export function CriarVagaPage() {
               rápido soa a elogio, e não a "não dá para abrir mais uma". A
               empresa veio publicar; o título tem que dizer o que houve com
               o que ela veio fazer. */}
+          {/* ── ESTA TELA GANHOU IMPORTÂNCIA — 03/09 ──────────────────
+              A dona: "ao tentar cadastrar uma vaga quando já extrapolou o
+              limite das vagas do plano, ter uma tela onde explica que as
+              vagas do plano extrapolaram e encaminhar para fazer upgrade."
+
+              A tela existia, mas quase ninguém chegava nela: o painel
+              trocava o "+ Nova vaga" por "Aumentar plano" antes, e levava
+              direto aos preços — sem dizer o que tinha acontecido. Agora o
+              painel não desvia mais ninguém (ver `PainelEmpresaPage`), e é
+              AQUI que a empresa descobre o que houve.
+
+              Por isso o texto passou a dizer a conta inteira, com números:
+              "3 de 3 no ar" responde sozinho a pergunta que vem em
+              seguida, que é "cheio como?". */}
           <Pagina titulo="O plano já está cheio" voltar="/painel-empresa">
             <p className="ei-corpo ei-margem">
               Seu plano permite {plano.limite}{" "}
-              {plano.limite === 1 ? "vaga aberta" : "vagas abertas"} por vez, e{" "}
-              {plano.limite === 1 ? "ela já está no ar" : "todas já estão no ar"}. Feche
-              uma que já encheu para abrir outra — ou mude de plano.
+              {plano.limite === 1 ? "vaga aberta" : "vagas abertas"} por vez, e você já
+              tem {plano.abertas} no ar. Para publicar esta vaga, aumente o plano — ou
+              feche uma das que já estão publicadas.
             </p>
           </Pagina>
 
           <div className="ei-margem" style={{ display: "grid", gap: 10, marginTop: 18 }}>
-            <button
-              type="button"
-              className="ei-btn ei-btn-cheio ei-btn-largo ei-btn-alto"
-              onClick={() => navegar("/painel-empresa")}
-            >
-              Ver minhas vagas
-            </button>
+            {/* O upgrade é o botão principal, a pedido da dona
+                ("encaminhar para fazer upgrade"). Antes o principal era
+                "ver minhas vagas", e quem quisesse mais vagas tinha de
+                achar o botão de contorno embaixo.
+
+                Fechar uma vaga continua logo abaixo, e continua dito com
+                todas as letras no texto: quem só precisa de espaço não
+                pode sair daqui achando que a única saída é pagar. */}
             {podeVender() && (
               <button
                 type="button"
-                className="ei-btn ei-btn-contorno ei-btn-largo ei-btn-alto"
+                className="ei-btn ei-btn-cheio ei-btn-largo ei-btn-alto"
                 onClick={() => navegar("/planos-empresa")}
               >
-                Ver os planos
+                Aumentar meu plano
               </button>
             )}
+            <button
+              type="button"
+              className="ei-btn ei-btn-contorno ei-btn-largo ei-btn-alto"
+              onClick={() => navegar("/painel-empresa")}
+            >
+              Ver minhas vagas e fechar uma
+            </button>
           </div>
         </div>
       </div>

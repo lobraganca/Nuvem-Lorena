@@ -10,6 +10,7 @@ import {
   marcarOnboardingCompleto,
   confirmarTelefoneDaEmpresa,
   registrarTipoDeUsuario,
+  apagarEmpresa,
 } from "../lib/company";
 import { numeroJaConfirmadoNaConta } from "../lib/whatsappVerify";
 import { uploadProfessionalPhoto } from "../lib/storage";
@@ -116,6 +117,11 @@ export function CadastroEmpresaPage() {
      editável aqui seria só um espelho — que sai do lugar no primeiro
      salvamento. */
   const [empresaExistente, setEmpresaExistente] = useState<Company | null>(null);
+  /* A exclusão pede confirmação no lugar do próprio botão: uma janela do
+     navegador (`confirm`) some no app instalado em alguns aparelhos, e a
+     ação ficaria sem confirmação nenhuma. */
+  const [confirmandoExclusao, setConfirmandoExclusao] = useState(false);
+  const [excluindo, setExcluindo] = useState(false);
   const [etapa, setEtapa] = useState(1);
   /* ── RASCUNHO AUTOMÁTICO, e SÓ no cadastro novo ──────────────────────
      A dona: "ter opção de salvar rascunho nas telas de cadastro pra evitar
@@ -740,6 +746,70 @@ export function CadastroEmpresaPage() {
         <p className="ei-apoio ei-margem">
           Dá para mudar tudo isso depois, no painel da empresa.
         </p>
+
+        {/* ── EXCLUIR ESTA EMPRESA, NO FIM DA PÁGINA — 03/09 ───────────
+            A dona: "dentro da opção cadastro, ter opção de excluir no
+            final da página."
+
+            Não havia caminho nenhum: uma empresa cadastrada por engano —
+            ou a loja que fechou — ficava no app para sempre, ocupando
+            lugar na tela de escolha e podendo receber vaga.
+
+            Só na EDIÇÃO: durante o cadastro em etapas não há o que
+            excluir, e um botão vermelho ao lado de "Salvar e ir para o
+            painel" seria só um jeito de errar o dedo.
+
+            Confirma em dois toques, no lugar do próprio botão, e diz o que
+            some junto — vaga e candidato de uma loja apagada vão embora
+            com ela (`on delete cascade`), e isso ninguém desfaz. */}
+        {!emEtapas && empresaExistente && (
+          <div className="ei-margem" style={{ textAlign: "center", padding: "22px 0 8px" }}>
+            {!confirmandoExclusao ? (
+              <button
+                type="button"
+                className="link-perigo"
+                onClick={() => {
+                  setErro("");
+                  setConfirmandoExclusao(true);
+                }}
+              >
+                Excluir esta empresa
+              </button>
+            ) : (
+              <div style={{ display: "grid", gap: 10, textAlign: "left" }}>
+                <p className="ei-apoio" style={{ margin: 0 }}>
+                  Excluir <strong>{empresaExistente.company_name}</strong> apaga também as
+                  vagas dela e a lista de quem se candidatou. Não dá para desfazer.
+                </p>
+                <button
+                  type="button"
+                  className="ei-btn ei-btn-contorno ei-btn-largo"
+                  disabled={excluindo}
+                  onClick={async () => {
+                    setExcluindo(true);
+                    setErro("");
+                    try {
+                      await apagarEmpresa(empresaExistente.id);
+                      navegar("/minhas-empresas", { replace: true });
+                    } catch (err) {
+                      setErro(mensagemDeErro(err, "Não consegui excluir esta empresa."));
+                      setExcluindo(false);
+                    }
+                  }}
+                >
+                  {excluindo ? "Excluindo…" : "Sim, excluir esta empresa"}
+                </button>
+                <button
+                  type="button"
+                  className="ei-btn ei-btn-texto"
+                  onClick={() => setConfirmandoExclusao(false)}
+                >
+                  Não, deixar como está
+                </button>
+              </div>
+            )}
+          </div>
+        )}
 
         {/* ── A PORTA DE SAÍDA ────────────────────────────────────────
             A dona: "ao abrir o app está caindo sempre na tela de cadastro

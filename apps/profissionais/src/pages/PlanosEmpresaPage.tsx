@@ -1,8 +1,11 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { SUPORTE_WHATSAPP } from "../config";
 import { useTituloDaPagina } from "../lib/tituloDaPagina";
 import { Pagina } from "../components/ei/Pagina";
+import { useAuth } from "../lib/useAuth";
+import { minhasEmpresas } from "../lib/company";
+import type { Company } from "../types/domain";
 import { podeVender } from "../lib/plataforma";
 import {
   PLANOS_EMPRESA,
@@ -121,6 +124,9 @@ export function PlanosEmpresaPage() {
           titulo={antesDoCadastro ? "Escolha seu plano" : "Planos"}
           voltar={antesDoCadastro ? undefined : "/painel-empresa"}
         />
+
+        {/* O que está valendo hoje, antes de qualquer preço. */}
+        {!antesDoCadastro && <AssinaturaAtual />}
 
         {/* Uma linha só, e curta: ela vive na faixa branca logo abaixo da
             barra azul, e cada palavra a mais empurra o primeiro preço para
@@ -341,6 +347,111 @@ export function PlanosEmpresaPage() {
           </>
         )}
       </div>
+    </div>
+  );
+}
+
+
+/**
+ * "Seu plano agora": qual é, desde quando e até quando.
+ *
+ * ── O pedido ──────────────────────────────────────────────────────────
+ *
+ * A dona: "dentro da tela de planos, colocar data de início, a vigência."
+ *
+ * A tela mostrava três preços e nada sobre o que a empresa JÁ tem. Quem
+ * abre "Meu plano" quase nunca vem comprar: vem conferir até quando o que
+ * pagou vale — e essa era exatamente a informação que não estava em tela
+ * nenhuma do app.
+ *
+ * ── Por que a data de início pode não aparecer ────────────────────────
+ *
+ * `plano_desde` é da migration 0110. Enquanto a SQL não for aplicada, a
+ * coluna não existe e o campo chega indefinido — e aí o bloco mostra só a
+ * vigência, que sempre existiu. Escrever isso como opcional foi de
+ * propósito: publicar uma tela que depende de coluna nova é o erro que já
+ * derrubou o cadastro por um dia inteiro (ver a 0060 no CLAUDE.md).
+ *
+ * ── O plano é da CONTA (0107) ─────────────────────────────────────────
+ *
+ * O teto é somado entre as lojas, então quem manda é o melhor plano em dia
+ * de qualquer uma delas — e é a data DELE que a tela mostra.
+ */
+function AssinaturaAtual() {
+  const { user } = useAuth();
+  const [empresas, setEmpresas] = useState<Company[] | null>(null);
+
+  useEffect(() => {
+    if (!user) return;
+    let vivo = true;
+    /* Falha em silêncio: este bloco é informativo, e derrubar a tela de
+       planos por causa dele deixaria a empresa sem o caminho de assinar. */
+    minhasEmpresas(user.id)
+      .then((lista) => vivo && setEmpresas(lista))
+      .catch(() => {});
+    return () => {
+      vivo = false;
+    };
+  }, [user]);
+
+  if (!empresas) return null;
+
+  const agora = Date.now();
+  const forca = { pro: 1, tres: 2, ilimitado: 3 } as const;
+  let melhor: Company | null = null;
+  let nota = 0;
+  for (const e of empresas) {
+    if (!e.plano || !e.plano_ate || new Date(e.plano_ate).getTime() < agora) continue;
+    const f = forca[e.plano as keyof typeof forca] ?? 0;
+    if (f > nota) {
+      nota = f;
+      melhor = e;
+    }
+  }
+
+  /* Sem plano em dia não há vigência para mostrar, e um bloco dizendo
+     "plano gratuito, vence nunca" só empurraria os preços para baixo. */
+  if (!melhor || !melhor.plano) return null;
+
+  const dia = (quando: string) =>
+    new Date(quando).toLocaleDateString("pt-BR", {
+      day: "2-digit",
+      month: "2-digit",
+      year: "numeric",
+    });
+
+  const ate = melhor.plano_ate as string;
+  /* Quantos dias faltam, arredondando para cima: com 0,4 dia restando a
+     conta para baixo diria "vence em 0 dias" numa assinatura que ainda
+     está valendo. */
+  const faltam = Math.ceil((new Date(ate).getTime() - agora) / 86400000);
+
+  return (
+    <div className="ei-assinatura ei-margem">
+      <span className="ei-assinatura-nome">
+        Plano {PLANOS_EMPRESA[melhor.plano]?.nome ?? melhor.plano}
+      </span>
+      <dl className="ei-assinatura-datas">
+        {melhor.plano_desde && (
+          <div>
+            <dt>Começou em</dt>
+            <dd>{dia(melhor.plano_desde)}</dd>
+          </div>
+        )}
+        <div>
+          <dt>{melhor.plano_recorrente ? "Renova em" : "Vale até"}</dt>
+          <dd>{dia(ate)}</dd>
+        </div>
+      </dl>
+      <p className="ei-assinatura-nota">
+        {melhor.plano_recorrente
+          ? `Renova sozinho nessa data. ${
+              faltam <= 1 ? "É amanhã." : `Faltam ${faltam} dias.`
+            } Dá para cancelar quando quiser, em Conta.`
+          : `Depois dessa data as vagas param de ser publicadas. ${
+              faltam <= 1 ? "É amanhã." : `Faltam ${faltam} dias.`
+            }`}
+      </p>
     </div>
   );
 }
