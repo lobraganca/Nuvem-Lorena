@@ -3963,6 +3963,20 @@
   color: var(--ei-acento);
 }
 
+/* Quantos cadastros existem deste lado — a dona: "mostre nos botões o
+   número de quantos cadastros tem em cada opção."
+
+   Cinza e pequeno, embaixo da explicação: é um dado de conferência, não a
+   decisão do cartão. Quem decide qual lado abrir olha o nome; o número
+   responde a pergunta seguinte, que é "quantos eu tenho lá?". */
+.ei .ei-lado-conta {
+  margin-top: 4px;
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--ei-tinta-fraca);
+  font-variant-numeric: tabular-nums;
+}
+
 /* ═══════════════════════════════════════════════════════════════════════
    "DEU CERTO" — a tela depois de salvar (03/09)
    ═══════════════════════════════════════════════════════════════════════

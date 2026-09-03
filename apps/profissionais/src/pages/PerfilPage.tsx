@@ -4,9 +4,9 @@ import { formatPhone } from "../lib/phone";
 import { useAuth } from "../lib/useAuth";
 import { signOut, definirSenha } from "../lib/auth";
 import { registrarTipoDeUsuario, minhasEmpresas } from "../lib/company";
-import { lerMeuPerfil } from "../lib/meuPerfil";
+import { meusCadastros } from "../lib/meuPerfil";
 import { hasDatabase } from "../lib/supabase";
-import { getProfile, salvarMeuPerfil } from "../lib/profiles";
+import { getProfile } from "../lib/profiles";
 import { isAdmin } from "../lib/admin";
 import { forcarAtualizacao } from "../lib/atualizacao";
 import { excluirMinhaConta } from "../lib/account";
@@ -18,7 +18,6 @@ import { Pagina, Prop } from "../components/ei/Pagina";
 import { useTituloDaPagina } from "../lib/tituloDaPagina";
 import { useOnboardingStatus } from "../lib/useOnboardingStatus";
 import { mensagemDeErro } from "../lib/erros";
-import { uploadProfessionalPhoto } from "../lib/storage";
 import { sendSuggestion } from "../lib/suggestions";
 import { SUPORTE_WHATSAPP, CONTATO_EMAIL } from "../config";
 
@@ -36,12 +35,6 @@ import { SUPORTE_WHATSAPP, CONTATO_EMAIL } from "../config";
  * os documentos, os seus dados e as duas saídas.
  */
 
-function initials(name: string | null, email: string | null | undefined): string {
-  const source = name?.trim() || email?.trim() || "?";
-  const parts = source.split(/\s+/).filter(Boolean);
-  if (parts.length === 1) return parts[0].slice(0, 2).toUpperCase();
-  return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
-}
 
 /* Uma linha da lista. Aceita link, botão ou endereço de fora, porque a
    lista mistura os três e três componentes quase iguais é como um deles
@@ -103,11 +96,6 @@ export function PerfilPage() {
   /* Edição do próprio nome e foto. Guardados em rascunho até salvar, para
      que cancelar devolva o que estava lá — e não o que a pessoa digitou e
      desistiu. */
-  const [editandoNome, setEditandoNome] = useState(false);
-  const [nomeRascunho, setNomeRascunho] = useState("");
-  const [salvandoNome, setSalvandoNome] = useState(false);
-  const [enviandoFoto, setEnviandoFoto] = useState(false);
-  const [erroPerfil, setErroPerfil] = useState("");
   const [admin, setAdmin] = useState(false);
   const [error, setError] = useState("");
   /** Trocando o lado mostrado (profissional ↔ empresa). */
@@ -116,9 +104,12 @@ export function PerfilPage() {
      dizer "não consegui saber" — e nesse caso a tela mostra o caminho do
      mesmo jeito, porque errar para o lado de mostrar demais é melhor que
      esconder um cadastro que existe. */
+  /* Quantos cadastros a conta tem de cada lado. `null` é "não sei" — a
+     consulta caiu —, e é diferente de zero: dizer "nenhum" a quem tem dois
+     é o defeito que esta tela existe para não cometer. */
   const [temOutroLado, setTemOutroLado] = useState<{
-    empresa: boolean | null;
-    profissional: boolean | null;
+    empresa: number | null;
+    profissional: number | null;
   } | null>(null);
   const [mostrandoSenha, setMostrandoSenha] = useState(false);
   const [senhaNova, setSenhaNova] = useState("");
@@ -180,11 +171,18 @@ export function PerfilPage() {
        consertando, e repeti-lo por causa de uma consulta que caiu seria
        trocar um erro por ele mesmo. */
     let vivo = true;
+    /* QUANTOS, e não "tem ou não tem" — a dona: "mostre nos botões o
+       número de quantos cadastros tem em cada opção."
+
+       Faz diferença desde que os dois lados passaram a aceitar mais de um
+       cadastro: quem tem duas lojas e um perfil precisa ver isso aqui,
+       senão a Conta diz menos do que a pessoa já sabe. `null` continua
+       sendo "não sei" (a consulta caiu), que é diferente de zero. */
     Promise.all([
-      minhasEmpresas(user.id).then((l) => l.length > 0).catch(() => null),
-      lerMeuPerfil(user.id).then((p) => !!p).catch(() => null),
-    ]).then(([temEmpresa, temProfissional]) => {
-      if (vivo) setTemOutroLado({ empresa: temEmpresa, profissional: temProfissional });
+      minhasEmpresas(user.id).then((l) => l.length).catch(() => null),
+      meusCadastros(user.id).then((l) => l.length).catch(() => null),
+    ]).then(([empresas, profissionais]) => {
+      if (vivo) setTemOutroLado({ empresa: empresas, profissional: profissionais });
     });
     return () => {
       vivo = false;
@@ -228,7 +226,6 @@ export function PerfilPage() {
   }
 
   const name = profile?.full_name ?? user.user_metadata?.full_name ?? null;
-  const avatarUrl = profile?.avatar_url ?? user.user_metadata?.avatar_url ?? null;
   const contato = user.phone ? telefoneLegivel(user.phone) : (user.email ?? "");
 
   return (
@@ -247,55 +244,22 @@ export function PerfilPage() {
             com o login só pelo Google os dois vinham prontos e nunca houve
             onde preenchê-los. Entrando pelo telefone não vem nada — a
             conta nasce anônima e ficava assim para sempre. */}
-        <div className="ei-margem" style={{ display: "flex", gap: 14, alignItems: "center", paddingTop: 14 }}>
-          <label className="ei-foto" title="Trocar a foto">
-            {avatarUrl ? (
-              <img src={avatarUrl} alt="" />
-            ) : (
-              <span className="ei-foto-iniciais">{initials(name, user.email)}</span>
-            )}
-            <span className="ei-foto-trocar">{enviandoFoto ? "Enviando…" : "Trocar"}</span>
-            <input
-              type="file"
-              accept="image/*"
-              disabled={enviandoFoto}
-              style={{ display: "none" }}
-              onChange={async (e) => {
-                const arquivo = e.target.files?.[0];
-                e.target.value = "";
-                if (!arquivo) return;
-                setEnviandoFoto(true);
-                setErroPerfil("");
-                try {
-                  const url = await uploadProfessionalPhoto(user.id, arquivo);
-                  await salvarMeuPerfil(user.id, { avatar_url: url });
-                  setProfile((p) => (p ? { ...p, avatar_url: url } : p));
-                } catch (err) {
-                  setErroPerfil(mensagemDeErro(err, "Não foi possível enviar a foto."));
-                } finally {
-                  setEnviandoFoto(false);
-                }
-              }}
-            />
-          </label>
+        {/* ── A FOTO E O NOME SAÍRAM DAQUI — 04/09 ────────────────────
+            A dona: "nessa tela não precisa ter os dados da pessoa lá em
+            cima. Ela já vai ter acesso pelos botões."
 
-          <div style={{ flex: 1, minWidth: 0 }}>
-            <strong className="ei-uma-linha" style={{ fontSize: "1.05rem" }}>
-              {name || "Sem nome"}
-            </strong>
-            <button
-              type="button"
-              className="ei-btn-inline"
-              style={{ fontSize: "0.82rem", fontWeight: 500 }}
-              onClick={() => {
-                setNomeRascunho(name ?? "");
-                setEditandoNome(true);
-              }}
-            >
-              {name ? "Editar nome" : "Escrever meu nome"}
-            </button>
-          </div>
-        </div>
+            E é verdade: foto, nome e o "editar nome" ocupavam a primeira
+            dobra inteira da Conta com dados que já se editam DENTRO de cada
+            cadastro — no perfil profissional e no da empresa, onde eles
+            importam de verdade, porque é lá que a empresa e o candidato os
+            leem.
+
+            Aqui em cima eles eram uma terceira cópia dos mesmos campos, e a
+            que menos serve: ninguém procura a Conta para trocar de foto.
+
+            O que fica é o telefone confirmado, logo abaixo — ele não é um
+            dado do cadastro, é a IDENTIDADE da conta (ver o comentário
+            seguinte). */}
 
         {/* ── O TELEFONE CONFIRMADO É A IDENTIDADE DA CONTA — 03/09 ─────
             A dona: "o botão de conta acho que poderia ser pelo número de
@@ -315,42 +279,6 @@ export function PerfilPage() {
           </p>
         )}
 
-        {editandoNome && (
-          <div className="ei-campo ei-margem" style={{ marginTop: 14 }}>
-            <input
-              value={nomeRascunho}
-              onChange={(e) => setNomeRascunho(e.target.value)}
-              maxLength={60}
-              autoFocus
-            />
-            <div style={{ display: "flex", gap: 8, marginTop: 10 }}>
-              <button
-                className="ei-btn ei-btn-cheio"
-                disabled={salvandoNome || !nomeRascunho.trim()}
-                onClick={async () => {
-                  setSalvandoNome(true);
-                  setErroPerfil("");
-                  try {
-                    const limpo = nomeRascunho.trim();
-                    await salvarMeuPerfil(user.id, { full_name: limpo });
-                    setProfile((p) => (p ? { ...p, full_name: limpo } : p));
-                    setEditandoNome(false);
-                  } catch (err) {
-                    setErroPerfil(mensagemDeErro(err, "Não foi possível salvar o nome."));
-                  } finally {
-                    setSalvandoNome(false);
-                  }
-                }}
-              >
-                {salvandoNome ? "Salvando…" : "Salvar"}
-              </button>
-              <button className="ei-btn ei-btn-texto" onClick={() => setEditandoNome(false)}>
-                Cancelar
-              </button>
-            </div>
-          </div>
-        )}
-
         {/* "Você é: Empresa" saiu (03/09): os cartões logo abaixo dizem a
             mesma coisa, e com o "Aberto agora" escrito no próprio cartão.
             O contato fica — e é a linha que identifica a conta quando ela
@@ -359,12 +287,6 @@ export function PerfilPage() {
           <div className="ei-props">
             <Prop rotulo="E-mail">{contato || "—"}</Prop>
           </div>
-        )}
-
-        {erroPerfil && (
-          <p className="ei-campo-erro ei-margem" style={{ marginTop: 10 }}>
-            {erroPerfil}
-          </p>
         )}
 
         {/* ── OS DOIS LADOS, EM CARTÕES ─────────────────────────────────
@@ -392,7 +314,7 @@ export function PerfilPage() {
         <div className="ei-lados">
           {(["professional", "company"] as const).map((lado) => {
             const aberto = tipo === lado;
-            const existe =
+            const quantos =
               lado === "company" ? temOutroLado?.empresa : temOutroLado?.profissional;
             return (
               <button
@@ -430,12 +352,21 @@ export function PerfilPage() {
                   {lado === "company" ? "Empresa" : "Profissional"}
                 </span>
                 <span className="ei-lado-nota">
-                  {existe === false
+                  {quantos === 0
                     ? "Ainda não cadastrado"
                     : lado === "company"
                       ? "Publicar vagas e ver quem respondeu"
                       : "Receber vagas do seu ofício"}
                 </span>
+                {/* Quantos, quando há mais de um: com um só, o número não
+                    acrescenta nada ("1 cadastro" numa conta que tem um é
+                    ruído) — e com dois ele responde de relance a pergunta
+                    que faz a pessoa entrar aqui. */}
+                {quantos != null && quantos > 1 && (
+                  <span className="ei-lado-conta">
+                    {lado === "company" ? `${quantos} empresas` : `${quantos} cadastros`}
+                  </span>
+                )}
                 {aberto && <span className="ei-lado-selo">Aberto agora</span>}
               </button>
             );
