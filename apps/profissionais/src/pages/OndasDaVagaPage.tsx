@@ -392,13 +392,16 @@ export function OndasDaVagaPage() {
 
       {compativeis !== null && !erroLista && (
         <>
-          <h2 className="ei-secao">
-            {compativeis.length === 0
-              ? "Quem combina com a vaga"
-              : `${compativeis.length} ${
-                  compativeis.length === 1 ? "pessoa cadastrada" : "pessoas cadastradas"
-                } em ${vaga.city}`}
-          </h2>
+          <h2 className="ei-secao">Quem mais combina</h2>
+          {compativeis.length > 0 && (
+            <p className="ei-apoio ei-margem">
+              {compativeis.length}{" "}
+              {compativeis.length === 1 ? "pessoa cadastrada" : "pessoas cadastradas"} em{" "}
+              {vaga.city}, da que mais combina para a que menos combina. Quem escolheu
+              não aparecer na lista de talentos não entra aqui — mas continua recebendo
+              o aviso da onda.
+            </p>
+          )}
 
           {compativeis.length === 0 ? (
             <p className="ei-apoio ei-margem">
