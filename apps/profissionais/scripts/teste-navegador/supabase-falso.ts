@@ -435,6 +435,20 @@ const TABELAS: Record<string, Linha[]> = {
 
   job_listings: VAGAS,
 
+  /* A conta é da administração quando o teste pede (`?admin=1` ou a chave
+     `falso-admin`). Sem esta tabela o painel administrativo abria dizendo
+     "sem permissão" no falso, e a seção do Ei Emprego — que é onde a dona
+     liga plano — nunca era exercitada. */
+  admins: (() => {
+    try {
+      return localStorage.getItem("falso-admin") === "1"
+        ? [{ user_id: DONO_FALSO }]
+        : [];
+    } catch {
+      return [];
+    }
+  })(),
+
   /* A face pública da empresa (view da 0100). O app lê daqui, e não de
      `companies`, porque a tabela só tem policy de leitura do próprio dono
      — quem procura trabalho lê zero linhas nela. Sem esta entrada, a tela

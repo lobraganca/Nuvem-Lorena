@@ -28,6 +28,7 @@ import { listSuggestions, updateSuggestionStatus } from "../lib/suggestions";
 import { atualizarStatusIndicacao, listarIndicacoes, type Indicacao } from "../lib/indicacoes";
 import { CITIES, type Suggestion, type SuggestionStatus } from "../types/domain";
 import { AdminBanners } from "../components/AdminBanners";
+import { AdminEiEmprego } from "../components/AdminEiEmprego";
 import { AdminFinanceiro } from "../components/AdminFinanceiro";
 import { useTituloDaPagina } from "../lib/tituloDaPagina";
 import { mensagemDeErro } from "../lib/erros";
@@ -58,6 +59,11 @@ const SUGGESTION_STATUS_LABEL: Record<SuggestionStatus, string> = {
  * O `id` entra na URL, então mexer nele quebra links já salvos.
  */
 const SECOES = [
+  /* O Ei Emprego vem PRIMEIRO: é o app que está no ar hoje. As seções
+     abaixo dele nasceram no outro produto e continuam servindo (denúncia,
+     sugestão, banner), mas nenhuma responde "quantas empresas assinaram?"
+     — que é a pergunta que a dona faz todo dia. */
+  { id: "ei", simbolo: "🏢", titulo: "Empresas e vagas", resumo: "Quem assinou, o que está no ar, e ligar plano." },
   { id: "dinheiro", simbolo: "💰", titulo: "Dinheiro", resumo: "O que entrou, por tipo e por mês." },
   { id: "banners", simbolo: "🖼️", titulo: "Banners", resumo: "A publicidade vendida e o desempenho de cada peça." },
   { id: "denuncias", simbolo: "🚩", titulo: "Denúncias", resumo: "Reclamações sobre cadastros, para apurar." },
@@ -627,6 +633,8 @@ export function AdminPage() {
         </div>
       </section>
       )}
+
+      {mostrar("ei") && <AdminEiEmprego />}
 
       {mostrar("cadastros") && (
       <section>
