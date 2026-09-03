@@ -84,6 +84,39 @@ export function EntradaPage() {
      que o primeiro terminou de gravar. */
   const [trocando, setTrocando] = useState(false);
 
+  /* ── OS BOTÕES TRAVAVAM AO VOLTAR — 03/09 ────────────────────────────
+     A dona: "quando clica em voltar pra tela de início os botões de
+     procuro emprego e quero contratar estão travando. Só volta quando
+     atualiza a página."
+
+     A causa é a saída daqui ser um `location.href`, e não uma navegação
+     do roteador: a tela some do React e o navegador guarda a página
+     inteira, VIVA, no cache de voltar (bfcache) — com o estado que ela
+     tinha no momento da saída, ou seja, `trocando = true`. Ao voltar, a
+     página não é montada de novo (nenhum `useState` roda), então o
+     primeiro `if` de `irParaOLado` continua saindo sem fazer nada e os
+     dois botões continuam `disabled`. Atualizar a página resolvia porque
+     aí sim tudo era montado do zero.
+
+     `pageshow` é o único evento que avisa essa volta (o `useEffect` não
+     roda: o componente nunca desmontou). Destravar sempre que a tela
+     reaparece é seguro — se a pessoa está vendo esta tela, não há
+     gravação em curso para proteger. */
+  useEffect(() => {
+    function aoReaparecer() {
+      setTrocando(false);
+    }
+    window.addEventListener("pageshow", aoReaparecer);
+    /* E também quando a aba volta a ficar visível: no iPhone o gesto de
+       voltar nem sempre dispara `pageshow`, e aí o app fica com a tela
+       viva e os botões mortos — que é exatamente o sintoma relatado. */
+    document.addEventListener("visibilitychange", aoReaparecer);
+    return () => {
+      window.removeEventListener("pageshow", aoReaparecer);
+      document.removeEventListener("visibilitychange", aoReaparecer);
+    };
+  }, []);
+
   /**
    * Escolhe o ambiente e vai para a tela DELE.
    *

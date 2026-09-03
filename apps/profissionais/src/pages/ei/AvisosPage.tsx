@@ -4,6 +4,12 @@ import { useAuth } from "../../lib/useAuth";
 import { useTituloDaPagina } from "../../lib/tituloDaPagina";
 import { mensagemDeErro } from "../../lib/erros";
 import { marcarVagaComoVista, todosOsAvisos, type Aviso } from "../../lib/minhasVagas";
+import { useOnboardingStatus } from "../../lib/useOnboardingStatus";
+import {
+  avisosDeCandidatura,
+  marcarCandidaturasComoLidas,
+  type AvisoDeCandidatura,
+} from "../../lib/company";
 import { pedirPermissaoDePush, pushServeAqui, situacaoDaPermissao } from "../../lib/push";
 import { Callout, Pagina } from "../../components/ei/Pagina";
 import { nomeDoContrato, salarioEmTexto } from "../../types/domain";
@@ -39,6 +45,20 @@ export function AvisosPage() {
   useTituloDaPagina("Avisos");
   const navegar = useNavigate();
   const { user, loading: carregandoConta } = useAuth();
+  /* Esta tela tem DOIS donos.
+     ─────────────────────────
+     A dona: "toda pessoa que se candidata em uma vaga que você anunciou
+     deve receber uma notificação e essa vai pro painel dos avisos."
+
+     Do lado de quem procura trabalho, aviso é vaga que chegou pela onda.
+     Do lado de quem contrata, é gente que se candidatou. São duas listas
+     de coisas diferentes com o mesmo nome — e é o mesmo nome de propósito:
+     "avisos" é onde a pessoa vai procurar novidade, seja de que lado for.
+
+     Duas telas separadas seriam duas entradas na barra de baixo para o
+     mesmo botão, e a barra já decide o que mostrar pelo lado. */
+  const lado = useOnboardingStatus();
+  const empresa = lado === "company";
 
   const [avisos, setAvisos] = useState<Aviso[]>([]);
   const [carregando, setCarregando] = useState(true);
@@ -48,6 +68,7 @@ export function AvisosPage() {
      se o selo lesse `visto_em`, ele sumiria no mesmo instante em que a
      pessoa abriu, sem nunca ter sido visto por ela. */
   const [novos, setNovos] = useState<Set<string>>(new Set());
+  const [candidaturas, setCandidaturas] = useState<AvisoDeCandidatura[]>([]);
   const [ligandoAviso, setLigandoAviso] = useState(false);
   const [avisoLigado, setAvisoLigado] = useState(false);
 
@@ -55,6 +76,29 @@ export function AvisosPage() {
     if (carregandoConta) return;
     if (!user) {
       navegar("/login?lado=trabalhar", { replace: true });
+      return;
+    }
+
+    /* `lado` ainda nulo é "não sei de que lado esta pessoa está" — não é
+       "profissional". Carregar a lista errada aqui faria a empresa ver, por
+       um instante, um "você ainda não recebeu nenhum aviso" que não é dela. */
+    if (lado === null) return;
+
+    if (empresa) {
+      avisosDeCandidatura(user.id)
+        .then((lista) => {
+          setCandidaturas(lista);
+          /* Quem estava "Novo" ANTES desta visita fica guardado à parte: a
+             primeira coisa que a tela faz é marcar tudo como lido, e um selo
+             que lesse o banco sumiria no mesmo instante em que a pessoa
+             abriu — sem nunca ter sido visto. */
+          setNovos(new Set(lista.filter((c) => c.novo).map((c) => c.id)));
+          marcarCandidaturasComoLidas(lista.filter((c) => c.novo).map((c) => c.id));
+        })
+        .catch((err) => {
+          setErro(mensagemDeErro(err, "Não consegui carregar seus avisos."));
+        })
+        .finally(() => setCarregando(false));
       return;
     }
 
@@ -72,7 +116,7 @@ export function AvisosPage() {
         setErro(mensagemDeErro(err, "Não consegui carregar seus avisos."));
       })
       .finally(() => setCarregando(false));
-  }, [user, carregandoConta, navegar]);
+  }, [user, carregandoConta, navegar, lado, empresa]);
 
   async function ligarAviso() {
     setLigandoAviso(true);
@@ -93,6 +137,67 @@ export function AvisosPage() {
       <div className="ei">
         <div className="ei-tela">
           <p className="ei-apoio ei-margem" style={{ paddingTop: 24 }}>Carregando…</p>
+        </div>
+      </div>
+    );
+  }
+
+  /* O lado da empresa: quem se candidatou, do mais recente para o mais
+     antigo, com o caminho para a vaga (é lá que estão o telefone e o resto
+     da triagem). Sem push por enquanto — o pedido foi o painel. */
+  if (empresa) {
+    return (
+      <div className="ei">
+        <div className="ei-tela">
+          <Pagina titulo="Avisos" />
+
+          {erro && (
+            <p className="ei-campo-erro ei-margem" style={{ marginTop: 12 }} role="alert">
+              {erro}
+            </p>
+          )}
+
+          {candidaturas.length === 0 ? (
+            <Callout>
+              Ainda não se candidatou ninguém. Assim que alguém disser que tem interesse
+              numa vaga sua, o nome aparece aqui.
+            </Callout>
+          ) : (
+            <div className="ei-lista">
+              {candidaturas.map((c) => (
+                <Link key={c.id} to={`/vaga/${c.vagaId}`} className="ei-linha-item">
+                  <span className="ei-empresa-marca" aria-hidden="true">
+                    {c.foto ? (
+                      <img src={c.foto} alt="" loading="lazy" />
+                    ) : (
+                      c.nome.trim().charAt(0).toLocaleUpperCase("pt-BR")
+                    )}
+                  </span>
+
+                  <span className="ei-linha-nome">
+                    <span className="ei-uma-linha">{c.nome}</span>
+                    {/* Quem se candidatou em cima; em qual vaga embaixo —
+                        nessa ordem porque numa cidade pequena é o NOME que
+                        decide se a empresa liga hoje ou amanhã. */}
+                    <span className="ei-linha-sub ei-uma-linha">
+                      {c.vagaTitulo}
+                      {c.bairro ? ` · ${c.bairro}` : ""}
+                    </span>
+                    <span className="ei-linha-sub ei-uma-linha">
+                      {c.quando
+                        ? new Date(c.quando).toLocaleDateString("pt-BR", {
+                            day: "2-digit",
+                            month: "2-digit",
+                          })
+                        : ""}
+                    </span>
+                  </span>
+
+                  {novos.has(c.id) && <span className="ei-selo ei-selo-laranja">Novo</span>}
+                </Link>
+              ))}
+            </div>
+          )}
         </div>
       </div>
     );

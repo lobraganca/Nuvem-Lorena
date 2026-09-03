@@ -418,7 +418,7 @@ export function LoginPage() {
                             ? "Esse número já tem conta aqui. Mandamos o código para você entrar — " +
                                 "e, se você já criou uma senha, dá para usar ela em “Prefiro entrar " +
                                 "com a minha senha”, logo abaixo."
-                            : "Enviamos um código por SMS. Ele chega em alguns segundos."
+                            : "Enviamos um código para o seu celular. Ele chega em alguns segundos."
                         );
                       }
                     )
@@ -432,7 +432,11 @@ export function LoginPage() {
                   ? "Entrar"
                   : esperaSegundos > 0
                     ? `Aguarde ${esperaSegundos}s para pedir outro`
-                    : "Receber código por SMS"}
+                    /* Só "Receber código" — a dona: "tirar da tela de
+                       login 'receber código por SMS'". O caminho continua
+                       o mesmo; o que saiu foi o nome do encanamento, que
+                       não ajuda quem está esperando o código chegar. */
+                    : "Receber código"}
             </button>
 
             {/* A troca entre os dois caminhos, sempre visível. É também o
@@ -448,7 +452,7 @@ export function LoginPage() {
               }}
             >
               {modo === "senha"
-                ? "Esqueci minha senha — receber código por SMS"
+                ? "Esqueci minha senha"
                 : "Já tenho senha — entrar com ela"}
             </button>
 

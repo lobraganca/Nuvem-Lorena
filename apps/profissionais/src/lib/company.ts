@@ -1092,3 +1092,134 @@ export async function excluirVaga(vagaId: string): Promise<void> {
   const { error } = await sb.from("job_listings").delete().eq("id", vagaId);
   if (error) throw error;
 }
+
+/**
+ * Os avisos de quem se candidatou às vagas desta CONTA.
+ *
+ * ── O pedido ──────────────────────────────────────────────────────────
+ *
+ * A dona: "toda pessoa que se candidata em uma vaga que você anunciou deve
+ * receber uma notificação e essa vai pro painel dos avisos."
+ *
+ * O painel de avisos existia só do lado de quem procura trabalho — ele
+ * lista `job_notifications`, as vagas que a onda levou até a pessoa. Do
+ * lado da empresa não havia aviso nenhum: quem se candidatava aparecia
+ * DENTRO da vaga, e só. A empresa que não abrisse vaga por vaga não ficava
+ * sabendo de ninguém.
+ *
+ * ── Por que não existe uma tabela de avisos da empresa ────────────────
+ *
+ * Porque o aviso já está gravado: cada candidatura é uma linha de
+ * `job_responses`, com data e com o estado da triagem. Uma tabela nova
+ * seria uma segunda cópia do mesmo fato — e, como toda cópia, um dia
+ * discorda do original (a pessoa desiste, a linha some, o aviso fica).
+ *
+ * O "novo" também já existe e não precisou ser inventado: `status = 'new'`
+ * é literalmente "chegou e a empresa ainda não leu".
+ *
+ * Erro SOBE, como em toda leitura deste arquivo. "Ninguém se candidatou" e
+ * "não consegui ler" são a mesma tela e coisas opostas — e esta é a tela
+ * em que a empresa decide se o anúncio dela está funcionando.
+ */
+export type AvisoDeCandidatura = {
+  id: string;
+  vagaId: string;
+  vagaTitulo: string;
+  cadastroId: string | null;
+  nome: string;
+  foto: string | null;
+  bairro: string | null;
+  quando: string;
+  novo: boolean;
+};
+
+export async function avisosDeCandidatura(ownerId: string): Promise<AvisoDeCandidatura[]> {
+  const sb = getSupabase();
+  if (!sb) return [];
+
+  const empresas = await minhasEmpresas(ownerId);
+  if (empresas.length === 0) return [];
+
+  /* As vagas de TODAS as empresas da conta, não só a escolhida agora.
+     Aviso que só aparece quando você está com a empresa certa aberta é
+     aviso que não chega — e desde a 0107 o plano é da conta, então as
+     empresas são um conjunto só do ponto de vista de quem entrou. */
+  const { data: vagas, error: erroVagas } = await sb
+    .from("job_listings")
+    .select("id, title")
+    .in("company_id", empresas.map((e) => e.id));
+  if (erroVagas) throw erroVagas;
+
+  const tituloDaVaga = new Map<string, string>();
+  for (const v of (vagas ?? []) as Array<{ id: string; title: string }>) {
+    tituloDaVaga.set(v.id, v.title);
+  }
+  if (tituloDaVaga.size === 0) return [];
+
+  /* `lerTudo` porque a 0062 pôs teto de 200 linhas em qualquer consulta:
+     a partir da ducentésima candidatura a lista pararia de crescer, sem
+     nada avisando. */
+  const respostas = await lerTudo<JobResponse>(() =>
+    sb
+      .from("job_responses")
+      .select("*")
+      .in("job_listing_id", [...tituloDaVaga.keys()])
+      /* Só quem TEM interesse. Desde a 0078 a pessoa também pode dizer que
+         a vaga não é para ela, e essa resposta é para o app parar de
+         cobrá-la — não é uma candidatura. */
+      .eq("interessado", true)
+      .order("responded_at", { ascending: false })
+  );
+  if (respostas.length === 0) return [];
+
+  /* `professional_id` é a CONTA (`auth.users`), não a linha de
+     `professionals` — por isso é uma segunda consulta casada por
+     `owner_id`, e não um `select` embutido. */
+  const contas = [...new Set(respostas.map((r) => r.professional_id))];
+  const { data: pessoas } = await sb
+    .from("professionals_public")
+    .select("id, owner_id, name, photo_url, neighborhood")
+    .in("owner_id", contas);
+
+  const porConta = new Map<string, Record<string, unknown>>();
+  for (const p of (pessoas ?? []) as Record<string, unknown>[]) {
+    porConta.set(String(p.owner_id), p);
+  }
+
+  return respostas.map((r) => {
+    const pessoa = porConta.get(r.professional_id);
+    return {
+      id: r.id,
+      vagaId: r.job_listing_id,
+      vagaTitulo: tituloDaVaga.get(r.job_listing_id) ?? "Vaga",
+      cadastroId: pessoa ? String(pessoa.id) : null,
+      /* Sem cadastro visível — quem ficou oculto ou não confirmou o
+         telefone — a linha fica na lista assim mesmo: a pessoa se
+         candidatou de verdade, e sumir com ela seria esconder da empresa
+         alguém que levantou a mão. */
+      nome: pessoa ? String(pessoa.name ?? "") : "Cadastro fora do ar",
+      foto: pessoa ? ((pessoa.photo_url as string) ?? null) : null,
+      bairro: pessoa ? ((pessoa.neighborhood as string) ?? null) : null,
+      quando: r.responded_at ?? "",
+      novo: r.status === "new",
+    };
+  });
+}
+
+/**
+ * Marca as candidaturas como lidas pela empresa.
+ *
+ * `status = 'read'` é da triagem da empresa e quer dizer exatamente isto:
+ * chegou e foi visto. Sem esta marcação o selo "Novo" ficaria para sempre
+ * em todo mundo, e um selo que nunca sai deixa de querer dizer alguma
+ * coisa.
+ *
+ * Falha em silêncio de propósito: perder a marcação mostra um "Novo" a
+ * mais na próxima visita, o que é bem menos grave que derrubar a tela
+ * inteira de avisos por causa dela.
+ */
+export async function marcarCandidaturasComoLidas(ids: string[]): Promise<void> {
+  const sb = getSupabase();
+  if (!sb || ids.length === 0) return;
+  await sb.from("job_responses").update({ status: "read" }).in("id", ids);
+}
