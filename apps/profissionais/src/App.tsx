@@ -54,6 +54,7 @@ const MeuPerfilPage = lazy(importarPagina(() => import("./pages/ei/MeuPerfilPage
 const ProfissionaisPage = lazy(importarPagina(() => import("./pages/ProfissionaisPage").then((m) => ({ default: m.ProfissionaisPage }))));
 const VagasParaMimPage = lazy(importarPagina(() => import("./pages/VagasParaMimPage").then((m) => ({ default: m.VagasParaMimPage }))));
 const BancoDeVagasPage = lazy(importarPagina(() => import("./pages/ei/BancoDeVagasPage").then((m) => ({ default: m.BancoDeVagasPage }))));
+const MeusCadastrosPage = lazy(importarPagina(() => import("./pages/ei/MeusCadastrosPage").then((m) => ({ default: m.MeusCadastrosPage }))));
 const MinhasEmpresasPage = lazy(importarPagina(() => import("./pages/ei/MinhasEmpresasPage").then((m) => ({ default: m.MinhasEmpresasPage }))));
 const EmpresaPublicaPage = lazy(importarPagina(() => import("./pages/ei/EmpresaPublicaPage").then((m) => ({ default: m.EmpresaPublicaPage }))));
 const FavoritosPage = lazy(importarPagina(() => import("./pages/ei/FavoritosPage").then((m) => ({ default: m.FavoritosPage }))));
@@ -324,6 +325,9 @@ export default function App() {
         {/* A escolha de qual empresa abrir, quando a conta tem mais de
             uma (itens 3, 4 e 6). Com uma só ela desvia sozinha para o
             painel — ver MinhasEmpresasPage. */}
+        {/* A mesma pergunta do lado da empresa, do lado de quem procura
+            trabalho: qual cadastro eu abro agora? Ver MeusCadastrosPage. */}
+        <Route path="/meus-cadastros" element={<MeusCadastrosPage />} />
         <Route path="/minhas-empresas" element={<MinhasEmpresasPage />} />
         <Route path="/painel-empresa" element={<PainelEmpresaPage />} />
         <Route path="/criar-vaga" element={<CriarVagaPage />} />

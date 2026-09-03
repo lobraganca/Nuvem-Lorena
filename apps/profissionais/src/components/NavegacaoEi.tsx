@@ -261,10 +261,17 @@ function destinos(tipo: "professional" | "company" | false | null, temConta: boo
     talentos,
     /* Mesmo motivo do lado da empresa: a tela se chama "Meu cadastro" na
        porta da tela inicial, e "Painel" aqui abria um formulário. */
-    { to: "/painel", /* "Meu cadastro" não cabe na aba e saía "Meu cadas…". A tela
-       continua se chamando assim; a aba usa a palavra que a nomeia. */
+    /* Abre a ESCOLHA do cadastro, e não o formulário — igualzinho ao lado
+       da empresa logo acima, que abre "Suas empresas". Uma conta pode ter
+       até cinco cadastros (a diarista que também cozinha), e cair direto no
+       primeiro esconderia os outros. Quem não tem nenhum é levado ao
+       formulário pela própria tela de escolha. */
+    { to: "/meus-cadastros", /* "Meu cadastro" não cabe na aba e saía "Meu
+       cadas…". A tela continua se chamando assim; a aba usa a palavra que
+       a nomeia. */
       label: "Cadastro", icone: IconePessoa,
-      casa: (p) => p.startsWith("/painel") || p.startsWith("/vagas-para-mim") },
+      casa: (p) => p.startsWith("/meus-cadastros") || p.startsWith("/painel") ||
+        p.startsWith("/vagas-para-mim") },
     conta,
   ];
 }

@@ -157,6 +157,80 @@ export const PERFIL_VAZIO: MeuPerfil = {
  * branco e a pessoa preencher tudo de novo por cima de um cadastro que
  * existe — e o `upsert` seguinte apagaria o que estava lá.
  */
+/* ══════════════════════════════════════════════════════════════════════
+   MAIS DE UM CADASTRO NA MESMA CONTA
+   ══════════════════════════════════════════════════════════════════════
+
+   A dona: "ao clicar em cadastro dentro do profissional deve abrir uma
+   tela igual a de empresa para a pessoa selecionar o perfil, por mais que
+   só tenha 1."
+
+   O banco sempre permitiu até cinco cadastros por conta (o gatilho
+   `professionals_evita_repetidos`, herdado do outro app), mas o app só
+   sabia do primeiro: `lerMeuPerfil` pegava o mais antigo e pronto. Quem
+   criasse um segundo — a diarista que também é cozinheira, e quer dois
+   cadastros com ofícios e pretensões diferentes — não tinha como abrir o
+   segundo nunca mais.
+
+   A escolha vive no aparelho, como a da empresa (`escolherEmpresa`): é uma
+   preferência de navegação, não um dado da pessoa. Guardá-la no banco
+   faria o cadastro aberto no celular mudar sozinho o do computador. */
+const CHAVE_CADASTRO = "ei-cadastro-escolhido";
+
+export function idDoCadastroEscolhido(): string | null {
+  try {
+    return localStorage.getItem(CHAVE_CADASTRO);
+  } catch {
+    /* Aba anônima recusa o armazenamento. Sem a escolha, vale o primeiro
+       cadastro — que é o que o app fazia antes de existir escolha. */
+    return null;
+  }
+}
+
+export function escolherCadastro(id: string | null) {
+  try {
+    if (id) localStorage.setItem(CHAVE_CADASTRO, id);
+    else localStorage.removeItem(CHAVE_CADASTRO);
+  } catch {
+    /* segue sem guardar */
+  }
+}
+
+/** Um cadastro da conta, na forma que a tela de escolha precisa. */
+export type CadastroDaConta = {
+  id: string;
+  name: string;
+  categories: string[];
+  photo_url: string | null;
+  paused: boolean;
+};
+
+/**
+ * Todos os cadastros desta conta, do mais antigo para o mais novo.
+ *
+ * Erro SOBE: devolver lista vazia diria "você não tem cadastro" a quem
+ * tem, e a tela seguinte mandaria essa pessoa criar outro por cima.
+ */
+export async function meusCadastros(ownerId: string): Promise<CadastroDaConta[]> {
+  const sb = supabase();
+  if (!sb) return [];
+
+  const { data, error } = await sb
+    .from("professionals")
+    .select("id, name, categories, photo_url, paused")
+    .eq("owner_id", ownerId)
+    .order("created_at", { ascending: true });
+
+  if (error) throw error;
+  return ((data ?? []) as Array<Record<string, unknown>>).map((l) => ({
+    id: String(l.id),
+    name: String(l.name ?? ""),
+    categories: (l.categories as string[]) ?? [],
+    photo_url: (l.photo_url as string) ?? null,
+    paused: !!l.paused,
+  }));
+}
+
 export async function lerMeuPerfil(ownerId: string): Promise<MeuPerfil | null> {
   const sb = supabase();
   if (!sb) return null;
@@ -187,14 +261,19 @@ export async function lerMeuPerfil(ownerId: string): Promise<MeuPerfil | null> {
        Ordena pelo mais antigo e pega o primeiro: é o cadastro principal da
        pessoa — o que ela criou quando entrou —, e é ele que as telas de
        "Meu cadastro" sempre mostraram. */
-    .order("created_at", { ascending: true })
-    .limit(1);
+    .order("created_at", { ascending: true });
 
   if (error) throw error;
-  const linhas = (data ?? []) as unknown[];
+  const linhas = (data ?? []) as Array<Partial<Professional> & { disponivel?: boolean }>;
   if (linhas.length === 0) return null;
 
-  const linha = linhas[0] as Partial<Professional> & { disponivel?: boolean };
+  /* Qual dos cadastros abrir: o escolhido na tela de seleção, e o mais
+     antigo quando não há escolha (ou quando o escolhido foi apagado noutro
+     aparelho — aí a escolha aponta para o vazio, e cair no primeiro é
+     melhor que abrir uma tela em branco). */
+  const escolhido = idDoCadastroEscolhido();
+  const linha =
+    (escolhido ? linhas.find((l) => l.id === escolhido) : null) ?? linhas[0];
   return {
     id: linha.id ?? null,
     name: linha.name ?? "",

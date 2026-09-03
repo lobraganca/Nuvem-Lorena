@@ -89,7 +89,16 @@ export function ComecarPage({ lado }: { lado: "professional" | "company" }) {
                   cadastro preenchido nenhuma vaga chega (a onda procura
                   por ofício), então ele vem primeiro — e é a única coisa
                   desta tela que depende da pessoa. */}
-              <Link to="/painel" className="ei-porta ei-porta-cheia">
+              {/* Vai para a ESCOLHA do cadastro, e não direto ao
+                  formulário — a dona: "ao clicar em cadastro dentro do
+                  profissional deve abrir uma tela igual a de empresa para
+                  a pessoa selecionar o perfil, por mais que só tenha 1."
+
+                  Mesma decisão do lado da empresa, que abre em "Suas
+                  empresas": quem tem dois escolhe qual, e quem tem um vê
+                  ali que dá para ter outro. Quem ainda não tem nenhum é
+                  levado direto ao formulário pela própria tela de escolha. */}
+              <Link to="/meus-cadastros" className="ei-porta ei-porta-cheia">
                 <IconePorta desenho="pessoa" />
                 <span className="ei-porta-nome">Meu cadastro</span>
                 <span className="ei-porta-nota">Suas funções, horários e contato</span>
