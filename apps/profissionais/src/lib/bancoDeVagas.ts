@@ -39,6 +39,7 @@ import type { JobListing } from "../types/domain";
    sem ninguém perceber — a tela diria 82% e a onda trataria como 60%. */
 import { calcular, ESCADA_ESCOLARIDADE, type QuemOlha } from "./compatibilidade";
 import { vagaEmDestaque } from "./destaque";
+import { lerTolerando } from "./colunasNovas";
 
 export type VagaNoBanco = {
   vaga: JobListing;
@@ -73,24 +74,33 @@ export async function bancoDeVagas(userId?: string): Promise<VagaNoBanco[]> {
      nenhuma — e o `!inner` derrubaria a vaga junto, devolvendo ZERO linhas
      sem erro. É o defeito que a 0100 existe para consertar. O apelido
      `companies:` mantém o nome da chave na resposta. */
-  const { data, error } = await sb
-    .from("job_listings")
-    .select(
-      `id, company_id, title, description, profession, specialty,
-       required_experience, skills, salary_range_min, salary_range_max,
-       available_immediately, work_modality, city, uf, neighborhood,
-       anunciada_ate, status, created_at, closed_at,
-       tipo_contrato, jornada, beneficios, salario_a_combinar, salario_periodo,
-       quantidade_vagas, data_inicio, prazo_candidatura, horario, escala,
-       aceita_outras_cidades, comissao, outros_beneficios,
-       escolaridade_minima, curso_especifico, cnh_exigida, cnh_categorias,
-       exige_viagem, idiomas, observacoes,
-       campos_compatibilidade, aceita_sem_compatibilidade, aceita_primeiro_emprego,
-       vaga_para_pcd, destaque_ate,
-       companies:companies_public!inner ( company_name, photo_url )`
-    )
-    .eq("status", "active")
-    .order("created_at", { ascending: false });
+  /* As três últimas colunas da lista (`aceita_primeiro_emprego`,
+     `vaga_para_pcd` e `destaque_ate`) são das migrations 0114, 0115 e
+     0116, aplicadas à mão pela dona — o código sobe antes. Pedir coluna
+     que ainda não existe faz o PostgREST recusar a consulta INTEIRA, e a
+     tela mostraria "não consegui carregar as vagas" para a cidade toda.
+     `lerTolerando` refaz sem elas nesse caso (ver `colunasNovas.ts`). */
+  const { data, error } = await lerTolerando<any[]>(
+    `id, company_id, title, description, profession, specialty,
+     required_experience, skills, salary_range_min, salary_range_max,
+     available_immediately, work_modality, city, uf, neighborhood,
+     anunciada_ate, status, created_at, closed_at,
+     tipo_contrato, jornada, beneficios, salario_a_combinar, salario_periodo,
+     quantidade_vagas, data_inicio, prazo_candidatura, horario, escala,
+     aceita_outras_cidades, comissao, outros_beneficios,
+     escolaridade_minima, curso_especifico, cnh_exigida, cnh_categorias,
+     exige_viagem, idiomas, observacoes,
+     campos_compatibilidade, aceita_sem_compatibilidade, aceita_primeiro_emprego,
+     vaga_para_pcd, destaque_ate,
+     companies:companies_public!inner ( company_name, photo_url )`,
+    ["aceita_primeiro_emprego", "vaga_para_pcd", "destaque_ate"],
+    (colunas) =>
+      sb
+        .from("job_listings")
+        .select(colunas)
+        .eq("status", "active")
+        .order("created_at", { ascending: false })
+  );
 
   if (error) throw error;
 

@@ -7,6 +7,7 @@ import {
 } from "../types/domain";
 import { calcular } from "./compatibilidade";
 import { lerTudo } from "./lerTudo";
+import { gravarTolerando } from "./colunasNovas";
 
 const supabase = getSupabase();
 
@@ -243,7 +244,15 @@ export async function criarEmpresa(
   const sb = getSupabase();
   if (!sb) throw new Error("Banco não configurado");
 
-  const { data, error } = await sb.from("companies").insert(company).select().single();
+  /* `contrata_pcd` é da 0115 e pode ainda não existir: as migrations são
+     aplicadas à mão e o código sobe sozinho. Coluna desconhecida faz o
+     PostgREST recusar a gravação inteira — aqui, o cadastro da empresa
+     todo. Ver `colunasNovas.ts`. */
+  const { data, error } = await gravarTolerando<Company>(
+    company as Record<string, unknown>,
+    ["contrata_pcd"],
+    (c: Record<string, unknown>) => sb.from("companies").insert(c).select().single()
+  );
 
   if (error) {
     /* `23505` é o `unique` do owner_id, que só existe ANTES da 0102. A
@@ -274,12 +283,11 @@ export async function atualizarEmpresa(
      `insert ... on conflict`, então quem manda passa pela policy de
      INSERT mesmo editando linha que já existe — foi o que impedia a
      administração de salvar cadastro de outra pessoa. */
-  const { data, error } = await sb
-    .from("companies")
-    .update(company)
-    .eq("id", id)
-    .select()
-    .single();
+  const { data, error } = await gravarTolerando<Company>(
+    company as Record<string, unknown>,
+    ["contrata_pcd"],
+    (c: Record<string, unknown>) => sb.from("companies").update(c).eq("id", id).select().single()
+  );
 
   if (error) throw error;
   if (!data) throw new Error("Falha ao salvar a empresa");
@@ -356,11 +364,16 @@ export async function criarVaga(
 ): Promise<JobListing> {
   if (!supabase) throw new Error("Banco não configurado");
 
-  const { data, error } = await supabase
-    .from("job_listings")
-    .insert([vaga])
-    .select()
-    .single();
+  /* `vaga_para_pcd` (0115) e `destaque_ate` (0116) podem ainda não
+     existir no banco. Sem esta tolerância, publicar vaga pararia de
+     funcionar entre o envio do código e a aplicação da SQL — que é
+     exatamente o defeito da coluna `uf`, o mais caro que este app já
+     teve. Ver `colunasNovas.ts`. */
+  const { data, error } = await gravarTolerando<JobListing>(
+    vaga as unknown as Record<string, unknown>,
+    ["vaga_para_pcd", "destaque_ate"],
+    (v: Record<string, unknown>) => supabase!.from("job_listings").insert([v]).select().single()
+  );
 
   if (error) throw error;
   if (!data) throw new Error("Falha ao criar vaga");
@@ -399,12 +412,11 @@ export async function atualizarVaga(
   const sb = getSupabase();
   if (!sb) throw new Error("Banco não configurado");
 
-  const { data, error } = await sb
-    .from("job_listings")
-    .update(mudancas)
-    .eq("id", vagaId)
-    .select()
-    .single();
+  const { data, error } = await gravarTolerando<JobListing>(
+    mudancas as Record<string, unknown>,
+    ["vaga_para_pcd", "destaque_ate"],
+    (m: Record<string, unknown>) => sb.from("job_listings").update(m).eq("id", vagaId).select().single()
+  );
 
   if (error) throw error;
   if (!data) throw new Error("Não consegui salvar as mudanças da vaga.");

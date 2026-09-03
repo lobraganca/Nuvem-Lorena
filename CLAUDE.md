@@ -182,6 +182,27 @@ O que evita é a ordem: mandar a SQL, **esperar ela confirmar que aplicou**,
 e só então empurrar o código que depende dela. Coluna criada sozinha não
 quebra nada — o app antigo simplesmente a ignora.
 
+### O app aguenta o intervalo entre o código e a SQL (04/09)
+
+A ordem acima continua sendo a certa. Só que ela depende de alguém
+lembrar, todas as vezes — e o preço de esquecer uma vez é o app parado.
+
+Desde 04/09 existe `src/lib/colunasNovas.ts`: a gravação (ou a leitura) é
+tentada com as colunas novas e, se o banco responder "não conheço essa
+coluna" (42703 ou PGRST204), é refeita SEM elas, escrevendo no console
+qual faltou. O cadastro salva, a vaga publica, a lista carrega — só o
+campo novo não vale nada até a SQL ser aplicada, que é o mesmo que
+aconteceria com o app de ontem.
+
+Quem acrescenta coluna nova acrescenta o nome dela na lista de "novas" do
+lugar que a usa (`meuPerfil.ts`, `company.ts`, `bancoDeVagas.ts`,
+`compativeis.ts`). Sem isso, o defeito da `uf` volta.
+
+E o Supabase de mentira do navegador passou a saber recusar coluna que
+não existe, nos dois sentidos — ligado por `falso-colunas-estrito`, ver
+`supabase/testes/README.md`. Foi o que provou que a tolerância funciona, e
+é o que teria pego o `description` sumindo da tela da vaga.
+
 ### `information_schema` mente; use `pg_catalog`
 
 Depois de aplicada a 0060, esta consulta respondeu que a coluna não

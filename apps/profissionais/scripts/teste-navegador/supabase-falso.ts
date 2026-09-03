@@ -73,6 +73,17 @@ const professionals: Linha[] = Array.from({ length: QUANTOS }, (_, i) => ({
      há ninguém" achando que era a lista. */
   uf: "MG",
   bio: `Faz ${CATS[i % CATS.length]} há anos.`,
+  /* `email` existe na tabela de verdade e faltava aqui. Sem ela, o modo
+     estrito de colunas (ver `modoEstritoDeColunas`) acusava falta numa
+     coluna que existe no banco — um alarme falso que fazia a tela do
+     cadastro abrir como se a pessoa não tivesse nada preenchido. */
+  email: "",
+  /* As duas da 0114, já aplicada no banco de verdade. Ficam aqui para o
+     modo estrito representar o banco de HOJE: assim ele acusa só o que
+     de fato ainda não existe (hoje, `genero` e `pcd`, das 0115 e 0116) —
+     que é o que faz a conferência valer alguma coisa. */
+  primeiro_emprego: i % 9 === 0,
+  aceita_freela: i % 4 === 0,
   especialidade: "",
   /* As colunas da 0101 e da 0103, que os filtros do banco de talentos
      leem. Sem elas TODO filtro devolvia zero pessoas — e o teste diria
@@ -575,6 +586,24 @@ function valorEm(l: Linha, caminho: string): unknown {
     .reduce<unknown>((atual, parte) => (atual as Linha | undefined)?.[parte], l);
 }
 
+/**
+ * O modo estrito de colunas está ligado?
+ *
+ * `?colunas=estrito` na URL liga e guarda; `?colunas=solto` desliga. É o
+ * mesmo mecanismo dos outros ajustes do falso.
+ */
+function modoEstritoDeColunas(): boolean {
+  try {
+    const busca = new URLSearchParams(location.search);
+    const pedido = busca.get("colunas");
+    if (pedido === "estrito") localStorage.setItem("falso-colunas-estrito", "1");
+    if (pedido === "solto") localStorage.removeItem("falso-colunas-estrito");
+    return localStorage.getItem("falso-colunas-estrito") === "1";
+  } catch {
+    return false;
+  }
+}
+
 class Consulta implements PromiseLike<{ data: Linha[] | Linha | null; error: unknown; count?: number }> {
   private filtros: Filtro[] = [];
   private ordens: { coluna: string; asc: boolean }[] = [];
@@ -584,10 +613,27 @@ class Consulta implements PromiseLike<{ data: Linha[] | Linha | null; error: unk
   private gravar: Linha | null = null;
   private inserir: Linha[] | null = null;
   private apagar = false;
+  private colunas: string | null = null;
 
   constructor(private tabela: string) {}
 
-  select() { return this; }
+  /* ── O FALSO PASSOU A OLHAR A LISTA DE COLUNAS — 04/09 ────────────
+     Ele ignorava o que era pedido no `select()`, e por isso NÃO PEGOU um
+     defeito que estava em produção: a tela da vaga pedia `description` na
+     view `companies_public`, que não tem essa coluna. O PostgREST recusa
+     a consulta INTEIRA quando falta uma coluna pedida — o nome e a foto
+     da empresa sumiam da tela para todo mundo, e aqui tudo aparecia
+     bonitinho.
+
+     A conferência é OPCIONAL (`?colunas=estrito` na URL, ou a chave no
+     armazenamento) porque os dados de mentira não têm todas as colunas
+     que o banco de verdade tem: ligada por padrão, ela acusaria falta em
+     coluna que existe lá. Ligada de propósito, ela é uma varredura: abre
+     as telas com o modo estrito e vê onde o app pede o que não existe. */
+  select(colunas?: string) {
+    this.colunas = typeof colunas === "string" ? colunas : null;
+    return this;
+  }
   eq(c: string, v: unknown) { this.filtros.push((l) => valorEm(l, c) === v); return this; }
   neq(c: string, v: unknown) { this.filtros.push((l) => valorEm(l, c) !== v); return this; }
   /* `is(coluna, null)` é como o PostgREST pergunta "está vazio?" — e é o
@@ -672,6 +718,27 @@ class Consulta implements PromiseLike<{ data: Linha[] | Linha | null; error: unk
     const tabela = (TABELAS[this.tabela] ??= []);
 
     if (this.inserir) {
+      /* A conferência de colunas na GRAVAÇÃO vem ANTES de a linha ser
+         criada: é esse o caso que derrubou o cadastro da cidade quando a
+         coluna `uf` chegou ao app antes de chegar ao banco. Depois de
+         gravar, a linha já teria a coluna nova e a conferência acharia
+         que estava tudo certo — foi o primeiro jeito que tentei, e ele
+         passava sem testar nada. */
+      const faltaNoInsert = this.chavesQueFaltam(this.inserir[0] ?? {}, tabela[0]);
+      if (faltaNoInsert) {
+        console.warn(
+          `[colunas estrito] ${this.tabela}: a gravação manda "${faltaNoInsert}", que não existe`
+        );
+        return {
+          data: null,
+          error: {
+            code: "PGRST204",
+            message: `Could not find the '${faltaNoInsert}' column of '${this.tabela}' in the schema cache`,
+          },
+          count: 0,
+        };
+      }
+      this.anotarGravacao(this.inserir[0] ?? {});
       const novas = this.inserir.map((l) => ({
         id: l.id ?? `${this.tabela}-${tabela.length + 1}`,
         created_at: new Date().toISOString(),
@@ -695,13 +762,50 @@ class Consulta implements PromiseLike<{ data: Linha[] | Linha | null; error: unk
     /* Um `update` que não altera nada faz o teste passar sem testar: a tela
        chama, o falso responde "deu certo", e a lista volta igual. Foi
        exatamente o que aconteceu com o botão de pausar. */
-    if (this.gravar) { for (const l of linhas) Object.assign(l, this.gravar); }
+    if (this.gravar) {
+      const faltaNoUpdate = this.chavesQueFaltam(this.gravar, linhas[0] ?? tabela[0]);
+      if (faltaNoUpdate) {
+        console.warn(
+          `[colunas estrito] ${this.tabela}: a gravação manda "${faltaNoUpdate}", que não existe`
+        );
+        return {
+          data: null,
+          error: {
+            code: "PGRST204",
+            message: `Could not find the '${faltaNoUpdate}' column of '${this.tabela}' in the schema cache`,
+          },
+          count: 0,
+        };
+      }
+      this.anotarGravacao(this.gravar);
+      for (const l of linhas) Object.assign(l, this.gravar);
+    }
     for (const { coluna, asc } of [...this.ordens].reverse()) {
       linhas = [...linhas].sort((a, b) => {
         const x = a[coluna] as never, y = b[coluna] as never;
         return (x < y ? -1 : x > y ? 1 : 0) * (asc ? 1 : -1);
       });
     }
+    /* A conferência de colunas roda depois dos filtros e antes de cortar
+       páginas: ela precisa de uma linha qualquer da tabela para saber
+       quais colunas existem. Sem nenhuma linha, não há o que conferir —
+       e é o certo: uma tabela vazia não prova que a coluna falta. */
+    const faltando = this.colunasQueFaltam(linhas[0]);
+    if (faltando) {
+      /* Escrito no console SEMPRE, e não só devolvido como erro: quase
+         todo lugar do app trata erro de leitura como "não veio nada" e
+         segue — que é justamente o que faz este defeito passar. */
+      console.warn(`[colunas estrito] ${this.tabela}: a coluna "${faltando}" foi pedida e não existe`);
+      return {
+        data: null,
+        error: {
+          code: "42703",
+          message: `column ${this.tabela}.${faltando} does not exist`,
+        },
+        count: 0,
+      };
+    }
+
     if (this.faixa) linhas = linhas.slice(this.faixa[0], this.faixa[1] + 1);
     if (this.limite !== null) linhas = linhas.slice(0, this.limite);
     /* `single()` DÁ ERRO com mais de uma linha, e é assim no PostgREST.
@@ -739,6 +843,54 @@ class Consulta implements PromiseLike<{ data: Linha[] | Linha | null; error: unk
       return { data: linhas[0] ?? null, error: null, count: linhas.length };
     }
     return { data: linhas, error: null, count: linhas.length };
+  }
+
+  /* Qual coluna pedida não existe na linha — ou `null` quando está tudo
+     certo, quando a conferência está desligada, ou quando não há linha
+     para comparar.
+
+     O que é pedido dentro de parênteses (as relações, tipo
+     `companies:companies_public!inner ( company_name )`) é ignorado: são
+     colunas de OUTRA tabela, e o falso resolve relação de outro jeito. */
+  private colunasQueFaltam(exemplo: Linha | undefined): string | null {
+    if (!this.colunas || !exemplo) return null;
+    if (!modoEstritoDeColunas()) return null;
+
+    const semRelacoes = this.colunas.replace(/\([^)]*\)/g, "");
+    const nomes = semRelacoes
+      .split(",")
+      .map((p) => p.trim())
+      .filter(Boolean)
+      /* Nomes com apelido, contagem e o `*` não são coluna simples. */
+      .filter((p) => !p.includes(":") && !p.includes("*") && !p.includes("!"));
+
+    for (const nome of nomes) {
+      if (!(nome in exemplo)) return nome;
+    }
+    return null;
+  }
+
+  /* Deixa o teste do navegador enxergar as gravações: sem isso, a única
+     forma de saber se uma tela salvou de verdade é procurar uma mensagem
+     na tela, que às vezes some sozinha antes de a foto ser tirada. Vive
+     só no falso, que nunca vai para o site. */
+  private anotarGravacao(escrito: Linha) {
+    const g = globalThis as Record<string, unknown>;
+    const lista = (g.__falsoGravacoes as unknown[]) ?? [];
+    lista.push({ tabela: this.tabela, chaves: Object.keys(escrito) });
+    g.__falsoGravacoes = lista;
+    g.__falsoUltimaGravacao = { tabela: this.tabela, chaves: Object.keys(escrito) };
+  }
+
+  /* Qual chave gravada não existe na tabela — mesma ideia da conferência
+     de leitura, do outro lado. */
+  private chavesQueFaltam(escrito: Linha, exemplo: Linha | undefined): string | null {
+    if (!exemplo) return null;
+    if (!modoEstritoDeColunas()) return null;
+    for (const chave of Object.keys(escrito)) {
+      if (!(chave in exemplo)) return chave;
+    }
+    return null;
   }
 
   then<R1 = unknown, R2 = never>(

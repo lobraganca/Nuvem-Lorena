@@ -46,3 +46,40 @@ O gatilho que protege as avaliações, campo a campo:
 
 Alguns testes **esperam** ver `ERROR` na saída — é o gatilho barrando o que
 deve barrar. O que não pode aparecer é erro na execução do schema.
+
+## O modo estrito de colunas (no navegador)
+
+O Supabase de mentira (`scripts/teste-navegador/supabase-falso.ts`) sempre
+ignorou a lista de colunas do `select()` e devolveu o objeto inteiro. Isso
+escondeu um defeito que estava em produção: a tela da vaga pedia
+`description` na view `companies_public`, que não tem essa coluna — e o
+PostgREST recusa a consulta INTEIRA quando falta uma coluna pedida, então
+o nome e a foto da empresa sumiam da tela para todo mundo. Aqui tudo
+aparecia bonitinho.
+
+Agora o falso sabe conferir, e a conferência vale para os dois lados:
+
+- **leitura** — coluna pedida no `select()` que não existe na linha;
+- **gravação** — chave mandada no `insert`/`update` que não existe na
+  tabela. É o caso da coluna `uf` (0060), que derrubou o cadastro da
+  cidade por catorze horas.
+
+Ela é **opcional**, e o motivo importa: os dados de mentira não têm todas
+as colunas do banco de verdade, então ligada por padrão ela acusaria falta
+onde não há. Use como pista, não como veredito — e, ao achar um alarme
+falso, acrescente a coluna aos dados do falso (foi assim que `email`,
+`primeiro_emprego` e `aceita_freela` entraram lá).
+
+```js
+// no navegador, antes de abrir o app
+localStorage.setItem("falso-colunas-estrito", "1");
+// ou ?colunas=estrito na URL; ?colunas=solto desliga
+```
+
+O falso também anota as gravações em `globalThis.__falsoGravacoes`
+(`[{tabela, chaves}]`), que é como um teste sabe se a tela salvou de
+verdade — procurar a mensagem na tela falha quando ela some sozinha antes
+da foto.
+
+Do outro lado, o app tolera o intervalo entre o código e a SQL: ver
+`src/lib/colunasNovas.ts`.

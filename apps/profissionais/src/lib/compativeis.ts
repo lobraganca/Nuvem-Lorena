@@ -1,5 +1,6 @@
 import { supabase } from "./supabase";
 import { lerTudo } from "./lerTudo";
+import { colunasQueExistem } from "./colunasNovas";
 import { calcular, ESCADA_ESCOLARIDADE, type QuemOlha } from "./compatibilidade";
 import type { JobListing } from "../types/domain";
 
@@ -62,19 +63,29 @@ export async function compativeisComAVaga(vaga: JobListing): Promise<CandidatoCo
   /* Só a cidade da vaga, com o estado junto: há "Bom Jesus" em mais de
      vinte estados, e filtrar pelo nome sozinho traz gente de longe numa
      lista que chega cheia, sem erro nenhum para avisar. */
+  /* `primeiro_emprego` e `aceita_freela` são da 0114 e `pcd` da 0115 —
+     migrations aplicadas à mão, com o código subindo antes. Coluna que o
+     banco ainda não tem faz o PostgREST recusar a consulta inteira, e a
+     empresa veria "não foi possível carregar as pessoas" em vez da lista.
+     Aqui a tolerância é resolvida ANTES do `lerTudo`, com uma consulta de
+     uma linha só: `lerTudo` lê em páginas, e refazer a paginação inteira
+     no meio do caminho seria pedir para ler duas vezes a mesma coisa. */
+  const NOVAS = ["primeiro_emprego", "aceita_freela", "pcd"];
+  const COLUNAS =
+    "id, name, photo_url, city, uf, neighborhood, categories, areas_de_interesse, " +
+    "modo_trabalho, cnh, cnh_categorias, aceita_viajar, inicio_imediato, " +
+    "fim_de_semana, pretensao_centavos, pretensao_combinar, disponibilidade, " +
+    "primeiro_emprego, aceita_freela, pcd, disponivel";
+
+  const colunas = await colunasQueExistem(COLUNAS, NOVAS, (c) =>
+    sb.from("professionals_public").select(c).limit(1)
+  );
+
   const pessoas = (await lerTudo(() => {
-    let q = sb
-      .from("professionals_public")
-      .select(
-        "id, name, photo_url, city, uf, neighborhood, categories, areas_de_interesse, " +
-          "modo_trabalho, cnh, cnh_categorias, aceita_viajar, inicio_imediato, " +
-          "fim_de_semana, pretensao_centavos, pretensao_combinar, disponibilidade, " +
-          "primeiro_emprego, aceita_freela, pcd, disponivel"
-      )
-      .eq("city", vaga.city);
+    let q = sb.from("professionals_public").select(colunas).eq("city", vaga.city);
     if (vaga.uf) q = q.eq("uf", vaga.uf);
     return q;
-  })) as Record<string, any>[];
+  })) as unknown as Record<string, any>[];
 
   if (pessoas.length === 0) return [];
 

@@ -1,4 +1,5 @@
 import { supabase } from "./supabase";
+import { gravarTolerando, lerTolerando } from "./colunasNovas";
 import { DEFAULT_CITY, DEFAULT_UF, type Professional } from "../types/domain";
 
 /**
@@ -302,19 +303,28 @@ export async function lerMeuPerfil(ownerId: string): Promise<MeuPerfil | null> {
   const sb = supabase();
   if (!sb) return null;
 
-  const { data, error } = await sb
-    .from("professionals")
-    .select(
-      "id, name, phone, email, photo_url, bio, neighborhood, areas_de_interesse, disponivel, paused, whatsapp_verified, " +
+  /* A lista é escrita à mão, uma a uma: coluna nova que ninguém
+     acrescente aqui chega como indefinida, sem erro nenhum para avisar —
+     e o campo aparece em branco na tela como se a pessoa nunca o tivesse
+     preenchido.
+
+     `genero` e `pcd` são as mais novas (0116 e 0115) e podem ainda não
+     existir no banco, porque as migrations são aplicadas à mão e o código
+     sobe sozinho. Pedir coluna que não existe faz o PostgREST recusar a
+     consulta INTEIRA — o cadastro sumiria da tela por causa de dois
+     campos que ninguém preencheu. `lerTolerando` refaz a consulta sem
+     elas nesse caso (ver `colunasNovas.ts`). */
+  const { data, error } = await lerTolerando<Array<Record<string, unknown>>>(
+    "id, name, phone, email, photo_url, bio, neighborhood, areas_de_interesse, disponivel, paused, whatsapp_verified, " +
       "pretensao_centavos, pretensao_combinar, pretensao_periodo, disponibilidade, aceita_viajar, " +
-      /* As sete da 0103. A lista é escrita à mão, uma a uma: coluna nova
-         que ninguém acrescente aqui chega como indefinida, sem erro
-         nenhum para avisar — e o campo aparece em branco na tela como se
-         a pessoa nunca o tivesse preenchido. */
       "data_nascimento, cnh, cnh_categorias, telefones_extra, modo_trabalho, " +
-      "fim_de_semana, inicio_imediato, primeiro_emprego, aceita_freela, genero, pcd"
-    )
-    .eq("owner_id", ownerId)
+      "fim_de_semana, inicio_imediato, primeiro_emprego, aceita_freela, genero, pcd",
+    ["genero", "pcd"],
+    (colunas) =>
+      sb
+        .from("professionals")
+        .select(colunas)
+        .eq("owner_id", ownerId)
     /* ── NEM `single` NEM `maybeSingle` — 03/09 ────────────────────────
        Os dois DÃO ERRO quando vem mais de uma linha, e mais de uma linha é
        possível: o banco permite até cinco cadastros por conta (o gatilho
@@ -328,10 +338,13 @@ export async function lerMeuPerfil(ownerId: string): Promise<MeuPerfil | null> {
        Ordena pelo mais antigo e pega o primeiro: é o cadastro principal da
        pessoa — o que ela criou quando entrou —, e é ele que as telas de
        "Meu cadastro" sempre mostraram. */
-    .order("created_at", { ascending: true });
+        .order("created_at", { ascending: true })
+  );
 
   if (error) throw error;
-  const linhas = (data ?? []) as Array<Partial<Professional> & { disponivel?: boolean }>;
+  const linhas = (data ?? []) as unknown as Array<
+    Partial<Professional> & { disponivel?: boolean }
+  >;
   if (linhas.length === 0) return null;
 
   /* Qual dos cadastros abrir: o escolhido na tela de seleção, e o mais
@@ -469,17 +482,28 @@ export async function salvarMeuPerfil(
     uf: DEFAULT_UF,
   };
 
+  /* ── AS COLUNAS MAIS NOVAS ─────────────────────────────────────────
+     `genero` (0116) e `pcd` (0115) podem ainda não existir no banco: as
+     migrations são aplicadas à mão e o código sobe sozinho. Mandar uma
+     coluna que o banco não conhece faz o PostgREST recusar a gravação
+     INTEIRA — foi assim que a coluna `uf` deixou a cidade sem conseguir
+     se cadastrar por catorze horas. `gravarTolerando` refaz sem elas
+     nesse caso, e escreve no console qual faltou. Ver `colunasNovas.ts`. */
+  const NOVAS = ["genero", "pcd"];
+
   if (perfil.id) {
-    const { error } = await sb.from("professionals").update(campos).eq("id", perfil.id);
+    const { error } = await gravarTolerando(campos, NOVAS, (c) =>
+      sb.from("professionals").update(c).eq("id", perfil.id!)
+    );
     if (error) throw error;
     return perfil.id;
   }
 
-  const { data, error } = await sb
-    .from("professionals")
-    .insert({ ...campos, owner_id: ownerId })
-    .select("id")
-    .single();
+  const { data, error } = await gravarTolerando<{ id: string }>(
+    { ...campos, owner_id: ownerId },
+    NOVAS,
+    (c) => sb.from("professionals").insert(c).select("id").single()
+  );
   if (error) throw error;
   return (data as { id: string }).id;
 }
