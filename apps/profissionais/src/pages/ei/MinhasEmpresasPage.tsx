@@ -10,11 +10,7 @@ import {
   resumoDasEmpresas,
   type ResumoDasEmpresas,
 } from "../../lib/company";
-import {
-  PLANOS_EMPRESA,
-  PLANO_GRATUITO,
-  type Company,
-} from "../../types/domain";
+import type { Company } from "../../types/domain";
 import { Pagina } from "../../components/ei/Pagina";
 import { AvisoPerfilIncompleto } from "../../components/ei/AvisoPerfilIncompleto";
 
@@ -248,20 +244,17 @@ export function MinhasEmpresasPage() {
           </Link>
         </div>
 
-        {/* ── O PLANO DA CONTA, UMA VEZ SÓ (0107) ────────────────────────
-            Desde a 0107 o teto é da conta e é somado entre as lojas: com o
-            Premium dá para abrir 2 na padaria e 1 na lanchonete. Por isso
-            ele aparece uma vez, e não dentro de cada cartão — repetido em
-            três cartões, "3 de 3" diria que cada loja tem três, que é o
-            contrário da regra.
+        {/* A faixa do plano saiu daqui — 03/09
+            ──────────────────────────────────────
+            A dona: "nessa tela pode colocar 'meu plano' e tirar a
+            informação da tela de minhas empresas."
 
-            03/09: desceu para DEPOIS dos cartões, a pedido da dona ("a
-            informação do plano fica abaixo dos cards das empresas"). Faz
-            sentido na leitura da tela: quem chega aqui vem escolher a
-            empresa, e o plano é o que se confere depois — ou quando a
-            escolha esbarra nele. Em cima, ele era a primeira coisa a ser
-            lida numa tela que não é sobre plano. */}
-        <PlanoDaConta empresas={lista} resumo={resumo} />
+            Ela morava logo abaixo dos cartões e era a última coisa de uma
+            tela cujo trabalho é só um: escolher a loja. Agora é a porta
+            "Meu plano" na tela de quem contrata, um passo antes — ver
+            `components/ei/PortaDoPlano.tsx`. O `resumo` continua sendo
+            lido aqui porque é dele que sai o "vagas no ar" de cada
+            cartão. */}
 
         {/* O "Banco de talentos" que morava aqui saiu — 02/09
             ─────────────────────────────────────────────────
@@ -305,7 +298,8 @@ function Logo({ foto, nome }: { foto: string | null; nome: string }) {
 /**
  * A segunda linha do cartão: quantas vagas ESTA loja tem no ar.
  *
- * Só o número desta empresa — o teto é da conta e está lá em cima. Enquanto
+ * Só o número desta empresa — o teto é da conta e mora na porta "Meu
+ * plano", na tela de quem contrata. Enquanto
  * a consulta não volta fica um traço: um "0" que depois vira "2" é uma
  * mentira curta, e é a que faz a pessoa achar que a loja está parada.
  */
@@ -315,56 +309,3 @@ function VagasDaEmpresa({ quantas }: { quantas: number | undefined }) {
   return <>{quantas === 1 ? "1 vaga no ar" : `${quantas} vagas no ar`}</>;
 }
 
-/**
- * O plano da conta e quanto dele já está usado.
- *
- * O nome sai do que foi PAGO (`companies.plano`), e não do teto: dois
- * planos podem acabar com o mesmo teto depois de uma promoção, e aí a tela
- * diria o nome errado. Sem nada pago em dia, é o gratuito — que não é um
- * valor no banco (ver PLANO_GRATUITO).
- */
-function PlanoDaConta({
-  empresas,
-  resumo,
-}: {
-  empresas: Company[];
-  resumo: ResumoDasEmpresas | null;
-}) {
-  const agora = Date.now();
-  const forca = { pro: 1, tres: 2, ilimitado: 3 } as const;
-  let melhorNome: string | null = null;
-  let melhor = 0;
-  for (const e of empresas) {
-    if (!e.plano || !e.plano_ate || new Date(e.plano_ate).getTime() < agora) continue;
-    const f = forca[e.plano as keyof typeof forca] ?? 0;
-    if (f > melhor) {
-      melhor = f;
-      melhorNome = `Plano ${PLANOS_EMPRESA[e.plano]?.nome ?? e.plano}`;
-    }
-  }
-  const nome = melhorNome ?? PLANO_GRATUITO.nome;
-
-  /* Sem plano não há "de quantas": o gratuito não publica vaga, e "0 de 0"
-     lê como defeito. `-1` é o sem teto, e "3 de -1" seria o número mágico
-     vazando para a tela. */
-  const quanto =
-    resumo == null
-      ? ""
-      : resumo.limite === 0
-        ? "não publica vaga"
-        : resumo.limite < 0
-          ? `${resumo.abertas} ${resumo.abertas === 1 ? "vaga no ar" : "vagas no ar"}`
-          : `${resumo.abertas} de ${resumo.limite} ${resumo.limite === 1 ? "vaga" : "vagas"}`;
-
-  return (
-    <div className="ei-conta-plano ei-margem">
-      <span className="ei-conta-plano-nome">{nome}</span>
-      {quanto && <span className="ei-conta-plano-nota">{quanto}</span>}
-      <Link to="/planos-empresa" className="ei-btn-inline">
-        {/* "Alterar plano" e não "Mudar": sozinho no meio de uma
-            faixa, "Mudar" não diz mudar o quê. */}
-        {melhorNome ? "Alterar plano" : "Ver planos"}
-      </Link>
-    </div>
-  );
-}

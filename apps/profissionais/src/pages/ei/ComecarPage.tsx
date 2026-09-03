@@ -4,6 +4,7 @@ import { useOnboardingStatus } from "../../lib/useOnboardingStatus";
 import { useTituloDaPagina } from "../../lib/tituloDaPagina";
 import { InstalarApp } from "../../components/InstalarApp";
 import { AvisoPerfilIncompleto } from "../../components/ei/AvisoPerfilIncompleto";
+import { PortaDoPlano } from "../../components/ei/PortaDoPlano";
 
 /**
  * A tela de um lado: os botões que antes viviam na porta de entrada.
@@ -63,11 +64,24 @@ export function ComecarPage({ lado }: { lado: "professional" | "company" }) {
             /* Vai para a escolha da empresa, e não para o painel de uma
                delas: quem tem duas lojas escolhe qual abrir, e quem tem
                uma vê ali o "+" para cadastrar a segunda. */
-            <Link to="/minhas-empresas" className="ei-porta ei-porta-cheia">
-              <IconePorta desenho="predio" />
-              <span className="ei-porta-nome">Minhas empresas</span>
-              <span className="ei-porta-nota">Escolha a empresa e veja as vagas dela</span>
-            </Link>
+            <>
+              <Link to="/minhas-empresas" className="ei-porta ei-porta-cheia">
+                <IconePorta desenho="predio" />
+                <span className="ei-porta-nome">Minhas empresas</span>
+                <span className="ei-porta-nota">Escolha a empresa e veja as vagas dela</span>
+              </Link>
+              {/* O plano subiu para cá — 03/09
+                  ─────────────────────────────
+                  A dona: "nessa tela pode colocar 'meu plano' e tirar a
+                  informação da tela de minhas empresas."
+
+                  Lá ele era uma faixa no fim da lista de lojas, vista só
+                  por quem rolava até o fim de uma tela que é sobre
+                  escolher a empresa. Aqui é uma porta como as outras, e a
+                  própria nota já responde o que a pessoa ia conferir: qual
+                  plano está valendo e quantas vagas cabem nele. */}
+              <PortaDoPlano />
+            </>
           ) : (
             <>
               {/* A ordem tem lógica de uso, e não só de gosto: sem o
@@ -147,7 +161,11 @@ function Atalhos() {
  * tela que anunciasse "imagem, mala" antes de "Vagas compatíveis" só
  * atrapalharia.
  */
-export function IconePorta({ desenho }: { desenho: "pessoa" | "pessoas" | "mala" | "predio" }) {
+export function IconePorta({
+  desenho,
+}: {
+  desenho: "pessoa" | "pessoas" | "mala" | "predio" | "selo";
+}) {
   return (
     <span className="ei-porta-icone" aria-hidden="true">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"
@@ -171,6 +189,16 @@ export function IconePorta({ desenho }: { desenho: "pessoa" | "pessoas" | "mala"
             <rect x="3" y="7" width="18" height="13" rx="2.5" />
             <path d="M8.5 7V5.5A1.5 1.5 0 0 1 10 4h4a1.5 1.5 0 0 1 1.5 1.5V7" />
             <path d="M3 12h18" />
+          </>
+        )}
+        {/* O selo do plano: um distintivo, não um cifrão. O plano aqui é
+            o que a empresa TEM contratado — a tela de preços é que vende,
+            e um símbolo de dinheiro na porta faria a pessoa achar que
+            tocar já é comprar. */}
+        {desenho === "selo" && (
+          <>
+            <path d="M12 3.2l2.4 1.6 2.9.2.9 2.8 2 2.1-1.3 2.6.3 2.9-2.7 1.1-1.8 2.3-2.7-.8-2.7.8-1.8-2.3-2.7-1.1.3-2.9L4 9.9l2-2.1.9-2.8 2.9-.2z" />
+            <path d="M9.5 12.2l1.8 1.8 3.4-3.6" />
           </>
         )}
         {desenho === "predio" && (
