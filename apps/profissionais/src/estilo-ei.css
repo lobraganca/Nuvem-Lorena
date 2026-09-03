@@ -1345,16 +1345,30 @@
 .ei-pessoa-oficio { font-size: 0.85rem; line-height: 1.35; color: var(--ei-tinta-fraca); }
 
 /* ── Marca da empresa, no bloco da vaga ───────────────────────────── */
+/* A marca da empresa: 48px, e não os 26px de antes — 04/09
+   ─────────────────────────────────────────────────────────
+   A dona: "preciso que a foto e a logo da empresa sejam maiores, mais
+   visíveis."
+
+   26px é tamanho de ícone de sistema: a logo de uma padaria conhecida
+   virava um borrão colorido ao lado do texto, e a inicial (quando não há
+   logo) ficava com letra de legenda. Numa cidade pequena, RECONHECER a
+   empresa num relance é metade do motivo de o aviso funcionar — é o que
+   faz alguém abrir "a padaria do Centro" antes de ler o cargo.
+
+   48px é a mesma decisão já tomada no retrato das pessoas (que subiu de
+   36 para 64 pelo mesmo motivo), num tamanho que ainda deixa duas ou três
+   linhas de texto caberem ao lado num celular de 390px. */
 .ei-empresa-marca {
   flex: 0 0 auto;
   display: grid;
   place-items: center;
-  width: 26px;
-  height: 26px;
+  width: 48px;
+  height: 48px;
   border-radius: 0;
   background: var(--ei-afunda-forte);
   color: var(--ei-tinta-fraca);
-  font-size: 0.78rem;
+  font-size: 1.15rem;
   font-weight: 600;
   overflow: hidden;
 }
@@ -1380,10 +1394,13 @@
   color: inherit;
 }
 
+/* No cabeçalho da vaga a logo é ainda maior: aqui ela não divide a linha
+   com uma lista, e é a resposta da primeira pergunta de quem abre a vaga
+   ("que empresa é essa?"). 72px pelo mesmo pedido de 04/09. */
 .ei-empresa-topo .ei-empresa-marca {
-  width: 56px;
-  height: 56px;
-  font-size: 1.3rem;
+  width: 72px;
+  height: 72px;
+  font-size: 1.6rem;
   color: var(--ei-tinta);
 }
 
@@ -2982,6 +2999,13 @@
    tocado primeiro. */
 .ei-competencia-add { display: flex; gap: 8px; margin-top: 14px; }
 .ei-competencia-add input { flex: 1 1 auto; min-width: 0; }
+
+/* Os três botões da triagem, no perfil de quem se candidatou.
+   Quebram de linha em vez de encolher: "Não é para a vaga" não cabe em um
+   terço de um celular de 390px, e botão com o nome cortado é o defeito que
+   mais parece app mal feito. */
+.ei-triagem { display: flex; flex-wrap: wrap; gap: 8px; }
+.ei-triagem .ei-chip { flex: 0 1 auto; }
 
 /* ── O campo de senha com o olho ────────────────────────────────────────
    O botão fica DENTRO da moldura do campo, e não ao lado: ao lado ele

@@ -157,9 +157,18 @@ Deno.serve(async (req) => {
       continue;
     }
 
+    /* ── O QUE O AVISO DIZ — 04/09 ──────────────────────────────────
+       A dona: "o aviso que chega pro funcionário é que uma vaga foi
+       publicada e que o perfil dele se adequa ao seu."
+
+       Dizia "{Empresa} está procurando. Toque para ver." — verdade, mas
+       sem a parte que faz a pessoa abrir: POR QUE este aviso chegou nela
+       e não em todo mundo. A onda escolhe por ofício (ver `calcularOndas`),
+       então "combina com o seu cadastro" não é elogio nem promessa de
+       vaga: é a explicação do que aconteceu. */
     const aviso = {
-      titulo: `Vaga de ${vaga.profession} em Itabirito`,
-      corpo: `${vaga.companies?.company_name ?? "Uma empresa"} está procurando. Toque para ver.`,
+      titulo: `Vaga nova de ${vaga.profession} em Itabirito`,
+      corpo: `${vaga.companies?.company_name ?? "Uma empresa"} publicou uma vaga que combina com o seu cadastro. Toque para ver.`,
       url: "/vagas-para-mim",
       tag: `vaga-${vaga.id}`,
     };

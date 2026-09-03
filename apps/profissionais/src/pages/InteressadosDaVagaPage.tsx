@@ -2,9 +2,23 @@ import { useEffect, useState } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import { obterVaga, obterRespostasDaVaga, type RespostaComPessoa } from "../lib/company";
 import { mensagemDeErro } from "../lib/erros";
-import { Pagina } from "../components/ei/Pagina";
+import { Pagina, Abas } from "../components/ei/Pagina";
 import { useTituloDaPagina } from "../lib/tituloDaPagina";
-import type { JobListing } from "../types/domain";
+import type { JobListing, JobResponse } from "../types/domain";
+
+/**
+ * Como cada marca da triagem aparece na lista.
+ *
+ * `new` e `read` não ganham selo: "ainda não decidi" é o estado normal de
+ * quem acabou de chegar, e um selo em todo mundo não separa nada — que é
+ * justamente o que a lista precisa fazer quando fica grande.
+ */
+const SELO: Record<JobResponse["status"], { texto: string; classe: string } | null> = {
+  new: null,
+  read: null,
+  accepted: { texto: "Gostei", classe: "ei-selo ei-selo-verde" },
+  rejected: { texto: "Não é para a vaga", classe: "ei-selo ei-selo-cinza" },
+};
 
 /**
  * Quem se candidatou a uma vaga, em tela própria.
@@ -25,6 +39,8 @@ export function InteressadosDaVagaPage() {
   const [respostas, setRespostas] = useState<RespostaComPessoa[]>([]);
   const [carregando, setCarregando] = useState(true);
   const [erro, setErro] = useState("");
+  /* A dona: "pra que ele possa filtrar... se uma lista for grande." */
+  const [aba, setAba] = useState<"todos" | "ver" | "gostei" | "nao">("todos");
 
   useEffect(() => {
     if (!vagaId) {
@@ -47,6 +63,18 @@ export function InteressadosDaVagaPage() {
       }
     })();
   }, [vagaId, navegar]);
+
+  /* "Para ver" junta `new` e `read`: as duas querem dizer "ainda não
+     decidi", e separar "chegou" de "eu abri" seria uma distinção que só o
+     app entende — a empresa quer saber de quem ainda falta decidir. */
+  const naAba = (r: RespostaComPessoa, qual: typeof aba) =>
+    qual === "todos" ||
+    (qual === "gostei" && r.status === "accepted") ||
+    (qual === "nao" && r.status === "rejected") ||
+    (qual === "ver" && r.status !== "accepted" && r.status !== "rejected");
+
+  const contar = (qual: typeof aba) => respostas.filter((r) => naAba(r, qual)).length;
+  const daAba = respostas.filter((r) => naAba(r, aba));
 
   if (carregando) {
     return (
@@ -84,17 +112,42 @@ export function InteressadosDaVagaPage() {
           </p>
         )}
 
+      {/* ── O FILTRO DA TRIAGEM — 04/09 ────────────────────────────────
+          A dona: "ter botões para a empresa marcar se ele interessou, não
+          interessou ou analisar. Pra que ele possa filtrar e posteriormente
+          conseguir filtrar se uma lista for grande."
+
+          As abas só aparecem com gente na lista: numa vaga sem resposta
+          elas seriam quatro botões filtrando o vazio. */}
+      {respostas.length > 0 && (
+        <Abas
+          valor={aba}
+          aoTrocar={setAba}
+          opcoes={[
+            { chave: "todos", rotulo: "Todos", contagem: respostas.length },
+            { chave: "ver", rotulo: "Para ver", contagem: contar("ver") },
+            { chave: "gostei", rotulo: "Gostei", contagem: contar("gostei") },
+            { chave: "nao", rotulo: "Não", contagem: contar("nao") },
+          ]}
+        />
+      )}
+
       {/* Respostas */}
       <section className="ei-cartao">
         {/* Sem repetir "interessados": o título da tela já diz. Aqui só a
             contagem, que é o que muda de uma visita para a outra. */}
         {respostas.length > 0 && (
           <p className="muted" style={{ marginBottom: 10 }}>
-            {respostas.length === 1 ? "1 pessoa" : `${respostas.length} pessoas`}
+            {daAba.length === 1 ? "1 pessoa" : `${daAba.length} pessoas`}
           </p>
         )}
 
-        {respostas.length === 0 ? (
+        {respostas.length > 0 && daAba.length === 0 ? (
+          /* Filtro vazio é diferente de vaga sem candidato: dizer "ninguém
+             se interessou" aqui seria falso, e a empresa concluiria que o
+             anúncio não funcionou por causa de uma aba. */
+          <p className="muted">Ninguém nesta marca ainda.</p>
+        ) : respostas.length === 0 ? (
           /* "Ainda não se interessou" e não "não respondeu": desde a 0078 a
              pessoa também pode responder que a vaga não é para ela, e essa
              resposta não aparece aqui. Dizer "ninguém respondeu" sobre uma
@@ -110,13 +163,18 @@ export function InteressadosDaVagaPage() {
              lista pela qual a empresa paga o plano inteiro chegava como
              uma coluna de códigos. */
           <div style={{ margin: "0 -20px" }}>
-            {respostas.map((resp) => (
+            {daAba.map((resp) => (
               /* O link usa `cadastroId`, e não `professional_id`: aquele é
                  o id da CONTA, e abriria "perfil não encontrado". Quem
-                 está sem cadastro visível vira linha sem toque. */
+                 está sem cadastro visível vira linha sem toque.
+
+                 `?resposta=` vai junto para o perfil saber QUAL candidatura
+                 está sendo triada: a mesma pessoa pode ter se interessado
+                 por três vagas da mesma empresa, e marcar "gostei" tem que
+                 valer para esta vaga, não para as três. */
               <Link
                 key={resp.id}
-                to={resp.cadastroId ? `/profissional/${resp.cadastroId}` : "#"}
+                to={resp.cadastroId ? `/profissional/${resp.cadastroId}?resposta=${resp.id}` : "#"}
                 className="ei-pessoa"
                 style={resp.cadastroId ? undefined : { pointerEvents: "none", opacity: 0.6 }}
               >
@@ -135,6 +193,14 @@ export function InteressadosDaVagaPage() {
                     {resp.bairro ? `${resp.bairro} · ` : ""}
                     respondeu em {new Date(resp.responded_at).toLocaleDateString("pt-BR")}
                   </span>
+                  {/* A marca da triagem no próprio card, e não só na aba:
+                      quem está em "Todos" precisa ver quem já foi decidido
+                      sem trocar de filtro. */}
+                  {SELO[resp.status] && (
+                    <span className={SELO[resp.status]!.classe}>
+                      {SELO[resp.status]!.texto}
+                    </span>
+                  )}
                 </span>
                 {resp.cadastroId && (
                   <span className="ei-linha-seta" aria-hidden="true">

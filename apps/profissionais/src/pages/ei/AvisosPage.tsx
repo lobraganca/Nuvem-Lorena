@@ -165,7 +165,26 @@ export function AvisosPage() {
           ) : (
             <div className="ei-lista">
               {candidaturas.map((c) => (
-                <Link key={c.id} to={`/vaga/${c.vagaId}`} className="ei-linha-item">
+                /* ── O AVISO ABRE O PERFIL, NÃO A VAGA — 04/09 ──────────
+                   A dona: "o aviso que chega pra empresa é que uma pessoa
+                   se interessou pela vaga que você publicou e ter opção
+                   dele abrir e verificar o perfil e marcar se gostou."
+
+                   Ia para `/vaga/{id}` — a ficha da vaga, que a empresa
+                   escreveu e já conhece. O que ela quer ver ao receber o
+                   aviso é QUEM se interessou. O `?resposta=` leva junto a
+                   candidatura, e é ele que acende os botões de triagem lá
+                   dentro. Sem cadastro visível não há perfil para abrir, e
+                   o caminho continua sendo a vaga. */
+                <Link
+                  key={c.id}
+                  to={
+                    c.cadastroId
+                      ? `/profissional/${c.cadastroId}?resposta=${c.id}`
+                      : `/vaga/${c.vagaId}`
+                  }
+                  className="ei-linha-item"
+                >
                   <span className="ei-empresa-marca" aria-hidden="true">
                     {c.foto ? (
                       <img src={c.foto} alt="" loading="lazy" />
@@ -176,12 +195,21 @@ export function AvisosPage() {
 
                   <span className="ei-linha-nome">
                     <span className="ei-uma-linha">{c.nome}</span>
-                    {/* Quem se candidatou em cima; em qual vaga embaixo —
-                        nessa ordem porque numa cidade pequena é o NOME que
+                    {/* O aviso DIZ o que aconteceu, e não só mostra dois
+                        nomes soltos — a dona pediu a frase inteira: "uma
+                        pessoa se interessou pela vaga que você publicou".
+                        Nome em cima porque numa cidade pequena é ele que
                         decide se a empresa liga hoje ou amanhã. */}
+                    {/* Esta linha PODE quebrar em duas — é a única do
+                        cartão sem `ei-uma-linha`. O nome da vaga cortado
+                        ("se interessou por “Pedreiro p…”") esconde
+                        justamente o que a empresa precisa para saber de
+                        qual das três vagas dela se trata. */}
+                    <span className="ei-linha-sub">
+                      se interessou por “{c.vagaTitulo}”
+                    </span>
                     <span className="ei-linha-sub ei-uma-linha">
-                      {c.vagaTitulo}
-                      {c.bairro ? ` · ${c.bairro}` : ""}
+                      {c.bairro ? `${c.bairro} · ` : ""}toque para ver o perfil
                     </span>
                     <span className="ei-linha-sub ei-uma-linha">
                       {c.quando
@@ -239,6 +267,17 @@ export function AvisosPage() {
             estiver ligado.
           </Callout>
         ) : (
+          /* POR QUE estas vagas estão aqui, dito uma vez no alto — a dona:
+             "o aviso que chega pro funcionário é que uma vaga foi publicada
+             e que o perfil dele se adequa ao seu."
+
+             Uma vez, e não em cada linha: repetir "combina com você" em
+             dez cartões vira ruído e empurra para baixo o salário, que é o
+             que a pessoa usa para decidir se abre. */
+          <>
+            <p className="ei-apoio ei-margem" style={{ marginTop: 10, marginBottom: 4 }}>
+              Estas vagas foram publicadas agora e combinam com o seu cadastro.
+            </p>
           <div className="ei-lista">
             {avisos.map((a) => {
               const salario = salarioEmTexto(a.vaga);
@@ -298,7 +337,8 @@ export function AvisosPage() {
                 </Link>
               );
             })}
-          </div>
+            </div>
+          </>
         )}
       </div>
     </div>
