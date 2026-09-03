@@ -3824,12 +3824,21 @@
    Agora é uma fileira que quebra sozinha: cabem três num celular comum, e
    em tela estreita eles descem sem espremer. O excluir vai para o fim da
    linha, sem cor. */
+/* 04/09: grade, e não fileira que se ajusta sozinha. Com `flex-wrap` os
+   três botões ficavam do tamanho da própria palavra ("Editar" menor que
+   "Arquivar") e o Excluir sobrava na ponta direita: quatro larguras
+   diferentes na mesma linha, que é o que a dona chamou de desalinhado. */
 .ei .ei-acoes-vaga {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 8px;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
   margin-top: 24px;
+}
+
+/* O excluir ocupa a linha inteira, embaixo: continua sendo o último e o
+   único sem cor de botão — apagar leva junto a lista de interessados. */
+.ei .ei-acoes-vaga > .ei-acoes-vaga-excluir {
+  grid-column: 1 / -1;
 }
 
 .ei .ei-btn-curto {
@@ -3847,7 +3856,6 @@
    Em tela estreita ele cai para a linha de baixo e o `auto` deixa de ter
    efeito — que é o certo: ali ele já está separado por estar sozinho. */
 .ei .ei-acoes-vaga-excluir {
-  margin-left: auto;
   min-height: 40px;
   padding: 8px 10px;
   font-size: 0.85rem;
@@ -4426,4 +4434,45 @@
   background: var(--ei-acao);
   color: #ffffff;
   font-weight: 600;
+}
+
+
+/* A descrição da vaga é a última linha do cartão da vaga, e não um texto
+   solto no chão cinza — ver o comentário em `DetalheVagaPage`. O fio em
+   cima separa do bloco de números sem abrir um vão entre cartões. */
+/* ── UM CARTÃO SÓ PARA A VAGA — 04/09 ──────────────────────────────────
+   A dona: "essa tela ainda está confusa, desalinhada. Coloque as
+   informações da vaga dentro de um card só."
+
+   A ficha, os números e a descrição já eram brancos, mas cada um com sua
+   própria borda, seu próprio arredondado e um vão cinza no meio — três
+   cartões para um assunto só. Aqui eles viram um: a moldura passa para o
+   invólucro e o que separa por dentro é um fio, não um vão. */
+.ei .ei-cartao-vaga {
+  margin: 12px;
+  border: 1px solid var(--ei-fio);
+  border-radius: var(--ei-raio);
+  background: var(--ei-papel);
+  overflow: hidden;
+}
+.ei .ei-cartao-vaga > .ei-props,
+.ei .ei-cartao-vaga > .ei-resumo,
+.ei .ei-cartao-vaga > .ei-vaga-descricao {
+  margin: 0;
+  border: 0;
+  border-radius: 0;
+}
+.ei .ei-cartao-vaga > .ei-props { padding-bottom: 12px; }
+.ei .ei-cartao-vaga > .ei-props + *,
+.ei .ei-cartao-vaga > .ei-resumo + *,
+.ei .ei-cartao-vaga > .ei-vaga-descricao + * { border-top: 1px solid var(--ei-fio); }
+
+.ei .ei-vaga-descricao {
+  margin: 0;
+  padding: 16px 20px 18px;
+  background: var(--ei-papel);
+  font-size: 0.95rem;
+  line-height: 1.55;
+  white-space: pre-line;
+  overflow-wrap: anywhere;
 }

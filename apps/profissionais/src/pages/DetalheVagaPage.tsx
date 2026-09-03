@@ -173,6 +173,7 @@ export function DetalheVagaPage() {
               em "Avisar mais gente".
             </Callout>
           )}
+          <div className="ei-cartao-vaga">
           <div className="ei-props">
             {/* O estado vem primeiro, e só quando NÃO é o normal. Uma vaga
                 no ar não precisa dizer que está no ar; uma pausada precisa,
@@ -241,17 +242,28 @@ export function DetalheVagaPage() {
               </span>
             </div>
           </div>
+
+          {/* ── TUDO DA VAGA NUM CARTÃO SÓ — 04/09 ────────────────────
+              A dona: "essa tela ainda está confusa, desalinhada. Coloque as
+              informações da vaga dentro de um card só."
+
+              Eram três blocos brancos soltos, com chão cinza entre eles: a
+              ficha, os números e — separada, sem cartão nenhum — a
+              descrição escrita pela empresa, boiando no cinza como se
+              fosse de outro assunto.
+
+              Agora é um cartão do começo ao fim: ficha, números e
+              descrição, separados por fios em vez de por vãos. Um assunto,
+              um cartão. */}
+          {vaga.description?.trim() && (
+            <p className="ei-vaga-descricao">{vaga.description}</p>
+          )}
+          </div>
         </Pagina>
 
         {erro && (
           <p className="ei-campo-erro ei-margem" style={{ marginTop: 12 }} role="alert">
             {erro}
-          </p>
-        )}
-
-        {vaga.description && (
-          <p className="ei-corpo ei-margem" style={{ paddingTop: 10 }}>
-            {vaga.description}
           </p>
         )}
 
@@ -274,6 +286,17 @@ export function DetalheVagaPage() {
           Agora são botões pequenos, numa fileira que quebra sozinha quando
           não cabe — e não quatro barras de largura cheia. Excluir continua
           por último, sem cor e à parte, para não ser tocado por engano. */}
+      {/* ── OS BOTÕES ALINHADOS — 04/09 ──────────────────────────────
+          A dona: "desalinhada."
+
+          Eram quatro botões numa fileira que se ajustava sozinha: três
+          com contorno, larguras diferentes (do tamanho da própria
+          palavra), e o "Excluir" jogado na ponta direita, em vermelho e
+          sem borda — quatro alturas e quatro formas na mesma linha.
+
+          Agora é uma grade: três iguais, do mesmo tamanho, e o Excluir
+          numa linha só dele, embaixo, ainda por último e ainda sem cor de
+          botão — ele continua sendo o único irreversível. */}
       <div className="ei-margem ei-acoes-vaga">
         <Link className="ei-btn ei-btn-contorno ei-btn-curto" to={`/vaga/${vaga.id}/editar`}>
           Editar
