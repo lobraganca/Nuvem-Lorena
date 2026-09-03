@@ -5,6 +5,7 @@ import {
   obterOndasDaVaga,
   calcularOndas,
   abrirOnda,
+  atualizarVaga,
 } from "../lib/company";
 import { mensagemDeErro } from "../lib/erros";
 import { Pagina } from "../components/ei/Pagina";
@@ -12,6 +13,8 @@ import { useTituloDaPagina } from "../lib/tituloDaPagina";
 import {
   ONDAS,
   ONDAS_POR_VAGA,
+  CAMPOS_DE_COMPATIBILIDADE,
+  FAIXAS_DAS_ONDAS,
   type JobListing,
   type JobDispatch,
   type WaveNumber,
@@ -52,6 +55,24 @@ export function OndasDaVagaPage() {
   const [contando, setContando] = useState(false);
   const [abrindo, setAbrindo] = useState(false);
 
+  /* ── A VARREDURA — 04/09 ────────────────────────────────────────────
+     A dona: "ter uma animação que a empresa veja que está fazendo uma
+     varredura no sistema. E depois ele aponta os resultados com os
+     percentuais de compatibilidade que deu."
+
+     `varrendo` é a animação; `resultado` é o que ela encontrou, guardado
+     por onda com as notas de cada pessoa. Anônimo de propósito: a função
+     do banco (`candidatos_para_compatibilidade`, 0113) devolve só os
+     campos da comparação — sem nome, sem telefone, sem foto. Quem se
+     interessar aparece com nome depois, na tela de interessados. Mostrar
+     a lista de gente ANTES de avisar seria entregar o banco inteiro. */
+  const [varrendo, setVarrendo] = useState(false);
+  const [resultado, setResultado] = useState<Map<WaveNumber, number[]> | null>(null);
+  /* Os campos que pesam nesta vaga. Ficam em estado próprio para o toque
+     acender na hora — a gravação no banco vem logo atrás. */
+  const [campos, setCampos] = useState<string[]>([]);
+  const [salvandoCampos, setSalvandoCampos] = useState(false);
+
   useEffect(() => {
     if (!vagaId) {
       navegar("/painel-empresa", { replace: true });
@@ -65,6 +86,7 @@ export function OndasDaVagaPage() {
           return;
         }
         setVaga(v);
+        setCampos(v.campos_compatibilidade ?? []);
         setOndas(await obterOndasDaVaga(vagaId));
       } catch (err) {
         setErro(mensagemDeErro(err, "Não foi possível carregar as ondas."));
@@ -86,6 +108,74 @@ export function OndasDaVagaPage() {
       setErro(mensagemDeErro(err, "Não foi possível contar os profissionais."));
     } finally {
       setContando(false);
+    }
+  }
+
+  /**
+   * Marca ou desmarca um campo de compatibilidade, e grava na hora.
+   *
+   * Grava a cada toque em vez de ter um botão "Salvar": são caixinhas, o
+   * efeito de cada uma é a varredura seguinte, e um formulário com botão
+   * de salvar no meio de uma tela de ação seria mais um passo entre a
+   * empresa e o disparo. O estado da tela muda primeiro; se a gravação
+   * falhar, ele volta atrás e a mensagem aparece — em vez de a tela
+   * mostrar um campo marcado que o banco não tem.
+   */
+  async function alternarCampo(valor: string) {
+    if (!vaga || salvandoCampos) return;
+    const novos = campos.includes(valor)
+      ? campos.filter((c) => c !== valor)
+      : [...campos, valor];
+    const antes = campos;
+    setCampos(novos);
+    setSalvandoCampos(true);
+    setErro("");
+    /* A varredura anterior valia para os campos anteriores: deixá-la na
+       tela faria a empresa disparar com base numa conta que não é mais a
+       desta vaga. */
+    setResultado(null);
+    setAlcanceProximaOnda(null);
+    try {
+      await atualizarVaga(vaga.id, { campos_compatibilidade: novos });
+      setVaga({ ...vaga, campos_compatibilidade: novos });
+    } catch (err) {
+      setCampos(antes);
+      setErro(mensagemDeErro(err, "Não consegui salvar o que pesa nesta vaga."));
+    } finally {
+      setSalvandoCampos(false);
+    }
+  }
+
+  /**
+   * A varredura: procura no banco, mostra a animação e devolve as notas.
+   *
+   * O `await` de 900ms não é enfeite nem atraso inventado — a conta roda
+   * no navegador e volta rápido demais para a animação existir, e sem ela
+   * a tela pisca e mostra um número do nada. A dona pediu justamente o
+   * contrário: "que a empresa veja que está fazendo uma varredura no
+   * sistema". O que a espera compra é a pessoa entender que houve uma
+   * busca, e não um palpite.
+   */
+  async function varrer() {
+    if (!vaga || varrendo) return;
+    setVarrendo(true);
+    setErro("");
+    setResultado(null);
+    try {
+      const [todas] = await Promise.all([
+        calcularOndas(vaga),
+        new Promise((r) => setTimeout(r, 900)),
+      ]);
+      const mapa = new Map<WaveNumber, number[]>();
+      for (const o of todas) mapa.set(o.onda, o.pessoas.map((p) => p.nota));
+      setResultado(mapa);
+      if (proximaOnda) {
+        setAlcanceProximaOnda(mapa.get(proximaOnda)?.length ?? 0);
+      }
+    } catch (err) {
+      setErro(mensagemDeErro(err, "Não foi possível fazer a varredura."));
+    } finally {
+      setVarrendo(false);
     }
   }
 
@@ -144,6 +234,115 @@ export function OndasDaVagaPage() {
             {erro}
           </p>
         )}
+
+      {/* ── O QUE PESA NESTA VAGA, E A VARREDURA — 04/09 ────────────────
+          A dona: "ter um card onde a empresa pode marcar o que ele quer
+          marcar nas compatibilidades da primeira onda. Ter uma parte onde
+          a pessoa dispara e o sistema carrega e entrega o resultado das
+          pessoas que estão dentro dos requisitos marcados."
+
+          As caixinhas já existiam — no formulário de criar a vaga, uma
+          etapa que a empresa passa uma vez e não volta. O lugar delas é
+          aqui: é nesta tela que se decide quem vai ser avisado, e mudar um
+          critério muda a conta da próxima varredura. Marcar aqui grava na
+          mesma coluna (`campos_compatibilidade`, da 0105) que o formulário
+          escreve. */}
+      <h2 className="ei-secao">O que pesa nesta vaga</h2>
+      <div className="ei-cartao">
+        <p className="ei-apoio" style={{ margin: "0 0 12px" }}>
+          Marque o que precisa bater. Sem nada marcado, o app compara pela
+          função e pela cidade — que é o normal, e está tudo bem.
+        </p>
+        <div className="ei-chips">
+          {CAMPOS_DE_COMPATIBILIDADE.map((c) => (
+            <button
+              key={c.valor}
+              type="button"
+              className="ei-chip"
+              aria-pressed={campos.includes(c.valor)}
+              disabled={salvandoCampos}
+              onClick={() => alternarCampo(c.valor)}
+            >
+              {c.nome}
+            </button>
+          ))}
+        </div>
+
+        {/* A varredura fica no mesmo cartão dos critérios, logo abaixo
+            deles: é a resposta à pergunta que as caixinhas fazem
+            ("e daí, quem sobra?"), e separada em outro bloco a ligação
+            entre as duas coisas se perde. */}
+        <button
+          type="button"
+          className="ei-btn ei-btn-cheio ei-btn-largo ei-btn-alto"
+          style={{ marginTop: 16 }}
+          disabled={varrendo || salvandoCampos}
+          onClick={varrer}
+        >
+          {varrendo ? "Varrendo o Ei Emprego…" : "Fazer a varredura"}
+        </button>
+
+        {varrendo && (
+          <div className="ei-varredura" role="status" aria-live="polite">
+            <div className="ei-varredura-trilho">
+              <span className="ei-varredura-feixe" />
+            </div>
+            <p className="ei-apoio" style={{ margin: "8px 0 0" }}>
+              Comparando os cadastros de Itabirito com esta vaga…
+            </p>
+          </div>
+        )}
+
+        {resultado && !varrendo && (
+          <div style={{ marginTop: 16 }}>
+            {[...resultado.values()].every((n) => n.length === 0) ? (
+              <p className="ei-apoio" style={{ margin: 0 }}>
+                A varredura não encontrou ninguém com este conjunto de
+                requisitos. Desmarcar algum critério alcança mais gente.
+              </p>
+            ) : (
+              ([1, 2, 3] as WaveNumber[]).map((n) => {
+                const notas = resultado.get(n) ?? [];
+                const faixa = FAIXAS_DAS_ONDAS[n];
+                return (
+                  <div key={n} className="ei-varredura-faixa">
+                    <span className="ei-varredura-faixa-nome">
+                      Onda {n} · {faixa.de}% a {faixa.ate}%
+                    </span>
+                    <span className="ei-varredura-faixa-conta">
+                      {notas.length === 0
+                        ? "ninguém"
+                        : notas.length === 1
+                          ? "1 pessoa"
+                          : `${notas.length} pessoas`}
+                    </span>
+                    {/* Os percentuais que deram, um a um — a dona pediu
+                        "os percentuais de compatibilidade que deu". Sem
+                        nome: a função do banco não devolve nenhum, e é o
+                        certo — quem se interessar aparece com nome na tela
+                        de interessados. Doze é o teto do que cabe sem virar
+                        um muro de números. */}
+                    {notas.length > 0 && (
+                      <span className="ei-varredura-notas">
+                        {notas.slice(0, 12).map((nota, i) => (
+                          <span key={i} className="ei-selo ei-selo-cinza">
+                            {nota}%
+                          </span>
+                        ))}
+                        {notas.length > 12 && (
+                          <span className="ei-apoio">
+                            e mais {notas.length - 12}
+                          </span>
+                        )}
+                      </span>
+                    )}
+                  </div>
+                );
+              })
+            )}
+          </div>
+        )}
+      </div>
 
       {/* ── AS TRÊS ONDAS, UMA POR BLOCO — 03/09 ─────────────────────────
           A dona: "a parte de disparo de ondas tem que ficar melhor.

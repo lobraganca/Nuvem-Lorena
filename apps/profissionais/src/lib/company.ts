@@ -601,7 +601,11 @@ export async function obterVaga(vagaId: string): Promise<JobListing | null> {
 
 /* Sem `name`: a função do banco não devolve nome, de propósito — e a tela
    nunca usou. Ver o comentário em `consultaDaOnda`. */
-type AlcancadoPelaOnda = { id: string; owner_id: string };
+/* A `nota` viaja junto desde 04/09: a dona pediu que a varredura
+   "aponte os resultados com os percentuais de compatibilidade que deu",
+   e a nota era calculada aqui e jogada fora na linha seguinte. Guardá-la
+   não custa consulta nenhuma — ela já estava na mão. */
+type AlcancadoPelaOnda = { id: string; owner_id: string; nota: number };
 
 /**
  * Quantas pessoas cada onda alcançaria, sem avisar ninguém.
@@ -695,11 +699,13 @@ export async function calcularOndas(
     });
     const onda = ondaDaNota(nota);
     if (!onda) continue;
-    porOnda.get(onda)!.push({ id: c.id, owner_id: c.owner_id });
+    porOnda.get(onda)!.push({ id: c.id, owner_id: c.owner_id, nota: nota ?? 0 });
   }
 
   return ([1, 2, 3] as WaveNumber[]).map((onda) => {
-    const pessoas = porOnda.get(onda) ?? [];
+    /* Da maior nota para a menor: a tela mostra os percentuais em fila, e
+       quem olha quer ver primeiro o quanto o melhor encaixe encaixou. */
+    const pessoas = (porOnda.get(onda) ?? []).sort((a, b) => b.nota - a.nota);
     return { onda, novos: pessoas.length, pessoas };
   });
 }

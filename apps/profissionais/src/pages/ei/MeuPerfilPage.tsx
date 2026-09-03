@@ -19,6 +19,7 @@ import {
   salvarCursos,
   lerCompetencias,
   salvarCompetencias,
+  definirCadastroAtivo,
   PERFIL_VAZIO,
   type MeuPerfil,
   type CursoEmEdicao,
@@ -85,6 +86,11 @@ export function MeuPerfilPage() {
   /* O nome ainda sendo digitado, antes de virar card — a dona: "ao
      adicionar, formar cards e ter opção de adicionar outras". */
   const [novaCompetencia, setNovaCompetencia] = useState("");
+  /* O botão de ativar/inativar do pé da página. Grava sozinho, sem passar
+     pelo "Salvar": é uma chave de sim ou não, e obrigar a salvar o
+     formulário inteiro para desligar o cadastro faria quem só queria
+     sumir da busca ter que revisar trinta campos antes. */
+  const [alternandoAtivo, setAlternandoAtivo] = useState(false);
   /* As empresas que abriram este cadastro (0106). Quem procura trabalho
      passa semanas sem sinal nenhum e lê o silêncio como "não estou
      servindo para nada" — some do app calada. Isto é o primeiro sinal de
@@ -159,6 +165,58 @@ export function MeuPerfilPage() {
     );
     if (!jaTem) setCompetencias((a) => [...a, { nome, nivel: "basico" }]);
     setNovaCompetencia("");
+  }
+
+  /**
+   * "Salvar o que já preenchi", no pé de cada seção que acrescenta item.
+   *
+   * A dona: "todo lugar que tenha que adicionar algum dado, ter botão para
+   * salvar, para depois adicionar outra."
+   *
+   * O cadastro tem um "Salvar" só, lá no fim de uma tela muito longa. Quem
+   * acrescenta a terceira experiência não tem como saber se as duas
+   * primeiras já estão guardadas — e a dúvida aparece justamente no meio
+   * do preenchimento, quando ainda falta rolar meia tela até o botão.
+   *
+   * Grava o cadastro INTEIRO, e não só a seção: as listas são salvas em
+   * bloco (`salvarExperiencias` troca a lista toda), e um salvamento
+   * parcial gravaria a experiência nova por cima de um perfil que a tela
+   * ainda tem em memória. O que muda é só o lugar do botão — e a frase,
+   * que diz o que a pessoa quer ouvir antes de acrescentar a próxima.
+   */
+  function SalvarAqui() {
+    return (
+      <div style={{ marginTop: 10 }}>
+        <button
+          type="button"
+          className="ei-btn ei-btn-contorno ei-btn-largo"
+          disabled={salvando}
+          onClick={() => salvar({ irParaPronto: false })}
+        >
+          {salvando ? "Salvando…" : salvo ? "Salvo ✓" : "Salvar o que já preenchi"}
+        </button>
+      </div>
+    );
+  }
+
+  /* Ativo = aparece na busca das empresas E recebe vaga. As duas chaves
+     juntas, porque "inativar" quer dizer as duas — ver
+     `definirCadastroAtivo`, em `lib/meuPerfil.ts`. */
+  const ativo = perfil.disponivel && !perfil.oculto;
+
+  async function alternarAtivo() {
+    if (!perfil.id || alternandoAtivo) return;
+    const novo = !ativo;
+    setAlternandoAtivo(true);
+    setErro("");
+    try {
+      await definirCadastroAtivo(perfil.id, novo);
+      setPerfil((p) => ({ ...p, disponivel: novo, oculto: !novo }));
+    } catch (err) {
+      setErro(mensagemDeErro(err, "Não consegui mudar o seu cadastro agora."));
+    } finally {
+      setAlternandoAtivo(false);
+    }
   }
 
   useEffect(() => {
@@ -254,7 +312,23 @@ export function MeuPerfilPage() {
     return () => { vivo = false; };
   }, [perfil.phone]);
 
-  async function salvar() {
+  /**
+   * Grava o cadastro.
+   *
+   * `irParaPronto` decide o que acontece DEPOIS de gravar, e os dois casos
+   * são pedidos diferentes da dona:
+   *
+   *   `true`  — o "Salvar" do pé da página: "ao salvar o meu cadastro não
+   *             está indo pra outra página que pedi pra cadastro salvo."
+   *             Vai para a `ProntoPage`, que confirma e oferece os
+   *             caminhos seguintes.
+   *   `false` — o "Salvar o que já preenchi" do meio do formulário: "todo
+   *             lugar que tenha que adicionar algum dado, ter botão para
+   *             salvar, para depois adicionar outra." Aqui sair da tela
+   *             seria o oposto do pedido — a pessoa ia acrescentar a
+   *             próxima experiência.
+   */
+  async function salvar({ irParaPronto = true }: { irParaPronto?: boolean } = {}) {
     if (!user) return;
 
     /* A confirmação é campo obrigatório, e o botão trata como tal.
@@ -332,9 +406,19 @@ export function MeuPerfilPage() {
         /* silêncio proposital: ver comentário acima */
       }
 
-      if (ehPrimeiroCadastro) {
-        /* Ver ProntoPage. `replace` para o botão de voltar não trazer de
-           volta o formulário que acabou de ser salvo. */
+      /* ── A TELA DE "CADASTRO SALVO", SEMPRE — 04/09 ─────────────────
+         A dona: "ao salvar o meu cadastro não está indo pra outra página
+         que pedi pra cadastro salvo."
+
+         Aqui havia um `if (ehPrimeiroCadastro)`: a confirmação aparecia
+         só na PRIMEIRA vez, e quem editava o cadastro depois ficava na
+         mesma tela com um aviso pequeno no rodapé — que é exatamente o
+         "não está indo" que ela viu. Quem acabou de revisar vinte campos
+         num celular precisa da mesma confirmação da primeira vez.
+
+         `replace` para o botão de voltar não trazer de volta o formulário
+         que acabou de ser salvo. */
+      if (irParaPronto) {
         navegar("/pronto?tipo=profissional", { replace: true });
         return;
       }
@@ -1110,8 +1194,25 @@ export function MeuPerfilPage() {
 
                 {/* Mês e ano, não dia: ninguém lembra o dia em que começou
                     num emprego de cinco anos atrás, e pedir o dia faz a
-                    pessoa inventar ou desistir. */}
-                <div className="ei-duas">
+                    pessoa inventar ou desistir.
+
+                    ── UM EMBAIXO DO OUTRO — 04/09 ──────────────────────
+                    A dona, pela segunda vez: "os botões de começou e sair
+                    das experiências ainda continua desalinhado, coloque um
+                    abaixo do outro."
+
+                    Estavam em duas colunas (`ei-duas`). Um `input` de mês
+                    não é um campo de texto que encolhe: o navegador desenha
+                    dentro dele o seletor nativo (mm/aaaa mais o ícone de
+                    calendário), com uma largura mínima que ele não abre
+                    mão. Em meia tela de 390px os dois ficam com o conteúdo
+                    espremido contra a borda, e cada navegador espreme de um
+                    jeito — por isso "desalinhado" era o que se via, e por
+                    isso mexer no espaçamento não resolvia.
+
+                    Empilhados, cada um usa a largura inteira e o seletor
+                    cabe do jeito que o aparelho quiser desenhar. */}
+                <div style={{ display: "grid", gap: 8 }}>
                   <div className="ei-campo">
                     <label htmlFor={`inicio-${i}`}>Começou</label>
                     <input
@@ -1153,6 +1254,8 @@ export function MeuPerfilPage() {
           >
             + {experiencias.length ? "Outra experiência" : "Acrescentar experiência"}
           </button>
+
+          {experiencias.length > 0 && <SalvarAqui />}
         </div>
 
         {/* ── QUEM VIU O SEU CADASTRO (0106) ─────────────────────────
@@ -1212,6 +1315,7 @@ export function MeuPerfilPage() {
             cursos={cursos}
             setCursos={setCursos}
             tipo="formacao"
+            salvar={<SalvarAqui />}
             rotuloCurso="Curso ou série"
           />
         </div>
@@ -1222,6 +1326,7 @@ export function MeuPerfilPage() {
             cursos={cursos}
             setCursos={setCursos}
             tipo="complementar"
+            salvar={<SalvarAqui />}
             rotuloCurso="Curso"
           />
         </div>
@@ -1379,6 +1484,8 @@ export function MeuPerfilPage() {
               Adicionar
             </button>
           </div>
+
+          {competencias.length > 0 && <SalvarAqui />}
         </div>
 
         {/* O aviso de que deu certo, e o de que não deu.
@@ -1416,9 +1523,44 @@ export function MeuPerfilPage() {
             type="button"
             className="ei-btn ei-btn-cheio ei-btn-largo ei-btn-alto"
             disabled={salvando}
-            onClick={salvar}
+            onClick={() => salvar()}
           >
             {salvando ? "Salvando…" : "Salvar"}
+          </button>
+        </div>
+
+        {/* ── ATIVAR / INATIVAR, NO PÉ DO CADASTRO — 04/09 ─────────────
+            A dona: "o botão de inativar e ativar devem estar dentro do
+            perfil na parte de baixo. E no card do lado de fora ter uma
+            etiqueta dizendo se está ativo ou inativo." E antes: "caso a
+            pessoa não queira excluir, ela pode inativar."
+
+            Fica logo ACIMA do "Excluir meu cadastro", e é por isso que os
+            dois são vizinhos: quem rolou até aqui procurando como sumir do
+            app encontra primeiro a saída reversível. Inativar faz as duas
+            coisas de uma vez — some da busca das empresas e para de
+            receber vaga —, e nada do que foi preenchido se perde.
+
+            O botão diz o que VAI acontecer, e a linha abaixo dele diz como
+            está agora: um botão sozinho escrito "Inativar" não responde
+            "então quer dizer que hoje estou ativo?". */}
+        <div className="ei-cartao" style={{ marginTop: 22 }}>
+          <p className="ei-apoio" style={{ margin: "0 0 10px" }}>
+            {ativo
+              ? "Seu cadastro está ativo: as empresas te encontram e as vagas do seu ofício chegam para você."
+              : "Seu cadastro está inativo: ninguém te encontra na busca e nenhuma vaga chega. Nada do que você preencheu foi apagado."}
+          </p>
+          <button
+            type="button"
+            className="ei-btn ei-btn-contorno ei-btn-largo"
+            disabled={alternandoAtivo}
+            onClick={alternarAtivo}
+          >
+            {alternandoAtivo
+              ? "Um instante…"
+              : ativo
+                ? "Inativar meu cadastro"
+                : "Ativar meu cadastro"}
           </button>
         </div>
 
@@ -1463,11 +1605,16 @@ function ListaDeCursos({
   setCursos,
   tipo,
   rotuloCurso,
+  salvar,
 }: {
   cursos: CursoEmEdicao[];
   setCursos: React.Dispatch<React.SetStateAction<CursoEmEdicao[]>>;
   tipo: "formacao" | "complementar";
   rotuloCurso: string;
+  /* O botão de salvar vem pronto de cima: quem sabe gravar é a página, e
+     duplicar aqui uma segunda chamada a `salvarCursos` seria gravar a
+     lista sem o resto do cadastro que a tela tem em memória. */
+  salvar: React.ReactNode;
 }) {
   const indices = cursos
     .map((c, i) => (c.tipo === tipo ? i : -1))
@@ -1586,6 +1733,8 @@ function ListaDeCursos({
             ? "Acrescentar formação"
             : "Acrescentar curso"}
       </button>
+
+      {indices.length > 0 && salvar}
     </>
   );
 }

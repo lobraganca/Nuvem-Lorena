@@ -7,7 +7,6 @@ import {
   meusCadastros,
   idDoCadastroEscolhido,
   escolherCadastro,
-  definirCadastroAtivo,
   type CadastroDaConta,
 } from "../../lib/meuPerfil";
 import { Pagina } from "../../components/ei/Pagina";
@@ -49,29 +48,6 @@ export function MeusCadastrosPage() {
   const [escolhido, setEscolhido] = useState<string | null>(idDoCadastroEscolhido());
   const [carregando, setCarregando] = useState(true);
   const [erro, setErro] = useState("");
-  /* Qual cadastro está no meio de ativar/inativar agora — trava só o
-     botão dele, não a tela inteira: com mais de um cadastro, mexer num
-     não pode travar o toque nos outros. */
-  const [alternando, setAlternando] = useState<string | null>(null);
-
-  /**
-   * Ativa ou inativa, e atualiza a lista na hora — sem esperar reler do
-   * banco. A dona: "ter opção de ativar e inativar um cadastro... essa
-   * informação fica no card do cadastro."
-   */
-  async function alternarAtivo(c: CadastroDaConta) {
-    setErro("");
-    setAlternando(c.id);
-    try {
-      await definirCadastroAtivo(c.id, !c.ativo);
-      setLista((a) => a.map((x) => (x.id === c.id ? { ...x, ativo: !c.ativo } : x)));
-    } catch (err) {
-      setErro(mensagemDeErro(err, "Não consegui mudar esse cadastro agora."));
-    } finally {
-      setAlternando(null);
-    }
-  }
-
   useEffect(() => {
     if (carregandoConta) return;
     if (!user) {
@@ -157,7 +133,22 @@ export function MeusCadastrosPage() {
                       ? "Nenhuma função marcada"
                       : c.categories.slice(0, 3).join(" · ")}
                   </span>
-                  {!c.ativo && <span className="ei-selo ei-selo-cinza">Inativo</span>}
+                  {/* ── A ETIQUETA, E SÓ ELA — 04/09 ──────────────────
+                      A dona: "o botão de inativar e ativar devem estar
+                      dentro do perfil na parte de baixo. E no card do lado
+                      de fora ter uma etiqueta dizendo se está ativo ou
+                      inativo."
+
+                      Aqui o cartão só INFORMA. Os dois estados aparecem —
+                      não só o inativo —, porque numa tela de escolha o
+                      silêncio não quer dizer "ativo": quem tem um cadastro
+                      só não teria com o que comparar, e ficaria sem saber
+                      se está recebendo vaga ou não. */}
+                  <span
+                    className={c.ativo ? "ei-selo ei-selo-verde" : "ei-selo ei-selo-cinza"}
+                  >
+                    {c.ativo ? "Ativo" : "Inativo"}
+                  </span>
                   {c.id === escolhido && (
                     <span className="ei-empresa-aberta-selo">Selecionado</span>
                   )}
@@ -170,24 +161,6 @@ export function MeusCadastrosPage() {
                 </span>
               </button>
 
-              {/* ── ATIVAR / INATIVAR, SEM PRECISAR EXCLUIR — 04/09 ────────
-                  A dona: "ter opção de ativar e inativar um cadastro. caso
-                  a pessoa não queira excluir, ela pode inativar e essa
-                  informação ficar no card do cadastro."
-
-                  Fica FORA do botão de abrir, de propósito: um botão dentro
-                  de outro botão não é HTML válido, e os dois toques fazem
-                  coisas diferentes — um abre o cadastro, o outro muda se
-                  ele está recebendo vaga. Misturar os dois no mesmo toque
-                  faria quem só queria abrir inativar sem querer. */}
-              <button
-                type="button"
-                className="ei-empresa-ativar"
-                disabled={alternando === c.id}
-                onClick={() => alternarAtivo(c)}
-              >
-                {alternando === c.id ? "Um instante…" : c.ativo ? "Inativar" : "Ativar"}
-              </button>
             </div>
           ))}
 

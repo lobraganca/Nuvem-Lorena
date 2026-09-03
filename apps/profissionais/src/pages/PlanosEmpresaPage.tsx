@@ -148,30 +148,56 @@ export function PlanosEmpresaPage() {
             empresa está decidindo SE quer um plano, não como pagar. Quem
             já é cliente continua vendo o seletor no acesso pelo menu, que
             é onde a pergunta "mensal ou avulso?" nasce de verdade. */}
+        {/* ── A ESCOLHA DE COMO PAGAR, EXPLICADA DENTRO DELA — 04/09 ────
+            A dona: "o botão de pagamento uma vez ou recorrente está
+            confuso."
+
+            Estava, e o motivo é concreto: eram dois botõezinhos com duas
+            palavras cada ("Renova sozinho" / "Pagar uma vez") e UMA linha
+            de explicação embaixo, que mudava conforme o escolhido. Ou
+            seja: para comparar as duas, a pessoa tinha que tocar numa,
+            ler, tocar na outra, ler de novo, e guardar as duas frases na
+            cabeça. E como o PREÇO é o mesmo nos dois (é: `precoDoPlano`
+            não muda com o ciclo), quem olhava não achava diferença
+            nenhuma — parecia um botão quebrado.
+
+            Agora são duas opções grandes, lado a lado, cada uma dizendo o
+            que faz DENTRO dela, ao mesmo tempo. E o preço igual está
+            escrito com todas as letras, em vez de deixar a pessoa
+            procurando a pegadinha. */}
         {!antesDoCadastro && (
-          <div className="ei-margem">
-            <div className="segmentado" role="group" aria-label="Como pagar">
+          <div className="ei-margem" style={{ marginTop: 18 }}>
+            <h2 className="ei-secao" style={{ margin: "0 0 10px", padding: 0 }}>
+              Como você prefere pagar?
+            </h2>
+            <div className="ei-ciclos" role="group" aria-label="Como pagar">
               <button
                 type="button"
-                className={ciclo === "recorrente" ? "segmentado-opcao ativa" : "segmentado-opcao"}
+                className="ei-ciclo"
                 aria-pressed={ciclo === "recorrente"}
                 onClick={() => setCiclo("recorrente")}
               >
-                Renova sozinho
+                <span className="ei-ciclo-nome">Todo mês</span>
+                <span className="ei-ciclo-nota">
+                  Renova sozinho, você não precisa lembrar. Cancela quando
+                  quiser, aqui no app.
+                </span>
               </button>
               <button
                 type="button"
-                className={ciclo === "avulso" ? "segmentado-opcao ativa" : "segmentado-opcao"}
+                className="ei-ciclo"
                 aria-pressed={ciclo === "avulso"}
                 onClick={() => setCiclo("avulso")}
               >
-                Pagar uma vez
+                <span className="ei-ciclo-nome">Uma vez só</span>
+                <span className="ei-ciclo-nota">
+                  Vale {DIAS_ANUNCIO_VAGA} dias e acaba. Nunca cobra de novo.
+                </span>
               </button>
             </div>
             <p className="ei-apoio" style={{ marginTop: 8 }}>
-              {ciclo === "recorrente"
-                ? "Cancela quando quiser, no seu painel."
-                : `Vale ${DIAS_ANUNCIO_VAGA} dias e acaba. Não cobra de novo.`}
+              O preço é o mesmo nos dois. Muda só se cobra de novo no mês
+              seguinte ou não.
             </p>
           </div>
         )}
@@ -208,8 +234,24 @@ export function PlanosEmpresaPage() {
 
           {ordem.map((chave) => {
             const p = PLANOS_EMPRESA[chave];
+            /* ── UM PLANO EM DESTAQUE — 04/09 ─────────────────────────
+                A dona: "precisa ser mais atrativa... preciso fazer uma
+                coisa mais chamativa."
+
+                Quatro cartões iguais em fila não são uma oferta: são um
+                formulário de escolha múltipla, e quem não sabe a diferença
+                entre 1 e 3 vagas fecha a tela. Um destaque responde "e se
+                eu não souber qual?" sem obrigar ninguém a nada — e é o
+                Premium porque é o único que resolve o caso comum daqui:
+                mais de uma vaga aberta ao mesmo tempo, que é o que uma
+                loja com balcão e cozinha tem. */
+            const destaque = chave === "tres";
             return (
-              <section key={chave} className="ei-plano-cartao">
+              <section
+                key={chave}
+                className={destaque ? "ei-plano-cartao ei-plano-destaque" : "ei-plano-cartao"}
+              >
+                {destaque && <span className="ei-plano-selo">Mais escolhido</span>}
                 <div className="ei-plano-linha">
                   <span className="ei-plano-nome">{p.nome}</span>
                   <span className="ei-plano-preco">

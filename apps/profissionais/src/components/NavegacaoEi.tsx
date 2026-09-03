@@ -351,11 +351,28 @@ export function NavegacaoEi() {
            isso, seriam dois blocos de JSX iguais que um dia divergem. */
         const Caixa = ({ children }: { children: ReactNode }) =>
           d.acao === "voltar" ? (
+            /* ── VOLTA PARA A TELA INICIAL, E NÃO UM PASSO ATRÁS — 04/09
+                A dona: "o botão de voltar tem que voltar a tela inicial do
+                app. Quando volta, alguns botões da tela anterior não estão
+                funcionando."
+
+                As duas frases são o mesmo defeito. Era `navegar(-1)`, que
+                anda no histórico do navegador — e o histórico deste app tem
+                entradas que não sobrevivem à volta: a troca de lado e o
+                login recarregam a página inteira (`location.href`), então
+                voltar cai numa tela montada com o lado ANTERIOR. Os botões
+                de lá continuam desenhados, mas apontam para o outro lado e
+                não fazem nada visível. Foi exatamente o que ela viu.
+
+                Ir sempre para "/" não tem esse estado: a tela inicial se
+                monta do zero, lê o lado atual e mostra as duas portas. Um
+                destino fixo também é o que a barra de baixo faz em todos os
+                outros itens — o "Voltar" era o único imprevisível. */
             <button
               type="button"
               className="nav-ei-item"
-              onClick={() => navegar(-1)}
-              aria-label="Voltar para a tela anterior"
+              onClick={() => navegar("/")}
+              aria-label="Voltar para a tela inicial"
             >
               {children}
             </button>
