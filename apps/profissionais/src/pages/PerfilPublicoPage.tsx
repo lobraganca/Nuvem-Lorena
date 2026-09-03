@@ -324,18 +324,17 @@ export function PerfilPublicoPage() {
           </>
         )}
 
-        {/* A ponte para o produto pago, dita sem empurrar: quem chegou até
-            aqui já entendeu o valor de ter a lista. */}
-        <div className="ei-callout" style={{ marginTop: 20 }}>
-          <span className="ei-callout-emoji" aria-hidden="true">📣</span>
-          <span className="ei-callout-texto">
-            Falar um por um funciona para uma contratação. Para várias,{" "}
-            <Link to="/planos-empresa" className="ei-btn-inline">
-              publique uma vaga
-            </Link>{" "}
-            e o aviso vai para todo mundo que encaixa.
-          </span>
-        </div>
+        {/* A propaganda do plano saiu daqui — 04/09
+            ─────────────────────────────────────────
+            A dona: "tirar 'falar um por um funciona para uma
+            contratação...' tirar isso dentro do perfil das pessoas."
+
+            Era um convite a publicar vaga no fim do perfil de CADA pessoa.
+            Quem abre um perfil está decidindo se chama AQUELA pessoa — e
+            recebia, no lugar do telefone dela, um anúncio dizendo que
+            existe um jeito melhor. O caminho para o plano continua em
+            "Meu plano" e na tela de criar vaga, que são as telas de quem
+            já quer isso. */}
       </div>
     </div>
   );

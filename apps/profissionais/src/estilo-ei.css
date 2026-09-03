@@ -2965,21 +2965,53 @@
 }
 .ei .ei-linha-com-tirar input { flex: 1 1 auto; }
 
-/* A competência: nome, nível e o botão de tirar, na mesma linha.
-   O nível é um `select` estreito de propósito — os três valores cabem, e
-   dar a ele a mesma largura do nome faria "Básico" ocupar meia tela. */
-.ei .ei-competencia {
-  display: flex;
+/* A competência já adicionada: um card fechado, não mais uma linha de
+   formulário — 04/09. A dona: "ao adicionar, formar cards e ter opção de
+   adicionar outras". Nome fixo (não dá mais para editar depois de
+   adicionado — errou, tira e adiciona de novo, é mais rápido que editar
+   um nome de uma palavra só); nível e × continuam tocáveis dentro do
+   próprio card. */
+.ei-competencia-card {
+  display: inline-flex;
   align-items: center;
-  gap: 8px;
+  gap: 4px;
+  min-height: 34px;
+  padding: 0 2px 0 11px;
+  border: 1px solid var(--ei-fio-forte);
+  background: var(--ei-papel);
+  color: var(--ei-tinta);
+  font-size: 0.85rem;
 }
-.ei .ei-competencia input { flex: 1 1 auto; min-width: 0; }
-.ei .ei-competencia select { flex: 0 0 auto; width: 132px; }
-@media (max-width: 380px) {
-  /* Em tela estreita os três não cabem: o nome fica sozinho em cima. */
-  .ei .ei-competencia { flex-wrap: wrap; }
-  .ei .ei-competencia input { flex: 1 1 100%; }
+.ei-competencia-nome { white-space: nowrap; }
+.ei-competencia-card select {
+  min-height: 0;
+  border: none;
+  background: transparent;
+  color: var(--ei-tinta-fraca);
+  font: inherit;
+  font-size: 0.8rem;
+  padding: 4px 0;
 }
+.ei-competencia-tirar {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 26px;
+  height: 26px;
+  border: none;
+  background: transparent;
+  color: var(--ei-tinta-fraca);
+  font-size: 1.1rem;
+  line-height: 1;
+  cursor: pointer;
+}
+.ei-competencia-tirar:hover { color: var(--ei-erro); }
+
+/* O campo sempre aberto para adicionar a próxima — a "opção de adicionar
+   outras" da dona, sem esconder atrás de um botão que precisa ser tocado
+   primeiro. */
+.ei-competencia-add { display: flex; gap: 8px; margin-top: 14px; }
+.ei-competencia-add input { flex: 1 1 auto; min-width: 0; }
 
 /* ── O campo de senha com o olho ────────────────────────────────────────
    O botão fica DENTRO da moldura do campo, e não ao lado: ao lado ele
@@ -3644,6 +3676,48 @@
    para o fim do cartão pelo `margin-top: auto` do desenho antigo — que
    agora abriria um vão no meio da linha. */
 .ei-empresa-cartao .ei-empresa-aberta-selo { margin-top: 0; padding-top: 0; }
+
+/* O cartão de "Seus cadastros" virou `<div>` com DOIS botões dentro — 04/09
+   ───────────────────────────────────────────────────────────────────────
+   Era um `<button>` só, envolvendo tudo. Precisou virar `<div>` quando
+   entrou o botão de ativar/inativar: botão dentro de botão não é HTML
+   válido, e os dois toques fazem coisas diferentes (abrir o cadastro,
+   mudar se ele está recebendo vaga).
+
+   `.ei-empresa-cabeca-botao` desfaz a aparência de botão nativo — sem
+   isso o Safari desenha uma borda cinza e um fundo diferente por baixo do
+   que o CSS do cartão já pinta. */
+.ei-empresa-cabeca-botao {
+  background: none;
+  border: none;
+  padding: 0;
+  margin: 0;
+  font: inherit;
+  color: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+/* O botão de ativar/inativar: uma segunda linha, separada da primeira por
+   um fio — lê como rodapé do cartão, não como parte da linha que abre o
+   cadastro. */
+.ei-empresa-ativar {
+  margin-top: 10px;
+  padding-top: 10px;
+  border-top: 1px solid var(--ei-fio);
+  background: none;
+  border-left: none;
+  border-right: none;
+  border-bottom: none;
+  font: inherit;
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--ei-tinta-fraca);
+  text-align: left;
+  cursor: pointer;
+}
+.ei-empresa-ativar:hover:not(:disabled) { color: var(--ei-tinta); }
+.ei-empresa-ativar:disabled { color: var(--ei-tinta-fraquissima); cursor: default; }
 
 /* ═══════════════════════════════════════════════════════════════════════
    O PLANO DA CONTA, NO ALTO DA TELA DAS EMPRESAS — 02/09

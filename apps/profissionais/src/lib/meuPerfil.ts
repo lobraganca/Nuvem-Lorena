@@ -202,7 +202,7 @@ export type CadastroDaConta = {
   name: string;
   categories: string[];
   photo_url: string | null;
-  paused: boolean;
+  ativo: boolean;
 };
 
 /**
@@ -217,7 +217,7 @@ export async function meusCadastros(ownerId: string): Promise<CadastroDaConta[]>
 
   const { data, error } = await sb
     .from("professionals")
-    .select("id, name, categories, photo_url, paused")
+    .select("id, name, categories, photo_url, paused, disponivel")
     .eq("owner_id", ownerId)
     .order("created_at", { ascending: true });
 
@@ -227,8 +227,41 @@ export async function meusCadastros(ownerId: string): Promise<CadastroDaConta[]>
     name: String(l.name ?? ""),
     categories: (l.categories as string[]) ?? [],
     photo_url: (l.photo_url as string) ?? null,
-    paused: !!l.paused,
+    /* `ativo` junta as duas chaves que já existiam (`paused` e
+       `disponivel`) numa resposta só de sim ou não — ver
+       `definirCadastroAtivo`, logo abaixo. */
+    ativo: !l.paused && l.disponivel !== false,
   }));
+}
+
+/**
+ * Ativa ou inativa um cadastro inteiro, sem apagar nada.
+ *
+ * A dona: "ter opção de ativar e inativar um cadastro. caso a pessoa não
+ * queira excluir, ela pode inativar e essa informação ficar no card do
+ * cadastro."
+ *
+ * "Inativo" mexe nas duas chaves que já existiam, de uma vez: `paused`
+ * (não aparece para empresa nenhuma) e `disponivel` (não recebe vaga
+ * nenhuma). Mexer só numa das duas deixaria um estado esquisito — visível
+ * mas nunca recebendo, ou invisível mas ainda recebendo — que não é o que
+ * "inativar" quer dizer. Juntas, é o mesmo silêncio de quem excluiu a
+ * conta, só que reversível: a pessoa pode "Ativar" de volta quando quiser,
+ * e nada que ela preencheu se perde.
+ *
+ * `update`, e não `upsert`: a linha já existe, e `upsert` passaria pela
+ * policy de INSERT em vez da de UPDATE (ver a pegadinha do PostgREST no
+ * CLAUDE.md).
+ */
+export async function definirCadastroAtivo(id: string, ativo: boolean): Promise<void> {
+  const sb = supabase();
+  if (!sb) return;
+
+  const { error } = await sb
+    .from("professionals")
+    .update({ paused: !ativo, disponivel: ativo })
+    .eq("id", id);
+  if (error) throw error;
 }
 
 export async function lerMeuPerfil(ownerId: string): Promise<MeuPerfil | null> {

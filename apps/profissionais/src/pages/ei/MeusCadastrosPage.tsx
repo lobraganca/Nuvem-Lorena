@@ -7,6 +7,7 @@ import {
   meusCadastros,
   idDoCadastroEscolhido,
   escolherCadastro,
+  definirCadastroAtivo,
   type CadastroDaConta,
 } from "../../lib/meuPerfil";
 import { Pagina } from "../../components/ei/Pagina";
@@ -48,6 +49,28 @@ export function MeusCadastrosPage() {
   const [escolhido, setEscolhido] = useState<string | null>(idDoCadastroEscolhido());
   const [carregando, setCarregando] = useState(true);
   const [erro, setErro] = useState("");
+  /* Qual cadastro está no meio de ativar/inativar agora — trava só o
+     botão dele, não a tela inteira: com mais de um cadastro, mexer num
+     não pode travar o toque nos outros. */
+  const [alternando, setAlternando] = useState<string | null>(null);
+
+  /**
+   * Ativa ou inativa, e atualiza a lista na hora — sem esperar reler do
+   * banco. A dona: "ter opção de ativar e inativar um cadastro... essa
+   * informação fica no card do cadastro."
+   */
+  async function alternarAtivo(c: CadastroDaConta) {
+    setErro("");
+    setAlternando(c.id);
+    try {
+      await definirCadastroAtivo(c.id, !c.ativo);
+      setLista((a) => a.map((x) => (x.id === c.id ? { ...x, ativo: !c.ativo } : x)));
+    } catch (err) {
+      setErro(mensagemDeErro(err, "Não consegui mudar esse cadastro agora."));
+    } finally {
+      setAlternando(null);
+    }
+  }
 
   useEffect(() => {
     if (carregandoConta) return;
@@ -111,16 +134,18 @@ export function MeusCadastrosPage() {
             aparências para a mesma pergunta fazem a pessoa reaprender. */}
         <div className="ei-empresas">
           {lista.map((c) => (
-            <button
+            <div
               key={c.id}
-              type="button"
               className={c.id === escolhido ? "ei-empresa-cartao aberta" : "ei-empresa-cartao"}
-              onClick={() => {
-                escolherCadastro(c.id);
-                navegar("/painel");
-              }}
             >
-              <span className="ei-empresa-cabeca">
+              <button
+                type="button"
+                className="ei-empresa-cabeca ei-empresa-cabeca-botao"
+                onClick={() => {
+                  escolherCadastro(c.id);
+                  navegar("/painel");
+                }}
+              >
                 <Foto foto={c.photo_url} nome={c.name} />
                 <span className="ei-empresa-texto">
                   <span className="ei-empresa-nome">{c.name || "Cadastro sem nome"}</span>
@@ -132,7 +157,7 @@ export function MeusCadastrosPage() {
                       ? "Nenhuma função marcada"
                       : c.categories.slice(0, 3).join(" · ")}
                   </span>
-                  {c.paused && <span className="ei-selo ei-selo-cinza">Escondido da lista</span>}
+                  {!c.ativo && <span className="ei-selo ei-selo-cinza">Inativo</span>}
                   {c.id === escolhido && (
                     <span className="ei-empresa-aberta-selo">Selecionado</span>
                   )}
@@ -143,8 +168,27 @@ export function MeusCadastrosPage() {
                     <path d="M9 5l7 7-7 7" />
                   </svg>
                 </span>
-              </span>
-            </button>
+              </button>
+
+              {/* ── ATIVAR / INATIVAR, SEM PRECISAR EXCLUIR — 04/09 ────────
+                  A dona: "ter opção de ativar e inativar um cadastro. caso
+                  a pessoa não queira excluir, ela pode inativar e essa
+                  informação ficar no card do cadastro."
+
+                  Fica FORA do botão de abrir, de propósito: um botão dentro
+                  de outro botão não é HTML válido, e os dois toques fazem
+                  coisas diferentes — um abre o cadastro, o outro muda se
+                  ele está recebendo vaga. Misturar os dois no mesmo toque
+                  faria quem só queria abrir inativar sem querer. */}
+              <button
+                type="button"
+                className="ei-empresa-ativar"
+                disabled={alternando === c.id}
+                onClick={() => alternarAtivo(c)}
+              >
+                {alternando === c.id ? "Um instante…" : c.ativo ? "Inativar" : "Ativar"}
+              </button>
+            </div>
           ))}
 
           {/* ── UM PERFIL POR PESSOA — 04/09 ──────────────────────────

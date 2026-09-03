@@ -82,6 +82,9 @@ export function MeuPerfilPage() {
      (básico | intermediário | avançado), informática, atendimento — ter
      campo + pra adicionar e metrificar". */
   const [competencias, setCompetencias] = useState<CompetenciaEmEdicao[]>([]);
+  /* O nome ainda sendo digitado, antes de virar card — a dona: "ao
+     adicionar, formar cards e ter opção de adicionar outras". */
+  const [novaCompetencia, setNovaCompetencia] = useState("");
   /* As empresas que abriram este cadastro (0106). Quem procura trabalho
      passa semanas sem sinal nenhum e lê o silêncio como "não estou
      servindo para nada" — some do app calada. Isto é o primeiro sinal de
@@ -138,6 +141,25 @@ export function MeuPerfilPage() {
   const setOculto = (v: boolean) => setPerfil((p) => ({ ...p, oculto: v }));
   const setFuncoes = (f: (a: string[]) => string[]) =>
     setPerfil((p) => ({ ...p, funcoes: f(p.funcoes) }));
+
+  /**
+   * Confirma o nome digitado e o transforma num card, com nível "Básico"
+   * de partida — a pessoa ajusta o nível direto no card, sem precisar
+   * escolher antes de adicionar.
+   *
+   * Repetido (mesmo nome, ignorando maiúscula) só limpa o campo: o banco
+   * recusaria a repetida, e um erro aqui por causa de uma competência que
+   * já está na lista confundiria mais do que ajudaria.
+   */
+  function adicionarCompetencia() {
+    const nome = novaCompetencia.trim();
+    if (!nome) return;
+    const jaTem = competencias.some(
+      (c) => c.nome.toLocaleLowerCase("pt-BR") === nome.toLocaleLowerCase("pt-BR")
+    );
+    if (!jaTem) setCompetencias((a) => [...a, { nome, nivel: "basico" }]);
+    setNovaCompetencia("");
+  }
 
   useEffect(() => {
     if (carregandoConta) return;
@@ -1194,55 +1216,63 @@ export function MeuPerfilPage() {
             As três que ela nomeou vêm SUGERIDAS, não gravadas: tocar numa
             delas acrescenta a linha já com o nível para escolher. Deixá-las
             fixas na lista faria toda pessoa aparecer com "Excel: básico",
-            inclusive quem nunca abriu um. */}
+            inclusive quem nunca abriu um.
+
+            ── VIROU CARD — 04/09 ────────────────────────────────────────
+            A dona: "a parte de cadastrar as competências está confuso. ao
+            adicionar, formar cards e ter opção de adicionar outras."
+
+            Antes, cada competência já adicionada continuava sendo uma
+            linha de formulário — nome num campo de texto editável, igual
+            ao campo vazio esperando ser preenchido. Nada na tela dizia
+            "isto já foi adicionado": parecia sempre uma pergunta em
+            aberto, mesmo depois de respondida. Agora quem já foi
+            adicionado vira um card fechado (nome fixo, só o nível e o ×
+            continuam tocáveis), do mesmo jeito que as sugestões abaixo já
+            pareciam — e o campo de adicionar fica sempre visível, pronto
+            para a próxima. */}
         <h2 className="ei-secao">Competências</h2>
         <div className="ei-cartao">
 
-          <div style={{ display: "grid", gap: 12 }}>
-            {competencias.map((c, i) => (
-              <div key={i} className="ei-competencia">
-                <input
-                  aria-label={`Competência ${i + 1}`}
-                  value={c.nome}
-                  onChange={(e) =>
-                    setCompetencias((a) =>
-                      a.map((x, j) => (j === i ? { ...x, nome: e.target.value } : x))
-                    )
-                  }
-                />
-                <select
-                  aria-label={`Nível de ${c.nome || "competência " + (i + 1)}`}
-                  value={c.nivel}
-                  onChange={(e) =>
-                    setCompetencias((a) =>
-                      a.map((x, j) =>
-                        j === i
-                          ? { ...x, nivel: e.target.value as CompetenciaEmEdicao["nivel"] }
-                          : x
+          {competencias.length > 0 && (
+            <div className="ei-chips">
+              {competencias.map((c, i) => (
+                <span key={i} className="ei-competencia-card">
+                  <span className="ei-competencia-nome">{c.nome}</span>
+                  <select
+                    aria-label={`Nível de ${c.nome}`}
+                    value={c.nivel}
+                    onChange={(e) =>
+                      setCompetencias((a) =>
+                        a.map((x, j) =>
+                          j === i
+                            ? { ...x, nivel: e.target.value as CompetenciaEmEdicao["nivel"] }
+                            : x
+                        )
                       )
-                    )
-                  }
-                >
-                  <option value="basico">Básico</option>
-                  <option value="intermediario">Intermediário</option>
-                  <option value="avancado">Avançado</option>
-                </select>
-                <button
-                  type="button"
-                  className="ei-btn ei-btn-texto"
-                  style={{ minHeight: 0, padding: "0 4px" }}
-                  onClick={() => setCompetencias((a) => a.filter((_, j) => j !== i))}
-                >
-                  Tirar
-                </button>
-              </div>
-            ))}
-          </div>
+                    }
+                  >
+                    <option value="basico">Básico</option>
+                    <option value="intermediario">Intermediário</option>
+                    <option value="avancado">Avançado</option>
+                  </select>
+                  <button
+                    type="button"
+                    aria-label={`Tirar ${c.nome}`}
+                    className="ei-competencia-tirar"
+                    onClick={() => setCompetencias((a) => a.filter((_, j) => j !== i))}
+                  >
+                    ×
+                  </button>
+                </span>
+              ))}
+            </div>
+          )}
 
           {/* As sugestões da dona, e só as que ainda não estão na lista:
               oferecer "Excel" a quem já pôs Excel é um botão que não faz
               nada — e o banco recusaria a repetida. */}
-          <div className="ei-chips" style={{ marginTop: competencias.length ? 14 : 0 }}>
+          <div className="ei-chips" style={{ marginTop: competencias.length ? 10 : 0 }}>
             {["Excel", "Informática", "Atendimento", "Caixa", "Vendas", "Direção"]
               .filter(
                 (nome) =>
@@ -1255,23 +1285,38 @@ export function MeuPerfilPage() {
                   key={nome}
                   type="button"
                   className="ei-chip"
-                  onClick={() =>
-                    setCompetencias((a) => [...a, { nome, nivel: "basico" }])
-                  }
+                  onClick={() => setCompetencias((a) => [...a, { nome, nivel: "basico" }])}
                 >
                   + {nome}
                 </button>
               ))}
           </div>
 
-          <button
-            type="button"
-            className="ei-btn ei-btn-tonal ei-btn-largo"
-            style={{ marginTop: 14 }}
-            onClick={() => setCompetencias((a) => [...a, { nome: "", nivel: "basico" }])}
-          >
-            + Outra competência
-          </button>
+          {/* O campo de adicionar outra fica sempre aberto — é a "opção de
+              adicionar outras" que a dona pediu, sem precisar tocar num
+              botão para abrir espaço de digitar. */}
+          <div className="ei-competencia-add">
+            <input
+              aria-label="Nome da nova competência"
+              placeholder="Nome da competência"
+              value={novaCompetencia}
+              onChange={(e) => setNovaCompetencia(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === "Enter") {
+                  e.preventDefault();
+                  adicionarCompetencia();
+                }
+              }}
+            />
+            <button
+              type="button"
+              className="ei-btn ei-btn-tonal"
+              disabled={!novaCompetencia.trim()}
+              onClick={adicionarCompetencia}
+            >
+              Adicionar
+            </button>
+          </div>
         </div>
 
         {/* O aviso de que deu certo, e o de que não deu.
