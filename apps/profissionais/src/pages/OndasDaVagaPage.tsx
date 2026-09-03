@@ -501,14 +501,19 @@ export function OndasDaVagaPage() {
               {jaSaiu ? (
                 <p className="ei-onda-conta">
                   <strong>
-                    {jaSaiu.professionals_count}{" "}
-                    {jaSaiu.professionals_count === 1 ? "pessoa avisada" : "pessoas avisadas"}
-                  </strong>{" "}
-                  em{" "}
-                  {new Date(jaSaiu.sent_at).toLocaleDateString("pt-BR", {
-                    hour: "2-digit",
-                    minute: "2-digit",
-                  })}
+                    {jaSaiu.professionals_count === 0
+                      ? "Ninguém nesta faixa"
+                      : `${jaSaiu.professionals_count} ${
+                          jaSaiu.professionals_count === 1
+                            ? "pessoa avisada"
+                            : "pessoas avisadas"
+                        }`}
+                  </strong>
+                  {/* Data só quando ela existe e é válida. Sem esta
+                      guarda a tela escrevia "Invalid Date" em português —
+                      apareceu ao passar uma onda vazia, e é o tipo de
+                      texto que faz a empresa achar que perdeu o disparo. */}
+                  {dataDaOnda(jaSaiu.sent_at) && <> em {dataDaOnda(jaSaiu.sent_at)}</>}
                   {/* Quantas TÊM aparelho que recebe aviso. Sem este número
                       a tela venderia um alcance que não existe, e a empresa
                       descobriria pelo silêncio — a forma mais cara. `null`
@@ -531,15 +536,46 @@ export function OndasDaVagaPage() {
                     {contando ? "Contando…" : "Ver quantas pessoas alcança"}
                   </button>
                 ) : (
+                  /* ── FAIXA VAZIA NÃO PODE TRANCAR A VAGA — 04/09 ──────
+                      Achado exercitando o app como empresa: numa vaga em
+                      que ninguém chega a 80%, a onda 1 contava zero, o
+                      botão ficava desligado dizendo "não há mais ninguém
+                      para avisar" — e as ondas 2 e 3, que alcançam de 40%
+                      a 79% e abaixo disso, ficavam trancadas atrás dela
+                      com "sai depois da onda anterior".
+
+                      Ou seja: a vaga que mais precisa de alcance era
+                      justamente a que não conseguia avisar ninguém, para
+                      sempre. E a tela dizia "não há mais ninguém" logo
+                      abaixo de uma lista com sessenta pessoas.
+
+                      Agora a faixa vazia é uma PASSAGEM: a onda é
+                      registrada com zero pessoas (ninguém recebe aviso
+                      nenhum, e é o certo — não há quem) e a próxima
+                      destranca. Só na última onda o botão continua
+                      desligado, porque aí não há para onde ir. */
                   <button
-                    className="ei-btn ei-btn-cheio ei-btn-curto"
-                    disabled={abrindo || alcanceProximaOnda === 0}
+                    className={
+                      alcanceProximaOnda === 0
+                        ? "ei-btn ei-btn-contorno ei-btn-curto"
+                        : "ei-btn ei-btn-cheio ei-btn-curto"
+                    }
+                    disabled={
+                      abrindo || (alcanceProximaOnda === 0 && proximaOnda === ONDAS_POR_VAGA)
+                    }
                     onClick={dispararProximaOnda}
+                    title={
+                      alcanceProximaOnda === 0
+                        ? "Ninguém está nesta faixa de compatibilidade. Passar libera a onda seguinte, que alcança mais gente."
+                        : undefined
+                    }
                   >
                     {abrindo
                       ? "Avisando…"
                       : alcanceProximaOnda === 0
-                        ? "Não há mais ninguém para avisar"
+                        ? proximaOnda === ONDAS_POR_VAGA
+                          ? "Não há mais ninguém para avisar"
+                          : `Ninguém nesta faixa — liberar a onda ${(proximaOnda ?? 1) + 1}`
                         : `Avisar ${alcanceProximaOnda} ${
                             alcanceProximaOnda === 1 ? "pessoa" : "pessoas"
                           }`}
@@ -578,6 +614,14 @@ export function OndasDaVagaPage() {
  * mudar a régua num lugar e não no outro faria a tela pintar de verde uma
  * pessoa que a onda 1 não alcança.
  */
+/** A data do disparo, ou vazio quando o banco não devolveu uma. */
+function dataDaOnda(quando: string | null | undefined): string {
+  if (!quando) return "";
+  const d = new Date(quando);
+  if (Number.isNaN(d.getTime())) return "";
+  return d.toLocaleDateString("pt-BR", { hour: "2-digit", minute: "2-digit" });
+}
+
 function faixaDaNota(nota: number): string {
   if (nota >= FAIXAS_DAS_ONDAS[1].de) return "ei-nota-alta";
   if (nota >= FAIXAS_DAS_ONDAS[2].de) return "ei-nota-media";

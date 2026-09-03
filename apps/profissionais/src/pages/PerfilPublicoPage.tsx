@@ -50,6 +50,9 @@ type Publico = {
   modo_trabalho: string | null;
   cnh: boolean | null;
   cnh_categorias: string[] | null;
+  /** Declarações da própria pessoa (0114 e 0115). */
+  primeiro_emprego: boolean | null;
+  pcd: boolean | null;
 };
 
 type Curso = {
@@ -176,7 +179,7 @@ export function PerfilPublicoPage() {
               "categories, areas_de_interesse, especialidade, disponivel, whatsapp_verified, " +
               "idade, pretensao_centavos, pretensao_combinar, pretensao_periodo, " +
               "disponibilidade, aceita_viajar, fim_de_semana, inicio_imediato, " +
-              "modo_trabalho, cnh, cnh_categorias"
+              "modo_trabalho, cnh, cnh_categorias, primeiro_emprego, pcd"
           )
           .eq("id", id)
           .maybeSingle();
@@ -307,6 +310,21 @@ export function PerfilPublicoPage() {
                 <span className="ei-selo ei-selo-verde">Disponível</span>
               )}
             </Prop>
+            {/* As duas declarações da pessoa (0114 e 0115). Estavam só na
+                lista de compatíveis, e é AQUI que a empresa decide se
+                liga: quem abre o cadastro inteiro e não vê "está no
+                primeiro emprego" liga esperando experiência e desliga em
+                trinta segundos — para os dois lados é pior. */}
+            {(p.primeiro_emprego || p.pcd) && (
+              <Prop rotulo="Também">
+                <span className="ei-chips">
+                  {p.primeiro_emprego && (
+                    <span className="ei-selo ei-selo-laranja">Primeiro emprego</span>
+                  )}
+                  {p.pcd && <span className="ei-selo ei-selo-verde">PCD</span>}
+                </span>
+              </Prop>
+            )}
             <Prop rotulo="Onde">
               {p.neighborhood ? `${p.neighborhood} · ` : ""}
               {p.city}/{p.uf}

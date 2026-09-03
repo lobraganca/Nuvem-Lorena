@@ -292,8 +292,16 @@ export function BancoDeVagasPage() {
 
         {!carregando && !erro && (
           <div className="ei-secao-linha">
+            {/* No modo cartão o número do topo dizia "3 vagas" enquanto o
+                baralho dizia "1 de 2" e, no fim, "você passou pelas 2
+                vagas abertas" — dois números diferentes para a mesma
+                coisa, na mesma tela. O baralho conta o que sobrou para
+                responder; aqui, no modo cartão, o título sai de cena e
+                deixa o baralho falar sozinho. */}
             <h2>
-              {visiveis.length} {visiveis.length === 1 ? "vaga" : "vagas"}
+              {modo === "cartoes"
+                ? "Uma por uma"
+                : `${visiveis.length} ${visiveis.length === 1 ? "vaga" : "vagas"}`}
             </h2>
             {(cidade || filtro) && (
               <button

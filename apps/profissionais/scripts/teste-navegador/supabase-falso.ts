@@ -768,6 +768,11 @@ class Consulta implements PromiseLike<{ data: Linha[] | Linha | null; error: unk
       const novas = this.inserir.map((l) => ({
         id: l.id ?? `${this.tabela}-${tabela.length + 1}`,
         created_at: new Date().toISOString(),
+        /* As colunas com `default now()` no banco de verdade. Sem elas o
+           falso devolvia a linha sem data e a tela escrevia "Invalid
+           Date" — defeito do falso que parecia do app. */
+        sent_at: new Date().toISOString(),
+        responded_at: new Date().toISOString(),
         ...l,
       }));
       tabela.push(...novas);

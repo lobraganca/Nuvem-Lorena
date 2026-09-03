@@ -585,19 +585,36 @@ export async function interessadosDasVagas(
   });
 }
 
-/** Obtém detalhes de uma vaga. */
+/**
+ * Obtém detalhes de uma vaga.
+ *
+ * ── "Não existe" e "não consegui ler" são coisas diferentes — 04/09 ──
+ *
+ * Isto devolvia `null` para qualquer erro, e as quatro telas que chamam
+ * traduzem `null` como "Vaga não encontrada". Efeito: uma falha de rede,
+ * uma permissão que caiu ou um `single()` recusando duas linhas faziam a
+ * empresa ler que a PRÓPRIA vaga dela não existe mais — a notícia mais
+ * assustadora que esta tela pode dar, e a mais fácil de dar errado.
+ *
+ * Agora o erro SOBE (as telas já têm `try/catch` com `mensagemDeErro`), e
+ * `null` volta a significar só uma coisa: não há vaga com esse id.
+ *
+ * `limit(1)` no lugar de `single()` pela mesma razão de sempre neste
+ * projeto: `single()` ERRA quando vêm zero linhas, então "não existe"
+ * chegaria aqui como exceção, e não como `null`.
+ */
 export async function obterVaga(vagaId: string): Promise<JobListing | null> {
   const sb = getSupabase();
-  if (!sb) return null;
+  if (!sb) throw new Error("Sem conexão com o banco.");
 
   const { data, error } = await sb
     .from("job_listings")
     .select("*")
     .eq("id", vagaId)
-    .single();
+    .limit(1);
 
-  if (error) return null;
-  return data as JobListing;
+  if (error) throw error;
+  return ((data ?? [])[0] as JobListing) ?? null;
 }
 
 /* A `consultaDaOnda` foi embora em 03/09.
