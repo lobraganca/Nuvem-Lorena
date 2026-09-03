@@ -258,6 +258,12 @@ export function AdminEmpresas() {
                   >
                     {emDia(e) ? "Mudar ou renovar plano" : "Ligar um plano"}
                   </button>
+                  {/* Corrigir o que a empresa escreveu — a dona: "ajustar
+                      uma foto, uma palavra mal escrita". Fica ao lado do
+                      plano porque é a outra coisa que ela faz por aqui. */}
+                  <Link className="btn btn-outline" to={`/admin/corrigir/empresa/${e.id}`}>
+                    Corrigir cadastro
+                  </Link>
                   {e.vagasNoAr > 0 && (
                     <Link className="btn btn-outline" to={`/empresa/${e.id}`}>
                       Ver como aparece

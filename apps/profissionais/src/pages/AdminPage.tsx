@@ -29,6 +29,7 @@ import { atualizarStatusIndicacao, listarIndicacoes, type Indicacao } from "../l
 import { CITIES, type Suggestion, type SuggestionStatus } from "../types/domain";
 import { AdminBanners } from "../components/AdminBanners";
 import { AdminEmpresas, AdminVagas, AdminNumerosDoEi } from "../components/AdminEiEmprego";
+import { AdminCorrigir } from "../components/AdminCorrigir";
 import { AdminFinanceiro } from "../components/AdminFinanceiro";
 import { useTituloDaPagina } from "../lib/tituloDaPagina";
 import { mensagemDeErro } from "../lib/erros";
@@ -79,7 +80,15 @@ type SecaoId = (typeof SECOES)[number]["id"];
 export function AdminPage() {
   useTituloDaPagina("Administração");
   const { user, loading } = useAuth();
-  const { secao } = useParams<{ secao?: string }>();
+  const { secao, tipo, id: idParaCorrigir } = useParams<{
+    secao?: string;
+    tipo?: string;
+    id?: string;
+  }>();
+  /* A tela de corrigir é uma seção como as outras, só que com um id junto.
+     Ela entra por `/admin/corrigir/:tipo/:id`, e é tratada antes de tudo:
+     as listas nem chegam a ser lidas. */
+  const corrigindo = !!tipo && !!idParaCorrigir;
   const secaoAberta = SECOES.find((s) => s.id === secao)?.id ?? null;
   /* Endereço inventado ("/admin/qualquercoisa") cai no menu em vez de numa
      página vazia — a pessoa erra o link e vê o painel, não um branco. */
@@ -306,7 +315,20 @@ export function AdminPage() {
 
   return (
     <div className="container" style={{ paddingTop: 32, paddingBottom: 60 }}>
-      {aberta ? (
+      {corrigindo ? (
+        <>
+          <Link to="/admin" className="voltar-link">
+            ← Painel administrativo
+          </Link>
+          <h1 style={{ marginTop: 10 }}>
+            {tipo === "empresa" ? "Corrigir empresa" : "Corrigir cadastro"}
+          </h1>
+          <p className="muted painel-subtitulo">
+            Ajustar uma palavra, um bairro, uma foto — sem precisar pedir para a
+            pessoa fazer.
+          </p>
+        </>
+      ) : aberta ? (
         <>
           <Link to="/admin" className="voltar-link">
             ← Painel administrativo
@@ -335,7 +357,7 @@ export function AdminPage() {
           tem lá dentro e — onde a conta é confiável — quantas coisas estão
           esperando resposta. É o que responde "o que precisa de mim hoje?"
           sem abrir nada. */}
-      {!aberta && (
+      {!aberta && !corrigindo && (
         <div className="admin-menu">
           {SECOES.map((s) => {
             const quantas = pendencias[s.id] ?? 0;
@@ -640,6 +662,8 @@ export function AdminPage() {
       </section>
       )}
 
+      {corrigindo && <AdminCorrigir />}
+
       {mostrar("empresas") && <AdminEmpresas />}
 
       {mostrar("vagas") && <AdminVagas />}
@@ -768,13 +792,23 @@ export function AdminPage() {
                 </div>
               </div>
               <p className="muted">{p.category} · {p.city}</p>
-              {/* Editar leva à mesma tela que o dono usa, com o recortador
-                  de foto e tudo. Não existe um editor separado para a
-                  administração: dois formulários para o mesmo cadastro
-                  viram duas regras de validação diferentes, e a que ninguém
-                  testa é a que deixa passar. */}
-              <Link className="btn btn-outline" to={`/painel/editar/${p.id}`} style={{ marginTop: 4 }}>
-                Editar cadastro e foto
+              {/* ── ESTE BOTÃO IA PARA LUGAR NENHUM — 03/09 ─────────────
+                  Ele apontava para `/painel/editar/:id`, uma rota que NÃO
+                  EXISTE no app: quem tocasse caía numa tela em branco. O
+                  comentário antigo dizia que ele levava "à mesma tela que o
+                  dono usa" — e essa tela edita o cadastro de QUEM ESTÁ
+                  LOGADO, não o de outra pessoa; ela nem aceitaria um id.
+
+                  Agora vai para a tela de correção da administração, que a
+                  dona pediu: consertar uma palavra, um bairro, uma foto. Ela
+                  mexe só nisso — telefone confirmado, plano e situação
+                  continuam cada um no seu lugar. */}
+              <Link
+                className="btn btn-outline"
+                to={`/admin/corrigir/profissional/${p.id}`}
+                style={{ marginTop: 4 }}
+              >
+                Corrigir cadastro e foto
               </Link>
               {p.suspended ? (
                 <>

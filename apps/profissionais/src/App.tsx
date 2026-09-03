@@ -360,6 +360,10 @@ export default function App() {
         {/* Administração */}
         <Route path="/admin" element={<AdminPage />} />
         <Route path="/admin/:secao" element={<AdminPage />} />
+        {/* Consertar um cadastro pela administração — uma palavra errada,
+            uma foto de lado. Fica FORA de `/admin/:secao` porque leva um id
+            junto, e a seção é só o nome da lista. */}
+        <Route path="/admin/corrigir/:tipo/:id" element={<AdminPage />} />
       </Routes>
       </Suspense>
       <Footer />
