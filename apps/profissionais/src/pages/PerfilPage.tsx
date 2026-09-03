@@ -739,9 +739,19 @@ export function PerfilPage() {
                 Quem já recebeu o seu interesse continua com o seu recado — é o que permite a
                 empresa te retornar.
               </p>
+              {/* A dona: "criar situação para exclusão de conta, reembolso...
+                  quero criar um sistema sustentavel que não precise da minha
+                  intervenção." Isto era um pedido para cancelar por fora,
+                  na mão, antes de apagar — hoje o `delete-account` já
+                  cancela (e reembolsa, se dentro dos 7 dias) sozinho, então
+                  o aviso não pode continuar pedindo o que não é mais
+                  preciso fazer. O plano de empresa é a exceção verdadeira:
+                  ele ainda é cobrado por fora do app, por isso continua
+                  precisando do suporte. */}
               <p className="muted" style={{ margin: 0, fontSize: "0.86rem" }}>
-                Se você tem plano ativo, cancele antes pelo Mercado Pago: apagar a conta aqui não
-                cancela a cobrança lá.
+                Assinatura de profissional (selo ou impulso) ativa é cancelada — e
+                reembolsada, se ainda dentro dos 7 dias de arrependimento — automaticamente.
+                Plano de empresa é cobrado à parte: para cancelar o seu, fale com o suporte.
               </p>
 
               <label style={{ display: "grid", gap: 6, fontSize: "0.88rem" }}>

@@ -23,12 +23,11 @@
 // deno-lint-ignore-file no-explicit-any
 import { createClient } from "jsr:@supabase/supabase-js@2";
 import { comCors } from "../_shared/cors.ts";
+import { cancelarUmaAssinatura } from "../_shared/cancelarAssinaturas.ts";
 
 const SUPABASE_URL = Deno.env.get("SUPABASE_URL") ?? "";
 const SUPABASE_SERVICE_ROLE_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "";
 const MP_ACCESS_TOKEN = Deno.env.get("MP_ACCESS_TOKEN") ?? "";
-
-const DIAS_ARREPENDIMENTO = 7;
 
 function json(corpo: unknown, status = 200) {
   return new Response(JSON.stringify(corpo), {
@@ -71,84 +70,25 @@ Deno.serve(comCors(async (req) => {
       return json({ jaCancelada: true });
     }
 
-    const diasDesdeInicio =
-      (Date.now() - new Date(assinatura.created_at).getTime()) / (1000 * 60 * 60 * 24);
-    const dentroDoArrependimento = diasDesdeInicio <= DIAS_ARREPENDIMENTO;
+    const resultado = await cancelarUmaAssinatura(
+      { admin, mpAccessToken: MP_ACCESS_TOKEN },
+      assinatura
+    );
 
-    // 1. Para de cobrar no Mercado Pago.
-    if (assinatura.mercadopago_subscription_id && MP_ACCESS_TOKEN) {
-      const resposta = await fetch(
-        `https://api.mercadopago.com/preapproval/${assinatura.mercadopago_subscription_id}`,
-        {
-          method: "PUT",
-          headers: {
-            Authorization: `Bearer ${MP_ACCESS_TOKEN}`,
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({ status: "cancelled" }),
-        }
+    if (!resultado.cancelada) {
+      // Nada foi gravado: dizer "cancelado" e continuar cobrando é o pior
+      // resultado possível para quem pediu.
+      return json(
+        { error: resultado.erro ?? "Não foi possível cancelar agora. Tente de novo em alguns minutos." },
+        502
       );
-      if (!resposta.ok) {
-        const detalhe = await resposta.text();
-        console.error("cancel-subscription: Mercado Pago recusou", detalhe);
-        // Nada é gravado: dizer "cancelado" e continuar cobrando é o pior
-        // resultado possível para quem pediu.
-        return json(
-          { error: "Não foi possível cancelar agora. Tente de novo em alguns minutos." },
-          502
-        );
-      }
     }
 
-    // 2. Dentro dos 7 dias: devolve o que foi pago.
-    let reembolsado = false;
-    if (dentroDoArrependimento && MP_ACCESS_TOKEN) {
-      const { data: pagamentos } = await admin
-        .from("processed_payments")
-        .select("payment_id")
-        .eq("subscription_id", assinatura.id)
-        .order("created_at", { ascending: false })
-        .limit(1);
-
-      const pagamento = pagamentos?.[0]?.payment_id;
-      if (pagamento) {
-        const resposta = await fetch(`https://api.mercadopago.com/v1/payments/${pagamento}/refunds`, {
-          method: "POST",
-          headers: {
-            Authorization: `Bearer ${MP_ACCESS_TOKEN}`,
-            "Content-Type": "application/json",
-            // Sem isto, uma repetição do pedido devolveria o dinheiro duas
-            // vezes — o Mercado Pago usa esta chave para reconhecer o mesmo
-            // reembolso.
-            "X-Idempotency-Key": `refund-${assinatura.id}`,
-          },
-        });
-        reembolsado = resposta.ok;
-        if (!resposta.ok) {
-          console.error("cancel-subscription: reembolso recusado", await resposta.text());
-        }
-      }
-    }
-
-    // 3. Estado local. Fora dos 7 dias o benefício continua até a data já
-    //    paga: cortar no meio de um mês pago seria ficar com o dinheiro sem
-    //    entregar o combinado.
-    await admin
-      .from("subscriptions")
-      .update({ status: "cancelled", auto_renew: false })
-      .eq("id", assinatura.id);
-
-    if (reembolsado) {
-      const campos: Record<string, unknown> =
-        assinatura.type === "verification"
-          ? { verified: false, verified_until: null }
-          : assinatura.type === "boost"
-            ? { boosted: false, boosted_until: null }
-            : { plus_active: false, plus_until: null };
-      await admin.from("professionals").update(campos).eq("id", assinatura.professional_id);
-    }
-
-    return json({ cancelada: true, reembolsado, dentroDoArrependimento });
+    return json({
+      cancelada: resultado.cancelada,
+      reembolsado: resultado.reembolsado,
+      dentroDoArrependimento: resultado.dentroDoArrependimento,
+    });
   } catch (err: any) {
     console.error("cancel-subscription: erro inesperado", err?.message ?? err);
     return json({ error: "Erro inesperado ao cancelar." }, 500);
