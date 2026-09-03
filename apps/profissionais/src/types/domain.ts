@@ -852,36 +852,32 @@ export const PLANOS_EMPRESA: Record<
     centavos: 3990,
     vagas: 1,
     resumo: "1 vaga aberta por vez. Fechou uma, abre outra",
-    beneficios: [
-      "1 vaga aberta por vez",
-      "30 dias no ar por vaga, contados da publicação",
-      "Aviso para quem tem a função que você procura",
-      "Recebe quem se interessou, com telefone",
-    ],
+    /* ── SÓ O QUE DIFERENCIA — 04/09 ────────────────────────────────
+       A dona: "a tela de planos está muito cheia de informação."
+
+       Os três planos repetiam, palavra por palavra, "30 dias no ar por
+       vaga" e "aviso para quem tem a função" — três vezes na mesma tela,
+       ocupando duas linhas em cada cartão. Numa tela de preço, o que se
+       procura é a DIFERENÇA entre as colunas; o que é igual em todas só
+       atrapalha a comparação.
+
+       O que saiu virou uma linha só, abaixo dos cartões: "todos incluem
+       …". Ver `PlanosEmpresaPage`. */
+    beneficios: ["1 vaga aberta por vez", "Recebe quem se interessou, com telefone"],
   },
   tres: {
     nome: "Premium",
     centavos: 7990,
     vagas: 3,
     resumo: "3 vagas abertas ao mesmo tempo",
-    beneficios: [
-      "3 vagas abertas ao mesmo tempo",
-      "30 dias no ar por vaga, contados da publicação",
-      "Aviso para quem tem a função que você procura",
-      "Sua vaga aparece na lista de vagas em aberto",
-    ],
+    beneficios: ["3 vagas abertas ao mesmo tempo", "Sua vaga na lista de vagas em aberto"],
   },
   ilimitado: {
     nome: "Multi",
     centavos: 11990,
     vagas: -1,
     resumo: "quantas vagas abertas quiser",
-    beneficios: [
-      "Vagas abertas sem limite",
-      "30 dias no ar por vaga, contados da publicação",
-      "Aviso para quem tem a função que você procura",
-      "Sua vaga aparece na lista de vagas em aberto",
-    ],
+    beneficios: ["Vagas abertas sem limite", "Sua vaga na lista de vagas em aberto"],
   },
 };
 

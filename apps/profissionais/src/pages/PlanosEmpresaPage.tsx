@@ -12,7 +12,6 @@ import {
   PLANO_GRATUITO,
   precoDoPlano,
   DIAS_ANUNCIO_VAGA,
-  ONDAS_POR_VAGA,
   type CicloDoPlano,
   type PlanoEmpresa,
 } from "../types/domain";
@@ -200,9 +199,11 @@ export function PlanosEmpresaPage() {
               >
                 Aderir e ver o banco de talentos
               </button>
-            ) : (
-              <p className="ei-plano-resumo">É o que você já tem, sem assinar nada.</p>
-            )}
+            ) : null}
+            {/* "É o que você já tem, sem assinar nada" saiu: o cartão já se
+                chama Gratuito, já diz R$ 0 e já diz o que não faz. Três
+                frases para a mesma ideia, num cartão que era o mais alto da
+                fileira. */}
           </section>
 
           {ordem.map((chave) => {
@@ -265,68 +266,53 @@ export function PlanosEmpresaPage() {
                 profissional. Um botão que abre um checkout inexistente é pior
                 que um desligado — e "Em breve" sem explicação é o que faz a
                 pessoa tocar três vezes. */}
-            <p className="ei-apoio ei-margem" style={{ marginTop: 14 }}>
+            {/* O que é IGUAL nos três, dito uma vez só — ver o comentário
+                em `PLANOS_EMPRESA`. Antes eram duas linhas repetidas dentro
+                de cada um dos três cartões. */}
+            <p className="ei-apoio ei-margem" style={{ marginTop: 16 }}>
+              Todos incluem: aviso para quem tem a função que você procura e{" "}
+              {DIAS_ANUNCIO_VAGA} dias de anúncio por vaga.
+            </p>
+
+            <p className="ei-apoio ei-margem" style={{ marginTop: 12 }}>
               A cobrança está sendo ligada. Enquanto isso, fale com o suporte que
               a gente libera o seu plano na mão.
             </p>
 
-            {/* O argumento, agora embaixo e em uma linha cada.
-                ───────────────────────────────────────────────
-                Eram duas listas com marcador dentro de dois cartões, com frases
-                de duas linhas — trinta e três palavras para dizer três coisas.
+            {/* ── AS DUAS LISTAS DE ARGUMENTO SAÍRAM — 04/09 ────────────
+                A dona: "a tela de planos está muito cheia de informação e
+                sem respiro."
 
-                O "de graça" continua aqui, e não é modéstia comercial: sem ele
-                "assine para publicar" soa como se o app inteiro estivesse
-                trancado, e a empresa vai embora sem descobrir a lista de
-                profissionais, que resolve o problema de muita gente sem custar
-                nada. */}
-            <h2 className="ei-secao">Com o plano</h2>
-            <div className="ei-lista">
-              <div className="ei-linha-texto">Publica a vaga.</div>
-              <div className="ei-linha-texto">
-                Avisa quem encaixa — {ONDAS_POR_VAGA} ondas por vaga.
-              </div>
-              <div className="ei-linha-texto">
-                Recebe quem se interessou, e {DIAS_ANUNCIO_VAGA} dias de anúncio.
-              </div>
-            </div>
+                Estava: 1900px de altura, e a metade de baixo REPETIA a de
+                cima. "Com o plano" dizia publica a vaga, avisa quem
+                encaixa e recebe quem se interessou — as mesmas três linhas
+                que já estavam dentro de cada cartão de preço. "Sempre de
+                graça" repetia, item por item, o cartão Gratuito, que fica
+                a duas telas de distância.
 
-            <h2 className="ei-secao">Sempre de graça</h2>
-            <div className="ei-lista">
-              <div className="ei-linha-texto">Ver todos os profissionais da cidade.</div>
-              <div className="ei-linha-texto">Falar com cada um pelo telefone do cadastro.</div>
-            </div>
-            <p className="ei-apoio ei-margem" style={{ marginTop: 10 }}>
-              Nem conta precisa. O plano serve para não ter que chamar um por um.
+                Numa tela de preço, repetir não reforça: faz a pessoa
+                procurar a diferença entre as duas listas, não achar
+                nenhuma, e desconfiar. O que sobrou é a única frase que os
+                cartões não diziam. */}
+            <p className="ei-apoio ei-margem" style={{ marginTop: 18 }}>
+              Ver os profissionais e falar com cada um é de graça, sempre — nem
+              conta precisa. O plano serve para não ter que chamar um por um.
             </p>
 
-            {/* ── ARREPENDIMENTO EM 7 DIAS (art. 49 do CDC) — 02/09 ──────
-                A dona: "criar política de reembolso, se a pessoa fizer o
-                pedido dentro dos 7 dias previstos em lei."
-
-                A regra já estava escrita nos Termos desde sempre. O que
-                faltava era ela aparecer ONDE a pessoa decide pagar: um
-                direito que só existe numa página que ninguém abre não
-                tranquiliza ninguém — e é justamente a garantia que faz
-                assinar quem está em dúvida.
-
-                E faltava o CAMINHO. "Você tem direito a reembolso" sem
-                dizer como pedir devolve a pessoa ao mesmo lugar de antes.
-                Como a cobrança do plano de empresa ainda é feita na mão
-                pelo suporte, o pedido vai pelo mesmo canal — com o texto
-                já escrito, para ela não ter que formular nada. */}
             <h2 className="ei-secao">Se você se arrepender</h2>
+            {/* O texto encolheu de dois parágrafos longos para duas
+                frases — a garantia é o que tranquiliza, o detalhe do
+                estorno e do cancelamento é o que cansa. O que saiu está
+                nos Termos, cujo link continua logo abaixo. */}
             <div className="ei-cartao">
               <p className="ei-corpo" style={{ marginTop: 0 }}>
-                <strong>Até 7 dias corridos da contratação, devolvemos tudo.</strong> É o
-                direito de arrependimento do art. 49 do Código de Defesa do Consumidor:
-                não precisa justificar, e o valor volta integralmente pelo mesmo meio de
-                pagamento.
+                <strong>Até 7 dias corridos, devolvemos tudo.</strong> É o direito de
+                arrependimento (art. 49 do Código de Defesa do Consumidor): não precisa
+                justificar.
               </p>
               <p className="ei-corpo">
-                Depois dos 7 dias, cancelar interrompe as próximas cobranças e o período
-                já pago continua valendo até o fim — sem multa e sem corte no meio de um
-                mês quitado.
+                Depois disso, cancelar só interrompe as próximas cobranças — sem multa, e
+                o mês já pago continua valendo.
               </p>
               <a
                 className="ei-btn-inline"
@@ -339,9 +325,7 @@ export function PlanosEmpresaPage() {
                 Pedir reembolso
               </a>
               <p className="ei-apoio" style={{ marginTop: 10, marginBottom: 0 }}>
-                O estorno aparece na fatura no prazo do seu banco ou da administradora do
-                cartão. Regras completas nos{" "}
-                <Link to="/termos">Termos de Uso</Link>.
+                Regras completas nos <Link to="/termos">Termos de Uso</Link>.
               </p>
             </div>
           </>

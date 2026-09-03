@@ -2174,13 +2174,17 @@
    para no meio de dois e nenhum dos dois se lê. 86% de largura de
    propósito: a fatia do seguinte que aparece na borda é o que avisa que há
    mais planos ali. Sem essa pista, carrossel vira lista de um item só. */
+/* 04/09: mais respiro entre os cartões e em volta deles — a dona: "a tela
+   de planos está muito cheia de informação e sem respiro". O gap de 12px
+   deixava dois cartões quase encostados na rolagem, e com 86% de largura o
+   seguinte espiava pela borda o tempo todo, dando a sensação de amontoado. */
 .ei-planos {
   display: grid;
   grid-auto-flow: column;
-  grid-auto-columns: 86%;
-  gap: 12px;
-  margin: 16px 0 0;
-  padding: 2px 12px 10px;
+  grid-auto-columns: 82%;
+  gap: 16px;
+  margin: 22px 0 0;
+  padding: 2px 14px 14px;
   overflow-x: auto;
   scroll-snap-type: x mandatory;
   scrollbar-width: none;
