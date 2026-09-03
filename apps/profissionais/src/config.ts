@@ -8,7 +8,7 @@
  * Privacidade, nos Termos e no aviso de dados; espalhado pelo código, uma
  * troca de e-mail deixaria versões antigas vivas em alguma tela.
  */
-export const CONTATO_EMAIL = "contato@empregoitabirito.com.br";
+export const CONTATO_EMAIL = "procuroapp@gmail.com";
 
 /**
  * WhatsApp do suporte, só com dígitos e com o código do país.

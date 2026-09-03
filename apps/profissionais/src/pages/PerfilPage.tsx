@@ -494,7 +494,7 @@ export function PerfilPage() {
           </Linha>
           {/* O endereço vai na segunda linha e não no rótulo: em 390px de
               largura ele estourava a linha e era cortado no meio
-              ("contato@empregoitabirito.co…"), que é pior do que não
+              (o endereço cortado no meio), que é pior do que não
               mostrar — um e-mail cortado parece um e-mail errado. */}
           <Linha href={`mailto:${CONTATO_EMAIL}`} icone={<IconeCarta />}>
             Escrever um e-mail
