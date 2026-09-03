@@ -133,19 +133,44 @@ export function VagaAbertaPage() {
            cima pode ter um prévia do perfil da empresa". O que ela faz, em
            uma linha, é o que responde "dá para confiar nesta vaga?" antes
            de qualquer especificação. */
+        /* ── A FRASE DA EMPRESA VEM À PARTE — 04/09 ──────────────────
+           Isto era UMA consulta que pedia `description` junto do resto. Só
+           que essa coluna não está na view desde que ela nasceu (0100), e
+           o PostgREST recusa a consulta INTEIRA quando uma coluna pedida
+           não existe. Então não era a frase que sumia: era a empresa —
+           nome, foto e endereço saíam da tela junto, e a vaga aparecia com
+           "Empresa" escrito no lugar do nome, em produção, para todo
+           mundo.
+
+           Não apareceu em teste nenhum porque o Supabase de mentira que
+           roda o app nesta máquina devolve o objeto inteiro e ignora a
+           lista de colunas pedidas.
+
+           A 0115 põe a coluna na view. Enquanto ela não for aplicada, esta
+           segunda consulta simplesmente falha em silêncio e a tela mostra
+           a empresa sem a frase — que é muito melhor do que a tela sem a
+           empresa. Depois de aplicada, a frase aparece sozinha, sem
+           precisar mexer aqui de novo. */
         const { data: emp } = await sb
           .from("companies_public")
-          .select("company_name, photo_url, city, uf, neighborhood, description")
+          .select("company_name, photo_url, city, uf, neighborhood")
+          .eq("id", v.company_id)
+          .maybeSingle();
+        const { data: sobre } = await sb
+          .from("companies_public")
+          .select("description")
           .eq("id", v.company_id)
           .maybeSingle();
         if (emp) {
-          const e = emp as {
-            company_name?: string;
-            photo_url?: string | null;
-            city?: string | null;
-            uf?: string | null;
-            neighborhood?: string | null;
-            description?: string | null;
+          const e = {
+            ...(emp as {
+              company_name?: string;
+              photo_url?: string | null;
+              city?: string | null;
+              uf?: string | null;
+              neighborhood?: string | null;
+            }),
+            description: (sobre as { description?: string | null } | null)?.description ?? null,
           };
           setEmpresa({
             nome: e.company_name ?? "",
