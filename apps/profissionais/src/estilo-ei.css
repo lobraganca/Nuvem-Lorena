@@ -3448,17 +3448,23 @@
   grid-template-columns: 1fr;
   gap: 8px;
 }
+/* 03/09: "esses botões podem ser um pouco maiores."
+   ─────────────────────────────────────────────────
+   São a PRIMEIRA decisão do app — a tela inteira existe para eles — e
+   estavam com a altura de um item de lista qualquer (56px). Foram para
+   72px, com a letra maior e o ícone maior junto: um botão que cresce sem
+   o conteúdo crescer vira uma faixa vazia com uma palavra no canto. */
 .ei .ei-ambiente-botao {
   display: flex;
   align-items: center;
-  gap: 12px;
-  min-height: 56px;
-  padding: 10px 14px;
+  gap: 14px;
+  min-height: 72px;
+  padding: 14px 18px;
   border: 1px solid var(--ei-fio-forte);
   border-radius: calc(var(--ei-raio, 14px) - 5px);
   background: var(--ei-papel);
   color: var(--ei-tinta);
-  font-size: 0.95rem;
+  font-size: 1.05rem;
   font-weight: 600;
   text-align: left;
   cursor: pointer;
@@ -3469,10 +3475,10 @@
 .ei .ei-ambiente-botao .ei-porta-icone {
   grid-row: auto;
   flex: 0 0 auto;
-  width: 36px;
-  height: 36px;
+  width: 44px;
+  height: 44px;
 }
-.ei .ei-ambiente-botao .ei-porta-icone svg { width: 19px; height: 19px; }
+.ei .ei-ambiente-botao .ei-porta-icone svg { width: 23px; height: 23px; }
 /* O lado atual é pintado no LARANJA CLARO — 02/09
    ───────────────────────────────────────────────
    "Onde escolhe procuro emprego ou quero contratar, a parte que fica
