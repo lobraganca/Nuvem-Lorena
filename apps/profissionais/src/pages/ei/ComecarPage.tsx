@@ -68,8 +68,12 @@ export function ComecarPage({ lado }: { lado: "professional" | "company" }) {
             <>
               <Link to="/minhas-empresas" className="ei-porta ei-porta-cheia">
                 <IconePorta desenho="predio" />
-                <span className="ei-porta-nome">Minhas empresas</span>
-                <span className="ei-porta-nota">Escolha a empresa e veja as vagas dela</span>
+                {/* "e vagas" a pedido da dona: a porta leva à escolha da
+                    empresa, mas o que se vai fazer lá dentro é mexer nas
+                    vagas dela — e quem lia só "Minhas empresas" procurava
+                    as vagas noutro lugar. */}
+                <span className="ei-porta-nome">Minhas empresas e vagas</span>
+                <span className="ei-porta-nota ei-uma-linha">Escolha a empresa e veja as vagas</span>
               </Link>
               {/* O plano subiu para cá — 03/09
                   ─────────────────────────────
@@ -101,7 +105,7 @@ export function ComecarPage({ lado }: { lado: "professional" | "company" }) {
               <Link to="/meus-cadastros" className="ei-porta ei-porta-cheia">
                 <IconePorta desenho="pessoa" />
                 <span className="ei-porta-nome">Meu cadastro</span>
-                <span className="ei-porta-nota">Suas funções, horários e contato</span>
+                <span className="ei-porta-nota ei-uma-linha">Funções, horários e contato</span>
               </Link>
               {/* "Vagas compatíveis" no lugar de "Vagas para mim": o nome
                   antigo não dizia POR QUE aquelas vagas estão ali, e a
@@ -110,7 +114,7 @@ export function ComecarPage({ lado }: { lado: "professional" | "company" }) {
               <Link to="/vagas-para-mim" className="ei-porta">
                 <IconePorta desenho="mala" />
                 <span className="ei-porta-nome">Vagas compatíveis</span>
-                <span className="ei-porta-nota">O que combina com o seu ofício</span>
+                <span className="ei-porta-nota ei-uma-linha">O que combina com você</span>
               </Link>
               {/* ── A PORTA DOS AVISOS — 03/09 ─────────────────────────
                   A dona: "na tela de procuro emprego pode ter um botão de

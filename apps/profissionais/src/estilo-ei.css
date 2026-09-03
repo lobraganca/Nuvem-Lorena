@@ -2174,13 +2174,17 @@
    para no meio de dois e nenhum dos dois se lê. 86% de largura de
    propósito: a fatia do seguinte que aparece na borda é o que avisa que há
    mais planos ali. Sem essa pista, carrossel vira lista de um item só. */
+/* 04/09: mais respiro entre os cartões e em volta deles — a dona: "a tela
+   de planos está muito cheia de informação e sem respiro". O gap de 12px
+   deixava dois cartões quase encostados na rolagem, e com 86% de largura o
+   seguinte espiava pela borda o tempo todo, dando a sensação de amontoado. */
 .ei-planos {
   display: grid;
   grid-auto-flow: column;
-  grid-auto-columns: 86%;
-  gap: 12px;
-  margin: 16px 0 0;
-  padding: 2px 12px 10px;
+  grid-auto-columns: 82%;
+  gap: 16px;
+  margin: 22px 0 0;
+  padding: 2px 14px 14px;
   overflow-x: auto;
   scroll-snap-type: x mandatory;
   scrollbar-width: none;
@@ -2965,51 +2969,17 @@
 }
 .ei .ei-linha-com-tirar input { flex: 1 1 auto; }
 
-/* A competência já adicionada: um card fechado, não mais uma linha de
-   formulário — 04/09. A dona: "ao adicionar, formar cards e ter opção de
-   adicionar outras". Nome fixo (não dá mais para editar depois de
-   adicionado — errou, tira e adiciona de novo, é mais rápido que editar
-   um nome de uma palavra só); nível e × continuam tocáveis dentro do
-   próprio card. */
-.ei-competencia-card {
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-  min-height: 34px;
-  padding: 0 2px 0 11px;
-  border: 1px solid var(--ei-fio-forte);
-  background: var(--ei-papel);
-  color: var(--ei-tinta);
-  font-size: 0.85rem;
-}
-.ei-competencia-nome { white-space: nowrap; }
-.ei-competencia-card select {
-  min-height: 0;
-  border: none;
-  background: transparent;
-  color: var(--ei-tinta-fraca);
-  font: inherit;
-  font-size: 0.8rem;
-  padding: 4px 0;
-}
-.ei-competencia-tirar {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 26px;
-  height: 26px;
-  border: none;
-  background: transparent;
-  color: var(--ei-tinta-fraca);
-  font-size: 1.1rem;
-  line-height: 1;
-  cursor: pointer;
-}
-.ei-competencia-tirar:hover { color: var(--ei-erro); }
+/* A competência: nome, nível e o botão de tirar, na mesma linha.
+   O nível é um `select` estreito de propósito — os três valores cabem, e
+   dar a ele a mesma largura do nome faria "Básico" ocupar meia tela. */
+/* O desenho da competência mora mais abaixo, no bloco de 04/09 — este
+   aqui era o antigo (flex numa linha só) e ficou como comentário para
+   ninguém reintroduzi-lo: com o `select` de 132px mais o "Tirar", o nome
+   ficava com quatro letras visíveis num celular. */
 
 /* O campo sempre aberto para adicionar a próxima — a "opção de adicionar
-   outras" da dona, sem esconder atrás de um botão que precisa ser tocado
-   primeiro. */
+   outras" que a dona pediu, sem esconder atrás de um botão que precisa ser
+   tocado primeiro. */
 .ei-competencia-add { display: flex; gap: 8px; margin-top: 14px; }
 .ei-competencia-add input { flex: 1 1 auto; min-width: 0; }
 
@@ -3902,12 +3872,21 @@
    Agora é uma fileira que quebra sozinha: cabem três num celular comum, e
    em tela estreita eles descem sem espremer. O excluir vai para o fim da
    linha, sem cor. */
+/* 04/09: grade, e não fileira que se ajusta sozinha. Com `flex-wrap` os
+   três botões ficavam do tamanho da própria palavra ("Editar" menor que
+   "Arquivar") e o Excluir sobrava na ponta direita: quatro larguras
+   diferentes na mesma linha, que é o que a dona chamou de desalinhado. */
 .ei .ei-acoes-vaga {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 8px;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
   margin-top: 24px;
+}
+
+/* O excluir ocupa a linha inteira, embaixo: continua sendo o último e o
+   único sem cor de botão — apagar leva junto a lista de interessados. */
+.ei .ei-acoes-vaga > .ei-acoes-vaga-excluir {
+  grid-column: 1 / -1;
 }
 
 .ei .ei-btn-curto {
@@ -3925,7 +3904,6 @@
    Em tela estreita ele cai para a linha de baixo e o `auto` deixa de ter
    efeito — que é o certo: ali ele já está separado por estar sozinho. */
 .ei .ei-acoes-vaga-excluir {
-  margin-left: auto;
   min-height: 40px;
   padding: 8px 10px;
   font-size: 0.85rem;
@@ -4333,4 +4311,216 @@
 .ei .ei-secao,
 .ei .ei-secao-linha {
   padding-top: 32px;
+}
+
+/* Os dois contatos do perfil, um em cima do outro — a dona: "faça os
+   botões melhores".
+
+   Eram duas colunas de mesma largura, e "Chamar no WhatsApp" não cabia em
+   metade de um celular de 390px: o rótulo era cortado no meio da palavra.
+   Empilhados, os dois cabem inteiros em qualquer tela. */
+.ei .ei-contatos {
+  display: grid;
+  gap: 10px;
+  padding: 14px 0 18px;
+}
+
+/* ── DOIS CAMPOS NA MESMA LINHA ─────────────────────────────────────────
+   A dona, com o print do cadastro: "os campos estão quebrados."
+
+   E estavam: "Começou" e "Saiu" eram um grid de `1fr 1fr` com os campos
+   dentro, e `input[type=month]` tem largura MÍNIMA própria — maior que a
+   metade de um celular de 390px. Sem `min-width: 0` a coluna não encolhe
+   até o que cabe: ela estoura, e o segundo campo escorrega por cima do
+   primeiro. Foi exatamente o que apareceu na foto.
+
+   A mesma armadilha vale para `select` e para `input[type=date]`, e por
+   isso a regra é da classe inteira, não de um campo. */
+.ei .ei-duas {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+}
+.ei .ei-duas > * {
+  min-width: 0;
+}
+/* Dentro da linha os dois campos são LADO A LADO, e não um depois do
+   outro: sem isto o segundo herda o `margin-top: 24px` de
+   `.ei-campo + .ei-campo` e desce sozinho — foi por isso que "Saiu"
+   apareceu mais baixo que "Começou", com as caixas em alturas
+   diferentes. */
+.ei .ei-cartao .ei-duas .ei-campo + .ei-campo,
+.ei .ei-etapas-corpo .ei-duas .ei-campo + .ei-campo {
+  margin-top: 0;
+}
+/* E a linha inteira ganha o respiro que os campos soltos têm: ela não é
+   um `.ei-campo`, então a regra de espaçamento entre campos não a
+   alcançava e ela colava no campo de cima. */
+.ei .ei-cartao .ei-campo + .ei-duas,
+.ei .ei-cartao .ei-duas + .ei-campo {
+  margin-top: 24px;
+}
+.ei .ei-duas input,
+.ei .ei-duas select {
+  width: 100%;
+  min-width: 0;
+}
+/* O ano é curto e não precisa de metade da tela — mas com uma largura
+   fixa em pixels ele empurrava a "Situação" para fora em telas pequenas.
+   `minmax` deixa o navegador encolher os dois quando não couber. */
+.ei .ei-duas-ano {
+  grid-template-columns: minmax(0, 1fr) minmax(84px, 110px);
+}
+
+/* Em tela estreita os dois campos viram um por linha. Metade de 320px é
+   160px, e num campo de data isso não cabe em navegador nenhum. */
+@media (max-width: 360px) {
+  .ei .ei-duas,
+  .ei .ei-duas-ano {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* ── COMPETÊNCIAS ───────────────────────────────────────────────────────
+   A dona: "a parte de competências também está quebrada."
+
+   Eram três coisas numa linha só — nome, nível e "Tirar" —, e o `select`
+   de 132px mais o botão não deixavam nem 120px para o nome numa tela de
+   390px. O nome ficava com quatro letras visíveis, e em 380px a regra
+   antiga quebrava a linha de um jeito que deixava o "Tirar" pendurado
+   sozinho.
+
+   Agora o nome ocupa a linha inteira, e nível e "Tirar" dividem a de
+   baixo — cada campo com a largura de que precisa, em qualquer tela. */
+.ei .ei-competencia {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 8px 10px;
+  align-items: center;
+  padding: 12px 0;
+  border-bottom: 1px solid var(--ei-fio);
+}
+.ei .ei-competencia:last-child {
+  border-bottom: 0;
+}
+.ei .ei-competencia input {
+  grid-column: 1 / -1;
+  width: 100%;
+  min-width: 0;
+}
+.ei .ei-competencia select {
+  width: 100%;
+  min-width: 0;
+}
+.ei .ei-competencia button {
+  justify-self: end;
+}
+
+/* ── RESPIRO NAS FILEIRAS DE ETIQUETAS ──────────────────────────────────
+   A dona, com o print de "Melhor horário": "fazer respiro nessa parte."
+
+   As etiquetas ficavam a 6px umas das outras, coladas em duas fileiras
+   sem folga entre as linhas — e num toque de dedo isso é a diferença
+   entre marcar "Noite" e marcar "Horário comercial". */
+.ei .ei-cartao .ei-chips {
+  gap: 10px;
+  margin-top: 4px;
+  margin-bottom: 4px;
+}
+
+/* ── OPÇÕES EM GRADE ────────────────────────────────────────────────────
+   A dona, com o print de "Melhor horário": "dar respiro e melhorar
+   layout."
+
+   As etiquetas eram `inline-flex` soltas num bloco de texto: o vão entre
+   elas era o espaço de uma letra, e entre as linhas não havia nenhum.
+   Sete opções de larguras diferentes viravam três fileiras irregulares,
+   com a última sobrando sozinha — e 4px de distância entre dois alvos de
+   toque é o que faz marcar "Noite" quando se queria "Horário comercial".
+
+   Duas colunas resolvem as três coisas de uma vez: respiro (12px), altura
+   de toque (44px) e alinhamento — todas do mesmo tamanho, em linhas
+   inteiras.
+
+   Em tela muito estreita vira uma coluna: metade de 320px não cabe
+   "Horário comercial" sem cortar. */
+.ei .ei-opcoes {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+@media (max-width: 340px) {
+  .ei .ei-opcoes {
+    grid-template-columns: 1fr;
+  }
+}
+
+.ei .ei-opcao-botao {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 44px;
+  padding: 8px 10px;
+  border: 1px solid var(--ei-fio-forte);
+  border-radius: 999px;
+  background: var(--ei-papel);
+  color: var(--ei-tinta-fraca);
+  font: inherit;
+  font-size: 0.88rem;
+  font-weight: 500;
+  line-height: 1.2;
+  text-align: center;
+  /* Nome comprido encolhe a letra em vez de estourar a coluna: é o único
+     jeito de "Horário comercial" e "Manhã" caberem na mesma grade sem uma
+     das duas ficar cortada. */
+  overflow-wrap: anywhere;
+  cursor: pointer;
+}
+
+.ei .ei-opcao-botao.ativo {
+  border-color: var(--ei-acao);
+  background: var(--ei-acao);
+  color: #ffffff;
+  font-weight: 600;
+}
+
+
+/* A descrição da vaga é a última linha do cartão da vaga, e não um texto
+   solto no chão cinza — ver o comentário em `DetalheVagaPage`. O fio em
+   cima separa do bloco de números sem abrir um vão entre cartões. */
+/* ── UM CARTÃO SÓ PARA A VAGA — 04/09 ──────────────────────────────────
+   A dona: "essa tela ainda está confusa, desalinhada. Coloque as
+   informações da vaga dentro de um card só."
+
+   A ficha, os números e a descrição já eram brancos, mas cada um com sua
+   própria borda, seu próprio arredondado e um vão cinza no meio — três
+   cartões para um assunto só. Aqui eles viram um: a moldura passa para o
+   invólucro e o que separa por dentro é um fio, não um vão. */
+.ei .ei-cartao-vaga {
+  margin: 12px;
+  border: 1px solid var(--ei-fio);
+  border-radius: var(--ei-raio);
+  background: var(--ei-papel);
+  overflow: hidden;
+}
+.ei .ei-cartao-vaga > .ei-props,
+.ei .ei-cartao-vaga > .ei-resumo,
+.ei .ei-cartao-vaga > .ei-vaga-descricao {
+  margin: 0;
+  border: 0;
+  border-radius: 0;
+}
+.ei .ei-cartao-vaga > .ei-props { padding-bottom: 12px; }
+.ei .ei-cartao-vaga > .ei-props + *,
+.ei .ei-cartao-vaga > .ei-resumo + *,
+.ei .ei-cartao-vaga > .ei-vaga-descricao + * { border-top: 1px solid var(--ei-fio); }
+
+.ei .ei-vaga-descricao {
+  margin: 0;
+  padding: 16px 20px 18px;
+  background: var(--ei-papel);
+  font-size: 0.95rem;
+  line-height: 1.55;
+  white-space: pre-line;
+  overflow-wrap: anywhere;
 }

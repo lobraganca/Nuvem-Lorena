@@ -52,18 +52,28 @@ export function PortaDosAvisos() {
     };
   }, [user]);
 
+  /* ── FRASES CURTAS, DE UMA LINHA — 04/09 ─────────────────────────────
+     A dona: "diminua para caber tudo em uma linha só."
+
+     "Ainda não chegou nenhuma vaga para você" quebrava em duas linhas num
+     celular de 390px, e a porta ficava mais alta que as vizinhas — numa
+     pilha de portas iguais, uma mais alta lê como desalinhada.
+
+     O que sobrou é o número e o substantivo. "Para você" saiu de todas:
+     esta porta está na tela de quem procura emprego, e não há outra
+     pessoa de quem essas vagas pudessem ser. */
   const nota =
     novas == null && total == null
-      ? "As vagas que a onda mandou para você"
+      ? "As vagas que chegaram até você"
       : novas != null && novas > 0
         ? novas === 1
-          ? "1 vaga nova esperando você abrir"
-          : `${novas} vagas novas esperando você abrir`
+          ? "1 vaga nova para abrir"
+          : `${novas} vagas novas para abrir`
         : total === 0
-          ? "Ainda não chegou nenhuma vaga para você"
+          ? "Nenhuma vaga chegou ainda"
           : total === 1
-            ? "1 vaga já chegou para você"
-            : `${total} vagas já chegaram para você`;
+            ? "1 vaga já chegou"
+            : `${total} vagas já chegaram`;
 
   return (
     <Link to="/avisos" className="ei-porta">
@@ -79,7 +89,10 @@ export function PortaDosAvisos() {
           </span>
         )}
       </span>
-      <span className="ei-porta-nota">{nota}</span>
+      {/* `ei-uma-linha` é o cinto de segurança: se um dia a frase crescer
+          (uma tradução, um número de quatro dígitos), ela corta com
+          reticências em vez de empurrar a porta para duas linhas. */}
+      <span className="ei-porta-nota ei-uma-linha">{nota}</span>
     </Link>
   );
 }

@@ -435,6 +435,53 @@ const TABELAS: Record<string, Linha[]> = {
 
   job_listings: VAGAS,
 
+  /* O que o perfil público passou a mostrar em 04/09 (a dona: "ao clicar
+     no pedido de um candidato tem que ter todas as informações que ele
+     preencheu"). Sem estas três tabelas no falso, a tela abria com as
+     seções novas vazias — e o teste diria que está tudo certo. */
+  professional_experiences: professionals.slice(0, 6).flatMap((pro, i) =>
+    Array.from({ length: (i % 2) + 1 }, (_, j) => ({
+      id: `exp-${i}-${j}`,
+      professional_id: pro.id,
+      cargo: j === 0 ? "Ajudante geral" : "Atendente",
+      onde: j === 0 ? "Obra no Centro" : "Loja da praça",
+      periodo: j === 0 ? "2 anos" : "1 ano",
+      ordem: j,
+    }))
+  ),
+  professional_courses: professionals.slice(0, 6).flatMap((pro, i) => [
+    {
+      professional_id: pro.id,
+      nome: "Ensino médio",
+      instituicao: "Escola Estadual de Itabirito",
+      ano: "2012",
+      tipo: "formacao",
+      nivel: "medio",
+      situacao: "concluido",
+      ordem: 0,
+    },
+    ...(i % 2 === 0
+      ? [
+          {
+            professional_id: pro.id,
+            nome: "NR-35 — trabalho em altura",
+            instituicao: "SENAI",
+            ano: "2023",
+            tipo: "complementar",
+            nivel: null,
+            situacao: null,
+            ordem: 1,
+          },
+        ]
+      : []),
+  ]),
+  professional_skills: professionals.slice(0, 6).flatMap((pro, i) =>
+    [
+      { professional_id: pro.id, nome: "Atendimento", nivel: "avancado", ordem: 0 },
+      { professional_id: pro.id, nome: "Caixa", nivel: "intermediario", ordem: 1 },
+    ].slice(0, (i % 2) + 1)
+  ),
+
   /* A conta é da administração quando o teste pede (`?admin=1` ou a chave
      `falso-admin`). Sem esta tabela o painel administrativo abria dizendo
      "sem permissão" no falso, e a seção do Ei Emprego — que é onde a dona
