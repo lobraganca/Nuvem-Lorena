@@ -1276,7 +1276,20 @@ export interface JobResponse {
   job_listing_id: string;
   professional_id: string;
   responded_at: string;
-  status: "new" | "contacted" | "archived";
+  /**
+   * A triagem de quem anunciou, e só dela — o "quero" e o "não quero" da
+   * pessoa moram em `interessado` (0078).
+   *
+   * Os quatro valores são os do banco (0069): chegou, li, chamei,
+   * descartei. Estavam escritos aqui como "new | contacted | archived",
+   * que são palavras de outro produto: duas delas o banco recusaria com
+   * violação de `check`, e `read` — o que o app grava ao abrir os avisos —
+   * não estava na lista. Nada disso aparecia no conferidor de tipos porque
+   * ninguém comparava a coluna com esta união.
+   */
+  status: "new" | "read" | "accepted" | "rejected";
+  /** `true` tem interesse, `false` não tem. Ver a 0078. */
+  interessado?: boolean;
 }
 
 /** Tipo de onboarding: profissional ou empresa. */

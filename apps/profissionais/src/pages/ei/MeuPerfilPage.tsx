@@ -928,6 +928,12 @@ export function MeuPerfilPage() {
             <input
               type="text"
               placeholder="Pedreiro, cozinheira, motorista…"
+              /* Nome de ofício não passa disso. Sem limite, o campo aceitava
+                 uma frase inteira ("operador de empilhadeira e conferente de
+                 carga e descarga em galpão") e o botão de acrescentar virava
+                 um parágrafo — e a etiqueta, depois de salva, não cabia em
+                 lugar nenhum. */
+              maxLength={40}
               value={busca}
               onChange={(e) => setBusca(e.target.value)}
               aria-label="Escrever o que você faz"

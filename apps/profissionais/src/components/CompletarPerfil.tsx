@@ -63,7 +63,21 @@ function levaAoCadastro(caminho: string): boolean {
 /** Falta alguma coisa? É o que decide se a tela aparece. */
 function incompleto(p: Profile | null): boolean {
   if (!p) return false; // ainda carregando: não mostra nada
-  return !p.full_name?.trim() || !p.email?.trim() || !p.phone?.trim();
+  /* ── O E-MAIL SAIU DA CONTA — 03/09 ───────────────────────────────────
+     Ele era exigido aqui, e isso trancava a tela de Conta para a maioria
+     das pessoas do app: quem entra pelo SMS — o caminho principal — tem
+     telefone e nome, e e-mail nenhum. Toda vez que essa pessoa tocava em
+     "Conta" caía neste formulário, sem jeito de passar a não ser
+     inventando um endereço. E é justamente em Conta que moram Sair,
+     Excluir conta e as assinaturas.
+
+     Encontrado usando o app como cliente: toquei em Conta e recebi "Passo
+     1 de 4 · Sua conta" em vez da minha conta.
+
+     O que a conta precisa de verdade é nome (para a empresa saber com quem
+     fala) e telefone (por onde ela chama). O e-mail continua no formulário
+     como campo opcional — quem tiver, preenche. */
+  return !p.full_name?.trim() || !p.phone?.trim();
 }
 
 /**
@@ -185,8 +199,11 @@ export function CompletarPerfil({ children }: { children: React.ReactNode }) {
   }
 
   const digitos = onlyPhoneDigits(telefone);
-  const falta =
-    !nome.trim() || !email.trim() || digitos.length < 10 || !email.includes("@");
+  /* E-mail não trava mais o botão (ver `incompleto`). Se for escrito, tem
+     de ser um endereço de verdade — meio e-mail gravado é pior que nenhum,
+     porque ninguém volta para consertar o que já deu certo. */
+  const emailTorto = email.trim().length > 0 && !email.includes("@");
+  const falta = !nome.trim() || digitos.length < 10 || emailTorto;
 
   async function salvar() {
     if (!user) return;
@@ -233,16 +250,12 @@ export function CompletarPerfil({ children }: { children: React.ReactNode }) {
             cadastro, ofícios, telefone. A empresa não tem esses quatro
             passos — para ela isto é uma tela só, e prometer "1 de 4"
             seria prometer três telas que não vêm. */}
-        {levaAoCadastro(pathname) && !ehEmpresa && (
-          <div className="ei-margem" style={{ paddingTop: 20 }}>
-            <div className="passos-barra" aria-hidden="true">
-              <div className="passos-preenchido" style={{ width: "25%" }} />
-            </div>
-            <p className="ei-apoio" style={{ marginTop: 8 }}>
-              Passo 1 de 4 · <strong>Sua conta</strong>
-            </p>
-          </div>
-        )}
+        {/* A barra "Passo 1 de 4 · Sua conta" saiu — 03/09.
+            ───────────────────────────────────────────────
+            Ela contava os passos de um cadastro profissional que era feito
+            em quatro etapas. O cadastro virou uma tela só, e a barra
+            continuou prometendo mais três telas que não existem — quem
+            lesse acharia que ia preencher outras três. */}
 
         <Pagina titulo="Falta pouco" />
 
@@ -304,7 +317,7 @@ export function CompletarPerfil({ children }: { children: React.ReactNode }) {
           </div>
 
           <div className="ei-campo">
-            <label htmlFor="completar-email">E-mail</label>
+            <label htmlFor="completar-email">E-mail (opcional)</label>
             <input
               id="completar-email"
               type="email"

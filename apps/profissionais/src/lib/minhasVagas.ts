@@ -256,13 +256,27 @@ export async function responderVaga(
   const sb = supabase();
   if (!sb) throw new Error("Banco não configurado");
 
-  const { data: jaExiste, error: erroLer } = await sb
+  /* `order` + `limit(1)` em vez de `maybeSingle()`.
+     ───────────────────────────────────────────────
+     `maybeSingle()` aceita nenhuma linha, mas ERRA com mais de uma
+     (PGRST116) — e o erro chega na tela como "não consegui enviar seu
+     interesse", com o botão continuando ali, sem nunca funcionar. A
+     unicidade de (vaga, pessoa) existe no banco desde a 0069, então em
+     tese não há duas; mas é exatamente a mesma aposta que já quebrou duas
+     vezes neste projeto (`obterMinhaEmpresa` e `lerMeuPerfil`), e o preço
+     de errar aqui é alguém não conseguir se candidatar a um emprego.
+
+     Encontrado usando o app como cliente exigente: dois toques em "Tenho
+     interesse" na mesma vaga. */
+  const { data: existentes, error: erroLer } = await sb
     .from("job_responses")
     .select("id")
     .eq("job_listing_id", vagaId)
     .eq("professional_id", userId)
-    .maybeSingle();
+    .order("responded_at", { ascending: true })
+    .limit(1);
   if (erroLer) throw erroLer;
+  const jaExiste = (existentes ?? [])[0] ?? null;
 
   if (jaExiste) {
     /* Só `interessado`. `status` é a triagem da empresa, e a 0078 tem um

@@ -41,6 +41,9 @@ export function DetalheVagaPage() {
   const [respostas, setRespostas] = useState<RespostaComPessoa[]>([]);
   const [carregando, setCarregando] = useState(true);
   const [fechando, setFechando] = useState(false);
+  /* A pergunta do excluir mora na própria tela — ver o comentário no
+     botão. `window.confirm` some dentro do app instalado. */
+  const [confirmandoExclusao, setConfirmandoExclusao] = useState(false);
   const [erro, setErro] = useState("");
   /* `null` = ainda não perguntamos ao banco. Um número = a contagem veio.
      Zero é resposta legítima ("não há mais ninguém"), então não dá para
@@ -143,15 +146,6 @@ export function DetalheVagaPage() {
 
   async function excluirVagaFunc() {
     if (!vagaId) return;
-    /* A confirmação DIZ O NÚMERO. "Tem certeza?" não informa nada; saber
-       que três pessoas interessadas somem junto é o que faz a empresa
-       parar e escolher arquivar. */
-    const quantos = respostas.length;
-    const aviso =
-      quantos > 0
-        ? `Excluir apaga esta vaga e ${quantos === 1 ? "a pessoa interessada" : `as ${quantos} pessoas interessadas`} nela. Não dá para desfazer.\n\nSe você só quer tirar do ar, use "Arquivar" — a lista fica guardada.`
-        : "Excluir apaga esta vaga de vez. Não dá para desfazer.";
-    if (!window.confirm(aviso)) return;
 
     setFechando(true);
     setErro("");
@@ -374,16 +368,61 @@ export function DetalheVagaPage() {
         )}
 
         {/* Fora da fileira e sem cor: apagar leva junto a lista de quem se
-            interessou, e a confirmação já explica isso por extenso. */}
-        <button
-          className="ei-btn ei-btn-texto ei-acoes-vaga-excluir"
-          onClick={excluirVagaFunc}
-          disabled={fechando}
-          style={{ color: "var(--ei-erro)" }}
-        >
-          Excluir
-        </button>
+            interessou, e a confirmação explica isso por extenso.
+
+            ── A CONFIRMAÇÃO SAIU DO `window.confirm` — 03/09 ────────────
+            Era uma janelinha do navegador. Dentro do app instalado ela não
+            aparece em alguns aparelhos, e o que sobra é o pior caminho
+            possível: um toque em "Excluir" apagando a vaga e a lista de
+            interessados na hora, sem pergunta nenhuma. Encontrado usando o
+            app: as ações da vaga disparavam de primeira.
+
+            Agora a pergunta é a própria tela, e ela DIZ O NÚMERO — "Tem
+            certeza?" não informa nada; saber que três pessoas interessadas
+            somem junto é o que faz parar e escolher arquivar. */}
+        {!confirmandoExclusao ? (
+          <button
+            className="ei-btn ei-btn-texto ei-acoes-vaga-excluir"
+            onClick={() => {
+              setErro("");
+              setConfirmandoExclusao(true);
+            }}
+            disabled={fechando}
+            style={{ color: "var(--ei-erro)" }}
+          >
+            Excluir
+          </button>
+        ) : null}
       </div>
+
+      {confirmandoExclusao && (
+        <div className="ei-margem" style={{ display: "grid", gap: 10, marginTop: 4 }}>
+          <p className="ei-apoio" style={{ margin: 0 }}>
+            {respostas.length > 0
+              ? `Excluir apaga esta vaga e ${
+                  respostas.length === 1
+                    ? "a pessoa interessada"
+                    : `as ${respostas.length} pessoas interessadas`
+                } nela. Não dá para desfazer. Se você só quer tirar do ar, use “Arquivar” — a lista fica guardada.`
+              : "Excluir apaga esta vaga de vez. Não dá para desfazer."}
+          </p>
+          <button
+            className="ei-btn ei-btn-contorno ei-btn-largo"
+            onClick={excluirVagaFunc}
+            disabled={fechando}
+            style={{ color: "var(--ei-erro)" }}
+          >
+            {fechando ? "Excluindo…" : "Sim, excluir esta vaga"}
+          </button>
+          <button
+            className="ei-btn ei-btn-texto"
+            onClick={() => setConfirmandoExclusao(false)}
+            disabled={fechando}
+          >
+            Não, deixar como está
+          </button>
+        </div>
+      )}
 
       {/* ── AS TRÊS ONDAS, UMA POR BLOCO — 03/09 ─────────────────────────
           A dona: "a parte de disparo de ondas tem que ficar melhor.

@@ -183,12 +183,15 @@ export function CriarVagaPage() {
   const [conferindo, setConferindo] = useState(false);
   const [ondaPreview, setOndaPreview] = useState<Array<{ onda: WaveNumber; novos: number }>>([]);
 
-  /* A segunda onda desta vaga, se a empresa quiser usá-la já.
-     ────────────────────────────────────────────────────────
-     Cada vaga tem direito a `ONDAS_POR_VAGA` ondas; a 1 sai na criação, e
-     sobra uma. `null` = guardar para depois, que é o padrão: avisar mais
-     gente do que o necessário é a única decisão desta tela que não dá para
-     desfazer, então ela é sempre um ato, nunca um esquecimento. */
+  /* Uma segunda onda já na criação, se a empresa quiser.
+     ────────────────────────────────────────────────────
+     Cada vaga tem direito a `ONDAS_POR_VAGA` ondas; a 1 sai na criação e
+     as outras ficam guardadas. Aqui dá para adiantar UMA — a 2 ou a 3 —,
+     e não as duas: avisar gente demais é a única decisão desta tela que
+     não dá para desfazer, e quem quiser a terceira abre depois, na tela da
+     vaga, já sabendo se a primeira deu resposta.
+
+     `null` = guardar para depois, que é o padrão. */
   const [ondaExtra, setOndaExtra] = useState<2 | 3 | null>(null);
 
   /* O anúncio vem junto do plano, então nasce MARCADO: quem pagou para
@@ -1619,12 +1622,11 @@ export function CriarVagaPage() {
                     {onda === 1 ? (
                       <p style={{ margin: "6px 0 0", fontSize: "0.9em" }}>Sai agora.</p>
                     ) : (
-                      /* Cada vaga tem direito a 2 ondas, e a 1 já é uma
-                         delas — então sobra UMA. São botões de rádio, e não
-                         caixinhas: com caixinha a pessoa marca as duas,
-                         confirma, e o banco recusa a segunda com um erro
-                         que ela não tem como prever. A forma do controle é
-                         o que ensina a regra, antes de qualquer texto. */
+                      /* Botões de rádio, e não caixinhas: aqui só dá para
+                         adiantar UMA onda além da 1 (ver `ondaExtra`), e a
+                         forma do controle é o que ensina isso antes de
+                         qualquer texto — com caixinha a pessoa marcaria as
+                         duas e descobriria a regra num erro. */
                       <label style={{ display: "flex", gap: 8, marginTop: 8, fontSize: "0.9em" }}>
                         <input
                           type="radio"
@@ -1636,7 +1638,13 @@ export function CriarVagaPage() {
                         <span>
                           {novos === 0
                             ? "Não há mais ninguém nesta onda"
-                            : "Usar minha segunda onda nesta, agora"}
+                            /* Dizia "usar minha segunda onda". Com três
+                               ondas (0108) isso passou a ser uma conta
+                               errada na cabeça de quem lê: a onda 3
+                               oferecia "a segunda". O nome da onda já está
+                               no título logo acima — aqui basta dizer o
+                               que o toque faz. */
+                            : "Avisar esta onda também, agora"}
                         </span>
                       </label>
                     )}
