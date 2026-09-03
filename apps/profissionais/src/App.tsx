@@ -61,6 +61,7 @@ const FavoritosPage = lazy(importarPagina(() => import("./pages/ei/FavoritosPage
 const PlanosEmpresaPage = lazy(importarPagina(() => import("./pages/PlanosEmpresaPage").then((m) => ({ default: m.PlanosEmpresaPage }))));
 const ReembolsoPage = lazy(importarPagina(() => import("./pages/ei/ReembolsoPage").then((m) => ({ default: m.ReembolsoPage }))));
 const MeuDesempenhoPage = lazy(importarPagina(() => import("./pages/ei/MeuDesempenhoPage").then((m) => ({ default: m.MeuDesempenhoPage }))));
+const DestaquePage = lazy(importarPagina(() => import("./pages/ei/DestaquePage").then((m) => ({ default: m.DestaquePage }))));
 const OndasDaVagaPage = lazy(importarPagina(() => import("./pages/OndasDaVagaPage").then((m) => ({ default: m.OndasDaVagaPage }))));
 const InteressadosDaVagaPage = lazy(importarPagina(() => import("./pages/InteressadosDaVagaPage").then((m) => ({ default: m.InteressadosDaVagaPage }))));
 const DetalheVagaPage = lazy(importarPagina(() => import("./pages/DetalheVagaPage").then((m) => ({ default: m.DetalheVagaPage }))));
@@ -356,6 +357,9 @@ export default function App() {
         <Route path="/reembolso" element={<ReembolsoPage />} />
         {/* Os números de quem procura trabalho (ver MeuDesempenhoPage). */}
         <Route path="/meu-desempenho" element={<MeuDesempenhoPage />} />
+        {/* O destaque pago de quem procura trabalho. Não existe dentro do
+            app da Play Store (ver DestaquePage). */}
+        <Route path="/destaque" element={<DestaquePage />} />
         <Route path="/profissionais" element={<ProfissionaisPage />} />
         {/* O perfil de uma pessoa, visto por quem contrata. É a metade
             gratuita da oferta da empresa — ver e falar um a um — e não

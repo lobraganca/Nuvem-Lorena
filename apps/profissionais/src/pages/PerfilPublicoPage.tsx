@@ -352,7 +352,15 @@ export function PerfilPublicoPage() {
               className="ei-btn-laranja"
               style={{ margin: 0, width: "100%" }}
               href={`https://wa.me/55${soDigitos(telefone)}?text=${encodeURIComponent(
-                `Olá, ${primeiroNome(p.name)}! Vi o seu perfil no Ei Emprego e queria falar sobre uma vaga.`
+                /* O texto é o que a dona escreveu, palavra por palavra
+                   (04/09): "Olá, achei seu perfil no Ei Emprego, você tem
+                   interesse em conversar sobre uma oportunidade?".
+
+                   Sem o primeiro nome no começo, que era o que estava
+                   aqui: a pergunta no fim é o que faz a pessoa responder,
+                   e um "Olá, Maria!" antes dela só empurra a pergunta
+                   para a segunda linha da prévia da conversa. */
+                "Olá, achei seu perfil no Ei Emprego, você tem interesse em conversar sobre uma oportunidade?"
               )}`}
               target="_blank"
               rel="noopener noreferrer"

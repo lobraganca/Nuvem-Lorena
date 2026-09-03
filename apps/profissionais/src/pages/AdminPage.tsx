@@ -29,6 +29,13 @@ import { atualizarStatusIndicacao, listarIndicacoes, type Indicacao } from "../l
 import { CITIES, type Suggestion, type SuggestionStatus } from "../types/domain";
 import { AdminBanners } from "../components/AdminBanners";
 import { AdminEmpresas, AdminVagas, AdminNumerosDoEi, AdminReembolsos } from "../components/AdminEiEmprego";
+import {
+  ligarDestaque,
+  desligarDestaque,
+  destaqueValendo,
+  diasDeDestaqueRestantes,
+  DESTAQUE_DIAS,
+} from "../lib/destaque";
 import { AdminCorrigir } from "../components/AdminCorrigir";
 import { AdminFinanceiro } from "../components/AdminFinanceiro";
 import { useTituloDaPagina } from "../lib/tituloDaPagina";
@@ -815,6 +822,20 @@ export function AdminPage() {
               >
                 Corrigir cadastro e foto
               </Link>
+
+              {/* ── LIGAR O DESTAQUE DE 7 DIAS — 04/09 ──────────────────
+                  A dona: "vou fazer um plano pra quem quer aparecer na
+                  lista primeiro. R$ 10,90 por 7 dias."
+
+                  Enquanto a cobrança dentro do app não existe, quem vende
+                  é ela, por Pix — e ligar o destaque não pode ser um
+                  `update` escrito à mão no painel do Supabase, que é como
+                  o plano de empresa era ligado antes (e um `update` sem
+                  `where`, num dia cansado, põe a cidade inteira no topo).
+
+                  A validade é contada a partir de AGORA, e não somada à
+                  antiga: quem paga de novo quer 7 dias inteiros. */}
+              <BotaoDestaque profissional={p} />
               {p.suspended ? (
                 <>
                   {p.suspended_reason && <p className="muted" style={{ fontSize: "0.85rem" }}>Motivo: {p.suspended_reason}</p>}
@@ -860,6 +881,84 @@ export function AdminPage() {
         )}
       </section>
       )}
+    </div>
+  );
+}
+
+/**
+ * Liga e desliga o destaque de 7 dias de um cadastro.
+ *
+ * Fica aqui, e não em `AdminEiEmprego`, porque a lista de cadastros mora
+ * nesta tela — e uma linha só de estado (o botão que está mexendo agora)
+ * não justifica um arquivo novo.
+ *
+ * O estado é local ao botão de propósito: a lista de cadastros do painel
+ * chega em páginas e é remontada quando se carrega mais, e guardar o
+ * resultado lá em cima faria o "ligado até tal dia" sumir a cada página
+ * nova.
+ */
+function BotaoDestaque({
+  profissional,
+}: {
+  profissional: { id: string; boosted?: boolean | null; boosted_until?: string | null };
+}) {
+  const [ate, setAte] = useState<string | null>(profissional.boosted_until ?? null);
+  const [ligado, setLigado] = useState(destaqueValendo(profissional));
+  const [mexendo, setMexendo] = useState(false);
+  const [erro, setErro] = useState("");
+
+  async function ligar() {
+    setMexendo(true);
+    setErro("");
+    try {
+      const nova = await ligarDestaque(profissional.id);
+      setAte(nova);
+      setLigado(true);
+    } catch (err) {
+      setErro(mensagemDeErro(err, "Não consegui ligar o destaque."));
+    } finally {
+      setMexendo(false);
+    }
+  }
+
+  async function desligar() {
+    setMexendo(true);
+    setErro("");
+    try {
+      await desligarDestaque(profissional.id);
+      setAte(null);
+      setLigado(false);
+    } catch (err) {
+      setErro(mensagemDeErro(err, "Não consegui desligar o destaque."));
+    } finally {
+      setMexendo(false);
+    }
+  }
+
+  const faltam = diasDeDestaqueRestantes(ate);
+
+  return (
+    <div style={{ marginTop: 8, display: "grid", gap: 6 }}>
+      {ligado ? (
+        <>
+          <span className="muted" style={{ fontSize: "0.85rem" }}>
+            Em alta — {faltam === 1 ? "termina amanhã" : `faltam ${faltam} dias`}
+          </span>
+          <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+            <button className="btn btn-outline" disabled={mexendo} onClick={ligar}>
+              Renovar {DESTAQUE_DIAS} dias
+            </button>
+            <button className="btn btn-outline" disabled={mexendo} onClick={desligar}>
+              Desligar destaque
+            </button>
+          </div>
+        </>
+      ) : (
+        <button className="btn btn-outline" disabled={mexendo} onClick={ligar}>
+          Ligar destaque por {DESTAQUE_DIAS} dias
+        </button>
+      )}
+      {erro && <p className="admin-resumo-erro">{erro}</p>}
     </div>
   );
 }

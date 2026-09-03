@@ -6,6 +6,8 @@ import { useAuth } from "../../lib/useAuth";
 import { mensagemDeErro } from "../../lib/erros";
 import { lerMeuPerfil } from "../../lib/meuPerfil";
 import { meuDesempenho, recadoDoDesempenho, type Desempenho } from "../../lib/desempenho";
+import { podeVender } from "../../lib/plataforma";
+import { precoDoDestaqueEmTexto, DESTAQUE_DIAS } from "../../lib/destaque";
 
 /**
  * "Como está indo o meu cadastro."
@@ -174,6 +176,22 @@ export function MeuDesempenhoPage() {
                   </span>
                 </span>
               </Link>
+
+              {/* O destaque pago fica DEPOIS das três coisas de graça, e
+                  nunca antes: oferecer pagamento a quem está desempregado
+                  como primeira resposta para "ninguém me viu" é o jeito
+                  mais rápido de perder a confiança da cidade. Dentro do
+                  app da loja ele não aparece (`podeVender`). */}
+              {podeVender() && (
+                <Link to="/destaque" className="ei-linha-item">
+                  <span className="ei-linha-nome">
+                    Aparecer primeiro na lista
+                    <span className="ei-linha-sub">
+                      {DESTAQUE_DIAS} dias no topo, com selo “Em alta” — {precoDoDestaqueEmTexto()}
+                    </span>
+                  </span>
+                </Link>
+              )}
             </div>
           </>
         )}

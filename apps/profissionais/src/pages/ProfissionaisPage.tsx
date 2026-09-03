@@ -13,6 +13,7 @@ import { BottomSheet } from "../components/BottomSheet";
 import { BotaoFavorito } from "../components/ei/BotaoFavorito";
 import { lerFavoritos, SEM_FAVORITOS, type Favoritos } from "../lib/favoritos";
 import { contarAparicaoEmBusca } from "../lib/compativeis";
+import { destaqueValendo } from "../lib/destaque";
 
 type Disponivel = {
   id: string;
@@ -36,6 +37,15 @@ type Disponivel = {
   inicio_imediato: boolean | null;
   cnh: boolean | null;
   disponibilidade: string[] | null;
+  /* ── O DESTAQUE PAGO (colunas da 0016, uso novo em 04/09) ──────────
+     A dona: "vou fazer um plano pra quem quer aparecer na lista primeiro.
+     R$ 10,90 por 7 dias. Daí aparece profissional em alta e ele no topo."
+
+     A data anda junto da marca: `boosted` continua ligado depois de o
+     prazo vencer (nada apaga a coluna sozinho), e ordenar só por ela
+     deixaria alguém no topo para sempre por ter pago uma vez. */
+  boosted: boolean | null;
+  boosted_until: string | null;
 };
 
 /** Os filtros de sim/não da folha. A chave é a que vai para a URL. */
@@ -198,7 +208,7 @@ export function ProfissionaisPage() {
            E é escrita à mão, uma por uma: coluna nova que ninguém
            acrescente aqui chega indefinida, sem erro para avisar, e o
            filtro dela passa a não achar ninguém. */
-        .select("id, name, photo_url, areas_de_interesse, especialidade, neighborhood, disponivel, aceita_viajar, fim_de_semana, inicio_imediato, cnh, disponibilidade")
+        .select("id, name, photo_url, areas_de_interesse, especialidade, neighborhood, disponivel, aceita_viajar, fim_de_semana, inicio_imediato, cnh, disponibilidade, boosted, boosted_until")
         .eq("city", DEFAULT_CITY)
         .eq("uf", DEFAULT_UF)
         /* ── SÓ QUEM FEZ O CADASTRO DO EI ITABIRITO ────────────────────
@@ -287,7 +297,21 @@ export function ProfissionaisPage() {
         p.name.toLocaleLowerCase("pt-BR").includes(t) ||
         (p.areas_de_interesse ?? []).some((f) => f.toLocaleLowerCase("pt-BR").includes(t))
       );
-    });
+    })
+      /* ── QUEM PAGOU O DESTAQUE VEM PRIMEIRO — 04/09 ──────────────────
+         A dona: "R$ 10,90 por 7 dias, daí aparece profissional em alta e
+         ele no topo."
+
+         A ordem é feita AQUI e não no banco porque a lista já vem inteira
+         e é filtrada na tela (busca, ofício, bairro, as cinco chaves):
+         ordenar no `select` seria ordenar antes de filtrar, e o destaque
+         se perderia no primeiro filtro que a empresa ligasse.
+
+         Entre destacados, a ordem original é mantida (mais novo
+         primeiro): sortear entre eles, como o outro app faz, é justo com
+         quem paga, mas aqui são poucos — e uma lista que muda de ordem a
+         cada toque parece defeito. */
+      .sort((a, b) => Number(destaqueValendo(b)) - Number(destaqueValendo(a)));
   }, [lista, filtro, oficio, bairro, ligados]);
 
   /* ── APARECER NUMA BUSCA VIRA NÚMERO — 04/09 ─────────────────────
@@ -475,7 +499,17 @@ export function ProfissionaisPage() {
                   <div className="ei-pessoa-texto">
                     {/* Na linha inteira cabem duas funções sem cortar — no
                         cartão de 163px não cabia nem uma. */}
-                    <div className="ei-pessoa-nome ei-uma-linha">{p.name}</div>
+                    <div className="ei-pessoa-nome ei-uma-linha">
+                      {p.name}
+                      {/* "Em alta" é o nome que a dona deu ao selo. Ele
+                          fica DEPOIS do nome, e não antes: antes, o olho
+                          lê o selo como parte do nome da pessoa. */}
+                      {destaqueValendo(p) && (
+                        <span className="ei-selo ei-selo-laranja" style={{ marginLeft: 8 }}>
+                          Em alta
+                        </span>
+                      )}
+                    </div>
                     {/* Duas linhas, e não uma: o ofício é o ÚNICO campo
                         que a empresa lê para decidir se abre a ficha, e
                         cortá-lo em "Técnico em celular…" esconde
