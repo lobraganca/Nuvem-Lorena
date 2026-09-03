@@ -748,6 +748,15 @@ export interface Company {
   responsible_name: string | null; // nome do responsável
   description: string; // descrição da empresa
   /**
+   * A empresa contrata pessoa com deficiência (0115).
+   *
+   * A dona: "colocar no cadastro da empresa e do empregado a opção de
+   * PCD." É a empresa como um todo — cada vaga tem a marcação dela, em
+   * `vaga_para_pcd`. As duas convivem: esta aparece no perfil da empresa
+   * mesmo sem vaga aberta.
+   */
+  contrata_pcd: boolean;
+  /**
    * Telefone confirmado por código, igual ao do profissional.
    *
    * Vale para todo mundo: quem publica vaga é procurado de volta, e um
@@ -1062,6 +1071,26 @@ export interface JobListing {
    * e um filtro: a vaga diz "pode vir", e quem procura acha essas vagas.
    */
   aceita_primeiro_emprego: boolean;
+  /**
+   * A vaga aceita (ou reserva) candidatura de pessoa com deficiência
+   * (0115). A dona: "colocar no cadastro da empresa e do empregado a
+   * opção de PCD."
+   *
+   * Vira selo e filtro, como o primeiro emprego, e pelo mesmo motivo não
+   * entra na conta de compatibilidade: ela não mede quem a vaga aceita,
+   * mede o quanto o ofício e as condições batem.
+   */
+  vaga_para_pcd: boolean;
+  /**
+   * Até quando esta vaga fica no topo do banco de vagas (0116). Nulo é
+   * "sem destaque", e uma data no passado se apaga sozinha — ninguém
+   * precisa desligar na mão.
+   *
+   * Quem grava é só a administração: um gatilho no banco devolve o valor
+   * antigo para qualquer outra conta, porque a empresa tem permissão de
+   * editar a própria vaga e a coluna é paga.
+   */
+  destaque_ate: string | null;
 }
 
 /**

@@ -113,6 +113,23 @@ export type MeuPerfil = {
      para de bater. */
   primeiroEmprego: boolean;
   aceitaFreela: boolean;
+
+  /* ── QUEM A PESSOA É (0115 e 0116) ─────────────────────────────────
+     A dona: "colocar opção no cadastro de feminino ou masculino ou
+     outro" e "colocar no cadastro da empresa e do empregado a opção de
+     PCD".
+
+     Os dois são declaração da pessoa, e os dois são opcionais — vazio
+     quer dizer "não quis dizer", que é resposta legítima e diferente de
+     "não".
+
+     `genero` NÃO viaja para a lista pública (ver a 0116): o art. 373-A
+     da CLT proíbe usar sexo como critério de admissão, e o jeito de
+     garantir isso não é pedir educadamente, é o dado não chegar à
+     empresa. `pcd` viaja, porque é para isso que a pessoa marcaria — as
+     vagas que aceitam PCD encontram quem marcou. */
+  genero: string;
+  pcd: boolean;
 };
 
 /**
@@ -163,6 +180,8 @@ export const PERFIL_VAZIO: MeuPerfil = {
   inicioImediato: false,
   primeiroEmprego: false,
   aceitaFreela: false,
+  genero: "",
+  pcd: false,
 };
 
 /**
@@ -293,7 +312,7 @@ export async function lerMeuPerfil(ownerId: string): Promise<MeuPerfil | null> {
          nenhum para avisar — e o campo aparece em branco na tela como se
          a pessoa nunca o tivesse preenchido. */
       "data_nascimento, cnh, cnh_categorias, telefones_extra, modo_trabalho, " +
-      "fim_de_semana, inicio_imediato, primeiro_emprego, aceita_freela"
+      "fim_de_semana, inicio_imediato, primeiro_emprego, aceita_freela, genero, pcd"
     )
     .eq("owner_id", ownerId)
     /* ── NEM `single` NEM `maybeSingle` — 03/09 ────────────────────────
@@ -361,6 +380,8 @@ export async function lerMeuPerfil(ownerId: string): Promise<MeuPerfil | null> {
     inicioImediato: linha.inicio_imediato ?? false,
     primeiroEmprego: (linha as Record<string, any>).primeiro_emprego ?? false,
     aceitaFreela: (linha as Record<string, any>).aceita_freela ?? false,
+    genero: (linha as Record<string, any>).genero ?? "",
+    pcd: (linha as Record<string, any>).pcd ?? false,
   };
 }
 
@@ -438,6 +459,12 @@ export async function salvarMeuPerfil(
     inicio_imediato: perfil.inicioImediato,
     primeiro_emprego: perfil.primeiroEmprego,
     aceita_freela: perfil.aceitaFreela,
+    /* Vazio grava `null`, e não "": o `check` da 0116 só aceita os três
+       valores ou nulo, e uma string vazia seria recusada com um erro de
+       constraint — que chega na tela como texto técnico sem dizer qual
+       campo o causou. */
+    genero: perfil.genero || null,
+    pcd: perfil.pcd,
     city: DEFAULT_CITY,
     uf: DEFAULT_UF,
   };

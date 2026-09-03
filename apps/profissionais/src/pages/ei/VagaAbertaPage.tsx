@@ -371,7 +371,8 @@ export function VagaAbertaPage() {
             informação continua, com o peso que ela tem. */}
         {(vaga.available_immediately ||
           vaga.quantidade_vagas > 1 ||
-          vaga.aceita_primeiro_emprego) && (
+          vaga.aceita_primeiro_emprego ||
+          vaga.vaga_para_pcd) && (
           <div className="ei-margem ei-chips" style={{ marginTop: 8 }}>
             {vaga.available_immediately && (
               <span className="ei-selo ei-selo-laranja">Começa logo</span>
@@ -390,6 +391,12 @@ export function VagaAbertaPage() {
                 escrevesse. */}
             {vaga.aceita_primeiro_emprego && (
               <span className="ei-selo ei-selo-verde">Aceita primeiro emprego</span>
+            )}
+            {/* PCD (0115). Junto do título pelo mesmo motivo do primeiro
+                emprego: para quem procura, esta é a informação que decide
+                se vale a pena ler o resto. */}
+            {vaga.vaga_para_pcd && (
+              <span className="ei-selo ei-selo-verde">Aceita PCD</span>
             )}
           </div>
         )}

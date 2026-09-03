@@ -9,6 +9,13 @@ import {
 } from "../lib/adminEi";
 import { mensagemDeErro } from "../lib/erros";
 import {
+  destacarVaga,
+  tirarDestaqueDaVaga,
+  vagaEmDestaque,
+  diasDeDestaqueRestantes,
+  DESTAQUE_DIAS,
+} from "../lib/destaque";
+import {
   pedidosDeReembolso,
   responderPedidoDeReembolso,
   type PedidoDeReembolso,
@@ -352,13 +359,15 @@ export function AdminVagas() {
       ) : (
         <div style={{ display: "grid", gap: 8 }}>
           {lista.map((v) => (
-            /* Cartão, e não link azul sublinhado: numa lista de vinte vagas
-               o sublinhado vira uma parede de texto riscado. */
+            /* Cartão, e não link azul sublinhado: numa lista de vinte
+               vagas o sublinhado vira uma parede de texto riscado. O
+               cartão é a moldura, e o link é só o miolo — o botão de
+               destacar precisa ficar de fora dele, senão tocar no botão
+               abre a vaga. */
+            <div key={v.id} className="card" style={{ padding: 12 }}>
             <Link
-              key={v.id}
               to={`/vaga-aberta/${v.id}`}
-              className="card"
-              style={{ padding: 12, display: "block", color: "inherit", textDecoration: "none" }}
+              style={{ display: "block", color: "inherit", textDecoration: "none" }}
             >
               <div style={{ display: "flex", justifyContent: "space-between", gap: 8 }}>
                 <strong style={{ overflowWrap: "anywhere" }}>{v.title}</strong>
@@ -376,6 +385,15 @@ export function AdminVagas() {
                   .join(" · ")}
               </p>
             </Link>
+            {/* ── DESTACAR A VAGA — 04/09 ────────────────────────────
+                A dona: "também opção de dar destaque a uma vaga", R$
+                19,90 por 7 dias.
+
+                O botão fica FORA do link do cartão: dentro, tocar nele
+                abriria a vaga em vez de destacar — e é o tipo de coisa
+                que só se descobre com o dedo, nunca lendo o código. */}
+            <BotaoDestaqueDeVaga vaga={v} />
+            </div>
           ))}
         </div>
       )}
@@ -591,5 +609,77 @@ export function AdminReembolsos() {
         </div>
       )}
     </section>
+  );
+}
+
+/**
+ * Liga e desliga o destaque de uma vaga (7 dias).
+ *
+ * A dona: "também opção de dar destaque a uma vaga" — R$ 19,90 por 7
+ * dias. Enquanto a cobrança dentro do app não existir, quem liga é quem
+ * recebeu o pagamento; e mesmo depois, este botão continua servindo para
+ * consertar engano e para atender quem pagou por fora.
+ *
+ * Quem recusa qualquer outra conta é o gatilho da 0116, no banco, e não
+ * esta tela: a empresa tem permissão de editar a própria vaga, e sem o
+ * gatilho bastaria uma requisição escrita à mão para se destacar de
+ * graça.
+ */
+function BotaoDestaqueDeVaga({ vaga }: { vaga: JobListing }) {
+  const [ate, setAte] = useState<string | null>(vaga.destaque_ate ?? null);
+  const [mexendo, setMexendo] = useState(false);
+  const [erro, setErro] = useState("");
+
+  async function ligar() {
+    setMexendo(true);
+    setErro("");
+    try {
+      setAte(await destacarVaga(vaga.id));
+    } catch (err) {
+      setErro(mensagemDeErro(err, "Não consegui destacar a vaga."));
+    } finally {
+      setMexendo(false);
+    }
+  }
+
+  async function desligar() {
+    setMexendo(true);
+    setErro("");
+    try {
+      await tirarDestaqueDaVaga(vaga.id);
+      setAte(null);
+    } catch (err) {
+      setErro(mensagemDeErro(err, "Não consegui tirar o destaque."));
+    } finally {
+      setMexendo(false);
+    }
+  }
+
+  const emDestaque = vagaEmDestaque({ destaque_ate: ate });
+  const faltam = diasDeDestaqueRestantes(ate);
+
+  return (
+    <div style={{ marginTop: 10, display: "grid", gap: 6 }}>
+      {emDestaque ? (
+        <>
+          <span className="muted" style={{ fontSize: "0.85rem" }}>
+            Em destaque — {faltam === 1 ? "termina amanhã" : `faltam ${faltam} dias`}
+          </span>
+          <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+            <button className="btn btn-outline" disabled={mexendo} onClick={ligar}>
+              Renovar {DESTAQUE_DIAS} dias
+            </button>
+            <button className="btn btn-outline" disabled={mexendo} onClick={desligar}>
+              Tirar do destaque
+            </button>
+          </div>
+        </>
+      ) : (
+        <button className="btn btn-outline" disabled={mexendo} onClick={ligar}>
+          Destacar por {DESTAQUE_DIAS} dias
+        </button>
+      )}
+      {erro && <p className="admin-resumo-erro">{erro}</p>}
+    </div>
   );
 }

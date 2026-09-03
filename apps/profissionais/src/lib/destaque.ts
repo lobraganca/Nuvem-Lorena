@@ -110,3 +110,66 @@ export async function desligarDestaque(professionalId: string): Promise<void> {
     .eq("id", professionalId);
   if (error) throw error;
 }
+
+/* ══════════════════════════════════════════════════════════════════════
+   O DESTAQUE DA VAGA — 04/09
+   ══════════════════════════════════════════════════════════════════════
+
+   A dona: "também opção de dar destaque a uma vaga" — R$ 19,90 por 7
+   dias.
+
+   É o mesmo produto do outro lado do app: quem paga aparece primeiro. A
+   diferença é que aqui quem paga é a empresa, e o que sobe é a vaga, no
+   banco de vagas de quem procura trabalho.
+
+   ── Uma DATA, e não um sim/não ────────────────────────────────────────
+
+   `destaque_ate` (0116) guarda até quando vale. Com um booleano, alguém
+   teria de desligar na mão no dia certo — e o que acontece na prática é
+   que ninguém desliga, e a vaga da semana passada continua em primeiro
+   lugar para sempre.
+
+   ── A empresa não se destaca sozinha ──────────────────────────────────
+
+   A empresa tem `update` na própria vaga (é assim que ela edita, pausa e
+   encerra), então a coluna é protegida por um gatilho no banco: quem não
+   é administração tem o valor devolvido ao que era. Ver a 0116 e o teste
+   22. Por isso a função abaixo só funciona para a administração — e é o
+   certo: enquanto a cobrança dentro do app não existir, quem liga é quem
+   recebeu o pagamento. */
+
+export const DESTAQUE_VAGA_PRECO = 19.9;
+
+export function precoDoDestaqueDeVagaEmTexto(): string {
+  return DESTAQUE_VAGA_PRECO.toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
+}
+
+/** A vaga está no topo agora? */
+export function vagaEmDestaque(v: { destaque_ate?: string | null }): boolean {
+  return !!v.destaque_ate && new Date(v.destaque_ate).getTime() > Date.now();
+}
+
+/**
+ * Liga o destaque da vaga por N dias. Só a administração — quem recusa
+ * qualquer outra conta é o gatilho da 0116, e não esta tela.
+ *
+ * A validade conta a partir de AGORA, e não somada à antiga: quem paga de
+ * novo quer 7 dias inteiros, e somar ao que restava daria um prazo que já
+ * venceu para quem sumiu por um mês.
+ */
+export async function destacarVaga(vagaId: string, dias = DESTAQUE_DIAS): Promise<string> {
+  const sb = supabase();
+  if (!sb) throw new Error("Sem conexão com o banco.");
+  const ate = new Date(Date.now() + dias * 86_400_000).toISOString();
+  const { error } = await sb.from("job_listings").update({ destaque_ate: ate }).eq("id", vagaId);
+  if (error) throw error;
+  return ate;
+}
+
+/** Tira a vaga do topo na hora — devolução, engano ou vaga encerrada. */
+export async function tirarDestaqueDaVaga(vagaId: string): Promise<void> {
+  const sb = supabase();
+  if (!sb) throw new Error("Sem conexão com o banco.");
+  const { error } = await sb.from("job_listings").update({ destaque_ate: null }).eq("id", vagaId);
+  if (error) throw error;
+}

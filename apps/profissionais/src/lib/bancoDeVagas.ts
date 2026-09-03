@@ -38,6 +38,7 @@ import type { JobListing } from "../types/domain";
    também quem a onda avisa, e duas cópias da mesma fórmula divergiriam
    sem ninguém perceber — a tela diria 82% e a onda trataria como 60%. */
 import { calcular, ESCADA_ESCOLARIDADE, type QuemOlha } from "./compatibilidade";
+import { vagaEmDestaque } from "./destaque";
 
 export type VagaNoBanco = {
   vaga: JobListing;
@@ -85,6 +86,7 @@ export async function bancoDeVagas(userId?: string): Promise<VagaNoBanco[]> {
        escolaridade_minima, curso_especifico, cnh_exigida, cnh_categorias,
        exige_viagem, idiomas, observacoes,
        campos_compatibilidade, aceita_sem_compatibilidade, aceita_primeiro_emprego,
+       vaga_para_pcd, destaque_ate,
        companies:companies_public!inner ( company_name, photo_url )`
     )
     .eq("status", "active")
@@ -196,6 +198,21 @@ export async function bancoDeVagas(userId?: string): Promise<VagaNoBanco[]> {
   if (quem) {
     lista.sort((a, b) => (b.compatibilidade ?? 0) - (a.compatibilidade ?? 0));
   }
+
+  /* ── A VAGA EM DESTAQUE VEM PRIMEIRO — 04/09 ──────────────────────
+     A dona: "também opção de dar destaque a uma vaga" (R$ 19,90 por 7
+     dias).
+
+     A ordenação do destaque é feita DEPOIS da de compatibilidade, e não
+     no lugar dela: dentro do grupo das destacadas, quem mais combina
+     continua na frente. Assim o dinheiro compra o topo da lista, e não a
+     ordem interna — e quem paga por uma vaga que não tem nada a ver com
+     ninguém não passa na frente de uma vaga destacada que combina.
+
+     `sort` do JavaScript é estável (garantido desde 2019), então a ordem
+     de cima sobrevive dentro de cada grupo. */
+  lista.sort((a, b) => Number(vagaEmDestaque(b.vaga)) - Number(vagaEmDestaque(a.vaga)));
+
   return lista;
 }
 

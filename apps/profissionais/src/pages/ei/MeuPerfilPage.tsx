@@ -762,6 +762,64 @@ export function MeuPerfilPage() {
                 aniversário num cadastro de emprego parece intrusão. */}
           </div>
 
+          {/* ── GÊNERO (0116) ────────────────────────────────────────────
+              A dona: "colocar opção no cadastro de feminino ou masculino
+              ou outro."
+
+              Opcional de verdade: a primeira opção é "prefiro não dizer",
+              e ela é o padrão. E a dica embaixo diz para onde este dado
+              NÃO vai — as empresas não recebem esta informação, porque o
+              art. 373-A da CLT proíbe usar sexo como critério para
+              contratar. Isso não é promessa da tela: a coluna fica fora
+              da lista pública (ver a 0116), então não há como filtrar por
+              ela. */}
+          <div className="ei-campo">
+            <label htmlFor="meu-genero">Gênero (opcional)</label>
+            <select
+              id="meu-genero"
+              value={perfil.genero}
+              onChange={(e) => setPerfil((x) => ({ ...x, genero: e.target.value }))}
+            >
+              <option value="">Prefiro não dizer</option>
+              <option value="feminino">Feminino</option>
+              <option value="masculino">Masculino</option>
+              <option value="outro">Outro</option>
+            </select>
+            <span className="ei-campo-ajuda">
+              As empresas não veem esta resposta. Ela serve para o app saber com
+              quem está falando.
+            </span>
+          </div>
+
+          {/* ── PCD (0115) ───────────────────────────────────────────────
+              A dona: "colocar no cadastro da empresa e do empregado a
+              opção de PCD."
+
+              Ao contrário do gênero, esta marcação APARECE para as
+              empresas — e é justamente para isso que a pessoa marcaria:
+              as vagas que aceitam PCD ficam marcadas para ela, e a
+              empresa que procura vê o selo. A dica diz isso com todas as
+              letras, porque marcar sem saber para onde vai é o que
+              ninguém deveria ter de descobrir depois.
+
+              O app não pergunta QUAL deficiência, e não pede laudo: nada
+              disso muda o que o app faz, e guardar dado de saúde que não
+              serve para nada é só risco. */}
+          <div className="ei-campo">
+            <label className="ei-caixa">
+              <input
+                type="checkbox"
+                checked={perfil.pcd}
+                onChange={(e) => setPerfil((x) => ({ ...x, pcd: e.target.checked }))}
+              />
+              <span>Sou pessoa com deficiência (PCD)</span>
+            </label>
+            <span className="ei-campo-ajuda">
+              Marcando, as empresas veem essa informação e você encontra as vagas
+              que aceitam PCD. Não perguntamos qual deficiência.
+            </span>
+          </div>
+
           {/* CNH: a pergunta que abre metade das vagas de entrega da
               cidade. "Tem" e "qual categoria" são separados de propósito —
               "não tenho" e "tenho, mas não disse qual" são respostas

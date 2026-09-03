@@ -54,6 +54,10 @@ const EMPTY: FormState = {
   photo_url: "",
   responsible_name: "",
   description: "",
+  /* A dona: "colocar no cadastro da empresa e do empregado a opção de
+     PCD" (0115). Aqui é a empresa dizendo que contrata — vale mesmo antes
+     de ela publicar a primeira vaga, e aparece no perfil público dela. */
+  contrata_pcd: false,
 };
 
 /* Os nomes vêm do que a empresa RESPONDE em cada passo, não do nome da
@@ -562,6 +566,25 @@ export function CadastroEmpresaPage() {
                 value={form.description}
                 onChange={(e) => setForm((f) => ({ ...f, description: e.target.value }))}
               />
+            </div>
+
+            {/* ── PCD (0115) ────────────────────────────────────────────
+                A dona: "colocar no cadastro da empresa e do empregado a
+                opção de PCD."
+
+                Aqui é a empresa como um todo — diferente da marcação que
+                existe em cada vaga. As duas fazem sentido juntas: a
+                empresa que contrata PCD aparece assim no perfil dela
+                mesmo sem vaga aberta, e cada vaga diz se aceita. */}
+            <div className="ei-campo">
+              <label className="ei-caixa">
+                <input
+                  type="checkbox"
+                  checked={form.contrata_pcd}
+                  onChange={(e) => setForm((f) => ({ ...f, contrata_pcd: e.target.checked }))}
+                />
+                <span>Nossa empresa contrata pessoa com deficiência (PCD)</span>
+              </label>
             </div>
           </section>
         )}

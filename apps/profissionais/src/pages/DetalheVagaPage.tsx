@@ -14,6 +14,14 @@ import {
 import { mensagemDeErro } from "../lib/erros";
 import { Pagina, Prop, Callout } from "../components/ei/Pagina";
 import { BotaoCompartilhar } from "../components/ei/BotaoCompartilhar";
+import { podeVender } from "../lib/plataforma";
+import { SUPORTE_WHATSAPP } from "../config";
+import {
+  vagaEmDestaque,
+  diasDeDestaqueRestantes,
+  precoDoDestaqueDeVagaEmTexto,
+  DESTAQUE_DIAS,
+} from "../lib/destaque";
 import {
   ONDAS,
   ONDAS_POR_VAGA,
@@ -147,6 +155,11 @@ export function DetalheVagaPage() {
      evita o pior caminho: a empresa toca o botão, espera, e recebe um erro
      que não tinha como prever. */
   const aindaTemOnda = ondas.length < ONDAS_POR_VAGA;
+  /* O destaque pago desta vaga (0116). Lido do próprio objeto da vaga:
+     quem liga é a administração, então a tela só precisa saber se está
+     valendo e por quanto tempo. */
+  const emDestaque = vagaEmDestaque(vaga);
+  const diasDeDestaque = diasDeDestaqueRestantes(vaga.destaque_ate);
 
   /* Dias inteiros desde a publicação, e nunca negativo: um relógio
      adiantado no celular faria a tela dizer "no ar há -1 dias". */
@@ -424,6 +437,69 @@ export function DetalheVagaPage() {
           Cada porta DIZ o que tem dentro — "1 de 3 disparadas", "2 pessoas
           se interessaram". Uma porta que não conta nada obriga a abrir
           para descobrir que não havia nada. */}
+      {/* ── DESTACAR ESTA VAGA — 04/09 ─────────────────────────────────
+          A dona: "também opção de dar destaque a uma vaga" — R$ 19,90 por
+          7 dias.
+
+          Fica aqui, na tela da vaga, e não na de planos: a decisão de
+          destacar é sobre ESTA vaga, tomada quando a empresa olha os
+          números dela e vê que ninguém apareceu. Na tela de planos seria
+          uma quarta caixa de preço no meio de três.
+
+          Some inteiro dentro do app da Play Store (`podeVender`), como a
+          tela de planos: a Google não permite vender bem digital por fora
+          da cobrança dela, e mostrar o preço já conta como vender. */}
+      {podeVender() && vaga.status === "active" && (
+        <>
+          <h2 className="ei-secao">Aparecer primeiro</h2>
+          <div className="ei-cartao">
+            {emDestaque ? (
+              <>
+                <p className="ei-corpo" style={{ marginTop: 0 }}>
+                  <strong>Esta vaga está no topo do banco de vagas.</strong>{" "}
+                  {diasDeDestaque === 1
+                    ? "Termina amanhã."
+                    : `Faltam ${diasDeDestaque} dias.`}
+                </p>
+                <p className="ei-apoio" style={{ marginBottom: 0 }}>
+                  Quem procura vê o selo “Em destaque” do lado do título.
+                </p>
+              </>
+            ) : (
+              <>
+                <div className="ei-plano-linha">
+                  <span className="ei-plano-nome">Vaga em destaque</span>
+                  <span className="ei-plano-preco">
+                    {precoDoDestaqueDeVagaEmTexto()}
+                    <span className="ei-plano-ciclo"> / {DESTAQUE_DIAS} dias</span>
+                  </span>
+                </div>
+                <ul className="ei-plano-lista">
+                  <li>Sua vaga no topo do banco de vagas por {DESTAQUE_DIAS} dias</li>
+                  <li>Selo “Em destaque” do lado do título</li>
+                  <li>Acaba sozinho: não vira assinatura e não cobra de novo</li>
+                </ul>
+                <a
+                  className="ei-btn-laranja"
+                  style={{ margin: 0, width: "100%" }}
+                  href={`https://wa.me/${SUPORTE_WHATSAPP}?text=${encodeURIComponent(
+                    `Olá! Quero destacar a vaga "${vaga.title}" por ${DESTAQUE_DIAS} dias (${precoDoDestaqueDeVagaEmTexto()}).`
+                  )}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  Quero destacar esta vaga
+                </a>
+                <p className="ei-apoio" style={{ marginTop: 10, marginBottom: 0 }}>
+                  Você fala com a gente, paga por Pix, e a vaga sobe no mesmo dia. O
+                  pagamento dentro do app está sendo preparado.
+                </p>
+              </>
+            )}
+          </div>
+        </>
+      )}
+
       <h2 className="ei-secao">Esta vaga</h2>
       <div className="ei-portas ei-margem">
         <Link to={`/vaga/${vaga.id}/interessados`} className="ei-porta ei-porta-cheia">

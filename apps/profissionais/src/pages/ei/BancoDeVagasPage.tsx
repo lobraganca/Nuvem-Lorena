@@ -5,6 +5,7 @@ import { mensagemDeErro } from "../../lib/erros";
 import { useAuth } from "../../lib/useAuth";
 import { bancoDeVagas, type VagaNoBanco } from "../../lib/bancoDeVagas";
 import { responderVaga } from "../../lib/minhasVagas";
+import { vagaEmDestaque } from "../../lib/destaque";
 import { lerMeuPerfil } from "../../lib/meuPerfil";
 import { nomeDoContrato, salarioEmTexto } from "../../types/domain";
 import { Pagina } from "../../components/ei/Pagina";
@@ -129,6 +130,7 @@ export function BancoDeVagasPage() {
         return false;
       }
       if (tipo === "primeiro" && !v.vaga.aceita_primeiro_emprego) return false;
+      if (tipo === "pcd" && !v.vaga.vaga_para_pcd) return false;
       if (!t) return true;
       return (
         (v.vaga.title ?? "").toLocaleLowerCase("pt-BR").includes(t) ||
@@ -148,7 +150,9 @@ export function BancoDeVagasPage() {
               ? "Bicos e freelas"
               : tipo === "primeiro"
                 ? "Primeiro emprego"
-                : "Vagas abertas"
+                : tipo === "pcd"
+                  ? "Vagas que aceitam PCD"
+                  : "Vagas abertas"
           }
         />
 
@@ -203,6 +207,14 @@ export function BancoDeVagasPage() {
             onClick={() => mudarParams({ t: tipo === "primeiro" ? null : "primeiro" })}
           >
             Primeiro emprego
+          </button>
+          <button
+            type="button"
+            className="ei-chip"
+            aria-pressed={tipo === "pcd"}
+            onClick={() => mudarParams({ t: tipo === "pcd" ? null : "pcd" })}
+          >
+            Aceita PCD
           </button>
         </div>
 
@@ -310,6 +322,8 @@ export function BancoDeVagasPage() {
               <p className="ei-apoio">
                 {tipo === "freela"
                   ? "Nenhuma vaga de diária, obra ou serviço avulso no ar agora. Toque em “Todas” para ver as outras."
+                  : tipo === "pcd"
+                    ? "Nenhuma empresa marcou que aceita PCD, por enquanto. Toque em “Todas”: a marcação é nova e muitas vagas ainda não têm."
                   : tipo === "primeiro"
                     ? "Nenhuma empresa marcou que aceita quem está começando, por enquanto. Toque em “Todas”: muitas vagas não pedem experiência mesmo sem essa marcação."
                     : filtro.trim() || cidade
@@ -338,9 +352,23 @@ export function BancoDeVagasPage() {
                   <div className="ei-pessoa-oficio ei-uma-linha">
                     {[v.empresa, v.vaga.city].filter(Boolean).join(" · ")}
                   </div>
-                  {v.vaga.aceita_primeiro_emprego && (
+                  {(v.vaga.aceita_primeiro_emprego ||
+                    v.vaga.vaga_para_pcd ||
+                    vagaEmDestaque(v.vaga)) && (
                     <div className="ei-chips" style={{ marginTop: 4 }}>
-                      <span className="ei-selo ei-selo-verde">Aceita primeiro emprego</span>
+                      {/* O destaque vem primeiro porque é o que explica a
+                          POSIÇÃO da vaga na lista: sem o selo, quem paga
+                          sobe e ninguém entende por quê — e a lista passa
+                          a parecer bagunçada em vez de patrocinada. */}
+                      {vagaEmDestaque(v.vaga) && (
+                        <span className="ei-selo ei-selo-laranja">Em destaque</span>
+                      )}
+                      {v.vaga.aceita_primeiro_emprego && (
+                        <span className="ei-selo ei-selo-verde">Aceita primeiro emprego</span>
+                      )}
+                      {v.vaga.vaga_para_pcd && (
+                        <span className="ei-selo ei-selo-verde">Aceita PCD</span>
+                      )}
                     </div>
                   )}
                   <div className="ei-vaga-linha-detalhe ei-uma-linha">

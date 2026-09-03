@@ -437,7 +437,7 @@ export function OndasDaVagaPage() {
                         começando (a vaga pode ser a primeira dessa pessoa)
                         e quem topa bico. Nenhum dos dois entra na nota —
                         eles são declaração da pessoa, não critério. */}
-                    {(c.primeiroEmprego || c.aceitaFreela) && (
+                    {(c.primeiroEmprego || c.aceitaFreela || c.pcd) && (
                       <span className="ei-chips" style={{ marginTop: 4 }}>
                         {c.primeiroEmprego && (
                           <span className="ei-selo ei-selo-laranja">1º emprego</span>
@@ -445,6 +445,7 @@ export function OndasDaVagaPage() {
                         {c.aceitaFreela && (
                           <span className="ei-selo ei-selo-cinza">Faz freela</span>
                         )}
+                        {c.pcd && <span className="ei-selo ei-selo-cinza">PCD</span>}
                       </span>
                     )}
                   </span>

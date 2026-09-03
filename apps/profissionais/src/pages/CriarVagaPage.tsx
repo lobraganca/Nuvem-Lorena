@@ -99,6 +99,10 @@ const EMPTY_FORM: FormState = {
   /* Não por padrão: ligado, toda vaga da cidade prometeria aceitar quem
      está começando — uma promessa que nenhuma empresa fez. */
   aceita_primeiro_emprego: false,
+  vaga_para_pcd: false,
+  /* Quem liga o destaque é a administração, depois do pagamento — o
+     gatilho da 0116 devolve qualquer valor mandado daqui. */
+  destaque_ate: null,
 };
 
 /* ── OS TEMAS DA VAGA (item 13) ──────────────────────────────────────
@@ -1553,6 +1557,27 @@ export function CriarVagaPage() {
                   }
                 />
                 <span>Aceito quem está atrás do primeiro emprego</span>
+              </label>
+            </div>
+
+            {/* ── PCD (0115) ──────────────────────────────────────────
+                A dona: "colocar no cadastro da empresa e do empregado a
+                opção de PCD."
+
+                Marcar aqui é a empresa dizendo "pode vir" — vira selo na
+                vaga e filtro no banco de vagas. Não é cota nem promessa
+                de contratação, e a tela não pergunta tipo nenhum de
+                deficiência: quem declara é a pessoa, no cadastro dela. */}
+            <div className="ei-campo" style={{ marginTop: 18 }}>
+              <label className="ei-caixa">
+                <input
+                  type="checkbox"
+                  checked={form.vaga_para_pcd}
+                  onChange={(e) =>
+                    setForm((f) => ({ ...f, vaga_para_pcd: e.target.checked }))
+                  }
+                />
+                <span>Esta vaga aceita pessoa com deficiência (PCD)</span>
               </label>
             </div>
           </section>

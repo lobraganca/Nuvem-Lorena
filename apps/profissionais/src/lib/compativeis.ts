@@ -51,6 +51,8 @@ export type CandidatoCompativel = {
   primeiroEmprego: boolean;
   /** Marcou que também faz freela e bico (0114). */
   aceitaFreela: boolean;
+  /** Declarou-se pessoa com deficiência (0115). */
+  pcd: boolean;
 };
 
 export async function compativeisComAVaga(vaga: JobListing): Promise<CandidatoCompativel[]> {
@@ -67,7 +69,7 @@ export async function compativeisComAVaga(vaga: JobListing): Promise<CandidatoCo
         "id, name, photo_url, city, uf, neighborhood, categories, areas_de_interesse, " +
           "modo_trabalho, cnh, cnh_categorias, aceita_viajar, inicio_imediato, " +
           "fim_de_semana, pretensao_centavos, pretensao_combinar, disponibilidade, " +
-          "primeiro_emprego, aceita_freela, disponivel"
+          "primeiro_emprego, aceita_freela, pcd, disponivel"
       )
       .eq("city", vaga.city);
     if (vaga.uf) q = q.eq("uf", vaga.uf);
@@ -141,6 +143,7 @@ export async function compativeisComAVaga(vaga: JobListing): Promise<CandidatoCo
       porque,
       primeiroEmprego: !!p.primeiro_emprego,
       aceitaFreela: !!p.aceita_freela,
+      pcd: !!p.pcd,
     });
   }
 
