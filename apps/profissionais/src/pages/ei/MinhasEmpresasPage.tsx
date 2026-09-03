@@ -157,21 +157,6 @@ export function MinhasEmpresasPage() {
 
         <AvisoPerfilIncompleto lado="company" />
 
-        {/* ── O PLANO DA CONTA, UMA VEZ SÓ (0107) ────────────────────────
-            A dona: "o plano é pelo usuário, então se ele quiser utilizar
-            as vagas em outras empresas cadastradas ele pode."
-
-            Desde a 0107 o teto é da conta e é somado entre as lojas: com o
-            Premium dá para abrir 2 na padaria e 1 na lanchonete. Por isso
-            ele aparece aqui em cima, e não dentro de cada cartão —
-            repetido em três cartões, "3 de 3" diria que cada loja tem
-            três, que é o contrário da regra.
-
-            Fica ACIMA dos cartões porque é ele que responde à pergunta que
-            traz a pessoa a esta tela quando ela vem publicar: "ainda cabe
-            vaga?". A resposta não muda conforme a loja escolhida. */}
-        <PlanoDaConta empresas={lista} resumo={resumo} />
-
         <div className="ei-empresas">
           {lista.map((e) => (
             <button
@@ -262,6 +247,21 @@ export function MinhasEmpresasPage() {
             <span className="ei-empresa-nome">Cadastrar outra empresa</span>
           </Link>
         </div>
+
+        {/* ── O PLANO DA CONTA, UMA VEZ SÓ (0107) ────────────────────────
+            Desde a 0107 o teto é da conta e é somado entre as lojas: com o
+            Premium dá para abrir 2 na padaria e 1 na lanchonete. Por isso
+            ele aparece uma vez, e não dentro de cada cartão — repetido em
+            três cartões, "3 de 3" diria que cada loja tem três, que é o
+            contrário da regra.
+
+            03/09: desceu para DEPOIS dos cartões, a pedido da dona ("a
+            informação do plano fica abaixo dos cards das empresas"). Faz
+            sentido na leitura da tela: quem chega aqui vem escolher a
+            empresa, e o plano é o que se confere depois — ou quando a
+            escolha esbarra nele. Em cima, ele era a primeira coisa a ser
+            lida numa tela que não é sobre plano. */}
+        <PlanoDaConta empresas={lista} resumo={resumo} />
 
         {/* O "Banco de talentos" que morava aqui saiu — 02/09
             ─────────────────────────────────────────────────
