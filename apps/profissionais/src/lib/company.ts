@@ -601,7 +601,11 @@ export async function obterVaga(vagaId: string): Promise<JobListing | null> {
 
 /* Sem `name`: a função do banco não devolve nome, de propósito — e a tela
    nunca usou. Ver o comentário em `consultaDaOnda`. */
-type AlcancadoPelaOnda = { id: string; owner_id: string };
+/* A `nota` viaja junto desde 04/09: a dona pediu que a varredura
+   "aponte os resultados com os percentuais de compatibilidade que deu",
+   e a nota era calculada aqui e jogada fora na linha seguinte. Guardá-la
+   não custa consulta nenhuma — ela já estava na mão. */
+type AlcancadoPelaOnda = { id: string; owner_id: string; nota: number };
 
 /**
  * Quantas pessoas cada onda alcançaria, sem avisar ninguém.
@@ -695,11 +699,13 @@ export async function calcularOndas(
     });
     const onda = ondaDaNota(nota);
     if (!onda) continue;
-    porOnda.get(onda)!.push({ id: c.id, owner_id: c.owner_id });
+    porOnda.get(onda)!.push({ id: c.id, owner_id: c.owner_id, nota: nota ?? 0 });
   }
 
   return ([1, 2, 3] as WaveNumber[]).map((onda) => {
-    const pessoas = porOnda.get(onda) ?? [];
+    /* Da maior nota para a menor: a tela mostra os percentuais em fila, e
+       quem olha quer ver primeiro o quanto o melhor encaixe encaixou. */
+    const pessoas = (porOnda.get(onda) ?? []).sort((a, b) => b.nota - a.nota);
     return { onda, novos: pessoas.length, pessoas };
   });
 }
@@ -1228,4 +1234,58 @@ export async function marcarCandidaturasComoLidas(ids: string[]): Promise<void> 
   const sb = getSupabase();
   if (!sb || ids.length === 0) return;
   await sb.from("job_responses").update({ status: "read" }).in("id", ids);
+}
+
+/**
+ * A triagem da empresa: gostei, ainda analisando, ou não é para esta vaga.
+ *
+ * A dona: "ao clicar em uma pessoa que se interessou deve aparecer o perfil
+ * dela e ter botões para a empresa marcar se ele interessou, não interessou
+ * ou analisar. Pra que ele possa filtrar... se uma lista for grande."
+ *
+ * Não precisou de coluna nova: `job_responses.status` existe desde a 0069
+ * com exatamente estes quatro valores, e a policy "Empresa atualiza status
+ * da resposta" já deixa o dono da vaga escrever neles. O que faltava era
+ * tela — a coluna era escrita só pelo `marcarCandidaturasComoLidas`, que
+ * carimba `read` ao abrir os avisos.
+ *
+ * O que cada valor quer dizer na tela:
+ *   `new`      — chegou e ninguém abriu ainda
+ *   `read`     — a empresa viu (é o "Analisando" dos botões)
+ *   `accepted` — gostou
+ *   `rejected` — não é para esta vaga
+ *
+ * Erro SOBE: uma triagem que não gravou e não avisa faz a empresa marcar
+ * de novo na visita seguinte, achando que o app perdeu — e desconfiar da
+ * marcação inteira.
+ */
+/**
+ * Em que pé está uma candidatura — para o perfil abrir já mostrando qual
+ * botão está aceso. Sem isto, quem voltasse ao mesmo perfil veria os três
+ * botões apagados e marcaria de novo, sem saber que já tinha marcado.
+ */
+export async function lerStatusDaResposta(
+  respostaId: string
+): Promise<JobResponse["status"] | null> {
+  const sb = getSupabase();
+  if (!sb) return null;
+  const { data } = await sb
+    .from("job_responses")
+    .select("status")
+    .eq("id", respostaId)
+    .maybeSingle();
+  return (data?.status as JobResponse["status"]) ?? null;
+}
+
+export async function marcarResposta(
+  respostaId: string,
+  status: JobResponse["status"]
+): Promise<void> {
+  const sb = getSupabase();
+  if (!sb) return;
+  const { error } = await sb
+    .from("job_responses")
+    .update({ status })
+    .eq("id", respostaId);
+  if (error) throw error;
 }

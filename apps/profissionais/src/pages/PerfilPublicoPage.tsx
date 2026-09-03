@@ -1,12 +1,13 @@
 import { useEffect, useState } from "react";
-import { Link, useParams } from "react-router-dom";
+import { Link, useParams, useSearchParams } from "react-router-dom";
 import { supabase } from "../lib/supabase";
 import { mensagemDeErro } from "../lib/erros";
 import { useTituloDaPagina } from "../lib/tituloDaPagina";
 import { Pagina, Prop } from "../components/ei/Pagina";
 import type { ProfessionalExperience } from "../types/domain";
 import { useAuth } from "../lib/useAuth";
-import { empresaAtual } from "../lib/company";
+import { empresaAtual, lerStatusDaResposta, marcarResposta } from "../lib/company";
+import type { JobResponse } from "../types/domain";
 import { registrarVisita } from "../lib/quemMeViu";
 import { BotaoFavorito } from "../components/ei/BotaoFavorito";
 import { lerFavoritos } from "../lib/favoritos";
@@ -94,7 +95,45 @@ export function PerfilPublicoPage() {
   const [carregando, setCarregando] = useState(true);
   const [erro, setErro] = useState("");
 
+  /* ── A TRIAGEM DA EMPRESA — 04/09 ───────────────────────────────────
+     A dona: "ao clicar em uma pessoa que se interessou deve aparecer o
+     perfil dela e ter botões para a empresa marcar se ele interessou, não
+     interessou ou analisar."
+
+     Os botões só existem quando o perfil foi aberto A PARTIR de uma
+     candidatura — a lista de interessados ou o aviso mandam `?resposta=`.
+     Aberto pelo banco de talentos não há o que marcar: a pessoa não se
+     candidatou a nada, e três botões de triagem ali seriam sobre uma vaga
+     que ninguém escolheu. */
+  const [busca] = useSearchParams();
+  const respostaId = busca.get("resposta");
+  const [marca, setMarca] = useState<JobResponse["status"] | null>(null);
+  const [marcando, setMarcando] = useState(false);
+
   useTituloDaPagina(p?.name ?? "Profissional");
+
+  useEffect(() => {
+    if (!respostaId) return;
+    lerStatusDaResposta(respostaId)
+      .then(setMarca)
+      /* Sem marca conhecida os três botões ficam apagados, que é o mesmo
+         que "ainda não decidi" — e marcar continua funcionando. */
+      .catch(() => setMarca(null));
+  }, [respostaId]);
+
+  async function marcar(status: JobResponse["status"]) {
+    if (!respostaId || marcando) return;
+    setMarcando(true);
+    setErro("");
+    try {
+      await marcarResposta(respostaId, status);
+      setMarca(status);
+    } catch (err) {
+      setErro(mensagemDeErro(err, "Não consegui marcar agora."));
+    } finally {
+      setMarcando(false);
+    }
+  }
 
   /**
    * Registra a visita, se quem está olhando for uma empresa.
@@ -336,6 +375,43 @@ export function PerfilPublicoPage() {
           </div>
         )}
 
+        {/* Os três botões da triagem. Ficam DEPOIS do contato de propósito:
+            a marca é o que a empresa faz depois de olhar (e às vezes depois
+            de ligar), e antes dos contatos ela roubaria o lugar da ação que
+            esta tela existe para permitir.
+
+            Marcado, o botão fica aceso — é o que responde "eu já decidi
+            sobre esta pessoa?" quando a empresa volta ao mesmo perfil dias
+            depois. Dá para trocar a marca a qualquer momento: triagem não é
+            porta que tranca. */}
+        {respostaId && (
+          <div className="ei-margem" style={{ marginTop: 18 }}>
+            <p className="ei-apoio" style={{ margin: "0 0 8px" }}>
+              O que você achou desta pessoa para a vaga?
+            </p>
+            <div className="ei-triagem">
+              {(
+                [
+                  { chave: "accepted", rotulo: "Gostei" },
+                  { chave: "read", rotulo: "Analisando" },
+                  { chave: "rejected", rotulo: "Não é para a vaga" },
+                ] as { chave: JobResponse["status"]; rotulo: string }[]
+              ).map((b) => (
+                <button
+                  key={b.chave}
+                  type="button"
+                  className="ei-chip"
+                  aria-pressed={marca === b.chave}
+                  disabled={marcando}
+                  onClick={() => marcar(b.chave)}
+                >
+                  {b.rotulo}
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
+
         {p.disponivel === false && (
           <div className="ei-callout" style={{ marginTop: 4 }}>
             <span className="ei-callout-emoji" aria-hidden="true">⏳</span>
@@ -521,25 +597,17 @@ export function PerfilPublicoPage() {
           </>
         )}
 
-        {/* A ponte para o produto pago, dita sem empurrar: quem chegou até
-            aqui já entendeu o valor de ter a lista. */}
-        {/* O convite para publicar vaga: TEXTO e depois BOTÃO, e não um
-            botão-pílula no meio da frase. Enfiado no meio, ele quebrava o
-            parágrafo em três pedaços e sobrava um "e o aviso vai" solto na
-            linha seguinte — que foi como a dona viu esta tela. */}
-        <div className="ei-margem" style={{ marginTop: 24, marginBottom: 8 }}>
-          <p className="ei-apoio" style={{ margin: "0 0 10px" }}>
-            Falar um por um funciona para uma contratação. Para várias, publique uma
-            vaga: o aviso vai para todo mundo que encaixa.
-          </p>
-          <Link
-            to="/planos-empresa"
-            className="ei-btn ei-btn-contorno ei-btn-largo"
-            style={{ display: "flex", justifyContent: "center" }}
-          >
-            Publicar uma vaga
-          </Link>
-        </div>
+        {/* A propaganda do plano saiu daqui — 04/09
+            ─────────────────────────────────────────
+            A dona: "tirar 'falar um por um funciona para uma
+            contratação...' tirar isso dentro do perfil das pessoas."
+
+            Era um convite a publicar vaga no fim do perfil de CADA pessoa.
+            Quem abre um perfil está decidindo se chama AQUELA pessoa — e
+            recebia, no lugar do telefone dela, um anúncio dizendo que
+            existe um jeito melhor. O caminho para o plano continua em
+            "Meu plano" e na tela de criar vaga, que são as telas de quem
+            já quer isso. */}
       </div>
     </div>
   );

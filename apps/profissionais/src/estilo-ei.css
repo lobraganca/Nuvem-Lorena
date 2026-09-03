@@ -1345,16 +1345,30 @@
 .ei-pessoa-oficio { font-size: 0.85rem; line-height: 1.35; color: var(--ei-tinta-fraca); }
 
 /* ── Marca da empresa, no bloco da vaga ───────────────────────────── */
+/* A marca da empresa: 48px, e não os 26px de antes — 04/09
+   ─────────────────────────────────────────────────────────
+   A dona: "preciso que a foto e a logo da empresa sejam maiores, mais
+   visíveis."
+
+   26px é tamanho de ícone de sistema: a logo de uma padaria conhecida
+   virava um borrão colorido ao lado do texto, e a inicial (quando não há
+   logo) ficava com letra de legenda. Numa cidade pequena, RECONHECER a
+   empresa num relance é metade do motivo de o aviso funcionar — é o que
+   faz alguém abrir "a padaria do Centro" antes de ler o cargo.
+
+   48px é a mesma decisão já tomada no retrato das pessoas (que subiu de
+   36 para 64 pelo mesmo motivo), num tamanho que ainda deixa duas ou três
+   linhas de texto caberem ao lado num celular de 390px. */
 .ei-empresa-marca {
   flex: 0 0 auto;
   display: grid;
   place-items: center;
-  width: 26px;
-  height: 26px;
+  width: 48px;
+  height: 48px;
   border-radius: 0;
   background: var(--ei-afunda-forte);
   color: var(--ei-tinta-fraca);
-  font-size: 0.78rem;
+  font-size: 1.15rem;
   font-weight: 600;
   overflow: hidden;
 }
@@ -1380,10 +1394,13 @@
   color: inherit;
 }
 
+/* No cabeçalho da vaga a logo é ainda maior: aqui ela não divide a linha
+   com uma lista, e é a resposta da primeira pergunta de quem abre a vaga
+   ("que empresa é essa?"). 72px pelo mesmo pedido de 04/09. */
 .ei-empresa-topo .ei-empresa-marca {
-  width: 56px;
-  height: 56px;
-  font-size: 1.3rem;
+  width: 72px;
+  height: 72px;
+  font-size: 1.6rem;
   color: var(--ei-tinta);
 }
 
@@ -2977,6 +2994,19 @@
    ninguém reintroduzi-lo: com o `select` de 132px mais o "Tirar", o nome
    ficava com quatro letras visíveis num celular. */
 
+/* O campo sempre aberto para adicionar a próxima — a "opção de adicionar
+   outras" que a dona pediu, sem esconder atrás de um botão que precisa ser
+   tocado primeiro. */
+.ei-competencia-add { display: flex; gap: 8px; margin-top: 14px; }
+.ei-competencia-add input { flex: 1 1 auto; min-width: 0; }
+
+/* Os três botões da triagem, no perfil de quem se candidatou.
+   Quebram de linha em vez de encolher: "Não é para a vaga" não cabe em um
+   terço de um celular de 390px, e botão com o nome cortado é o defeito que
+   mais parece app mal feito. */
+.ei-triagem { display: flex; flex-wrap: wrap; gap: 8px; }
+.ei-triagem .ei-chip { flex: 0 1 auto; }
+
 /* ── O campo de senha com o olho ────────────────────────────────────────
    O botão fica DENTRO da moldura do campo, e não ao lado: ao lado ele
    empurraria o campo e a linha ficaria com duas alturas diferentes —
@@ -3640,6 +3670,48 @@
    para o fim do cartão pelo `margin-top: auto` do desenho antigo — que
    agora abriria um vão no meio da linha. */
 .ei-empresa-cartao .ei-empresa-aberta-selo { margin-top: 0; padding-top: 0; }
+
+/* O cartão de "Seus cadastros" virou `<div>` com DOIS botões dentro — 04/09
+   ───────────────────────────────────────────────────────────────────────
+   Era um `<button>` só, envolvendo tudo. Precisou virar `<div>` quando
+   entrou o botão de ativar/inativar: botão dentro de botão não é HTML
+   válido, e os dois toques fazem coisas diferentes (abrir o cadastro,
+   mudar se ele está recebendo vaga).
+
+   `.ei-empresa-cabeca-botao` desfaz a aparência de botão nativo — sem
+   isso o Safari desenha uma borda cinza e um fundo diferente por baixo do
+   que o CSS do cartão já pinta. */
+.ei-empresa-cabeca-botao {
+  background: none;
+  border: none;
+  padding: 0;
+  margin: 0;
+  font: inherit;
+  color: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+/* O botão de ativar/inativar: uma segunda linha, separada da primeira por
+   um fio — lê como rodapé do cartão, não como parte da linha que abre o
+   cadastro. */
+.ei-empresa-ativar {
+  margin-top: 10px;
+  padding-top: 10px;
+  border-top: 1px solid var(--ei-fio);
+  background: none;
+  border-left: none;
+  border-right: none;
+  border-bottom: none;
+  font: inherit;
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--ei-tinta-fraca);
+  text-align: left;
+  cursor: pointer;
+}
+.ei-empresa-ativar:hover:not(:disabled) { color: var(--ei-tinta); }
+.ei-empresa-ativar:disabled { color: var(--ei-tinta-fraquissima); cursor: default; }
 
 /* ═══════════════════════════════════════════════════════════════════════
    O PLANO DA CONTA, NO ALTO DA TELA DAS EMPRESAS — 02/09
@@ -4475,6 +4547,132 @@
   line-height: 1.55;
   white-space: pre-line;
   overflow-wrap: anywhere;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════
+   A VARREDURA DAS ONDAS — 04/09
+   ═══════════════════════════════════════════════════════════════════════
+   A dona: "ter uma animação que a empresa veja que está fazendo uma
+   varredura no sistema. E depois ele aponta os resultados com os
+   percentuais de compatibilidade que deu."
+
+   Um feixe que atravessa um trilho, e não um rodinha de "carregando": a
+   rodinha diz "espere", e o que esta tela precisa dizer é "estou
+   PROCURANDO no banco de gente da cidade". São coisas diferentes para
+   quem está decidindo se paga um plano por isso.
+
+   A conta em si roda em milésimos — a espera de 900ms está no código da
+   tela, de propósito, porque sem ela a animação não chega a existir. */
+.ei-varredura { margin-top: 14px; }
+
+.ei-varredura-trilho {
+  position: relative;
+  height: 6px;
+  border-radius: 999px;
+  background: var(--ei-afunda-forte);
+  overflow: hidden;
+}
+
+.ei-varredura-feixe {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 38%;
+  border-radius: 999px;
+  background: var(--ei-acento);
+  animation: ei-varre 1.1s ease-in-out infinite;
+}
+
+@keyframes ei-varre {
+  0%   { left: -38%; }
+  100% { left: 100%; }
+}
+
+/* Quem pediu ao sistema para não animar não recebe animação: o feixe fica
+   parado e a frase abaixo dele continua dizendo o que está acontecendo. */
+@media (prefers-reduced-motion: reduce) {
+  .ei-varredura-feixe { animation: none; left: 0; width: 100%; opacity: 0.5; }
+}
+
+/* Uma faixa do resultado: nome da onda, quantos deu, e os percentuais. */
+.ei-varredura-faixa {
+  display: grid;
+  gap: 6px;
+  padding: 12px 0;
+  border-top: 1px solid var(--ei-fio);
+}
+.ei-varredura-faixa-nome { font-size: 0.85rem; font-weight: 600; }
+.ei-varredura-faixa-conta { font-size: 0.85rem; color: var(--ei-tinta-fraca); }
+.ei-varredura-notas { display: flex; flex-wrap: wrap; gap: 5px; align-items: center; }
+
+/* ═══════════════════════════════════════════════════════════════════════
+   A TELA DE PLANOS: A ESCOLHA DE CICLO E O DESTAQUE — 04/09
+   ═══════════════════════════════════════════════════════════════════════
+   A dona: "o botão de pagamento uma vez ou recorrente está confuso...
+   precisa ser mais atrativa... uma coisa mais chamativa."
+
+   O trilho segmentado (dois botõezinhos com duas palavras) saiu: com o
+   PREÇO igual nos dois ciclos, duas palavras não davam para entender a
+   diferença, e a explicação vivia numa linha só, que mudava quando se
+   tocava — obrigando a tocar nos dois para comparar.
+
+   Aqui as duas opções são cartões do tamanho do dedo, com a explicação
+   dentro, visíveis ao mesmo tempo. A escolhida é preenchida (o mesmo
+   jeito do resto do app: preenchimento marca, sombra não). */
+.ei-ciclos {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+.ei-ciclo {
+  display: grid;
+  gap: 4px;
+  align-content: start;
+  padding: 12px 14px;
+  text-align: left;
+  border: 1px solid var(--ei-fio-forte);
+  border-radius: var(--ei-raio, 14px);
+  background: var(--ei-papel);
+  color: var(--ei-tinta);
+  font: inherit;
+  cursor: pointer;
+}
+.ei-ciclo:hover { background: var(--ei-afunda); }
+
+.ei .ei-ciclo[aria-pressed="true"] {
+  border-color: var(--ei-acento);
+  box-shadow: inset 0 0 0 1px var(--ei-acento);
+  background: var(--ei-papel);
+}
+
+.ei-ciclo-nome { font-size: 0.95rem; font-weight: 600; }
+.ei-ciclo-nota { font-size: 0.8rem; line-height: 1.35; color: var(--ei-tinta-fraca); }
+
+/* Em tela estreita os dois cartões lado a lado apertam o texto até
+   quebrar palavra; empilhados, cada um usa a largura toda. */
+@media (max-width: 400px) {
+  .ei-ciclos { grid-template-columns: 1fr; }
+}
+
+/* O plano em destaque: contorno da cor da marca e uma etiqueta em cima.
+   Não é um cartão maior nem de outra cor de fundo — aumentar o cartão
+   desalinha a fileira que rola, e fundo colorido apagaria a lista de
+   benefícios, que é o que faz a pessoa escolher. */
+.ei-plano-destaque {
+  border-color: var(--ei-acento);
+  box-shadow: inset 0 0 0 1px var(--ei-acento);
+}
+
+.ei-plano-selo {
+  justify-self: start;
+  padding: 3px 9px;
+  border-radius: 999px;
+  background: var(--ei-acento);
+  color: #fff;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
 }
 
 /* ── COMPARTILHAR A VAGA — 04/09 ───────────────────────────────────────

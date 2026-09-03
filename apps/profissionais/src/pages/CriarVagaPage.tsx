@@ -200,6 +200,15 @@ export function CriarVagaPage() {
      toda contratação é para se expor — substituir alguém que ainda está na
      empresa é o caso de avisar só quem encaixa, sem cartaz. */
   const [anunciar, setAnunciar] = useState(true);
+  /* ── O COMPROMISSO ANTES DE AVISAR A CIDADE — 04/09 ─────────────────
+     A dona: "o que posso colocar tipo um aviso pra pessoa ter
+     responsabilidade ao abrir uma vaga... pra evitar que as pessoas abram
+     vagas que não existem?"
+
+     Nasce DESMARCADO de propósito. Uma caixinha já marcada é um texto que
+     ninguém lê — e o que ela compra aqui é justamente o segundo de leitura
+     antes de o app acordar dezenas de celulares em Itabirito. */
+  const [assumiuResponsabilidade, setAssumiuResponsabilidade] = useState(false);
 
   /* O que a empresa está escrevendo no campo livre de benefício, antes de
      apertar Enter. Fica fora do `form` porque não é dado da vaga — é
@@ -1721,11 +1730,52 @@ export function CriarVagaPage() {
               era a última tela ainda com `btn btn-primary` — o azul do
               outro produto, no fim do caminho mais importante do lado da
               empresa. */}
+          {/* ── A RESPONSABILIDADE DE ABRIR UMA VAGA — 04/09 ────────────
+              A dona: "o que posso colocar tipo um aviso pra pessoa ter
+              responsabilidade ao abrir uma vaga... pra evitar que as
+              pessoas abram vagas que não existem?"
+
+              Fica no ÚLTIMO passo, colado no botão que avisa a cidade — e
+              não nos Termos, que ninguém abre, nem na primeira etapa, que
+              é longe demais do ato. O que segura alguém não é a ameaça: é
+              lembrar, no segundo antes, que do outro lado tem gente
+              esperando o telefone tocar.
+
+              O texto fala de PESSOAS, não de regras. "Vaga falsa viola a
+              cláusula 4" não segura ninguém; "trinta pessoas vão parar o
+              que estão fazendo para ver isso" segura. A consequência vem
+              no fim, curta, sem ameaça longa — e é verdadeira: cadastro de
+              empresa que anuncia vaga que não existe é suspenso.
+
+              O botão nasce travado por causa desta caixa. É o único lugar
+              do app onde uma caixinha impede de seguir, e a diferença é o
+              alcance: aqui o toque acorda dezenas de celulares de pessoas
+              que estão procurando trabalho. */}
+          <div className="ei-cartao" style={{ marginTop: 4 }}>
+            <label className="ei-caixa" style={{ alignItems: "flex-start" }}>
+              <input
+                type="checkbox"
+                checked={assumiuResponsabilidade}
+                onChange={(e) => setAssumiuResponsabilidade(e.target.checked)}
+              />
+              <span>
+                <strong>Confirmo que esta vaga existe de verdade.</strong>
+                <p className="ei-apoio" style={{ margin: "6px 0 0" }}>
+                  Ao criar, o app avisa no celular as pessoas de Itabirito que
+                  encaixam nela. Quem se interessar vai esperar o seu contato — e
+                  muita gente aqui está procurando trabalho há meses. Combino
+                  responder quem me procurar e encerrar a vaga assim que ela for
+                  preenchida. Cadastro que anuncia vaga inexistente é suspenso.
+                </p>
+              </span>
+            </label>
+          </div>
+
           <div className="ei-margem ei-pe-etapas">
             <button
               className="ei-btn ei-btn-cheio"
               onClick={confirmarEAbrirPrimeiraOnda}
-              disabled={salvando}
+              disabled={salvando || !assumiuResponsabilidade}
             >
               {salvando ? "Criando…" : "Criar vaga e avisar a onda 1"}
             </button>

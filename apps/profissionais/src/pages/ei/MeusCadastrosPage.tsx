@@ -48,7 +48,6 @@ export function MeusCadastrosPage() {
   const [escolhido, setEscolhido] = useState<string | null>(idDoCadastroEscolhido());
   const [carregando, setCarregando] = useState(true);
   const [erro, setErro] = useState("");
-
   useEffect(() => {
     if (carregandoConta) return;
     if (!user) {
@@ -111,16 +110,18 @@ export function MeusCadastrosPage() {
             aparências para a mesma pergunta fazem a pessoa reaprender. */}
         <div className="ei-empresas">
           {lista.map((c) => (
-            <button
+            <div
               key={c.id}
-              type="button"
               className={c.id === escolhido ? "ei-empresa-cartao aberta" : "ei-empresa-cartao"}
-              onClick={() => {
-                escolherCadastro(c.id);
-                navegar("/painel");
-              }}
             >
-              <span className="ei-empresa-cabeca">
+              <button
+                type="button"
+                className="ei-empresa-cabeca ei-empresa-cabeca-botao"
+                onClick={() => {
+                  escolherCadastro(c.id);
+                  navegar("/painel");
+                }}
+              >
                 <Foto foto={c.photo_url} nome={c.name} />
                 <span className="ei-empresa-texto">
                   <span className="ei-empresa-nome">{c.name || "Cadastro sem nome"}</span>
@@ -132,7 +133,22 @@ export function MeusCadastrosPage() {
                       ? "Nenhuma função marcada"
                       : c.categories.slice(0, 3).join(" · ")}
                   </span>
-                  {c.paused && <span className="ei-selo ei-selo-cinza">Escondido da lista</span>}
+                  {/* ── A ETIQUETA, E SÓ ELA — 04/09 ──────────────────
+                      A dona: "o botão de inativar e ativar devem estar
+                      dentro do perfil na parte de baixo. E no card do lado
+                      de fora ter uma etiqueta dizendo se está ativo ou
+                      inativo."
+
+                      Aqui o cartão só INFORMA. Os dois estados aparecem —
+                      não só o inativo —, porque numa tela de escolha o
+                      silêncio não quer dizer "ativo": quem tem um cadastro
+                      só não teria com o que comparar, e ficaria sem saber
+                      se está recebendo vaga ou não. */}
+                  <span
+                    className={c.ativo ? "ei-selo ei-selo-verde" : "ei-selo ei-selo-cinza"}
+                  >
+                    {c.ativo ? "Ativo" : "Inativo"}
+                  </span>
                   {c.id === escolhido && (
                     <span className="ei-empresa-aberta-selo">Selecionado</span>
                   )}
@@ -143,8 +159,9 @@ export function MeusCadastrosPage() {
                     <path d="M9 5l7 7-7 7" />
                   </svg>
                 </span>
-              </span>
-            </button>
+              </button>
+
+            </div>
           ))}
 
           {/* ── UM PERFIL POR PESSOA — 04/09 ──────────────────────────
