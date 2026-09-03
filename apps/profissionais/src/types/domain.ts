@@ -792,11 +792,18 @@ export type WorkModality = "presencial" | "remoto" | "hibrido";
  * saldo. Quem recusa de verdade é o banco (gatilho da migration 0072);
  * este número é para a tela avisar antes.
  *
- * A onda 1 sai na criação, então sobra UMA para a empresa abrir. Qual das
- * duas seguintes usar é escolha dela: alargar pouco (onda 2, mesmo ofício)
- * ou alargar até o ramo (onda 3).
+ * A onda 1 sai na criação, e sobram DUAS para a empresa abrir quando
+ * quiser: a 2 alarga para o mesmo ofício em qualquer especialidade, e a 3
+ * alarga até os ofícios vizinhos do mesmo ramo.
+ *
+ * Eram duas até 03/09. A tela da vaga passou a mostrar as três (a dona: "a
+ * parte de disparo de ondas tem que ficar melhor, colocar 3 botões de
+ * ondas"), e o banco passou a aceitar a terceira com a 0108 — este número
+ * é o terceiro lugar, o que faz a tela avisar antes de o banco recusar. Os
+ * três têm de andar juntos: com a 0108 aplicada e este número em 2, a onda
+ * 3 apareceria na tela e nunca abriria.
  */
-export const ONDAS_POR_VAGA = 2;
+export const ONDAS_POR_VAGA = 3;
 
 /** Por quantos dias a vaga fica na área de anúncios. */
 export const DIAS_ANUNCIO_VAGA = 30;

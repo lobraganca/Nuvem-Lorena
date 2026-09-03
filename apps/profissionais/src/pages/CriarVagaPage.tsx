@@ -1574,9 +1574,9 @@ export function CriarVagaPage() {
             <h2 style={{ margin: "0 0 8px 0" }}>Quem esta vaga alcança</h2>
             <p className="muted" style={{ marginTop: 0 }}>
               Cada vaga tem direito a <strong>{ONDAS_POR_VAGA} ondas</strong>. A onda 1
-              é avisada ao confirmar; a segunda é sua para usar quando quiser — se
-              ninguém responder, você escolhe qual abrir, num toque na tela da vaga.
-              Ou já escolhe aqui.
+              é avisada ao confirmar; as outras duas são suas para usar quando
+              quiser — se ninguém responder, você abre a seguinte num toque, na tela
+              da vaga. Ou já escolhe aqui.
             </p>
 
             {/* Disparar não depende de plano — qualquer vaga publicada
