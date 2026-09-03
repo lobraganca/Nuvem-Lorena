@@ -344,13 +344,27 @@ export function VagaAbertaPage() {
 
             Vira um selo junto do título, do lado das outras marcas: a
             informação continua, com o peso que ela tem. */}
-        {(vaga.available_immediately || vaga.quantidade_vagas > 1) && (
+        {(vaga.available_immediately ||
+          vaga.quantidade_vagas > 1 ||
+          vaga.aceita_primeiro_emprego) && (
           <div className="ei-margem ei-chips" style={{ marginTop: 8 }}>
             {vaga.available_immediately && (
               <span className="ei-selo ei-selo-laranja">Começa logo</span>
             )}
             {vaga.quantidade_vagas > 1 && (
               <span className="ei-selo ei-selo-cinza">{vaga.quantidade_vagas} vagas</span>
+            )}
+            {/* ── O SELO DO PRIMEIRO EMPREGO (0114) ──────────────────
+                A dona: "no perfil da vaga ter opção de escolher que pode
+                ser pessoa que busca o primeiro emprego."
+
+                Junto do título, e não no meio da ficha: para quem está
+                começando, esta é a informação que decide se vale a pena
+                ler o resto — e ela hoje só aparecia quando a empresa
+                escrevia "não precisa de experiência" na descrição, se
+                escrevesse. */}
+            {vaga.aceita_primeiro_emprego && (
+              <span className="ei-selo ei-selo-verde">Aceita primeiro emprego</span>
             )}
           </div>
         )}

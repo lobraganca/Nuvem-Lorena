@@ -96,6 +96,9 @@ const EMPTY_FORM: FormState = {
      (função e cidade). É diferente de uma lista com um item só. */
   campos_compatibilidade: [],
   aceita_sem_compatibilidade: true,
+  /* Não por padrão: ligado, toda vaga da cidade prometeria aceitar quem
+     está começando — uma promessa que nenhuma empresa fez. */
+  aceita_primeiro_emprego: false,
 };
 
 /* ── OS TEMAS DA VAGA (item 13) ──────────────────────────────────────
@@ -1527,6 +1530,29 @@ export function CriarVagaPage() {
                   }
                 />
                 <span>Aceito candidatura de quem não bate com tudo isso</span>
+              </label>
+            </div>
+
+            {/* ── PRIMEIRO EMPREGO (0114) ─────────────────────────────
+                A dona: "no perfil da vaga ter opção de escolher que pode
+                ser pessoa que busca o primeiro emprego."
+
+                Marcar não muda a nota de compatibilidade de ninguém —
+                seria injusto dos dois lados. O que ele faz é pôr um selo
+                na vaga e ligar o filtro "primeiro emprego" no banco de
+                vagas, que é onde quem está começando procura. Numa cidade
+                pequena, saber QUAIS vagas topam ensinar é a diferença
+                entre mandar cinco currículos e mandar um. */}
+            <div className="ei-campo" style={{ marginTop: 18 }}>
+              <label className="ei-caixa">
+                <input
+                  type="checkbox"
+                  checked={form.aceita_primeiro_emprego}
+                  onChange={(e) =>
+                    setForm((f) => ({ ...f, aceita_primeiro_emprego: e.target.checked }))
+                  }
+                />
+                <span>Aceito quem está atrás do primeiro emprego</span>
               </label>
             </div>
           </section>

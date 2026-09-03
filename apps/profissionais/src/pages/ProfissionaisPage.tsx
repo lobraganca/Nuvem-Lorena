@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { useTituloDaPagina } from "../lib/tituloDaPagina";
 import { mensagemDeErro } from "../lib/erros";
@@ -12,6 +12,7 @@ import { empresaAtual } from "../lib/company";
 import { BottomSheet } from "../components/BottomSheet";
 import { BotaoFavorito } from "../components/ei/BotaoFavorito";
 import { lerFavoritos, SEM_FAVORITOS, type Favoritos } from "../lib/favoritos";
+import { contarAparicaoEmBusca } from "../lib/compativeis";
 
 type Disponivel = {
   id: string;
@@ -288,6 +289,34 @@ export function ProfissionaisPage() {
       );
     });
   }, [lista, filtro, oficio, bairro, ligados]);
+
+  /* ── APARECER NUMA BUSCA VIRA NÚMERO — 04/09 ─────────────────────
+     A dona: "ter uma opção de métricas... você apareceu em 14 buscas."
+
+     Quem soma é o banco (`registrar_aparicao_em_busca`, da 0114): quem
+     aparece na busca não é quem está buscando, então o app precisaria de
+     permissão para escrever na linha de OUTRA pessoa — e isso abriria a
+     tabela para qualquer um escrever qualquer coisa em qualquer cadastro.
+
+     Os dois segundos de espera são o que separa "procurei por padeiro" de
+     "estou digitando p-a-d-e": sem eles, cada tecla contaria uma busca e o
+     número viraria uma contagem de teclas.
+
+     `jaContei` guarda as combinações já contadas nesta abertura da tela.
+     Sem isso, tirar um filtro e pô-lo de volta contaria a mesma busca duas
+     vezes, e o número deixaria de querer dizer "empresas procurando". */
+  const jaContei = useRef<Set<string>>(new Set());
+  useEffect(() => {
+    if (visiveis.length === 0) return;
+    const ids = visiveis.slice(0, 50).map((p) => p.id);
+    const assinatura = ids.join(",");
+    if (jaContei.current.has(assinatura)) return;
+    const relogio = setTimeout(() => {
+      jaContei.current.add(assinatura);
+      contarAparicaoEmBusca(ids);
+    }, 2000);
+    return () => clearTimeout(relogio);
+  }, [visiveis]);
 
   return (
     <div className="ei">

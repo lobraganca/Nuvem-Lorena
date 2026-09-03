@@ -433,6 +433,20 @@ export function OndasDaVagaPage() {
                         ? `Combina em ${c.porque.join(", ")}`
                         : c.funcoes.slice(0, 3).join(", ") || c.cidade}
                     </span>
+                    {/* Os dois selos que mudam a conversa: quem está
+                        começando (a vaga pode ser a primeira dessa pessoa)
+                        e quem topa bico. Nenhum dos dois entra na nota —
+                        eles são declaração da pessoa, não critério. */}
+                    {(c.primeiroEmprego || c.aceitaFreela) && (
+                      <span className="ei-chips" style={{ marginTop: 4 }}>
+                        {c.primeiroEmprego && (
+                          <span className="ei-selo ei-selo-laranja">1º emprego</span>
+                        )}
+                        {c.aceitaFreela && (
+                          <span className="ei-selo ei-selo-cinza">Faz freela</span>
+                        )}
+                      </span>
+                    )}
                   </span>
                   <span className={`ei-nota-compat ${faixaDaNota(c.nota)}`}>{c.nota}%</span>
                 </Link>

@@ -59,6 +59,8 @@ const MinhasEmpresasPage = lazy(importarPagina(() => import("./pages/ei/MinhasEm
 const EmpresaPublicaPage = lazy(importarPagina(() => import("./pages/ei/EmpresaPublicaPage").then((m) => ({ default: m.EmpresaPublicaPage }))));
 const FavoritosPage = lazy(importarPagina(() => import("./pages/ei/FavoritosPage").then((m) => ({ default: m.FavoritosPage }))));
 const PlanosEmpresaPage = lazy(importarPagina(() => import("./pages/PlanosEmpresaPage").then((m) => ({ default: m.PlanosEmpresaPage }))));
+const ReembolsoPage = lazy(importarPagina(() => import("./pages/ei/ReembolsoPage").then((m) => ({ default: m.ReembolsoPage }))));
+const MeuDesempenhoPage = lazy(importarPagina(() => import("./pages/ei/MeuDesempenhoPage").then((m) => ({ default: m.MeuDesempenhoPage }))));
 const OndasDaVagaPage = lazy(importarPagina(() => import("./pages/OndasDaVagaPage").then((m) => ({ default: m.OndasDaVagaPage }))));
 const InteressadosDaVagaPage = lazy(importarPagina(() => import("./pages/InteressadosDaVagaPage").then((m) => ({ default: m.InteressadosDaVagaPage }))));
 const DetalheVagaPage = lazy(importarPagina(() => import("./pages/DetalheVagaPage").then((m) => ({ default: m.DetalheVagaPage }))));
@@ -348,6 +350,12 @@ export default function App() {
         <Route path="/vaga/:id/interessados" element={<InteressadosDaVagaPage />} />
         <Route path="/vaga/:id" element={<DetalheVagaPage />} />
         <Route path="/planos-empresa" element={<PlanosEmpresaPage />} />
+        {/* O pedido de reembolso é tela própria (ver ReembolsoPage): quem
+            quer desfazer uma compra não deve ter de pedir isso no meio de
+            uma tela que mostra três preços. */}
+        <Route path="/reembolso" element={<ReembolsoPage />} />
+        {/* Os números de quem procura trabalho (ver MeuDesempenhoPage). */}
+        <Route path="/meu-desempenho" element={<MeuDesempenhoPage />} />
         <Route path="/profissionais" element={<ProfissionaisPage />} />
         {/* O perfil de uma pessoa, visto por quem contrata. É a metade
             gratuita da oferta da empresa — ver e falar um a um — e não

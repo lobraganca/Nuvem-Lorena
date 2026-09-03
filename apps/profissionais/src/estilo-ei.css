@@ -4918,3 +4918,78 @@
   padding-left: 33px;
   padding-right: 33px;
 }
+
+/* ── O RECADO DA TELA DE DESEMPENHO — 04/09 ────────────────────────────
+   A dona pediu "mensagens motivacionais" junto dos números de quem
+   procura trabalho. O recado é o primeiro bloco da tela e precisa se ler
+   como uma frase dita a alguém, e não como mais um cartão de dado — por
+   isso o texto é maior que o do resto e o cartão tem uma faixa de cor à
+   esquerda, que é o que distingue "recado" de "número" sem precisar de
+   ícone nenhum. */
+.ei .ei-recado {
+  border-left: 4px solid var(--ei-acento);
+}
+.ei .ei-recado-titulo {
+  margin: 0 0 6px;
+  font-size: 1.05rem;
+  line-height: 1.35;
+  font-weight: 700;
+}
+.ei .ei-recado-texto {
+  margin: 0;
+  font-size: 0.95rem;
+  line-height: 1.55;
+  color: var(--ei-tinta-fraca);
+}
+
+/* Botão logo depois de um campo, dentro de um cartão: o mesmo vão de 22px
+   que separa dois campos. Sem esta regra o botão encosta na caixa de
+   texto e lê como parte dela — foi o que aconteceu no "Enviar pedido" da
+   tela de reembolso. */
+.ei .ei-cartao .ei-campo + .ei-btn,
+.ei .ei-cartao .ei-campo + .ei-btn-laranja {
+  margin-top: 22px;
+}
+
+/* ── AS FOTOS MAIORES — 04/09 ──────────────────────────────────────────
+   A dona: "as fotos podem ser maiores."
+
+   Numa cidade em que as pessoas se conhecem, RECONHECER alguém é metade
+   do motivo de a lista existir: a empresa decide quem chamar por já ter
+   visto aquela pessoa na rua, não por ler "Profissional 59". O mesmo vale
+   para a logo da empresa numa vaga — é ela que responde "que empresa é
+   essa?" antes do nome.
+
+   Os números não são chutados: são o maior tamanho que ainda deixa nome e
+   ofício caberem ao lado, sem empurrar o texto para baixo da foto (o
+   "baixo na foto da pessoa" que ela mandou tirar em 02/09).
+
+     retrato na lista     64 → 84px
+     logo na lista        48 → 64px
+     logo no topo da vaga 72 → 88px
+     foto no cadastro     84 → 112px */
+.ei .ei-pessoa-retrato {
+  width: 84px;
+  height: 84px;
+}
+.ei .ei-pessoa-retrato,
+.ei .ei-foto-escolha-vazia {
+  /* A inicial acompanha o quadrado: em 1,4rem dentro de 84px ela vira uma
+     letrinha perdida no meio de um bloco cinza. */
+  font-size: 1.8rem;
+}
+.ei .ei-empresa-marca {
+  width: 64px;
+  height: 64px;
+  font-size: 1.2rem;
+}
+.ei .ei-empresa-topo .ei-empresa-marca {
+  width: 88px;
+  height: 88px;
+  font-size: 1.6rem;
+}
+.ei .ei-foto-escolha-img,
+.ei .ei-foto-escolha-vazia {
+  width: 112px;
+  height: 112px;
+}

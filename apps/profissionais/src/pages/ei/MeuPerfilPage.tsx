@@ -943,6 +943,24 @@ export function MeuPerfilPage() {
             />
           </div>
 
+          {/* ── FREELA E BICO (0114) ────────────────────────────────────
+              A dona: "criar uma área pra freelancer."
+
+              Aqui é o lado de quem faz. Marcar isto não tira ninguém das
+              vagas de carteira assinada: acrescenta. Numa cidade pequena
+              a mesma pessoa faz as duas coisas — o pedreiro que tem
+              emprego fixo e pega uma obra no sábado —, e obrigar a
+              escolher entre "emprego" e "bico" perderia justamente quem
+              está disponível para os dois. */}
+          <div className="ei-cartao" style={{ padding: 0 }}>
+            <Switch
+              ligado={perfil.aceitaFreela}
+              onChange={(v) => setPerfil((x) => ({ ...x, aceitaFreela: v }))}
+              titulo="Também faço freela e bico"
+              descricao="Diária, obra, evento, serviço avulso. Você continua recebendo as vagas de carteira assinada."
+            />
+          </div>
+
           {/* ── AS DUAS PERGUNTAS QUE FALTAVAM (item 14, colunas da 0103)
               A dona: "trabalha em final de semana?" e "disponibilidade pra
               começar imediato?".
@@ -1169,6 +1187,26 @@ export function MeuPerfilPage() {
 
         {/* ── 3. Experiências ──────────────────────────────────────────── */}
         <h2 className="ei-secao">Onde você já trabalhou</h2>
+
+        {/* ── O PRIMEIRO EMPREGO (0114) ────────────────────────────────
+            A dona: "ter uma opção da pessoa colocar no cadastro que é 1º
+            emprego, e no perfil da vaga ter opção de escolher que pode
+            ser pessoa que busca o primeiro emprego."
+
+            Fica AQUI, e não no meio das preferências: é a resposta para a
+            lista de experiências vazia logo abaixo. Sem ela, um cadastro
+            sem nenhuma experiência é lido pela empresa como um cadastro
+            pela metade — e é o contrário: é alguém que está começando, e
+            que a vaga de primeiro emprego procura. */}
+        <div className="ei-cartao" style={{ padding: 0 }}>
+          <Switch
+            ligado={perfil.primeiroEmprego}
+            onChange={(v) => setPerfil((x) => ({ ...x, primeiroEmprego: v }))}
+            titulo="Estou atrás do primeiro emprego"
+            descricao="As vagas que aceitam quem está começando ficam marcadas para você, e a empresa vê que é o seu primeiro."
+          />
+        </div>
+
         <div className="ei-cartao">
 
           <div style={{ display: "grid", gap: 16 }}>

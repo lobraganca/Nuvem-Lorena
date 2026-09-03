@@ -62,8 +62,25 @@ export function BancoDeVagasPage() {
      vaga e voltar não pode jogar a pessoa de volta para a lista quando
      ela estava nos cartões. */
   const modo = params.get("m") === "cartoes" ? "cartoes" : "lista";
+  /* ── O TIPO DE VAGA — 04/09 ────────────────────────────────────────
+     A dona: "criar uma área pra freelancer" e "ter uma opção da pessoa
+     colocar no cadastro que é 1º emprego".
 
-  function mudarParams(mudanca: { q?: string; c?: string | null; m?: string | null }) {
+     As duas áreas são a MESMA tela com um recorte diferente, e não telas
+     novas: quem entra por "Bicos e freelas" quer ver vagas, e uma tela
+     paralela com a própria busca, os próprios filtros e o próprio modo
+     de cartão seria uma segunda tela para envelhecer sozinha.
+
+     O recorte vive na URL como os outros filtros, então abrir uma vaga e
+     voltar não joga a pessoa de volta na lista inteira. */
+  const tipo = params.get("t");
+
+  function mudarParams(mudanca: {
+    q?: string;
+    c?: string | null;
+    m?: string | null;
+    t?: string | null;
+  }) {
     const novo = new URLSearchParams(params);
     for (const [chave, valor] of Object.entries(mudanca)) {
       if (valor) novo.set(chave, valor);
@@ -104,6 +121,14 @@ export function BancoDeVagasPage() {
     const t = filtro.trim().toLocaleLowerCase("pt-BR");
     return lista.filter((v) => {
       if (cidade && v.vaga.city !== cidade) return false;
+      /* Freela é o conjunto do trabalho avulso, e não só o contrato
+         chamado "freelance": diária e temporário são a mesma coisa para
+         quem procura um bico, e separá-los deixaria a área quase vazia
+         numa cidade em que quase ninguém escreve "freelance". */
+      if (tipo === "freela" && !["freelance", "diaria", "temporario"].includes(v.vaga.tipo_contrato ?? "")) {
+        return false;
+      }
+      if (tipo === "primeiro" && !v.vaga.aceita_primeiro_emprego) return false;
       if (!t) return true;
       return (
         (v.vaga.title ?? "").toLocaleLowerCase("pt-BR").includes(t) ||
@@ -112,12 +137,20 @@ export function BancoDeVagasPage() {
         v.empresa.toLocaleLowerCase("pt-BR").includes(t)
       );
     });
-  }, [lista, filtro, cidade]);
+  }, [lista, filtro, cidade, tipo]);
 
   return (
     <div className="ei">
       <div className="ei-tela">
-        <Pagina titulo="Vagas abertas" />
+        <Pagina
+          titulo={
+            tipo === "freela"
+              ? "Bicos e freelas"
+              : tipo === "primeiro"
+                ? "Primeiro emprego"
+                : "Vagas abertas"
+          }
+        />
 
         <div className="ei-busca" style={{ marginTop: 14 }}>
           <IconeLupa />
@@ -138,6 +171,39 @@ export function BancoDeVagasPage() {
               ✕
             </button>
           )}
+        </div>
+
+        {/* ── OS RECORTES — 04/09 ───────────────────────────────────────
+            "Bicos e freelas" e "Primeiro emprego" são a MESMA lista com um
+            recorte, e não telas novas (ver o comentário em `tipo`). A
+            fileira fica sempre visível para quem entrou por uma delas
+            poder sair sem voltar duas telas — e para quem entrou pela
+            lista inteira descobrir que os recortes existem. */}
+        <div className="ei-filtros" style={{ marginTop: 12 }}>
+          <button
+            type="button"
+            className="ei-chip"
+            aria-pressed={!tipo}
+            onClick={() => mudarParams({ t: null })}
+          >
+            Todas
+          </button>
+          <button
+            type="button"
+            className="ei-chip"
+            aria-pressed={tipo === "freela"}
+            onClick={() => mudarParams({ t: tipo === "freela" ? null : "freela" })}
+          >
+            Bico e freela
+          </button>
+          <button
+            type="button"
+            className="ei-chip"
+            aria-pressed={tipo === "primeiro"}
+            onClick={() => mudarParams({ t: tipo === "primeiro" ? null : "primeiro" })}
+          >
+            Primeiro emprego
+          </button>
         </div>
 
         {/* A fileira só aparece com mais de uma cidade: com uma só, ela
@@ -242,9 +308,13 @@ export function BancoDeVagasPage() {
                 {filtro.trim() || cidade ? "Nada com esse filtro" : "Nenhuma vaga no ar agora"}
               </h3>
               <p className="ei-apoio">
-                {filtro.trim() || cidade
-                  ? "Tente outra palavra, ou tire o filtro para ver todas."
-                  : "Assim que uma empresa publicar, a vaga aparece aqui — e você recebe um aviso se ela combinar com o seu cadastro."}
+                {tipo === "freela"
+                  ? "Nenhuma vaga de diária, obra ou serviço avulso no ar agora. Toque em “Todas” para ver as outras."
+                  : tipo === "primeiro"
+                    ? "Nenhuma empresa marcou que aceita quem está começando, por enquanto. Toque em “Todas”: muitas vagas não pedem experiência mesmo sem essa marcação."
+                    : filtro.trim() || cidade
+                      ? "Tente outra palavra, ou tire o filtro para ver todas."
+                      : "Assim que uma empresa publicar, a vaga aparece aqui — e você recebe um aviso se ela combinar com o seu cadastro."}
               </p>
             </div>
           </div>
@@ -268,6 +338,11 @@ export function BancoDeVagasPage() {
                   <div className="ei-pessoa-oficio ei-uma-linha">
                     {[v.empresa, v.vaga.city].filter(Boolean).join(" · ")}
                   </div>
+                  {v.vaga.aceita_primeiro_emprego && (
+                    <div className="ei-chips" style={{ marginTop: 4 }}>
+                      <span className="ei-selo ei-selo-verde">Aceita primeiro emprego</span>
+                    </div>
+                  )}
                   <div className="ei-vaga-linha-detalhe ei-uma-linha">
                     {[salarioEmTexto(v.vaga) ?? "Salário não informado",
                       nomeDoContrato(v.vaga.tipo_contrato)]

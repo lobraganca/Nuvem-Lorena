@@ -28,7 +28,7 @@ import { listSuggestions, updateSuggestionStatus } from "../lib/suggestions";
 import { atualizarStatusIndicacao, listarIndicacoes, type Indicacao } from "../lib/indicacoes";
 import { CITIES, type Suggestion, type SuggestionStatus } from "../types/domain";
 import { AdminBanners } from "../components/AdminBanners";
-import { AdminEmpresas, AdminVagas, AdminNumerosDoEi } from "../components/AdminEiEmprego";
+import { AdminEmpresas, AdminVagas, AdminNumerosDoEi, AdminReembolsos } from "../components/AdminEiEmprego";
 import { AdminCorrigir } from "../components/AdminCorrigir";
 import { AdminFinanceiro } from "../components/AdminFinanceiro";
 import { useTituloDaPagina } from "../lib/tituloDaPagina";
@@ -66,6 +66,9 @@ const SECOES = [
      — que é a pergunta que a dona faz todo dia. */
   { id: "empresas", simbolo: "🏢", titulo: "Empresas", resumo: "Quem cadastrou, o plano de cada uma, e ligar ou renovar." },
   { id: "vagas", simbolo: "📢", titulo: "Vagas", resumo: "Tudo o que já foi publicado, com filtro por situação." },
+  /* Reembolso vem logo depois de Vagas, e antes de Dinheiro: é o único
+     item do painel em que alguém está ESPERANDO resposta. */
+  { id: "reembolsos", simbolo: "↩️", titulo: "Pedidos de reembolso", resumo: "Quem pediu o dinheiro de volta, e por quê." },
   { id: "dinheiro", simbolo: "💰", titulo: "Dinheiro", resumo: "O que entrou, por tipo e por mês." },
   { id: "banners", simbolo: "🖼️", titulo: "Banners", resumo: "A publicidade vendida e o desempenho de cada peça." },
   { id: "denuncias", simbolo: "🚩", titulo: "Denúncias", resumo: "Reclamações sobre cadastros, para apurar." },
@@ -667,6 +670,8 @@ export function AdminPage() {
       {mostrar("empresas") && <AdminEmpresas />}
 
       {mostrar("vagas") && <AdminVagas />}
+
+      {mostrar("reembolsos") && <AdminReembolsos />}
 
       {mostrar("cadastros") && (
       <section>

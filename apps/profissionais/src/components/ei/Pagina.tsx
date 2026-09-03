@@ -1,5 +1,6 @@
 import type { ReactNode } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import { telaAnterior } from "../../lib/historicoDoApp";
 
 /**
  * A barra de topo da tela.
@@ -102,7 +103,13 @@ export function Pagina({
             type="button"
             className="ei-barra-voltar"
             aria-label="Voltar"
-            onClick={() => navegar(-1)}
+            /* A tela anterior DO APP (ver `historicoDoApp.ts`), e não um
+               passo no histórico do navegador: o app recarrega a página
+               inteira ao trocar de lado e ao entrar, e voltar pelo
+               histórico ressuscita uma tela montada com o estado antigo —
+               desenhada, mas com os botões apontando para onde a pessoa
+               não está mais. */
+            onClick={() => navegar(telaAnterior() ?? "/")}
           >
             {seta}
           </button>

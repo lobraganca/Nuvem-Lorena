@@ -100,6 +100,19 @@ export type MeuPerfil = {
   modoTrabalho: string;
   fimDeSemana: boolean;
   inicioImediato: boolean;
+
+  /* ── DUAS RESPOSTAS NOVAS (0114) ───────────────────────────────────
+     A dona: "ter uma opção da pessoa colocar no cadastro que é 1º
+     emprego" e "criar uma área pra freelancer".
+
+     As duas mudam o que o app faz com o cadastro, e não só o que ele
+     mostra: o primeiro emprego é o que faz a vaga que aceita gente sem
+     experiência valer a pena aparecer, e o freela é o que põe a pessoa
+     na área de bico. Por isso são coluna com tipo, e não etiqueta em
+     `atributos` — texto livre um dia vira "1o emprego" e a comparação
+     para de bater. */
+  primeiroEmprego: boolean;
+  aceitaFreela: boolean;
 };
 
 /**
@@ -148,6 +161,8 @@ export const PERFIL_VAZIO: MeuPerfil = {
   modoTrabalho: "",
   fimDeSemana: false,
   inicioImediato: false,
+  primeiroEmprego: false,
+  aceitaFreela: false,
 };
 
 /**
@@ -278,7 +293,7 @@ export async function lerMeuPerfil(ownerId: string): Promise<MeuPerfil | null> {
          nenhum para avisar — e o campo aparece em branco na tela como se
          a pessoa nunca o tivesse preenchido. */
       "data_nascimento, cnh, cnh_categorias, telefones_extra, modo_trabalho, " +
-      "fim_de_semana, inicio_imediato"
+      "fim_de_semana, inicio_imediato, primeiro_emprego, aceita_freela"
     )
     .eq("owner_id", ownerId)
     /* ── NEM `single` NEM `maybeSingle` — 03/09 ────────────────────────
@@ -344,6 +359,8 @@ export async function lerMeuPerfil(ownerId: string): Promise<MeuPerfil | null> {
     modoTrabalho: linha.modo_trabalho ?? "",
     fimDeSemana: linha.fim_de_semana ?? false,
     inicioImediato: linha.inicio_imediato ?? false,
+    primeiroEmprego: (linha as Record<string, any>).primeiro_emprego ?? false,
+    aceitaFreela: (linha as Record<string, any>).aceita_freela ?? false,
   };
 }
 
@@ -419,6 +436,8 @@ export async function salvarMeuPerfil(
     modo_trabalho: perfil.modoTrabalho || null,
     fim_de_semana: perfil.fimDeSemana,
     inicio_imediato: perfil.inicioImediato,
+    primeiro_emprego: perfil.primeiroEmprego,
+    aceita_freela: perfil.aceitaFreela,
     city: DEFAULT_CITY,
     uf: DEFAULT_UF,
   };

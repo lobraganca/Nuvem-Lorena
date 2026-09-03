@@ -374,16 +374,18 @@ export function PlanosEmpresaPage() {
                 Depois disso, cancelar só interrompe as próximas cobranças — sem multa, e
                 o mês já pago continua valendo.
               </p>
-              <a
-                className="ei-btn-inline"
-                href={`https://wa.me/${SUPORTE_WHATSAPP}?text=${encodeURIComponent(
-                  "Olá! Quero pedir o reembolso do meu plano do Ei Emprego, dentro dos 7 dias de arrependimento."
-                )}`}
-                target="_blank"
-                rel="noopener noreferrer"
-              >
+              {/* ── O PEDIDO SAIU DO WHATSAPP — 04/09 ──────────────────
+                  A dona: "a pessoa ao pedir reembolso ter onde escrever o
+                  motivo, e isso chegar pra mim no painel do administrador."
+
+                  Era um link que abria uma conversa com o texto pronto. O
+                  pedido virava mais uma mensagem no meio de outras trinta:
+                  sem lista, sem data, sem como saber o que já foi
+                  resolvido — e o motivo, que é a parte que ensina alguma
+                  coisa, se perdia na conversa. */}
+              <Link className="ei-btn-inline" to="/reembolso">
                 Pedir reembolso
-              </a>
+              </Link>
               <p className="ei-apoio" style={{ marginTop: 10, marginBottom: 0 }}>
                 Regras completas nos <Link to="/termos">Termos de Uso</Link>.
               </p>

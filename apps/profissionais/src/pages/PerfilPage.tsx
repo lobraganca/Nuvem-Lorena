@@ -689,6 +689,23 @@ export function PerfilPage() {
             </span>
             Falar com o suporte
           </a>
+
+          {/* ── PEDIR REEMBOLSO, COM O MOTIVO ESCRITO — 04/09 ─────────
+              A dona: "a pessoa ao pedir reembolso ter onde escrever o
+              motivo, e isso chegar pra mim no painel do administrador."
+
+              Fica na Conta, junto do suporte, porque é aqui que a pessoa
+              vem quando quer desfazer alguma coisa — e não na tela de
+              planos, que é onde ela vem comprar. Quem tem plano de empresa
+              também chega por lá; os dois caminhos vão para a mesma
+              tela. */}
+          <Link
+            className="ei-btn ei-btn-contorno ei-btn-largo ei-btn-alto"
+            to="/reembolso"
+            style={{ marginTop: 10, display: "flex", alignItems: "center", justifyContent: "center" }}
+          >
+            Pedir reembolso
+          </Link>
         </div>
 
 

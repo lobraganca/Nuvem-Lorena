@@ -127,6 +127,40 @@ export function ComecarPage({ lado }: { lado: "professional" | "company" }) {
                   porta DIZ o que tem dentro: quantas vagas chegaram e se
                   alguma ainda não foi aberta. */}
               <PortaDosAvisos />
+
+              {/* ── BICOS E FREELAS — 04/09 ─────────────────────────────
+                  A dona: "criar uma área pra freelancer."
+
+                  Não é uma tela nova: é o banco de vagas com o recorte do
+                  trabalho avulso (freela, diária e temporário). Uma tela
+                  paralela teria a própria busca, os próprios filtros e o
+                  próprio modo de cartão para envelhecer sozinha — e as
+                  vagas são as mesmas.
+
+                  Freela e emprego fixo convivem de propósito: numa cidade
+                  pequena é a mesma pessoa que tem carteira assinada e pega
+                  uma obra no sábado. */}
+              <Link to="/vagas?t=freela" className="ei-porta">
+                <IconePorta desenho="mala" />
+                <span className="ei-porta-nome">Bicos e freelas</span>
+                <span className="ei-porta-nota ei-uma-linha">Diária, obra, serviço avulso</span>
+              </Link>
+
+              {/* ── MEU DESEMPENHO — 04/09 ──────────────────────────────
+                  A dona: "ter uma opção de métricas... seu perfil apareceu
+                  para 8 empresas esta semana."
+
+                  A porta fica no fim das do lado de quem procura porque
+                  ela não é um caminho para fazer alguma coisa: é a
+                  resposta para "e aí, está adiantando?", que é a pergunta
+                  que faz a pessoa abrir o app quando não recebeu nada. */}
+              <Link to="/meu-desempenho" className="ei-porta">
+                <IconePorta desenho="selo" />
+                <span className="ei-porta-nome">Meu desempenho</span>
+                <span className="ei-porta-nota ei-uma-linha">
+                  Quem te viu, e onde você apareceu
+                </span>
+              </Link>
             </>
           )}
         </div>

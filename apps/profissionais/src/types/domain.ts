@@ -1045,6 +1045,23 @@ export interface JobListing {
       SIM: a compatibilidade é um palpite sobre texto, e barrar por ele
       descarta justamente quem não se descreveu direito. */
   aceita_sem_compatibilidade: boolean;
+  /**
+   * A vaga aceita quem está atrás do primeiro emprego (0114).
+   *
+   * A dona: "no perfil da vaga ter opção de escolher que pode ser pessoa
+   * que busca o primeiro emprego."
+   *
+   * Padrão NÃO, e de propósito: ligado por padrão, no dia seguinte à SQL
+   * toda vaga da cidade estaria prometendo aceitar quem está começando —
+   * uma promessa que nenhuma empresa fez, feita na tela de gente que
+   * mais depende dela.
+   *
+   * Ela NÃO entra na conta de compatibilidade. Entraria como uma nota
+   * mais baixa para quem TEM experiência nas vagas de primeiro emprego,
+   * que é o contrário do que a informação significa. Aqui ela é um selo
+   * e um filtro: a vaga diz "pode vir", e quem procura acha essas vagas.
+   */
+  aceita_primeiro_emprego: boolean;
 }
 
 /**

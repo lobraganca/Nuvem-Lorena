@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { useAuth } from "../lib/useAuth";
 import { useOnboardingStatus } from "../lib/useOnboardingStatus";
 import { quantasVagasNovas } from "../lib/minhasVagas";
+import { passeiPor, telaAnterior } from "../lib/historicoDoApp";
 
 /**
  * A barra de baixo do Ei Emprego.
@@ -277,7 +278,7 @@ function destinos(tipo: "professional" | "company" | false | null, temConta: boo
 }
 
 export function NavegacaoEi() {
-  const { pathname } = useLocation();
+  const { pathname, search: busca } = useLocation();
   const navegar = useNavigate();
   const { user } = useAuth();
   const tipo = useOnboardingStatus();
@@ -304,6 +305,19 @@ export function NavegacaoEi() {
       valeAinda = false;
     };
   }, [user, pathname]);
+
+  /* ── A ORDEM DAS TELAS DO APP — 04/09 ────────────────────────────
+     Empilhada aqui porque esta barra é montada em toda tela do app (ela
+     só se esconde na inicial, e isso acontece DEPOIS deste efeito — um
+     `return null` antes de um hook mudaria a ordem dos hooks e quebraria
+     o React).
+
+     `search` entra junto: o banco de vagas guarda busca, filtro e modo na
+     URL, e voltar para o endereço sem eles jogaria fora o que a pessoa
+     tinha filtrado. */
+  useEffect(() => {
+    passeiPor(`${pathname}${busca}`);
+  }, [pathname, busca]);
 
   const itens = destinos(tipo, !!user);
 
@@ -371,8 +385,18 @@ export function NavegacaoEi() {
             <button
               type="button"
               className="nav-ei-item"
-              onClick={() => navegar("/")}
-              aria-label="Voltar para a tela inicial"
+              onClick={() => {
+                /* A tela anterior DO APP, e não um passo no histórico do
+                   navegador (ver `historicoDoApp.ts`): navegar para o
+                   endereço monta a tela do zero, com o lado e a sessão de
+                   agora — que é o que fazia a volta pelo histórico
+                   entregar botões que não funcionavam.
+
+                   Sem tela anterior (app aberto direto num link), o
+                   destino de reserva é a inicial. */
+                navegar(telaAnterior() ?? "/");
+              }}
+              aria-label="Voltar para a tela anterior"
             >
               {children}
             </button>

@@ -8,6 +8,11 @@ import {
   type NumerosDoEi,
 } from "../lib/adminEi";
 import { mensagemDeErro } from "../lib/erros";
+import {
+  pedidosDeReembolso,
+  responderPedidoDeReembolso,
+  type PedidoDeReembolso,
+} from "../lib/reembolso";
 import { PLANOS_EMPRESA, type JobListing, type PlanoEmpresa } from "../types/domain";
 
 /**
@@ -425,5 +430,166 @@ function Filtros({
         ))}
       </div>
     </div>
+  );
+}
+
+/* ══════════════════════════════════════════════════════════════════════
+   OS PEDIDOS DE REEMBOLSO — 04/09
+   ══════════════════════════════════════════════════════════════════════
+
+   A dona: "a pessoa ao pedir reembolso ter onde escrever o motivo, e isso
+   chegar pra mim no painel do administrador."
+
+   Antes o pedido era uma conversa de WhatsApp. Aqui ele é uma linha com
+   data, o texto que a pessoa escreveu, o telefone dela e um estado —
+   recebido, estamos vendo, resolvido — que a própria pessoa enxerga na
+   tela dela.
+
+   A peneira abre em "novos": a pergunta que traz alguém aqui é "tem
+   alguém esperando resposta?". */
+export function AdminReembolsos() {
+  const [pedidos, setPedidos] = useState<PedidoDeReembolso[] | null>(null);
+  const [erro, setErro] = useState("");
+  const [peneira, setPeneira] = useState<"novos" | "todos" | "resolvidos">("novos");
+  const [busca, setBusca] = useState("");
+  const [mexendo, setMexendo] = useState<string | null>(null);
+
+  useEffect(() => {
+    pedidosDeReembolso()
+      .then(setPedidos)
+      /* Erro SOBE até a tela. Uma lista vazia diria "ninguém pediu
+         reembolso", que é a notícia mais tranquilizadora possível — e a
+         mais cara de estar errada. */
+      .catch((err) => setErro(mensagemDeErro(err, "Não consegui ler os pedidos.")));
+  }, []);
+
+  async function mudar(id: string, status: "novo" | "lido" | "resolvido") {
+    setMexendo(id);
+    setErro("");
+    try {
+      await responderPedidoDeReembolso(id, status);
+      setPedidos((atual) =>
+        (atual ?? []).map((p) => (p.id === id ? { ...p, status } : p))
+      );
+    } catch (err) {
+      setErro(mensagemDeErro(err, "Não consegui salvar."));
+    } finally {
+      setMexendo(null);
+    }
+  }
+
+  if (!pedidos && !erro) return <p className="muted">Lendo os pedidos…</p>;
+
+  const todos = pedidos ?? [];
+  const q = simples(busca.trim());
+  const lista = todos.filter((p) => {
+    if (peneira === "novos" && p.status === "resolvido") return false;
+    if (peneira === "resolvidos" && p.status !== "resolvido") return false;
+    if (!q) return true;
+    return simples([p.motivo, p.contato ?? ""].join(" ")).includes(q);
+  });
+
+  const quantos = (s: string) => todos.filter((p) => p.status === s).length;
+
+  return (
+    <section>
+      {erro && <p className="admin-resumo-erro">{erro}</p>}
+
+      <Filtros
+        busca={busca}
+        setBusca={setBusca}
+        rotuloBusca="Procurar por motivo ou telefone"
+        opcoes={[
+          ["novos", `Esperando (${todos.length - quantos("resolvido")})`],
+          ["resolvidos", `Resolvidos (${quantos("resolvido")})`],
+          ["todos", `Todos (${todos.length})`],
+        ]}
+        escolhida={peneira}
+        escolher={(v) => setPeneira(v as "novos" | "todos" | "resolvidos")}
+      />
+
+      {lista.length === 0 ? (
+        <p className="muted" style={{ marginTop: 12 }}>
+          {todos.length === 0
+            ? "Ninguém pediu reembolso ainda."
+            : "Nenhum pedido com esse filtro."}
+        </p>
+      ) : (
+        <div style={{ display: "grid", gap: 8, marginTop: 12 }}>
+          {lista.map((p) => (
+            <div key={p.id} className="card" style={{ padding: 12 }}>
+              <div style={{ display: "flex", justifyContent: "space-between", gap: 8 }}>
+                <strong style={{ fontSize: "0.9rem" }}>
+                  {new Date(p.created_at).toLocaleDateString("pt-BR", {
+                    day: "2-digit",
+                    month: "2-digit",
+                    hour: "2-digit",
+                    minute: "2-digit",
+                  })}
+                </strong>
+                <span className="muted" style={{ fontSize: "0.8rem", flexShrink: 0 }}>
+                  {p.status === "resolvido"
+                    ? "Resolvido"
+                    : p.status === "lido"
+                      ? "Estamos vendo"
+                      : "Recebido"}
+                </span>
+              </div>
+
+              <p style={{ margin: "6px 0 0", fontSize: "0.92rem", overflowWrap: "anywhere" }}>
+                {p.motivo}
+              </p>
+
+              {/* O telefone vira link de conversa: o pedido chegou aqui,
+                  mas a resposta continua sendo uma pessoa falando com
+                  outra — e digitar o número à mão é onde se erra. */}
+              {p.contato && (
+                <p className="muted" style={{ margin: "6px 0 0", fontSize: "0.85rem" }}>
+                  <a
+                    href={`https://wa.me/55${p.contato.replace(/\D/g, "").replace(/^55/, "")}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    {p.contato}
+                  </a>
+                </p>
+              )}
+
+              <div style={{ display: "flex", gap: 8, marginTop: 10, flexWrap: "wrap" }}>
+                {p.status !== "lido" && p.status !== "resolvido" && (
+                  <button
+                    type="button"
+                    className="ei-btn ei-btn-contorno ei-btn-curto"
+                    disabled={mexendo === p.id}
+                    onClick={() => mudar(p.id, "lido")}
+                  >
+                    Estou vendo
+                  </button>
+                )}
+                {p.status !== "resolvido" ? (
+                  <button
+                    type="button"
+                    className="ei-btn ei-btn-cheio ei-btn-curto"
+                    disabled={mexendo === p.id}
+                    onClick={() => mudar(p.id, "resolvido")}
+                  >
+                    Marcar como resolvido
+                  </button>
+                ) : (
+                  <button
+                    type="button"
+                    className="ei-btn ei-btn-contorno ei-btn-curto"
+                    disabled={mexendo === p.id}
+                    onClick={() => mudar(p.id, "novo")}
+                  >
+                    Reabrir
+                  </button>
+                )}
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+    </section>
   );
 }

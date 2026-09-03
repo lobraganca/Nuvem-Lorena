@@ -84,7 +84,7 @@ export async function bancoDeVagas(userId?: string): Promise<VagaNoBanco[]> {
        aceita_outras_cidades, comissao, outros_beneficios,
        escolaridade_minima, curso_especifico, cnh_exigida, cnh_categorias,
        exige_viagem, idiomas, observacoes,
-       campos_compatibilidade, aceita_sem_compatibilidade,
+       campos_compatibilidade, aceita_sem_compatibilidade, aceita_primeiro_emprego,
        companies:companies_public!inner ( company_name, photo_url )`
     )
     .eq("status", "active")
