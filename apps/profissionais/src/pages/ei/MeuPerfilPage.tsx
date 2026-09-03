@@ -769,14 +769,32 @@ export function MeuPerfilPage() {
             <div className="ei-campo">
               <label>Melhor horário</label>
             </div>
-            <div className="ei-chips-rolagem" style={{ marginTop: 8 }}>
+            {/* ── UMA GRADE, E NÃO UMA FILEIRA SOLTA — 04/09 ────────────
+                A dona, duas vezes, com print: "dar respiro e melhorar
+                layout."
+
+                As etiquetas eram `inline-flex` num bloco de texto: o vão
+                entre elas era o espaço de uma letra (uns 4px), e entre as
+                linhas, nada. Sete etiquetas de larguras diferentes viravam
+                três fileiras irregulares, com "Qualquer horário" sobrando
+                sozinho na última — e num toque de dedo 4px é a distância
+                entre marcar "Noite" e marcar "Horário comercial".
+
+                Em duas colunas todas ficam do mesmo tamanho, alinhadas, e
+                com 44px de altura: o alvo de toque que o dedo pede.
+
+                A rolagem de 232px também saiu. Ela existia quando esta
+                lista tinha oitenta itens (as funções); com sete, ela só
+                criava uma caixa que rola dentro de uma página que já
+                rola. */}
+            <div className="ei-opcoes" style={{ marginTop: 10 }}>
               {DISPONIBILIDADE.map((h) => {
                 const marcado = disponibilidade.includes(h);
                 return (
                   <button
                     key={h}
                     type="button"
-                    className={marcado ? "ei-chip ativo" : "ei-chip"}
+                    className={marcado ? "ei-opcao-botao ativo" : "ei-opcao-botao"}
                     aria-pressed={marcado}
                     onClick={() =>
                       setDisponibilidade((atual) =>

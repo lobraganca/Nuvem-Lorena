@@ -4367,3 +4367,59 @@
   margin-top: 4px;
   margin-bottom: 4px;
 }
+
+/* ── OPÇÕES EM GRADE ────────────────────────────────────────────────────
+   A dona, com o print de "Melhor horário": "dar respiro e melhorar
+   layout."
+
+   As etiquetas eram `inline-flex` soltas num bloco de texto: o vão entre
+   elas era o espaço de uma letra, e entre as linhas não havia nenhum.
+   Sete opções de larguras diferentes viravam três fileiras irregulares,
+   com a última sobrando sozinha — e 4px de distância entre dois alvos de
+   toque é o que faz marcar "Noite" quando se queria "Horário comercial".
+
+   Duas colunas resolvem as três coisas de uma vez: respiro (12px), altura
+   de toque (44px) e alinhamento — todas do mesmo tamanho, em linhas
+   inteiras.
+
+   Em tela muito estreita vira uma coluna: metade de 320px não cabe
+   "Horário comercial" sem cortar. */
+.ei .ei-opcoes {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+@media (max-width: 340px) {
+  .ei .ei-opcoes {
+    grid-template-columns: 1fr;
+  }
+}
+
+.ei .ei-opcao-botao {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 44px;
+  padding: 8px 10px;
+  border: 1px solid var(--ei-fio-forte);
+  border-radius: 999px;
+  background: var(--ei-papel);
+  color: var(--ei-tinta-fraca);
+  font: inherit;
+  font-size: 0.88rem;
+  font-weight: 500;
+  line-height: 1.2;
+  text-align: center;
+  /* Nome comprido encolhe a letra em vez de estourar a coluna: é o único
+     jeito de "Horário comercial" e "Manhã" caberem na mesma grade sem uma
+     das duas ficar cortada. */
+  overflow-wrap: anywhere;
+  cursor: pointer;
+}
+
+.ei .ei-opcao-botao.ativo {
+  border-color: var(--ei-acao);
+  background: var(--ei-acao);
+  color: #ffffff;
+  font-weight: 600;
+}
