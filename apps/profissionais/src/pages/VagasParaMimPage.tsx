@@ -215,7 +215,7 @@ export function VagasParaMimPage() {
             <IconeLupa />
             <input
               type="search"
-              placeholder="Empresa ou vaga"
+              placeholder="Procurar"
               value={busca}
               onChange={(e) => setBusca(e.target.value)}
               aria-label="Procurar por empresa ou vaga"

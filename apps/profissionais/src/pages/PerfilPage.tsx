@@ -320,7 +320,6 @@ export function PerfilPage() {
             <input
               value={nomeRascunho}
               onChange={(e) => setNomeRascunho(e.target.value)}
-              placeholder="Como você quer ser chamada"
               maxLength={60}
               autoFocus
             />
@@ -482,12 +481,12 @@ export function PerfilPage() {
                   id="conta-senha-nova"
                   type="password"
                   autoComplete="new-password"
-                  placeholder="Pelo menos 8 caracteres"
                   value={senhaNova}
                   onChange={(e) => setSenhaNova(e.target.value)}
                 />
                 <span className="ei-campo-ajuda">
-                  Com senha, você entra digitando o celular e ela — sem esperar SMS.
+                  Pelo menos 8 letras ou números. Com senha, você entra digitando o
+                  celular e ela — sem esperar SMS.
                 </span>
               </div>
               <button
@@ -603,7 +602,6 @@ export function PerfilPage() {
                   rows={3}
                   value={textoSugestao}
                   onChange={(e) => setTextoSugestao(e.target.value)}
-                  placeholder="O que podia funcionar melhor, ou o que está faltando"
                 />
               </div>
               <button
@@ -816,7 +814,6 @@ export function PerfilPage() {
                 <input
                   value={textoConfirmacao}
                   onChange={(e) => setTextoConfirmacao(e.target.value.toUpperCase())}
-                  placeholder="EXCLUIR"
                   autoComplete="off"
                 />
               </label>

@@ -430,8 +430,12 @@ export function AdminPage() {
                 </div>
               ) : (
                 <div style={{ marginTop: 10, borderTop: "1px solid var(--color-border)", paddingTop: 10 }}>
+                  {/* Rótulo visível no lugar do exemplo dentro do campo:
+                      o que some ao digitar deixa de responder "o que era
+                      para escrever aqui?" na hora em que a dúvida vem. */}
+                  <span className="ei-campo-rotulo">Motivo para tirar o cadastro do ar</span>
                   <input
-                    placeholder="Motivo para tirar o cadastro do ar"
+                    aria-label="Motivo para tirar o cadastro do ar"
                     value={reasonDraft[r.professional_id] ?? ""}
                     onChange={(e) => setReasonDraft({ ...reasonDraft, [r.professional_id]: e.target.value })}
                   />
@@ -769,8 +773,12 @@ export function AdminPage() {
                 </>
               ) : (
                 <div style={{ marginTop: 8, display: "grid", gap: 8 }}>
+                  {/* Rótulo visível no lugar do exemplo dentro do campo:
+                      o que some ao digitar deixa de responder "o que era
+                      para escrever aqui?" na hora em que a dúvida vem. */}
+                  <span className="ei-campo-rotulo">Motivo para tirar o cadastro do ar</span>
                   <input
-                    placeholder="Motivo para tirar o cadastro do ar"
+                    aria-label="Motivo para tirar o cadastro do ar"
                     value={reasonDraft[p.id] ?? ""}
                     onChange={(e) => setReasonDraft({ ...reasonDraft, [p.id]: e.target.value })}
                   />

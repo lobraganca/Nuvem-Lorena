@@ -63,31 +63,46 @@ export function SeletorDeExperiencias({
 
           {/* O cargo vem primeiro e sozinho na linha: é o único obrigatório
               e o que a empresa lê primeiro. */}
+          {/* ── RÓTULO VISÍVEL, E NÃO EXEMPLO DENTRO DO CAMPO — 03/09 ──
+              A dona: "tire todos os exemplos de dentro dos campos do app".
+              Aqui o texto de dentro era a ÚNICA identificação dos três
+              campos: some ao começar a digitar, e quem parasse no meio
+              voltava para três caixas em branco sem nome. */}
+          <label className="ei-campo-rotulo" htmlFor={`exp-cargo-${i}`}>
+            O que você fazia
+          </label>
           <input
-            placeholder="O que você fazia"
+            id={`exp-cargo-${i}`}
             value={exp.cargo}
             maxLength={60}
             onChange={(e) => mudar(i, "cargo", e.target.value)}
-            aria-label={`Cargo da ${i + 1}ª experiência`}
           />
 
           {/* Os dois opcionais dividem a linha: juntos eles ocupam menos
               tela e param de parecer duas perguntas novas. */}
           <div className="experiencia-linha">
-            <input
-              placeholder="Onde (opcional)"
-              value={exp.onde}
-              maxLength={60}
-              onChange={(e) => mudar(i, "onde", e.target.value)}
-              aria-label={`Onde, na ${i + 1}ª experiência`}
-            />
-            <input
-              placeholder="Quanto tempo (opcional)"
-              value={exp.periodo}
-              maxLength={30}
-              onChange={(e) => mudar(i, "periodo", e.target.value)}
-              aria-label={`Quanto tempo, na ${i + 1}ª experiência`}
-            />
+            <div>
+              <label className="ei-campo-rotulo" htmlFor={`exp-onde-${i}`}>
+                Onde (opcional)
+              </label>
+              <input
+                id={`exp-onde-${i}`}
+                value={exp.onde}
+                maxLength={60}
+                onChange={(e) => mudar(i, "onde", e.target.value)}
+              />
+            </div>
+            <div>
+              <label className="ei-campo-rotulo" htmlFor={`exp-tempo-${i}`}>
+                Quanto tempo (opcional)
+              </label>
+              <input
+                id={`exp-tempo-${i}`}
+                value={exp.periodo}
+                maxLength={30}
+                onChange={(e) => mudar(i, "periodo", e.target.value)}
+              />
+            </div>
           </div>
         </div>
       ))}

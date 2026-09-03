@@ -117,7 +117,7 @@ export function BancoDeVagasPage() {
           <IconeLupa />
           <input
             type="search"
-            placeholder="Função, vaga ou empresa"
+            placeholder="Procurar"
             value={filtro}
             onChange={(e) => mudarParams({ q: e.target.value })}
             aria-label="Procurar vaga"

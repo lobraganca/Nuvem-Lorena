@@ -507,7 +507,6 @@ export function MeuPerfilPage() {
             <input
               id="meu-nome"
               value={perfil.name}
-              placeholder="Como a empresa vai te chamar"
               maxLength={80}
               onChange={(e) => setPerfil((x) => ({ ...x, name: e.target.value }))}
             />
@@ -532,49 +531,16 @@ export function MeuPerfilPage() {
               return id;
             }}
           />
-          <div className="ei-campo">
-            <label htmlFor="meu-email">E-mail</label>
-            <input
-              id="meu-email"
-              type="email"
-              inputMode="email"
-              value={perfil.email}
-              placeholder="opcional"
-              onChange={(e) => setPerfil((x) => ({ ...x, email: e.target.value }))}
-            />
-          </div>
-          <div className="ei-campo">
-            <label htmlFor="meu-bairro">Bairro</label>
-            <input
-              id="meu-bairro"
-              value={perfil.neighborhood}
-              maxLength={60}
-              onChange={(e) => setPerfil((x) => ({ ...x, neighborhood: e.target.value }))}
-            />
-          </div>
-
-          {/* O campo que faltava — a dona: "na tela de procuro um trabalho
-              aparece um aviso dizendo que falta um resumo sobre você, mas
-              não tem onde escrever." O AvisoPerfilIncompleto cobrava
-              `bio` desde sempre; a coluna existe (herança do procurô), só
-              nunca tinha voltado para o cadastro reescrito do Ei. */}
-          <div className="ei-campo">
-            <label htmlFor="meu-bio">Um resumo sobre você (opcional)</label>
-            <textarea
-              id="meu-bio"
-              rows={3}
-              maxLength={300}
-              value={perfil.bio}
-              onChange={(e) => setPerfil((x) => ({ ...x, bio: e.target.value }))}
-            />
-            <span className="ei-campo-ajuda">
-              Poucas linhas. É o que a empresa lê antes de decidir se liga.
-            </span>
-          </div>
-
           {/* ── OUTROS TELEFONES (item 14, coluna da 0103) ─────────────
               A dona: "ao confirmar o telefone ele não pode sair do
               cadastro. A pessoa pode adicionar outros."
+
+              Fica LOGO ABAIXO do confirmado — a dona: "o campo de telefone
+              adicional tem que ficar abaixo do campo de telefone
+              confirmado". Antes ele morava depois do e-mail, do bairro e do
+              resumo, e quem tinha um segundo número não o encontrava: dois
+              campos de telefone separados por três de outro assunto se
+              leem como coisas sem relação.
 
               O de cima é o CONFIRMADO por SMS e fica trancado. Estes são
               outros, digitados à mão e sem confirmação nenhuma — e por
@@ -630,6 +596,45 @@ export function MeuPerfilPage() {
             )}
             <span className="ei-campo-ajuda">
               Um recado, o telefone de casa. Só o de cima é o confirmado.
+            </span>
+          </div>
+
+          <div className="ei-campo">
+            <label htmlFor="meu-email">E-mail (opcional)</label>
+            <input
+              id="meu-email"
+              type="email"
+              inputMode="email"
+              value={perfil.email}
+              onChange={(e) => setPerfil((x) => ({ ...x, email: e.target.value }))}
+            />
+          </div>
+          <div className="ei-campo">
+            <label htmlFor="meu-bairro">Bairro</label>
+            <input
+              id="meu-bairro"
+              value={perfil.neighborhood}
+              maxLength={60}
+              onChange={(e) => setPerfil((x) => ({ ...x, neighborhood: e.target.value }))}
+            />
+          </div>
+
+          {/* O campo que faltava — a dona: "na tela de procuro um trabalho
+              aparece um aviso dizendo que falta um resumo sobre você, mas
+              não tem onde escrever." O AvisoPerfilIncompleto cobrava
+              `bio` desde sempre; a coluna existe (herança do procurô), só
+              nunca tinha voltado para o cadastro reescrito do Ei. */}
+          <div className="ei-campo">
+            <label htmlFor="meu-bio">Um resumo sobre você (opcional)</label>
+            <textarea
+              id="meu-bio"
+              rows={3}
+              maxLength={300}
+              value={perfil.bio}
+              onChange={(e) => setPerfil((x) => ({ ...x, bio: e.target.value }))}
+            />
+            <span className="ei-campo-ajuda">
+              Poucas linhas. É o que a empresa lê antes de decidir se liga.
             </span>
           </div>
 
@@ -927,7 +932,6 @@ export function MeuPerfilPage() {
                 que já existe. */}
             <input
               type="text"
-              placeholder="Pedreiro, cozinheira, motorista…"
               /* Nome de ofício não passa disso. Sem limite, o campo aceitava
                  uma frase inteira ("operador de empilhadeira e conferente de
                  carga e descarga em galpão") e o botão de acrescentar virava

@@ -354,7 +354,6 @@ export function LoginPage() {
                   id="entrar-senha-fone"
                   classeRotulo="entrar-rotulo"
                   rotulo="Sua senha"
-                  placeholder="Sua senha"
                   valor={senhaEntrada}
                   onChange={setSenhaEntrada}
                   desabilitado={!hasDatabase() || enviando}
@@ -628,7 +627,6 @@ export function LoginPage() {
             id="entrar-senha"
             type="password"
             autoComplete={criando ? "new-password" : "current-password"}
-            placeholder={criando ? "Pelo menos 8 caracteres" : "Sua senha"}
             value={senha}
             onChange={(e) => setSenha(e.target.value)}
             disabled={enviando}

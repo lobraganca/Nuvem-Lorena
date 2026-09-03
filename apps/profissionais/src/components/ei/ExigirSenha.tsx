@@ -79,10 +79,9 @@ export function ExigirSenha({ children }: { children: ReactNode }) {
               id="criar-senha"
               rotulo="Sua senha"
               autoComplete="new-password"
-              placeholder="Pelo menos 8 caracteres"
               valor={senha}
               onChange={setSenha}
-              ajuda="Guarde num lugar seguro. Ninguém do Ei Emprego vai te pedir a sua senha."
+              ajuda="Pelo menos 8 letras ou números. Guarde num lugar seguro: ninguém do Ei Emprego vai te pedir a sua senha."
             />
           </div>
 

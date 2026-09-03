@@ -310,7 +310,6 @@ export function CompletarPerfil({ children }: { children: React.ReactNode }) {
               id="completar-nome"
               value={nome}
               onChange={(e) => setNome(e.target.value)}
-              placeholder="Como você quer ser chamada"
               maxLength={60}
               autoComplete="name"
             />

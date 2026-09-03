@@ -34,7 +34,6 @@ export function CampoSenha({
   rotulo,
   valor,
   onChange,
-  placeholder,
   autoComplete = "current-password",
   desabilitado = false,
   ajuda,
@@ -44,7 +43,6 @@ export function CampoSenha({
   rotulo: string;
   valor: string;
   onChange: (v: string) => void;
-  placeholder?: string;
   autoComplete?: "current-password" | "new-password";
   desabilitado?: boolean;
   ajuda?: string;
@@ -65,7 +63,6 @@ export function CampoSenha({
           id={idCampo}
           type={visivel ? "text" : "password"}
           autoComplete={autoComplete}
-          placeholder={placeholder}
           value={valor}
           disabled={desabilitado}
           onChange={(e) => onChange(e.target.value)}

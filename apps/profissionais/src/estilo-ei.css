@@ -4060,3 +4060,94 @@
   color: var(--ei-tinta-fraca);
   overflow-wrap: anywhere;
 }
+
+/* Rótulo de campo fora de um `.ei-campo` — usado onde o exemplo dentro da
+   caixa era a única identificação (as experiências, os campos da
+   administração). Mesma aparência do rótulo normal, sem depender da grade
+   do `.ei-campo`, que ali quebraria as duas colunas. */
+.ei-campo-rotulo {
+  display: block;
+  margin-bottom: 6px;
+  font-size: 0.8rem;
+  font-weight: 500;
+  color: var(--ei-tinta-fraca);
+}
+
+/* ══════════════════════════════════════════════════════════════════════
+   O APP EM TELA GRANDE — tablet e computador
+   ══════════════════════════════════════════════════════════════════════
+
+   A dona: "faça com que o app seja dinâmico em todas as telas." Ela
+   trabalha no celular E no tablet, e no tablet o app era uma coluna de
+   620px no meio de 820, com 200px de papel liso de cada lado — a lista de
+   60 profissionais rolava seis telas quando cabiam duas colunas.
+
+   Uma coluna de celular numa tela larga não está quebrada, mas está
+   pequena: parece a versão de celular aberta por engano.
+
+   O que muda, e só a partir de 720px (nenhum celular chega lá, nem
+   deitado): a coluna cresce, e as LISTAS passam a duas colunas. O que não
+   muda é o resto — formulário continua em coluna única, porque campo de
+   1000px de largura é mais difícil de preencher, não menos. */
+@media (min-width: 720px) {
+  .ei .ei-tela,
+  /* Sem o `.ei` na frente: a faixa da marca fica FORA dele (é o `header`
+     do app), e com o prefixo a regra não a alcançava — o resultado era a
+     faixa azul terminando 170px antes da barra de título logo abaixo. */
+  .cabecalho-ei {
+    max-width: 900px;
+  }
+
+  /* Listas de coisas iguais — vagas, avisos, pessoas, empresas — em duas
+     colunas. O fio de baixo continua separando as linhas; entre as duas
+     colunas entra um fio vertical, senão as duas metades se leem como uma
+     linha só de conteúdo embaralhado. */
+  .ei .ei-lista {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+  }
+  .ei .ei-lista > * {
+    min-width: 0;
+  }
+  .ei .ei-lista > *:nth-child(odd) {
+    border-right: 1px solid var(--ei-fio);
+  }
+
+  /* Cartões que já eram grade (empresas, planos, portas, atalhos) ganham
+     a segunda coluna pela largura maior sem precisar de regra — os que
+     não são, ganham aqui. */
+  .ei .ei-empresas,
+  .ei .ei-portas {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    align-items: start;
+  }
+  /* A porta principal de cada lado ocupa a linha inteira: ela é a
+     decisão da tela, e do lado de uma segunda porta as duas passariam a
+     parecer opções do mesmo peso. */
+  .ei .ei-portas > .ei-porta-cheia {
+    grid-column: 1 / -1;
+  }
+
+  /* A escolha do lado sobe para o meio da tela.
+     ──────────────────────────────────────────
+     No tablet a tela inicial ficava com os dois botões colados no topo e
+     700px de papel liso embaixo — a mesma sensação de "não terminaram
+     isto" que já tinha sido consertada no celular. Em tela alta o bloco da
+     escolha come a sobra e a decisão fica no centro óptico. */
+  .ei .ei-entrada > .ei-ambiente,
+  .ei .ei-entrada > .ei-portas {
+    margin-top: auto;
+    margin-bottom: auto;
+  }
+}
+
+/* Acima de 1100px a coluna para de crescer: linha de texto larga demais
+   cansa a leitura, e o app não tem conteúdo que peça três colunas. */
+@media (min-width: 1100px) {
+  .ei .ei-tela,
+  .cabecalho-ei {
+    max-width: 1000px;
+  }
+}

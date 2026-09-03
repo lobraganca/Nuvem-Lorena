@@ -302,7 +302,7 @@ export function ProfissionaisPage() {
           <IconeLupa />
           <input
             type="search"
-            placeholder="Nome ou função"
+            placeholder="Procurar"
             value={filtro}
             onChange={(e) => setFiltro(e.target.value)}
             aria-label="Procurar profissional"

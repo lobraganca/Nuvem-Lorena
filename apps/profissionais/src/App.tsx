@@ -110,8 +110,14 @@ function SuggestionSheet({ onClose }: { onClose: () => void }) {
         <p className="card">Sugestão enviada. Obrigado pela contribuição!</p>
       ) : (
         <div style={{ display: "grid", gap: 12 }}>
+          {/* Rótulo de verdade no lugar do exemplo dentro do campo — a
+              dona: "tire todos os exemplos de dentro dos campos do app".
+              Texto que some ao começar a digitar deixa de responder
+              "o que era mesmo para escrever aqui?" na hora em que a
+              pergunta aparece. */}
+          <label htmlFor="sugestao-texto">Sua sugestão</label>
           <textarea
-            placeholder="Escreva sua sugestão…"
+            id="sugestao-texto"
             value={message}
             onChange={(e) => setMessage(e.target.value)}
             rows={4}

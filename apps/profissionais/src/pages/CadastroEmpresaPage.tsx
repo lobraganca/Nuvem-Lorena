@@ -501,11 +501,6 @@ export function CadastroEmpresaPage() {
               <input
                 id="company_name"
                 type="text"
-                placeholder={
-                  tipoDono === "pf"
-                    ? "É o que aparece na vaga"
-                    : "Como as pessoas conhecem sua empresa"
-                }
                 value={form.company_name}
                 onChange={(e) => setForm((f) => ({ ...f, company_name: e.target.value }))}
               />
@@ -527,7 +522,6 @@ export function CadastroEmpresaPage() {
                 id="cnpj"
                 type="text"
                 inputMode="numeric"
-                placeholder={tipoDono === "pf" ? "000.000.000-00" : "00.000.000/0000-00"}
                 value={formatDocument(form.cnpj || "", tipoDono)}
                 onChange={(e) => setForm((f) => ({ ...f, cnpj: e.target.value }))}
               />
@@ -565,7 +559,6 @@ export function CadastroEmpresaPage() {
               <textarea
                 id="description"
                 rows={3}
-                placeholder="Em uma ou duas linhas, o que a empresa faz"
                 value={form.description}
                 onChange={(e) => setForm((f) => ({ ...f, description: e.target.value }))}
               />
@@ -619,7 +612,6 @@ export function CadastroEmpresaPage() {
               <input
                 id="address"
                 type="text"
-                placeholder="Rua, número, complemento"
                 value={form.address || ""}
                 onChange={(e) => setForm((f) => ({ ...f, address: e.target.value }))}
               />
@@ -699,7 +691,6 @@ export function CadastroEmpresaPage() {
               <input
                 id="website"
                 type="url"
-                placeholder="https://…"
                 value={form.website || ""}
                 onChange={(e) => setForm((f) => ({ ...f, website: e.target.value }))}
               />

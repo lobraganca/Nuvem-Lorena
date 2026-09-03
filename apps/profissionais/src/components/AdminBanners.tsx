@@ -376,14 +376,16 @@ export function AdminBanners() {
       <div className="banner-form">
         <h3 style={{ margin: 0, fontSize: "0.95rem" }}>{editando ? "Editando banner" : "Novo banner"}</h3>
 
+        <label className="ei-campo-rotulo" htmlFor="banner-anunciante">Quem está anunciando</label>
         <input
-          placeholder="Quem está anunciando"
+          id="banner-anunciante"
           value={anunciante}
           maxLength={60}
           onChange={(e) => setAnunciante(e.target.value)}
         />
+        <label className="ei-campo-rotulo" htmlFor="banner-titulo">Título curto — aparece se a imagem não carregar</label>
         <input
-          placeholder="Título curto (aparece se a imagem não carregar)"
+          id="banner-titulo"
           value={titulo}
           maxLength={80}
           onChange={(e) => setTitulo(e.target.value)}
@@ -398,8 +400,9 @@ export function AdminBanners() {
         {enviandoImagem && <p className="muted">Enviando imagem…</p>}
         {imagemUrl && <img src={imagemUrl} alt="Prévia do banner" className="banner-previa" />}
 
+        <label className="ei-campo-rotulo" htmlFor="banner-link">Link ao tocar</label>
         <input
-          placeholder="Link ao tocar (site, WhatsApp, ou /profissional/<id>)"
+          id="banner-link"
           value={link}
           onChange={(e) => setLink(e.target.value)}
         />
@@ -449,18 +452,28 @@ export function AdminBanners() {
         </div>
 
         <div className="banner-form-linha">
-          <input
-            placeholder="Contato do anunciante (WhatsApp)"
-            value={contatoAnunciante}
-            maxLength={60}
-            onChange={(e) => setContatoAnunciante(e.target.value)}
-          />
-          <input
-            placeholder="Valor combinado"
-            value={valor}
-            inputMode="decimal"
-            onChange={(e) => setValor(e.target.value)}
-          />
+          <div>
+            <label className="ei-campo-rotulo" htmlFor="banner-contato">
+              Contato do anunciante
+            </label>
+            <input
+              id="banner-contato"
+              value={contatoAnunciante}
+              maxLength={60}
+              onChange={(e) => setContatoAnunciante(e.target.value)}
+            />
+          </div>
+          <div>
+            <label className="ei-campo-rotulo" htmlFor="banner-valor">
+              Valor combinado
+            </label>
+            <input
+              id="banner-valor"
+              value={valor}
+              inputMode="decimal"
+              onChange={(e) => setValor(e.target.value)}
+            />
+          </div>
         </div>
 
         <label className="opcao-endereco" style={{ background: "var(--color-surface)" }}>
@@ -474,8 +487,9 @@ export function AdminBanners() {
           </span>
         </label>
 
+        <label className="ei-campo-rotulo" htmlFor="banner-obs">Observação</label>
         <input
-          placeholder="Observação (forma de pagamento, combinados)"
+          id="banner-obs"
           value={observacao}
           maxLength={200}
           onChange={(e) => setObservacao(e.target.value)}
