@@ -608,9 +608,6 @@ export function MeuPerfilPage() {
                 + {perfil.telefonesExtra.length ? "Mais um telefone" : "Acrescentar telefone"}
               </button>
             )}
-            <span className="ei-campo-ajuda">
-              Um recado, o telefone de casa. Só o de cima é o confirmado.
-            </span>
           </div>
 
           <div className="ei-campo">
@@ -647,9 +644,6 @@ export function MeuPerfilPage() {
               value={perfil.bio}
               onChange={(e) => setPerfil((x) => ({ ...x, bio: e.target.value }))}
             />
-            <span className="ei-campo-ajuda">
-              Poucas linhas. É o que a empresa lê antes de decidir se liga.
-            </span>
           </div>
 
           <div className="ei-campo">
@@ -663,9 +657,6 @@ export function MeuPerfilPage() {
             {/* A empresa vê a IDADE, nunca a data. Dizer isso aqui é o que
                 faz a pessoa preencher: sem a frase, um campo de
                 aniversário num cadastro de emprego parece intrusão. */}
-            <span className="ei-campo-ajuda">
-              A empresa vê só a sua idade — a data não aparece para ninguém.
-            </span>
           </div>
 
           {/* CNH: a pergunta que abre metade das vagas de entrega da
@@ -705,11 +696,6 @@ export function MeuPerfilPage() {
                   );
                 })}
               </div>
-            )}
-            {perfil.temCnh && (
-              <span className="ei-campo-ajuda">
-                Marque as categorias que você tem. A vaga de entrega procura por aqui.
-              </span>
             )}
           </div>
         </div>
@@ -784,7 +770,6 @@ export function MeuPerfilPage() {
                   if (v) setPretensao("");
                 }}
                 titulo="Prefiro combinar"
-                descricao="Aparece “a combinar” no lugar do valor."
               />
             </div>
           </div>
@@ -792,9 +777,6 @@ export function MeuPerfilPage() {
           <div className="ei-cartao">
             <div className="ei-campo">
               <label>Melhor horário</label>
-              <span className="ei-campo-ajuda">
-                Pode marcar mais de um. Quem pode de manhã e no sábado marca os dois.
-              </span>
             </div>
             <div className="ei-chips-rolagem" style={{ marginTop: 8 }}>
               {DISPONIBILIDADE.map((h) => {
@@ -823,11 +805,6 @@ export function MeuPerfilPage() {
               ligado={aceitaViajar}
               onChange={setAceitaViajar}
               titulo="Aceito viajar"
-              descricao={
-                aceitaViajar
-                  ? "Você aparece também para vaga que exige sair da cidade."
-                  : "Só vagas na sua cidade e na região."
-              }
             />
           </div>
 
@@ -842,11 +819,6 @@ export function MeuPerfilPage() {
               ligado={perfil.fimDeSemana}
               onChange={(v) => setPerfil((x) => ({ ...x, fimDeSemana: v }))}
               titulo="Trabalho em fim de semana"
-              descricao={
-                perfil.fimDeSemana
-                  ? "Você aparece para vaga de escala e plantão."
-                  : "Vagas de sábado e domingo não chegam para você."
-              }
             />
           </div>
 
@@ -855,11 +827,6 @@ export function MeuPerfilPage() {
               ligado={perfil.inicioImediato}
               onChange={(v) => setPerfil((x) => ({ ...x, inicioImediato: v }))}
               titulo="Posso começar imediato"
-              descricao={
-                perfil.inicioImediato
-                  ? "Aparece na vaga urgente antes de quem tem aviso a cumprir."
-                  : "Marque se você está livre para começar esta semana."
-              }
             />
           </div>
 
@@ -881,9 +848,6 @@ export function MeuPerfilPage() {
                 <option value="hibrido">Parte no local, parte de casa</option>
                 <option value="tanto_faz">Tanto faz</option>
               </select>
-              <span className="ei-campo-ajuda">
-                Quase toda vaga em Itabirito é presencial. “Tanto faz” é resposta.
-              </span>
             </div>
           </div>
         </div>
@@ -935,9 +899,12 @@ export function MeuPerfilPage() {
         {/* ── 2. Funções ───────────────────────────────────────────────── */}
         <h2 className="ei-secao">O que você aceita fazer</h2>
         <div className="ei-cartao">
+          {/* Só a contagem — a dona: "tirar as legendas da tela de
+              cadastro". O que ensinava a usar o campo saiu; o que ele
+              precisa dizer (quantas cabem, quantas já foram) não é
+              legenda, é o estado do que a pessoa está fazendo. */}
           <p className="ei-apoio" style={{ marginBottom: 12 }}>
-            Escreva o que você faz e toque em acrescentar. Até {MAX_FUNCOES} —{" "}
-            <strong>{funcoes.length} de {MAX_FUNCOES}</strong> por enquanto.
+            <strong>{funcoes.length} de {MAX_FUNCOES}</strong> funções
           </p>
 
           <div className="ei-campo" style={{ marginBottom: 12 }}>
@@ -1068,11 +1035,6 @@ export function MeuPerfilPage() {
         {/* ── 3. Experiências ──────────────────────────────────────────── */}
         <h2 className="ei-secao">Onde você já trabalhou</h2>
         <div className="ei-cartao">
-          {experiencias.length === 0 && (
-            <p className="ei-apoio" style={{ marginBottom: 12 }}>
-              Opcional. Empresas costumam chamar antes quem já fez o serviço.
-            </p>
-          )}
 
           <div style={{ display: "grid", gap: 16 }}>
             {experiencias.map((exp, i) => (
@@ -1144,7 +1106,6 @@ export function MeuPerfilPage() {
                         )
                       }
                     />
-                    <span className="ei-campo-ajuda">Vazio = ainda trabalho lá</span>
                   </div>
                 </div>
               </div>
@@ -1201,10 +1162,6 @@ export function MeuPerfilPage() {
                 </Link>
               ))}
             </div>
-            <p className="ei-apoio ei-margem" style={{ marginTop: 10 }}>
-              Ver o cadastro não é o mesmo que chamar. Mas é sinal de que a sua
-              função está sendo procurada na cidade.
-            </p>
           </>
         )}
 
@@ -1220,11 +1177,6 @@ export function MeuPerfilPage() {
             médio e o curso de NR-35 não se misturam. */}
         <h2 className="ei-secao">Formação</h2>
         <div className="ei-cartao">
-          {cursos.filter((c) => c.tipo === "formacao").length === 0 && (
-            <p className="ei-apoio" style={{ marginBottom: 12 }}>
-              Ensino médio, técnico, faculdade. Pode pôr mais de uma.
-            </p>
-          )}
           <ListaDeCursos
             cursos={cursos}
             setCursos={setCursos}
@@ -1235,11 +1187,6 @@ export function MeuPerfilPage() {
 
         <h2 className="ei-secao">Cursos complementares</h2>
         <div className="ei-cartao">
-          {cursos.filter((c) => c.tipo === "complementar").length === 0 && (
-            <p className="ei-apoio" style={{ marginBottom: 12 }}>
-              NR-35, informática, direção defensiva — o que te habilita a alguma vaga.
-            </p>
-          )}
           <ListaDeCursos
             cursos={cursos}
             setCursos={setCursos}
@@ -1259,12 +1206,6 @@ export function MeuPerfilPage() {
             inclusive quem nunca abriu um. */}
         <h2 className="ei-secao">Competências</h2>
         <div className="ei-cartao">
-          {competencias.length === 0 && (
-            <p className="ei-apoio" style={{ marginBottom: 12 }}>
-              O que você sabe fazer, e o quanto. É por aqui que a empresa
-              compara duas pessoas do mesmo ofício.
-            </p>
-          )}
 
           <div style={{ display: "grid", gap: 12 }}>
             {competencias.map((c, i) => (
