@@ -2,9 +2,10 @@ import { supabase as getSupabase } from "./supabase";
 import type { Company, JobListing, JobDispatch, JobResponse, WaveNumber } from "../types/domain";
 import {
   cabeVagaNoPlano,
-  categoriasDoMesmoGrupo,
   DIAS_ANUNCIO_VAGA,
+  FAIXAS_DAS_ONDAS,
 } from "../types/domain";
+import { calcular } from "./compatibilidade";
 import { lerTudo } from "./lerTudo";
 
 const supabase = getSupabase();
@@ -587,79 +588,16 @@ export async function obterVaga(vagaId: string): Promise<JobListing | null> {
   return data as JobListing;
 }
 
-/**
- * Quem uma onda alcança.
- *
- * Lê a `professionals_public`, que já deixa de fora suspensos e pausados
- * (migration 0053). Ninguém que tirou o próprio cadastro do ar recebe vaga.
- *
- * As três ondas diferem só na largura do filtro de ofício — ver `ONDAS` e o
- * cabeçalho da migration 0068 para o porquê de não haver distância aqui.
- */
-function consultaDaOnda(
-  sb: NonNullable<ReturnType<typeof getSupabase>>,
-  vaga: JobListing,
-  onda: WaveNumber,
-  /* Duas colunas guardam ofício: `categories` é o que a pessoa FAZ,
-     `areas_de_interesse` é onde ela ACEITARIA trabalhar. A vaga alcança
-     pelas duas.
+/* A `consultaDaOnda` foi embora em 03/09.
+   ───────────────────────────────────────
+   Ela montava as três ondas por recorte de OFÍCIO (especialidade exata →
+   mesmo ofício → grupo vizinho), chamando `candidatos_da_onda` seis vezes:
+   três ondas × duas colunas. As ondas passaram a ser faixas de
+   compatibilidade (ver `calcularOndas`), e uma consulta só traz todos os
+   candidatos da cidade com os campos da conta.
 
-     São duas consultas, e não um `or` numa string só, porque nome de ofício
-     tem espaço, acento e hífen ("Refrigeração e ar-condicionado") — e a
-     condição escrita à mão que o `or` exigiria não devolve menos resultado
-     quando as aspas erram, derruba a consulta inteira. `contains` e
-     `overlaps` são métodos do cliente, que escapam o valor sozinhos. */
-  coluna: "categories" | "areas_de_interesse"
-) {
-  /* ── Uma função do banco, e não mais a view pública ──────────────────
-     A dona: "oculto ele recebe oportunidades pelas ondas de disparos."
-
-     A consulta lia `professionals_public`, e essa view filtra
-     `paused = false`. Quem se escondia da busca sumia também das ondas — o
-     contrário do que a chave da tela promete, com estas palavras: "pode se
-     esconder da lista e continuar recebendo vaga".
-
-     Era o defeito mais silencioso que este app já teve. A pessoa se
-     esconde para o patrão não ver, acha que continua na fila das
-     oportunidades, e nunca recebe uma. Ninguém reclama de vaga que não
-     chegou.
-
-     A função da 0077 enxerga quem está pausado, e devolve `id` e
-     `owner_id` e MAIS NADA — sem nome, sem telefone. Uma view que
-     incluísse os pausados teria de ser legível por alguém, e aí daria para
-     LISTAR quem se escondeu: desfazer o esconderijo para consertar o
-     esconderijo. O nome, aliás, nunca foi usado — a tela só mostra
-     quantas pessoas a onda alcança.
-
-     As outras duas condições continuam: suspenso não recebe, e sem
-     telefone confirmado não entra em onda nenhuma — o aviso é uma mensagem
-     no número da pessoa, e mandar para um número que ninguém provou ser
-     dela é, na melhor hipótese, avisar o vazio. */
-  return sb.rpc("candidatos_da_onda", {
-    p_cidade: vaga.city,
-    /* O estado anda junto com a cidade, sempre: há "Bom Jesus" em mais de
-       vinte estados, e filtrar só pelo nome mistura cidades distantes numa
-       lista que chega cheia, sem erro nenhum na tela. */
-    p_uf: vaga.uf ?? null,
-    p_oficios:
-      onda === 3
-        ? // Ofícios vizinhos: o grupo inteiro da profissão, ela incluída.
-          categoriasDoMesmoGrupo(vaga.profession)
-        : [vaga.profession],
-    p_coluna: coluna,
-    /* Onda 1 é a única que olha especialidade — e só quando a vaga pediu
-       uma. Vaga sem especialidade não tem como ser mais exata que o ofício,
-       então a onda 1 já é a onda 2, e a 2 não terá o que acrescentar. É de
-       propósito: melhor uma onda que sobra vazia do que uma que finge
-       precisão que não existe.
-
-       Só vale para quem OFERECE o serviço: especialidade é um recorte do
-       que a pessoa faz, e quem marcou o ofício como interesse ainda não tem
-       recorte nenhum dentro dele. */
-    p_especialidade:
-      onda === 1 && coluna === "categories" ? (vaga.specialty?.trim() ?? null) : null,
-  });
-}
+   A função `candidatos_da_onda` continua no banco: apagá-la é irreversível
+   e ela não atrapalha. */
 
 /* Sem `name`: a função do banco não devolve nome, de propósito — e a tela
    nunca usou. Ver o comentário em `consultaDaOnda`. */
@@ -668,46 +606,102 @@ type AlcancadoPelaOnda = { id: string; owner_id: string };
 /**
  * Quantas pessoas cada onda alcançaria, sem avisar ninguém.
  *
- * É o que a tela mostra antes de a empresa confirmar. As ondas são
- * cumulativas por construção (quem está na 1 está na 2), então o número de
- * cada uma é descontado das anteriores — senão a tela diria "12, 30, 45"
- * para 45 pessoas no total, e quem lê entenderia 87.
+ * ── AS ONDAS SÃO FAIXAS DE COMPATIBILIDADE — 03/09 ───────────────────
+ *
+ * A dona: "onda 1 — 80% a 100%; onda 2 — 40% a 79%; onda 3 — 0 a 39."
+ *
+ * Antes eram três consultas ao banco, uma por recorte de ofício. Agora é
+ * UMA consulta que traz os candidatos da cidade com os campos da conta
+ * (`candidatos_para_compatibilidade`, 0113), e a nota de cada um é feita
+ * aqui com a mesma fórmula que a tela de quem procura mostra
+ * (`compatibilidade.ts`).
+ *
+ * Cada pessoa cai em uma faixa e em uma só — por isso não há mais desconto
+ * entre ondas: elas não se sobrepõem por construção.
+ *
+ * Quem não tem NOTA (cadastro sem nenhuma função marcada) fica de fora das
+ * três. Não é descuido: sem função declarada não há como dizer que a vaga
+ * tem a ver com a pessoa, e mandar assim mesmo é o caminho para ela
+ * silenciar o app — e aí a vaga seguinte, a que era dela, não chega.
  *
  * `lerTudo` e não `select` direto: a migration 0062 pôs teto de 200 linhas
- * por consulta, e ele vale para toda consulta. Uma contagem que bate no
- * teto para de subir para sempre, sem erro, sem aviso — e um número que
- * mente calado é o defeito mais caro deste projeto.
+ * por consulta. Uma contagem que bate no teto para de subir para sempre,
+ * sem erro e sem aviso.
  */
+type CandidatoDoBanco = {
+  id: string;
+  owner_id: string;
+  categories: string[] | null;
+  areas_de_interesse: string[] | null;
+  city: string | null;
+  modo_trabalho: string | null;
+  cnh: boolean | null;
+  cnh_categorias: string[] | null;
+  aceita_viajar: boolean | null;
+  inicio_imediato: boolean | null;
+  fim_de_semana: boolean | null;
+  pretensao_centavos: number | null;
+  pretensao_combinar: boolean | null;
+  disponibilidade: string[] | null;
+  escolaridade: string | null;
+};
+
+/** A faixa em que esta nota cai, ou `null` quando não há nota. */
+export function ondaDaNota(nota: number | null): WaveNumber | null {
+  if (nota == null) return null;
+  for (const n of [1, 2, 3] as WaveNumber[]) {
+    const faixa = FAIXAS_DAS_ONDAS[n];
+    if (nota >= faixa.de && nota <= faixa.ate) return n;
+  }
+  return null;
+}
+
 export async function calcularOndas(
   vaga: JobListing
 ): Promise<Array<{ onda: WaveNumber; novos: number; pessoas: AlcancadoPelaOnda[] }>> {
   const sb = getSupabase();
   if (!sb) throw new Error("Banco não configurado");
 
-  const jaAlcancados = new Set<string>();
-  const resultado: Array<{ onda: WaveNumber; novos: number; pessoas: AlcancadoPelaOnda[] }> = [];
+  const candidatos = await lerTudo<CandidatoDoBanco>(() =>
+    sb.rpc("candidatos_para_compatibilidade", {
+      p_cidade: vaga.city,
+      p_uf: vaga.uf ?? null,
+    })
+  );
 
-  for (const onda of [1, 2, 3] as WaveNumber[]) {
-    /* Uma consulta por coluna (o que faz / onde aceitaria trabalhar), e a
-       união feita aqui. Quem marcou as duas aparece nas duas listas e é
-       contado uma vez só — o `Set` abaixo resolve isso junto com a
-       sobreposição entre ondas. */
-    const [oferece, aceitaria] = await Promise.all([
-      lerTudo<AlcancadoPelaOnda>(() => consultaDaOnda(sb, vaga, onda, "categories")),
-      lerTudo<AlcancadoPelaOnda>(() => consultaDaOnda(sb, vaga, onda, "areas_de_interesse")),
-    ]);
+  const porOnda = new Map<WaveNumber, AlcancadoPelaOnda[]>([
+    [1, []],
+    [2, []],
+    [3, []],
+  ]);
 
-    const novas: AlcancadoPelaOnda[] = [];
-    for (const p of [...oferece, ...aceitaria]) {
-      if (jaAlcancados.has(p.id)) continue;
-      jaAlcancados.add(p.id);
-      novas.push(p);
-    }
-
-    resultado.push({ onda, novos: novas.length, pessoas: novas });
+  for (const c of candidatos) {
+    /* O que a pessoa FAZ e onde ela ACEITARIA trabalhar entram na mesma
+       lista de funções: a vaga alcança pelas duas, como sempre alcançou. */
+    const funcoes = [...(c.categories ?? []), ...(c.areas_de_interesse ?? [])];
+    const { nota } = calcular(vaga, {
+      funcoes,
+      cidade: c.city ?? "",
+      modo: c.modo_trabalho,
+      temCnh: !!c.cnh,
+      cnhCategorias: c.cnh_categorias ?? [],
+      aceitaViajar: !!c.aceita_viajar,
+      inicioImediato: !!c.inicio_imediato,
+      fimDeSemana: !!c.fim_de_semana,
+      pretensaoCentavos: c.pretensao_centavos,
+      pretensaoCombinar: !!c.pretensao_combinar,
+      disponibilidade: c.disponibilidade ?? [],
+      escolaridade: c.escolaridade,
+    });
+    const onda = ondaDaNota(nota);
+    if (!onda) continue;
+    porOnda.get(onda)!.push({ id: c.id, owner_id: c.owner_id });
   }
 
-  return resultado;
+  return ([1, 2, 3] as WaveNumber[]).map((onda) => {
+    const pessoas = porOnda.get(onda) ?? [];
+    return { onda, novos: pessoas.length, pessoas };
+  });
 }
 
 /**

@@ -907,6 +907,17 @@ const clienteFalso = {
        "fazerConsulta(...).range is not a function" na tela de criar vaga.
        Parecia defeito do app; era o falso não sabendo imitar essa metade do
        cliente. */
+    /* A função da 0113, que alimenta as ondas por faixa de
+       compatibilidade: os candidatos da cidade com os campos da conta.
+       Devolve um construtor de consulta, como o cliente de verdade — a
+       `lerTudo` chama `.range()` nele. */
+    if (nome === "candidatos_para_compatibilidade") {
+      return new Consulta("professionals")
+        .eq("city", args?.p_cidade)
+        .eq("suspended", false)
+        .eq("whatsapp_verified", true);
+    }
+
     if (nome === "candidatos_da_onda") {
       const oficios = (args?.p_oficios as string[]) ?? [];
       const coluna = (args?.p_coluna as string) ?? "categories";

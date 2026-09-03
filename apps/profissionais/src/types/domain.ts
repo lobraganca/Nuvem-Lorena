@@ -1233,18 +1233,43 @@ export type WaveNumber = 1 | 2 | 3;
  * exato para o mais largo. E ele para no ramo — nunca alcança quem não tem
  * nada a ver com o serviço.
  */
+/* ── AS ONDAS VIRARAM FAIXAS DE COMPATIBILIDADE — 03/09 ────────────────
+   A dona: "onda 1 — 80% a 100% de compatibilidade; onda 2 — 40% a 79%;
+   onda 3 — 0 a 39."
+
+   O eixo continua sendo o encaixe, do mais exato para o mais largo — o que
+   muda é o que mede esse encaixe. Antes era só o nome do ofício, em três
+   recortes; agora é a conta inteira (`compatibilidade.ts`), que também
+   pesa cidade, escolaridade, CNH, horário, viagem e pretensão.
+
+   O ganho está no meio da escala: quem faz o serviço mas não bate em mais
+   nada saía na mesma onda de quem batia em tudo. Agora sai depois.
+
+   E é a MESMA nota que a pessoa vê na tela de vagas — quem lê "85%" é
+   exatamente quem a onda 1 alcança. Duas contas diferentes para a mesma
+   palavra seria o defeito que ninguém descobre.
+
+   As faixas vivem aqui, e não espalhadas: a dona já avisou que vai
+   "planejar a compatibilidade posteriormente", então isto é um número de
+   hoje, não uma verdade do app. */
+export const FAIXAS_DAS_ONDAS: Record<WaveNumber, { de: number; ate: number }> = {
+  1: { de: 80, ate: 100 },
+  2: { de: 40, ate: 79 },
+  3: { de: 0, ate: 39 },
+};
+
 export const ONDAS: Record<WaveNumber, { titulo: string; explicacao: string }> = {
   1: {
-    titulo: "Quem é exatamente isso",
-    explicacao: "Faz esse serviço e a especialidade bate.",
+    titulo: "Quem mais combina",
+    explicacao: "De 80% a 100% de compatibilidade com a vaga.",
   },
   2: {
-    titulo: "Quem faz esse serviço",
-    explicacao: "Mesmo ofício, qualquer especialidade.",
+    titulo: "Quem combina em boa parte",
+    explicacao: "De 40% a 79% — bate no principal, não em tudo.",
   },
   3: {
     titulo: "Quem faz coisa do mesmo ramo",
-    explicacao: "Ofícios vizinhos, do mesmo grupo de serviços.",
+    explicacao: "Abaixo de 40%: ofícios vizinhos, para alargar a busca.",
   },
 };
 
