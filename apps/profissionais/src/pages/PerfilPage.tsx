@@ -553,37 +553,6 @@ export function PerfilPage() {
           <h2>Ajuda</h2>
         </div>
 
-        {/* ── O SUPORTE VIROU BOTÃO — 03/09 ────────────────────────────
-            A dona: "virar um botão de suporte dentro da conta."
-
-            Ele era mais uma linha no meio de cinco iguais — mesmo tamanho
-            de letra, mesmo ícone cinza que "Como funciona" e "Termos de
-            Uso". Quem está travado não lê uma lista: procura uma coisa
-            para tocar. Um botão de largura cheia, no alto da Ajuda e antes
-            das linhas, é o que se acha sem ler.
-
-            A conversa abre já escrita — "como eu explico isso" é onde a
-            maioria desiste de pedir ajuda. */}
-        <div className="ei-margem" style={{ padding: "12px 20px 4px" }}>
-          <a
-            className="ei-btn ei-btn-cheio ei-btn-largo ei-btn-alto"
-            href={`https://wa.me/${SUPORTE_WHATSAPP}?text=${encodeURIComponent(
-              "Oi! Preciso de ajuda com o Ei Emprego."
-            )}`}
-            target="_blank"
-            rel="noopener noreferrer"
-            style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 8 }}
-          >
-            {/* O ícone com tamanho fixo: solto dentro de um flex ele
-                esticou para 212px de altura na primeira tentativa — um SVG
-                sem largura declarada cresce até onde deixarem. */}
-            <span style={{ display: "grid", placeItems: "center", width: 20, height: 20, flex: "none" }}>
-              <IconeConversa />
-            </span>
-            Falar com o suporte
-          </a>
-        </div>
-
         <div className="ei-lista">
           {/* A dona pediu "como funciona" junto de sugestão, termos e
               suporte — o roteiro de quem não sabe se o app está fazendo o
@@ -736,6 +705,38 @@ export function PerfilPage() {
             {error}
           </p>
         )}
+
+        {/* ── O SUPORTE VIROU BOTÃO — 03/09 ────────────────────────────
+            A dona: "virar um botão de suporte dentro da conta."
+
+            Ele era mais uma linha no meio de cinco iguais — mesmo tamanho
+            de letra, mesmo ícone cinza que "Como funciona" e "Termos de
+            Uso". Quem está travado não lê uma lista: procura uma coisa
+            para tocar. Um botão de largura cheia, no alto da Ajuda e antes
+            das linhas, é o que se acha sem ler.
+
+            A conversa abre já escrita — "como eu explico isso" é onde a
+            maioria desiste de pedir ajuda. */}
+        <div className="ei-margem" style={{ padding: "12px 20px 4px" }}>
+          <a
+            className="ei-btn ei-btn-cheio ei-btn-largo ei-btn-alto"
+            href={`https://wa.me/${SUPORTE_WHATSAPP}?text=${encodeURIComponent(
+              "Oi! Preciso de ajuda com o Ei Emprego."
+            )}`}
+            target="_blank"
+            rel="noopener noreferrer"
+            style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 8 }}
+          >
+            {/* O ícone com tamanho fixo: solto dentro de um flex ele
+                esticou para 212px de altura na primeira tentativa — um SVG
+                sem largura declarada cresce até onde deixarem. */}
+            <span style={{ display: "grid", placeItems: "center", width: 20, height: 20, flex: "none" }}>
+              <IconeConversa />
+            </span>
+            Falar com o suporte
+          </a>
+        </div>
+
 
         <button
           className="ei-btn ei-btn-contorno ei-btn-largo ei-btn-alto"
