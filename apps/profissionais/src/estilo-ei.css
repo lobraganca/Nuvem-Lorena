@@ -843,6 +843,18 @@
   width: 100%;
 }
 
+/* O texto ocupa a sobra, e o trilho vai para a direita.
+   ─────────────────────────────────────────────────────
+   Sem isto, a chave SEM descrição encolhia junto com o título e ficava
+   grudada nele, no meio da linha — enquanto as chaves com descrição
+   tinham o trilho na borda. Três chaves seguidas assim ("aceito viajar",
+   "fim de semana", "começar imediato") leem como tela quebrada, e foi
+   assim que a dona as viu depois que as legendas saíram (04/09). */
+.ei-switch > span:first-child {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
 .ei-switch-trilho {
   flex: 0 0 auto;
   position: relative;
@@ -4209,4 +4221,42 @@
   font-size: 0.8rem;
   font-weight: 600;
   color: var(--ei-acao);
+}
+
+
+/* ── RESPIRO NA TELA DE CADASTRO — 04/09 ────────────────────────────────
+   A dona: "melhorar a tela do cadastro, dar respiros melhores e está
+   quebrado."
+
+   O "quebrado" era a chave sem descrição (consertado em `.ei-switch`), e o
+   aperto vinha de dois lugares:
+
+   1. Uma chave seguida de um campo colavam — "Posso começar imediato" e
+      "Como você prefere trabalhar" começavam a 4px um do outro, e a chave
+      parecia o rótulo do campo de baixo.
+   2. Cada bloco de assunto terminava rente à borda do cartão. */
+.ei .ei-cartao .ei-switch + .ei-campo,
+.ei .ei-cartao .ei-chips + .ei-campo,
+.ei .ei-cartao .ei-campo + .ei-switch {
+  margin-top: 22px;
+}
+
+/* Chaves seguidas: um respiro entre elas, para três em fila não virarem
+   uma lista corrida. */
+.ei .ei-cartao .ei-switch + .ei-switch {
+  margin-top: 6px;
+}
+
+/* O pé do cartão. 20px é o que separa a última linha da borda em todos os
+   outros cartões do app — aqui ele vinha do `padding` antigo, que era
+   menor embaixo do que em cima. */
+.ei .ei-cartao {
+  padding-bottom: 20px;
+}
+
+/* Os títulos de seção respiram mais: eles são a divisão entre assuntos, e
+   numa tela de vinte campos é por eles que a pessoa se localiza ao rolar. */
+.ei .ei-secao,
+.ei .ei-secao-linha {
+  padding-top: 32px;
 }

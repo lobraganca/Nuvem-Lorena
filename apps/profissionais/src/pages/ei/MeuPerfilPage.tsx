@@ -148,15 +148,6 @@ export function MeuPerfilPage() {
 
     (async () => {
       try {
-        /* `?novo=1` vem do "+ Cadastrar outro perfil": a tela abre em
-           branco, e o `id` nulo faz `salvarMeuPerfil` INSERIR em vez de
-           atualizar. Sem isto, o "+" abriria o cadastro que já existe e a
-           pessoa acabaria escrevendo por cima dele. */
-        if (paramsDaUrl.get("novo") === "1") {
-          setEhPrimeiroCadastro(true);
-          setCarregando(false);
-          return;
-        }
         const meu = await lerMeuPerfil(user.id);
         setEhPrimeiroCadastro(!meu);
         if (meu) {

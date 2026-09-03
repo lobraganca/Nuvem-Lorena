@@ -9,8 +9,6 @@ import {
   pausarVaga,
   reabrirVaga,
   excluirVaga,
-  calcularOndas,
-  abrirOnda,
   type RespostaComPessoa,
 } from "../lib/company";
 import { mensagemDeErro } from "../lib/erros";
@@ -45,13 +43,6 @@ export function DetalheVagaPage() {
      botão. `window.confirm` some dentro do app instalado. */
   const [confirmandoExclusao, setConfirmandoExclusao] = useState(false);
   const [erro, setErro] = useState("");
-  /* `null` = ainda não perguntamos ao banco. Um número = a contagem veio.
-     Zero é resposta legítima ("não há mais ninguém"), então não dá para
-     usar 0 como "não sei" — seria a mesma confusão que faz tela dizer
-     "nenhum resultado" quando na verdade a consulta falhou. */
-  const [alcanceProximaOnda, setAlcanceProximaOnda] = useState<number | null>(null);
-  const [contando, setContando] = useState(false);
-  const [abrindo, setAbrindo] = useState(false);
 
   useEffect(() => {
     if (!vagaId) {
@@ -83,47 +74,6 @@ export function DetalheVagaPage() {
     }
   }
 
-  /** Quantas pessoas novas a próxima onda alcança. Só quando a empresa pede. */
-  async function contarProximaOnda() {
-    if (!vaga || !proximaOnda) return;
-    setContando(true);
-    setErro("");
-    try {
-      const todas = await calcularOndas(vaga);
-      setAlcanceProximaOnda(todas.find((o) => o.onda === proximaOnda)?.novos ?? 0);
-    } catch (err) {
-      setErro(mensagemDeErro(err, "Não foi possível contar os profissionais."));
-    } finally {
-      setContando(false);
-    }
-  }
-
-  async function abrirProximaOnda() {
-    if (!vaga || !proximaOnda) return;
-    setAbrindo(true);
-    setErro("");
-    try {
-      await abrirOnda(vaga, proximaOnda);
-      /* Recarrega em vez de acrescentar à lista na mão: a onda gravada é a
-         que vale, e o número dela vem do banco. */
-      setAlcanceProximaOnda(null);
-      await carregarDados();
-    } catch (err) {
-      setErro(mensagemDeErro(err, "Não foi possível avisar os profissionais."));
-    } finally {
-      setAbrindo(false);
-    }
-  }
-
-  /**
-   * Pausar, reabrir e arquivar num caminho só.
-   *
-   * Depois de mudar o estado a tela RECARREGA em vez de voltar ao painel.
-   * Arquivar mandava embora, e isso escondia o que a empresa acabou de
-   * fazer: ela ficava sem ver que a vaga continua ali, com a lista de quem
-   * se interessou — que é justamente o que a frase embaixo do botão
-   * promete.
-   */
   async function mudarEstado(
     acao: () => Promise<void>,
     seDerErrado: string
@@ -191,10 +141,6 @@ export function DetalheVagaPage() {
   /* A próxima onda que ainda não abriu. `undefined` quando as três já
      saíram — aí não há mais ninguém a alcançar e o bloco some da tela, em
      vez de virar um botão que não faz nada. */
-  const proximaOnda = ([1, 2, 3] as WaveNumber[]).find(
-    (n) => !ondas.some((o) => o.wave === n)
-  );
-
   /* Cada vaga tem direito a `ONDAS_POR_VAGA` ondas, e quem recusa a terceira
      é o banco (gatilho da 0072). Esconder o bloco quando o direito acabou
      evita o pior caminho: a empresa toca o botão, espera, e recebe um erro
@@ -424,174 +370,46 @@ export function DetalheVagaPage() {
         </div>
       )}
 
-      {/* ── AS TRÊS ONDAS, UMA POR BLOCO — 03/09 ─────────────────────────
-          A dona: "a parte de disparo de ondas tem que ficar melhor.
-          Colocar 3 botões de ondas."
+      {/* ── DUAS PORTAS, EM VEZ DE DOIS BLOCOS — 04/09 ──────────────────
+          A dona: "no painel da vaga acho que pode ter botões sobre as
+          ondas e outro para as pessoas que são interessadas. Daí fica mais
+          organizado em outras telas."
 
-          Era uma caixa que mostrava o que JÁ tinha sido disparado e, no
-          fim, um bloco só para "a próxima" — então a empresa nunca via as
-          três de uma vez, nem entendia que existe uma escala: exatamente
-          isso → mesmo ofício → ramo vizinho. Cada onda alcança mais gente
-          e menos precisa, e essa é a decisão que a tela tem que deixar
-          tomar.
+          Esta tela acumulava três assuntos numa rolagem só: a ficha da
+          vaga, as três ondas (com contagem, botão de disparo e a
+          explicação de cada faixa) e a lista de quem se candidatou. Quem
+          entrava para ver um nome passava por dois blocos de disparo
+          antes; quem entrava para disparar rolava a ficha inteira.
 
-          Agora são três blocos fixos, sempre os três, cada um dizendo em
-          que estado está: disparada (com data e quantas pessoas), pronta
-          para disparar (com o botão), ou trancada (com o motivo escrito).
-          Ninguém precisa adivinhar o que existe atrás do que está na tela. */}
-      <h2 className="ei-secao">As ondas desta vaga</h2>
-      <div className="ei-lista">
-        {([1, 2, 3] as WaveNumber[]).map((n) => {
-          const jaSaiu = ondas.find((o) => o.wave === n);
-          const ehAProxima = !jaSaiu && proximaOnda === n && vaga.status === "active";
-          const semCota = !jaSaiu && !aindaTemOnda;
+          Cada porta DIZ o que tem dentro — "1 de 3 disparadas", "2 pessoas
+          se interessaram". Uma porta que não conta nada obriga a abrir
+          para descobrir que não havia nada. */}
+      <h2 className="ei-secao">Esta vaga</h2>
+      <div className="ei-portas ei-margem">
+        <Link to={`/vaga/${vaga.id}/interessados`} className="ei-porta ei-porta-cheia">
+          <span className="ei-porta-nome">Quem se interessou</span>
+          <span className="ei-porta-nota">
+            {respostas.length === 0
+              ? "Ninguém ainda — quem tocar em “tenho interesse” aparece aqui"
+              : respostas.length === 1
+                ? "1 pessoa, com telefone"
+                : `${respostas.length} pessoas, com telefone`}
+          </span>
+        </Link>
 
-          return (
-            <div key={n} className="ei-onda">
-              <div className="ei-onda-topo">
-                <span className="ei-onda-nome">
-                  Onda {n} — {ONDAS[n].titulo}
-                </span>
-                {jaSaiu && <span className="ei-selo ei-selo-verde">Disparada</span>}
-              </div>
-              <p className="ei-onda-nota">{ONDAS[n].explicacao}</p>
-
-              {jaSaiu ? (
-                <p className="ei-onda-conta">
-                  <strong>
-                    {jaSaiu.professionals_count}{" "}
-                    {jaSaiu.professionals_count === 1 ? "pessoa avisada" : "pessoas avisadas"}
-                  </strong>{" "}
-                  em{" "}
-                  {new Date(jaSaiu.sent_at).toLocaleDateString("pt-BR", {
-                    hour: "2-digit",
-                    minute: "2-digit",
-                  })}
-                  {/* Quantas TÊM aparelho que recebe aviso. Sem este número
-                      a tela venderia um alcance que não existe, e a empresa
-                      descobriria pelo silêncio — a forma mais cara. `null`
-                      é "não sei" e some: escrever "0 com aviso" seria
-                      inventar a pior notícia possível. */}
-                  {jaSaiu.podiam_receber !== null && jaSaiu.podiam_receber !== undefined && (
-                    <>
-                      {" · "}
-                      {jaSaiu.podiam_receber} com aviso no celular
-                    </>
-                  )}
-                </p>
-              ) : ehAProxima ? (
-                alcanceProximaOnda === null ? (
-                  <button
-                    className="ei-btn ei-btn-contorno ei-btn-curto"
-                    disabled={contando}
-                    onClick={contarProximaOnda}
-                  >
-                    {contando ? "Contando…" : "Ver quantas pessoas alcança"}
-                  </button>
-                ) : (
-                  <button
-                    className="ei-btn ei-btn-cheio ei-btn-curto"
-                    disabled={abrindo || alcanceProximaOnda === 0}
-                    onClick={abrirProximaOnda}
-                  >
-                    {abrindo
-                      ? "Avisando…"
-                      : alcanceProximaOnda === 0
-                        ? "Não há mais ninguém para avisar"
-                        : `Avisar ${alcanceProximaOnda} ${
-                            alcanceProximaOnda === 1 ? "pessoa" : "pessoas"
-                          }`}
-                  </button>
-                )
-              ) : (
-                /* Trancada, e o motivo escrito: sem ele o bloco cinza
-                   parece defeito. São dois motivos diferentes — a vaga não
-                   está no ar, ou a cota de ondas acabou — e trocar um pelo
-                   outro manda a empresa procurar a solução errada. */
-                <p className="ei-onda-nota">
-                  {vaga.status !== "active"
-                    ? "A vaga precisa estar no ar para disparar."
-                    : semCota
-                      ? `Esta vaga já usou as ${ONDAS_POR_VAGA} ondas dela.`
-                      : "Sai depois da onda anterior."}
-                </p>
-              )}
-            </div>
-          );
-        })}
+        <Link to={`/vaga/${vaga.id}/ondas`} className="ei-porta">
+          <span className="ei-porta-nome">Ondas de aviso</span>
+          <span className="ei-porta-nota">
+            {ondas.length === 0
+              ? `Nenhuma disparada ainda — são ${ONDAS_POR_VAGA} por vaga`
+              : `${ondas.length} de ${ONDAS_POR_VAGA} disparadas`}
+            {aindaTemOnda && vaga.status === "active" ? " · dá para avisar mais gente" : ""}
+          </span>
+        </Link>
       </div>
-
-
-      {/* Respostas */}
-      <section className="ei-cartao">
-        <h2 className="ei-cartao-titulo" style={{ marginBottom: 10 }}>
-          Profissionais interessados
-          {respostas.length > 0 && ` (${respostas.length})`}
-        </h2>
-
-        {respostas.length === 0 ? (
-          /* "Ainda não se interessou" e não "não respondeu": desde a 0078 a
-             pessoa também pode responder que a vaga não é para ela, e essa
-             resposta não aparece aqui. Dizer "ninguém respondeu" sobre uma
-             vaga que já teve respostas seria falso. */
-          <p className="muted">
-            Ninguém se interessou ainda. Quem tocar em “tenho interesse” aparece aqui,
-            com o telefone.
-          </p>
-        ) : (
-          /* Cada pessoa vira uma LINHA com nome, rosto e caminho para o
-             perfil — onde está o telefone. Antes era "Profissional ID:
-             8f3a2b1c…" com um botão "Ver perfil" que não fazia nada: a
-             lista pela qual a empresa paga o plano inteiro chegava como
-             uma coluna de códigos. */
-          <div style={{ margin: "0 -20px" }}>
-            {respostas.map((resp) => (
-              /* O link usa `cadastroId`, e não `professional_id`: aquele é
-                 o id da CONTA, e abriria "perfil não encontrado". Quem
-                 está sem cadastro visível vira linha sem toque. */
-              <Link
-                key={resp.id}
-                to={resp.cadastroId ? `/profissional/${resp.cadastroId}` : "#"}
-                className="ei-pessoa"
-                style={resp.cadastroId ? undefined : { pointerEvents: "none", opacity: 0.6 }}
-              >
-                <span className="ei-pessoa-retrato" aria-hidden="true">
-                  {resp.foto ? (
-                    <img src={resp.foto} alt="" loading="lazy" />
-                  ) : (
-                    (resp.nome || "?").trim().charAt(0).toLocaleUpperCase("pt-BR")
-                  )}
-                </span>
-                <span className="ei-pessoa-texto">
-                  <span className="ei-pessoa-nome ei-uma-linha">
-                    {resp.nome || "Sem nome"}
-                  </span>
-                  <span className="ei-pessoa-oficio ei-uma-linha">
-                    {resp.bairro ? `${resp.bairro} · ` : ""}
-                    respondeu em {new Date(resp.responded_at).toLocaleDateString("pt-BR")}
-                  </span>
-                </span>
-                {resp.cadastroId && (
-                  <span className="ei-linha-seta" aria-hidden="true">
-                    <IconeSeta />
-                  </span>
-                )}
-              </Link>
-            ))}
-          </div>
-        )}
-      </section>
 
       </div>
     </div>
   );
 }
 
-function IconeSeta() {
-  return (
-    <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor"
-         strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-      <path d="M9 5l7 7-7 7" />
-    </svg>
-  );
-}

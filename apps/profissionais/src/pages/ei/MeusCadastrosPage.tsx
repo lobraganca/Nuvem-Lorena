@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { useAuth } from "../../lib/useAuth";
 import { useTituloDaPagina } from "../../lib/tituloDaPagina";
 import { mensagemDeErro } from "../../lib/erros";
@@ -34,6 +34,10 @@ import { AvisoPerfilIncompleto } from "../../components/ei/AvisoPerfilIncompleto
  * cinco por conta; o app é que só sabia do primeiro.
  *
  * A escolha vive no aparelho, como a das empresas — ver `escolherCadastro`.
+ *
+ * 04/09: o "+ Cadastrar outro perfil" saiu — a regra passou a ser um
+ * cadastro por pessoa. A tela continua, porque continua respondendo "qual
+ * é o meu cadastro e o que tem nele" antes de abrir o formulário.
  */
 export function MeusCadastrosPage() {
   useTituloDaPagina("Seus cadastros");
@@ -143,15 +147,19 @@ export function MeusCadastrosPage() {
             </button>
           ))}
 
-          {/* Cinco é o teto do banco (`professionals_evita_repetidos`).
-              Esconder o botão no quinto evita o erro que só apareceria
-              depois de a pessoa preencher o cadastro inteiro. */}
-          {lista.length < 5 && (
-            <Link to="/painel?novo=1" className="ei-empresa-cartao ei-empresa-nova">
-              <span className="ei-empresa-mais" aria-hidden="true">+</span>
-              <span className="ei-empresa-nome">Cadastrar outro perfil</span>
-            </Link>
-          )}
+          {/* ── UM PERFIL POR PESSOA — 04/09 ──────────────────────────
+              A dona: "tirar o botão de adicionar outro perfil, a pessoa só
+              pode ter um perfil só."
+
+              O banco aceita até cinco (o gatilho vem do outro app), mas a
+              regra do produto é uma pessoa, um cadastro — e ela tem razão
+              no que isso evita: dois cadastros da mesma pessoa concorrem
+              entre si na mesma vaga, e a empresa recebe o mesmo nome duas
+              vezes sem saber que é a mesma pessoa.
+
+              A TELA fica, e é o que a dona pediu antes: ela mostra qual
+              cadastro está aberto e é a mesma pergunta do lado da empresa.
+              O que saiu foi só o caminho de criar mais um. */}
         </div>
       </div>
     </div>

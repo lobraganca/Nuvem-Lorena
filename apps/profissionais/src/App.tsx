@@ -59,6 +59,8 @@ const MinhasEmpresasPage = lazy(importarPagina(() => import("./pages/ei/MinhasEm
 const EmpresaPublicaPage = lazy(importarPagina(() => import("./pages/ei/EmpresaPublicaPage").then((m) => ({ default: m.EmpresaPublicaPage }))));
 const FavoritosPage = lazy(importarPagina(() => import("./pages/ei/FavoritosPage").then((m) => ({ default: m.FavoritosPage }))));
 const PlanosEmpresaPage = lazy(importarPagina(() => import("./pages/PlanosEmpresaPage").then((m) => ({ default: m.PlanosEmpresaPage }))));
+const OndasDaVagaPage = lazy(importarPagina(() => import("./pages/OndasDaVagaPage").then((m) => ({ default: m.OndasDaVagaPage }))));
+const InteressadosDaVagaPage = lazy(importarPagina(() => import("./pages/InteressadosDaVagaPage").then((m) => ({ default: m.InteressadosDaVagaPage }))));
 const DetalheVagaPage = lazy(importarPagina(() => import("./pages/DetalheVagaPage").then((m) => ({ default: m.DetalheVagaPage }))));
 const PerfilPublicoPage = lazy(importarPagina(() => import("./pages/PerfilPublicoPage").then((m) => ({ default: m.PerfilPublicoPage }))));
 /* A vaga vista por QUEM PROCURA. É outra tela que a `/vaga/:id`, que é o
@@ -335,6 +337,10 @@ export default function App() {
         <Route path="/pronto" element={<ProntoPage />} />
         {/* A MESMA tela de criar, no modo edição — ver CriarVagaPage. */}
         <Route path="/vaga/:id/editar" element={<CriarVagaPage />} />
+        {/* Os dois assuntos que saíram da tela da vaga em 04/09 — ver o
+            comentário das duas portas em `DetalheVagaPage`. */}
+        <Route path="/vaga/:id/ondas" element={<OndasDaVagaPage />} />
+        <Route path="/vaga/:id/interessados" element={<InteressadosDaVagaPage />} />
         <Route path="/vaga/:id" element={<DetalheVagaPage />} />
         <Route path="/planos-empresa" element={<PlanosEmpresaPage />} />
         <Route path="/profissionais" element={<ProfissionaisPage />} />
