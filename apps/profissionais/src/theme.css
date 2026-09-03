@@ -3387,7 +3387,10 @@ h3 {
   height: 16px;
   padding: 0 4px;
   border-radius: 999px;
-  background: var(--ei-laranja, #c2410c);
+  /* Vermelho, como o selo da porta de Avisos (`.ei-selo-vermelho`): é a
+     MESMA contagem nos dois lugares, e duas cores para o mesmo número
+     fariam parecer dois assuntos diferentes. */
+  background: var(--ei-erro, #b3261e);
   color: #ffffff;
   font-size: 0.62rem;
   font-weight: 700;

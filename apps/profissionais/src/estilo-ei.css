@@ -4151,3 +4151,20 @@
     max-width: 1000px;
   }
 }
+
+/* O selo de aviso não lido, em VERMELHO — a dona: "que esse botão apareça
+   o número de notificações em vermelho quando tiver."
+
+   Fundo cheio e número branco, e não a versão clarinha dos outros selos:
+   este não classifica nada, ele CHAMA — é a única coisa da tela que pede
+   para ser vista antes de qualquer palavra. Vermelho vale exatamente por
+   ser raro: se ele aparecesse em tudo, deixaria de significar novidade.
+
+   O mesmo vermelho do sino da barra de baixo, de propósito: é a mesma
+   contagem em dois lugares, e duas cores para o mesmo número fariam
+   parecer dois assuntos. */
+.ei-selo-vermelho {
+  background: var(--ei-erro);
+  color: #ffffff;
+  font-variant-numeric: tabular-nums;
+}

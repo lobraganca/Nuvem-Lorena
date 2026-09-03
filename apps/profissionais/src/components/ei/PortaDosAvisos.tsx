@@ -74,7 +74,7 @@ export function PortaDosAvisos() {
             cor é o que se vê antes de ler, e é ela que faz a pessoa parar
             nesta porta em vez de passar direto. */}
         {novas != null && novas > 0 && (
-          <span className="ei-selo ei-selo-laranja" style={{ marginLeft: 8 }}>
+          <span className="ei-selo ei-selo-vermelho" style={{ marginLeft: 8 }}>
             {novas}
           </span>
         )}
