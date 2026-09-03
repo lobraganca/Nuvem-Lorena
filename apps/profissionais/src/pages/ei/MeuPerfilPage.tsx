@@ -1001,23 +1001,12 @@ export function MeuPerfilPage() {
             />
           </div>
 
-          {/* ── FREELA E BICO (0114) ────────────────────────────────────
-              A dona: "criar uma área pra freelancer."
-
-              Aqui é o lado de quem faz. Marcar isto não tira ninguém das
-              vagas de carteira assinada: acrescenta. Numa cidade pequena
-              a mesma pessoa faz as duas coisas — o pedreiro que tem
-              emprego fixo e pega uma obra no sábado —, e obrigar a
-              escolher entre "emprego" e "bico" perderia justamente quem
-              está disponível para os dois. */}
-          <div className="ei-cartao" style={{ padding: 0 }}>
-            <Switch
-              ligado={perfil.aceitaFreela}
-              onChange={(v) => setPerfil((x) => ({ ...x, aceitaFreela: v }))}
-              titulo="Também faço freela e bico"
-              descricao="Diária, obra, evento, serviço avulso. Você continua recebendo as vagas de carteira assinada."
-            />
-          </div>
+          {/* A chave "também faço freela e bico" (0114) foi feita e
+              retirada no mesmo dia — a dona: "não vou colocar isso por
+              enquanto". A coluna continua no banco e o cadastro continua
+              lendo e gravando o valor que já estiver lá: apagar a resposta
+              de quem marcou seria perder dado por causa de uma decisão de
+              tela. */}
 
           {/* ── AS DUAS PERGUNTAS QUE FALTAVAM (item 14, colunas da 0103)
               A dona: "trabalha em final de semana?" e "disponibilidade pra

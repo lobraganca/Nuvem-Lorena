@@ -192,14 +192,11 @@ export function BancoDeVagasPage() {
           >
             Todas
           </button>
-          <button
-            type="button"
-            className="ei-chip"
-            aria-pressed={tipo === "freela"}
-            onClick={() => mudarParams({ t: tipo === "freela" ? null : "freela" })}
-          >
-            Bico e freela
-          </button>
+          {/* O chip "Bico e freela" saiu em 04/09, junto com a porta, a
+              pedido da dona ("não vou colocar isso por enquanto"). O
+              filtro continua funcionando por endereço (`?t=freela`): é
+              uma linha de código, e apagá-la tiraria também o caminho de
+              quem já tiver o link. */}
           <button
             type="button"
             className="ei-chip"

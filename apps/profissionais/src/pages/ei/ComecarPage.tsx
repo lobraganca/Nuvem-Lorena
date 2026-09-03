@@ -128,23 +128,12 @@ export function ComecarPage({ lado }: { lado: "professional" | "company" }) {
                   alguma ainda não foi aberta. */}
               <PortaDosAvisos />
 
-              {/* ── BICOS E FREELAS — 04/09 ─────────────────────────────
-                  A dona: "criar uma área pra freelancer."
-
-                  Não é uma tela nova: é o banco de vagas com o recorte do
-                  trabalho avulso (freela, diária e temporário). Uma tela
-                  paralela teria a própria busca, os próprios filtros e o
-                  próprio modo de cartão para envelhecer sozinha — e as
-                  vagas são as mesmas.
-
-                  Freela e emprego fixo convivem de propósito: numa cidade
-                  pequena é a mesma pessoa que tem carteira assinada e pega
-                  uma obra no sábado. */}
-              <Link to="/vagas?t=freela" className="ei-porta">
-                <IconePorta desenho="mala" />
-                <span className="ei-porta-nome">Bicos e freelas</span>
-                <span className="ei-porta-nota ei-uma-linha">Diária, obra, serviço avulso</span>
-              </Link>
+              {/* A porta "Bicos e freelas" ficou pronta em 04/09 e saiu no
+                  mesmo dia, a pedido da dona: "tire o botão de freelas e
+                  bicos, não vou colocar isso por enquanto". O recorte
+                  continua existindo em `/vagas?t=freela` (ver
+                  BancoDeVagasPage) — é uma linha de filtro, não uma tela —,
+                  então voltar a oferecê-lo é pôr esta porta de volta. */}
 
               {/* ── MEU DESEMPENHO — 04/09 ──────────────────────────────
                   A dona: "ter uma opção de métricas... seu perfil apareceu
