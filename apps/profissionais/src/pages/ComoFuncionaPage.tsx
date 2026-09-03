@@ -2,7 +2,7 @@ import { Link } from "react-router-dom";
 import { useTituloDaPagina } from "../lib/tituloDaPagina";
 
 /**
- * Como funciona o Ei Itabirito.
+ * Como funciona o Ei Emprego.
  *
  * Faltava — a dona pediu um link "Como funciona" na Conta (junto de
  * "enviar sugestão", termos e suporte), e não existia nenhuma tela que
@@ -21,7 +21,7 @@ export function ComoFuncionaPage() {
       <div className="ei-tela">
         <h1 className="ei-titulo-g">Como funciona</h1>
         <p className="ei-apoio">
-          O Ei Itabirito não é um mural de vagas onde se procura — é a vaga que vai atrás de quem
+          O Ei Emprego não é um mural de vagas onde se procura — é a vaga que vai atrás de quem
           combina com ela.
         </p>
 
@@ -91,7 +91,7 @@ export function ComoFuncionaPage() {
         </div>
 
         <div className="ei-cartao" style={{ display: "grid", gap: 16, marginTop: 20 }}>
-          <h2 className="ei-secao" style={{ marginTop: 0 }}>O que o Ei Itabirito não faz</h2>
+          <h2 className="ei-secao" style={{ marginTop: 0 }}>O que o Ei Emprego não faz</h2>
           <p className="ei-corpo">
             Não somos agência de emprego e não participamos da contratação: não empregamos, não
             selecionamos e não respondemos por combinados entre a empresa e a pessoa. O app

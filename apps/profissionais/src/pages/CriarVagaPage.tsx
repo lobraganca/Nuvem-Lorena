@@ -524,7 +524,7 @@ export function CriarVagaPage() {
                 O aviso de vaga sempre foi notificação no celular — a
                 `enviar-avisos-de-vaga` manda por Firebase no app da loja e
                 por Web Push no site, e não há uma linha de código que mande
-                torpedo de vaga. SMS no Ei Itabirito existe só para o código
+                torpedo de vaga. SMS no Ei Emprego existe só para o código
                 de entrar.
 
                 Prometer SMS aqui criava dois problemas de uma vez: a

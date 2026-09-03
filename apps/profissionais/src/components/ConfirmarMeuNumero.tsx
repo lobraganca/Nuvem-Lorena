@@ -82,7 +82,6 @@ export function ConfirmarMeuNumero({
             value={numero}
             onChange={(e) => setNumero(e.target.value)}
             inputMode="tel"
-            placeholder="(31) 99999-0000"
             aria-label="Seu número de celular com DDD"
           />
           {erro && <p className="form-erro">{erro}</p>}
@@ -99,7 +98,6 @@ export function ConfirmarMeuNumero({
             value={codigo}
             onChange={(e) => setCodigo(e.target.value.replace(/\D/g, "").slice(0, 6))}
             inputMode="numeric"
-            placeholder="000000"
             aria-label="Código recebido"
             style={{ fontSize: "1.4rem", letterSpacing: "0.3em", textAlign: "center" }}
           />

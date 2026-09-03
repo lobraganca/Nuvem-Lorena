@@ -32,7 +32,7 @@ export function AvisoDeVersao() {
       <span>
         {estado.versaoNova ? (
           <>
-            <strong>Tem uma versão nova do Ei Itabirito.</strong> Atualize para pegar as novidades e as correções.
+            <strong>Tem uma versão nova do Ei Emprego.</strong> Atualize para pegar as novidades e as correções.
           </>
         ) : (
           <>

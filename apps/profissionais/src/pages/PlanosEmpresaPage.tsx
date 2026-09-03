@@ -325,7 +325,7 @@ export function PlanosEmpresaPage() {
               <a
                 className="ei-btn-inline"
                 href={`https://wa.me/${SUPORTE_WHATSAPP}?text=${encodeURIComponent(
-                  "Olá! Quero pedir o reembolso do meu plano do Ei Itabirito, dentro dos 7 dias de arrependimento."
+                  "Olá! Quero pedir o reembolso do meu plano do Ei Emprego, dentro dos 7 dias de arrependimento."
                 )}`}
                 target="_blank"
                 rel="noopener noreferrer"

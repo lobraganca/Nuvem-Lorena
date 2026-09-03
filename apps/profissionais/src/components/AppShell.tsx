@@ -231,24 +231,38 @@ function Header() {
     return () => observador.disconnect();
   }, []);
 
-  /* O cabeçalho do Ei: só a marca.
-        ─────────────────────────────
-        O do procurô tinha, além dela, o botão de casa, o contador de
+  /* O cabeçalho do Ei: a marca, e agora a casinha.
+        ─────────────────────────────────────────────
+        O do procurô tinha, além da marca, o botão de casa, o contador de
         "pessoas on-line" e o botão "Instalar App" — três coisas disputando
         a mesma linha num celular de 390px, e foi por isso que a marca com o
         nome ao lado empurrou o botão de instalar para fora da tela.
 
-        A referência que a dona mandou tem só a marca no topo, e o título da
-        tela grande logo abaixo, dentro da própria página. Cada coisa que
-        saiu daqui foi para onde ela pertence: instalar é item das
-        configurações, e voltar ao começo é tocar na marca.
+        A casinha voltou em 02/09 — a dona: "deve ter um botão na barra
+        superior de uma casinha pra voltar para a tela inicial, onde se
+        escolhe se procura um emprego ou se quer contatar." Tocar na marca
+        já fazia isso (ver `Logo`), mas nada nela PARECE um botão de
+        voltar — é o nome do app, e lê-se como identidade, não como ação.
+        A casinha é o ícone que todo mundo já reconhece para "começo".
 
-        O contador de on-line saiu inteiro: num app de trabalho, "12 pessoas
-        navegando" não ajuda ninguém a decidir nada — no procurô ele servia
-        para dar movimento a uma vitrine. */
+        O contador de on-line continua fora: num app de trabalho, "12
+        pessoas navegando" não ajuda ninguém a decidir nada — no procurô
+        ele servia para dar movimento a uma vitrine. E instalar continua
+        nas configurações, não aqui: é ação rara, a casinha é frequente. */
   return (
     <header className="cabecalho-ei" ref={ref}>
       <Logo size="sm" />
+      <Link
+        to="/"
+        className="cabecalho-ei-casa"
+        aria-label="Início — escolher se procura emprego ou contrata"
+      >
+        <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor"
+             strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+          <path d="M4 11.5L12 4l8 7.5" />
+          <path d="M6 10v9.5a1 1 0 0 0 1 1h10a1 1 0 0 0 1-1V10" />
+        </svg>
+      </Link>
     </header>
   );
 }

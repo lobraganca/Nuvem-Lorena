@@ -73,7 +73,7 @@ export function FecharApp() {
               <ol style={{ margin: 0, paddingLeft: 20, display: "grid", gap: 6, lineHeight: 1.45 }}>
                 <li>Deslize o dedo de baixo para cima e segure no meio da tela.</li>
                 <li>Aparecem os aplicativos abertos, um ao lado do outro.</li>
-                <li>Empurre o Ei Itabirito para cima e solte.</li>
+                <li>Empurre o Ei Emprego para cima e solte.</li>
               </ol>
             </div>
             <div>
@@ -82,11 +82,11 @@ export function FecharApp() {
               </p>
               <ol style={{ margin: 0, paddingLeft: 20, display: "grid", gap: 6, lineHeight: 1.45 }}>
                 <li>Toque no botão de aplicativos recentes (o quadrado ou as três barras).</li>
-                <li>Empurre o Ei Itabirito para o lado.</li>
+                <li>Empurre o Ei Emprego para o lado.</li>
               </ol>
             </div>
             <p className="muted" style={{ margin: 0, fontSize: "0.86rem" }}>
-              Você também pode simplesmente ir para a tela de início do celular: parado ali, o Ei Itabirito não gasta
+              Você também pode simplesmente ir para a tela de início do celular: parado ali, o Ei Emprego não gasta
               bateria nem internet.
             </p>
           </div>

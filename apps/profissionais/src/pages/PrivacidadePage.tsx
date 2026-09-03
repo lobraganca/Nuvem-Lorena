@@ -67,7 +67,7 @@ export function PrivacidadePage() {
               formulário de dados, a política e o app são comparados entre si.
               Aqui está o que realmente acontece. */}
           <strong>Localização: não pedimos.</strong> O app do procurô, de onde este código veio, pedia a
-          localização do aparelho para adivinhar a cidade. O Ei Itabirito é de uma cidade só — a cidade já
+          localização do aparelho para adivinhar a cidade. O Ei Emprego é de uma cidade só — a cidade já
           é conhecida —, e o pedido saiu do código. Nada de coordenada é lido, enviado ou guardado.
         </p>
         <p>

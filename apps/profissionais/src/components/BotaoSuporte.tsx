@@ -18,7 +18,7 @@ import { SUPORTE_WHATSAPP } from "../config";
  * desiste de pedir ajuda.
  */
 export function BotaoSuporte() {
-  const texto = encodeURIComponent("Oi! Preciso de ajuda com o Ei Itabirito.");
+  const texto = encodeURIComponent("Oi! Preciso de ajuda com o Ei Emprego.");
 
   return (
     <a

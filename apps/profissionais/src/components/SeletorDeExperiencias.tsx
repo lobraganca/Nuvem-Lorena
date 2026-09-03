@@ -64,7 +64,7 @@ export function SeletorDeExperiencias({
           {/* O cargo vem primeiro e sozinho na linha: é o único obrigatório
               e o que a empresa lê primeiro. */}
           <input
-            placeholder="O que você fazia — ex.: Ajudante de pedreiro"
+            placeholder="O que você fazia"
             value={exp.cargo}
             maxLength={60}
             onChange={(e) => mudar(i, "cargo", e.target.value)}

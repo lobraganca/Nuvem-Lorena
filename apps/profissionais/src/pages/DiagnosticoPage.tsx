@@ -90,7 +90,7 @@ export function DiagnosticoPage() {
 
       <div className="card">
         {/* Conferia os endereços do procurô, de onde este código veio: no
-            Ei Itabirito a linha ficava VERMELHA no endereço certo, que é o
+            Ei Emprego a linha ficava VERMELHA no endereço certo, que é o
             pior estado possível de uma tela de diagnóstico — ela manda
             procurar defeito onde não há. */}
         <Linha

@@ -298,7 +298,6 @@ export function ExigirDesbloqueio({ children }: { children: ReactNode }) {
                   id="desbloqueio-codigo"
                   inputMode="numeric"
                   autoComplete="one-time-code"
-                  placeholder="000000"
                   value={codigo}
                   onChange={(e) => setCodigo(e.target.value.replace(/\D/g, "").slice(0, 6))}
                 />

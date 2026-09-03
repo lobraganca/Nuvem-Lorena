@@ -3,7 +3,7 @@ import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { useTituloDaPagina } from "../../lib/tituloDaPagina";
 import { useAuth } from "../../lib/useAuth";
 import { mensagemDeErro } from "../../lib/erros";
-import { formatPhone, doFormatoDoBanco } from "../../lib/phone";
+import { formatPhone, doFormatoDoBanco, onlyPhoneDigits } from "../../lib/phone";
 import { Switch } from "../../components/ei/Switch";
 import { CampoTelefone } from "../../components/ei/CampoTelefone";
 import { Pagina, Callout } from "../../components/ei/Pagina";
@@ -26,6 +26,11 @@ import {
 import { lerExperiencias, salvarExperiencias } from "../../lib/experiencias";
 import { quemViuMeuPerfil, type QuemViu } from "../../lib/quemMeViu";
 import { numeroJaConfirmadoNaConta, marcarAnuncioConfirmado } from "../../lib/whatsappVerify";
+/* Nome trocado no import: `lib/profiles.ts` e `lib/meuPerfil.ts` têm cada
+   um a sua própria `salvarMeuPerfil`, gravando em tabelas diferentes
+   (`profiles` e `professionals`) — os dois nomes iguais por coincidência
+   de quem escreveu cada arquivo em dias diferentes. */
+import { salvarMeuPerfil as sincronizarProfile } from "../../lib/profiles";
 
 /**
  * O perfil de quem procura trabalho.
@@ -274,6 +279,26 @@ export function MeuPerfilPage() {
         salvarCursos(id, cursos),
         salvarCompetencias(id, competencias),
       ]);
+
+      /* Sincroniza `profiles` — a identidade que a Conta mostra e que a
+         barreira `CompletarPerfil` confere em `/perfil`. Este cadastro é
+         o único lugar onde o profissional escreve nome/telefone/e-mail/
+         foto, mas quem lê a Conta é `profiles`, uma tabela diferente. Sem
+         isto, a Conta continuaria achando o perfil incompleto e pediria
+         de novo as mesmas quatro coisas — o oposto de "um cadastro só".
+         Erro aqui não derruba o salvamento: o cadastro profissional já
+         está gravado, que é o que importa para a onda e para a busca. */
+      try {
+        await sincronizarProfile(user.id, {
+          full_name: perfil.name,
+          email: perfil.email || null,
+          phone: onlyPhoneDigits(perfil.phone) || null,
+          ...(perfil.photoUrl ? { avatar_url: perfil.photoUrl } : {}),
+        });
+      } catch {
+        /* silêncio proposital: ver comentário acima */
+      }
+
       setSalvo(true);
     } catch (err) {
       setErro(mensagemDeErro(err, "Não consegui salvar o seu perfil."));
@@ -492,7 +517,6 @@ export function MeuPerfilPage() {
             <input
               id="meu-bairro"
               value={perfil.neighborhood}
-              placeholder="Centro"
               maxLength={60}
               onChange={(e) => setPerfil((x) => ({ ...x, neighborhood: e.target.value }))}
             />
@@ -515,7 +539,6 @@ export function MeuPerfilPage() {
                   aria-label={`Outro telefone ${i + 1}`}
                   inputMode="tel"
                   value={t}
-                  placeholder="(31) 99999-8888"
                   onChange={(e) =>
                     setPerfil((x) => ({
                       ...x,
@@ -675,7 +698,6 @@ export function MeuPerfilPage() {
               <input
                 id="meu-pretensao"
                 inputMode="decimal"
-                placeholder={perfil.pretensaoPeriodo === "mes" ? "1.500,00" : "180,00"}
                 value={pretensao}
                 disabled={pretensaoCombinar}
                 onChange={(e) => setPretensao(e.target.value)}
@@ -980,7 +1002,6 @@ export function MeuPerfilPage() {
                   <input
                     id={`empresa-${i}`}
                     value={exp.empresa}
-                    placeholder="Construções Silva"
                     onChange={(e) =>
                       setExperiencias((a) =>
                         a.map((x, j) => (j === i ? { ...x, empresa: e.target.value } : x))
@@ -994,7 +1015,6 @@ export function MeuPerfilPage() {
                   <input
                     id={`cargo-${i}`}
                     value={exp.cargo}
-                    placeholder="Ajudante de pedreiro"
                     onChange={(e) =>
                       setExperiencias((a) =>
                         a.map((x, j) => (j === i ? { ...x, cargo: e.target.value } : x))
@@ -1118,7 +1138,6 @@ export function MeuPerfilPage() {
             setCursos={setCursos}
             tipo="formacao"
             rotuloCurso="Curso ou série"
-            exemplo="Técnico em Enfermagem"
           />
         </div>
 
@@ -1134,7 +1153,6 @@ export function MeuPerfilPage() {
             setCursos={setCursos}
             tipo="complementar"
             rotuloCurso="Curso"
-            exemplo="NR-35 — trabalho em altura"
           />
         </div>
 
@@ -1162,7 +1180,6 @@ export function MeuPerfilPage() {
                 <input
                   aria-label={`Competência ${i + 1}`}
                   value={c.nome}
-                  placeholder="Excel"
                   onChange={(e) =>
                     setCompetencias((a) =>
                       a.map((x, j) => (j === i ? { ...x, nome: e.target.value } : x))
@@ -1296,13 +1313,11 @@ function ListaDeCursos({
   setCursos,
   tipo,
   rotuloCurso,
-  exemplo,
 }: {
   cursos: CursoEmEdicao[];
   setCursos: React.Dispatch<React.SetStateAction<CursoEmEdicao[]>>;
   tipo: "formacao" | "complementar";
   rotuloCurso: string;
-  exemplo: string;
 }) {
   const indices = cursos
     .map((c, i) => (c.tipo === tipo ? i : -1))
@@ -1357,7 +1372,6 @@ function ListaDeCursos({
                 <input
                   id={`curso-${i}`}
                   value={c.nome}
-                  placeholder={exemplo}
                   onChange={(e) => mudar(i, { nome: e.target.value })}
                 />
               </div>
@@ -1367,7 +1381,6 @@ function ListaDeCursos({
                 <input
                   id={`inst-${i}`}
                   value={c.instituicao}
-                  placeholder={tipo === "formacao" ? "E.E. Itabirito" : "SENAI"}
                   onChange={(e) => mudar(i, { instituicao: e.target.value })}
                 />
               </div>
@@ -1395,7 +1408,6 @@ function ListaDeCursos({
                     inputMode="numeric"
                     maxLength={4}
                     value={c.ano}
-                    placeholder="2021"
                     onChange={(e) => mudar(i, { ano: e.target.value })}
                   />
                 </div>

@@ -24,7 +24,7 @@
  *
  * Duas consequências reais, as duas invisíveis em teste:
  *
- * 1. Quem abrisse o Ei Itabirito em `empregoitabirito.com.br` (sem o `www`)
+ * 1. Quem abrisse o Ei Emprego em `empregoitabirito.com.br` (sem o `www`)
  *    ficava lá, porque o endereço não estava na lista — e o login quebrava
  *    exatamente do jeito descrito acima, que é o defeito que este arquivo
  *    existe para não deixar acontecer.

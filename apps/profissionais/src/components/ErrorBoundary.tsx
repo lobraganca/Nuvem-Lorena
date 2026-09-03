@@ -97,12 +97,12 @@ export class ErrorBoundary extends Component<{ children: ReactNode }, Estado> {
               {ehAppDaLoja() ? (
                 <>
                   <p style={{ margin: "0 0 8px" }}>
-                    Se o botão não resolver, feche o Ei Itabirito de vez e abra de novo:
+                    Se o botão não resolver, feche o Ei Emprego de vez e abra de novo:
                   </p>
                   <ol style={{ margin: 0, paddingLeft: 20, display: "grid", gap: 4 }}>
                     <li>Abra a tela de aplicativos recentes do seu celular.</li>
-                    <li>Empurre o Ei Itabirito para fora e solte.</li>
-                    <li>Abra o Ei Itabirito pelo ícone de novo.</li>
+                    <li>Empurre o Ei Emprego para fora e solte.</li>
+                    <li>Abra o Ei Emprego pelo ícone de novo.</li>
                   </ol>
                 </>
               ) : (
@@ -111,7 +111,7 @@ export class ErrorBoundary extends Component<{ children: ReactNode }, Estado> {
                     Se o botão não resolver, reinstale o app — é rápido:
                   </p>
                   <ol style={{ margin: 0, paddingLeft: 20, display: "grid", gap: 4 }}>
-                    <li>Toque e segure o ícone do Ei Itabirito na tela e remova-o.</li>
+                    <li>Toque e segure o ícone do Ei Emprego na tela e remova-o.</li>
                     <li>
                       Abra o navegador e acesse <strong>www.empregoitabirito.com.br</strong>.
                     </li>

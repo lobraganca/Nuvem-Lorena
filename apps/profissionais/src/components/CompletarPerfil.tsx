@@ -21,8 +21,18 @@ import { AjustarFoto } from "./ei/AjustarFoto";
 /* `/favoritos` saiu daqui em 02/09. A tela nasceu depois desta lista e
    entrou nela por herança do procurô — mas guardar um cartão não precisa
    de nome, e-mail nem telefone preenchidos. Exigir o formulário para ver
-   o que a pessoa já guardou é cobrar por uma coisa que ela já fez. */
-const TELAS_DE_CONTA = ["/painel", "/perfil"];
+   o que a pessoa já guardou é cobrar por uma coisa que ela já fez.
+
+   `/painel` saiu em 02/09. A dona: "unifique tudo em um cadastro só."
+   Essa rota é só do profissional — a empresa nunca passa por ela — e o
+   `MeuPerfilPage` que mora lá cresceu para pedir nome, foto, telefone e
+   e-mail dentro dele mesmo (ver o comentário no topo daquele arquivo).
+   Manter `/painel` aqui faria o profissional responder as MESMAS quatro
+   perguntas duas vezes seguidas: uma vez nesta tela, e de novo na
+   primeira seção do cadastro. `/perfil` continua aqui: é a Conta, e vale
+   para os dois lados — a empresa ainda depende desta barreira para ter
+   nome e e-mail preenchidos antes de publicar vaga. */
+const TELAS_DE_CONTA = ["/perfil"];
 
 export function exigePerfil(caminho: string): boolean {
   return TELAS_DE_CONTA.some((t) => caminho === t || caminho.startsWith(`${t}/`));
@@ -63,7 +73,7 @@ function incompleto(p: Profile | null): boolean {
  * contato: o Google entrega nome, foto e e-mail, mas nenhum telefone; o
  * login por SMS entrega o telefone e mais nada. Antes disso a conta ficava
  * pela metade para sempre, e as avaliações saíam assinadas como "Usuário
- * do Ei Itabirito".
+ * do Ei Emprego".
  *
  * Três decisões que valem ser ditas, porque cada uma é onde se perde
  * gente:
@@ -103,7 +113,7 @@ export function CompletarPerfil({ children }: { children: React.ReactNode }) {
   /* De que lado está quem está preenchendo.
      ───────────────────────────────────────
      Esta tela nasceu no procurô, quando só havia um tipo de pessoa. No Ei
-     Itabirito ela cobre os dois lados — e a empresa via, palavra por
+     Emprego ela cobre os dois lados — e a empresa via, palavra por
      palavra, o texto de quem procura trabalho: "Passo 1 de 4", "isto já
      vale para o seu CADASTRO PROFISSIONAL", "com ela, sua AVALIAÇÃO tem
      rosto" (não existe avaliação neste app) e uma saída chamada "voltar
@@ -300,7 +310,6 @@ export function CompletarPerfil({ children }: { children: React.ReactNode }) {
               type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              placeholder="voce@exemplo.com"
               autoComplete="email"
             />
           </div>
@@ -313,7 +322,6 @@ export function CompletarPerfil({ children }: { children: React.ReactNode }) {
               inputMode="numeric"
               value={telefone}
               onChange={(e) => setTelefone(formatPhone(e.target.value))}
-              placeholder="(31) 90000-0000"
               autoComplete="tel"
             />
             {/* Avisa antes de salvar, e não depois: fixo não recebe SMS, e

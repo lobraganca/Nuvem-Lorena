@@ -7,7 +7,7 @@ import { Link, useNavigate } from "react-router-dom";
  * ── POR QUE ELE ENCOLHEU ───────────────────────────────────────────────
  *
  * Ele era o cabeçalho de página do Notion, copiado ao pé da letra: migalha
- * ("Ei Itabirito / Vagas"), emoji de 2,6rem e título de 1,8rem, um embaixo
+ * ("Ei Emprego / Vagas"), emoji de 2,6rem e título de 1,8rem, um embaixo
  * do outro. Medido no celular, custava 235px antes de qualquer conteúdo —
  * a primeira vaga começava a 45% da altura da tela.
  *
@@ -18,7 +18,7 @@ import { Link, useNavigate } from "react-router-dom";
  * que já diz o nome de cada uma — o app repetia "Vagas" três vezes na
  * mesma tela (migalha, título e aba acesa) e gastava meia dobra nisso.
  *
- * E a migalha prometia uma coisa que não existe: hierarquia. "Ei Itabirito
+ * E a migalha prometia uma coisa que não existe: hierarquia. "Ei Emprego
  * / Vagas" sugere que Vagas fica dentro de alguma coisa. Não fica — é uma
  * das quatro abas, irmã das outras três. Migalha em app de aba é enfeite
  * com cara de navegação.

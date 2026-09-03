@@ -599,7 +599,6 @@ export function CadastroEmpresaPage() {
               <input
                 id="neighborhood"
                 type="text"
-                placeholder="Centro, Praia, Nossa Senhora do Carmo…"
                 value={form.neighborhood || ""}
                 onChange={(e) => setForm((f) => ({ ...f, neighborhood: e.target.value }))}
               />
@@ -628,7 +627,6 @@ export function CadastroEmpresaPage() {
               <input
                 id="responsible_name"
                 type="text"
-                placeholder="Seu nome"
                 value={form.responsible_name || ""}
                 onChange={(e) => setForm((f) => ({ ...f, responsible_name: e.target.value }))}
               />
@@ -658,7 +656,6 @@ export function CadastroEmpresaPage() {
                 id="phone"
                 type="tel"
                 inputMode="tel"
-                placeholder="(31) 99999-9999"
                 value={formatPhone(form.phone)}
                 onChange={(e) => setForm((f) => ({ ...f, phone: e.target.value }))}
               />
@@ -682,7 +679,6 @@ export function CadastroEmpresaPage() {
               <input
                 id="email"
                 type="email"
-                placeholder="contato@empresa.com.br"
                 value={form.email || ""}
                 onChange={(e) => setForm((f) => ({ ...f, email: e.target.value }))}
               />

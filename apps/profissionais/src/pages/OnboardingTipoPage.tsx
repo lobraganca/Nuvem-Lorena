@@ -170,7 +170,7 @@ export function OnboardingTipoPage() {
               <path d="M30 92a30 30 0 0 1 60 0z" fill="#fff" />
               <circle cx="92" cy="30" r="9" fill="#f7a64a" />
             </svg>
-            <span className="ei-lado-nome">Procuro trabalho</span>
+            <span className="ei-lado-nome">Procuro emprego</span>
             <span className="ei-lado-lista">
               <span>As vagas do seu ofício chegam no seu celular</span>
               <span>A empresa te chama pelo telefone confirmado</span>

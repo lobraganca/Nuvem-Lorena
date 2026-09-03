@@ -238,7 +238,7 @@ export function PerfilPublicoPage() {
             <a
               className="ei-acao"
               href={`https://wa.me/55${soDigitos(telefone)}?text=${encodeURIComponent(
-                `Olá, ${primeiroNome(p.name)}! Vi o seu perfil no Ei Itabirito e queria falar sobre uma vaga.`
+                `Olá, ${primeiroNome(p.name)}! Vi o seu perfil no Ei Emprego e queria falar sobre uma vaga.`
               )}`}
               target="_blank"
               rel="noopener noreferrer"

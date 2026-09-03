@@ -2,7 +2,7 @@ import { Link } from "react-router-dom";
 import marcaEi from "/marca-ei.png";
 
 /**
- * O símbolo do Ei Itabirito: o "Ei" desenhado, com a bolinha e a virgula
+ * O símbolo do Ei Emprego: o "Ei" desenhado, com a bolinha e a virgula
  * laranja.
  *
  * É imagem, e não SVG desenhado à mão, de propósito: o traço da marca é uma
@@ -25,10 +25,10 @@ export function Logo({ size = "sm" }: { size?: "sm" | "md" | "lg" }) {
     // Leva para a tela inicial, não para a busca: tocar na marca é o gesto de
     // "voltar ao começo", e é lá que estão as duas portas do app (contratar
     // ou anunciar).
-    <Link to="/inicio" className={`logo logo-${size}`} aria-label="Ei Itabirito — ir para a tela inicial">
+    <Link to="/inicio" className={`logo logo-${size}`} aria-label="Ei Emprego — ir para a tela inicial">
       <Marca className="logo-marca" />
       <span className="logo-brand" aria-hidden="true">
-        Ei Itabirito
+        Ei Emprego
       </span>
     </Link>
   );
@@ -52,7 +52,7 @@ export function LogoMark({
     <div
       className={`logo logo-lg${variant === "onBlue" ? " logo-on-blue" : ""}`}
       role="img"
-      aria-label="Ei Itabirito"
+      aria-label="Ei Emprego"
     >
       <Marca className="logo-marca" />
     </div>

@@ -151,7 +151,7 @@ const TELAS_DE_APP = [
      vaga" e "Enviar sugestão" — logo abaixo da pergunta de que lado a
      pessoa está. */
   "/onboarding-tipo",
-  /* As telas que "Procuro trabalho" e "Quero contratar" abrem — mesmo
+  /* As telas que "Procuro emprego" e "Quero contratar" abrem — mesmo
      motivo das duas linhas acima: são o passo seguinte da mesma
      sequência, e ficariam com o rodapé de site sem esta linha. */
   "/comecar-profissional",
@@ -211,8 +211,8 @@ function Footer() {
             são duas linhas quietas, do mesmo tamanho, na ordem de quem
             precisa: quem quer falar com alguém primeiro, o resto depois. */}
         <div className="rodape-grupos">
-          <nav className="rodape-grupo" aria-label="O Ei Itabirito">
-            <h2 className="rodape-grupo-titulo">O Ei Itabirito</h2>
+          <nav className="rodape-grupo" aria-label="O Ei Emprego">
+            <h2 className="rodape-grupo-titulo">O Ei Emprego</h2>
             {/* "Anuncie aqui" saiu: levava à venda de espaço de banner, que é
                 produto do procurô. Quem contrata neste app publica VAGA, e o
                 caminho para isso é o plano — que fica no painel da empresa,
@@ -275,7 +275,7 @@ export default function App() {
         <span className="muted">Carregando…</span>
       </div>}>
       <Routes>
-        {/* ── O Ei Itabirito ───────────────────────────────────────────
+        {/* ── O Ei Emprego ───────────────────────────────────────────
             As telas do procurô saíram daqui inteiras: a busca de serviço,
             o perfil público com avaliações, os anúncios, a venda de
             banner, as categorias, os favoritos, as assinaturas de selo e
@@ -303,7 +303,7 @@ export default function App() {
             quebrar a barra de baixo nem o que já estava aberto no celular
             de alguém. */}
         <Route path="/painel" element={<MeuPerfilPage />} />
-        {/* A tela que "Procuro trabalho" abre, na porta de entrada — os
+        {/* A tela que "Procuro emprego" abre, na porta de entrada — os
             botões que moraram na EntradaPage até 02/09. Ver ComecarPage. */}
         <Route path="/comecar-profissional" element={<ComecarPage lado="professional" />} />
 

@@ -6,14 +6,14 @@ import { useOnboardingStatus } from "../lib/useOnboardingStatus";
 import { quantasVagasNovas } from "../lib/minhasVagas";
 
 /**
- * A barra de baixo do Ei Itabirito.
+ * A barra de baixo do Ei Emprego.
  *
  * A que existia era do procurô, e não por descuido: este código É o app do
  * procurô, renomeado. A barra dele oferecia **Anúncios, Buscar, Painel,
  * Perfil** — a espinha de um app para achar um encanador para a sua casa e
  * navegar em publicidade.
  *
- * O Ei Itabirito é outro produto. Quem trabalha quer saber se apareceu vaga;
+ * O Ei Emprego é outro produto. Quem trabalha quer saber se apareceu vaga;
  * quem contrata quer publicar e conversar com quem respondeu. Nenhuma dessas
  * duas coisas tinha lugar na barra antiga, e é por isso que trocar cor e
  * fonte não resolvia: a diferença não estava no acabamento, estava em quais
@@ -120,6 +120,17 @@ const IconeVoltar = (
   </Svg>
 );
 
+/* Distinto de `IconePessoa` (o cadastro): aqui é a pessoa DENTRO de um
+   contorno, para não ler como "meu perfil profissional" de novo — é a
+   Conta, outra coisa. */
+const IconeConta = (
+  <Svg>
+    <circle cx="12" cy="12" r="9.2" />
+    <circle cx="12" cy="9.6" r="2.6" />
+    <path d="M6.3 18.2a6 6 0 0 1 11.4 0" />
+  </Svg>
+);
+
 /* O ícone de "Entrar" saiu com o item: sem conta a barra inteira some
    (ver `destinos`), e um desenho sem uso é código que o próximo leitor
    tenta entender à toa. */
@@ -178,6 +189,26 @@ function destinos(tipo: "professional" | "company" | false | null, temConta: boo
     casa: (p) => p.startsWith("/avisos"),
   };
 
+  /* Voltou para a barra — 02/09.
+     ────────────────────────────
+     A dona: "ter botão de sair da conta, daí desloga e volta a tela de
+     login."
+
+     "Conta" era um dos quatro itens no desenho original da barra (ver o
+     comentário no topo do arquivo: "quem trabalha tem Vagas, Avisos, Meu
+     perfil e Conta"), e sumiu sem ninguém decidir isso — foi perdendo o
+     lugar para "Voltar" e "Talentos", que entraram depois, até não sobrar
+     vaga para ele. O efeito: `/perfil`, onde mora o botão "Sair da
+     conta", ficou SEM NENHUM caminho a partir da barra — só digitando o
+     endereço. Foi o que aconteceu de verdade: perguntada onde ficava o
+     botão de sair, a resposta foi "não achei". */
+  const conta: Destino = {
+    to: "/perfil",
+    label: "Conta",
+    icone: IconeConta,
+    casa: (p) => p.startsWith("/perfil") || p.startsWith("/configuracao"),
+  };
+
   if (tipo === "company") {
     return [
       voltar,
@@ -203,6 +234,7 @@ function destinos(tipo: "professional" | "company" | false | null, temConta: boo
           p.startsWith("/painel-empresa") || p.startsWith("/vaga") ||
           p.startsWith("/criar-vaga") || p.startsWith("/cadastro-empresa") ||
           p.startsWith("/planos-empresa") },
+      conta,
     ];
   }
 
@@ -233,6 +265,7 @@ function destinos(tipo: "professional" | "company" | false | null, temConta: boo
        continua se chamando assim; a aba usa a palavra que a nomeia. */
       label: "Cadastro", icone: IconePessoa,
       casa: (p) => p.startsWith("/painel") || p.startsWith("/vagas-para-mim") },
+    conta,
   ];
 }
 

@@ -8,7 +8,7 @@ import { InstalarApp } from "../../components/InstalarApp";
 import { IconePorta } from "./ComecarPage";
 
 /**
- * A porta de entrada do Ei Itabirito.
+ * A porta de entrada do Ei Emprego.
  *
  * Substitui a HomePage do procurô, que era a tela de BUSCA: campo de
  * procurar serviço, grade de categorias, vitrine de anúncios pagos,
@@ -229,7 +229,7 @@ export function EntradaPage() {
                 onClick={() => irParaOLado("professional")}
               >
                 <IconePorta desenho="pessoa" />
-                Procuro trabalho
+                Procuro emprego
               </button>
               <button
                 type="button"

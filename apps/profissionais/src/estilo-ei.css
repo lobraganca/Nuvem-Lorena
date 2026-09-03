@@ -2279,6 +2279,19 @@
 .cabecalho-ei .logo-brand {
   color: #ffffff;
 }
+/* A casinha fica na ponta oposta da marca — `margin-left: auto` empurra
+   ela para lá dentro do `display: flex` do cabeçalho, sem precisar de um
+   terceiro elemento vazio só para ocupar o meio. Branca como o nome da
+   marca ao lado: as duas são o mesmo "sobre o azul", não duas cores
+   competindo. */
+.cabecalho-ei-casa {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-left: auto;
+  padding: 8px;
+  color: #ffffff;
+}
 
 /* Com a marca reservando o recorte do aparelho, a barra de título não
    precisa reservar de novo — reservavam as duas, e sobrava um vão azul

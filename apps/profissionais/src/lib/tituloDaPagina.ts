@@ -1,6 +1,6 @@
 import { useEffect } from "react";
 
-const NOME = "Ei Itabirito";
+const NOME = "Ei Emprego";
 
 /**
  * Nome da aba, por tela.

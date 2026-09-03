@@ -377,7 +377,7 @@ export function AdminBanners() {
         <h3 style={{ margin: 0, fontSize: "0.95rem" }}>{editando ? "Editando banner" : "Novo banner"}</h3>
 
         <input
-          placeholder="Quem está anunciando (ex: Ótica Central)"
+          placeholder="Quem está anunciando"
           value={anunciante}
           maxLength={60}
           onChange={(e) => setAnunciante(e.target.value)}
@@ -456,7 +456,7 @@ export function AdminBanners() {
             onChange={(e) => setContatoAnunciante(e.target.value)}
           />
           <input
-            placeholder="Valor combinado (ex: 79,90)"
+            placeholder="Valor combinado"
             value={valor}
             inputMode="decimal"
             onChange={(e) => setValor(e.target.value)}

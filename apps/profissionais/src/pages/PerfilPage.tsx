@@ -511,7 +511,7 @@ export function PerfilPage() {
               continua a um toque, sem pintar a tela de outro app. */}
           <Linha
             href={`https://wa.me/${SUPORTE_WHATSAPP}?text=${encodeURIComponent(
-              "Oi! Preciso de ajuda com o Ei Itabirito."
+              "Oi! Preciso de ajuda com o Ei Emprego."
             )}`}
             icone={<IconeConversa />}
           >
@@ -664,7 +664,21 @@ export function PerfilPage() {
         <button
           className="ei-btn ei-btn-contorno ei-btn-largo ei-btn-alto"
           style={{ marginTop: 28 }}
-          onClick={() => signOut()}
+          onClick={async () => {
+            /* A dona: "ter botão de sair da conta, daí desloga e volta a
+               tela de login." `location.href` e não o roteador — mesma
+               razão do "Entrar em outra conta" da ExigirDesbloqueio: o
+               app tem telas já montadas com dados desta conta, e só um
+               recarregamento completo garante que nenhuma continue de
+               pé mostrando o que era de quem acabou de sair. */
+            try {
+              await signOut();
+            } catch {
+              /* Seguir para o login é melhor que travar aqui: lá dá
+                 para tentar de novo. */
+            }
+            window.location.href = "/login";
+          }}
         >
           Sair da conta
         </button>

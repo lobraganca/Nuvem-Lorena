@@ -32,7 +32,7 @@ import { AvisoPerfilIncompleto } from "../../components/ei/AvisoPerfilIncompleto
  * seria duplicar uma verdade que já foi estabelecida um passo atrás.
  */
 export function ComecarPage({ lado }: { lado: "professional" | "company" }) {
-  useTituloDaPagina(lado === "company" ? "Quero contratar" : "Procuro trabalho");
+  useTituloDaPagina(lado === "company" ? "Quero contratar" : "Procuro emprego");
   const { loading } = useAuth();
   const tipo = useOnboardingStatus();
   const entrou = !loading;
@@ -42,7 +42,7 @@ export function ComecarPage({ lado }: { lado: "professional" | "company" }) {
       <div className="ei-tela ei-entrada">
         <div className="ei-entrada-topo">
           <h1 className="ei-entrada-titulo">
-            {lado === "company" ? "Quero contratar" : "Procuro trabalho"}
+            {lado === "company" ? "Quero contratar" : "Procuro emprego"}
           </h1>
           <p className="ei-entrada-apoio">
             {lado === "company"

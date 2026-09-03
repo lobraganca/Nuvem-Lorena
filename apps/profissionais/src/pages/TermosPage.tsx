@@ -5,7 +5,7 @@ import { useTituloDaPagina } from "../lib/tituloDaPagina";
  *
  * Eram os do procurô, inteiros: falavam de "conta premium", de cadastro
  * "turbinado", de avaliações, de banner de categoria e de cancelar no
- * "Painel do profissional". Nada disso existe no Ei Itabirito — e um
+ * "Painel do profissional". Nada disso existe no Ei Emprego — e um
  * documento legal que descreve outro serviço não protege ninguém: não vale
  * para o que o app faz, e ainda dá à pessoa a impressão de que ela
  * concordou com regras de coisas que não estão aqui.
@@ -26,7 +26,7 @@ export function TermosPage() {
 
         <div className="ei-cartao" style={{ display: "grid", gap: 16, marginTop: 20 }}>
           <p className="ei-corpo">
-            O <strong>Ei Itabirito</strong> aproxima quem procura trabalho em Itabirito e região de
+            O <strong>Ei Emprego</strong> aproxima quem procura trabalho em Itabirito e região de
             quem está contratando. Funcionamos como ponto de encontro: mostramos perfis, avisamos
             sobre vagas e entregamos o contato. <strong>Não somos parte da relação de trabalho.</strong>
           </p>
@@ -47,7 +47,7 @@ export function TermosPage() {
             profissionais e de empresas para reduzir cadastro falso, mas isso{" "}
             <strong>não é checagem de antecedentes nem atestado de idoneidade</strong> de nenhum dos
             dois lados. Desconfie de qualquer vaga que peça pagamento adiantado, depósito ou
-            documento por fora do app — o Ei Itabirito nunca cobra de quem procura trabalho.
+            documento por fora do app — o Ei Emprego nunca cobra de quem procura trabalho.
           </p>
 
           <p className="ei-corpo">
@@ -110,7 +110,7 @@ export function TermosPage() {
           </p>
 
           <p className="ei-corpo">
-            Ao usar o Ei Itabirito — procurando trabalho, publicando vaga ou respondendo a uma — você
+            Ao usar o Ei Emprego — procurando trabalho, publicando vaga ou respondendo a uma — você
             concorda com estes Termos de Uso.
           </p>
         </div>

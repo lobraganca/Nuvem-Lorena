@@ -318,7 +318,6 @@ export function LoginPage() {
               type="tel"
               inputMode="numeric"
               autoComplete="tel"
-              placeholder="(31) 99999-9999"
               value={telefone}
               onChange={(e) => setTelefone(formatPhone(e.target.value))}
               disabled={!hasDatabase() || enviando}
@@ -476,7 +475,6 @@ export function LoginPage() {
               type="text"
               inputMode="numeric"
               autoComplete="one-time-code"
-              placeholder="000000"
               value={codigo}
               onChange={(e) => setCodigo(e.target.value.replace(/\D/g, "").slice(0, 6))}
               disabled={enviando}
@@ -596,7 +594,6 @@ export function LoginPage() {
             id="entrar-email"
             type="email"
             autoComplete="email"
-            placeholder="voce@exemplo.com"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             disabled={enviando}

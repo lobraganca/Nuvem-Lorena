@@ -158,7 +158,7 @@ export function BoasVindas({ aoTerminar }: { aoTerminar: () => void }) {
       className="ei-bv"
       role="dialog"
       aria-modal="true"
-      aria-label="Boas-vindas ao Ei Itabirito"
+      aria-label="Boas-vindas ao Ei Emprego"
       onTouchStart={(e) => setInicioX(e.touches[0].clientX)}
       onTouchEnd={(e) => {
         if (inicioX === null) return;

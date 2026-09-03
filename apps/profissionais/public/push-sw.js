@@ -17,7 +17,7 @@ self.addEventListener("push", (event) => {
      em silêncio faz o Chrome punir o app: depois de algumas vezes ele
      revoga a inscrição, e aí a pessoa para de receber sem nunca saber. Por
      isso o texto genérico em vez de um `return`. */
-  let dados = { titulo: "Ei Itabirito", corpo: "Apareceu novidade para você.", url: "/vagas-para-mim" };
+  let dados = { titulo: "Ei Emprego", corpo: "Apareceu novidade para você.", url: "/vagas-para-mim" };
 
   try {
     if (event.data) dados = { ...dados, ...event.data.json() };

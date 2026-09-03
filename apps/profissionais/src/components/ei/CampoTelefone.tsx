@@ -139,7 +139,6 @@ export function CampoTelefone({
         type="tel"
         inputMode="tel"
         value={valor}
-        placeholder="(31) 99999-8888"
         /* Confirmado é confirmado: o campo não abre mais. Antes bastava
            um dedo na tela ao rolar, ou um backspace, para apagar um
            dígito — e isso derruba a confirmação na hora, tirando o
@@ -192,7 +191,6 @@ export function CampoTelefone({
             autoComplete="one-time-code"
             maxLength={6}
             value={codigo}
-            placeholder="000000"
             onChange={(e) => setCodigo(e.target.value.replace(/\D/g, ""))}
           />
           <div style={{ display: "flex", gap: 8 }}>

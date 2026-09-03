@@ -23,7 +23,7 @@ export const SUPORTE_WHATSAPP = "5531971473162";
 export const SUPORTE_WHATSAPP_VISIVEL = "(31) 97147-3162";
 
 /** Nome usado nos documentos legais. */
-export const NOME_PLATAFORMA = "Ei Itabirito";
+export const NOME_PLATAFORMA = "Ei Emprego";
 
 /** Cidade-sede, citada na Política de Privacidade. */
 export const CIDADE_SEDE = "Itabirito/MG";
