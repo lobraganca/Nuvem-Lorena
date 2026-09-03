@@ -1071,7 +1071,7 @@ export function MeuPerfilPage() {
                 {/* Mês e ano, não dia: ninguém lembra o dia em que começou
                     num emprego de cinco anos atrás, e pedir o dia faz a
                     pessoa inventar ou desistir. */}
-                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8 }}>
+                <div className="ei-duas">
                   <div className="ei-campo">
                     <label htmlFor={`inicio-${i}`}>Começou</label>
                     <input
@@ -1428,7 +1428,7 @@ function ListaDeCursos({
                 />
               </div>
 
-              <div style={{ display: "grid", gridTemplateColumns: "1fr 96px", gap: 8 }}>
+              <div className="ei-duas ei-duas-ano">
                 <div className="ei-campo">
                   <label htmlFor={`sit-${i}`}>Situação</label>
                   <select
