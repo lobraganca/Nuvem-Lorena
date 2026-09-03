@@ -174,14 +174,27 @@ export async function lerMeuPerfil(ownerId: string): Promise<MeuPerfil | null> {
       "fim_de_semana, inicio_imediato"
     )
     .eq("owner_id", ownerId)
-    /* `maybeSingle` e não `single`: quem ainda não tem cadastro é o caso
-       normal desta tela, e o `single` trataria isso como erro. */
-    .maybeSingle();
+    /* ── NEM `single` NEM `maybeSingle` — 03/09 ────────────────────────
+       Os dois DÃO ERRO quando vem mais de uma linha, e mais de uma linha é
+       possível: o banco permite até cinco cadastros por conta (o gatilho
+       `professionals_evita_repetidos`, herdado do outro app). Quem tivesse
+       dois via a leitura falhar e, dependendo da tela, o cadastro sumia
+       como se não existisse — é o mesmo defeito que fez "Nova vaga" cair
+       na tela de cadastrar empresa, e que só apareceu aqui porque o falso
+       do navegador passou a recusar mais de uma linha como o PostgREST
+       recusa.
+
+       Ordena pelo mais antigo e pega o primeiro: é o cadastro principal da
+       pessoa — o que ela criou quando entrou —, e é ele que as telas de
+       "Meu cadastro" sempre mostraram. */
+    .order("created_at", { ascending: true })
+    .limit(1);
 
   if (error) throw error;
-  if (!data) return null;
+  const linhas = (data ?? []) as unknown[];
+  if (linhas.length === 0) return null;
 
-  const linha = data as Partial<Professional> & { disponivel?: boolean };
+  const linha = linhas[0] as Partial<Professional> & { disponivel?: boolean };
   return {
     id: linha.id ?? null,
     name: linha.name ?? "",

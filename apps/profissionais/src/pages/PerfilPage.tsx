@@ -2,7 +2,8 @@ import { useEffect, useState, type ReactNode } from "react";
 import { Link } from "react-router-dom";
 import { useAuth } from "../lib/useAuth";
 import { signOut, definirSenha } from "../lib/auth";
-import { registrarTipoDeUsuario } from "../lib/company";
+import { registrarTipoDeUsuario, minhasEmpresas } from "../lib/company";
+import { lerMeuPerfil } from "../lib/meuPerfil";
 import { hasDatabase } from "../lib/supabase";
 import { getProfile, salvarMeuPerfil } from "../lib/profiles";
 import { isAdmin } from "../lib/admin";
@@ -110,6 +111,14 @@ export function PerfilPage() {
   const [error, setError] = useState("");
   /** Trocando o lado mostrado (profissional ↔ empresa). */
   const [trocando, setTrocando] = useState(false);
+  /* Quais cadastros esta conta REALMENTE tem. `null` em um deles quer
+     dizer "não consegui saber" — e nesse caso a tela mostra o caminho do
+     mesmo jeito, porque errar para o lado de mostrar demais é melhor que
+     esconder um cadastro que existe. */
+  const [temOutroLado, setTemOutroLado] = useState<{
+    empresa: boolean | null;
+    profissional: boolean | null;
+  } | null>(null);
   const [mostrandoSenha, setMostrandoSenha] = useState(false);
   const [senhaNova, setSenhaNova] = useState("");
   const [salvandoSenha, setSalvandoSenha] = useState(false);
@@ -147,10 +156,38 @@ export function PerfilPage() {
     if (!user) {
       setProfile(null);
       setAdmin(false);
+      setTemOutroLado(null);
       return;
     }
     getProfile(user.id).then(setProfile);
     isAdmin(user.id).then(setAdmin);
+
+    /* ── QUEM TEM OS DOIS CADASTROS VÊ OS DOIS — 03/09 ─────────────────
+       A dona: "o botão de conta vai pro cadastro de empresa, mas nesse
+       caso eu também tenho cadastro como profissional, como fica nesse
+       caso?"
+
+       Ficava escondido. A Conta mostrava só o lado ATUAL, e o outro
+       aparecia atrás de um botão escrito "também procuro trabalho" — a
+       frase de quem AINDA NÃO tem esse cadastro. Para quem já tem os dois
+       (o caso dela, e o caso comum numa cidade pequena: a dona da loja que
+       também é eletricista à noite), o app negava a existência de metade
+       do que ela cadastrou.
+
+       Duas consultas, e o erro de cada uma vira "não sei" e não "não
+       tem": esconder um cadastro que existe é o defeito que estamos
+       consertando, e repeti-lo por causa de uma consulta que caiu seria
+       trocar um erro por ele mesmo. */
+    let vivo = true;
+    Promise.all([
+      minhasEmpresas(user.id).then((l) => l.length > 0).catch(() => null),
+      lerMeuPerfil(user.id).then((p) => !!p).catch(() => null),
+    ]).then(([temEmpresa, temProfissional]) => {
+      if (vivo) setTemOutroLado({ empresa: temEmpresa, profissional: temProfissional });
+    });
+    return () => {
+      vivo = false;
+    };
   }, [user]);
 
   if (loading) return null;
@@ -311,6 +348,10 @@ export function PerfilPage() {
 
         {/* O caminho de volta ao lado da pessoa. Sem ele, a Conta é um beco:
             três telas na barra, e uma delas só serve para sair. */}
+        {/* Os dois blocos aparecem quando existem os dois cadastros, e o
+            de cima é sempre o do lado ABERTO agora — a Conta continua
+            respondendo primeiro "onde eu estou", e só depois "o que mais
+            eu tenho". Quem tem um lado só vê um bloco, como antes. */}
         <div className="ei-secao-linha">
           <h2>{tipo === "company" ? "Minha empresa" : "Meu cadastro"}</h2>
         </div>
@@ -344,6 +385,44 @@ export function PerfilPage() {
             Meus favoritos
           </Linha>
         </div>
+
+        {/* O OUTRO lado, quando ele existe de verdade.
+            ──────────────────────────────────────────
+            Os endereços daqui abrem o outro lado SEM trocar o lado atual —
+            e isso é de propósito: ver os dados da empresa não deveria
+            mudar o app inteiro de lado. Quem quer ficar do outro lado usa
+            o botão de baixo, que é o que grava a escolha. */}
+        {tipo === "company" && temOutroLado?.profissional !== false && (
+          <>
+            <div className="ei-secao-linha">
+              <h2>Meu cadastro de profissional</h2>
+            </div>
+            <div className="ei-lista">
+              <Linha para="/meu-perfil" icone={<IconePessoa />}>
+                Meu cadastro
+              </Linha>
+              <Linha para="/vagas-para-mim" icone={<IconeMala />}>
+                Vagas para mim
+              </Linha>
+            </div>
+          </>
+        )}
+
+        {tipo === "professional" && temOutroLado?.empresa !== false && (
+          <>
+            <div className="ei-secao-linha">
+              <h2>Minha empresa</h2>
+            </div>
+            <div className="ei-lista">
+              <Linha para="/minhas-empresas" icone={<IconeLoja />}>
+                Minhas empresas
+              </Linha>
+              <Linha para="/planos-empresa" icone={<IconeSelo />}>
+                Meu plano
+              </Linha>
+            </div>
+          </>
+        )}
 
         {/* ── OS DOIS LADOS NO MESMO NÚMERO ────────────────────────────
             A dona: "e se for o mesmo número e quiser ter os dois
@@ -389,11 +468,19 @@ export function PerfilPage() {
               }
             }}
           >
+            {/* O texto muda conforme a pessoa JÁ TENHA o outro cadastro:
+                "também procuro trabalho" é convite, e dizer isso a quem já
+                tem o cadastro de profissional feito é o app fingindo que
+                ele não existe. */}
             {trocando
               ? "Trocando…"
               : tipo === "company"
-                ? "Também procuro trabalho — abrir meu lado de profissional"
-                : "Também contrato — abrir meu lado de empresa"}
+                ? temOutroLado?.profissional
+                  ? "Ficar no meu lado de profissional"
+                  : "Também procuro trabalho — abrir meu lado de profissional"
+                : temOutroLado?.empresa
+                  ? "Ficar no meu lado de empresa"
+                  : "Também contrato — abrir meu lado de empresa"}
           </button>
         </div>
 
