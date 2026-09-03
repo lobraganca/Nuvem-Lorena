@@ -84,6 +84,12 @@ const professionals: Linha[] = Array.from({ length: QUANTOS }, (_, i) => ({
      que é o que faz a conferência valer alguma coisa. */
   primeiro_emprego: i % 9 === 0,
   aceita_freela: i % 4 === 0,
+  /* As duas de 04/09: `pcd` (0115) e `genero` (0116). O gênero fica fora
+     da view pública no banco de verdade — aqui as duas tabelas são o
+     mesmo array, então o modo estrito não separa uma da outra; quem
+     garante a regra é a SQL, e o teste dela é o `select` da 0116. */
+  pcd: i % 11 === 0,
+  genero: ["feminino", "masculino", "outro"][i % 3],
   especialidade: "",
   /* As colunas da 0101 e da 0103, que os filtros do banco de talentos
      leem. Sem elas TODO filtro devolvia zero pessoas — e o teste diria
@@ -283,6 +289,15 @@ const VAGAS: Linha[] = [
   observacoes: i === 0 ? "Ferramenta é por conta da obra." : null,
   campos_compatibilidade: i === 0 ? ["profissao", "cidade", "cnh"] : [],
   aceita_sem_compatibilidade: i !== 1,
+  /* As colunas das 0114, 0115 e 0116, todas já aplicadas no banco de
+     verdade. Ficam aqui para o modo estrito de colunas representar o
+     banco de HOJE — sem elas ele acusaria falta onde não há. */
+  /* Da 0106, e faltava aqui: a tela lê o período junto do valor, e sem a
+     coluna o modo estrito acusava falta numa coluna que existe. */
+  salario_periodo: "mes",
+  aceita_primeiro_emprego: i === 1,
+  vaga_para_pcd: i === 2,
+  destaque_ate: null,
   ...v,
 }));
 
@@ -376,6 +391,8 @@ const TABELAS: Record<string, Linha[]> = {
       city: "Itabirito",
       uf: "MG",
       description: "",
+      /* A coluna da 0115, já aplicada no banco de verdade. */
+      contrata_pcd: false,
       photo_url: fotoFalsa(2),
       /* "tres" (o Premium), e não "pro3": o banco só aceita 'pro', 'tres'
          e 'ilimitado' (check da 0072), e um valor fora da lista fazia o
@@ -404,6 +421,8 @@ const TABELAS: Record<string, Linha[]> = {
       website: "",
       responsible_name: "Lorena",
       description: "Lanches e salgados.",
+      /* A coluna da 0115, já aplicada no banco de verdade. */
+      contrata_pcd: false,
       photo_url: fotoFalsa(3),
       plano: null,
       plano_ate: null,
@@ -512,6 +531,11 @@ const TABELAS: Record<string, Linha[]> = {
      — quem procura trabalho lê zero linhas nela. Sem esta entrada, a tela
      da vaga aberta abria sem nome nem foto de empresa no falso, escondendo
      justamente o defeito que a 0100 existe para consertar. */
+  /* A view pública da empresa. As duas últimas colunas entraram na 0115:
+     `description` é a frase que a empresa escreve sobre si (ela faltava
+     na view de verdade, e a tela da vaga que a pedia derrubava a consulta
+     inteira — o nome e a foto da empresa sumiam da tela), e
+     `contrata_pcd` é a marcação nova. */
   companies_public: [
     {
       id: EMPRESA_FALSA,
@@ -520,6 +544,8 @@ const TABELAS: Record<string, Linha[]> = {
       city: "Itabirito",
       uf: "MG",
       neighborhood: "Centro",
+      description: "Padaria de bairro, aberta desde 1998.",
+      contrata_pcd: false,
     },
   ],
 

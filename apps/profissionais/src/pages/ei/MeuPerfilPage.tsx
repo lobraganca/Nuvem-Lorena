@@ -61,7 +61,56 @@ import { salvarMeuPerfil as sincronizarProfile } from "../../lib/profiles";
  * pior estado possível — e era a tela de que todo o resto depende, porque
  * é `areas_de_interesse` que a onda consulta para achar quem avisar.
  */
-type Experiencia = { empresa: string; cargo: string; inicio: string; fim: string };
+type Experiencia = {
+  empresa: string;
+  cargo: string;
+  inicio: string;
+  fim: string;
+  /* O que estava escrito no banco quando a tela abriu, quando não dá para
+     separar em duas datas ("de 2019 a 2022", "2 anos"). Ver
+     `periodoParaCampos`: sem guardar isto, salvar de novo apagava o que a
+     pessoa tinha escrito. */
+  periodoLivre?: string;
+};
+
+/**
+ * O período da experiência: um texto no banco, dois campos na tela.
+ *
+ * ── O defeito que isto conserta — 04/09 ───────────────────────────────
+ *
+ * A tela grava `periodo` como "2020-03 a 2022-01" e, ao reabrir, jogava a
+ * string INTEIRA no campo "Começou" — que é um `input type="month"`. Um
+ * campo de mês recusa valor que não seja "AAAA-MM" e aparece VAZIO: a
+ * pessoa reabria o cadastro e as datas do emprego dela tinham sumido.
+ *
+ * E pior no segundo salvamento: com os dois campos vazios, o `periodo`
+ * gravado virava "" — as datas sumiam do banco também. Uma pessoa que
+ * corrigisse o telefone perdia as datas de todos os empregos.
+ *
+ * Foi encontrado no navegador, pelo aviso do próprio Chrome ("The
+ * specified value '2 anos' does not conform to the required format"),
+ * enquanto se olhava outra coisa.
+ */
+function periodoParaCampos(periodo: string): { inicio: string; fim: string; periodoLivre?: string } {
+  const texto = (periodo ?? "").trim();
+  if (!texto) return { inicio: "", fim: "" };
+
+  const mes = /^\d{4}-\d{2}$/;
+  const partes = texto.split(" a ").map((p) => p.trim());
+
+  if (partes.length === 2 && mes.test(partes[0]) && mes.test(partes[1])) {
+    return { inicio: partes[0], fim: partes[1] };
+  }
+  if (partes.length === 1 && mes.test(partes[0])) {
+    return { inicio: partes[0], fim: "" };
+  }
+
+  /* Texto livre (cadastro antigo, ou alguém que escreveu "2 anos"): os
+     campos de mês ficam vazios, porque não há mês nenhum ali — mas o
+     texto é guardado e devolvido ao banco intacto se a pessoa não mexer
+     nas datas. */
+  return { inicio: "", fim: "", periodoLivre: texto };
+}
 /* O tipo local do curso saiu: agora ele é o `CursoEmEdicao` da lib, que
    ganhou `tipo`, `situacao` e `nivel` na 0104. Dois tipos com o mesmo
    nome e campos diferentes é como se perde uma coluna no caminho — foi o
@@ -257,12 +306,9 @@ export function MeuPerfilPage() {
               exps.map((e) => ({
                 cargo: e.cargo,
                 empresa: e.onde ?? "",
-                /* O banco guarda um período em texto livre ("de 2019 a
-                   2022"); a tela tem dois campos. Na volta, o que não dá
-                   para separar vai inteiro no "começou" — melhor mostrar
-                   torto do que sumir com o que a pessoa escreveu. */
-                inicio: e.periodo ?? "",
-                fim: "",
+                /* Duas datas quando dá para separar; texto livre guardado
+                   à parte quando não dá. Ver `periodoParaCampos`. */
+                ...periodoParaCampos(e.periodo ?? ""),
               }))
             );
             setCursos(curs);
@@ -380,7 +426,11 @@ export function MeuPerfilPage() {
           experiencias.map((e) => ({
             cargo: e.cargo,
             onde: e.empresa,
-            periodo: [e.inicio, e.fim].filter(Boolean).join(" a "),
+            /* Sem datas preenchidas, devolve o texto que veio do banco em
+               vez de gravar vazio: era assim que o segundo salvamento
+               apagava "de 2019 a 2022" de quem nunca tocou nesse campo. */
+            periodo:
+              [e.inicio, e.fim].filter(Boolean).join(" a ") || (e.periodoLivre ?? ""),
           }))
         ),
         salvarCursos(id, cursos),
