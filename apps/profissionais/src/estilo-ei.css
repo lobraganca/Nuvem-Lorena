@@ -4260,3 +4260,15 @@
 .ei .ei-secao-linha {
   padding-top: 32px;
 }
+
+/* Os dois contatos do perfil, um em cima do outro — a dona: "faça os
+   botões melhores".
+
+   Eram duas colunas de mesma largura, e "Chamar no WhatsApp" não cabia em
+   metade de um celular de 390px: o rótulo era cortado no meio da palavra.
+   Empilhados, os dois cabem inteiros em qualquer tela. */
+.ei .ei-contatos {
+  display: grid;
+  gap: 10px;
+  padding: 14px 0 18px;
+}

@@ -11,6 +11,18 @@ import { registrarVisita } from "../lib/quemMeViu";
 import { BotaoFavorito } from "../components/ei/BotaoFavorito";
 import { lerFavoritos } from "../lib/favoritos";
 
+/* ── O PERFIL INTEIRO, E NÃO UM RESUMO — 04/09 ─────────────────────────
+   A dona: "ao clicar no pedido de um candidato tem que ter todas as
+   informações que ele preencheu."
+
+   A tela mostrava seis campos: situação, cidade, telefone, funções,
+   experiências e cursos. O cadastro tem trinta — pretensão, horários,
+   CNH, viagem, fim de semana, começar imediato, escolaridade,
+   competências, resumo. A pessoa preenche tudo isso para ser escolhida, e
+   quem decide não via quase nada.
+
+   A view `professionals_public` já entregava esses campos desde a 0103;
+   era esta tela que pedia só um punhado deles. */
 type Publico = {
   id: string;
   name: string;
@@ -20,13 +32,35 @@ type Publico = {
   neighborhood: string | null;
   city: string;
   uf: string;
+  bio: string | null;
+  categories: string[] | null;
   areas_de_interesse: string[];
   especialidade: string | null;
   disponivel: boolean | null;
   whatsapp_verified: boolean;
+  idade: number | null;
+  pretensao_centavos: number | null;
+  pretensao_combinar: boolean | null;
+  pretensao_periodo: string | null;
+  disponibilidade: string[] | null;
+  aceita_viajar: boolean | null;
+  fim_de_semana: boolean | null;
+  inicio_imediato: boolean | null;
+  modo_trabalho: string | null;
+  cnh: boolean | null;
+  cnh_categorias: string[] | null;
 };
 
-type Curso = { nome: string; instituicao: string | null; ano: string | null };
+type Curso = {
+  nome: string;
+  instituicao: string | null;
+  ano: string | null;
+  tipo: string | null;
+  nivel: string | null;
+  situacao: string | null;
+};
+
+type Competencia = { nome: string; nivel: string | null };
 
 /**
  * O perfil de um profissional, visto por quem contrata.
@@ -56,6 +90,7 @@ export function PerfilPublicoPage() {
   const [p, setP] = useState<Publico | null>(null);
   const [experiencias, setExperiencias] = useState<ProfessionalExperience[]>([]);
   const [cursos, setCursos] = useState<Curso[]>([]);
+  const [competencias, setCompetencias] = useState<Competencia[]>([]);
   const [carregando, setCarregando] = useState(true);
   const [erro, setErro] = useState("");
 
@@ -93,9 +128,16 @@ export function PerfilPublicoPage() {
       try {
         const { data, error } = await sb
           .from("professionals_public")
+          /* A lista é escrita à mão, uma coluna a uma: coluna nova que
+             ninguém acrescente aqui chega indefinida, sem erro nenhum — e
+             o campo some da tela como se a pessoa não o tivesse
+             preenchido. */
           .select(
-            "id, name, photo_url, phone, whatsapp, neighborhood, city, uf, " +
-              "areas_de_interesse, especialidade, disponivel, whatsapp_verified"
+            "id, name, photo_url, phone, whatsapp, neighborhood, city, uf, bio, " +
+              "categories, areas_de_interesse, especialidade, disponivel, whatsapp_verified, " +
+              "idade, pretensao_centavos, pretensao_combinar, pretensao_periodo, " +
+              "disponibilidade, aceita_viajar, fim_de_semana, inicio_imediato, " +
+              "modo_trabalho, cnh, cnh_categorias"
           )
           .eq("id", id)
           .maybeSingle();
@@ -127,7 +169,7 @@ export function PerfilPublicoPage() {
         }
         setP(data as unknown as Publico);
 
-        const [{ data: exps }, { data: curs }] = await Promise.all([
+        const [{ data: exps }, { data: curs }, { data: comps }] = await Promise.all([
           sb
             .from("professional_experiences")
             .select("*")
@@ -135,12 +177,18 @@ export function PerfilPublicoPage() {
             .order("ordem", { ascending: true }),
           sb
             .from("professional_courses")
-            .select("nome, instituicao, ano")
+            .select("nome, instituicao, ano, tipo, nivel, situacao")
+            .eq("professional_id", id)
+            .order("ordem", { ascending: true }),
+          sb
+            .from("professional_skills")
+            .select("nome, nivel")
             .eq("professional_id", id)
             .order("ordem", { ascending: true }),
         ]);
         setExperiencias((exps ?? []) as ProfessionalExperience[]);
         setCursos((curs ?? []) as Curso[]);
+        setCompetencias((comps ?? []) as Competencia[]);
       } catch (err) {
         setErro(mensagemDeErro(err, "Não consegui carregar este perfil."));
       } finally {
@@ -178,7 +226,20 @@ export function PerfilPublicoPage() {
   }
 
   const telefone = p.whatsapp || p.phone || "";
-  const funcoes = p.areas_de_interesse ?? [];
+  /* O que ela FAZ e onde ela ACEITARIA trabalhar são duas listas no banco
+     (`categories` e `areas_de_interesse`). Para quem contrata, as duas
+     respondem a mesma pergunta — "dá para me ajudar nisto?" —, então elas
+     aparecem juntas, sem repetição. */
+  const funcoes = [
+    ...new Set([...(p.categories ?? []), ...(p.areas_de_interesse ?? [])]),
+  ].filter(Boolean);
+  const pretensao = textoDaPretensao(
+    p.pretensao_centavos,
+    p.pretensao_combinar,
+    p.pretensao_periodo
+  );
+  const formacao = cursos.filter((c) => c.tipo === "formacao");
+  const outrosCursos = cursos.filter((c) => c.tipo !== "formacao");
 
   return (
     <div className="ei">
@@ -233,26 +294,44 @@ export function PerfilPublicoPage() {
         {/* O contato, logo abaixo dos dados: é o que a empresa veio fazer
             aqui. Dois caminhos porque nem todo mundo usa WhatsApp, e um
             número que só abre num app é um número que metade não usa. */}
+        {/* ── OS DOIS CONTATOS, EMPILHADOS — 04/09 ─────────────────────
+            A dona: "essa tela está muito quebrada, faça os botões
+            melhores."
+
+            Eram duas colunas de mesma largura, e "Chamar no WhatsApp" não
+            cabia em metade de um celular de 390px: o texto era cortado no
+            meio da palavra ("Chamar no WhatsAp"). Botão com o nome cortado
+            é o defeito que mais parece app mal feito, porque não há como
+            confundir com outra coisa.
+
+            Agora são dois botões de largura cheia, um em cima do outro. O
+            WhatsApp em laranja porque é o que quase todo mundo usa aqui —
+            e é a ação que esta tela existe para permitir. */}
         {telefone && (
-          <div className="ei-acoes">
+          <div className="ei-contatos ei-margem">
             <a
-              className="ei-acao"
+              className="ei-btn-laranja"
+              style={{ margin: 0, width: "100%" }}
               href={`https://wa.me/55${soDigitos(telefone)}?text=${encodeURIComponent(
                 `Olá, ${primeiroNome(p.name)}! Vi o seu perfil no Ei Emprego e queria falar sobre uma vaga.`
               )}`}
               target="_blank"
               rel="noopener noreferrer"
             >
-              <span className="ei-acao-circulo" aria-hidden="true">
+              <span style={{ display: "grid", placeItems: "center", width: 20, height: 20, flex: "none" }}>
                 <IconeConversa />
               </span>
               Chamar no WhatsApp
             </a>
-            <a className="ei-acao" href={`tel:+55${soDigitos(telefone)}`}>
-              <span className="ei-acao-circulo" aria-hidden="true">
+            <a
+              className="ei-btn ei-btn-contorno ei-btn-largo ei-btn-alto"
+              href={`tel:+55${soDigitos(telefone)}`}
+              style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 8 }}
+            >
+              <span style={{ display: "grid", placeItems: "center", width: 20, height: 20, flex: "none" }}>
                 <IconeFone />
               </span>
-              Ligar
+              Ligar para {primeiroNome(p.name)}
             </a>
           </div>
         )}
@@ -282,7 +361,83 @@ export function PerfilPublicoPage() {
               {p.especialidade || "Ainda não marcou nenhuma função."}
             </p>
           )}
+          {/* A especialidade é o recorte dentro do ofício — "telhados",
+              "pintura de portão". Estava sendo mostrada só quando NÃO
+              havia função nenhuma, que é justamente quando ela não
+              acrescenta nada. */}
+          {p.especialidade && funcoes.length > 0 && (
+            <p className="ei-apoio" style={{ marginTop: 10 }}>
+              Especialidade: {p.especialidade}
+            </p>
+          )}
         </div>
+
+        {/* O resumo que a pessoa escreveu sobre si. Vem logo depois das
+            funções porque é o único texto do cadastro em que ela fala com
+            as próprias palavras — e é o que a empresa lê antes de decidir
+            se liga. */}
+        {p.bio?.trim() && (
+          <>
+            <h2 className="ei-secao">Sobre ela</h2>
+            <div className="ei-cartao">
+              <p className="ei-corpo" style={{ margin: 0, whiteSpace: "pre-line" }}>
+                {p.bio}
+              </p>
+            </div>
+          </>
+        )}
+
+        {/* ── O QUE ELA QUER, E O QUE PODE ────────────────────────────
+            Tudo isto já estava no cadastro (0101 e 0103) e não aparecia em
+            lugar nenhum para quem contrata: pretensão, horários, viagem,
+            fim de semana, começar imediato, CNH, idade.
+
+            Cada linha só existe quando tem resposta. Uma ficha cheia de
+            "não informado" não informa mais que uma ficha curta — e aqui
+            ela ainda faria a pessoa parecer descuidada, o que é injusto
+            com quem simplesmente não quis responder. */}
+        {(pretensao ||
+          p.modo_trabalho ||
+          (p.disponibilidade?.length ?? 0) > 0 ||
+          p.aceita_viajar ||
+          p.fim_de_semana ||
+          p.inicio_imediato ||
+          p.cnh ||
+          p.idade != null) && (
+          <>
+            <h2 className="ei-secao">O que ela procura</h2>
+            <div className="ei-props">
+              {pretensao && <Prop rotulo="Pretensão">{pretensao}</Prop>}
+              {p.modo_trabalho && (
+                <Prop rotulo="Trabalho">{nomeDoModo(p.modo_trabalho)}</Prop>
+              )}
+              {(p.disponibilidade?.length ?? 0) > 0 && (
+                <Prop rotulo="Horários">
+                  <span className="ei-chips">
+                    {p.disponibilidade!.map((d) => (
+                      <span key={d} className="ei-selo ei-selo-cinza">
+                        {d}
+                      </span>
+                    ))}
+                  </span>
+                </Prop>
+              )}
+              {p.inicio_imediato && <Prop rotulo="Começa">Pode começar imediato</Prop>}
+              {p.fim_de_semana && <Prop rotulo="Fim de semana">Aceita trabalhar</Prop>}
+              {p.aceita_viajar && <Prop rotulo="Viagem">Aceita viajar</Prop>}
+              {p.cnh && (
+                <Prop rotulo="CNH">
+                  {(p.cnh_categorias?.length ?? 0) > 0
+                    ? `Categoria ${p.cnh_categorias!.join(", ")}`
+                    : "Tem habilitação"}
+                </Prop>
+              )}
+              {/* A IDADE, e nunca a data de nascimento: é o que o cadastro
+                  promete a quem preenche ("a empresa vê só a sua idade"). */}
+              {p.idade != null && <Prop rotulo="Idade">{p.idade} anos</Prop>}
+            </div>
+          </>
+        )}
 
         {experiencias.length > 0 && (
           <>
@@ -304,11 +459,37 @@ export function PerfilPublicoPage() {
           </>
         )}
 
-        {cursos.length > 0 && (
+        {/* Formação e cursos vinham juntos numa lista só chamada "Cursos".
+            São coisas diferentes para quem contrata: escolaridade é
+            requisito de vaga (a compatibilidade compara), curso é
+            diferencial. A 0104 já separa os dois por `tipo`. */}
+        {formacao.length > 0 && (
+          <>
+            <h2 className="ei-secao">Formação</h2>
+            <div>
+              {formacao.map((c, i) => (
+                <div key={i} className="ei-linha-item" style={{ cursor: "default" }}>
+                  <span className="ei-linha-nome">
+                    {c.nome}
+                    {(c.instituicao || c.ano || c.situacao) && (
+                      <span className="ei-linha-sub">
+                        {[c.instituicao, c.ano, nomeDaSituacao(c.situacao)]
+                          .filter(Boolean)
+                          .join(" · ")}
+                      </span>
+                    )}
+                  </span>
+                </div>
+              ))}
+            </div>
+          </>
+        )}
+
+        {outrosCursos.length > 0 && (
           <>
             <h2 className="ei-secao">Cursos</h2>
             <div>
-              {cursos.map((c, i) => (
+              {outrosCursos.map((c, i) => (
                 <div key={i} className="ei-linha-item" style={{ cursor: "default" }}>
                   <span className="ei-linha-nome">
                     {c.nome}
@@ -324,21 +505,86 @@ export function PerfilPublicoPage() {
           </>
         )}
 
+        {competencias.length > 0 && (
+          <>
+            <h2 className="ei-secao">Competências</h2>
+            <div className="ei-cartao">
+              <div className="ei-chips">
+                {competencias.map((c, i) => (
+                  <span key={i} className="ei-selo ei-selo-cinza">
+                    {c.nome}
+                    {c.nivel ? ` · ${nomeDoNivel(c.nivel)}` : ""}
+                  </span>
+                ))}
+              </div>
+            </div>
+          </>
+        )}
+
         {/* A ponte para o produto pago, dita sem empurrar: quem chegou até
             aqui já entendeu o valor de ter a lista. */}
-        <div className="ei-callout" style={{ marginTop: 20 }}>
-          <span className="ei-callout-emoji" aria-hidden="true">📣</span>
-          <span className="ei-callout-texto">
-            Falar um por um funciona para uma contratação. Para várias,{" "}
-            <Link to="/planos-empresa" className="ei-btn-inline">
-              publique uma vaga
-            </Link>{" "}
-            e o aviso vai para todo mundo que encaixa.
-          </span>
+        {/* O convite para publicar vaga: TEXTO e depois BOTÃO, e não um
+            botão-pílula no meio da frase. Enfiado no meio, ele quebrava o
+            parágrafo em três pedaços e sobrava um "e o aviso vai" solto na
+            linha seguinte — que foi como a dona viu esta tela. */}
+        <div className="ei-margem" style={{ marginTop: 24, marginBottom: 8 }}>
+          <p className="ei-apoio" style={{ margin: "0 0 10px" }}>
+            Falar um por um funciona para uma contratação. Para várias, publique uma
+            vaga: o aviso vai para todo mundo que encaixa.
+          </p>
+          <Link
+            to="/planos-empresa"
+            className="ei-btn ei-btn-contorno ei-btn-largo"
+            style={{ display: "flex", justifyContent: "center" }}
+          >
+            Publicar uma vaga
+          </Link>
         </div>
       </div>
     </div>
   );
+}
+
+/** "R$ 1.800 por mês", "a combinar", ou vazio quando não respondeu. */
+function textoDaPretensao(
+  centavos: number | null,
+  combinar: boolean | null,
+  periodo: string | null
+): string {
+  if (combinar) return "A combinar";
+  if (centavos == null) return "";
+  const valor = (centavos / 100).toLocaleString("pt-BR", {
+    style: "currency",
+    currency: "BRL",
+    minimumFractionDigits: 0,
+  });
+  const quando =
+    periodo === "dia" ? " por dia" : periodo === "hora" ? " por hora" : " por mês";
+  return valor + quando;
+}
+
+function nomeDoModo(v: string): string {
+  return v === "remoto"
+    ? "De casa"
+    : v === "hibrido"
+      ? "Parte no local, parte de casa"
+      : v === "tanto_faz"
+        ? "Tanto faz"
+        : "No local da empresa";
+}
+
+function nomeDaSituacao(v: string | null): string {
+  return v === "cursando"
+    ? "cursando"
+    : v === "trancado"
+      ? "trancado"
+      : v === "concluido"
+        ? "concluído"
+        : "";
+}
+
+function nomeDoNivel(v: string): string {
+  return v === "avancado" ? "avançado" : v === "intermediario" ? "intermediário" : "básico";
 }
 
 function primeiroNome(nome: string): string {
