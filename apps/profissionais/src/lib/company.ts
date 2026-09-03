@@ -434,7 +434,14 @@ export async function listarMinhasVagas(companyId: string): Promise<JobListing[]
     .eq("company_id", companyId)
     .order("created_at", { ascending: false });
 
-  if (error) return [];
+  /* Erro SOBE — 03/09, na varredura.
+     ─────────────────────────────────
+     Isto devolvia lista vazia, e a tela mostrava "você ainda não publicou
+     nenhuma vaga" para uma empresa com três no ar. É a mentira calma que o
+     CLAUDE.md registra, e ela custou caro justamente aqui: com as policies
+     quebradas para quem tem duas empresas (0109/0111), o erro do banco
+     virava uma tela normal e vazia — nada apontava para o defeito. */
+  if (error) throw error;
   return data as JobListing[];
 }
 
@@ -804,7 +811,9 @@ export async function obterOndasDaVaga(vagaId: string): Promise<JobDispatch[]> {
     .eq("job_listing_id", vagaId)
     .order("wave", { ascending: true });
 
-  if (error) return [];
+  /* Erro SOBE. "Nenhuma onda aberta" numa vaga que já disparou duas faria a
+     empresa disparar de novo — e a terceira onda é a última que existe. */
+  if (error) throw error;
   return data as JobDispatch[];
 }
 
@@ -865,7 +874,10 @@ export async function obterRespostasDaVaga(vagaId: string): Promise<RespostaComP
     .eq("interessado", true)
     .order("responded_at", { ascending: false });
 
-  if (error) return [];
+  /* Erro SOBE. "Ninguém se interessou ainda" é a frase mais cara do app
+     para se dizer errado: a empresa conclui que o anúncio não funcionou e
+     para de pagar. */
+  if (error) throw error;
   const respostas = (data ?? []) as JobResponse[];
   if (respostas.length === 0) return [];
 
