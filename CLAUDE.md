@@ -122,6 +122,15 @@ Então: escrever o arquivo em `supabase/migrations/`, **e mandar o SQL no
 chat para ela colar**. Um arquivo commitado não é uma migration aplicada —
 e o app novo pode depender dela.
 
+**Toda SQL mandada no chat vai com o link do SQL Editor junto** — ela
+pediu isso com todas as letras (03/09). O link abre a folha em branco já no
+projeto certo, e sem ele a dona tem de achar o projeto no meio da lista,
+que é onde nasce o erro de aplicar no banco do Avena:
+
+```
+https://supabase.com/dashboard/project/dfdinrimxqoqjedemjbw/sql/new
+```
+
 - Numeração sequencial: a última hoje é a `0060`.
 - `supabase/banco-completo.sql` **está desatualizado** (para na 0051). Serve
   para montar um banco do zero até ali, não como retrato do que está no ar.
