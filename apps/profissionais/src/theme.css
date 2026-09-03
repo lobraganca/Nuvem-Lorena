@@ -3544,3 +3544,41 @@ h3 {
     font-size: 0.92rem;
   }
 }
+
+/* ── Os filtros das listas do painel ────────────────────────────────────
+   A dona: "ter filtros para encontrar mais fácil."
+
+   Campo de procurar em cima, peneiras embaixo — e a contagem no rótulo de
+   cada peneira ("Sem plano (7)"), que já responde a pergunta antes de
+   alguém tocar nela. */
+.admin-filtros {
+  display: grid;
+  gap: 8px;
+  margin-bottom: 4px;
+}
+.admin-filtros input {
+  width: 100%;
+}
+.admin-peneiras {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.admin-peneira {
+  padding: 7px 14px;
+  border: 1px solid var(--color-border);
+  border-radius: 999px;
+  background: var(--color-surface);
+  color: var(--color-text);
+  font-size: 0.85rem;
+  /* 36px de alvo: a fileira fica no alto da tela, onde o polegar chega
+     torto, e peneira errada some com a lista inteira sem explicar por quê. */
+  min-height: 36px;
+  cursor: pointer;
+}
+.admin-peneira.ativa {
+  border-color: var(--color-primary);
+  background: var(--color-primary);
+  color: #fff;
+  font-weight: 600;
+}
