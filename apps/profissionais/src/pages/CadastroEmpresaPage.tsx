@@ -351,7 +351,11 @@ export function CadastroEmpresaPage() {
       /* Gravou: o rascunho cumpriu o papel. Sem isto ele voltaria dentro
          do cadastro da PRÓXIMA empresa, já preenchido com esta. */
       rascunho.limpar();
-      navegar("/painel-empresa", { replace: true });
+      /* Cadastro NOVO ganha a tela de "deu certo", com os dois caminhos;
+         quem só editou uma empresa que já existe volta para o painel, que
+         é de onde veio — uma tela de parabéns depois de corrigir o CNPJ
+         seria comemoração de nada. */
+      navegar(empresaExistente ? "/painel-empresa" : "/pronto?tipo=empresa", { replace: true });
     } catch (err) {
       setErro(mensagemDeErro(err, "Não foi possível salvar a empresa."));
     } finally {

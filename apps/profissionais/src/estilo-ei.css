@@ -3838,3 +3838,172 @@
   padding: 8px 10px;
   font-size: 0.85rem;
 }
+
+/* ═══════════════════════════════════════════════════════════════════════
+   AS TRÊS ONDAS, UMA POR BLOCO — 03/09
+   ═══════════════════════════════════════════════════════════════════════
+   Cada onda é uma linha da lista: nome, o que ela alcança, e o estado —
+   a data e a contagem se já saiu, o botão se é a próxima, o motivo se
+   está trancada.
+
+   Dentro de `.ei-lista`, que já dá o fio entre uma e outra: três cartões
+   soltos com espaço entre eles viram um acordeão, e a escala (exatamente
+   isso → mesmo ofício → ramo vizinho) se lê melhor coladas. */
+.ei .ei-onda {
+  display: grid;
+  gap: 6px;
+  padding: 14px 20px;
+}
+.ei .ei-onda-topo {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+.ei .ei-onda-nome {
+  font-size: 0.95rem;
+  font-weight: 600;
+  min-width: 0;
+}
+.ei .ei-onda-nota {
+  margin: 0;
+  font-size: 0.85rem;
+  line-height: 1.4;
+  color: var(--ei-tinta-fraca);
+}
+.ei .ei-onda-conta {
+  margin: 0;
+  font-size: 0.85rem;
+  line-height: 1.4;
+}
+/* O botão não estica: ele é a ação DAQUELA onda, e de largura cheia
+   pareceria a ação da tela. */
+.ei .ei-onda .ei-btn-curto { justify-self: start; margin-top: 2px; }
+
+/* ═══════════════════════════════════════════════════════════════════════
+   A CONTA: O NÚMERO E OS DOIS LADOS EM CARTÕES — 03/09
+   ═══════════════════════════════════════════════════════════════════════
+   O telefone confirmado é a identidade da conta neste app — não há e-mail
+   nem usuário. Fica logo abaixo do nome, com o selo, porque quem tem duas
+   contas precisa saber em qual está antes de mexer em qualquer coisa. */
+.ei .ei-conta-fone {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 6px 0 0;
+  font-size: 0.92rem;
+  color: var(--ei-tinta-fraca);
+}
+
+/* Os dois lados, lado a lado: são uma escolha entre dois, e ver os dois
+   juntos é o que a dona pediu ("card identificados se é empresa ou
+   profissional"). Em tela estreita eles empilham sozinhos. */
+.ei-lados {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 10px;
+  padding: 0 20px;
+  margin-top: 12px;
+}
+@media (max-width: 340px) {
+  .ei-lados { grid-template-columns: 1fr; }
+}
+
+.ei .ei-lado-cartao {
+  display: grid;
+  justify-items: start;
+  align-content: start;
+  gap: 4px;
+  padding: 14px;
+  min-height: 132px;
+  border: 1px solid var(--ei-fio-forte);
+  border-radius: var(--ei-raio, 14px);
+  background: var(--ei-papel);
+  color: var(--ei-tinta);
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+/* O que está aberto ganha contorno azul, e não fundo colorido: o fundo
+   apagaria o ícone, que é o que distingue um cartão do outro num relance —
+   a mesma escolha do cartão de empresa. */
+.ei .ei-lado-cartao.aberto {
+  border-color: var(--ei-acento);
+  box-shadow: inset 0 0 0 1px var(--ei-acento);
+}
+.ei .ei-lado-cartao:disabled { opacity: 0.6; cursor: default; }
+
+.ei .ei-lado-icone {
+  display: grid;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  margin-bottom: 4px;
+  border-radius: var(--ei-raio-toque, 12px);
+  background: var(--ei-afunda-forte);
+  color: var(--ei-tinta-fraca);
+}
+.ei .ei-lado-icone svg { width: 21px; height: 21px; }
+.ei .ei-lado-nome { font-size: 0.98rem; font-weight: 600; }
+.ei .ei-lado-nota {
+  font-size: 0.8rem;
+  line-height: 1.35;
+  color: var(--ei-tinta-fraca);
+}
+.ei .ei-lado-selo {
+  margin-top: 2px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--ei-acento);
+}
+
+/* ═══════════════════════════════════════════════════════════════════════
+   "DEU CERTO" — a tela depois de salvar (03/09)
+   ═══════════════════════════════════════════════════════════════════════
+   Uma coluna que ocupa a altura: o aviso no meio, os dois caminhos no pé.
+   É o desenho das telas de conclusão que todo mundo já viu — e a forma faz
+   metade do trabalho de dizer "acabou, deu certo". */
+/* NÃO estica até o fim da tela: a coluna tinha `100dvh` e, somada ao
+   cabeçalho azul e à barra de baixo, jogava os dois botões para FORA da
+   área visível — a tela dizia "deu certo" e escondia justamente o que
+   fazer em seguida, que é a metade útil dela. Medido no navegador antes de
+   subir. Agora o conteúdo manda na altura. */
+.ei .ei-pronto {
+  display: flex;
+  flex-direction: column;
+  gap: 28px;
+  padding: 40px 20px calc(32px + env(safe-area-inset-bottom));
+}
+.ei .ei-pronto-meio {
+  display: grid;
+  justify-items: center;
+  gap: 10px;
+  text-align: center;
+}
+/* O visto verde, dentro de um círculo — é o único lugar do app onde o
+   verde aparece grande, e é de propósito: ele diz "gravado" antes de
+   qualquer palavra ser lida. */
+.ei .ei-pronto-marca {
+  display: grid;
+  place-items: center;
+  width: 64px;
+  height: 64px;
+  margin-bottom: 6px;
+  border-radius: 999px;
+  background: var(--ei-verde-fraco, #e3f5e9);
+  color: var(--ei-verde, #1a7f4b);
+}
+.ei .ei-pronto-titulo {
+  margin: 0;
+  font-size: 1.5rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+}
+.ei .ei-pronto-frase {
+  margin: 0;
+  max-width: 22rem;
+  font-size: 0.95rem;
+  line-height: 1.5;
+  color: var(--ei-tinta-fraca);
+}
+.ei .ei-pronto-pe { display: grid; gap: 10px; }

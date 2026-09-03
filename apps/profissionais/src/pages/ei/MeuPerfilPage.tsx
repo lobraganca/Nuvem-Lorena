@@ -94,6 +94,11 @@ export function MeuPerfilPage() {
      tela, e ela não sabe se deu certo — numa tela em que o que está em
      jogo é a chance de ser chamada para trabalhar. */
   const [salvo, setSalvo] = useState(false);
+  /* Se esta tela abriu SEM cadastro no banco, o salvamento é o primeiro —
+     e o primeiro ganha a tela de "deu certo", com os caminhos. Editar um
+     cadastro que já existe continua com o aviso na própria tela: uma tela
+     de parabéns depois de corrigir o bairro seria comemoração de nada. */
+  const [ehPrimeiroCadastro, setEhPrimeiroCadastro] = useState(false);
 
   /* ── O CADASTRO ÚNICO ─────────────────────────────────────────────────
      Isto já foi um cadastro em três passos ("Você e o que faz" / "Sua
@@ -143,6 +148,7 @@ export function MeuPerfilPage() {
     (async () => {
       try {
         const meu = await lerMeuPerfil(user.id);
+        setEhPrimeiroCadastro(!meu);
         if (meu) {
           setPerfil(meu);
           if (meu.id) {
@@ -299,6 +305,12 @@ export function MeuPerfilPage() {
         /* silêncio proposital: ver comentário acima */
       }
 
+      if (ehPrimeiroCadastro) {
+        /* Ver ProntoPage. `replace` para o botão de voltar não trazer de
+           volta o formulário que acabou de ser salvo. */
+        navegar("/pronto?tipo=profissional", { replace: true });
+        return;
+      }
       setSalvo(true);
     } catch (err) {
       setErro(mensagemDeErro(err, "Não consegui salvar o seu perfil."));

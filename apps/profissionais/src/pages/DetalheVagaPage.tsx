@@ -315,194 +315,6 @@ export function DetalheVagaPage() {
           </p>
         )}
 
-      {/* Status das ondas */}
-      <h2 className="ei-secao">As ondas desta vaga</h2>
-      <section className="ei-cartao">
-
-        {ondas.length === 0 ? (
-          <p className="muted">Nenhuma onda disparada ainda.</p>
-        ) : (
-          <div style={{ display: "grid", gap: 12 }}>
-            {ondas.map((onda) => (
-              <div
-                key={onda.id}
-                style={{
-                  padding: 12,
-                  backgroundColor: "var(--color-bg-input)",
-                  borderRadius: 8,
-                  display: "flex",
-                  justifyContent: "space-between",
-                  alignItems: "center",
-                }}
-              >
-                <div>
-                  <strong>Onda {onda.wave}</strong>
-                  <p className="muted" style={{ margin: "4px 0 0 0", fontSize: "0.9em" }}>
-                    Disparada em {new Date(onda.sent_at).toLocaleDateString("pt-BR", {
-                      hour: "2-digit",
-                      minute: "2-digit",
-                    })}
-                  </p>
-                </div>
-                <div style={{ textAlign: "right", flexShrink: 0 }}>
-                  <div style={{ fontSize: "1.2em", fontWeight: "bold" }}>
-                    {onda.professionals_count}
-                  </div>
-                  <div className="muted" style={{ fontSize: "0.85em" }}>
-                    {onda.professionals_count === 1 ? "pessoa" : "pessoas"}
-                  </div>
-                  {/* O número que não pode faltar.
-                      ─────────────────────────────
-                      Notificação só alcança quem instalou o app e aceitou
-                      receber. Mostrar só "12 pessoas" venderia um alcance
-                      que não existe, e a empresa descobriria pelo silêncio
-                      — a forma mais cara de descobrir.
-
-                      `null` é "não sei" e some da tela: a contagem pode ter
-                      falhado, e escrever "0 com aviso" nesse caso seria
-                      inventar a pior notícia possível. */}
-                  {onda.podiam_receber !== null && onda.podiam_receber !== undefined && (
-                    <div
-                      className="muted"
-                      style={{ fontSize: "0.78em", marginTop: 2, maxWidth: 130 }}
-                    >
-                      {onda.podiam_receber} com aviso no celular
-                    </div>
-                  )}
-                </div>
-              </div>
-            ))}
-
-            <div
-              style={{
-                padding: 12,
-                backgroundColor: "var(--color-primary-light)",
-                borderRadius: 8,
-                textAlign: "center",
-              }}
-            >
-              <strong>
-                {totalProfissionais}{" "}
-                {totalProfissionais === 1 ? "pessoa avisada" : "pessoas avisadas"} até agora
-              </strong>
-            </div>
-          </div>
-        )}
-
-        {/* Abrir a próxima onda.
-            ─────────────────────
-            Nada abre sozinho neste app: sem agendamento, sem cron, sem
-            aviso de madrugada. Quem já achou gente na onda 1 simplesmente
-            não toca aqui, e ninguém mais é incomodado — que é a diferença
-            entre um app que avisa e um app que a pessoa silencia.
-
-            A contagem só é buscada quando a empresa pede, e não ao abrir a
-            tela: ela lê a base inteira em páginas (ver `lerTudo`), e fazer
-            isso a cada visita à vaga seria cobrar de todo mundo o preço de
-            uma pergunta que quase ninguém faz. */}
-        {vaga.status === "active" && !aindaTemOnda && ondas.length > 0 && (
-          <p className="muted" style={{ marginTop: 16, fontSize: "0.9em" }}>
-            Esta vaga já usou as {ONDAS_POR_VAGA} ondas dela. Quem encaixava foi
-            avisado — daqui em diante quem chega é quem procura sozinho.
-          </p>
-        )}
-
-        {vaga.status === "active" && aindaTemOnda && proximaOnda && (
-          <div style={{ marginTop: 16, paddingTop: 16, borderTop: "1px solid var(--color-border)" }}>
-            <p style={{ margin: "0 0 4px" }}>
-              <strong>
-                Onda {proximaOnda} — {ONDAS[proximaOnda].titulo}
-              </strong>
-            </p>
-            <p className="muted" style={{ margin: "0 0 12px", fontSize: "0.9em" }}>
-              {ONDAS[proximaOnda].explicacao}
-              {alcanceProximaOnda !== null &&
-                ` Alcança ${alcanceProximaOnda} ${
-                  alcanceProximaOnda === 1 ? "pessoa nova" : "pessoas novas"
-                }.`}
-            </p>
-
-            {alcanceProximaOnda === null ? (
-              <button
-                className="btn btn-outline btn-block"
-                disabled={contando}
-                onClick={contarProximaOnda}
-              >
-                {contando ? "Contando…" : "Ainda não achei ninguém — ver quem mais posso avisar"}
-              </button>
-            ) : (
-              <button className="btn btn-primary btn-block" disabled={abrindo} onClick={abrirProximaOnda}>
-                {abrindo
-                  ? "Avisando…"
-                  : alcanceProximaOnda === 0
-                    ? "Não há mais ninguém para avisar"
-                    : `Avisar as ${alcanceProximaOnda} pessoas da onda ${proximaOnda}`}
-              </button>
-            )}
-          </div>
-        )}
-      </section>
-
-      {/* Respostas */}
-      <section className="ei-cartao">
-        <h2 className="ei-cartao-titulo" style={{ marginBottom: 10 }}>
-          Profissionais interessados
-          {respostas.length > 0 && ` (${respostas.length})`}
-        </h2>
-
-        {respostas.length === 0 ? (
-          /* "Ainda não se interessou" e não "não respondeu": desde a 0078 a
-             pessoa também pode responder que a vaga não é para ela, e essa
-             resposta não aparece aqui. Dizer "ninguém respondeu" sobre uma
-             vaga que já teve respostas seria falso. */
-          <p className="muted">
-            Ninguém se interessou ainda. Quem tocar em “tenho interesse” aparece aqui,
-            com o telefone.
-          </p>
-        ) : (
-          /* Cada pessoa vira uma LINHA com nome, rosto e caminho para o
-             perfil — onde está o telefone. Antes era "Profissional ID:
-             8f3a2b1c…" com um botão "Ver perfil" que não fazia nada: a
-             lista pela qual a empresa paga o plano inteiro chegava como
-             uma coluna de códigos. */
-          <div style={{ margin: "0 -20px" }}>
-            {respostas.map((resp) => (
-              /* O link usa `cadastroId`, e não `professional_id`: aquele é
-                 o id da CONTA, e abriria "perfil não encontrado". Quem
-                 está sem cadastro visível vira linha sem toque. */
-              <Link
-                key={resp.id}
-                to={resp.cadastroId ? `/profissional/${resp.cadastroId}` : "#"}
-                className="ei-pessoa"
-                style={resp.cadastroId ? undefined : { pointerEvents: "none", opacity: 0.6 }}
-              >
-                <span className="ei-pessoa-retrato" aria-hidden="true">
-                  {resp.foto ? (
-                    <img src={resp.foto} alt="" loading="lazy" />
-                  ) : (
-                    (resp.nome || "?").trim().charAt(0).toLocaleUpperCase("pt-BR")
-                  )}
-                </span>
-                <span className="ei-pessoa-texto">
-                  <span className="ei-pessoa-nome ei-uma-linha">
-                    {resp.nome || "Sem nome"}
-                  </span>
-                  <span className="ei-pessoa-oficio ei-uma-linha">
-                    {resp.bairro ? `${resp.bairro} · ` : ""}
-                    respondeu em {new Date(resp.responded_at).toLocaleDateString("pt-BR")}
-                  </span>
-                </span>
-                {resp.cadastroId && (
-                  <span className="ei-linha-seta" aria-hidden="true">
-                    <IconeSeta />
-                  </span>
-                )}
-              </Link>
-            ))}
-          </div>
-        )}
-      </section>
-
       {/* O que fazer com a vaga — 02/09, sem as legendas
           ────────────────────────────────────────────────
           A dona: "tirar legendas, está ocupando muito espaço. Faça os
@@ -572,6 +384,165 @@ export function DetalheVagaPage() {
           Excluir
         </button>
       </div>
+
+      {/* ── AS TRÊS ONDAS, UMA POR BLOCO — 03/09 ─────────────────────────
+          A dona: "a parte de disparo de ondas tem que ficar melhor.
+          Colocar 3 botões de ondas."
+
+          Era uma caixa que mostrava o que JÁ tinha sido disparado e, no
+          fim, um bloco só para "a próxima" — então a empresa nunca via as
+          três de uma vez, nem entendia que existe uma escala: exatamente
+          isso → mesmo ofício → ramo vizinho. Cada onda alcança mais gente
+          e menos precisa, e essa é a decisão que a tela tem que deixar
+          tomar.
+
+          Agora são três blocos fixos, sempre os três, cada um dizendo em
+          que estado está: disparada (com data e quantas pessoas), pronta
+          para disparar (com o botão), ou trancada (com o motivo escrito).
+          Ninguém precisa adivinhar o que existe atrás do que está na tela. */}
+      <h2 className="ei-secao">As ondas desta vaga</h2>
+      <div className="ei-lista">
+        {([1, 2, 3] as WaveNumber[]).map((n) => {
+          const jaSaiu = ondas.find((o) => o.wave === n);
+          const ehAProxima = !jaSaiu && proximaOnda === n && vaga.status === "active";
+          const semCota = !jaSaiu && !aindaTemOnda;
+
+          return (
+            <div key={n} className="ei-onda">
+              <div className="ei-onda-topo">
+                <span className="ei-onda-nome">
+                  Onda {n} — {ONDAS[n].titulo}
+                </span>
+                {jaSaiu && <span className="ei-selo ei-selo-verde">Disparada</span>}
+              </div>
+              <p className="ei-onda-nota">{ONDAS[n].explicacao}</p>
+
+              {jaSaiu ? (
+                <p className="ei-onda-conta">
+                  <strong>
+                    {jaSaiu.professionals_count}{" "}
+                    {jaSaiu.professionals_count === 1 ? "pessoa avisada" : "pessoas avisadas"}
+                  </strong>{" "}
+                  em{" "}
+                  {new Date(jaSaiu.sent_at).toLocaleDateString("pt-BR", {
+                    hour: "2-digit",
+                    minute: "2-digit",
+                  })}
+                  {/* Quantas TÊM aparelho que recebe aviso. Sem este número
+                      a tela venderia um alcance que não existe, e a empresa
+                      descobriria pelo silêncio — a forma mais cara. `null`
+                      é "não sei" e some: escrever "0 com aviso" seria
+                      inventar a pior notícia possível. */}
+                  {jaSaiu.podiam_receber !== null && jaSaiu.podiam_receber !== undefined && (
+                    <>
+                      {" · "}
+                      {jaSaiu.podiam_receber} com aviso no celular
+                    </>
+                  )}
+                </p>
+              ) : ehAProxima ? (
+                alcanceProximaOnda === null ? (
+                  <button
+                    className="ei-btn ei-btn-contorno ei-btn-curto"
+                    disabled={contando}
+                    onClick={contarProximaOnda}
+                  >
+                    {contando ? "Contando…" : "Ver quantas pessoas alcança"}
+                  </button>
+                ) : (
+                  <button
+                    className="ei-btn ei-btn-cheio ei-btn-curto"
+                    disabled={abrindo || alcanceProximaOnda === 0}
+                    onClick={abrirProximaOnda}
+                  >
+                    {abrindo
+                      ? "Avisando…"
+                      : alcanceProximaOnda === 0
+                        ? "Não há mais ninguém para avisar"
+                        : `Avisar ${alcanceProximaOnda} ${
+                            alcanceProximaOnda === 1 ? "pessoa" : "pessoas"
+                          }`}
+                  </button>
+                )
+              ) : (
+                /* Trancada, e o motivo escrito: sem ele o bloco cinza
+                   parece defeito. São dois motivos diferentes — a vaga não
+                   está no ar, ou a cota de ondas acabou — e trocar um pelo
+                   outro manda a empresa procurar a solução errada. */
+                <p className="ei-onda-nota">
+                  {vaga.status !== "active"
+                    ? "A vaga precisa estar no ar para disparar."
+                    : semCota
+                      ? `Esta vaga já usou as ${ONDAS_POR_VAGA} ondas dela.`
+                      : "Sai depois da onda anterior."}
+                </p>
+              )}
+            </div>
+          );
+        })}
+      </div>
+
+
+      {/* Respostas */}
+      <section className="ei-cartao">
+        <h2 className="ei-cartao-titulo" style={{ marginBottom: 10 }}>
+          Profissionais interessados
+          {respostas.length > 0 && ` (${respostas.length})`}
+        </h2>
+
+        {respostas.length === 0 ? (
+          /* "Ainda não se interessou" e não "não respondeu": desde a 0078 a
+             pessoa também pode responder que a vaga não é para ela, e essa
+             resposta não aparece aqui. Dizer "ninguém respondeu" sobre uma
+             vaga que já teve respostas seria falso. */
+          <p className="muted">
+            Ninguém se interessou ainda. Quem tocar em “tenho interesse” aparece aqui,
+            com o telefone.
+          </p>
+        ) : (
+          /* Cada pessoa vira uma LINHA com nome, rosto e caminho para o
+             perfil — onde está o telefone. Antes era "Profissional ID:
+             8f3a2b1c…" com um botão "Ver perfil" que não fazia nada: a
+             lista pela qual a empresa paga o plano inteiro chegava como
+             uma coluna de códigos. */
+          <div style={{ margin: "0 -20px" }}>
+            {respostas.map((resp) => (
+              /* O link usa `cadastroId`, e não `professional_id`: aquele é
+                 o id da CONTA, e abriria "perfil não encontrado". Quem
+                 está sem cadastro visível vira linha sem toque. */
+              <Link
+                key={resp.id}
+                to={resp.cadastroId ? `/profissional/${resp.cadastroId}` : "#"}
+                className="ei-pessoa"
+                style={resp.cadastroId ? undefined : { pointerEvents: "none", opacity: 0.6 }}
+              >
+                <span className="ei-pessoa-retrato" aria-hidden="true">
+                  {resp.foto ? (
+                    <img src={resp.foto} alt="" loading="lazy" />
+                  ) : (
+                    (resp.nome || "?").trim().charAt(0).toLocaleUpperCase("pt-BR")
+                  )}
+                </span>
+                <span className="ei-pessoa-texto">
+                  <span className="ei-pessoa-nome ei-uma-linha">
+                    {resp.nome || "Sem nome"}
+                  </span>
+                  <span className="ei-pessoa-oficio ei-uma-linha">
+                    {resp.bairro ? `${resp.bairro} · ` : ""}
+                    respondeu em {new Date(resp.responded_at).toLocaleDateString("pt-BR")}
+                  </span>
+                </span>
+                {resp.cadastroId && (
+                  <span className="ei-linha-seta" aria-hidden="true">
+                    <IconeSeta />
+                  </span>
+                )}
+              </Link>
+            ))}
+          </div>
+        )}
+      </section>
+
       </div>
     </div>
   );

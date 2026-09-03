@@ -47,6 +47,7 @@ const OnboardingTipoPage = lazy(importarPagina(() => import("./pages/OnboardingT
 const CadastroEmpresaPage = lazy(importarPagina(() => import("./pages/CadastroEmpresaPage").then((m) => ({ default: m.CadastroEmpresaPage }))));
 const PainelEmpresaPage = lazy(importarPagina(() => import("./pages/PainelEmpresaPage").then((m) => ({ default: m.PainelEmpresaPage }))));
 const CriarVagaPage = lazy(importarPagina(() => import("./pages/CriarVagaPage").then((m) => ({ default: m.CriarVagaPage }))));
+const ProntoPage = lazy(() => import("./pages/ei/ProntoPage").then((m) => ({ default: m.ProntoPage })));
 const EntradaPage = lazy(importarPagina(() => import("./pages/ei/EntradaPage").then((m) => ({ default: m.EntradaPage }))));
 const ComecarPage = lazy(importarPagina(() => import("./pages/ei/ComecarPage").then((m) => ({ default: m.ComecarPage }))));
 const MeuPerfilPage = lazy(importarPagina(() => import("./pages/ei/MeuPerfilPage").then((m) => ({ default: m.MeuPerfilPage }))));
@@ -170,6 +171,7 @@ const TELAS_DE_APP = [
   "/painel",
   "/painel-empresa",
   "/criar-vaga",
+  "/pronto",
   "/vaga",
   /* `/vaga-aberta` precisa estar escrito à parte: a comparação é por
      caminho exato ou com barra depois, então "/vaga" casa com "/vaga/123" e
@@ -319,6 +321,8 @@ export default function App() {
         <Route path="/minhas-empresas" element={<MinhasEmpresasPage />} />
         <Route path="/painel-empresa" element={<PainelEmpresaPage />} />
         <Route path="/criar-vaga" element={<CriarVagaPage />} />
+        {/* "Deu certo" — a confirmação depois de salvar. Ver ProntoPage. */}
+        <Route path="/pronto" element={<ProntoPage />} />
         {/* A MESMA tela de criar, no modo edição — ver CriarVagaPage. */}
         <Route path="/vaga/:id/editar" element={<CriarVagaPage />} />
         <Route path="/vaga/:id" element={<DetalheVagaPage />} />

@@ -461,7 +461,10 @@ export function CriarVagaPage() {
         await anunciarVaga(vaga.id);
       }
 
-      navegar(`/vaga/${vaga.id}`, { replace: true });
+      /* A confirmação, e não a vaga direto: quem escreveu vinte campos
+         precisa ler que deu certo, e precisa saber o que fazer agora — ver
+         ProntoPage. */
+      navegar("/pronto?tipo=vaga", { replace: true });
     } catch (err) {
       /* ── "DIZ QUE NÃO SALVOU, MAS SALVOU" — 02/09 ─────────────────────
          A dona: "ao salvar a vaga fala que não é possível salvar. Mas

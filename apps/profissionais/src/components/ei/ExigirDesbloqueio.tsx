@@ -178,9 +178,16 @@ export function ExigirDesbloqueio({ children }: { children: ReactNode }) {
 
               {erro && <p className="ei-campo-erro" role="alert">{erro}</p>}
 
+              {/* Respiro entre a senha e o Entrar — 03/09
+                  A dona: "a tela olá de novo, colocar respiro entre a senha
+                  e o botão de entrar." Eles estavam colados por um vão de
+                  campo, e não de bloco: o botão parecia parte da caixa de
+                  texto, e num toque apressado o dedo que ia à senha caía
+                  nele. */}
               <button
                 type="button"
                 className="ei-btn ei-btn-cheio ei-btn-largo ei-btn-alto"
+                style={{ marginTop: 18 }}
                 disabled={ocupado || senha.length < 4}
                 onClick={async () => {
                   setOcupado(true);
