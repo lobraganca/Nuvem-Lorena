@@ -13,7 +13,7 @@ import { excluirMinhaConta } from "../lib/account";
 import { BottomSheet } from "../components/BottomSheet";
 import { baixarMeusDados } from "../lib/meusDados";
 import type { Profile } from "../types/domain";
-import { InstalarApp } from "../components/InstalarApp";
+import { InstalarApp, instalarServeAqui } from "../components/InstalarApp";
 import { Pagina, Prop } from "../components/ei/Pagina";
 import { useTituloDaPagina } from "../lib/tituloDaPagina";
 import { useOnboardingStatus } from "../lib/useOnboardingStatus";
@@ -473,12 +473,23 @@ export function PerfilPage() {
             na arrumação do topo e saiu daqui na reescrita da Conta, e
             ninguém percebeu porque o componente continuava importado. Era
             a dona quem não achava mais como pôr o app no celular. */}
-        <div className="ei-secao-linha">
-          <h2>O app</h2>
-        </div>
-        <div className="ei-lista">
-          <InstalarApp />
-        </div>
+        {/* 04/09: a seção inteira só existe quando há o que instalar — a
+            dona: "a seção app na parte de contas está vazia, retire."
+
+            Dentro do app já instalado o convite devolve `null`, mas o
+            TÍTULO continuava na tela com uma lista vazia embaixo. Era o
+            caso dela, que usa o app no celular. Em aba de navegador a
+            seção volta a aparecer, porque aí instalar faz sentido. */}
+        {instalarServeAqui() && (
+          <>
+            <div className="ei-secao-linha">
+              <h2>O app</h2>
+            </div>
+            <div className="ei-lista">
+              <InstalarApp />
+            </div>
+          </>
+        )}
 
         <div className="ei-secao-linha">
           <h2>Ajuda</h2>

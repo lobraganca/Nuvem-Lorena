@@ -1216,43 +1216,75 @@ export function MeuPerfilPage() {
         <h2 className="ei-secao">Competências</h2>
         <div className="ei-cartao">
 
-          <div style={{ display: "grid", gap: 12 }}>
+          {/* ── CADA COMPETÊNCIA É UM BLOCO, COMO AS EXPERIÊNCIAS — 04/09
+              A dona: "a parte de competências no cadastro dos profissionais
+              está estranho e quebrado."
+
+              Estava, e por dois motivos somados. Largura: nome, nível e
+              "Tirar" dividiam a MESMA linha, e o seletor sozinho come
+              132px — num celular de 390px sobravam quatro letras para o
+              nome. E rótulo: as duas caixas não tinham nenhum, então uma
+              competência salva aparecia como uma caixa de texto solta com
+              um "Básico" ao lado, sem nada dizendo o que era aquilo.
+
+              Agora cada competência é um bloco igual ao das experiências e
+              dos cursos, logo acima: cabeçalho com "1ª competência" e o
+              "Tirar" à direita, e embaixo dois campos com rótulo, um por
+              linha — do jeito que o resto do formulário já faz. */}
+          {/* 26px entre uma competência e a seguinte: com 18 o "2ª
+              competência" encostava no campo de cima e as duas pareciam um
+              bloco só. */}
+          <div style={{ display: "grid", gap: 26 }}>
             {competencias.map((c, i) => (
-              <div key={i} className="ei-competencia">
-                <input
-                  aria-label={`Competência ${i + 1}`}
-                  value={c.nome}
-                  onChange={(e) =>
-                    setCompetencias((a) =>
-                      a.map((x, j) => (j === i ? { ...x, nome: e.target.value } : x))
-                    )
-                  }
-                />
-                <select
-                  aria-label={`Nível de ${c.nome || "competência " + (i + 1)}`}
-                  value={c.nivel}
-                  onChange={(e) =>
-                    setCompetencias((a) =>
-                      a.map((x, j) =>
-                        j === i
-                          ? { ...x, nivel: e.target.value as CompetenciaEmEdicao["nivel"] }
-                          : x
+              <div key={i} style={{ display: "grid", gap: 8 }}>
+                <div
+                  style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline" }}
+                >
+                  <span className="ei-apoio">{i + 1}ª competência</span>
+                  <button
+                    type="button"
+                    className="ei-btn ei-btn-texto"
+                    style={{ minHeight: 0, padding: "0 4px" }}
+                    onClick={() => setCompetencias((a) => a.filter((_, j) => j !== i))}
+                  >
+                    Tirar
+                  </button>
+                </div>
+
+                <div className="ei-campo">
+                  <label htmlFor={`comp-nome-${i}`}>O que você sabe fazer</label>
+                  <input
+                    id={`comp-nome-${i}`}
+                    value={c.nome}
+                    maxLength={40}
+                    onChange={(e) =>
+                      setCompetencias((a) =>
+                        a.map((x, j) => (j === i ? { ...x, nome: e.target.value } : x))
                       )
-                    )
-                  }
-                >
-                  <option value="basico">Básico</option>
-                  <option value="intermediario">Intermediário</option>
-                  <option value="avancado">Avançado</option>
-                </select>
-                <button
-                  type="button"
-                  className="ei-btn ei-btn-texto"
-                  style={{ minHeight: 0, padding: "0 4px" }}
-                  onClick={() => setCompetencias((a) => a.filter((_, j) => j !== i))}
-                >
-                  Tirar
-                </button>
+                    }
+                  />
+                </div>
+
+                <div className="ei-campo">
+                  <label htmlFor={`comp-nivel-${i}`}>O quanto</label>
+                  <select
+                    id={`comp-nivel-${i}`}
+                    value={c.nivel}
+                    onChange={(e) =>
+                      setCompetencias((a) =>
+                        a.map((x, j) =>
+                          j === i
+                            ? { ...x, nivel: e.target.value as CompetenciaEmEdicao["nivel"] }
+                            : x
+                        )
+                      )
+                    }
+                  >
+                    <option value="basico">Básico</option>
+                    <option value="intermediario">Intermediário</option>
+                    <option value="avancado">Avançado</option>
+                  </select>
+                </div>
               </div>
             ))}
           </div>
@@ -1260,7 +1292,11 @@ export function MeuPerfilPage() {
           {/* As sugestões da dona, e só as que ainda não estão na lista:
               oferecer "Excel" a quem já pôs Excel é um botão que não faz
               nada — e o banco recusaria a repetida. */}
-          <div className="ei-chips" style={{ marginTop: competencias.length ? 14 : 0 }}>
+          {/* As sugestões entram na mesma grade de duas colunas de "Melhor
+              horário": são a mesma coisa — opções para tocar —, e duas
+              formas diferentes para a mesma coisa fazem a pessoa
+              reaprender no meio do formulário. */}
+          <div className="ei-opcoes" style={{ marginTop: competencias.length ? 18 : 0 }}>
             {["Excel", "Informática", "Atendimento", "Caixa", "Vendas", "Direção"]
               .filter(
                 (nome) =>
@@ -1272,7 +1308,7 @@ export function MeuPerfilPage() {
                 <button
                   key={nome}
                   type="button"
-                  className="ei-chip"
+                  className="ei-opcao-botao"
                   onClick={() =>
                     setCompetencias((a) => [...a, { nome, nivel: "basico" }])
                   }

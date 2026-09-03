@@ -48,6 +48,21 @@ function ehIOS(): boolean {
   return /iphone|ipad|ipod/i.test(navigator.userAgent);
 }
 
+/**
+ * Este aparelho tem o que instalar?
+ *
+ * Existe para a tela de Conta não abrir uma seção "O app" vazia — a dona:
+ * "a seção app na parte de contas está vazia, retire".
+ *
+ * E ela estava mesmo: dentro do app já instalado o convite devolve `null`,
+ * mas o TÍTULO da seção continuava lá, com uma lista sem nenhuma linha
+ * embaixo. Quem esconde o conteúdo tem de deixar a tela perguntar antes, e
+ * era essa pergunta que faltava.
+ */
+export function instalarServeAqui(): boolean {
+  return !ehAppDaLoja() && !estaInstalado();
+}
+
 export function InstalarApp({ variante = "lista" }: { variante?: "lista" | "faixa" | "cabecalho" | "botao" }) {
   /* Dentro do app instalado pela loja, convidar a instalar o app é o
      absurdo que parece. Ele já sumia quando o navegador dizia que não há

@@ -68,8 +68,12 @@ export function ComecarPage({ lado }: { lado: "professional" | "company" }) {
             <>
               <Link to="/minhas-empresas" className="ei-porta ei-porta-cheia">
                 <IconePorta desenho="predio" />
-                <span className="ei-porta-nome">Minhas empresas</span>
-                <span className="ei-porta-nota">Escolha a empresa e veja as vagas dela</span>
+                {/* "e vagas" a pedido da dona: a porta leva à escolha da
+                    empresa, mas o que se vai fazer lá dentro é mexer nas
+                    vagas dela — e quem lia só "Minhas empresas" procurava
+                    as vagas noutro lugar. */}
+                <span className="ei-porta-nome">Minhas empresas e vagas</span>
+                <span className="ei-porta-nota ei-uma-linha">Escolha a empresa e veja as vagas</span>
               </Link>
               {/* O plano subiu para cá — 03/09
                   ─────────────────────────────
