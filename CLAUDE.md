@@ -38,20 +38,45 @@ neste repositório acerta o app errado sem dar erro.
 
 ## Branches
 
-| Branch | Para quê |
-|---|---|
-| `claude/professional-search-app-vuryc8` | onde o trabalho é feito |
-| `claude/professional-search-app-duqnk8` | **é ela que publica** — o workflow só escuta esta |
-| branch padrão do repositório | é do Avena, não do Ei Itabirito |
+Isto aqui estava desatualizado e me custou uma investigação inteira em
+04/09. A separação dos três apps aconteceu e este arquivo não acompanhou.
 
-O fluxo é: commitar na `vuryc8`, empurrar as duas.
+| Branch | App | Banco Supabase |
+|---|---|---|
+| **`ei-itabirito`** | **Ei Emprego** — é onde se trabalha E é ela que publica | `ahigenhenzmsjxlmrzhz` |
+| `procuro-producao` | procurô, congelado. **Não commitar ali** | `dfdinrimxqoqjedemjbw` |
+| `main` / `claude/avena-travel-memories-app-koj0zy` | Avena | `wkuwwzcucsxonhsblkmc` |
+| `claude/professional-search-app-duqnk8` | **branch velha do Ei, 226 commits atrás.** Não usar — mas ver o aviso abaixo | — |
 
 ```bash
-git push -u origin claude/professional-search-app-vuryc8
-git push origin claude/professional-search-app-vuryc8:claude/professional-search-app-duqnk8
+git push -u origin ei-itabirito
 ```
 
+Uma branch só. As `vuryc8` e `duqnk8` eram o arranjo antigo, de quando o
+workflow escutava a `duqnk8`; hoje ele escuta a `ei-itabirito`.
+
 Nunca empurrar para outra branch sem a dona pedir.
+
+### ⚠ A BRANCH PADRÃO DO REPOSITÓRIO É A VELHA DO EI
+
+A padrão é a `claude/professional-search-app-duqnk8`, parada 226 commits
+atrás — o último commit dela é "Migration 0065: tira o Ei Itabirito do
+banco do procurô".
+
+Isso não é detalhe de organização, tem efeito: **o GitHub roda os
+workflows AGENDADOS a partir da branch padrão, e não da que publica.**
+Então:
+
+- a rotina de 15 em 15 minutos que reenvia aviso de vaga
+  (`esvaziar-fila-de-avisos.yml`) **nunca roda no horário**, porque o
+  arquivo não existe na `duqnk8`;
+- o que roda todo dia de lá é a `rotina-diaria.yml`, que é do **procurô**,
+  contra o banco do procurô.
+
+Enquanto a padrão não mudar para `ei-itabirito`, consertar um workflow
+agendado nesta branch não muda nada no horário — só quando disparado à
+mão. Trocar a padrão é em Settings > General > Default branch, e é
+decisão da dona.
 
 ### CONFIRA EM QUE BRANCH VOCÊ ESTÁ, NA PRIMEIRA MENSAGEM
 
@@ -113,6 +138,37 @@ Outros workflows: `verificar-app.yml` (tipos + build a cada push),
 `PUBLICAR-FUNCTIONS.txt`), `rotina-diaria.yml` (avisos de vencimento).
 
 ---
+
+## O que é do Ei e o que é do procurô — 04/09
+
+A dona: "tudo dos apps tem que ser separados."
+
+O repositório foi do procurô antes de ser do Ei, e sobrou coisa dele
+misturada. O que já foi separado, e o que ainda não.
+
+**Separado:**
+
+- **Workflows.** A branch do Ei tinha `pages.yml` (do Avena) e
+  `rotina-diaria.yml` (do procurô, chamando `renew-annual-plans` no banco
+  do procurô). Os dois saíram.
+- **Edge Functions.** `publicar-functions.yml` publicava TODAS as pastas
+  de `supabase/functions/` — três do Ei e dez do procurô (Mercado Pago,
+  créditos, avaliação, plano anual). Agora publica só as três do Ei:
+  `enviar-avisos-de-vaga`, `delete-account` e `notify-suspension`.
+  **Function nova do Ei tem de entrar nessa lista**, ou ela não sobe e o
+  app recebe 404 sem nada explicando.
+- **Conferência do projeto.** O mesmo workflow agora recusa publicar se o
+  segredo `SUPABASE_PROJECT_REF` não for o projeto do Ei. Sem isso, ele
+  publicava com sucesso no banco errado.
+
+**Ainda misturado, e por que não mexi:**
+
+- `src/lib/payments.ts`, `banners.ts`, `indicacoes.ts`, `suggestions.ts` e
+  as telas `AdminFinanceiro`, `AdminBanners` — são do procurô e continuam
+  no código do Ei. Nenhuma tela do Ei os chama (só o painel administrativo
+  importa `payments.ts`). São peso morto no pacote, não defeito.
+- As migrations `0001` a `~0065` são da era do procurô. Apagá-las quebraria
+  a montagem de um banco do zero.
 
 ## Supabase
 
@@ -244,7 +300,7 @@ rows returned" e engole a resposta da conferência.
 | Projeto | Qual app |
 |---|---|
 | `ahigenhenzmsjxlmrzhz` | **Ei Emprego** — confirmado pela dona em 04/09 |
-| `dfdinrimxqoqjedemjbw` | um projeto ANTIGO do mesmo app. Um link para ele em 03/09 fez a SQL responder `relation "public.companies" does not exist` — as tabelas não estão lá. Não use. |
+| `dfdinrimxqoqjedemjbw` | **é do procurô**, e não um "projeto antigo do mesmo app" como este arquivo dizia até 04/09. Foi a migration `0065_apagar_o_ei_itabirito.sql` (na branch `procuro-producao`) que separou os dois. Um link para ele em 03/09 fez a SQL responder `relation "public.companies" does not exist` — as tabelas do Ei não estão lá. Não use para o Ei. |
 | `wkuwwzcucsxonhsblkmc` | Avena |
 
 O endereço do painel mostra qual está aberto. No projeto errado, uma

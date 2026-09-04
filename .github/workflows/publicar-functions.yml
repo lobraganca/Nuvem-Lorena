@@ -138,10 +138,34 @@ jobs:
           # real na API do Mercado Pago antes de acreditar em qualquer coisa.
           sem_jwt="mercadopago-webhook renew-annual-plans"
 
+          # ── SÓ AS FUNCTIONS DO EI — 04/09 ───────────────────────────
+          # A dona: "tudo dos apps tem que ser separados."
+          #
+          # Aqui "todas" queria dizer TODAS as pastas — e a pasta guarda,
+          # além das três do Ei, dez do procurô: as do Mercado Pago, a de
+          # créditos, a de avaliação, a de plano anual. Elas ficaram no
+          # repositório quando ele virou Ei Itabirito.
+          #
+          # Publicá-las no banco do Ei põe código de cobrança de OUTRO
+          # produto num projeto que não tem as tabelas dele, procurando
+          # segredos do Mercado Pago que ali não existem. Não quebra nada
+          # hoje, porque ninguém as chama — e é exatamente esse tipo de
+          # coisa que um dia é chamada por engano.
+          #
+          # As três do Ei, e o motivo de cada uma:
+          #   enviar-avisos-de-vaga  a onda. É o coração do app.
+          #   delete-account         apagar a conta. Exigência da Play.
+          #   notify-suspension      avisa quem foi suspenso pela adm.
+          #
+          # Function nova do Ei entra NESTA lista. Sem isso ela não sobe, e
+          # o app recebe 404 sem nada explicando — que foi o defeito de
+          # 01/09 a 04/09 com a `enviar-avisos-de-vaga`.
+          DO_EI="enviar-avisos-de-vaga delete-account notify-suspension"
+
           if [ "$ESCOLHA" = "todas" ]; then
             # `_shared` não é uma function, é a pasta de código comum que as
             # outras importam. A CLI a envia junto de quem a importa.
-            lista=$(ls -1 supabase/functions | grep -v '^_')
+            lista="$DO_EI"
           else
             lista="$ESCOLHA"
           fi
