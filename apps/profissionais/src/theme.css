@@ -3485,7 +3485,24 @@ h3 {
    do relógio), e não fica uma tira branca acima do azul. */
 .entrar-pagina {
   max-width: 420px;
-  padding-top: calc(28px + env(safe-area-inset-top));
+  /* ── O RECORTE DO IPHONE ESTAVA RESERVADO DUAS VEZES — 04/09 ────────
+     A dona: "a tela está começando muito embaixo."
+
+     Medido, simulando os 47px de recorte de um iPhone: entre o fim da
+     barra azul e a palavra "Entrar" havia 91px de azul vazio. Sem
+     recorte (navegador de computador) eram 43px — ou seja, quase toda a
+     sobra era o recorte, contado DE NOVO aqui.
+
+     A barra azul do topo já reserva essa faixa (`.cabecalho-ei`, com o
+     mesmo `env`), e ela está em todas as telas desde 03/09. Quando esta
+     regra foi escrita, a tela de entrar escondia o cabeçalho e precisava
+     reservar sozinha; hoje reservar aqui é somar a mesma faixa duas
+     vezes, e o resultado é um vão que ninguém pediu.
+
+     28px viraram 18px na mesma passada: o título já traz 15px de margem
+     própria, e os dois juntos empurravam a decisão da tela para baixo da
+     dobra num celular pequeno. */
+  padding-top: 18px;
   padding-bottom: 40px;
   /* A faixa azul é um degradê do PRÓPRIO bloco, e não um retângulo fixo
      atrás da página. A primeira tentativa usou `position: fixed` com
@@ -3498,12 +3515,19 @@ h3 {
      contratar", ver `.entrar-lados`), e com ela a linha que explica a
      escolha passou a cair FORA do azul — a última palavra ficava cortada
      exatamente na parada do degradê, que é o tipo de detalhe que faz a
-     tela parecer quebrada. */
+     tela parecer quebrada.
+
+     E de 400px para 345px no mesmo dia, quando o recuo do topo deixou de
+     reservar o recorte do iPhone duas vezes (ver logo abaixo): o conteúdo
+     subiu 57px e a parada, que é contada do alto DESTE bloco, ficou 57px
+     mais funda — sobrando azul atrás do cartão branco. Medido: a linha
+     da explicação termina a 251px daqui, então 345 mantém a mesma folga
+     de antes sem cortar palavra nenhuma. */
   background: linear-gradient(
     to bottom,
     var(--color-marca-azul) 0,
-    var(--color-marca-azul) 400px,
-    transparent 400px
+    var(--color-marca-azul) 345px,
+    transparent 345px
   );
 }
 
