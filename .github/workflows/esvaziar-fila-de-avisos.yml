@@ -62,7 +62,27 @@ jobs:
             exit 1
           fi
 
-          URL="https://dfdinrimxqoqjedemjbw.functions.supabase.co/enviar-avisos-de-vaga"
+          # ── O PROJETO ERRADO — 04/09 ────────────────────────────────
+          # Aqui estava `dfdinrimxqoqjedemjbw`, que é o projeto do PROCURÔ.
+          # O Ei mudou para `ahigenhenzmsjxlmrzhz`, e a função
+          # `enviar-avisos-de-vaga` foi apagada do projeto antigo pela
+          # migration 0065 ("apagar o ei itabirito").
+          #
+          # Resultado, conferido no log de 01/09:
+          #
+          #   Volta 1 — código 404 — {"code":"NOT_FOUND",
+          #                           "message":"Requested function was not found"}
+          #
+          # Ou seja: a REDE que reenvia aviso de vaga que ficou para trás
+          # estava batendo num endereço que não existe, a cada quinze
+          # minutos, falhando toda vez. Quem publicou vaga e teve a chamada
+          # do app falhando nunca teve segunda chance — e ninguém foi
+          # avisado.
+          #
+          # Este endereço não é adivinhação: é o projeto que a dona
+          # confirmou em 04/09 e o mesmo que a ajuda de emergência do
+          # workflow de publicação usa.
+          URL="https://ahigenhenzmsjxlmrzhz.functions.supabase.co/enviar-avisos-de-vaga"
 
           # Até 5 voltas: a função manda 200 por vez, então uma onda de mil
           # pessoas sai inteira numa execução em vez de esperar mais uma
