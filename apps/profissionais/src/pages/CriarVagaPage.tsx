@@ -559,11 +559,14 @@ export function CriarVagaPage() {
             </p>
           </Pagina>
 
+          {/* A dona mandou tirar a mesma fala da tela de planos (04/09), e
+              ela estava aqui também, palavra por palavra. O que ela
+              acrescentava — "dá para procurar sem plano" — o botão de baixo
+              já oferece, e oferecer vale mais que explicar. */}
           <Callout>
-            <strong>Sem plano você já pode, agora:</strong> ver e procurar todos os
-            profissionais de Itabirito, e falar com cada um direto, pelo telefone que
-            está no cadastro. É grátis e não precisa nem de conta — o plano serve para
-            não ter que chamar um por um.
+            <strong>Sem plano você já pode ver e procurar</strong> todos os
+            profissionais de Itabirito, e falar com cada um pelo telefone do
+            cadastro.
           </Callout>
 
           <div className="ei-margem" style={{ display: "grid", gap: 10, marginTop: 18 }}>

@@ -1,6 +1,11 @@
 import { useEffect, useState } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
-import { obterVaga, obterRespostasDaVaga, type RespostaComPessoa } from "../lib/company";
+import {
+  obterVaga,
+  obterRespostasDaVaga,
+  marcarResposta,
+  type RespostaComPessoa,
+} from "../lib/company";
 import { mensagemDeErro } from "../lib/erros";
 import { Pagina, Abas } from "../components/ei/Pagina";
 import { useTituloDaPagina } from "../lib/tituloDaPagina";
@@ -40,7 +45,23 @@ export function InteressadosDaVagaPage() {
   const [carregando, setCarregando] = useState(true);
   const [erro, setErro] = useState("");
   /* A dona: "pra que ele possa filtrar... se uma lista for grande." */
-  const [aba, setAba] = useState<"todos" | "ver" | "gostei" | "nao">("todos");
+  /* ── ABRE EM "PARA VER", E NÃO EM "TODOS" — 04/09 ──────────────────
+     A dona: "as pessoas que você não acha interessante ainda continuam na
+     tela para escolher um candidato."
+
+     Ela está certa, e o defeito era do padrão: a tela abria em "Todos",
+     que inclui os descartados. Quem marcasse cinco pessoas como "não é
+     para a vaga" voltava no dia seguinte e reencontrava as cinco, no meio
+     de quem ainda faltava decidir — relendo nomes que já tinha
+     descartado, toda visita.
+
+     A pilha de trabalho é a dos indecididos. Se não houver nenhum (tudo
+     já triado), a tela cai em "Todos" sozinha, no `useEffect` abaixo:
+     abrir numa lista vazia seria pior que abrir na lista errada. */
+  const [aba, setAba] = useState<"todos" | "ver" | "gostei" | "nao">("ver");
+  /* Qual linha está sendo marcada agora — para desligar só os botões dela
+     enquanto o banco responde, e não a lista inteira. */
+  const [marcando, setMarcando] = useState<string | null>(null);
 
   useEffect(() => {
     if (!vagaId) {
@@ -64,6 +85,51 @@ export function InteressadosDaVagaPage() {
     })();
   }, [vagaId, navegar]);
 
+  /* Tudo já triado? Então "Para ver" está vazia, e abrir numa lista vazia
+     faz a tela parecer quebrada. Cai em "Todos", que aí é a única com
+     conteúdo. Roda uma vez, quando as respostas chegam. */
+  useEffect(() => {
+    if (carregando) return;
+    const faltaDecidir = respostas.some(
+      (r) => r.status !== "accepted" && r.status !== "rejected"
+    );
+    if (!faltaDecidir && respostas.length > 0) setAba("todos");
+  }, [carregando, respostas]);
+
+  /* Marca sem sair da lista.
+
+     ── O QUE ISTO CONSERTA ──────────────────────────────────────────
+     Para dizer "não é para a vaga" era preciso ABRIR o perfil da pessoa,
+     decidir lá dentro e voltar. Triar vinte candidatos custava vinte idas
+     e vindas, e a empresa que não tinha paciência para isso simplesmente
+     não triava — e aí a lista nunca diminuía, que é a queixa da dona.
+
+     A decisão passa a caber na própria linha. O perfil continua a um
+     toque, para quem quer ver antes de decidir. */
+  async function marcar(
+    respostaId: string,
+    status: "accepted" | "rejected" | "read"
+  ) {
+    setMarcando(respostaId);
+    setErro("");
+    /* A lista muda na hora, antes do banco responder: numa triagem em
+       sequência, esperar meio segundo por linha é o que faz a pessoa
+       desistir no quinto nome. Se o banco recusar, o estado volta e o
+       erro aparece — nunca fica um "marcado" que não foi gravado. */
+    const antes = respostas;
+    setRespostas((lista) =>
+      lista.map((r) => (r.id === respostaId ? { ...r, status } : r))
+    );
+    try {
+      await marcarResposta(respostaId, status);
+    } catch (err) {
+      setRespostas(antes);
+      setErro(mensagemDeErro(err, "Não consegui marcar esta pessoa."));
+    } finally {
+      setMarcando(null);
+    }
+  }
+
   /* "Para ver" junta `new` e `read`: as duas querem dizer "ainda não
      decidi", e separar "chegou" de "eu abri" seria uma distinção que só o
      app entende — a empresa quer saber de quem ainda falta decidir. */
@@ -74,7 +140,18 @@ export function InteressadosDaVagaPage() {
     (qual === "ver" && r.status !== "accepted" && r.status !== "rejected");
 
   const contar = (qual: typeof aba) => respostas.filter((r) => naAba(r, qual)).length;
-  const daAba = respostas.filter((r) => naAba(r, aba));
+  /* ── EM "TODOS", O DESCARTADO AFUNDA — 04/09 ──────────────────────
+     Mesmo com a aba certa como padrão, "Todos" continua existindo e
+     continua sendo para onde a empresa vai quando quer rever tudo. Ali o
+     descartado não some (esconder decisão tomada é pior: a pessoa procura
+     onde foi parar), mas ele desce para o fim da lista — nunca fica entre
+     duas pessoas que ainda esperam decisão. */
+  const ordem = (r: RespostaComPessoa) =>
+    r.status === "rejected" ? 2 : r.status === "accepted" ? 1 : 0;
+  const daAba = respostas
+    .filter((r) => naAba(r, aba))
+    .slice()
+    .sort((a, b) => (aba === "todos" ? ordem(a) - ordem(b) : 0));
 
   if (carregando) {
     return (
@@ -172,8 +249,8 @@ export function InteressadosDaVagaPage() {
                  está sendo triada: a mesma pessoa pode ter se interessado
                  por três vagas da mesma empresa, e marcar "gostei" tem que
                  valer para esta vaga, não para as três. */
+              <div key={resp.id} className="ei-triagem-linha">
               <Link
-                key={resp.id}
                 to={
                   /* `vaga` vai junto para a ficha marcar com um visto o
                      que bate com esta vaga — ver PerfilPublicoPage. */
@@ -196,8 +273,15 @@ export function InteressadosDaVagaPage() {
                     {resp.nome || "Sem nome"}
                   </span>
                   <span className="ei-pessoa-oficio ei-uma-linha">
+                    {/* Só o dia e o mês. Com o retrato maior (04/09) a linha
+                        encurtou, e "Praia · respondeu em 04/09/2026" passou a
+                        ser cortada JUSTO NA DATA — sobrava "respondeu em …",
+                        que é a metade sem informação nenhuma. */}
                     {resp.bairro ? `${resp.bairro} · ` : ""}
-                    respondeu em {new Date(resp.responded_at).toLocaleDateString("pt-BR")}
+                    {new Date(resp.responded_at).toLocaleDateString("pt-BR", {
+                      day: "2-digit",
+                      month: "2-digit",
+                    })}
                   </span>
                   {/* A marca da triagem no próprio card, e não só na aba:
                       quem está em "Todos" precisa ver quem já foi decidido
@@ -214,6 +298,47 @@ export function InteressadosDaVagaPage() {
                   </span>
                 )}
               </Link>
+              {/* ── A DECISÃO NA PRÓPRIA LINHA — 04/09 ─────────────────
+                  Fora do `<Link>` de propósito: botão dentro de link é o
+                  jeito mais rápido de a pessoa abrir o perfil quando
+                  queria descartar. Aqui eles são vizinhos, não filhos.
+
+                  Quem já foi decidido mostra só o caminho de volta
+                  ("Rever"): dois botões acesos numa linha já resolvida
+                  fariam a empresa se perguntar qual dos dois está
+                  valendo. */}
+              <div className="ei-triagem">
+                {resp.status === "accepted" || resp.status === "rejected" ? (
+                  <button
+                    type="button"
+                    className="ei-triagem-botao"
+                    disabled={marcando === resp.id}
+                    onClick={() => marcar(resp.id, "read")}
+                  >
+                    Rever
+                  </button>
+                ) : (
+                  <>
+                    <button
+                      type="button"
+                      className="ei-triagem-botao ei-triagem-sim"
+                      disabled={marcando === resp.id}
+                      onClick={() => marcar(resp.id, "accepted")}
+                    >
+                      Gostei
+                    </button>
+                    <button
+                      type="button"
+                      className="ei-triagem-botao ei-triagem-nao"
+                      disabled={marcando === resp.id}
+                      onClick={() => marcar(resp.id, "rejected")}
+                    >
+                      Não é para a vaga
+                    </button>
+                  </>
+                )}
+              </div>
+              </div>
             ))}
           </div>
         )}

@@ -5581,3 +5581,168 @@
   padding-left: 20px;
   padding-right: 20px;
 }
+
+/* ═══════════════════════════════════════════════════════════════════════
+   A TRIAGEM NA PRÓPRIA LINHA — 04/09
+   ═══════════════════════════════════════════════════════════════════════
+   A dona: "as pessoas que você não acha interessante ainda continuam na
+   tela para escolher um candidato."
+
+   Para descartar alguém era preciso abrir o perfil, decidir lá dentro e
+   voltar: vinte candidatos, vinte idas e vindas. Quem não tinha paciência
+   simplesmente não triava — e aí a lista nunca diminuía.
+
+   Os botões ficam ABAIXO da linha, e não ao lado do nome: numa tela de
+   390px, três alvos de toque na mesma faixa horizontal (o perfil, o sim e
+   o não) é o desenho que faz o polegar errar — e errar aqui quer dizer
+   descartar quem se queria chamar. */
+.ei .ei-triagem-linha {
+  border-bottom: 1px solid var(--ei-fio);
+}
+.ei .ei-triagem-linha:last-child {
+  border-bottom: 0;
+}
+
+/* Da borda à borda do cartão, e não recuados até a coluna do nome. O
+   recuo alinhava bonito com o nome e cobrava caro: sobravam 190px para
+   dois botões numa tela de 390, e "Não é para a vaga" ficava espremido
+   ao lado de um vão vazio embaixo do retrato. Largura inteira, alvo de
+   toque inteiro. */
+.ei .ei-triagem {
+  display: flex;
+  gap: 8px;
+  padding: 2px 20px 14px;
+}
+
+.ei .ei-triagem-botao {
+  flex: 1 1 auto;
+  min-height: 36px;
+  padding: 7px 12px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  border: 1px solid var(--ei-fio);
+  border-radius: var(--ei-raio);
+  background: var(--ei-papel);
+  color: var(--ei-tinta);
+  cursor: pointer;
+}
+.ei .ei-triagem-botao:hover:not(:disabled) { background: var(--ei-afunda); }
+.ei .ei-triagem-botao:disabled { opacity: 0.5; cursor: default; }
+
+/* O "sim" é o caminho que a empresa está aqui para tomar, e por isso é o
+   único com cor. O "não" fica em cinza: descartar é o resultado mais
+   comum de uma triagem, e pintar de vermelho o que se faz vinte vezes por
+   lista transforma a tela num campo minado. */
+.ei .ei-triagem-sim {
+  border-color: var(--ei-acento);
+  color: var(--ei-acento);
+}
+.ei .ei-triagem-nao {
+  color: var(--ei-tinta-fraca);
+}
+
+/* ═══════════════════════════════════════════════════════════════════════
+   CARTÕES MAIORES, FOTOS MAIS VISÍVEIS — 04/09
+   ═══════════════════════════════════════════════════════════════════════
+   A dona: "o card dos profissionais e das empresas pode ser maior, com as
+   fotos mais visíveis e mais encorpado."
+
+   ── Por que a foto é o que mais importa aqui ──────────────────────────
+
+   Esta é uma cidade pequena. Quem contrata muitas vezes RECONHECE a
+   pessoa antes de ler o nome — "ah, é o rapaz da obra da esquina" — e o
+   rosto é o que fecha essa ligação. Num retrato de 64px, num celular, o
+   rosto tem uns oito milímetros: dá para saber que existe uma foto, não
+   para reconhecer quem é.
+
+   O retrato vai a 84px e a linha respira mais. O ganho não é estético: é
+   a diferença entre a lista servir para reconhecer gente e servir só para
+   ler nomes.
+
+   ── E por que não maior ainda ─────────────────────────────────────────
+
+   Cada pixel de altura por linha é uma pessoa a menos na dobra. A 84px
+   cabem quatro pessoas e meia numa tela de 844px; a 120px cabem três. Em
+   uma lista que existe para comparar candidatos, ver menos gente de uma
+   vez é um custo real — e por isso a foto cresceu até onde o rosto fica
+   reconhecível, e parou ali. */
+
+.ei .ei-pessoa {
+  gap: 16px;
+  padding-top: 14px;
+  padding-bottom: 14px;
+}
+/* Numa linha que tem botões de triagem embaixo, o retrato encostava no fio
+   divisor. O respiro sai daqui para os dois blocos ficarem um conjunto. */
+.ei .ei-triagem-linha > .ei-pessoa {
+  border-bottom: 0;
+  padding-bottom: 10px;
+}
+.ei .ei-pessoa-retrato {
+  width: 84px;
+  height: 84px;
+  font-size: 1.8rem;
+  /* Um canto suave: o quadrado vivo de antes fazia a foto parecer um
+     ícone de sistema, e não o rosto de alguém. */
+  border-radius: 10px;
+}
+.ei .ei-pessoa-nome {
+  font-size: 1.05rem;
+  font-weight: 600;
+}
+.ei .ei-pessoa-oficio {
+  font-size: 0.9rem;
+}
+
+/* A marca da empresa segue o mesmo caminho. Ela é logo, e não rosto — mas
+   o motivo é o mesmo: a 48px o nome da padaria não se lia dentro do
+   quadrado. */
+.ei .ei-empresa-cartao {
+  padding-top: 16px;
+  padding-bottom: 16px;
+}
+.ei .ei-empresa-cabeca {
+  gap: 16px;
+}
+.ei .ei-empresa-cabeca .ei-empresa-marca {
+  width: 72px;
+  height: 72px;
+  font-size: 1.5rem;
+  border-radius: 10px;
+  color: var(--ei-tinta);
+}
+.ei .ei-empresa-cartao .ei-empresa-nome {
+  font-size: 1.05rem;
+  font-weight: 600;
+}
+
+/* Na lista de talentos e no banco de vagas, a marca pequena acompanha. */
+.ei .ei-lista .ei-empresa-marca {
+  width: 60px;
+  height: 60px;
+  border-radius: 10px;
+}
+
+/* ── O NOME VOLTA A CABER — 04/09 ──────────────────────────────────────
+   Com o retrato maior, o banco de talentos passou a cortar o NOME das
+   pessoas: "Profission…" em toda linha, e o ofício quebrando em duas
+   linhas cortadas também. Uma lista de gente em que não se lê o nome de
+   ninguém é pior do que a lista com foto pequena — a foto foi feita para
+   ajudar a reconhecer, não para tomar o lugar do nome.
+
+   Quem estava roubando a largura era a seta do fim da linha. Ela promete
+   "dá para tocar", e a linha INTEIRA já é tocável: é decoração que custa
+   trinta pixels de nome. Onde há o coração de favoritar, a seta sai — o
+   coração já ocupa aquele canto e já diz que a linha tem ação. */
+.ei .ei-pessoa:has(.ei-coracao) .ei-linha-seta {
+  display: none;
+}
+
+/* E o ofício numa linha só, com reticências: quebrado em duas ele ocupava
+   a altura de mais uma pessoa na lista e continuava cortado no fim. */
+.ei .ei-pessoa-oficio {
+  display: -webkit-box;
+  -webkit-line-clamp: 1;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}

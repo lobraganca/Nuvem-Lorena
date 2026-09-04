@@ -334,10 +334,10 @@ export function PlanosEmpresaPage() {
                 tinha de montar a frase sozinha para descobrir QUEM avisa
                 QUEM. Agora é uma frase inteira, com quem faz a ação na
                 frente. */}
-            <p className="ei-apoio ei-margem" style={{ marginTop: 16 }}>
-              Em qualquer um dos três, o app avisa quem tem a função que você
-              procura, e a vaga fica {DIAS_ANUNCIO_VAGA} dias no ar.
-            </p>
+            {/* Saiu a pedido da dona (04/09): "tire essa fala". Ela dizia o
+                que os três cartões de plano logo acima já dizem, e numa tela
+                de preço a repetição não reforça — faz procurar a diferença
+                entre as duas frases, não achar nenhuma, e desconfiar. */}
 
             {/* ── AS DUAS LISTAS DE ARGUMENTO SAÍRAM — 04/09 ────────────
                 A dona: "a tela de planos está muito cheia de informação e
@@ -354,10 +354,7 @@ export function PlanosEmpresaPage() {
                 procurar a diferença entre as duas listas, não achar
                 nenhuma, e desconfiar. O que sobrou é a única frase que os
                 cartões não diziam. */}
-            <p className="ei-apoio ei-margem" style={{ marginTop: 18 }}>
-              Ver os profissionais e falar com cada um é de graça, sempre — nem
-              conta precisa. O plano serve para não ter que chamar um por um.
-            </p>
+            {/* Saiu a pedido da dona (04/09). */}
 
             <h2 className="ei-secao">Se você se arrepender</h2>
             {/* O texto encolheu de dois parágrafos longos para duas
@@ -365,14 +362,18 @@ export function PlanosEmpresaPage() {
                 estorno e do cancelamento é o que cansa. O que saiu está
                 nos Termos, cujo link continua logo abaixo. */}
             <div className="ei-cartao">
-              <p className="ei-corpo" style={{ marginTop: 0 }}>
-                <strong>Até 7 dias corridos, devolvemos tudo.</strong> É o direito de
-                arrependimento (art. 49 do Código de Defesa do Consumidor): não precisa
-                justificar.
-              </p>
-              <p className="ei-corpo">
-                Depois disso, cancelar só interrompe as próximas cobranças — sem multa, e
-                o mês já pago continua valendo.
+              {/* ── DE DOIS PARÁGRAFOS PARA UMA LINHA — 04/09 ─────────
+                  A dona: "o texto de arrependimento está enorme."
+
+                  Ele já tinha encolhido de dois parágrafos longos para dois
+                  curtos, e continuava sendo o bloco mais comprido de uma
+                  tela cujo assunto é preço. O que a pessoa precisa saber
+                  aqui cabe numa linha: sete dias, dinheiro de volta, sem
+                  justificar. O resto — que cancelar depois disso só para as
+                  próximas cobranças — é regra de contrato, e regra de
+                  contrato mora nos Termos, cujo link está logo abaixo. */}
+              <p className="ei-corpo" style={{ marginTop: 0, marginBottom: 0 }}>
+                <strong>Até 7 dias, devolvemos tudo</strong> — sem precisar justificar.
               </p>
               {/* ── O PEDIDO SAIU DO WHATSAPP — 04/09 ──────────────────
                   A dona: "a pessoa ao pedir reembolso ter onde escrever o
