@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState, type ReactNode } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { Logo } from "./Logo";
-import { InstalarApp, instalarServeAqui } from "./InstalarApp";
+import { InstalarApp } from "./InstalarApp";
 import { PuxarParaAtualizar } from "./PuxarParaAtualizar";
 import { AvisoDeVersao } from "./AvisoDeVersao";
 import { AvisoSemInternet } from "./AvisoSemInternet";
@@ -265,9 +265,23 @@ function Header() {
           que nunca vai procurar dentro de Conta uma coisa que ainda não
           sabe que existe. Instalar é raro por pessoa e decisivo uma vez.
 
-          `instalarServeAqui` mantém o topo limpo para quem já instalou e
-          dentro do app da loja: lá o botão não teria o que fazer. */}
-      {instalarServeAqui() && <InstalarApp variante="cabecalho" />}
+          ── E ELE FICA SEMPRE, INCLUSIVE DEPOIS DE INSTALADO — 04/09 ──
+          A dona: "tem que estar escrito baixar app e deve aparecer a todo
+          tempo, inclusive quando já está instalado."
+
+          Havia aqui um `instalarServeAqui()` que o escondia para quem já
+          tinha instalado. Parecia limpeza e era perda: o app é instalado
+          POR APARELHO, e quem pôs no celular do trabalho continua sem ele
+          no de casa — e quem apagou o ícone sem querer não tinha por onde
+          voltar. O próprio componente já sabia disso e mantinha o botão do
+          topo nesse caso; era este `if` que desfazia.
+
+          Dentro do app da Play Store ele continua não aparecendo, e isso
+          não é a mesma coisa: lá não existe o que instalar, o toque não
+          teria resposta nenhuma, e botão que não responde é o que ensina
+          a pessoa que o app travou. Quem decide isso é o próprio
+          componente (`ehAppDaLoja`). */}
+      <InstalarApp variante="cabecalho" />
       <Link
         to="/"
         className="cabecalho-ei-casa"

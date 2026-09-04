@@ -6110,9 +6110,23 @@
 
    O `title` do botão continua dizendo o que ele faz, e a seta para baixo
    dentro do celular é o desenho universal de baixar. */
+/* ── A PALAVRA FICA, EM QUALQUER LARGURA — 04/09 ──────────────────────
+   A dona: "tem que estar escrito baixar app."
+
+   Aqui a palavra sumia abaixo de 360px e ficava só o ícone. O motivo era
+   real — com o botão do tamanho antigo, a casinha era empurrada para fora
+   da tela num celular de 320px. Só que o botão encolheu desde então
+   (letra 0,72rem, recuo 5/10px), e o que sobrava de folga passou a
+   caber. Medido de novo antes de tirar a regra. */
 @media (max-width: 360px) {
-  .cabecalho-ei .btn-instalar-topo-texto { display: none; }
   .cabecalho-ei .btn-instalar-topo { padding: 5px 8px; }
+  .cabecalho-ei > .logo { margin-right: 8px; }
+  /* Num celular de 320px as três coisas não cabem escritas: medido, a
+     casinha terminava em 351px numa tela de 320 — fora dela. Quem sai é o
+     NOME da marca, não a palavra do botão: o quadrado "Ei" ao lado
+     continua dizendo em que app a pessoa está, e o nome do app é a única
+     das três que ela já sabe. */
+  .cabecalho-ei .logo-brand { display: none; }
 }
 
 /* ── O PÉ DO CARTÃO DE VAGA — 04/09 ───────────────────────────────────
