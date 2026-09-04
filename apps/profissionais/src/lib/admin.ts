@@ -46,7 +46,17 @@ export async function isAdmin(userId: string): Promise<boolean> {
 /** Lista todas as denúncias (mais recentes primeiro) com o nome do profissional denunciado. */
 export async function listReports(): Promise<ReportWithProfessional[]> {
   const client = supabase();
-  if (!client) return [];
+  /* Sem cliente do Supabase, o erro SOBE — nunca vira lista vazia.
+     ─────────────────────────────────────────────────────────────────
+     "Nenhum profissional em Itabirito" e "a build subiu sem saber com
+     qual banco falar" são a MESMA tela e coisas opostas. Aconteceu em
+     31/08: o site passou o dia dizendo que a cidade estava vazia porque
+     as variáveis de ambiente não foram assadas na build. Ninguém
+     percebeu, porque uma lista vazia não parece defeito.
+
+     Aqui não há nenhum caso legítimo de lista vazia: `!sb` quer dizer
+     que o app não tem como falar com banco nenhum. */
+  if (!client) throw new Error("Sem conexão com o banco.");
   /* Em páginas: denúncia que não aparece é denúncia não lida, e o teto de
      linhas cortaria as mais antigas sem dizer nada.
 
@@ -151,7 +161,7 @@ export interface DestaqueAtivo {
  */
 export async function getDestaquesAtivos(): Promise<DestaqueAtivo[]> {
   const client = supabase();
-  if (!client) return [];
+  if (!client) throw new Error("Sem conexão com o banco.");
   /* Em páginas: este número decide quantas VAGAS de destaque ainda há
      para vender por categoria. Truncado, ele venderia vaga que não
      existe. */
@@ -177,7 +187,7 @@ export interface DemandaDestaque {
 
 export async function getDemandaDeDestaque(): Promise<DemandaDestaque[]> {
   const client = supabase();
-  if (!client) return [];
+  if (!client) throw new Error("Sem conexão com o banco.");
   // A policy de admin em `destaque_espera` é o que libera esta leitura; para
   // qualquer outra pessoa, isto volta só com a própria linha.
   const data = await lerTudo(() => client.from("destaque_espera").select("category, city"));

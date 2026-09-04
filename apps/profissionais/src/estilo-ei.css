@@ -5870,3 +5870,64 @@
   padding-left: 0;
   padding-right: 0;
 }
+
+/* ═══════════════════════════════════════════════════════════════════════
+   PROTEÇÃO CONTRA VAGA FALSA — 04/09
+   ═══════════════════════════════════════════════════════════════════════
+   O aviso e a denúncia na tela da vaga. Ver o comentário longo em
+   VagaAbertaPage: o primeiro pode evitar um prejuízo real na vida de
+   alguém, o segundo é exigência da Google Play para conteúdo feito por
+   usuário — e é como a administração fica sabendo antes do estrago.
+
+   Cinza e sóbrio, e não uma tarja vermelha de alerta: a grande maioria
+   das vagas é honesta, e pintar todas de perigo faria a pessoa parar de
+   ler o aviso já na terceira vaga. */
+.ei .ei-aviso-golpe {
+  margin-top: 30px;
+  margin-bottom: 8px;
+  padding-top: 16px;
+  border-top: 1px solid var(--ei-fio);
+}
+.ei .ei-aviso-golpe-texto {
+  margin: 0;
+  font-size: 0.85rem;
+  line-height: 1.5;
+  color: var(--ei-tinta-fraca);
+}
+.ei .ei-aviso-golpe-botao,
+.ei .ei-denunciar {
+  display: inline-block;
+  width: auto;
+  margin-top: 10px;
+  padding: 10px 0;
+  min-height: 44px;
+  font-size: 0.85rem;
+  color: var(--ei-tinta-fraca);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════
+   ALVO DE TOQUE DE 44px — 04/09
+   ═══════════════════════════════════════════════════════════════════════
+   Medido em 15 telas: a seta de voltar da barra saía 40×40, o ícone de
+   início 38×38 e vários botões com 38 de altura. 44×44 é o mínimo do
+   WCAG 2.2 e das duas lojas, e a barra de topo é justamente onde o
+   polegar mais erra — ela fica no alto, alcançada de esguelha.
+
+   O quadrado cresce por FORA do desenho: o ícone continua do mesmo
+   tamanho, só a área que responde ao toque aumenta. */
+.ei .ei-barra-voltar,
+.ei .cabecalho-ei-casa,
+.ei .ei-barra-acao > * {
+  min-width: 44px;
+  min-height: 44px;
+}
+.ei .ei-btn {
+  min-height: 44px;
+}
+.ei .ei-btn-curto,
+.ei .ei-btn-inline,
+.ei .ei-triagem-botao {
+  min-height: 44px;
+}

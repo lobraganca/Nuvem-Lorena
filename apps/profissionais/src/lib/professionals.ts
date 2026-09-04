@@ -97,7 +97,17 @@ export function isCurrentlyPlusActive(p: Pick<Professional, "plus_active" | "plu
  */
 export async function searchProfessionals(filters: SearchFilters): Promise<ProfessionalWithRating[]> {
   const client = supabase();
-  if (!client) return [];
+  /* Sem cliente do Supabase, o erro SOBE — nunca vira lista vazia.
+     ─────────────────────────────────────────────────────────────────
+     "Nenhum profissional em Itabirito" e "a build subiu sem saber com
+     qual banco falar" são a MESMA tela e coisas opostas. Aconteceu em
+     31/08: o site passou o dia dizendo que a cidade estava vazia porque
+     as variáveis de ambiente não foram assadas na build. Ninguém
+     percebeu, porque uma lista vazia não parece defeito.
+
+     Aqui não há nenhum caso legítimo de lista vazia: `!sb` quer dizer
+     que o app não tem como falar com banco nenhum. */
+  if (!client) throw new Error("Sem conexão com o banco.");
 
   const page = filters.page ?? 0;
   const pageSize = filters.pageSize ?? DEFAULT_PAGE_SIZE;
@@ -262,7 +272,7 @@ export async function getProfessional(id: string): Promise<ProfessionalWithRatin
 
 export async function getReviews(professionalId: string): Promise<Review[]> {
   const client = supabase();
-  if (!client) return [];
+  if (!client) throw new Error("Sem conexão com o banco.");
   /* Sem esta checagem, uma falha aqui apagava as avaliações da página e
      escrevia "ainda não tem avaliação" — que é o oposto da verdade e o
      tipo de coisa que faz um cliente escolher outra pessoa. */
@@ -394,7 +404,7 @@ export async function replyToReview(reviewId: string, reply: string) {
  */
 export async function getMyProfessionals(ownerId: string): Promise<ProfessionalWithRating[]> {
   const client = supabase();
-  if (!client) return [];
+  if (!client) throw new Error("Sem conexão com o banco.");
   /* O erro sobe, e não vira lista vazia.
      Vazio é a condição que manda a pessoa para o formulário de cadastro
      novo — então uma queda de rede jogava quem já tinha cadastro num
@@ -577,7 +587,7 @@ export async function getFavoriteIds(userId: string): Promise<Set<string>> {
 /** Lista os profissionais favoritados pelo usuário logado, com rating. */
 export async function getFavoriteProfessionals(userId: string): Promise<ProfessionalWithRating[]> {
   const client = supabase();
-  if (!client) return [];
+  if (!client) throw new Error("Sem conexão com o banco.");
   const { data: favs } = await client.from("favorites").select("professional_id").eq("user_id", userId);
   const ids = (favs ?? []).map((f: { professional_id: string }) => f.professional_id);
   if (ids.length === 0) return [];
@@ -734,7 +744,7 @@ export async function getActiveSponsorship(
 /** Histórico de patrocínios do próprio cadastro, para o painel do profissional. */
 export async function getMySponsorships(professionalId: string): Promise<CategorySponsorship[]> {
   const client = supabase();
-  if (!client) return [];
+  if (!client) throw new Error("Sem conexão com o banco.");
   const { data } = await client
     .from("category_sponsorships")
     .select("*")
@@ -811,7 +821,7 @@ const TETO_VISITAS_EM_LOTE = 5000;
  */
 export async function getMaisVistos(dias = 7, quantos = 12): Promise<ProfessionalWithRating[]> {
   const client = supabase();
-  if (!client) return [];
+  if (!client) throw new Error("Sem conexão com o banco.");
 
   const { data: ordem, error } = await client.rpc("mais_vistos", { dias, quantos });
   if (error) throw error;
@@ -870,7 +880,7 @@ export async function getMaisVistos(dias = 7, quantos = 12): Promise<Professiona
  */
 export async function getRecomendados(quantos = 12): Promise<ProfessionalWithRating[]> {
   const client = supabase();
-  if (!client) return [];
+  if (!client) throw new Error("Sem conexão com o banco.");
 
   const { data: avaliacoes, error } = await client
     .from("reviews_public")
@@ -971,7 +981,7 @@ export async function getContactRequests(
   { includeArchived = false } = {}
 ): Promise<ContactRequest[]> {
   const client = supabase();
-  if (!client) return [];
+  if (!client) throw new Error("Sem conexão com o banco.");
   let query = client
     .from("contact_requests")
     .select("*")
@@ -1064,7 +1074,7 @@ export interface CidadeAtendida {
  */
 export async function getCidadesComAnuncio(): Promise<CidadeAtendida[]> {
   const client = supabase();
-  if (!client) return [];
+  if (!client) throw new Error("Sem conexão com o banco.");
   const { data, error } = await client.from("professionals_public").select("city, uf");
   if (error) throw error;
   if (!data) return [];
@@ -1098,7 +1108,7 @@ export async function getCidadesComAnuncio(): Promise<CidadeAtendida[]> {
  */
 export async function getCategoriasComAnuncio(): Promise<string[]> {
   const client = supabase();
-  if (!client) return [];
+  if (!client) throw new Error("Sem conexão com o banco.");
   const { data } = await client.from("professionals_public").select("categories");
   if (!data) return [];
   const unicas = new Set<string>();
@@ -1131,7 +1141,7 @@ export interface CategoriaPopular {
  */
 export async function getTodasAsCategorias(): Promise<CategoriaPopular[]> {
   const client = supabase();
-  if (!client) return [];
+  if (!client) throw new Error("Sem conexão com o banco.");
   const { data } = await client.from("professionals_public").select("categories");
   if (!data) return [];
   const contagem = new Map<string, number>();
@@ -1174,7 +1184,7 @@ export async function getTodasAsCategorias(): Promise<CategoriaPopular[]> {
  */
 export async function getCategoriasPopulares(limite = 8): Promise<CategoriaPopular[]> {
   const client = supabase();
-  if (!client) return [];
+  if (!client) throw new Error("Sem conexão com o banco.");
   const { data } = await client.from("professionals_public").select("categories, entity_type");
   if (!data) return [];
 
@@ -1222,7 +1232,7 @@ export async function getCategoriasPopulares(limite = 8): Promise<CategoriaPopul
  */
 export async function getCatalogo(professionalId: string): Promise<ServicoOferecido[]> {
   const client = supabase();
-  if (!client) return [];
+  if (!client) throw new Error("Sem conexão com o banco.");
   const { data } = await client
     .from("servicos_oferecidos")
     .select("*")

@@ -248,7 +248,17 @@ export type CadastroDaConta = {
  */
 export async function meusCadastros(ownerId: string): Promise<CadastroDaConta[]> {
   const sb = supabase();
-  if (!sb) return [];
+  /* Sem cliente do Supabase, o erro SOBE — nunca vira lista vazia.
+     ─────────────────────────────────────────────────────────────────
+     "Nenhum profissional em Itabirito" e "a build subiu sem saber com
+     qual banco falar" são a MESMA tela e coisas opostas. Aconteceu em
+     31/08: o site passou o dia dizendo que a cidade estava vazia porque
+     as variáveis de ambiente não foram assadas na build. Ninguém
+     percebeu, porque uma lista vazia não parece defeito.
+
+     Aqui não há nenhum caso legítimo de lista vazia: `!sb` quer dizer
+     que o app não tem como falar com banco nenhum. */
+  if (!sb) throw new Error("Sem conexão com o banco.");
 
   const { data, error } = await sb
     .from("professionals")
@@ -511,7 +521,7 @@ export async function salvarMeuPerfil(
 /** Os cursos deste cadastro. Erro sobe, pelo mesmo motivo das experiências. */
 export async function lerCursos(professionalId: string): Promise<CursoEmEdicao[]> {
   const sb = supabase();
-  if (!sb) return [];
+  if (!sb) throw new Error("Sem conexão com o banco.");
 
   const { data, error } = await sb
     .from("professional_courses")
@@ -537,7 +547,7 @@ export async function lerCursos(professionalId: string): Promise<CursoEmEdicao[]
 /** As competências deste cadastro, na ordem que a pessoa escolheu. */
 export async function lerCompetencias(professionalId: string): Promise<CompetenciaEmEdicao[]> {
   const sb = supabase();
-  if (!sb) return [];
+  if (!sb) throw new Error("Sem conexão com o banco.");
 
   const { data, error } = await sb
     .from("professional_skills")

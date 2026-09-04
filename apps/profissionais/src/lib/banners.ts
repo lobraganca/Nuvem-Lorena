@@ -24,7 +24,17 @@ import type { Banner, LocalDeAnuncio, PedidoDeAnuncio, PedidoDeAnuncioStatus } f
  */
 export async function getBannersDeAnuncios(cidade: string): Promise<Banner[]> {
   const client = supabase();
-  if (!client) return [];
+  /* Sem cliente do Supabase, o erro SOBE — nunca vira lista vazia.
+     ─────────────────────────────────────────────────────────────────
+     "Nenhum profissional em Itabirito" e "a build subiu sem saber com
+     qual banco falar" são a MESMA tela e coisas opostas. Aconteceu em
+     31/08: o site passou o dia dizendo que a cidade estava vazia porque
+     as variáveis de ambiente não foram assadas na build. Ninguém
+     percebeu, porque uma lista vazia não parece defeito.
+
+     Aqui não há nenhum caso legítimo de lista vazia: `!sb` quer dizer
+     que o app não tem como falar com banco nenhum. */
+  if (!client) throw new Error("Sem conexão com o banco.");
   const { data } = await client
     .from("banners")
     .select("*")
@@ -47,7 +57,7 @@ export async function getBannersDeAnuncios(cidade: string): Promise<Banner[]> {
  */
 export async function getBannersBoasVindas(cidade: string): Promise<Banner[]> {
   const client = supabase();
-  if (!client) return [];
+  if (!client) throw new Error("Sem conexão com o banco.");
   const { data } = await client
     .from("banners")
     .select("*")
@@ -60,7 +70,7 @@ export async function getBannersBoasVindas(cidade: string): Promise<Banner[]> {
 /** Todos, inclusive fora do período — só admin enxerga (policy). */
 export async function getTodosOsBanners(): Promise<Banner[]> {
   const client = supabase();
-  if (!client) return [];
+  if (!client) throw new Error("Sem conexão com o banco.");
   const { data } = await client.from("banners").select("*").order("created_at", { ascending: false });
   return data ?? [];
 }
@@ -131,7 +141,7 @@ export async function enviarPedidoDeAnuncio(input: {
 /** Lista os pedidos, mais novos primeiro — só admin enxerga (policy 0044). */
 export async function listarPedidosDeAnuncio(): Promise<PedidoDeAnuncio[]> {
   const client = supabase();
-  if (!client) return [];
+  if (!client) throw new Error("Sem conexão com o banco.");
   const { data } = await client
     .from("banner_leads")
     .select("*")

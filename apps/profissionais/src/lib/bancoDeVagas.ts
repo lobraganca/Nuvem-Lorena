@@ -65,7 +65,17 @@ export type VagaNoBanco = {
  */
 export async function bancoDeVagas(userId?: string): Promise<VagaNoBanco[]> {
   const sb = supabase();
-  if (!sb) return [];
+  /* Sem cliente do Supabase, o erro SOBE — nunca vira lista vazia.
+     ─────────────────────────────────────────────────────────────────
+     "Nenhum profissional em Itabirito" e "a build subiu sem saber com
+     qual banco falar" são a MESMA tela e coisas opostas. Aconteceu em
+     31/08: o site passou o dia dizendo que a cidade estava vazia porque
+     as variáveis de ambiente não foram assadas na build. Ninguém
+     percebeu, porque uma lista vazia não parece defeito.
+
+     Aqui não há nenhum caso legítimo de lista vazia: `!sb` quer dizer
+     que o app não tem como falar com banco nenhum. */
+  if (!sb) throw new Error("Sem conexão com o banco.");
 
   /* A lista de colunas é escrita à mão, uma a uma, como em `minhasVagas`.
      Coluna nova que ninguém acrescente aqui chega indefinida, sem erro
@@ -233,7 +243,7 @@ export async function bancoDeVagas(userId?: string): Promise<VagaNoBanco[]> {
 /** As cidades que têm vaga no ar — para o filtro não oferecer cidade vazia. */
 export async function cidadesComVaga(): Promise<string[]> {
   const sb = supabase();
-  if (!sb) return [];
+  if (!sb) throw new Error("Sem conexão com o banco.");
   const { data, error } = await sb
     .from("job_listings")
     .select("city")

@@ -1,3 +1,4 @@
+import { SUPORTE_WHATSAPP } from "../../config";
 import { useEffect, useState } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import { useAuth } from "../../lib/useAuth";
@@ -658,6 +659,46 @@ export function VagaAbertaPage() {
               </button>
             </div>
           )}
+        </div>
+
+        {/* ── PROTEÇÃO CONTRA VAGA FALSA — 04/09 ─────────────────────────
+            Duas coisas que faltavam, e a Google Play exige a segunda.
+
+            A PRIMEIRA é a frase. O golpe de emprego falso funciona sempre
+            do mesmo jeito: alguém anuncia uma vaga, chama a pessoa e pede
+            dinheiro — por "taxa de cadastro", "exame admissional",
+            "uniforme". Quem está desempregado há meses paga. A defesa que
+            funciona não é uma cartilha: é a frase estar ali, na tela da
+            vaga, no momento em que a pessoa vai responder. Ela custa uma
+            linha e é a única coisa deste app que pode evitar um prejuízo
+            de verdade na vida de alguém.
+
+            A SEGUNDA é o denunciar. A Play exige, para app com conteúdo
+            de usuário, um jeito de denunciar dentro do app — e sem isso o
+            envio corre risco de reprovação (ver a auditoria). Mas ele não
+            está aqui por causa da loja: sem denúncia, a administração só
+            descobre a vaga falsa quando alguém já foi enganado.
+
+            Vai para o WhatsApp do suporte com a vaga já identificada: uma
+            tela de formulário com campo de motivo seria mais bonita e
+            receberia menos denúncias, porque exige mais de quem já está
+            desconfiado e com pressa. */}
+        <div className="ei-aviso-golpe ei-margem">
+          <p className="ei-aviso-golpe-texto">
+            <strong>O Ei Emprego nunca cobra nada para você se candidatar.</strong>{" "}
+            Nenhuma empresa séria pede dinheiro por taxa de cadastro, exame ou
+            uniforme antes de contratar. Se pedirem, não pague — e nos avise.
+          </p>
+          <a
+            className="ei-btn ei-btn-texto ei-aviso-golpe-botao"
+            href={`https://wa.me/${SUPORTE_WHATSAPP}?text=${encodeURIComponent(
+              `Quero denunciar esta vaga do Ei Emprego:\n\n"${vaga.title}"\n${window.location.origin}/#/vaga-aberta/${vaga.id}\n\nO que aconteceu: `
+            )}`}
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            Denunciar esta vaga
+          </a>
         </div>
       </div>
     </div>

@@ -101,7 +101,17 @@ const EMPRESA_ESCOLHIDA = "ei-empresa-escolhida";
 /** Todas as empresas desta conta, da mais antiga para a mais nova. */
 export async function minhasEmpresas(ownerId: string): Promise<Company[]> {
   const sb = getSupabase();
-  if (!sb) return [];
+  /* Sem cliente do Supabase, o erro SOBE — nunca vira lista vazia.
+     ─────────────────────────────────────────────────────────────────
+     "Nenhum profissional em Itabirito" e "a build subiu sem saber com
+     qual banco falar" são a MESMA tela e coisas opostas. Aconteceu em
+     31/08: o site passou o dia dizendo que a cidade estava vazia porque
+     as variáveis de ambiente não foram assadas na build. Ninguém
+     percebeu, porque uma lista vazia não parece defeito.
+
+     Aqui não há nenhum caso legítimo de lista vazia: `!sb` quer dizer
+     que o app não tem como falar com banco nenhum. */
+  if (!sb) throw new Error("Sem conexão com o banco.");
 
   const { data, error } = await sb
     .from("companies")
@@ -439,7 +449,7 @@ export async function atualizarVaga(
  */
 export async function listarMinhasVagas(companyId: string): Promise<JobListing[]> {
   const sb = getSupabase();
-  if (!sb) return [];
+  if (!sb) throw new Error("Sem conexão com o banco.");
 
   const { data, error } = await sb
     .from("job_listings")
@@ -537,7 +547,7 @@ export async function interessadosDasVagas(
   if (vagas.length === 0) return [];
 
   const sb = getSupabase();
-  if (!sb) return [];
+  if (!sb) throw new Error("Sem conexão com o banco.");
 
   const ids = vagas.map((v) => v.id);
   const respostas = await lerTudo<JobResponse>(() =>
@@ -832,7 +842,7 @@ export async function abrirOnda(vaga: JobListing, onda: WaveNumber): Promise<Job
 /** Obtém o status das ondas de uma vaga. */
 export async function obterOndasDaVaga(vagaId: string): Promise<JobDispatch[]> {
   const sb = getSupabase();
-  if (!sb) return [];
+  if (!sb) throw new Error("Sem conexão com o banco.");
 
   const { data, error } = await sb
     .from("job_dispatches")
@@ -888,7 +898,7 @@ export type RespostaComPessoa = JobResponse & {
  */
 export async function obterRespostasDaVaga(vagaId: string): Promise<RespostaComPessoa[]> {
   const sb = getSupabase();
-  if (!sb) return [];
+  if (!sb) throw new Error("Sem conexão com o banco.");
 
   const { data, error } = await sb
     .from("job_responses")
@@ -1176,7 +1186,7 @@ export type AvisoDeCandidatura = {
 
 export async function avisosDeCandidatura(ownerId: string): Promise<AvisoDeCandidatura[]> {
   const sb = getSupabase();
-  if (!sb) return [];
+  if (!sb) throw new Error("Sem conexão com o banco.");
 
   const empresas = await minhasEmpresas(ownerId);
   if (empresas.length === 0) return [];

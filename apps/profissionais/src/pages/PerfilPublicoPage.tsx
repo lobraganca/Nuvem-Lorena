@@ -14,6 +14,7 @@ import type { JobListing } from "../types/domain";
 import { normalizar, ESCADA_ESCOLARIDADE } from "../lib/compatibilidade";
 import { BotaoFavorito } from "../components/ei/BotaoFavorito";
 import { lerFavoritos } from "../lib/favoritos";
+import { SUPORTE_WHATSAPP } from "../config";
 
 /* ── O PERFIL INTEIRO, E NÃO UM RESUMO — 04/09 ─────────────────────────
    A dona: "ao clicar no pedido de um candidato tem que ter todas as
@@ -724,6 +725,28 @@ export function PerfilPublicoPage() {
             existe um jeito melhor. O caminho para o plano continua em
             "Meu plano" e na tela de criar vaga, que são as telas de quem
             já quer isso. */}
+
+        {/* Denunciar — mesmo motivo da tela da vaga (ver o comentário
+            longo em VagaAbertaPage): a Play exige um jeito de denunciar
+            dentro do app para conteúdo feito por usuário, e sem isso a
+            administração só descobre um cadastro falso depois que alguém
+            já foi enganado.
+
+            Fica no fim, discreto e sem cor: quem abre um perfil quase
+            sempre veio contratar, e um botão vermelho de denúncia no alto
+            trataria toda pessoa cadastrada como suspeita. */}
+        <div className="ei-margem" style={{ marginTop: 30, marginBottom: 8 }}>
+          <a
+            className="ei-btn ei-btn-texto ei-denunciar"
+            href={`https://wa.me/${SUPORTE_WHATSAPP}?text=${encodeURIComponent(
+              `Quero denunciar este cadastro do Ei Emprego:\n\n${p.name}\n${window.location.origin}/#/profissional/${p.id}\n\nO que aconteceu: `
+            )}`}
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            Denunciar este cadastro
+          </a>
+        </div>
       </div>
     </div>
   );

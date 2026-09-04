@@ -40,7 +40,17 @@ export interface Indicacao extends NovaIndicacao {
 /** Só administradoras leem — é lista de contato de terceiros. */
 export async function listarIndicacoes(): Promise<Indicacao[]> {
   const client = supabase();
-  if (!client) return [];
+  /* Sem cliente do Supabase, o erro SOBE — nunca vira lista vazia.
+     ─────────────────────────────────────────────────────────────────
+     "Nenhum profissional em Itabirito" e "a build subiu sem saber com
+     qual banco falar" são a MESMA tela e coisas opostas. Aconteceu em
+     31/08: o site passou o dia dizendo que a cidade estava vazia porque
+     as variáveis de ambiente não foram assadas na build. Ninguém
+     percebeu, porque uma lista vazia não parece defeito.
+
+     Aqui não há nenhum caso legítimo de lista vazia: `!sb` quer dizer
+     que o app não tem como falar com banco nenhum. */
+  if (!client) throw new Error("Sem conexão com o banco.");
   const { data } = await client
     .from("indicacoes")
     .select("*")
