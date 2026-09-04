@@ -26,6 +26,7 @@ import {
   type CompetenciaEmEdicao,
 } from "../../lib/meuPerfil";
 import { lerExperiencias, salvarExperiencias } from "../../lib/experiencias";
+import { useRascunho, CHAVE_RASCUNHO_PROFISSIONAL } from "../../lib/rascunho";
 import { quemViuMeuPerfil, type QuemViu } from "../../lib/quemMeViu";
 import { numeroJaConfirmadoNaConta, marcarAnuncioConfirmado } from "../../lib/whatsappVerify";
 /* Nome trocado no import: `lib/profiles.ts` e `lib/meuPerfil.ts` têm cada
@@ -158,6 +159,25 @@ export function MeuPerfilPage() {
      cadastro que já existe continua com o aviso na própria tela: uma tela
      de parabéns depois de corrigir o bairro seria comemoração de nada. */
   const [ehPrimeiroCadastro, setEhPrimeiroCadastro] = useState(false);
+
+  /* ── O RASCUNHO DO CADASTRO ────────────────────────────────────────────
+     Esta é a tela mais longa do app. Quem preenche pela primeira vez, no
+     celular, quase sempre para no meio — para procurar o ano de um emprego
+     antigo, o nome do curso, o telefone do trabalho anterior. Voltava e
+     achava tudo em branco.
+
+     Só vale para quem AINDA NÃO TEM cadastro no banco. Para quem já tem, o
+     formulário é o retrato do que está gravado, e restaurar um rascunho de
+     dias atrás por cima disso apagaria edição feita em outro aparelho — o
+     rascunho passaria de rede de segurança a fonte de perda. */
+  const [prontoParaGravar, setProntoParaGravar] = useState(false);
+  const [avisoRascunho, setAvisoRascunho] = useState(false);
+  const rascunho = useRascunho(
+    CHAVE_RASCUNHO_PROFISSIONAL,
+    { perfil, experiencias, cursos, competencias },
+    1,
+    prontoParaGravar
+  );
 
   /* ── O CADASTRO ÚNICO ─────────────────────────────────────────────────
      Isto já foi um cadastro em três passos ("Você e o que faz" / "Sua
@@ -322,11 +342,29 @@ export function MeuPerfilPage() {
              dona viu na tela: um número que ninguém reconhece como o seu.
              `doFormatoDoBanco` tira o 55 e `formatPhone` escreve como se
              lê aqui: (31) 98822-4938. */
-          setPerfil({
+          const base = {
             ...PERFIL_VAZIO,
             phone: formatPhone(doFormatoDoBanco(user.phone)),
             email: user.email ?? "",
-          });
+          };
+
+          /* O rascunho entra por cima do vazio, mas NUNCA por cima do
+             telefone que a conta acabou de confirmar por SMS: um rascunho
+             de outro dia podia ter um número digitado à mão e antigo, e
+             ele viraria o do cadastro sem ninguém perceber. */
+          const guardado = rascunho.inicial;
+          if (guardado?.dados?.perfil) {
+            setPerfil({ ...base, ...guardado.dados.perfil, phone: base.phone });
+            setExperiencias(guardado.dados.experiencias ?? []);
+            setCursos(guardado.dados.cursos ?? []);
+            setCompetencias(guardado.dados.competencias ?? []);
+            setAvisoRascunho(true);
+          } else {
+            setPerfil(base);
+          }
+          /* Só grava rascunho de quem ainda não tem cadastro — ver o
+             comentário do `useRascunho` lá em cima. */
+          setProntoParaGravar(true);
         }
       } catch (err) {
         setErro(mensagemDeErro(err, "Não consegui carregar o seu perfil."));
@@ -468,6 +506,11 @@ export function MeuPerfilPage() {
 
          `replace` para o botão de voltar não trazer de volta o formulário
          que acabou de ser salvo. */
+      /* Gravou no banco: o rascunho cumpriu o papel. Deixá-lo vivo faria
+         a próxima abertura restaurar por cima do que acabou de ser salvo. */
+      rascunho.limpar();
+      setAvisoRascunho(false);
+
       if (irParaPronto) {
         navegar("/pronto?tipo=profissional", { replace: true });
         return;
@@ -589,6 +632,41 @@ export function MeuPerfilPage() {
             "Meu cadastro" na porta e "Painel" na barra eram três nomes
             para uma tela só. */}
         <Pagina titulo="Meu cadastro" />
+
+        {/* Sem este aviso, quem volta encontra o formulário preenchido e
+            acha que o app inventou os dados — o mesmo susto que já tinha
+            acontecido na tela de criar vaga. Fica até tocarem em "começar
+            do zero" ou salvar: sumir sozinho deixaria sem saída quem leu
+            tarde. */}
+        {avisoRascunho && (
+          <div className="ei-rascunho ei-margem" role="status">
+            <span>
+              <strong>Voltamos de onde você parou.</strong> O que você escreve aqui fica
+              guardado neste aparelho até salvar.
+            </span>
+            <button
+              type="button"
+              className="ei-btn-inline"
+              onClick={() => {
+                rascunho.descartar();
+                setPerfil((p) => ({
+                  ...PERFIL_VAZIO,
+                  /* Telefone e e-mail vieram da conta, não do rascunho:
+                     zerá-los faria a pessoa digitar de novo o que ela
+                     acabou de confirmar por SMS. */
+                  phone: p.phone,
+                  email: p.email,
+                }));
+                setExperiencias([]);
+                setCursos([]);
+                setCompetencias([]);
+                setAvisoRascunho(false);
+              }}
+            >
+              Começar do zero
+            </button>
+          </div>
+        )}
 
         {/* Quem chegou aqui barrado numa candidatura precisa entender POR
             QUE está nesta tela — senão ela parece um desvio aleatório, e a

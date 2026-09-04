@@ -9,6 +9,7 @@ import {
   type PessoaFavorita,
 } from "../../lib/favoritos";
 import { Pagina } from "../../components/ei/Pagina";
+import Esqueleto from "../../components/ei/Esqueleto";
 
 /**
  * Onde ficam os favoritos.
@@ -78,7 +79,7 @@ export function FavoritosPage() {
         )}
 
         {carregando && (
-          <p className="ei-apoio ei-margem" style={{ marginTop: 20 }}>Carregando…</p>
+          <Esqueleto />
         )}
 
         {vazio && (

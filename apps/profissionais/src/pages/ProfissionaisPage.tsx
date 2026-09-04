@@ -14,6 +14,7 @@ import { BotaoFavorito } from "../components/ei/BotaoFavorito";
 import { lerFavoritos, SEM_FAVORITOS, type Favoritos } from "../lib/favoritos";
 import { contarAparicaoEmBusca } from "../lib/compativeis";
 import { destaqueValendo } from "../lib/destaque";
+import Esqueleto from "../components/ei/Esqueleto";
 
 type Disponivel = {
   id: string;
@@ -452,9 +453,7 @@ export function ProfissionaisPage() {
         )}
 
         {carregando && (
-          <p className="ei-apoio ei-margem" style={{ marginTop: 20 }}>
-            Carregando…
-          </p>
+          <Esqueleto />
         )}
 
         {!carregando && !erro && (

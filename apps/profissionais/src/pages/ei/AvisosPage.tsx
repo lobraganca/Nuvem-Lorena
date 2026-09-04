@@ -14,6 +14,7 @@ import { pedirPermissaoDePush, pushServeAqui, situacaoDaPermissao } from "../../
 import { Callout, Pagina } from "../../components/ei/Pagina";
 import { nomeDoContrato, salarioEmTexto } from "../../types/domain";
 import { IconeInicio } from "../../components/IconesInicio";
+import Esqueleto from "../../components/ei/Esqueleto";
 
 /**
  * Os avisos: tudo o que chegou para esta pessoa pelos disparos.
@@ -136,7 +137,7 @@ export function AvisosPage() {
     return (
       <div className="ei">
         <div className="ei-tela">
-          <p className="ei-apoio ei-margem" style={{ paddingTop: 24 }}>Carregando…</p>
+          <Esqueleto />
         </div>
       </div>
     );

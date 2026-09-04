@@ -180,3 +180,8 @@ export function useRascunho<T>(
 
 export const CHAVE_RASCUNHO_VAGA = "ei-rascunho-vaga";
 export const CHAVE_RASCUNHO_EMPRESA = "ei-rascunho-empresa";
+/* O cadastro do profissional é a tela mais longa do app — nome, telefone,
+   funções, experiências, cursos, competências, pretensão. Quem preenche
+   isso no celular, na rua, e sai para procurar a data de um emprego
+   antigo, voltava para o formulário em branco. */
+export const CHAVE_RASCUNHO_PROFISSIONAL = "ei-rascunho-profissional";

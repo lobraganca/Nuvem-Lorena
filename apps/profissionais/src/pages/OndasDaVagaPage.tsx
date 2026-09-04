@@ -11,6 +11,7 @@ import { mensagemDeErro } from "../lib/erros";
 import { compativeisComAVaga, contarAparicaoEmBusca, type CandidatoCompativel } from "../lib/compativeis";
 import { Pagina } from "../components/ei/Pagina";
 import { useTituloDaPagina } from "../lib/tituloDaPagina";
+import Esqueleto from "../components/ei/Esqueleto";
 import {
   FAIXAS_DAS_ONDAS,
   ONDAS,
@@ -234,7 +235,7 @@ export function OndasDaVagaPage() {
     return (
       <div className="ei">
         <div className="ei-tela">
-          <p className="ei-apoio ei-margem" style={{ paddingTop: 24 }}>Carregando…</p>
+          <Esqueleto />
         </div>
       </div>
     );
@@ -422,7 +423,7 @@ export function OndasDaVagaPage() {
                 <Link key={c.id} to={`/profissional/${c.id}?vaga=${vaga.id}`} className="ei-pessoa">
                   <span className="ei-pessoa-retrato" aria-hidden="true">
                     {c.foto ? (
-                      <img src={c.foto} alt="" />
+                      <img src={c.foto} alt="" loading="lazy" decoding="async" />
                     ) : (
                       (c.nome || "?").trim().charAt(0).toLocaleUpperCase("pt-BR")
                     )}

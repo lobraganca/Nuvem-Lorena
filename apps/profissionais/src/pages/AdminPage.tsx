@@ -720,7 +720,7 @@ export function AdminPage() {
                   reenquadrar. */}
               <div className="admin-topo-cadastro">
                 {p.photo_url ? (
-                  <img src={p.photo_url} alt={p.name} className="admin-foto" />
+                  <img src={p.photo_url} alt={p.name} className="admin-foto" loading="lazy" decoding="async" />
                 ) : (
                   <span className="admin-foto admin-foto-vazia" aria-hidden="true">
                     {p.entity_type === "pj" ? "🏢" : "👤"}

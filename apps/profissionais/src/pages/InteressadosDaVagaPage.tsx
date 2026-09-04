@@ -10,6 +10,7 @@ import { mensagemDeErro } from "../lib/erros";
 import { Pagina, Abas } from "../components/ei/Pagina";
 import { useTituloDaPagina } from "../lib/tituloDaPagina";
 import type { JobListing, JobResponse } from "../types/domain";
+import Esqueleto from "../components/ei/Esqueleto";
 
 /**
  * Como cada marca da triagem aparece na lista.
@@ -157,7 +158,7 @@ export function InteressadosDaVagaPage() {
     return (
       <div className="ei">
         <div className="ei-tela">
-          <p className="ei-apoio ei-margem" style={{ paddingTop: 24 }}>Carregando…</p>
+          <Esqueleto />
         </div>
       </div>
     );

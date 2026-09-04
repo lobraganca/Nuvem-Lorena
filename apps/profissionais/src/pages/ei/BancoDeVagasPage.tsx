@@ -9,6 +9,7 @@ import { vagaEmDestaque } from "../../lib/destaque";
 import { lerMeuPerfil } from "../../lib/meuPerfil";
 import { nomeDoContrato, salarioEmTexto } from "../../types/domain";
 import { Pagina } from "../../components/ei/Pagina";
+import Esqueleto from "../../components/ei/Esqueleto";
 
 /**
  * O banco de vagas.
@@ -285,9 +286,7 @@ export function BancoDeVagasPage() {
         )}
 
         {carregando && (
-          <p className="ei-apoio ei-margem" style={{ marginTop: 20 }}>
-            Carregando…
-          </p>
+          <Esqueleto />
         )}
 
         {!carregando && !erro && (

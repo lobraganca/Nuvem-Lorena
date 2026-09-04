@@ -15,6 +15,7 @@ import { getProfile } from "../lib/profiles";
 import { Abas, Callout, Pagina } from "../components/ei/Pagina";
 import { nomeDoContrato, salarioEmTexto } from "../types/domain";
 import { IconeInicio } from "../components/IconesInicio";
+import Esqueleto from "../components/ei/Esqueleto";
 
 /**
  * "Vagas para você" — o que chegou para este profissional.
@@ -166,7 +167,7 @@ export function VagasParaMimPage() {
     return (
       <div className="ei">
         <div className="ei-tela">
-          <p className="ei-apoio">Carregando…</p>
+          <Esqueleto />
         </div>
       </div>
     );
