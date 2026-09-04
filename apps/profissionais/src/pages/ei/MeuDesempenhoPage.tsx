@@ -105,18 +105,48 @@ export function MeuDesempenhoPage() {
             <div className="ei-cartao ei-recado">
               <h2 className="ei-recado-titulo">{recado.titulo}</h2>
               <p className="ei-recado-texto">{recado.texto}</p>
+              {/* ── O CAMINHO DA COMPRA ONDE O ASSUNTO É APARECER — 04/09
+                  A dona: "quando fala de aparecer em primeiro, tem que ter
+                  o link para comprar."
+
+                  O caminho existia, no fim da tela, depois de três seções
+                  — quatro rolagens abaixo do recado que fala justamente de
+                  ser vista. Quem lê "aparecer é metade do caminho" e quer
+                  aparecer não vai procurar o preço lá embaixo.
+
+                  Só nos recados de visibilidade (`ofereceDestaque`), e só
+                  onde o app pode vender: dentro do app da loja esta linha
+                  não existe — vender por fora da cobrança do Google é
+                  infração, e apontar o caminho é a mesma infração que
+                  vender. */}
+              {recado.ofereceDestaque && podeVender() && (
+                <Link to="/destaque" className="ei-recado-acao">
+                  Aparecer primeiro na lista — {precoDoDestaqueEmTexto()} por {DESTAQUE_DIAS} dias
+                </Link>
+              )}
             </div>
 
             <h2 className="ei-secao">Os últimos 7 dias</h2>
             <div className="ei-cartao">
               <div className="ei-resumo" style={{ padding: 0, border: 0, background: "none" }}>
+                {/* ── OS DOIS NÚMEROS EXPLICADOS — 04/09 ─────────────
+                    A dona: "essa tela está muito confusa."
+
+                    Estes dois lado a lado eram o pior pedaço: "te viram 0"
+                    e "apareceu 10" parecem se contradizer, e sem dizer o
+                    que cada um conta a leitura possível é "o app está
+                    errado". São coisas diferentes e a diferença é a mais
+                    importante da tela — uma é sair na lista, a outra é
+                    alguém parar e abrir. */}
                 <div className="ei-resumo-item">
                   <span className="ei-resumo-rotulo">Empresas que te viram</span>
                   <span className="ei-resumo-numero">{dados.empresasNaSemana}</span>
+                  <span className="ei-resumo-nota">abriram seu cadastro</span>
                 </div>
                 <div className="ei-resumo-item">
                   <span className="ei-resumo-rotulo">Buscas em que apareceu</span>
                   <span className="ei-resumo-numero">{dados.buscasNaSemana}</span>
+                  <span className="ei-resumo-nota">saiu na lista, sem abrirem</span>
                 </div>
               </div>
             </div>

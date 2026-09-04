@@ -238,7 +238,17 @@ export async function meuDesempenho(
  * não termina em tarefa é a de quem está indo bem — porque aí o passo
  * certo é esperar.
  */
-export function recadoDoDesempenho(d: Desempenho): { titulo: string; texto: string } {
+export function recadoDoDesempenho(d: Desempenho): {
+  titulo: string;
+  texto: string;
+  /* Este recado é sobre SER VISTA? Então o destaque pago resolve
+     exatamente o que ele descreve, e o caminho para comprá-lo tem de
+     estar ali — não no fim da tela, três seções abaixo, onde a dona não
+     achou. Só os recados de visibilidade marcam isto: oferecer o pago em
+     "3 empresas abriram seu cadastro" seria vender remédio a quem não
+     está doente. */
+  ofereceDestaque?: boolean;
+} {
   if (d.empresasNaSemana >= 3) {
     return {
       titulo: `${d.empresasNaSemana} empresas abriram seu cadastro esta semana`,
@@ -253,7 +263,12 @@ export function recadoDoDesempenho(d: Desempenho): { titulo: string; texto: stri
         d.vagasMuitoCompativeis === 1 ? "vaga" : "vagas"
       }`,
       texto:
-        "Não espere a empresa te achar: abra essas vagas e toque em “tenho interesse”. Quem responde aparece primeiro na lista dela.",
+        /* Dizia "quem responde aparece primeiro na lista dela". Duas
+           coisas erradas numa frase: não é primeiro (a lista da empresa
+           não ordena por quem respondeu antes), e "aparecer primeiro" é o
+           nome do que o app VENDE — a dona leu isto como a oferta paga e
+           procurou o preço. Agora diz o que acontece de verdade. */
+        "Não espere a empresa te achar: abra essas vagas e toque em “tenho interesse”. Quem responde entra na lista dela com nome e telefone.",
     };
   }
 
@@ -264,6 +279,7 @@ export function recadoDoDesempenho(d: Desempenho): { titulo: string; texto: stri
       } esta semana`,
       texto:
         "Aparecer é metade do caminho. Uma foto e um resumo curto de você fazem a empresa parar na sua linha em vez de rolar.",
+      ofereceDestaque: true,
     };
   }
 
@@ -279,5 +295,6 @@ export function recadoDoDesempenho(d: Desempenho): { titulo: string; texto: stri
     titulo: "Seu cadastro ainda está passando despercebido",
     texto:
       "Duas coisas mudam isso rápido: acrescentar mais funções que você aceita fazer, e escrever um resumo curto de você. É por essas duas que a busca encontra.",
+    ofereceDestaque: true,
   };
 }

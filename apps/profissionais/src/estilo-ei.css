@@ -6158,3 +6158,29 @@
    filho de flex se recusa a ficar menor que o próprio conteúdo e quem
    cede é o vizinho. */
 .ei .ei-baralho-topo .ei-pessoa-texto { flex: 1 1 auto; min-width: 0; }
+
+/* ── A LINHA DE COMPRA DENTRO DO RECADO — 04/09 ───────────────────────
+   O recado do desempenho fala em ser vista; esta linha é o caminho para
+   o destaque pago, ali mesmo. Escrita e não botão: dentro de um cartão
+   que já é um aviso, um botão cheio viraria a coisa mais forte da tela —
+   e oferecer pagamento como primeira resposta a quem está desempregado é
+   o jeito mais rápido de perder a confiança da cidade. */
+.ei .ei-recado-acao {
+  display: inline-block;
+  margin-top: 10px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--ei-acao);
+  text-decoration: none;
+}
+.ei .ei-recado-acao:active { opacity: 0.6; }
+
+/* A nota que diz o que cada número conta. Abaixo do número, no cinza do
+   apoio: sem ela, "te viram 0" e "apareceu 10" leem como contradição. */
+.ei .ei-resumo-nota {
+  display: block;
+  margin-top: 2px;
+  font-size: 0.76rem;
+  line-height: 1.3;
+  color: var(--ei-tinta-fraca);
+}
