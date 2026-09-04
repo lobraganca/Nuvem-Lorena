@@ -105,7 +105,13 @@ jobs:
               echo "  vercel.com > projeto ei-itabirito > Settings >"
               echo "  Environment Variables"
               echo ""
-              echo "  VITE_SUPABASE_URL       https://dfdinrimxqoqjedemjbw.supabase.co"
+              # O projeto é o `ahigenhenzmsjxlmrzhz`. Aqui estava escrito
+          # `dfdinrimxqoqjedemjbw`, que é um projeto ANTIGO do mesmo app: as
+          # tabelas não estão lá (um link para ele em 03/09 fez a SQL
+          # responder `relation "public.companies" does not exist`). Quem
+          # seguisse esta ajuda numa emergência apontaria o site para um
+          # banco vazio — e a tela ficaria igualzinha à de agora.
+          echo "  VITE_SUPABASE_URL       https://ahigenhenzmsjxlmrzhz.supabase.co"
               echo "                          (sem /rest/v1 no fim)"
               echo "  VITE_SUPABASE_ANON_KEY  a chave anon public, do Supabase"
               echo ""
@@ -120,6 +126,41 @@ jobs:
             echo "  tentativa $tentativa — servindo: ${servido:-<sem resposta>}"
             sleep 15
           done
+
+          # ── ATROPELADO POR UM ENVIO MAIS NOVO — 04/09 ──────────────────
+          # Aconteceu de verdade: dois envios com quatro minutos de
+          # diferença. O primeiro subiu e ficou verde; o segundo passou os
+          # dez minutos inteiros vendo o site servir o commit do primeiro,
+          # e terminou VERMELHO — com a mensagem de "foi para Preview", que
+          # não era o caso. A Vercel só estava na fila.
+          #
+          # Um vermelho que não é defeito é pior que nenhum aviso: ele
+          # ensina a ignorar o aviso, e é justamente este check que existe
+          # para impedir que "verde" volte a querer dizer "pedi" em vez de
+          # "está no ar".
+          #
+          # Então, antes de acusar: a branch andou? Se a ponta dela já é
+          # outro commit, este aqui nunca vai ser servido — o site vai
+          # pular direto para o mais novo, e quem confere é a execução
+          # daquele. Aqui o certo é sair de cena dizendo isso.
+          ponta=$(curl -sS --max-time 10 \
+            -H "Authorization: Bearer ${{ github.token }}" \
+            -H "Accept: application/vnd.github+json" \
+            "https://api.github.com/repos/${{ github.repository }}/commits/${{ github.ref_name }}" \
+            | python3 -c "import sys,json; print(json.load(sys.stdin).get('sha',''))" 2>/dev/null || echo "")
+          if [ -n "$ponta" ] && [ "$ponta" != "$esperado" ]; then
+            echo ""
+            echo "Este commit foi atropelado por um envio mais novo."
+            echo ""
+            echo "  este:  $esperado"
+            echo "  ponta: $ponta"
+            echo ""
+            echo "O site vai direto para o mais novo — este aqui nunca será"
+            echo "servido, e não há nada errado nisso. Quem confere se o app"
+            echo "está no ar é a execução do commit da ponta."
+            exit 0
+          fi
+
           echo ""
           echo "O site não passou a servir este commit em 10 minutos."
           echo ""
