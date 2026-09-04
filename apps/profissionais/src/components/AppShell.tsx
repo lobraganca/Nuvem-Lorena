@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState, type ReactNode } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { Logo } from "./Logo";
-import { InstalarApp } from "./InstalarApp";
+import { InstalarApp, instalarServeAqui } from "./InstalarApp";
 import { PuxarParaAtualizar } from "./PuxarParaAtualizar";
 import { AvisoDeVersao } from "./AvisoDeVersao";
 import { AvisoSemInternet } from "./AvisoSemInternet";
@@ -247,11 +247,27 @@ function Header() {
 
         O contador de on-line continua fora: num app de trabalho, "12
         pessoas navegando" não ajuda ninguém a decidir nada — no procurô
-        ele servia para dar movimento a uma vitrine. E instalar continua
-        nas configurações, não aqui: é ação rara, a casinha é frequente. */
+        ele servia para dar movimento a uma vitrine.
+
+        O "Baixar App" entrou em 04/09, a pedido da dona, e some sozinho
+        para quem já instalou — ver o comentário no próprio botão. */
   return (
     <header className="cabecalho-ei" ref={ref}>
       <Logo size="sm" />
+      {/* ── BAIXAR APP, ANTES DA CASINHA — 04/09 ────────────────────────
+          A dona: "o botão de baixar app pode ficar no topo antes da
+          casinha."
+
+          O comentário logo abaixo dizia o contrário — "instalar continua
+          nas configurações: é ação rara, a casinha é frequente". O
+          raciocínio valia para quem JÁ usa o app; não vale para quem
+          chegou pelo navegador e é justamente quem precisa instalar, e
+          que nunca vai procurar dentro de Conta uma coisa que ainda não
+          sabe que existe. Instalar é raro por pessoa e decisivo uma vez.
+
+          `instalarServeAqui` mantém o topo limpo para quem já instalou e
+          dentro do app da loja: lá o botão não teria o que fazer. */}
+      {instalarServeAqui() && <InstalarApp variante="cabecalho" />}
       <Link
         to="/"
         className="cabecalho-ei-casa"

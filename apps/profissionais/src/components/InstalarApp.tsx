@@ -249,7 +249,7 @@ export function InstalarApp({ variante = "lista" }: { variante?: "lista" | "faix
               O que o botão FAZ continua diferente, e isso não é o rótulo:
               no Android ele instala; no iPhone abre o passo a passo, porque
               lá quem instala é o próprio Safari. */}
-          Baixar App
+          <span className="btn-instalar-topo-texto">Baixar App</span>
         </button>
         {ensinandoIOS && (ehIOS() ? folhaIOS : folhaNavegador)}
       </>
@@ -270,11 +270,20 @@ export function InstalarApp({ variante = "lista" }: { variante?: "lista" | "faix
           title="Adicionar o Ei Emprego à tela do celular"
         >
           <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+            {/* A MESMA seta do botão da tela de início, e não o "+" que
+                estava aqui. Em tela estreita a palavra some e sobra só o
+                desenho — e "+" dentro de um celular quer dizer adicionar
+                qualquer coisa; a seta para baixo é o que todo mundo lê
+                como baixar, que é a palavra escrita ao lado. */}
             <rect x="6" y="2.5" width="12" height="19" rx="2.5" />
-            <line x1="12" y1="8" x2="12" y2="15" />
-            <line x1="8.5" y1="11.5" x2="15.5" y2="11.5" />
+            <path d="M12 7.5v7" />
+            <path d="M9 11.5l3 3 3-3" />
           </svg>
-          Instalar App
+          {/* "Baixar App", a mesma palavra do botão da tela de início: a
+              dona escolheu esse verbo em 02/09 porque é o que a pessoa
+              procura. Dois rótulos para a mesma ação em dois lugares do
+              app fariam parecer duas coisas diferentes. */}
+          <span className="btn-instalar-topo-texto">Baixar App</span>
         </button>
         {ensinandoIOS && (ehIOS() ? folhaIOS : folhaNavegador)}
       </>

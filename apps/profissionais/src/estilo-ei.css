@@ -6038,3 +6038,60 @@
   font-weight: 600;
   white-space: nowrap;
 }
+
+/* ── "BAIXAR APP" NO CABEÇALHO AZUL — 04/09 ───────────────────────────
+   O desenho que vem do tema antigo é fundo azul com borda azul: sobre a
+   faixa azul do Ei ele fica invisível. Aqui vira contorno branco, que é
+   como o resto do cabeçalho se comporta — a marca e a casinha também são
+   brancas sobre o azul.
+
+   `margin-left: auto` sai do botão e passa a ser dele: no `flex` do
+   cabeçalho, quem empurra o par para a direita é o PRIMEIRO dos dois, e
+   a casinha logo depois deixa de precisar. Ver `.cabecalho-ei-casa`. */
+/* Respiro entre a marca e o botão, posto na MARCA e não como `gap` do
+   cabeçalho. Medido: `gap` separa todos os pares, então ele também entrava
+   entre o botão e a casinha — e como o espaço livre já tinha sido comido
+   pelo `margin-left: auto` do botão, os 10px saíam da folga da DIREITA: a
+   casinha passou a terminar a 4px da borda da tela. Na marca, o respiro
+   sai do espaço livre do meio, que é de onde deve sair. */
+.cabecalho-ei > .logo { margin-right: 12px; }
+
+.cabecalho-ei .btn-instalar-topo {
+  margin-left: auto;
+  background: transparent;
+  border: 1px solid rgba(255, 255, 255, 0.65);
+  box-shadow: none;
+  color: #ffffff;
+  /* Um pouco menor que o texto do corpo: ele divide a linha com a marca
+     num celular de 390px, e foi um nome comprido aqui que já empurrou a
+     marca para fora da tela. */
+  font-size: 0.8rem;
+  padding: 7px 12px;
+  /* Alvo de toque de 40px sem engordar a faixa azul inteira. */
+  min-height: 40px;
+}
+.cabecalho-ei .btn-instalar-topo:active {
+  background: rgba(255, 255, 255, 0.16);
+  box-shadow: none;
+}
+
+/* Com o botão à esquerda dele, a casinha não é mais quem empurra o par
+   para a direita — e mantê-la com `margin-left: auto` abriria um vão
+   entre os dois. */
+.cabecalho-ei .btn-instalar-topo + .cabecalho-ei-casa {
+  margin-left: 4px;
+}
+
+/* Em tela estreita (celular pequeno, 320px) a palavra sai e fica o ícone.
+   Medido no navegador: com "Baixar App" escrito, a casinha terminava em
+   360px numa tela de 320 — ou seja, FORA DELA. É o mesmo acidente que o
+   comentário do cabeçalho já registrava ("a marca com o nome ao lado
+   empurrou o botão de instalar para fora da tela"), e desta vez quem saía
+   era a casinha.
+
+   O `title` do botão continua dizendo o que ele faz, e a seta para baixo
+   dentro do celular é o desenho universal de baixar. */
+@media (max-width: 360px) {
+  .cabecalho-ei .btn-instalar-topo-texto { display: none; }
+  .cabecalho-ei .btn-instalar-topo { padding: 7px 10px; }
+}
