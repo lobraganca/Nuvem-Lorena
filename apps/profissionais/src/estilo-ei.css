@@ -5761,3 +5761,112 @@
   color: inherit;
   opacity: 0.75;
 }
+
+/* ═══════════════════════════════════════════════════════════════════════
+   A LINHA DE VAGA CABE OUTRA VEZ — 04/09
+   ═══════════════════════════════════════════════════════════════════════
+   A dona: "os títulos das vagas estão quebrados."
+
+   Medido: na lista de vagas, TODAS as quatro linhas de texto saíam
+   cortadas — "Motorista entrega…", "Padaria Pão de Minas …", "R$ 1.800 ·
+   Registrado e…", "Combina em parte · sua ci…". Quatro reticências por
+   cartão, e nenhuma informação inteira.
+
+   A causa foi minha, do mesmo dia: o retrato subiu de 64 para 84px para
+   as fotos ficarem visíveis, e nesta lista isso custou 20px de largura em
+   linhas que já eram quatro.
+
+   E o retrato de 84 estava certo para a lista de PESSOAS e errado para
+   esta: aqui o quadrado é o logo da empresa, contexto, não o rosto de
+   quem se quer reconhecer. Quem decide abrir uma vaga decide pelo cargo e
+   pelo salário. Então nesta lista ele volta para 60px, a seta sai (a
+   linha inteira já é tocável) e o cargo ganha direito a duas linhas.
+
+   A lista de pessoas continua com 84px — lá a foto é o assunto. */
+.ei .ei-vaga-linha .ei-pessoa-retrato {
+  width: 60px;
+  height: 60px;
+  font-size: 1.4rem;
+  /* No topo, e não centralizado: com quatro linhas de texto ao lado, o
+     quadrado centralizado deixa um buraco branco em cima. */
+  align-self: flex-start;
+}
+.ei .ei-vaga-linha {
+  gap: 14px;
+  align-items: flex-start;
+}
+.ei .ei-vaga-linha .ei-linha-seta {
+  display: none;
+}
+.ei .ei-vaga-linha .ei-pessoa-nome {
+  font-size: 1.02rem;
+  line-height: 1.3;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════
+   TÍTULO NÃO QUEBRA NO MEIO DA PALAVRA — 04/09
+   ═══════════════════════════════════════════════════════════════════════
+   A dona: "os títulos das vagas estão quebrados."
+
+   O caso mais feio estava na tela da vaga aberta, a que quem procura
+   trabalho vê. "Pedreiro para obra no Centro" saía assim, em oito linhas:
+
+       Pedre
+       iro
+       para
+       obra
+       no
+       Centr
+       o
+
+   ── Por que ────────────────────────────────────────────────────────────
+
+   O título divide a fileira com o botão "Compartilhar" (`flex`), e leva
+   `overflow-wrap: anywhere`, que existe no app para o texto livre — a
+   descrição da vaga vem com endereço de site e e-mail que não cabem em
+   390px, e sem ele a tela rola para o lado.
+
+   Só que `anywhere` faz mais do que permitir a quebra: ele diz ao
+   navegador que a largura MÍNIMA daquele texto é uma letra. E o flex
+   acredita. O botão pegou a largura que quis, o título encolheu até
+   caber "Pedre", e o resto desceu.
+
+   `break-word` faz o que se queria e não faz o resto: quebra a palavra
+   que não couber, e mantém a largura mínima do texto na maior palavra
+   dele. O título deixa de poder ser esmagado.
+
+   `anywhere` fica onde ele resolve um problema de verdade: na descrição
+   da vaga e nos textos livres, que continuam com o endereço comprido. */
+.ei .ei-titulo,
+.ei .ei-titulo-g,
+.ei .ei-pessoa-nome,
+.ei .ei-baralho-titulo,
+.ei .ei-porta-nome,
+.ei .ei-linha-nome,
+.ei .ei-empresa-nome,
+.ei .ei-cartao-titulo,
+.ei .ei-etapa-titulo,
+.ei .ei-saida-nome {
+  overflow-wrap: break-word;
+  word-break: normal;
+}
+
+/* E a fileira passa a poder quebrar: num título de três palavras longas o
+   botão desce para baixo, inteiro, em vez de espremer o título. */
+.ei .ei-titulo-com-acao {
+  flex-wrap: wrap;
+}
+.ei .ei-titulo-com-acao > .ei-titulo-g {
+  flex: 1 1 60%;
+}
+
+/* O título dentro da fileira "título + ação" recuava duas vezes: a fileira
+   leva o recuo de texto (33px) e o `h1` dentro dela levava outro. Na tela
+   da vaga aberta isso punha o título 33px à frente da descrição logo
+   abaixo, dentro do mesmo assunto. */
+.ei .ei-titulo-com-acao > .ei-titulo-g,
+.ei .ei-titulo-com-acao > .ei-titulo,
+.ei .ei-titulo-com-acao > .ei-compartilhar {
+  padding-left: 0;
+  padding-right: 0;
+}

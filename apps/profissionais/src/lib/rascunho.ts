@@ -94,6 +94,30 @@ export function useRascunho<T>(
      gravação. Achado testando no navegador: depois de "começar do zero" o
      armazenamento continuava com uma chave. */
   const pulaProxima = useRef(false);
+  /* ── A GRAVAÇÃO QUE ESTAVA A CAMINHO — 04/09 ─────────────────────────
+     A dona: "ao adicionar uma nova vaga está indo direto pra última tela
+     de compatibilidade."
+
+     Era isto, e é uma corrida de tempo de 400 milésimos:
+
+       1. a pessoa mexe num campo da ÚLTIMA etapa
+          → o efeito agenda a gravação para daqui a 400ms
+       2. dentro desses 400ms ela toca em "Publicar"
+       3. a vaga é criada e `limpar()` apaga o rascunho
+       4. o relógio agendado no passo 1 DISPARA e grava tudo de volta —
+          a vaga inteira, e a etapa em que ela estava: a última
+       5. na próxima vaga, a tela restaura esse rascunho e abre na última
+          etapa, já preenchida com a vaga anterior
+
+     `pulaProxima` não pegava este caso: ele é conferido quando o EFEITO
+     roda, e o relógio do passo 1 foi agendado por uma passada anterior —
+     ninguém mais olha para ele. Guardar o número do relógio é o que
+     permite a `limpar()` cancelá-lo. */
+  const relogio = useRef<number | null>(null);
+  /* Cinto e suspensório: se o relógio escapar mesmo assim (um navegador
+     que já entregou o callback à fila antes do `clearTimeout`), a
+     gravação confere aqui e desiste. */
+  const apagado = useRef(false);
 
   useEffect(() => {
     if (!pronto) return;
@@ -108,7 +132,9 @@ export function useRascunho<T>(
       pulaProxima.current = false;
       return;
     }
+    apagado.current = false;
     const id = window.setTimeout(() => {
+      if (apagado.current) return;
       try {
         const g: Guardado<T> = { quando: Date.now(), etapa, dados };
         window.localStorage.setItem(chave, JSON.stringify(g));
@@ -119,10 +145,18 @@ export function useRascunho<T>(
            que a pessoa possa fazer com o aviso. */
       }
     }, ESPERA_MS);
+    relogio.current = id;
     return () => window.clearTimeout(id);
   }, [chave, dados, etapa, pronto]);
 
   function limpar() {
+    /* Cancela a gravação que já estava a caminho ANTES de apagar: na
+       ordem inversa, ela grava por cima do que acabou de ser apagado. */
+    apagado.current = true;
+    if (relogio.current !== null) {
+      window.clearTimeout(relogio.current);
+      relogio.current = null;
+    }
     try {
       window.localStorage.removeItem(chave);
     } catch {

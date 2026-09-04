@@ -340,7 +340,7 @@ export function BancoDeVagasPage() {
         )}
 
         {visiveis.length > 0 && modo === "cartoes" && (
-          <Baralho vagas={visiveis} />
+          <Baralho vagas={visiveis} verLista={() => mudarParams({ m: null })} />
         )}
 
         {visiveis.length > 0 && modo === "lista" && (
@@ -353,7 +353,20 @@ export function BancoDeVagasPage() {
               <Link key={v.vaga.id} to={`/vaga-aberta/${v.vaga.id}`} className="ei-pessoa ei-vaga-linha">
                 <Marca foto={v.empresa_foto} nome={v.empresa || v.vaga.title} />
                 <div className="ei-pessoa-texto">
-                  <div className="ei-pessoa-nome ei-uma-linha">{v.vaga.title}</div>
+                  {/* ── O TÍTULO PODE OCUPAR DUAS LINHAS — 04/09 ─────────
+                      A dona: "os títulos das vagas estão quebrados."
+
+                      Estavam cortados: "Motorista entrega…", "Pedreiro
+                      para obr…". A linha de vaga tem QUATRO linhas de
+                      texto e ganhou um retrato maior no mesmo dia — e o
+                      título, que é a única coisa pela qual alguém decide
+                      abrir a vaga, foi o que pagou a conta.
+
+                      Cortar o cargo é pior que ocupar mais uma linha:
+                      "Motorista entrega…" pode ser entregador, entregas
+                      rápidas ou entrega de gás, e a pessoa tem de abrir
+                      para descobrir. Duas linhas, e só então reticências. */}
+                  <div className="ei-pessoa-nome ei-duas-linhas">{v.vaga.title}</div>
                   <div className="ei-pessoa-oficio ei-uma-linha">
                     {[v.empresa, v.vaga.city].filter(Boolean).join(" · ")}
                   </div>
@@ -518,7 +531,7 @@ function IconeLupa({ grande = false }: { grande?: boolean }) {
  * para mim" continua livre: cobrar cadastro para alguém recusar seria
  * cobrar trabalho pela recusa.
  */
-function Baralho({ vagas }: { vagas: VagaNoBanco[] }) {
+function Baralho({ vagas, verLista }: { vagas: VagaNoBanco[]; verLista: () => void }) {
   const { user } = useAuth();
   const navegar = useNavigate();
 
@@ -598,9 +611,28 @@ function Baralho({ vagas }: { vagas: VagaNoBanco[] }) {
       <div className="ei-cartao" style={{ padding: 0 }}>
         <div className="ei-vazio">
           <h3 className="ei-titulo">Você já respondeu a todas</h3>
+          {/* ── E SE EU QUISER OLHAR DE NOVO? — 04/09 ──────────────────
+              A pergunta é da dona, lendo esta tela. Era um beco: a pessoa
+              passava pelas vagas uma a uma, chegava aqui, e a única saída
+              era a barra de baixo — nada dizia que as vagas continuavam
+              todas ali, do outro lado do botão "Lista".
+
+              Responder não apaga a vaga: ela continua no ar e a pessoa
+              pode mudar de ideia (a tela da vaga tem "mudei de ideia, tenho
+              interesse"). Faltava só dizer isso, e levar. */}
           <p className="ei-apoio">
             Assim que uma empresa publicar uma vaga nova, ela aparece aqui.
+            As que você já respondeu continuam abertas — dá para rever e
+            mudar de ideia.
           </p>
+          <button
+            type="button"
+            className="ei-btn ei-btn-contorno"
+            style={{ marginTop: 14 }}
+            onClick={verLista}
+          >
+            Ver todas de novo
+          </button>
         </div>
       </div>
     );

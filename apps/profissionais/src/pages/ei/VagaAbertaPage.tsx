@@ -558,10 +558,39 @@ export function VagaAbertaPage() {
               <span className="ei-faixa-valor">não dá mais para responder</span>
             </div>
           ) : interessado === true ? (
-            <div className="ei-faixa">
-              <span>Interesse enviado</span>
-              <span className="ei-faixa-valor">a empresa te liga</span>
-            </div>
+            /* ── "A EMPRESA TE LIGA" SAIU — 04/09 ─────────────────────
+                A dona: "está estranho."
+
+                Duas coisas estavam erradas, e a segunda é séria.
+
+                A forma: era a faixa de duas colunas, com o texto de um
+                lado e o de outro, que lê como linha de tabela — o mesmo
+                defeito já corrigido logo abaixo, no "não é para você".
+
+                E o conteúdo: "a empresa te liga" é uma PROMESSA que o app
+                não tem como cumprir. Quem está desempregado lê isso e fica
+                esperando um telefone que pode nunca tocar. O que o app
+                sabe de verdade é o que ele fez: entregou o nome e o
+                telefone. É isso que a frase diz agora.
+
+                E ganhou o caminho de volta que faltava: o "não quis" tinha
+                "mudei de ideia" e o "tenho interesse" não tinha nada —
+                quem tocou por engano ficava preso na decisão. */
+            <>
+              <p className="ei-nota-resposta">
+                <strong>Interesse enviado.</strong> A empresa recebeu seu nome e
+                seu telefone.
+              </p>
+              <button
+                type="button"
+                className="ei-btn-inline"
+                style={{ marginTop: 8 }}
+                disabled={enviando}
+                onClick={() => responder(false)}
+              >
+                {enviando ? "Enviando…" : "Na verdade, não é para mim"}
+              </button>
+            </>
           ) : interessado === false ? (
             <>
               {/* Uma linha, não a faixa de duas colunas — ver o comentário
