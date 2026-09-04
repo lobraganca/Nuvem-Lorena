@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { useAuth } from "./useAuth";
 import { obterTipoDeUsuario } from "./company";
-import { lerLadoDaSessao } from "./ladoDaSessao";
+import { lerLadoDaSessao, guardarLadoDaSessao } from "./ladoDaSessao";
 
 /**
  * De que lado o app está agora — é isto que a barra de baixo, a tela
@@ -62,7 +62,27 @@ export function useOnboardingStatus(): "professional" | "company" | false | null
     /* Plano B: quem já estava logado antes da mudança. Ver o comentário
        do topo — isto não é o caminho normal, é a ponte para quem ficou no
        meio dela. */
-    obterTipoDeUsuario(user.id).then((resultado) => setTipo(resultado || false));
+    obterTipoDeUsuario(user.id).then((resultado) => {
+      /* ── O PLANO B PRECISAVA ADOTAR O LADO, NÃO SÓ LÊ-LO — 04/09 ─────
+         A dona: "o app ainda não tem a separação das funções."
+
+         Estava certa, e o defeito era este. Quem já estava logado quando a
+         separação subiu não tem lado NA SESSÃO — e ninguém tem, porque
+         ninguém deslogou. O plano B descobria o lado no banco e o
+         devolvia, mas não o GRAVAVA: a cada tela aberta a consulta era
+         refeita, e enquanto ela não voltava o app inteiro ficava em
+         `null`, sem barra e sem tranca.
+
+         Gravar resolve de uma vez: a partir da primeira resposta a pessoa
+         passa a ter lado de sessão como quem entrou pela porta nova, e o
+         app se separa sem ela precisar sair e entrar de novo. */
+      if (resultado === "professional" || resultado === "company") {
+        guardarLadoDaSessao(resultado);
+        setTipo(resultado);
+        return;
+      }
+      setTipo(false);
+    });
   }, [user, carregandoAuth]);
 
   return tipo;

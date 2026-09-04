@@ -52,10 +52,22 @@ export function SoDesteLado({
      direto num endereço interno. */
   if (atual === null) return null;
 
-  /* `false` é quem entrou e não tem lado nenhum (conta de antes desta
-     mudança). Deixa passar: o desvio para a pergunta do lado é feito pela
-     tela inicial, e trancar aqui deixaria essa pessoa sem nenhuma tela. */
-  if (atual === false) return <>{children}</>;
+  /* ── DEIXAR PASSAR ERA O BURACO DA SEPARAÇÃO — 04/09 ────────────────
+     A dona: "o app ainda não tem a separação das funções."
+
+     Aqui estava escrito que quem não tem lado nenhum passa direto, porque
+     "o desvio para a pergunta é feito pela tela inicial". Só que a tela
+     inicial é justamente a tela em que quase ninguém entra: o app é um
+     PWA que reabre na ÚLTIMA tela, e ainda se chega por favorito, por
+     aviso empurrado e pelo botão voltar. Quem entra por qualquer um
+     desses caminhos nunca passa pela pergunta — e então TODAS as telas
+     dos dois lados abriam para ele, sem barra embaixo. O app parecia não
+     ter separação nenhuma, que foi exatamente o que ela viu.
+
+     Agora a pergunta vem até a pessoa, em vez de esperar que ela caia na
+     tela que a faz. Ninguém fica sem tela: `/onboarding-tipo` é a
+     pergunta, e ela leva para o lado escolhido em um toque. */
+  if (atual === false) return <Navigate to="/onboarding-tipo" replace />;
 
   if (atual !== lado) return <Navigate to={casaDoLado(atual)} replace />;
 
