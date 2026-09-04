@@ -269,7 +269,10 @@ export function InstalarApp({ variante = "lista" }: { variante?: "lista" | "faix
           onClick={() => (podeInstalarDireto ? instalar() : setEnsinandoIOS(true))}
           title="Adicionar o Ei Emprego à tela do celular"
         >
-          <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+          {/* 13px e traço de 1,8: acompanha o botão menor e mais delicado
+              que a dona pediu em 04/09. Traço grosso num ícone pequeno
+              fecha os vãos do desenho e ele vira um borrão. */}
+          <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
             {/* A MESMA seta do botão da tela de início, e não o "+" que
                 estava aqui. Em tela estreita a palavra some e sobra só o
                 desenho — e "+" dentro de um celular quer dizer adicionar

@@ -6059,16 +6059,35 @@
 .cabecalho-ei .btn-instalar-topo {
   margin-left: auto;
   background: transparent;
-  border: 1px solid rgba(255, 255, 255, 0.65);
+  border: 1px solid rgba(255, 255, 255, 0.42);
   box-shadow: none;
   color: #ffffff;
-  /* Um pouco menor que o texto do corpo: ele divide a linha com a marca
-     num celular de 390px, e foi um nome comprido aqui que já empurrou a
-     marca para fora da tela. */
-  font-size: 0.8rem;
-  padding: 7px 12px;
-  /* Alvo de toque de 40px sem engordar a faixa azul inteira. */
-  min-height: 40px;
+  /* ── MENOR E MAIS DELICADO — 04/09 ─────────────────────────────────
+     A dona: "faça o botão de baixar app menor e mais delicado."
+
+     Ele estava desenhado como botão de ação — letra grossa, contorno
+     forte, cápsula alta — e no meio da faixa azul isso o fazia disputar
+     atenção com a marca. Mas ele não é a ação da tela: é um atalho que
+     serve uma vez na vida de cada pessoa. Um traço fino diz isso sem
+     precisar sumir.
+
+     O que mudou, e o porquê de cada um:
+       letra    0,80 → 0,72rem   deixa de competir com o nome do app
+       peso      700 → 600       negrito puxa o olho antes do conteúdo
+       contorno 0,65 → 0,42      um fio, e não uma moldura
+       recuo   7/12 → 5/10px     a cápsula encolhe junto com a letra
+       altura     40 → 34px      fica da altura da casinha ao lado (38px),
+                                 em vez de ser o item mais alto do topo
+
+     34px é menos que os 44px de alvo de toque que este app segue nos
+     botões de conteúdo, e é uma troca consciente: no topo, os 44px eram o
+     que engordava a faixa azul inteira, e a casinha do lado já vive com
+     38px desde 02/09 sem ninguém reclamar de errar o toque. */
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  padding: 5px 10px;
+  min-height: 34px;
 }
 .cabecalho-ei .btn-instalar-topo:active {
   background: rgba(255, 255, 255, 0.16);
@@ -6093,5 +6112,5 @@
    dentro do celular é o desenho universal de baixar. */
 @media (max-width: 360px) {
   .cabecalho-ei .btn-instalar-topo-texto { display: none; }
-  .cabecalho-ei .btn-instalar-topo { padding: 7px 10px; }
+  .cabecalho-ei .btn-instalar-topo { padding: 5px 8px; }
 }
