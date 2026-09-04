@@ -5074,14 +5074,29 @@
    Só aparece quem bate. O que não bate não ganha um "X" — a tela é sobre
    uma pessoa, e riscar item por item o que ela não tem transforma um
    cadastro em boletim. */
+/* ── O VISTO PENDURADO NA MARGEM — 04/09 ──────────────────────────────
+   Ele entrou como um ícone ANTES do rótulo, dentro da mesma linha. O
+   efeito, visto no navegador: "Onde" ganhava o visto e nascia 21px à
+   direita de "Situação" e "Telefone", que não ganhavam. Numa ficha de oito
+   linhas, as marcadas ficavam todas fora da coluna — a marca de que algo
+   está certo desalinhando justamente as linhas que ela elogia.
+
+   Agora ele fica PENDURADO à esquerda, na margem que o cartão já tem: os
+   rótulos continuam todos na mesma coluna, com ou sem visto.
+
+   E era quase preto: `--ei-sobre-verde-fraco` (#10381f) é a cor de TEXTO
+   sobre o verde claro dos selos, não a cor do verde. */
+.ei .ei-prop-rotulo { position: relative; }
+
 .ei .ei-prop-visto {
-  display: inline-grid;
+  position: absolute;
+  right: 100%;
+  margin-right: 4px;
+  display: grid;
   place-items: center;
   width: 15px;
   height: 15px;
-  margin-right: 6px;
-  vertical-align: -2px;
-  color: var(--ei-sobre-verde-fraco, #1E7B34);
+  color: var(--ei-verde, #1b6b3f);
 }
 .ei .ei-prop-visto svg { width: 13px; height: 13px; }
 

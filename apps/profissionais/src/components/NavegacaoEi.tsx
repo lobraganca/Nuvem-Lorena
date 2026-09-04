@@ -259,7 +259,29 @@ function destinos(tipo: "professional" | "company" | false | null, temConta: boo
   return [
     voltar,
     avisos,
-    talentos,
+    /* ── VAGAS NO LUGAR DE TALENTOS, DESTE LADO — 04/09 ─────────────────
+       A dona pediu uma varredura de botões redundantes, e este é o caso
+       mais caro do app: quem procura emprego não tinha, em lugar nenhum da
+       barra, um caminho para as vagas. A barra dela era Voltar, Avisos,
+       Talentos, Cadastro e Conta — cinco itens, e o produto inteiro fora
+       deles. Aberta uma vaga, para ver outra a pessoa tinha de voltar duas
+       ou três telas.
+
+       "Banco de talentos" continua onde a dona pediu que ficasse: na tela
+       de "Procuro emprego", no par de quadrados embaixo das portas ("os
+       botões de banco de talentos e de vagas devem ficar debaixo de vagas
+       compatíveis"). Ele não some do app — sai da barra, onde era o item
+       que menos serve a quem está procurando trabalho, e cede o lugar ao
+       que ela abre o app para ver.
+
+       Do lado da empresa ele fica na barra: ali procurar gente É o
+       trabalho. */
+    {
+      to: "/vagas",
+      label: "Vagas",
+      icone: IconeVagas,
+      casa: (p) => p.startsWith("/vagas"),
+    },
     /* Mesmo motivo do lado da empresa: a tela se chama "Meu cadastro" na
        porta da tela inicial, e "Painel" aqui abria um formulário. */
     /* Abre a ESCOLHA do cadastro, e não o formulário — igualzinho ao lado
@@ -271,8 +293,9 @@ function destinos(tipo: "professional" | "company" | false | null, temConta: boo
        cadas…". A tela continua se chamando assim; a aba usa a palavra que
        a nomeia. */
       label: "Cadastro", icone: IconePessoa,
-      casa: (p) => p.startsWith("/meus-cadastros") || p.startsWith("/painel") ||
-        p.startsWith("/vagas-para-mim") },
+      /* `/vagas-para-mim` saiu daqui: ela acende a aba "Vagas", que agora
+         existe. Com as duas regras, duas abas acendiam ao mesmo tempo. */
+      casa: (p) => p.startsWith("/meus-cadastros") || p.startsWith("/painel") },
     conta,
   ];
 }
