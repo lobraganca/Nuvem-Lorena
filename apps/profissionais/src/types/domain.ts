@@ -983,6 +983,12 @@ export interface JobListing {
   status: "active" | "paused" | "closed";
   created_at: string;
   closed_at: string | null;
+  /* A resposta do "contratou por aqui?", perguntada ao encerrar a vaga
+     (0119). Nulo quer dizer "não respondeu" — que é diferente de `false`
+     ("contratou, mas veio de outro lugar"). Misturar as duas coisas
+     estragaria a única conta que diz se o app está dando emprego. */
+  contratou_por_aqui?: boolean | null;
+  quantos_contratados?: number | null;
 
   /* ── O que a vaga passou a dizer (migration 0080) ──────────────────
      A dona: "tem que ter todos os campos descritos."

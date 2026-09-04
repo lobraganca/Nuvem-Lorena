@@ -131,6 +131,25 @@ export function AdminNumerosDoEi() {
         <strong>{numeros.candidaturas}</strong>
         <span>candidaturas</span>
       </div>
+      {/* ── O ÚNICO NÚMERO DE RESULTADO DESTA LINHA (0119) ──────────────
+          Os outros medem movimento. Este mede emprego. Vem por último de
+          propósito: é o que fica na memória de quem leu a linha toda, e é
+          o que se diz para uma empresa nova, para a prefeitura ou numa
+          entrevista.
+
+          "—" quando ninguém respondeu ainda, e não "0": zero afirmaria
+          que ninguém foi contratado, quando o que existe é falta de
+          resposta. Ver o comentário da 0119. */}
+      <div className="admin-numero admin-numero-forte">
+        <strong>{numeros.vagasQueContrataram > 0 ? numeros.contratacoes : "—"}</strong>
+        <span>
+          {numeros.vagasQueContrataram > 0
+            ? `contratados aqui (${numeros.vagasQueContrataram} ${
+                numeros.vagasQueContrataram === 1 ? "vaga" : "vagas"
+              })`
+            : "contratados aqui"}
+        </span>
+      </div>
     </div>
   );
 }

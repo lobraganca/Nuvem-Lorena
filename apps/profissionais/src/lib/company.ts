@@ -1059,14 +1059,38 @@ export async function anunciarVaga(vagaId: string): Promise<void> {
  * volta a consultar depois de contratar alguém — e ela nunca esteve
  * perdida, só inalcançável, porque o painel pedia apenas as vagas ativas.
  */
-export async function arquivarVaga(vagaId: string): Promise<void> {
+export async function arquivarVaga(
+  vagaId: string,
+  /* A resposta do "contratou por aqui?" (0119), quando a empresa
+     responder. Opcional de propósito: quem fecha a pergunta encerra a
+     vaga do mesmo jeito, e a coluna fica nula — que quer dizer "não
+     respondeu", diferente de `false` ("não contratou"). Misturar as duas
+     coisas estragaria justamente a conta que a coluna existe para
+     permitir. */
+  resposta?: { contratouPorAqui: boolean; quantos?: number | null }
+): Promise<void> {
   const sb = getSupabase();
   if (!sb) throw new Error("Banco não configurado");
 
-  const { error } = await sb
-    .from("job_listings")
-    .update({ status: "closed", closed_at: new Date().toISOString() })
-    .eq("id", vagaId);
+  const campos: Record<string, unknown> = {
+    status: "closed",
+    closed_at: new Date().toISOString(),
+  };
+  if (resposta) {
+    campos.contratou_por_aqui = resposta.contratouPorAqui;
+    campos.quantos_contratados = resposta.contratouPorAqui ? resposta.quantos ?? null : null;
+  }
+
+  /* Tolera o banco não conhecer as colunas da 0119: sem isso, encerrar
+     vaga pararia de funcionar entre o envio do código e a aplicação da
+     SQL — o defeito da coluna `uf`, o mais caro que este app já teve.
+     Aqui o preço de perder a resposta é pequeno; o de não conseguir
+     encerrar a vaga, não. Ver `colunasNovas.ts`. */
+  const { error } = await gravarTolerando(
+    campos,
+    ["contratou_por_aqui", "quantos_contratados"],
+    (c: Record<string, unknown>) => sb.from("job_listings").update(c).eq("id", vagaId)
+  );
 
   if (error) throw error;
 }

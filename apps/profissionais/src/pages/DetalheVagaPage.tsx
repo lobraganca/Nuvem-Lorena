@@ -139,6 +139,18 @@ export function DetalheVagaPage() {
      em vez de deixar três botões soltos na tela — ver o comentário do
      bloco "Gerenciar a vaga". */
   const [saindoDoAr, setSaindoDoAr] = useState(false);
+  /* ── "CONTRATOU POR AQUI?" (0119) ────────────────────────────────────
+     O app sabia quantas pessoas se interessaram e não sabia se alguém foi
+     contratado — que é a única coisa que prova que ele funciona, e a
+     única que convence uma empresa nova a pagar.
+
+     A pergunta cabe exatamente aqui: quem toca em "Já contratei" está
+     dizendo que contratou. Falta só saber se foi por aqui, e quantas
+     pessoas. Responder é opcional; obrigar faria a empresa responder
+     qualquer coisa para se livrar da tela, e o número viraria lixo com
+     cara de dado. */
+  const [perguntandoContratacao, setPerguntandoContratacao] = useState(false);
+  const [quantosContratados, setQuantosContratados] = useState("1");
   const [erro, setErro] = useState("");
 
   useEffect(() => {
@@ -599,17 +611,97 @@ export function DetalheVagaPage() {
             </span>
           </button>
 
-          <button
-            className="ei-saida"
-            onClick={() => mudarEstado(() => arquivarVaga(vaga.id), "Não foi possível arquivar a vaga.")}
-            disabled={fechando}
-          >
-            <span className="ei-saida-nome">Já contratei — encerrar</span>
-            <span className="ei-saida-nota">
-              Libera uma vaga do seu plano. A lista de quem se interessou
-              fica guardada, em “Encerradas”.
-            </span>
-          </button>
+          {!perguntandoContratacao ? (
+            <button
+              className="ei-saida"
+              onClick={() => {
+                setErro("");
+                setPerguntandoContratacao(true);
+              }}
+              disabled={fechando}
+            >
+              <span className="ei-saida-nome">Já contratei — encerrar</span>
+              <span className="ei-saida-nota">
+                Libera uma vaga do seu plano. A lista de quem se interessou
+                fica guardada, em “Encerradas”.
+              </span>
+            </button>
+          ) : (
+            <div className="ei-saida ei-saida-confirma">
+              <span className="ei-saida-nome">
+                A pessoa que você contratou veio do Ei Emprego?
+              </span>
+              <span className="ei-saida-nota">
+                Serve para sabermos quantos empregos saem daqui de verdade.
+                Ninguém além de nós vê esta resposta, e ela não muda nada no
+                seu plano.
+              </span>
+
+              <label className="ei-quantos-contratados">
+                Quantas pessoas você contratou por esta vaga?
+                <input
+                  type="number"
+                  inputMode="numeric"
+                  min={1}
+                  max={999}
+                  value={quantosContratados}
+                  onChange={(e) => setQuantosContratados(e.target.value)}
+                />
+              </label>
+
+              <div className="ei-saida-botoes">
+                <button
+                  className="ei-btn"
+                  disabled={fechando}
+                  onClick={() =>
+                    mudarEstado(
+                      () =>
+                        arquivarVaga(vaga.id, {
+                          contratouPorAqui: true,
+                          /* Campo vazio ou rabiscado não vira zero: vira
+                             "não disse quantas". Zero aqui significaria
+                             "contratou ninguém", que contradiz o próprio
+                             sim. */
+                          quantos: Number(quantosContratados) > 0 ? Number(quantosContratados) : null,
+                        }),
+                      "Não foi possível encerrar a vaga."
+                    )
+                  }
+                >
+                  Sim, veio daqui — encerrar
+                </button>
+
+                <button
+                  className="ei-btn-inline"
+                  disabled={fechando}
+                  onClick={() =>
+                    mudarEstado(
+                      () => arquivarVaga(vaga.id, { contratouPorAqui: false }),
+                      "Não foi possível encerrar a vaga."
+                    )
+                  }
+                >
+                  Não, veio de outro lugar — encerrar
+                </button>
+
+                {/* A saída sem responder. Sem ela, quem não quer dizer
+                    fica preso numa tela que só queria encerrar a vaga —
+                    e responde qualquer coisa para sair. */}
+                <button
+                  className="ei-btn-inline"
+                  disabled={fechando}
+                  onClick={() =>
+                    mudarEstado(
+                      () => arquivarVaga(vaga.id),
+                      "Não foi possível encerrar a vaga."
+                    )
+                  }
+                >
+                  Prefiro não dizer — só encerrar
+                </button>
+              </div>
+            </div>
+          )}
 
           {/* ── A CONFIRMAÇÃO SAIU DO `window.confirm` — 03/09 ────────────
               Era uma janelinha do navegador. Dentro do app instalado ela
@@ -668,6 +760,9 @@ export function DetalheVagaPage() {
             onClick={() => {
               setConfirmandoExclusao(false);
               setSaindoDoAr(false);
+              /* Fechar o painel também fecha a pergunta: reabrir e achar a
+                 pergunta já aberta faria parecer que a vaga foi encerrada. */
+              setPerguntandoContratacao(false);
             }}
             disabled={fechando}
           >

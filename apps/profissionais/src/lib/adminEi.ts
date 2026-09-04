@@ -37,6 +37,19 @@ export type NumerosDoEi = {
   vagasTotal: number;
   candidaturas: number;
   vagasNovasNaSemana: number;
+  /* ── O NÚMERO QUE PROVA QUE O APP FUNCIONA (0119) ───────────────────
+     Todos os outros números aqui medem movimento: quantas empresas,
+     quantas vagas, quantas pessoas se interessaram. Movimento é fácil de
+     confundir com resultado — lista cheia e ninguém empregado é o
+     fracasso silencioso mais fácil de não enxergar.
+
+     `contratacoes` conta as PESSOAS contratadas por vagas que disseram
+     que a contratação veio daqui; `vagasQueContrataram`, quantas vagas
+     foram essas. Vaga que disse sim sem dizer quantas conta como uma
+     pessoa — o sim já é a informação, e descartá-la por falta do número
+     jogaria fora a contratação inteira. */
+  contratacoes: number;
+  vagasQueContrataram: number;
 };
 
 /** Empresas, vagas e candidaturas, numa passada só. */
@@ -88,6 +101,13 @@ export async function panoramaDoEi(): Promise<{
       vagasTotal: vagas.length,
       candidaturas: [...porVaga.values()].reduce((a, b) => a + b, 0),
       vagasNovasNaSemana: vagas.filter((v) => new Date(v.created_at).getTime() >= seteDias).length,
+      /* `=== true` e não só o valor: nulo é "não respondeu", e nulo em
+         `if` vale falso — mas escrever `=== true` deixa a diferença à
+         vista de quem ler isto depois. */
+      vagasQueContrataram: vagas.filter((v) => v.contratou_por_aqui === true).length,
+      contratacoes: vagas
+        .filter((v) => v.contratou_por_aqui === true)
+        .reduce((soma, v) => soma + (v.quantos_contratados ?? 1), 0),
     },
     empresas: empresas
       .map((e) => ({

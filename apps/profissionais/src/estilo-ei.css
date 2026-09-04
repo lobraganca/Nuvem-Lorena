@@ -5145,6 +5145,44 @@
 .ei .ei-saida-confirma { gap: 10px; cursor: default; }
 .ei .ei-saida-confirma:hover { background: var(--ei-papel); }
 
+/* Os botões da pergunta "contratou por aqui?" (0119). Empilhados e não
+   lado a lado: são três frases, e frase de três palavras espremida em
+   terço de tela quebra no meio. O alvo tem 44px de altura — a medida
+   mínima de toque, que já custou reclamação de botão que "não pega". */
+.ei .ei-saida-botoes {
+  display: grid;
+  gap: 8px;
+  margin-top: 4px;
+}
+.ei .ei-saida-botoes .ei-btn,
+.ei .ei-saida-botoes .ei-btn-inline {
+  width: 100%;
+  min-height: 44px;
+}
+
+/* O "quantas pessoas" fica em cima dos botões, e não depois: quem já
+   digitou o número lê os três caminhos com ele à vista. */
+.ei .ei-quantos-contratados {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  font-size: 14px;
+  color: var(--ei-tinta-fraca);
+  margin-top: 2px;
+}
+.ei .ei-quantos-contratados input {
+  width: 88px;
+  min-height: 44px;
+  padding: 0 10px;
+  text-align: center;
+  font-size: 16px; /* menos que isto e o iPhone dá zoom sozinho no campo */
+  border: 1px solid var(--ei-borda);
+  border-radius: 12px;
+  background: var(--ei-papel);
+  color: var(--ei-tinta);
+}
+
 /* ═══════════════════════════════════════════════════════════════════════
    A LINHA DO PRÓXIMO PASSO — 04/09
    ═══════════════════════════════════════════════════════════════════════
