@@ -5,6 +5,7 @@ import { useAuth } from "../lib/useAuth";
 import { useOnboardingStatus } from "../lib/useOnboardingStatus";
 import { quantasVagasNovas } from "../lib/minhasVagas";
 import { passeiPor, telaAnterior } from "../lib/historicoDoApp";
+import { signOut } from "../lib/auth";
 
 /**
  * A barra de baixo do Ei Emprego.
@@ -61,8 +62,8 @@ type Destino = {
   casa: (p: string) => boolean;
   /** Este item mostra o selo com quantos avisos ainda não foram abertos. */
   contaNovos?: boolean;
-  /** Item de AÇÃO (voltar), sem endereço: vira botão, nunca acende. */
-  acao?: "voltar";
+  /** Item de AÇÃO (voltar ou sair), sem endereço: vira botão, nunca acende. */
+  acao?: "voltar" | "sair";
 };
 
 /* Ícones em traço, no peso do Material. Desenhados aqui e não importados de
@@ -121,6 +122,17 @@ const IconeVoltar = (
   </Svg>
 );
 
+/* A porta com a seta saindo — o desenho que todo app usa para "sair da
+   conta". A seta aponta para FORA da porta de propósito: apontando para
+   dentro, o mesmo ícone quer dizer "entrar". */
+const IconeSair = (
+  <Svg>
+    <path d="M14.5 4.5H18a2 2 0 0 1 2 2v11a2 2 0 0 1-2 2h-3.5" />
+    <path d="M10 8.5L13.5 12 10 15.5" />
+    <path d="M13.5 12H4" />
+  </Svg>
+);
+
 /* Distinto de `IconePessoa` (o cadastro): aqui é a pessoa DENTRO de um
    contorno, para não ler como "meu perfil profissional" de novo — é a
    Conta, outra coisa. */
@@ -136,16 +148,36 @@ const IconeConta = (
    (ver `destinos`), e um desenho sem uso é código que o próximo leitor
    tenta entender à toa. */
 
-function destinos(tipo: "professional" | "company" | false | null, temConta: boolean): Destino[] {
-  /* Voltar abre a barra em todos os casos: é a única que serve mesmo a
-     quem ainda não entrou, e o lugar dela não muda com o papel. */
-  const voltar: Destino = {
-    to: "",
-    acao: "voltar",
-    label: "Voltar",
-    icone: IconeVoltar,
-    casa: () => false,
-  };
+function destinos(
+  tipo: "professional" | "company" | false | null,
+  temConta: boolean,
+  /* Onde a pessoa está agora. Só serve para uma coisa: saber se ela está
+     na casa do lado dela — ver `voltar`, logo abaixo. */
+  ondeEstou: string
+): Destino[] {
+  /* ── NA CASA DO LADO, "VOLTAR" VIRA "SAIR" — 04/09 ──────────────────
+     A dona: "nessa tela não há tela pra voltar. O botão de voltar deve
+     ser trocado por sair e ser direcionado à tela inicial de login."
+
+     `/comecar-empresa` e `/comecar-profissional` são o COMEÇO de cada
+     lado: é para lá que o login manda, e é lá que a pessoa cai quando
+     tenta abrir uma tela do outro lado. Não existe tela anterior, e o
+     "Voltar" ali ou não fazia nada visível ou repetia a mesma tela.
+
+     E "Sair" não é um remendo para preencher o lugar: sair e entrar é a
+     ÚNICA forma de trocar de lado neste app (ver `ladoDaSessao.ts`).
+     Quem está na casa da empresa e quer o lado de quem procura trabalho
+     precisa exatamente deste botão — e ele não existia em lugar nenhum
+     da barra, só lá dentro da Conta.
+
+     Voltar continua em todas as outras telas: é a única que serve mesmo
+     a quem ainda não entrou, e o lugar dela não muda com o papel. */
+  const naCasaDoLado =
+    ondeEstou === "/comecar-empresa" || ondeEstou === "/comecar-profissional";
+
+  const voltar: Destino = naCasaDoLado
+    ? { to: "", acao: "sair", label: "Sair", icone: IconeSair, casa: () => false }
+    : { to: "", acao: "voltar", label: "Voltar", icone: IconeVoltar, casa: () => false };
 
   const talentos: Destino = {
     to: "/profissionais",
@@ -342,7 +374,7 @@ export function NavegacaoEi() {
     passeiPor(`${pathname}${busca}`);
   }, [pathname, busca]);
 
-  const itens = destinos(tipo, !!user);
+  const itens = destinos(tipo, !!user, pathname);
 
   /* Uma barra de navegação com UM botão só, que aponta para a tela onde a
      pessoa já está, não é navegação — é um enfeite que parece quebrado.
@@ -387,7 +419,25 @@ export function NavegacaoEi() {
            nos dois, então ele é montado uma vez e embrulhado depois — sem
            isso, seriam dois blocos de JSX iguais que um dia divergem. */
         const Caixa = ({ children }: { children: ReactNode }) =>
-          d.acao === "voltar" ? (
+          d.acao === "sair" ? (
+            /* Sair de verdade: `signOut` encerra a sessão do Supabase E
+               apaga o lado escolhido (ver `lib/auth.ts`), que é o que faz
+               a tela de login voltar a perguntar de que lado a pessoa
+               entra. Só depois disso o destino é a tela de login.
+
+               `replace` para o botão de voltar do aparelho não trazer de
+               volta a tela de dentro do app, que já não tem sessão. */
+            <button
+              type="button"
+              className="nav-ei-item"
+              onClick={() => {
+                void signOut().finally(() => navegar("/login", { replace: true }));
+              }}
+              aria-label="Sair da conta e voltar para a tela de entrar"
+            >
+              {children}
+            </button>
+          ) : d.acao === "voltar" ? (
             /* ── VOLTA PARA A TELA INICIAL, E NÃO UM PASSO ATRÁS — 04/09
                 A dona: "o botão de voltar tem que voltar a tela inicial do
                 app. Quando volta, alguns botões da tela anterior não estão
