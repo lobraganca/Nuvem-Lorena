@@ -69,6 +69,39 @@ jobs:
             exit 1
           fi
 
+          # ── O SEGREDO APONTA PARA O PROJETO CERTO? — 04/09 ────────────
+          # O Ei mudou de projeto no Supabase (`dfdinrimxqoqjedemjbw` era o
+          # antigo, hoje é do procurô; o do Ei é `ahigenhenzmsjxlmrzhz`).
+          # Se este segredo tiver ficado no valor velho, a publicação
+          # RESPONDE SUCESSO e coloca as funções no banco errado — e o app
+          # continua recebendo 404, sem nada explicando.
+          #
+          # Foi o que aconteceu: a rede que reenvia aviso de vaga passou
+          # dias devolvendo `NOT_FOUND` porque a função não estava no
+          # projeto que o app chama.
+          #
+          # O identificador do projeto NÃO é senha: ele aparece no endereço
+          # do painel e já está escrito em outros arquivos deste
+          # repositório. Mesmo assim, a conferência é feita sem imprimir o
+          # valor — o GitHub esconde segredo no log, e um valor escondido
+          # no meio de uma mensagem só confunde quem lê.
+          ESPERADO="ahigenhenzmsjxlmrzhz"
+          if [ "$REF" != "$ESPERADO" ]; then
+            echo "O segredo SUPABASE_PROJECT_REF NÃO é o projeto do Ei Emprego."
+            echo ""
+            echo "Ele precisa ser exatamente:  $ESPERADO"
+            echo ""
+            echo "Onde arrumar:"
+            echo "  Settings > Secrets and variables > Actions"
+            echo "  > SUPABASE_PROJECT_REF > Update"
+            echo ""
+            echo "Como conferir qual é o certo: abra o painel do Supabase do"
+            echo "Ei Emprego e olhe o endereço. O identificador é o pedaço"
+            echo "depois de /project/."
+            exit 1
+          fi
+          echo "O segredo aponta para o projeto do Ei Emprego. Seguindo."
+
       # A CLI vem do npm, e não da ação oficial `supabase/setup-cli`.
       # Aquela consulta a lista de versões pela API do GitHub, e um dia a
       # publicação falhou com "rate limit exceeded" antes mesmo de começar —

@@ -15,3 +15,4 @@ Settings > Secrets and variables > Actions:
   SUPABASE_PROJECT_REF
 
 Último disparo: 2026-08-23 (webhook: pagamento avulso volta a ser classificado por produto)
+Último disparo: 2026-09-04 (as funções não estavam no projeto novo do Ei — o aviso de vaga devolvia 404)
