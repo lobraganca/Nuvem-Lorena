@@ -47,15 +47,19 @@
 -- `ExigirConta.tsx`), e nenhuma delas lê profissionais. Todo o resto do
 -- app já roda autenticado, então nada muda na tela.
 --
--- ⚠ ATENÇÃO — LEIA ANTES DE APLICAR
+-- ── E O PROCURÔ? CONFERIDO, NÃO AFETA — 04/09 ─────────────────────────
 --
--- Os dois apps (Ei Emprego e procurô) leem a MESMA tabela de
--- profissionais. Se o procuroapp.com.br deixar alguém ver a lista de
--- profissionais SEM FAZER LOGIN, esta migration vai deixar aquela lista
--- vazia. Se ele exige conta como o Ei, não muda nada lá também.
+-- A dona perguntou, e a resposta é boa: os dois apps estão em bancos
+-- DIFERENTES desde a separação.
 --
--- Se não tiver certeza: aplique, abra o procurô numa aba anônima e veja.
--- Para desfazer, é uma linha (está no fim deste arquivo).
+--   Ei Emprego   branch ei-itabirito       banco ahigenhenzmsjxlmrzhz
+--   procurô      branch procuro-producao   banco dfdinrimxqoqjedemjbw
+--
+-- Conferido no próprio repositório: o CLAUDE.md da branch do procurô diz
+-- que o projeto dela é o `dfdinrimxqoqjedemjbw`, e existe lá uma migration
+-- chamada `0065_apagar_o_ei_itabirito.sql` — foi ela que separou os dois.
+--
+-- Então esta SQL não alcança o procurô. Ele continua exatamente como está.
 --
 -- ══════════════════════════════════════════════════════════════════════
 
@@ -110,7 +114,7 @@ select case
 end as resultado;
 
 -- ══════════════════════════════════════════════════════════════════════
--- PARA DESFAZER, se o procurô depender de leitura sem conta:
+-- PARA DESFAZER (não deve ser preciso — ver a conferência acima):
 --
 --   grant select on public.professionals_public to anon;
 --   grant select on public.profiles_public to anon;
