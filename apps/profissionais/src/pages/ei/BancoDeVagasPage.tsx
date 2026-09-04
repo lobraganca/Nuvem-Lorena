@@ -537,12 +537,18 @@ function Baralho({ vagas, verLista }: { vagas: VagaNoBanco[]; verLista: () => vo
   /* A fila é congelada na primeira montagem: se ela seguisse a lista viva,
      responder a uma vaga a tiraria do baralho e o cartão de baixo pularia
      para a mão da pessoa antes de ela ver o que respondeu. */
-  const [fila] = useState(() => vagas.filter((v) => v.interessado === undefined));
+  const [fila, setFila] = useState(() => vagas.filter((v) => v.interessado === undefined));
   const [i, setI] = useState(0);
   const [arrasto, setArrasto] = useState(0);
   const [saindo, setSaindo] = useState<null | "sim" | "nao">(null);
   const [erro, setErro] = useState("");
   const [cadastro, setCadastro] = useState<"sem" | "falta" | "ok" | null>(null);
+  /* O que foi respondido NESTA passada. A lista que chega por `vagas` é a
+     do carregamento da tela e não volta a ser lida — sem isto, quem
+     responde e toca em "passar de novo" revê os próprios cartões sem
+     nenhum sinal do que acabou de marcar, que é o mesmo às cegas que o
+     selo existe para evitar. */
+  const [respondidasAgora, setRespondidasAgora] = useState<Record<string, boolean>>({});
   const inicio = useRef<number | null>(null);
 
   useEffect(() => {
@@ -566,6 +572,29 @@ function Baralho({ vagas, verLista }: { vagas: VagaNoBanco[]; verLista: () => vo
 
   const atual = fila[i];
 
+  /* ── "VER DE NOVO" TEM DE PASSAR DE NOVO — 04/09 ─────────────────────
+     A dona: "quando clica em uma por uma e a pessoa já viu, ao clicar em
+     ver de novo não passa de novo."
+
+     O botão existia e mentia: ele chamava `verLista`, que troca o modo
+     para a LISTA. Quem tocava em "ver todas de novo" esperando o baralho
+     recomeçar caía numa tela de outro formato — e concluía, com razão,
+     que o botão não fez o que diz.
+
+     Agora ele recomeça o baralho com TODAS as vagas, inclusive as já
+     respondidas: responder não apaga a vaga, e mudar de ideia é a coisa
+     mais normal do mundo (`responderVaga` já sabe atualizar a resposta
+     que existe, desde os dois toques em "Tenho interesse" que quebraram
+     isto uma vez).
+
+     A lista continua a um toque, no botão ao lado — só deixou de ser a
+     única coisa que esse caminho fazia. */
+  function passarDeNovo() {
+    setErro("");
+    setFila(vagas);
+    setI(0);
+  }
+
   async function responder(quero: boolean) {
     if (!atual) return;
 
@@ -582,6 +611,7 @@ function Baralho({ vagas, verLista }: { vagas: VagaNoBanco[]; verLista: () => vo
     setErro("");
     try {
       await responderVaga(atual.vaga.id, user.id, quero);
+      setRespondidasAgora((r) => ({ ...r, [atual.vaga.id]: quero }));
     } catch (err) {
       setErro(mensagemDeErro(err, "Não consegui guardar sua resposta."));
       setSaindo(null);
@@ -624,14 +654,14 @@ function Baralho({ vagas, verLista }: { vagas: VagaNoBanco[]; verLista: () => vo
             As que você já respondeu continuam abertas — dá para rever e
             mudar de ideia.
           </p>
-          <button
-            type="button"
-            className="ei-btn ei-btn-contorno"
-            style={{ marginTop: 14 }}
-            onClick={verLista}
-          >
-            Ver todas de novo
-          </button>
+          <div style={{ display: "grid", gap: 8, marginTop: 14 }}>
+            <button type="button" className="ei-btn ei-btn-cheio" onClick={passarDeNovo}>
+              Passar de novo, uma por uma
+            </button>
+            <button type="button" className="ei-btn ei-btn-contorno" onClick={verLista}>
+              Ver em lista
+            </button>
+          </div>
         </div>
       </div>
     );
@@ -647,15 +677,28 @@ function Baralho({ vagas, verLista }: { vagas: VagaNoBanco[]; verLista: () => vo
             {fila.length === 1 ? "vaga aberta" : "vagas abertas"}. Quem você marcou
             aparece para a empresa com o seu telefone.
           </p>
-          <Link className="ei-btn-inline" to="/vagas">
-            Ver em lista
-          </Link>
+          {/* O mesmo par de saídas do outro fim de baralho: passar de novo
+              (é o que a dona esperava do "ver de novo") ou trocar para a
+              lista. Aqui havia só o caminho da lista, escrito como link
+              laranja — a pessoa terminava a pilha e a única coisa que
+              podia fazer era mudar de formato. */}
+          <div style={{ display: "grid", gap: 8, marginTop: 14 }}>
+            <button type="button" className="ei-btn ei-btn-cheio" onClick={passarDeNovo}>
+              Passar de novo, uma por uma
+            </button>
+            <button type="button" className="ei-btn ei-btn-contorno" onClick={verLista}>
+              Ver em lista
+            </button>
+          </div>
         </div>
       </div>
     );
   }
 
   const v = atual;
+  /* O que vale é a resposta desta passada, se houver; senão, a que veio do
+     banco no carregamento. */
+  const jaRespondeu = respondidasAgora[v.vaga.id] ?? v.interessado;
   /* A PRÓXIMA aparece pela beirada — 04/09
      ──────────────────────────────────────
      A dona: "precisa ficar com mais cara de card, para o usuário ver que
@@ -718,6 +761,24 @@ function Baralho({ vagas, verLista }: { vagas: VagaNoBanco[]; verLista: () => vo
             </div>
           </div>
         </div>
+
+        {/* O que ela já tinha respondido, quando está passando de novo.
+            Sem isto, quem toca em "passar de novo" revê as vagas às cegas:
+            as já respondidas ficam idênticas às novas, e a pessoa responde
+            de novo sem saber que está mudando uma resposta que a empresa
+            já recebeu.
+
+            Em linha própria, e não ao lado do nome da empresa lá em cima:
+            medido, sobravam 82px para o nome naquela linha e "Padaria Pão
+            de Minas" virava "Pa…". Aqui o selo tem a largura do cartão
+            inteiro e não espreme nada. */}
+        {jaRespondeu !== undefined && (
+          <div className="ei-chips" style={{ marginBottom: 8 }}>
+            <span className={jaRespondeu ? "ei-selo ei-selo-verde" : "ei-selo ei-selo-cinza"}>
+              {jaRespondeu ? "Você marcou: tenho interesse" : "Você marcou: não é para mim"}
+            </span>
+          </div>
+        )}
 
         <h3 className="ei-baralho-titulo">{v.vaga.title}</h3>
 

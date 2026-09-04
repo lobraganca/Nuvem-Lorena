@@ -6153,3 +6153,8 @@
   font: inherit;
 }
 .ei .ei-cartao-titulo-link:active { opacity: 0.6; }
+
+/* A coluna do texto do baralho pode encolher — `min-width: 0`, senão um
+   filho de flex se recusa a ficar menor que o próprio conteúdo e quem
+   cede é o vizinho. */
+.ei .ei-baralho-topo .ei-pessoa-texto { flex: 1 1 auto; min-width: 0; }
