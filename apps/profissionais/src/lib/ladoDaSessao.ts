@@ -44,30 +44,6 @@ import type { Lado } from "./ladoEscolhido";
 
 const CHAVE = "ei-lado-da-sessao";
 
-/* ── A MARCA DE QUEM SAIU DE PROPÓSITO — 04/09 ────────────────────────
-   A dona: "quando sai e entra de novo entra na parte de empresa direto."
-
-   Era uma corrida de tempo. `signOut` apaga o lado e SÓ DEPOIS espera o
-   Supabase encerrar a sessão; nesse intervalo o app ainda tem usuário, o
-   `useOnboardingStatus` roda o plano B, lê o lado no banco e — desde que
-   ele passou a ADOTAR o que lê — grava de volta o lado que o "sair"
-   acabou de apagar. A tela de login então já encontrava um lado
-   guardado, pulava as duas portas, e a pessoa voltava para o mesmo lado
-   de onde tinha saído justamente para trocar.
-
-   Esta marca diz "o apagamento foi de propósito". Enquanto ela estiver
-   aqui, o plano B não adota nada — só uma escolha explícita
-   (`guardarLadoDaSessao`, chamada pelas duas portas) a tira. */
-const CHAVE_SAIU = "ei-saiu-de-proposito";
-
-export function saiuDeProposito(): boolean {
-  try {
-    return localStorage.getItem(CHAVE_SAIU) === "1";
-  } catch {
-    return false;
-  }
-}
-
 export function lerLadoDaSessao(): Lado | null {
   try {
     const v = localStorage.getItem(CHAVE);
@@ -82,8 +58,6 @@ export function lerLadoDaSessao(): Lado | null {
 export function guardarLadoDaSessao(lado: Lado): void {
   try {
     localStorage.setItem(CHAVE, lado);
-    /* Escolha explícita: a marca do "sair" cumpriu o papel e some. */
-    localStorage.removeItem(CHAVE_SAIU);
   } catch {
     /* segue sem guardar: a pessoa escolhe de novo na próxima abertura */
   }
@@ -92,7 +66,6 @@ export function guardarLadoDaSessao(lado: Lado): void {
 export function esquecerLadoDaSessao(): void {
   try {
     localStorage.removeItem(CHAVE);
-    localStorage.setItem(CHAVE_SAIU, "1");
   } catch {
     /* nada a fazer, e nada que justifique atrapalhar quem está saindo */
   }

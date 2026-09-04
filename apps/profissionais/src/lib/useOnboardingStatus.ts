@@ -1,7 +1,6 @@
 import { useEffect, useState } from "react";
 import { useAuth } from "./useAuth";
-import { obterTipoDeUsuario } from "./company";
-import { lerLadoDaSessao, guardarLadoDaSessao, saiuDeProposito } from "./ladoDaSessao";
+import { lerLadoDaSessao } from "./ladoDaSessao";
 
 /**
  * De que lado o app está agora — é isto que a barra de baixo, a tela
@@ -59,38 +58,30 @@ export function useOnboardingStatus(): "professional" | "company" | false | null
       return;
     }
 
-    /* Quem acabou de tocar em "Sair" não tem lado porque NÃO QUER ter:
-       adotar o do banco aqui desfaria o logout no meio dele, e a pessoa
-       voltaria para o mesmo lado de onde saiu para trocar. */
-    if (saiuDeProposito()) {
-      setTipo(false);
-      return;
-    }
+    /* ── SEM LADO NA SESSÃO, A RESPOSTA É PERGUNTAR — 04/09 ────────────
+       A dona: "continua cortando caminho."
 
-    /* Plano B: quem já estava logado antes da mudança. Ver o comentário
-       do topo — isto não é o caminho normal, é a ponte para quem ficou no
-       meio dela. */
-    obterTipoDeUsuario(user.id).then((resultado) => {
-      /* ── O PLANO B PRECISAVA ADOTAR O LADO, NÃO SÓ LÊ-LO — 04/09 ─────
-         A dona: "o app ainda não tem a separação das funções."
+       Aqui havia um plano B: quando não há lado na sessão, consultar o
+       banco e ADOTAR o último lado que a pessoa registrou. A intenção era
+       boa — poupar a pergunta de quem já usava o app. O efeito era o
+       oposto do que ela pediu: o app decidia sozinho por onde a pessoa
+       entrava, e quem abria o app pela segunda vez ia direto para o lado
+       de empresa sem nunca ter sido perguntado.
 
-         Estava certa, e o defeito era este. Quem já estava logado quando a
-         separação subiu não tem lado NA SESSÃO — e ninguém tem, porque
-         ninguém deslogou. O plano B descobria o lado no banco e o
-         devolvia, mas não o GRAVAVA: a cada tela aberta a consulta era
-         refeita, e enquanto ela não voltava o app inteiro ficava em
-         `null`, sem barra e sem tranca.
+       E não bastava consertar caso a caso (o logout foi um; abrir o app
+       de novo era outro; favorito e aviso empurrado, mais dois). O
+       problema é o palpite em si: o que está no banco é HISTÓRICO — o
+       lado da última vez —, não uma escolha para esta vez. A dona pediu a
+       escolha na porta, e um palpite silencioso é justamente o que tira
+       a escolha.
 
-         Gravar resolve de uma vez: a partir da primeira resposta a pessoa
-         passa a ter lado de sessão como quem entrou pela porta nova, e o
-         app se separa sem ela precisar sair e entrar de novo. */
-      if (resultado === "professional" || resultado === "company") {
-        guardarLadoDaSessao(resultado);
-        setTipo(resultado);
-        return;
-      }
-      setTipo(false);
-    });
+       Sem lado, `false`. Quem trata o `false` já existe e leva à
+       pergunta: `SoDesteLado` e a tela inicial mandam para
+       `/onboarding-tipo`, que é um toque e segue direto.
+
+       O banco continua sendo escrito no login — é dele que saem os
+       números do painel de administração. Só não decide mais nada aqui. */
+    setTipo(false);
   }, [user, carregandoAuth]);
 
   return tipo;
