@@ -126,63 +126,56 @@ export function MeuDesempenhoPage() {
               )}
             </div>
 
-            <h2 className="ei-secao">Os últimos 7 dias</h2>
-            <div className="ei-cartao">
-              <div className="ei-resumo" style={{ padding: 0, border: 0, background: "none" }}>
-                {/* ── OS DOIS NÚMEROS EXPLICADOS — 04/09 ─────────────
-                    A dona: "essa tela está muito confusa."
+            {/* ── OS NÚMEROS EM QUADRADOS, E NÃO EM DUAS SEÇÕES — 04/09
+                A dona: "a tela de desempenho está horrível, reformule pra
+                ficar atraente e clean. Falta respiros."
 
-                    Estes dois lado a lado eram o pior pedaço: "te viram 0"
-                    e "apareceu 10" parecem se contradizer, e sem dizer o
-                    que cada um conta a leitura possível é "o app está
-                    errado". São coisas diferentes e a diferença é a mais
-                    importante da tela — uma é sair na lista, a outra é
-                    alguém parar e abrir. */}
-                <div className="ei-resumo-item">
-                  <span className="ei-resumo-rotulo">Empresas que te viram</span>
-                  <span className="ei-resumo-numero">{dados.empresasNaSemana}</span>
-                  <span className="ei-resumo-nota">abriram seu cadastro</span>
-                </div>
-                <div className="ei-resumo-item">
-                  <span className="ei-resumo-rotulo">Buscas em que apareceu</span>
-                  <span className="ei-resumo-numero">{dados.buscasNaSemana}</span>
-                  <span className="ei-resumo-nota">saiu na lista, sem abrirem</span>
-                </div>
+                Eram DUAS seções e cinco medidas: uma faixa com dois
+                números colados e, logo abaixo, três linhas de lista com o
+                número na ponta direita. Cinco formas de dizer a mesma
+                coisa — "quanto" — em dois formatos diferentes, uma embaixo
+                da outra. É isso que fazia a tela parecer cheia sem dizer
+                muito.
+
+                Agora é um bloco só, quatro quadrados, todos com a mesma
+                forma: número grande, o que ele é, e uma linha miúda
+                explicando o que conta. Quem lê varre os quatro de uma vez
+                em vez de trocar de gramática no meio.
+
+                E sumiu uma medida: "Empresas que já abriram seu cadastro
+                (desde sempre)" era a MESMA coisa que "empresas que te
+                viram (7 dias)" com outro prazo — duas linhas quase iguais,
+                com números diferentes, é o convite mais fácil para achar
+                que o app se contradiz. O total virou a linha miúda do
+                próprio quadrado. */}
+            <h2 className="ei-secao">Seus números</h2>
+            <div className="ei-numeros">
+              <div className="ei-numero-caixa">
+                <span className="ei-numero-valor">{dados.buscasNaSemana}</span>
+                <span className="ei-numero-nome">Buscas em que apareceu</span>
+                <span className="ei-numero-nota">nos últimos 7 dias</span>
               </div>
-            </div>
 
-            <h2 className="ei-secao">As vagas de agora</h2>
-            <div className="ei-lista">
-              <Link to="/vagas" className="ei-linha-item">
-                <span className="ei-linha-nome">
-                  Vagas em que você é das que mais combinam
-                  <span className="ei-linha-sub">
-                    De {dados.vagasNoAr} {dados.vagasNoAr === 1 ? "vaga aberta" : "vagas abertas"} na
-                    cidade
-                  </span>
+              <Link to="/meu-perfil" className="ei-numero-caixa">
+                <span className="ei-numero-valor">{dados.empresasNaSemana}</span>
+                <span className="ei-numero-nome">Empresas que te viram</span>
+                <span className="ei-numero-nota">
+                  abriram seu cadastro · {dados.empresasTotal} desde o começo
                 </span>
-                <span className="ei-linha-valor">{dados.vagasMuitoCompativeis}</span>
               </Link>
 
-              <Link to="/vagas" className="ei-linha-item">
-                <span className="ei-linha-nome">
-                  Vagas em que você disse ter interesse
-                  <span className="ei-linha-sub">
-                    A empresa recebe seu nome e seu telefone
-                  </span>
+              <Link to="/vagas" className="ei-numero-caixa">
+                <span className="ei-numero-valor">{dados.vagasMuitoCompativeis}</span>
+                <span className="ei-numero-nome">Vagas que combinam com você</span>
+                <span className="ei-numero-nota">
+                  de {dados.vagasNoAr} {dados.vagasNoAr === 1 ? "aberta" : "abertas"} na cidade
                 </span>
-                <span className="ei-linha-valor">{dados.interessesEnviados}</span>
               </Link>
 
-              {/* "Quem viu seu cadastro" é uma seção DENTRO do cadastro
-                  (ver MeuPerfilPage), e não uma tela própria — por isso o
-                  link vai para lá. */}
-              <Link to="/meu-perfil" className="ei-linha-item">
-                <span className="ei-linha-nome">
-                  Empresas que já abriram seu cadastro
-                  <span className="ei-linha-sub">Desde que você se cadastrou</span>
-                </span>
-                <span className="ei-linha-valor">{dados.empresasTotal}</span>
+              <Link to="/vagas-para-mim" className="ei-numero-caixa">
+                <span className="ei-numero-valor">{dados.interessesEnviados}</span>
+                <span className="ei-numero-nome">Vagas que você respondeu</span>
+                <span className="ei-numero-nota">a empresa recebeu seu telefone</span>
               </Link>
             </div>
 
@@ -243,7 +236,11 @@ export function MeuDesempenhoPage() {
                   como primeira resposta para "ninguém me viu" é o jeito
                   mais rápido de perder a confiança da cidade. Dentro do
                   app da loja ele não aparece (`podeVender`). */}
-              {podeVender() && (
+              {/* Não repete a oferta: quando o recado do topo já a fez
+                  (`ofereceDestaque`), a mesma linha aqui embaixo é a
+                  segunda cobrança na mesma tela — e duas ofertas iguais
+                  em telas curtas leem como insistência, não como opção. */}
+              {podeVender() && !recado.ofereceDestaque && (
                 <Link to="/destaque" className="ei-linha-item">
                   <span className="ei-linha-nome">
                     Aparecer primeiro na lista

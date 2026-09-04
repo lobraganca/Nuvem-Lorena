@@ -6225,3 +6225,67 @@
   line-height: 1.45;
   color: var(--ei-tinta-fraca);
 }
+
+/* ── OS QUADRADOS DE NÚMERO DO "MEU DESEMPENHO" — 04/09 ───────────────
+   A dona: "a tela de desempenho está horrível, reformule pra ficar
+   atraente e clean. Falta respiros."
+
+   Dois por linha, com folga entre eles: o respiro que faltava não era
+   margem no topo da tela, era ar ENTRE as coisas — cinco medidas em dois
+   formatos diferentes, encostadas, sem nada separando um assunto do
+   outro.
+
+   Na régua do app: caixa começa a 12px (ver "A RÉGUA DO APP"). */
+.ei .ei-numeros {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  padding: 0 12px;
+}
+
+.ei .ei-numero-caixa {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 16px 16px 18px;
+  border-radius: 18px;
+  background: var(--ei-papel);
+  border: 1px solid var(--ei-fio);
+  text-decoration: none;
+  color: inherit;
+  min-height: 118px;
+}
+.ei a.ei-numero-caixa:active { opacity: 0.7; }
+
+.ei .ei-numero-valor {
+  font-size: 2rem;
+  line-height: 1.05;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  /* Algarismo de largura fixa: sem isto o "1" some ao lado do "8" quando
+     os números são lidos em coluna. */
+  font-variant-numeric: tabular-nums;
+  color: var(--ei-tinta);
+}
+
+.ei .ei-numero-nome {
+  margin-top: 6px;
+  font-size: 0.86rem;
+  font-weight: 600;
+  line-height: 1.3;
+  color: var(--ei-tinta);
+}
+
+.ei .ei-numero-nota {
+  font-size: 0.74rem;
+  line-height: 1.35;
+  color: var(--ei-tinta-fraca);
+}
+
+/* Num celular estreito dois quadrados com quatro palavras cada ficam
+   altos demais e o texto quebra em cinco linhas. Aí eles viram um por
+   linha, que é mais alto no total e MENOS apertado em cada um. */
+@media (max-width: 340px) {
+  .ei .ei-numeros { grid-template-columns: 1fr; }
+  .ei .ei-numero-caixa { min-height: 0; }
+}
