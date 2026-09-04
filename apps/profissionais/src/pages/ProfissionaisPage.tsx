@@ -256,10 +256,19 @@ export function ProfissionaisPage() {
     for (const p of lista) {
       for (const f of p.areas_de_interesse ?? []) conta.set(f, (conta.get(f) ?? 0) + 1);
     }
+    /* ── A CONTAGEM VAI JUNTO — 04/09 ──────────────────────────────
+       Os ofícios já vinham na ordem de quem tem mais gente; o número, que
+       é a informação, ficava só aqui dentro. Quem contrata numa cidade
+       pequena decide com ele: "Diarista 12" e "Soldador 1" são duas
+       situações diferentes, e a segunda muda o que a empresa vai fazer
+       depois — ligar hoje, ou publicar vaga e esperar a onda.
+
+       Sem o número, descobrir isso custava um toque por ofício, e o
+       resultado de cada toque era uma lista que precisava ser contada a
+       olho. */
     return [...conta.entries()]
       .sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0], "pt-BR"))
-      .slice(0, 12)
-      .map(([f]) => f);
+      .slice(0, 12);
   }, [lista]);
 
   /* Os bairros saem do que existe de verdade na lista, e não de uma
@@ -416,7 +425,7 @@ export function ProfissionaisPage() {
             >
               Todos
             </button>
-            {oficios.map((f) => (
+            {oficios.map(([f, quantos]) => (
               <button
                 key={f}
                 type="button"
@@ -425,6 +434,12 @@ export function ProfissionaisPage() {
                 onClick={() => setOficio(oficio === f ? null : f)}
               >
                 {f}
+                {/* `ei-chip-quantos`, e NÃO `ei-chip-conta`: aquele é o selo
+                    azul do botão "Filtros", que quer dizer "há filtro
+                    ligado" — um alerta. Aqui o número é só contexto do
+                    nome, e em azul ele leria como aviso em treze chips ao
+                    mesmo tempo. */}
+                <span className="ei-chip-quantos">{quantos}</span>
               </button>
             ))}
           </div>

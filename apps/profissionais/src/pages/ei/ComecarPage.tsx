@@ -66,7 +66,30 @@ export function ComecarPage({ lado }: { lado: "professional" | "company" }) {
                delas: quem tem duas lojas escolhe qual abrir, e quem tem
                uma vê ali o "+" para cadastrar a segunda. */
             <>
-              <Link to="/minhas-empresas" className="ei-porta ei-porta-cheia">
+              {/* ── PUBLICAR VAGA VIRA A PRIMEIRA PORTA — 04/09 ─────────
+                  Achado usando o app como quem precisa contratar hoje: a
+                  tela de "Quero contratar" oferecia ver as empresas, ver o
+                  plano, o banco de talentos e o banco de vagas — e NÃO
+                  oferecia publicar uma vaga. Para publicar era preciso
+                  entrar em "Minhas empresas", escolher a empresa, abrir o
+                  painel dela e só então achar o botão: três toques até a
+                  ação que é o motivo de o app existir para esse lado.
+
+                  Ela vira a porta cheia, que é a de mais peso, e "Minhas
+                  empresas" desce para porta comum — ver o que já existe é
+                  consulta; publicar é o trabalho.
+
+                  A tela de criar já resolve sozinha qual empresa é e o que
+                  fazer quando o plano está cheio, então não há decisão
+                  nenhuma a tomar antes de tocar aqui. */}
+              <Link to="/criar-vaga" className="ei-porta ei-porta-cheia">
+                <IconePorta desenho="mala" />
+                <span className="ei-porta-nome">Publicar uma vaga</span>
+                <span className="ei-porta-nota ei-uma-linha">
+                  O app avisa quem faz esse serviço na cidade
+                </span>
+              </Link>
+              <Link to="/minhas-empresas" className="ei-porta">
                 <IconePorta desenho="predio" />
                 {/* "e vagas" a pedido da dona: a porta leva à escolha da
                     empresa, mas o que se vai fazer lá dentro é mexer nas

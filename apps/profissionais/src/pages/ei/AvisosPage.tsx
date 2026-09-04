@@ -278,8 +278,25 @@ export function AvisosPage() {
             <p className="ei-apoio ei-margem" style={{ marginTop: 10, marginBottom: 4 }}>
               Estas vagas foram publicadas agora e combinam com o seu cadastro.
             </p>
+          {/* ── O QUE VOCÊ JÁ RECUSOU DESCE — 04/09 ──────────────────
+              A dona apontou isto do lado da empresa ("as pessoas que você
+              não acha interessante ainda continuam na tela"), e o mesmo
+              defeito estava aqui, do lado de quem procura: a vaga marcada
+              como "não quis" continuava no meio das outras, na mesma
+              ordem, para sempre. Quem recusa três vagas relê as três toda
+              vez que abre os avisos.
+
+              Ela não some — sumir faria a pessoa achar que o app perdeu a
+              vaga, e existe quem mude de ideia. Ela vai para o fim, com o
+              selo que já tinha, e o que ainda espera resposta fica em
+              cima, que é onde o polegar chega primeiro. */}
           <div className="ei-lista">
-            {avisos.map((a) => {
+            {[...avisos]
+              .sort(
+                (x, y) =>
+                  Number(x.interessado === false) - Number(y.interessado === false)
+              )
+              .map((a) => {
               const salario = salarioEmTexto(a.vaga);
               const contrato = nomeDoContrato(a.vaga.tipo_contrato);
               return (

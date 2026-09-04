@@ -5746,3 +5746,18 @@
   -webkit-box-orient: vertical;
   overflow: hidden;
 }
+
+/* Quantas pessoas há em cada ofício, no próprio chip do filtro. Cinza e
+   menor que o nome: é contexto, não alerta — o selo azul (`ei-chip-conta`)
+   é do botão "Filtros" e quer dizer "há filtro ligado". */
+.ei .ei-chip-quantos {
+  margin-left: 6px;
+  font-size: 0.8em;
+  font-weight: 500;
+  color: var(--ei-tinta-fraca);
+  font-variant-numeric: tabular-nums;
+}
+.ei .ei-chip[aria-pressed="true"] .ei-chip-quantos {
+  color: inherit;
+  opacity: 0.75;
+}
