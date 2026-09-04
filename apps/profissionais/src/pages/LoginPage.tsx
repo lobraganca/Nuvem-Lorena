@@ -157,17 +157,40 @@ export function LoginPage() {
      contratar ou procuro emprego. Serão dois logins diferentes e as
      funcionalidades serão separadas."
 
-     Enquanto isto for `null`, a tela mostra SÓ as duas portas — sem campo
-     de telefone, sem senha. Não é enfeite de fluxo: é o que faz a escolha
-     ser uma decisão, e não uma caixinha que se pula sem ler.
+     Enquanto isto for `null`, o botão "Entrar" fica travado: dá para
+     digitar o telefone, mas não para entrar sem dizer de que lado. É o
+     que faz a escolha ser uma decisão, e não uma caixinha que se pula
+     sem ler.
+
+     (Este comentário dizia que a tela mostrava SÓ as duas portas, sem
+     campo nenhum. Nunca foi verdade — o formulário sempre esteve
+     visível, com o botão desligado. Corrigido em 04/09 ao investigar o
+     sumiço das portas; comentário que descreve o que o código não faz
+     custa mais caro que comentário nenhum.)
 
      Vem da URL quando alguém chega por um caminho que já sabe o lado
-     (`?lado=trabalhar`, de quem tentou responder a uma vaga sem conta), e
-     do armazenamento quando a pessoa já tinha escolhido e a página
-     recarregou no meio — as duas portas de novo, nesse caso, seriam o app
-     esquecendo o que ela acabou de responder. */
+     (`?lado=trabalhar`, de quem tentou responder a uma vaga sem conta). */
+  /* ── A PERGUNTA VOLTOU A SER FEITA SEMPRE — 04/09 ───────────────────
+     A dona: "a tela de escolher entre procuro emprego e quero contratar
+     sumiu."
+
+     Sumiu mesmo, e o culpado era o `?? lerLadoDaSessao()` que estava
+     aqui. Ele existia para o caso da página recarregar no meio do login
+     (a ida ao Google sai do app e volta), mas o efeito era muito maior:
+     QUEM JÁ TINHA ESCOLHIDO UM LADO nunca mais via as duas portas —
+     abrir `/login` mostrava direto o campo de telefone. E como o lado só
+     se apaga ao sair da conta, a tela da escolha tinha virado inalcançável
+     para todo mundo que já usava o app.
+
+     Agora só a URL pré-escolhe (`?lado=trabalhar`, de quem tentou
+     responder a uma vaga sem conta). Sem isso, as duas portas aparecem —
+     que é o que esta tela existe para perguntar.
+
+     O lado guardado continua servindo LOGO ABAIXO, no efeito que decide
+     para onde ir depois de entrar: lá ele é a rede de segurança da volta
+     do Google, sem esconder pergunta nenhuma. */
   const [ladoEscolhido, setLadoEscolhido] = useState<Lado | null>(
-    () => ladoDaUrl(search) ?? lerLadoDaSessao()
+    () => ladoDaUrl(search)
   );
 
   function escolherLado(l: Lado) {
