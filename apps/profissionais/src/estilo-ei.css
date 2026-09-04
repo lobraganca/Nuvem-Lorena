@@ -3900,11 +3900,14 @@
    três botões ficavam do tamanho da própria palavra ("Editar" menor que
    "Arquivar") e o Excluir sobrava na ponta direita: quatro larguras
    diferentes na mesma linha, que é o que a dona chamou de desalinhado. */
+/* Duas ações, não quatro: "Editar" e "Tirar do ar" — ver o comentário do
+   bloco "Gerenciar a vaga" na tela da vaga. Com três saídas na mesma
+   fileira, escolher entre elas virava adivinhação. */
 .ei .ei-acoes-vaga {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(2, 1fr);
   gap: 10px;
-  margin-top: 24px;
+  margin-top: 0;
 }
 
 /* O excluir ocupa a linha inteira, embaixo: continua sendo o último e o
@@ -4764,6 +4767,67 @@
   font-variant-numeric: tabular-nums;
 }
 
+/* ── O PALCO DO BARALHO — 04/09 ────────────────────────────────────────
+   A dona: "precisa ficar com mais cara de card, para o usuário ver que
+   essa é uma funcionalidade; talvez a próxima tenha que ficar
+   aparecendo."
+
+   Um cartão sozinho no meio da tela é uma TELA — e ninguém arrasta uma
+   tela. O que faz o dedo entender que há um baralho é ver o começo do
+   PRÓXIMO cartão cortado pela borda direita, como nas prateleiras de
+   vídeo.
+
+   O corte é do palco (`overflow: hidden`), e não da tela: assim o cartão
+   de cima pode ser arrastado para fora sem levar junto a barra lateral do
+   telefone. */
+.ei .ei-baralho-palco {
+  position: relative;
+  overflow: hidden;
+  /* Espaço à direita para a beirada do próximo cartão. */
+  padding-right: 46px;
+}
+
+.ei .ei-baralho-proximo {
+  position: absolute;
+  top: 18px;
+  bottom: 18px;
+  /* Começa onde o cartão de cima termina e sai pela borda: o que se vê é
+     a lombada do próximo, não um segundo cartão pela metade. */
+  left: calc(100% - 42px);
+  width: 60%;
+  padding: 16px 14px;
+  border: 1px solid var(--ei-fio);
+  border-radius: var(--ei-raio);
+  background: var(--ei-papel);
+  /* Atrás e apagado: ele é promessa, não conteúdo. */
+  opacity: 0.55;
+  pointer-events: none;
+}
+
+.ei .ei-baralho-proximo-titulo {
+  font-size: 0.95rem;
+  font-weight: 700;
+  line-height: 1.25;
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+}
+
+.ei .ei-baralho-proximo-empresa {
+  margin-top: 4px;
+  font-size: 0.8rem;
+  color: var(--ei-tinta-fraca);
+}
+
+.ei .ei-baralho-dica {
+  margin: 0;
+  font-size: 0.82rem;
+  line-height: 1.4;
+  color: var(--ei-tinta-fraca);
+  text-align: center;
+}
+
 .ei .ei-baralho-cartao {
   display: grid;
   gap: 12px;
@@ -4771,6 +4835,11 @@
   border: 1px solid var(--ei-fio);
   border-radius: var(--ei-raio);
   background: var(--ei-papel);
+  /* A sombra é a única do app, e ela existe por um motivo: é o que separa
+     a carta de cima do resto da pilha. Sem ela, com o próximo cartão
+     encostado atrás, os dois viram um retângulo só. */
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.1);
+  position: relative;
   touch-action: pan-y;
   cursor: grab;
   user-select: none;
@@ -4993,3 +5062,157 @@
   width: 112px;
   height: 112px;
 }
+
+/* ── O VISTO NA FICHA DO CANDIDATO — 04/09 ─────────────────────────────
+   A dona: "ao abrir um perfil de candidato, colocar um check na frente
+   das especificações que batem com a vaga."
+
+   Verde e pequeno, ANTES do rótulo: o olho desce pela coluna da esquerda
+   e conta os vistos sem ler nada. É a leitura que a empresa faz em três
+   segundos antes de decidir se liga.
+
+   Só aparece quem bate. O que não bate não ganha um "X" — a tela é sobre
+   uma pessoa, e riscar item por item o que ela não tem transforma um
+   cadastro em boletim. */
+.ei .ei-prop-visto {
+  display: inline-grid;
+  place-items: center;
+  width: 15px;
+  height: 15px;
+  margin-right: 6px;
+  vertical-align: -2px;
+  color: var(--ei-sobre-verde-fraco, #1E7B34);
+}
+.ei .ei-prop-visto svg { width: 13px; height: 13px; }
+
+
+/* ═══════════════════════════════════════════════════════════════════════
+   AS TRÊS SAÍDAS DA VAGA — 04/09
+   ═══════════════════════════════════════════════════════════════════════
+   Pausar, encerrar e apagar faziam a mesma coisa aos olhos de quem usa —
+   tirar a vaga do ar — e a diferença entre elas morava num `title`, que no
+   celular ninguém vê. Aqui cada saída é uma linha com a consequência
+   escrita: some da busca e volta; libera vaga do plano e guarda a lista;
+   apaga tudo. É a consequência que decide, não o verbo. */
+.ei .ei-saidas {
+  display: grid;
+  gap: 10px;
+  margin-top: 12px;
+}
+
+.ei .ei-saida {
+  display: grid;
+  gap: 4px;
+  width: 100%;
+  text-align: left;
+  padding: 14px 16px;
+  border: 1px solid var(--ei-fio);
+  border-radius: var(--ei-raio);
+  background: var(--ei-papel);
+  color: inherit;
+  font: inherit;
+  cursor: pointer;
+}
+.ei .ei-saida:hover:not(:disabled) { background: var(--ei-afunda); }
+.ei .ei-saida:disabled { opacity: 0.55; cursor: default; }
+
+.ei .ei-saida-nome { font-size: 1rem; font-weight: 600; line-height: 1.3; }
+.ei .ei-saida-nota {
+  font-size: 0.85rem;
+  line-height: 1.4;
+  color: var(--ei-tinta-fraca);
+}
+
+/* A grave só muda de cor no NOME — a linha inteira em vermelho pesaria
+   mais que as outras duas antes de ser lida, e a escolha certa na maioria
+   das vezes é uma das outras duas. */
+.ei .ei-saida-grave .ei-saida-nome { color: var(--ei-erro); }
+.ei .ei-saida-confirma { gap: 10px; cursor: default; }
+.ei .ei-saida-confirma:hover { background: var(--ei-papel); }
+
+/* ═══════════════════════════════════════════════════════════════════════
+   A LINHA DO PRÓXIMO PASSO — 04/09
+   ═══════════════════════════════════════════════════════════════════════
+   Colada no cartão da vaga, ela lê os números que estão logo acima e diz o
+   que fazer com eles. Não é aviso nem erro: é um caminho, então tem cara
+   de linha tocável — texto à esquerda, a ação em negrito à direita. */
+.ei .ei-passo {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  /* Na régua dos cartões (12px), e encostado no cartão da vaga: ela lê os
+     números que estão logo acima, então nasce na mesma linha vertical que
+     eles em vez de virar um bloco de outro assunto. */
+  margin: 0 12px;
+  padding: 14px 20px;
+  background: var(--ei-papel);
+  border: 1px solid var(--ei-fio);
+  border-radius: var(--ei-raio);
+  color: inherit;
+  text-decoration: none;
+}
+.ei .ei-passo:hover { background: var(--ei-afunda); }
+
+.ei .ei-passo-texto { font-size: 0.9rem; line-height: 1.4; }
+
+.ei .ei-passo-acao {
+  flex: 0 0 auto;
+  font-size: 0.85rem;
+  font-weight: 600;
+  white-space: nowrap;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+
+/* ═══════════════════════════════════════════════════════════════════════
+   UMA RÉGUA SÓ PARA A TELA DA VAGA — 04/09
+   ═══════════════════════════════════════════════════════════════════════
+   A dona: "a tela da vaga na sessão de vagas no ar está horrível. Sem
+   alinhamento."
+
+   Medido no navegador, numa tela de 390px, a borda esquerda de cada bloco
+   desta tela caía em três lugares diferentes:
+
+     cartão da vaga, cartão do destaque ....... 27px  (margem de 12)
+     portas ("Quem se interessou") ............ 35px  (recuo de 20)
+     botões de gerenciar ...................... 35px  (recuo de 20)
+
+   Oito pixels de degrau entre uma caixa e a caixa seguinte, três vezes na
+   mesma rolagem. É pouco para alguém apontar com o dedo e é exatamente o
+   bastante para a tela parecer torta — que foi o que ela viu.
+
+   A régua certa é a dos cartões (12px), porque é dela que sai o 33px dos
+   títulos de seção, já acertado em 03/09. Aqui as portas e os botões
+   passam a usar a mesma: todas as caixas da tela nascem na mesma linha
+   vertical, e o texto dentro delas também.
+
+   Fica preso ao `.detalhe-vaga` de propósito. As portas são de uso geral
+   e aparecem em telas onde não há cartão nenhum ao lado — mudá-las por
+   toda parte consertaria esta tela e desalinharia as outras. */
+.ei .detalhe-vaga .ei-portas,
+.ei .detalhe-vaga .ei-acoes-vaga,
+.ei .detalhe-vaga .ei-saidas,
+.ei .detalhe-vaga > .ei-margem {
+  padding-left: 12px;
+  padding-right: 12px;
+}
+
+/* O aviso de erro e as explicações continuam sendo TEXTO solto no chão
+   cinza, e texto solto respira mais que caixa: 20px, como no resto do
+   app. A regra acima é para o que tem borda. */
+.ei .detalhe-vaga > .ei-campo-erro { padding-left: 20px; padding-right: 20px; }
+
+
+/* A linha do preço do destaque mora DENTRO de um cartão, que já tem os
+   seus 20px de recuo. Ela foi desenhada para o chão cinza, onde carrega o
+   próprio recuo — e aqui os dois se somavam: o preço começava 20px à
+   direita da lista logo abaixo dele, dentro do mesmo cartão. */
+.ei .detalhe-vaga .ei-cartao > .ei-plano-linha {
+  padding-left: 0;
+  padding-right: 0;
+}
+
+/* Sozinho na linha quando a pergunta "tirar do ar" está aberta. */
+.ei .ei-acoes-vaga-uma { grid-template-columns: 1fr; }

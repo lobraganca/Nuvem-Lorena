@@ -174,7 +174,13 @@ export function InteressadosDaVagaPage() {
                  valer para esta vaga, não para as três. */
               <Link
                 key={resp.id}
-                to={resp.cadastroId ? `/profissional/${resp.cadastroId}?resposta=${resp.id}` : "#"}
+                to={
+                  /* `vaga` vai junto para a ficha marcar com um visto o
+                     que bate com esta vaga — ver PerfilPublicoPage. */
+                  resp.cadastroId
+                    ? `/profissional/${resp.cadastroId}?resposta=${resp.id}&vaga=${vagaId}`
+                    : "#"
+                }
                 className="ei-pessoa"
                 style={resp.cadastroId ? undefined : { pointerEvents: "none", opacity: 0.6 }}
               >

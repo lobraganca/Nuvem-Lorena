@@ -415,7 +415,11 @@ export function OndasDaVagaPage() {
                    informação, e duas listas de gente com desenhos
                    diferentes fariam a empresa achar que são coisas
                    diferentes. */
-                <Link key={c.id} to={`/profissional/${c.id}`} className="ei-pessoa">
+                /* O `?vaga=` não é enfeite de endereço: é ele que faz a ficha do
+                   candidato marcar com um visto o que bate com ESTA vaga.
+                   Sem ele a empresa abre o perfil e perde de vista por que
+                   aquela pessoa apareceu na lista. */
+                <Link key={c.id} to={`/profissional/${c.id}?vaga=${vaga.id}`} className="ei-pessoa">
                   <span className="ei-pessoa-retrato" aria-hidden="true">
                     {c.foto ? (
                       <img src={c.foto} alt="" />

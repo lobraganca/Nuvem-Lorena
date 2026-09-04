@@ -31,6 +31,90 @@ import {
 } from "../types/domain";
 
 /**
+ * O que fazer AGORA com esta vaga.
+ *
+ * ── Por que existe ────────────────────────────────────────────────────
+ *
+ * A tela mostrava números — avisadas, interessadas, dias no ar — e parava
+ * ali. Números não dizem o que fazer: "40 avisadas, 0 interessadas" é
+ * ótimo no primeiro dia e é a vaga que ninguém quis na terceira semana, e
+ * a diferença entre as duas leituras é justamente o que a empresa não tem
+ * como saber.
+ *
+ * Então a tela passa a dizer, em uma linha, qual é o próximo passo — e a
+ * levar até ele. É a mesma informação que já estava na tela, lida por
+ * quem sabe lê-la.
+ *
+ * Devolve `null` quando não há passo nenhum (vaga encerrada): uma
+ * sugestão inventada para preencher espaço vale menos que espaço vazio.
+ */
+function proximoPasso(
+  vaga: JobListing,
+  interessadas: number,
+  ondasDisparadas: number,
+  diasNoAr: number
+): { texto: string; rotulo: string; para: string } | null {
+  if (vaga.status === "closed") return null;
+
+  if (vaga.status === "paused") {
+    return {
+      texto: "Esta vaga está pausada — ninguém está vendo ela na busca.",
+      rotulo: "Como reabrir",
+      para: "#gerenciar",
+    };
+  }
+
+  /* Gente esperando resposta vem antes de tudo: é a única coisa desta
+     tela que estraga com o tempo. */
+  if (interessadas > 0) {
+    return {
+      texto:
+        interessadas === 1
+          ? "1 pessoa se interessou e está esperando você chamar."
+          : `${interessadas} pessoas se interessaram e estão esperando você chamar.`,
+      rotulo: "Ver quem é",
+      para: `/vaga/${vaga.id}/interessados`,
+    };
+  }
+
+  if (ondasDisparadas === 0) {
+    return {
+      texto: "Ninguém foi avisado ainda — a vaga está no ar, mas parada.",
+      rotulo: "Avisar as pessoas",
+      para: `/vaga/${vaga.id}/compativeis`,
+    };
+  }
+
+  /* Dois dias de silêncio não são um problema, são o normal — e mandar a
+     empresa mexer na vaga por causa disso a faria refazer o texto de uma
+     vaga que ainda nem foi lida. */
+  if (diasNoAr <= 2) {
+    return {
+      texto: "As pessoas foram avisadas há pouco. Vale dar um ou dois dias.",
+      rotulo: "Ver quem foi avisado",
+      para: `/vaga/${vaga.id}/compativeis`,
+    };
+  }
+
+  if (ondasDisparadas < ONDAS_POR_VAGA) {
+    return {
+      texto: "Ninguém respondeu ainda. Dá para avisar mais gente.",
+      rotulo: "Avisar mais gente",
+      para: `/vaga/${vaga.id}/compativeis`,
+    };
+  }
+
+  /* Acabaram as ondas e ninguém respondeu: o que sobra para mexer é a
+     própria vaga — salário, jeito de trabalho, exigências. */
+  return {
+    texto:
+      "Todo mundo já foi avisado e ninguém respondeu. Vale rever o salário ou o que a vaga exige.",
+    rotulo: "Editar a vaga",
+    para: `/vaga/${vaga.id}/editar`,
+  };
+}
+
+/**
  * Detalhes de uma vaga: dados, ondas, e respostas de profissionais.
  */
 export function DetalheVagaPage() {
@@ -51,6 +135,10 @@ export function DetalheVagaPage() {
   /* A pergunta do excluir mora na própria tela — ver o comentário no
      botão. `window.confirm` some dentro do app instalado. */
   const [confirmandoExclusao, setConfirmandoExclusao] = useState(false);
+  /* "Tirar do ar" abre as três saídas escritas (pausar, encerrar, apagar)
+     em vez de deixar três botões soltos na tela — ver o comentário do
+     bloco "Gerenciar a vaga". */
+  const [saindoDoAr, setSaindoDoAr] = useState(false);
   const [erro, setErro] = useState("");
 
   useEffect(() => {
@@ -167,6 +255,8 @@ export function DetalheVagaPage() {
     0,
     Math.floor((Date.now() - new Date(vaga.created_at).getTime()) / 86_400_000)
   );
+
+  const passo = proximoPasso(vaga, respostas.length, ondas.length, diasNoAr);
 
   return (
     <div className="ei">
@@ -297,132 +387,31 @@ export function DetalheVagaPage() {
           </p>
         )}
 
-      {/* O que fazer com a vaga — 02/09, sem as legendas
-          ────────────────────────────────────────────────
-          A dona: "tirar legendas, está ocupando muito espaço. Faça os
-          botões menores."
-
-          Cada um dos quatro botões tinha duas linhas de explicação embaixo:
-          quatro botões viraram doze linhas e mais de meia tela de rolagem,
-          e o que a empresa vem fazer aqui — ver quem se interessou — ficava
-          espremido acima disso.
-
-          As palavras dos botões já dizem o que eles fazem ("Arquivar — já
-          contratei", "Pausar por enquanto"). O que a legenda acrescentava
-          era a CONSEQUÊNCIA no plano, e essa continua onde ela pesa: na
-          confirmação do excluir, que é a única irreversível, e no aviso de
-          reabrir, que ocupa vaga.
-
-          Agora são botões pequenos, numa fileira que quebra sozinha quando
-          não cabe — e não quatro barras de largura cheia. Excluir continua
-          por último, sem cor e à parte, para não ser tocado por engano. */}
-      {/* ── OS BOTÕES ALINHADOS — 04/09 ──────────────────────────────
-          A dona: "desalinhada."
-
-          Eram quatro botões numa fileira que se ajustava sozinha: três
-          com contorno, larguras diferentes (do tamanho da própria
-          palavra), e o "Excluir" jogado na ponta direita, em vermelho e
-          sem borda — quatro alturas e quatro formas na mesma linha.
-
-          Agora é uma grade: três iguais, do mesmo tamanho, e o Excluir
-          numa linha só dele, embaixo, ainda por último e ainda sem cor de
-          botão — ele continua sendo o único irreversível. */}
-      <div className="ei-margem ei-acoes-vaga">
-        <Link className="ei-btn ei-btn-contorno ei-btn-curto" to={`/vaga/${vaga.id}/editar`}>
-          Editar
+      {/* A linha que diz o que fazer agora. Fica colada no cartão, antes
+          de qualquer botão: é a leitura dos números que estão logo acima,
+          feita pelo app em vez de pela empresa. */}
+      {passo && (
+        <Link className="ei-passo" to={passo.para}>
+          <span className="ei-passo-texto">{passo.texto}</span>
+          <span className="ei-passo-acao">{passo.rotulo}</span>
         </Link>
-
-        {vaga.status === "active" && (
-          <button
-            className="ei-btn ei-btn-contorno ei-btn-curto"
-            onClick={() => mudarEstado(() => pausarVaga(vaga.id), "Não foi possível pausar a vaga.")}
-            disabled={fechando}
-          >
-            Pausar
-          </button>
-        )}
-
-        {vaga.status !== "active" && (
-          <button
-            className="ei-btn ei-btn-cheio ei-btn-curto"
-            onClick={() => mudarEstado(() => reabrirVaga(vaga.id), "Não foi possível reabrir a vaga.")}
-            disabled={fechando}
-            /* O aviso que era legenda vira `title`: reabrir ocupa uma vaga
-               do plano de novo, e isso é consequência de dinheiro. */
-            title="Reabrir ocupa uma vaga do seu plano de novo."
-          >
-            {vaga.status === "paused" ? "Reabrir" : "Reabrir vaga"}
-          </button>
-        )}
-
-        {vaga.status !== "closed" && (
-          <button
-            className="ei-btn ei-btn-contorno ei-btn-curto"
-            onClick={() => mudarEstado(() => arquivarVaga(vaga.id), "Não foi possível arquivar a vaga.")}
-            disabled={fechando}
-            title="Libera uma vaga do seu plano. A lista de interessados continua no painel, em Encerradas."
-          >
-            Arquivar
-          </button>
-        )}
-
-        {/* Fora da fileira e sem cor: apagar leva junto a lista de quem se
-            interessou, e a confirmação explica isso por extenso.
-
-            ── A CONFIRMAÇÃO SAIU DO `window.confirm` — 03/09 ────────────
-            Era uma janelinha do navegador. Dentro do app instalado ela não
-            aparece em alguns aparelhos, e o que sobra é o pior caminho
-            possível: um toque em "Excluir" apagando a vaga e a lista de
-            interessados na hora, sem pergunta nenhuma. Encontrado usando o
-            app: as ações da vaga disparavam de primeira.
-
-            Agora a pergunta é a própria tela, e ela DIZ O NÚMERO — "Tem
-            certeza?" não informa nada; saber que três pessoas interessadas
-            somem junto é o que faz parar e escolher arquivar. */}
-        {!confirmandoExclusao ? (
-          <button
-            className="ei-btn ei-btn-texto ei-acoes-vaga-excluir"
-            onClick={() => {
-              setErro("");
-              setConfirmandoExclusao(true);
-            }}
-            disabled={fechando}
-            style={{ color: "var(--ei-erro)" }}
-          >
-            Excluir
-          </button>
-        ) : null}
-      </div>
-
-      {confirmandoExclusao && (
-        <div className="ei-margem" style={{ display: "grid", gap: 10, marginTop: 4 }}>
-          <p className="ei-apoio" style={{ margin: 0 }}>
-            {respostas.length > 0
-              ? `Excluir apaga esta vaga e ${
-                  respostas.length === 1
-                    ? "a pessoa interessada"
-                    : `as ${respostas.length} pessoas interessadas`
-                } nela. Não dá para desfazer. Se você só quer tirar do ar, use “Arquivar” — a lista fica guardada.`
-              : "Excluir apaga esta vaga de vez. Não dá para desfazer."}
-          </p>
-          <button
-            className="ei-btn ei-btn-contorno ei-btn-largo"
-            onClick={excluirVagaFunc}
-            disabled={fechando}
-            style={{ color: "var(--ei-erro)" }}
-          >
-            {fechando ? "Excluindo…" : "Sim, excluir esta vaga"}
-          </button>
-          <button
-            className="ei-btn ei-btn-texto"
-            onClick={() => setConfirmandoExclusao(false)}
-            disabled={fechando}
-          >
-            Não, deixar como está
-          </button>
-        </div>
       )}
 
+      {/* ── O QUE A EMPRESA VEIO FAZER VEM PRIMEIRO — 04/09 ──────────
+          A dona: "a tela da vaga na sessão de vagas no ar está horrível.
+          Sem alinhamento e as funcionalidades confusas demais."
+
+          A ordem estava de trás para frente. Logo abaixo da ficha vinham
+          Editar, Pausar, Arquivar e Excluir — quatro botões de
+          MANUTENÇÃO — e só no fim da rolagem as duas portas com as
+          pessoas, que é o motivo de alguém abrir uma vaga. Quem entrava
+          para ver quem se interessou passava por três maneiras diferentes
+          de tirar a vaga do ar antes de chegar lá.
+
+          Agora: as pessoas primeiro, o destaque depois, e a manutenção no
+          fim — que é onde a pessoa procura quando já resolveu o assunto
+          principal. */}
+      <h2 className="ei-secao">As pessoas</h2>
       {/* ── DUAS PORTAS, EM VEZ DE DOIS BLOCOS — 04/09 ──────────────────
           A dona: "no painel da vaga acho que pode ter botões sobre as
           ondas e outro para as pessoas que são interessadas. Daí fica mais
@@ -437,6 +426,41 @@ export function DetalheVagaPage() {
           Cada porta DIZ o que tem dentro — "1 de 3 disparadas", "2 pessoas
           se interessaram". Uma porta que não conta nada obriga a abrir
           para descobrir que não havia nada. */}
+      <div className="ei-portas ei-margem">
+        <Link to={`/vaga/${vaga.id}/interessados`} className="ei-porta ei-porta-cheia">
+          <span className="ei-porta-nome">Quem se interessou</span>
+          <span className="ei-porta-nota">
+            {respostas.length === 0
+              ? "Ninguém ainda — quem tocar em “tenho interesse” aparece aqui"
+              : respostas.length === 1
+                ? "1 pessoa, com telefone"
+                : `${respostas.length} pessoas, com telefone`}
+          </span>
+        </Link>
+
+        {/* ── A SEGUNDA PORTA VIROU AS PESSOAS — 04/09 ──────────────
+            A dona: "no painel da empresa, ter duas opções: quem se
+            interessou pela vaga e as pessoas que são mais compatíveis com
+            a vaga."
+
+            Ela se chamava "Ondas de aviso" e prometia um mecanismo, não
+            gente: a empresa abria esperando ver quem era e encontrava três
+            botões de disparo. Agora a porta promete as PESSOAS — que é o
+            que a empresa quer — e o disparo continua lá dentro, embaixo da
+            lista, onde ele faz sentido: primeiro se olha, depois se
+            avisa. */}
+        <Link to={`/vaga/${vaga.id}/compativeis`} className="ei-porta">
+          <span className="ei-porta-nome">Mais compatíveis com a vaga</span>
+          <span className="ei-porta-nota">
+            Quem mais combina, em ordem
+            {ondas.length === 0
+              ? ` · nenhuma das ${ONDAS_POR_VAGA} ondas disparada`
+              : ` · ${ondas.length} de ${ONDAS_POR_VAGA} ondas disparadas`}
+            {aindaTemOnda && vaga.status === "active" ? " · dá para avisar mais gente" : ""}
+          </span>
+        </Link>
+      </div>
+
       {/* ── DESTACAR ESTA VAGA — 04/09 ─────────────────────────────────
           A dona: "também opção de dar destaque a uma vaga" — R$ 19,90 por
           7 dias.
@@ -490,51 +514,168 @@ export function DetalheVagaPage() {
                 >
                   Quero destacar esta vaga
                 </a>
-                <p className="ei-apoio" style={{ marginTop: 10, marginBottom: 0 }}>
-                  Você fala com a gente, paga por Pix, e a vaga sobe no mesmo dia. O
-                  pagamento dentro do app está sendo preparado.
-                </p>
+                {/* A explicação do Pix saiu a pedido da dona (04/09): ela
+                    contava o bastidor do pagamento numa tela que é sobre a
+                    vaga, e bastidor não é assunto de quem está comprando.
+                    O botão já diz o que faz. */}
               </>
             )}
           </div>
         </>
       )}
 
-      <h2 className="ei-secao">Esta vaga</h2>
-      <div className="ei-portas ei-margem">
-        <Link to={`/vaga/${vaga.id}/interessados`} className="ei-porta ei-porta-cheia">
-          <span className="ei-porta-nome">Quem se interessou</span>
-          <span className="ei-porta-nota">
-            {respostas.length === 0
-              ? "Ninguém ainda — quem tocar em “tenho interesse” aparece aqui"
-              : respostas.length === 1
-                ? "1 pessoa, com telefone"
-                : `${respostas.length} pessoas, com telefone`}
-          </span>
+      {/* ── UMA SAÍDA SÓ, EM VEZ DE TRÊS — 04/09 ────────────────────────
+          A dona: "as funcionalidades confusas demais."
+
+          Aqui havia quatro botões iguais numa grade: Editar, Pausar,
+          Arquivar e, embaixo, Excluir. Três deles fazem a MESMA coisa aos
+          olhos de quem usa — tiram a vaga do ar — e a diferença entre eles
+          (uma volta, outra libera vaga do plano, a terceira apaga a lista
+          de interessados) não estava escrita em lugar nenhum: morava num
+          `title`, que no celular ninguém vê, porque não há para onde
+          apontar o mouse.
+
+          Escolher entre três palavras sem saber o que cada uma faz é o
+          caminho mais curto para a empresa apagar por engano a lista de
+          gente que ela pagou para receber.
+
+          Agora são DUAS ações: "Editar" e "Tirar do ar". A segunda abre a
+          pergunta com as três saídas escritas por extenso, uma linha cada,
+          dizendo a consequência — que é a informação que decide. */}
+      <h2 className="ei-secao" id="gerenciar">Gerenciar a vaga</h2>
+      {/* Com a pergunta aberta, "Editar" fica sozinho: numa grade de duas
+          colunas ele viraria um botão de meia largura ao lado de um vão
+          vazio. Sozinho, ocupa a linha. */}
+      <div className={saindoDoAr ? "ei-margem ei-acoes-vaga ei-acoes-vaga-uma" : "ei-margem ei-acoes-vaga"}>
+        <Link className="ei-btn ei-btn-contorno" to={`/vaga/${vaga.id}/editar`}>
+          Editar a vaga
         </Link>
 
-        {/* ── A SEGUNDA PORTA VIROU AS PESSOAS — 04/09 ──────────────
-            A dona: "no painel da empresa, ter duas opções: quem se
-            interessou pela vaga e as pessoas que são mais compatíveis com
-            a vaga."
+        {vaga.status === "active" && !saindoDoAr && (
+          <button
+            className="ei-btn ei-btn-contorno"
+            onClick={() => {
+              setErro("");
+              setSaindoDoAr(true);
+            }}
+            disabled={fechando}
+          >
+            Tirar do ar
+          </button>
+        )}
 
-            Ela se chamava "Ondas de aviso" e prometia um mecanismo, não
-            gente: a empresa abria esperando ver quem era e encontrava três
-            botões de disparo. Agora a porta promete as PESSOAS — que é o
-            que a empresa quer — e o disparo continua lá dentro, embaixo da
-            lista, onde ele faz sentido: primeiro se olha, depois se
-            avisa. */}
-        <Link to={`/vaga/${vaga.id}/compativeis`} className="ei-porta">
-          <span className="ei-porta-nome">Mais compatíveis com a vaga</span>
-          <span className="ei-porta-nota">
-            Quem mais combina, em ordem
-            {ondas.length === 0
-              ? ` · nenhuma das ${ONDAS_POR_VAGA} ondas disparada`
-              : ` · ${ondas.length} de ${ONDAS_POR_VAGA} ondas disparadas`}
-            {aindaTemOnda && vaga.status === "active" ? " · dá para avisar mais gente" : ""}
-          </span>
-        </Link>
+        {/* Reabrir continua sozinho e cheio: numa vaga fora do ar é a
+            única coisa que a empresa costuma querer, e escondê-la atrás de
+            uma pergunta seria esconder justamente a saída. */}
+        {vaga.status !== "active" && (
+          <button
+            className="ei-btn ei-btn-cheio"
+            onClick={() => mudarEstado(() => reabrirVaga(vaga.id), "Não foi possível reabrir a vaga.")}
+            disabled={fechando}
+          >
+            {fechando ? "Reabrindo…" : "Colocar no ar de novo"}
+          </button>
+        )}
+        {vaga.status !== "active" && (
+          <p className="ei-apoio" style={{ margin: 0, gridColumn: "1 / -1" }}>
+            Reabrir ocupa uma vaga do seu plano de novo.
+          </p>
+        )}
       </div>
+
+      {/* As três saídas, escritas. A ordem é da mais leve para a mais
+          grave, e a grave é a única que exige um segundo toque. */}
+      {saindoDoAr && (
+        <div className="ei-margem ei-saidas">
+          <button
+            className="ei-saida"
+            onClick={() => mudarEstado(() => pausarVaga(vaga.id), "Não foi possível pausar a vaga.")}
+            disabled={fechando}
+          >
+            <span className="ei-saida-nome">Pausar por enquanto</span>
+            <span className="ei-saida-nota">
+              Some da busca e volta quando você quiser. Continua ocupando
+              uma vaga do seu plano.
+            </span>
+          </button>
+
+          <button
+            className="ei-saida"
+            onClick={() => mudarEstado(() => arquivarVaga(vaga.id), "Não foi possível arquivar a vaga.")}
+            disabled={fechando}
+          >
+            <span className="ei-saida-nome">Já contratei — encerrar</span>
+            <span className="ei-saida-nota">
+              Libera uma vaga do seu plano. A lista de quem se interessou
+              fica guardada, em “Encerradas”.
+            </span>
+          </button>
+
+          {/* ── A CONFIRMAÇÃO SAIU DO `window.confirm` — 03/09 ────────────
+              Era uma janelinha do navegador. Dentro do app instalado ela
+              não aparece em alguns aparelhos, e o que sobra é o pior
+              caminho possível: um toque em "Excluir" apagando a vaga e a
+              lista de interessados na hora, sem pergunta nenhuma.
+
+              A pergunta é a própria tela, e ela DIZ O NÚMERO — "Tem
+              certeza?" não informa nada; saber que três pessoas
+              interessadas somem junto é o que faz parar e escolher
+              encerrar. */}
+          {!confirmandoExclusao ? (
+            <button
+              className="ei-saida ei-saida-grave"
+              onClick={() => {
+                setErro("");
+                setConfirmandoExclusao(true);
+              }}
+              disabled={fechando}
+            >
+              <span className="ei-saida-nome">Apagar de vez</span>
+              <span className="ei-saida-nota">
+                {respostas.length > 0
+                  ? `Apaga a vaga e ${
+                      respostas.length === 1
+                        ? "a pessoa interessada"
+                        : `as ${respostas.length} pessoas interessadas`
+                    } nela. Não dá para desfazer.`
+                  : "Apaga a vaga de vez. Não dá para desfazer."}
+              </span>
+            </button>
+          ) : (
+            <div className="ei-saida ei-saida-grave ei-saida-confirma">
+              <span className="ei-saida-nome">
+                {respostas.length > 0
+                  ? `Apagar leva junto ${
+                      respostas.length === 1
+                        ? "a pessoa interessada"
+                        : `as ${respostas.length} pessoas interessadas`
+                    }. Tem certeza?`
+                  : "Apagar não tem volta. Tem certeza?"}
+              </span>
+              <button
+                className="ei-btn ei-btn-contorno ei-btn-largo"
+                onClick={excluirVagaFunc}
+                disabled={fechando}
+                style={{ color: "var(--ei-erro)" }}
+              >
+                {fechando ? "Apagando…" : "Sim, apagar esta vaga"}
+              </button>
+            </div>
+          )}
+
+          <button
+            className="ei-btn ei-btn-texto"
+            onClick={() => {
+              setConfirmandoExclusao(false);
+              setSaindoDoAr(false);
+            }}
+            disabled={fechando}
+          >
+            Deixar como está
+          </button>
+        </div>
+      )}
+
 
       </div>
     </div>

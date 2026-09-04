@@ -625,6 +625,17 @@ function Baralho({ vagas }: { vagas: VagaNoBanco[] }) {
   }
 
   const v = atual;
+  /* A PRÓXIMA aparece pela beirada — 04/09
+     ──────────────────────────────────────
+     A dona: "precisa ficar com mais cara de card, para o usuário ver que
+     essa é uma funcionalidade; talvez a próxima tenha que ficar
+     aparecendo".
+
+     Ela tem razão e o motivo é simples: um cartão sozinho no meio da tela
+     é uma TELA, não um baralho. Ninguém arrasta uma tela. Ver o começo do
+     próximo cartão na borda é o que faz o dedo entender que há mais de um
+     — e é o mesmo truque das prateleiras de aplicativo de vídeo. */
+  const proxima = fila[i + 1] ?? null;
   const deslocamento = saindo === "sim" ? 420 : saindo === "nao" ? -420 : arrasto;
 
   return (
@@ -639,6 +650,18 @@ function Baralho({ vagas }: { vagas: VagaNoBanco[] }) {
         </p>
       )}
 
+      <div className="ei-baralho-palco">
+        {/* O espelho da próxima: só o começo dela, cortado pela borda da
+            tela. `aria-hidden` porque é enfeite — quem usa leitor de tela
+            já ouve "1 de 5" logo acima. */}
+        {proxima && (
+          <div className="ei-baralho-proximo" aria-hidden="true">
+            <div className="ei-baralho-proximo-titulo">{proxima.vaga.title}</div>
+            <div className="ei-baralho-proximo-empresa">
+              {proxima.empresa || proxima.vaga.city}
+            </div>
+          </div>
+        )}
       <div
         className="ei-baralho-cartao"
         style={{
@@ -693,6 +716,7 @@ function Baralho({ vagas }: { vagas: VagaNoBanco[] }) {
           Ver a vaga inteira
         </Link>
       </div>
+      </div>
 
       {/* Os botões ficam FORA do cartão que se move: dentro, eles sairiam
           da tela junto com ele e a pessoa acertaria o vazio. */}
@@ -715,8 +739,8 @@ function Baralho({ vagas }: { vagas: VagaNoBanco[] }) {
         </button>
       </div>
 
-      <p className="ei-apoio ei-margem" style={{ marginTop: 4 }}>
-        Dá para arrastar o cartão para o lado: direita é interesse, esquerda passa.
+      <p className="ei-baralho-dica">
+        Arraste o cartão: <strong>direita</strong> é interesse, <strong>esquerda</strong> passa.
       </p>
     </div>
   );

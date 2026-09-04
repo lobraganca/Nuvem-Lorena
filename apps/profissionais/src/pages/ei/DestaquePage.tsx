@@ -164,10 +164,8 @@ export function DestaquePage() {
               >
                 Quero aparecer primeiro
               </a>
-              <p className="ei-apoio" style={{ marginTop: 10, marginBottom: 0 }}>
-                Você fala com a gente, paga por Pix, e o destaque é ligado no mesmo
-                dia. O pagamento dentro do app está sendo preparado.
-              </p>
+              {/* Mesma retirada da tela da vaga: o caminho do pagamento é
+                  bastidor, e o botão já diz o que faz. */}
             </div>
 
             <h2 className="ei-secao">O que ajuda de graça</h2>

@@ -9,6 +9,9 @@ import { useAuth } from "../lib/useAuth";
 import { empresaAtual, lerStatusDaResposta, marcarResposta } from "../lib/company";
 import type { JobResponse } from "../types/domain";
 import { registrarVisita } from "../lib/quemMeViu";
+import { obterVaga } from "../lib/company";
+import type { JobListing } from "../types/domain";
+import { normalizar, ESCADA_ESCOLARIDADE } from "../lib/compatibilidade";
 import { BotaoFavorito } from "../components/ei/BotaoFavorito";
 import { lerFavoritos } from "../lib/favoritos";
 
@@ -112,6 +115,32 @@ export function PerfilPublicoPage() {
   const respostaId = busca.get("resposta");
   const [marca, setMarca] = useState<JobResponse["status"] | null>(null);
   const [marcando, setMarcando] = useState(false);
+
+  /* ── A FICHA COMPARADA COM A VAGA — 04/09 ─────────────────────────
+     A dona: "ao abrir um perfil de candidato, colocar um check na frente
+     das especificações que batem com a vaga."
+
+     Quem chega pela lista de candidatos de uma vaga traz `?vaga=` na
+     URL. Sem esse parâmetro (banco de talentos, favoritos, link
+     compartilhado) não há com o que comparar, e a ficha aparece limpa,
+     como sempre foi.
+
+     A vaga é lida à parte e em silêncio: ela é um enfeite útil, e
+     derrubar a ficha da pessoa porque a vaga não carregou seria trocar o
+     essencial pelo acessório. */
+  const vagaId = busca.get("vaga");
+  const [vagaDeOrigem, setVagaDeOrigem] = useState<JobListing | null>(null);
+
+  useEffect(() => {
+    if (!vagaId) return;
+    let vivo = true;
+    obterVaga(vagaId)
+      .then((v) => vivo && setVagaDeOrigem(v))
+      .catch(() => {});
+    return () => {
+      vivo = false;
+    };
+  }, [vagaId]);
 
   useTituloDaPagina(p?.name ?? "Profissional");
 
@@ -283,6 +312,57 @@ export function PerfilPublicoPage() {
   const formacao = cursos.filter((c) => c.tipo === "formacao");
   const outrosCursos = cursos.filter((c) => c.tipo !== "formacao");
 
+  /* ── O QUE BATE COM A VAGA ────────────────────────────────────────
+     Um visto por linha da ficha (ver `Prop` e o comentário lá). Cada
+     resposta é `undefined` quando não há vaga de origem — e aí nenhum
+     visto aparece.
+
+     A regra de cada uma é a MESMA da conta de compatibilidade
+     (`compatibilidade.ts`): se a ficha marcasse um visto onde a conta não
+     dá ponto, a empresa veria seis vistos numa pessoa de 40% e deixaria
+     de confiar nos dois números. */
+  const v = vagaDeOrigem;
+  const bate = {
+    oficio:
+      v == null
+        ? undefined
+        : funcoes.some((f) => {
+            const n = normalizar(f);
+            const alvo = normalizar(`${v.profession ?? ""} ${v.specialty ?? ""} ${v.title ?? ""}`);
+            return n.length > 2 && (alvo.includes(n) || n.includes(normalizar(v.profession ?? "")));
+          }),
+    cidade: v == null ? undefined : normalizar(p.city ?? "") === normalizar(v.city ?? ""),
+    modo:
+      v == null || !v.work_modality || !p.modo_trabalho
+        ? undefined
+        : p.modo_trabalho === "tanto_faz" || p.modo_trabalho === v.work_modality,
+    cnh:
+      v == null || !v.cnh_exigida
+        ? undefined
+        : !!p.cnh &&
+          (v.cnh_categorias.length === 0 ||
+            v.cnh_categorias.some((c) => (p.cnh_categorias ?? []).includes(c))),
+    viagem: v == null || !v.exige_viagem ? undefined : !!p.aceita_viajar,
+    inicio: v == null || !v.available_immediately ? undefined : !!p.inicio_imediato,
+    fimDeSemana: v == null || v.jornada !== "fins_de_semana" ? undefined : !!p.fim_de_semana,
+    pretensao:
+      v == null || (!v.salario_a_combinar && (v.salary_range_max ?? v.salary_range_min) == null)
+        ? undefined
+        : !!p.pretensao_combinar ||
+          !!v.salario_a_combinar ||
+          (p.pretensao_centavos != null &&
+            p.pretensao_centavos <= (v.salary_range_max ?? v.salary_range_min ?? 0)),
+    escolaridade:
+      v == null || !v.escolaridade_minima
+        ? undefined
+        : formacao.some(
+            (c) =>
+              c.nivel != null &&
+              ESCADA_ESCOLARIDADE.indexOf(c.nivel) >=
+                ESCADA_ESCOLARIDADE.indexOf(v.escolaridade_minima!)
+          ),
+  };
+
   return (
     <div className="ei">
       <div className="ei-tela">
@@ -325,7 +405,7 @@ export function PerfilPublicoPage() {
                 </span>
               </Prop>
             )}
-            <Prop rotulo="Onde">
+            <Prop rotulo="Onde" bate={bate.cidade}>
               {p.neighborhood ? `${p.neighborhood} · ` : ""}
               {p.city}/{p.uf}
             </Prop>
@@ -509,9 +589,13 @@ export function PerfilPublicoPage() {
           <>
             <h2 className="ei-secao">O que ela procura</h2>
             <div className="ei-props">
-              {pretensao && <Prop rotulo="Pretensão">{pretensao}</Prop>}
+              {pretensao && (
+                <Prop rotulo="Pretensão" bate={bate.pretensao}>
+                  {pretensao}
+                </Prop>
+              )}
               {p.modo_trabalho && (
-                <Prop rotulo="Trabalho">{nomeDoModo(p.modo_trabalho)}</Prop>
+                <Prop rotulo="Trabalho" bate={bate.modo}>{nomeDoModo(p.modo_trabalho)}</Prop>
               )}
               {(p.disponibilidade?.length ?? 0) > 0 && (
                 <Prop rotulo="Horários">
@@ -524,11 +608,17 @@ export function PerfilPublicoPage() {
                   </span>
                 </Prop>
               )}
-              {p.inicio_imediato && <Prop rotulo="Começa">Pode começar imediato</Prop>}
-              {p.fim_de_semana && <Prop rotulo="Fim de semana">Aceita trabalhar</Prop>}
-              {p.aceita_viajar && <Prop rotulo="Viagem">Aceita viajar</Prop>}
+              {p.inicio_imediato && (
+                <Prop rotulo="Começa" bate={bate.inicio}>Pode começar imediato</Prop>
+              )}
+              {p.fim_de_semana && (
+                <Prop rotulo="Fim de semana" bate={bate.fimDeSemana}>Aceita trabalhar</Prop>
+              )}
+              {p.aceita_viajar && (
+                <Prop rotulo="Viagem" bate={bate.viagem}>Aceita viajar</Prop>
+              )}
               {p.cnh && (
-                <Prop rotulo="CNH">
+                <Prop rotulo="CNH" bate={bate.cnh}>
                   {(p.cnh_categorias?.length ?? 0) > 0
                     ? `Categoria ${p.cnh_categorias!.join(", ")}`
                     : "Tem habilitação"}

@@ -146,13 +146,39 @@ export function Pagina({
 export function Prop({
   rotulo,
   children,
+  bate,
 }: {
   rotulo: string;
   children: ReactNode;
+  /**
+   * Este dado bate com o que a vaga pede?
+   *
+   * A dona: "ao abrir um perfil de candidato, colocar um check na frente
+   * das especificações que batem com a vaga."
+   *
+   * `undefined` é o normal — a ficha aberta fora do contexto de uma vaga
+   * não tem com o que comparar, e aí não aparece marca nenhuma. Só quem
+   * chega pela lista de candidatos DE UMA VAGA vê os vistos.
+   *
+   * `false` não vira "X" vermelho de propósito: a tela é sobre uma
+   * pessoa, e riscar item por item o que ela não tem transforma um
+   * cadastro em boletim. O que não bate simplesmente não ganha visto.
+   */
+  bate?: boolean;
 }) {
   return (
     <div className="ei-prop">
-      <span className="ei-prop-rotulo">{rotulo}</span>
+      <span className="ei-prop-rotulo">
+        {bate === true && (
+          <span className="ei-prop-visto" title="Bate com o que a vaga pede">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3"
+                 strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+              <path d="M5 13l4.5 4.5L19 7" />
+            </svg>
+          </span>
+        )}
+        {rotulo}
+      </span>
       <span className="ei-prop-valor">{children}</span>
     </div>
   );
