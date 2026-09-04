@@ -1,4 +1,5 @@
 import { supabase } from "./supabase";
+import { esquecerLadoDaSessao } from "./ladoDaSessao";
 import { ehCelular, onlyPhoneDigits } from "./phone";
 import type { Session, User } from "@supabase/supabase-js";
 import { origemCanonica } from "./enderecoCanonico";
@@ -405,6 +406,16 @@ export async function signOut(): Promise<void> {
   } catch {
     /* Sem armazenamento, o login segue como antes. */
   }
+  /* ── SAIR É O CAMINHO DE TROCAR DE LADO — 04/09 ────────────────────
+     A dona: "na tela de login a pessoa vai ter que escolher entre quero
+     contratar ou procuro emprego... uma pessoa que entra só pra procurar
+     um emprego, só terá as opções para isso."
+
+     Com o lado escolhido na porta e fixo por dentro, sair e entrar de
+     novo passou a ser a ÚNICA forma de ir para o outro lado. Se a
+     escolha sobrevivesse ao logout, quem saísse para trocar entraria de
+     volta no mesmo lugar — e não teria mais caminho nenhum. */
+  esquecerLadoDaSessao();
   await client.auth.signOut();
 }
 
