@@ -99,117 +99,88 @@ export function MeuDesempenhoPage() {
 
         {dados && recado && (
           <>
-            {/* O recado vem ANTES dos números: é ele que diz o que fazer
-                com eles. Números sozinhos, para quem está há semanas sem
-                resposta, são mais três motivos de desânimo. */}
-            <div className="ei-cartao ei-recado">
-              <h2 className="ei-recado-titulo">{recado.titulo}</h2>
-              <p className="ei-recado-texto">{recado.texto}</p>
-              {/* ── O CAMINHO DA COMPRA ONDE O ASSUNTO É APARECER — 04/09
-                  A dona: "quando fala de aparecer em primeiro, tem que ter
-                  o link para comprar."
+            {/* ── REFEITA: TRÊS NÚMEROS, UM RECADO, UM BOTÃO — 04/09 ────
+                A dona: "a tela de desempenho está muito ruim. Faça mais
+                clean e mais atrativa. Muita confusão e escrita extensa.
+                Refaça e quando oferecer pra aparecer na frente, ter o
+                botão pra assinar o plano."
 
-                  O caminho existia, no fim da tela, depois de três seções
-                  — quatro rolagens abaixo do recado que fala justamente de
-                  ser vista. Quem lê "aparecer é metade do caminho" e quer
-                  aparecer não vai procurar o preço lá embaixo.
+                O que ela viu: cinco seções, dez linhas, e quase toda
+                linha com duas linhas de explicação embaixo. Três dessas
+                seções eram conselho ("o que costuma destravar") — as
+                mesmas frases para todo mundo, que quem já tentou não tem
+                o que fazer com elas.
 
-                  Só nos recados de visibilidade (`ofereceDestaque`), e só
-                  onde o app pode vender: dentro do app da loja esta linha
-                  não existe — vender por fora da cobrança do Google é
-                  infração, e apontar o caminho é a mesma infração que
-                  vender. */}
-              {recado.ofereceDestaque && podeVender() && (
-                <Link to="/destaque" className="ei-recado-acao">
-                  Aparecer primeiro na lista — {precoDoDestaqueEmTexto()} por {DESTAQUE_DIAS} dias
-                </Link>
-              )}
-            </div>
-
-            <h2 className="ei-secao">Os últimos 7 dias</h2>
-            <div className="ei-cartao">
-              <div className="ei-resumo" style={{ padding: 0, border: 0, background: "none" }}>
-                {/* ── OS DOIS NÚMEROS EXPLICADOS — 04/09 ─────────────
-                    A dona: "essa tela está muito confusa."
-
-                    Estes dois lado a lado eram o pior pedaço: "te viram 0"
-                    e "apareceu 10" parecem se contradizer, e sem dizer o
-                    que cada um conta a leitura possível é "o app está
-                    errado". São coisas diferentes e a diferença é a mais
-                    importante da tela — uma é sair na lista, a outra é
-                    alguém parar e abrir. */}
-                <div className="ei-resumo-item">
-                  <span className="ei-resumo-rotulo">Empresas que te viram</span>
-                  <span className="ei-resumo-numero">{dados.empresasNaSemana}</span>
-                  <span className="ei-resumo-nota">abriram seu cadastro</span>
-                </div>
-                <div className="ei-resumo-item">
-                  <span className="ei-resumo-rotulo">Buscas em que apareceu</span>
-                  <span className="ei-resumo-numero">{dados.buscasNaSemana}</span>
-                  <span className="ei-resumo-nota">saiu na lista, sem abrirem</span>
-                </div>
+                Agora a tela responde três perguntas, nesta ordem: quantos
+                me viram, o que fazer com isso, e como aparecer mais. O
+                resto saiu. Números grandes primeiro porque é o que a
+                pessoa vem ver — e porque número grande é o que faz uma
+                tela de métrica parecer uma tela de métrica. */}
+            <div className="ei-desempenho-numeros">
+              <div className="ei-desempenho-numero">
+                <span className="ei-desempenho-valor">{dados.empresasNaSemana}</span>
+                <span className="ei-desempenho-rotulo">empresas te viram</span>
+              </div>
+              <div className="ei-desempenho-numero">
+                <span className="ei-desempenho-valor">{dados.buscasNaSemana}</span>
+                <span className="ei-desempenho-rotulo">buscas em que apareceu</span>
+              </div>
+              <div className="ei-desempenho-numero">
+                <span className="ei-desempenho-valor">{dados.vagasMuitoCompativeis}</span>
+                <span className="ei-desempenho-rotulo">vagas que combinam</span>
               </div>
             </div>
+            <p className="ei-apoio ei-margem" style={{ marginTop: 6 }}>
+              Nos últimos 7 dias
+            </p>
 
-            <h2 className="ei-secao">As vagas de agora</h2>
-            <div className="ei-lista">
-              <Link to="/vagas" className="ei-linha-item">
-                <span className="ei-linha-nome">
-                  Vagas em que você é das que mais combinam
-                  <span className="ei-linha-sub">
-                    De {dados.vagasNoAr} {dados.vagasNoAr === 1 ? "vaga aberta" : "vagas abertas"} na
-                    cidade
-                  </span>
-                </span>
-                <span className="ei-linha-valor">{dados.vagasMuitoCompativeis}</span>
-              </Link>
-
-              <Link to="/vagas" className="ei-linha-item">
-                <span className="ei-linha-nome">
-                  Vagas em que você disse ter interesse
-                  <span className="ei-linha-sub">
-                    A empresa recebe seu nome e seu telefone
-                  </span>
-                </span>
-                <span className="ei-linha-valor">{dados.interessesEnviados}</span>
-              </Link>
-
-              {/* "Quem viu seu cadastro" é uma seção DENTRO do cadastro
-                  (ver MeuPerfilPage), e não uma tela própria — por isso o
-                  link vai para lá. */}
-              <Link to="/meu-perfil" className="ei-linha-item">
-                <span className="ei-linha-nome">
-                  Empresas que já abriram seu cadastro
-                  <span className="ei-linha-sub">Desde que você se cadastrou</span>
-                </span>
-                <span className="ei-linha-valor">{dados.empresasTotal}</span>
-              </Link>
+            {/* O recado, curto. Ele diz o que fazer com os números de
+                cima — e por isso vem depois deles, e não antes: sozinho,
+                era um parágrafo antes de qualquer dado. */}
+            <div className="ei-cartao ei-recado" style={{ marginTop: 14 }}>
+              <h2 className="ei-recado-titulo">{recado.titulo}</h2>
+              <p className="ei-recado-texto">{recado.texto}</p>
             </div>
 
-            {/* ── O QUE ESTÁ CUSTANDO VAGAS, NAS VAGAS DE HOJE — 04/09 ──
-                A tela terminava em três conselhos iguais para todo mundo.
-                Todos verdadeiros, nenhum sobre a pessoa que está lendo — e
-                quem já tentou os três não tem para onde ir.
+            {/* ── APARECER PRIMEIRO, COM BOTÃO — 04/09 ──────────────────
+                A dona: "quando oferecer pra aparecer na frente, ter o
+                botão pra assinar o plano."
 
-                Isto aqui é outra coisa: é contado nas vagas que estão no ar
-                AGORA, e diz qual campo do cadastro tirou a pessoa de
-                quantas delas. Não é conselho, é o número — a conta de
-                compatibilidade sempre soube a resposta e a jogava fora (ver
-                `faltou`, em compatibilidade.ts).
+                Era um link escrito no meio do recado. A decisão anterior
+                de deixá-lo como texto tinha um motivo bom (não empurrar
+                pagamento para quem está desempregado), mas ela pediu o
+                botão com todas as letras, duas vezes — e o cuidado
+                continua onde importa: o cartão só aparece nos recados que
+                falam de ser vista, nunca em cima de quem já está sendo
+                procurada.
 
-                Some inteiro quando não há nada a dizer: uma seção "o que
-                está te atrapalhando" vazia, ou com um item inventado para
-                não ficar vazia, é pior que seção nenhuma. */}
+                Dentro do app da Play Store ele não existe (`podeVender`):
+                vender por fora da cobrança do Google é infração, e
+                apontar o caminho é a mesma infração que vender. */}
+            {recado.ofereceDestaque && podeVender() && (
+              <div className="ei-cartao ei-destaque-oferta">
+                <span className="ei-destaque-titulo">Aparecer primeiro na lista</span>
+                <span className="ei-destaque-nota">
+                  {DESTAQUE_DIAS} dias no topo, com selo “Em alta”
+                </span>
+                <span className="ei-destaque-preco">{precoDoDestaqueEmTexto()}</span>
+                <Link to="/destaque" className="ei-btn ei-btn-cheio ei-btn-largo ei-btn-alto">
+                  Assinar
+                </Link>
+              </div>
+            )}
+
+            {/* O que o cadastro está custando HOJE, nas vagas que estão no
+                ar. É o único conselho que é sobre esta pessoa, e por isso
+                é o único que ficou. Some inteiro quando não há nada a
+                dizer. */}
             {dados.pontosFracos.length > 0 && (
               <>
-                <h2 className="ei-secao">O que está custando vagas hoje</h2>
+                <h2 className="ei-secao">O que está custando vagas</h2>
                 <div className="ei-lista">
                   {dados.pontosFracos.map((f) => (
                     <Link key={f.campo} to="/meu-perfil" className="ei-linha-item">
-                      <span className="ei-linha-nome">
-                        {f.titulo}
-                        <span className="ei-linha-sub">{f.texto}</span>
-                      </span>
+                      <span className="ei-linha-nome">{f.titulo}</span>
                       <span className="ei-linha-valor">{f.vagas}</span>
                     </Link>
                   ))}
@@ -217,42 +188,21 @@ export function MeuDesempenhoPage() {
               </>
             )}
 
-            {/* O que a pessoa pode fazer HOJE. Uma tela de números sem
-                saída é um diagnóstico sem receita. */}
-            <h2 className="ei-secao">O que costuma destravar</h2>
-            <div className="ei-lista">
-              <Link to="/meu-perfil" className="ei-linha-item">
-                <span className="ei-linha-nome">
-                  Acrescentar funções que você aceita
-                  <span className="ei-linha-sub">
-                    Cada função a mais é uma porta a mais: a busca procura por elas
-                  </span>
-                </span>
-              </Link>
-              <Link to="/vagas?m=cartoes" className="ei-linha-item">
-                <span className="ei-linha-nome">
-                  Passar pelas vagas abertas, uma por uma
-                  <span className="ei-linha-sub">
-                    Responder é o que faz a empresa te ver com telefone e tudo
-                  </span>
-                </span>
-              </Link>
+            {/* Uma saída, e uma só: responder vaga é o que põe o nome e o
+                telefone da pessoa na mão da empresa. As outras duas que
+                estavam aqui ("acrescente funções", "escreva um resumo")
+                já são ditas pelo bloco de cima, quando são o caso dela.
 
-              {/* O destaque pago fica DEPOIS das três coisas de graça, e
-                  nunca antes: oferecer pagamento a quem está desempregado
-                  como primeira resposta para "ninguém me viu" é o jeito
-                  mais rápido de perder a confiança da cidade. Dentro do
-                  app da loja ele não aparece (`podeVender`). */}
-              {podeVender() && (
-                <Link to="/destaque" className="ei-linha-item">
-                  <span className="ei-linha-nome">
-                    Aparecer primeiro na lista
-                    <span className="ei-linha-sub">
-                      {DESTAQUE_DIAS} dias no topo, com selo “Em alta” — {precoDoDestaqueEmTexto()}
-                    </span>
-                  </span>
-                </Link>
-              )}
+                Com título próprio: sem ele esta linha encostava na lista
+                de "o que está custando vagas" e era lida como mais um item
+                dela — dois assuntos opostos (o que atrapalha, o que
+                fazer) no mesmo bloco. */}
+            <h2 className="ei-secao">O caminho mais curto</h2>
+            <div className="ei-lista">
+              <Link to="/vagas-para-mim" className="ei-linha-item">
+                <span className="ei-linha-nome">Ver as vagas que combinam comigo</span>
+                <span className="ei-linha-valor">{dados.vagasNoAr}</span>
+              </Link>
             </div>
           </>
         )}

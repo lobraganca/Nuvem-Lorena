@@ -253,7 +253,10 @@ export function recadoDoDesempenho(d: Desempenho): {
     return {
       titulo: `${d.empresasNaSemana} empresas abriram seu cadastro esta semana`,
       texto:
-        "Seu cadastro está circulando. Deixe o telefone à mão — quando a empresa abre, é porque já está pensando em ligar.",
+        /* Encurtados em 04/09: "muita confusão e escrita extensa". Cada
+           recado tinha duas ou três orações e um conselho embutido; agora
+           é uma frase, e o que fazer está no botão ou na lista abaixo. */
+        "Deixe o telefone à mão: quem abre o cadastro está pensando em ligar.",
     };
   }
 
@@ -268,7 +271,7 @@ export function recadoDoDesempenho(d: Desempenho): {
            não ordena por quem respondeu antes), e "aparecer primeiro" é o
            nome do que o app VENDE — a dona leu isto como a oferta paga e
            procurou o preço. Agora diz o que acontece de verdade. */
-        "Não espere a empresa te achar: abra essas vagas e toque em “tenho interesse”. Quem responde entra na lista dela com nome e telefone.",
+        "Abra e toque em “tenho interesse”: é assim que seu nome e telefone chegam à empresa.",
     };
   }
 
@@ -278,7 +281,7 @@ export function recadoDoDesempenho(d: Desempenho): {
         d.buscasNaSemana === 1 ? "busca" : "buscas"
       } esta semana`,
       texto:
-        "Aparecer é metade do caminho. Uma foto e um resumo curto de você fazem a empresa parar na sua linha em vez de rolar.",
+        "Uma foto e um resumo curto fazem a empresa parar na sua linha.",
       ofereceDestaque: true,
     };
   }
@@ -287,14 +290,14 @@ export function recadoDoDesempenho(d: Desempenho): {
     return {
       titulo: "Ainda não há vagas no ar hoje",
       texto:
-        "Não é você: nenhuma empresa publicou nada agora. Deixe seu cadastro preenchido, que a vaga nova avisa quem combina.",
+        "Não é você: ninguém publicou nada hoje. Com o cadastro pronto, a vaga nova te avisa.",
     };
   }
 
   return {
     titulo: "Seu cadastro ainda está passando despercebido",
     texto:
-      "Duas coisas mudam isso rápido: acrescentar mais funções que você aceita fazer, e escrever um resumo curto de você. É por essas duas que a busca encontra.",
+      "Mais funções marcadas e um resumo curto: é por eles que a busca encontra.",
     ofereceDestaque: true,
   };
 }

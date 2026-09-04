@@ -193,6 +193,14 @@ const TELAS_DE_APP = [
      barra do app — o pedaço mais visível que sobrou do procurô. */
   "/vaga-aberta",
   "/avisos",
+  /* 04/09: faltava, e o sintoma foi o de sempre — a tela de desempenho
+     terminava com o rodapé de SITE (três colunas de links e o botão verde
+     do WhatsApp) embaixo da barra do app. É o mesmo esquecimento já
+     registrado acima para `/vagas` e `/vaga-aberta`. */
+  "/meu-desempenho",
+  "/destaque",
+  "/reembolso",
+  "/meus-cadastros",
   "/planos-empresa",
   "/profissionais",
   "/profissional",
