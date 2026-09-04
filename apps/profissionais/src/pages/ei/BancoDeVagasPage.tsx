@@ -5,7 +5,12 @@ import { mensagemDeErro } from "../../lib/erros";
 import { useAuth } from "../../lib/useAuth";
 import { bancoDeVagas, type VagaNoBanco } from "../../lib/bancoDeVagas";
 import { responderVaga } from "../../lib/minhasVagas";
-import { vagaEmDestaque } from "../../lib/destaque";
+import {
+  vagaEmDestaque,
+  precoDoDestaqueDeVagaEmTexto,
+  DESTAQUE_DIAS,
+} from "../../lib/destaque";
+import { podeVender } from "../../lib/plataforma";
 import { lerMeuPerfil } from "../../lib/meuPerfil";
 import { nomeDoContrato, salarioEmTexto } from "../../types/domain";
 import { Pagina } from "../../components/ei/Pagina";
@@ -141,6 +146,102 @@ export function BancoDeVagasPage() {
       );
     });
   }, [lista, filtro, cidade, tipo]);
+
+  /* As pagas primeiro, e em lista própria — ver o comentário da área de
+     destaque, mais abaixo. A ordem dentro de cada uma é a que já vinha do
+     banco. */
+  const destacadas = useMemo(() => visiveis.filter((v) => vagaEmDestaque(v.vaga)), [visiveis]);
+  const resto = useMemo(() => visiveis.filter((v) => !vagaEmDestaque(v.vaga)), [visiveis]);
+
+  /* Uma linha da lista. Vira função porque agora ela é desenhada em DOIS
+     lugares (a área de destaque e o resto), e duas cópias do mesmo JSX de
+     quarenta linhas é o tipo de coisa que diverge no primeiro conserto. */
+  const linhaDaVaga = (v: VagaNoBanco) => (
+              /* `ei-vaga-linha` e não `ei-pessoa`: a linha de pessoa tem
+                 duas linhas de texto e centraliza o retrato na vertical.
+                 Aqui são quatro, e o retrato centralizado descia para o
+                 meio do bloco, deixando um buraco branco em cima. */
+              <Link key={v.vaga.id} to={`/vaga-aberta/${v.vaga.id}`} className="ei-pessoa ei-vaga-linha">
+                <Marca foto={v.empresa_foto} nome={v.empresa || v.vaga.title} />
+                <div className="ei-pessoa-texto">
+                  {/* ── O TÍTULO PODE OCUPAR DUAS LINHAS — 04/09 ─────────
+                      A dona: "os títulos das vagas estão quebrados."
+
+                      Estavam cortados: "Motorista entrega…", "Pedreiro
+                      para obr…". A linha de vaga tem QUATRO linhas de
+                      texto e ganhou um retrato maior no mesmo dia — e o
+                      título, que é a única coisa pela qual alguém decide
+                      abrir a vaga, foi o que pagou a conta.
+
+                      Cortar o cargo é pior que ocupar mais uma linha:
+                      "Motorista entrega…" pode ser entregador, entregas
+                      rápidas ou entrega de gás, e a pessoa tem de abrir
+                      para descobrir. Duas linhas, e só então reticências. */}
+                  <div className="ei-pessoa-nome ei-duas-linhas">{v.vaga.title}</div>
+                  <div className="ei-pessoa-oficio ei-uma-linha">
+                    {[v.empresa, v.vaga.city].filter(Boolean).join(" · ")}
+                  </div>
+                  {(v.vaga.aceita_primeiro_emprego ||
+                    v.vaga.vaga_para_pcd ||
+                    vagaEmDestaque(v.vaga)) && (
+                    <div className="ei-chips" style={{ marginTop: 4 }}>
+                      {/* O destaque vem primeiro porque é o que explica a
+                          POSIÇÃO da vaga na lista: sem o selo, quem paga
+                          sobe e ninguém entende por quê — e a lista passa
+                          a parecer bagunçada em vez de patrocinada. */}
+                      {vagaEmDestaque(v.vaga) && (
+                        <span className="ei-selo ei-selo-laranja">Em destaque</span>
+                      )}
+                      {v.vaga.aceita_primeiro_emprego && (
+                        <span className="ei-selo ei-selo-verde">Aceita primeiro emprego</span>
+                      )}
+                      {v.vaga.vaga_para_pcd && (
+                        <span className="ei-selo ei-selo-verde">Aceita PCD</span>
+                      )}
+                    </div>
+                  )}
+                  <div className="ei-vaga-linha-detalhe ei-uma-linha">
+                    {[salarioEmTexto(v.vaga) ?? "Salário não informado",
+                      nomeDoContrato(v.vaga.tipo_contrato)]
+                      .filter(Boolean)
+                      .join(" · ")}
+                  </div>
+                  {/* A compatibilidade EXPLICADA, e não só um número: "72%"
+                      sozinho não diz o que fazer com ele — e sugere uma
+                      precisão que uma comparação de texto não tem.
+
+                      Numa linha só, cortada com reticências se não couber:
+                      quatro linhas de altura já é o limite antes de a lista
+                      virar uma pilha de blocos em vez de uma lista. */}
+                  {v.interessado === true ? (
+                    <div className="ei-compat ei-compat-respondida ei-uma-linha">
+                      Você já respondeu que tem interesse
+                    </div>
+                  ) : (
+                    v.compatibilidade !== null && (
+                      <div className={`ei-compat ei-uma-linha ${classeDaCompat(v.compatibilidade)}`}>
+                        {/* A empresa marcou que NÃO aceita quem não bate
+                            (item 16, 0105). A pessoa fica sabendo AQUI, e
+                            não depois de responder e nunca receber
+                            retorno — que é a única forma pior de não ser
+                            chamada. */}
+                        {!v.vaga.aceita_sem_compatibilidade && v.compatibilidade < 75
+                          ? "Esta empresa só chama quem bate com o pedido"
+                          : rotuloDaCompat(v.compatibilidade)}
+                        {/* Só o primeiro motivo: dois estouram a linha, e o segundo
+                            nunca é o que decide. */}
+                        {v.vaga.aceita_sem_compatibilidade !== false &&
+                          v.porque.length > 0 &&
+                          ` · ${v.porque[0]}`}
+                      </div>
+                    )
+                  )}
+                </div>
+                <span className="ei-linha-seta" aria-hidden="true">
+                  <IconeSeta />
+                </span>
+              </Link>
+  );
 
   return (
     <div className="ei">
@@ -342,95 +443,52 @@ export function BancoDeVagasPage() {
           <Baralho vagas={visiveis} verLista={() => mudarParams({ m: null })} />
         )}
 
-        {visiveis.length > 0 && modo === "lista" && (
-          <div className="ei-lista">
-            {visiveis.map((v) => (
-              /* `ei-vaga-linha` e não `ei-pessoa`: a linha de pessoa tem
-                 duas linhas de texto e centraliza o retrato na vertical.
-                 Aqui são quatro, e o retrato centralizado descia para o
-                 meio do bloco, deixando um buraco branco em cima. */
-              <Link key={v.vaga.id} to={`/vaga-aberta/${v.vaga.id}`} className="ei-pessoa ei-vaga-linha">
-                <Marca foto={v.empresa_foto} nome={v.empresa || v.vaga.title} />
-                <div className="ei-pessoa-texto">
-                  {/* ── O TÍTULO PODE OCUPAR DUAS LINHAS — 04/09 ─────────
-                      A dona: "os títulos das vagas estão quebrados."
+        {/* ── A ÁREA DE DESTAQUE — 04/09 ───────────────────────────────
+            A dona: "na lista de vagas, criar área de destaque pra quem
+            quer aparecer e pagar pra estar ali."
 
-                      Estavam cortados: "Motorista entrega…", "Pedreiro
-                      para obr…". A linha de vaga tem QUATRO linhas de
-                      texto e ganhou um retrato maior no mesmo dia — e o
-                      título, que é a única coisa pela qual alguém decide
-                      abrir a vaga, foi o que pagou a conta.
+            A vaga em destaque já existia e já subia para o topo, mas
+            misturada: quem pagava ficava na mesma lista, com um selinho
+            do lado, e nada dizia que aquele lugar podia ser comprado. Sem
+            área, o destaque não tem vitrine — e uma vitrine que ninguém
+            vê não se vende.
 
-                      Cortar o cargo é pior que ocupar mais uma linha:
-                      "Motorista entrega…" pode ser entregador, entregas
-                      rápidas ou entrega de gás, e a pessoa tem de abrir
-                      para descobrir. Duas linhas, e só então reticências. */}
-                  <div className="ei-pessoa-nome ei-duas-linhas">{v.vaga.title}</div>
-                  <div className="ei-pessoa-oficio ei-uma-linha">
-                    {[v.empresa, v.vaga.city].filter(Boolean).join(" · ")}
-                  </div>
-                  {(v.vaga.aceita_primeiro_emprego ||
-                    v.vaga.vaga_para_pcd ||
-                    vagaEmDestaque(v.vaga)) && (
-                    <div className="ei-chips" style={{ marginTop: 4 }}>
-                      {/* O destaque vem primeiro porque é o que explica a
-                          POSIÇÃO da vaga na lista: sem o selo, quem paga
-                          sobe e ninguém entende por quê — e a lista passa
-                          a parecer bagunçada em vez de patrocinada. */}
-                      {vagaEmDestaque(v.vaga) && (
-                        <span className="ei-selo ei-selo-laranja">Em destaque</span>
-                      )}
-                      {v.vaga.aceita_primeiro_emprego && (
-                        <span className="ei-selo ei-selo-verde">Aceita primeiro emprego</span>
-                      )}
-                      {v.vaga.vaga_para_pcd && (
-                        <span className="ei-selo ei-selo-verde">Aceita PCD</span>
-                      )}
-                    </div>
-                  )}
-                  <div className="ei-vaga-linha-detalhe ei-uma-linha">
-                    {[salarioEmTexto(v.vaga) ?? "Salário não informado",
-                      nomeDoContrato(v.vaga.tipo_contrato)]
-                      .filter(Boolean)
-                      .join(" · ")}
-                  </div>
-                  {/* A compatibilidade EXPLICADA, e não só um número: "72%"
-                      sozinho não diz o que fazer com ele — e sugere uma
-                      precisão que uma comparação de texto não tem.
+            Separar também é honestidade com quem procura emprego: uma
+            lista cuja ordem foi paga tem de DIZER que foi paga. Misturado,
+            o app parecia ordenar por relevância e ordenava por dinheiro. */}
+        {modo === "lista" && destacadas.length > 0 && (
+          <>
+            <h2 className="ei-secao">Em destaque</h2>
+            <div className="ei-lista ei-lista-destaque">{destacadas.map(linhaDaVaga)}</div>
+          </>
+        )}
 
-                      Numa linha só, cortada com reticências se não couber:
-                      quatro linhas de altura já é o limite antes de a lista
-                      virar uma pilha de blocos em vez de uma lista. */}
-                  {v.interessado === true ? (
-                    <div className="ei-compat ei-compat-respondida ei-uma-linha">
-                      Você já respondeu que tem interesse
-                    </div>
-                  ) : (
-                    v.compatibilidade !== null && (
-                      <div className={`ei-compat ei-uma-linha ${classeDaCompat(v.compatibilidade)}`}>
-                        {/* A empresa marcou que NÃO aceita quem não bate
-                            (item 16, 0105). A pessoa fica sabendo AQUI, e
-                            não depois de responder e nunca receber
-                            retorno — que é a única forma pior de não ser
-                            chamada. */}
-                        {!v.vaga.aceita_sem_compatibilidade && v.compatibilidade < 75
-                          ? "Esta empresa só chama quem bate com o pedido"
-                          : rotuloDaCompat(v.compatibilidade)}
-                        {/* Só o primeiro motivo: dois estouram a linha, e o segundo
-                            nunca é o que decide. */}
-                        {v.vaga.aceita_sem_compatibilidade !== false &&
-                          v.porque.length > 0 &&
-                          ` · ${v.porque[0]}`}
-                      </div>
-                    )
-                  )}
-                </div>
-                <span className="ei-linha-seta" aria-hidden="true">
-                  <IconeSeta />
-                </span>
-              </Link>
-            ))}
-          </div>
+        {modo === "lista" && destacadas.length > 0 && resto.length > 0 && (
+          <h2 className="ei-secao">As outras vagas</h2>
+        )}
+
+        {resto.length > 0 && modo === "lista" && (
+          <div className="ei-lista">{resto.map(linhaDaVaga)}</div>
+        )}
+
+        {/* O convite para a empresa, no pé da área. Fica DEPOIS das vagas
+            porque a tela é de quem procura trabalho: quem entra aqui vem
+            ver vagas, não comprar espaço. Quem contrata rola até o fim e
+            encontra — e é ela que precisa achar.
+
+            Dentro do app da Play Store não aparece (`podeVender`): vender
+            por fora da cobrança do Google é infração, e apontar o caminho
+            é a mesma infração que vender. */}
+        {modo === "lista" && visiveis.length > 0 && podeVender() && (
+          <Link to="/painel-empresa" className="ei-convite-destaque">
+            <span className="ei-convite-destaque-titulo">
+              Sua vaga aqui em cima, na área de destaque
+            </span>
+            <span className="ei-convite-destaque-nota">
+              {precoDoDestaqueDeVagaEmTexto()} por {DESTAQUE_DIAS} dias, com selo “Em destaque”.
+              Abra a vaga no seu painel para contratar.
+            </span>
+          </Link>
         )}
       </div>
     </div>

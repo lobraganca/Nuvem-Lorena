@@ -6184,3 +6184,44 @@
   line-height: 1.3;
   color: var(--ei-tinta-fraca);
 }
+
+/* ── A ÁREA DE DESTAQUE DO BANCO DE VAGAS — 04/09 ─────────────────────
+   A dona: "na lista de vagas, criar área de destaque pra quem quer
+   aparecer e pagar pra estar ali."
+
+   O fio laranja à esquerda é o que faz a área existir sem virar caixa
+   dentro de caixa: as linhas continuam do mesmo tamanho e no mesmo lugar
+   da régua, e o que muda é a margem, que passa a ter cor. Uma moldura
+   inteira separaria demais — quem procura emprego não deve sentir que
+   está lendo publicidade em vez de vagas. */
+.ei .ei-lista-destaque {
+  border-left: 3px solid var(--ei-laranja-botao);
+}
+
+/* O convite para a empresa comprar o lugar. No pé da lista, escrito e
+   não botão: a tela é de quem procura trabalho, e um botão de compra
+   forte no meio dela venderia para a pessoa errada. */
+.ei .ei-convite-destaque {
+  display: block;
+  margin: 18px 12px 0;
+  padding: 14px 16px;
+  border: 1px dashed var(--ei-borda);
+  border-radius: 16px;
+  background: var(--ei-papel);
+  text-decoration: none;
+}
+.ei .ei-convite-destaque:active { opacity: 0.7; }
+
+.ei .ei-convite-destaque-titulo {
+  display: block;
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--ei-tinta);
+}
+.ei .ei-convite-destaque-nota {
+  display: block;
+  margin-top: 4px;
+  font-size: 0.84rem;
+  line-height: 1.45;
+  color: var(--ei-tinta-fraca);
+}

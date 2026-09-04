@@ -238,6 +238,10 @@ const VAGAS: Linha[] = [
     salary_range_max: 180000,
   },
   {
+    /* Uma vaga PAGA, para a área de destaque do banco de vagas aparecer
+       nos testes de navegador. Sem ela, a área simplesmente não existe na
+       tela e o teste passa sem ter olhado nada. */
+    destaque_ate: new Date(Date.now() + 5 * 86400000).toISOString(),
     title: "Motorista entregador",
     profession: "Motorista",
     specialty: "Entregas",
