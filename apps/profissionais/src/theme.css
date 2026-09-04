@@ -3493,11 +3493,17 @@ h3 {
      tudo que não tem fundo próprio, e o cartão pareceu translúcido. Um
      degradê com parada dura resolve sem tirar nada do lugar — e acaba onde
      a página acaba. */
+  /* 04/09: a faixa foi de 300px para 400px. A tela de entrar ganhou a
+     chave do lado (os dois cartões "Procuro emprego" / "Quero
+     contratar", ver `.entrar-lados`), e com ela a linha que explica a
+     escolha passou a cair FORA do azul — a última palavra ficava cortada
+     exatamente na parada do degradê, que é o tipo de detalhe que faz a
+     tela parecer quebrada. */
   background: linear-gradient(
     to bottom,
     var(--color-marca-azul) 0,
-    var(--color-marca-azul) 300px,
-    transparent 300px
+    var(--color-marca-azul) 400px,
+    transparent 400px
   );
 }
 
@@ -3585,3 +3591,53 @@ h3 {
   color: #fff;
   font-weight: 600;
 }
+
+/* ═══════════════════════════════════════════════════════════════════════
+   A CHAVE DO LADO, NA TELA DE LOGIN — 04/09
+   ═══════════════════════════════════════════════════════════════════════
+   A dona: "na tela de login a pessoa vai ter que escolher entre quero
+   contratar ou procuro emprego... sobre a chave para escolher o perfil,
+   deve estar na mesma tela do login."
+
+   A primeira tentativa reaproveitou o `.ei-ciclo` (os cartões de "como
+   pagar", da tela de planos) e ficou ilegível: aquelas regras vivem
+   dentro de `.ei`, e a tela de entrar não é `.ei` — é `container
+   entrar-pagina`, com a faixa azul da marca. O resultado, na foto: dois
+   títulos pretos soltos no azul, sem cartão e sem nenhuma marca de qual
+   estava escolhido. A escolha mais importante do app, invisível.
+
+   Aqui os dois cartões são brancos sobre o azul (é onde eles caem), e o
+   escolhido inverte: fundo escuro, letra branca. Inverter, e não só pôr
+   um contorno — sobre azul um contorno de 2px some, que foi o mesmo
+   motivo de o cartão do formulário usar sombra em vez de fio. */
+.entrar-lados {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 8px;
+  margin-top: 16px;
+}
+
+.entrar-lado {
+  display: grid;
+  gap: 2px;
+  padding: 12px 14px;
+  text-align: left;
+  border: 2px solid transparent;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.94);
+  color: var(--color-text);
+  font: inherit;
+  cursor: pointer;
+}
+
+.entrar-lado:hover { background: #ffffff; }
+
+.entrar-lado[aria-pressed="true"] {
+  background: var(--color-text, #1f2937);
+  border-color: #ffffff;
+  color: #ffffff;
+}
+
+.entrar-lado-nome { font-size: 0.98rem; font-weight: 700; }
+.entrar-lado-nota { font-size: 0.82rem; line-height: 1.35; opacity: 0.75; }
+.entrar-lado[aria-pressed="true"] .entrar-lado-nota { opacity: 0.9; }

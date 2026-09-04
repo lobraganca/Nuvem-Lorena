@@ -2,11 +2,11 @@ import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../../lib/useAuth";
 import { useOnboardingStatus } from "../../lib/useOnboardingStatus";
-import { registrarTipoDeUsuario } from "../../lib/company";
 import { isAdmin } from "../../lib/admin";
 import { useTituloDaPagina } from "../../lib/tituloDaPagina";
 import { InstalarApp } from "../../components/InstalarApp";
 import { IconePorta } from "./ComecarPage";
+import { casaDoLado } from "../../lib/ladoDaSessao";
 
 /**
  * A porta de entrada do Ei Emprego.
@@ -80,11 +80,6 @@ export function EntradaPage() {
      entrar e criar conta. Com conta, mostra o nome de quem entrou e os
      caminhos daquele lado — e o desvio automático fica só para quem ainda
      não escolheu o lado, porque aí falta uma resposta, não um caminho. */
-  /* Segura os dois botões: dois toques rápidos levariam a pessoa para
-     dois lugares em sequência, e o segundo toque só faz sentido depois
-     que o primeiro terminou de gravar. */
-  const [trocando, setTrocando] = useState(false);
-
   /* Quem administra vê a porta do painel logo aqui. `false` enquanto não
      se sabe: mostrar o atalho e escondê-lo meio segundo depois pisca na
      tela de quem não é administração. */
@@ -100,78 +95,27 @@ export function EntradaPage() {
     };
   }, [user]);
 
-  /* ── OS BOTÕES TRAVAVAM AO VOLTAR — 03/09 ────────────────────────────
-     A dona: "quando clica em voltar pra tela de início os botões de
-     procuro emprego e quero contratar estão travando. Só volta quando
-     atualiza a página."
+  /* ── QUEM ENTROU JÁ ESCOLHEU O LADO, NA PORTA — 04/09 ────────────────
+     A dona: "na tela de login a pessoa vai ter que escolher entre quero
+     contratar ou procuro emprego... uma pessoa que entra só pra procurar
+     um emprego, só terá as opções para isso."
 
-     A causa é a saída daqui ser um `location.href`, e não uma navegação
-     do roteador: a tela some do React e o navegador guarda a página
-     inteira, VIVA, no cache de voltar (bfcache) — com o estado que ela
-     tinha no momento da saída, ou seja, `trocando = true`. Ao voltar, a
-     página não é montada de novo (nenhum `useState` roda), então o
-     primeiro `if` de `irParaOLado` continua saindo sem fazer nada e os
-     dois botões continuam `disabled`. Atualizar a página resolvia porque
-     aí sim tudo era montado do zero.
+     Esta tela existia para fazer essa pergunta DEPOIS do login, com os
+     dois lados lado a lado — e era o principal lugar onde as duas metades
+     do app apareciam juntas para todo mundo. Com a escolha na porta, ela
+     não tem mais o que perguntar: manda cada um para a casa do seu lado.
 
-     `pageshow` é o único evento que avisa essa volta (o `useEffect` não
-     roda: o componente nunca desmontou). Destravar sempre que a tela
-     reaparece é seguro — se a pessoa está vendo esta tela, não há
-     gravação em curso para proteger. */
-  useEffect(() => {
-    function aoReaparecer() {
-      setTrocando(false);
-    }
-    window.addEventListener("pageshow", aoReaparecer);
-    /* E também quando a aba volta a ficar visível: no iPhone o gesto de
-       voltar nem sempre dispara `pageshow`, e aí o app fica com a tela
-       viva e os botões mortos — que é exatamente o sintoma relatado. */
-    document.addEventListener("visibilitychange", aoReaparecer);
-    return () => {
-      window.removeEventListener("pageshow", aoReaparecer);
-      document.removeEventListener("visibilitychange", aoReaparecer);
-    };
-  }, []);
-
-  /**
-   * Escolhe o ambiente e vai para a tela DELE.
-   *
-   * A dona: "na tela de por onde começamos só deveria ter a opção de
-   * procuro trabalho ou quero contratar, daí dentro dessas telas teriam
-   * os demais botões."
-   *
-   * Antes esta função só fazia sentido para TROCAR de lado — quem já
-   * estava no lado tocado nem chamava o clique (`novo === tipo` saía sem
-   * fazer nada), porque as portas daquele lado já estavam logo abaixo, na
-   * mesma tela. Agora esta tela não tem mais porta nenhuma: os dois
-   * botões são a única forma de chegar a qualquer um dos dois lados,
-   * então tocar no que já é o seu tem que navegar do mesmo jeito.
-   *
-   * Só grava um lado novo no banco quando ele muda — gravar de novo o
-   * mesmo lado seria uma escrita à toa a cada visita.
-   *
-   * Recarrega por `location.href` em vez de navegar pelo roteador: o lado
-   * é lido uma vez, na abertura, pela barra de baixo e por várias telas.
-   * Trocar pelo roteador deixaria a barra mostrando os itens do lado
-   * antigo — e a pessoa acharia que a troca não funcionou.
-   */
-  async function irParaOLado(lado: "professional" | "company") {
-    if (!user || trocando) return;
-    const destino = lado === "company" ? "/comecar-empresa" : "/comecar-profissional";
-    if (lado === tipo) {
-      window.location.href = destino;
-      return;
-    }
-    setTrocando(true);
-    try {
-      await registrarTipoDeUsuario(user.id, lado);
-      window.location.href = destino;
-    } catch {
-      setTrocando(false);
-    }
-  }
-
-  const paraOnde = !loading && user && tipo === false ? "/onboarding-tipo" : null;
+     Sem lado nenhum só sobra quem entrou por um caminho antigo, de antes
+     desta mudança; para essas pessoas a pergunta continua existindo, na
+     tela dela. */
+  const paraOnde =
+    !loading && user
+      ? tipo === "professional" || tipo === "company"
+        ? casaDoLado(tipo)
+        : tipo === false
+          ? "/onboarding-tipo"
+          : null
+      : null;
 
   useEffect(() => {
     if (paraOnde) navegar(paraOnde, { replace: true });
@@ -242,57 +186,17 @@ export function EntradaPage() {
             Agora a ordem é a natural: entra (ou cria a conta, com senha),
             e só então escolhe de que lado está, numa tela que existe só
             para isso e pode explicar cada opção com calma. */}
-        {/* ── SÓ A ESCOLHA, NADA MAIS — 02/09 ─────────────────────────
-            A dona: "na tela de por onde começamos só deveria ter a opção
-            de procuro trabalho ou quero contratar, daí dentro dessas
-            telas teriam os demais botões."
+        {/* ── A ESCOLHA DE LADO SAIU DAQUI — 04/09 ────────────────────
+            A dona: "na tela de login a pessoa vai ter que escolher entre
+            quero contratar ou procuro emprego."
 
-            Antes esta tela acumulava duas coisas: a escolha do lado E os
-            caminhos daquele lado (Meu cadastro, Vagas compatíveis, Banco
-            de talentos — ou os da empresa), tudo junto embaixo da escolha.
-            Quem só queria trocar de lado via uma lista inteira de botões
-            que não pediu.
+            Ficavam aqui os dois botões que trocavam de lado a qualquer
+            momento — o lugar do app onde as duas metades apareciam juntas
+            para todo mundo. Agora a escolha é feita na porta, uma vez, e
+            quem já entrou nem chega a ver esta tela: o desvio lá em cima
+            manda cada um para a casa do seu lado.
 
-            Agora esta tela pergunta uma coisa e uma coisa só. As portas de
-            cada lado — e o aviso de perfil incompleto, que é sobre elas —
-            se mudaram para dentro da tela que cada botão abre. Ver
-            `ComecarPage.tsx`. */}
-        {entrou && (tipo === "company" || tipo === "professional") && (
-          <div className="ei-ambiente">
-            {/* O rótulo "Você está em — toque para trocar de lado" saiu.
-                ─────────────────────────────────────────────────────────
-                A dona pediu para tirar. Quem já sabe qual lado está ativo
-                vê pelo próprio botão marcado (`ativo`, `aria-pressed`) —
-                a frase só repetia por extenso o que a cor já dizia. */}
-            {/* Um debaixo do outro, com ícone — a dona: "os botões de
-                procuro trabalho e quero contratar podem ter ícones e
-                ficar um debaixo do outro". Empilhados em vez de lado a
-                lado: cada botão ganha a largura toda para o ícone, o nome
-                e ficar do tamanho de um alvo de toque confortável. */}
-            <div className="ei-ambiente-botoes ei-ambiente-empilhado" role="group" aria-label="Escolher o ambiente">
-              <button
-                type="button"
-                className={tipo === "professional" ? "ei-ambiente-botao ativo" : "ei-ambiente-botao"}
-                aria-pressed={tipo === "professional"}
-                disabled={trocando}
-                onClick={() => irParaOLado("professional")}
-              >
-                <IconePorta desenho="pessoa" />
-                Procuro emprego
-              </button>
-              <button
-                type="button"
-                className={tipo === "company" ? "ei-ambiente-botao ativo" : "ei-ambiente-botao"}
-                aria-pressed={tipo === "company"}
-                disabled={trocando}
-                onClick={() => irParaOLado("company")}
-              >
-                <IconePorta desenho="predio" />
-                Quero contratar
-              </button>
-            </div>
-          </div>
-        )}
+            O que sobrou aqui é a entrada de quem NÃO tem conta. */}
 
         {!entrou && (
           /* Dois botões, e não um "entrar ou criar conta": quem já tem

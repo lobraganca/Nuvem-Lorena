@@ -17,14 +17,13 @@ import { useLocation, useNavigate } from "react-router-dom";
 import { LOGIN_EMAIL_ATIVO, LOGIN_TELEFONE_ATIVO } from "../config";
 import { useAuth } from "../lib/useAuth";
 import { temDestinoLogin } from "../lib/auth";
-import { useOnboardingStatus } from "../lib/useOnboardingStatus";
+import { ladoDaUrl, type Lado } from "../lib/ladoEscolhido";
 import {
-  esquecerLado,
-  guardarLado,
-  ladoDaUrl,
-  lerLado,
-  type Lado,
-} from "../lib/ladoEscolhido";
+  casaDoLado,
+  guardarLadoDaSessao,
+  lerLadoDaSessao,
+} from "../lib/ladoDaSessao";
+import { registrarTipoDeUsuario } from "../lib/company";
 
 /**
  * Entrar: pelo telefone, pelo Google, ou por e-mail e senha.
@@ -150,68 +149,68 @@ export function LoginPage() {
      RetomarDestinoLogin, que sabe o destino certo. Sem destino guardado,
      o usuário passa pelo onboarding (se primeira vez) ou vai ao destino padrão. */
   const { user, loading: carregandoConta } = useAuth();
-  const tipoOnboarding = useOnboardingStatus();
   const navegar = useNavigate();
   const { search } = useLocation();
 
-  /* O lado vem da URL na primeira vez e do armazenamento nas seguintes.
-     Os dois porque o Google leva o navegador para fora do app e o traz de
-     volta num endereço que este código não escolheu — ali a consulta da
-     URL já não existe. */
-  const [lado] = useState<Lado | null>(() => {
-    const daUrl = ladoDaUrl(search);
-    if (daUrl) guardarLado(daUrl);
-    return daUrl ?? lerLado();
-  });
+  /* ── A ESCOLHA DO LADO É O PRIMEIRO PASSO DO LOGIN — 04/09 ──────────
+     A dona: "na tela de login a pessoa vai ter que escolher entre quero
+     contratar ou procuro emprego. Serão dois logins diferentes e as
+     funcionalidades serão separadas."
+
+     Enquanto isto for `null`, a tela mostra SÓ as duas portas — sem campo
+     de telefone, sem senha. Não é enfeite de fluxo: é o que faz a escolha
+     ser uma decisão, e não uma caixinha que se pula sem ler.
+
+     Vem da URL quando alguém chega por um caminho que já sabe o lado
+     (`?lado=trabalhar`, de quem tentou responder a uma vaga sem conta), e
+     do armazenamento quando a pessoa já tinha escolhido e a página
+     recarregou no meio — as duas portas de novo, nesse caso, seriam o app
+     esquecendo o que ela acabou de responder. */
+  const [ladoEscolhido, setLadoEscolhido] = useState<Lado | null>(
+    () => ladoDaUrl(search) ?? lerLadoDaSessao()
+  );
+
+  function escolherLado(l: Lado) {
+    guardarLadoDaSessao(l);
+    setLadoEscolhido(l);
+    limpar();
+  }
 
   useEffect(() => {
     if (carregandoConta || !user) return;
     if (temDestinoLogin()) return;
 
-    // Se está carregando o status de onboarding, aguarda
-    if (tipoOnboarding === null) return;
+    /* ── DEPOIS DE ENTRAR, O LADO JÁ FOI ESCOLHIDO — 04/09 ────────────
+       A dona: "na tela de login a pessoa vai ter que escolher entre quero
+       contratar ou procuro emprego."
 
-    /* Ainda sem lado registrado: a pergunta é a próxima tela.
-       ──────────────────────────────────────────────────────
-       Aqui existia um atalho: se a pessoa tinha tocado em "Procuro
-       trabalho" ou "Estou contratando" na tela de abertura, o lado era
-       gravado automaticamente e a pergunta não aparecia.
+       Aqui havia um desvio para `/onboarding-tipo`: a pergunta do lado
+       vinha DEPOIS do login, sempre, inclusive para quem já usava o app
+       todo dia. Era o que ela tinha pedido antes ("logo após fazer login,
+       sempre deve ter opção de escolher o ambiente") e é exatamente o que
+       ela está desfazendo agora — a pergunta subiu para a porta, e
+       perguntar de novo do lado de dentro seria perguntar duas vezes.
 
-       Ele saiu junto com as duas portas daquela tela. A dona pediu a
-       ordem inversa — "antes de perguntar se é empresa ou se é
-       profissional, tinha que ter a tela pra entrar no app e criar senha.
-       depois de criar a pessoa escolhe o perfil" —, e o atalho gravava
-       exatamente aquilo que ela quer que seja escolhido DEPOIS, com
-       calma, numa tela feita para isso.
+       Sem lado nenhum (só acontece com quem entrou por um caminho antigo,
+       de fora desta tela) a pergunta continua existindo, na tela dela.
 
-       Quem chega aqui sem lado agora vai sempre à pergunta. */
-    if (tipoOnboarding === false) {
+       O banco é escrito aqui, e não na hora do toque: um lado registrado
+       para quem nem chegou a entrar seria um cadastro de mentira nos
+       números do painel. `catch` vazio porque a escrita é para a
+       administração contar — falhar nela não pode impedir alguém de usar
+       o app. */
+    const lado = ladoEscolhido ?? lerLadoDaSessao();
+    if (!lado) {
       navegar("/onboarding-tipo", { replace: true });
       return;
     }
 
-    /* ── DEPOIS DE ENTRAR, SEMPRE A ESCOLHA DO AMBIENTE (item 4) ──────
-       A dona: "logo após fazer login, sempre deve ter opção de escolher o
-       ambiente que quer utilizar, se empresa ou candidato."
-
-       O "sempre" é a palavra que muda o que estava aqui. Antes, quem já
-       tinha um lado gravado ia direto ao painel daquele lado, e a escolha
-       só aparecia uma vez na vida — para quem estava criando a conta. Numa
-       cidade pequena isso é errado com frequência: quem tem loja também é
-       eletricista à noite, e quem contratou uma diarista em março procura
-       trabalho em setembro. Essa pessoa entrava e caía num app que decidiu
-       por ela.
-
-       Custa um toque a quem sempre usa o mesmo lado. É o preço de a outra
-       metade conseguir chegar ao lado dela — e a tela de escolha marca qual
-       é o lado atual, então o toque é sempre o mesmo botão, no mesmo lugar.
-
-       A escolha guardada no aparelho não manda mais nada: quem tem cadastro
-       de empresa é empresa por ter a empresa, e não por um botão tocado
-       semanas atrás. */
-    esquecerLado();
-    navegar("/onboarding-tipo", { replace: true });
-  }, [user, carregandoConta, tipoOnboarding, navegar, lado]);
+    guardarLadoDaSessao(lado);
+    registrarTipoDeUsuario(user.id, lado).catch(() => {
+      /* silêncio proposital: ver o comentário acima */
+    });
+    navegar(casaDoLado(lado), { replace: true });
+  }, [user, carregandoConta, navegar, ladoEscolhido]);
 
   useEffect(() => {
     if (esperaSegundos <= 0) return;
@@ -239,54 +238,60 @@ export function LoginPage() {
      leva a pessoa para o destino guardado e a LoginPage sai da tela junto.
      Virou barreira global (`ExigirSenha`), que não depende de nenhuma rota
      continuar montada. */
-  /* ── O TÍTULO NÃO PODE FINGIR QUE O LOGIN É DE UM LADO SÓ — 03/09 ─────
-     A dona: "na tela de login tá escrito, entrar pra contratar, mas não
-     é um login só da empresa."
-
-     Ela está certa, e o motivo é a própria reordenação que ela pediu
-     antes: "entra (ou cria a conta, com senha), e só então escolhe de
-     que lado está" — o lado agora é escolhido DEPOIS de entrar, em
-     `EntradaPage`/`onboarding-tipo`. As duas portas que levam a esta
-     tela (`/login?acao=criar` e `/login?acao=entrar`, em EntradaPage) não
-     mandam lado nenhum na URL — nenhum caminho hoje leva a
-     `/login?lado=contratar`. O "Entrar para contratar" só aparecia
-     puxado do `localStorage` (`lerLado`), sobra de uma escolha de dias
-     atrás, sem relação com o que a pessoa veio fazer agora — e ainda por
-     cima dava a entender que este login é exclusivo de empresa, quando é
-     o mesmo campo de telefone e senha para todo mundo.
-
-     Por isso o título e a linha de apoio usam só `ladoDaUrl(search)` —
-     o que veio na URL DESTA visita —, nunca o valor guardado. O caso que
-     continua legítimo é o outro: `VagaAbertaPage` e `AvisosPage` mandam
-     para cá com `?lado=trabalhar` quando alguém sem conta tenta responder
-     a uma vaga — aí faz sentido explicar por quê, porque é o motivo real
-     de ter caído aqui agora, não um resto de visita antiga. Não existe
-     o equivalente para empresa porque nenhuma tela redireciona um dono de
-     empresa para o login no meio de uma ação — por isso a mensagem para
-     "company" foi embora, e não só reescrita. */
-  const ladoContextual = ladoDaUrl(search);
 
   return (
     <div className="container entrar-pagina">
-      <h1>
-        {modo === "sms" && !comEmail
-          ? "Criar conta ou entrar"
-          : ladoContextual === "professional"
-            ? "Entrar para procurar trabalho"
-            : "Entrar"}
-      </h1>
-      <p className="muted">
-        {/* Era texto do procurô — "avaliar, salvar favoritos e cadastrar
-            os seus serviços" —, e nenhuma dessas três coisas existe aqui.
-            Ficava na PRIMEIRA tela que qualquer pessoa nova lê. */}
-        {/* Uma linha, e curta. As três anteriores tinham duas frases cada,
-            e a segunda sempre explicava o que NÃO precisa de conta — numa
-            tela onde a pessoa já decidiu entrar. Explicação que chega
-            depois da decisão não ajuda: ocupa a tela e atrasa o campo. */}
-        {ladoContextual === "professional"
-          ? "Para receber as vagas do seu ofício."
-          : "Para receber vagas, ou publicar as suas."}
+      <h1>{modo === "sms" && !comEmail ? "Criar conta ou entrar" : "Entrar"}</h1>
+      {/* ── A CHAVE DO LADO, NA MESMA TELA DO LOGIN — 04/09 ─────────────
+          A dona: "na tela de login a pessoa vai ter que escolher entre quero
+          contratar ou procuro emprego. Serão dois logins diferentes e as
+          funcionalidades serão separadas." E, logo depois: "sobre a chave
+          para escolher o perfil, deve estar na mesma tela do login."
+
+          A primeira versão disto foi uma tela ANTES do login, com as duas
+          portas grandes, e o formulário só aparecia depois de escolher. Ela
+          recusou: são dois passos onde cabe um, e quem já sabe o que veio
+          fazer tem de tocar duas vezes para chegar no mesmo campo de
+          telefone.
+
+          Aqui a chave é a primeira coisa da tela e o formulário está logo
+          abaixo, os dois visíveis de uma vez. Nada é preenchido antes da
+          escolha — o botão de entrar fica travado — porque o lado decide o
+          app inteiro que vem depois, e entrar sem ele seria escolher por
+          quem não escolheu. */}
+      <div className="entrar-lados" role="group" aria-label="O que você veio fazer">
+        <button
+          type="button"
+          className="entrar-lado"
+          aria-pressed={ladoEscolhido === "professional"}
+          onClick={() => escolherLado("professional")}
+        >
+          <span className="entrar-lado-nome">Procuro emprego</span>
+          <span className="entrar-lado-nota">
+            Recebo as vagas que combinam comigo
+          </span>
+        </button>
+        <button
+          type="button"
+          className="entrar-lado"
+          aria-pressed={ladoEscolhido === "company"}
+          onClick={() => escolherLado("company")}
+        >
+          <span className="entrar-lado-nome">Quero contratar</span>
+          <span className="entrar-lado-nota">
+            Publico vagas e falo com quem responder
+          </span>
+        </button>
+      </div>
+
+      <p className="muted" style={{ marginTop: 10 }}>
+        {ladoEscolhido === null
+          ? "Escolha uma das duas para continuar."
+          : ladoEscolhido === "company"
+            ? "Dentro do app você vê só o lado de quem contrata. Para trocar, é só sair e entrar de novo."
+            : "Dentro do app você vê só o lado de quem procura emprego. Para trocar, é só sair e entrar de novo."}
       </p>
+
 
       {/* Quando o app nao consegue falar com o banco.
           ─────────────────────────────────────────────
@@ -377,8 +382,12 @@ export function LoginPage() {
             <button
               type="button"
               className="btn btn-primary btn-block"
+              /* `!ladoEscolhido` trava o botão até a chave de cima ser
+                 tocada — ver o comentário dela. Entrar sem lado deixaria
+                 o app decidir por quem não decidiu. */
               disabled={
                 !hasDatabase() ||
+                !ladoEscolhido ||
                 enviando ||
                 telefone.length < 14 ||
                 (modo === "senha" ? senhaEntrada.length < 4 : esperaSegundos > 0)
@@ -638,7 +647,9 @@ export function LoginPage() {
                cobra. Deixar o botão aceso com 5 caracteres só adiava a
                recusa para depois do toque. Entrando, qualquer tamanho
                serve: quem já tem senha curta de antes precisa poder usá-la. */
-            disabled={enviando || !email.includes("@") || senha.length < (criando ? 8 : 4)}
+            disabled={
+              !ladoEscolhido || enviando || !email.includes("@") || senha.length < (criando ? 8 : 4)
+            }
             onClick={() =>
               criando
                 ? tentar(

@@ -3,8 +3,6 @@ import { Link, useNavigate } from "react-router-dom";
 import { formatPhone } from "../lib/phone";
 import { useAuth } from "../lib/useAuth";
 import { signOut, definirSenha } from "../lib/auth";
-import { registrarTipoDeUsuario, minhasEmpresas } from "../lib/company";
-import { meusCadastros } from "../lib/meuPerfil";
 import { hasDatabase } from "../lib/supabase";
 import { getProfile } from "../lib/profiles";
 import { isAdmin } from "../lib/admin";
@@ -98,19 +96,6 @@ export function PerfilPage() {
      desistiu. */
   const [admin, setAdmin] = useState(false);
   const [error, setError] = useState("");
-  /** Trocando o lado mostrado (profissional ↔ empresa). */
-  const [trocando, setTrocando] = useState(false);
-  /* Quais cadastros esta conta REALMENTE tem. `null` em um deles quer
-     dizer "não consegui saber" — e nesse caso a tela mostra o caminho do
-     mesmo jeito, porque errar para o lado de mostrar demais é melhor que
-     esconder um cadastro que existe. */
-  /* Quantos cadastros a conta tem de cada lado. `null` é "não sei" — a
-     consulta caiu —, e é diferente de zero: dizer "nenhum" a quem tem dois
-     é o defeito que esta tela existe para não cometer. */
-  const [temOutroLado, setTemOutroLado] = useState<{
-    empresa: number | null;
-    profissional: number | null;
-  } | null>(null);
   const [mostrandoSenha, setMostrandoSenha] = useState(false);
   const [senhaNova, setSenhaNova] = useState("");
   const [salvandoSenha, setSalvandoSenha] = useState(false);
@@ -148,45 +133,15 @@ export function PerfilPage() {
     if (!user) {
       setProfile(null);
       setAdmin(false);
-      setTemOutroLado(null);
       return;
     }
     getProfile(user.id).then(setProfile);
     isAdmin(user.id).then(setAdmin);
 
-    /* ── QUEM TEM OS DOIS CADASTROS VÊ OS DOIS — 03/09 ─────────────────
-       A dona: "o botão de conta vai pro cadastro de empresa, mas nesse
-       caso eu também tenho cadastro como profissional, como fica nesse
-       caso?"
-
-       Ficava escondido. A Conta mostrava só o lado ATUAL, e o outro
-       aparecia atrás de um botão escrito "também procuro trabalho" — a
-       frase de quem AINDA NÃO tem esse cadastro. Para quem já tem os dois
-       (o caso dela, e o caso comum numa cidade pequena: a dona da loja que
-       também é eletricista à noite), o app negava a existência de metade
-       do que ela cadastrou.
-
-       Duas consultas, e o erro de cada uma vira "não sei" e não "não
-       tem": esconder um cadastro que existe é o defeito que estamos
-       consertando, e repeti-lo por causa de uma consulta que caiu seria
-       trocar um erro por ele mesmo. */
-    let vivo = true;
-    /* QUANTOS, e não "tem ou não tem" — a dona: "mostre nos botões o
-       número de quantos cadastros tem em cada opção."
-
-       Faz diferença desde que os dois lados passaram a aceitar mais de um
-       cadastro: quem tem duas lojas e um perfil precisa ver isso aqui,
-       senão a Conta diz menos do que a pessoa já sabe. `null` continua
-       sendo "não sei" (a consulta caiu), que é diferente de zero. */
-    Promise.all([
-      minhasEmpresas(user.id).then((l) => l.length).catch(() => null),
-      meusCadastros(user.id).then((l) => l.length).catch(() => null),
-    ]).then(([empresas, profissionais]) => {
-      if (vivo) setTemOutroLado({ empresa: empresas, profissional: profissionais });
-    });
-    return () => {
-      vivo = false;
-    };
+    /* ── A CONTAGEM DOS DOIS LADOS SAIU — 04/09 ────────────────────
+       Ela alimentava os dois cartões (Profissional / Empresa) que a Conta
+       mostrava lado a lado. Com o lado escolhido na porta e fixo por
+       dentro, contar o outro é ler o banco para não mostrar nada. */
   }, [user]);
 
   if (loading) return null;
@@ -308,70 +263,45 @@ export function PerfilPage() {
             Uma conta, um número, dois lados: é assim que a cidade usa o
             app (a dona da loja que também é eletricista à noite), e a
             Conta é o lugar onde isso tem que estar visível. */}
+        {/* ── SÓ O LADO DESTA SESSÃO — 04/09 ─────────────────────────
+            A dona: "na tela de login a pessoa vai ter que escolher entre
+            quero contratar ou procuro emprego. Serão dois logins
+            diferentes e as funcionalidades serão separadas. Uma pessoa que
+            entra só pra procurar um emprego, só terá as opções para isso."
+
+            Aqui havia os dois cartões — Profissional e Empresa, sempre os
+            dois —, e tocar num deles trocava o lado do app. Era o desenho
+            certo para a regra anterior ("logo após fazer login, sempre deve
+            ter opção de escolher o ambiente") e é o oposto desta: mostrar
+            o cadastro de empresa para quem entrou só para procurar emprego
+            é exatamente a mistura que ela está tirando.
+
+            Fica o lado que a pessoa escolheu na porta, com o caminho para
+            o cadastro dele. Trocar de lado é sair e entrar de novo — dito
+            com todas as letras logo abaixo, senão quem tem os dois acha
+            que perdeu o outro. */}
         <div className="ei-secao-linha">
-          <h2>Seus cadastros</h2>
+          <h2>Seu cadastro</h2>
         </div>
-        <div className="ei-lados">
-          {(["professional", "company"] as const).map((lado) => {
-            const aberto = tipo === lado;
-            const quantos =
-              lado === "company" ? temOutroLado?.empresa : temOutroLado?.profissional;
-            return (
-              <button
-                key={lado}
-                type="button"
-                className={aberto ? "ei-lado-cartao aberto" : "ei-lado-cartao"}
-                disabled={trocando}
-                onClick={async () => {
-                  if (!user) return;
-                  /* Já está aberto: o cartão leva para o lado, e não
-                     regrava o que já está gravado. */
-                  if (aberto) {
-                    navegar(lado === "company" ? "/minhas-empresas" : "/painel");
-                    return;
-                  }
-                  setTrocando(true);
-                  try {
-                    await registrarTipoDeUsuario(user.id, lado);
-                    /* Recarrega o app inteiro no endereço do lado novo: a
-                       barra de baixo e várias telas leem o lado uma vez, na
-                       abertura, e uma navegação comum deixaria metade do
-                       app mostrando o lado antigo. */
-                    window.location.href =
-                      lado === "company" ? "/minhas-empresas" : "/painel";
-                  } catch (err) {
-                    setError(mensagemDeErro(err, "Não consegui trocar de lado."));
-                    setTrocando(false);
-                  }
-                }}
-              >
-                <span className="ei-lado-icone" aria-hidden="true">
-                  {lado === "company" ? <IconeLoja /> : <IconePessoa />}
-                </span>
-                <span className="ei-lado-nome">
-                  {lado === "company" ? "Empresa" : "Profissional"}
-                </span>
-                <span className="ei-lado-nota">
-                  {quantos === 0
-                    ? "Ainda não cadastrado"
-                    : lado === "company"
-                      ? "Publicar vagas e ver quem respondeu"
-                      : "Receber vagas do seu ofício"}
-                </span>
-                {/* Quantos, quando há mais de um: com um só, o número não
-                    acrescenta nada ("1 cadastro" numa conta que tem um é
-                    ruído) — e com dois ele responde de relance a pergunta
-                    que faz a pessoa entrar aqui. */}
-                {quantos != null && quantos > 1 && (
-                  <span className="ei-lado-conta">
-                    {lado === "company" ? `${quantos} empresas` : `${quantos} cadastros`}
-                  </span>
-                )}
-                {aberto && <span className="ei-lado-selo">Aberto agora</span>}
-              </button>
-            );
-          })}
+        <div className="ei-lista">
+          <Linha
+            para={tipo === "company" ? "/minhas-empresas" : "/meus-cadastros"}
+            icone={tipo === "company" ? <IconeLoja /> : <IconePessoa />}
+          >
+            {tipo === "company" ? "Minhas empresas" : "Meu cadastro"}
+            <span className="ei-linha-sub">
+              {tipo === "company"
+                ? "Publicar vagas e ver quem respondeu"
+                : "Receber as vagas do seu ofício"}
+            </span>
+          </Linha>
         </div>
+
+        <p className="ei-apoio ei-margem" style={{ marginTop: 8 }}>
+          Você entrou {tipo === "company" ? "para contratar" : "para procurar emprego"}. Para
+          usar o outro lado, saia da conta e entre escolhendo ele — o mesmo número de
+          celular serve para os dois.
+        </p>
 
         <div className="ei-lista" style={{ marginTop: 12 }}>
           {/* Favoritos vale para os DOIS lados, e por isso fica fora dos

@@ -3,6 +3,19 @@ import { useNavigate } from "react-router-dom";
 import { useAuth } from "../lib/useAuth";
 import { useTituloDaPagina } from "../lib/tituloDaPagina";
 import { registrarTipoDeUsuario, marcarOnboardingCompleto, minhasEmpresas } from "../lib/company";
+/* ── ESTA TELA VIROU PONTE — 04/09 ──────────────────────────────────
+   A dona: "na tela de login a pessoa vai ter que escolher entre quero
+   contratar ou procuro emprego."
+
+   A escolha do lado mudou de lugar: agora é a chave da tela de login.
+   Esta tela continua existindo por um motivo só — quem já estava logado
+   quando a mudança subiu não passou pela porta nova, e sem ela abriria o
+   app sem lado nenhum.
+
+   Por isso ela grava também o LADO DA SESSÃO, e não só o tipo no banco:
+   sem isso a mesma pessoa responderia a pergunta a cada abertura, porque
+   é o lado da sessão que o app inteiro lê agora. */
+import { guardarLadoDaSessao } from "../lib/ladoDaSessao";
 import { mensagemDeErro } from "../lib/erros";
 import { Pagina } from "../components/ei/Pagina";
 
@@ -33,6 +46,7 @@ export function OnboardingTipoPage() {
     setErro("");
 
     try {
+      guardarLadoDaSessao("professional");
       await registrarTipoDeUsuario(user.id, "professional");
       await marcarOnboardingCompleto(user.id);
       /* `/painel` e não `/painel/novo`.
@@ -56,6 +70,7 @@ export function OnboardingTipoPage() {
     setErro("");
 
     try {
+      guardarLadoDaSessao("company");
       await registrarTipoDeUsuario(user.id, "company");
 
       /* ── QUEM JÁ TEM EMPRESA NÃO VÊ A TELA DE PREÇO DE NOVO ─────────

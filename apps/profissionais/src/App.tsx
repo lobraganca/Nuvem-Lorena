@@ -3,6 +3,7 @@ import { Routes, Route, Link, useLocation } from "react-router-dom";
 import { Logo } from "./components/Logo";
 import { BotaoSuporte } from "./components/BotaoSuporte";
 import { AppShell } from "./components/AppShell";
+import { SoDesteLado } from "./components/ei/SoDesteLado";
 import { BoasVindas, jaViuAsBoasVindas } from "./components/ei/BoasVindas";
 import { SplashScreen } from "./components/SplashScreen";
 import { BottomSheet } from "./components/BottomSheet";
@@ -305,67 +306,107 @@ export default function App() {
         <Route path="/login" element={<LoginPage />} />
 
         {/* Quem procura trabalho */}
-        <Route path="/vagas-para-mim" element={<VagasParaMimPage />} />
+        <Route path="/vagas-para-mim" element={
+          <SoDesteLado lado="professional"><VagasParaMimPage /></SoDesteLado>
+        } />
         {/* O banco de vagas: tudo que está no ar, para quem quiser procurar
             sozinha — e não só o que a onda escolheu mandar. Ver a
             BancoDeVagasPage. */}
         <Route path="/vagas" element={<BancoDeVagasPage />} />
-        <Route path="/meu-perfil" element={<MeuPerfilPage />} />
+        <Route path="/meu-perfil" element={
+          <SoDesteLado lado="professional"><MeuPerfilPage /></SoDesteLado>
+        } />
         {/* `/painel` era o painel do profissional no procurô, com
             assinaturas, destaque e pedidos de contato. O que resta dele
             neste app é o perfil — e é para lá que ele aponta, para não
             quebrar a barra de baixo nem o que já estava aberto no celular
             de alguém. */}
-        <Route path="/painel" element={<MeuPerfilPage />} />
+        <Route path="/painel" element={
+          <SoDesteLado lado="professional"><MeuPerfilPage /></SoDesteLado>
+        } />
         {/* A tela que "Procuro emprego" abre, na porta de entrada — os
             botões que moraram na EntradaPage até 02/09. Ver ComecarPage. */}
-        <Route path="/comecar-profissional" element={<ComecarPage lado="professional" />} />
+        <Route path="/comecar-profissional" element={
+          <SoDesteLado lado="professional"><ComecarPage lado="professional" /></SoDesteLado>
+        } />
 
         {/* Quem contrata */}
         <Route path="/onboarding-tipo" element={<OnboardingTipoPage />} />
         {/* O par de cima: a tela que "Quero contratar" abre. */}
-        <Route path="/comecar-empresa" element={<ComecarPage lado="company" />} />
-        <Route path="/cadastro-empresa" element={<CadastroEmpresaPage />} />
-        <Route path="/painel/editar-empresa" element={<CadastroEmpresaPage />} />
+        <Route path="/comecar-empresa" element={
+          <SoDesteLado lado="company"><ComecarPage lado="company" /></SoDesteLado>
+        } />
+        <Route path="/cadastro-empresa" element={
+          <SoDesteLado lado="company"><CadastroEmpresaPage /></SoDesteLado>
+        } />
+        <Route path="/painel/editar-empresa" element={
+          <SoDesteLado lado="company"><CadastroEmpresaPage /></SoDesteLado>
+        } />
         {/* A escolha de qual empresa abrir, quando a conta tem mais de
             uma (itens 3, 4 e 6). Com uma só ela desvia sozinha para o
             painel — ver MinhasEmpresasPage. */}
         {/* A mesma pergunta do lado da empresa, do lado de quem procura
             trabalho: qual cadastro eu abro agora? Ver MeusCadastrosPage. */}
-        <Route path="/meus-cadastros" element={<MeusCadastrosPage />} />
-        <Route path="/minhas-empresas" element={<MinhasEmpresasPage />} />
-        <Route path="/painel-empresa" element={<PainelEmpresaPage />} />
-        <Route path="/criar-vaga" element={<CriarVagaPage />} />
+        <Route path="/meus-cadastros" element={
+          <SoDesteLado lado="professional"><MeusCadastrosPage /></SoDesteLado>
+        } />
+        <Route path="/minhas-empresas" element={
+          <SoDesteLado lado="company"><MinhasEmpresasPage /></SoDesteLado>
+        } />
+        <Route path="/painel-empresa" element={
+          <SoDesteLado lado="company"><PainelEmpresaPage /></SoDesteLado>
+        } />
+        <Route path="/criar-vaga" element={
+          <SoDesteLado lado="company"><CriarVagaPage /></SoDesteLado>
+        } />
         {/* "Deu certo" — a confirmação depois de salvar. Ver ProntoPage. */}
         <Route path="/pronto" element={<ProntoPage />} />
         {/* A MESMA tela de criar, no modo edição — ver CriarVagaPage. */}
-        <Route path="/vaga/:id/editar" element={<CriarVagaPage />} />
+        <Route path="/vaga/:id/editar" element={
+          <SoDesteLado lado="company"><CriarVagaPage /></SoDesteLado>
+        } />
         {/* Os dois assuntos que saíram da tela da vaga em 04/09 — ver o
             comentário das duas portas em `DetalheVagaPage`. */}
         {/* Dois endereços para a mesma tela: ela deixou de se chamar
             "Ondas" quando passou a mostrar as pessoas (04/09), e o
             endereço antigo continua valendo — quem tiver o link guardado
             ou o app aberto numa aba velha não cai num "não encontrado". */}
-        <Route path="/vaga/:id/compativeis" element={<OndasDaVagaPage />} />
-        <Route path="/vaga/:id/ondas" element={<OndasDaVagaPage />} />
-        <Route path="/vaga/:id/interessados" element={<InteressadosDaVagaPage />} />
-        <Route path="/vaga/:id" element={<DetalheVagaPage />} />
-        <Route path="/planos-empresa" element={<PlanosEmpresaPage />} />
+        <Route path="/vaga/:id/compativeis" element={
+          <SoDesteLado lado="company"><OndasDaVagaPage /></SoDesteLado>
+        } />
+        <Route path="/vaga/:id/ondas" element={
+          <SoDesteLado lado="company"><OndasDaVagaPage /></SoDesteLado>
+        } />
+        <Route path="/vaga/:id/interessados" element={
+          <SoDesteLado lado="company"><InteressadosDaVagaPage /></SoDesteLado>
+        } />
+        <Route path="/vaga/:id" element={
+          <SoDesteLado lado="company"><DetalheVagaPage /></SoDesteLado>
+        } />
+        <Route path="/planos-empresa" element={
+          <SoDesteLado lado="company"><PlanosEmpresaPage /></SoDesteLado>
+        } />
         {/* O pedido de reembolso é tela própria (ver ReembolsoPage): quem
             quer desfazer uma compra não deve ter de pedir isso no meio de
             uma tela que mostra três preços. */}
         <Route path="/reembolso" element={<ReembolsoPage />} />
         {/* Os números de quem procura trabalho (ver MeuDesempenhoPage). */}
-        <Route path="/meu-desempenho" element={<MeuDesempenhoPage />} />
+        <Route path="/meu-desempenho" element={
+          <SoDesteLado lado="professional"><MeuDesempenhoPage /></SoDesteLado>
+        } />
         {/* O destaque pago de quem procura trabalho. Não existe dentro do
             app da Play Store (ver DestaquePage). */}
-        <Route path="/destaque" element={<DestaquePage />} />
+        <Route path="/destaque" element={
+          <SoDesteLado lado="company"><DestaquePage /></SoDesteLado>
+        } />
         <Route path="/profissionais" element={<ProfissionaisPage />} />
         {/* O perfil de uma pessoa, visto por quem contrata. É a metade
             gratuita da oferta da empresa — ver e falar um a um — e não
             existia: a lista não levava a lugar nenhum. */}
         <Route path="/profissional/:id" element={<PerfilPublicoPage />} />
-        <Route path="/vaga-aberta/:id" element={<VagaAbertaPage />} />
+        <Route path="/vaga-aberta/:id" element={
+          <SoDesteLado lado="professional"><VagaAbertaPage /></SoDesteLado>
+        } />
         {/* A empresa vista por quem procura trabalho, com as vagas dela no
             ar. Ver EmpresaPublicaPage. */}
         <Route path="/empresa/:id" element={<EmpresaPublicaPage />} />
