@@ -91,8 +91,8 @@ export function normalizar(t: string): string {
 export function calcular(
   vaga: JobListing,
   quem: QuemOlha | null
-): { nota: number | null; porque: string[] } {
-  if (!quem || quem.funcoes.length === 0) return { nota: null, porque: [] };
+): { nota: number | null; porque: string[]; faltou: string[] } {
+  if (!quem || quem.funcoes.length === 0) return { nota: null, porque: [], faltou: [] };
 
   /* ── OS CAMPOS QUE A EMPRESA MARCOU (item 16, coluna da 0105) ───────
      Lista vazia = a empresa não escolheu, e aí vale a comparação padrão:
@@ -259,7 +259,7 @@ export function calcular(
      `campos_compatibilidade` que nenhum critério reconheça deixaria
      `valendo` vazio, e a nota viraria NaN — que na tela aparece como
      "NaN%" ou como nada, e ninguém saberia por quê. */
-  if (valendo.length === 0) return { nota: null, porque: [] };
+  if (valendo.length === 0) return { nota: null, porque: [], faltou: [] };
 
   const total = valendo.reduce((soma, c) => soma + c.peso, 0);
   const feito = valendo.filter((c) => c.bate).reduce((soma, c) => soma + c.peso, 0);
@@ -267,6 +267,21 @@ export function calcular(
   return {
     nota: Math.round((feito / total) * 100),
     porque: valendo.filter((c) => c.bate).map((c) => c.porque),
+    /* ── O QUE FALTOU, E POR QUE ELE SAI DAQUI — 04/09 ─────────────────
+       `porque` sempre disse o que casou. O que NÃO casou nunca saiu desta
+       função, e sem isso a única resposta que o app tinha para "por que
+       ninguém me chama?" era um conselho igual para todo mundo
+       ("acrescente mais funções").
+
+       Com a lista do que faltou, a tela de desempenho pode contar nas
+       vagas que estão no ar HOJE: "seis vagas pedem CNH e o seu cadastro
+       diz que você não tem". Isso é diagnóstico, não conselho — e sai de
+       graça, porque a conta já sabia a resposta e a jogava fora.
+
+       Vai por CAMPO (`cnh`, `escolaridade`), e não pela frase de
+       `porque`: quem soma precisa agrupar, e agrupar por frase quebra na
+       primeira vez que alguém reescrever o texto. */
+    faltou: valendo.filter((c) => !c.bate).map((c) => c.campo),
   };
 }
 

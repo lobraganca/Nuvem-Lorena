@@ -260,4 +260,59 @@ teste("a onda 3 não pode alcançar quem não tem nada a ver com a vaga", () => 
   verdade(nota === 0, `alguém sem nenhuma relação com a vaga tirou ${nota}% — a onda 3 avisaria`);
 });
 
+grupo("o que faltou — o que alimenta 'o que está custando vagas'");
+
+teste("faltou traz o campo que a vaga pedia e o cadastro não atendeu", () => {
+  const { faltou } = calcular(
+    vaga({ cnh_exigida: true, cnh_categorias: ["D"] }),
+    quem({ temCnh: false, cnhCategorias: [] })
+  );
+  verdade(faltou.includes("cnh"), `esperava 'cnh' em faltou, veio ${JSON.stringify(faltou)}`);
+});
+
+teste("o que a vaga NÃO pede nunca aparece em faltou", () => {
+  /* É a mesma regra do `vale`: critério que a vaga não pede sai da conta
+     inteira. Se ele aparecesse aqui, a tela de desempenho diria "8 vagas
+     pedem CNH" contando vagas que não pedem CNH nenhuma — um número
+     inventado numa tela cujo valor inteiro é ser honesta. */
+  const { faltou } = calcular(
+    vaga({ cnh_exigida: false, exige_viagem: false, escolaridade_minima: null }),
+    quem({ temCnh: false, aceitaViajar: false, escolaridade: null })
+  );
+  verdade(!faltou.includes("cnh"), "CNH não era pedida e apareceu como falta");
+  verdade(!faltou.includes("viagem"), "viagem não era pedida e apareceu como falta");
+  verdade(!faltou.includes("escolaridade"), "escolaridade não era pedida e apareceu como falta");
+});
+
+teste("o que bateu nunca aparece nos dois ao mesmo tempo", () => {
+  const r = calcular(
+    vaga({ cnh_exigida: true, exige_viagem: true }),
+    quem({ temCnh: true, cnhCategorias: ["B"], aceitaViajar: false })
+  );
+  verdade(r.porque.includes("sua CNH"), "a CNH bateu e não foi dita");
+  verdade(r.faltou.includes("viagem"), "a viagem não bateu e não foi dita");
+  verdade(!r.faltou.includes("cnh"), "a CNH bateu e mesmo assim entrou em faltou");
+});
+
+teste("cadastro sem nada devolve faltou vazio, e não uma lista de defeitos", () => {
+  /* Quem ainda não se cadastrou não recebe diagnóstico: `nota` é null, e
+     a tela de desempenho pula quem tem nota nula. Devolver uma lista de
+     faltas aqui faria a tela dizer a alguém que acabou de chegar que ela
+     falha em oito critérios. */
+  igual(calcular(vaga(), null).faltou.length, 0);
+  igual(calcular(vaga(), quem({ funcoes: [] })).faltou.length, 0);
+});
+
+teste("faltou e porque juntos cobrem exatamente os critérios em jogo", () => {
+  /* A soma dos dois é a lista de critérios que valeram. Se um critério
+     sumisse dos dois, a nota cairia sem nada explicando — e é justamente
+     esse o defeito que a pessoa não teria como perceber. */
+  const r = calcular(
+    vaga({ cnh_exigida: true, exige_viagem: true, available_immediately: true }),
+    quem({ temCnh: true, cnhCategorias: ["B"], aceitaViajar: false, inicioImediato: false })
+  );
+  /* ofício, cidade, modo, cnh, viagem, início = 6 critérios em jogo */
+  igual(r.porque.length + r.faltou.length, 6);
+});
+
 process.exit(await resumo());

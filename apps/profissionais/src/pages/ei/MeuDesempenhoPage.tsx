@@ -156,6 +156,37 @@ export function MeuDesempenhoPage() {
               </Link>
             </div>
 
+            {/* ── O QUE ESTÁ CUSTANDO VAGAS, NAS VAGAS DE HOJE — 04/09 ──
+                A tela terminava em três conselhos iguais para todo mundo.
+                Todos verdadeiros, nenhum sobre a pessoa que está lendo — e
+                quem já tentou os três não tem para onde ir.
+
+                Isto aqui é outra coisa: é contado nas vagas que estão no ar
+                AGORA, e diz qual campo do cadastro tirou a pessoa de
+                quantas delas. Não é conselho, é o número — a conta de
+                compatibilidade sempre soube a resposta e a jogava fora (ver
+                `faltou`, em compatibilidade.ts).
+
+                Some inteiro quando não há nada a dizer: uma seção "o que
+                está te atrapalhando" vazia, ou com um item inventado para
+                não ficar vazia, é pior que seção nenhuma. */}
+            {dados.pontosFracos.length > 0 && (
+              <>
+                <h2 className="ei-secao">O que está custando vagas hoje</h2>
+                <div className="ei-lista">
+                  {dados.pontosFracos.map((f) => (
+                    <Link key={f.campo} to="/meu-perfil" className="ei-linha-item">
+                      <span className="ei-linha-nome">
+                        {f.titulo}
+                        <span className="ei-linha-sub">{f.texto}</span>
+                      </span>
+                      <span className="ei-linha-valor">{f.vagas}</span>
+                    </Link>
+                  ))}
+                </div>
+              </>
+            )}
+
             {/* O que a pessoa pode fazer HOJE. Uma tela de números sem
                 saída é um diagnóstico sem receita. */}
             <h2 className="ei-secao">O que costuma destravar</h2>

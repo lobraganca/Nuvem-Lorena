@@ -53,6 +53,89 @@ export type Desempenho = {
   vagasNoAr: number;
   /** Vagas em que você já disse que tem interesse. */
   interessesEnviados: number;
+  /** O que, no cadastro, está tirando esta pessoa das vagas de hoje. */
+  pontosFracos: PontoFraco[];
+};
+
+/**
+ * Uma coisa do cadastro que está custando vagas AGORA.
+ *
+ * ── Por que isto existe ────────────────────────────────────────────────
+ *
+ * A tela terminava em três conselhos iguais para todo mundo: acrescente
+ * funções, passe pelas vagas, apareça primeiro. Todos verdadeiros, nenhum
+ * sobre a pessoa que está lendo.
+ *
+ * A conta de compatibilidade sabia a resposta certa o tempo todo e a
+ * jogava fora: ela sabe, vaga por vaga, QUAL critério não bateu. Somando
+ * isso nas vagas que estão no ar hoje, o app deixa de aconselhar e passa a
+ * informar: "seis das dez vagas de hoje pedem CNH". A pessoa decide o que
+ * fazer com o número — e agora tem um.
+ *
+ * ── O cuidado ──────────────────────────────────────────────────────────
+ *
+ * Nenhum texto daqui manda a pessoa mentir nem sugere que ela "devia" ter
+ * a coisa. Metade destes campos é um SIM/NÃO que ninguém preencheu — o
+ * cadastro respondeu "não" por omissão —, e é exatamente esse o caso em
+ * que dizer o número muda alguma coisa.
+ */
+export type PontoFraco = {
+  /** O campo da conta de compatibilidade: `cnh`, `escolaridade`, … */
+  campo: string;
+  /** Em quantas vagas no ar hoje ele pesou. */
+  vagas: number;
+  titulo: string;
+  texto: string;
+};
+
+/* O texto de cada campo. Fica numa tabela e não espalhado em `if`s porque
+   a lista de critérios cresce (a 0105 acrescentou quatro), e um campo novo
+   sem texto tem de sumir da tela em silêncio — nunca aparecer com o nome
+   técnico da coluna para a pessoa ler. */
+const COMO_EXPLICAR: Record<string, { titulo: (n: number) => string; texto: string }> = {
+  cnh: {
+    titulo: (n) => `${n} ${n === 1 ? "vaga pede" : "vagas pedem"} CNH`,
+    texto:
+      "Seu cadastro está marcado como sem carteira de motorista. Se você tem, vale marcar — e dizer as categorias.",
+  },
+  escolaridade: {
+    titulo: (n) => `${n} ${n === 1 ? "vaga pede" : "vagas pedem"} uma escolaridade mínima`,
+    texto:
+      "Seu cadastro não diz até onde você estudou. Sem isso, a busca não tem como saber que você atende.",
+  },
+  fim_de_semana: {
+    titulo: (n) => `${n} ${n === 1 ? "vaga é" : "vagas são"} de fim de semana`,
+    texto:
+      "Seu cadastro diz que você não trabalha sábado e domingo. Se topa, é um toque para mudar.",
+  },
+  viagem: {
+    titulo: (n) => `${n} ${n === 1 ? "vaga exige" : "vagas exigem"} viajar`,
+    texto: "Seu cadastro diz que você não aceita viagem. Se aceita, marque.",
+  },
+  inicio_imediato: {
+    titulo: (n) => `${n} ${n === 1 ? "vaga é" : "vagas são"} para começar logo`,
+    texto:
+      "Seu cadastro não diz que você pode começar de imediato — e é o que essas empresas estão procurando.",
+  },
+  modo_trabalho: {
+    titulo: (n) => `${n} ${n === 1 ? "vaga tem" : "vagas têm"} um jeito de trabalhar que não bate`,
+    texto:
+      "Presencial, a distância ou os dois: quem marca “tanto faz” entra em todas.",
+  },
+  cidade: {
+    titulo: (n) => `${n} ${n === 1 ? "vaga é" : "vagas são"} de outra cidade`,
+    texto: "Elas continuam abertas para você — só não são as que mais combinam.",
+  },
+  pretensao: {
+    titulo: (n) => `Em ${n} ${n === 1 ? "vaga" : "vagas"} a sua pretensão passa do que a empresa oferece`,
+    texto:
+      "Marcar “a combinar” deixa a conversa acontecer, em vez de o número fechar a porta antes dela.",
+  },
+  /* `profissao` fica de fora de propósito: "sua função não bate com 9
+     vagas" é o normal de qualquer cidade — ninguém faz nove ofícios — e
+     apareceria em primeiro lugar para todo mundo, empurrando para baixo os
+     campos que a pessoa realmente pode resolver hoje. O conselho de
+     acrescentar funções continua onde estava, na lista de baixo. */
 };
 
 const SETE_DIAS = 7 * 86_400_000;
@@ -106,6 +189,32 @@ export async function meuDesempenho(
   ).length;
   const interessesEnviados = vagas.filter((v) => v.interessado === true).length;
 
+  /* Soma, campo a campo, em quantas vagas no ar ele não bateu. Só entram
+     as vagas que a conta conseguiu avaliar (`compatibilidade` não nula):
+     quem ainda não tem cadastro não recebe diagnóstico nenhum, porque não
+     há o que diagnosticar. */
+  const quantasPorCampo = new Map<string, number>();
+  for (const v of vagas) {
+    if (v.compatibilidade == null) continue;
+    for (const campo of v.faltou ?? []) {
+      quantasPorCampo.set(campo, (quantasPorCampo.get(campo) ?? 0) + 1);
+    }
+  }
+
+  const pontosFracos: PontoFraco[] = [...quantasPorCampo.entries()]
+    .filter(([campo]) => COMO_EXPLICAR[campo])
+    .map(([campo, quantas]) => ({
+      campo,
+      vagas: quantas,
+      titulo: COMO_EXPLICAR[campo].titulo(quantas),
+      texto: COMO_EXPLICAR[campo].texto,
+    }))
+    /* Da que custa mais vagas para a que custa menos, e no máximo três: a
+       lista inteira viraria uma lista de defeitos da pessoa, que é o
+       oposto do que esta tela serve para fazer. */
+    .sort((a, b) => b.vagas - a.vagas)
+    .slice(0, 3);
+
   return {
     empresasNaSemana: empresasSemana.size,
     empresasTotal: empresas.size,
@@ -113,6 +222,7 @@ export async function meuDesempenho(
     vagasMuitoCompativeis,
     vagasNoAr: vagas.length,
     interessesEnviados,
+    pontosFracos,
   };
 }
 

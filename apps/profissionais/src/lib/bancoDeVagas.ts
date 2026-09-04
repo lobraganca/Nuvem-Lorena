@@ -49,6 +49,9 @@ export type VagaNoBanco = {
   compatibilidade: number | null;
   /** O que casou, em português, para a tela poder explicar o número. */
   porque: string[];
+  /** O que a vaga pedia e o cadastro não respondeu — por CAMPO. Ver
+      `calcular` e a seção "o que está custando vagas" do desempenho. */
+  faltou: string[];
   /** Já respondeu a esta? `undefined` = ainda não. */
   interessado?: boolean;
 };
@@ -191,13 +194,14 @@ export async function bancoDeVagas(userId?: string): Promise<VagaNoBanco[]> {
   }
 
   const lista = (data ?? []).map((v: any) => {
-    const { nota, porque } = calcular(v as JobListing, quem);
+    const { nota, porque, faltou } = calcular(v as JobListing, quem);
     return {
       vaga: v as JobListing,
       empresa: v.companies?.company_name ?? "",
       empresa_foto: v.companies?.photo_url ?? null,
       compatibilidade: nota,
       porque,
+      faltou,
       interessado: respondidas.get(v.id),
     };
   });
