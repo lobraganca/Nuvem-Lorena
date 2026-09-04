@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { useAuth } from "./useAuth";
 import { obterTipoDeUsuario } from "./company";
-import { lerLadoDaSessao, guardarLadoDaSessao } from "./ladoDaSessao";
+import { lerLadoDaSessao, guardarLadoDaSessao, saiuDeProposito } from "./ladoDaSessao";
 
 /**
  * De que lado o app está agora — é isto que a barra de baixo, a tela
@@ -56,6 +56,14 @@ export function useOnboardingStatus(): "professional" | "company" | false | null
     const daSessao = lerLadoDaSessao();
     if (daSessao) {
       setTipo(daSessao);
+      return;
+    }
+
+    /* Quem acabou de tocar em "Sair" não tem lado porque NÃO QUER ter:
+       adotar o do banco aqui desfaria o logout no meio dele, e a pessoa
+       voltaria para o mesmo lado de onde saiu para trocar. */
+    if (saiuDeProposito()) {
+      setTipo(false);
       return;
     }
 
