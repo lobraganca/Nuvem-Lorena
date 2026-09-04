@@ -6114,3 +6114,28 @@
   .cabecalho-ei .btn-instalar-topo-texto { display: none; }
   .cabecalho-ei .btn-instalar-topo { padding: 5px 8px; }
 }
+
+/* ── O PÉ DO CARTÃO DE VAGA — 04/09 ───────────────────────────────────
+   A dona: "essa tela está horrível, é muito quebrada. Utilize do layout
+   das outras páginas."
+
+   O caminho para a vaga era um botão laranja no meio do cartão, do mesmo
+   peso do "Tenho interesse" logo abaixo — duas ações fortes disputando, e
+   a menos importante no meio. Agora o cargo é a porta (como o nome é a
+   porta em toda lista deste app) e sobra aqui uma linha escrita, alinhada
+   à direita, que diz que há mais para ler sem gritar. */
+.ei .ei-vaga-pe {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 12px;
+}
+
+/* O título do cartão continua sendo título: o link não pinta de azul nem
+   sublinha. O que ele muda é o alvo do toque — a linha inteira do cargo,
+   e não uma palavra. */
+.ei .ei-cartao-titulo-link {
+  color: inherit;
+  text-decoration: none;
+  font: inherit;
+}
+.ei .ei-cartao-titulo-link:active { opacity: 0.6; }

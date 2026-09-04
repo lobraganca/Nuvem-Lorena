@@ -374,7 +374,25 @@ export function VagasParaMimPage() {
                          "encaminhado" das que ela quer. */
                       style={v.interessado === true ? { background: "var(--ei-verde)" } : undefined}
                     />
-                    <h3 className="ei-cartao-titulo ei-duas-linhas">{v.vaga.title}</h3>
+                    {/* ── O TÍTULO É A PORTA — 04/09 ────────────────────
+                        A dona: "essa tela está horrível, é muito quebrada."
+
+                        Uma das razões era esta: o caminho para a vaga era
+                        um botão laranja gordo no meio do cartão, do mesmo
+                        peso do "Tenho interesse" que fica embaixo. Duas
+                        ações fortes num cartão só, e a que menos importa
+                        no meio — o olho batia nela primeiro.
+
+                        Em toda lista deste app o nome é o caminho (ver
+                        `ei-pessoa` na busca e no banco de vagas). Aqui não
+                        era, e por isso precisava de um botão para
+                        compensar. Agora o cargo abre a vaga, como em todo
+                        o resto, e o botão sai da frente. */}
+                    <h3 className="ei-cartao-titulo ei-duas-linhas">
+                      <Link to={`/vaga-aberta/${v.vaga.id}`} className="ei-cartao-titulo-link">
+                        {v.vaga.title}
+                      </Link>
+                    </h3>
                   </div>
 
                   {/* O SALÁRIO no cartão, antes da descrição.
@@ -406,18 +424,6 @@ export function VagasParaMimPage() {
                       logo abaixo. O que decide o toque é o ofício, a
                       empresa e o salário — e os três continuam aqui. */}
 
-                  {/* O caminho para a vaga inteira. Sem ele, o cartão era
-                      tudo o que existia: a pessoa decidia com a descrição
-                      cortada em duas linhas e sem ver horário, benefício
-                      nem o resto do que a empresa escreveu. */}
-                  <Link
-                    to={`/vaga-aberta/${v.vaga.id}`}
-                    className="ei-btn-inline"
-                    style={{ display: "inline-block", marginTop: 10 }}
-                  >
-                    Ver a vaga inteira
-                  </Link>
-
                   {/* Duas etiquetas no máximo. Eram três e enchiam a linha
                       inteira, quebrando para uma segunda fileira — mais um
                       pedaço do "está quebrado". "Para começar logo" virou
@@ -439,6 +445,22 @@ export function VagasParaMimPage() {
                     )}
                   </div>
 
+                  {/* O caminho escrito, discreto, ANTES dos botões. O
+                      título já abre a vaga, mas quem lê "Vendedor" não
+                      pensa em tocar num título — esta linha diz que há
+                      mais para ler, sem virar botão. É a mesma forma da
+                      ação de seção usada no resto do app.
+
+                      A ordem é a da decisão: o que é a vaga, o caminho
+                      para saber mais, e só então escolher. Embaixo dos
+                      botões ela chegava tarde — depois de a pessoa já ter
+                      decidido com o que estava na tela. */}
+                  <div className="ei-vaga-pe">
+                    <Link to={`/vaga-aberta/${v.vaga.id}`} className="ei-secao-acao">
+                      Ver a vaga inteira
+                    </Link>
+                  </div>
+
                   {/* As DUAS respostas, e o estado de cada uma.
                       ───────────────────────────────────────────
                       A dona: "a pessoa escolhe se quer estar disponível ou
@@ -457,10 +479,22 @@ export function VagasParaMimPage() {
                     /* Estado que precisa aparecer: sem ele a pessoa toca de novo
                        achando que não funcionou, e depois fica sem saber se a
                        empresa recebeu. */
-                    <div className="ei-faixa" style={{ marginTop: 14 }}>
-                      <span>Interesse enviado</span>
-                      <span className="ei-faixa-valor">a empresa te liga</span>
-                    </div>
+                    /* ── "A EMPRESA TE LIGA" SAIU DAQUI TAMBÉM — 04/09 ──
+                       A dona mandou tirar essa frase, e ela foi tirada da
+                       tela da vaga (`VagaAbertaPage`) e sobreviveu aqui.
+
+                       É uma promessa que o app não pode cumprir: quem
+                       liga é a empresa, se quiser, quando quiser. Quem lê
+                       "a empresa te liga" e não recebe ligação nenhuma
+                       conclui que o app não funcionou — e o app fez a
+                       parte dele.
+
+                       O texto é o mesmo já aprovado na tela da vaga: diz o
+                       que ACONTECEU, que é verdade e é verificável. */
+                    <p className="ei-nota-resposta">
+                      <strong>Interesse enviado.</strong> A empresa recebeu seu nome e seu
+                      telefone.
+                    </p>
                   ) : v.interessado === false ? (
                     <div style={{ marginTop: 14 }}>
                       {/* Uma linha, e não a faixa de duas colunas.
@@ -507,6 +541,7 @@ export function VagasParaMimPage() {
                       </button>
                     </div>
                   )}
+
                 </article>
               ))}
             </div>
