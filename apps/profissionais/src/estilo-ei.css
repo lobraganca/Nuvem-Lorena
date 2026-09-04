@@ -5181,43 +5181,11 @@
 }
 
 
-/* ═══════════════════════════════════════════════════════════════════════
-   UMA RÉGUA SÓ PARA A TELA DA VAGA — 04/09
-   ═══════════════════════════════════════════════════════════════════════
-   A dona: "a tela da vaga na sessão de vagas no ar está horrível. Sem
-   alinhamento."
-
-   Medido no navegador, numa tela de 390px, a borda esquerda de cada bloco
-   desta tela caía em três lugares diferentes:
-
-     cartão da vaga, cartão do destaque ....... 27px  (margem de 12)
-     portas ("Quem se interessou") ............ 35px  (recuo de 20)
-     botões de gerenciar ...................... 35px  (recuo de 20)
-
-   Oito pixels de degrau entre uma caixa e a caixa seguinte, três vezes na
-   mesma rolagem. É pouco para alguém apontar com o dedo e é exatamente o
-   bastante para a tela parecer torta — que foi o que ela viu.
-
-   A régua certa é a dos cartões (12px), porque é dela que sai o 33px dos
-   títulos de seção, já acertado em 03/09. Aqui as portas e os botões
-   passam a usar a mesma: todas as caixas da tela nascem na mesma linha
-   vertical, e o texto dentro delas também.
-
-   Fica preso ao `.detalhe-vaga` de propósito. As portas são de uso geral
-   e aparecem em telas onde não há cartão nenhum ao lado — mudá-las por
-   toda parte consertaria esta tela e desalinharia as outras. */
-.ei .detalhe-vaga .ei-portas,
-.ei .detalhe-vaga .ei-acoes-vaga,
-.ei .detalhe-vaga .ei-saidas,
-.ei .detalhe-vaga > .ei-margem {
-  padding-left: 12px;
-  padding-right: 12px;
-}
-
-/* O aviso de erro e as explicações continuam sendo TEXTO solto no chão
-   cinza, e texto solto respira mais que caixa: 20px, como no resto do
-   app. A regra acima é para o que tem borda. */
-.ei .detalhe-vaga > .ei-campo-erro { padding-left: 20px; padding-right: 20px; }
+/* O remendo que existia aqui — uma régua só para a `.detalhe-vaga` — saiu
+   em 04/09. Ele consertava aquela tela por dentro e a desalinhava do resto
+   do app: as portas dela ficavam a 30px enquanto as de todas as outras
+   telas ficavam a 38px. A régua agora é do app inteiro, no fim deste
+   arquivo. */
 
 
 /* A linha do preço do destaque mora DENTRO de um cartão, que já tem os
@@ -5231,3 +5199,385 @@
 
 /* Sozinho na linha quando a pergunta "tirar do ar" está aberta. */
 .ei .ei-acoes-vaga-uma { grid-template-columns: 1fr; }
+
+
+
+
+/* ═══════════════════════════════════════════════════════════════════════
+   A RÉGUA DO APP — 04/09
+   ═══════════════════════════════════════════════════════════════════════
+
+   A dona, pela terceira vez: "há páginas desalinhadas, botões fora do
+   layout escolhido, páginas sem respiros. Tente padronizar o app todo em
+   um só layout."
+
+   ── O QUE A MEDIÇÃO MOSTROU ───────────────────────────────────────────
+
+   566 blocos medidos no navegador, em 26 telas dos dois lados. O texto do
+   app começava em treze lugares, e os dois maiores estavam quase
+   empatados:
+
+       33px  →  55 blocos      (título de seção, texto dentro de cartão)
+       20px  →  48 blocos      (`ei-margem`, abas, filtros, portas)
+       32px  →  22 blocos
+       12px  →  15 blocos
+       e mais nove posições com um punhado cada
+
+   Duas réguas brigando não é gosto, é defeito: rolando a tela, cada troca
+   de bloco dá um degrau de 13px. E o pior achado é que a MESMA classe
+   caía em lugares diferentes conforme a tela — `ei-cartao` em quatro
+   posições, `ei-secao` em três, `ei-linha-item` em duas. Não havia como
+   acertar uma tela sem desacertar outra, porque não havia régua: havia
+   remendo por tela.
+
+   ── INCLUSIVE UM REMENDO MEU, DE HORAS ANTES ──────────────────────────
+
+   A tela da vaga foi alinhada por dentro nesta mesma manhã, e o preço
+   apareceu nesta medição: as portas dela ficaram a 30px enquanto as de
+   todas as outras telas estavam a 38px. Consertar uma tela contra ela
+   mesma é assim — some o degrau que se vê, nasce o que não se vê.
+
+   ── A REGRA, QUE É UMA SÓ ─────────────────────────────────────────────
+
+       toda CAIXA  (o que tem borda ou fundo próprio)  começa a  12px
+       todo TEXTO  (dentro de caixa ou solto no chão)  começa a  33px
+
+   33 é 12 da caixa + 1 da borda + 20 de respiro. Os dois números andam
+   juntos porque são a mesma conta.
+
+   A borda da caixa não precisa alinhar com o texto: ela é moldura, não
+   palavra. O que a pessoa lê alinhado é o texto — e ele passa a nascer na
+   mesma coluna, do título da seção à última linha do último cartão.
+
+   ── E POR QUE É TÃO POUCA REGRA ───────────────────────────────────────
+
+   A estrutura já estava certa: cartão com margem de 12 e respiro de 20
+   por dentro dá 33 sozinho, e é assim que 55 blocos já estavam. O que
+   faltava era só puxar os fora-de-régua para ela. Uma primeira versão
+   destas regras mexia também nos contêineres, e os recuos se SOMARAM:
+   lista com 12 + cartão com 20 pôs o texto em 46px. Contêiner que já tem
+   margem e borda não leva recuo nenhum — quem recua é a folha.
+
+   Fica no fim do arquivo de propósito: corrige decisões tomadas ao longo
+   de semanas, e a única maneira de valer sobre todas é vir depois de
+   todas. */
+
+/* ── 1. O TEXTO SOLTO NO CHÃO CINZA ────────────────────────────────────
+   Sem caixa, o recuo é todo dele. `ei-secao` já vinha a 33 desde 03/09; o
+   resto vinha a 20, e era esse o degrau de 13px em cada troca de bloco. */
+.ei .ei-margem,
+.ei .ei-corpo,
+.ei .ei-apoio,
+.ei .ei-titulo,
+.ei .ei-titulo-g,
+.ei .ei-titulo-com-acao,
+.ei .ei-etapa-titulo,
+.ei .ei-campo-erro,
+.ei .ei-entrada-titulo,
+.ei .ei-entrada-apoio {
+  padding-left: 33px;
+  padding-right: 33px;
+}
+
+/* ── 2. OS GRUPOS DE CAIXAS ────────────────────────────────────────────
+   Portas, atalhos, abas, filtros: eles não têm moldura própria, só
+   seguram caixas que têm. O recuo deles É a régua da caixa.
+
+   Vem depois do bloco 1 e com a mesma força: onde um grupo também carrega
+   `ei-margem` (acontece em oito telas), quem vence é esta regra. Sem a
+   ordem, `class="ei-portas ei-margem"` ganharia o recuo de texto e a
+   porta nasceria 21px para dentro. */
+.ei .ei-portas,
+.ei .ei-atalhos,
+.ei .ei-abas,
+.ei .ei-filtros,
+.ei .ei-planos,
+.ei .ei-busca,
+.ei .ei-empresas,
+.ei .ei-ciclos,
+.ei .ei-opcoes,
+.ei .ei-lados,
+.ei .ei-contatos,
+.ei .ei-saidas,
+.ei .ei-acoes-vaga,
+.ei .ei-entrada-pe,
+/* Um botão de largura cheia é uma caixa, não uma frase: ele alinha com o
+   cartão de cima, não com o parágrafo. `:has()` porque o mesmo
+   `ei-margem` embrulha ora texto, ora botão — e os dois querem coisas
+   diferentes. */
+.ei .ei-margem:has(> .ei-btn),
+.ei .ei-margem:has(> .ei-btn-laranja),
+.ei .ei-margem:has(> .ei-porta),
+.ei .ei-margem:has(> .ei-cartao) {
+  margin-left: 0;
+  margin-right: 0;
+  padding-left: 12px;
+  padding-right: 12px;
+}
+
+/* ── 3. OS RESPIROS ────────────────────────────────────────────────────
+   A dona: "páginas sem respiros."
+
+   O título de seção é a divisão entre dois assuntos, e era ele que mais
+   variava: 26px de folga em umas telas, 32px em outras. Um vão só, sempre
+   o mesmo, é o que dá ritmo à rolagem em vez de sobressalto. */
+.ei .ei-secao,
+.ei .ei-secao-linha {
+  padding-top: 30px;
+  padding-bottom: 12px;
+}
+/* No topo da tela não há assunto anterior do qual se separar, e 30px de
+   nada é a tela começando vazia. */
+.ei .ei-tela > .ei-secao:first-child,
+.ei .ei-tela > .ei-secao-linha:first-child {
+  padding-top: 18px;
+}
+/* Entre uma caixa e a seguinte, sempre o mesmo vão. */
+.ei .ei-cartao + .ei-cartao,
+.ei .ei-cartao + .ei-lista,
+.ei .ei-lista + .ei-cartao,
+.ei .ei-lista + .ei-lista,
+.ei .ei-portas + .ei-portas {
+  margin-top: 12px;
+}
+
+/* ── 4. RECUO NÃO SE SOMA ──────────────────────────────────────────────
+   A medição pegou 27 blocos em 66px e 8 em 45px. 66 é 33 + 33: um
+   parágrafo com recuo de texto dentro de outro bloco que já tinha o
+   mesmo recuo. 45 é 33 + 12, a mesma coisa com um grupo de caixas.
+
+   O recuo é uma propriedade da COLUNA da tela, não do parágrafo. Quem já
+   está dentro de alguém que recuou não recua de novo — senão cada nível
+   de aninhamento empurra o texto mais para dentro, e o mesmo `ei-corpo`
+   aparece em três lugares diferentes conforme a profundidade em que
+   alguém o escreveu. Foi exatamente o que aconteceu no "Como funciona",
+   no cadastro da empresa e na tela de planos. */
+.ei .ei-margem .ei-margem,
+.ei .ei-margem .ei-corpo,
+.ei .ei-margem .ei-apoio,
+.ei .ei-margem .ei-titulo,
+.ei .ei-margem .ei-titulo-g,
+.ei .ei-margem .ei-etapa-titulo,
+.ei .ei-margem .ei-campo-erro,
+.ei .ei-cartao .ei-corpo,
+.ei .ei-cartao .ei-apoio,
+.ei .ei-cartao .ei-titulo,
+.ei .ei-cartao .ei-margem,
+.ei .ei-cartao .ei-etapa-titulo,
+.ei .ei-cartao .ei-campo-erro,
+.ei .ei-lista .ei-corpo,
+.ei .ei-lista .ei-apoio,
+.ei .ei-lista .ei-margem,
+.ei .ei-callout .ei-corpo,
+.ei .ei-callout .ei-apoio,
+.ei .ei-recado .ei-corpo,
+.ei .ei-recado .ei-apoio,
+.ei .ei-portas .ei-apoio,
+.ei .ei-portas .ei-corpo,
+.ei .ei-secao .ei-apoio,
+.ei .ei-entrada-topo .ei-entrada-titulo,
+.ei .ei-entrada-topo .ei-entrada-apoio {
+  padding-left: 0;
+  padding-right: 0;
+}
+
+/* ── 5. A LISTA DA FICHA DO CANDIDATO ──────────────────────────────────
+   Treze blocos em 20px, todos em `/profissional/:id`: as linhas de lista
+   dessa tela nasciam 13px à esquerda das linhas de lista de todas as
+   outras telas do app. Mesmo componente, mesma classe, outra coluna —
+   porque ali ele não estava dentro de uma `ei-lista`. */
+/* `:not(.ei-lista)` porque a lista já recua: ela tem margem de 12 e a
+   própria borda, e a linha dentro dela leva só os 20px dela mesma — soma
+   33. Sem essa exceção, a primeira versão desta regra jogou 26 linhas de
+   `/perfil`, `/meu-desempenho` e `/avisos` para 46px, que é o mesmo
+   defeito de somar recuo, agora do outro lado. */
+.ei .ei-tela > .ei-linha-item,
+.ei .ei-tela > *:not(.ei-lista):not(.ei-portas) > .ei-linha-item {
+  padding-left: 33px;
+  padding-right: 33px;
+}
+
+/* ── 6. O RECADO E OS BOTÕES SOLTOS ────────────────────────────────────
+   `ei-recado` é um cartão, e o texto dele estava a 36px: três pixels à
+   frente de todo o resto, porque ele carregava recuo próprio além do
+   recuo do cartão. */
+.ei .ei-recado {
+  padding-left: 20px;
+  padding-right: 20px;
+}
+.ei .ei-recado-titulo,
+.ei .ei-recado-texto {
+  padding-left: 0;
+  padding-right: 0;
+  margin-left: 0;
+  margin-right: 0;
+}
+
+/* ── 7. OS ÚLTIMOS FORA DA RÉGUA ───────────────────────────────────────
+   Achados um a um na medição, e todos da mesma família: um bloco que
+   carrega recuo próprio dentro de outro que já recuou. */
+
+/* Título de seção dentro de um bloco que já recuou (o "Como funciona"). */
+.ei .ei-margem .ei-secao,
+.ei .ei-margem .ei-secao-linha,
+.ei .ei-cartao .ei-secao,
+.ei .ei-cartao .ei-secao-linha {
+  padding-left: 0;
+  padding-right: 0;
+}
+
+/* Cabeças de cartão que traziam recuo próprio além do recuo do cartão: o
+   título ficava 12px à frente do corpo, dentro da MESMA caixa. */
+.ei .ei-cartao > .ei-cartao-titulo,
+.ei .ei-cartao > .ei-cartao-topo,
+.ei .ei-cartao > .ei-opcoes,
+.ei .ei-cartao > .ei-ciclos,
+.ei .ei-cartao > .ei-resumo,
+.ei .ei-empresa-cartao > .ei-empresa-cabeca {
+  padding-left: 0;
+  padding-right: 0;
+  margin-left: 0;
+  margin-right: 0;
+}
+
+/* Os cartões de escolha (empresa, cadastro) e o aviso de perfil
+   incompleto: são caixas, e caixa começa a 12. */
+.ei .ei-empresa-cartao {
+  margin-left: 12px;
+  margin-right: 12px;
+}
+.ei .ei-aviso-perfil-texto,
+.ei .ei-aviso-perfil-acoes {
+  padding-left: 0;
+  padding-right: 0;
+}
+
+/* O topo da tela de entrada: um bloco que já recua, com dois filhos que
+   recuavam de novo. */
+.ei .ei-entrada-topo {
+  padding-left: 33px;
+  padding-right: 33px;
+}
+
+/* "Excluir minha conta" e afins: link solto no chão, e portanto texto —
+   estava a 10px, 23px à esquerda de todo o resto da tela. */
+.ei .link-perigo {
+  padding-left: 33px;
+  padding-right: 33px;
+}
+.ei .ei-margem .link-perigo,
+.ei .ei-cartao .link-perigo,
+.ei .ei-lista .link-perigo {
+  padding-left: 0;
+  padding-right: 0;
+}
+
+/* O segmentado (Lista / Uma por uma) é um grupo de caixas. */
+.ei .ei-tela > .segmentado,
+.ei .ei-tela > * > .segmentado {
+  margin-left: 12px;
+  margin-right: 12px;
+}
+
+/* ── 8. OS ÚLTIMOS, CONFERIDOS UM A UM ────────────────────────────────
+   Sobraram poucos, e as duas primeiras tentativas de consertá-los às
+   cegas pioraram dois deles (`ei-empresa-cartao` foi de 38 para 44).
+   Estes aqui saíram de olhar a CADEIA de cada um no navegador — quem
+   contém quem, e quanto cada nível soma. Vale a lição: recuo é aritmética,
+   e aritmética não se adivinha.
+
+   Dois "defeitos" da medição não eram defeito e ficam como estão:
+   o título dentro do topo do cartão (é o segundo item de uma fileira, o
+   retrato vem antes) e o "Excluir meu cadastro" (é texto CENTRALIZADO —
+   texto centralizado não tem régua à esquerda). */
+
+/* O callout tinha margem de 20 e respiro de 14: 35px, dois à frente de
+   tudo. Vira caixa como as outras — 12 de margem, 20 de respiro. */
+.ei .ei-callout {
+  margin-left: 12px;
+  margin-right: 12px;
+  padding-left: 20px;
+  padding-right: 20px;
+}
+
+/* O cartão de empresa somava duas vezes: o grupo `ei-empresas` recua 12 e
+   o cartão tinha mais 12 de margem — a caixa nascia a 24. Dentro de um
+   grupo que já recua, o cartão não recua. */
+.ei .ei-empresas > .ei-empresa-cartao {
+  margin-left: 0;
+  margin-right: 0;
+  padding-left: 20px;
+  padding-right: 20px;
+}
+
+/* ── `ei-margem` que embrulha CAIXA, e não frase ───────────────────────
+   Ele é usado para as duas coisas, e as duas querem recuos diferentes: a
+   frase começa a 33, a caixa a 12. A primeira versão desta regra usou
+   filho direto (`> .ei-btn`) e passou ao largo dos casos em que há um
+   nível no meio — que eram justamente os que sobraram. Aqui é
+   descendente, e as caixas de dentro perdem a margem própria para o
+   recuo não somar. */
+.ei .ei-tela > .ei-margem:has(.ei-btn),
+.ei .ei-tela > .ei-margem:has(.ei-btn-laranja),
+.ei .ei-tela > .ei-margem:has(.ei-porta),
+.ei .ei-tela > .ei-margem:has(.ei-cartao),
+.ei .ei-tela > .ei-margem:has(.ei-ciclos),
+.ei .ei-tela > .ei-margem:has(.segmentado),
+.ei .ei-tela > .ei-margem:has(.ei-abas) {
+  padding-left: 12px;
+  padding-right: 12px;
+}
+.ei .ei-margem > .segmentado,
+.ei .ei-margem > .ei-ciclos,
+.ei .ei-margem > .ei-abas,
+.ei .ei-margem > .ei-cartao,
+.ei .ei-margem > .ei-callout {
+  margin-left: 0;
+  margin-right: 0;
+}
+.ei .ei-margem > .ei-ciclos,
+.ei .ei-margem > .ei-abas {
+  padding-left: 0;
+  padding-right: 0;
+}
+
+/* Os três últimos, e por que eles escaparam duas vezes:
+
+   · o `ei-margem` com botão em `/perfil` não é filho DIRETO da tela, e a
+     regra acima exigia que fosse;
+   · o recado da tela de desempenho carregava recuo próprio dentro do
+     cartão que já recuava — 36px, três à frente do resto. */
+.ei .ei-margem:has(.ei-btn),
+.ei .ei-margem:has(.ei-btn-laranja) {
+  padding-left: 12px;
+  padding-right: 12px;
+}
+
+/* O recado tem uma BARRA DE DESTAQUE de 4px à esquerda — é ela que faz
+   um recado parecer recado sem precisar de ícone. Ela não é defeito, mas
+   entra na conta: 12 de margem + 4 de barra + 20 de respiro dava 36px, e
+   o recado ficava três pixels à frente de toda a tela.
+
+   A barra fica; o respiro desconta a espessura dela. 12 + 4 + 17 = 33. */
+.ei .ei-recado {
+  padding-left: 17px;
+  padding-right: 20px;
+}
+.ei .ei-recado .ei-recado-titulo,
+.ei .ei-recado .ei-recado-texto {
+  padding-left: 0;
+  padding-right: 0;
+  margin-left: 0;
+  margin-right: 0;
+}
+
+/* O aviso de perfil incompleto estava na lista dos GRUPOS, e ele não é um:
+   ele tem borda, fundo próprio e sombra — é um cartão. Como grupo, nascia
+   colado nas duas bordas da tela enquanto todo cartão vizinho começava a
+   12px. */
+.ei .ei-aviso-perfil {
+  margin-left: 12px;
+  margin-right: 12px;
+  padding-left: 20px;
+  padding-right: 20px;
+}
