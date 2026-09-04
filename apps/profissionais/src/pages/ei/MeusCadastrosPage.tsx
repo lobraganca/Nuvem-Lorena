@@ -11,6 +11,7 @@ import {
 } from "../../lib/meuPerfil";
 import { Pagina } from "../../components/ei/Pagina";
 import { AvisoPerfilIncompleto } from "../../components/ei/AvisoPerfilIncompleto";
+import Esqueleto from "../../components/ei/Esqueleto";
 
 /**
  * "Seus cadastros" — a tela de escolher qual perfil abrir.
@@ -82,7 +83,7 @@ export function MeusCadastrosPage() {
     return (
       <div className="ei">
         <div className="ei-tela">
-          <p className="ei-apoio ei-margem" style={{ paddingTop: 24 }}>Carregando…</p>
+          <Esqueleto />
         </div>
       </div>
     );

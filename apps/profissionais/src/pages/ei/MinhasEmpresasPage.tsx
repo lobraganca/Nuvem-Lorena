@@ -13,6 +13,7 @@ import {
 import type { Company } from "../../types/domain";
 import { Pagina } from "../../components/ei/Pagina";
 import { AvisoPerfilIncompleto } from "../../components/ei/AvisoPerfilIncompleto";
+import Esqueleto from "../../components/ei/Esqueleto";
 
 /**
  * Qual empresa você quer abrir agora.
@@ -136,7 +137,7 @@ export function MinhasEmpresasPage() {
       <div className="ei">
         <div className="ei-tela">
           <Pagina titulo="Suas empresas" />
-          <p className="ei-apoio ei-margem" style={{ paddingTop: 20 }}>Carregando…</p>
+          <Esqueleto />
         </div>
       </div>
     );
