@@ -25,9 +25,7 @@ import {
   type ProfessionalWithRating,
 } from "../lib/professionals";
 import { listSuggestions, updateSuggestionStatus } from "../lib/suggestions";
-import { atualizarStatusIndicacao, listarIndicacoes, type Indicacao } from "../lib/indicacoes";
 import { CITIES, type Suggestion, type SuggestionStatus } from "../types/domain";
-import { AdminBanners } from "../components/AdminBanners";
 import { AdminEmpresas, AdminVagas, AdminNumerosDoEi, AdminReembolsos } from "../components/AdminEiEmprego";
 import {
   ligarDestaque,
@@ -37,7 +35,6 @@ import {
   DESTAQUE_DIAS,
 } from "../lib/destaque";
 import { AdminCorrigir } from "../components/AdminCorrigir";
-import { AdminFinanceiro } from "../components/AdminFinanceiro";
 import { useTituloDaPagina } from "../lib/tituloDaPagina";
 import { mensagemDeErro } from "../lib/erros";
 
@@ -76,11 +73,23 @@ const SECOES = [
   /* Reembolso vem logo depois de Vagas, e antes de Dinheiro: é o único
      item do painel em que alguém está ESPERANDO resposta. */
   { id: "reembolsos", simbolo: "↩️", titulo: "Pedidos de reembolso", resumo: "Quem pediu o dinheiro de volta, e por quê." },
-  { id: "dinheiro", simbolo: "💰", titulo: "Dinheiro", resumo: "O que entrou, por tipo e por mês." },
-  { id: "banners", simbolo: "🖼️", titulo: "Banners", resumo: "A publicidade vendida e o desempenho de cada peça." },
+  /* ── "DINHEIRO", "BANNERS" E "PROCURADOS" SAÍRAM — 04/09 ───────────
+     A dona: "tudo dos apps tem que ser separados."
+
+     As três eram do procurô e não tinham como funcionar aqui:
+
+       Dinheiro   lia `processed_payments`, que o Ei NUNCA escreve —
+                  a cobrança dele é manual, por Pix e WhatsApp. O painel
+                  mostrava R$ 0 e ia continuar mostrando.
+       Banners    publicidade vendida. O Ei não vende banner nem os
+                  exibe em tela nenhuma.
+       Procurados serviços que faltam na cidade, do outro produto.
+
+     "Sugestões" e "Denúncias" FICARAM: o rodapé do Ei tem "Enviar
+     sugestão", que escreve na primeira, e a segunda é a tabela para onde
+     um dia vai a denúncia que hoje sai pelo WhatsApp. */
   { id: "denuncias", simbolo: "🚩", titulo: "Denúncias", resumo: "Reclamações sobre cadastros, para apurar." },
   { id: "sugestoes", simbolo: "💬", titulo: "Sugestões", resumo: "O que as pessoas pediram pelo app." },
-  { id: "indicacoes", simbolo: "🔎", titulo: "Procurados e não achados", resumo: "Serviços que faltam na cidade." },
   { id: "destaques", simbolo: "🔥", titulo: "Destaques", resumo: "Quem está no topo da busca e quem está na fila." },
   { id: "cadastros", simbolo: "📋", titulo: "Cadastros", resumo: "Ver, editar, reenquadrar foto e tirar do ar." },
 ] as const;
@@ -129,7 +138,6 @@ export function AdminPage() {
   const [categorias, setCategorias] = useState<string[]>([]);
   const [destaques, setDestaques] = useState<DestaqueAtivo[]>([]);
   const [demanda, setDemanda] = useState<DemandaDestaque[]>([]);
-  const [indicacoes, setIndicacoes] = useState<Indicacao[]>([]);
   const [onlySuspended, setOnlySuspended] = useState(false);
 
   const [suspending, setSuspending] = useState<string | null>(null);
@@ -152,7 +160,6 @@ export function AdminPage() {
     getCategoriasComAnuncio().then(setCategorias);
     getDestaquesAtivos().then(setDestaques);
     getDemandaDeDestaque().then(setDemanda);
-    listarIndicacoes().then(setIndicacoes);
     setReports(await listReports());
     setSuggestions(await listSuggestions());
     const data = await fetchPros(0);
@@ -319,7 +326,6 @@ export function AdminPage() {
   const pendencias: Partial<Record<SecaoId, number>> = {
     denuncias: pendingCount,
     sugestoes: novasSugestoes,
-    indicacoes: indicacoes.length,
   };
   const aberta = SECOES.find((s) => s.id === secaoAberta);
 
@@ -383,20 +389,6 @@ export function AdminPage() {
             );
           })}
         </div>
-      )}
-
-      {/* Abre o painel: é a pergunta que se faz todo dia ("como está indo?")
-          e a única que não dependia de rolar até achar. */}
-      {mostrar("dinheiro") && (
-      <section>
-        <AdminFinanceiro />
-      </section>
-      )}
-
-      {mostrar("banners") && (
-      <section>
-        <AdminBanners />
-      </section>
       )}
 
       {mostrar("denuncias") && (
@@ -546,60 +538,6 @@ export function AdminPage() {
             </div>
           ))}
         </div>
-      </section>
-      )}
-
-      {mostrar("indicacoes") && (
-      <section>
-        <p className="muted" style={{ marginTop: -6 }}>
-          Indicações deixadas por quem buscou e não encontrou ninguém. É a sua lista de prospecção — gente
-          indicada por quem já conhece o trabalho.
-        </p>
-        {indicacoes.filter((i) => i.status === "nova").length === 0 ? (
-          <p className="muted">Nenhuma indicação nova.</p>
-        ) : (
-          <div style={{ display: "grid", gap: 10 }}>
-            {indicacoes
-              .filter((i) => i.status === "nova")
-              .map((i) => (
-                <div key={i.id} className="card" style={{ display: "grid", gap: 6 }}>
-                  <strong>{i.nome_indicado || "(sem nome)"}</strong>
-                  <span style={{ fontSize: "0.9rem" }}>
-                    {i.contato_indicado ? (
-                      <a href={`tel:${(i.contato_indicado ?? "").replace(/\D/g, "")}`}>{i.contato_indicado}</a>
-                    ) : (
-                      <span className="muted">sem telefone</span>
-                    )}
-                  </span>
-                  <span className="muted" style={{ fontSize: "0.85rem" }}>
-                    Procuravam: <strong>{i.servico_buscado || "não informado"}</strong>
-                    {i.cidade ? ` · ${i.cidade}` : ""} ·{" "}
-                    {new Date(i.created_at).toLocaleDateString("pt-BR")}
-                  </span>
-                  <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
-                    <button
-                      className="btn btn-outline"
-                      onClick={async () => {
-                        await atualizarStatusIndicacao(i.id, "contatada");
-                        setIndicacoes(await listarIndicacoes());
-                      }}
-                    >
-                      Já convidei
-                    </button>
-                    <button
-                      className="btn btn-outline"
-                      onClick={async () => {
-                        await atualizarStatusIndicacao(i.id, "descartada");
-                        setIndicacoes(await listarIndicacoes());
-                      }}
-                    >
-                      Descartar
-                    </button>
-                  </div>
-                </div>
-              ))}
-          </div>
-        )}
       </section>
       )}
 
