@@ -820,7 +820,12 @@ export const DIAS_ANUNCIO_VAGA = 30;
 /** Avulso paga uma vez e vence; recorrente se renova até alguém cancelar. */
 export type CicloDoPlano = "avulso" | "recorrente";
 
-export type PlanoEmpresa = "pro" | "tres" | "ilimitado";
+/* As palavras do BANCO, não os nomes que a empresa lê.
+   'pro', 'tres' e 'ilimitado' ficaram do arranjo antigo (Pro/Premium/Multi)
+   e não mudaram na 0120 de propósito: renomeá-las obrigaria a reescrever
+   todas as linhas de `companies.plano`, mais o gatilho e a política — e um
+   erro no meio desse caminho tira do ar quem já pagou. O nome é do app. */
+export type PlanoEmpresa = "pro" | "tres" | "cinco" | "dez" | "ilimitado";
 
 /**
  * Os planos de quem contrata.
@@ -847,46 +852,68 @@ export type PlanoEmpresa = "pro" | "tres" | "ilimitado";
  * ponto flutuante rende diferença de um centavo na hora de cobrar, e essa é
  * a diferença que o cliente percebe.
  *
- * ATENÇÃO ao nome: já existe uma assinatura de profissional chamada
- * "Empresa Plus" que custa os mesmos R$ 29,90 (ver PRECOS_MENSAIS em
- * lib/payments.ts). São coisas diferentes com preço igual, e quem atender o
- * telefone vai ouvir "assinei o de 29,90" sem saber qual dos dois.
+ * As CHAVES ('pro', 'tres', 'cinco', 'dez', 'ilimitado') são as palavras
+ * gravadas em `companies.plano`, e não os nomes lidos na tela — ver o
+ * comentário de `PlanoEmpresa` e a migration 0120. Mexer no `nome` é
+ * mudar a vitrine; mexer na chave é migração de dados.
  */
 export const PLANOS_EMPRESA: Record<
   PlanoEmpresa,
-  { nome: string; centavos: number; vagas: number; resumo: string; beneficios: string[] }
+  {
+    nome: string;
+    centavos: number;
+    vagas: number;
+    resumo: string;
+    beneficios: string[];
+    /* O Ei Infinit não tem preço de tabela: é combinado caso a caso. Um
+       número inventado aqui apareceria na tela como se fosse o valor, e a
+       empresa cobraria isso na conversa. */
+    sobConsulta?: true;
+  }
 > = {
   pro: {
-    nome: "Pro",
-    centavos: 3990,
+    nome: "Ei Conecta",
+    centavos: 2990,
     vagas: 1,
     resumo: "1 vaga aberta por vez. Fechou uma, abre outra",
     /* ── SÓ O QUE DIFERENCIA — 04/09 ────────────────────────────────
        A dona: "a tela de planos está muito cheia de informação."
 
-       Os três planos repetiam, palavra por palavra, "30 dias no ar por
-       vaga" e "aviso para quem tem a função" — três vezes na mesma tela,
-       ocupando duas linhas em cada cartão. Numa tela de preço, o que se
-       procura é a DIFERENÇA entre as colunas; o que é igual em todas só
-       atrapalha a comparação.
-
-       O que saiu virou uma linha só, abaixo dos cartões: "todos incluem
-       …". Ver `PlanosEmpresaPage`. */
+       Os planos repetiam, palavra por palavra, "30 dias no ar por vaga" e
+       "aviso para quem tem a função" — uma vez em cada cartão, ocupando
+       duas linhas em todos. Numa tela de preço, o que se procura é a
+       DIFERENÇA entre as colunas; o que é igual em todas só atrapalha a
+       comparação. Ver `PlanosEmpresaPage`. */
     beneficios: ["1 vaga aberta por vez", "Recebe quem se interessou, com telefone"],
   },
   tres: {
-    nome: "Premium",
-    centavos: 7990,
+    nome: "Ei Onda",
+    centavos: 5990,
     vagas: 3,
     resumo: "3 vagas abertas ao mesmo tempo",
     beneficios: ["3 vagas abertas ao mesmo tempo", "Sua vaga na lista de vagas em aberto"],
   },
+  cinco: {
+    nome: "Ei Impulso",
+    centavos: 8990,
+    vagas: 5,
+    resumo: "5 vagas abertas ao mesmo tempo",
+    beneficios: ["5 vagas abertas ao mesmo tempo", "Sua vaga na lista de vagas em aberto"],
+  },
+  dez: {
+    nome: "Ei Máximo",
+    centavos: 12990,
+    vagas: 10,
+    resumo: "10 vagas abertas ao mesmo tempo",
+    beneficios: ["10 vagas abertas ao mesmo tempo", "Sua vaga na lista de vagas em aberto"],
+  },
   ilimitado: {
-    nome: "Multi",
-    centavos: 11990,
+    nome: "Ei Infinit",
+    centavos: 0,
     vagas: -1,
-    resumo: "quantas vagas abertas quiser",
-    beneficios: ["Vagas abertas sem limite", "Sua vaga na lista de vagas em aberto"],
+    sobConsulta: true,
+    resumo: "quantas vagas abertas quiser, combinado com a gente",
+    beneficios: ["Vagas abertas sem limite", "Condição combinada com você"],
   },
 };
 
@@ -922,8 +949,10 @@ export const DISPONIBILIDADE = [
 ] as const;
 
 export const PLANO_GRATUITO = {
-  nome: "Gratuito",
+  nome: "Ei Começo",
   centavos: 0,
+  /* Zero vagas, escrito aqui para a tela não ter de saber disso sozinha. */
+  vagas: 0,
   resumo: "procurar e falar com os profissionais da cidade",
   beneficios: [
     "Ver todos os profissionais da cidade",
@@ -936,7 +965,13 @@ export const PLANO_GRATUITO = {
   limite: "Não publica vaga e não dispara aviso.",
 };
 
-/** "R$ 29,90" — escrito como se lê. */
+/**
+ * "R$ 29,90" — escrito como se lê.
+ *
+ * O Ei Infinit não passa por aqui: ele não tem preço de tabela, e
+ * `R$ 0,00` na tela seria uma promessa de gratuidade. Quem chama confere
+ * `sobConsulta` antes — ver `PlanosEmpresaPage`.
+ */
 export function precoDoPlano(plano: PlanoEmpresa): string {
   return (PLANOS_EMPRESA[plano].centavos / 100).toLocaleString("pt-BR", {
     style: "currency",

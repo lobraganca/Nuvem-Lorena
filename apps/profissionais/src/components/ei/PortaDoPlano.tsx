@@ -21,7 +21,7 @@ import { IconePorta } from "../../pages/ei/ComecarPage";
  *
  * ── O plano é da CONTA, não da empresa (0107) ─────────────────────────
  *
- * O teto é somado entre as lojas: com o Premium dá para abrir 2 na padaria
+ * O teto é somado entre as lojas: com o Ei Onda dá para abrir 2 na padaria
  * e 1 na lanchonete. Por isso a conta olha TODAS as empresas do dono e
  * fica com o melhor plano em dia — e por isso ele nunca apareceu dentro do
  * cartão de cada loja, onde "3 de 3" leria como "três em cada uma".

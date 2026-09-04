@@ -100,7 +100,7 @@ export function PlanosEmpresaPage() {
     return null;
   }
 
-  const ordem: PlanoEmpresa[] = ["pro", "tres", "ilimitado"];
+  const ordem: PlanoEmpresa[] = ["pro", "tres", "cinco", "dez", "ilimitado"];
 
   return (
     /* O PREÇO PRIMEIRO, e o desenho do Ei.
@@ -227,7 +227,7 @@ export function PlanosEmpresaPage() {
               </button>
             ) : null}
             {/* "É o que você já tem, sem assinar nada" saiu: o cartão já se
-                chama Gratuito, já diz R$ 0 e já diz o que não faz. Três
+                chama Ei Começo, já diz R$ 0 e já diz o que não faz. Três
                 frases para a mesma ideia, num cartão que era o mais alto da
                 fileira. */}
           </section>
@@ -238,13 +238,15 @@ export function PlanosEmpresaPage() {
                 A dona: "precisa ser mais atrativa... preciso fazer uma
                 coisa mais chamativa."
 
-                Quatro cartões iguais em fila não são uma oferta: são um
+                Seis cartões iguais em fila não são uma oferta: são um
                 formulário de escolha múltipla, e quem não sabe a diferença
                 entre 1 e 3 vagas fecha a tela. Um destaque responde "e se
-                eu não souber qual?" sem obrigar ninguém a nada — e é o
-                Premium porque é o único que resolve o caso comum daqui:
+                eu não souber qual?" sem obrigar ninguém a nada — e é o Ei
+                Onda porque é o primeiro que resolve o caso comum daqui:
                 mais de uma vaga aberta ao mesmo tempo, que é o que uma
-                loja com balcão e cozinha tem. */
+                loja com balcão e cozinha tem. Com cinco planos pagos o
+                destaque passou a valer MAIS, não menos: quanto mais
+                colunas, mais fácil fechar a tela sem escolher. */
             const destaque = chave === "tres";
             return (
               <section
@@ -254,12 +256,22 @@ export function PlanosEmpresaPage() {
                 {destaque && <span className="ei-plano-selo">Mais escolhido</span>}
                 <div className="ei-plano-linha">
                   <span className="ei-plano-nome">{p.nome}</span>
-                  <span className="ei-plano-preco">
-                    {precoDoPlano(chave)}
-                    <span className="ei-plano-ciclo">
-                      {ciclo === "recorrente" ? "/mês" : ` / ${DIAS_ANUNCIO_VAGA} dias`}
+                  {/* Preço só de quem tem preço. O Ei Infinit é combinado
+                      caso a caso: escrever "R$ 0,00" nele prometeria
+                      gratuidade, e inventar um número faria a empresa
+                      cobrar esse número na conversa. */}
+                  {p.sobConsulta ? (
+                    <span className="ei-plano-preco ei-plano-preco-consulta">
+                      Sob consulta
                     </span>
-                  </span>
+                  ) : (
+                    <span className="ei-plano-preco">
+                      {precoDoPlano(chave)}
+                      <span className="ei-plano-ciclo">
+                        {ciclo === "recorrente" ? "/mês" : ` / ${DIAS_ANUNCIO_VAGA} dias`}
+                      </span>
+                    </span>
+                  )}
                 </div>
                 <ul className="ei-plano-lista">
                   {p.beneficios.map((b) => (
@@ -273,7 +285,9 @@ export function PlanosEmpresaPage() {
                       className="ei-btn ei-btn-contorno ei-btn-largo ei-btn-alto"
                       onClick={() => seguir(chave)}
                     >
-                      Quero o {p.nome}
+                      {/* No plano sob consulta o botão não promete escolha:
+                          não há preço para escolher, há uma conversa. */}
+                      {p.sobConsulta ? "Falar com a gente" : `Quero o ${p.nome}`}
                     </button>
                     <p className="ei-plano-resumo">
                       Você escolhe agora e paga na hora de publicar a primeira vaga.
@@ -294,12 +308,14 @@ export function PlanosEmpresaPage() {
                   <a
                     className="ei-btn ei-btn-contorno ei-btn-largo ei-btn-alto"
                     href={`https://wa.me/${SUPORTE_WHATSAPP}?text=${encodeURIComponent(
-                      `Olá! Quero assinar o plano ${p.nome} do Ei Emprego.`
+                      p.sobConsulta
+                        ? `Olá! Quero saber sobre o plano ${p.nome} do Ei Emprego.`
+                        : `Olá! Quero assinar o plano ${p.nome} do Ei Emprego.`
                     )}`}
                     target="_blank"
                     rel="noopener noreferrer"
                   >
-                    Quero o {p.nome}
+                    {p.sobConsulta ? "Falar com a gente" : `Quero o ${p.nome}`}
                   </a>
                 )}
               </section>

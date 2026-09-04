@@ -6029,3 +6029,12 @@
   clip: rect(0, 0, 0, 0);
   white-space: nowrap;
 }
+
+/* "Sob consulta" ocupa o lugar do preço no Ei Infinit. Menor que um valor
+   em reais de propósito: o olho que percorre a coluna de preços não pode
+   ler duas palavras como se fossem um número grande. */
+.ei .ei-plano-preco-consulta {
+  font-size: 17px;
+  font-weight: 600;
+  white-space: nowrap;
+}
