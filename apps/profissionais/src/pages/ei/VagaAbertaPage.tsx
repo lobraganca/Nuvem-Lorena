@@ -334,15 +334,34 @@ export function VagaAbertaPage() {
           </span>
         </Link>
 
-        {/* 2 — A VAGA: o que é, e o que a pessoa vai fazer. */}
-        {/* ── COMPARTILHAR, AO LADO DO TÍTULO — 04/09 ────────────────
-            A dona: "ter ícone para compartilhar a vaga com uma pessoa."
+        {/* ── COMPARTILHAR, FORA DO CARTÃO — 05/09 ───────────────────
+            A dona: "o compartilhar está muito fora de contexto. Ele pode
+            ser um botão discreto fora do card."
 
-            Aqui, e não junto do "Tenho interesse" lá embaixo: numa cidade
-            pequena a vaga circula de mão em mão, e quem manda para outra
-            pessoa costuma decidir isso no primeiro instante — ao ler o
-            título e pensar "isso é a cara do fulano". Embaixo, depois de
-            toda a ficha, é onde estão as ações de QUEM VAI se candidatar. */}
+            Ele morava DENTRO do cartão da vaga, na mesma linha do título —
+            e ali competia com ele: "Repositor de mercadorias" quebrava em
+            duas linhas espremidas de um lado enquanto "Compartilhar",
+            azul e com ícone, ocupava o outro. O título da vaga é a coisa
+            mais importante da tela; nada devia dividir a linha com ele.
+
+            Agora fica no chão cinza entre os dois cartões, encostado à
+            direita e pequeno. Continua no primeiro instante da tela — que
+            é quando se decide mandar a vaga para alguém, numa cidade onde
+            vaga circula de mão em mão — mas fora do conteúdo, como o que
+            ele é: uma ação sobre a vaga, e não parte dela.
+
+            Continua ANTES da ficha inteira, e não junto do "Tenho
+            interesse" lá embaixo: aquelas são as ações de quem VAI se
+            candidatar. */}
+        <div className="ei-acao-solta">
+          <BotaoCompartilhar
+            titulo={vaga.title}
+            texto={`Vaga de ${vaga.profession || vaga.title} em ${vaga.city}. Vi no Ei Emprego:`}
+            caminho={`/vaga-aberta/${vaga.id}`}
+          />
+        </div>
+
+        {/* 2 — A VAGA: o que é, e o que a pessoa vai fazer. */}
         {/* ══ CADA SEÇÃO NUM CARTÃO — 05/09 ══════════════════════════
             A dona: "essa tela pode ser melhorada. Cada seção ficar em um
             card. O card da empresa ter mais profundidade. Organizar
@@ -360,16 +379,9 @@ export function VagaAbertaPage() {
             dentro. Quem rola vê blocos, e não texto solto alternando com
             caixas. */}
         <section className="ei-ficha ei-ficha-capa">
-        <div className="ei-titulo-com-acao">
-          <h1 className="ei-titulo-g" style={{ paddingTop: 0 }}>
-            {vaga.title}
-          </h1>
-          <BotaoCompartilhar
-            titulo={vaga.title}
-            texto={`Vaga de ${vaga.profession || vaga.title} em ${vaga.city}. Vi no Ei Emprego:`}
-            caminho={`/vaga-aberta/${vaga.id}`}
-          />
-        </div>
+        <h1 className="ei-titulo-g" style={{ paddingTop: 0 }}>
+          {vaga.title}
+        </h1>
 
         {/* ── A FRASE DE ABERTURA SAIU — 04/09 ────────────────────────
             A dona: "essa frase de início está horrível."

@@ -4792,6 +4792,31 @@
 .ei .ei-barra-acao { color: var(--ei-sobre-acento); }
 .ei .ei-barra-acao .ei-compartilhar { color: inherit; }
 
+/* ── UMA AÇÃO SOLTA, ENTRE DOIS CARTÕES — 05/09 ─────────────────────
+   A dona: "o compartilhar está muito fora de contexto. Ele pode ser um
+   botão discreto fora do card."
+
+   O chão cinza entre os cartões é o lugar das ações que são SOBRE o
+   conteúdo, e não parte dele. Encostado à direita e miúdo: quem procura
+   emprego vem ler a vaga, não compartilhá-la — o botão precisa estar à
+   mão de quem quiser, sem disputar o olho com o título. */
+.ei .ei-acao-solta {
+  display: flex;
+  justify-content: flex-end;
+  padding: 0 16px;
+  margin: -4px 0 6px;
+}
+.ei .ei-acao-solta .ei-compartilhar {
+  min-height: 34px;
+  padding: 4px 8px;
+  font-size: 0.84rem;
+  font-weight: 600;
+  color: var(--ei-tinta-fraca);
+}
+/* O ícone menor junto com a letra menor: em 18px sobre um texto de
+   0.84rem ele virava o desenho principal de um botão que é secundário. */
+.ei .ei-acao-solta .ei-compartilhar svg { width: 15px; height: 15px; }
+
 /* Título grande com uma ação pequena à direita (o compartilhar da vaga).
    `align-items: end` alinha o botão pela BASE do título, e não pelo meio:
    com o título em duas linhas, centralizado, o botão flutuava no vão à
