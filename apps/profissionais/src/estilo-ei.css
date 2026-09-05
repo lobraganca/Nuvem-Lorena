@@ -7709,24 +7709,40 @@
 
    A caixa resolve com uma regra e nenhum texto: o que está DENTRO é o que
    foi pago. Laranja lavado, que é a cor do destaque no app inteiro. */
+/* ── DE CAIXA PARA FAIXA — 05/09 ──────────────────────────────────────
+   A dona, com o print: "aviso bem desalinhado."
+
+   Estava, e a culpa era da caixa que eu tinha feito ontem para delimitar a
+   área. Ela recuava 12px de margem e mais 10 de respiro, e TUDO o que
+   estava dentro herdava esse recuo em cima do próprio: medido, o título
+   "Em alta" nascia em 85px enquanto "Todos os profissionais", logo
+   abaixo, ficava em 33. Cinquenta e dois pixels de degrau no meio da
+   mesma tela.
+
+   Dava para consertar acertando três recuos um a um. Não é o certo: cada
+   coisa dentro da área continuaria com uma régua diferente da mesma coisa
+   fora dela, e o próximo item que entrasse ali nasceria torto de novo.
+
+   A área vira uma FAIXA: largura inteira, sem respiro lateral nenhum, com
+   fio em cima e embaixo. O que está dentro usa a régua da tela — a mesma
+   dos cartões de fora — e não pode sair do prumo, porque não há mais recuo
+   para herdar. E ela continua delimitando: o fundo laranja e os dois fios
+   dizem onde a área começa e onde acaba, que é o que a dona pediu ontem. */
 .ei .ei-area-destaque {
-  margin: 6px 12px 4px;
-  padding: 4px 10px 12px;
-  border: 1px solid #f1cfbb;
-  border-radius: 18px;
+  margin: 8px 0 4px;
+  padding: 4px 0 12px;
+  border-top: 1px solid #f1cfbb;
+  border-bottom: 1px solid #f1cfbb;
   background: var(--ei-laranja-fraco);
 }
-/* O título já vem com margem da régua da tela; dentro da caixa ela
-   duplicaria o respiro da esquerda. */
-.ei .ei-area-destaque > .ei-secao { margin-left: 4px; margin-right: 4px; }
-/* Os cartões de dentro perdem a margem lateral: a caixa já a tem. */
-.ei .ei-area-destaque > .ei-lista { margin-left: 0; margin-right: 0; }
-/* E perdem a barra laranja da esquerda: dentro de uma caixa laranja ela
-   vira um risco em cima de um fundo da mesma cor. */
+/* Dentro da faixa os cartões perdem a barra laranja da esquerda: sobre um
+   fundo da mesma cor ela vira um risco em cima de outro. */
 .ei .ei-area-destaque > .ei-lista-destaque { border-left: 0; }
 
+/* O aviso de vazio usa a régua das CAIXAS (12px), como os cartões que
+   ficariam no lugar dele. */
 .ei .ei-area-destaque-vazia {
-  margin: 0 4px;
+  margin: 0 12px;
   padding: 12px 14px;
   border: 1px dashed #e2b79c;
   border-radius: 14px;
