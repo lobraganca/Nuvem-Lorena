@@ -6466,6 +6466,118 @@
   color: var(--ei-tinta-fraca);
 }
 
+/* ══════════════════════════════════════════════════════════════════════
+   OS QUADRADOS GANHARAM ROSTO — 05/09
+   ══════════════════════════════════════════════════════════════════════
+   A dona: "essa tela também está bem feia, simples."
+
+   Eram quatro retângulos brancos idênticos com um número preto grande em
+   cada. Para distinguir "buscas" de "empresas" era preciso LER as duas
+   linhas de baixo — e o olho, que escolhe onde parar antes de ler, não
+   tinha por onde escolher. Um disco colorido de 30px com um desenho
+   dentro resolve isso sem acrescentar palavra nenhuma à tela.
+
+   A cor classifica, não enfeita:
+     azul     o que ACONTECEU com a pessoa (apareceu, foi vista)
+     laranja  o que ESPERA por ela (vagas que combinam)
+     verde    o que ela JÁ FEZ (respondeu)
+
+   O disco é tinta sobre fundo lavado da mesma família — o mesmo par dos
+   selos (`ei-selo-verde`, `ei-selo-laranja`), para o app não ter duas
+   ideias de "cor fraca". */
+.ei .ei-numero-marca {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  border-radius: 999px;
+  margin-bottom: 12px;
+}
+
+.ei .ei-numero-azul .ei-numero-marca {
+  background: #e3edf7;
+  color: var(--ei-acento);
+}
+.ei .ei-numero-laranja .ei-numero-marca {
+  background: var(--ei-laranja-fraco);
+  color: var(--ei-sobre-laranja-fraco);
+}
+.ei .ei-numero-verde .ei-numero-marca {
+  background: var(--ei-verde-fraco);
+  color: var(--ei-sobre-verde-fraco);
+}
+
+/* Zero não grita — ver o comentário em `valorApagado`, na tela. Cinza de
+   texto, e não o cinza dos fios: o zero é DADO, e um dado que ninguém
+   consegue ler deixou de informar. Este passa de 4,5:1 sobre o branco. */
+.ei .ei-numero-vazio { color: var(--ei-tinta-fraca); }
+
+/* ══════════════════════════════════════════════════════════════════════
+   O RECADO VIRA CONVITE, E DEIXA DE PARECER ERRO — 05/09
+   ══════════════════════════════════════════════════════════════════════
+   A dona, sobre "Você é das que mais combinam em 1 vaga / Abra e toque em
+   'tenho interesse'…": "ficou horrível."
+
+   Era um cartão BRANCO com uma barra azul grossa na esquerda — a mesma
+   gramática de um aviso de erro, em toda interface que existe. A única
+   boa notícia da tela estava vestida de problema.
+
+   Agora: fundo azul lavado, o desenho num disco à esquerda, e a barra
+   fora. Azul claro já diz "olhe aqui" sem dizer "deu errado". E o botão,
+   que é o que faltava de verdade: o recado mandava fazer uma coisa e não
+   tinha como fazê-la. */
+.ei .ei-recado-cartao {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+  margin: 16px 12px 0;
+  padding: 18px;
+  border-radius: 18px;
+  background: #eaf2fa;
+  border: 1px solid #d3e3f3;
+}
+
+.ei .ei-recado-marca {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 auto;
+  width: 40px;
+  height: 40px;
+  border-radius: 999px;
+  background: var(--ei-papel);
+  color: var(--ei-acento);
+}
+
+.ei .ei-recado-corpo { min-width: 0; }
+
+.ei .ei-recado-cartao .ei-recado-titulo {
+  margin: 2px 0 0;
+  font-size: 1.02rem;
+  font-weight: 700;
+  line-height: 1.3;
+  color: var(--ei-tinta);
+}
+
+.ei .ei-recado-cartao .ei-recado-texto {
+  margin: 6px 0 0;
+  font-size: 0.9rem;
+  line-height: 1.45;
+  color: var(--ei-tinta-fraca);
+}
+
+/* O botão não estica de ponta a ponta: dentro de um recado, um botão de
+   largura cheia vira a coisa mais forte da tela e briga com os quatro
+   números que a pessoa veio ver. */
+.ei .ei-recado-botao {
+  display: inline-flex;
+  margin-top: 12px;
+  min-height: 40px;
+  padding: 0 18px;
+  width: auto;
+}
+
 /* Num celular estreito dois quadrados com quatro palavras cada ficam
    altos demais e o texto quebra em cinco linhas. Aí eles viram um por
    linha, que é mais alto no total e MENOS apertado em cada um. */
@@ -6480,13 +6592,31 @@
    Fica um cartão à parte — e não uma linha no meio da lista — porque é a
    única coisa da tela que custa dinheiro, e misturá-la com as gratuitas
    é o que fazia o caminho da compra sumir. */
+/* ── A OFERTA PRECISA PARECER UMA OFERTA — 05/09 ─────────────────────
+   A dona: "essa tela também está bem feia, simples."
+
+   Depois de os quatro números e o recado ganharem cor, este cartão ficou
+   sendo o único retângulo branco e chapado da tela — e logo o que VENDE.
+   Ele é o irmão da seção "Em destaque" das duas listas, e agora se veste
+   como ela: laranja lavado e o foguinho. Sem gritar: continua vindo
+   depois dos números e do recado, nunca como primeira resposta a
+   "ninguém me viu". */
 .ei .ei-destaque-oferta {
   display: grid;
   gap: 4px;
   margin-top: 14px;
+  background: var(--ei-laranja-fraco);
+  border-color: #f1cfbb;
 }
 
-.ei .ei-destaque-titulo { font-size: 1rem; font-weight: 600; }
+.ei .ei-destaque-titulo {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--ei-sobre-laranja-fraco);
+}
 .ei .ei-destaque-nota { font-size: 0.85rem; color: var(--ei-tinta-fraca); }
 .ei .ei-destaque-preco {
   font-size: 1.35rem;
@@ -6494,6 +6624,7 @@
   letter-spacing: -0.02em;
   font-variant-numeric: tabular-nums;
   margin-top: 2px;
+  color: var(--ei-sobre-laranja-fraco);
 }
 .ei .ei-destaque-oferta .ei-btn { margin-top: 10px; }
 

@@ -88,7 +88,39 @@ const sino: Desenho = () => (
   </>
 );
 
+/* Olho aberto: "quem te viu". Usado nos números do desempenho, onde o
+   assunto é ser visto — a pálpebra de cima mais curva que a de baixo é o
+   que separa um olho de uma bola dentro de uma amêndoa. */
+const olho: Desenho = () => (
+  <>
+    <path d="M2.8 12S6.5 6 12 6s9.2 6 9.2 6-3.7 6-9.2 6-9.2-6-9.2-6Z" />
+    <circle cx="12" cy="12" r="2.8" />
+  </>
+);
+
+/* Visto dentro de um círculo: "você respondeu". Fechado, e não solto,
+   porque solto ele lê como um item de lista pela metade. */
+const visto: Desenho = () => (
+  <>
+    <circle cx="12" cy="12" r="8.6" />
+    <path d="m8.4 12.2 2.6 2.6 4.6-5" />
+  </>
+);
+
+/* Alvo: "vagas que combinam com você". Dois anéis e o miolo — em 24px, um
+   terceiro anel vira uma mancha. */
+const alvo: Desenho = () => (
+  <>
+    <circle cx="12" cy="12" r="8.4" />
+    <circle cx="12" cy="12" r="4" />
+    <circle cx="12" cy="12" r="0.6" />
+  </>
+);
+
 const DESENHOS: Record<string, Desenho> = {
+  olho,
+  visto,
+  alvo,
   lupa,
   sino,
   maleta,

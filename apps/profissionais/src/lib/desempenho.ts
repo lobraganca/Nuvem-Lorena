@@ -241,6 +241,19 @@ export async function meuDesempenho(
 export function recadoDoDesempenho(d: Desempenho): {
   titulo: string;
   texto: string;
+  /* O desenho que acompanha o recado — ver `IconesInicio`. */
+  icone: "olho" | "alvo" | "lupa" | "sino" | "maleta";
+  /* ── UM RECADO QUE MANDA FAZER PRECISA DO BOTÃO — 05/09 ─────────────
+     A dona, sobre "Abra e toque em 'tenho interesse'": "ficou horrível."
+
+     E o problema não era só a frase. O recado DIZIA o que fazer e não
+     tinha como fazer: um parágrafo de instrução dentro de um quadro
+     branco, e a pessoa que quisesse obedecer tinha de sair procurando a
+     tela. Instrução sem botão é a forma mais cansativa de dar uma ordem.
+
+     Agora cada recado carrega para ONDE ele leva, e a frase encolheu para
+     o que sobra depois de o botão existir. */
+  acao?: { texto: string; para: string };
   /* Este recado é sobre SER VISTA? Então o destaque pago resolve
      exatamente o que ele descreve, e o caminho para comprá-lo tem de
      estar ali — não no fim da tela, três seções abaixo, onde a dona não
@@ -252,11 +265,12 @@ export function recadoDoDesempenho(d: Desempenho): {
   if (d.empresasNaSemana >= 3) {
     return {
       titulo: `${d.empresasNaSemana} empresas abriram seu cadastro esta semana`,
-      texto:
-        /* Encurtados em 04/09: "muita confusão e escrita extensa". Cada
-           recado tinha duas ou três orações e um conselho embutido; agora
-           é uma frase, e o que fazer está no botão ou na lista abaixo. */
-        "Deixe o telefone à mão: quem abre o cadastro está pensando em ligar.",
+      /* Encurtados em 04/09 ("muita confusão e escrita extensa") e de novo
+         em 05/09, quando o botão passou a existir e a frase deixou de
+         precisar explicar o caminho. */
+      texto: "Quem abre um cadastro está pensando em ligar. Telefone à mão.",
+      icone: "olho",
+      acao: { texto: "Ver meu cadastro", para: "/meu-perfil" },
     };
   }
 
@@ -265,13 +279,14 @@ export function recadoDoDesempenho(d: Desempenho): {
       titulo: `Você é das que mais combinam em ${d.vagasMuitoCompativeis} ${
         d.vagasMuitoCompativeis === 1 ? "vaga" : "vagas"
       }`,
-      texto:
-        /* Dizia "quem responde aparece primeiro na lista dela". Duas
-           coisas erradas numa frase: não é primeiro (a lista da empresa
-           não ordena por quem respondeu antes), e "aparecer primeiro" é o
-           nome do que o app VENDE — a dona leu isto como a oferta paga e
-           procurou o preço. Agora diz o que acontece de verdade. */
-        "Abra e toque em “tenho interesse”: é assim que seu nome e telefone chegam à empresa.",
+      /* A frase dizia "Abra e toque em 'tenho interesse': é assim que seu
+         nome e telefone chegam à empresa" — um manual de duas linhas para
+         um botão que agora está logo abaixo. Antes disso ela dizia "quem
+         responde aparece primeiro na lista dela", que era falso e ainda
+         por cima usava o nome do que o app vende. */
+      texto: "Responda e a empresa recebe seu nome e telefone.",
+      icone: "alvo",
+      acao: { texto: "Ver a vaga", para: "/vagas-para-mim" },
     };
   }
 
@@ -280,8 +295,9 @@ export function recadoDoDesempenho(d: Desempenho): {
       titulo: `Você apareceu em ${d.buscasNaSemana} ${
         d.buscasNaSemana === 1 ? "busca" : "buscas"
       } esta semana`,
-      texto:
-        "Uma foto e um resumo curto fazem a empresa parar na sua linha.",
+      texto: "Uma foto e um resumo curto fazem a empresa parar na sua linha.",
+      icone: "lupa",
+      acao: { texto: "Melhorar meu cadastro", para: "/meu-perfil" },
       ofereceDestaque: true,
     };
   }
@@ -289,15 +305,17 @@ export function recadoDoDesempenho(d: Desempenho): {
   if (d.vagasNoAr === 0) {
     return {
       titulo: "Ainda não há vagas no ar hoje",
-      texto:
-        "Não é você: ninguém publicou nada hoje. Com o cadastro pronto, a vaga nova te avisa.",
+      texto: "Não é você: ninguém publicou nada hoje. A vaga nova te avisa.",
+      icone: "sino",
+      acao: { texto: "Conferir meus avisos", para: "/avisos" },
     };
   }
 
   return {
     titulo: "Seu cadastro ainda está passando despercebido",
-    texto:
-      "Mais funções marcadas e um resumo curto: é por eles que a busca encontra.",
+    texto: "Mais funções marcadas e um resumo curto: é por eles que a busca encontra.",
+    icone: "maleta",
+    acao: { texto: "Completar meu cadastro", para: "/meu-perfil" },
     ofereceDestaque: true,
   };
 }

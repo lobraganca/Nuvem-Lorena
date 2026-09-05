@@ -7,6 +7,8 @@ import { mensagemDeErro } from "../../lib/erros";
 import { lerMeuPerfil } from "../../lib/meuPerfil";
 import { meuDesempenho, recadoDoDesempenho, type Desempenho } from "../../lib/desempenho";
 import { podeVender } from "../../lib/plataforma";
+import { IconeInicio } from "../../components/IconesInicio";
+import { IconeFogo } from "../../components/ei/IconeFogo";
 import { precoDoDestaqueEmTexto, DESTAQUE_DIAS } from "../../lib/destaque";
 
 /**
@@ -28,6 +30,15 @@ import { precoDoDestaqueEmTexto, DESTAQUE_DIAS } from "../../lib/destaque";
  * informação: significa que o problema não é a pessoa não ter sido
  * escolhida, é ela ainda não ter sido vista.
  */
+/* Zero não grita. Um "0" do mesmo tamanho e da mesma cor do "20" ao lado
+   dá a um número que não aconteceu o mesmo peso do que aconteceu — e numa
+   tela que a pessoa abre para saber se está sendo vista, isso lê como
+   acusação. Apagado, ele continua legível e para de ser a primeira coisa
+   que o olho encontra. */
+function valorApagado(n: number): string {
+  return n === 0 ? "ei-numero-valor ei-numero-vazio" : "ei-numero-valor";
+}
+
 export function MeuDesempenhoPage() {
   useTituloDaPagina("Meu desempenho");
   const navegar = useNavigate();
@@ -126,42 +137,98 @@ export function MeuDesempenhoPage() {
                 com números diferentes é o convite mais fácil para achar
                 que o app se contradiz. O total virou a linha miúda do
                 próprio quadrado. */}
+            {/* ── OS QUADRADOS GANHARAM ROSTO — 05/09 ──────────────────
+                A dona: "essa tela também está bem feia, simples."
+
+                Eram quatro retângulos brancos iguais, com um número preto
+                grande em cada um. Nada distinguia "buscas" de "empresas"
+                a não ser ler as duas linhas de texto — e o olho, que
+                escolhe onde parar antes de ler, não tinha por onde
+                escolher. Um desenho pequeno e uma cor por assunto resolvem
+                isso sem acrescentar uma palavra à tela.
+
+                As cores não são enfeite, elas classificam: azul é o que
+                ACONTECEU com a pessoa (apareceu, foi vista), laranja é o
+                que ESPERA por ela (vagas que combinam), verde é o que ela
+                JÁ FEZ (respondeu). */}
             <div className="ei-numeros">
-              <div className="ei-numero-caixa">
-                <span className="ei-numero-valor">{dados.buscasNaSemana}</span>
+              <div className="ei-numero-caixa ei-numero-azul">
+                <span className="ei-numero-marca" aria-hidden="true">
+                  <IconeInicio nome="lupa" tamanho={18} />
+                </span>
+                <span className={valorApagado(dados.buscasNaSemana)}>{dados.buscasNaSemana}</span>
                 <span className="ei-numero-nome">Buscas em que apareceu</span>
                 <span className="ei-numero-nota">nos últimos 7 dias</span>
               </div>
 
-              <Link to="/meu-perfil" className="ei-numero-caixa">
-                <span className="ei-numero-valor">{dados.empresasNaSemana}</span>
+              <Link to="/meu-perfil" className="ei-numero-caixa ei-numero-azul">
+                <span className="ei-numero-marca" aria-hidden="true">
+                  <IconeInicio nome="olho" tamanho={18} />
+                </span>
+                <span className={valorApagado(dados.empresasNaSemana)}>{dados.empresasNaSemana}</span>
                 <span className="ei-numero-nome">Empresas que te viram</span>
                 <span className="ei-numero-nota">
                   abriram seu cadastro · {dados.empresasTotal} desde o começo
                 </span>
               </Link>
 
-              <Link to="/vagas" className="ei-numero-caixa">
-                <span className="ei-numero-valor">{dados.vagasMuitoCompativeis}</span>
+              <Link to="/vagas" className="ei-numero-caixa ei-numero-laranja">
+                <span className="ei-numero-marca" aria-hidden="true">
+                  <IconeInicio nome="alvo" tamanho={18} />
+                </span>
+                <span className={valorApagado(dados.vagasMuitoCompativeis)}>
+                  {dados.vagasMuitoCompativeis}
+                </span>
                 <span className="ei-numero-nome">Vagas que combinam com você</span>
                 <span className="ei-numero-nota">
                   de {dados.vagasNoAr} {dados.vagasNoAr === 1 ? "aberta" : "abertas"} na cidade
                 </span>
               </Link>
 
-              <Link to="/vagas-para-mim" className="ei-numero-caixa">
-                <span className="ei-numero-valor">{dados.interessesEnviados}</span>
+              <Link to="/vagas-para-mim" className="ei-numero-caixa ei-numero-verde">
+                <span className="ei-numero-marca" aria-hidden="true">
+                  <IconeInicio nome="visto" tamanho={18} />
+                </span>
+                <span className={valorApagado(dados.interessesEnviados)}>
+                  {dados.interessesEnviados}
+                </span>
                 <span className="ei-numero-nome">Vagas que você respondeu</span>
                 <span className="ei-numero-nota">a empresa recebeu seu telefone</span>
               </Link>
             </div>
 
-            {/* O recado, curto. Ele diz o que fazer com os números de
-                cima — e por isso vem depois deles, e não antes: sozinho,
-                era um parágrafo antes de qualquer dado. */}
-            <div className="ei-cartao ei-recado" style={{ marginTop: 14 }}>
-              <h2 className="ei-recado-titulo">{recado.titulo}</h2>
-              <p className="ei-recado-texto">{recado.texto}</p>
+            {/* ── O RECADO VIRA UM CONVITE, E NÃO UM AVISO — 05/09 ─────
+                A dona, sobre "Você é das que mais combinam em 1 vaga /
+                Abra e toque em 'tenho interesse'…": "ficou horrível."
+
+                Ela tem razão em duas frentes.
+
+                A FORMA: era um quadro branco com uma barra azul grossa na
+                esquerda — a mesma gramática de um aviso de erro. A única
+                boa notícia da tela estava vestida de problema.
+
+                O CONTEÚDO: o recado MANDAVA fazer uma coisa e não tinha
+                como fazê-la. "Abra e toque em tenho interesse" é um manual
+                de duas linhas para um botão que devia estar ali. Agora o
+                botão está, e a frase encolheu para o que sobra depois
+                dele (ver `recadoDoDesempenho`).
+
+                O fundo é um azul de leve, o desenho fica num disco à
+                esquerda, e a barra saiu: azul claro já diz "olhe aqui" sem
+                dizer "deu errado". */}
+            <div className="ei-recado-cartao">
+              <span className="ei-recado-marca" aria-hidden="true">
+                <IconeInicio nome={recado.icone} tamanho={22} />
+              </span>
+              <div className="ei-recado-corpo">
+                <h2 className="ei-recado-titulo">{recado.titulo}</h2>
+                <p className="ei-recado-texto">{recado.texto}</p>
+                {recado.acao && (
+                  <Link to={recado.acao.para} className="ei-btn ei-btn-cheio ei-recado-botao">
+                    {recado.acao.texto}
+                  </Link>
+                )}
+              </div>
             </div>
 
             {/* ── APARECER PRIMEIRO, COM BOTÃO — 04/09 ──────────────────
@@ -181,7 +248,14 @@ export function MeuDesempenhoPage() {
                 apontar o caminho é a mesma infração que vender. */}
             {recado.ofereceDestaque && podeVender() && (
               <div className="ei-cartao ei-destaque-oferta">
-                <span className="ei-destaque-titulo">Aparecer primeiro na lista</span>
+                <span className="ei-destaque-titulo">
+                  {/* O mesmo foguinho da seção "Em destaque" das duas
+                      listas: o que se compra aqui é justamente entrar
+                      naquela seção, e o desenho é o que liga uma coisa à
+                      outra sem precisar explicar. */}
+                  <IconeFogo tamanho={16} />
+                  Aparecer primeiro na lista
+                </span>
                 <span className="ei-destaque-nota">
                   {DESTAQUE_DIAS} dias no topo, com selo “Em alta”
                 </span>
