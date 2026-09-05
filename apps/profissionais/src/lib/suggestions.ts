@@ -29,8 +29,20 @@ export async function listSuggestions(): Promise<Suggestion[]> {
      que o app não tem como falar com banco nenhum. */
   if (!client) throw new Error("Sem conexão com o banco.");
   const { data, error } = await client.from("suggestions").select("*").order("created_at", { ascending: false });
-  if (error || !data) return [];
-  return data;
+  /* ── O ERRO SOBE, E NÃO VIRA LISTA VAZIA — 05/09 ────────────────────
+     Era `if (error || !data) return []`. O comentário logo acima explica,
+     desde sempre, por que isso é errado — e a linha abaixo dele fazia
+     exatamente aquilo. Achado varrendo o app.
+
+     O efeito: uma policy nova, uma coluna renomeada ou a rede caída
+     faziam o painel dizer "nenhuma sugestão recebida ainda" com cara de
+     normal. É a mesma mentira calma que a lista de denúncias tinha, e
+     que este projeto já pagou caro em outros lugares.
+
+     `!data` continua devolvendo vazio: sem erro e sem linhas quer dizer,
+     de verdade, que ninguém sugeriu nada. */
+  if (error) throw error;
+  return data ?? [];
 }
 
 export async function updateSuggestionStatus(suggestionId: string, status: SuggestionStatus): Promise<void> {

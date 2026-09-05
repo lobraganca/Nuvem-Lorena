@@ -621,12 +621,22 @@ const TABELAS: Record<string, Linha[]> = {
      o número aparece, que ele conta certo e que o zero tem frase própria. */
   /* Conta nova não respondeu nada ainda: as abas "Novas" e "Já respondi"
      precisam abrir zeradas, que é como a pessoa de verdade as encontra. */
+  /* ── O TETO DE 5 POR DIA PRECISA PODER SER TESTADO — 05/09 ──────────
+     Duas faltas aqui impediam isso:
+
+     1. `created_at` não existia. `limiteDeHoje` conta por ela, e o falso
+        não valida coluna que falta — o filtro passava com `undefined` e o
+        teste "passava" sem nunca ter contado nada.
+     2. Só havia 3 respostas, e o teto é 5. Com `?cheio=hoje` (ou a chave
+        `falso-cheio-hoje`) elas viram 6, todas de hoje: é o estado em que
+        a folha "Por hoje, chega" tem de aparecer. */
   job_responses: contaNova() ? [] : VAGAS.slice(0, 1).flatMap((v) =>
-    [0, 1, 2].map((i) => ({
+    (ajuste("cheio") === "hoje" ? [0, 1, 2, 3, 4, 5] : [0, 1, 2]).map((i) => ({
       id: `resposta-${i}`,
       job_listing_id: v.id,
       professional_id: DONO_FALSO,
       responded_at: emDias(-i),
+      created_at: ajuste("cheio") === "hoje" ? new Date().toISOString() : emDias(-i),
       status: "new",
       /* `interessado` PRECISA estar aqui. No banco a coluna nasce `true`
          (migration 0078), e o painel da empresa filtra por ela. Sem o
@@ -636,7 +646,7 @@ const TABELAS: Record<string, Linha[]> = {
 
          A terceira é um NÃO de propósito: sem ela o teste nunca exercitaria
          o filtro, só a ausência dele. */
-      interessado: i < 2,
+      interessado: ajuste("cheio") === "hoje" ? true : i < 2,
     }))
   ),
   job_dispatches: [],
@@ -648,10 +658,19 @@ const TABELAS: Record<string, Linha[]> = {
     id: `aviso-${i}`,
     professional_id: DONO_FALSO,
     job_listing_id: v.id,
+    /* A onda: a 1 é a exceção do teto de candidaturas (ver
+       `podeSeCandidatar`). Sem esta coluna o falso respondia `undefined`,
+       a exceção nunca era exercitada, e o teste não sabia distinguir "a
+       regra passou" de "a regra nem rodou". A primeira vaga é de onda 1;
+       as outras, de onda 2. */
+    wave: i === 0 ? 1 : 2,
     criado_em: emDias(-i),
     /* A primeira nunca foi vista: é ela que carrega o selo "Nova", e sem
        uma assim o selo não aparece em teste nenhum. */
     visto_em: i === 0 ? null : emDias(-i),
+    /* A coluna da 0122: o app filtra por ela ("os avisos de mais de 15
+       dias somem") e a exclusão a escreve. */
+    escondido_em: null,
     job_listings: {
       ...v,
       companies: { company_name: "Padaria Pão de Minas", photo_url: fotoFalsa(2) },

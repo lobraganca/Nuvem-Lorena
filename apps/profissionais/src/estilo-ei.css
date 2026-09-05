@@ -8053,3 +8053,39 @@
   padding-right: 8px;
   white-space: nowrap;
 }
+
+
+/* ══════════════════════════════════════════════════════════════════════
+   O DEDO PRECISA ACERTAR — 05/09
+   ══════════════════════════════════════════════════════════════════════
+   Achado varrendo o app inteiro, tela por tela, medindo cada botão e cada
+   link: as pastilhas do app têm 30px de altura, e a do "Apareça aqui",
+   26px. A recomendação da Google para o Android é 48dp; a do iPhone,
+   44pt. Trinta é o que se acerta com o polegar de quem tem vinte anos e
+   está sentado — não é o que se acerta no ônibus, com uma mão, nem com
+   sessenta anos.
+
+   Isso importa MAIS neste app do que na média: metade dos filtros do
+   banco de talentos e as dezesseis chaves de compatibilidade da vaga são
+   pastilhas, e errar uma delas não dá erro nenhum — muda o resultado em
+   silêncio. A empresa marca "A escolaridade" achando que marcou "A
+   experiência", e a onda sai para as pessoas erradas.
+
+   36px não é o ideal (48 seria), mas é o que cabe sem quebrar as fileiras
+   que já estão apertadas — e é 20% mais alvo do que havia. Onde havia
+   folga, foi mais: as caixas de marcar da tela de compatibilidade ganham
+   uma área de toque de 44px sem mudar de aparência. */
+.ei .ei-chip { min-height: 36px; padding-top: 7px; padding-bottom: 7px; }
+.ei .ei-secao-fogo-botao { min-height: 32px; padding-top: 7px; padding-bottom: 7px; }
+
+/* A caixa de marcar é 20px por padrão do navegador, e o rótulo ao lado
+   dela é que faz o alvo. Dando altura à LINHA inteira, o toque em
+   qualquer ponto do texto marca — que é como todo mundo tenta marcar. */
+.ei .ei-caixa {
+  min-height: 44px;
+  padding: 4px 0;
+}
+.ei .ei-caixa input[type="checkbox"] {
+  width: 20px;
+  height: 20px;
+}
