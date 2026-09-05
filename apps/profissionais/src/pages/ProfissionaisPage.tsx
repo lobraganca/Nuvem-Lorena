@@ -16,8 +16,6 @@ import { lerFavoritos, SEM_FAVORITOS, type Favoritos } from "../lib/favoritos";
 import { contarAparicaoEmBusca } from "../lib/compativeis";
 import {
   destaqueValendo,
-  precoDoDestaqueEmTexto,
-  DESTAQUE_DIAS,
 } from "../lib/destaque";
 import { podeVender } from "../lib/plataforma";
 import Esqueleto from "../components/ei/Esqueleto";
@@ -591,42 +589,39 @@ export function ProfissionaisPage() {
             E, como lá, separar é honestidade: uma lista cuja ordem foi
             paga tem de dizer que foi paga. Misturada, ela parecia
             ordenada por quem combina mais. */}
-        {/* ── A VITRINE APARECE MESMO VAZIA — 05/09 ────────────────────
-            A dona: "mesmo não tendo ninguém, acho interessante a área
-            aparecer para as pessoas verem que é possível e se
-            interessarem. Nela você coloca um botão discreto para
-            direcionar ao pagamento."
+        {/* ── UM BOTÃOZINHO AO LADO DO TÍTULO — 05/09 ──────────────────
+            A dona, com o print: "ficou duas vezes a situação do destaque.
+            O aviso final tire. O botão pode ficar do lado direito do lado
+            do em alta. Bem pequeno e discreto. Sem legenda, escrito
+            apareça aqui."
 
-            Antes a seção só existia quando alguém já tinha pago — e quem
-            paga é quem já sabe que dá. Vitrine que só aparece cheia
-            nunca enche: ninguém compra um lugar que não viu.
+            Estava mesmo duas vezes: a caixa tracejada explicando o
+            destaque logo abaixo do título, e o convite no pé da tela
+            dizendo a mesma coisa com outras palavras. Duas ofertas para o
+            mesmo lugar, na mesma rolagem.
 
-            Vazia ela é o anúncio dela mesma, e é assim que a pessoa
-            descobre que o topo existe. Dentro do app da Play Store some
-            inteira (`podeVender`): sem preço não há vitrine a mostrar, e
-            apontar o caminho da compra é a mesma infração que vender. */}
+            Agora é uma só, e do tamanho que ela pediu: uma pastilha ao
+            lado do "Em alta". Sem parágrafo explicando — quem toca
+            descobre na tela do destaque, que é onde a explicação cabe.
+
+            O botão fica com a seção CHEIA ou VAZIA: vazia ele é a única
+            coisa ali e mostra que o lugar existe; cheia ele é o convite
+            de quem viu os outros lá em cima e quis também.
+
+            Some dentro do app da Play Store (`podeVender`). */}
         {(emAlta.length > 0 || podeVender()) && (
           <>
             <h2 className="ei-secao ei-secao-fogo">
               <IconeFogo />
               Em alta
-            </h2>
-            {emAlta.length > 0 ? (
-              <div className="ei-lista ei-lista-destaque">{emAlta.map(linhaDaPessoa)}</div>
-            ) : (
-              <div className="ei-vitrine-vazia">
-                <p className="ei-vitrine-vazia-texto">
-                  Ninguém está em destaque agora. Quem fica aqui aparece no
-                  topo da lista por {DESTAQUE_DIAS} dias, com o selo “Em
-                  alta”.
-                </p>
-                {/* Discreto de propósito, como ela pediu: é um convite
-                    numa lista que a pessoa veio ler, não um anúncio no
-                    meio do caminho. */}
-                <Link to="/destaque" className="ei-btn-inline ei-btn-miudo">
-                  Quero aparecer aqui — {precoDoDestaqueEmTexto()}
+              {podeVender() && (
+                <Link to="/destaque" className="ei-secao-fogo-botao">
+                  Apareça aqui
                 </Link>
-              </div>
+              )}
+            </h2>
+            {emAlta.length > 0 && (
+              <div className="ei-lista ei-lista-destaque">{emAlta.map(linhaDaPessoa)}</div>
             )}
           </>
         )}
@@ -649,16 +644,9 @@ export function ProfissionaisPage() {
             oferece trabalho — quem se interessa rola até o fim.
 
             Fora do app da loja (`podeVender`). */}
-        {visiveis.length > 0 && podeVender() && (
-          <Link to="/destaque" className="ei-convite-destaque">
-            <span className="ei-convite-destaque-titulo">
-              Seu cadastro aqui em cima, na área de destaque
-            </span>
-            <span className="ei-convite-destaque-nota">
-              {precoDoDestaqueEmTexto()} por {DESTAQUE_DIAS} dias, com selo “Em alta”.
-            </span>
-          </Link>
-        )}
+        {/* O convite do pé SAIU — 05/09. A dona: "o aviso final tire."
+            Ele dizia, com outras palavras, o que a pastilha ao lado do
+            "Em alta" já diz — e as duas apareciam na mesma rolagem. */}
 
         {folhaAberta && (
           <BottomSheet

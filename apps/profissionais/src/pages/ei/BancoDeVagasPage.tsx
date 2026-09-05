@@ -8,8 +8,6 @@ import { bancoDeVagas, type VagaNoBanco } from "../../lib/bancoDeVagas";
 import { responderVaga } from "../../lib/minhasVagas";
 import {
   vagaEmDestaque,
-  precoDoDestaqueDeVagaEmTexto,
-  DESTAQUE_DIAS,
 } from "../../lib/destaque";
 import { podeVender } from "../../lib/plataforma";
 import { lerMeuPerfil } from "../../lib/meuPerfil";
@@ -456,38 +454,23 @@ export function BancoDeVagasPage() {
             Separar também é honestidade com quem procura emprego: uma
             lista cuja ordem foi paga tem de DIZER que foi paga. Misturado,
             o app parecia ordenar por relevância e ordenava por dinheiro. */}
-        {/* ── A VITRINE APARECE MESMO VAZIA — 05/09 ────────────────────
-            A dona: "mesmo não tendo ninguém, acho interessante a área
-            aparecer para as pessoas verem que é possível e se
-            interessarem. Nela você coloca um botão discreto para
-            direcionar ao pagamento."
-
-            Vitrine que só aparece cheia nunca enche: ninguém compra um
-            lugar que não viu. Some inteira dentro do app da Play Store
-            (`podeVender`).
-
-            O botão leva ao painel, e não a um checkout: o destaque é de
-            UMA vaga, e qual delas só a empresa sabe — ela escolhe lá
-            dentro. */}
+        {/* O mesmo botãozinho ao lado do título — ver o comentário longo
+            em `ProfissionaisPage`. Aqui ele leva ao painel, e não a um
+            checkout: o destaque é de UMA vaga, e qual delas só a empresa
+            sabe. */}
         {modo === "lista" && (destacadas.length > 0 || podeVender()) && (
           <>
             <h2 className="ei-secao ei-secao-fogo">
               <IconeFogo />
               Em destaque
-            </h2>
-            {destacadas.length > 0 ? (
-              <div className="ei-lista ei-lista-destaque">{destacadas.map(linhaDaVaga)}</div>
-            ) : (
-              <div className="ei-vitrine-vazia">
-                <p className="ei-vitrine-vazia-texto">
-                  Nenhuma vaga em destaque agora. A vaga que fica aqui
-                  aparece no topo por {DESTAQUE_DIAS} dias, com o selo “Em
-                  destaque”.
-                </p>
-                <Link to="/painel-empresa" className="ei-btn-inline ei-btn-miudo">
-                  Destacar minha vaga — {precoDoDestaqueDeVagaEmTexto()}
+              {podeVender() && (
+                <Link to="/painel-empresa" className="ei-secao-fogo-botao">
+                  Apareça aqui
                 </Link>
-              </div>
+              )}
+            </h2>
+            {destacadas.length > 0 && (
+              <div className="ei-lista ei-lista-destaque">{destacadas.map(linhaDaVaga)}</div>
             )}
           </>
         )}
@@ -521,17 +504,8 @@ export function BancoDeVagasPage() {
             Dentro do app da Play Store não aparece (`podeVender`): vender
             por fora da cobrança do Google é infração, e apontar o caminho
             é a mesma infração que vender. */}
-        {modo === "lista" && visiveis.length > 0 && podeVender() && (
-          <Link to="/painel-empresa" className="ei-convite-destaque">
-            <span className="ei-convite-destaque-titulo">
-              Sua vaga aqui em cima, na área de destaque
-            </span>
-            <span className="ei-convite-destaque-nota">
-              {precoDoDestaqueDeVagaEmTexto()} por {DESTAQUE_DIAS} dias, com selo “Em destaque”.
-              Abra a vaga no seu painel para contratar.
-            </span>
-          </Link>
-        )}
+        {/* O convite do pé SAIU — 05/09. A dona: "o aviso final tire."
+            A pastilha ao lado do "Em destaque" já faz esse trabalho. */}
       </div>
     </div>
   );

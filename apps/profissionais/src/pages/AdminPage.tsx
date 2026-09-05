@@ -835,6 +835,11 @@ export function AdminPage() {
  * resultado lá em cima faria o "ligado até tal dia" sumir a cada página
  * nova.
  */
+/* Os prazos que o painel oferece. O primeiro é o VENDIDO (7 dias); os
+   outros dois existem para o brinde, que é o pedido da dona. Lista fixa e
+   não campo livre: ver o comentário em `ligar`. */
+const PRAZOS_DE_DESTAQUE = [7, 15, 30] as const;
+
 function BotaoDestaque({
   profissional,
 }: {
@@ -845,11 +850,26 @@ function BotaoDestaque({
   const [mexendo, setMexendo] = useState(false);
   const [erro, setErro] = useState("");
 
-  async function ligar() {
+  /* ── O BRINDE ESCOLHE O PRAZO — 05/09 ──────────────────────────────
+     A dona: "no painel, pode ter a opção de eu destacar uma pessoa por
+     minha conta própria. Como um brinde."
+
+     O botão já existia e já sabia receber um número de dias — só nunca
+     oferecia a escolha: era sempre 7, que é o prazo VENDIDO. E brinde com
+     o prazo da venda não é brinde, é uma amostra: não dá para agradecer
+     quem indicou a cidade inteira com a mesma semana que o vizinho pagou.
+
+     Três prazos, e não um campo de digitar: data escrita à mão no painel
+     é onde nasce o "destaque até 2027" por um dedo errado — e como o
+     destaque só sai sozinho pela data, um erro desses fica no ar um ano.
+
+     Vale para os dois usos, o brinde e a entrega de quem pagou por fora
+     enquanto a cobrança automática não existe. */
+  async function ligar(dias = DESTAQUE_DIAS) {
     setMexendo(true);
     setErro("");
     try {
-      const nova = await ligarDestaque(profissional.id);
+      const nova = await ligarDestaque(profissional.id, dias);
       setAte(nova);
       setLigado(true);
     } catch (err) {
@@ -883,18 +903,39 @@ function BotaoDestaque({
             Em alta — {faltam === 1 ? "termina amanhã" : `faltam ${faltam} dias`}
           </span>
           <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
-            <button className="btn btn-outline" disabled={mexendo} onClick={ligar}>
-              Renovar {DESTAQUE_DIAS} dias
-            </button>
+            {PRAZOS_DE_DESTAQUE.map((d) => (
+              <button
+                key={d}
+                className="btn btn-outline"
+                disabled={mexendo}
+                onClick={() => ligar(d)}
+              >
+                +{d} dias
+              </button>
+            ))}
             <button className="btn btn-outline" disabled={mexendo} onClick={desligar}>
               Desligar destaque
             </button>
           </div>
         </>
       ) : (
-        <button className="btn btn-outline" disabled={mexendo} onClick={ligar}>
-          Ligar destaque por {DESTAQUE_DIAS} dias
-        </button>
+        <>
+          <span className="muted" style={{ fontSize: "0.85rem" }}>
+            Ligar destaque — de brinde, ou para quem pagou por fora
+          </span>
+          <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+            {PRAZOS_DE_DESTAQUE.map((d) => (
+              <button
+                key={d}
+                className="btn btn-outline"
+                disabled={mexendo}
+                onClick={() => ligar(d)}
+              >
+                {d} dias
+              </button>
+            ))}
+          </div>
+        </>
       )}
       {erro && <p className="admin-resumo-erro">{erro}</p>}
     </div>

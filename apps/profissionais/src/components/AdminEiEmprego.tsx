@@ -644,16 +644,25 @@ export function AdminReembolsos() {
  * gatilho bastaria uma requisição escrita à mão para se destacar de
  * graça.
  */
+/* Os mesmos três prazos do destaque de pessoa. Fixos, e não campo livre:
+   data digitada à mão é onde nasce o "destaque até 2027" por um dedo
+   errado — e como o destaque só sai sozinho pela data, um erro desses
+   fica no ar um ano. */
+const PRAZOS_DE_DESTAQUE = [7, 15, 30] as const;
+
 function BotaoDestaqueDeVaga({ vaga }: { vaga: JobListing }) {
   const [ate, setAte] = useState<string | null>(vaga.destaque_ate ?? null);
   const [mexendo, setMexendo] = useState(false);
   const [erro, setErro] = useState("");
 
-  async function ligar() {
+  /* Os mesmos prazos do destaque de pessoa — ver `BotaoDestaque`, em
+     `AdminPage`. O primeiro é o vendido; os outros dois são o brinde que
+     a dona pediu. */
+  async function ligar(dias = DESTAQUE_DIAS) {
     setMexendo(true);
     setErro("");
     try {
-      setAte(await destacarVaga(vaga.id));
+      setAte(await destacarVaga(vaga.id, dias));
     } catch (err) {
       setErro(mensagemDeErro(err, "Não consegui destacar a vaga."));
     } finally {
@@ -685,18 +694,39 @@ function BotaoDestaqueDeVaga({ vaga }: { vaga: JobListing }) {
             Em destaque — {faltam === 1 ? "termina amanhã" : `faltam ${faltam} dias`}
           </span>
           <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
-            <button className="btn btn-outline" disabled={mexendo} onClick={ligar}>
-              Renovar {DESTAQUE_DIAS} dias
-            </button>
+            {PRAZOS_DE_DESTAQUE.map((d) => (
+              <button
+                key={d}
+                className="btn btn-outline"
+                disabled={mexendo}
+                onClick={() => ligar(d)}
+              >
+                +{d} dias
+              </button>
+            ))}
             <button className="btn btn-outline" disabled={mexendo} onClick={desligar}>
               Tirar do destaque
             </button>
           </div>
         </>
       ) : (
-        <button className="btn btn-outline" disabled={mexendo} onClick={ligar}>
-          Destacar por {DESTAQUE_DIAS} dias
-        </button>
+        <>
+          <span className="muted" style={{ fontSize: "0.85rem" }}>
+            Destacar — de brinde, ou para quem pagou por fora
+          </span>
+          <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+            {PRAZOS_DE_DESTAQUE.map((d) => (
+              <button
+                key={d}
+                className="btn btn-outline"
+                disabled={mexendo}
+                onClick={() => ligar(d)}
+              >
+                {d} dias
+              </button>
+            ))}
+          </div>
+        </>
       )}
       {erro && <p className="admin-resumo-erro">{erro}</p>}
     </div>

@@ -7124,3 +7124,32 @@
   line-height: 1.45;
   color: var(--ei-tinta-fraca);
 }
+
+/* ── O CONVITE DO DESTAQUE, AO LADO DO TÍTULO — 05/09 ────────────────
+   A dona: "o botão pode ficar do lado direito do lado do em alta. Bem
+   pequeno e discreto. Sem legenda, escrito apareça aqui."
+
+   Antes o convite aparecia DUAS vezes na mesma rolagem: uma caixa
+   tracejada explicando o destaque logo abaixo do título, e outro convite
+   no pé da tela dizendo o mesmo com outras palavras.
+
+   Agora é uma pastilha só, empurrada para a direita pelo
+   `margin-left: auto` — sem largura fixa, então ela acompanha o texto em
+   qualquer idioma ou tamanho de letra. */
+.ei .ei-secao-fogo-botao {
+  margin-left: auto;
+  flex: 0 0 auto;
+  padding: 5px 11px;
+  border-radius: 999px;
+  background: var(--ei-laranja-fraco);
+  color: var(--ei-sobre-laranja-fraco);
+  /* A seção é escrita em caixa alta; a pastilha não — ela é um convite,
+     e não mais um pedaço do rótulo. */
+  text-transform: none;
+  letter-spacing: 0;
+  font-size: 0.78rem;
+  font-weight: 600;
+  text-decoration: none;
+  white-space: nowrap;
+}
+.ei .ei-secao-fogo-botao:active { opacity: 0.7; }
