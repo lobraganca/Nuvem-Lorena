@@ -12,7 +12,28 @@
  */
 
 export function onlyPhoneDigits(value: string): string {
-  return value.replace(/\D/g, "").slice(0, 11);
+  const d = value.replace(/\D/g, "");
+  /* ── O CÓDIGO DO PAÍS SAI ANTES DO CORTE — 05/09 ────────────────────
+     A dona, olhando a tela da Conta: "(55) 31988-2249 — está no formato
+     errado e faltando número no telefone."
+
+     O número dela é (31) 98822-4938. O que a tela mostrava era o que
+     sobra quando se corta um número internacional nos 11 primeiros
+     dígitos: `5531988224938` vira `55319882249`, e a máscara então lê o
+     "55" como DDD e perde os dois últimos algarismos. O número aparecia
+     errado E incompleto — e quem confere de relance salva o errado.
+
+     Quem entra por SMS tem o telefone gravado como `5531988224938` (o
+     formato internacional, sem o "+"), e essa forma convive no banco com
+     a local, digitada à mão. Já existia `doFormatoDoBanco` para isso, mas
+     ela precisa ser LEMBRADA em cada tela — e a tela da Conta não
+     lembrou. Aqui ninguém precisa lembrar de nada.
+
+     A conta é o TAMANHO, e nunca o começo: número local tem 10 ou 11
+     dígitos, com código de país tem 12 ou 13. Olhar só para o "55"
+     inicial estragaria os números de Santa Maria, cujo DDD é 55. */
+  const semPais = d.length >= 12 && d.length <= 13 && d.startsWith("55") ? d.slice(2) : d;
+  return semPais.slice(0, 11);
 }
 
 export function formatPhone(value: string): string {
