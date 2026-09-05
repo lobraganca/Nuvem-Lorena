@@ -7153,3 +7153,66 @@
   white-space: nowrap;
 }
 .ei .ei-secao-fogo-botao:active { opacity: 0.7; }
+
+/* ═══════════════════════════════════════════════════════════════════════
+   O CARTÃO DO BANCO DE TALENTOS — 05/09
+   ═══════════════════════════════════════════════════════════════════════
+   A dona: "a tela do banco de talentos está bem confusa, quebrada.
+   Reformule pra ser mais intuitiva."
+
+   A parte quebrada era o cartão: o nome vinha com `ei-uma-linha` e o
+   retrato comia 84px, então sobravam menos de 14 letras. A lista inteira
+   dizia "Profissional 5…", "Profissional 4…", "Diarista · Consert…" —
+   numa tela cujo serviço é escolher UMA pessoa entre sessenta. */
+
+/* GRADE, e não uma fileira: em fileira, o retrato (84px), o coração e a
+   seta comiam a largura e sobravam 132px para o nome e as funções —
+   medido. Numa grade o nome tem a linha de cima só para ele, e as funções
+   ganham uma faixa embaixo que atravessa o cartão inteiro. */
+.ei .ei-pessoa {
+  display: grid;
+  grid-template-columns: auto 1fr auto auto;
+  grid-template-areas:
+    "foto nome coracao seta"
+    "foto funcoes funcoes funcoes";
+  align-items: start;
+  column-gap: 14px;
+  row-gap: 6px;
+}
+.ei .ei-pessoa > .ei-pessoa-retrato { grid-area: foto; }
+.ei .ei-pessoa > .ei-pessoa-nome { grid-area: nome; align-self: center; }
+.ei .ei-pessoa > .ei-favorito { grid-area: coracao; }
+.ei .ei-pessoa > .ei-linha-seta { grid-area: seta; align-self: center; }
+.ei .ei-pessoa > .ei-pessoa-funcoes { grid-area: funcoes; }
+
+.ei .ei-pessoa-nome {
+  /* Nome de gente não se abrevia: quebra em duas linhas e só corta
+     depois disso. */
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  font-weight: 600;
+}
+
+/* As funções em pastilha: cada uma cabe inteira ou desce para a linha de
+   baixo. Nunca meia palavra — meia palavra não informa ofício nenhum, que
+   é o único campo pelo qual a empresa decide se abre a ficha. */
+.ei .ei-pessoa-funcoes {
+  margin-top: 2px;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+
+
+/* A contagem, ao lado do botão de filtros. Empurrada para a direita: ela
+   é o RESULTADO do que se marcou à esquerda, e lê-se de um lado para o
+   outro. */
+.ei .ei-conta-da-lista {
+  margin-left: auto;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--ei-tinta-fraca);
+  white-space: nowrap;
+}

@@ -358,30 +358,21 @@ export function ProfissionaisPage() {
                    do app. A parte gratuita da oferta não existia. */
                 <Link key={p.id} to={`/profissional/${p.id}`} className="ei-pessoa">
                   <Retrato foto={p.photo_url} nome={p.name} />
-                  <div className="ei-pessoa-texto">
-                    {/* Na linha inteira cabem duas funções sem cortar — no
-                        cartão de 163px não cabia nem uma. */}
-                    <div className="ei-pessoa-nome ei-uma-linha">
-                      {p.name}
-                      {/* "Em alta" é o nome que a dona deu ao selo. Ele
-                          fica DEPOIS do nome, e não antes: antes, o olho
-                          lê o selo como parte do nome da pessoa. */}
-                      {destaqueValendo(p) && (
-                        <span className="ei-selo ei-selo-laranja" style={{ marginLeft: 8 }}>
-                          Em alta
-                        </span>
-                      )}
-                    </div>
-                    {/* Duas linhas, e não uma: o ofício é o ÚNICO campo
-                        que a empresa lê para decidir se abre a ficha, e
-                        cortá-lo em "Técnico em celular…" esconde
-                        justamente a parte que diferencia uma pessoa da
-                        outra. */}
-                    <div className="ei-pessoa-oficio ei-duas-linhas">
-                      {funcoes.slice(0, 2).join(" · ") || p.especialidade || "Sem função"}
-                      {funcoes.length > 2 && ` +${funcoes.length - 2}`}
-                    </div>
-                  </div>
+                  {/* ── O NOME PARA DE SER CORTADO — 05/09 ──────────────
+                      A dona: "a tela do banco de talentos está bem
+                      confusa, quebrada."
+
+                      A parte mais quebrada era esta: o nome vinha com
+                      `ei-uma-linha` e a coluna de texto tinha 132px de
+                      largura — o retrato, o coração e a seta comiam o
+                      resto. A lista inteira dizia "Profissional 5…",
+                      "Diarista · Consert…", numa tela cujo serviço é
+                      escolher UMA pessoa entre sessenta.
+
+                      Nome de gente não se abrevia: agora ele quebra em
+                      até duas linhas, e as funções descem para uma faixa
+                      de largura inteira embaixo — onde cabem. */}
+                  <div className="ei-pessoa-nome">{p.name}</div>
                   {/* O coração ANTES da seta: a seta diz "abre", o coração
                       diz "guarda". Depois dela, o coração pareceria parte
                       do gesto de abrir. */}
@@ -404,6 +395,47 @@ export function ProfissionaisPage() {
                   <span className="ei-linha-seta" aria-hidden="true">
                     <IconeSeta />
                   </span>
+
+                  {/* ── AS FUNÇÕES, EM PASTILHA E NA LARGURA INTEIRA ────
+                      A dona (na lista de pedidos): "alterar a quantidade
+                      de funções para 4 e elas devem caber no card da
+                      lista de talentos. Faça que caiba e não fique
+                      quebrado. Quando não couber adicione +".
+
+                      Eram duas, coladas por " · " e cortadas no meio
+                      ("Diarista · Consert…") — meia palavra não informa
+                      ofício nenhum, e o ofício é o único campo pelo qual a
+                      empresa decide se abre a ficha.
+
+                      Em pastilha, cada função cabe inteira ou desce para
+                      a linha de baixo. O que não couber em quatro vira
+                      "+2", nunca meia palavra. */}
+                  <div className="ei-chips ei-pessoa-funcoes">
+                    {funcoes.length > 0 ? (
+                      <>
+                        {funcoes.slice(0, 4).map((f) => (
+                          <span key={f} className="ei-selo ei-selo-cinza">
+                            {f}
+                          </span>
+                        ))}
+                        {funcoes.length > 4 && (
+                          <span className="ei-selo ei-selo-cinza">
+                            +{funcoes.length - 4}
+                          </span>
+                        )}
+                      </>
+                    ) : (
+                      <span className="ei-pessoa-oficio">
+                        {p.especialidade || "Sem função"}
+                      </span>
+                    )}
+                    {/* O selo desceu para cá: colado no nome, ele roubava
+                        a largura de que o nome precisa — foi assim que
+                        "Profissional 54" virou "Profissional 5…". */}
+                    {destaqueValendo(p) && (
+                      <span className="ei-selo ei-selo-laranja">Em alta</span>
+                    )}
+                  </div>
                 </Link>
               );
   };
@@ -496,6 +528,22 @@ export function ProfissionaisPage() {
               Limpar
             </button>
           )}
+          {/* ── A CONTAGEM ENTROU NESTA LINHA — 05/09 ──────────────────
+              A dona: "a tela do banco de talentos está bem confusa."
+
+              O "60 PESSOAS" era um cabeçalho de seção sozinho numa linha
+              inteira, entre a fileira de ofícios e a lista. Antes de ver
+              a primeira pessoa a empresa passava por QUATRO faixas de
+              controle: busca, Filtros, ofícios e a contagem.
+
+              A contagem não é um assunto novo — é o RESULTADO do filtro.
+              Ao lado do botão que filtra, ela responde na hora "o que eu
+              marquei sobrou quanto?", e some uma faixa da tela. */}
+          {!carregando && !erro && (
+            <span className="ei-conta-da-lista">
+              {visiveis.length} {visiveis.length === 1 ? "pessoa" : "pessoas"}
+            </span>
+          )}
         </div>
 
         {/* A fileira de filtros só aparece quando há mais de um ofício na
@@ -540,25 +588,10 @@ export function ProfissionaisPage() {
           <Esqueleto />
         )}
 
-        {!carregando && !erro && (
-          <div className="ei-secao-linha">
-            <h2>
-              {visiveis.length} {visiveis.length === 1 ? "pessoa" : "pessoas"}
-            </h2>
-            {(oficio || filtro) && (
-              <button
-                type="button"
-                className="ei-secao-acao"
-                onClick={() => {
-                  setOficio(null);
-                  setFiltro("");
-                }}
-              >
-                Limpar filtros
-              </button>
-            )}
-          </div>
-        )}
+        {/* A faixa "60 PESSOAS" saiu daqui: a contagem subiu para a linha
+            do botão de filtros, e o "Limpar filtros" já existia lá em
+            cima com o mesmo trabalho — eram dois botões de limpar na
+            mesma tela, a três dedos de distância. */}
 
         {!carregando && !erro && visiveis.length === 0 && (
           <div className="ei-cartao" style={{ padding: 0 }}>
