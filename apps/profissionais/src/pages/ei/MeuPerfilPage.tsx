@@ -825,57 +825,57 @@ export function MeuPerfilPage() {
               isso moram noutra coluna: guardar os dois no mesmo lugar
               apagaria a diferença entre número provado e número que
               alguém escreveu. */}
+          {/* ── PREENCHE, SALVA, VIRA CARTÃO — 05/09 ──────────────────
+              A dona: "quando adiciono um telefone novo no cadastro do
+              empregado, não está salvando. Seguir a regra de tudo o que
+              tem que adicionar: tem que ter botão de salvar e inserir
+              outro."
+
+              O número ESTAVA sendo gravado — mas só quando a pessoa
+              rolava até o fim da tela e tocava no "Salvar" geral, meia
+              tela abaixo. Quem digitava e saía perdia o que digitou, e
+              não havia nada na tela dizendo que faltava um passo. "Não
+              está salvando" é exatamente como isso aparece de fora, e a
+              distinção entre "não grava" e "grava sem avisar" não
+              interessa a quem perdeu o número.
+
+              Agora segue a mesma regra das experiências e da formação:
+              digita, toca em Salvar, vira cartão — e grava na hora. */}
           <div className="ei-campo">
             <label>Outro telefone (opcional)</label>
-            {perfil.telefonesExtra.map((t, i) => (
-              <div key={i} className="ei-linha-com-tirar">
-                <input
-                  aria-label={`Outro telefone ${i + 1}`}
-                  inputMode="tel"
-                  value={t}
-                  onChange={(e) =>
-                    setPerfil((x) => ({
-                      ...x,
-                      telefonesExtra: x.telefonesExtra.map((v, j) =>
-                        j === i ? formatPhone(e.target.value) : v
-                      ),
-                    }))
-                  }
-                />
-                <button
-                  type="button"
-                  className="ei-btn ei-btn-texto"
-                  style={{ minHeight: 0, padding: "0 4px" }}
-                  onClick={() =>
-                    setPerfil((x) => ({
-                      ...x,
-                      telefonesExtra: x.telefonesExtra.filter((_, j) => j !== i),
-                    }))
-                  }
-                >
-                  Tirar
-                </button>
-              </div>
-            ))}
-            {/* Três é mais do que qualquer pessoa usa, e é o teto que o
-                banco cobra (0103). Escondê-lo depois do terceiro evita o
-                erro que só apareceria ao salvar. */}
-            {perfil.telefonesExtra.length < 3 && (
-              <button
-                type="button"
-                className="ei-btn ei-btn-tonal ei-btn-largo"
-                /* Eram 22px, e no print da dona o vão ficava maior que o
-                   respiro de qualquer outro campo da tela — sobra do tempo
-                   em que o "Tirar" ao lado partia em duas linhas e empurrava
-                   tudo. Com ele consertado, 10 é o mesmo ar do resto. */
-                style={{ marginTop: perfil.telefonesExtra.length ? 10 : 0 }}
-                onClick={() =>
-                  setPerfil((x) => ({ ...x, telefonesExtra: [...x.telefonesExtra, ""] }))
-                }
-              >
-                + {perfil.telefonesExtra.length ? "Mais um telefone" : "Acrescentar telefone"}
-              </button>
-            )}
+            <ListaEmCartoes
+              itens={perfil.telefonesExtra.map((numero) => ({ numero }))}
+              aoMudar={(novos) =>
+                setPerfil((x) => ({ ...x, telefonesExtra: novos.map((n) => n.numero) }))
+              }
+              novoItem={() => ({ numero: "" })}
+              nomeDoItem="telefone"
+              rotuloAdicionar={
+                perfil.telefonesExtra.length ? "Mais um telefone" : "Acrescentar telefone"
+              }
+              vazio="Só o número confirmado acima. Dá para acrescentar outro, se você atende em dois."
+              /* Dez dígitos é o mínimo de um telefone brasileiro com DDD —
+                 é a mesma régua que a gravação usa para descartar número
+                 pela metade. Sem isto, um "31" solto viraria cartão e
+                 sumiria na hora de salvar, sem explicação. */
+              temConteudo={(t) => t.numero.replace(/\D/g, "").length >= 10}
+              resumo={(t) => ({ titulo: t.numero.trim() || "Telefone" })}
+              /* Três é o teto que o banco cobra (0103). */
+              teto={3}
+              aoSalvar={() => salvar({ irParaPronto: false })}
+              salvando={salvando}
+              formulario={(t, mudar) => (
+                <div className="ei-campo">
+                  <label htmlFor="tel-extra">Número com DDD</label>
+                  <input
+                    id="tel-extra"
+                    inputMode="tel"
+                    value={t.numero}
+                    onChange={(e) => mudar({ numero: formatPhone(e.target.value) })}
+                  />
+                </div>
+              )}
+            />
           </div>
 
           <div className="ei-campo">

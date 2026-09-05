@@ -284,6 +284,31 @@ export function DetalheVagaPage() {
     Math.floor((Date.now() - new Date(vaga.created_at).getTime()) / 86_400_000)
   );
 
+  /* ── E EM HORAS, NO PRIMEIRO DIA — 05/09 ────────────────────────────
+     A dona: "no campo de publicada a quanto tempo, mensure também em
+     horas pra empresa ter noção."
+
+     "No ar há 0 dias" é a pior resposta possível justamente na hora em
+     que a empresa mais olha: ela acabou de publicar, quer saber se já
+     deu tempo de alguém ver, e o app responde com um zero. Nas primeiras
+     24 horas a conta passa a ser em horas — e no primeiro minuto, "agora
+     mesmo", porque "há 0 horas" tem o mesmo defeito do zero. */
+  const horasNoAr = Math.max(
+    0,
+    Math.floor((Date.now() - new Date(vaga.created_at).getTime()) / 3_600_000)
+  );
+  const noArValor = diasNoAr >= 1 ? diasNoAr : horasNoAr >= 1 ? horasNoAr : null;
+  const noArUnidade =
+    diasNoAr >= 1
+      ? diasNoAr === 1
+        ? "dia"
+        : "dias"
+      : horasNoAr >= 1
+        ? horasNoAr === 1
+          ? "hora"
+          : "horas"
+        : "";
+
   const passo = proximoPasso(vaga, respostas.length, ondas.length, diasNoAr);
 
   return (
@@ -392,8 +417,14 @@ export function DetalheVagaPage() {
             <div className="ei-resumo-item">
               <span className="ei-resumo-rotulo">No ar há</span>
               <span className="ei-resumo-numero">
-                {diasNoAr}
-                <span className="ei-resumo-de"> {diasNoAr === 1 ? "dia" : "dias"}</span>
+                {noArValor === null ? (
+                  <span className="ei-resumo-agora">agora mesmo</span>
+                ) : (
+                  <>
+                    {noArValor}
+                    <span className="ei-resumo-de"> {noArUnidade}</span>
+                  </>
+                )}
               </span>
             </div>
           </div>

@@ -6284,7 +6284,9 @@
 .ei .ei-numeros {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 10px;
+  /* 12px entre eles: com 10 os quatro cartões liam como um bloco só
+     cortado por linhas brancas. */
+  gap: 12px;
   padding: 0 12px;
 }
 
@@ -6292,13 +6294,30 @@
   display: flex;
   flex-direction: column;
   gap: 2px;
-  padding: 16px 16px 18px;
+  /* ── MAIS RESPIRO E PROFUNDIDADE — 05/09 ──────────────────────────
+     A dona: "os cards da tela de desempenho podem ter respiro melhor e
+     ter profundidade."
+
+     Eram quadrados chapados, encostados no fundo por um fio de 1px:
+     de longe a tela lia como uma grade desenhada, não como quatro
+     cartões. Ganham ar por dentro (16 → 20px) e uma sombra de um
+     degrau — a mesma das fichas da tela da vaga, para os dois lugares
+     do app não terem duas ideias diferentes de "cartão". */
+  padding: 20px 18px 22px;
   border-radius: 18px;
   background: var(--ei-papel);
   border: 1px solid var(--ei-fio);
+  box-shadow: 0 1px 2px rgba(16, 24, 40, 0.05);
   text-decoration: none;
   color: inherit;
-  min-height: 118px;
+  min-height: 124px;
+}
+
+/* O que se toca afunda ao ser tocado: dos quatro quadrados, três levam a
+   algum lugar, e nada dizia isso. */
+.ei a.ei-numero-caixa:active {
+  transform: translateY(1px);
+  box-shadow: none;
 }
 .ei a.ei-numero-caixa:active { opacity: 0.7; }
 
@@ -6896,3 +6915,26 @@
 
 .ei .ei-lista-vagas .ei-linha-icone { width: 24px; height: 24px; }
 .ei .ei-lista-vagas .ei-linha-icone svg { width: 22px; height: 22px; }
+
+/* "agora mesmo" no lugar de um número: sem isto ele sairia no corpo de
+   número grande, e "agora mesmo" em 1.6rem estoura a coluna. */
+.ei .ei-resumo-agora {
+  font-size: 0.9rem;
+  font-weight: 600;
+  line-height: 1.3;
+}
+
+/* ── A SAUDAÇÃO DO DIA — 05/09 ───────────────────────────────────────
+   A dona: "colocar uma frase motivacional na tela da empresa e do
+   profissional."
+
+   Miúda e em cima do título: é um cumprimento, e não o nome da tela. Com
+   o corpo do título ela viraria o assunto da tela — e o assunto é
+   procurar emprego ou contratar, não o bom-dia. */
+.ei .ei-saudacao {
+  margin: 0 0 4px;
+  font-size: 0.92rem;
+  font-weight: 500;
+  line-height: 1.35;
+  color: var(--ei-tinta-fraca);
+}

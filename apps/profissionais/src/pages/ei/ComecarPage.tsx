@@ -1,7 +1,10 @@
+import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { useAuth } from "../../lib/useAuth";
 import { useOnboardingStatus } from "../../lib/useOnboardingStatus";
 import { useTituloDaPagina } from "../../lib/tituloDaPagina";
+import { saudacaoDoDia } from "../../lib/saudacao";
+import { lerMeuPerfil } from "../../lib/meuPerfil";
 import { InstalarApp } from "../../components/InstalarApp";
 import { AvisoPerfilIncompleto } from "../../components/ei/AvisoPerfilIncompleto";
 import { PortaDosAvisos } from "../../components/ei/PortaDosAvisos";
@@ -35,14 +38,38 @@ import { PortaDoPlano } from "../../components/ei/PortaDoPlano";
  */
 export function ComecarPage({ lado }: { lado: "professional" | "company" }) {
   useTituloDaPagina(lado === "company" ? "Quero contratar" : "Procuro emprego");
-  const { loading } = useAuth();
+  const { user, loading } = useAuth();
   const tipo = useOnboardingStatus();
   const entrou = !loading;
+
+  /* ── A SAUDAÇÃO — 05/09 ───────────────────────────────────────────
+     A dona: "colocar uma frase motivacional na tela da empresa e do
+     profissional. 'Ei Lorena, que bom te ver de novo.'"
+
+     O nome vem do cadastro. Falha em silêncio de propósito: sem nome a
+     frase existe na versão sem nome (ver `saudacao.ts`), e derrubar a
+     tela inicial do app por causa de um cumprimento seria trocar uma
+     gentileza por um defeito. */
+  const [nome, setNome] = useState<string>("");
+  useEffect(() => {
+    if (!user) return;
+    let vivo = true;
+    lerMeuPerfil(user.id)
+      .then((p) => vivo && setNome(p?.name ?? ""))
+      .catch(() => {});
+    return () => {
+      vivo = false;
+    };
+  }, [user]);
 
   return (
     <div className="ei">
       <div className="ei-tela ei-entrada">
         <div className="ei-entrada-topo">
+          {/* Vem ANTES do título, e miúda: é um cumprimento, não o nome
+              da tela. Acima do título ela é a primeira coisa que se lê e
+              some do caminho; no lugar do título, viraria o assunto. */}
+          {entrou && <p className="ei-saudacao">{saudacaoDoDia(nome)}</p>}
           <h1 className="ei-entrada-titulo">
             {lado === "company" ? "Quero contratar" : "Procuro emprego"}
           </h1>
