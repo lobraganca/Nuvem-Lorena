@@ -113,22 +113,36 @@ export function ComecarPage({ lado }: { lado: "professional" | "company" }) {
     <div className="ei">
       <div className="ei-tela ei-entrada">
         <div className="ei-entrada-topo">
+          {/* ── O ON-LINE SUBIU PARA CIMA DA SAUDAÇÃO — 05/09 ────────
+              A dona: "o on-line pode ser em cima da saudação."
+
+              Ela já tinha subido hoje de manhã, do fim da tela para
+              debaixo do cumprimento (antes, quem não rolasse até o fim
+              nunca via o movimento do app). Agora vai um degrau acima.
+
+              E fica melhor assim: a linha é sobre a CIDADE — quantas
+              pessoas e empresas estão aqui agora — e o cumprimento é sobre
+              QUEM ESTÁ LENDO. Do mais largo para o mais próximo é a ordem
+              em que se chega num lugar. */}
+          {entrou && <QuemEstaAqui />}
           {/* Vem ANTES do título, e miúda: é um cumprimento, não o nome
               da tela. Acima do título ela é a primeira coisa que se lê e
               some do caminho; no lugar do título, viraria o assunto. */}
           {entrou && <p className="ei-saudacao">{saudacaoDoDia(quem.nome, quem.de)}</p>}
-          {/* ── DEBAIXO DA SAUDAÇÃO — 05/09 ──────────────────────────
-              A dona: "o botão de on-line pode aparecer debaixo da
-              saudação."
+          {/* ── O LADO DE QUEM PROCURA VIROU PERGUNTA — 05/09 ────────
+              A dona: "a pergunta da tela inicial deve ser 'Procura
+              emprego?'".
 
-              Ela estava no fim da tela, depois dos atalhos: quem não
-              rolasse até lá nunca via o movimento do app — e a linha
-              existe justamente para dizer, na primeira olhada, que tem
-              gente aqui. Junto do cumprimento, ela é lida no mesmo
-              instante em que a pessoa entra. */}
-          {entrou && <QuemEstaAqui />}
+              Era "Procuro emprego", na primeira pessoa — a mesma frase do
+              botão da porta, onde ela é a RESPOSTA de quem escolheu o
+              lado. Repetida aqui dentro ela não diz mais nada: a pessoa já
+              escolheu, e o app está afirmando por ela uma coisa que ela
+              acabou de afirmar.
+
+              Como pergunta, o título volta a ter trabalho: ele abre a
+              tela e a linha de apoio logo abaixo responde. */}
           <h1 className="ei-entrada-titulo">
-            {lado === "company" ? "Quero contratar" : "Procuro emprego"}
+            {lado === "company" ? "Quero contratar" : "Procura emprego?"}
           </h1>
           <p className="ei-entrada-apoio">
             {lado === "company"

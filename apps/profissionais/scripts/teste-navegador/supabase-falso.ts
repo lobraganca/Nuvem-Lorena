@@ -465,7 +465,13 @@ const TABELAS: Record<string, Linha[]> = {
        nunca exercitaria os cartões nem o botao "trocar". */
     {
       id: "empresa-2",
-      owner_id: DONO_FALSO,
+      /* Segue a mesma regra da primeira. Estava fixa em `DONO_FALSO`, e
+         isso desmentia o que `?conta=nova` promete ("ela não é dona de
+         nada"): a pessoa ficava sem cadastro e sem a primeira empresa, mas
+         com esta — então o caso de NÃO TER NOME NENHUM, nem de pessoa nem
+         de empresa, não existia. É justamente o caso da primeira abertura
+         do app, e é o da frase "Olá, que bom ter você aqui". */
+      owner_id: contaNova() ? "dono-empresa" : DONO_FALSO,
       company_name: "Lanchonete da Praça",
       cnpj: "",
       city: "Itabirito",

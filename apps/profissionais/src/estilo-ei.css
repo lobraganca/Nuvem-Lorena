@@ -8377,10 +8377,14 @@
   margin-left: 0;
 }
 
-/* A linha do on-line mudou de lugar: ela era a última coisa da tela e
-   agora vive dentro do topo, logo abaixo da saudação (a dona: "o botão de
-   on-line pode aparecer debaixo da saudação"). Sem a margem de 20px de
-   quando ela era um bloco solto. */
+/* A linha do on-line subiu duas vezes no mesmo dia: era a última coisa da
+   tela, foi para debaixo da saudação e agora fica ACIMA dela (a dona: "o
+   on-line pode ser em cima da saudação").
+
+   Sem a margem de 20px de quando ela era um bloco solto no meio da tela.
+   Os 8px embaixo são o vão até o balão da saudação — menor que o vão entre
+   assuntos, porque as duas linhas são a mesma abertura de tela: a cidade,
+   e depois você. */
 .ei .ei-entrada-topo .ei-ao-vivo {
-  margin: 0 0 10px;
+  margin: 0 0 8px;
 }
