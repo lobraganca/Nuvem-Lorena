@@ -8181,3 +8181,41 @@
   color: var(--ei-laranja);
   font-weight: 600;
 }
+
+
+/* ══════════════════════════════════════════════════════════════════════
+   O TOPO ALINHA COM A BORDA DOS BOTÕES — 05/09
+   ══════════════════════════════════════════════════════════════════════
+   A dona: "a saudação e o quero contratar ainda está desalinhado. Alinhe
+   a esquerda junto com a borda dos botões."
+
+   Medido: as portas, os atalhos e o aviso de cadastro começam todos em
+   12px. O bloco de cima — saudação, título e apoio — começava em 33px,
+   vinte e um pixels à direita de tudo o que vem abaixo.
+
+   Os 33px não eram descuido: vêm da régua antiga do app, "texto a 33,
+   caixa a 12", que existe para o texto solto não encostar na borda da
+   tela. Só que nesta tela não há texto solto nenhum abaixo do topo — só
+   caixas. Então a régua produzia exatamente um degrau, e nada mais.
+
+   Aqui a régua passa a ser uma só: tudo a 12.
+
+   E a saudação perde a margem negativa que eu tinha posto ontem (para o
+   TEXTO dela bater com o do título). Agora quem manda é a BORDA: o balão
+   é um objeto como os cartões, e objeto alinha pela borda. Ela, o título,
+   o apoio, as portas e os atalhos, todos com a esquerda em 12. */
+.ei .ei-entrada-topo {
+  padding-left: 12px;
+  padding-right: 12px;
+}
+.ei .ei-entrada-topo .ei-saudacao {
+  margin-left: 0;
+}
+
+/* A linha do on-line mudou de lugar: ela era a última coisa da tela e
+   agora vive dentro do topo, logo abaixo da saudação (a dona: "o botão de
+   on-line pode aparecer debaixo da saudação"). Sem a margem de 20px de
+   quando ela era um bloco solto. */
+.ei .ei-entrada-topo .ei-ao-vivo {
+  margin: 0 0 10px;
+}

@@ -71,6 +71,16 @@ export function ComecarPage({ lado }: { lado: "professional" | "company" }) {
               da tela. Acima do título ela é a primeira coisa que se lê e
               some do caminho; no lugar do título, viraria o assunto. */}
           {entrou && <p className="ei-saudacao">{saudacaoDoDia(nome)}</p>}
+          {/* ── DEBAIXO DA SAUDAÇÃO — 05/09 ──────────────────────────
+              A dona: "o botão de on-line pode aparecer debaixo da
+              saudação."
+
+              Ela estava no fim da tela, depois dos atalhos: quem não
+              rolasse até lá nunca via o movimento do app — e a linha
+              existe justamente para dizer, na primeira olhada, que tem
+              gente aqui. Junto do cumprimento, ela é lida no mesmo
+              instante em que a pessoa entra. */}
+          {entrou && <QuemEstaAqui />}
           <h1 className="ei-entrada-titulo">
             {lado === "company" ? "Quero contratar" : "Procuro emprego"}
           </h1>
@@ -213,21 +223,6 @@ export function ComecarPage({ lado }: { lado: "professional" | "company" }) {
             depois de TODAS as portas, não entre elas nem antes. */}
         <Atalhos />
 
-        {/* ── QUEM ESTÁ AQUI AGORA — 05/09 ────────────────────────────
-            A dona: "quero colocar na tela quantas pessoas e empresas
-            estão on-line ao vivo."
-
-            Depois dos atalhos e antes do rodapé: é informação de ambiente,
-            não um caminho. E o número que interessa a cada lado é o do
-            OUTRO — quem procura emprego quer saber se há empresa olhando;
-            quem contrata, se há gente. Numa cidade pequena essa é a única
-            prova de movimento que um app novo consegue dar.
-
-            Só aparece com alguém do outro lado online: "0 empresas agora"
-            é a verdade, e é também a frase que faz a pessoa fechar o app.
-            Silêncio, aqui, é melhor do que um zero. */}
-        <QuemEstaAqui />
-
         <div className="ei-entrada-pe">
           <InstalarApp variante="botao" />
         </div>
@@ -297,9 +292,18 @@ function QuemEstaAqui() {
       {/* Sozinha, a frase é essa e não "1 pessoa no app agora": o número um
           referindo-se a você mesma é a informação mais estranha que uma
           tela pode dar. */}
-      {pedacos.length === 0 || quem.total <= 1
-        ? "Só você no app agora"
-        : `${pedacos.join(" e ")} no app agora`}
+      {/* ── "1 PESSOA ON-LINE", E NÃO "SÓ VOCÊ" — 05/09 ──────────────
+          A dona: "ao invés de só você on-line, escreva uma pessoa
+          on-line."
+
+          Ela tem razão e o motivo é mais fundo do que a palavra: "só
+          você" fala SOBRE a pessoa que está lendo, e vira um comentário
+          sobre a solidão dela. "1 pessoa on-line" é a mesma informação
+          contada do jeito que se conta um número — e no dia em que
+          houver quinze, a frase é a mesma, só com outro número. */}
+      {pedacos.length === 0
+        ? `${quem.total} ${quem.total === 1 ? "pessoa" : "pessoas"} on-line`
+        : `${pedacos.join(" e ")} on-line`}
     </p>
   );
 }
