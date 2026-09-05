@@ -4845,7 +4845,9 @@
 }
 
 .ei .ei-baralho-conta {
-  margin: 0;
+  /* Um vão a mais embaixo: é onde o carimbo do gesto se monta, na borda
+     de cima do cartão. Colado, o carimbo encostava no "1 de 2". */
+  margin: 0 0 6px;
   font-size: 0.82rem;
   color: var(--ei-tinta-fraca);
   text-align: center;
@@ -4865,9 +4867,20 @@
    O corte é do palco (`overflow: hidden`), e não da tela: assim o cartão
    de cima pode ser arrastado para fora sem levar junto a barra lateral do
    telefone. */
+/* ── O CARTÃO PRECISA CABER SAINDO — 05/09 ────────────────────────────
+   O palco cortava em si mesmo (`overflow: hidden`), e ele é 46px mais
+   estreito que a tela: o cartão arrastado sumia a 46px do dedo, e a saída
+   voando para o lado era engolida antes de começar. Ficava a impressão
+   exata que a dona descreveu — "não está dando movimento".
+
+   Agora o corte é do baralho inteiro, na borda da tela, e com `clip` (que
+   não cria caixa de rolagem — com `hidden` aqui, o cartão empurrado para
+   fora criaria barra de rolagem horizontal na página). */
+.ei .ei-baralho { overflow-x: clip; }
+
 .ei .ei-baralho-palco {
   position: relative;
-  overflow: hidden;
+  overflow: visible;
   /* Espaço à direita para a beirada do próximo cartão. */
   padding-right: 46px;
 }
@@ -4905,12 +4918,43 @@
   color: var(--ei-tinta-fraca);
 }
 
-.ei .ei-baralho-dica {
-  margin: 0;
+/* ── OS CARIMBOS DO GESTO — 05/09 ─────────────────────────────────────
+   Nascem transparentes e a opacidade é o próprio arrasto (calculada no
+   componente): a 90px — o ponto em que soltar vira resposta — o carimbo
+   está inteiro. É o que a frase de instrução tentava fazer por escrito, e
+   que a dona mandou tirar.
+
+   Tortos de propósito: carimbo reto lê como rótulo do cartão; torto lê
+   como marca posta por cima, que é o que ele é. */
+.ei .ei-baralho-carimbo {
+  position: absolute;
+  /* Montado na BORDA DE CIMA, metade para fora do cartão. Posto por
+     dentro ele tapava a foto e o nome da empresa — justamente o que a
+     pessoa está olhando na hora de decidir. Aqui em cima não há nada, e o
+     carimbo aparece sem esconder nada. */
+  top: 0;
+  z-index: 2;
+  padding: 6px 12px;
+  border-radius: 999px;
+  border: 2px solid currentColor;
+  background: var(--ei-papel);
   font-size: 0.82rem;
-  line-height: 1.4;
+  font-weight: 800;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+  pointer-events: none;
+}
+
+.ei .ei-baralho-carimbo-sim {
+  left: 14px;
+  color: var(--ei-verde);
+  transform: translateY(-52%) rotate(-8deg);
+}
+
+.ei .ei-baralho-carimbo-nao {
+  right: 14px;
   color: var(--ei-tinta-fraca);
-  text-align: center;
+  transform: translateY(-52%) rotate(8deg);
 }
 
 .ei .ei-baralho-cartao {

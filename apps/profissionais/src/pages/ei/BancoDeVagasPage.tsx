@@ -259,6 +259,21 @@ export function BancoDeVagasPage() {
           }
         />
 
+        {/* ── NO MODO "UMA POR UMA", A TELA FICA SÓ COM O CARTÃO — 05/09 ─
+            A dona: "a lista de uma por uma não está legal, não está dando
+            movimento na página."
+
+            Medido no celular de 844px: busca + os dois filtros + a chave
+            dos modos + o título da seção empurravam o cartão para 387px do
+            topo, e os DOIS BOTÕES DE RESPOSTA ficavam fora da tela. A
+            pessoa via um cartão cortado no pé e nada para tocar — e o que
+            um baralho precisa é justamente do cartão e das duas respostas
+            juntos, na mesma olhada, com uma mão só.
+
+            Então neste modo tudo o que serve para PROCURAR sai de cena: a
+            busca, os recortes, as cidades e o título. Fica a chave (para
+            voltar à lista) e o baralho. Procurar é o que a lista faz. */}
+        {modo === "lista" && (
         <div className="ei-busca" style={{ marginTop: 14 }}>
           <IconeLupa />
           <input
@@ -279,6 +294,7 @@ export function BancoDeVagasPage() {
             </button>
           )}
         </div>
+        )}
 
         {/* ── OS RECORTES — 04/09 ───────────────────────────────────────
             "Bicos e freelas" e "Primeiro emprego" são a MESMA lista com um
@@ -286,6 +302,7 @@ export function BancoDeVagasPage() {
             fileira fica sempre visível para quem entrou por uma delas
             poder sair sem voltar duas telas — e para quem entrou pela
             lista inteira descobrir que os recortes existem. */}
+        {modo === "lista" && (
         <div className="ei-filtros" style={{ marginTop: 12 }}>
           <button
             type="button"
@@ -317,10 +334,11 @@ export function BancoDeVagasPage() {
             Aceita PCD
           </button>
         </div>
+        )}
 
         {/* A fileira só aparece com mais de uma cidade: com uma só, ela
             seria um botão que não filtra nada. */}
-        {cidades.length > 1 && (
+        {modo === "lista" && cidades.length > 1 && (
           <div className="ei-filtros" style={{ marginTop: 12 }}>
             <button
               type="button"
@@ -391,18 +409,17 @@ export function BancoDeVagasPage() {
           <Esqueleto />
         )}
 
-        {!carregando && !erro && (
+        {/* No modo cartão o número do topo dizia "3 vagas" enquanto o
+            baralho dizia "1 de 2" e, no fim, "você passou pelas 2 vagas
+            abertas" — dois números diferentes para a mesma coisa, na mesma
+            tela. O baralho conta o que sobrou para responder; no modo
+            cartão a linha inteira sai de cena e deixa o baralho falar
+            sozinho, que é também o que devolve altura de tela para os dois
+            botões de resposta. */}
+        {!carregando && !erro && modo === "lista" && (
           <div className="ei-secao-linha">
-            {/* No modo cartão o número do topo dizia "3 vagas" enquanto o
-                baralho dizia "1 de 2" e, no fim, "você passou pelas 2
-                vagas abertas" — dois números diferentes para a mesma
-                coisa, na mesma tela. O baralho conta o que sobrou para
-                responder; aqui, no modo cartão, o título sai de cena e
-                deixa o baralho falar sozinho. */}
             <h2>
-              {modo === "cartoes"
-                ? "Uma por uma"
-                : `${visiveis.length} ${visiveis.length === 1 ? "vaga" : "vagas"}`}
+              {visiveis.length} {visiveis.length === 1 ? "vaga" : "vagas"}
             </h2>
             {(cidade || filtro) && (
               <button
@@ -626,7 +643,24 @@ function Baralho({ vagas, verLista }: { vagas: VagaNoBanco[]; verLista: () => vo
      nenhum sinal do que acabou de marcar, que é o mesmo às cegas que o
      selo existe para evitar. */
   const [respondidasAgora, setRespondidasAgora] = useState<Record<string, boolean>>({});
-  const inicio = useRef<number | null>(null);
+  /* ── O GESTO PRECISA DECIDIR CEDO SE É DELE OU DA PÁGINA — 05/09 ─────
+     A dona: "não está dando movimento na página."
+
+     O arrasto guardava só o x de onde o dedo desceu. Só que num celular
+     quase nenhum gesto é reto: quem rola a tela para ver o resto do cartão
+     desce o dedo E anda um pouco para o lado — e aquele pouco virava um
+     começo de resposta, com o cartão tremendo debaixo da rolagem. Pior no
+     sentido contrário: quem tentava arrastar de leve para o lado rolava a
+     página, porque `touch-action: pan-y` deixa o navegador levar o gesto
+     embora antes de a gente reagir.
+
+     Agora o primeiro movimento DECIDE de quem é o gesto: mais horizontal
+     que vertical, o cartão prende o ponteiro (`setPointerCapture`) e a
+     página não rola mais; mais vertical, o cartão desiste e não se mexe o
+     resto do gesto. Sem prender o ponteiro, tirar o dedo fora do cartão
+     não disparava o `pointerup` e o cartão ficava torto na tela. */
+  const inicio = useRef<{ x: number; y: number } | null>(null);
+  const mandaNoGesto = useRef<"nada" | "cartao" | "pagina">("nada");
 
   useEffect(() => {
     if (!user) return;
@@ -703,9 +737,43 @@ function Baralho({ vagas, verLista }: { vagas: VagaNoBanco[]; verLista: () => vo
     }, 220);
   }
 
+  function aoPegar(e: React.PointerEvent<HTMLDivElement>) {
+    if (saindo) return;
+    /* Quem toca em "Ver a vaga inteira" está indo para outra tela, não
+       arrastando: sem esta saída, o link virava o começo de um gesto e o
+       toque nem sempre chegava a virar navegação. */
+    if ((e.target as HTMLElement).closest("a,button")) return;
+    inicio.current = { x: e.clientX, y: e.clientY };
+    mandaNoGesto.current = "nada";
+  }
+
+  function aoMover(e: React.PointerEvent<HTMLDivElement>) {
+    if (!inicio.current || mandaNoGesto.current === "pagina") return;
+    const dx = e.clientX - inicio.current.x;
+    const dy = e.clientY - inicio.current.y;
+    if (mandaNoGesto.current === "nada") {
+      /* 8px de folga: abaixo disso ainda é um toque parado, e qualquer
+         tremida da mão escolheria o dono do gesto no lugar da pessoa. */
+      if (Math.abs(dx) < 8 && Math.abs(dy) < 8) return;
+      if (Math.abs(dx) <= Math.abs(dy)) {
+        mandaNoGesto.current = "pagina";
+        return;
+      }
+      mandaNoGesto.current = "cartao";
+      try {
+        e.currentTarget.setPointerCapture(e.pointerId);
+      } catch {
+        /* Navegador que recusa prender o ponteiro ainda arrasta — só fica
+           sujeito a perder o dedo na borda. Melhor isso que não arrastar. */
+      }
+    }
+    setArrasto(dx);
+  }
+
   function aoSoltar() {
     const dx = arrasto;
     inicio.current = null;
+    mandaNoGesto.current = "nada";
     setArrasto(0);
     /* 90px: menos que isso e um rolar torto da tela viraria resposta. */
     if (dx > 90) responder(true);
@@ -819,16 +887,38 @@ function Baralho({ vagas, verLista }: { vagas: VagaNoBanco[]; verLista: () => vo
           transform: `translateX(${deslocamento}px) rotate(${deslocamento / 28}deg)`,
           transition: saindo || arrasto === 0 ? "transform .22s ease-out" : "none",
         }}
-        onPointerDown={(e) => {
-          inicio.current = e.clientX;
-        }}
-        onPointerMove={(e) => {
-          if (inicio.current === null) return;
-          setArrasto(e.clientX - inicio.current);
-        }}
+        onPointerDown={aoPegar}
+        onPointerMove={aoMover}
         onPointerUp={aoSoltar}
         onPointerCancel={aoSoltar}
       >
+        {/* ── O CARIMBO QUE APARECE ENQUANTO O DEDO ANDA — 05/09 ───────
+            Um cartão que só desliza não diz o que vai acontecer quando o
+            dedo levantar: os 90px de folga são invisíveis, e quem
+            arrastava 40px e soltava via o cartão voltar sem entender por
+            quê. O carimbo nasce com o gesto, vai ficando forte, e só fica
+            inteiro depois do ponto em que soltar VAI valer como resposta —
+            é o gesto contando de si mesmo, no lugar da frase de instrução
+            que existia embaixo (e que a dona mandou tirar).
+
+            `aria-hidden` porque é desenho: quem usa leitor de tela tem os
+            dois botões escritos logo abaixo, que continuam sendo o
+            caminho principal. */}
+        <span
+          className="ei-baralho-carimbo ei-baralho-carimbo-sim"
+          aria-hidden="true"
+          style={{ opacity: Math.min(1, Math.max(0, deslocamento / 90)) }}
+        >
+          Tenho interesse
+        </span>
+        <span
+          className="ei-baralho-carimbo ei-baralho-carimbo-nao"
+          aria-hidden="true"
+          style={{ opacity: Math.min(1, Math.max(0, -deslocamento / 90)) }}
+        >
+          Não é para mim
+        </span>
+
         <div className="ei-baralho-topo">
           <Marca foto={v.empresa_foto} nome={v.empresa || v.vaga.title} />
           <div className="ei-pessoa-texto">
@@ -849,11 +939,24 @@ function Baralho({ vagas, verLista }: { vagas: VagaNoBanco[]; verLista: () => vo
             medido, sobravam 82px para o nome naquela linha e "Padaria Pão
             de Minas" virava "Pa…". Aqui o selo tem a largura do cartão
             inteiro e não espreme nada. */}
-        {jaRespondeu !== undefined && (
+        {/* O foguinho também aqui — 05/09. A dona: "além de estar na área
+            de destaque, quando a pessoa ou a vaga estiver destacado,
+            coloque um foguinho também no card." O baralho mostra uma vaga
+            por vez e não tem área nenhuma em volta: sem o selo, a vaga
+            paga passava por aqui exatamente igual às outras. */}
+        {(vagaEmDestaque(v.vaga) || jaRespondeu !== undefined) && (
           <div className="ei-chips" style={{ marginBottom: 8 }}>
-            <span className={jaRespondeu ? "ei-selo ei-selo-verde" : "ei-selo ei-selo-cinza"}>
-              {jaRespondeu ? "Você marcou: tenho interesse" : "Você marcou: não é para mim"}
-            </span>
+            {vagaEmDestaque(v.vaga) && (
+              <span className="ei-selo ei-selo-laranja ei-selo-fogo">
+                <IconeFogo tamanho={13} />
+                Em destaque
+              </span>
+            )}
+            {jaRespondeu !== undefined && (
+              <span className={jaRespondeu ? "ei-selo ei-selo-verde" : "ei-selo ei-selo-cinza"}>
+                {jaRespondeu ? "Você marcou: tenho interesse" : "Você marcou: não é para mim"}
+              </span>
+            )}
           </div>
         )}
 
@@ -908,9 +1011,11 @@ function Baralho({ vagas, verLista }: { vagas: VagaNoBanco[]; verLista: () => vo
         </button>
       </div>
 
-      <p className="ei-baralho-dica">
-        Arraste o cartão: <strong>direita</strong> é interesse, <strong>esquerda</strong> passa.
-      </p>
+      {/* A frase "Arraste o cartão: direita é interesse, esquerda passa"
+          saiu — 05/09, a pedido da dona. Ela explicava por escrito um gesto
+          que agora se explica sozinho: o cartão anda com o dedo e o
+          carimbo aparece dizendo o que vai valer. Instrução escrita de
+          gesto é sinal de que o gesto não está claro. */}
     </div>
   );
 }
