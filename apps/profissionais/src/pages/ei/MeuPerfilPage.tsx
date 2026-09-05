@@ -1474,8 +1474,20 @@ export function MeuPerfilPage() {
                     isso mexer no espaçamento não resolvia.
 
                     Empilhados, cada um usa a largura inteira e o seletor
-                    cabe do jeito que o aparelho quiser desenhar. */}
-                <div style={{ display: "grid", gap: 8 }}>
+                    cabe do jeito que o aparelho quiser desenhar.
+
+                    ── E O INVÓLUCRO SAIU — 05/09 ──────────────────────
+                    Eles ficavam dentro de um `grid` com `gap: 8`, e isso
+                    criava um terceiro respiro na tela: medido, os vãos
+                    deste cartão eram 30px, 8px e 30px. O de 8 era entre
+                    "O que você fazia" e "Começou" — o invólucro não é um
+                    `.ei-campo`, então a regra de espaçamento entre campos
+                    não o alcançava.
+
+                    Sem ele, os dois viram irmãos dos outros campos e a
+                    regra normal (`.ei-campo + .ei-campo`) dá o mesmo vão
+                    em todos. Empilhados eles já estavam: campo é bloco. */}
+                <>
                   <div className="ei-campo">
                     <label htmlFor={`inicio-${i}`}>Começou</label>
                     <input
@@ -1502,7 +1514,7 @@ export function MeuPerfilPage() {
                       }
                     />
                   </div>
-                </div>
+                </>
               </div>
             ))}
           </div>

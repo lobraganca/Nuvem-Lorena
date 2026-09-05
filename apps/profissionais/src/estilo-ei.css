@@ -6685,3 +6685,45 @@
    caber o botão ao lado faria "Pedreiro para obra no Centro" virar três
    linhas estreitas. */
 .ei .ei-titulo-com-acao > .ei-compartilhar { margin-left: auto; }
+
+/* ── OS CAMPOS DE MÊS E DATA NO IPHONE — 05/09 ───────────────────────
+   A dona, com print do cadastro: "essa parte está desalinhada com a
+   tela." Eram "Começou" e "Saiu": as caixas passavam da borda direita
+   do cartão, e o texto dentro delas aparecia CENTRALIZADO, enquanto
+   todo campo do app escreve encostado à esquerda.
+
+   Não reproduz no navegador daqui: no Chromium os dois medem os mesmos
+   294px de qualquer outro campo e não vazam nada. É comportamento do
+   Safari do iPhone, que não trata `input[type=month]` como campo de
+   texto — ele desenha um controle próprio, com largura mínima tirada do
+   formato da data e conteúdo centralizado, e `width: 100%` sozinho não
+   vence essa largura mínima.
+
+   `appearance: none` é o que faz o iOS desenhá-lo como campo comum: aí
+   `width`, `min-width` e `text-align` passam a valer, e ele alinha com
+   os campos de cima. O seletor de data continua abrindo ao toque — o
+   que muda é só o desenho da caixa.
+
+   `min-width: 0` junto porque o valor padrão `auto` deixa o campo se
+   recusar a encolher abaixo do conteúdo, que é a outra metade do
+   estouro. */
+.ei input[type="month"],
+.ei input[type="date"],
+.ei input[type="datetime-local"],
+.ei input[type="time"] {
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
+  text-align: left;
+  -webkit-appearance: none;
+  appearance: none;
+}
+
+/* Sem isto o campo fica mais baixo que os de texto no iOS: com o desenho
+   nativo desligado ele perde a altura própria e passa a valer só o
+   `padding`. A altura de toque do app é 44px. */
+.ei input[type="month"],
+.ei input[type="date"] {
+  min-height: 44px;
+}
