@@ -20,6 +20,25 @@ import { Callout, Pagina, Prop } from "../components/ei/Pagina";
  * O zero tem frase própria porque "0 pessoas responderam" soa a erro de
  * sistema, e o que aconteceu ali é normal: a vaga acabou de sair.
  */
+/**
+ * "agora mesmo", "há 3 horas", "há 2 dias", "em 04/09/2026".
+ *
+ * A dona pediu horas na tela da vaga ("pra empresa ter noção"), e o mesmo
+ * vale na lista: uma data crua obriga a empresa a calcular de cabeça se a
+ * vaga é nova ou está encalhada — e é a conta, não a data, que ela quer.
+ *
+ * Passado um mês a contagem perde a graça e a data volta a ser mais útil.
+ */
+function haQuantoTempo(iso: string): string {
+  const ms = Date.now() - new Date(iso).getTime();
+  const horas = Math.floor(ms / 3_600_000);
+  const dias = Math.floor(ms / 86_400_000);
+  if (horas < 1) return "agora mesmo";
+  if (horas < 24) return horas === 1 ? "há 1 hora" : `há ${horas} horas`;
+  if (dias < 30) return dias === 1 ? "há 1 dia" : `há ${dias} dias`;
+  return `em ${new Date(iso).toLocaleDateString("pt-BR")}`;
+}
+
 function textoDeRespostas(n: number): string {
   /* "Interessadas", e não "responderam". Desde a 0078 a pessoa também pode
      responder que a vaga não é para ela, e essa resposta não vira nome no
@@ -518,53 +537,62 @@ export function PainelEmpresaPage() {
                      no ar pode ser maiorzinho." É a linha mais importante
                      do painel — é onde estão as pessoas interessadas — e
                      tinha exatamente a altura de um item de menu. */
+                  /* ── O CARTÃO DA VAGA — 05/09 ──────────────────────────
+                     A dona: "o card da vaga ficou muito sem graça."
+
+                     E estava. Aumentar a altura da linha deixou o item mais
+                     alto, mas ele continuou sendo uma LINHA DE MENU esticada:
+                     ícone de maleta cinza à esquerda (o mesmo em todas, sem
+                     dizer nada), título, e embaixo "1 pessoa interessada ·
+                     04/09/2026" quebrando com o "·" pendurado no fim da
+                     linha.
+
+                     Agora é cartão de verdade: o título sozinho no alto, e
+                     embaixo as informações em PASTILHAS, que é como o resto
+                     do app mostra estado. A de gente interessada é verde
+                     quando há alguém e cinza quando não há — a empresa varre
+                     a lista procurando verde, sem ler nada.
+
+                     A maleta saiu: ícone que se repete igual em todos os
+                     itens não informa, só ocupa a largura do título. */
                   <div className="ei-lista ei-lista-vagas">
                     {doGrupo.map((vaga) => (
-              <Link key={vaga.id} to={`/vaga/${vaga.id}`} className="ei-linha-item">
-                <span className="ei-linha-icone" aria-hidden="true">
-                  <IconeMala />
-                </span>
-                <span className="ei-linha-nome">
-                  <span className="ei-uma-linha">{vaga.title}</span>
-                  {/* Ofício e data, numa linha. A especialidade saiu: com
-                      ela a linha quebrava em duas ("Pedreiro · Alvenaria ·"
-                      / "29/08/2026") e o item de lista ficava mais alto que
-                      os vizinhos. E ela já está no título da vaga. */}
-                  {/* O número de respostas vem PRIMEIRO na linha de baixo.
-                      É a única coisa que a empresa vem procurar aqui: sem
-                      ele, saber se alguém apareceu exigia abrir vaga por
-                      vaga e voltar.
-
-                      Escrito por extenso e não como "3": um número solto ao
-                      lado de uma data pode ser lido como qualquer coisa.
-
-                      E o ofício saiu desta linha. Com ele os três dados não
-                      cabiam e a DATA é que era cortada ("30/0…") — uma data
-                      pela metade não informa nada. O ofício é o que menos
-                      falta: quase sempre já está no título, como em
-                      "Pedreiro para obra no Centro · Pedreiro". */}
-                  <span className="ei-linha-sub ei-uma-linha">
-                    {respostas !== null && (
-                      <>
-                        <strong style={{ fontWeight: 600, color: "var(--ei-tinta)" }}>
-                          {textoDeRespostas(respostas.get(vaga.id) ?? 0)}
-                        </strong>
-                        {" · "}
-                      </>
+              <Link key={vaga.id} to={`/vaga/${vaga.id}`} className="ei-linha-item ei-vaga-cartao">
+                <span className="ei-vaga-cartao-texto">
+                  <span className="ei-vaga-cartao-titulo">{vaga.title}</span>
+                  <span className="ei-chips">
+                    {respostas !== null &&
+                      (() => {
+                        const n = respostas.get(vaga.id) ?? 0;
+                        return (
+                          <span
+                            className={
+                              n > 0 ? "ei-selo ei-selo-verde" : "ei-selo ei-selo-cinza"
+                            }
+                          >
+                            {textoDeRespostas(n)}
+                          </span>
+                        );
+                      })()}
+                    {/* A etiqueta de estado repete o título do grupo de
+                        propósito: quem rola a lista inteira perde de vista
+                        sob qual cabeçalho está, e confundir uma vaga
+                        pausada com uma no ar é deixar de reabrir a que
+                        devia estar recebendo. */}
+                    {vaga.status === "paused" && (
+                      <span className="ei-selo ei-selo-laranja">Pausada</span>
                     )}
-                    {new Date(vaga.created_at).toLocaleDateString("pt-BR")}
+                    {vaga.status === "closed" && (
+                      <span className="ei-selo ei-selo-cinza">Encerrada</span>
+                    )}
+                    {/* "há 2 dias" em vez de "04/09/2026": a empresa quer
+                        saber se a vaga é nova ou está encalhada, e essa é
+                        uma conta que a data crua obriga ela a fazer. */}
+                    <span className="ei-vaga-cartao-quando">
+                      {haQuantoTempo(vaga.created_at)}
+                    </span>
                   </span>
                 </span>
-                {/* A etiqueta repete o título do grupo de propósito. Quem
-                    rola a lista inteira perde de vista sob qual cabeçalho
-                    está — e confundir uma vaga pausada com uma no ar é
-                    deixar de reabrir a que devia estar recebendo. */}
-                {vaga.status === "paused" && (
-                  <span className="ei-selo ei-selo-laranja">Pausada</span>
-                )}
-                {vaga.status === "closed" && (
-                  <span className="ei-selo ei-selo-cinza">Encerrada</span>
-                )}
                 <span className="ei-linha-seta" aria-hidden="true">
                   <IconeSeta />
                 </span>
