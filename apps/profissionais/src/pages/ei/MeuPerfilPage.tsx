@@ -27,7 +27,11 @@ import {
   type CompetenciaEmEdicao,
 } from "../../lib/meuPerfil";
 import { lerExperiencias, salvarExperiencias } from "../../lib/experiencias";
-import { useRascunho, CHAVE_RASCUNHO_PROFISSIONAL } from "../../lib/rascunho";
+import {
+  useRascunho,
+  rascunhoRecente,
+  CHAVE_RASCUNHO_PROFISSIONAL,
+} from "../../lib/rascunho";
 import { quemViuMeuPerfil, type QuemViu } from "../../lib/quemMeViu";
 import { numeroJaConfirmadoNaConta, marcarAnuncioConfirmado } from "../../lib/whatsappVerify";
 /* Nome trocado no import: `lib/profiles.ts` e `lib/meuPerfil.ts` têm cada
@@ -150,6 +154,10 @@ function periodoDaExperiencia(e: { inicio: string; fim: string }): string | null
   return `${de} → ${ate}`;
 }
 
+/* Quanto cabe no resumo. O número mora aqui, e não solto no `maxLength`,
+   porque agora ele aparece na tela: os dois têm de ser o mesmo, sempre. */
+const LIMITE_DO_RESUMO = 300;
+
 export function MeuPerfilPage() {
   /* De onde a pessoa veio: "candidatura" quer dizer que ela tentou
      responder a uma vaga sem cadastro. */
@@ -201,10 +209,20 @@ export function MeuPerfilPage() {
      antigo, o nome do curso, o telefone do trabalho anterior. Voltava e
      achava tudo em branco.
 
-     Só vale para quem AINDA NÃO TEM cadastro no banco. Para quem já tem, o
-     formulário é o retrato do que está gravado, e restaurar um rascunho de
-     dias atrás por cima disso apagaria edição feita em outro aparelho — o
-     rascunho passaria de rede de segurança a fonte de perda. */
+     ── E PASSOU A VALER PARA QUEM JÁ TEM CADASTRO — 05/09 ─────────────
+     A dona: "eu digitei uma coisa, saí do app pra olhar uma coisa e quando
+     volto, ele não grava o que eu tinha escrito."
+
+     Ela tem cadastro, e por isso o rascunho não valia para ela: só era
+     GRAVADO por quem ainda não tinha. O motivo escrito aqui era bom —
+     restaurar coisa de dias atrás por cima de um cadastro apagaria edição
+     feita em outro aparelho — mas confundia duas coisas: gravar e
+     restaurar. Gravar nunca fez mal a ninguém.
+
+     Agora grava sempre, e quem já tem cadastro só recebe de volta o que
+     foi digitado nas últimas SEIS HORAS (ver `JANELA_CURTA_MS`) — a janela
+     de "saí para olhar uma coisa e voltei". Mais velho que isso, o
+     formulário abre com o que está no banco, como antes. */
   const [prontoParaGravar, setProntoParaGravar] = useState(false);
   const [avisoRascunho, setAvisoRascunho] = useState(false);
   const rascunho = useRascunho(
@@ -382,6 +400,27 @@ export function MeuPerfilPage() {
               }))
             );
             setCursos(curs);
+
+            /* O rascunho recente entra por cima do que veio do banco: é
+               exatamente o que a pessoa estava digitando quando saiu, e é
+               mais novo do que o gravado. O aviso aparece dizendo isso, com
+               "começar do zero" ao lado — nada é restaurado em silêncio. */
+            const recente = rascunho.inicial;
+            if (recente?.dados?.perfil && rascunhoRecente(recente.quando)) {
+              setPerfil((atualDoBanco) => ({
+                ...atualDoBanco,
+                ...recente.dados.perfil,
+                /* O telefone NUNCA vem do rascunho: ele é confirmado por
+                   SMS e mexer nele por aqui zeraria a confirmação. */
+                phone: atualDoBanco.phone,
+              }));
+              if (recente.dados.experiencias) setExperiencias(recente.dados.experiencias);
+              if (recente.dados.cursos) setCursos(recente.dados.cursos);
+              if (recente.dados.competencias) setCompetencias(recente.dados.competencias);
+              setAvisoRascunho(true);
+            }
+            /* Grava daqui em diante, mesmo com cadastro no banco. */
+            setProntoParaGravar(true);
           }
         } else {
           /* Sem cadastro ainda: o telefone da conta já entra preenchido.
@@ -870,7 +909,11 @@ export function MeuPerfilPage() {
               rotuloAdicionar={
                 perfil.telefonesExtra.length ? "Mais um telefone" : "Acrescentar telefone"
               }
-              vazio="Só o número confirmado acima. Dá para acrescentar outro, se você atende em dois."
+              /* A frase "Só o número confirmado acima. Dá para acrescentar
+                 outro, se você atende em dois." saiu — 05/09, a pedido da
+                 dona. O `vazio` é opcional em `ListaEmCartoes`: sem ele o
+                 espaço fica limpo, e o botão "Acrescentar telefone" logo
+                 abaixo já diz sozinho o que dá para fazer ali. */
               /* Dez dígitos é o mínimo de um telefone brasileiro com DDD —
                  é a mesma régua que a gravação usa para descartar número
                  pela metade. Sem isto, um "31" solto viraria cartão e
@@ -952,15 +995,44 @@ export function MeuPerfilPage() {
               não tem onde escrever." O AvisoPerfilIncompleto cobrava
               `bio` desde sempre; a coluna existe (herança do procurô), só
               nunca tinha voltado para o cadastro reescrito do Ei. */}
+          {/* ── O RESUMO PASSOU A MOSTRAR QUANTO CABE — 05/09 ─────────
+              A dona: "delimitar os caracteres do campo de um resumo sobre
+              você e ter o número de caracteres em 45/100 por exemplo."
+
+              O teto de 300 já existia (`maxLength`), e era invisível: quem
+              escrevesse mais simplesmente parava de ver as letras
+              aparecerem, sem nada explicando — o pior jeito de impor um
+              limite. Agora o número está ali, e diz quanto cabe ANTES de a
+              pessoa esbarrar nele.
+
+              300 e não 100: este resumo é o que a empresa lê para decidir
+              se abre o perfil, e cem caracteres não dão para uma frase e
+              meia. O que ela pediu foi o CONTADOR, e o formato dele — o
+              número em si é escolha de conteúdo.
+
+              Muda de cor perto do fim: em cinza o tempo todo, ele é só
+              enfeite; nos últimos 30 é aviso, e é aí que serve. */}
           <div className="ei-campo">
             <label htmlFor="meu-bio">Um resumo sobre você (opcional)</label>
             <textarea
               id="meu-bio"
               rows={3}
-              maxLength={300}
+              maxLength={LIMITE_DO_RESUMO}
               value={perfil.bio}
               onChange={(e) => setPerfil((x) => ({ ...x, bio: e.target.value }))}
             />
+            <p
+              className={
+                perfil.bio.length > LIMITE_DO_RESUMO - 30
+                  ? "ei-contador ei-contador-perto"
+                  : "ei-contador"
+              }
+              /* `aria-live` para quem usa leitor de tela ouvir o número
+                 mudar sem ter de sair do campo e voltar. */
+              aria-live="polite"
+            >
+              {perfil.bio.length}/{LIMITE_DO_RESUMO}
+            </p>
           </div>
 
           <div className="ei-campo">

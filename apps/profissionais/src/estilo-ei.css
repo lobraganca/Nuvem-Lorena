@@ -8089,3 +8089,24 @@
   width: 20px;
   height: 20px;
 }
+
+
+/* ── O CONTADOR DE CARACTERES — 05/09 ─────────────────────────────────
+   A dona: "delimitar os caracteres do campo de um resumo sobre você e ter
+   o número de caracteres em 45/100 por exemplo."
+
+   Encostado à direita, embaixo do campo, miúdo e cinza: ele não é
+   conteúdo, é régua. E muda de cor nos últimos 30 — em cinza o tempo todo
+   ele seria enfeite, e o momento em que ele importa é justamente aquele
+   em que a pessoa está prestes a esbarrar no teto. */
+.ei .ei-contador {
+  margin: 4px 0 0;
+  text-align: right;
+  font-size: 0.76rem;
+  font-variant-numeric: tabular-nums;
+  color: var(--ei-tinta-fraca);
+}
+.ei .ei-contador-perto {
+  color: var(--ei-laranja);
+  font-weight: 600;
+}

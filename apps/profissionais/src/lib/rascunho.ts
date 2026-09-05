@@ -42,6 +42,36 @@ const ESPERA_MS = 400;
 /** Rascunho velho não vale: a vaga de duas semanas atrás já não é a mesma. */
 const VALIDADE_DIAS = 14;
 
+/**
+ * ── A JANELA CURTA — 05/09 ────────────────────────────────────────────
+ *
+ * A dona: "eu digitei uma coisa, saí do app pra olhar uma coisa e quando
+ * volto, ele não grava o que eu tinha escrito."
+ *
+ * O rascunho existia e NÃO valia para ela: só era gravado por quem ainda
+ * não tinha cadastro (ver o comentário em `MeuPerfilPage`). O motivo era
+ * bom — restaurar um rascunho de dias atrás por cima de um cadastro que já
+ * existe apagaria uma edição feita em outro aparelho.
+ *
+ * Só que isso confundiu duas coisas diferentes: GRAVAR e RESTAURAR. Gravar
+ * nunca fez mal a ninguém; o risco está só em restaurar coisa velha.
+ *
+ * Então agora grava para todo mundo, e quem já tem cadastro só recebe de
+ * volta o que foi digitado NAS ÚLTIMAS SEIS HORAS — a janela de "saí para
+ * olhar uma coisa e voltei", que é o caso dela. Mais velho que isso, o
+ * formulário abre com o que está no banco, como antes.
+ *
+ * Seis horas e não uma: quem começa de manhã, sai para o trabalho e volta
+ * no almoço continua achando o que escreveu.
+ */
+export const JANELA_CURTA_MS = 6 * 60 * 60 * 1000;
+
+/** O rascunho é recente o bastante para entrar por cima de um cadastro? */
+export function rascunhoRecente(quando: number | undefined): boolean {
+  if (typeof quando !== "number") return false;
+  return Date.now() - quando <= JANELA_CURTA_MS;
+}
+
 type Guardado<T> = { quando: number; etapa: number; dados: T };
 
 function ler<T>(chave: string): Guardado<T> | null {

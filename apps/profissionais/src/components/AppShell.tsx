@@ -7,7 +7,6 @@ import { AvisoDeVersao } from "./AvisoDeVersao";
 import { AvisoSemInternet } from "./AvisoSemInternet";
 import { useAuth } from "../lib/useAuth";
 import { NavegacaoEi } from "./NavegacaoEi";
-import { useOnlineCount } from "../lib/presence";
 import { ExigirNumero, exigeNumero } from "./ExigirNumero";
 import { CompletarPerfil, exigePerfil } from "./CompletarPerfil";
 import { ExigirConta } from "./ei/ExigirConta";
@@ -208,7 +207,21 @@ function BotaoFechar() {
  * da conta é ação de conta, e conta se mexe no Perfil.
  */
 function Header() {
-  const online = useOnlineCount();
+  /* ── A CHAMADA MORTA QUE QUEBRAVA A CONTAGEM — 05/09 ────────────────
+     Havia aqui um `const online = useOnlineCount()` — lido e NUNCA
+     mostrado. Sobra do outro produto, onde o cabeçalho exibia "12 pessoas
+     navegando"; o comentário logo abaixo explica por que aqui não exibe.
+
+     Só que ele continuava ABRINDO o canal de presença. Quando a tela
+     inicial ganhou "3 pessoas e 2 empresas no app agora", os dois ganchos
+     passaram a montar juntos, e o Realtime recusou o segundo:
+
+       cannot add `presence` callbacks for realtime:presenca-online
+       after `subscribe()`
+
+     Foi esse erro que a dona viu no console. A linha da tela inicial
+     ficava presa no primeiro valor, sem atualizar. Ver `presence.ts`, que
+     agora tem uma assinatura só para o app inteiro. */
   const ref = useRef<HTMLElement>(null);
 
   /* Publica a altura real do cabeçalho numa variável CSS.
