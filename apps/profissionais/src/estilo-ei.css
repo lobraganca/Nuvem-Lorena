@@ -7067,3 +7067,29 @@
   color: var(--ei-laranja);
 }
 .ei .ei-secao-fogo svg { flex: 0 0 auto; }
+
+/* ── A VITRINE VAZIA DO DESTAQUE — 05/09 ─────────────────────────────
+   A dona: "mesmo não tendo ninguém, acho interessante a área aparecer
+   para as pessoas verem que é possível e se interessarem. Nela você
+   coloca um botão discreto para direcionar ao pagamento."
+
+   Tracejada, e não cheia: o fio interrompido é como se diz "lugar vago"
+   sem fingir que há conteúdo. Cheia, ela pareceria um cartão que não
+   carregou. */
+.ei .ei-vitrine-vazia {
+  margin: 0 12px;
+  padding: 16px;
+  display: grid;
+  justify-items: start;
+  gap: 10px;
+  background: var(--ei-afunda);
+  border: 1px dashed var(--ei-fio-forte);
+  border-radius: 14px;
+}
+
+.ei .ei-vitrine-vazia-texto {
+  margin: 0;
+  font-size: 0.86rem;
+  line-height: 1.45;
+  color: var(--ei-tinta-fraca);
+}

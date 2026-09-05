@@ -456,13 +456,39 @@ export function BancoDeVagasPage() {
             Separar também é honestidade com quem procura emprego: uma
             lista cuja ordem foi paga tem de DIZER que foi paga. Misturado,
             o app parecia ordenar por relevância e ordenava por dinheiro. */}
-        {modo === "lista" && destacadas.length > 0 && (
+        {/* ── A VITRINE APARECE MESMO VAZIA — 05/09 ────────────────────
+            A dona: "mesmo não tendo ninguém, acho interessante a área
+            aparecer para as pessoas verem que é possível e se
+            interessarem. Nela você coloca um botão discreto para
+            direcionar ao pagamento."
+
+            Vitrine que só aparece cheia nunca enche: ninguém compra um
+            lugar que não viu. Some inteira dentro do app da Play Store
+            (`podeVender`).
+
+            O botão leva ao painel, e não a um checkout: o destaque é de
+            UMA vaga, e qual delas só a empresa sabe — ela escolhe lá
+            dentro. */}
+        {modo === "lista" && (destacadas.length > 0 || podeVender()) && (
           <>
             <h2 className="ei-secao ei-secao-fogo">
               <IconeFogo />
               Em destaque
             </h2>
-            <div className="ei-lista ei-lista-destaque">{destacadas.map(linhaDaVaga)}</div>
+            {destacadas.length > 0 ? (
+              <div className="ei-lista ei-lista-destaque">{destacadas.map(linhaDaVaga)}</div>
+            ) : (
+              <div className="ei-vitrine-vazia">
+                <p className="ei-vitrine-vazia-texto">
+                  Nenhuma vaga em destaque agora. A vaga que fica aqui
+                  aparece no topo por {DESTAQUE_DIAS} dias, com o selo “Em
+                  destaque”.
+                </p>
+                <Link to="/painel-empresa" className="ei-btn-inline ei-btn-miudo">
+                  Destacar minha vaga — {precoDoDestaqueDeVagaEmTexto()}
+                </Link>
+              </div>
+            )}
           </>
         )}
 

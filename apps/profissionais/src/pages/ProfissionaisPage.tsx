@@ -591,13 +591,43 @@ export function ProfissionaisPage() {
             E, como lá, separar é honestidade: uma lista cuja ordem foi
             paga tem de dizer que foi paga. Misturada, ela parecia
             ordenada por quem combina mais. */}
-        {emAlta.length > 0 && (
+        {/* ── A VITRINE APARECE MESMO VAZIA — 05/09 ────────────────────
+            A dona: "mesmo não tendo ninguém, acho interessante a área
+            aparecer para as pessoas verem que é possível e se
+            interessarem. Nela você coloca um botão discreto para
+            direcionar ao pagamento."
+
+            Antes a seção só existia quando alguém já tinha pago — e quem
+            paga é quem já sabe que dá. Vitrine que só aparece cheia
+            nunca enche: ninguém compra um lugar que não viu.
+
+            Vazia ela é o anúncio dela mesma, e é assim que a pessoa
+            descobre que o topo existe. Dentro do app da Play Store some
+            inteira (`podeVender`): sem preço não há vitrine a mostrar, e
+            apontar o caminho da compra é a mesma infração que vender. */}
+        {(emAlta.length > 0 || podeVender()) && (
           <>
             <h2 className="ei-secao ei-secao-fogo">
               <IconeFogo />
               Em alta
             </h2>
-            <div className="ei-lista ei-lista-destaque">{emAlta.map(linhaDaPessoa)}</div>
+            {emAlta.length > 0 ? (
+              <div className="ei-lista ei-lista-destaque">{emAlta.map(linhaDaPessoa)}</div>
+            ) : (
+              <div className="ei-vitrine-vazia">
+                <p className="ei-vitrine-vazia-texto">
+                  Ninguém está em destaque agora. Quem fica aqui aparece no
+                  topo da lista por {DESTAQUE_DIAS} dias, com o selo “Em
+                  alta”.
+                </p>
+                {/* Discreto de propósito, como ela pediu: é um convite
+                    numa lista que a pessoa veio ler, não um anúncio no
+                    meio do caminho. */}
+                <Link to="/destaque" className="ei-btn-inline ei-btn-miudo">
+                  Quero aparecer aqui — {precoDoDestaqueEmTexto()}
+                </Link>
+              </div>
+            )}
           </>
         )}
 
