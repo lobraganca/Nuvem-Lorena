@@ -62,6 +62,45 @@
   </head>
   <body>
     <div id="root"></div>
+
+    <!-- ══ SE A FOLHA DE ESTILO NÃO CHEGOU, RECARREGA UMA VEZ — 05/09 ══
+         A dona mandou o print da tela de entrar CRUA: fonte de jornal,
+         link azul sublinhado, campos quadrados. O app inteiro tinha
+         carregado — o React desenhou a tela toda —, só o arquivo de
+         estilo não veio.
+
+         Como isso acontece: o `index.html` nunca fica guardado (de
+         propósito, ver o vite.config.ts), então ele vem sempre novo. Os
+         arquivos de estilo têm o endereço com um código no nome, e quando
+         a publicação troca no meio do caminho o endereço que o HTML velho
+         pede deixa de existir. Um pedido falha, e a página fica assim até
+         alguém recarregar. Ninguém sabe que é só recarregar — o que chega
+         aqui é "a tela está quebrada".
+
+         A pergunta é uma variável que só existe dentro do theme.css. Se
+         ela não estiver lá, o estilo não chegou.
+
+         Recarrega UMA vez, e nunca mais nesta aba (`sessionStorage`).
+         Sem essa trava, um site que subisse sem estilo por qualquer outro
+         motivo entraria em laço de recarregar para sempre, que é bem pior
+         que uma tela feia. -->
+    <script>
+      window.addEventListener("load", function () {
+        try {
+          var chegou = getComputedStyle(document.documentElement)
+            .getPropertyValue("--ei-folha-de-estilo")
+            .trim();
+          if (chegou) return;
+          if (sessionStorage.getItem("ei-recarreguei-sem-estilo")) return;
+          sessionStorage.setItem("ei-recarreguei-sem-estilo", "1");
+          location.reload();
+        } catch (e) {
+          /* Aba anônima com armazenamento bloqueado: sem a trava, não
+             recarrega. Tela feia é melhor que laço infinito. */
+        }
+      });
+    </script>
+
     <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>

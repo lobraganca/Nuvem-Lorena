@@ -2,6 +2,20 @@
    dourado como única cor de destaque. O verde sobrou só no botão do WhatsApp,
    onde ler como "verde" ajuda em vez de brigar com a identidade. */
 :root {
+  /* ── O SINAL DE QUE A FOLHA DE ESTILO CHEGOU — 05/09 ─────────────────
+     Esta variável não pinta nada. Ela existe para o `index.html` poder
+     PERGUNTAR, depois de carregar, se este arquivo chegou de verdade.
+
+     A dona mandou um print da tela de entrar sem estilo nenhum: fonte de
+     jornal, link azul sublinhado, campo de texto quadrado. O app tinha
+     carregado inteiro (o React desenhou tudo), só o CSS não veio — um
+     pedido só que falhou deixa o app com essa cara até alguém recarregar,
+     e ninguém sabe que é só recarregar.
+
+     Se esta variável não existir, o `index.html` recarrega a página uma
+     vez. Ver o comentário de lá. */
+  --ei-folha-de-estilo: 1;
+
   /* ─── Sistema visual: Material 3, com as cores da marca ───────────────
      O app era o procurô: degradê nos botões, brilho branco por dentro dos
      cartões, dourado como cor de identidade, sombra em três degraus. Tudo

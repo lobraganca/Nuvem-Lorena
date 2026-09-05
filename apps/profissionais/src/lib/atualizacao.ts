@@ -249,8 +249,33 @@ export function cuidarDasAtualizacoes() {
      — então ele diz sim, e o custo real é um piscar, uma vez, contra a
      pessoa concluir que o conserto não foi feito. */
   let aplicarSozinho = true;
+
+  /* ── QUEM NUNCA TEVE VERSÃO NÃO ESTÁ TROCANDO DE VERSÃO — 05/09 ──────
+     `controllerchange` avisa que um service worker assumiu a página. Isso
+     acontece em DOIS casos bem diferentes, e o código tratava os dois
+     igual:
+
+       · numa visita seguinte, um service worker NOVO tomou o lugar do
+         antigo. Aí recarregar é o que faz o conserto publicado aparecer,
+         e é para isso que esta linha existe.
+
+       · na PRIMEIRA visita, o primeiro service worker se registra e
+         assume a página na hora (`clientsClaim`). Não houve troca de
+         versão nenhuma — só passou a existir uma. Recarregar aqui é
+         carregar o site duas vezes para quem está entrando pela primeira
+         vez, sem nada mudar na tela.
+
+     Medido no navegador: toda abertura em aba limpa vinha com
+     `performance.getEntriesByType("navigation")[0].type === "reload"`.
+
+     `controller` nulo no momento em que esta função roda é exatamente a
+     primeira visita — o mesmo teste que o `anotarEspera()` aqui embaixo
+     já usava para não avisar "versão nova" a quem acabou de chegar. */
+  const primeiraVisita = !navigator.serviceWorker.controller;
+
   navigator.serviceWorker.addEventListener("controllerchange", () => {
     if (recarregando) return;
+    if (primeiraVisita) return;
     recarregando = true;
     window.location.reload();
   });

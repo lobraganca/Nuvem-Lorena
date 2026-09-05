@@ -124,7 +124,35 @@ export default defineConfig({
         // mesma versão de antes: publicar deixava de ter efeito para quem
         // tinha instalado, e não havia como perceber isso de fora.
         navigateFallback: null,
-        cleanupOutdatedCaches: true,
+        // ── O APAGADOR DO CACHE VELHO SAIU — 05/09 ─────────────────────
+        // A dona mandou o print da tela de entrar sem estilo nenhum. O
+        // app tinha carregado inteiro; só o arquivo de estilo faltou.
+        //
+        // Era a combinação destas linhas com o `skipWaiting` logo abaixo,
+        // e a sequência é esta:
+        //
+        //   1. a pessoa abre o site e recebe o index.html da publicação
+        //      de antes (ele nunca fica guardado, então vem da rede);
+        //   2. a versão nova do service worker assume NA HORA
+        //      (`skipWaiting` + `clientsClaim`) e este `cleanup` apaga o
+        //      cache da publicação anterior debaixo da página aberta;
+        //   3. a página então pede o estilo daquela publicação anterior.
+        //      Não está mais no cache, e na Vercel o endereço antigo já
+        //      não existe. Some.
+        //
+        // Foram seis publicações em vinte minutos hoje — é aí que essa
+        // janela, normalmente de segundos, vira algo que acontece.
+        //
+        // Sem o apagador, o cache antigo continua ali e a página aberta
+        // termina de carregar com ele. O custo é alguns megabytes de
+        // arquivo velho guardados no celular até o navegador limpar
+        // sozinho, o que é barato perto de uma tela crua.
+        //
+        // Isto NÃO desfaz o conserto de 02/09: `skipWaiting` e
+        // `clientsClaim` continuam ligados, então versão nova continua
+        // assumindo na hora. O que muda é só não destruir a antiga
+        // enquanto alguém ainda está usando ela.
+        cleanupOutdatedCaches: false,
         // ── A ESPERA SAIU — 02/09 ──────────────────────────────────
         // A dona, três vezes em dois dias: "as alterações não estão
         // chegando no app."
