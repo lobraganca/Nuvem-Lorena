@@ -1204,28 +1204,54 @@ export function MeuPerfilPage() {
               ligado={oculto}
               onChange={setOculto}
               desabilitado={!disponivel}
-              titulo="Não aparecer na lista"
+              titulo="Não aparecer no banco de talentos"
               /* O texto muda com o estado porque a consequência é
                  diferente, e é ela que a pessoa precisa entender — não o
                  nome da opção. */
               descricao={
                 oculto
-                  ? "As empresas não te encontram procurando. Você continua recebendo as vagas."
-                  : "Hoje as empresas podem te encontrar procurando na lista."
+                  ? "Ninguém te encontra procurando. Você continua recebendo as vagas que combinam com você."
+                  : "Hoje qualquer empresa te encontra procurando no banco de talentos."
               }
             />
           </div>
 
-          {/* Este é o motivo de a opção existir, e dizê-lo evita a pergunta
-              "por que eu esconderia meu perfil?".
+          {/* ── O AVISO DE ATENÇÃO — 05/09 ───────────────────────────────
+              A dona: "na parte de não aparecer na lista, acho que tem que
+              melhorar o texto. Ter um aviso de atenção. Falar que você
+              pode se cadastrar e ficar oculto no banco de talentos. Assim
+              só você verifica as vagas, mas as pessoas não te acham."
 
-              Fica DENTRO do grupo branco, e não solto no chão cinza depois
-              dele: é a explicação da chave logo acima, e fora do grupo
-              parecia um aviso avulso, sem dono. */}
-          <p className="ei-apoio" style={{ margin: 0, padding: "0 20px 14px" }}>
-            Quem está empregado e não quer ser encontrado pelo patrão pode se
-            esconder da lista e continuar recebendo vaga.
-          </p>
+              Aqui havia uma linha cinza de duas frases, do mesmo tom de
+              todo texto de apoio da tela — e ela dizia POR QUE alguém
+              usaria a chave sem dizer O QUE a chave faz. Faltava
+              justamente o que destrava a decisão: que ficar oculto NÃO É
+              sair do app, e que as vagas continuam chegando.
+
+              Vira aviso destacado porque a consequência é grande nos dois
+              sentidos: quem liga sem entender some do banco de talentos e
+              acha que o cadastro parou de funcionar; quem não sabe que
+              existe deixa de se cadastrar por medo de o patrão ver. As
+              duas coisas custam um cadastro.
+
+              Continua DENTRO do grupo branco, junto da chave que explica:
+              solto no chão cinza depois dele parecia aviso sem dono. */}
+          <div className="ei-atencao">
+            <p className="ei-atencao-titulo">
+              Atenção: dá para ficar cadastrado e oculto
+            </p>
+            <p className="ei-atencao-texto">
+              Com esta chave ligada você sai do banco de talentos: as empresas
+              não te acham procurando, e ninguém vê seu nome, sua foto nem seu
+              telefone. Mas você continua recebendo as vagas que combinam com
+              você — quem olha as vagas é você. A empresa só vê seus dados se
+              você responder que tem interesse.
+            </p>
+            <p className="ei-atencao-texto">
+              É assim que quem já está empregado procura outra coisa sem o
+              patrão ver.
+            </p>
+          </div>
         </div>
 
         {/* ── 2. Funções ───────────────────────────────────────────────── */}

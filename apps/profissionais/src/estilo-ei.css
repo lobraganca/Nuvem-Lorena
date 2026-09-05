@@ -6516,3 +6516,38 @@
 }
 
 .ei .ei-comopagar-nota { margin-top: 8px; }
+
+/* ── O AVISO DE ATENÇÃO — 05/09 ──────────────────────────────────────
+   A dona: "ter um aviso de atenção" na chave de não aparecer no banco de
+   talentos.
+
+   Laranja fraco, e não vermelho: não é erro nem perigo, é uma
+   consequência grande que a pessoa precisa entender ANTES de mexer na
+   chave. Vermelho aqui leria como "você fez algo errado".
+
+   O fio grosso à esquerda em vez de moldura inteira: o bloco mora dentro
+   de um grupo branco, encostado na chave que ele explica, e uma caixa
+   fechada o separaria justamente do que ele está explicando. */
+.ei .ei-atencao {
+  margin: 0 14px 14px;
+  padding: 12px 14px;
+  background: var(--ei-laranja-fraco);
+  color: var(--ei-sobre-laranja-fraco);
+  border-left: 3px solid var(--ei-laranja);
+  border-radius: 0 10px 10px 0;
+  display: grid;
+  gap: 8px;
+}
+
+.ei .ei-atencao-titulo {
+  margin: 0;
+  font-size: 0.9rem;
+  font-weight: 700;
+  line-height: 1.35;
+}
+
+.ei .ei-atencao-texto {
+  margin: 0;
+  font-size: 0.86rem;
+  line-height: 1.5;
+}
