@@ -7297,14 +7297,61 @@
   align-items: center;
   width: fit-content;
   max-width: 100%;
-  margin: 0 0 12px;
-  padding: 7px 14px;
+  /* ── ALINHADA PELO TEXTO, E NÃO PELA CAIXA — 05/09 ─────────────────
+     A dona: "essa parte de cima nas duas páginas não está muito
+     alinhada. Alinhe a esquerda."
+
+     Medido: o balão e o título começavam os dois em 33px — a CAIXA estava
+     alinhada. Só que o olho não lê caixa, lê letra: o respiro interno do
+     balão empurrava a saudação para 47px, catorze pixels à direita de
+     "Quero contratar" e da linha de apoio, que ficavam nos 33.
+
+     A margem negativa é do mesmo tamanho do respiro: o balão recua o
+     quanto ele afasta por dentro, e a letra cai exatamente em 33. O
+     fundo verde passa a avançar um pouco para dentro da margem da tela —
+     e é isso que faz a pastilha parecer pousada sobre o texto, em vez de
+     empurrada para o lado. */
+  margin: 0 0 12px calc(-1 * var(--ei-saudacao-respiro));
+  padding: 7px var(--ei-saudacao-respiro);
   border-radius: 999px;
   background: var(--ei-verde-fraco);
   color: var(--ei-sobre-verde-fraco);
   font-size: 0.88rem;
   font-weight: 600;
   line-height: 1.35;
+
+  /* ── A ANIMAÇÃO LEVE — 05/09 ──────────────────────────────────────
+     A dona: "tem jeito de a saudação ter uma leve animação?"
+
+     Tem, e o cuidado aqui é o tamanho: esta frase aparece TODA VEZ que a
+     pessoa abre a tela inicial — se ela pular, girar ou piscar, na quinta
+     vez já é irritante, e na décima a pessoa passa por ela sem ler.
+
+     Então é o menor movimento que ainda se percebe: sobe seis pixels e
+     aparece, uma vez, em meio segundo. O atraso de 120ms é o que faz o
+     olho pegar o movimento — sem ele a animação começa antes de a tela
+     estar desenhada e ninguém vê nada.
+
+     `backwards` para ela nascer invisível no lugar de baixo, e não
+     piscar no lugar final antes de começar. */
+  animation: ei-saudacao-entra 0.5s ease-out 0.12s backwards;
+}
+
+/* O respiro interno, numa variável porque a margem negativa TEM de ser
+   o mesmo número — se um mudar sem o outro, a saudação sai do prumo de
+   novo e ninguém lembra por quê. */
+.ei .ei-saudacao { --ei-saudacao-respiro: 14px; }
+
+@keyframes ei-saudacao-entra {
+  from { opacity: 0; transform: translateY(6px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* Quem pediu ao sistema para parar as animações não vê nenhuma: a
+   saudação simplesmente já está lá. Não é preferência de gosto — para
+   quem tem enxaqueca vestibular, movimento na tela dói. */
+@media (prefers-reduced-motion: reduce) {
+  .ei .ei-saudacao { animation: none; }
 }
 
 /* ── O CARTÃO DE QUEM SE INTERESSOU — 05/09 ──────────────────────────
