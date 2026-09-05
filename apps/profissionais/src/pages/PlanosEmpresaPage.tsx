@@ -243,6 +243,41 @@ export function PlanosEmpresaPage() {
             uma linha miúda. A informação é a mesma; o que mudou é que ela
             se lê sem ser procurada. */}
         <div className="ei-ofertas">
+          {/* ── O DE GRAÇA VOLTOU PARA CIMA, E IGUAL AOS OUTROS — 05/09
+              A dona: "o plano de graça pode ficar também em um card igual
+              ao dos outros e em cima."
+
+              Mais cedo hoje ele tinha descido para o fim e ganhado fundo
+              rebaixado e fio tracejado, com o argumento de que não
+              precisa ser vendido. O argumento estava errado por um
+              motivo simples: ele É uma opção, e opção se compara — com
+              outra forma e noutro lugar, ele parava de ser comparável
+              com os pagos, que é justamente o serviço desta tela.
+
+              E em cima porque é o degrau em que a empresa já está: ver os
+              pagos depois dele é comparar com o que ela tem hoje, em vez
+              de escolher no escuro. */}
+          <section className="ei-oferta">
+            <div className="ei-oferta-topo">
+              <span className="ei-oferta-titulo">Sem plano, de graça</span>
+              <span className="ei-oferta-preco">R$ 0</span>
+            </div>
+            <span className="ei-oferta-nome">{PLANO_GRATUITO.nome}</span>
+            <span className="ei-oferta-nota">
+              {PLANO_GRATUITO.beneficios.join(" · ")}
+            </span>
+            <span className="ei-oferta-nota">{PLANO_GRATUITO.limite}</span>
+            {antesDoCadastro ? (
+              <button
+                type="button"
+                className="ei-btn ei-btn-contorno ei-btn-largo ei-btn-alto"
+                onClick={() => seguir("gratuito")}
+              >
+                Aderir e ver o banco de talentos
+              </button>
+            ) : null}
+          </section>
+
           {ordem.map((chave) => {
             const p = PLANOS_EMPRESA[chave];
             /* ── UM PLANO EM DESTAQUE — 04/09 ─────────────────────────
@@ -350,38 +385,6 @@ export function PlanosEmpresaPage() {
             );
           })}
 
-          {/* ── O DE GRAÇA DESCEU PARA O FIM — 05/09 ─────────────────────
-              Ele vinha PRIMEIRO, e o motivo escrito aqui era bom: "é o
-              degrau em que a empresa já está". Só que numa coluna isso
-              significa abrir a tela de preços e a primeira coisa ser
-              "R$ 0" com três vistos verdes — o cartão mais alto da tela,
-              vendendo o que não precisa ser vendido, empurrando os preços
-              para baixo da dobra.
-
-              Ele continua inteiro, com o mesmo botão de antes do
-              cadastro. Só parou de disputar o lugar com o que a tela veio
-              oferecer: quem quer o de graça não precisa ser convencido —
-              é onde ela já está. */}
-          <section className="ei-oferta ei-oferta-gratis">
-            <div className="ei-oferta-topo">
-              <span className="ei-oferta-titulo">Sem plano, de graça</span>
-              <span className="ei-oferta-preco">R$ 0</span>
-            </div>
-            <span className="ei-oferta-nome">{PLANO_GRATUITO.nome}</span>
-            <span className="ei-oferta-nota">
-              {PLANO_GRATUITO.beneficios.join(" · ")}
-            </span>
-            <span className="ei-oferta-nota">{PLANO_GRATUITO.limite}</span>
-            {antesDoCadastro ? (
-              <button
-                type="button"
-                className="ei-btn ei-btn-contorno ei-btn-largo ei-btn-alto"
-                onClick={() => seguir("gratuito")}
-              >
-                Aderir e ver o banco de talentos
-              </button>
-            ) : null}
-          </section>
         </div>
 
         {/* Estes três blocos repetem, em lista, o que os cartões já dizem

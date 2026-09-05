@@ -6506,12 +6506,15 @@
   text-transform: uppercase;
 }
 
-/* O de graça é o chão da tela, não uma oferta: fundo rebaixado e sem fio
-   forte, para ele não disputar atenção com o que se veio comprar. */
-.ei .ei-oferta-gratis {
-  background: var(--ei-afunda);
-  border-style: dashed;
-}
+/* O cartão do plano de graça é IGUAL aos outros — a dona: "o plano de
+   graça pode ficar também em um card igual ao dos outros e em cima."
+
+   Ele já teve fundo rebaixado e fio tracejado, com o argumento de que
+   não precisa ser vendido. O argumento estava errado: ele é uma OPÇÃO, e
+   opção se compara — com outra forma, parava de ser comparável com os
+   pagos, que é o serviço desta tela. A regra saiu inteira em vez de
+   virar um `.ei-oferta-gratis` vazio, que só faria alguém procurar o que
+   ela fazia. */
 
 /* ── A CHAVINHA DE COMO PAGAR ────────────────────────────────────────
    Eram dois cartões grandes com título de seção. Como o preço é o mesmo
