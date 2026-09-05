@@ -1,3 +1,5 @@
+import { lerLadoDaSessao } from "./ladoDaSessao";
+
 import { LOGIN_TELEFONE_ATIVO } from "../config";
 
 /**
@@ -87,4 +89,36 @@ export function podeVender(): boolean {
 export function googleServeAqui(): boolean {
   if (!ehAppDaLoja()) return true;
   return !LOGIN_TELEFONE_ATIVO;
+}
+
+/**
+ * Este anúncio é do lado de quem está olhando?
+ *
+ * ── O pedido — 05/09 ──────────────────────────────────────────────────
+ *
+ * A dona: "o anúncio de destaque da vaga não tem que aparecer no ambiente
+ * do profissional e nem o do destaque do profissional aparecer no da
+ * empresa."
+ *
+ * Estava trocado nos dois lugares, e trocado de um jeito que só se vê
+ * quando alguém percorre o app pelo lado certo:
+ *
+ * - No BANCO DE TALENTOS, que é onde a EMPRESA procura gente, a pastilha
+ *   "Apareça aqui" levava a `/destaque` — que vende o destaque do
+ *   PROFISSIONAL. A empresa lia um convite para pagar por um lugar numa
+ *   lista onde ela nunca vai estar.
+ * - No BANCO DE VAGAS, que é onde a PESSOA procura emprego, a mesma
+ *   pastilha levava a `/destaque-da-vaga` — que vende o destaque de uma
+ *   VAGA, coisa que só quem anuncia tem.
+ *
+ * Cada anúncio tem o lugar dele, e os dois já existem: o do profissional
+ * em "Meu desempenho", o da vaga no painel da própria vaga. O que faltava
+ * era não oferecê-los para quem não pode comprar.
+ *
+ * `null` (ninguém escolheu lado ainda — visita de fora, sem login) também
+ * é "não": as duas listas são abertas, e quem chega pelo Google a um banco
+ * de talentos está procurando gente, não se oferecendo.
+ */
+export function vendendoPara(lado: "professional" | "company"): boolean {
+  return podeVender() && lerLadoDaSessao() === lado;
 }

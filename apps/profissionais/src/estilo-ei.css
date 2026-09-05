@@ -4057,45 +4057,194 @@
 }
 
 /* ═══════════════════════════════════════════════════════════════════════
-   AS TRÊS ONDAS, UMA POR BLOCO — 03/09
+   AS TRÊS ONDAS, EM CARTÃO — 03/09, refeito em 05/09
    ═══════════════════════════════════════════════════════════════════════
-   Cada onda é uma linha da lista: nome, o que ela alcança, e o estado —
-   a data e a contagem se já saiu, o botão se é a próxima, o motivo se
-   está trancada.
+   A dona: "tem que melhorar a tela das ondas. Não tá intuitivo. Faça
+   cards mais bonitos."
 
-   Dentro de `.ei-lista`, que já dá o fio entre uma e outra: três cartões
-   soltos com espaço entre eles viram um acordeão, e a escala (exatamente
-   isso → mesmo ofício → ramo vizinho) se lê melhor coladas. */
-.ei .ei-onda {
+   Eram três linhas dentro de uma `.ei-lista`: mesmo tamanho de letra,
+   mesma cor, um fio cinza entre elas. Coladas assim, a única coisa que
+   distinguia a onda que dá para disparar HOJE das duas que ainda não é o
+   texto — e as duas trancadas terminavam com a mesma frase.
+
+   Cartões separados, com três diferenças que se leem sem ler:
+
+   1. O NÚMERO em círculo. Ele é o que diz que existe uma ordem, e a cor
+      dele é a mesma da faixa de compatibilidade que a onda alcança —
+      verde para 80-100, âmbar para 40-79, cinza abaixo disso. É a mesma
+      régua das notas na lista de gente (`ei-nota-alta` e irmãs), de
+      propósito: o "91%" verde do cartão de alguém e o círculo verde da
+      onda 1 querem dizer a mesma coisa.
+
+   2. O FIO que desce ligando um cartão ao outro, atrás dos círculos. É a
+      escala desenhada: três degraus de um mesmo caminho, não três botões
+      soltos.
+
+   3. A onda DA VEZ tem moldura azul e fundo branco; as outras ficam
+      lavadas. Quem abre a tela vê onde tocar antes de ler qualquer
+      palavra. */
+.ei .ei-ondas {
+  position: relative;
   display: grid;
-  gap: 6px;
-  padding: 14px 20px;
+  gap: 10px;
+  margin: 0 12px;
 }
-.ei .ei-onda-topo {
+/* O fio da escala. Nasce no centro do primeiro círculo e morre no do
+   último — daí os recuos de cima e de baixo, que são metade da altura de
+   um cartão de cabeça. `z-index: 0` com os cartões em 1: o fio passa por
+   trás, e não por cima do círculo. */
+.ei .ei-ondas::before {
+  content: "";
+  position: absolute;
+  /* 33 = a moldura (1) + o respiro do cartão (16) + metade do círculo
+     (17), menos 1 de espessura do próprio fio. */
+  left: 33px;
+  top: 34px;
+  bottom: 34px;
+  width: 2px;
+  background: var(--ei-fio);
+  z-index: 0;
+}
+.ei .ei-onda {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  gap: 8px;
+  padding: 16px;
+  border: 1px solid var(--ei-fio);
+  border-radius: var(--ei-raio);
+  background: var(--ei-afunda);
+}
+/* A onda da vez sai do fundo lavado e ganha moldura: é a única com botão,
+   e a única em que dá para tocar agora. */
+.ei .ei-onda-vez {
+  background: var(--ei-papel);
+  border-color: var(--ei-acento);
+  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.06);
+}
+/* A que já saiu não é ação nenhuma — fica como registro. */
+.ei .ei-onda-feita { background: var(--ei-papel); }
+
+.ei .ei-onda-cabeca {
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  gap: 10px;
+  gap: 12px;
+}
+.ei .ei-onda-numero {
+  flex: 0 0 auto;
+  width: 34px;
+  height: 34px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  font-size: 0.95rem;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  /* A moldura da cor do fundo do cartão é o que abre o buraco no fio: sem
+     ela o traço atravessaria o número. */
+  box-shadow: 0 0 0 4px var(--ei-afunda);
+}
+.ei .ei-onda-vez .ei-onda-numero,
+.ei .ei-onda-feita .ei-onda-numero { box-shadow: 0 0 0 4px var(--ei-papel); }
+/* As três cores, na mesma régua das notas (ver `ei-nota-alta` e irmãs). */
+.ei .ei-onda-1 .ei-onda-numero { background: #e6f4ea; color: #1e7b34; }
+.ei .ei-onda-2 .ei-onda-numero { background: #fff3e0; color: #a85b00; }
+.ei .ei-onda-3 .ei-onda-numero { background: var(--ei-afunda-forte); color: var(--ei-tinta-fraca); }
+
+.ei .ei-onda-titulo {
+  display: grid;
+  gap: 1px;
+  min-width: 0;
+  flex: 1 1 auto;
 }
 .ei .ei-onda-nome {
-  font-size: 0.95rem;
+  font-size: 0.98rem;
   font-weight: 600;
-  min-width: 0;
+  line-height: 1.25;
 }
-.ei .ei-onda-nota {
-  margin: 0;
-  font-size: 0.85rem;
-  line-height: 1.4;
+/* A faixa em número, embaixo do nome: "quem mais combina" é a promessa,
+   "80% a 100%" é a régua. As duas juntas evitam a pergunta que a tela
+   antiga deixava no ar — combina em quê, exatamente. */
+.ei .ei-onda-faixa {
+  font-size: 0.78rem;
   color: var(--ei-tinta-fraca);
+  font-variant-numeric: tabular-nums;
 }
 .ei .ei-onda-conta {
   margin: 0;
+  font-size: 0.92rem;
+  line-height: 1.4;
+}
+.ei .ei-onda-vazia { color: var(--ei-tinta-fraca); }
+.ei .ei-onda-notas {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+  align-items: center;
+}
+.ei .ei-onda-pct {
+  padding: 3px 7px;
+  border-radius: 999px;
+  font-size: 0.76rem;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+.ei .ei-onda-pct.ei-nota-alta { background: #e6f4ea; color: #1e7b34; }
+.ei .ei-onda-pct.ei-nota-media { background: #fff3e0; color: #a85b00; }
+.ei .ei-onda-pct.ei-nota-baixa { background: var(--ei-afunda-forte); color: var(--ei-tinta-fraca); }
+
+/* A explicação e o motivo da trancada: cinza e menores que a contagem —
+   eles são apoio, e a contagem é a notícia. */
+.ei .ei-onda-nota,
+.ei .ei-onda-trancada {
+  margin: 0;
+  font-size: 0.84rem;
+  line-height: 1.4;
+  color: var(--ei-tinta-fraca);
+}
+.ei .ei-onda-feito {
+  margin: 0;
   font-size: 0.85rem;
   line-height: 1.4;
 }
-/* O botão não estica: ele é a ação DAQUELA onda, e de largura cheia
-   pareceria a ação da tela. */
-.ei .ei-onda .ei-btn-curto { justify-self: start; margin-top: 2px; }
+/* O botão da onda ocupa a largura do cartão: dentro de um cartão que é só
+   dela, ele é A ação — e curto sobrava um vazio à direita que fazia o
+   cartão parecer inacabado. */
+.ei .ei-onda .ei-btn { margin-top: 2px; }
+
+/* ── O CARTÃO DOS CRITÉRIOS, FECHADO — 05/09 ─────────────────────────
+   Dezesseis pastilhas medem 627px. Fechado, o cartão diz o que está
+   valendo numa linha, e abre para quem vai mudar. */
+.ei .ei-criterios-topo {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+.ei .ei-criterios-resumo {
+  display: grid;
+  gap: 2px;
+  min-width: 0;
+}
+.ei .ei-criterios-rotulo {
+  font-size: 0.78rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--ei-tinta-fraca);
+}
+/* Duas linhas e para: a lista de critérios pode ter dezesseis nomes, e um
+   parágrafo inteiro deles aqui em cima devolveria o problema que fechar o
+   cartão resolveu. */
+.ei .ei-criterios-valor {
+  font-size: 0.92rem;
+  line-height: 1.35;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+.ei .ei-criterios .ei-btn-curto { flex: 0 0 auto; }
 
 /* ═══════════════════════════════════════════════════════════════════════
    A CONTA: O NÚMERO E OS DOIS LADOS EM CARTÕES — 03/09

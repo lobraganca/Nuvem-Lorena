@@ -13,7 +13,7 @@ import {
 import {
   vagaEmDestaque,
 } from "../../lib/destaque";
-import { podeVender } from "../../lib/plataforma";
+import { podeVender, vendendoPara } from "../../lib/plataforma";
 import { lerMeuPerfil } from "../../lib/meuPerfil";
 import { nomeDoContrato, salarioEmTexto } from "../../types/domain";
 import { Pagina } from "../../components/ei/Pagina";
@@ -489,12 +489,24 @@ export function BancoDeVagasPage() {
             dona: "a seção de destaque não ficou delimitada por alguma
             seção, então parece que tá todo mundo em destaque". Ver o
             comentário longo em `ProfissionaisPage`. */}
-        {modo === "lista" && (destacadas.length > 0 || podeVender()) && (
+        {/* ── O CONVITE É SÓ DE QUEM PODE COMPRAR — 05/09 ───────────────
+            A dona: "o anúncio de destaque da vaga não tem que aparecer no
+            ambiente do profissional."
+
+            Esta lista é onde a PESSOA procura emprego, e "Apareça aqui"
+            vende o destaque de uma VAGA — coisa que só quem anuncia tem. A
+            caixa tracejada de quando não há vaga em destaque é o mesmo
+            anúncio com outras palavras, e sai junto.
+
+            A ÁREA continua aparecendo quando há vagas nela: quem pagou tem
+            de ser visto por quem procura trabalho. O que sai é a oferta.
+            Ver `vendendoPara`. */}
+        {modo === "lista" && (destacadas.length > 0 || vendendoPara("company")) && (
           <section className="ei-area-destaque">
             <h2 className="ei-secao ei-secao-fogo">
               <IconeFogo />
               Em destaque
-              {podeVender() && (
+              {vendendoPara("company") && (
                 <Link to="/destaque-da-vaga" className="ei-secao-fogo-botao">
                   Apareça aqui
                 </Link>
@@ -524,7 +536,7 @@ export function BancoDeVagasPage() {
 
             Agora vai `visiveis` inteira, e a vaga em destaque aparece
             duas vezes, com o selo nas duas. */}
-        {modo === "lista" && (destacadas.length > 0 || podeVender()) && visiveis.length > 0 && (
+        {modo === "lista" && (destacadas.length > 0 || vendendoPara("company")) && visiveis.length > 0 && (
           <h2 className="ei-secao">Todas as vagas</h2>
         )}
 

@@ -19,7 +19,7 @@ import { contarAparicaoEmBusca } from "../lib/compativeis";
 import {
   destaqueValendo,
 } from "../lib/destaque";
-import { podeVender } from "../lib/plataforma";
+import { podeVender, vendendoPara } from "../lib/plataforma";
 import Esqueleto from "../components/ei/Esqueleto";
 
 type Disponivel = {
@@ -728,12 +728,25 @@ export function ProfissionaisPage() {
             aparecer SEMPRE que existe a caixa, mesmo com ela vazia — sem
             ele, a lista de baixo começava sem nome nenhum e ficava
             parecendo a continuação da de cima. */}
-        {(emAlta.length > 0 || podeVender()) && (
+        {/* ── O CONVITE É SÓ DE QUEM PODE COMPRAR — 05/09 ───────────────
+            A dona: "o destaque do profissional não tem que aparecer no
+            ambiente da empresa."
+
+            Esta lista é onde a EMPRESA procura gente, e a pastilha "Apareça
+            aqui" vende o destaque do PROFISSIONAL: era um convite para
+            pagar por um lugar numa lista onde quem lia nunca vai estar. O
+            mesmo vale para a caixa tracejada de quando não há ninguém em
+            alta — ela é o mesmo anúncio com outras palavras.
+
+            A ÁREA continua aparecendo para todo mundo quando há gente nela:
+            quem pagou tem de ser visto por quem contrata, que é justamente
+            a empresa. O que sai é a oferta. Ver `vendendoPara`. */}
+        {(emAlta.length > 0 || vendendoPara("professional")) && (
           <section className="ei-area-destaque">
             <h2 className="ei-secao ei-secao-fogo">
               <IconeFogo />
               Em alta
-              {podeVender() && (
+              {vendendoPara("professional") && (
                 <Link to="/destaque" className="ei-secao-fogo-botao">
                   Apareça aqui
                 </Link>
@@ -750,7 +763,7 @@ export function ProfissionaisPage() {
           </section>
         )}
 
-        {(emAlta.length > 0 || podeVender()) && todos.length > 0 && (
+        {(emAlta.length > 0 || vendendoPara("professional")) && todos.length > 0 && (
           <h2 className="ei-secao">Todos os profissionais</h2>
         )}
 

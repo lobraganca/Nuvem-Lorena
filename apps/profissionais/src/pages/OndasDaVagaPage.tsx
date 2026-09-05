@@ -65,10 +65,6 @@ export function OndasDaVagaPage() {
   const [ondas, setOndas] = useState<JobDispatch[]>([]);
   const [carregando, setCarregando] = useState(true);
   const [erro, setErro] = useState("");
-  /* `null` = ainda não perguntamos ao banco. Zero é resposta legítima
-     ("não há mais ninguém"), então não dá para usá-lo como "não sei". */
-  const [alcanceProximaOnda, setAlcanceProximaOnda] = useState<number | null>(null);
-  const [contando, setContando] = useState(false);
   const [abrindo, setAbrindo] = useState(false);
   /* `null` = ainda carregando. Lista vazia é resposta legítima ("não há
      ninguém cadastrado nessa cidade ainda") e precisa de texto próprio. */
@@ -92,6 +88,15 @@ export function OndasDaVagaPage() {
      acender na hora — a gravação no banco vem logo atrás. */
   const [campos, setCampos] = useState<string[]>([]);
   const [salvandoCampos, setSalvandoCampos] = useState(false);
+  /* ── AS CAIXINHAS COMEÇAM FECHADAS — 05/09 ──────────────────────────
+     São dezesseis, e medidas davam 627px: seis telas de rolagem antes de
+     a empresa chegar em qualquer coisa que ela veio fazer. Fechadas, o
+     cartão diz o que está valendo numa linha e abre quando alguém quer
+     mudar. */
+  const [abrindoCriterios, setAbrindoCriterios] = useState(false);
+  /* A lista de gente começa curta: doze cabem numa rolagem, e o resto vem
+     a pedido. Ver o comentário longo lá embaixo. */
+  const [mostrarTodas, setMostrarTodas] = useState(false);
 
   useEffect(() => {
     if (!vagaId) {
@@ -108,6 +113,35 @@ export function OndasDaVagaPage() {
         setVaga(v);
         setCampos(v.campos_compatibilidade ?? []);
         setOndas(await obterOndasDaVaga(vagaId));
+
+        /* ── A CONTA VEM PRONTA — 05/09 ─────────────────────────────────
+           A dona: "tem que melhorar a tela das ondas, não tá intuitivo."
+
+           Era isto o menos intuitivo de tudo: a tela abria com as três
+           ondas sem número nenhum. A onda 1 tinha um botão "ver quantas
+           pessoas alcança" (mais um toque para saber o básico), e as ondas
+           2 e 3 só diziam "sai depois da onda anterior" — a empresa não
+           tinha como saber se atrás daquela porta havia trinta pessoas ou
+           nenhuma, que é justamente o que decide se vale disparar.
+
+           Agora a conta roda junto com a tela. Ela é a mesma de sempre
+           (`calcularOndas`), e é DIFERENTE da lista de baixo de propósito:
+           quem escolheu não aparecer no banco de talentos não entra na
+           lista, mas recebe o aviso da onda. Tirar o número daqui em vez
+           de da lista é o que impede a tela de prometer um alcance menor
+           do que o real.
+
+           Erro próprio, como o da lista: se a conta falhar, as ondas
+           continuam disparáveis — só sem os números. */
+        try {
+          const todas = await calcularOndas(v);
+          const mapa = new Map<WaveNumber, number[]>();
+          for (const o of todas) mapa.set(o.onda, o.pessoas.map((p) => p.nota));
+          setResultado(mapa);
+        } catch {
+          /* Sem número na tela, e é melhor assim que uma tela de erro:
+             o botão de refazer a varredura continua ali. */
+        }
 
         /* A lista de gente é carregada à parte, e o erro dela é guardado à
            parte: se a leitura dos candidatos falhar, as ondas continuam
@@ -133,21 +167,6 @@ export function OndasDaVagaPage() {
     })();
   }, [vagaId, navegar]);
 
-  /** Quantas pessoas novas a próxima onda alcança. Só quando a empresa pede. */
-  async function contarProximaOnda() {
-    if (!vaga || !proximaOnda) return;
-    setContando(true);
-    setErro("");
-    try {
-      const todas = await calcularOndas(vaga);
-      setAlcanceProximaOnda(todas.find((o) => o.onda === proximaOnda)?.novos ?? 0);
-    } catch (err) {
-      setErro(mensagemDeErro(err, "Não foi possível contar os profissionais."));
-    } finally {
-      setContando(false);
-    }
-  }
-
   /**
    * Marca ou desmarca um campo de compatibilidade, e grava na hora.
    *
@@ -171,7 +190,6 @@ export function OndasDaVagaPage() {
        tela faria a empresa disparar com base numa conta que não é mais a
        desta vaga. */
     setResultado(null);
-    setAlcanceProximaOnda(null);
     try {
       await atualizarVaga(vaga.id, { campos_compatibilidade: novos });
       setVaga({ ...vaga, campos_compatibilidade: novos });
@@ -206,9 +224,6 @@ export function OndasDaVagaPage() {
       const mapa = new Map<WaveNumber, number[]>();
       for (const o of todas) mapa.set(o.onda, o.pessoas.map((p) => p.nota));
       setResultado(mapa);
-      if (proximaOnda) {
-        setAlcanceProximaOnda(mapa.get(proximaOnda)?.length ?? 0);
-      }
     } catch (err) {
       setErro(mensagemDeErro(err, "Não foi possível fazer a varredura."));
     } finally {
@@ -223,7 +238,6 @@ export function OndasDaVagaPage() {
     try {
       await abrirOnda(vaga, proximaOnda);
       setOndas(await obterOndasDaVaga(vaga.id));
-      setAlcanceProximaOnda(null);
     } catch (err) {
       setErro(mensagemDeErro(err, "Não foi possível disparar a onda."));
     } finally {
@@ -272,51 +286,85 @@ export function OndasDaVagaPage() {
           </p>
         )}
 
-      {/* ── O QUE PESA NESTA VAGA, E A VARREDURA — 04/09 ────────────────
+      {/* ── O QUE PESA NESTA VAGA — 04/09, refeito em 05/09 ─────────────
           A dona: "ter um card onde a empresa pode marcar o que ele quer
-          marcar nas compatibilidades da primeira onda. Ter uma parte onde
-          a pessoa dispara e o sistema carrega e entrega o resultado das
-          pessoas que estão dentro dos requisitos marcados."
+          marcar nas compatibilidades da primeira onda."
 
           As caixinhas já existiam — no formulário de criar a vaga, uma
           etapa que a empresa passa uma vez e não volta. O lugar delas é
           aqui: é nesta tela que se decide quem vai ser avisado, e mudar um
-          critério muda a conta da próxima varredura. Marcar aqui grava na
-          mesma coluna (`campos_compatibilidade`, da 0105) que o formulário
-          escreve. */}
-      <h2 className="ei-secao">O que pesa nesta vaga</h2>
-      <div className="ei-cartao">
-        <p className="ei-apoio" style={{ margin: "0 0 12px" }}>
-          Marque o que precisa bater. Sem nada marcado, o app compara pela
-          função e pela cidade — que é o normal, e está tudo bem.
-        </p>
-        <div className="ei-chips">
-          {CAMPOS_DE_COMPATIBILIDADE.map((c) => (
-            <button
-              key={c.valor}
-              type="button"
-              className="ei-chip"
-              aria-pressed={campos.includes(c.valor)}
-              disabled={salvandoCampos}
-              onClick={() => alternarCampo(c.valor)}
-            >
-              {c.nome}
-            </button>
-          ))}
+          critério muda a conta da varredura. Marcar aqui grava na mesma
+          coluna (`campos_compatibilidade`, da 0105) que o formulário
+          escreve.
+
+          Em 05/09 elas passaram a começar FECHADAS. Medido: dezesseis
+          pastilhas ocupavam 627px, seis telas de rolagem antes de a
+          empresa alcançar qualquer coisa que ela veio fazer aqui. O
+          cartão agora abre dizendo o que está valendo, numa linha, e as
+          caixinhas aparecem para quem quer mudar. */}
+      <div className="ei-cartao ei-criterios">
+        <div className="ei-criterios-topo">
+          <div className="ei-criterios-resumo">
+            <span className="ei-criterios-rotulo">O que pesa nesta vaga</span>
+            <span className="ei-criterios-valor">
+              {campos.length === 0
+                ? "A função e a cidade"
+                : CAMPOS_DE_COMPATIBILIDADE.filter((c) => campos.includes(c.valor))
+                    .map((c) => c.nome)
+                    .join(", ")}
+            </span>
+          </div>
+          <button
+            type="button"
+            className="ei-btn ei-btn-contorno ei-btn-curto"
+            aria-expanded={abrindoCriterios}
+            onClick={() => setAbrindoCriterios((v) => !v)}
+          >
+            {abrindoCriterios ? "Pronto" : "Mudar"}
+          </button>
         </div>
+
+        {abrindoCriterios && (
+          <>
+            <p className="ei-apoio" style={{ margin: "12px 0" }}>
+              Marque o que precisa bater. Sem nada marcado, o app compara pela
+              função e pela cidade — que é o normal, e está tudo bem.
+            </p>
+            <div className="ei-chips">
+              {CAMPOS_DE_COMPATIBILIDADE.map((c) => (
+                <button
+                  key={c.valor}
+                  type="button"
+                  className="ei-chip"
+                  aria-pressed={campos.includes(c.valor)}
+                  disabled={salvandoCampos}
+                  onClick={() => alternarCampo(c.valor)}
+                >
+                  {c.nome}
+                </button>
+              ))}
+            </div>
+          </>
+        )}
 
         {/* A varredura fica no mesmo cartão dos critérios, logo abaixo
             deles: é a resposta à pergunta que as caixinhas fazem
             ("e daí, quem sobra?"), e separada em outro bloco a ligação
-            entre as duas coisas se perde. */}
+            entre as duas coisas se perde.
+
+            Ela deixou de ser o único jeito de saber os números — a tela já
+            abre com eles (ver o comentário na carga). Continua aqui porque
+            a dona pediu a animação ("que a empresa veja que está fazendo
+            uma varredura no sistema"), e porque depois de mudar um
+            critério é ela que refaz a conta. */}
         <button
           type="button"
-          className="ei-btn ei-btn-cheio ei-btn-largo ei-btn-alto"
-          style={{ marginTop: 16 }}
+          className="ei-btn ei-btn-contorno ei-btn-largo"
+          style={{ marginTop: 14 }}
           disabled={varrendo || salvandoCampos}
           onClick={varrer}
         >
-          {varrendo ? "Varrendo o Ei Emprego…" : "Fazer a varredura"}
+          {varrendo ? "Varrendo o Ei Emprego…" : "Refazer a varredura"}
         </button>
 
         {varrendo && (
@@ -325,66 +373,206 @@ export function OndasDaVagaPage() {
               <span className="ei-varredura-feixe" />
             </div>
             <p className="ei-apoio" style={{ margin: "8px 0 0" }}>
-              Comparando os cadastros de Itabirito com esta vaga…
+              Comparando os cadastros de {vaga.city} com esta vaga…
             </p>
-          </div>
-        )}
-
-        {resultado && !varrendo && (
-          <div style={{ marginTop: 16 }}>
-            {[...resultado.values()].every((n) => n.length === 0) ? (
-              <p className="ei-apoio" style={{ margin: 0 }}>
-                A varredura não encontrou ninguém com este conjunto de
-                requisitos. Desmarcar algum critério alcança mais gente.
-              </p>
-            ) : (
-              ([1, 2, 3] as WaveNumber[]).map((n) => {
-                const notas = resultado.get(n) ?? [];
-                const faixa = FAIXAS_DAS_ONDAS[n];
-                return (
-                  <div key={n} className="ei-varredura-faixa">
-                    <span className="ei-varredura-faixa-nome">
-                      Onda {n} · {faixa.de}% a {faixa.ate}%
-                    </span>
-                    <span className="ei-varredura-faixa-conta">
-                      {notas.length === 0
-                        ? "ninguém"
-                        : notas.length === 1
-                          ? "1 pessoa"
-                          : `${notas.length} pessoas`}
-                    </span>
-                    {/* Os percentuais que deram, um a um — a dona pediu
-                        "os percentuais de compatibilidade que deu". Sem
-                        nome: a função do banco não devolve nenhum, e é o
-                        certo — quem se interessar aparece com nome na tela
-                        de interessados. Doze é o teto do que cabe sem virar
-                        um muro de números. */}
-                    {notas.length > 0 && (
-                      <span className="ei-varredura-notas">
-                        {notas.slice(0, 12).map((nota, i) => (
-                          <span key={i} className="ei-selo ei-selo-cinza">
-                            {nota}%
-                          </span>
-                        ))}
-                        {notas.length > 12 && (
-                          <span className="ei-apoio">
-                            e mais {notas.length - 12}
-                          </span>
-                        )}
-                      </span>
-                    )}
-                  </div>
-                );
-              })
-            )}
           </div>
         )}
       </div>
 
-{/* ── A LISTA DE GENTE, ANTES DAS ONDAS — 04/09 ───────────────────
-          Primeiro quem são, depois avisar. A ordem contrária (o disparo em
-          cima, os nomes embaixo) faria a empresa disparar sem ter olhado —
-          e onda gasta: são três por vaga, e não voltam. */}
+      {/* ── AS TRÊS ONDAS, EM CARTÃO — 03/09, refeito em 05/09 ───────────
+          A dona: "tem que melhorar a tela das ondas. Não tá intuitivo.
+          Faça cards mais bonitos."
+
+          O que estava errado não era só o desenho. As ondas ficavam no PÉ
+          da tela, depois de uma lista de quarenta pessoas — medido, 5.639
+          pixels abaixo do topo, sete telas de rolagem. A ação que dá nome
+          à tela era a última coisa dela, e chegava sem número nenhum: a
+          onda 1 pedia mais um toque para dizer quantas pessoas alcança, e
+          as 2 e 3 só diziam "sai depois da anterior".
+
+          Agora as ondas vêm primeiro, e cada uma é um cartão que responde
+          as três perguntas de quem está decidindo, na ordem em que elas
+          são feitas: quem é essa gente (o nome e a faixa), quantos são (o
+          número, já contado), e o que dá para fazer (o botão, o estado ou
+          o motivo). O número em círculo e o fio que desce ligando os três
+          são o que diz, sem texto, que isto é uma escala e não três
+          opções soltas.
+
+          A lista de gente continua na tela, embaixo: primeiro se decide,
+          depois se confere quem são. */}
+      <h2 className="ei-secao">Avisar quem combina</h2>
+      <p className="ei-apoio ei-margem" style={{ marginBottom: 4 }}>
+        São três ondas por vaga, da que combina mais para a que combina
+        menos. Cada uma sai quando você mandar, e não volta.
+      </p>
+
+      <div className="ei-ondas">
+        {([1, 2, 3] as WaveNumber[]).map((n) => {
+          const jaSaiu = ondas.find((o) => o.wave === n);
+          const ehAProxima = !jaSaiu && proximaOnda === n && vaga.status === "active";
+          const semCota = !jaSaiu && !aindaTemOnda;
+          const faixa = FAIXAS_DAS_ONDAS[n];
+          const notas = resultado?.get(n) ?? null;
+
+          return (
+            <section
+              key={n}
+              className={`ei-onda ei-onda-${n}${ehAProxima ? " ei-onda-vez" : ""}${
+                jaSaiu ? " ei-onda-feita" : ""
+              }`}
+            >
+              <div className="ei-onda-cabeca">
+                <span className="ei-onda-numero" aria-hidden="true">
+                  {n}
+                </span>
+                <span className="ei-onda-titulo">
+                  <span className="ei-onda-nome">{ONDAS[n].titulo}</span>
+                  <span className="ei-onda-faixa">
+                    {faixa.de}% a {faixa.ate}% de compatibilidade
+                  </span>
+                </span>
+                {jaSaiu && <span className="ei-selo ei-selo-verde">Disparada</span>}
+              </div>
+
+              {/* Quantas pessoas há nesta faixa AGORA. Some quando a conta
+                  não veio (banco fora do ar, varredura recém-limpa por uma
+                  mudança de critério): escrever "0 pessoas" ali seria
+                  inventar a pior notícia possível, e é o defeito que este
+                  app já teve com o `podiam_receber`. */}
+              {!jaSaiu && notas !== null && (
+                <p className="ei-onda-conta">
+                  {notas.length === 0 ? (
+                    <span className="ei-onda-vazia">Ninguém nesta faixa hoje</span>
+                  ) : (
+                    <>
+                      <strong>
+                        {notas.length} {notas.length === 1 ? "pessoa" : "pessoas"}
+                      </strong>{" "}
+                      esperando o aviso
+                    </>
+                  )}
+                </p>
+              )}
+
+              {/* Os percentuais que deram, um a um — a dona pediu "os
+                  percentuais de compatibilidade que deu". Sem nome: a
+                  função do banco não devolve nenhum, e é o certo — quem se
+                  interessar aparece com nome na tela de interessados. Oito
+                  é o que cabe em duas linhas sem virar um muro de
+                  números. */}
+              {!jaSaiu && notas !== null && notas.length > 0 && (
+                <span className="ei-onda-notas">
+                  {notas.slice(0, 6).map((nota, i) => (
+                    <span key={i} className={`ei-onda-pct ${faixaDaNota(nota)}`}>
+                      {nota}%
+                    </span>
+                  ))}
+                  {notas.length > 6 && (
+                    <span className="ei-apoio">e mais {notas.length - 6}</span>
+                  )}
+                </span>
+              )}
+
+              <p className="ei-onda-nota">{ONDAS[n].resumo}</p>
+
+              {jaSaiu ? (
+                <p className="ei-onda-feito">
+                  <strong>
+                    {jaSaiu.professionals_count === 0
+                      ? "Ninguém nesta faixa"
+                      : `${jaSaiu.professionals_count} ${
+                          jaSaiu.professionals_count === 1
+                            ? "pessoa avisada"
+                            : "pessoas avisadas"
+                        }`}
+                  </strong>
+                  {/* Data só quando ela existe e é válida. Sem esta
+                      guarda a tela escrevia "Invalid Date" em português —
+                      apareceu ao passar uma onda vazia, e é o tipo de
+                      texto que faz a empresa achar que perdeu o disparo. */}
+                  {dataDaOnda(jaSaiu.sent_at) && <> em {dataDaOnda(jaSaiu.sent_at)}</>}
+                  {/* Quantas TÊM aparelho que recebe aviso. Sem este número
+                      a tela venderia um alcance que não existe, e a empresa
+                      descobriria pelo silêncio — a forma mais cara. `null`
+                      é "não sei" e some: escrever "0 com aviso" seria
+                      inventar a pior notícia possível. */}
+                  {jaSaiu.podiam_receber !== null && jaSaiu.podiam_receber !== undefined && (
+                    <>
+                      {" · "}
+                      {jaSaiu.podiam_receber} com aviso no celular
+                    </>
+                  )}
+                </p>
+              ) : ehAProxima ? (
+                /* ── FAIXA VAZIA NÃO PODE TRANCAR A VAGA — 04/09 ──────
+                    Achado exercitando o app como empresa: numa vaga em
+                    que ninguém chega a 80%, a onda 1 contava zero, o
+                    botão ficava desligado dizendo "não há mais ninguém
+                    para avisar" — e as ondas 2 e 3, que alcançam de 40%
+                    a 79% e abaixo disso, ficavam trancadas atrás dela
+                    com "sai depois da onda anterior".
+
+                    Ou seja: a vaga que mais precisa de alcance era
+                    justamente a que não conseguia avisar ninguém, para
+                    sempre. E a tela dizia "não há mais ninguém" logo
+                    abaixo de uma lista com sessenta pessoas.
+
+                    Agora a faixa vazia é uma PASSAGEM: a onda é
+                    registrada com zero pessoas (ninguém recebe aviso
+                    nenhum, e é o certo — não há quem) e a próxima
+                    destranca. Só na última onda o botão continua
+                    desligado, porque aí não há para onde ir. */
+                <button
+                  className={
+                    notas !== null && notas.length === 0
+                      ? "ei-btn ei-btn-contorno ei-btn-largo ei-btn-alto"
+                      : "ei-btn ei-btn-cheio ei-btn-largo ei-btn-alto"
+                  }
+                  disabled={
+                    abrindo ||
+                    (notas !== null && notas.length === 0 && n === ONDAS_POR_VAGA)
+                  }
+                  onClick={dispararProximaOnda}
+                >
+                  {abrindo
+                    ? "Avisando…"
+                    : notas === null
+                      ? "Avisar quem está nesta faixa"
+                      : notas.length === 0
+                        ? n === ONDAS_POR_VAGA
+                          ? "Não há mais ninguém para avisar"
+                          : `Ninguém nesta faixa — liberar a onda ${n + 1}`
+                        : `Avisar ${notas.length} ${
+                            notas.length === 1 ? "pessoa" : "pessoas"
+                          }`}
+                </button>
+              ) : (
+                /* Trancada, e o motivo escrito: sem ele o bloco cinza
+                   parece defeito. São dois motivos diferentes — a vaga não
+                   está no ar, ou a cota de ondas acabou — e trocar um pelo
+                   outro manda a empresa procurar a solução errada. */
+                <p className="ei-onda-trancada">
+                  {vaga.status !== "active"
+                    ? "A vaga precisa estar no ar para disparar."
+                    : semCota
+                      ? `Esta vaga já usou as ${ONDAS_POR_VAGA} ondas dela.`
+                      : `Sai depois da onda ${n - 1}.`}
+                </p>
+              )}
+            </section>
+          );
+        })}
+      </div>
+
+      {/* ── A LISTA DE GENTE, DEPOIS DAS ONDAS — 05/09 ──────────────────
+          Ela vinha ANTES, por um motivo bom de 04/09 ("primeiro quem são,
+          depois avisar"). Só que ela mede 4.552px com quarenta pessoas, e
+          empurrava as ondas para fora de qualquer rolagem razoável — o
+          bom motivo virou o que escondia a ação.
+
+          A conciliação é o corte: doze na tela, o resto a pedido. Quem
+          quer conferir a lista inteira toca em "ver todas" e ela abre;
+          quem veio disparar não rola sete telas para achar o botão. */}
       {erroLista && (
         <p className="ei-campo-erro ei-margem" style={{ marginTop: 12 }} role="alert">
           {erroLista}
@@ -410,7 +598,7 @@ export function OndasDaVagaPage() {
             </p>
           ) : (
             <div className="ei-lista">
-              {compativeis.slice(0, 40).map((c) => (
+              {compativeis.slice(0, mostrarTodas ? 40 : 12).map((c) => (
                 /* O mesmo desenho de linha do banco de talentos (retrato
                    de 64px, nome, ofício), com a nota à direita: é a mesma
                    informação, e duas listas de gente com desenhos
@@ -442,11 +630,6 @@ export function OndasDaVagaPage() {
                         começando (a vaga pode ser a primeira dessa pessoa)
                         e quem topa bico. Nenhum dos dois entra na nota —
                         eles são declaração da pessoa, não critério. */}
-                    {/* O selo "Faz freela" saiu junto com a porta e o chip
-                        (04/09, a dona: "não vou colocar isso por
-                        enquanto"). Ninguém consegue mais marcar a
-                        resposta, e um selo que só quem marcou antes teria
-                        seria uma etiqueta que a empresa não entende. */}
                     {(c.primeiroEmprego || c.pcd) && (
                       <span className="ei-chips" style={{ marginTop: 4 }}>
                         {c.primeiroEmprego && (
@@ -462,149 +645,25 @@ export function OndasDaVagaPage() {
             </div>
           )}
 
-          {compativeis.length > 40 && (
+          {!mostrarTodas && compativeis.length > 12 && (
+            <div className="ei-margem" style={{ marginTop: 12 }}>
+              <button
+                type="button"
+                className="ei-btn ei-btn-contorno ei-btn-largo"
+                onClick={() => setMostrarTodas(true)}
+              >
+                Ver as {Math.min(compativeis.length, 40)} que mais combinam
+              </button>
+            </div>
+          )}
+
+          {mostrarTodas && compativeis.length > 40 && (
             <p className="ei-apoio ei-margem" style={{ marginTop: 8 }}>
               Mostrando as 40 que mais combinam, de {compativeis.length}.
             </p>
           )}
         </>
       )}
-
-      <h2 className="ei-secao">Avisar essas pessoas</h2>
-
-      {/* ── AS TRÊS ONDAS, UMA POR BLOCO — 03/09 ─────────────────────────
-          A dona: "a parte de disparo de ondas tem que ficar melhor.
-          Colocar 3 botões de ondas."
-
-          Era uma caixa que mostrava o que JÁ tinha sido disparado e, no
-          fim, um bloco só para "a próxima" — então a empresa nunca via as
-          três de uma vez, nem entendia que existe uma escala: exatamente
-          isso → mesmo ofício → ramo vizinho. Cada onda alcança mais gente
-          e menos precisa, e essa é a decisão que a tela tem que deixar
-          tomar.
-
-          Agora são três blocos fixos, sempre os três, cada um dizendo em
-          que estado está: disparada (com data e quantas pessoas), pronta
-          para disparar (com o botão), ou trancada (com o motivo escrito).
-          Ninguém precisa adivinhar o que existe atrás do que está na tela. */}
-      <div className="ei-lista">
-        {([1, 2, 3] as WaveNumber[]).map((n) => {
-          const jaSaiu = ondas.find((o) => o.wave === n);
-          const ehAProxima = !jaSaiu && proximaOnda === n && vaga.status === "active";
-          const semCota = !jaSaiu && !aindaTemOnda;
-
-          return (
-            <div key={n} className="ei-onda">
-              <div className="ei-onda-topo">
-                <span className="ei-onda-nome">
-                  Onda {n} — {ONDAS[n].titulo}
-                </span>
-                {jaSaiu && <span className="ei-selo ei-selo-verde">Disparada</span>}
-              </div>
-              <p className="ei-onda-nota">{ONDAS[n].explicacao}</p>
-
-              {jaSaiu ? (
-                <p className="ei-onda-conta">
-                  <strong>
-                    {jaSaiu.professionals_count === 0
-                      ? "Ninguém nesta faixa"
-                      : `${jaSaiu.professionals_count} ${
-                          jaSaiu.professionals_count === 1
-                            ? "pessoa avisada"
-                            : "pessoas avisadas"
-                        }`}
-                  </strong>
-                  {/* Data só quando ela existe e é válida. Sem esta
-                      guarda a tela escrevia "Invalid Date" em português —
-                      apareceu ao passar uma onda vazia, e é o tipo de
-                      texto que faz a empresa achar que perdeu o disparo. */}
-                  {dataDaOnda(jaSaiu.sent_at) && <> em {dataDaOnda(jaSaiu.sent_at)}</>}
-                  {/* Quantas TÊM aparelho que recebe aviso. Sem este número
-                      a tela venderia um alcance que não existe, e a empresa
-                      descobriria pelo silêncio — a forma mais cara. `null`
-                      é "não sei" e some: escrever "0 com aviso" seria
-                      inventar a pior notícia possível. */}
-                  {jaSaiu.podiam_receber !== null && jaSaiu.podiam_receber !== undefined && (
-                    <>
-                      {" · "}
-                      {jaSaiu.podiam_receber} com aviso no celular
-                    </>
-                  )}
-                </p>
-              ) : ehAProxima ? (
-                alcanceProximaOnda === null ? (
-                  <button
-                    className="ei-btn ei-btn-contorno ei-btn-curto"
-                    disabled={contando}
-                    onClick={contarProximaOnda}
-                  >
-                    {contando ? "Contando…" : "Ver quantas pessoas alcança"}
-                  </button>
-                ) : (
-                  /* ── FAIXA VAZIA NÃO PODE TRANCAR A VAGA — 04/09 ──────
-                      Achado exercitando o app como empresa: numa vaga em
-                      que ninguém chega a 80%, a onda 1 contava zero, o
-                      botão ficava desligado dizendo "não há mais ninguém
-                      para avisar" — e as ondas 2 e 3, que alcançam de 40%
-                      a 79% e abaixo disso, ficavam trancadas atrás dela
-                      com "sai depois da onda anterior".
-
-                      Ou seja: a vaga que mais precisa de alcance era
-                      justamente a que não conseguia avisar ninguém, para
-                      sempre. E a tela dizia "não há mais ninguém" logo
-                      abaixo de uma lista com sessenta pessoas.
-
-                      Agora a faixa vazia é uma PASSAGEM: a onda é
-                      registrada com zero pessoas (ninguém recebe aviso
-                      nenhum, e é o certo — não há quem) e a próxima
-                      destranca. Só na última onda o botão continua
-                      desligado, porque aí não há para onde ir. */
-                  <button
-                    className={
-                      alcanceProximaOnda === 0
-                        ? "ei-btn ei-btn-contorno ei-btn-curto"
-                        : "ei-btn ei-btn-cheio ei-btn-curto"
-                    }
-                    disabled={
-                      abrindo || (alcanceProximaOnda === 0 && proximaOnda === ONDAS_POR_VAGA)
-                    }
-                    onClick={dispararProximaOnda}
-                    title={
-                      alcanceProximaOnda === 0
-                        ? "Ninguém está nesta faixa de compatibilidade. Passar libera a onda seguinte, que alcança mais gente."
-                        : undefined
-                    }
-                  >
-                    {abrindo
-                      ? "Avisando…"
-                      : alcanceProximaOnda === 0
-                        ? proximaOnda === ONDAS_POR_VAGA
-                          ? "Não há mais ninguém para avisar"
-                          : `Ninguém nesta faixa — liberar a onda ${(proximaOnda ?? 1) + 1}`
-                        : `Avisar ${alcanceProximaOnda} ${
-                            alcanceProximaOnda === 1 ? "pessoa" : "pessoas"
-                          }`}
-                  </button>
-                )
-              ) : (
-                /* Trancada, e o motivo escrito: sem ele o bloco cinza
-                   parece defeito. São dois motivos diferentes — a vaga não
-                   está no ar, ou a cota de ondas acabou — e trocar um pelo
-                   outro manda a empresa procurar a solução errada. */
-                <p className="ei-onda-nota">
-                  {vaga.status !== "active"
-                    ? "A vaga precisa estar no ar para disparar."
-                    : semCota
-                      ? `Esta vaga já usou as ${ONDAS_POR_VAGA} ondas dela.`
-                      : "Sai depois da onda anterior."}
-                </p>
-              )}
-            </div>
-          );
-        })}
-      </div>
-
-
 
       </div>
     </div>

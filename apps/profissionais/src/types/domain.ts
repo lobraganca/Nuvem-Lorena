@@ -1341,18 +1341,37 @@ export const FAIXAS_DAS_ONDAS: Record<WaveNumber, { de: number; ate: number }> =
   3: { de: 0, ate: 39 },
 };
 
-export const ONDAS: Record<WaveNumber, { titulo: string; explicacao: string }> = {
+/* Duas frases por onda, e não uma, porque as duas telas que as mostram
+   têm necessidades opostas — 05/09.
+
+   `explicacao` é a longa, com a faixa escrita por extenso: ela vive no
+   formulário de criar a vaga, onde não há nada mais no bloco dizendo de
+   que percentuais se trata.
+
+   `resumo` é a curta, SEM percentual: o cartão da tela de ondas já mostra
+   a faixa numa linha própria, embaixo do nome, e repetir "de 80% a 100%"
+   logo abaixo dela foi o que a tela fez até hoje — duas linhas seguidas
+   dizendo o mesmo número, que é ruído justamente onde a empresa está
+   decidindo. O resumo diz o que a faixa NÃO diz: o que significa estar
+   nela. */
+export const ONDAS: Record<
+  WaveNumber,
+  { titulo: string; explicacao: string; resumo: string }
+> = {
   1: {
     titulo: "Quem mais combina",
     explicacao: "De 80% a 100% de compatibilidade com a vaga.",
+    resumo: "Bate em tudo o que você marcou.",
   },
   2: {
     titulo: "Quem combina em boa parte",
     explicacao: "De 40% a 79% — bate no principal, não em tudo.",
+    resumo: "Bate no principal, não em tudo.",
   },
   3: {
     titulo: "Quem faz coisa do mesmo ramo",
     explicacao: "Abaixo de 40%: ofícios vizinhos, para alargar a busca.",
+    resumo: "Ofícios vizinhos, para alargar a busca.",
   },
 };
 
