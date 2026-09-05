@@ -7542,7 +7542,31 @@
 }
 .ei .ei-pessoa > .ei-pessoa-retrato { grid-area: foto; }
 .ei .ei-pessoa > .ei-pessoa-nome { grid-area: nome; align-self: center; }
-.ei .ei-pessoa > .ei-favorito { grid-area: coracao; }
+/* ── O CORAÇÃO ESTAVA COM O NOME DE OUTRA CLASSE — 05/09 ────────────
+   A dona, com o print: "o card da pessoa, a foto e o favoritos está bem
+   desalinhado."
+
+   Estava mesmo, e a causa é uma letra errada: esta regra apontava para
+   `.ei-favorito`, e o botão de favoritar se chama `.ei-coracao` (ver
+   `BotaoFavorito.tsx`). Classe que não existe é regra que não vale — o
+   coração ficava SEM `grid-area` nenhuma, e a grade fazia o que faz com
+   um filho sem lugar marcado: encaixava no primeiro buraco livre.
+
+   O primeiro buraco livre é a faixa do selo "Em alta", que só é ocupada
+   por quem está em destaque. Daí o efeito exato do print dela: no cartão
+   de quem NÃO está em alta, o coração subia para a linha de cima,
+   sozinho, e o nome descia — a foto do lado de um vazio.
+
+   Quem está em alta não via nada errado, porque ali a faixa está
+   ocupada. Foi por isso que a varredura não pegou: os dados de mentira
+   têm quase todo mundo em destaque.
+
+   `:is()` aceita os dois nomes: se um dia o botão voltar a se chamar
+   `ei-favorito`, a regra continua valendo. */
+.ei .ei-pessoa > :is(.ei-coracao, .ei-favorito) {
+  grid-area: coracao;
+  align-self: center;
+}
 .ei .ei-pessoa > .ei-linha-seta { grid-area: seta; align-self: center; }
 .ei .ei-pessoa > .ei-pessoa-funcoes { grid-area: funcoes; }
 
