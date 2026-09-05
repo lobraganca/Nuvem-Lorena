@@ -2557,7 +2557,10 @@
 /* ═══════════════════════════════════════════════════════════════════════
    OS DOIS LADOS — 01/09
    ═══════════════════════════════════════════════════════════════════════
-   A tela que pergunta "de que lado você está?". Ver OnboardingTipoPage.
+   Era da tela que perguntava "de que lado você está?" — `OnboardingTipoPage`,
+   apagada em 05/09 quando a pergunta passou a ser feita na tela de entrar.
+   As classes continuam servindo a outros lugares do app, então o bloco
+   fica; o que saiu foi a referência a um arquivo que não existe mais.
 
    Empilhados no celular e lado a lado no computador: são duas opções
    irmãs, e no telefone a comparação é vertical (rolando) enquanto na tela

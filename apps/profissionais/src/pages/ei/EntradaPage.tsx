@@ -113,7 +113,7 @@ export function EntradaPage() {
       ? tipo === "professional" || tipo === "company"
         ? casaDoLado(tipo)
         : tipo === false
-          ? "/onboarding-tipo"
+          ? "/login"
           : null
       : null;
 

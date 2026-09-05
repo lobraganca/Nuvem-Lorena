@@ -65,9 +65,22 @@ export function SoDesteLado({
      ter separação nenhuma, que foi exatamente o que ela viu.
 
      Agora a pergunta vem até a pessoa, em vez de esperar que ela caia na
-     tela que a faz. Ninguém fica sem tela: `/onboarding-tipo` é a
-     pergunta, e ela leva para o lado escolhido em um toque. */
-  if (atual === false) return <Navigate to="/onboarding-tipo" replace />;
+     tela que a faz.
+
+     ── E A PERGUNTA MUDOU DE ENDEREÇO — 05/09 ─────────────────────────
+     A dona, com o print de `/onboarding-tipo`: "que tela é essa?"
+
+     Era a tela ANTIGA da mesma pergunta, de quando a escolha vinha depois
+     do login. A reformulação de 04/09 mudou isso — as duas portas estão
+     na tela de ENTRAR —, e esta continuou existindo e continuou sendo
+     alcançável por aqui. Duas telas para a mesma pergunta, uma delas
+     dizendo regras que já não valem ("dá para trocar de lado a qualquer
+     hora, na sua Conta").
+
+     Agora manda para `/login`, que é onde a pergunta mora. Quem já está
+     conectado só toca num lado e entra — a tela não pede senha de quem
+     acabou de dar. */
+  if (atual === false) return <Navigate to="/login" replace />;
 
   if (atual !== lado) return <Navigate to={casaDoLado(atual)} replace />;
 

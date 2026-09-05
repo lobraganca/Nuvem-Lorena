@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Routes, Route, Link, useLocation } from "react-router-dom";
+import { Navigate, Routes, Route, Link, useLocation } from "react-router-dom";
 import { Logo } from "./components/Logo";
 import { BotaoSuporte } from "./components/BotaoSuporte";
 import { AppShell } from "./components/AppShell";
@@ -44,7 +44,6 @@ const ConfiguracaoPage = lazy(importarPagina(() => import("./pages/ConfiguracaoP
 const PerfilPage = lazy(importarPagina(() => import("./pages/PerfilPage").then((m) => ({ default: m.PerfilPage }))));
 
 // MVP Local Hiring
-const OnboardingTipoPage = lazy(importarPagina(() => import("./pages/OnboardingTipoPage").then((m) => ({ default: m.OnboardingTipoPage }))));
 const CadastroEmpresaPage = lazy(importarPagina(() => import("./pages/CadastroEmpresaPage").then((m) => ({ default: m.CadastroEmpresaPage }))));
 const PainelEmpresaPage = lazy(importarPagina(() => import("./pages/PainelEmpresaPage").then((m) => ({ default: m.PainelEmpresaPage }))));
 const CriarVagaPage = lazy(importarPagina(() => import("./pages/CriarVagaPage").then((m) => ({ default: m.CriarVagaPage }))));
@@ -339,7 +338,22 @@ export default function App() {
         } />
 
         {/* Quem contrata */}
-        <Route path="/onboarding-tipo" element={<OnboardingTipoPage />} />
+        {/* ── A TELA ANTIGA DA ESCOLHA VIROU UM DESVIO — 05/09 ────────
+            A dona, com o print dela na mão: "que tela é essa?"
+
+            Era a tela de escolher o lado de quando a pergunta vinha
+            DEPOIS do login. A reformulação de 04/09 levou as duas portas
+            para a tela de entrar, e esta ficou — alcançável, e dizendo
+            regras que já não valem ("dá para trocar de lado a qualquer
+            hora, na sua Conta", quando hoje se troca saindo e entrando).
+
+            Duas telas para a mesma pergunta, discordando uma da outra.
+
+            Vira desvio em vez de sumir: o endereço pode estar num
+            favorito, no histórico do navegador ou num aviso já enviado, e
+            "página não encontrada" seria trocar uma tela errada por um
+            beco. */}
+        <Route path="/onboarding-tipo" element={<Navigate to="/login" replace />} />
         {/* O par de cima: a tela que "Quero contratar" abre. */}
         <Route path="/comecar-empresa" element={
           <SoDesteLado lado="company"><ComecarPage lado="company" /></SoDesteLado>

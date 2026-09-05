@@ -118,7 +118,7 @@ export function ExigirSenha({ children }: { children: ReactNode }) {
                    `tem_senha` recém-gravado é lido da sessão, e sem uma
                    volta ao começo esta mesma barreira continuaria de pé
                    sobre um dado velho. */
-                window.location.href = "/onboarding-tipo";
+                window.location.href = "/login";
               } catch (err) {
                 setErro(mensagemDeErro(err, "Não consegui guardar a senha."));
                 setSalvando(false);
