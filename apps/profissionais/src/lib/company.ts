@@ -7,7 +7,7 @@ import {
 } from "../types/domain";
 import { calcular } from "./compatibilidade";
 import { lerTudo } from "./lerTudo";
-import { gravarTolerando } from "./colunasNovas";
+import { gravarTolerando, lerTolerando } from "./colunasNovas";
 
 const supabase = getSupabase();
 
@@ -565,10 +565,18 @@ export async function interessadosDasVagas(
      `owner_id`, e não um `select` embutido. O PostgREST junta por relação
      declarada, e não existe nenhuma entre essas duas tabelas. */
   const contas = [...new Set(respostas.map((r) => r.professional_id))];
-  const { data: pessoas } = await sb
-    .from("professionals_public")
-    .select("id, owner_id, name, whatsapp, phone, photo_url, neighborhood")
-    .in("owner_id", contas);
+  /* `primeiro_emprego` é da 0114 e pode ainda não existir no banco — as
+     migrations são aplicadas à mão. Pedir uma coluna desconhecida faz o
+     PostgREST recusar a CONSULTA INTEIRA, e aí a empresa veria "ninguém
+     se interessou" numa vaga com dez interessados: a frase mais cara do
+     app para se dizer errado. `lerTolerando` refaz sem ela nesse caso. */
+  const { data: pessoas } = await lerTolerando<Array<Record<string, unknown>>>(
+    "id, owner_id, name, whatsapp, phone, photo_url, neighborhood, " +
+      "areas_de_interesse, bio, primeiro_emprego",
+    ["primeiro_emprego"],
+    (colunas) =>
+      sb.from("professionals_public").select(colunas).in("owner_id", contas)
+  );
 
   const porConta = new Map<string, Record<string, unknown>>();
   for (const p of (pessoas ?? []) as Record<string, unknown>[]) {
@@ -591,6 +599,9 @@ export async function interessadosDasVagas(
       telefone: pessoa ? ((pessoa.whatsapp as string) ?? (pessoa.phone as string) ?? null) : null,
       foto: pessoa ? ((pessoa.photo_url as string) ?? null) : null,
       bairro: pessoa ? ((pessoa.neighborhood as string) ?? null) : null,
+      funcoes: pessoa ? ((pessoa.areas_de_interesse as string[]) ?? []) : [],
+      resumo: pessoa ? ((pessoa.bio as string) ?? null) : null,
+      primeiroEmprego: pessoa ? Boolean(pessoa.primeiro_emprego) : false,
     };
   });
 }
@@ -880,6 +891,22 @@ export type RespostaComPessoa = JobResponse & {
   telefone: string | null;
   foto: string | null;
   bairro: string | null;
+  /* ── O QUE A PESSOA FAZ — 05/09 ──────────────────────────────────────
+     A dona, olhando a lista: "como escolher nessa tela se não tem nada
+     informando o que a pessoa faz e as experiências?"
+
+     Não tinha mesmo: nome, foto e a data. Para decidir entre dois
+     interessados a empresa precisava abrir o perfil de um, voltar, abrir
+     o do outro e comparar de cabeça — numa lista que pode ter vinte.
+
+     São três coisas, e nesta ordem: o que a pessoa FAZ (as funções que
+     ela marcou), quantos anos de casa ela tem no total, e a frase que ela
+     escreveu sobre si. Com as três, dá para separar quem vale a ligação
+     sem sair da lista. */
+  funcoes: string[];
+  resumo: string | null;
+  /** "Está atrás do primeiro emprego" é informação, e não ausência dela. */
+  primeiroEmprego: boolean;
 };
 
 /**
@@ -921,10 +948,18 @@ export async function obterRespostasDaVaga(vagaId: string): Promise<RespostaComP
   if (respostas.length === 0) return [];
 
   const contas = [...new Set(respostas.map((r) => r.professional_id))];
-  const { data: pessoas } = await sb
-    .from("professionals_public")
-    .select("id, owner_id, name, whatsapp, phone, photo_url, neighborhood")
-    .in("owner_id", contas);
+  /* `primeiro_emprego` é da 0114 e pode ainda não existir no banco — as
+     migrations são aplicadas à mão. Pedir uma coluna desconhecida faz o
+     PostgREST recusar a CONSULTA INTEIRA, e aí a empresa veria "ninguém
+     se interessou" numa vaga com dez interessados: a frase mais cara do
+     app para se dizer errado. `lerTolerando` refaz sem ela nesse caso. */
+  const { data: pessoas } = await lerTolerando<Array<Record<string, unknown>>>(
+    "id, owner_id, name, whatsapp, phone, photo_url, neighborhood, " +
+      "areas_de_interesse, bio, primeiro_emprego",
+    ["primeiro_emprego"],
+    (colunas) =>
+      sb.from("professionals_public").select(colunas).in("owner_id", contas)
+  );
 
   const porConta = new Map<string, Record<string, unknown>>();
   for (const p of (pessoas ?? []) as Record<string, unknown>[]) {
@@ -944,6 +979,9 @@ export async function obterRespostasDaVaga(vagaId: string): Promise<RespostaComP
       telefone: pessoa ? ((pessoa.whatsapp as string) ?? (pessoa.phone as string) ?? null) : null,
       foto: pessoa ? ((pessoa.photo_url as string) ?? null) : null,
       bairro: pessoa ? ((pessoa.neighborhood as string) ?? null) : null,
+      funcoes: pessoa ? ((pessoa.areas_de_interesse as string[]) ?? []) : [],
+      resumo: pessoa ? ((pessoa.bio as string) ?? null) : null,
+      primeiroEmprego: pessoa ? Boolean(pessoa.primeiro_emprego) : false,
     };
   });
 }

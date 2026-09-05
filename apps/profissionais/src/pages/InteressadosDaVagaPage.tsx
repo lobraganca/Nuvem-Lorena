@@ -273,6 +273,54 @@ export function InteressadosDaVagaPage() {
                   <span className="ei-pessoa-nome ei-uma-linha">
                     {resp.nome || "Sem nome"}
                   </span>
+                  {/* ── O QUE A PESSOA FAZ — 05/09 ────────────────────
+                      A dona: "como escolher nessa tela se não tem nada
+                      informando o que a pessoa faz e as experiências?"
+
+                      Não tinha: nome, foto e a data. Para escolher entre
+                      dois interessados era preciso abrir o perfil de um,
+                      voltar, abrir o do outro e comparar de cabeça — numa
+                      lista que pode ter vinte nomes.
+
+                      As FUNÇÕES vêm primeiro e em pastilha, porque é a
+                      resposta da pergunta "essa pessoa faz o que eu
+                      preciso?". Três, e o resto vira "+2": quatro
+                      pastilhas já empurram o cartão para três linhas, e
+                      quem tem muitas funções marcadas é justamente quem
+                      não se decidiu por nenhuma. */}
+                  {resp.funcoes.length > 0 && (
+                    <span className="ei-chips ei-pessoa-funcoes">
+                      {resp.funcoes.slice(0, 3).map((f) => (
+                        <span key={f} className="ei-selo ei-selo-cinza">
+                          {f}
+                        </span>
+                      ))}
+                      {resp.funcoes.length > 3 && (
+                        <span className="ei-selo ei-selo-cinza">
+                          +{resp.funcoes.length - 3}
+                        </span>
+                      )}
+                    </span>
+                  )}
+
+                  {/* "Está atrás do primeiro emprego" é INFORMAÇÃO, e não
+                      falta dela: sem esta linha, um cadastro sem
+                      experiência nenhuma é lido como cadastro pela metade
+                      — e é o contrário, é alguém começando. */}
+                  {resp.primeiroEmprego && (
+                    <span className="ei-selo ei-selo-verde ei-pessoa-primeiro">
+                      Primeiro emprego
+                    </span>
+                  )}
+
+                  {/* O resumo que a pessoa escreveu, em duas linhas. É o
+                      que mais se aproxima de "conte de você" numa lista —
+                      e some inteiro quando ela não escreveu, em vez de
+                      deixar um vão. */}
+                  {resp.resumo?.trim() && (
+                    <span className="ei-pessoa-resumo">{resp.resumo.trim()}</span>
+                  )}
+
                   <span className="ei-pessoa-oficio ei-uma-linha">
                     {/* Só o dia e o mês. Com o retrato maior (04/09) a linha
                         encurtou, e "Praia · respondeu em 04/09/2026" passou a

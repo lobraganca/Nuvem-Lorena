@@ -6979,3 +6979,39 @@
   line-height: 1.35;
   color: var(--ei-tinta-fraca);
 }
+
+/* ── O CARTÃO DE QUEM SE INTERESSOU — 05/09 ──────────────────────────
+   A dona: "como escolher nessa tela se não tem nada informando o que a
+   pessoa faz e as experiências?"
+
+   O cartão tinha nome, foto e data. Agora tem as funções, o "primeiro
+   emprego" e o resumo — o suficiente para separar quem vale a ligação
+   sem abrir perfil por perfil. */
+.ei .ei-pessoa-funcoes {
+  margin-top: 6px;
+  /* As pastilhas não quebram o cartão: quando não couberem, quem chama
+     já cortou em três e pôs "+N". */
+  flex-wrap: wrap;
+}
+
+.ei .ei-pessoa-primeiro {
+  margin-top: 6px;
+  align-self: start;
+}
+
+.ei .ei-pessoa-resumo {
+  margin-top: 6px;
+  font-size: 0.85rem;
+  line-height: 1.45;
+  color: var(--ei-tinta-fraca);
+  /* Duas linhas: o resumo é para dar o tom, não para ser lido inteiro
+     aqui — quem se interessou abre o perfil. */
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+/* O texto do cartão vira coluna: com as funções e o resumo dentro, o
+   `ei-uma-linha` de antes não dá conta sozinho. */
+.ei .ei-pessoa-texto { display: grid; }
