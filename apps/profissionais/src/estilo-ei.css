@@ -6727,3 +6727,116 @@
 .ei input[type="date"] {
   min-height: 44px;
 }
+
+/* ═══════════════════════════════════════════════════════════════════════
+   O QUE SE ACRESCENTA NO CADASTRO: PREENCHE, SALVA, VIRA CARTÃO — 05/09
+   ═══════════════════════════════════════════════════════════════════════
+   A dona: "tudo que tem que acrescentar no cadastro, como formação. Assim
+   que digita, salva e ele vira um card visualmente bonito. A pessoa tem
+   como excluir o que já inseriu ou adicionar outro."
+
+   Ver `components/ei/ListaEmCartoes.tsx` para o porquê de cada decisão.
+   Aqui só o desenho. */
+.ei .ei-itens {
+  display: grid;
+  gap: 10px;
+}
+
+.ei .ei-item {
+  display: grid;
+  gap: 4px;
+  padding: 14px;
+  background: var(--ei-afunda);
+  border: 1px solid var(--ei-fio);
+  border-radius: 14px;
+}
+
+.ei .ei-item-texto {
+  display: grid;
+  gap: 2px;
+  min-width: 0;
+}
+
+/* O título é o que a pessoa procura quando quer mexer num item: o cargo
+   da experiência, o nome do curso, a competência. Vem primeiro e sozinho
+   na linha. */
+.ei .ei-item-titulo {
+  font-size: 0.95rem;
+  font-weight: 600;
+  line-height: 1.35;
+  color: var(--ei-tinta);
+  /* Nome comprido quebra em vez de estourar o cartão — a lição do nome da
+     empresa cortado na tela da vaga. */
+  overflow-wrap: anywhere;
+}
+
+.ei .ei-item-linha {
+  font-size: 0.84rem;
+  line-height: 1.4;
+  color: var(--ei-tinta-fraca);
+  overflow-wrap: anywhere;
+}
+
+/* Os dois caminhos embaixo, encostados à esquerda e com alvo de dedo. Ao
+   lado do texto eles espremeriam justamente o título. */
+.ei .ei-item-acoes {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  margin-top: 6px;
+  margin-left: -6px;
+}
+
+.ei .ei-item-acoes .ei-btn-texto {
+  min-height: 40px;
+  padding: 0 8px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  /* Na cor de ação do app: em cinza os dois pareciam legenda do cartão, e
+     não os dois caminhos que a dona pediu ("excluir o que já inseriu ou
+     adicionar outro"). */
+  color: var(--ei-acao);
+}
+
+/* "Tirar" apaga coisa: fica na cor de erro do app, e não na de link. Não
+   é para assustar — é para não ser tocado por engano no lugar de
+   "Editar", que está do lado. */
+.ei .ei-item-acoes .ei-btn-texto.ei-item-tirar { color: var(--ei-erro); }
+
+/* O formulário aberto é branco e com fio mais forte: ele é o que está
+   ACONTECENDO agora, no meio de cartões que são coisa pronta. */
+.ei .ei-item-abrindo {
+  background: var(--ei-papel);
+  border-color: var(--ei-fio-forte);
+  gap: 0;
+  padding: 16px 14px;
+}
+
+.ei .ei-item-formulario-titulo {
+  display: block;
+  margin-bottom: 12px;
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--ei-tinta-fraca);
+}
+
+/* Dentro do formulário os campos usam a régua do cartão, e não a da
+   página: sem isto o recuo de 33px do texto solto soma com o padding e os
+   campos entram tortos — o mesmo defeito já medido na tela da vaga. */
+.ei .ei-item-abrindo .ei-campo:first-of-type { margin-top: 0; }
+
+.ei .ei-item-acoes-form {
+  gap: 8px;
+  margin-top: 16px;
+  margin-left: 0;
+}
+.ei .ei-item-acoes-form .ei-btn-cheio { flex: 1 1 auto; }
+
+.ei .ei-itens-vazio {
+  margin: 0;
+  font-size: 0.85rem;
+  line-height: 1.5;
+  color: var(--ei-tinta-fraca);
+}
