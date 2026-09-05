@@ -249,15 +249,22 @@ export function AvisosPage() {
 
         {podeOferecerAviso && (
           <Callout icone={<IconeInicio nome="sino" tamanho={17} />}>
-            Quer receber no celular assim que chegar vaga do seu ofício?{" "}
-            <button
-              type="button"
-              className="ei-btn-inline"
-              disabled={ligandoAviso}
-              onClick={ligarAviso}
-            >
-              {ligandoAviso ? "Ligando…" : "Ligar o aviso"}
-            </button>
+            {/* O botão numa linha própria, e não colado no fim da
+                pergunta: uma pastilha de 36px dentro de um parágrafo de
+                14px dobra o vão da linha em que cai, e a faixa inteira
+                parece estourada. Ver o mesmo conserto em
+                VagasParaMimPage. */}
+            Quer receber no celular assim que chegar vaga do seu ofício?
+            <span className="ei-callout-acao">
+              <button
+                type="button"
+                className="ei-btn-inline"
+                disabled={ligandoAviso}
+                onClick={ligarAviso}
+              >
+                {ligandoAviso ? "Ligando…" : "Ligar o aviso"}
+              </button>
+            </span>
           </Callout>
         )}
 

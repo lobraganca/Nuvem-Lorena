@@ -265,11 +265,33 @@ export function VagasParaMimPage() {
              antes do resto. Era um cartão com título, quatro linhas de
              parágrafo e um botão largo, mais texto que qualquer vaga da
              lista para uma coisa secundária. */
+          /* ── O BOTÃO SAIU DE DENTRO DA FRASE — 05/09 ────────────────
+             A dona, com print: "o aviso está quebrado."
+
+             Estava mesmo. O botão era a PRIMEIRA coisa da frase
+             ("[Avisar no celular] quando chegar vaga do seu ofício"),
+             uma pastilha de 36px de altura no meio de um parágrafo de
+             letra de 14px. Quando o texto quebrava em duas linhas, a
+             primeira ficava com a altura do botão e a segunda com a da
+             letra — o vão entre elas dobrava, e o resultado parecia
+             layout estourado.
+
+             O comentário do `.ei-btn-inline` no CSS previa esse uso e
+             dizia que "um bloco quebraria a linha no meio". Quebrar a
+             linha era justamente o certo: pergunta em cima, botão
+             embaixo, cada um na sua altura. */
           <Callout icone={<IconeInicio nome="sino" tamanho={17} />}>
-            <button type="button" className="ei-btn-inline" disabled={ligandoAviso} onClick={ligarAviso}>
-              {ligandoAviso ? "Ligando…" : "Avisar no celular"}
-            </button>{" "}
-            quando chegar vaga do seu ofício.
+            Quer receber um aviso no celular quando chegar vaga do seu ofício?
+            <span className="ei-callout-acao">
+              <button
+                type="button"
+                className="ei-btn-inline"
+                disabled={ligandoAviso}
+                onClick={ligarAviso}
+              >
+                {ligandoAviso ? "Ligando…" : "Avisar no celular"}
+              </button>
+            </span>
           </Callout>
         )}
 

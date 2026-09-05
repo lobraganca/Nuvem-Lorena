@@ -1037,6 +1037,19 @@
 }
 .ei-callout-icone svg { display: block; width: 17px; height: 17px; }
 .ei-callout-texto { flex: 1; min-width: 0; }
+
+/* A ação do callout numa linha só dela.
+   ─────────────────────────────────────
+   A dona, com print: "o aviso está quebrado." O botão vinha DENTRO da
+   frase, e uma pastilha de 36px de altura no meio de um parágrafo de
+   14px dobra a altura da linha em que cai — texto em cima da metade da
+   pastilha, resto do texto embaixo, e a faixa parecendo estourada.
+
+   `block` com respiro em cima: a frase termina, o botão começa. */
+.ei .ei-callout-acao {
+  display: block;
+  margin-top: 10px;
+}
 .ei-callout-texto strong { font-weight: 600; }
 
 /* O callout de aviso continua sem cor forte: um fio um pouco mais escuro
