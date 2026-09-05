@@ -4,6 +4,7 @@ import { useAuth } from "../lib/useAuth";
 import {
   isAdmin,
   listReports,
+  mudarSituacaoDaVaga,
   reactivateProfessional,
   suspendProfessional,
   getDestaquesAtivos,
@@ -87,8 +88,15 @@ const SECOES = [
 
      "Sugestões" e "Denúncias" FICARAM: o rodapé do Ei tem "Enviar
      sugestão", que escreve na primeira, e a segunda é a tabela para onde
-     um dia vai a denúncia que hoje sai pelo WhatsApp. */
-  { id: "denuncias", simbolo: "🚩", titulo: "Denúncias", resumo: "Reclamações sobre cadastros, para apurar." },
+     um dia vai a denúncia que hoje sai pelo WhatsApp.
+
+     ── ESSE "UM DIA" CHEGOU — 05/09 ─────────────────────────────────
+     A dona: "a situação de denunciar o perfil deve ser direcionado ao
+     painel administrativo, com a solicitação e descrição para que eu veja
+     e tenha a possibilidade de tirar a vaga ou o usuário do ar." Os dois
+     botões de denunciar do app passaram a escrever em `reports`, e a
+     denúncia agora pode ser de uma VAGA também (0121). */
+  { id: "denuncias", simbolo: "🚩", titulo: "Denúncias", resumo: "Vagas e cadastros denunciados, para apurar e tirar do ar." },
   { id: "sugestoes", simbolo: "💬", titulo: "Sugestões", resumo: "O que as pessoas pediram pelo app." },
   { id: "destaques", simbolo: "🔥", titulo: "Destaques", resumo: "Quem está no topo da busca e quem está na fila." },
   { id: "cadastros", simbolo: "📋", titulo: "Cadastros", resumo: "Ver, editar, reenquadrar foto e tirar do ar." },
@@ -141,6 +149,10 @@ export function AdminPage() {
   const [onlySuspended, setOnlySuspended] = useState(false);
 
   const [suspending, setSuspending] = useState<string | null>(null);
+  /* Qual vaga está sendo tirada do ar (ou posta de volta) agora — 05/09.
+     O mesmo papel do `suspending` para cadastro: sem ele, dois toques
+     seguidos no mesmo botão mandam dois pedidos. */
+  const [mudandoVaga, setMudandoVaga] = useState<string | null>(null);
   const [reasonDraft, setReasonDraft] = useState<Record<string, string>>({});
 
   async function fetchPros(page: number) {
@@ -284,6 +296,23 @@ export function AdminPage() {
     }
   }
 
+  /* Tirar a vaga do ar, ou pôr de volta — a pedido da dona (05/09). A
+     lista é relida no fim para o cartão refletir a situação nova sem ela
+     precisar recarregar a tela. */
+  async function handleVaga(jobId: string, noAr: boolean) {
+    setMudandoVaga(jobId);
+    setMessage("");
+    try {
+      await mudarSituacaoDaVaga(jobId, noAr);
+      setReports(await listReports());
+      setMessage(noAr ? "Vaga de volta ao ar." : "Vaga fora do ar.");
+    } catch (err) {
+      setMessage(mensagemDeErro(err, "Não consegui mudar a situação da vaga."));
+    } finally {
+      setMudandoVaga(null);
+    }
+  }
+
   async function handleSuggestionReviewed(suggestionId: string) {
     setUpdatingSuggestion(suggestionId);
     setMessage("");
@@ -395,7 +424,13 @@ export function AdminPage() {
       <section>
         {reports.length === 0 && <p className="muted">Nenhuma denúncia recebida ainda.</p>}
         <div className="grid">
-          {reports.map((r) => (
+          {reports.map((r) => {
+            /* O cadastro denunciado, quando é de cadastro. Ligado a uma
+               constante para o TypeScript enxergar que dentro deste ramo
+               ele não é nulo — `professional_id` passou a poder ser vazio
+               na 0121, quando a denúncia é de vaga. */
+            const pid = r.professional_id;
+            return (
             <div
               key={r.id}
               className="card"
@@ -405,9 +440,22 @@ export function AdminPage() {
                   : undefined
               }
             >
+              {/* ── A DENÚNCIA PODE SER DE UMA VAGA — 05/09 ────────────
+                  A dona: "...para que eu veja e tenha a possibilidade de
+                  tirar a vaga ou o usuário do ar."
+
+                  A fila era só de cadastros porque a tabela só sabia de
+                  pessoa (0121 acrescentou `job_id`). E era só de cadastros
+                  também porque NADA no app escrevia nela: os dois botões
+                  de denunciar abriam o WhatsApp, e esta seção dizia
+                  "nenhuma denúncia recebida ainda" desde sempre. */}
               <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
                 <strong>
-                  {r.professional_name ? (
+                  {r.job_id ? (
+                    <Link to={`/vaga-aberta/${r.job_id}`}>
+                      {r.job_title ?? "Vaga removida"}
+                    </Link>
+                  ) : r.professional_name ? (
                     <Link to={`/profissional/${r.professional_id}`}>{r.professional_name}</Link>
                   ) : (
                     "Cadastro removido"
@@ -424,6 +472,14 @@ export function AdminPage() {
                   {STATUS_LABEL[r.status]}
                 </span>
               </div>
+              {/* De quem é a vaga: sem isso a denúncia diz "Repositor de
+                  mercadorias" e não diz de qual empresa — e é a empresa
+                  que decide se o caso é um engano ou uma reincidência. */}
+              {r.job_id && r.job_company && (
+                <p className="muted" style={{ margin: "4px 0 0", fontSize: "0.9rem" }}>
+                  Vaga de {r.job_company}
+                </p>
+              )}
               <p style={{ margin: "8px 0 4px" }}>
                 <strong>Motivo:</strong> {r.reason}
               </p>
@@ -450,7 +506,39 @@ export function AdminPage() {
                 </div>
               )}
 
-              {r.professional_suspended ? (
+              {/* Denúncia de VAGA: tirar do ar e pôr de volta, no mesmo
+                  cartão. Não há "bloquear novo cadastro" aqui — o
+                  equivalente para vaga seria bloquear a empresa, que é
+                  decisão de outro tamanho e tem tela própria. */}
+              {r.job_id ? (
+                <div style={{ marginTop: 10, borderTop: "1px solid var(--color-border)", paddingTop: 10 }}>
+                  {r.job_status === "active" ? (
+                    <button
+                      className="btn btn-outline"
+                      disabled={mudandoVaga === r.job_id}
+                      onClick={() => handleVaga(r.job_id!, false)}
+                    >
+                      {mudandoVaga === r.job_id ? "Tirando…" : "Tirar a vaga do ar"}
+                    </button>
+                  ) : (
+                    <>
+                      <span className="badge" style={{ color: "var(--color-primary)", borderColor: "var(--color-primary)" }}>
+                        {r.job_status === null ? "Vaga removida" : "Vaga fora do ar"}
+                      </span>{" "}
+                      {r.job_status !== null && (
+                        <button
+                          className="btn btn-outline"
+                          style={{ marginTop: 8 }}
+                          disabled={mudandoVaga === r.job_id}
+                          onClick={() => handleVaga(r.job_id!, true)}
+                        >
+                          Colocar a vaga de volta
+                        </button>
+                      )}
+                    </>
+                  )}
+                </div>
+              ) : !pid ? null : r.professional_suspended ? (
                 <div style={{ marginTop: 10 }}>
                   <span className="badge" style={{ color: "var(--color-primary)", borderColor: "var(--color-primary)" }}>
                     Cadastro fora do ar
@@ -458,8 +546,8 @@ export function AdminPage() {
                   <button
                     className="btn btn-outline"
                     style={{ marginTop: 8 }}
-                    disabled={suspending === r.professional_id}
-                    onClick={() => handleReactivate(r.professional_id)}
+                    disabled={suspending === pid}
+                    onClick={() => handleReactivate(pid)}
                   >
                     Reativar cadastro
                   </button>
@@ -472,21 +560,21 @@ export function AdminPage() {
                   <span className="ei-campo-rotulo">Motivo para tirar o cadastro do ar</span>
                   <input
                     aria-label="Motivo para tirar o cadastro do ar"
-                    value={reasonDraft[r.professional_id] ?? ""}
-                    onChange={(e) => setReasonDraft({ ...reasonDraft, [r.professional_id]: e.target.value })}
+                    value={reasonDraft[pid] ?? ""}
+                    onChange={(e) => setReasonDraft({ ...reasonDraft, [pid]: e.target.value })}
                   />
                   <div style={{ display: "flex", gap: 10, marginTop: 8, flexWrap: "wrap" }}>
                     <button
                       className="btn btn-outline"
-                      disabled={suspending === r.professional_id}
-                      onClick={() => handleSuspend(r.professional_id, false)}
+                      disabled={suspending === pid}
+                      onClick={() => handleSuspend(pid, false)}
                     >
                       Tirar cadastro do ar
                     </button>
                     <button
                       className="btn btn-primary"
-                      disabled={suspending === r.professional_id}
-                      onClick={() => handleSuspend(r.professional_id, true)}
+                      disabled={suspending === pid}
+                      onClick={() => handleSuspend(pid, true)}
                     >
                       Tirar do ar e bloquear novo cadastro
                     </button>
@@ -494,7 +582,8 @@ export function AdminPage() {
                 </div>
               )}
             </div>
-          ))}
+            );
+          })}
         </div>
       </section>
       )}

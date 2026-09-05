@@ -469,6 +469,58 @@ const TABELAS: Record<string, Linha[]> = {
 
   job_listings: VAGAS,
 
+  /* ── DUAS DENÚNCIAS, PARA O PAINEL TER O QUE MOSTRAR — 05/09 ────────
+     A dona: "a situação de denunciar o perfil deve ser direcionado ao
+     painel administrativo... para que eu veja e tenha a possibilidade de
+     tirar a vaga ou o usuário do ar."
+
+     Uma de VAGA e uma de CADASTRO, porque os dois cartões da seção são
+     diferentes: o da vaga tem "tirar a vaga do ar" e o do cadastro tem o
+     campo de motivo e o bloqueio de documento. Sem estas linhas, o painel
+     abria dizendo "nenhuma denúncia recebida ainda" e nada daquela tela
+     era exercitado.
+
+     Os objetos aninhados (`professionals`, `job_listings`) vêm PRONTOS: o
+     falso não faz junção, e é assim que o PostgREST devolveria. */
+  reports: [
+    {
+      id: "den-1",
+      professional_id: null,
+      job_id: VAGAS[0]?.id ?? "vaga-0",
+      reporter_id: DONO_FALSO,
+      reason: "Pediram dinheiro para me candidatar",
+      details: "Pediram 50 reais de taxa de cadastro pelo WhatsApp.",
+      status: "pending",
+      created_at: emDias(-1),
+      professionals: null,
+      /* Um GETTER, e não um objeto congelado: o falso não faz junção, e
+         uma cópia parada faria o painel continuar dizendo "no ar" depois
+         de o botão tirar a vaga do ar — o teste passaria no "tirei" e
+         nunca no "voltou". Lido a cada vez, ele reflete a vaga de
+         verdade, que é o que o PostgREST devolveria. */
+      get job_listings() {
+        const v = VAGAS[0];
+        return {
+          title: v?.title ?? "Vaga",
+          status: v?.status ?? "active",
+          companies: { company_name: "Padaria Pão de Minas" },
+        };
+      },
+    },
+    {
+      id: "den-2",
+      professional_id: "pro-3",
+      job_id: null,
+      reporter_id: DONO_FALSO,
+      reason: "Perfil falso ou se passando por outra pessoa",
+      details: "Usou a foto de outra pessoa.",
+      status: "pending",
+      created_at: emDias(-3),
+      professionals: { name: "Pessoa Três", suspended: false },
+      job_listings: null,
+    },
+  ],
+
   /* O que o perfil público passou a mostrar em 04/09 (a dona: "ao clicar
      no pedido de um candidato tem que ter todas as informações que ele
      preencheu"). Sem estas três tabelas no falso, a tela abria com as

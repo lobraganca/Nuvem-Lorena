@@ -4556,6 +4556,17 @@
   }
 }
 
+/* Uma coluna, quando cada opção é uma frase — os motivos da denúncia.
+   Em duas colunas, "Perfil falso ou se passando por outra pessoa" quebra
+   em quatro linhas dentro de uma pastilha estreita e vira ilegível. */
+.ei .ei-opcoes-lista { grid-template-columns: 1fr; gap: 8px; }
+.ei .ei-opcoes-lista .ei-opcao-botao {
+  justify-content: flex-start;
+  text-align: left;
+  border-radius: var(--ei-raio);
+  padding: 10px 14px;
+}
+
 .ei .ei-opcao-botao {
   display: flex;
   align-items: center;

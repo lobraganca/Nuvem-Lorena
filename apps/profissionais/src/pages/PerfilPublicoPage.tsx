@@ -14,7 +14,6 @@ import type { JobListing } from "../types/domain";
 import { normalizar, ESCADA_ESCOLARIDADE } from "../lib/compatibilidade";
 import { BotaoFavorito } from "../components/ei/BotaoFavorito";
 import { lerFavoritos } from "../lib/favoritos";
-import { SUPORTE_WHATSAPP } from "../config";
 
 /* ── O PERFIL INTEIRO, E NÃO UM RESUMO — 04/09 ─────────────────────────
    A dona: "ao clicar no pedido de um candidato tem que ter todas as
@@ -736,16 +735,15 @@ export function PerfilPublicoPage() {
             sempre veio contratar, e um botão vermelho de denúncia no alto
             trataria toda pessoa cadastrada como suspeita. */}
         <div className="ei-margem" style={{ marginTop: 30, marginBottom: 8 }}>
-          <a
-            className="ei-btn ei-btn-texto ei-denunciar"
-            href={`https://wa.me/${SUPORTE_WHATSAPP}?text=${encodeURIComponent(
-              `Quero denunciar este cadastro do Ei Emprego:\n\n${p.name}\n${window.location.origin}/#/profissional/${p.id}\n\nO que aconteceu: `
-            )}`}
-            target="_blank"
-            rel="noopener noreferrer"
-          >
+          {/* ── VAI PARA O PAINEL, E NÃO PARA O WHATSAPP — 05/09 ─────
+              A dona: "a situação de denunciar o perfil deve ser
+              direcionado ao painel administrativo, com a solicitação e
+              descrição para que eu veja e tenha a possibilidade de tirar a
+              vaga ou o usuário do ar." Ver o comentário longo em
+              `DenunciarPage`. */}
+          <Link className="ei-btn ei-btn-texto ei-denunciar" to={`/denunciar/perfil/${p.id}`}>
             Denunciar este cadastro
-          </a>
+          </Link>
         </div>
       </div>
     </div>

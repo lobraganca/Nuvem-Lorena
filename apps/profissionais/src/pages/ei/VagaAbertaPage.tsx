@@ -1,4 +1,3 @@
-import { SUPORTE_WHATSAPP } from "../../config";
 import { useEffect, useState } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import { useAuth } from "../../lib/useAuth";
@@ -576,26 +575,35 @@ export function VagaAbertaPage() {
             está aqui por causa da loja: sem denúncia, a administração só
             descobre a vaga falsa quando alguém já foi enganado.
 
-            Vai para o WhatsApp do suporte com a vaga já identificada: uma
-            tela de formulário com campo de motivo seria mais bonita e
-            receberia menos denúncias, porque exige mais de quem já está
-            desconfiado e com pressa. */}
+            ── A DENÚNCIA PASSA A CHEGAR NO PAINEL — 05/09 ─────────────
+            A dona: "a situação de denunciar o perfil deve ser direcionado
+            ao painel administrativo, com a solicitação e descrição para
+            que eu veja e tenha a possibilidade de tirar a vaga ou o
+            usuário do ar."
+
+            Isto aqui ia para o WHATSAPP com um texto pronto. O raciocínio
+            de antes está escrito acima e não era errado — formulário exige
+            mais de quem está desconfiado e com pressa. Só que uma conversa
+            não é uma fila: não tem estado, some no meio das outras
+            mensagens, e não tem o botão de tirar do ar do lado do caso.
+            A tabela e a seção "Denúncias" do painel existem desde a 0007 e
+            a 0008; faltava o app escrever nelas.
+
+            O custo do formulário foi pago onde dava: motivo em botões (um
+            toque), descrição curta, e o WhatsApp continua ali como saída
+            para quem não confirmou o número. */}
         <div className="ei-aviso-golpe ei-margem">
           <p className="ei-aviso-golpe-texto">
             <strong>O Ei Emprego nunca cobra nada para você se candidatar.</strong>{" "}
             Nenhuma empresa séria pede dinheiro por taxa de cadastro, exame ou
             uniforme antes de contratar. Se pedirem, não pague — e nos avise.
           </p>
-          <a
+          <Link
             className="ei-btn ei-btn-texto ei-aviso-golpe-botao"
-            href={`https://wa.me/${SUPORTE_WHATSAPP}?text=${encodeURIComponent(
-              `Quero denunciar esta vaga do Ei Emprego:\n\n"${vaga.title}"\n${window.location.origin}/#/vaga-aberta/${vaga.id}\n\nO que aconteceu: `
-            )}`}
-            target="_blank"
-            rel="noopener noreferrer"
+            to={`/denunciar/vaga/${vaga.id}`}
           >
             Denunciar esta vaga
-          </a>
+          </Link>
         </div>
       </div>
     </div>

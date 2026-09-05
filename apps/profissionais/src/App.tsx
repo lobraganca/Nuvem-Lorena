@@ -60,6 +60,7 @@ const EmpresaPublicaPage = lazy(importarPagina(() => import("./pages/ei/EmpresaP
 const FavoritosPage = lazy(importarPagina(() => import("./pages/ei/FavoritosPage").then((m) => ({ default: m.FavoritosPage }))));
 const PlanosEmpresaPage = lazy(importarPagina(() => import("./pages/PlanosEmpresaPage").then((m) => ({ default: m.PlanosEmpresaPage }))));
 const ReembolsoPage = lazy(importarPagina(() => import("./pages/ei/ReembolsoPage").then((m) => ({ default: m.ReembolsoPage }))));
+const DenunciarPage = lazy(importarPagina(() => import("./pages/ei/DenunciarPage").then((m) => ({ default: m.DenunciarPage }))));
 const MeuDesempenhoPage = lazy(importarPagina(() => import("./pages/ei/MeuDesempenhoPage").then((m) => ({ default: m.MeuDesempenhoPage }))));
 const DestaquePage = lazy(importarPagina(() => import("./pages/ei/DestaquePage").then((m) => ({ default: m.DestaquePage }))));
 const OndasDaVagaPage = lazy(importarPagina(() => import("./pages/OndasDaVagaPage").then((m) => ({ default: m.OndasDaVagaPage }))));
@@ -412,6 +413,13 @@ export default function App() {
             quer desfazer uma compra não deve ter de pedir isso no meio de
             uma tela que mostra três preços. */}
         <Route path="/reembolso" element={<ReembolsoPage />} />
+        {/* A denúncia de uma vaga ou de um cadastro. Ela vai para a seção
+            "Denúncias" do painel, com motivo e descrição — antes ia para o
+            WhatsApp, e lá não havia fila nem botão de tirar do ar. Ver
+            DenunciarPage. Sem `SoDesteLado`: quem contrata denuncia um
+            cadastro e quem procura emprego denuncia uma vaga, e a mesma
+            conta pode ser os dois lados. */}
+        <Route path="/denunciar/:tipo/:id" element={<DenunciarPage />} />
         {/* Os números de quem procura trabalho (ver MeuDesempenhoPage). */}
         <Route path="/meu-desempenho" element={
           <SoDesteLado lado="professional"><MeuDesempenhoPage /></SoDesteLado>

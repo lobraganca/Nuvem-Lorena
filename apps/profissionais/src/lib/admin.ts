@@ -9,7 +9,10 @@ export type ReportStatus = "pending" | "reviewed" | "dismissed";
 
 export interface ReportWithProfessional {
   id: string;
-  professional_id: string;
+  /* Vazio quando a denúncia é de uma VAGA (0121). Era obrigatório enquanto
+     só se denunciava pessoa. */
+  professional_id: string | null;
+  job_id: string | null;
   reporter_id: string | null;
   reason: string;
   details: string | null;
@@ -17,6 +20,11 @@ export interface ReportWithProfessional {
   created_at: string;
   professional_name: string | null;
   professional_suspended: boolean;
+  /* Da vaga denunciada, para o painel mostrar de que vaga se trata e poder
+     tirá-la do ar sem sair da tela. */
+  job_title: string | null;
+  job_status: string | null;
+  job_company: string | null;
 }
 
 /**
@@ -64,19 +72,78 @@ export async function listReports(): Promise<ReportWithProfessional[]> {
      ele estava e some: uma lista de denúncias vazia por causa de erro é
      exatamente a mentira calma que este projeto combateu em todo lugar.
      Falhando, a tela mostra o erro. */
-  const data = await lerTudo(() =>
-    client.from("reports").select("*, professionals(name, suspended)").order("created_at", { ascending: false })
-  );
+  /* ── A VAGA DENUNCIADA VEM JUNTO — 05/09 ─────────────────────────────
+     A dona: "...para que eu veja e tenha a possibilidade de tirar a vaga
+     ou o usuário do ar."
+
+     Ler a vaga aqui, no mesmo pedido, e não numa consulta por linha: o
+     painel mostra a fila inteira de uma vez, e uma consulta por denúncia
+     transformaria vinte denúncias em vinte idas ao banco.
+
+     Se o banco ainda não tem a 0121, a junção da vaga é recusada e a
+     leitura é refeita SEM ela — mesma tolerância de `colunasNovas.ts`.
+     Sem isso, aplicar o código antes da SQL apagaria a fila inteira de
+     denúncias da tela, inclusive as de pessoa, que já funcionavam. */
+  const comVaga =
+    "*, professionals(name, suspended), job_listings(title, status, companies(company_name))";
+  let data: Record<string, unknown>[];
+  try {
+    data = await lerTudo(() =>
+      client.from("reports").select(comVaga).order("created_at", { ascending: false })
+    );
+  } catch (err) {
+    const e = err as { code?: string; message?: string };
+    const naoConhece =
+      e?.code === "42703" ||
+      e?.code === "PGRST204" ||
+      e?.code === "PGRST200" ||
+      /job_listings|job_id/.test(e?.message ?? "");
+    if (!naoConhece) throw err;
+    console.warn("[admin] a 0121 ainda não foi aplicada: as denúncias de vaga não aparecem.");
+    data = await lerTudo(() =>
+      client
+        .from("reports")
+        .select("*, professionals(name, suspended)")
+        .order("created_at", { ascending: false })
+    );
+  }
+
   return data.map((row) => {
-    const { professionals, ...rest } = row as typeof row & {
+    const { professionals, job_listings, ...rest } = row as typeof row & {
       professionals: { name: string; suspended: boolean } | null;
+      job_listings:
+        | { title: string; status: string; companies: { company_name: string } | null }
+        | null;
     };
     return {
       ...rest,
+      job_id: (rest as { job_id?: string | null }).job_id ?? null,
       professional_name: professionals?.name ?? null,
       professional_suspended: professionals?.suspended ?? false,
-    };
+      job_title: job_listings?.title ?? null,
+      job_status: job_listings?.status ?? null,
+      job_company: job_listings?.companies?.company_name ?? null,
+    } as ReportWithProfessional;
   });
+}
+
+/**
+ * Tira a vaga do ar, ou põe de volta.
+ *
+ * `closed` e não uma coluna nova: `job_listings.status` já existe com os
+ * três valores desde sempre, e a administração já pode mudá-lo desde a
+ * 0112. E desfaz — a 0112 escreveu, com todas as letras, que apagar vaga
+ * não é poder da administração justamente porque leva junto as
+ * candidaturas de outras pessoas.
+ */
+export async function mudarSituacaoDaVaga(jobId: string, noAr: boolean): Promise<void> {
+  const client = supabase();
+  if (!client) throw new Error("Banco de dados não configurado.");
+  const { error } = await client
+    .from("job_listings")
+    .update({ status: noAr ? "active" : "closed" })
+    .eq("id", jobId);
+  if (error) throw error;
 }
 
 export async function updateReportStatus(reportId: string, status: ReportStatus): Promise<void> {
