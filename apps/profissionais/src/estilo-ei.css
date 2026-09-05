@@ -6344,3 +6344,175 @@
   margin-top: 2px;
 }
 .ei .ei-destaque-oferta .ei-btn { margin-top: 10px; }
+
+/* ═══════════════════════════════════════════════════════════════════════
+   OS PLANOS DA EMPRESA, EM COLUNA — 05/09
+   ═══════════════════════════════════════════════════════════════════════
+   A dona: "a tela dos planos está muito confusa, faça mais clean e
+   chamativa."
+
+   O que havia: `.ei-planos`, um carrossel horizontal com cartões de 82%
+   da largura. Aparecia um plano e a beirada do próximo. Comparar preço é
+   o serviço desta tela, e rolagem lateral esconde exatamente o que se
+   está comparando — além de quase ninguém descobrir sozinho que se
+   arrasta.
+
+   Estas classes são NOVAS de propósito, e não um conserto das antigas:
+   `.ei-plano-nome` está definido em TRÊS lugares deste arquivo e
+   `.ei-plano-linha` é usada também na tela da vaga. Mexer nelas
+   consertaria uma tela e mudaria outras sem aviso. As antigas continuam
+   onde estão, servindo quem ainda as usa. */
+.ei .ei-ofertas {
+  display: grid;
+  gap: 12px;
+  padding: 0 12px;
+  margin-top: 18px;
+}
+
+.ei .ei-oferta {
+  display: grid;
+  gap: 6px;
+  padding: 16px 16px 18px;
+  background: var(--ei-papel);
+  border: 1px solid var(--ei-fio);
+  border-radius: 18px;
+}
+
+/* Título e preço na mesma linha, e o preço encostado à direita: assim os
+   preços ficam alinhados numa coluna só, de cima a baixo da tela, e a
+   comparação acontece com o olho parado. Era isso que o carrossel
+   impedia. */
+.ei .ei-oferta-topo {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+/* O QUE MUDA entre um plano e outro — "3 vagas abertas ao mesmo tempo".
+   Estava escondido como primeiro item de uma lista com ✓, no tamanho de
+   letra do resto. É a única diferença real entre os cinco pagos, então é
+   o que o cartão diz primeiro e maior. */
+.ei .ei-oferta-titulo {
+  font-size: 1.02rem;
+  font-weight: 600;
+  line-height: 1.3;
+  color: var(--ei-tinta);
+}
+
+.ei .ei-oferta-preco {
+  font-size: 1.3rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  white-space: nowrap;
+  /* Algarismo de largura fixa: sem isto os preços em coluna ficam com as
+     vírgulas desalinhadas, e aí param de se comparar de relance. */
+  font-variant-numeric: tabular-nums;
+  color: var(--ei-tinta);
+}
+
+/* "Sob consulta" não é número: no mesmo corpo de um preço ele finge ser
+   um, e ainda quebra em duas linhas no celular. */
+.ei .ei-oferta-preco-consulta {
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--ei-tinta-fraca);
+}
+
+.ei .ei-oferta-ciclo {
+  font-size: 0.78rem;
+  font-weight: 500;
+  color: var(--ei-tinta-fraca);
+  margin-left: 2px;
+}
+
+/* O nome do plano virou legenda. "Ei Onda" não diz o que o plano faz —
+   quem escolhe escolhe por vagas e por preço —, mas continua ali porque
+   é o nome que vai aparecer na conversa do WhatsApp e na conta. */
+.ei .ei-oferta-nome {
+  font-size: 0.8rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--ei-tinta-fraca);
+}
+
+.ei .ei-oferta-nota {
+  font-size: 0.84rem;
+  line-height: 1.4;
+  color: var(--ei-tinta-fraca);
+}
+
+.ei .ei-oferta > .ei-btn { margin-top: 8px; }
+
+/* O destaque: fio da cor da ação em volta e o selo por cima. Fundo
+   colorido no cartão inteiro deixaria o texto do preço competindo com o
+   próprio destaque — o fio marca sem atrapalhar a leitura. */
+.ei .ei-oferta-destaque {
+  border-color: var(--ei-acao);
+  /* O fio grosso é feito com sombra, e NÃO com `border-width: 2px`.
+     Com 2px o conteúdo deste cartão fica 1px mais estreito que o dos
+     outros, e o preço dele sai 1px fora da coluna dos demais — medido:
+     346, 345, 346, 346… Numa tela cujo serviço é comparar preços em
+     coluna, é justamente o alinhamento que não pode ceder. */
+  box-shadow: 0 0 0 1px var(--ei-acao);
+  padding-top: 20px;
+  position: relative;
+}
+
+.ei .ei-oferta-selo {
+  position: absolute;
+  top: -10px;
+  left: 14px;
+  padding: 3px 10px;
+  border-radius: 999px;
+  background: var(--ei-acao);
+  color: var(--ei-sobre-acento, #fff);
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+/* O de graça é o chão da tela, não uma oferta: fundo rebaixado e sem fio
+   forte, para ele não disputar atenção com o que se veio comprar. */
+.ei .ei-oferta-gratis {
+  background: var(--ei-afunda);
+  border-style: dashed;
+}
+
+/* ── A CHAVINHA DE COMO PAGAR ────────────────────────────────────────
+   Eram dois cartões grandes com título de seção. Como o preço é o mesmo
+   nos dois ciclos, esta é a escolha mais barata da tela — e ocupava o
+   maior espaço dela. Agora tem o tamanho da importância que tem. */
+.ei .ei-comopagar { margin-top: 16px; }
+
+.ei .ei-chave {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 4px;
+  padding: 4px;
+  background: var(--ei-afunda);
+  border: 1px solid var(--ei-fio);
+  border-radius: 999px;
+}
+
+.ei .ei-chave-opcao {
+  border: 0;
+  background: transparent;
+  border-radius: 999px;
+  padding: 9px 8px;
+  min-height: 0;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--ei-tinta-fraca);
+  cursor: pointer;
+}
+
+.ei .ei-chave-opcao[aria-pressed="true"] {
+  background: var(--ei-papel);
+  color: var(--ei-tinta);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12);
+}
+
+.ei .ei-comopagar-nota { margin-top: 8px; }

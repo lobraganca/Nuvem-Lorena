@@ -132,7 +132,10 @@ export function PlanosEmpresaPage() {
             baixo. Era "Dá para começar de graça e assinar depois, quando
             precisar publicar uma vaga." — duas linhas no celular. */}
         {antesDoCadastro && (
-          <p className="ei-apoio ei-margem">Comece de graça. Assine quando for publicar.</p>
+          <p className="ei-apoio ei-margem">
+            Escolher agora não cobra nada — você paga na hora de publicar a
+            primeira vaga.
+          </p>
         )}
 
         {/* ── O TOPO DESTA TELA ESTAVA COM QUATRO FAIXAS ───────────────
@@ -165,134 +168,152 @@ export function PlanosEmpresaPage() {
             que faz DENTRO dela, ao mesmo tempo. E o preço igual está
             escrito com todas as letras, em vez de deixar a pessoa
             procurando a pegadinha. */}
+        {/* ── COMO PAGAR VIROU UMA CHAVINHA — 05/09 ────────────────────
+            A dona, de novo: "a tela dos planos está muito confusa, faça
+            mais clean e chamativa."
+
+            Isto eram DOIS CARTÕES GRANDES, com título de seção em cima e
+            uma linha de explicação embaixo — quase meia tela perguntando
+            "como você prefere pagar?" ANTES de a pessoa ter visto um
+            preço sequer. Perguntar a forma de pagamento antes de mostrar
+            o que se compra é a inversão que fazia a tela parecer um
+            formulário.
+
+            E o peso visual mentia sobre a importância: o preço é
+            EXATAMENTE o mesmo nos dois (`precoDoPlano` não olha o ciclo),
+            então esta é a escolha mais barata da tela, ocupando o maior
+            espaço dela.
+
+            Agora é uma chavinha de duas palavras, e a linha embaixo diz
+            as duas coisas AO MESMO TEMPO — sem obrigar a tocar numa, ler,
+            tocar na outra e guardar as duas frases na cabeça, que era a
+            queixa da versão anterior. */}
         {!antesDoCadastro && (
-          <div className="ei-margem" style={{ marginTop: 18 }}>
-            <h2 className="ei-secao" style={{ margin: "0 0 10px", padding: 0 }}>
-              Como você prefere pagar?
-            </h2>
-            <div className="ei-ciclos" role="group" aria-label="Como pagar">
+          <div className="ei-margem ei-comopagar">
+            <div className="ei-chave" role="group" aria-label="Como pagar">
               <button
                 type="button"
-                className="ei-ciclo"
+                className="ei-chave-opcao"
                 aria-pressed={ciclo === "recorrente"}
                 onClick={() => setCiclo("recorrente")}
               >
-                <span className="ei-ciclo-nome">Todo mês</span>
-                <span className="ei-ciclo-nota">
-                  Renova sozinho, você não precisa lembrar. Cancela quando
-                  quiser, aqui no app.
-                </span>
+                Todo mês
               </button>
               <button
                 type="button"
-                className="ei-ciclo"
+                className="ei-chave-opcao"
                 aria-pressed={ciclo === "avulso"}
                 onClick={() => setCiclo("avulso")}
               >
-                <span className="ei-ciclo-nome">Uma vez só</span>
-                <span className="ei-ciclo-nota">
-                  Vale {DIAS_ANUNCIO_VAGA} dias e acaba. Nunca cobra de novo.
-                </span>
+                Uma vez só
               </button>
             </div>
-            <p className="ei-apoio" style={{ marginTop: 8 }}>
-              O preço é o mesmo nos dois. Muda só se cobra de novo no mês
-              seguinte ou não.
+            <p className="ei-apoio ei-comopagar-nota">
+              Mesmo preço nos dois: <strong>todo mês</strong> renova sozinho e
+              cancela quando quiser; <strong>uma vez só</strong> vale{" "}
+              {DIAS_ANUNCIO_VAGA} dias e nunca cobra de novo.
             </p>
           </div>
         )}
 
-        <div className="ei-planos">
-          {/* O de graça vem primeiro, e não por modéstia: ele é o degrau em
-              que a empresa já está. Ver os pagos depois dele é comparar com
-              o que ela tem hoje, em vez de escolher no escuro. */}
-          <section className="ei-plano-cartao">
-            <div className="ei-plano-linha">
-              <span className="ei-plano-nome">{PLANO_GRATUITO.nome}</span>
-              <span className="ei-plano-preco">R$ 0</span>
-            </div>
-            <ul className="ei-plano-lista">
-              {PLANO_GRATUITO.beneficios.map((b) => (
-                <li key={b}>{b}</li>
-              ))}
-            </ul>
-            <p className="ei-plano-resumo">{PLANO_GRATUITO.limite}</p>
-            {antesDoCadastro ? (
-              <button
-                type="button"
-                className="ei-btn ei-btn-cheio ei-btn-largo ei-btn-alto"
-                onClick={() => seguir("gratuito")}
-              >
-                Aderir e ver o banco de talentos
-              </button>
-            ) : null}
-            {/* "É o que você já tem, sem assinar nada" saiu: o cartão já se
-                chama Ei Começo, já diz R$ 0 e já diz o que não faz. Três
-                frases para a mesma ideia, num cartão que era o mais alto da
-                fileira. */}
-          </section>
+        {/* ══ A LISTA DEIXOU DE ROLAR PARA O LADO — 05/09 ════════════════
+            A dona: "a tela dos planos está muito confusa, faça mais clean
+            e chamativa."
 
+            O defeito não era enfeite: OS PLANOS ESTAVAM NUM CARROSSEL
+            HORIZONTAL. Seis cartões lado a lado, cada um com 82% da
+            largura da tela — então aparecia um e a beirada do seguinte, e
+            para ver o quinto preço era preciso arrastar quatro vezes.
+
+            Comparar preço é o serviço inteiro desta tela, e rolagem
+            lateral é o formato que mais atrapalha comparar: some da vista
+            justamente aquilo que se está comparando. Pior, quase ninguém
+            descobre sozinho que se arrasta — quem não descobre acha que o
+            app tem dois planos.
+
+            Agora é uma coluna: rola para baixo como o resto do app, os
+            preços ficam alinhados um embaixo do outro e dá para varrer os
+            cinco de relance.
+
+            E CADA CARTÃO PERDEU A LISTA DE VISTOS. Entre os planos pagos
+            só UMA coisa muda de verdade — quantas vagas abertas —, e ela
+            estava escondida como primeiro item de uma lista com ✓, no
+            mesmo tamanho de letra do resto. Agora ela É o cartão: frase
+            grande à esquerda, preço grande à direita, e o que sobra vira
+            uma linha miúda. A informação é a mesma; o que mudou é que ela
+            se lê sem ser procurada. */}
+        <div className="ei-ofertas">
           {ordem.map((chave) => {
             const p = PLANOS_EMPRESA[chave];
             /* ── UM PLANO EM DESTAQUE — 04/09 ─────────────────────────
                 A dona: "precisa ser mais atrativa... preciso fazer uma
                 coisa mais chamativa."
 
-                Seis cartões iguais em fila não são uma oferta: são um
+                Cinco cartões iguais em fila não são uma oferta: são um
                 formulário de escolha múltipla, e quem não sabe a diferença
                 entre 1 e 3 vagas fecha a tela. Um destaque responde "e se
                 eu não souber qual?" sem obrigar ninguém a nada — e é o Ei
                 Onda porque é o primeiro que resolve o caso comum daqui:
                 mais de uma vaga aberta ao mesmo tempo, que é o que uma
-                loja com balcão e cozinha tem. Com cinco planos pagos o
-                destaque passou a valer MAIS, não menos: quanto mais
-                colunas, mais fácil fechar a tela sem escolher. */
+                loja com balcão e cozinha tem.
+
+                Na coluna vertical o selo finalmente APARECE: no carrossel
+                ele nascia fora da tela, junto com o cartão que marcava. */
             const destaque = chave === "tres";
+            /* O primeiro benefício é sempre a contagem de vagas — é o que
+               diferencia um plano do outro, e por isso vira o título. O
+               resto desce para a linha miúda. */
+            const [quantasVagas, ...resto] = p.beneficios;
+            const rotulo = p.sobConsulta ? "Falar com a gente" : `Quero o ${p.nome}`;
             return (
               <section
                 key={chave}
-                className={destaque ? "ei-plano-cartao ei-plano-destaque" : "ei-plano-cartao"}
+                className={destaque ? "ei-oferta ei-oferta-destaque" : "ei-oferta"}
               >
-                {destaque && <span className="ei-plano-selo">Mais escolhido</span>}
-                <div className="ei-plano-linha">
-                  <span className="ei-plano-nome">{p.nome}</span>
+                {destaque && <span className="ei-oferta-selo">Mais escolhido</span>}
+                <div className="ei-oferta-topo">
+                  <span className="ei-oferta-titulo">{quantasVagas}</span>
                   {/* Preço só de quem tem preço. O Ei Infinit é combinado
                       caso a caso: escrever "R$ 0,00" nele prometeria
                       gratuidade, e inventar um número faria a empresa
                       cobrar esse número na conversa. */}
                   {p.sobConsulta ? (
-                    <span className="ei-plano-preco ei-plano-preco-consulta">
+                    <span className="ei-oferta-preco ei-oferta-preco-consulta">
                       Sob consulta
                     </span>
                   ) : (
-                    <span className="ei-plano-preco">
+                    <span className="ei-oferta-preco">
                       {precoDoPlano(chave)}
-                      <span className="ei-plano-ciclo">
-                        {ciclo === "recorrente" ? "/mês" : ` / ${DIAS_ANUNCIO_VAGA} dias`}
+                      <span className="ei-oferta-ciclo">
+                        {ciclo === "recorrente" ? "/mês" : `/${DIAS_ANUNCIO_VAGA} dias`}
                       </span>
                     </span>
                   )}
                 </div>
-                <ul className="ei-plano-lista">
-                  {p.beneficios.map((b) => (
-                    <li key={b}>{b}</li>
-                  ))}
-                </ul>
+                <span className="ei-oferta-nome">{p.nome}</span>
+                {resto.map((b) => (
+                  <span key={b} className="ei-oferta-nota">
+                    {b}
+                  </span>
+                ))}
                 {antesDoCadastro ? (
-                  <>
-                    <button
-                      type="button"
-                      className="ei-btn ei-btn-contorno ei-btn-largo ei-btn-alto"
-                      onClick={() => seguir(chave)}
-                    >
-                      {/* No plano sob consulta o botão não promete escolha:
-                          não há preço para escolher, há uma conversa. */}
-                      {p.sobConsulta ? "Falar com a gente" : `Quero o ${p.nome}`}
-                    </button>
-                    <p className="ei-plano-resumo">
-                      Você escolhe agora e paga na hora de publicar a primeira vaga.
-                    </p>
-                  </>
+                  /* A frase "você escolhe agora e paga na hora de publicar"
+                     ficava aqui, embaixo de CADA cartão — seis vezes na
+                     mesma tela, inclusive embaixo do plano sob consulta
+                     (que não tem preço para pagar) e do de graça (que não
+                     cobra nada). Ela é verdadeira e importante, então
+                     subiu para a linha de apoio do topo, dita uma vez. */
+                  <button
+                    type="button"
+                    className={
+                      destaque
+                        ? "ei-btn ei-btn-cheio ei-btn-largo ei-btn-alto"
+                        : "ei-btn ei-btn-contorno ei-btn-largo ei-btn-alto"
+                    }
+                    onClick={() => seguir(chave)}
+                  >
+                    {rotulo}
+                  </button>
                 ) : (
                   /* ── O BOTÃO DEIXOU DE SER UM BECO — 04/09 ─────────────
                      Ele dizia "Em breve", desligado, e logo abaixo vinha
@@ -304,9 +325,16 @@ export function PlanosEmpresaPage() {
                      Então o botão passa a fazer a única coisa que hoje
                      resolve de verdade: abrir a conversa com o suporte já
                      com o nome do plano escrito. Nada é prometido que não
-                     exista. */
+                     exista.
+
+                     O destaque é o único de fundo cheio: cinco botões
+                     sólidos em coluna brigam entre si e nenhum chama. */
                   <a
-                    className="ei-btn ei-btn-contorno ei-btn-largo ei-btn-alto"
+                    className={
+                      destaque
+                        ? "ei-btn ei-btn-cheio ei-btn-largo ei-btn-alto"
+                        : "ei-btn ei-btn-contorno ei-btn-largo ei-btn-alto"
+                    }
                     href={`https://wa.me/${SUPORTE_WHATSAPP}?text=${encodeURIComponent(
                       p.sobConsulta
                         ? `Olá! Quero saber sobre o plano ${p.nome} do Ei Emprego.`
@@ -315,12 +343,45 @@ export function PlanosEmpresaPage() {
                     target="_blank"
                     rel="noopener noreferrer"
                   >
-                    {p.sobConsulta ? "Falar com a gente" : `Quero o ${p.nome}`}
+                    {rotulo}
                   </a>
                 )}
               </section>
             );
           })}
+
+          {/* ── O DE GRAÇA DESCEU PARA O FIM — 05/09 ─────────────────────
+              Ele vinha PRIMEIRO, e o motivo escrito aqui era bom: "é o
+              degrau em que a empresa já está". Só que numa coluna isso
+              significa abrir a tela de preços e a primeira coisa ser
+              "R$ 0" com três vistos verdes — o cartão mais alto da tela,
+              vendendo o que não precisa ser vendido, empurrando os preços
+              para baixo da dobra.
+
+              Ele continua inteiro, com o mesmo botão de antes do
+              cadastro. Só parou de disputar o lugar com o que a tela veio
+              oferecer: quem quer o de graça não precisa ser convencido —
+              é onde ela já está. */}
+          <section className="ei-oferta ei-oferta-gratis">
+            <div className="ei-oferta-topo">
+              <span className="ei-oferta-titulo">Sem plano, de graça</span>
+              <span className="ei-oferta-preco">R$ 0</span>
+            </div>
+            <span className="ei-oferta-nome">{PLANO_GRATUITO.nome}</span>
+            <span className="ei-oferta-nota">
+              {PLANO_GRATUITO.beneficios.join(" · ")}
+            </span>
+            <span className="ei-oferta-nota">{PLANO_GRATUITO.limite}</span>
+            {antesDoCadastro ? (
+              <button
+                type="button"
+                className="ei-btn ei-btn-contorno ei-btn-largo ei-btn-alto"
+                onClick={() => seguir("gratuito")}
+              >
+                Aderir e ver o banco de talentos
+              </button>
+            ) : null}
+          </section>
         </div>
 
         {/* Estes três blocos repetem, em lista, o que os cartões já dizem
