@@ -349,8 +349,25 @@ export function VagaAbertaPage() {
             pessoa costuma decidir isso no primeiro instante — ao ler o
             título e pensar "isso é a cara do fulano". Embaixo, depois de
             toda a ficha, é onde estão as ações de QUEM VAI se candidatar. */}
+        {/* ══ CADA SEÇÃO NUM CARTÃO — 05/09 ══════════════════════════
+            A dona: "essa tela pode ser melhorada. Cada seção ficar em um
+            card. O card da empresa ter mais profundidade. Organizar
+            melhor e ficar mais chamativa e intuitiva."
+
+            O que havia: as fichas do meio (salário, horário, requisitos)
+            já eram cartões brancos, mas o TÍTULO de cada uma flutuava
+            solto no chão cinza acima dele — e o começo da tela, que é o
+            que mais importa (título da vaga, selos, o que a pessoa vai
+            fazer), não era cartão nenhum. O resultado era uma tela em que
+            metade do conteúdo mora numa superfície e a outra metade no
+            fundo, sem regra visível.
+
+            Agora cada seção é um cartão fechado, com o próprio título
+            dentro. Quem rola vê blocos, e não texto solto alternando com
+            caixas. */}
+        <section className="ei-ficha ei-ficha-capa">
         <div className="ei-titulo-com-acao">
-          <h1 className="ei-titulo-g" style={{ paddingTop: 18 }}>
+          <h1 className="ei-titulo-g" style={{ paddingTop: 0 }}>
             {vaga.title}
           </h1>
           <BotaoCompartilhar
@@ -374,7 +391,7 @@ export function VagaAbertaPage() {
           vaga.quantidade_vagas > 1 ||
           vaga.aceita_primeiro_emprego ||
           vaga.vaga_para_pcd) && (
-          <div className="ei-margem ei-chips" style={{ marginTop: 8 }}>
+          <div className="ei-chips" style={{ marginTop: 10 }}>
             {vaga.available_immediately && (
               <span className="ei-selo ei-selo-laranja">Começa logo</span>
             )}
@@ -406,10 +423,11 @@ export function VagaAbertaPage() {
           /* `white-space: pre-line` guarda as quebras que a empresa
              escreveu. Sem isso, uma lista de tarefas escrita em linhas vira
              um parágrafo corrido e ilegível. */
-          <p className="ei-corpo ei-margem" style={{ whiteSpace: "pre-line" }}>
+          <p className="ei-corpo" style={{ whiteSpace: "pre-line", marginBottom: 0 }}>
             {vaga.description}
           </p>
         )}
+        </section>
 
         {/* ── 3. A FICHA, EM SEÇÕES — 04/09 ─────────────────────────
             A dona: "depois todos os dados que a vaga teve de preenchimento
@@ -429,9 +447,8 @@ export function VagaAbertaPage() {
             a empresa parecer descuidada. A exceção é o SALÁRIO, que
             aparece ausente dizendo que está ausente, porque escondê-lo não
             o torna menos ausente: torna a vaga mais suspeita. */}
-        <div className="ei-secao">
-          <h2>Salário e benefícios</h2>
-        </div>
+        <section className="ei-ficha">
+          <h2 className="ei-ficha-titulo">Salário e benefícios</h2>
         <div className="ei-props">
           <Prop rotulo="Salário">
             {salario ?? <span className="ei-apoio">A empresa não informou</span>}
@@ -452,10 +469,10 @@ export function VagaAbertaPage() {
             <Prop rotulo="Também oferece">{vaga.outros_beneficios}</Prop>
           )}
         </div>
+      </section>
 
-        <div className="ei-secao">
-          <h2>Horário e local</h2>
-        </div>
+        <section className="ei-ficha">
+          <h2 className="ei-ficha-titulo">Horário e local</h2>
         <div className="ei-props">
           <Prop rotulo="Contratação">
             {contrato ?? <span className="ei-apoio">A empresa não informou</span>}
@@ -480,10 +497,10 @@ export function VagaAbertaPage() {
             <Prop rotulo="De onde">Só quem mora em {vaga.city}</Prop>
           )}
         </div>
+      </section>
 
-        <div className="ei-secao">
-          <h2>O que a vaga pede</h2>
-        </div>
+        <section className="ei-ficha">
+          <h2 className="ei-ficha-titulo">O que a vaga pede</h2>
         <div className="ei-props">
           <Prop rotulo="Experiência">
             {vaga.required_experience || "Não precisa de experiência"}
@@ -503,6 +520,7 @@ export function VagaAbertaPage() {
             <Prop rotulo="Idiomas">{vaga.idiomas.join(", ")}</Prop>
           )}
         </div>
+      </section>
 
         {/* As datas ficam por último e juntas: são as duas linhas que a
             pessoa confere DEPOIS de decidir que quer — e "responder até" é
@@ -510,9 +528,8 @@ export function VagaAbertaPage() {
             como se perde uma vaga. */}
         {(vaga.data_inicio || vaga.prazo_candidatura) && (
           <>
-            <div className="ei-secao">
-              <h2>Datas</h2>
-            </div>
+            <section className="ei-ficha">
+              <h2 className="ei-ficha-titulo">Datas</h2>
             <div className="ei-props">
               {vaga.data_inicio && (
                 <Prop rotulo="Começa em">
@@ -525,6 +542,7 @@ export function VagaAbertaPage() {
                 </Prop>
               )}
             </div>
+          </section>
           </>
         )}
 
@@ -534,12 +552,12 @@ export function VagaAbertaPage() {
             frase no meio. */}
         {vaga.observacoes?.trim() && (
           <>
-            <div className="ei-secao">
-              <h2>Mais sobre a vaga</h2>
-            </div>
-            <p className="ei-corpo ei-margem" style={{ whiteSpace: "pre-line" }}>
-              {vaga.observacoes}
-            </p>
+            <section className="ei-ficha">
+              <h2 className="ei-ficha-titulo">Mais sobre a vaga</h2>
+              <p className="ei-corpo" style={{ whiteSpace: "pre-line", margin: 0 }}>
+                {vaga.observacoes}
+              </p>
+            </section>
           </>
         )}
 

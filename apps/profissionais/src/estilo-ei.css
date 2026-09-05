@@ -6564,3 +6564,124 @@
   font-size: 0.86rem;
   line-height: 1.5;
 }
+
+/* ═══════════════════════════════════════════════════════════════════════
+   A TELA DA VAGA, EM CARTÕES — 05/09
+   ═══════════════════════════════════════════════════════════════════════
+   A dona: "essa tela pode ser melhorada. Cada seção ficar em um card. O
+   card da empresa ter mais profundidade. Organizar melhor e ficar mais
+   chamativa e intuitiva."
+
+   O que havia: as fichas do meio já eram cartões brancos, mas o TÍTULO
+   de cada uma flutuava solto no chão cinza acima dela — e o começo da
+   tela (título da vaga, selos, o que a pessoa vai fazer), que é o que
+   mais importa, não era cartão nenhum. Metade do conteúdo numa
+   superfície, metade no fundo, sem regra visível.
+
+   Agora cada seção é um cartão fechado com o próprio título dentro. */
+.ei .ei-ficha {
+  margin: 12px;
+  padding: 16px;
+  background: var(--ei-papel);
+  border: 1px solid var(--ei-fio);
+  border-radius: 16px;
+  /* Uma sombra de um degrau só. O cartão precisa parecer apoiado no
+     fundo, não recortado nele — mas quem tem profundidade de verdade
+     nesta tela é o da empresa, logo abaixo. */
+  box-shadow: 0 1px 2px rgba(16, 24, 40, 0.05);
+}
+
+.ei .ei-ficha-titulo {
+  margin: 0 0 10px;
+  padding: 0;
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--ei-tinta-fraca);
+}
+
+/* A ficha já é o cartão: a lista de dentro perde borda, fundo e margem,
+   senão vira cartão dentro de cartão — que é como a tela ficaria com as
+   regras genéricas de `.ei-props` valendo aqui. */
+.ei .ei-ficha .ei-props {
+  margin: 0;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+}
+
+/* A capa — título da vaga, selos e o que a pessoa vai fazer. Sem o
+   rótulo de seção em cima: o título da vaga É o título. */
+.ei .ei-ficha-capa { padding-top: 18px; }
+.ei .ei-ficha-capa .ei-titulo-g { margin-top: 0; }
+
+/* ── A PROFUNDIDADE DO CARTÃO DA EMPRESA ─────────────────────────────
+   Ele era uma FAIXA de ponta a ponta, com um fio embaixo e nada mais:
+   colado no cabeçalho, sem canto, sem sombra, indistinguível do fundo
+   da página. E é o bloco que responde a primeira pergunta de quem abre
+   uma vaga numa cidade pequena — "que empresa é essa?".
+
+   Vira cartão de verdade, e com a sombra mais forte da tela: dois
+   degraus acima das fichas. É o único bloco daqui que se toca (leva ao
+   perfil da empresa), e profundidade é justamente como uma superfície
+   diz "eu levo a algum lugar". */
+.ei .ei-empresa-topo {
+  margin: 12px;
+  padding: 16px;
+  border-bottom: 0;
+  border: 1px solid var(--ei-fio);
+  border-radius: 16px;
+  background: var(--ei-papel);
+  box-shadow: 0 4px 14px rgba(16, 24, 40, 0.10), 0 1px 3px rgba(16, 24, 40, 0.06);
+}
+
+/* Ao apertar ele afunda: a sombra encolhe e o cartão desce 1px. Sem
+   isto, um cartão alto e clicável não dá sinal nenhum de que recebeu o
+   toque. */
+.ei a.ei-empresa-topo:active {
+  transform: translateY(1px);
+  box-shadow: 0 1px 4px rgba(16, 24, 40, 0.10);
+}
+
+/* O texto solto do app anda com 33px de recuo, que é a margem da página
+   (ver "A RÉGUA DO APP"). Dentro de um cartão esse recuo SOMA com o
+   `padding` do cartão, e o parágrafo entra torto em relação aos selos e
+   às linhas da ficha, que não têm recuo nenhum. Aqui o cartão já dá a
+   margem. */
+.ei .ei-ficha .ei-corpo,
+.ei .ei-ficha .ei-apoio,
+.ei .ei-ficha .ei-titulo,
+.ei .ei-ficha .ei-titulo-g,
+.ei .ei-ficha .ei-titulo-com-acao {
+  padding-left: 0;
+  padding-right: 0;
+}
+
+/* O nome da empresa cabia numa linha quando o bloco ia de ponta a ponta.
+   Como cartão ele tem 56px a menos de largura, e "Padaria Pão de Minas"
+   virava "Padaria Pão de Min…" — cortar o nome de quem publica a vaga é
+   o pior lugar para economizar uma linha. */
+.ei .ei-empresa-topo .ei-empresa-topo-nome {
+  white-space: normal;
+  overflow: visible;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+/* ── O "COMPARTILHAR" ENCOSTADO À DIREITA ────────────────────────────
+   A linha do título é `flex-wrap: wrap`: quando o título é longo — e
+   dentro de um cartão a largura é 56px menor —, ele toma a linha
+   inteira e o botão desce para a de baixo. Colado à esquerda, ali
+   embaixo, ele lia como um link solto no meio do cartão.
+
+   `margin-left: auto` resolve os dois casos com uma linha: sozinho na
+   segunda linha ele vai para a direita; na mesma linha do título, o
+   `space-between` já o punha lá. E o título continua com a largura
+   inteira para quebrar, que é o que importa — espremê-lo em 180px para
+   caber o botão ao lado faria "Pedreiro para obra no Centro" virar três
+   linhas estreitas. */
+.ei .ei-titulo-com-acao > .ei-compartilhar { margin-left: auto; }
