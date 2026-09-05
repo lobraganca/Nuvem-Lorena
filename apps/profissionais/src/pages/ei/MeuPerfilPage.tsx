@@ -10,7 +10,7 @@ import { CampoTelefone } from "../../components/ei/CampoTelefone";
 import { Pagina, Callout } from "../../components/ei/Pagina";
 import { AjustarFoto } from "../../components/ei/AjustarFoto";
 import { uploadProfessionalPhoto } from "../../lib/storage";
-import { CATEGORIES, MAX_FUNCOES, DISPONIBILIDADE, PERIODOS_DE_SALARIO } from "../../types/domain";
+import { CATEGORIES, CITIES, DEFAULT_CITY, MAX_FUNCOES, DISPONIBILIDADE, PERIODOS_DE_SALARIO } from "../../types/domain";
 import { sendSuggestion } from "../../lib/suggestions";
 import {
   lerMeuPerfil,
@@ -905,14 +905,46 @@ export function MeuPerfilPage() {
               onChange={(e) => setPerfil((x) => ({ ...x, email: e.target.value }))}
             />
           </div>
-          <div className="ei-campo">
-            <label htmlFor="meu-bairro">Bairro</label>
-            <input
-              id="meu-bairro"
-              value={perfil.neighborhood}
-              maxLength={60}
-              onChange={(e) => setPerfil((x) => ({ ...x, neighborhood: e.target.value }))}
-            />
+          {/* ── A CIDADE, QUE ERA FIXA — 05/09 ──────────────────────
+              A dona: "o app pode não ter só a abrangência em Itabirito."
+
+              Ela era gravada fixa em todo salvamento (`city:
+              DEFAULT_CITY`, em `meuPerfil.ts`): não havia como alguém de
+              Ouro Preto se cadastrar como sendo de Ouro Preto, nem
+              querendo. Do outro lado, o banco de talentos pedia
+              `.eq("city", "Itabirito")`. As duas travas juntas faziam o
+              app ser de uma cidade só por construção, e não por escolha.
+
+              Uma LISTA, e não campo livre: cidade digitada à mão vira
+              "itabirito", "Itabirito ", "Itabirito MG" e "Itabirto" — e
+              aí o filtro de cidade encontra quatro cidades onde há uma.
+              As opções são as de `CITIES`, as mesmas que a empresa usa
+              para publicar vaga: se as duas listas divergirem, existirá
+              vaga numa cidade sem ninguém e gente numa cidade sem vaga. */}
+          <div className="ei-dupla">
+            <div className="ei-campo">
+              <label htmlFor="minha-cidade">Cidade</label>
+              <select
+                id="minha-cidade"
+                value={perfil.city || DEFAULT_CITY}
+                onChange={(e) => setPerfil((x) => ({ ...x, city: e.target.value }))}
+              >
+                {CITIES.map((c) => (
+                  <option key={c} value={c}>
+                    {c}
+                  </option>
+                ))}
+              </select>
+            </div>
+            <div className="ei-campo">
+              <label htmlFor="meu-bairro">Bairro</label>
+              <input
+                id="meu-bairro"
+                value={perfil.neighborhood}
+                maxLength={60}
+                onChange={(e) => setPerfil((x) => ({ ...x, neighborhood: e.target.value }))}
+              />
+            </div>
           </div>
 
           {/* O campo que faltava — a dona: "na tela de procuro um trabalho

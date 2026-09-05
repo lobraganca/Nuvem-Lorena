@@ -5,7 +5,9 @@ import { useTituloDaPagina } from "../lib/tituloDaPagina";
 import { mensagemDeErro } from "../lib/erros";
 import { supabase } from "../lib/supabase";
 import { lerTudo } from "../lib/lerTudo";
-import { DEFAULT_CITY, DEFAULT_UF } from "../types/domain";
+import { lerMeuPerfil } from "../lib/meuPerfil";
+import { cidadeParaMostrar } from "../lib/cidadeEscolhida";
+import { SeletorDeCidade } from "../components/ei/SeletorDeCidade";
 import { Pagina } from "../components/ei/Pagina";
 import { useAuth } from "../lib/useAuth";
 import { useOnboardingStatus } from "../lib/useOnboardingStatus";
@@ -26,6 +28,9 @@ type Disponivel = {
   photo_url: string | null;
   areas_de_interesse: string[];
   especialidade: string | null;
+  /* A cidade veio para o tipo em 05/09, quando a lista deixou de ser só
+     de Itabirito — ver `cidadeEscolhida.ts`. */
+  city: string | null;
   neighborhood: string | null;
   /* ── O QUE OS FILTROS PRECISAM (colunas da 0101 e da 0103) ─────────
      A dona: "fazer filtros na busca do banco de talentos."
@@ -148,6 +153,21 @@ export function ProfissionaisPage() {
   const [params, setParams] = useSearchParams();
   const filtro = params.get("q") ?? "";
   const oficio = params.get("f");
+  /* A cidade da minha própria conta, para ser o padrão de quem nunca
+     escolheu: quem mora em Congonhas deve abrir o app em Congonhas, e não
+     na cidade do app. Falhar aqui não é problema — cai em Itabirito. */
+  const [minhaCidade, setMinhaCidade] = useState<string | null>(null);
+  useEffect(() => {
+    if (!user) return;
+    let vivo = true;
+    lerMeuPerfil(user.id)
+      .then((p) => vivo && setMinhaCidade(p?.city ?? null))
+      .catch(() => {});
+    return () => {
+      vivo = false;
+    };
+  }, [user]);
+  const cidade = cidadeParaMostrar(params.get("c"), minhaCidade);
 
   function mudarParams(mudanca: Record<string, string | null | undefined>) {
     const novo = new URLSearchParams(params);
@@ -213,9 +233,21 @@ export function ProfissionaisPage() {
            E é escrita à mão, uma por uma: coluna nova que ninguém
            acrescente aqui chega indefinida, sem erro para avisar, e o
            filtro dela passa a não achar ninguém. */
-        .select("id, name, photo_url, areas_de_interesse, especialidade, neighborhood, disponivel, aceita_viajar, fim_de_semana, inicio_imediato, cnh, disponibilidade, boosted, boosted_until")
-        .eq("city", DEFAULT_CITY)
-        .eq("uf", DEFAULT_UF)
+        .select("id, name, photo_url, areas_de_interesse, especialidade, city, neighborhood, disponivel, aceita_viajar, fim_de_semana, inicio_imediato, cnh, disponibilidade, boosted, boosted_until")
+        /* ── A CIDADE SAIU DA CONSULTA — 05/09 ────────────────────────
+           A dona: "o app pode não ter só a abrangência em Itabirito...
+           criar um filtro para a pessoa escolher a cidade."
+
+           Aqui estava `.eq("city", "Itabirito").eq("uf", "MG")`. Quem se
+           cadastrou em Ouro Preto existia no banco e NÃO APARECIA PARA
+           NINGUÉM — para sempre, sem nada na tela explicando e sem nada
+           que a pessoa pudesse fazer. O banco de vagas nunca teve essa
+           trava: ele já lia todas as cidades.
+
+           Agora a lista vem inteira e a cidade é um FILTRO DE TELA, como
+           o ofício e o bairro — ver `SeletorDeCidade`. O padrão continua
+           sendo Itabirito para quem nunca escolheu nada, então nada muda
+           para quem já usa o app. */
         /* ── SÓ QUEM FEZ O CADASTRO DO EI ITABIRITO ────────────────────
            A dona: "o app está com dados de pessoas que se cadastraram no
            procurô."
@@ -290,9 +322,24 @@ export function ProfissionaisPage() {
       .map(([b]) => b);
   }, [lista]);
 
+  /* As cidades que existem na lista, com a contagem — o seletor não
+     oferece cidade vazia (ver `SeletorDeCidade`). */
+  const cidades = useMemo(() => {
+    const conta = new Map<string, number>();
+    for (const p of lista) {
+      const c = p.city?.trim();
+      if (c) conta.set(c, (conta.get(c) ?? 0) + 1);
+    }
+    return [...conta.entries()].sort(
+      (a, b) => b[1] - a[1] || a[0].localeCompare(b[0], "pt-BR")
+    );
+  }, [lista]);
+
   const visiveis = useMemo(() => {
     const t = filtro.trim().toLocaleLowerCase("pt-BR");
     return lista.filter((p) => {
+      /* Cidade vazia quer dizer "todas" — ver `TODAS_AS_CIDADES`. */
+      if (cidade && p.city?.trim() !== cidade) return false;
       if (oficio && !(p.areas_de_interesse ?? []).includes(oficio)) return false;
       if (bairro && p.neighborhood?.trim() !== bairro) return false;
 
@@ -326,7 +373,7 @@ export function ProfissionaisPage() {
          quem paga, mas aqui são poucos — e uma lista que muda de ordem a
          cada toque parece defeito. */
       .sort((a, b) => Number(destaqueValendo(b)) - Number(destaqueValendo(a)));
-  }, [lista, filtro, oficio, bairro, ligados]);
+  }, [lista, filtro, cidade, oficio, bairro, ligados]);
 
   /* As pagas primeiro, e em lista própria — ver o comentário da área de
      destaque, mais abaixo. `visiveis` já vem ordenada com elas na frente. */
@@ -517,6 +564,14 @@ export function ProfissionaisPage() {
             filtros ligados: sem ele, quem esquece um filtro marcado vê
             uma tela vazia e conclui que não há ninguém na cidade. */}
         <div className="ei-margem ei-linha-filtros">
+          {/* A cidade vem PRIMEIRO na linha: ela é o recorte maior, e os
+              outros filtros só fazem sentido dentro dela. */}
+          <SeletorDeCidade
+            cidade={cidade}
+            cidades={cidades}
+            aoEscolher={(c) => mudarParams({ c: c || null })}
+            rotuloDeTodas="Todas as cidades"
+          />
           <button
             type="button"
             className={quantosFiltros ? "ei-chip ei-chip-filtro ativo" : "ei-chip ei-chip-filtro"}

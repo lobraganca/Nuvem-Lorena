@@ -3,7 +3,12 @@ import { Link, useNavigate, useParams } from "react-router-dom";
 import { useAuth } from "../../lib/useAuth";
 import { useTituloDaPagina } from "../../lib/tituloDaPagina";
 import { obterVaga } from "../../lib/company";
-import { responderVaga } from "../../lib/minhasVagas";
+import {
+  CANDIDATURAS_POR_DIA,
+  podeSeCandidatar,
+  responderVaga,
+} from "../../lib/minhasVagas";
+import { BottomSheet } from "../../components/BottomSheet";
 import { lerMeuPerfil } from "../../lib/meuPerfil";
 import { supabase } from "../../lib/supabase";
 import { mensagemDeErro } from "../../lib/erros";
@@ -98,6 +103,8 @@ export function VagaAbertaPage() {
   const [carregando, setCarregando] = useState(true);
   const [enviando, setEnviando] = useState(false);
   const [erro, setErro] = useState("");
+  /* Bateu o teto de candidaturas do dia. Ver `podeSeCandidatar`. */
+  const [lotado, setLotado] = useState(false);
 
   useEffect(() => {
     if (!id) {
@@ -225,6 +232,17 @@ export function VagaAbertaPage() {
     if (quero && cadastro !== "ok") {
       navegar("/painel?motivo=candidatura");
       return;
+    }
+
+    /* O mesmo teto do baralho — ver `podeSeCandidatar`. As duas telas
+       respondem vaga, e uma trava que só existe numa delas é uma trava
+       que não existe: bastaria abrir a vaga inteira para passar por cima. */
+    if (quero) {
+      const t = await podeSeCandidatar(id, user.id);
+      if (!t.pode) {
+        setLotado(true);
+        return;
+      }
     }
 
     setEnviando(true);
@@ -592,6 +610,39 @@ export function VagaAbertaPage() {
             O custo do formulário foi pago onde dava: motivo em botões (um
             toque), descrição curta, e o WhatsApp continua ali como saída
             para quem não confirmou o número. */}
+        {/* A mesma folha do baralho, com o mesmo tom: "por hoje, chega" e
+            não "você excedeu o limite". Quem procura emprego já ouve "não"
+            o dia inteiro. */}
+        {lotado && (
+          <BottomSheet title="Por hoje, chega" onClose={() => setLotado(false)}>
+            <p className="ei-corpo" style={{ marginTop: 0 }}>
+              Você já se candidatou a <strong>{CANDIDATURAS_POR_DIA} vagas hoje</strong>.
+              Amanhã abre outras {CANDIDATURAS_POR_DIA}.
+            </p>
+            <p className="ei-apoio">
+              O limite existe para você chegar às empresas como alguém que
+              escolheu a vaga, e não como mais um nome numa lista de trinta.
+              Esta vaga continua aqui amanhã.
+            </p>
+            <p className="ei-apoio">
+              E as vagas que o app manda para você — as que mais combinam com
+              seu cadastro — <strong>não entram nessa conta</strong>.
+            </p>
+            <div style={{ display: "grid", gap: 8, marginTop: 14 }}>
+              <Link className="ei-btn ei-btn-cheio ei-btn-largo ei-btn-alto" to="/avisos">
+                Ver o que já chegou para mim
+              </Link>
+              <button
+                type="button"
+                className="ei-btn ei-btn-contorno ei-btn-largo"
+                onClick={() => setLotado(false)}
+              >
+                Voltar para a vaga
+              </button>
+            </div>
+          </BottomSheet>
+        )}
+
         <div className="ei-aviso-golpe ei-margem">
           <p className="ei-aviso-golpe-texto">
             <strong>O Ei Emprego nunca cobra nada para você se candidatar.</strong>{" "}

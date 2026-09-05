@@ -40,6 +40,19 @@ export type MeuPerfil = {
      um aviso dizendo que falta um resumo sobre você, mas não tem onde
      escrever." */
   bio: string;
+  /* ── A CIDADE PASSOU A SER DA PESSOA — 05/09 ────────────────────────
+     A dona: "o app pode não ter só a abrangência em Itabirito."
+
+     Ela era gravada fixa (`city: DEFAULT_CITY`) em todo salvamento: não
+     havia como alguém de Ouro Preto se cadastrar como sendo de Ouro
+     Preto, mesmo que quisesse. O banco de talentos, do outro lado, pedia
+     `.eq("city", "Itabirito")` — as duas travas juntas faziam o app ser
+     de uma cidade só por construção, e não por escolha.
+
+     O padrão continua Itabirito para quem não mexer: é onde o app está e
+     é a cidade de quase todo mundo hoje. */
+  city: string;
+  uf: string;
   neighborhood: string;
   /** As funções que a pessoa aceita ser chamada para fazer. Até 8. */
   funcoes: string[];
@@ -162,6 +175,8 @@ export const PERFIL_VAZIO: MeuPerfil = {
   email: "",
   photoUrl: null,
   bio: "",
+  city: DEFAULT_CITY,
+  uf: DEFAULT_UF,
   neighborhood: "",
   funcoes: [],
   disponivel: true,
@@ -325,7 +340,7 @@ export async function lerMeuPerfil(ownerId: string): Promise<MeuPerfil | null> {
      campos que ninguém preencheu. `lerTolerando` refaz a consulta sem
      elas nesse caso (ver `colunasNovas.ts`). */
   const { data, error } = await lerTolerando<Array<Record<string, unknown>>>(
-    "id, name, phone, email, photo_url, bio, neighborhood, areas_de_interesse, disponivel, paused, whatsapp_verified, " +
+    "id, name, phone, email, photo_url, bio, city, uf, neighborhood, areas_de_interesse, disponivel, paused, whatsapp_verified, " +
       "pretensao_centavos, pretensao_combinar, pretensao_periodo, disponibilidade, aceita_viajar, " +
       "data_nascimento, cnh, cnh_categorias, telefones_extra, modo_trabalho, " +
       "fim_de_semana, inicio_imediato, primeiro_emprego, aceita_freela, genero, pcd",
@@ -371,6 +386,8 @@ export async function lerMeuPerfil(ownerId: string): Promise<MeuPerfil | null> {
     email: linha.email ?? "",
     photoUrl: linha.photo_url ?? null,
     bio: linha.bio ?? "",
+    city: linha.city ?? DEFAULT_CITY,
+    uf: linha.uf ?? DEFAULT_UF,
     neighborhood: linha.neighborhood ?? "",
     funcoes: linha.areas_de_interesse ?? [],
     /* `?? true` porque a coluna nasceu com `default true` na 0075: um
@@ -488,8 +505,10 @@ export async function salvarMeuPerfil(
        campo o causou. */
     genero: perfil.genero || null,
     pcd: perfil.pcd,
-    city: DEFAULT_CITY,
-    uf: DEFAULT_UF,
+    /* Antes era fixo em Itabirito. Agora é o que a pessoa escolheu, com
+       o padrão em Itabirito para quem nunca abriu esse campo. */
+    city: perfil.city || DEFAULT_CITY,
+    uf: perfil.uf || DEFAULT_UF,
   };
 
   /* ── AS COLUNAS MAIS NOVAS ─────────────────────────────────────────

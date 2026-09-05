@@ -5,7 +5,11 @@ import { useTituloDaPagina } from "../../lib/tituloDaPagina";
 import { mensagemDeErro } from "../../lib/erros";
 import { useAuth } from "../../lib/useAuth";
 import { bancoDeVagas, type VagaNoBanco } from "../../lib/bancoDeVagas";
-import { responderVaga } from "../../lib/minhasVagas";
+import {
+  CANDIDATURAS_POR_DIA,
+  podeSeCandidatar,
+  responderVaga,
+} from "../../lib/minhasVagas";
 import {
   vagaEmDestaque,
 } from "../../lib/destaque";
@@ -13,6 +17,8 @@ import { podeVender } from "../../lib/plataforma";
 import { lerMeuPerfil } from "../../lib/meuPerfil";
 import { nomeDoContrato, salarioEmTexto } from "../../types/domain";
 import { Pagina } from "../../components/ei/Pagina";
+import { BottomSheet } from "../../components/BottomSheet";
+import { SeletorDeCidade } from "../../components/ei/SeletorDeCidade";
 import Esqueleto from "../../components/ei/Esqueleto";
 
 /**
@@ -63,6 +69,12 @@ export function BancoDeVagasPage() {
      nesta mesma família de telas. */
   const [params, setParams] = useSearchParams();
   const filtro = params.get("q") ?? "";
+  /* Aqui o padrão continua sendo TODAS as cidades, e não a cidade da
+     pessoa como no banco de talentos. A diferença é de propósito: quem
+     procura emprego costuma aceitar a cidade vizinha (é meia hora de
+     ônibus), e abrir já filtrado esconderia justamente a vaga que resolve
+     a vida dela. Quem contrata é o contrário — chamar alguém de outra
+     cidade para uma vaga presencial quase nunca dá certo. */
   const cidade = params.get("c");
   /* O modo também mora na URL, pelo mesmo motivo dos filtros: abrir uma
      vaga e voltar não pode jogar a pessoa de volta para a lista quando
@@ -118,9 +130,9 @@ export function BancoDeVagasPage() {
     for (const v of lista) {
       if (v.vaga.city) conta.set(v.vaga.city, (conta.get(v.vaga.city) ?? 0) + 1);
     }
-    return [...conta.entries()]
-      .sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0], "pt-BR"))
-      .map(([c]) => c);
+    return [...conta.entries()].sort(
+      (a, b) => b[1] - a[1] || a[0].localeCompare(b[0], "pt-BR")
+    );
   }, [lista]);
 
   const visiveis = useMemo(() => {
@@ -336,29 +348,24 @@ export function BancoDeVagasPage() {
         </div>
         )}
 
-        {/* A fileira só aparece com mais de uma cidade: com uma só, ela
-            seria um botão que não filtra nada. */}
-        {modo === "lista" && cidades.length > 1 && (
-          <div className="ei-filtros" style={{ marginTop: 12 }}>
-            <button
-              type="button"
-              className="ei-chip"
-              aria-pressed={cidade === null}
-              onClick={() => mudarParams({ c: null })}
-            >
-              Todas
-            </button>
-            {cidades.map((c) => (
-              <button
-                key={c}
-                type="button"
-                className="ei-chip"
-                aria-pressed={cidade === c}
-                onClick={() => mudarParams({ c: cidade === c ? null : c })}
-              >
-                {c}
-              </button>
-            ))}
+        {/* ── A CIDADE VIROU UM BOTÃO SÓ — 05/09 ──────────────────────
+            A dona: "criar um filtro para a pessoa escolher a cidade (de
+            acordo com as que tem cadastradas) em algum lugar do app."
+
+            Aqui já havia uma fileira de chips, e ela tem dois problemas
+            quando as cidades passam de duas: ocupa uma faixa inteira
+            acima da lista, e deixa de dizer onde a pessoa está assim que
+            o chip escolhido rola para fora. Agora é a MESMA peça do banco
+            de talentos — quem aprendeu a trocar de cidade num lugar não
+            precisa aprender de novo no outro. */}
+        {modo === "lista" && (
+          <div className="ei-margem ei-linha-filtros">
+            <SeletorDeCidade
+              cidade={cidade ?? ""}
+              cidades={cidades}
+              aoEscolher={(c) => mudarParams({ c: c || null })}
+              rotuloDeTodas="Todas as cidades"
+            />
           </div>
         )}
 
@@ -652,6 +659,9 @@ function Baralho({ vagas, verLista }: { vagas: VagaNoBanco[]; verLista: () => vo
      nenhum sinal do que acabou de marcar, que é o mesmo às cegas que o
      selo existe para evitar. */
   const [respondidasAgora, setRespondidasAgora] = useState<Record<string, boolean>>({});
+  /* Bateu o teto do dia. Vira uma folha, e não um erro vermelho: não é
+     defeito nem culpa de ninguém — é o app pedindo para voltar amanhã. */
+  const [lotado, setLotado] = useState(false);
   /* ── O GESTO PRECISA DECIDIR CEDO SE É DELE OU DA PÁGINA — 05/09 ─────
      A dona: "não está dando movimento na página."
 
@@ -725,6 +735,23 @@ function Baralho({ vagas, verLista }: { vagas: VagaNoBanco[]; verLista: () => vo
     if (quero && cadastro !== "ok") {
       navegar("/painel?motivo=candidatura");
       return;
+    }
+
+    /* ── O TETO DE CINCO POR DIA — 05/09 ─────────────────────────────
+       A dona: "daquele limite de candidatar a 5 vagas por dia, deve ter
+       exceção se o perfil é compatível em onda 1. Caso contrário, ao
+       tentar se candidatar apareça uma notificação dizendo que a pessoa
+       já se candidatou em muitas vagas hoje, incentivando a voltar no app
+       amanhã e verificar novas oportunidades."
+
+       Só vale para o SIM: recusar uma vaga não consome nada, e limitar
+       quantas alguém pode recusar seria absurdo. Ver `podeSeCandidatar`. */
+    if (quero) {
+      const t = await podeSeCandidatar(atual.vaga.id, user.id);
+      if (!t.pode) {
+        setLotado(true);
+        return;
+      }
     }
 
     setSaindo(quero ? "sim" : "nao");
@@ -971,6 +998,32 @@ function Baralho({ vagas, verLista }: { vagas: VagaNoBanco[]; verLista: () => vo
 
         <h3 className="ei-baralho-titulo">{v.vaga.title}</h3>
 
+        {/* ── A COMPATIBILIDADE EM BALÃO — 05/09 ──────────────────────
+            A dona: "na lista deslizante de vagas a compatibilidade tem que
+            ficar mais evidente. Talvez dentro de um balão (parecido com um
+            botão) onde a pessoa veja que essa vaga não bate."
+
+            Era uma linha de texto de 0,8rem em cinza-esverdeado, lá
+            embaixo entre a ficha e a descrição — do mesmo peso de tudo o
+            mais no cartão. No baralho isso é pior do que na lista: aqui a
+            pessoa decide em dois segundos, com o dedo já no botão, e o
+            dado que mais importa para essa decisão era o menos visível.
+
+            Em balão ele para de ser texto e vira objeto: verde quando
+            combina, âmbar quando combina em parte, cinza quando não bate.
+            E logo abaixo do título, que é por onde o olho entra. */}
+        {v.compatibilidade !== null && (
+          <p className={`ei-balao-compat ${classeDaCompat(v.compatibilidade)}`}>
+            <span className="ei-balao-compat-marca" aria-hidden="true">
+              {v.compatibilidade >= 75 ? "✓" : v.compatibilidade >= 40 ? "~" : "!"}
+            </span>
+            <span>
+              {rotuloDaCompat(v.compatibilidade)}
+              {v.porque.length > 0 && ` · ${v.porque[0]}`}
+            </span>
+          </p>
+        )}
+
         <dl className="ei-baralho-fichas">
           <div>
             <dt>Salário</dt>
@@ -981,13 +1034,6 @@ function Baralho({ vagas, verLista }: { vagas: VagaNoBanco[]; verLista: () => vo
             <dd>{nomeDoContrato(v.vaga.tipo_contrato) ?? "Não informado"}</dd>
           </div>
         </dl>
-
-        {v.compatibilidade !== null && (
-          <p className={`ei-compat ${classeDaCompat(v.compatibilidade)}`}>
-            {rotuloDaCompat(v.compatibilidade)}
-            {v.porque.length > 0 && ` · ${v.porque[0]}`}
-          </p>
-        )}
 
         {v.vaga.description?.trim() && (
           <p className="ei-baralho-texto">{v.vaga.description}</p>
@@ -1019,6 +1065,44 @@ function Baralho({ vagas, verLista }: { vagas: VagaNoBanco[]; verLista: () => vo
           Tenho interesse
         </button>
       </div>
+
+      {lotado && (
+        <BottomSheet title="Por hoje, chega" onClose={() => setLotado(false)}>
+          {/* O tom é o que a dona pediu: "incentivando a voltar no app
+              amanhã". Nada de "você excedeu o limite" — quem está
+              procurando emprego já ouve "não" o dia inteiro, e um app que
+              repete isso com cara de multa é um app que se desinstala.
+
+              A frase diz por que o teto existe do lado DELA (ser levada a
+              sério), e não do nosso (não encher a empresa de resposta). */}
+          <p className="ei-corpo" style={{ marginTop: 0 }}>
+            Você já se candidatou a <strong>{CANDIDATURAS_POR_DIA} vagas hoje</strong>.
+            Amanhã abre outras {CANDIDATURAS_POR_DIA}.
+          </p>
+          <p className="ei-apoio">
+            O limite existe para você chegar às empresas como alguém que
+            escolheu a vaga, e não como mais um nome numa lista de trinta. As
+            vagas de hoje continuam aqui amanhã.
+          </p>
+          <p className="ei-apoio">
+            E as vagas que o app manda para você — as que mais combinam com
+            seu cadastro — <strong>não entram nessa conta</strong>: essas dá
+            para responder sempre.
+          </p>
+          <div style={{ display: "grid", gap: 8, marginTop: 14 }}>
+            <Link className="ei-btn ei-btn-cheio ei-btn-largo ei-btn-alto" to="/avisos">
+              Ver o que já chegou para mim
+            </Link>
+            <button
+              type="button"
+              className="ei-btn ei-btn-contorno ei-btn-largo"
+              onClick={() => setLotado(false)}
+            >
+              Continuar olhando
+            </button>
+          </div>
+        </BottomSheet>
+      )}
 
       {/* A frase "Arraste o cartão: direita é interesse, esquerda passa"
           saiu — 05/09, a pedido da dona. Ela explicava por escrito um gesto

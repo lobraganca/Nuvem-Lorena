@@ -7866,3 +7866,138 @@
 @media (prefers-reduced-motion: reduce) {
   .ei .ei-ao-vivo-ponto { animation: none; }
 }
+
+
+/* Dois campos curtos na mesma linha (cidade + bairro). Em telas estreitas
+   viram um por linha: "Nossa Senhora do Carmo" não cabe em metade de
+   390px, e nome de bairro cortado não identifica bairro nenhum. */
+.ei .ei-dupla {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+@media (max-width: 380px) {
+  .ei .ei-dupla { grid-template-columns: 1fr; }
+}
+
+/* ── O SELETOR DE CIDADE ───────────────────────────────────────────────
+   A dona: "criar um filtro para a pessoa escolher a cidade (de acordo com
+   as que tem cadastradas) em algum lugar do app."
+
+   Uma pastilha com o alfinete e o nome da cidade. Ela responde "onde eu
+   estou olhando" o tempo todo, no mesmo lugar — que é o que uma fileira
+   de chips não faz assim que o chip escolhido rola para fora da tela. */
+.ei .ei-cidade-botao {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  flex: 0 0 auto;
+  min-height: 36px;
+  padding: 0 12px;
+  border: 1px solid var(--ei-fio-forte);
+  border-radius: 999px;
+  background: var(--ei-papel);
+  color: var(--ei-tinta);
+  font: inherit;
+  font-size: 0.86rem;
+  font-weight: 600;
+  white-space: nowrap;
+  cursor: pointer;
+}
+.ei .ei-cidade-botao:active { background: var(--ei-afunda); }
+.ei .ei-cidade-alfinete,
+.ei .ei-cidade-seta { display: inline-flex; color: var(--ei-tinta-fraca); }
+
+.ei-cidade-lista { display: grid; gap: 2px; }
+.ei-cidade-opcao {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  width: 100%;
+  min-height: 48px;
+  padding: 10px 4px;
+  border: 0;
+  border-bottom: 1px solid var(--ei-fio);
+  background: none;
+  font: inherit;
+  font-size: 0.98rem;
+  color: var(--ei-tinta);
+  text-align: left;
+  cursor: pointer;
+}
+.ei-cidade-opcao:last-child { border-bottom: 0; }
+.ei-cidade-opcao.ativa { font-weight: 700; color: var(--ei-acento, #0a72c4); }
+.ei-cidade-conta {
+  font-size: 0.82rem;
+  font-weight: 500;
+  color: var(--ei-tinta-fraca);
+  font-variant-numeric: tabular-nums;
+}
+
+
+/* ── O BALÃO DA COMPATIBILIDADE — 05/09 ───────────────────────────────
+   A dona: "na lista deslizante de vagas a compatibilidade tem que ficar
+   mais evidente. Talvez dentro de um balão (parecido com um botão) onde a
+   pessoa veja que essa vaga não bate."
+
+   Parecido com botão, e de propósito NÃO tocável: o balão só informa. Um
+   objeto com cara de botão que não faz nada é um defeito conhecido — por
+   isso ele não tem sombra, não afunda ao toque e é um `<p>`, que nenhum
+   leitor de tela anuncia como botão.
+
+   A cor é o que resolve o pedido dela ("ver que essa vaga não bate"):
+   verde combina, âmbar combina em parte, cinza não bate. O sinalzinho da
+   esquerda existe para quem não distingue as cores — sem ele, três balões
+   iguais para quem tem daltonismo. */
+.ei .ei-balao-compat {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin: 10px 0 0;
+  padding: 8px 14px;
+  border-radius: 999px;
+  font-size: 0.86rem;
+  font-weight: 600;
+  line-height: 1.3;
+  border: 1px solid transparent;
+}
+.ei .ei-balao-compat-marca {
+  flex: 0 0 auto;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 18px;
+  height: 18px;
+  border-radius: 999px;
+  background: currentColor;
+  color: transparent;
+  font-size: 0.72rem;
+  font-weight: 800;
+}
+/* O sinal em si é desenhado com a cor do fundo do balão, para ficar
+   "vazado" dentro do disco — assim ele não precisa de uma terceira cor. */
+.ei .ei-balao-compat.ei-compat-alta {
+  background: var(--ei-verde-fraco);
+  border-color: #bfdcc9;
+  color: var(--ei-sobre-verde-fraco);
+}
+.ei .ei-balao-compat.ei-compat-alta .ei-balao-compat-marca {
+  color: var(--ei-verde-fraco);
+}
+.ei .ei-balao-compat.ei-compat-media {
+  background: var(--ei-laranja-fraco);
+  border-color: #f1cfbb;
+  color: var(--ei-sobre-laranja-fraco);
+}
+.ei .ei-balao-compat.ei-compat-media .ei-balao-compat-marca {
+  color: var(--ei-laranja-fraco);
+}
+.ei .ei-balao-compat.ei-compat-baixa {
+  background: var(--ei-afunda-forte);
+  border-color: var(--ei-fio-forte);
+  color: var(--ei-tinta-fraca);
+}
+.ei .ei-balao-compat.ei-compat-baixa .ei-balao-compat-marca {
+  color: var(--ei-afunda-forte);
+}

@@ -405,3 +405,114 @@ export async function responderVaga(
   });
   if (error) throw error;
 }
+
+/* ══════════════════════════════════════════════════════════════════════
+   CINCO CANDIDATURAS POR DIA — 05/09
+   ══════════════════════════════════════════════════════════════════════
+   A dona: "daquele limite de candidatar a 5 vagas por dia, deve ter
+   exceção se o perfil é compatível em onda 1. Caso contrário, ao tentar se
+   candidatar apareça uma notificação dizendo que a pessoa já se candidatou
+   em muitas vagas hoje, incentivando a voltar no app amanhã e verificar
+   novas oportunidades."
+
+   ── Por que um teto existe ────────────────────────────────────────────
+
+   Sem ele, o caminho mais fácil do app é o pior para todo mundo: tocar
+   "tenho interesse" em tudo, sem ler. A empresa recebe trinta telefones
+   de gente que não leu a vaga, para de ligar, e quem leu de verdade fica
+   no meio do monte. É assim que um app de emprego morre — não por falta
+   de gente, por excesso de resposta sem intenção.
+
+   ── Por que a onda 1 é exceção ───────────────────────────────────────
+
+   A onda 1 é a que o app escolheu: a empresa publicou, o app cruzou os
+   cadastros e mandou o aviso para quem MAIS combina. Recusar exatamente
+   essa candidatura seria o app convidar e depois barrar — e é a
+   candidatura com mais chance de virar emprego. Ela passa mesmo com o
+   teto estourado, e nem sequer conta para o dia.
+
+   ── O dia é o do aparelho ────────────────────────────────────────────
+
+   "Hoje" começa à meia-noite de quem está usando, não à de Londres. Quem
+   estoura o teto às 23h volta a ter cinco em uma hora, e isso é melhor do
+   que uma janela de 24 horas que ninguém entende.
+*/
+
+/** Quantas candidaturas cabem num dia, fora as da onda 1. */
+export const CANDIDATURAS_POR_DIA = 5;
+
+/** O que o app respondeu à tentativa de se candidatar. */
+export type LimiteDoDia =
+  | { pode: true; usadas: number }
+  | { pode: false; usadas: number };
+
+function comecoDeHoje(): string {
+  const d = new Date();
+  d.setHours(0, 0, 0, 0);
+  return d.toISOString();
+}
+
+/**
+ * Esta vaga chegou para esta pessoa na ONDA 1?
+ *
+ * Lê `job_notifications`, que é onde a onda fica registrada (0074). Se a
+ * consulta falhar, responde `true` — na dúvida a candidatura passa. O
+ * contrário seria deixar de se candidatar por causa de uma consulta que
+ * caiu, e o preço disso é um emprego.
+ */
+export async function ehDaPrimeiraOnda(vagaId: string, userId: string): Promise<boolean> {
+  const sb = supabase();
+  if (!sb) return true;
+  const { data, error } = await sb
+    .from("job_notifications")
+    .select("wave")
+    .eq("job_listing_id", vagaId)
+    .eq("professional_id", userId)
+    .order("wave", { ascending: true })
+    .limit(1);
+  if (error) return true;
+  return (data ?? [])[0]?.wave === 1;
+}
+
+/**
+ * Quantas candidaturas a pessoa já mandou hoje, e se ainda cabe mais uma.
+ *
+ * Conta só as de INTERESSE: dizer "não é para mim" não consome nada —
+ * seria absurdo limitar o número de vagas que alguém pode recusar.
+ */
+export async function limiteDeHoje(userId: string): Promise<LimiteDoDia> {
+  const sb = supabase();
+  /* Sem banco, não trava ninguém: o teto é uma regra de bom uso, não uma
+     regra de segurança. Quem passar por cima dele não ganha nada. */
+  if (!sb) return { pode: true, usadas: 0 };
+
+  const { count, error } = await sb
+    .from("job_responses")
+    .select("id", { count: "exact", head: true })
+    .eq("professional_id", userId)
+    .eq("interessado", true)
+    .gte("created_at", comecoDeHoje());
+
+  if (error) return { pode: true, usadas: 0 };
+  const usadas = count ?? 0;
+  return usadas >= CANDIDATURAS_POR_DIA
+    ? { pode: false, usadas }
+    : { pode: true, usadas };
+}
+
+/**
+ * Pode se candidatar a ESTA vaga agora?
+ *
+ * Junta as duas regras: a onda 1 passa sempre; o resto respeita o teto.
+ */
+export async function podeSeCandidatar(
+  vagaId: string,
+  userId: string
+): Promise<{ pode: boolean; usadas: number; peloAviso: boolean }> {
+  const [daOnda1, limite] = await Promise.all([
+    ehDaPrimeiraOnda(vagaId, userId),
+    limiteDeHoje(userId),
+  ]);
+  if (daOnda1) return { pode: true, usadas: limite.usadas, peloAviso: true };
+  return { pode: limite.pode, usadas: limite.usadas, peloAviso: false };
+}

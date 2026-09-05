@@ -67,7 +67,15 @@ const professionals: Linha[] = Array.from({ length: QUANTOS }, (_, i) => ({
      fileira de ofícios. Faltava, e a fileira nascia sempre vazia. */
   areas_de_interesse: [CATS[i % CATS.length], CATS[(i + 7) % CATS.length]],
   neighborhood: ["Centro", "Praia", "Vila Rica", "Nossa Senhora do Carmo"][i % 4],
-  city: "Itabirito",
+  /* ── NEM TODO MUNDO É DE ITABIRITO — 05/09 ───────────────────────────
+     Eram todos, e por isso o seletor de cidade (que só aparece quando há
+     mais de uma) nunca era exercitado aqui: o teste dizia "não apareceu"
+     e não havia como saber se era a regra funcionando ou a peça quebrada.
+
+     Um em cada sete de Ouro Preto e um em cada onze de Congonhas: chega
+     para o seletor existir, e pouco o bastante para Itabirito continuar
+     sendo a lista que quase todo teste vê. */
+  city: i % 7 === 3 ? "Ouro Preto" : i % 11 === 5 ? "Congonhas" : "Itabirito",
   /* Faltava, e a tela de profissionais filtra por cidade E estado: sem
      `uf` a lista voltava VAZIA e o teste fotografava a tela de "ainda não
      há ninguém" achando que era a lista. */
