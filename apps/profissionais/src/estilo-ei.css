@@ -7888,6 +7888,29 @@
    fundo da mesma cor ela vira um risco em cima de outro. */
 .ei .ei-area-destaque > .ei-lista-destaque { border-left: 0; }
 
+/* ── O TÍTULO NÃO SEPARA DUAS VEZES — 05/09 ──────────────────────────
+   A dona, com o print do banco de vagas: "o respiro em cima de em
+   destaque está muito grande."
+
+   Medido: 36px acima da palavra e 15px abaixo dela. O título flutuava
+   longe do que apresenta e colado no que veio antes — o contrário do que
+   um rótulo faz.
+
+   A causa é uma separação contada duas vezes. `.ei-secao` tem 30px de
+   respiro em cima no app inteiro, e eles existem por um motivo bom: o
+   título é a divisão entre dois assuntos, e sem o vão ele gruda no assunto
+   anterior. Só que aqui o assunto anterior está do outro lado do FIO da
+   faixa — a faixa já é a divisão. Os 30px viravam um segundo separador
+   empilhado no primeiro, dentro de uma área que já estava separada.
+
+   12px deixa a palavra a 17px do fio de cima (4 da faixa + 1 do fio + 12)
+   e a 15px do primeiro cartão: o rótulo passa a pertencer ao que está
+   embaixo dele, que é o que um rótulo faz.
+
+   Vale para as duas faixas — "Em alta" no banco de talentos e "Em
+   destaque" no de vagas —, porque as duas são a mesma peça. */
+.ei .ei-area-destaque > .ei-secao { padding-top: 12px; }
+
 /* O aviso de vazio usa a régua das CAIXAS (12px), como os cartões que
    ficariam no lugar dele. */
 .ei .ei-area-destaque-vazia {
