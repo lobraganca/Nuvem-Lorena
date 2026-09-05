@@ -3,7 +3,14 @@ import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../../lib/useAuth";
 import { useTituloDaPagina } from "../../lib/tituloDaPagina";
 import { mensagemDeErro } from "../../lib/erros";
-import { marcarVagaComoVista, todosOsAvisos, type Aviso } from "../../lib/minhasVagas";
+import {
+  DIAS_QUE_O_AVISO_DURA,
+  esconderAviso,
+  marcarVagaComoVista,
+  todosOsAvisos,
+  type Aviso,
+} from "../../lib/minhasVagas";
+import { BottomSheet } from "../../components/BottomSheet";
 import { useOnboardingStatus } from "../../lib/useOnboardingStatus";
 import {
   avisosDeCandidatura,
@@ -44,6 +51,18 @@ import Esqueleto from "../../components/ei/Esqueleto";
  */
 export function AvisosPage() {
   useTituloDaPagina("Avisos");
+  /* ── EXCLUIR UM AVISO, COM UMA PERGUNTA ANTES — 05/09 ────────────────
+     A dona: "se a pessoa quiser excluir, ter um aviso que esse chamado foi
+     feito por compatibilidade, se a pessoa quer mesmo excluir."
+
+     A pergunta não é formalidade. Aviso, para quem está acostumado com
+     celular, é sinônimo de propaganda — e o primeiro impulso diante de uma
+     lista deles é limpar tudo. Só que aqui cada linha é uma vaga que
+     chegou porque o cadastro da pessoa BATE com ela. Quem limpa sem saber
+     disso joga fora justamente a vaga da própria profissão.
+
+     Por isso a frase da folha diz de onde veio o aviso ANTES de perguntar
+     se ela quer mesmo. */
   const navegar = useNavigate();
   const { user, loading: carregandoConta } = useAuth();
   /* Esta tela tem DOIS donos.
@@ -69,6 +88,9 @@ export function AvisosPage() {
      se o selo lesse `visto_em`, ele sumiria no mesmo instante em que a
      pessoa abriu, sem nunca ter sido visto por ela. */
   const [novos, setNovos] = useState<Set<string>>(new Set());
+  /* O aviso que a pessoa quer excluir, esperando a confirmação. */
+  const [paraExcluir, setParaExcluir] = useState<Aviso | null>(null);
+  const [excluindo, setExcluindo] = useState(false);
   const [candidaturas, setCandidaturas] = useState<AvisoDeCandidatura[]>([]);
   const [ligandoAviso, setLigandoAviso] = useState(false);
   const [avisoLigado, setAvisoLigado] = useState(false);
@@ -118,6 +140,25 @@ export function AvisosPage() {
       })
       .finally(() => setCarregando(false));
   }, [user, carregandoConta, navegar, lado, empresa]);
+
+  async function confirmarExclusao() {
+    if (!paraExcluir) return;
+    setExcluindo(true);
+    setErro("");
+    try {
+      await esconderAviso(paraExcluir.aviso_id);
+      /* Sai da tela na hora, sem reler a lista inteira: reler traria a
+         mesma resposta do servidor com uma volta de rede no meio, e a
+         linha ficaria um instante ali depois de a pessoa mandar excluir. */
+      setAvisos((atual) => atual.filter((a) => a.aviso_id !== paraExcluir.aviso_id));
+      setParaExcluir(null);
+    } catch (err) {
+      setErro(mensagemDeErro(err, "Não consegui excluir este aviso."));
+      setParaExcluir(null);
+    } finally {
+      setExcluindo(false);
+    }
+  }
 
   async function ligarAviso() {
     setLigandoAviso(true);
@@ -308,8 +349,11 @@ export function AvisosPage() {
               const salario = salarioEmTexto(a.vaga);
               const contrato = nomeDoContrato(a.vaga.tipo_contrato);
               return (
+                /* O X fica FORA do link, e não dentro: botão dentro de
+                   link é HTML inválido, e na prática o toque no X abria a
+                   vaga em metade dos celulares. */
+                <div key={a.aviso_id} className="ei-aviso-linha">
                 <Link
-                  key={a.aviso_id}
                   to={`/vaga-aberta/${a.vaga.id}`}
                   className="ei-linha-item"
                 >
@@ -360,10 +404,67 @@ export function AvisosPage() {
                   )}
                   {!a.aberta && <span className="ei-selo ei-selo-cinza">Encerrada</span>}
                 </Link>
+                {/* Discreto e cinza: excluir é a coisa MENOS provável que
+                    alguém vem fazer nesta tela, e um X vermelho ao lado de
+                    cada vaga transformaria a lista de oportunidades numa
+                    caixa de entrada para limpar. */}
+                <button
+                  type="button"
+                  className="ei-aviso-excluir"
+                  aria-label={`Excluir o aviso de ${a.vaga.title}`}
+                  onClick={() => setParaExcluir(a)}
+                >
+                  ✕
+                </button>
+                </div>
               );
             })}
             </div>
           </>
+        )}
+
+        {/* ── A PERGUNTA, COM O MOTIVO ANTES DELA — 05/09 ─────────────
+            A dona: "ter um aviso que esse chamado foi feito por
+            compatibilidade, se a pessoa quer mesmo excluir."
+
+            A ordem importa: primeiro POR QUE aquele aviso existe, depois a
+            pergunta. Invertido, a pessoa já decidiu antes de ler. */}
+        {paraExcluir && (
+          <BottomSheet
+            title="Excluir este aviso?"
+            onClose={() => (excluindo ? undefined : setParaExcluir(null))}
+          >
+            <p className="ei-corpo" style={{ marginTop: 0 }}>
+              Este aviso não é propaganda: “{paraExcluir.vaga.title}”, da{" "}
+              {paraExcluir.empresa || "empresa"}, chegou até você porque{" "}
+              <strong>o seu cadastro combina com essa vaga</strong>.
+            </p>
+            <p className="ei-apoio">
+              Excluindo, ele sai desta lista e não volta. A vaga continua no
+              app, em “Vagas” — e todo aviso some sozinho depois de{" "}
+              {DIAS_QUE_O_AVISO_DURA} dias.
+            </p>
+            <div style={{ display: "grid", gap: 8, marginTop: 14 }}>
+              <button
+                type="button"
+                className="ei-btn ei-btn-cheio ei-btn-largo ei-btn-alto"
+                onClick={() => setParaExcluir(null)}
+                disabled={excluindo}
+              >
+                Manter o aviso
+              </button>
+              {/* O que destrói fica em segundo plano, sempre: o botão
+                  cheio é o de voltar atrás. */}
+              <button
+                type="button"
+                className="ei-btn ei-btn-contorno ei-btn-largo"
+                onClick={confirmarExclusao}
+                disabled={excluindo}
+              >
+                {excluindo ? "Excluindo…" : "Excluir mesmo assim"}
+              </button>
+            </div>
+          </BottomSheet>
         )}
       </div>
     </div>

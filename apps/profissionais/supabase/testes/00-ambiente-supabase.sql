@@ -13,6 +13,20 @@ create table if not exists auth.users (
 );
 alter table auth.users add column if not exists phone text;
 alter table auth.users add column if not exists phone_confirmed_at timestamptz;
+-- ── AS COLUNAS QUE O SUPABASE DE VERDADE TEM — 05/09 ───────────────────
+-- Este armário nasceu com o mínimo que as migrations usavam, e isso bastou
+-- enquanto ninguém INSERIA em auth.users por aqui. Passou a inserir quando
+-- os dados de teste (`supabase/dados-de-teste/`) precisaram de contas: sem
+-- estas colunas, o arquivo passava no Postgres local e só ia falhar no
+-- painel da dona — que é o pior lugar para descobrir.
+alter table auth.users add column if not exists instance_id uuid;
+alter table auth.users add column if not exists aud text;
+alter table auth.users add column if not exists role text;
+alter table auth.users add column if not exists encrypted_password text;
+alter table auth.users add column if not exists email_confirmed_at timestamptz;
+alter table auth.users add column if not exists created_at timestamptz default now();
+alter table auth.users add column if not exists updated_at timestamptz default now();
+alter table auth.users add column if not exists raw_app_meta_data jsonb default '{}'::jsonb;
 create or replace function auth.uid() returns uuid language sql stable as $$ select null::uuid $$;
 do $$ begin
   if not exists (select 1 from pg_roles where rolname='anon') then create role anon nologin; end if;

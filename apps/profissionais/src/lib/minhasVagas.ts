@@ -1,5 +1,35 @@
 import { supabase } from "./supabase";
+import { erroDeColunaDesconhecida } from "./colunasNovas";
 import type { JobListing } from "../types/domain";
+
+/**
+ * ── DEPOIS DE 15 DIAS O AVISO SOME — 05/09 ────────────────────────────
+ *
+ * A dona: "os avisos chegam e ficam pra sempre. Colocar uma regra que
+ * após 15 dias o aviso some."
+ *
+ * É um FILTRO na consulta, e não uma faxina que apaga linhas. Duas
+ * razões, e a segunda é a que decide:
+ *
+ *   1. A mesma linha que é "o aviso que chegou para mim" é "quantas
+ *      pessoas minha vaga alcançou" do outro lado. Apagar por idade
+ *      mudaria, para trás, um número que a empresa já leu.
+ *   2. Rotina agendada NÃO RODA neste repositório: o GitHub dispara os
+ *      workflows agendados a partir da branch padrão, que está 226 commits
+ *      atrás (está no CLAUDE.md). Uma faxina diária seria escrita,
+ *      commitada e nunca executada — e todo mundo acharia que a regra
+ *      existe.
+ *
+ * Filtrando, a regra vale a partir do primeiro carregamento e não depende
+ * de nada rodar.
+ */
+export const DIAS_QUE_O_AVISO_DURA = 15;
+
+function desdeQuandoVale(): string {
+  const d = new Date();
+  d.setDate(d.getDate() - DIAS_QUE_O_AVISO_DURA);
+  return d.toISOString();
+}
 
 /** Uma vaga que chegou para este profissional, com o estado do aviso. */
 export type VagaParaMim = {
@@ -170,11 +200,48 @@ export async function todosOsAvisos(userId: string): Promise<Aviso[]> {
     .eq("professional_id", userId)
     /* Sem filtro de `status`: é justamente o que separa esta consulta da
        outra. Vaga encerrada continua aqui, marcada como encerrada. */
+    .gte("criado_em", desdeQuandoVale())
+    .is("escondido_em", null)
     .order("criado_em", { ascending: false });
 
+  /* Enquanto a 0122 não for aplicada, `escondido_em` não existe e o
+     PostgREST recusa a consulta INTEIRA — a tela de avisos ficaria vazia,
+     que é a mentira calma de sempre. Sem a coluna, a lista volta como
+     antes: com os 15 dias já valendo (esse filtro é de uma coluna que
+     sempre existiu) e sem esconder nada. */
+  if (error && erroDeColunaDesconhecida(error)) {
+    const { data: d2, error: e2 } = await sb
+      .from("job_notifications")
+      .select(
+        `id, criado_em, visto_em,
+         job_listings!inner (
+           id, company_id, title, description, profession, specialty,
+           required_experience, skills, salary_range_min, salary_range_max,
+           available_immediately, work_modality, city, uf, neighborhood,
+           anunciada_ate, status, created_at, closed_at,
+           tipo_contrato, jornada, beneficios, salario_a_combinar, salario_periodo,
+           companies:companies_public!inner ( company_name, photo_url )
+         )`
+      )
+      .eq("professional_id", userId)
+      .gte("criado_em", desdeQuandoVale())
+      .order("criado_em", { ascending: false });
+    if (e2) throw e2;
+    return montarAvisos(sb, userId, d2 ?? []);
+  }
   if (error) throw error;
 
-  const ids = (data ?? []).map((n: any) => n.job_listings.id);
+  return montarAvisos(sb, userId, data ?? []);
+}
+
+/* A segunda metade de `todosOsAvisos`, à parte porque os dois caminhos —
+   com e sem a coluna `escondido_em` — terminam do mesmo jeito. */
+async function montarAvisos(
+  sb: NonNullable<ReturnType<typeof supabase>>,
+  userId: string,
+  data: any[]
+): Promise<Aviso[]> {
+  const ids = data.map((n: any) => n.job_listings.id);
   const resposta = new Map<string, boolean>();
   if (ids.length > 0) {
     const { data: r, error: erroResposta } = await sb
@@ -186,7 +253,7 @@ export async function todosOsAvisos(userId: string): Promise<Aviso[]> {
     (r ?? []).forEach((x: any) => resposta.set(x.job_listing_id, x.interessado !== false));
   }
 
-  return (data ?? []).map((n: any) => ({
+  return data.map((n: any) => ({
     aviso_id: n.id,
     vaga: n.job_listings as JobListing,
     empresa: n.job_listings.companies?.company_name ?? "",
@@ -215,13 +282,43 @@ export async function quantasVagasNovas(userId: string): Promise<number> {
     .from("job_notifications")
     .select("id", { count: "exact", head: true })
     .eq("professional_id", userId)
-    .is("visto_em", null);
+    .is("visto_em", null)
+    /* O selinho da barra conta o MESMO que a lista mostra. Sem os 15 dias
+       aqui, ele diria "3 novos" e a pessoa abriria uma tela sem os três —
+       que é a forma mais rápida de o app perder a confiança dela. */
+    .gte("criado_em", desdeQuandoVale());
 
   /* Aqui o erro NÃO sobe: é um numerozinho no menu, e derrubar a navegação
      inteira por causa dele seria trocar um enfeite por uma tela quebrada.
      Zero esconde o aviso, que é o mesmo que não ter novidade. */
   if (error) return 0;
   return count ?? 0;
+}
+
+/**
+ * Tira o aviso da lista, para sempre.
+ *
+ * ── O pedido ───────────────────────────────────────────────────────────
+ *
+ * A dona: "se a pessoa quiser excluir, ter um aviso que esse chamado foi
+ * feito por compatibilidade, se a pessoa quer mesmo excluir."
+ *
+ * ── Esconde, e não apaga ──────────────────────────────────────────────
+ *
+ * Para quem exclui é exclusão: sai da lista e não volta. Mas a linha fica,
+ * porque ela é DUAS coisas — "o aviso que chegou para mim" e "quantas
+ * pessoas minha vaga alcançou", do lado da empresa. Apagar faria uma
+ * pessoa mexer, sem saber, num número de outra que já foi lido e pago.
+ */
+export async function esconderAviso(avisoId: string): Promise<void> {
+  const sb = supabase();
+  if (!sb) throw new Error("Sem conexão com o banco.");
+
+  const { error } = await sb
+    .from("job_notifications")
+    .update({ escondido_em: new Date().toISOString() })
+    .eq("id", avisoId);
+  if (error) throw error;
 }
 
 /** Marca que a pessoa abriu o aviso. */

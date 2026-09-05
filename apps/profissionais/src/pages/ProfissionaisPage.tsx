@@ -358,6 +358,27 @@ export function ProfissionaisPage() {
                    do app. A parte gratuita da oferta não existia. */
                 <Link key={p.id} to={`/profissional/${p.id}`} className="ei-pessoa">
                   <Retrato foto={p.photo_url} nome={p.name} />
+                  {/* ── O SELO NO CANTO SUPERIOR DIREITO — 05/09 ────────
+                      A dona: "acho que o selo de em alta do card do
+                      candidato pode ser no canto superior a direita."
+
+                      Ele já tinha descido do lado do nome (onde roubava a
+                      largura e fazia "Profissional 54" virar "Profissional
+                      5…") para o meio das pastilhas de função — e ali
+                      ficou pior de outro jeito: mesma altura, mesmo
+                      formato e quase o mesmo tamanho de "Diarista" e
+                      "Cuidadora". Quem paga para ser visto tinha o selo
+                      escondido entre os ofícios da própria pessoa.
+
+                      No canto ele não disputa com nada, e o foguinho fica
+                      sendo a primeira coisa que o olho encontra no cartão
+                      — que é o que se compra. */}
+                  {destaqueValendo(p) && (
+                    <span className="ei-selo ei-selo-laranja ei-selo-fogo ei-pessoa-selo">
+                      <IconeFogo tamanho={13} />
+                      Em alta
+                    </span>
+                  )}
                   {/* ── O NOME PARA DE SER CORTADO — 05/09 ──────────────
                       A dona: "a tela do banco de talentos está bem
                       confusa, quebrada."
@@ -427,25 +448,6 @@ export function ProfissionaisPage() {
                     ) : (
                       <span className="ei-pessoa-oficio">
                         {p.especialidade || "Sem função"}
-                      </span>
-                    )}
-                    {/* O selo desceu para cá: colado no nome, ele roubava
-                        a largura de que o nome precisa — foi assim que
-                        "Profissional 54" virou "Profissional 5…". */}
-                    {/* ── O FOGUINHO TAMBÉM NO CARTÃO — 05/09 ──────────
-                        A dona: "além de estar na área de destaque, quando
-                        a pessoa ou a vaga estiver destacado, coloque um
-                        foguinho também no card."
-
-                        Faz diferença justamente na lista de baixo, que
-                        mostra TODO mundo: lá o cartão de quem pagou fica
-                        entre os outros, e sem o foguinho só o texto
-                        pequeno do selo o distinguia. Com ele, o olho acha
-                        de longe — que é o que se compra. */}
-                    {destaqueValendo(p) && (
-                      <span className="ei-selo ei-selo-laranja ei-selo-fogo">
-                        <IconeFogo tamanho={13} />
-                        Em alta
                       </span>
                     )}
                   </div>
