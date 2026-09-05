@@ -815,6 +815,34 @@ class Consulta implements PromiseLike<{ data: Linha[] | Linha | null; error: unk
       this.anotarGravacao(this.gravar);
       for (const l of linhas) Object.assign(l, this.gravar);
     }
+    /* ── ORDENAR POR COLUNA QUE NÃO EXISTE TAMBÉM É ERRO — 05/09 ─────
+       O modo estrito já recusava coluna inexistente no `select`, mas não
+       no `order` — e ali o silêncio é pior: ordenar por `undefined`
+       devolve a lista NA ORDEM QUE VEIO, sem erro nenhum. O app parece
+       funcionar e a ordem está errada, que é o defeito mais difícil de
+       ver numa lista.
+
+       Foi o que quase deixou passar a tolerância da 0121: o código pede
+       `order("em_destaque")`, o falso ignorava, e o teste passava sem
+       nunca exercitar a volta para a ordem antiga. O PostgREST de verdade
+       responde 42703 aqui, igual ao `select`. */
+    if (this.ordens.length > 0 && linhas[0] && modoEstritoDeColunas()) {
+      const semColuna = this.ordens.find((o) => !(o.coluna in (linhas[0] as object)));
+      if (semColuna) {
+        console.warn(
+          `[colunas estrito] ${this.tabela}: pediram para ordenar por "${semColuna.coluna}", que não existe`
+        );
+        return {
+          data: null,
+          error: {
+            code: "42703",
+            message: `column ${this.tabela}.${semColuna.coluna} does not exist`,
+          },
+          count: 0,
+        };
+      }
+    }
+
     for (const { coluna, asc } of [...this.ordens].reverse()) {
       linhas = [...linhas].sort((a, b) => {
         const x = a[coluna] as never, y = b[coluna] as never;
