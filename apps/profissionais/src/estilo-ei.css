@@ -2332,6 +2332,32 @@
   padding-top: calc(12px + env(safe-area-inset-top));
   max-width: 620px;
   margin: 0 auto;
+  /* ── ELE PRECISA FICAR GRUDADO NO TOPO — 05/09 ─────────────────────
+     A dona mandou o print do banco de talentos com o relógio do celular
+     escrito por cima do título: "02:23 Banco de talentos", um em cima do
+     outro.
+
+     A causa: o `index.html` usa `viewport-fit=cover`, então a página
+     passa POR BAIXO da faixa do sistema (relógio, sinal, bateria) — e
+     quem reserva esse espaço é este cabeçalho, com o `padding-top` acima.
+     Só que ele rolava junto com a página: bastava rolar um dedo para ele
+     sair de cena, e aí a barra azul do título ficava no topo, sem reserva
+     nenhuma, exatamente embaixo do relógio.
+
+     A regra que gruda existia desde sempre no tema — em `.header` —, e
+     este cabeçalho simplesmente não carrega essa classe. Nunca esteve
+     grudado; o defeito só apareceu agora porque só agora alguém rolou uma
+     lista longa até o ponto certo e fotografou.
+
+     Grudado, ele cobre a faixa do sistema o tempo todo com o próprio azul
+     e a própria reserva. Nada mais passa por baixo do relógio.
+
+     `z-index` acima do conteúdo e abaixo dos avisos (60) e da folha de
+     filtros: o cabeçalho é moldura, e moldura não cobre o que interrompe
+     a pessoa. */
+  position: sticky;
+  top: 0;
+  z-index: 45;
 }
 .cabecalho-ei .logo-marca {
   background: transparent;
