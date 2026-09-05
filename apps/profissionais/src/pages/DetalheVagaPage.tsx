@@ -13,6 +13,7 @@ import {
 } from "../lib/company";
 import { mensagemDeErro } from "../lib/erros";
 import { Pagina, Prop, Callout } from "../components/ei/Pagina";
+import { FichaDaVaga } from "../components/ei/FichaDaVaga";
 import { BotaoCompartilhar } from "../components/ei/BotaoCompartilhar";
 import { podeVender } from "../lib/plataforma";
 import { SUPORTE_WHATSAPP } from "../config";
@@ -53,7 +54,19 @@ function proximoPasso(
   interessadas: number,
   ondasDisparadas: number,
   diasNoAr: number
-): { texto: string; rotulo: string; para: string } | null {
+): {
+  texto: string;
+  rotulo: string;
+  para: string;
+  /* Em qual das duas portas este recado já aparece.
+     ─────────────────────────────────────────────
+     A dona: "tem itens repetidos." Com uma pessoa interessada, a tela
+     dizia a mesma coisa três vezes em três blocos encostados — os
+     números, esta faixa e a porta. Quando o recado é sobre o que uma
+     porta já mostra, ele vira a linha DE DENTRO dela em vez de um bloco
+     a mais em cima. */
+  dentroDaPorta?: "interessados" | "compativeis";
+} | null {
   if (vaga.status === "closed") return null;
 
   if (vaga.status === "paused") {
@@ -74,6 +87,7 @@ function proximoPasso(
           : `${interessadas} pessoas se interessaram e estão esperando você chamar.`,
       rotulo: "Ver quem é",
       para: `/vaga/${vaga.id}/interessados`,
+      dentroDaPorta: "interessados",
     };
   }
 
@@ -82,6 +96,7 @@ function proximoPasso(
       texto: "Ninguém foi avisado ainda — a vaga está no ar, mas parada.",
       rotulo: "Avisar as pessoas",
       para: `/vaga/${vaga.id}/compativeis`,
+      dentroDaPorta: "compativeis",
     };
   }
 
@@ -101,6 +116,7 @@ function proximoPasso(
       texto: "Ninguém respondeu ainda. Dá para avisar mais gente.",
       rotulo: "Avisar mais gente",
       para: `/vaga/${vaga.id}/compativeis`,
+      dentroDaPorta: "compativeis",
     };
   }
 
@@ -305,13 +321,46 @@ export function DetalheVagaPage() {
               em "Avisar mais gente".
             </Callout>
           )}
+          {/* ══ REORGANIZADA — 05/09 ═══════════════════════════════════
+              A dona: "essa tela está bem quebrada. Confusa e tem itens
+              repetidos. Ajuste para que tenha todas as informações e que
+              seja bem intuitivo de mexer."
+
+              ── O QUE ESTAVA REPETIDO
+              Com uma pessoa interessada, a tela dizia isso TRÊS vezes,
+              em três blocos encostados: "Interessadas 1" nos números,
+              "1 pessoa se interessou e está esperando você chamar / Ver
+              quem é", e a porta "Quem se interessou / 1 pessoa, com
+              telefone". Dois links diferentes para a mesma tela, um
+              embaixo do outro.
+
+              Agora o recado urgente virou a LINHA DE DENTRO da porta —
+              um bloco só, no lugar de dois —, e a faixa de "o que fazer
+              agora" só aparece quando diz algo que as portas não dizem
+              (vaga pausada, "vale dar um ou dois dias", "vale rever o
+              salário").
+
+              ── O QUE FALTAVA, E ERA O BURACO MAIOR
+              A ficha tinha CINCO linhas: ofício, jeito, experiência,
+              salário e data. Benefícios, horário, escala, tipo de
+              contratação, escolaridade, CNH, idiomas, prazo — tudo o que
+              a empresa acabou de preencher no formulário — não aparecia.
+              Para conferir a própria vaga ela teria de abrir a versão
+              pública. Agora é a MESMA ficha das duas telas
+              (`FichaDaVaga`), completa.
+
+              ── E A ORDEM
+              Os números primeiro (é o que responde "isso está
+              funcionando?"), as pessoas em seguida (é o que ela veio
+              fazer), a vaga inteira depois, e só então vender destaque e
+              mexer na vaga. */}
           <div className="ei-cartao-vaga">
-          <div className="ei-props">
-            {/* O estado vem primeiro, e só quando NÃO é o normal. Uma vaga
-                no ar não precisa dizer que está no ar; uma pausada precisa,
-                porque a tela é idêntica nos dois casos e a empresa pode
-                passar semanas achando que está recebendo gente. */}
-            {vaga.status !== "active" && (
+          {/* O estado só aparece quando NÃO é o normal. Uma vaga no ar
+              não precisa dizer que está no ar; uma pausada precisa,
+              porque a tela é idêntica nos dois casos e a empresa pode
+              passar semanas achando que está recebendo gente. */}
+          {vaga.status !== "active" && (
+            <div className="ei-props">
               <Prop rotulo="Situação">
                 {vaga.status === "paused" ? (
                   <span className="ei-selo ei-selo-laranja">
@@ -321,38 +370,12 @@ export function DetalheVagaPage() {
                   <span className="ei-selo ei-selo-cinza">Encerrada</span>
                 )}
               </Prop>
-            )}
-            <Prop rotulo="Ofício">{vaga.profession}</Prop>
-            <Prop rotulo="Jeito">
-              {vaga.work_modality === "presencial"
-                ? "Presencial"
-                : vaga.work_modality === "remoto"
-                  ? "A distância"
-                  : "Híbrido"}
-            </Prop>
-            {vaga.required_experience && (
-              <Prop rotulo="Experiência">{vaga.required_experience}</Prop>
-            )}
-            {vaga.salary_range_min && vaga.salary_range_max && (
-              <Prop rotulo="Salário">
-                R$ {(vaga.salary_range_min / 100).toLocaleString("pt-BR")} a R${" "}
-                {(vaga.salary_range_max / 100).toLocaleString("pt-BR")}
-              </Prop>
-            )}
-            <Prop rotulo="Publicada">
-              {new Date(vaga.created_at).toLocaleDateString("pt-BR")}
-            </Prop>
-          </div>
+            </div>
+          )}
 
           {/* ── AS MÉTRICAS DA VAGA (item 10) ──────────────────────────
               A dona: "ao clicar nas vagas terão acesso às métricas da vaga
               e as pessoas que se interessaram."
-
-              Os dois números já existiam nesta tela, mas espalhados: as
-              avisadas dentro do bloco de ondas, no meio de uma explicação
-              de três parágrafos, e as interessadas só como título de uma
-              seção lá embaixo. Quem abria a vaga para saber "isso está
-              funcionando?" tinha de ler a tela inteira e somar de cabeça.
 
               São três, e a terceira é a que dá sentido às outras duas: 40
               avisadas e 2 interessadas em um dia é ótimo; em três semanas,
@@ -374,22 +397,6 @@ export function DetalheVagaPage() {
               </span>
             </div>
           </div>
-
-          {/* ── TUDO DA VAGA NUM CARTÃO SÓ — 04/09 ────────────────────
-              A dona: "essa tela ainda está confusa, desalinhada. Coloque as
-              informações da vaga dentro de um card só."
-
-              Eram três blocos brancos soltos, com chão cinza entre eles: a
-              ficha, os números e — separada, sem cartão nenhum — a
-              descrição escrita pela empresa, boiando no cinza como se
-              fosse de outro assunto.
-
-              Agora é um cartão do começo ao fim: ficha, números e
-              descrição, separados por fios em vez de por vãos. Um assunto,
-              um cartão. */}
-          {vaga.description?.trim() && (
-            <p className="ei-vaga-descricao">{vaga.description}</p>
-          )}
           </div>
         </Pagina>
 
@@ -402,7 +409,7 @@ export function DetalheVagaPage() {
       {/* A linha que diz o que fazer agora. Fica colada no cartão, antes
           de qualquer botão: é a leitura dos números que estão logo acima,
           feita pelo app em vez de pela empresa. */}
-      {passo && (
+      {passo && !passo.dentroDaPorta && (
         <Link className="ei-passo" to={passo.para}>
           <span className="ei-passo-texto">{passo.texto}</span>
           <span className="ei-passo-acao">{passo.rotulo}</span>
@@ -441,12 +448,17 @@ export function DetalheVagaPage() {
       <div className="ei-portas ei-margem">
         <Link to={`/vaga/${vaga.id}/interessados`} className="ei-porta ei-porta-cheia">
           <span className="ei-porta-nome">Quem se interessou</span>
+          {/* O recado urgente vira ESTA linha quando é sobre gente
+              esperando: era um bloco inteiro logo acima, dizendo a mesma
+              coisa e levando ao mesmo lugar. */}
           <span className="ei-porta-nota">
-            {respostas.length === 0
-              ? "Ninguém ainda — quem tocar em “tenho interesse” aparece aqui"
-              : respostas.length === 1
-                ? "1 pessoa, com telefone"
-                : `${respostas.length} pessoas, com telefone`}
+            {passo?.dentroDaPorta === "interessados"
+              ? passo.texto
+              : respostas.length === 0
+                ? "Ninguém ainda — quem tocar em “tenho interesse” aparece aqui"
+                : respostas.length === 1
+                  ? "1 pessoa, com telefone"
+                  : `${respostas.length} pessoas, com telefone`}
           </span>
         </Link>
 
@@ -464,14 +476,41 @@ export function DetalheVagaPage() {
         <Link to={`/vaga/${vaga.id}/compativeis`} className="ei-porta">
           <span className="ei-porta-nome">Mais compatíveis com a vaga</span>
           <span className="ei-porta-nota">
-            Quem mais combina, em ordem
-            {ondas.length === 0
-              ? ` · nenhuma das ${ONDAS_POR_VAGA} ondas disparada`
-              : ` · ${ondas.length} de ${ONDAS_POR_VAGA} ondas disparadas`}
-            {aindaTemOnda && vaga.status === "active" ? " · dá para avisar mais gente" : ""}
+            {passo?.dentroDaPorta === "compativeis"
+              ? passo.texto
+              : `Quem mais combina, em ordem${
+                  ondas.length === 0
+                    ? ` · nenhuma das ${ONDAS_POR_VAGA} ondas disparada`
+                    : ` · ${ondas.length} de ${ONDAS_POR_VAGA} ondas disparadas`
+                }${
+                  aindaTemOnda && vaga.status === "active"
+                    ? " · dá para avisar mais gente"
+                    : ""
+                }`}
           </span>
         </Link>
       </div>
+
+      {/* ── A VAGA INTEIRA, COMO ELA FOI PUBLICADA — 05/09 ─────────────
+          A dona: "ajuste para que tenha todas as informações."
+
+          Era o buraco maior desta tela, e nem parecia um: a ficha tinha
+          CINCO linhas — ofício, jeito, experiência, salário e data. Tudo
+          o mais que a empresa acabou de preencher no formulário
+          (benefícios, horário, escala, tipo de contratação,
+          escolaridade, CNH, idiomas, prazo para responder) não aparecia
+          em lugar nenhum. Para conferir a própria vaga ela teria de
+          abrir a versão pública, que é uma tela de outro lado do app.
+
+          É a MESMA ficha que quem procura emprego vê (`FichaDaVaga`), e
+          isso é de propósito: duas telas mostrando a mesma vaga com
+          fichas diferentes é como um campo novo entra numa e não na
+          outra, e ninguém percebe até alguém reclamar.
+
+          Fica DEPOIS das pessoas: quem abre a vaga vem ver quem
+          apareceu, não reler o que escreveu. */}
+      <h2 className="ei-secao">A vaga</h2>
+      <FichaDaVaga vaga={vaga} comDescricao />
 
       {/* ── DESTACAR ESTA VAGA — 04/09 ─────────────────────────────────
           A dona: "também opção de dar destaque a uma vaga" — R$ 19,90 por
