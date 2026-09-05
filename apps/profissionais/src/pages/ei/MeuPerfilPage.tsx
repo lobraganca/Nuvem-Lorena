@@ -1247,10 +1247,10 @@ export function MeuPerfilPage() {
               você — quem olha as vagas é você. A empresa só vê seus dados se
               você responder que tem interesse.
             </p>
-            <p className="ei-atencao-texto">
-              É assim que quem já está empregado procura outra coisa sem o
-              patrão ver.
-            </p>
+            {/* Saiu a pedido da dona (05/09): "tirar essa fala". Era a
+                frase sobre procurar sem o patrão ver. O aviso continua
+                dizendo o que a chave FAZ, que é o que a decisão precisa —
+                por que cada pessoa a usaria é conta dela. */}
           </div>
         </div>
 
