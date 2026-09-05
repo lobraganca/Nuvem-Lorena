@@ -4,6 +4,7 @@ import { useAuth } from "../../lib/useAuth";
 import { useOnboardingStatus } from "../../lib/useOnboardingStatus";
 import { useTituloDaPagina } from "../../lib/tituloDaPagina";
 import { saudacaoDoDia } from "../../lib/saudacao";
+import { useQuemEstaOnline } from "../../lib/presence";
 import { lerMeuPerfil } from "../../lib/meuPerfil";
 import { InstalarApp } from "../../components/InstalarApp";
 import { AvisoPerfilIncompleto } from "../../components/ei/AvisoPerfilIncompleto";
@@ -212,6 +213,21 @@ export function ComecarPage({ lado }: { lado: "professional" | "company" }) {
             depois de TODAS as portas, não entre elas nem antes. */}
         <Atalhos />
 
+        {/* ── QUEM ESTÁ AQUI AGORA — 05/09 ────────────────────────────
+            A dona: "quero colocar na tela quantas pessoas e empresas
+            estão on-line ao vivo."
+
+            Depois dos atalhos e antes do rodapé: é informação de ambiente,
+            não um caminho. E o número que interessa a cada lado é o do
+            OUTRO — quem procura emprego quer saber se há empresa olhando;
+            quem contrata, se há gente. Numa cidade pequena essa é a única
+            prova de movimento que um app novo consegue dar.
+
+            Só aparece com alguém do outro lado online: "0 empresas agora"
+            é a verdade, e é também a frase que faz a pessoa fechar o app.
+            Silêncio, aqui, é melhor do que um zero. */}
+        <QuemEstaAqui lado={lado} />
+
         <div className="ei-entrada-pe">
           <InstalarApp variante="botao" />
         </div>
@@ -227,6 +243,52 @@ export function ComecarPage({ lado }: { lado: "professional" | "company" }) {
  * comentário em `ComecarPage`), e repetir o par duas vezes no JSX é como
  * uma das duas cópias fica para trás na próxima mudança de texto.
  */
+/**
+ * "3 empresas e 8 pessoas com o app aberto agora."
+ *
+ * Conta pelo Presence do Supabase (ver `lib/presence.ts`): cada aba
+ * anuncia uma chave aleatória e de que lado está, e some sozinha ao
+ * fechar. Nenhum dado pessoal trafega — não dá para saber QUEM está
+ * online, só quantos.
+ *
+ * O pontinho verde pulsa. É o único movimento da tela, e é ele que faz o
+ * número ser lido como "agora" em vez de "no total".
+ */
+function QuemEstaAqui({ lado }: { lado: "professional" | "company" }) {
+  const quem = useQuemEstaOnline();
+  if (!quem) return null;
+
+  /* O da própria pessoa não entra na conta: ela já sabe que está aqui, e
+     "1 pessoa online" quando você é a única é o oposto de convidativo. */
+  const outros = lado === "company" ? quem.profissionais : quem.empresas;
+  const meus = (lado === "company" ? quem.empresas : quem.profissionais) - 1;
+
+  if (outros <= 0 && meus <= 0) return null;
+
+  const pedacos: string[] = [];
+  if (outros > 0) {
+    pedacos.push(
+      lado === "company"
+        ? `${outros} ${outros === 1 ? "pessoa procurando" : "pessoas procurando"}`
+        : `${outros} ${outros === 1 ? "empresa" : "empresas"}`
+    );
+  }
+  if (meus > 0) {
+    pedacos.push(
+      lado === "company"
+        ? `${meus} ${meus === 1 ? "outra empresa" : "outras empresas"}`
+        : `${meus} ${meus === 1 ? "outra pessoa" : "outras pessoas"}`
+    );
+  }
+
+  return (
+    <p className="ei-ao-vivo">
+      <span className="ei-ao-vivo-ponto" aria-hidden="true" />
+      {pedacos.join(" e ")} no app agora
+    </p>
+  );
+}
+
 function Atalhos() {
   return (
     <div className="ei-atalhos">

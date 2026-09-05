@@ -1279,7 +1279,54 @@ const clienteFalso = {
   auth,
   storage: { from: () => ({ upload: async () => ({ error: null }), getPublicUrl: () => ({ data: { publicUrl: "" } }) }) },
   functions: { invoke: async () => ({ data: null, error: null }) },
-  channel: () => ({ on() { return this; }, subscribe() { return this; }, track: async () => {}, untrack: async () => {}, unsubscribe: async () => {}, presenceState: () => ({}) }),
+  /* ── O CANAL DE PRESENÇA PASSOU A RESPONDER — 05/09 ─────────────────
+     Ele era um casco: `on` e `subscribe` devolviam `this` sem nunca
+     chamar ninguém de volta, e `presenceState` devolvia `{}`. Serviu
+     enquanto o único uso era não deixar a tela cair no ErrorBoundary.
+
+     Só que a dona pediu "quantas pessoas e empresas estão on-line ao
+     vivo", e um canal que nunca avisa faz a linha inteira sumir da tela —
+     o teste passaria dizendo que está tudo certo por não ter o que
+     mostrar. É o mesmo tipo de mentira calma que este projeto persegue.
+
+     Agora ele guarda o que o app anuncia (`track`), inventa alguns
+     vizinhos dos dois lados, e chama o `sync` logo depois de assinar. O
+     número é de mentira; o CAMINHO que a tela percorre é o de verdade. */
+  channel: () => {
+    let aoSincronizar: null | (() => void) = null;
+    let eu: Record<string, unknown> = {};
+    const vizinhos = {
+      "falso-prof-1": [{ lado: "professional" }],
+      "falso-prof-2": [{ lado: "professional" }],
+      "falso-prof-3": [{ lado: "professional" }],
+      "falso-empresa-1": [{ lado: "company" }],
+      "falso-empresa-2": [{ lado: "company" }],
+      /* Uma aba que ainda não escolheu lado: ela conta no total e em
+         nenhum dos dois — é o caso que a conta precisa saber ignorar. */
+      "falso-sem-lado": [{ lado: null }],
+    };
+    const canal = {
+      on(_tipo: string, _filtro: unknown, retorno: () => void) {
+        aoSincronizar = retorno;
+        return canal;
+      },
+      subscribe(retorno?: (status: string) => void) {
+        setTimeout(() => {
+          retorno?.("SUBSCRIBED");
+          aoSincronizar?.();
+        }, 60);
+        return canal;
+      },
+      track: async (dados: Record<string, unknown>) => {
+        eu = dados;
+        setTimeout(() => aoSincronizar?.(), 20);
+      },
+      untrack: async () => {},
+      unsubscribe: async () => {},
+      presenceState: () => ({ ...vizinhos, eu: [eu] }),
+    };
+    return canal;
+  },
   removeChannel: async () => {},
 };
 

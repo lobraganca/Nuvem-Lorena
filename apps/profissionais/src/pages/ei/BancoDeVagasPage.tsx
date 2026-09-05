@@ -478,21 +478,30 @@ export function BancoDeVagasPage() {
             em `ProfissionaisPage`. Aqui ele leva ao painel, e não a um
             checkout: o destaque é de UMA vaga, e qual delas só a empresa
             sabe. */}
+        {/* A mesma caixa da área de destaque do banco de talentos — a
+            dona: "a seção de destaque não ficou delimitada por alguma
+            seção, então parece que tá todo mundo em destaque". Ver o
+            comentário longo em `ProfissionaisPage`. */}
         {modo === "lista" && (destacadas.length > 0 || podeVender()) && (
-          <>
+          <section className="ei-area-destaque">
             <h2 className="ei-secao ei-secao-fogo">
               <IconeFogo />
               Em destaque
               {podeVender() && (
-                <Link to="/painel-empresa" className="ei-secao-fogo-botao">
+                <Link to="/destaque-da-vaga" className="ei-secao-fogo-botao">
                   Apareça aqui
                 </Link>
               )}
             </h2>
-            {destacadas.length > 0 && (
+            {destacadas.length > 0 ? (
               <div className="ei-lista ei-lista-destaque">{destacadas.map(linhaDaVaga)}</div>
+            ) : (
+              <p className="ei-area-destaque-vazia">
+                Nenhuma vaga em destaque agora. Este é o lugar de quem paga
+                para a vaga aparecer no topo desta lista.
+              </p>
             )}
-          </>
+          </section>
         )}
 
         {/* ── QUEM PAGA FICA NOS DOIS LUGARES — 05/09 ──────────────────
@@ -508,7 +517,7 @@ export function BancoDeVagasPage() {
 
             Agora vai `visiveis` inteira, e a vaga em destaque aparece
             duas vezes, com o selo nas duas. */}
-        {modo === "lista" && destacadas.length > 0 && visiveis.length > 0 && (
+        {modo === "lista" && (destacadas.length > 0 || podeVender()) && visiveis.length > 0 && (
           <h2 className="ei-secao">Todas as vagas</h2>
         )}
 

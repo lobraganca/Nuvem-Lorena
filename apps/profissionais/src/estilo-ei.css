@@ -167,7 +167,24 @@
    canto redondo e sem sombra — a profundidade vem de superfície, que é o
    que estava faltando, não de tinta, que já foi recusada três vezes. */
 .ei-tela {
-  min-height: 100dvh;
+  /* ── A TELA MEDIA A JANELA INTEIRA, E ELA NÃO OCUPA A JANELA INTEIRA
+     ─────────────────────────────────────────────────────────────────
+     Era `100dvh` puro. Só que acima desta caixa há o cabeçalho da marca,
+     que também está no fluxo: a página inteira ficava com a altura da
+     janela MAIS a altura do cabeçalho. Quem paga essa diferença é sempre
+     a última coisa da tela — o `margin-top: auto` do rodapé encosta no
+     "piso" de uma caixa alta demais, e o piso cai atrás da barra de
+     baixo.
+
+     Foi medido na tela inicial: o botão "Baixar App" ia de 791 a 830px
+     numa tela de 844, com a barra começando em 786. Ele estava atrás da
+     barra, e por isso a dona não conseguia enxergar tudo.
+
+     `--altura-header` já era publicada pelo `AppShell` (um
+     ResizeObserver no cabeçalho), e ninguém a usava para isto. Com a
+     reserva em 0px, um cabeçalho que ainda não mediu não quebra nada:
+     volta a ser o que era. */
+  min-height: calc(100dvh - var(--altura-header, 0px));
   background: var(--ei-afunda);
   padding: 0 0 calc(76px + env(safe-area-inset-bottom));
 }
@@ -3071,8 +3088,37 @@
 /* O campo sempre aberto para adicionar a próxima — a "opção de adicionar
    outras" que a dona pediu, sem esconder atrás de um botão que precisa ser
    tocado primeiro. */
-.ei-competencia-add { display: flex; gap: 8px; margin-top: 14px; }
+/* ── "ADICIO / NAR" — 05/09 ────────────────────────────────────────────
+   A dona mandou o print: "Adicionar quebrado."
+
+   A linha é um flex, e o botão nasceu sem `flex-shrink: 0`. O padrão do
+   flex é ENCOLHER todo mundo até caber — então o campo de texto ficava com
+   a largura que queria e o botão era espremido até a palavra quebrar no
+   meio. Não é um caso de tela estreita: acontecia em qualquer largura,
+   porque o campo pedia `1 1 auto` e ninguém segurava o botão.
+
+   `flex: 0 0 auto` mais `white-space: nowrap`: o botão fica do tamanho da
+   palavra dele, e quem cede espaço é o campo (que tem `min-width: 0` e
+   pode encolher à vontade).
+
+   Alinhados pelo topo, e não esticados: `align-items: stretch` (o padrão)
+   deixava o botão da altura do campo, e com o campo de duas linhas ele
+   virava um retângulo alto com a palavra flutuando no meio. */
+.ei-competencia-add {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  margin-top: 14px;
+}
 .ei-competencia-add input { flex: 1 1 auto; min-width: 0; }
+.ei-competencia-add > .ei-btn {
+  flex: 0 0 auto;
+  white-space: nowrap;
+  /* A mesma altura do campo ao lado, para a linha não ficar em degrau. */
+  min-height: 48px;
+  padding-left: 16px;
+  padding-right: 16px;
+}
 
 /* Os três botões da triagem, no perfil de quem se candidatou.
    Quebram de linha em vez de encolher: "Não é para a vaga" não cabe em um
@@ -7531,3 +7577,292 @@
   cursor: pointer;
 }
 .ei .ei-aviso-excluir:active { background: var(--ei-afunda); }
+
+
+/* ══════════════════════════════════════════════════════════════════════
+   VERMELHO CLARO: O QUE DESFAZ, MAS ASSUSTA — 05/09
+   ══════════════════════════════════════════════════════════════════════
+   A dona: "o botão de inativar o cadastro pode ser vermelho claro e pedir
+   confirmação." E, na tela da vaga: "com botões em vermelho e tamanho
+   discreto."
+
+   O app tinha dois extremos e nada no meio: o `link-perigo` (texto
+   vermelho, para excluir a conta) e o botão comum de contorno azul. Ações
+   como "inativar o cadastro" e "tirar a vaga do ar" ficavam vestidas de
+   ação neutra — e as duas somem da cidade em silêncio.
+
+   Vermelho CLARO, e não cheio: as duas se desfazem num toque. Um vermelho
+   sólido é o vocabulário de "apagar para sempre", e usá-lo aqui gastaria,
+   à toa, o único sinal que o app tem para o que é irreversível. */
+.ei .ei-btn-perigo-claro {
+  background: var(--ei-erro-fraco);
+  border: 1px solid #f0c9c6;
+  color: var(--ei-sobre-erro-fraco);
+  font-weight: 600;
+}
+.ei .ei-btn-perigo-claro:active { background: #f7dcda; }
+.ei .ei-btn-perigo-claro:disabled { opacity: 0.6; }
+
+/* A pergunta que aparece no lugar do botão. Fica no MESMO cartão, e não
+   numa folha que sobe: a frase precisa ser lida junto do estado atual
+   ("seu cadastro está ativo"), que está logo acima. */
+.ei .ei-confirma {
+  border-top: 1px solid var(--ei-fio);
+  padding-top: 12px;
+}
+.ei .ei-confirma-texto {
+  margin: 0 0 12px;
+  font-size: 0.9rem;
+  line-height: 1.45;
+  color: var(--ei-tinta);
+}
+/* Em coluna, e o de VOLTAR ATRÁS em cima: lado a lado, num celular
+   estreito, "Inativar mesmo assim" quebra em duas linhas e o par fica em
+   degrau — e o polegar acerta o de baixo mais fácil, que aqui é
+   justamente o que não se quer facilitar. */
+.ei .ei-confirma-botoes { display: grid; gap: 8px; }
+.ei .ei-confirma-botoes > .ei-btn { width: 100%; min-height: 46px; }
+
+
+/* ══════════════════════════════════════════════════════════════════════
+   A ÁREA DE DESTAQUE PRECISA TER PAREDE — 05/09
+   ══════════════════════════════════════════════════════════════════════
+   A dona: "a seção de destaque não ficou delimitada por alguma seção,
+   então parece que tá todo mundo em destaque."
+
+   Ela estava certa e o motivo é fácil de reconstruir: o título laranja e,
+   logo abaixo, cartões brancos iguais aos da lista de baixo, no mesmo chão
+   cinza. Um dedo de rolagem e o título sai de cena — e como o selo "Em
+   alta" também aparece no cartão da lista comum (foi ela quem pediu, e
+   está certo), não sobra nada dizendo onde a área acaba.
+
+   A caixa resolve com uma regra e nenhum texto: o que está DENTRO é o que
+   foi pago. Laranja lavado, que é a cor do destaque no app inteiro. */
+.ei .ei-area-destaque {
+  margin: 6px 12px 4px;
+  padding: 4px 10px 12px;
+  border: 1px solid #f1cfbb;
+  border-radius: 18px;
+  background: var(--ei-laranja-fraco);
+}
+/* O título já vem com margem da régua da tela; dentro da caixa ela
+   duplicaria o respiro da esquerda. */
+.ei .ei-area-destaque > .ei-secao { margin-left: 4px; margin-right: 4px; }
+/* Os cartões de dentro perdem a margem lateral: a caixa já a tem. */
+.ei .ei-area-destaque > .ei-lista { margin-left: 0; margin-right: 0; }
+/* E perdem a barra laranja da esquerda: dentro de uma caixa laranja ela
+   vira um risco em cima de um fundo da mesma cor. */
+.ei .ei-area-destaque > .ei-lista-destaque { border-left: 0; }
+
+.ei .ei-area-destaque-vazia {
+  margin: 0 4px;
+  padding: 12px 14px;
+  border: 1px dashed #e2b79c;
+  border-radius: 14px;
+  font-size: 0.86rem;
+  line-height: 1.45;
+  color: var(--ei-sobre-laranja-fraco);
+  background: rgba(255, 255, 255, 0.55);
+}
+
+/* ── A CAPA DA TELA DE DESTAQUE ─────────────────────────────────────────
+   A dona: "o botão de apareça aqui deve direcionar a uma página que
+   explica os benefícios e tenha um botão para direcionar para pagamento."
+
+   O primeiro bloco da tela diz O QUE SE COMPRA, sem preço nenhum. Preço
+   antes da explicação é o jeito mais rápido de a pessoa voltar. */
+.ei .ei-destaque-capa {
+  background: var(--ei-laranja-fraco);
+  border-color: #f1cfbb;
+}
+.ei .ei-destaque-capa-marca {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  border-radius: 999px;
+  background: var(--ei-papel);
+  color: var(--ei-laranja);
+  margin-bottom: 12px;
+}
+.ei .ei-destaque-capa-titulo {
+  margin: 0 0 6px;
+  font-size: 1.25rem;
+  font-weight: 700;
+  line-height: 1.25;
+  color: var(--ei-sobre-laranja-fraco);
+}
+.ei .ei-destaque-capa-texto {
+  margin: 0;
+  font-size: 0.92rem;
+  line-height: 1.5;
+  color: var(--ei-tinta);
+}
+
+/* Botão laranja pequeno, para caber no fim de uma linha de lista. O
+   `ei-btn-laranja` cheio tem margem própria e largura de bloco: ali ele
+   empurraria o nome da vaga para cima dele. */
+.ei .ei-btn-laranja-pequeno {
+  flex: 0 0 auto;
+  align-self: center;
+  min-height: 38px;
+  padding: 0 16px;
+  display: inline-flex;
+  align-items: center;
+  border-radius: 999px;
+  background: var(--ei-laranja-botao, #f6b26b);
+  color: #4a2410;
+  font-weight: 700;
+  font-size: 0.88rem;
+  text-decoration: none;
+  white-space: nowrap;
+}
+.ei .ei-btn-laranja-pequeno:active { opacity: 0.8; }
+
+
+/* ══════════════════════════════════════════════════════════════════════
+   A BUSCA E OS FILTROS DO BANCO DE TALENTOS — 05/09
+   ══════════════════════════════════════════════════════════════════════
+   A dona, com o print: "essa busca é esse tipo de filtros podem ser
+   melhores ajeitados."
+
+   Três coisas, no print dela:
+
+   1. A FILEIRA DE OFÍCIOS ACABAVA CORTADA NO MEIO DA PALAVRA
+      ("Vendedo…", encostado na borda direita). Ela rola para o lado, mas
+      nada dizia isso: corte seco na borda lê como texto estourado, não
+      como "tem mais, arraste". Agora ela termina num esmaecido e ganha um
+      respiro no fim, que é como se convida a arrastar sem escrever nada.
+
+   2. A LINHA DO "FILTROS" E A CONTAGEM ESTAVAM SOLTAS uma da outra —
+      "Filtros" à esquerda e "1 pessoa" lá na direita, com um vão de tela
+      no meio. Duas coisas sem relação aparente. A contagem é o RESULTADO
+      do filtro, então ela passa a ficar encostada nele, em cinza e
+      pequena, do jeito que um resultado se comporta.
+
+   3. TRÊS FAIXAS DE CONTROLE ANTES DA PRIMEIRA PESSOA (busca, filtros,
+      ofícios), cada uma com o próprio respiro de 12-14px. Os vãos
+      encolhem: quem abre esta tela veio ver GENTE. */
+.ei .ei-busca + .ei-linha-filtros { margin-top: 10px; }
+
+.ei .ei-linha-filtros .ei-conta-da-lista {
+  /* Encostada no que ela conta, e não no outro lado da tela. */
+  margin-left: 0;
+  font-size: 0.82rem;
+  color: var(--ei-tinta-fraca);
+  white-space: nowrap;
+}
+/* O "Limpar" é que vai para a direita: ele é a saída, e saída fica na
+   ponta. */
+.ei .ei-linha-filtros > .ei-btn-inline { margin-left: auto; }
+
+.ei .ei-filtros {
+  padding-top: 10px;
+  padding-bottom: 10px;
+  /* O esmaecido do fim: a fileira deixa de "acabar cortada" e passa a
+     "continuar". `mask` funciona em todo navegador atual; onde não
+     funcionar, a fileira volta a ser o que era — corte seco, e nada
+     quebra. */
+  -webkit-mask-image: linear-gradient(to right, #000 calc(100% - 28px), transparent 100%);
+  mask-image: linear-gradient(to right, #000 calc(100% - 28px), transparent 100%);
+}
+/* Um respiro no fim para o último chip não morrer colado na borda — e
+   para o esmaecido ter em cima do que acontecer. */
+.ei .ei-filtros::after {
+  content: "";
+  flex: 0 0 12px;
+}
+
+
+/* ── "SAIR" EM VERMELHO, NA BARRA DE BAIXO — 05/09 ────────────────────
+   A dona: "botão de sair da conta no menu deve ser mais alinhado e na cor
+   vermelha."
+
+   Vermelho de texto, e não de fundo: uma pastilha vermelha na barra teria
+   mais peso visual que o item ATIVO, e a barra passaria a gritar a saída
+   em toda tela do app. A cor aqui distingue — não chama. */
+/* Com valor de reserva literal, e não `var(--ei-erro)` puro: a barra fica
+   FORA do `.ei` (o theme.css diz isso no comentário do `.nav-ei-item`), e
+   as variáveis daquele escopo não chegam aqui. Sem a reserva, a regra é
+   inválida e a cor cai no preto do texto — foi exatamente o que a medição
+   pegou: rgb(26,22,19), que é o `--color-text`. */
+.ei .nav-ei-sair,
+.nav-ei .nav-ei-sair { color: var(--ei-erro, #b3261e); }
+.ei .nav-ei-sair .nav-ei-rotulo,
+.nav-ei .nav-ei-sair .nav-ei-rotulo { color: inherit; }
+.ei .nav-ei-sair svg,
+.nav-ei .nav-ei-sair svg { color: inherit; }
+
+
+/* ══════════════════════════════════════════════════════════════════════
+   A TELA INICIAL CABENDO NUMA TELA — 05/09
+   ══════════════════════════════════════════════════════════════════════
+   A dona: "reformule os botões pra ficarem mais ajeitados na tela de um
+   jeito que se enxergue tudo na tela. Pode diminuir os botões dos bancos."
+
+   O que gastava a altura era um número só: `aspect-ratio: 1` nos dois
+   atalhos. Num celular de 390px cada quadrado ficava com ~165px de altura
+   — 165px para dizer duas palavras. Só esse par ocupava um quinto da tela
+   útil, e empurrava o rodapé (e às vezes a última porta) para fora.
+
+   Agora eles são fileiras curtas, com o desenho à esquerda e o nome ao
+   lado: o mesmo par, com 56px em vez de 165. E as portas de cima cedem
+   uns pixels cada — o suficiente para o conjunto caber sem apertar
+   nenhuma. */
+.ei .ei-atalho {
+  aspect-ratio: auto;
+  flex-direction: row;
+  justify-content: flex-start;
+  gap: 10px;
+  min-height: 56px;
+  padding: 10px 12px;
+  text-align: left;
+}
+.ei .ei-atalho .ei-porta-icone { width: 34px; height: 34px; }
+.ei .ei-atalho .ei-porta-icone svg { width: 18px; height: 18px; }
+.ei .ei-atalho > span:not(.ei-porta-icone) {
+  min-width: 0;
+  font-size: 0.82rem;
+  line-height: 1.2;
+}
+
+/* O topo cede 14px, e as portas 3px cada. Nenhuma sozinha resolveria; as
+   três juntas devolvem a altura de uma porta inteira. */
+.ei .ei-entrada-topo { padding-top: 22px; }
+.ei .ei-portas { gap: 8px; }
+.ei .ei-porta { padding-top: 13px; padding-bottom: 13px; }
+
+/* ── QUEM ESTÁ AQUI AGORA ──────────────────────────────────────────────
+   A dona: "quero colocar na tela quantas pessoas e empresas estão on-line
+   ao vivo."
+
+   Uma linha discreta, com um ponto verde que pulsa. O ponto é o que faz o
+   número ser lido como "agora" e não como "no total" — sem ele seria mais
+   uma estatística, e estatística não convida ninguém a ficar. */
+.ei .ei-ao-vivo {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 14px 20px 0;
+  font-size: 0.84rem;
+  font-weight: 500;
+  color: var(--ei-tinta-fraca);
+}
+.ei .ei-ao-vivo-ponto {
+  flex: 0 0 auto;
+  width: 8px;
+  height: 8px;
+  border-radius: 999px;
+  background: #22a45d;
+  animation: ei-pulso 2s ease-in-out infinite;
+}
+@keyframes ei-pulso {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.45; transform: scale(0.82); }
+}
+/* Quem pediu para o sistema parar de animar não vê o pulso — o ponto fica
+   parado e verde, e a frase continua dizendo "agora". */
+@media (prefers-reduced-motion: reduce) {
+  .ei .ei-ao-vivo-ponto { animation: none; }
+}

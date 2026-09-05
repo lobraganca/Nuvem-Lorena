@@ -63,6 +63,7 @@ const ReembolsoPage = lazy(importarPagina(() => import("./pages/ei/ReembolsoPage
 const DenunciarPage = lazy(importarPagina(() => import("./pages/ei/DenunciarPage").then((m) => ({ default: m.DenunciarPage }))));
 const MeuDesempenhoPage = lazy(importarPagina(() => import("./pages/ei/MeuDesempenhoPage").then((m) => ({ default: m.MeuDesempenhoPage }))));
 const DestaquePage = lazy(importarPagina(() => import("./pages/ei/DestaquePage").then((m) => ({ default: m.DestaquePage }))));
+const DestaqueDaVagaPage = lazy(importarPagina(() => import("./pages/ei/DestaqueDaVagaPage").then((m) => ({ default: m.DestaqueDaVagaPage }))));
 const OndasDaVagaPage = lazy(importarPagina(() => import("./pages/OndasDaVagaPage").then((m) => ({ default: m.OndasDaVagaPage }))));
 const InteressadosDaVagaPage = lazy(importarPagina(() => import("./pages/InteressadosDaVagaPage").then((m) => ({ default: m.InteressadosDaVagaPage }))));
 const DetalheVagaPage = lazy(importarPagina(() => import("./pages/DetalheVagaPage").then((m) => ({ default: m.DetalheVagaPage }))));
@@ -424,11 +425,25 @@ export default function App() {
         <Route path="/meu-desempenho" element={
           <SoDesteLado lado="professional"><MeuDesempenhoPage /></SoDesteLado>
         } />
-        {/* O destaque pago de quem procura trabalho. Não existe dentro do
-            app da Play Store (ver DestaquePage). */}
-        <Route path="/destaque" element={
-          <SoDesteLado lado="company"><DestaquePage /></SoDesteLado>
-        } />
+        {/* ── O DESTAQUE NÃO É DE UM LADO SÓ — 05/09 ─────────────────
+            Esta rota estava presa em `SoDesteLado lado="company"`, e a
+            tela que ela abre é o destaque de QUEM PROCURA EMPREGO. Ou
+            seja: a única pessoa que compra aquilo era a única que não
+            conseguia chegar lá — tocar em "Apareça aqui" no banco de
+            talentos, ou em "Aparecer primeiro" no desempenho, jogava a
+            pessoa de volta. Um recurso pago, invisível para quem paga.
+
+            Sem trava dos dois lados: a mesma conta pode ser as duas
+            coisas, e quem entrou como empresa e também tem cadastro de
+            profissional pode querer destacar o próprio cadastro. Sem
+            cadastro, a própria tela explica e leva a preencher.
+
+            Nenhuma das duas existe dentro do app da Play Store
+            (`podeVender`). */}
+        <Route path="/destaque" element={<DestaquePage />} />
+        {/* O destaque pago de uma VAGA — a página que a dona pediu:
+            "explica os benefícios e tem um botão para o pagamento". */}
+        <Route path="/destaque-da-vaga" element={<DestaqueDaVagaPage />} />
         <Route path="/profissionais" element={<ProfissionaisPage />} />
         {/* O perfil de uma pessoa, visto por quem contrata. É a metade
             gratuita da oferta da empresa — ver e falar um a um — e não

@@ -657,8 +657,24 @@ export function ProfissionaisPage() {
             de quem viu os outros lá em cima e quis também.
 
             Some dentro do app da Play Store (`podeVender`). */}
+        {/* ── A ÁREA PRECISA TER PAREDE — 05/09 ───────────────────────
+            A dona: "a seção de destaque não ficou delimitada por alguma
+            seção, então parece que tá todo mundo em destaque."
+
+            Era um título laranja e, logo abaixo, cartões iguaizinhos aos
+            da lista de baixo, no mesmo chão cinza. Quem rolava um dedo
+            perdia o título de vista e continuava lendo — e como o selo
+            "Em alta" também aparece no cartão lá embaixo (foi ela quem
+            pediu, e está certo), a tela inteira parecia destaque.
+
+            Agora a área é uma CAIXA: fundo laranja lavado, moldura e
+            cantos próprios. O que está dentro é o que foi pago; o que está
+            fora, não. E o título "Todos os profissionais" passou a
+            aparecer SEMPRE que existe a caixa, mesmo com ela vazia — sem
+            ele, a lista de baixo começava sem nome nenhum e ficava
+            parecendo a continuação da de cima. */}
         {(emAlta.length > 0 || podeVender()) && (
-          <>
+          <section className="ei-area-destaque">
             <h2 className="ei-secao ei-secao-fogo">
               <IconeFogo />
               Em alta
@@ -668,13 +684,18 @@ export function ProfissionaisPage() {
                 </Link>
               )}
             </h2>
-            {emAlta.length > 0 && (
+            {emAlta.length > 0 ? (
               <div className="ei-lista ei-lista-destaque">{emAlta.map(linhaDaPessoa)}</div>
+            ) : (
+              <p className="ei-area-destaque-vazia">
+                Ninguém está em alta agora. Este é o lugar de quem paga para
+                aparecer primeiro na busca das empresas.
+              </p>
             )}
-          </>
+          </section>
         )}
 
-        {emAlta.length > 0 && todos.length > 0 && (
+        {(emAlta.length > 0 || podeVender()) && todos.length > 0 && (
           <h2 className="ei-secao">Todos os profissionais</h2>
         )}
 

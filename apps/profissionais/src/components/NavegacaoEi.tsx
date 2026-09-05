@@ -125,11 +125,24 @@ const IconeVoltar = (
 /* A porta com a seta saindo — o desenho que todo app usa para "sair da
    conta". A seta aponta para FORA da porta de propósito: apontando para
    dentro, o mesmo ícone quer dizer "entrar". */
+/* ── O "SAIR" ESTAVA TORTO — 05/09 ──────────────────────────────────
+   A dona: "botão de sair da conta no menu deve ser mais alinhado e na cor
+   vermelha."
+
+   O desenho antigo era uma porta à DIREITA com a seta entrando nela: três
+   traços empurrados para o lado direito da grade de 24px, enquanto todos
+   os vizinhos (sino, maleta, pessoa) são simétricos e centrados. Numa
+   fileira de cinco, o único descentrado é o que parece torto — e não era
+   impressão: o peso do desenho ficava em x≈13, contra x=12 dos outros.
+
+   Agora a porta fica à ESQUERDA e a seta sai dela para a direita,
+   dividindo a grade ao meio. Continua sendo a mesma ideia (sair por uma
+   porta), centrada como as outras. */
 const IconeSair = (
   <Svg>
-    <path d="M14.5 4.5H18a2 2 0 0 1 2 2v11a2 2 0 0 1-2 2h-3.5" />
-    <path d="M10 8.5L13.5 12 10 15.5" />
-    <path d="M13.5 12H4" />
+    <path d="M9.5 4.5H6a2 2 0 0 0-2 2v11a2 2 0 0 0 2 2h3.5" />
+    <path d="M16 8.5L19.5 12 16 15.5" />
+    <path d="M19 12h-9" />
   </Svg>
 );
 
@@ -427,9 +440,12 @@ export function NavegacaoEi() {
 
                `replace` para o botão de voltar do aparelho não trazer de
                volta a tela de dentro do app, que já não tem sessão. */
+            /* Vermelho — a dona pediu, e é o item certo para isso: dos
+               cinco da barra, "Sair" é o único que DESFAZ alguma coisa.
+               Os outros quatro levam a algum lugar. */
             <button
               type="button"
-              className="nav-ei-item"
+              className="nav-ei-item nav-ei-sair"
               onClick={() => {
                 void signOut().finally(() => navegar("/login", { replace: true }));
               }}

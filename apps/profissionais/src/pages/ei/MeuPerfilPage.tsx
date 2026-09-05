@@ -174,6 +174,8 @@ export function MeuPerfilPage() {
      formulário inteiro para desligar o cadastro faria quem só queria
      sumir da busca ter que revisar trinta campos antes. */
   const [alternandoAtivo, setAlternandoAtivo] = useState(false);
+  /* Quando true, o cartão do pé troca o botão pela pergunta. */
+  const [confirmandoInativar, setConfirmandoInativar] = useState(false);
   /* As empresas que abriram este cadastro (0106). Quem procura trabalho
      passa semanas sem sinal nenhum e lê o silêncio como "não estou
      servindo para nada" — some do app calada. Isto é o primeiro sinal de
@@ -309,6 +311,21 @@ export function MeuPerfilPage() {
   async function alternarAtivo() {
     if (!perfil.id || alternandoAtivo) return;
     const novo = !ativo;
+    /* ── INATIVAR PERGUNTA ANTES — 05/09 ──────────────────────────────
+       A dona: "o botão de inativar o cadastro pode ser vermelho claro e
+       pedir confirmação."
+
+       Inativar não apaga nada, mas o efeito é o mesmo de sumir: a pessoa
+       para de aparecer para as empresas E para de receber vaga, e as duas
+       coisas acontecem em silêncio. Quem tocar sem querer só descobre
+       daqui a uma semana, quando estranhar que não chega mais nada.
+
+       ATIVAR não pergunta: voltar a aparecer não tem nada a perder. */
+    if (!novo && !confirmandoInativar) {
+      setConfirmandoInativar(true);
+      return;
+    }
+    setConfirmandoInativar(false);
     setAlternandoAtivo(true);
     setErro("");
     try {
@@ -1813,18 +1830,63 @@ export function MeuPerfilPage() {
               ? "Seu cadastro está ativo: as empresas te encontram e as vagas do seu ofício chegam para você."
               : "Seu cadastro está inativo: ninguém te encontra na busca e nenhuma vaga chega. Nada do que você preencheu foi apagado."}
           </p>
-          <button
-            type="button"
-            className="ei-btn ei-btn-contorno ei-btn-largo"
-            disabled={alternandoAtivo}
-            onClick={alternarAtivo}
-          >
-            {alternandoAtivo
-              ? "Um instante…"
-              : ativo
-                ? "Inativar meu cadastro"
-                : "Ativar meu cadastro"}
-          </button>
+
+          {/* ── VERMELHO CLARO, E COM PERGUNTA — 05/09 ─────────────────
+              A dona: "o botão de inativar o cadastro pode ser vermelho
+              claro e pedir confirmação."
+
+              Vermelho CLARO e não vermelho cheio: inativar se desfaz num
+              toque, e um botão vermelho sólido no pé de um cadastro que a
+              pessoa acabou de preencher lê como "apagar tudo". A cor
+              avisa; ela não ameaça.
+
+              ATIVAR continua sendo um botão comum — voltar a aparecer não
+              tem nada a perder, e pedir confirmação para isso seria só um
+              toque a mais no caminho de quem está voltando. */}
+          {confirmandoInativar ? (
+            <div className="ei-confirma">
+              <p className="ei-confirma-texto">
+                Inativando, você <strong>some da busca das empresas</strong> e{" "}
+                <strong>para de receber vagas</strong>. Nada do que você
+                preencheu é apagado, e dá para ativar de novo quando quiser.
+              </p>
+              <div className="ei-confirma-botoes">
+                <button
+                  type="button"
+                  className="ei-btn ei-btn-cheio"
+                  onClick={() => setConfirmandoInativar(false)}
+                  disabled={alternandoAtivo}
+                >
+                  Continuar ativo
+                </button>
+                <button
+                  type="button"
+                  className="ei-btn ei-btn-perigo-claro"
+                  onClick={alternarAtivo}
+                  disabled={alternandoAtivo}
+                >
+                  {alternandoAtivo ? "Um instante…" : "Inativar mesmo assim"}
+                </button>
+              </div>
+            </div>
+          ) : (
+            <button
+              type="button"
+              className={
+                ativo
+                  ? "ei-btn ei-btn-perigo-claro ei-btn-largo"
+                  : "ei-btn ei-btn-contorno ei-btn-largo"
+              }
+              disabled={alternandoAtivo}
+              onClick={alternarAtivo}
+            >
+              {alternandoAtivo
+                ? "Um instante…"
+                : ativo
+                  ? "Inativar meu cadastro"
+                  : "Ativar meu cadastro"}
+            </button>
+          )}
         </div>
 
         {/* ── EXCLUIR, NO FIM DA PÁGINA — 03/09 ────────────────────────
