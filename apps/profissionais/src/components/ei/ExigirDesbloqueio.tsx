@@ -117,6 +117,29 @@ function naoPedirNesteAparelho(): boolean {
   }
 }
 
+/**
+ * "Este aparelho está gravado?" — a pergunta que faltava.
+ *
+ * ── O BECO SEM SAÍDA — 05/09 ──────────────────────────────────────────
+ *
+ * `gravarSenhaNesteAparelho(false)` existe desde sempre, e havia um único
+ * lugar que o chamava com `false`: a caixinha da tela de ENTRAR. Só que
+ * quem gravou não vê mais nem a tela de entrar nem esta barreira — é
+ * exatamente para isso que ela serve.
+ *
+ * Ou seja: marcar era uma porta de mão única. Voltar atrás exigia apagar
+ * os dados do site no navegador, que ninguém sabe fazer e ninguém deveria
+ * precisar. Numa cidade em que o celular é emprestado e passa de mão, a
+ * pessoa que quer a senha de volta é quem mais precisa dela.
+ *
+ * A Conta agora mostra o estado e deixa desligar (ver `PerfilPage`), e é
+ * daqui que ela lê — o nome da chave mora neste arquivo, e duas cópias
+ * dele em telas diferentes é o tipo de coisa que sai do lugar sozinha.
+ */
+export function senhaGravadaNesteAparelho(): boolean {
+  return naoPedirNesteAparelho();
+}
+
 const LIVRES = ["/login", "/termos", "/privacidade"];
 
 /**

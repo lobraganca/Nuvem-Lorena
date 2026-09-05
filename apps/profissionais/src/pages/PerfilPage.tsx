@@ -17,6 +17,11 @@ import { useTituloDaPagina } from "../lib/tituloDaPagina";
 import { useOnboardingStatus } from "../lib/useOnboardingStatus";
 import { mensagemDeErro } from "../lib/erros";
 import { sendSuggestion } from "../lib/suggestions";
+import { Switch } from "../components/ei/Switch";
+import {
+  gravarSenhaNesteAparelho,
+  senhaGravadaNesteAparelho,
+} from "../components/ei/ExigirDesbloqueio";
 import { SUPORTE_WHATSAPP, CONTATO_EMAIL } from "../config";
 
 /**
@@ -100,6 +105,9 @@ export function PerfilPage() {
   const [senhaNova, setSenhaNova] = useState("");
   const [salvandoSenha, setSalvandoSenha] = useState(false);
   const [avisoSenha, setAvisoSenha] = useState("");
+  /* Lido uma vez, na montagem: é `localStorage`, e ninguém mais mexe nele
+     enquanto esta tela está aberta. */
+  const [gravadoAqui, setGravadoAqui] = useState(senhaGravadaNesteAparelho);
   /* "Enviar sugestão" — a dona pediu na Conta, junto de "como funciona"
      e dos documentos. O mesmo canal que já existia para "função que
      faltava na lista" (MeuPerfilPage), aqui aberto para qualquer coisa. */
@@ -392,6 +400,45 @@ export function PerfilPage() {
         {avisoSenha && (
           <p className="ei-apoio ei-margem" style={{ marginTop: 8 }}>{avisoSenha}</p>
         )}
+
+        {/* ── DESLIGAR O "NÃO PEDIR DE NOVO" — 05/09 ───────────────────
+            Marcar "gravar a senha neste aparelho" era uma porta de mão
+            única. Quem marcava deixava de ver a tela de entrar E a tela
+            que pede a senha ao abrir o app — que são os dois únicos
+            lugares onde a caixinha existia. Para voltar atrás só apagando
+            os dados do site pelo navegador, que ninguém sabe fazer.
+
+            Aqui o estado fica à vista e dá para desligar. É a Conta, que é
+            onde se procura ajuste de conta, e é a única tela que quem
+            gravou continua alcançando.
+
+            Importa mais do que parece num app desta cidade: celular se
+            empresta, e quem quer a senha de volta é justamente quem mais
+            precisa dela. */}
+        <div className="ei-lista" style={{ marginTop: 12 }}>
+          <Switch
+            ligado={!gravadoAqui}
+            titulo="Pedir a senha toda vez que o app abrir"
+            descricao={
+              gravadoAqui
+                ? "Agora o app abre direto, sem pedir nada. Ligue se outra pessoa usa este celular."
+                : "O app pede a senha a cada abertura. Ficar parado e voltar não pede de novo."
+            }
+            onChange={(pedir) => {
+              /* O interruptor é o CONTRÁRIO da chave guardada: a chave diz
+                 "não pedir", e a frase na tela diz "pedir". Escrever a
+                 pergunta pelo lado negativo ("não pedir a senha") é o que
+                 faz alguém desligar achando que está ligando. */
+              gravarSenhaNesteAparelho(!pedir);
+              setGravadoAqui(!pedir);
+              /* Sem mensagem de "pronto": a própria descrição aqui embaixo
+                 muda e passa a descrever o estado novo. Uma confirmação em
+                 texto ainda apareceria ACIMA do interruptor (é onde mora o
+                 aviso da senha), e resposta acima do botão que a provocou
+                 se lê como se fosse de outra coisa. */
+            }}
+          />
+        </div>
 
         {/* Instalar o app.
             ─────────────────
