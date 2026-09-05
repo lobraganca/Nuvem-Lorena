@@ -5069,124 +5069,77 @@
    entrega o dedo inteiro para o arrasto lateral e a página trava na
    vertical — o cartão desliza e a pessoa não consegue mais descer a
    tela. */
+/* Sem respiro nos lados: quem manda no recuo é o trilho de dentro, e ele
+   precisa chegar na borda da tela para a beirada do próximo cartão ser
+   cortada pela tela — e não por uma margem invisível 12px antes. */
 .ei .ei-baralho {
   display: grid;
-  gap: 12px;
-  padding: 4px 12px 20px;
+  gap: 8px;
+  padding: 4px 0 20px;
 }
 
 .ei .ei-baralho-conta {
-  /* Um vão a mais embaixo: é onde o carimbo do gesto se monta, na borda
-     de cima do cartão. Colado, o carimbo encostava no "1 de 2". */
-  margin: 0 0 6px;
+  margin: 0;
   font-size: 0.82rem;
   color: var(--ei-tinta-fraca);
   text-align: center;
   font-variant-numeric: tabular-nums;
 }
 
-/* ── O PALCO DO BARALHO — 04/09 ────────────────────────────────────────
-   A dona: "precisa ficar com mais cara de card, para o usuário ver que
-   essa é uma funcionalidade; talvez a próxima tenha que ficar
-   aparecendo."
+/* ── O TRILHO: ROLAGEM DO NAVEGADOR, E NÃO ARRASTO À MÃO — 05/09 ─────
+   A dona, pela terceira vez: "ainda não estou gostando do movimento da
+   lista de uma a uma das vagas. Utilize igual o deslize dos planos."
 
-   Um cartão sozinho no meio da tela é uma TELA — e ninguém arrasta uma
-   tela. O que faz o dedo entender que há um baralho é ver o começo do
-   PRÓXIMO cartão cortado pela borda direita, como nas prateleiras de
-   vídeo.
+   Aqui havia um PALCO: um cartão só, com o próximo desenhado atrás como
+   uma lombada falsa, e todo o movimento escrito em JavaScript —
+   `translateX` seguindo o dedo, 90px de folga para virar resposta,
+   `setPointerCapture`, carimbos para explicar a folga invisível.
 
-   O corte é do palco (`overflow: hidden`), e não da tela: assim o cartão
-   de cima pode ser arrastado para fora sem levar junto a barra lateral do
-   telefone. */
-/* ── O CARTÃO PRECISA CABER SAINDO — 05/09 ────────────────────────────
-   O palco cortava em si mesmo (`overflow: hidden`), e ele é 46px mais
-   estreito que a tela: o cartão arrastado sumia a 46px do dedo, e a saída
-   voando para o lado era engolida antes de começar. Ficava a impressão
-   exata que a dona descreveu — "não está dando movimento".
+   Arrasto escrito à mão não tem inércia, não tem o freio elástico da
+   borda e não acompanha a velocidade do dedo. Ele PARECE o gesto do
+   telefone e erra em todos os detalhes — que é a definição de "o
+   movimento não está bom", e o motivo de três rodadas de ajuste não
+   terem resolvido.
 
-   Agora o corte é do baralho inteiro, na borda da tela, e com `clip` (que
-   não cria caixa de rolagem — com `hidden` aqui, o cartão empurrado para
-   fora criaria barra de rolagem horizontal na página). */
-.ei .ei-baralho { overflow-x: clip; }
+   Agora é o que a tela de planos fazia: uma faixa que rola na horizontal,
+   com `scroll-snap` para o cartão parar inteiro na tela. Inércia,
+   elástico e velocidade vêm de graça, porque é o mesmo motor que rola
+   qualquer página. E a lombada do próximo deixa de ser desenho: é o
+   cartão seguinte de verdade, espiando pela borda.
 
-.ei .ei-baralho-palco {
-  position: relative;
-  overflow: visible;
-  /* Espaço à direita para a beirada do próximo cartão. */
-  padding-right: 46px;
+   86% de largura, como lá: a fatia que sobra é o que avisa que há mais
+   vagas ali. Sem essa pista, trilho vira cartão sozinho — e ninguém
+   desliza um cartão sozinho. */
+.ei .ei-trilho {
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: 88%;
+  gap: 14px;
+  padding: 4px 0 8px;
+  overflow-x: auto;
+  overflow-y: hidden;
+  scroll-snap-type: x mandatory;
+  /* A barra some, mas a rolagem fica: a pista de que dá para deslizar é a
+     beirada do próximo cartão, e não um risco cinza no pé. */
+  scrollbar-width: none;
+  -webkit-overflow-scrolling: touch;
+  /* Os cartões param pelo COMEÇO, encostados na margem da tela — que é
+     como o carrossel dos planos parava, e como para qualquer prateleira
+     de aplicativo de vídeo.
+
+     Centrado ficava pior aqui, e medido: para o cartão caber centrado o
+     recuo dos dois lados tem de ser grande, e o que sobrava da tela para
+     o próximo cartão eram 13px — uma tira fina demais para alguém
+     entender que há mais vagas ali. Pelo começo, o recuo é um só (14px) e
+     a beirada do próximo fica com uns 40px: dá para ver que é um cartão.
+
+     `scroll-padding-inline-start` para o snap parar no mesmo 14px, e não
+     colado na borda. */
+  scroll-padding-inline-start: 14px;
+  padding-inline: 14px;
 }
-
-.ei .ei-baralho-proximo {
-  position: absolute;
-  top: 18px;
-  bottom: 18px;
-  /* Começa onde o cartão de cima termina e sai pela borda: o que se vê é
-     a lombada do próximo, não um segundo cartão pela metade. */
-  left: calc(100% - 42px);
-  width: 60%;
-  padding: 16px 14px;
-  border: 1px solid var(--ei-fio);
-  border-radius: var(--ei-raio);
-  background: var(--ei-papel);
-  /* Atrás e apagado: ele é promessa, não conteúdo. */
-  opacity: 0.55;
-  pointer-events: none;
-}
-
-.ei .ei-baralho-proximo-titulo {
-  font-size: 0.95rem;
-  font-weight: 700;
-  line-height: 1.25;
-  overflow: hidden;
-  display: -webkit-box;
-  -webkit-line-clamp: 3;
-  -webkit-box-orient: vertical;
-}
-
-.ei .ei-baralho-proximo-empresa {
-  margin-top: 4px;
-  font-size: 0.8rem;
-  color: var(--ei-tinta-fraca);
-}
-
-/* ── OS CARIMBOS DO GESTO — 05/09 ─────────────────────────────────────
-   Nascem transparentes e a opacidade é o próprio arrasto (calculada no
-   componente): a 90px — o ponto em que soltar vira resposta — o carimbo
-   está inteiro. É o que a frase de instrução tentava fazer por escrito, e
-   que a dona mandou tirar.
-
-   Tortos de propósito: carimbo reto lê como rótulo do cartão; torto lê
-   como marca posta por cima, que é o que ele é. */
-.ei .ei-baralho-carimbo {
-  position: absolute;
-  /* Montado na BORDA DE CIMA, metade para fora do cartão. Posto por
-     dentro ele tapava a foto e o nome da empresa — justamente o que a
-     pessoa está olhando na hora de decidir. Aqui em cima não há nada, e o
-     carimbo aparece sem esconder nada. */
-  top: 0;
-  z-index: 2;
-  padding: 6px 12px;
-  border-radius: 999px;
-  border: 2px solid currentColor;
-  background: var(--ei-papel);
-  font-size: 0.82rem;
-  font-weight: 800;
-  letter-spacing: 0.02em;
-  text-transform: uppercase;
-  pointer-events: none;
-}
-
-.ei .ei-baralho-carimbo-sim {
-  left: 14px;
-  color: var(--ei-verde);
-  transform: translateY(-52%) rotate(-8deg);
-}
-
-.ei .ei-baralho-carimbo-nao {
-  right: 14px;
-  color: var(--ei-tinta-fraca);
-  transform: translateY(-52%) rotate(8deg);
-}
+.ei .ei-trilho::-webkit-scrollbar { display: none; }
+.ei .ei-trilho > * { scroll-snap-align: start; }
 
 .ei .ei-baralho-cartao {
   display: grid;
@@ -5198,13 +5151,20 @@
   /* A sombra é a única do app, e ela existe por um motivo: é o que separa
      a carta de cima do resto da pilha. Sem ela, com o próximo cartão
      encostado atrás, os dois viram um retângulo só. */
-  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.1);
+  /* A sombra fica: com os cartões lado a lado no trilho, é ela que separa
+     um do outro e dá a eles cara de peça solta em vez de faixa contínua.
+
+     Saíram daqui `touch-action`, `cursor: grab` e `user-select: none`, que
+     eram do arrasto feito à mão. O `user-select` fazia mal sozinho: ele
+     impedia de selecionar a descrição da vaga para copiar, numa tela em
+     que copiar o nome da empresa é coisa que se faz.
+
+     `align-content: start` porque o cartão agora é uma célula de grade de
+     altura igual à do vizinho mais alto: sem isso, o conteúdo de um cartão
+     curto se esticava para preencher a altura do mais longo. */
+  align-content: start;
   position: relative;
-  touch-action: pan-y;
-  cursor: grab;
-  user-select: none;
 }
-.ei .ei-baralho-cartao:active { cursor: grabbing; }
 
 .ei .ei-baralho-topo { display: flex; align-items: center; gap: 12px; min-width: 0; }
 
@@ -8311,6 +8271,16 @@
   padding-left: 8px;
   padding-right: 8px;
   white-space: nowrap;
+}
+
+/* O último cartão do trilho: o fim da pilha. Sem sombra e com fundo
+   lavado, porque ele não é uma vaga — é o aviso de que acabaram. Com a
+   mesma cara das outras, quem desliza até aqui acha por um instante que
+   chegou em mais uma. */
+.ei .ei-baralho-fim {
+  box-shadow: none;
+  background: var(--ei-afunda);
+  align-content: center;
 }
 
 

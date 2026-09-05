@@ -657,12 +657,10 @@ function Baralho({ vagas, verLista }: { vagas: VagaNoBanco[]; verLista: () => vo
   const navegar = useNavigate();
 
   /* A fila é congelada na primeira montagem: se ela seguisse a lista viva,
-     responder a uma vaga a tiraria do baralho e o cartão de baixo pularia
-     para a mão da pessoa antes de ela ver o que respondeu. */
+     responder a uma vaga a tiraria do trilho e as outras dariam um pulo
+     debaixo do dedo de quem está deslizando. */
   const [fila, setFila] = useState(() => vagas.filter((v) => v.interessado === undefined));
   const [i, setI] = useState(0);
-  const [arrasto, setArrasto] = useState(0);
-  const [saindo, setSaindo] = useState<null | "sim" | "nao">(null);
   const [erro, setErro] = useState("");
   const [cadastro, setCadastro] = useState<"sem" | "falta" | "ok" | null>(null);
   /* O que foi respondido NESTA passada. A lista que chega por `vagas` é a
@@ -671,27 +669,45 @@ function Baralho({ vagas, verLista }: { vagas: VagaNoBanco[]; verLista: () => vo
      nenhum sinal do que acabou de marcar, que é o mesmo às cegas que o
      selo existe para evitar. */
   const [respondidasAgora, setRespondidasAgora] = useState<Record<string, boolean>>({});
+  /* Qual cartão está respondendo agora, para desligar só os botões dele —
+     e não os do trilho inteiro. */
+  const [respondendo, setRespondendo] = useState<string | null>(null);
   /* Bateu o teto do dia. Vira uma folha, e não um erro vermelho: não é
      defeito nem culpa de ninguém — é o app pedindo para voltar amanhã. */
   const [lotado, setLotado] = useState(false);
-  /* ── O GESTO PRECISA DECIDIR CEDO SE É DELE OU DA PÁGINA — 05/09 ─────
-     A dona: "não está dando movimento na página."
 
-     O arrasto guardava só o x de onde o dedo desceu. Só que num celular
-     quase nenhum gesto é reto: quem rola a tela para ver o resto do cartão
-     desce o dedo E anda um pouco para o lado — e aquele pouco virava um
-     começo de resposta, com o cartão tremendo debaixo da rolagem. Pior no
-     sentido contrário: quem tentava arrastar de leve para o lado rolava a
-     página, porque `touch-action: pan-y` deixa o navegador levar o gesto
-     embora antes de a gente reagir.
+  /* ── O DESLIZE É O DO NAVEGADOR, E NÃO UM FEITO À MÃO — 05/09 ────────
+     A dona, pela terceira vez: "ainda não estou gostando do movimento da
+     lista de uma a uma das vagas. Utilize igual o deslize dos planos."
 
-     Agora o primeiro movimento DECIDE de quem é o gesto: mais horizontal
-     que vertical, o cartão prende o ponteiro (`setPointerCapture`) e a
-     página não rola mais; mais vertical, o cartão desiste e não se mexe o
-     resto do gesto. Sem prender o ponteiro, tirar o dedo fora do cartão
-     não disparava o `pointerup` e o cartão ficava torto na tela. */
-  const inicio = useRef<{ x: number; y: number } | null>(null);
-  const mandaNoGesto = useRef<"nada" | "cartao" | "pagina">("nada");
+     Ela está certa, e a terceira vez é o sinal de que o problema não era
+     de ajuste. Até aqui o baralho era um cartão só, movido à mão:
+     `pointerdown`, `pointermove`, `translateX`, uma folga de 90px para
+     decidir se o gesto virava resposta, `setPointerCapture` para não
+     perder o dedo na borda, e um carimbo para explicar a folga invisível.
+
+     Cada peça dessas foi acrescentada para consertar a anterior, e o
+     conjunto nunca ia ficar bom: arrasto escrito em JavaScript não tem
+     inércia, não tem o freio elástico da borda, não acompanha a
+     velocidade do dedo e não é o que o polegar da pessoa já sabe fazer.
+     Ele PARECE o gesto do telefone e erra em todos os detalhes — que é
+     exatamente a descrição de "o movimento não está bom".
+
+     O deslize dos planos que ela cita não fazia nada disso: era uma
+     rolagem horizontal comum, do navegador, com `scroll-snap` para o
+     cartão parar inteiro na tela. Inércia, elástico e velocidade vêm de
+     graça, porque é o mesmo motor que rola qualquer página.
+
+     (A tela de planos deixou de ter esse carrossel em 05/09, quando virou
+     coluna para comparar preços. O deslize continua sendo o certo AQUI,
+     onde não se compara nada: se olha uma vaga por vez.)
+
+     O que isso muda no resto: some o arrasto, some o carimbo, some o
+     cartão-fantasma da próxima (a próxima agora aparece de verdade, pela
+     beirada, porque está no trilho), e o cartão respondido não voa para
+     fora — ele fica, marcado, e o trilho anda para o seguinte. Ficar é
+     melhor: quem respondeu por engano volta deslizando e corrige. */
+  const trilho = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
     if (!user) return;
@@ -712,7 +728,42 @@ function Baralho({ vagas, verLista }: { vagas: VagaNoBanco[]; verLista: () => vo
     };
   }, [user]);
 
-  const atual = fila[i];
+  /**
+   * Qual cartão está no meio da tela agora — é o que o "3 de 12" conta.
+   *
+   * Procura o cartão cujo centro está mais perto do centro do trilho, em
+   * vez de dividir `scrollLeft` pela largura de um cartão. A divisão parece
+   * mais simples e erra: com os cartões parando CENTRADOS, o primeiro e o
+   * último não têm o mesmo salto que os do meio (o trilho bate no fim e
+   * para antes), então a conta desanda justamente nas pontas — que é onde
+   * a pessoa mais olha o número.
+   */
+  function aoRolar() {
+    const el = trilho.current;
+    if (!el) return;
+    const meio = el.scrollLeft + el.clientWidth / 2;
+    let melhor = 0;
+    let menorDistancia = Infinity;
+    for (let n = 0; n < el.children.length; n++) {
+      const c = el.children[n] as HTMLElement;
+      const centro = c.offsetLeft + c.offsetWidth / 2;
+      const d = Math.abs(centro - meio);
+      if (d < menorDistancia) {
+        menorDistancia = d;
+        melhor = n;
+      }
+    }
+    setI(melhor);
+  }
+
+  /** Leva o trilho até um cartão, com a rolagem suave do navegador. */
+  function irPara(n: number) {
+    const el = trilho.current;
+    if (!el) return;
+    const filho = el.children[n] as HTMLElement | undefined;
+    if (!filho) return;
+    filho.scrollIntoView({ behavior: "smooth", block: "nearest", inline: "center" });
+  }
 
   /* ── "VER DE NOVO" TEM DE PASSAR DE NOVO — 04/09 ─────────────────────
      A dona: "quando clica em uma por uma e a pessoa já viu, ao clicar em
@@ -735,11 +786,12 @@ function Baralho({ vagas, verLista }: { vagas: VagaNoBanco[]; verLista: () => vo
     setErro("");
     setFila(vagas);
     setI(0);
+    /* Sem `smooth`: aqui o trilho está sendo trocado inteiro, e uma
+       rolagem animada de volta ao começo pareceria um pulo. */
+    if (trilho.current) trilho.current.scrollLeft = 0;
   }
 
-  async function responder(quero: boolean) {
-    if (!atual) return;
-
+  async function responder(v: VagaNoBanco, quero: boolean, n: number) {
     if (!user) {
       navegar("/login?lado=trabalhar");
       return;
@@ -759,73 +811,29 @@ function Baralho({ vagas, verLista }: { vagas: VagaNoBanco[]; verLista: () => vo
        Só vale para o SIM: recusar uma vaga não consome nada, e limitar
        quantas alguém pode recusar seria absurdo. Ver `podeSeCandidatar`. */
     if (quero) {
-      const t = await podeSeCandidatar(atual.vaga.id, user.id);
+      const t = await podeSeCandidatar(v.vaga.id, user.id);
       if (!t.pode) {
         setLotado(true);
         return;
       }
     }
 
-    setSaindo(quero ? "sim" : "nao");
+    setRespondendo(v.vaga.id);
     setErro("");
     try {
-      await responderVaga(atual.vaga.id, user.id, quero);
-      setRespondidasAgora((r) => ({ ...r, [atual.vaga.id]: quero }));
+      await responderVaga(v.vaga.id, user.id, quero);
+      setRespondidasAgora((r) => ({ ...r, [v.vaga.id]: quero }));
     } catch (err) {
       setErro(mensagemDeErro(err, "Não consegui guardar sua resposta."));
-      setSaindo(null);
+      setRespondendo(null);
       return;
     }
-    /* O cartão sai da tela antes de o próximo entrar: sem a pausa, a troca
-       é instantânea e a pessoa não vê que respondeu — o que faz duvidar de
-       ter tocado no botão certo. */
-    setTimeout(() => {
-      setSaindo(null);
-      setI((n) => n + 1);
-    }, 220);
-  }
-
-  function aoPegar(e: React.PointerEvent<HTMLDivElement>) {
-    if (saindo) return;
-    /* Quem toca em "Ver a vaga inteira" está indo para outra tela, não
-       arrastando: sem esta saída, o link virava o começo de um gesto e o
-       toque nem sempre chegava a virar navegação. */
-    if ((e.target as HTMLElement).closest("a,button")) return;
-    inicio.current = { x: e.clientX, y: e.clientY };
-    mandaNoGesto.current = "nada";
-  }
-
-  function aoMover(e: React.PointerEvent<HTMLDivElement>) {
-    if (!inicio.current || mandaNoGesto.current === "pagina") return;
-    const dx = e.clientX - inicio.current.x;
-    const dy = e.clientY - inicio.current.y;
-    if (mandaNoGesto.current === "nada") {
-      /* 8px de folga: abaixo disso ainda é um toque parado, e qualquer
-         tremida da mão escolheria o dono do gesto no lugar da pessoa. */
-      if (Math.abs(dx) < 8 && Math.abs(dy) < 8) return;
-      if (Math.abs(dx) <= Math.abs(dy)) {
-        mandaNoGesto.current = "pagina";
-        return;
-      }
-      mandaNoGesto.current = "cartao";
-      try {
-        e.currentTarget.setPointerCapture(e.pointerId);
-      } catch {
-        /* Navegador que recusa prender o ponteiro ainda arrasta — só fica
-           sujeito a perder o dedo na borda. Melhor isso que não arrastar. */
-      }
-    }
-    setArrasto(dx);
-  }
-
-  function aoSoltar() {
-    const dx = arrasto;
-    inicio.current = null;
-    mandaNoGesto.current = "nada";
-    setArrasto(0);
-    /* 90px: menos que isso e um rolar torto da tela viraria resposta. */
-    if (dx > 90) responder(true);
-    else if (dx < -90) responder(false);
+    setRespondendo(null);
+    /* Anda para a próxima sozinho, com a mesma rolagem que o dedo faria.
+       A pausa é para o selo "você marcou" aparecer no cartão respondido
+       antes de ele sair do meio da tela — sem ela, a resposta é gravada e
+       a pessoa nunca vê que foi. */
+    setTimeout(() => irPara(n + 1), 260);
   }
 
   if (fila.length === 0) {
@@ -860,55 +868,10 @@ function Baralho({ vagas, verLista }: { vagas: VagaNoBanco[]; verLista: () => vo
     );
   }
 
-  if (!atual) {
-    return (
-      <div className="ei-cartao" style={{ padding: 0 }}>
-        <div className="ei-vazio">
-          <h3 className="ei-titulo">Acabaram as vagas de hoje</h3>
-          <p className="ei-apoio">
-            Você passou pelas {fila.length}{" "}
-            {fila.length === 1 ? "vaga aberta" : "vagas abertas"}. Quem você marcou
-            aparece para a empresa com o seu telefone.
-          </p>
-          {/* O mesmo par de saídas do outro fim de baralho: passar de novo
-              (é o que a dona esperava do "ver de novo") ou trocar para a
-              lista. Aqui havia só o caminho da lista, escrito como link
-              laranja — a pessoa terminava a pilha e a única coisa que
-              podia fazer era mudar de formato. */}
-          <div style={{ display: "grid", gap: 8, marginTop: 14 }}>
-            <button type="button" className="ei-btn ei-btn-cheio" onClick={passarDeNovo}>
-              Passar de novo, uma por uma
-            </button>
-            <button type="button" className="ei-btn ei-btn-contorno" onClick={verLista}>
-              Ver em lista
-            </button>
-          </div>
-        </div>
-      </div>
-    );
-  }
-
-  const v = atual;
-  /* O que vale é a resposta desta passada, se houver; senão, a que veio do
-     banco no carregamento. */
-  const jaRespondeu = respondidasAgora[v.vaga.id] ?? v.interessado;
-  /* A PRÓXIMA aparece pela beirada — 04/09
-     ──────────────────────────────────────
-     A dona: "precisa ficar com mais cara de card, para o usuário ver que
-     essa é uma funcionalidade; talvez a próxima tenha que ficar
-     aparecendo".
-
-     Ela tem razão e o motivo é simples: um cartão sozinho no meio da tela
-     é uma TELA, não um baralho. Ninguém arrasta uma tela. Ver o começo do
-     próximo cartão na borda é o que faz o dedo entender que há mais de um
-     — e é o mesmo truque das prateleiras de aplicativo de vídeo. */
-  const proxima = fila[i + 1] ?? null;
-  const deslocamento = saindo === "sim" ? 420 : saindo === "nao" ? -420 : arrasto;
-
   return (
     <div className="ei-baralho">
       <p className="ei-baralho-conta">
-        {i + 1} de {fila.length}
+        {Math.min(i + 1, fila.length)} de {fila.length}
       </p>
 
       {erro && (
@@ -917,184 +880,150 @@ function Baralho({ vagas, verLista }: { vagas: VagaNoBanco[]; verLista: () => vo
         </p>
       )}
 
-      <div className="ei-baralho-palco">
-        {/* O espelho da próxima: só o começo dela, cortado pela borda da
-            tela. `aria-hidden` porque é enfeite — quem usa leitor de tela
-            já ouve "1 de 5" logo acima. */}
-        {proxima && (
-          <div className="ei-baralho-proximo" aria-hidden="true">
-            <div className="ei-baralho-proximo-titulo">{proxima.vaga.title}</div>
-            <div className="ei-baralho-proximo-empresa">
-              {proxima.empresa || proxima.vaga.city}
-            </div>
-          </div>
-        )}
-      <div
-        className="ei-baralho-cartao"
-        style={{
-          transform: `translateX(${deslocamento}px) rotate(${deslocamento / 28}deg)`,
-          transition: saindo || arrasto === 0 ? "transform .22s ease-out" : "none",
-        }}
-        onPointerDown={aoPegar}
-        onPointerMove={aoMover}
-        onPointerUp={aoSoltar}
-        onPointerCancel={aoSoltar}
-      >
-        {/* ── O CARIMBO QUE APARECE ENQUANTO O DEDO ANDA — 05/09 ───────
-            Um cartão que só desliza não diz o que vai acontecer quando o
-            dedo levantar: os 90px de folga são invisíveis, e quem
-            arrastava 40px e soltava via o cartão voltar sem entender por
-            quê. O carimbo nasce com o gesto, vai ficando forte, e só fica
-            inteiro depois do ponto em que soltar VAI valer como resposta —
-            é o gesto contando de si mesmo, no lugar da frase de instrução
-            que existia embaixo (e que a dona mandou tirar).
+      {/* O trilho. `onScroll` só atualiza a contagem — quem move é o dedo,
+          e o navegador. */}
+      <div className="ei-trilho" ref={trilho} onScroll={aoRolar}>
+        {fila.map((v, n) => {
+          /* O que vale é a resposta desta passada, se houver; senão, a que
+             veio do banco no carregamento. */
+          const jaRespondeu = respondidasAgora[v.vaga.id] ?? v.interessado;
+          const ocupado = respondendo === v.vaga.id;
 
-            `aria-hidden` porque é desenho: quem usa leitor de tela tem os
-            dois botões escritos logo abaixo, que continuam sendo o
-            caminho principal. */}
-        <span
-          className="ei-baralho-carimbo ei-baralho-carimbo-sim"
-          aria-hidden="true"
-          style={{ opacity: Math.min(1, Math.max(0, deslocamento / 90)) }}
-        >
-          Tenho interesse
-        </span>
-        <span
-          className="ei-baralho-carimbo ei-baralho-carimbo-nao"
-          aria-hidden="true"
-          style={{ opacity: Math.min(1, Math.max(0, -deslocamento / 90)) }}
-        >
-          Não é para mim
-        </span>
+          return (
+            <article className="ei-baralho-cartao" key={v.vaga.id}>
+              <div className="ei-baralho-topo">
+                <Marca foto={v.empresa_foto} nome={v.empresa || v.vaga.title} />
+                <div className="ei-pessoa-texto">
+                  <div className="ei-pessoa-nome ei-uma-linha">{v.empresa || "Empresa"}</div>
+                  <div className="ei-pessoa-oficio ei-uma-linha">
+                    {[v.vaga.neighborhood, v.vaga.city].filter(Boolean).join(" · ")}
+                  </div>
+                </div>
+              </div>
 
-        <div className="ei-baralho-topo">
-          <Marca foto={v.empresa_foto} nome={v.empresa || v.vaga.title} />
-          <div className="ei-pessoa-texto">
-            <div className="ei-pessoa-nome ei-uma-linha">{v.empresa || "Empresa"}</div>
-            <div className="ei-pessoa-oficio ei-uma-linha">
-              {[v.vaga.neighborhood, v.vaga.city].filter(Boolean).join(" · ")}
-            </div>
-          </div>
-        </div>
+              {/* O que ela já tinha respondido, quando está passando de
+                  novo — e o que ela acabou de responder agora. Sem isto, o
+                  cartão respondido fica idêntico aos outros e a pessoa não
+                  vê que a resposta valeu.
 
-        {/* O que ela já tinha respondido, quando está passando de novo.
-            Sem isto, quem toca em "passar de novo" revê as vagas às cegas:
-            as já respondidas ficam idênticas às novas, e a pessoa responde
-            de novo sem saber que está mudando uma resposta que a empresa
-            já recebeu.
+                  Em linha própria, e não ao lado do nome da empresa lá em
+                  cima: medido, sobravam 82px para o nome naquela linha e
+                  "Padaria Pão de Minas" virava "Pa…".
 
-            Em linha própria, e não ao lado do nome da empresa lá em cima:
-            medido, sobravam 82px para o nome naquela linha e "Padaria Pão
-            de Minas" virava "Pa…". Aqui o selo tem a largura do cartão
-            inteiro e não espreme nada. */}
-        {/* O foguinho também aqui — 05/09. A dona: "além de estar na área
-            de destaque, quando a pessoa ou a vaga estiver destacado,
-            coloque um foguinho também no card." O baralho mostra uma vaga
-            por vez e não tem área nenhuma em volta: sem o selo, a vaga
-            paga passava por aqui exatamente igual às outras. */}
-        {(vagaEmDestaque(v.vaga) || jaRespondeu !== undefined) && (
-          <div className="ei-chips" style={{ marginBottom: 8 }}>
-            {vagaEmDestaque(v.vaga) && (
-              <span className="ei-selo ei-selo-laranja ei-selo-fogo">
-                <IconeFogo tamanho={13} />
-                Em destaque
-              </span>
-            )}
-            {jaRespondeu !== undefined && (
-              <span className={jaRespondeu ? "ei-selo ei-selo-verde" : "ei-selo ei-selo-cinza"}>
-                {jaRespondeu ? "Você marcou: tenho interesse" : "Você marcou: não é para mim"}
-              </span>
-            )}
-          </div>
-        )}
+                  O foguinho também aqui — 05/09. A dona: "além de estar na
+                  área de destaque, quando a pessoa ou a vaga estiver
+                  destacado, coloque um foguinho também no card." O baralho
+                  mostra uma vaga por vez e não tem área nenhuma em volta:
+                  sem o selo, a vaga paga passava por aqui exatamente igual
+                  às outras. */}
+              {(vagaEmDestaque(v.vaga) || jaRespondeu !== undefined) && (
+                <div className="ei-chips">
+                  {vagaEmDestaque(v.vaga) && (
+                    <span className="ei-selo ei-selo-laranja ei-selo-fogo">
+                      <IconeFogo tamanho={13} />
+                      Em destaque
+                    </span>
+                  )}
+                  {jaRespondeu !== undefined && (
+                    <span className={jaRespondeu ? "ei-selo ei-selo-verde" : "ei-selo ei-selo-cinza"}>
+                      {jaRespondeu ? "Você marcou: tenho interesse" : "Você marcou: não é para mim"}
+                    </span>
+                  )}
+                </div>
+              )}
 
-        <h3 className="ei-baralho-titulo">{v.vaga.title}</h3>
+              <h3 className="ei-baralho-titulo">{v.vaga.title}</h3>
 
-        {/* ── A COMPATIBILIDADE EM BALÃO — 05/09 ──────────────────────
-            A dona: "na lista deslizante de vagas a compatibilidade tem que
-            ficar mais evidente. Talvez dentro de um balão (parecido com um
-            botão) onde a pessoa veja que essa vaga não bate."
+              {/* ── A COMPATIBILIDADE EM BALÃO — 05/09 ──────────────────
+                  A dona: "na lista deslizante de vagas a compatibilidade
+                  tem que ficar mais evidente. Talvez dentro de um balão
+                  (parecido com um botão) onde a pessoa veja que essa vaga
+                  não bate."
 
-            Era uma linha de texto de 0,8rem em cinza-esverdeado, lá
-            embaixo entre a ficha e a descrição — do mesmo peso de tudo o
-            mais no cartão. No baralho isso é pior do que na lista: aqui a
-            pessoa decide em dois segundos, com o dedo já no botão, e o
-            dado que mais importa para essa decisão era o menos visível.
+                  Era uma linha de texto de 0,8rem em cinza-esverdeado, do
+                  mesmo peso de tudo o mais no cartão. Aqui a pessoa decide
+                  em dois segundos, com o dedo já no botão, e o dado que
+                  mais importa para essa decisão era o menos visível. */}
+              {v.compatibilidade !== null && (
+                <p className={`ei-balao-compat ${classeDaCompat(v.compatibilidade)}`}>
+                  <span className="ei-balao-compat-marca" aria-hidden="true">
+                    {v.compatibilidade >= 75 ? "✓" : v.compatibilidade >= 40 ? "~" : "!"}
+                  </span>
+                  <span>
+                    {rotuloDaCompat(v.compatibilidade)}
+                    {v.porque.length > 0 && ` · ${v.porque[0]}`}
+                  </span>
+                </p>
+              )}
 
-            Em balão ele para de ser texto e vira objeto: verde quando
-            combina, âmbar quando combina em parte, cinza quando não bate.
-            E logo abaixo do título, que é por onde o olho entra. */}
-        {v.compatibilidade !== null && (
-          <p className={`ei-balao-compat ${classeDaCompat(v.compatibilidade)}`}>
-            <span className="ei-balao-compat-marca" aria-hidden="true">
-              {v.compatibilidade >= 75 ? "✓" : v.compatibilidade >= 40 ? "~" : "!"}
-            </span>
-            <span>
-              {rotuloDaCompat(v.compatibilidade)}
-              {v.porque.length > 0 && ` · ${v.porque[0]}`}
-            </span>
+              <dl className="ei-baralho-fichas">
+                <div>
+                  <dt>Salário</dt>
+                  <dd>{salarioEmTexto(v.vaga) ?? "A combinar"}</dd>
+                </div>
+                <div>
+                  <dt>Contratação</dt>
+                  <dd>{nomeDoContrato(v.vaga.tipo_contrato) ?? "Não informado"}</dd>
+                </div>
+              </dl>
+
+              {v.vaga.description?.trim() && (
+                <p className="ei-baralho-texto">{v.vaga.description}</p>
+              )}
+
+              <Link className="ei-btn-inline" to={`/vaga-aberta/${v.vaga.id}`}>
+                Ver a vaga inteira
+              </Link>
+
+              {/* ── AS RESPOSTAS DENTRO DO CARTÃO — 05/09 ─────────────
+                  A dona: "dentro do card aparecer pra pessoa escolher se
+                  tem interesse ou não."
+
+                  Dentro, elas pertencem àquela vaga. Num trilho de doze
+                  vagas, "Tenho interesse" solto no chão da tela não diz de
+                  QUAL delas se está falando. */}
+              <div className="ei-baralho-acoes">
+                <button
+                  type="button"
+                  className="ei-btn ei-btn-contorno ei-btn-alto"
+                  onClick={() => responder(v, false, n)}
+                  disabled={ocupado}
+                >
+                  Não é para mim
+                </button>
+                <button
+                  type="button"
+                  className="ei-btn-laranja"
+                  onClick={() => responder(v, true, n)}
+                  disabled={ocupado}
+                >
+                  Tenho interesse
+                </button>
+              </div>
+            </article>
+          );
+        })}
+
+        {/* O fim, como último cartão do trilho — e não como uma tela que
+            substitui tudo. Assim quem chega ao fim continua podendo voltar
+            deslizando, que é o gesto que já está fazendo. Antes o baralho
+            trocava a tela inteira e a volta exigia um botão. */}
+        <article className="ei-baralho-cartao ei-baralho-fim">
+          <h3 className="ei-baralho-titulo">Acabaram as vagas de hoje</h3>
+          <p className="ei-apoio">
+            Você passou pelas {fila.length}{" "}
+            {fila.length === 1 ? "vaga aberta" : "vagas abertas"}. Quem você marcou
+            aparece para a empresa com o seu telefone.
           </p>
-        )}
-
-        <dl className="ei-baralho-fichas">
-          <div>
-            <dt>Salário</dt>
-            <dd>{salarioEmTexto(v.vaga) ?? "A combinar"}</dd>
+          <div style={{ display: "grid", gap: 8, marginTop: 4 }}>
+            <button type="button" className="ei-btn ei-btn-cheio" onClick={passarDeNovo}>
+              Passar de novo, uma por uma
+            </button>
+            <button type="button" className="ei-btn ei-btn-contorno" onClick={verLista}>
+              Ver em lista
+            </button>
           </div>
-          <div>
-            <dt>Contratação</dt>
-            <dd>{nomeDoContrato(v.vaga.tipo_contrato) ?? "Não informado"}</dd>
-          </div>
-        </dl>
-
-        {v.vaga.description?.trim() && (
-          <p className="ei-baralho-texto">{v.vaga.description}</p>
-        )}
-
-        <Link className="ei-btn-inline" to={`/vaga-aberta/${v.vaga.id}`}>
-          Ver a vaga inteira
-        </Link>
-
-        {/* ── AS RESPOSTAS VOLTARAM PARA DENTRO DO CARTÃO — 05/09 ─────
-            A dona: "dentro do card aparecer pra pessoa escolher se tem
-            interesse ou não."
-
-            Elas estavam fora, e o motivo escrito aqui era: "dentro, eles
-            sairiam da tela junto com o cartão e a pessoa acertaria o
-            vazio". Isso é verdade por 220 milissegundos — o tempo do
-            cartão voando — e falso o resto do tempo. O preço de deixá-las
-            fora era permanente: o cartão terminava sem saída, e as duas
-            respostas ficavam boiando no chão cinza, sem pertencer a vaga
-            nenhuma. Num baralho de cinco vagas, "Tenho interesse" solto
-            embaixo não diz de QUAL vaga se está falando.
-
-            Dentro, elas andam com o cartão — e isso é o certo: a resposta
-            é daquela vaga, e sai de cena junto com ela.
-
-            `onPointerDown` com `stopPropagation` para o toque no botão
-            não virar começo de arrasto (ver `aoPegar`, que já ignora
-            `a,button`, mas o `stopPropagation` evita até o cálculo). */}
-        <div className="ei-baralho-acoes">
-          <button
-            type="button"
-            className="ei-btn ei-btn-contorno ei-btn-alto"
-            onPointerDown={(e) => e.stopPropagation()}
-            onClick={() => responder(false)}
-            disabled={!!saindo}
-          >
-            Não é para mim
-          </button>
-          <button
-            type="button"
-            className="ei-btn-laranja"
-            onPointerDown={(e) => e.stopPropagation()}
-            onClick={() => responder(true)}
-            disabled={!!saindo}
-          >
-            Tenho interesse
-          </button>
-        </div>
-      </div>
+        </article>
       </div>
 
       {lotado && (
@@ -1134,12 +1063,6 @@ function Baralho({ vagas, verLista }: { vagas: VagaNoBanco[]; verLista: () => vo
           </div>
         </BottomSheet>
       )}
-
-      {/* A frase "Arraste o cartão: direita é interesse, esquerda passa"
-          saiu — 05/09, a pedido da dona. Ela explicava por escrito um gesto
-          que agora se explica sozinho: o cartão anda com o dedo e o
-          carimbo aparece dizendo o que vai valer. Instrução escrita de
-          gesto é sinal de que o gesto não está claro. */}
     </div>
   );
 }

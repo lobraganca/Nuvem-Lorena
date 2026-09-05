@@ -11,7 +11,6 @@ import { Pagina, Callout } from "../../components/ei/Pagina";
 import { AjustarFoto } from "../../components/ei/AjustarFoto";
 import { uploadProfessionalPhoto } from "../../lib/storage";
 import { CATEGORIES, CITIES, DEFAULT_CITY, MAX_FUNCOES, DISPONIBILIDADE, PERIODOS_DE_SALARIO } from "../../types/domain";
-import { sendSuggestion } from "../../lib/suggestions";
 import {
   lerMeuPerfil,
   escolherCadastro,
@@ -668,10 +667,22 @@ export function MeuPerfilPage() {
 
      Então a função escrita entra no cadastro — ela aparece no perfil, e a
      empresa que procura na lista de profissionais lê —, mas a tela DIZ que
-     por ela a vaga ainda não chega, e o que foi escrito é mandado para a
-     administração como pedido de função nova. É assim que a lista cresce
-     com o que as pessoas de verdade fazem, em vez de com o que se
-     imaginou. */
+     por ela a vaga ainda não chega.
+
+     ── O PEDIDO PARA A ADMINISTRAÇÃO SAIU — 05/09 ────────────────────
+     A dona: "no painel não precisa ter revisão das funções que as pessoas
+     colocam."
+
+     Cada função escrita à mão virava uma linha em "Sugestões", com um
+     botão "marcar como revisada" — uma tarefa por cadastro, para sempre,
+     numa cidade com centenas deles. Ela é quem lê aquele painel, e é ela
+     quem decide o que vale o tempo dela.
+
+     O que a pessoa vê não muda em nada: a função continua entrando no
+     cadastro, continua aparecendo no perfil, continua sendo achada pela
+     empresa que procura na lista de profissionais — e o aviso de que por
+     ela a vaga ainda não chega continua na tela, que é a parte honesta e
+     a que importa. O que sai é só a tarefa do outro lado. */
   const escrita = busca.trim();
   const jaExisteNaLista = CATEGORIES.some(
     (c) => c.toLocaleLowerCase("pt-BR") === escrita.toLocaleLowerCase("pt-BR")
@@ -686,19 +697,11 @@ export function MeuPerfilPage() {
   /** A função não está na lista fechada — logo, não recebe onda ainda. */
   const foraDaLista = (f: string) => !CATEGORIES.includes(f);
 
-  async function criarFuncao() {
+  function criarFuncao() {
     const nome = escrita;
     if (!nome) return;
     alternar(nome);
     setBusca("");
-    /* Avisa a administração, para a lista crescer. Falha aqui não pode
-       derrubar nada: a função já está no cadastro da pessoa, que é o que
-       ela pediu. O pedido perdido é menos grave que a tela travada. */
-    try {
-      await sendSuggestion(`Função que faltava na lista: "${nome}"`, user?.id ?? null);
-    } catch {
-      /* segue em frente de propósito */
-    }
   }
 
   if (carregandoConta || carregando) {
