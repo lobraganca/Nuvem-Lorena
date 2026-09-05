@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from "react";
+import { IconeFogo } from "../../components/ei/IconeFogo";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { useTituloDaPagina } from "../../lib/tituloDaPagina";
 import { mensagemDeErro } from "../../lib/erros";
@@ -151,7 +152,6 @@ export function BancoDeVagasPage() {
      destaque, mais abaixo. A ordem dentro de cada uma é a que já vinha do
      banco. */
   const destacadas = useMemo(() => visiveis.filter((v) => vagaEmDestaque(v.vaga)), [visiveis]);
-  const resto = useMemo(() => visiveis.filter((v) => !vagaEmDestaque(v.vaga)), [visiveis]);
 
   /* Uma linha da lista. Vira função porque agora ela é desenhada em DOIS
      lugares (a área de destaque e o resto), e duas cópias do mesmo JSX de
@@ -458,17 +458,33 @@ export function BancoDeVagasPage() {
             o app parecia ordenar por relevância e ordenava por dinheiro. */}
         {modo === "lista" && destacadas.length > 0 && (
           <>
-            <h2 className="ei-secao">Em destaque</h2>
+            <h2 className="ei-secao ei-secao-fogo">
+              <IconeFogo />
+              Em destaque
+            </h2>
             <div className="ei-lista ei-lista-destaque">{destacadas.map(linhaDaVaga)}</div>
           </>
         )}
 
-        {modo === "lista" && destacadas.length > 0 && resto.length > 0 && (
-          <h2 className="ei-secao">As outras vagas</h2>
+        {/* ── QUEM PAGA FICA NOS DOIS LUGARES — 05/09 ──────────────────
+            A dona: "para as pessoas que pagarem para estar em destaque
+            precisam de uma sessão diferente. ALÉM de estar na lista
+            também."
+
+            A lista de baixo era `resto` — quem pagava SAÍA da lista comum
+            e passava a existir só na área de destaque. É o contrário do
+            que se compra: destaque é um lugar A MAIS, não uma mudança de
+            lugar. Quem rolasse direto para a lista, ou filtrasse por um
+            ofício, deixava de ver justamente quem pagou para ser visto.
+
+            Agora vai `visiveis` inteira, e a vaga em destaque aparece
+            duas vezes, com o selo nas duas. */}
+        {modo === "lista" && destacadas.length > 0 && visiveis.length > 0 && (
+          <h2 className="ei-secao">Todas as vagas</h2>
         )}
 
-        {resto.length > 0 && modo === "lista" && (
-          <div className="ei-lista">{resto.map(linhaDaVaga)}</div>
+        {visiveis.length > 0 && modo === "lista" && (
+          <div className="ei-lista">{visiveis.map(linhaDaVaga)}</div>
         )}
 
         {/* O convite para a empresa, no pé da área. Fica DEPOIS das vagas

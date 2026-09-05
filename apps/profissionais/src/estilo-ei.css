@@ -7049,3 +7049,18 @@
 /* E o botão descolado do último visto: ele é a decisão, e decisão não
    nasce grudada no argumento. */
 .ei .ei-destaque-vaga > .ei-btn-laranja { margin-top: 4px; }
+
+/* ── O FOGUINHO DA ÁREA DE DESTAQUE — 05/09 ──────────────────────────
+   A dona: "pensei de uma sessão que tenha um ícone de foguinho e as
+   pessoas que pagam para estar ali, enfileiradas verticalmente."
+
+   Laranja, que é a cor com que o app já marca "Em alta" e "Em destaque":
+   o título da seção e o selo de cada linha passam a dizer a mesma coisa
+   com a mesma cor, em vez de duas linguagens para o mesmo assunto. */
+.ei .ei-secao-fogo {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  color: var(--ei-laranja);
+}
+.ei .ei-secao-fogo svg { flex: 0 0 auto; }

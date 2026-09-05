@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from "react";
+import { IconeFogo } from "../components/ei/IconeFogo";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { useTituloDaPagina } from "../lib/tituloDaPagina";
 import { mensagemDeErro } from "../lib/erros";
@@ -332,7 +333,20 @@ export function ProfissionaisPage() {
   /* As pagas primeiro, e em lista própria — ver o comentário da área de
      destaque, mais abaixo. `visiveis` já vem ordenada com elas na frente. */
   const emAlta = useMemo(() => visiveis.filter((p) => destaqueValendo(p)), [visiveis]);
-  const osOutros = useMemo(() => visiveis.filter((p) => !destaqueValendo(p)), [visiveis]);
+  /* ── QUEM PAGA FICA NOS DOIS LUGARES — 05/09 ────────────────────────
+     A dona: "para as pessoas que pagarem para estar em destaque precisam
+     de uma sessão diferente. ALÉM de estar na lista também."
+
+     Aqui a lista de baixo era `!destaqueValendo` — ou seja, quem pagava
+     SAÍA da lista comum e passava a existir só na área de destaque. É o
+     contrário do que se compra: o destaque é um lugar A MAIS, não uma
+     mudança de lugar. Quem rolasse direto para a lista (ou filtrasse por
+     um ofício) deixava de ver justamente quem pagou para ser visto.
+
+     Agora a lista de baixo é `visiveis` inteira. Quem está em alta
+     aparece duas vezes de propósito, e com o selo nas duas — não é
+     descuido, é o que ela comprou. */
+  const todos = visiveis;
 
   /* Uma linha da lista. Vira função porque agora ela é desenhada em DOIS
      lugares (a área de destaque e o resto), e duas cópias do mesmo JSX
@@ -579,22 +593,25 @@ export function ProfissionaisPage() {
             ordenada por quem combina mais. */}
         {emAlta.length > 0 && (
           <>
-            <h2 className="ei-secao">Em alta</h2>
+            <h2 className="ei-secao ei-secao-fogo">
+              <IconeFogo />
+              Em alta
+            </h2>
             <div className="ei-lista ei-lista-destaque">{emAlta.map(linhaDaPessoa)}</div>
           </>
         )}
 
-        {emAlta.length > 0 && osOutros.length > 0 && (
-          <h2 className="ei-secao">Os outros profissionais</h2>
+        {emAlta.length > 0 && todos.length > 0 && (
+          <h2 className="ei-secao">Todos os profissionais</h2>
         )}
 
-        {osOutros.length > 0 && (
+        {todos.length > 0 && (
           /* `ei-lista`, e não um `div` pelado: sem ela a lista inteira de
              pessoas ficava direto no chão cinza da tela, sem superfície
              branca embaixo — a única lista do app assim. Os fios entre as
              linhas viravam riscos soltos no cinza, e a tela parecia não ter
              terminado de carregar. */
-          <div className="ei-lista">{osOutros.map(linhaDaPessoa)}</div>
+          <div className="ei-lista">{todos.map(linhaDaPessoa)}</div>
         )}
 
         {/* O convite para quem quer o lugar. No pé, como no banco de
