@@ -6840,3 +6840,59 @@
   line-height: 1.5;
   color: var(--ei-tinta-fraca);
 }
+
+/* ── PASTILHA MIÚDA — 05/09 ──────────────────────────────────────────
+   A dona: "os botões de editar e trocar podem ser menores."
+
+   Eram duas pastilhas laranja do tamanho de botão de ação, embaixo do
+   nome da empresa, pesando mais que o "+ Nova vaga" logo abaixo — que é
+   o que aquela tela existe para oferecer.
+
+   Encolhe a letra e o preenchimento, e NÃO a altura de toque: 40px é o
+   mínimo que ainda se acerta com o dedo (o app trabalha com 44 — ver "A
+   RÉGUA DO APP"). Diminuir isso também deixaria o botão bonito e errado,
+   que é pior. O que some é peso visual, não alvo. */
+.ei .ei-btn-inline.ei-btn-miudo {
+  min-height: 40px;
+  padding: 5px 12px;
+  font-size: 0.8rem;
+}
+
+/* ── A LINHA DA VAGA, MAIOR — 05/09 ──────────────────────────────────
+   A dona: "o card da vaga que está no ar pode ser maiorzinho."
+
+   Ela tinha a mesma altura de um item de menu qualquer, e é a linha mais
+   importante do painel: é por ali que a empresa chega em quem se
+   interessou. Ganha respiro, título de corpo maior e uma seta mais
+   visível — sem virar cartão solto, porque cinco vagas em cartões
+   separados viram um acordeão e a empresa quer VARRER a lista. */
+.ei .ei-lista-vagas .ei-linha-item {
+  padding: 18px 20px;
+  gap: 14px;
+}
+
+.ei .ei-lista-vagas .ei-linha-nome > .ei-uma-linha {
+  font-size: 1.05rem;
+  font-weight: 600;
+  line-height: 1.35;
+  /* Com a letra maior, "Pedreiro para obra no Centro" passou a ser
+     cortado ("...no Cen…"). Numa lista em que se escolhe pelo título,
+     cortar o título é o pior lugar para economizar altura — e a linha
+     acabou de ficar maior justamente para caber mais. Duas linhas, e o
+     corte só depois disso. */
+  white-space: normal;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+/* A linha de apoio (quantas pessoas se interessaram, e quando) também
+   estava cortada: são as duas informações que fazem a empresa tocar. */
+.ei .ei-lista-vagas .ei-linha-sub {
+  white-space: normal;
+  overflow: visible;
+}
+
+.ei .ei-lista-vagas .ei-linha-icone { width: 24px; height: 24px; }
+.ei .ei-lista-vagas .ei-linha-icone svg { width: 22px; height: 22px; }

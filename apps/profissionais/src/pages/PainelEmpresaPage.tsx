@@ -338,9 +338,26 @@ export function PainelEmpresaPage() {
                   "Profissionais" saiu: o banco de talentos é da cidade,
                   não desta empresa, e ele está na tela inicial e na barra
                   de baixo — que é onde ele estava sendo procurado. */}
+              {/* ── MENORES, E "TROCAR EMPRESA" POR EXTENSO — 05/09 ────
+                  A dona: "os botões de editar e trocar podem ser menores.
+                  Trocar para 'trocar empresa'."
+
+                  Eram duas pastilhas laranja do tamanho de botão de ação,
+                  logo abaixo do nome da empresa — e pesavam mais que o
+                  "+ Nova vaga" ali embaixo, que é o que a tela existe
+                  para oferecer.
+
+                  E "Trocar" sozinho não dizia trocar O QUÊ. Ao lado de um
+                  "Editar" e embaixo do nome da empresa, dava para ler
+                  como trocar a foto, o endereço, o plano. O nome inteiro
+                  custa cinco letras e tira a adivinhação. */}
               <span className="ei-painel-topo-botoes">
-                <Link to="/painel/editar-empresa" className="ei-btn-inline">Editar</Link>
-                <Link to="/minhas-empresas" className="ei-btn-inline">Trocar</Link>
+                <Link to="/painel/editar-empresa" className="ei-btn-inline ei-btn-miudo">
+                  Editar
+                </Link>
+                <Link to="/minhas-empresas" className="ei-btn-inline ei-btn-miudo">
+                  Trocar empresa
+                </Link>
               </span>
             </div>
 
@@ -496,7 +513,12 @@ export function PainelEmpresaPage() {
                      cinco cartões soltos com espaço entre eles viram um
                      acordeão, e a empresa quer varrer a lista, não
                      contemplar cada uma. */
-                  <div className="ei-lista">
+                  /* `ei-lista-vagas`: as linhas desta lista são maiores
+                     que as das outras. A dona: "o card da vaga que está
+                     no ar pode ser maiorzinho." É a linha mais importante
+                     do painel — é onde estão as pessoas interessadas — e
+                     tinha exatamente a altura de um item de menu. */
+                  <div className="ei-lista ei-lista-vagas">
                     {doGrupo.map((vaga) => (
               <Link key={vaga.id} to={`/vaga/${vaga.id}`} className="ei-linha-item">
                 <span className="ei-linha-icone" aria-hidden="true">
