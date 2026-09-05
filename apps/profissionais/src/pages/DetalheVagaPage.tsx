@@ -5,10 +5,7 @@ import {
   obterVaga,
   obterOndasDaVaga,
   obterRespostasDaVaga,
-  arquivarVaga,
-  pausarVaga,
   reabrirVaga,
-  excluirVaga,
   type RespostaComPessoa,
 } from "../lib/company";
 import { mensagemDeErro } from "../lib/erros";
@@ -148,25 +145,16 @@ export function DetalheVagaPage() {
   const [respostas, setRespostas] = useState<RespostaComPessoa[]>([]);
   const [carregando, setCarregando] = useState(true);
   const [fechando, setFechando] = useState(false);
-  /* A pergunta do excluir mora na própria tela — ver o comentário no
-     botão. `window.confirm` some dentro do app instalado. */
-  const [confirmandoExclusao, setConfirmandoExclusao] = useState(false);
-  /* "Tirar do ar" abre as três saídas escritas (pausar, encerrar, apagar)
-     em vez de deixar três botões soltos na tela — ver o comentário do
-     bloco "Gerenciar a vaga". */
-  const [saindoDoAr, setSaindoDoAr] = useState(false);
-  /* ── "CONTRATOU POR AQUI?" (0119) ────────────────────────────────────
-     O app sabia quantas pessoas se interessaram e não sabia se alguém foi
-     contratado — que é a única coisa que prova que ele funciona, e a
-     única que convence uma empresa nova a pagar.
+  /* ── AS TRÊS SAÍDAS MUDARAM DE TELA — 05/09 ─────────────────────────
+     `saindoDoAr`, `confirmandoExclusao`, `perguntandoContratacao` e
+     `quantosContratados` moravam aqui: o painel de saídas abria DENTRO
+     desta tela, e a pergunta do "contratou por aqui?" abria dentro de uma
+     das saídas — três níveis dobrados numa tela que já tinha a ficha, os
+     números e a lista de interessados.
 
-     A pergunta cabe exatamente aqui: quem toca em "Já contratei" está
-     dizendo que contratou. Falta só saber se foi por aqui, e quantas
-     pessoas. Responder é opcional; obrigar faria a empresa responder
-     qualquer coisa para se livrar da tela, e o número viraria lixo com
-     cara de dado. */
-  const [perguntandoContratacao, setPerguntandoContratacao] = useState(false);
-  const [quantosContratados, setQuantosContratados] = useState("1");
+     A dona: "ao clicar em tirar do ar a vaga, direcionar a uma outra tela
+     para que a pessoa escolha a finalidade." Tudo isso vive agora em
+     `EncerrarVagaPage`, e esta tela ficou com o que ela é: a vaga. */
   const [erro, setErro] = useState("");
 
   useEffect(() => {
@@ -215,20 +203,6 @@ export function DetalheVagaPage() {
          vencido ou plano cheio). Um texto genérico aqui apagaria isso. */
       setErro(mensagemDeErro(err, seDerErrado));
     } finally {
-      setFechando(false);
-    }
-  }
-
-  async function excluirVagaFunc() {
-    if (!vagaId) return;
-
-    setFechando(true);
-    setErro("");
-    try {
-      await excluirVaga(vagaId);
-      navegar("/painel-empresa", { replace: true });
-    } catch (err) {
-      setErro(mensagemDeErro(err, "Não foi possível excluir a vaga."));
       setFechando(false);
     }
   }
@@ -543,6 +517,66 @@ export function DetalheVagaPage() {
       <h2 className="ei-secao">A vaga</h2>
       <FichaDaVaga vaga={vaga} comDescricao />
 
+      {/* ── GERENCIAR VEM LOGO DEPOIS DA VAGA — 05/09 ──────────────────
+          A dona: "nessa tela a opção de gerenciar a vaga deve ficar abaixo
+          da última informação da vaga. Com botões em vermelho e tamanho
+          discreto. A propaganda de aparecer na frente pode ser no final da
+          página com um respiro maior."
+
+          Estava no fim, DEPOIS do cartão de venda do destaque: a empresa
+          que abria a vaga para pausá-la — que é o motivo mais comum de
+          abrir a vaga da própria empresa — rolava a ficha inteira, passava
+          por um preço, e só então achava o botão. Vender antes de deixar a
+          pessoa fazer o que ela veio fazer é o jeito mais rápido de a
+          venda incomodar.
+
+          ── UMA SAÍDA SÓ, EM VEZ DE TRÊS — 04/09 ──────────────────────
+          Antes havia quatro botões iguais numa grade: Editar, Pausar,
+          Arquivar e Excluir. Três fazem a MESMA coisa aos olhos de quem
+          usa — tiram a vaga do ar — e a diferença entre eles morava num
+          `title`, que no celular ninguém vê.
+
+          Hoje são duas ações, e "Tirar do ar" leva a uma TELA (05/09, a
+          pedido da dona: "direcionar a uma outra tela para que a pessoa
+          escolha a finalidade"). Ver `EncerrarVagaPage`.
+
+          O vermelho é claro, e não cheio: tirar do ar se desfaz. Vermelho
+          sólido é o vocabulário do irreversível, e gastá-lo aqui tiraria o
+          único sinal que o app tem para o que não tem volta. */}
+      <h2 className="ei-secao" id="gerenciar">Gerenciar a vaga</h2>
+      <div className="ei-margem ei-acoes-vaga">
+        <Link className="ei-btn ei-btn-contorno ei-btn-discreto" to={`/vaga/${vaga.id}/editar`}>
+          Editar a vaga
+        </Link>
+
+        {vaga.status === "active" && (
+          <Link
+            className="ei-btn ei-btn-perigo-claro ei-btn-discreto"
+            to={`/vaga/${vaga.id}/encerrar`}
+          >
+            Tirar do ar
+          </Link>
+        )}
+
+        {/* Reabrir continua sozinho e cheio: numa vaga fora do ar é a
+            única coisa que a empresa costuma querer, e escondê-la atrás de
+            uma pergunta seria esconder justamente a saída. */}
+        {vaga.status !== "active" && (
+          <button
+            className="ei-btn ei-btn-cheio"
+            onClick={() => mudarEstado(() => reabrirVaga(vaga.id), "Não foi possível reabrir a vaga.")}
+            disabled={fechando}
+          >
+            {fechando ? "Reabrindo…" : "Colocar no ar de novo"}
+          </button>
+        )}
+        {vaga.status !== "active" && (
+          <p className="ei-apoio" style={{ margin: 0, gridColumn: "1 / -1" }}>
+            Reabrir ocupa uma vaga do seu plano de novo.
+          </p>
+        )}
+      </div>
+
       {/* ── DESTACAR ESTA VAGA — 04/09 ─────────────────────────────────
           A dona: "também opção de dar destaque a uma vaga" — R$ 19,90 por
           7 dias.
@@ -557,7 +591,11 @@ export function DetalheVagaPage() {
           da cobrança dela, e mostrar o preço já conta como vender. */}
       {podeVender() && vaga.status === "active" && (
         <>
-          <h2 className="ei-secao">Aparecer primeiro</h2>
+          {/* No FIM da página e com respiro maior — 05/09, a dona: "a
+              propaganda de aparecer na frente pode ser no final da página
+              com um respiro maior." Ela é a última coisa da tela de
+              propósito: quem rolou até aqui já fez o que veio fazer. */}
+          <h2 className="ei-secao ei-secao-afastada">Aparecer primeiro</h2>
           {/* ── RESPIRO — 05/09 ────────────────────────────────────────
               A dona: "o card 'aparecer primeiro' da vaga em destaque está
               sem respiro."
@@ -614,242 +652,6 @@ export function DetalheVagaPage() {
           </div>
         </>
       )}
-
-      {/* ── UMA SAÍDA SÓ, EM VEZ DE TRÊS — 04/09 ────────────────────────
-          A dona: "as funcionalidades confusas demais."
-
-          Aqui havia quatro botões iguais numa grade: Editar, Pausar,
-          Arquivar e, embaixo, Excluir. Três deles fazem a MESMA coisa aos
-          olhos de quem usa — tiram a vaga do ar — e a diferença entre eles
-          (uma volta, outra libera vaga do plano, a terceira apaga a lista
-          de interessados) não estava escrita em lugar nenhum: morava num
-          `title`, que no celular ninguém vê, porque não há para onde
-          apontar o mouse.
-
-          Escolher entre três palavras sem saber o que cada uma faz é o
-          caminho mais curto para a empresa apagar por engano a lista de
-          gente que ela pagou para receber.
-
-          Agora são DUAS ações: "Editar" e "Tirar do ar". A segunda abre a
-          pergunta com as três saídas escritas por extenso, uma linha cada,
-          dizendo a consequência — que é a informação que decide. */}
-      <h2 className="ei-secao" id="gerenciar">Gerenciar a vaga</h2>
-      {/* Com a pergunta aberta, "Editar" fica sozinho: numa grade de duas
-          colunas ele viraria um botão de meia largura ao lado de um vão
-          vazio. Sozinho, ocupa a linha. */}
-      <div className={saindoDoAr ? "ei-margem ei-acoes-vaga ei-acoes-vaga-uma" : "ei-margem ei-acoes-vaga"}>
-        <Link className="ei-btn ei-btn-contorno" to={`/vaga/${vaga.id}/editar`}>
-          Editar a vaga
-        </Link>
-
-        {vaga.status === "active" && !saindoDoAr && (
-          <button
-            className="ei-btn ei-btn-contorno"
-            onClick={() => {
-              setErro("");
-              setSaindoDoAr(true);
-            }}
-            disabled={fechando}
-          >
-            Tirar do ar
-          </button>
-        )}
-
-        {/* Reabrir continua sozinho e cheio: numa vaga fora do ar é a
-            única coisa que a empresa costuma querer, e escondê-la atrás de
-            uma pergunta seria esconder justamente a saída. */}
-        {vaga.status !== "active" && (
-          <button
-            className="ei-btn ei-btn-cheio"
-            onClick={() => mudarEstado(() => reabrirVaga(vaga.id), "Não foi possível reabrir a vaga.")}
-            disabled={fechando}
-          >
-            {fechando ? "Reabrindo…" : "Colocar no ar de novo"}
-          </button>
-        )}
-        {vaga.status !== "active" && (
-          <p className="ei-apoio" style={{ margin: 0, gridColumn: "1 / -1" }}>
-            Reabrir ocupa uma vaga do seu plano de novo.
-          </p>
-        )}
-      </div>
-
-      {/* As três saídas, escritas. A ordem é da mais leve para a mais
-          grave, e a grave é a única que exige um segundo toque. */}
-      {saindoDoAr && (
-        <div className="ei-margem ei-saidas">
-          <button
-            className="ei-saida"
-            onClick={() => mudarEstado(() => pausarVaga(vaga.id), "Não foi possível pausar a vaga.")}
-            disabled={fechando}
-          >
-            <span className="ei-saida-nome">Pausar por enquanto</span>
-            <span className="ei-saida-nota">
-              Some da busca e volta quando você quiser. Continua ocupando
-              uma vaga do seu plano.
-            </span>
-          </button>
-
-          {!perguntandoContratacao ? (
-            <button
-              className="ei-saida"
-              onClick={() => {
-                setErro("");
-                setPerguntandoContratacao(true);
-              }}
-              disabled={fechando}
-            >
-              <span className="ei-saida-nome">Já contratei — encerrar</span>
-              <span className="ei-saida-nota">
-                Libera uma vaga do seu plano. A lista de quem se interessou
-                fica guardada, em “Encerradas”.
-              </span>
-            </button>
-          ) : (
-            <div className="ei-saida ei-saida-confirma">
-              <span className="ei-saida-nome">
-                A pessoa que você contratou veio do Ei Emprego?
-              </span>
-              <span className="ei-saida-nota">
-                Serve para sabermos quantos empregos saem daqui de verdade.
-                Ninguém além de nós vê esta resposta, e ela não muda nada no
-                seu plano.
-              </span>
-
-              <label className="ei-quantos-contratados">
-                Quantas pessoas você contratou por esta vaga?
-                <input
-                  type="number"
-                  inputMode="numeric"
-                  min={1}
-                  max={999}
-                  value={quantosContratados}
-                  onChange={(e) => setQuantosContratados(e.target.value)}
-                />
-              </label>
-
-              <div className="ei-saida-botoes">
-                <button
-                  className="ei-btn"
-                  disabled={fechando}
-                  onClick={() =>
-                    mudarEstado(
-                      () =>
-                        arquivarVaga(vaga.id, {
-                          contratouPorAqui: true,
-                          /* Campo vazio ou rabiscado não vira zero: vira
-                             "não disse quantas". Zero aqui significaria
-                             "contratou ninguém", que contradiz o próprio
-                             sim. */
-                          quantos: Number(quantosContratados) > 0 ? Number(quantosContratados) : null,
-                        }),
-                      "Não foi possível encerrar a vaga."
-                    )
-                  }
-                >
-                  Sim, veio daqui — encerrar
-                </button>
-
-                <button
-                  className="ei-btn-inline"
-                  disabled={fechando}
-                  onClick={() =>
-                    mudarEstado(
-                      () => arquivarVaga(vaga.id, { contratouPorAqui: false }),
-                      "Não foi possível encerrar a vaga."
-                    )
-                  }
-                >
-                  Não, veio de outro lugar — encerrar
-                </button>
-
-                {/* A saída sem responder. Sem ela, quem não quer dizer
-                    fica preso numa tela que só queria encerrar a vaga —
-                    e responde qualquer coisa para sair. */}
-                <button
-                  className="ei-btn-inline"
-                  disabled={fechando}
-                  onClick={() =>
-                    mudarEstado(
-                      () => arquivarVaga(vaga.id),
-                      "Não foi possível encerrar a vaga."
-                    )
-                  }
-                >
-                  Prefiro não dizer — só encerrar
-                </button>
-              </div>
-            </div>
-          )}
-
-          {/* ── A CONFIRMAÇÃO SAIU DO `window.confirm` — 03/09 ────────────
-              Era uma janelinha do navegador. Dentro do app instalado ela
-              não aparece em alguns aparelhos, e o que sobra é o pior
-              caminho possível: um toque em "Excluir" apagando a vaga e a
-              lista de interessados na hora, sem pergunta nenhuma.
-
-              A pergunta é a própria tela, e ela DIZ O NÚMERO — "Tem
-              certeza?" não informa nada; saber que três pessoas
-              interessadas somem junto é o que faz parar e escolher
-              encerrar. */}
-          {!confirmandoExclusao ? (
-            <button
-              className="ei-saida ei-saida-grave"
-              onClick={() => {
-                setErro("");
-                setConfirmandoExclusao(true);
-              }}
-              disabled={fechando}
-            >
-              <span className="ei-saida-nome">Apagar de vez</span>
-              <span className="ei-saida-nota">
-                {respostas.length > 0
-                  ? `Apaga a vaga e ${
-                      respostas.length === 1
-                        ? "a pessoa interessada"
-                        : `as ${respostas.length} pessoas interessadas`
-                    } nela. Não dá para desfazer.`
-                  : "Apaga a vaga de vez. Não dá para desfazer."}
-              </span>
-            </button>
-          ) : (
-            <div className="ei-saida ei-saida-grave ei-saida-confirma">
-              <span className="ei-saida-nome">
-                {respostas.length > 0
-                  ? `Apagar leva junto ${
-                      respostas.length === 1
-                        ? "a pessoa interessada"
-                        : `as ${respostas.length} pessoas interessadas`
-                    }. Tem certeza?`
-                  : "Apagar não tem volta. Tem certeza?"}
-              </span>
-              <button
-                className="ei-btn ei-btn-contorno ei-btn-largo"
-                onClick={excluirVagaFunc}
-                disabled={fechando}
-                style={{ color: "var(--ei-erro)" }}
-              >
-                {fechando ? "Apagando…" : "Sim, apagar esta vaga"}
-              </button>
-            </div>
-          )}
-
-          <button
-            className="ei-btn ei-btn-texto"
-            onClick={() => {
-              setConfirmandoExclusao(false);
-              setSaindoDoAr(false);
-              /* Fechar o painel também fecha a pergunta: reabrir e achar a
-                 pergunta já aberta faria parecer que a vaga foi encerrada. */
-              setPerguntandoContratacao(false);
-            }}
-            disabled={fechando}
-          >
-            Deixar como está
-          </button>
-        </div>
-      )}
-
 
       </div>
     </div>

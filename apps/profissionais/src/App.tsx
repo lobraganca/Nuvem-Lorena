@@ -67,6 +67,7 @@ const DestaqueDaVagaPage = lazy(importarPagina(() => import("./pages/ei/Destaque
 const OndasDaVagaPage = lazy(importarPagina(() => import("./pages/OndasDaVagaPage").then((m) => ({ default: m.OndasDaVagaPage }))));
 const InteressadosDaVagaPage = lazy(importarPagina(() => import("./pages/InteressadosDaVagaPage").then((m) => ({ default: m.InteressadosDaVagaPage }))));
 const DetalheVagaPage = lazy(importarPagina(() => import("./pages/DetalheVagaPage").then((m) => ({ default: m.DetalheVagaPage }))));
+const EncerrarVagaPage = lazy(importarPagina(() => import("./pages/ei/EncerrarVagaPage").then((m) => ({ default: m.EncerrarVagaPage }))));
 const PerfilPublicoPage = lazy(importarPagina(() => import("./pages/PerfilPublicoPage").then((m) => ({ default: m.PerfilPublicoPage }))));
 /* A vaga vista por QUEM PROCURA. É outra tela que a `/vaga/:id`, que é o
    painel de quem anunciou (ondas, alcance, lista de interessados). Antes só
@@ -403,6 +404,13 @@ export default function App() {
         } />
         <Route path="/vaga/:id/interessados" element={
           <SoDesteLado lado="company"><InteressadosDaVagaPage /></SoDesteLado>
+        } />
+        {/* Tirar a vaga do ar é uma TELA, e não um painel que abre dentro
+            da vaga — a dona: "ao clicar em tirar do ar a vaga, direcionar
+            a uma outra tela para que a pessoa escolha a finalidade". Ver
+            EncerrarVagaPage. */}
+        <Route path="/vaga/:id/encerrar" element={
+          <SoDesteLado lado="company"><EncerrarVagaPage /></SoDesteLado>
         } />
         <Route path="/vaga/:id" element={
           <SoDesteLado lado="company"><DetalheVagaPage /></SoDesteLado>

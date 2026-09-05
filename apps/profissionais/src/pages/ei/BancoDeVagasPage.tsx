@@ -1042,28 +1042,47 @@ function Baralho({ vagas, verLista }: { vagas: VagaNoBanco[]; verLista: () => vo
         <Link className="ei-btn-inline" to={`/vaga-aberta/${v.vaga.id}`}>
           Ver a vaga inteira
         </Link>
-      </div>
-      </div>
 
-      {/* Os botões ficam FORA do cartão que se move: dentro, eles sairiam
-          da tela junto com ele e a pessoa acertaria o vazio. */}
-      <div className="ei-baralho-acoes">
-        <button
-          type="button"
-          className="ei-btn ei-btn-contorno ei-btn-alto"
-          onClick={() => responder(false)}
-          disabled={!!saindo}
-        >
-          Não é para mim
-        </button>
-        <button
-          type="button"
-          className="ei-btn-laranja"
-          onClick={() => responder(true)}
-          disabled={!!saindo}
-        >
-          Tenho interesse
-        </button>
+        {/* ── AS RESPOSTAS VOLTARAM PARA DENTRO DO CARTÃO — 05/09 ─────
+            A dona: "dentro do card aparecer pra pessoa escolher se tem
+            interesse ou não."
+
+            Elas estavam fora, e o motivo escrito aqui era: "dentro, eles
+            sairiam da tela junto com o cartão e a pessoa acertaria o
+            vazio". Isso é verdade por 220 milissegundos — o tempo do
+            cartão voando — e falso o resto do tempo. O preço de deixá-las
+            fora era permanente: o cartão terminava sem saída, e as duas
+            respostas ficavam boiando no chão cinza, sem pertencer a vaga
+            nenhuma. Num baralho de cinco vagas, "Tenho interesse" solto
+            embaixo não diz de QUAL vaga se está falando.
+
+            Dentro, elas andam com o cartão — e isso é o certo: a resposta
+            é daquela vaga, e sai de cena junto com ela.
+
+            `onPointerDown` com `stopPropagation` para o toque no botão
+            não virar começo de arrasto (ver `aoPegar`, que já ignora
+            `a,button`, mas o `stopPropagation` evita até o cálculo). */}
+        <div className="ei-baralho-acoes">
+          <button
+            type="button"
+            className="ei-btn ei-btn-contorno ei-btn-alto"
+            onPointerDown={(e) => e.stopPropagation()}
+            onClick={() => responder(false)}
+            disabled={!!saindo}
+          >
+            Não é para mim
+          </button>
+          <button
+            type="button"
+            className="ei-btn-laranja"
+            onPointerDown={(e) => e.stopPropagation()}
+            onClick={() => responder(true)}
+            disabled={!!saindo}
+          >
+            Tenho interesse
+          </button>
+        </div>
+      </div>
       </div>
 
       {lotado && (

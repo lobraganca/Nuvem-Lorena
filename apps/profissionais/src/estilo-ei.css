@@ -8001,3 +8001,55 @@
 .ei .ei-balao-compat.ei-compat-baixa .ei-balao-compat-marca {
   color: var(--ei-afunda-forte);
 }
+
+
+/* ── BOTÃO DISCRETO ────────────────────────────────────────────────────
+   A dona, sobre gerenciar a vaga: "com botões em vermelho e tamanho
+   discreto."
+
+   Menor que o botão normal em altura e em letra, mas não menor que o
+   alvo mínimo de toque: 40px é o piso em que o dedo ainda acerta. Abaixo
+   disso "discreto" vira "difícil de tocar", que é outra coisa. */
+.ei .ei-btn-discreto {
+  min-height: 40px;
+  padding: 0 14px;
+  font-size: 0.88rem;
+}
+
+/* Uma seção que respira mais que as outras, para a oferta do fim da
+   página — a dona: "a propaganda de aparecer na frente pode ser no final
+   da página com um respiro maior." */
+.ei .ei-secao-afastada { margin-top: 34px; }
+
+
+/* As respostas dentro do cartão do baralho — 05/09, a dona: "dentro do
+   card aparecer pra pessoa escolher se tem interesse ou não". Ganham um
+   fio em cima para não colarem no "Ver a vaga inteira": dentro do cartão
+   elas passam a ser o pé dele, e pé de cartão precisa de linha. */
+.ei .ei-baralho-cartao > .ei-baralho-acoes {
+  margin-top: 4px;
+  padding-top: 14px;
+  border-top: 1px solid var(--ei-fio);
+}
+
+
+/* ── O CARTÃO PRECISOU EMAGRECER — 05/09 ──────────────────────────────
+   Com as duas respostas dentro dele (a dona: "dentro do card aparecer pra
+   pessoa escolher se tem interesse ou não"), o cartão ganhou ~70px e o pé
+   dele passou a encostar na barra de baixo. E os botões, agora limitados
+   à largura do cartão (que é 46px mais estreito que a tela, por causa da
+   lombada do próximo), quebravam em duas linhas: "Não é para / mim".
+
+   Três cortes pequenos em vez de um grande: menos respiro por dentro, a
+   descrição em duas linhas no lugar de três, e a letra dos botões um
+   pouco menor com `nowrap`. Nenhum sozinho resolveria; juntos devolvem a
+   altura e a linha. */
+.ei .ei-baralho-cartao { padding: 16px 16px 18px; gap: 10px; }
+.ei .ei-baralho-texto { -webkit-line-clamp: 2; }
+.ei .ei-baralho-acoes > .ei-btn,
+.ei .ei-baralho-acoes > .ei-btn-laranja {
+  font-size: 0.9rem;
+  padding-left: 8px;
+  padding-right: 8px;
+  white-space: nowrap;
+}
