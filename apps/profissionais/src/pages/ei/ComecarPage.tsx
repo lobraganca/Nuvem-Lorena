@@ -6,6 +6,7 @@ import { useTituloDaPagina } from "../../lib/tituloDaPagina";
 import { saudacaoDoDia } from "../../lib/saudacao";
 import { useQuemEstaOnline } from "../../lib/presence";
 import { lerMeuPerfil } from "../../lib/meuPerfil";
+import { empresaAtual } from "../../lib/company";
 import { InstalarApp } from "../../components/InstalarApp";
 import { AvisoPerfilIncompleto } from "../../components/ei/AvisoPerfilIncompleto";
 import { PortaDosAvisos } from "../../components/ei/PortaDosAvisos";
@@ -51,13 +52,58 @@ export function ComecarPage({ lado }: { lado: "professional" | "company" }) {
      frase existe na versão sem nome (ver `saudacao.ts`), e derrubar a
      tela inicial do app por causa de um cumprimento seria trocar uma
      gentileza por um defeito. */
-  const [nome, setNome] = useState<string>("");
+  /* ── E O NOME DA EMPRESA, QUANDO NÃO HÁ O DA PESSOA — 05/09 ───────
+     A dona: "quando não tem perfil profissional, ao entrar a saudação
+     deve ser o nome da empresa."
+
+     O nome saía só de `lerMeuPerfil`, que lê a tabela `professionals`.
+     Quem entrou para CONTRATAR e cadastrou apenas a empresa não tem linha
+     nenhuma ali — então a saudação caía na versão sem nome, e o app abria
+     dizendo "Vamos com tudo hoje?" para alguém que ele conhece pelo nome
+     desde o cadastro. É o caso mais comum do lado da empresa, não a
+     exceção.
+
+     A ordem é a que ela descreveu: a pessoa primeiro, a empresa quando não
+     existe pessoa. Quem tem os dois cadastros continua sendo chamado pelo
+     próprio nome — "Ei Lorena" é melhor que "Ei Padaria Pão de Minas"
+     para quem tem nome.
+
+     `de` acompanha o nome porque nome de empresa não se encurta como nome
+     de gente (ver `saudacao.ts`). Os dois andam juntos num estado só para
+     não existir o instante em que o nome já trocou e o tipo ainda não —
+     seria "Ei Padaria" na tela, por um quadro. */
+  const [quem, setQuem] = useState<{ nome: string; de: "pessoa" | "empresa" }>({
+    nome: "",
+    de: "pessoa",
+  });
   useEffect(() => {
     if (!user) return;
     let vivo = true;
-    lerMeuPerfil(user.id)
-      .then((p) => vivo && setNome(p?.name ?? ""))
-      .catch(() => {});
+    (async () => {
+      /* Falha em silêncio de propósito, nas duas buscas: sem nome a frase
+         existe na versão sem nome, e derrubar a tela inicial do app por
+         causa de um cumprimento seria trocar uma gentileza por um
+         defeito. */
+      let daPessoa = "";
+      try {
+        daPessoa = (await lerMeuPerfil(user.id))?.name ?? "";
+      } catch {
+        /* segue para a empresa */
+      }
+      if (!vivo) return;
+      if (daPessoa.trim()) {
+        setQuem({ nome: daPessoa, de: "pessoa" });
+        return;
+      }
+      try {
+        const empresa = await empresaAtual(user.id);
+        if (vivo && empresa?.company_name) {
+          setQuem({ nome: empresa.company_name, de: "empresa" });
+        }
+      } catch {
+        /* fica sem nome, e a frase sem nome dá conta */
+      }
+    })();
     return () => {
       vivo = false;
     };
@@ -70,7 +116,7 @@ export function ComecarPage({ lado }: { lado: "professional" | "company" }) {
           {/* Vem ANTES do título, e miúda: é um cumprimento, não o nome
               da tela. Acima do título ela é a primeira coisa que se lê e
               some do caminho; no lugar do título, viraria o assunto. */}
-          {entrou && <p className="ei-saudacao">{saudacaoDoDia(nome)}</p>}
+          {entrou && <p className="ei-saudacao">{saudacaoDoDia(quem.nome, quem.de)}</p>}
           {/* ── DEBAIXO DA SAUDAÇÃO — 05/09 ──────────────────────────
               A dona: "o botão de on-line pode aparecer debaixo da
               saudação."

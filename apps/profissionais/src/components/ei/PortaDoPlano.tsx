@@ -1,7 +1,12 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { useAuth } from "../../lib/useAuth";
-import { minhasEmpresas, resumoDasEmpresas, type ResumoDasEmpresas } from "../../lib/company";
+import {
+  melhorPlanoEmDia,
+  minhasEmpresas,
+  resumoDasEmpresas,
+  type ResumoDasEmpresas,
+} from "../../lib/company";
 import { PLANO_GRATUITO, PLANOS_EMPRESA, type Company } from "../../types/domain";
 import { IconePorta } from "../../pages/ei/ComecarPage";
 
@@ -60,19 +65,12 @@ export function PortaDoPlano() {
      cobrar antes de existir o que cobrar. */
   if (!empresas || empresas.length === 0) return null;
 
-  const agora = Date.now();
-  const forca = { pro: 1, tres: 2, ilimitado: 3 } as const;
-  let melhorNome: string | null = null;
-  let melhor = 0;
-  for (const e of empresas) {
-    if (!e.plano || !e.plano_ate || new Date(e.plano_ate).getTime() < agora) continue;
-    const f = forca[e.plano as keyof typeof forca] ?? 0;
-    if (f > melhor) {
-      melhor = f;
-      melhorNome = `Plano ${PLANOS_EMPRESA[e.plano]?.nome ?? e.plano}`;
-    }
-  }
-  const nome = melhorNome ?? PLANO_GRATUITO.nome;
+  /* A escolha do melhor plano é de `melhorPlanoEmDia` — ver o comentário
+     longo lá. Aqui havia uma segunda cópia da mesma tabela de antes da
+     0120, e era ela que escrevia "Ei Começo" (o plano de graça) na tela de
+     quem paga o Ei Impulso ou o Ei Máximo. */
+  const plano = melhorPlanoEmDia(empresas);
+  const nome = plano ? `Plano ${PLANOS_EMPRESA[plano].nome}` : PLANO_GRATUITO.nome;
 
   /* Sem plano não há "de quantas": o gratuito não publica vaga, e "0 de 0"
      lê como defeito. `-1` é o sem teto, e "3 de -1" seria o número mágico

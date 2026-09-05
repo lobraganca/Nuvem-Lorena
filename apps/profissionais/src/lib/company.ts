@@ -4,6 +4,8 @@ import {
   cabeVagaNoPlano,
   DIAS_ANUNCIO_VAGA,
   FAIXAS_DAS_ONDAS,
+  PLANOS_EMPRESA,
+  type PlanoEmpresa,
 } from "../types/domain";
 import { calcular } from "./compatibilidade";
 import { lerTudo } from "./lerTudo";
@@ -168,21 +170,83 @@ export type ResumoDasEmpresas = {
   abertas: number;
 };
 
+/**
+ * O melhor plano EM DIA entre as empresas da conta, ou `null`.
+ *
+ * ── DOIS PLANOS PAGOS VALIAM ZERO — 05/09 ─────────────────────────────
+ *
+ * Esta conta existia DUAS vezes, copiada, e as duas cópias tinham a mesma
+ * tabela escrita à mão:
+ *
+ *     const forca = { pro: 1, tres: 2, ilimitado: 3 }
+ *
+ * Ela é de antes da 0120, quando os planos eram três. Hoje são cinco:
+ * `cinco` (Ei Impulso) e `dez` (Ei Máximo) entraram e nunca chegaram nesta
+ * linha. O `?? 0` das duas cópias engolia os dois em silêncio, e quem
+ * pagasse um deles era tratado como quem não tem plano nenhum — no teto
+ * (`resumoDasEmpresas`) e no NOME (`PortaDoPlano`, que escrevia "Ei
+ * Começo", o plano de graça, para quem estava pagando R$ 129,90).
+ *
+ * Nenhum conferidor de tipos pegaria: `plano` é `string` no banco, e o
+ * `as keyof typeof forca` de cada cópia desligava justamente a checagem
+ * que teria apontado os dois nomes faltando.
+ *
+ * Agora é uma função só, e a ordem sai de `PLANOS_EMPRESA` — a mesma lista
+ * que a tela de planos mostra. Plano novo passa a valer aqui no dia em que
+ * for criado, sem ninguém lembrar deste arquivo nem do outro.
+ *
+ * A força é o TETO, e o sem-teto vale infinito — não o `-1` que ele é no
+ * banco. Ordenar pelo `-1` cru escolheria o Ei Infinit como o mais fraco
+ * de todos, que é o contrário do que ele é.
+ */
+export function melhorPlanoEmDia(empresas: Company[]): PlanoEmpresa | null {
+  const agora = Date.now();
+  let melhor: PlanoEmpresa | null = null;
+  let melhorForca = 0;
+  for (const e of empresas) {
+    if (!e.plano || !e.plano_ate || new Date(e.plano_ate).getTime() < agora) continue;
+    const p = PLANOS_EMPRESA[e.plano as PlanoEmpresa];
+    if (!p) continue;
+    const forca = p.vagas < 0 ? Number.POSITIVE_INFINITY : p.vagas;
+    if (forca > melhorForca) {
+      melhorForca = forca;
+      melhor = e.plano as PlanoEmpresa;
+    }
+  }
+  return melhor;
+}
+
 export async function resumoDasEmpresas(empresas: Company[]): Promise<ResumoDasEmpresas> {
   const porEmpresa = new Map<string, number>();
   for (const e of empresas) porEmpresa.set(e.id, 0);
 
-  /* O plano mais alto EM DIA entre as empresas da conta — e a escolha é
-     pelo plano, não pelo teto: o sem teto é `-1`, o MENOR número da lista,
-     e pegar o maior teto escolheria justamente o pior plano. */
-  const agora = Date.now();
-  const forca = { pro: 1, tres: 2, ilimitado: 3 } as const;
-  let melhor = 0;
-  for (const e of empresas) {
-    if (!e.plano || !e.plano_ate || new Date(e.plano_ate).getTime() < agora) continue;
-    melhor = Math.max(melhor, forca[e.plano as keyof typeof forca] ?? 0);
-  }
-  const limite = melhor === 3 ? -1 : melhor === 2 ? 3 : melhor === 1 ? 1 : 0;
+  /* ── DOIS PLANOS PAGOS VALIAM ZERO — 05/09 ─────────────────────────
+     Aqui havia uma tabela escrita à mão:
+
+         const forca = { pro: 1, tres: 2, ilimitado: 3 }
+
+     Ela é de antes da 0120, quando os planos eram três. Hoje são cinco:
+     `cinco` (Ei Impulso, 5 vagas) e `dez` (Ei Máximo, 10) entraram e nunca
+     chegaram nesta linha. O `?? 0` engolia os dois em silêncio — quem
+     pagasse o Ei Impulso ou o Ei Máximo era tratado como quem não tem
+     plano nenhum, na tela inicial e na de empresas.
+
+     Nenhum conferidor pegaria: `e.plano` é `string` no banco, e o `as
+     keyof typeof forca` justamente desliga a checagem que teria apontado
+     os dois nomes faltando.
+
+     Agora a força sai de `PLANOS_EMPRESA`, que é a lista de verdade e a
+     mesma que a tela de planos mostra. Plano novo passa a valer aqui no
+     dia em que for criado, sem ninguém lembrar deste arquivo.
+
+     A força é o TETO, e o sem-teto é infinito — não o `-1` que ele vale no
+     banco. Ordenar por `-1` escolheria o Ei Infinit como o mais fraco de
+     todos, que é o contrário do que ele é. */
+  /* O teto guardado é o do BANCO (`-1` para o sem-teto), porque é o que
+     `cabeVagaNoPlano` entende. Sem plano em dia, zero — a mesma resposta
+     que `limite_de_vagas_do_plano` dá lá. */
+  const plano = melhorPlanoEmDia(empresas);
+  const limite = plano ? PLANOS_EMPRESA[plano].vagas : 0;
 
   const sb = getSupabase();
   if (!sb || empresas.length === 0) return { porEmpresa, limite, abertas: 0 };

@@ -75,10 +75,48 @@ function primeiroNome(nome: string | null | undefined): string {
 }
 
 /**
- * A frase de hoje. Estável do primeiro ao último minuto do dia.
+ * O nome de uma EMPRESA, que não se trata como nome de gente — 05/09.
+ *
+ * A dona: "quando não tem perfil profissional, ao entrar a saudação deve
+ * ser o nome da empresa."
+ *
+ * Passar o nome da empresa por `primeiroNome` estragaria os dois lados:
+ *
+ *   "Padaria Pão de Minas"      → "Padaria"      (a cidade tem várias)
+ *   "Supermercado Boa Compra"   → "Supermercado" (idem)
+ *   "JB Transportes"            → "Jb"           (a sigla vira erro de digitação)
+ *
+ * Nome de pessoa se encurta porque o primeiro nome É como se chama alguém.
+ * Nome de empresa é o conjunto: cortá-lo não é intimidade, é trocar de
+ * empresa.
+ *
+ * O que sobra da regra antiga é só o não-gritar, e mesmo assim com
+ * cuidado: só endireita quem está TODO em maiúscula, porque aí é o
+ * teclado, não a marca. "JB Transportes" tem minúscula e passa intacto —
+ * e "Pão de Minas" mantém o "de" minúsculo, que Title Case cego comeria.
  */
-export function saudacaoDoDia(nome: string | null | undefined): string {
-  const n = primeiroNome(nome);
+function nomeDaEmpresa(nome: string | null | undefined): string {
+  const limpo = (nome ?? "").trim().replace(/\s+/g, " ");
+  if (!limpo) return "";
+  const gritando = limpo === limpo.toLocaleUpperCase("pt-BR");
+  if (!gritando) return limpo;
+  return limpo
+    .split(" ")
+    .map((p) => p.charAt(0) + p.slice(1).toLocaleLowerCase("pt-BR"))
+    .join(" ");
+}
+
+/**
+ * A frase de hoje. Estável do primeiro ao último minuto do dia.
+ *
+ * `de` diz de quem é o nome — ver `nomeDaEmpresa` para o porquê de os dois
+ * não passarem pelo mesmo tratamento.
+ */
+export function saudacaoDoDia(
+  nome: string | null | undefined,
+  de: "pessoa" | "empresa" = "pessoa"
+): string {
+  const n = de === "empresa" ? nomeDaEmpresa(nome) : primeiroNome(nome);
   /* O dia como número inteiro desde 1970, no fuso do aparelho: assim a
      frase troca à meia-noite de quem lê, e não à meia-noite de Londres. */
   const agora = new Date();

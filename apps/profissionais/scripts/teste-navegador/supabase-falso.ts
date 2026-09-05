@@ -59,7 +59,7 @@ const professionals: Linha[] = Array.from({ length: QUANTOS }, (_, i) => ({
   id: `pro-${i}`,
   /* Numa conta nova nenhum cadastro é da pessoa: a cidade continua cheia
      (senão não há o que olhar), mas ela não é dona de nada. */
-  owner_id: i < 2 && !contaNova() ? DONO_FALSO : `dono-${i}`,
+  owner_id: i < 2 && !contaNova() && !semCadastroDePessoa() ? DONO_FALSO : `dono-${i}`,
   name: i === 0 ? "Mariaeduardadesouzaeoliveira Nascimento" : `Profissional ${i}`,
   category: CATS[i % CATS.length],
   categories: [CATS[i % CATS.length]],
@@ -197,9 +197,54 @@ function contaNova(): boolean {
   return ajuste("conta") === "nova";
 }
 
+/* ── `?semperfil=1`: EMPRESA SEM CADASTRO DE PESSOA — 05/09 ───────────
+   É o estado mais comum do lado de quem contrata: a pessoa entrou para
+   contratar, cadastrou a empresa e nunca preencheu um cadastro de
+   profissional — ela não está procurando emprego.
+
+   Não dava para chegar nele aqui. `?conta=nova` tira os cadastros da
+   pessoa, mas leva a empresa junto (o dono vira "dono-empresa"), e sem
+   empresa o caso deixa de ser este.
+
+   Sem a chave, a saudação com o nome da empresa não teria como ser
+   exercitada — e caso que não dá para reproduzir é caso que passa em
+   qualquer teste sem nunca ter rodado. Foi assim com o contador de
+   on-line, que só quebrava para quem estava sozinha. */
+function semCadastroDePessoa(): boolean {
+  return ajuste("semperfil") === "1";
+}
+
 /* `?plano=nao` exercita a empresa SEM plano — que é o estado em que ela
    chega, e o único em que o cartão do plano tem trabalho a fazer. */
 const planoFalso = () => ajuste("plano") !== "nao";
+
+/* ── QUAL plano, e não só "tem ou não tem" — 05/09 ────────────────────
+   `?plano=cinco`, `?plano=dez`, `?plano=ilimitado` (o padrão continua
+   sendo `tres`, e `?plano=nao` continua tirando o plano).
+
+   Existe porque um defeito real passou por aqui sem ser visto: a conta do
+   teto no app (`resumoDasEmpresas`) tinha uma tabela de antes da 0120,
+   com só três planos. `cinco` e `dez` caíam num `?? 0` silencioso, e quem
+   pagava o Ei Impulso ou o Ei Máximo era tratado na tela inicial como
+   quem não tem plano nenhum.
+
+   Nenhum teste pegaria: o falso fixava o plano em `tres`, que é
+   justamente um dos três que funcionavam. Plano que não dá para trocar é
+   plano que só se testa no caso que já está certo. */
+const QUAL_PLANO = (() => {
+  const p = ajuste("plano");
+  return p === "cinco" || p === "dez" || p === "ilimitado" || p === "pro" ? p : "tres";
+})();
+
+/* Os tetos da 0120, na mesma ordem da função `limite_de_vagas_do_plano`.
+   `-1` é o sem-teto. */
+const TETO_DO_PLANO: Record<string, number> = {
+  pro: 1,
+  tres: 3,
+  cinco: 5,
+  dez: 10,
+  ilimitado: -1,
+};
 
 /* `?vagas=0` esvazia a lista: o estado vazio é uma tela de verdade, com
    texto próprio, e sem isso ele nunca era aberto no navegador. */
@@ -410,7 +455,7 @@ const TABELAS: Record<string, Linha[]> = {
          e 'ilimitado' (check da 0072), e um valor fora da lista fazia o
          painel escrever "Plano pro3" na tela — o nome cru da coluna, que
          no banco de verdade nunca poderia chegar ali. */
-      plano: planoFalso() ? "tres" : null,
+      plano: planoFalso() ? QUAL_PLANO : null,
       plano_ate: planoFalso() ? emDias(20) : null,
       plano_recorrente: true,
       created_at: emDias(-60),
@@ -1299,7 +1344,12 @@ const clienteFalso = {
       }
       return { data: true, error: null };
     }
-    if (nome === "limite_de_vagas_do_plano") return { data: planoFalso() ? 3 : 0, error: null };
+    if (nome === "limite_de_vagas_do_plano") {
+      /* O mesmo teto que a coluna `plano` da empresa falsa diz — antes
+         eram dois números escritos à mão em lugares diferentes, e o do
+         RPC ficava em 3 mesmo com a empresa em outro plano. */
+      return { data: planoFalso() ? TETO_DO_PLANO[QUAL_PLANO] : 0, error: null };
+    }
     if (nome === "vagas_ativas_agora") return { data: VAGAS.length, error: null };
     return { data: 0, error: null };
   },
