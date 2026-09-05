@@ -1322,7 +1322,14 @@ const clienteFalso = {
   channel: () => {
     let aoSincronizar: null | (() => void) = null;
     let eu: Record<string, unknown> = {};
-    const vizinhos = {
+    /* ── SOZINHA NO APP — 05/09 ──────────────────────────────────────
+       A dona: "não consegui ver os on-line."
+
+       O motivo era este caso, e ele não era testável: o falso SEMPRE
+       inventava vizinhos, então a única situação em que a linha some —
+       estar sozinha — nunca aparecia em teste nenhum. Com `?sozinha=1`
+       (ou a chave `falso-sozinha`) o canal devolve só a própria aba. */
+    const vizinhos = ajuste("sozinha") === "1" ? {} : {
       "falso-prof-1": [{ lado: "professional" }],
       "falso-prof-2": [{ lado: "professional" }],
       "falso-prof-3": [{ lado: "professional" }],

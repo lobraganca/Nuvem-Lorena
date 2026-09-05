@@ -226,7 +226,7 @@ export function ComecarPage({ lado }: { lado: "professional" | "company" }) {
             Só aparece com alguém do outro lado online: "0 empresas agora"
             é a verdade, e é também a frase que faz a pessoa fechar o app.
             Silêncio, aqui, é melhor do que um zero. */}
-        <QuemEstaAqui lado={lado} />
+        <QuemEstaAqui />
 
         <div className="ei-entrada-pe">
           <InstalarApp variante="botao" />
@@ -254,37 +254,52 @@ export function ComecarPage({ lado }: { lado: "professional" | "company" }) {
  * O pontinho verde pulsa. É o único movimento da tela, e é ele que faz o
  * número ser lido como "agora" em vez de "no total".
  */
-function QuemEstaAqui({ lado }: { lado: "professional" | "company" }) {
+function QuemEstaAqui() {
   const quem = useQuemEstaOnline();
+
+  /* ── SUMIR FOI ERRO MEU — 05/09 ─────────────────────────────────────
+     A dona: "não consegui ver os on-line."
+
+     Estava assim aqui:
+
+       if (outros <= 0 && meus <= 0) return null;
+
+     ou seja: sozinha no app, a linha sumia inteira. Foi decisão minha, e o
+     raciocínio era "0 empresas agora é a verdade, e é também a frase que
+     faz a pessoa fechar o app". O raciocínio não estava errado — estava
+     incompleto, e o que faltava é o que aconteceu com ela: um contador que
+     desaparece é um contador em que não dá para confiar. Ela não tinha
+     como saber se o app estava vazio ou se a peça estava quebrada. Eu
+     também não, só pela mensagem dela.
+
+     Agora a linha só some enquanto o app AINDA NÃO SABE (`quem` nulo, que
+     é o instante entre abrir a tela e o canal responder). Sabendo, ela
+     diz — inclusive quando a resposta é "só você".
+
+     E a conta passou a INCLUIR a própria pessoa: "2 pessoas" com você
+     dentro é mais fácil de conferir do que "1 outra pessoa", que obriga
+     quem lê a somar. */
   if (!quem) return null;
 
-  /* O da própria pessoa não entra na conta: ela já sabe que está aqui, e
-     "1 pessoa online" quando você é a única é o oposto de convidativo. */
-  const outros = lado === "company" ? quem.profissionais : quem.empresas;
-  const meus = (lado === "company" ? quem.empresas : quem.profissionais) - 1;
-
-  if (outros <= 0 && meus <= 0) return null;
-
   const pedacos: string[] = [];
-  if (outros > 0) {
+  if (quem.profissionais > 0) {
     pedacos.push(
-      lado === "company"
-        ? `${outros} ${outros === 1 ? "pessoa procurando" : "pessoas procurando"}`
-        : `${outros} ${outros === 1 ? "empresa" : "empresas"}`
+      `${quem.profissionais} ${quem.profissionais === 1 ? "pessoa" : "pessoas"}`
     );
   }
-  if (meus > 0) {
-    pedacos.push(
-      lado === "company"
-        ? `${meus} ${meus === 1 ? "outra empresa" : "outras empresas"}`
-        : `${meus} ${meus === 1 ? "outra pessoa" : "outras pessoas"}`
-    );
+  if (quem.empresas > 0) {
+    pedacos.push(`${quem.empresas} ${quem.empresas === 1 ? "empresa" : "empresas"}`);
   }
 
   return (
     <p className="ei-ao-vivo">
       <span className="ei-ao-vivo-ponto" aria-hidden="true" />
-      {pedacos.join(" e ")} no app agora
+      {/* Sozinha, a frase é essa e não "1 pessoa no app agora": o número um
+          referindo-se a você mesma é a informação mais estranha que uma
+          tela pode dar. */}
+      {pedacos.length === 0 || quem.total <= 1
+        ? "Só você no app agora"
+        : `${pedacos.join(" e ")} no app agora`}
     </p>
   );
 }
