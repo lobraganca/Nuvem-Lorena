@@ -119,6 +119,35 @@ function naoPedirNesteAparelho(): boolean {
 
 const LIVRES = ["/login", "/termos", "/privacidade"];
 
+/**
+ * A senha da abertura ainda está pendente?
+ *
+ * ── Por que a tela de ENTRAR precisa saber disso — 05/09 ──────────────
+ *
+ * A dona: "quando clico em procuro emprego na tela de login está me
+ * direcionando para uma OUTRA ÁREA pra clicar a senha."
+ *
+ * E estava mesmo, desde que toda abertura passou a cair na tela de
+ * entrar (ver `lib/aberturaDoApp.ts`). A sequência era esta:
+ *
+ *   1. a tela de entrar aparece, JÁ com o campo de senha;
+ *   2. a pessoa toca em "procuro emprego" — e a conta já está
+ *      conectada, então o app entra na hora, sem olhar o campo;
+ *   3. a tela de destino roda ESTA barreira e pede... a mesma senha,
+ *      noutra tela.
+ *
+ * Duas telas pedindo a mesma coisa, uma atrás da outra. Pior: a primeira
+ * dava a impressão de que a senha era opcional (dava para pular tocando
+ * no lado) e a segunda dizia que não era.
+ *
+ * Com esta função a tela de entrar pergunta antes de sair do lugar: se a
+ * senha ainda é devida, ela pede ALI, onde o campo já está, e só então
+ * entra. Uma tela, uma senha.
+ */
+export function precisaDesbloquearAgora(): boolean {
+  return !estaNaMesmaAbertura() && !naoPedirNesteAparelho();
+}
+
 export function exigeDesbloqueio(caminho: string): boolean {
   return !LIVRES.some((t) => caminho === t || caminho.startsWith(`${t}/`));
 }

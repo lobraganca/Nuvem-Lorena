@@ -8,7 +8,11 @@ import {
   recuperarSenha,
 } from "../lib/auth";
 import { hasDatabase, problemaDeConfiguracao } from "../lib/supabase";
-import { marcarAppAberto, gravarSenhaNesteAparelho } from "../components/ei/ExigirDesbloqueio";
+import {
+  marcarAppAberto,
+  gravarSenhaNesteAparelho,
+  precisaDesbloquearAgora,
+} from "../components/ei/ExigirDesbloqueio";
 import { CampoSenha } from "../components/ei/CampoSenha";
 import { useTituloDaPagina } from "../lib/tituloDaPagina";
 import { mensagemDeErro } from "../lib/erros";
@@ -121,6 +125,10 @@ export function LoginPage() {
      a senha. Senha guardada em navegador é o tipo de atalho que vira
      notícia ruim, e aqui não resolveria nada que a decisão não resolva. */
   const [gravarSenha, setGravarSenha] = useState(false);
+  /* A conta está conectada, o lado já foi escolhido, e o que falta é a
+     senha desta abertura. Serve só para a tela DIZER isso — sem a frase,
+     a pessoa toca no lado, nada visível acontece, e ela toca de novo. */
+  const [pedindoSenhaDaAbertura, setPedindoSenhaDaAbertura] = useState(false);
 
   const [comEmail, setComEmail] = useState(false);
   const [criando, setCriando] = useState(false);
@@ -235,9 +243,36 @@ export function LoginPage() {
        na tela de antes, que é justamente o que ela está desfazendo.
 
        Então não faz nada: fica na tela, com as portas à vista, esperando
-       a escolha. Quem toca numa entra na hora, sem digitar nada, porque
-       a conta já está conectada e este mesmo efeito roda de novo. */
+       a escolha. */
     if (!lado) return;
+
+    /* ── A SENHA É PEDIDA AQUI, E NÃO NA TELA SEGUINTE — 05/09 ────────
+       A dona: "quando clico em procuro emprego na tela de login está me
+       direcionando para uma OUTRA ÁREA pra clicar a senha."
+
+       Estava. Desde que toda abertura passou a cair nesta tela, a
+       sequência era: a tela aparece já com o campo de senha; a pessoa
+       toca num lado; a conta já está conectada, então o app entra na
+       hora sem olhar o campo; e a tela de destino roda a barreira de
+       abertura pedindo A MESMA SENHA, noutra tela.
+
+       Duas telas pedindo a mesma coisa, uma atrás da outra — e a
+       primeira dava a impressão de que a senha era opcional, porque dava
+       para pular tocando no lado.
+
+       Agora a saída fica segurada até a senha ser dada, e ela é dada
+       AQUI, onde o campo já está. O lado escolhido continua guardado, e
+       assim que a senha entrar (`marcarAppAberto`, no botão de Entrar)
+       este efeito roda de novo e leva para dentro.
+
+       Quem marcou "não pedir de novo neste aparelho" não passa por
+       nada disso: `precisaDesbloquearAgora` já responde `false`. */
+    if (precisaDesbloquearAgora()) {
+      guardarLadoDaSessao(lado);
+      setPedindoSenhaDaAbertura(true);
+      return;
+    }
+    setPedindoSenhaDaAbertura(false);
 
     guardarLadoDaSessao(lado);
     registrarTipoDeUsuario(user.id, lado).catch(() => {
@@ -318,12 +353,22 @@ export function LoginPage() {
         </button>
       </div>
 
+      {/* ── POR QUE A TELA NÃO SAIU DO LUGAR — 05/09 ─────────────────
+          A dona: "quando clico em procuro emprego está me direcionando
+          para uma OUTRA ÁREA pra clicar a senha."
+
+          Agora a senha é pedida aqui mesmo, e não na tela seguinte — mas
+          sem uma frase dizendo isso, o toque no lado não teria efeito
+          visível nenhum, e a pessoa tocaria de novo achando que o botão
+          não funcionou. */}
       <p className="muted" style={{ marginTop: 10 }}>
-        {ladoEscolhido === null
-          ? "Escolha uma das duas para continuar."
-          : ladoEscolhido === "company"
-            ? "Dentro do app você vê só o lado de quem contrata. Para trocar, é só sair e entrar de novo."
-            : "Dentro do app você vê só o lado de quem procura emprego. Para trocar, é só sair e entrar de novo."}
+        {pedindoSenhaDaAbertura
+          ? "Falta só a sua senha, aqui embaixo, para entrar."
+          : ladoEscolhido === null
+            ? "Escolha uma das duas para continuar."
+            : ladoEscolhido === "company"
+              ? "Dentro do app você vê só o lado de quem contrata. Para trocar, é só sair e entrar de novo."
+              : "Dentro do app você vê só o lado de quem procura emprego. Para trocar, é só sair e entrar de novo."}
       </p>
 
 
