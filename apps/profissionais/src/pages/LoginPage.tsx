@@ -223,10 +223,21 @@ export function LoginPage() {
        administração contar — falhar nela não pode impedir alguém de usar
        o app. */
     const lado = ladoEscolhido ?? lerLadoDaSessao();
-    if (!lado) {
-      navegar("/onboarding-tipo", { replace: true });
-      return;
-    }
+    /* ── SEM LADO, ESPERA AQUI — 05/09 ────────────────────────────────
+       Aqui havia um desvio para `/onboarding-tipo`, que é a tela antiga
+       da pergunta. Ele fazia sentido quando esta tela não tinha as duas
+       portas; hoje tem — e mandar para outra tela fazer a MESMA pergunta
+       que está desenhada nesta é trocar a pergunta de lugar sem motivo.
+
+       Passou a importar de verdade em 05/09, quando toda abertura do app
+       voltou a cair aqui sem lado guardado (ver `lib/aberturaDoApp.ts`):
+       com o desvio, a dona nunca chegaria a ver as duas portas — cairia
+       na tela de antes, que é justamente o que ela está desfazendo.
+
+       Então não faz nada: fica na tela, com as portas à vista, esperando
+       a escolha. Quem toca numa entra na hora, sem digitar nada, porque
+       a conta já está conectada e este mesmo efeito roda de novo. */
+    if (!lado) return;
 
     guardarLadoDaSessao(lado);
     registrarTipoDeUsuario(user.id, lado).catch(() => {

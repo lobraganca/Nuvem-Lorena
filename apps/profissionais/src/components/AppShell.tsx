@@ -341,6 +341,7 @@ export function AppShell({ children }: { children: ReactNode }) {
   const location = useLocation();
   const { user } = useAuth();
   const path = location.pathname;
+
   /* O "Guia" saiu da barra e virou "Anúncios".
      
      Não é troca de rótulo: é trocar uma tela que a pessoa abre uma vez na
