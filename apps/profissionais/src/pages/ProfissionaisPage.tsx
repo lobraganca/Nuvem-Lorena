@@ -432,8 +432,21 @@ export function ProfissionaisPage() {
                     {/* O selo desceu para cá: colado no nome, ele roubava
                         a largura de que o nome precisa — foi assim que
                         "Profissional 54" virou "Profissional 5…". */}
+                    {/* ── O FOGUINHO TAMBÉM NO CARTÃO — 05/09 ──────────
+                        A dona: "além de estar na área de destaque, quando
+                        a pessoa ou a vaga estiver destacado, coloque um
+                        foguinho também no card."
+
+                        Faz diferença justamente na lista de baixo, que
+                        mostra TODO mundo: lá o cartão de quem pagou fica
+                        entre os outros, e sem o foguinho só o texto
+                        pequeno do selo o distinguia. Com ele, o olho acha
+                        de longe — que é o que se compra. */}
                     {destaqueValendo(p) && (
-                      <span className="ei-selo ei-selo-laranja">Em alta</span>
+                      <span className="ei-selo ei-selo-laranja ei-selo-fogo">
+                        <IconeFogo tamanho={13} />
+                        Em alta
+                      </span>
                     )}
                   </div>
                 </Link>

@@ -188,7 +188,10 @@ export function BancoDeVagasPage() {
                           sobe e ninguém entende por quê — e a lista passa
                           a parecer bagunçada em vez de patrocinada. */}
                       {vagaEmDestaque(v.vaga) && (
-                        <span className="ei-selo ei-selo-laranja">Em destaque</span>
+                        <span className="ei-selo ei-selo-laranja ei-selo-fogo">
+                          <IconeFogo tamanho={13} />
+                          Em destaque
+                        </span>
                       )}
                       {v.vaga.aceita_primeiro_emprego && (
                         <span className="ei-selo ei-selo-verde">Aceita primeiro emprego</span>

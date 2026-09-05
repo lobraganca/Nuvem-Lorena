@@ -4778,7 +4778,18 @@
 
 .ei .ei-compartilhar:active { background: rgba(0, 0, 0, 0.06); }
 
-/* Dentro da barra azul o botão é branco como o título e a seta. */
+/* ── O COMPARTILHAR ESTAVA PRETO NA BARRA AZUL — 05/09 ───────────────
+   A dona: "tem um símbolo de compartilhar na cor preta. Não tá dentro da
+   pastilha."
+
+   A regra abaixo mandava o botão herdar a cor — e a barra azul não define
+   cor nenhuma: só o TÍTULO e a SETA eram pintados de branco, um por um.
+   Herdar, ali, era herdar a tinta escura do app inteiro: um ícone preto
+   sobre azul, sem contraste e sem parecer botão.
+
+   Agora quem pinta é a barra da ação, e não cada filho: qualquer coisa
+   que a gente ponha ali no futuro já nasce branca. */
+.ei .ei-barra-acao { color: var(--ei-sobre-acento); }
 .ei .ei-barra-acao .ei-compartilhar { color: inherit; }
 
 /* Título grande com uma ação pequena à direita (o compartilhar da vaga).
@@ -7245,3 +7256,16 @@
   color: var(--ei-tinta-fraca);
   white-space: nowrap;
 }
+
+/* O selo com o foguinho dentro. A dona: "quando a pessoa ou a vaga
+   estiver destacado, coloque um foguinho também no card."
+
+   Na lista de baixo — a que mostra todo mundo — o cartão de quem pagou
+   fica entre os outros, e só o texto miúdo do selo o distinguia. Com o
+   foguinho o olho acha de longe, que é o que se compra. */
+.ei .ei-selo-fogo {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+.ei .ei-selo-fogo svg { flex: 0 0 auto; }
