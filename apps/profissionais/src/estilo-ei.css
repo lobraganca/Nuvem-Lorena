@@ -7015,3 +7015,37 @@
 /* O texto do cartão vira coluna: com as funções e o resumo dentro, o
    `ei-uma-linha` de antes não dá conta sozinho. */
 .ei .ei-pessoa-texto { display: grid; }
+
+/* ── O CARTÃO DE DESTACAR A VAGA — 05/09 ─────────────────────────────
+   A dona: "o card APARECER PRIMEIRO da vaga em destaque está sem
+   respiro."
+
+   E estava: preço, os três vistos e o botão colados, porque a `ul` de
+   vistos e o botão nascem os dois com `margin: 0`. Num cartão que é o
+   único da tela que pede dinheiro, isso faz o preço, a promessa e a
+   compra lerem como um bloco só de texto.
+
+   `grid` com `gap` em vez de margens soltas em cada filho: assim o
+   ritmo é um número só, e não some quando alguém acrescentar uma
+   linha. */
+.ei .ei-destaque-vaga {
+  display: grid;
+  gap: 14px;
+  padding: 18px 16px;
+}
+
+/* O preço e o nome ganham ar por baixo — eles são o cabeçalho do
+   cartão, e o `gap` sozinho os deixaria no mesmo ritmo dos vistos. */
+.ei .ei-destaque-vaga .ei-plano-linha {
+  align-items: baseline;
+  padding-bottom: 4px;
+  border-bottom: 1px solid var(--ei-fio);
+}
+
+/* Entre um visto e outro: com 7px as três linhas encostavam e a lista
+   lia como um parágrafo com marcadores. */
+.ei .ei-destaque-vaga .ei-plano-lista { gap: 10px; }
+
+/* E o botão descolado do último visto: ele é a decisão, e decisão não
+   nasce grudada no argumento. */
+.ei .ei-destaque-vaga > .ei-btn-laranja { margin-top: 4px; }

@@ -558,7 +558,16 @@ export function DetalheVagaPage() {
       {podeVender() && vaga.status === "active" && (
         <>
           <h2 className="ei-secao">Aparecer primeiro</h2>
-          <div className="ei-cartao">
+          {/* ── RESPIRO — 05/09 ────────────────────────────────────────
+              A dona: "o card 'aparecer primeiro' da vaga em destaque está
+              sem respiro."
+
+              Estava: o preço, os três vistos e o botão vinham colados,
+              sem vão nenhum entre eles — a `ul` de vistos nasce com
+              `margin: 0` e o botão também. Num cartão que é o único da
+              tela que pede dinheiro, isso faz o preço, a promessa e a
+              compra virarem um bloco só de texto. */}
+          <div className="ei-cartao ei-destaque-vaga">
             {emDestaque ? (
               <>
                 <p className="ei-corpo" style={{ marginTop: 0 }}>
