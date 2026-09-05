@@ -576,7 +576,29 @@ export function PerfilPage() {
                 "Configuração do app" fica: ela é ajuste de aparelho, do
                 mesmo naipe de "forçar atualização", e é aqui que se
                 procura isso. */}
+            {/* ── O PAINEL VOLTOU PARA A CONTA — 05/09 ─────────────────
+                A dona: "não estou conseguindo ver o botão do painel.
+                Coloque no botão de conta."
+
+                Ele tinha saído daqui em 04/09, a pedido dela, para virar
+                uma porta na TELA INICIAL — que naquele dia era por onde
+                todo mundo começava.
+
+                Só que a reformulação de ontem mudou por onde se começa: o
+                app agora abre em "Procuro emprego" ou "Quero contratar",
+                e a tela inicial antiga deixou de estar no caminho de
+                ninguém. O botão continuou existindo e ficou inalcançável
+                — o mesmo tipo de defeito da tela de escolher o lado, que
+                estava certa e ninguém via.
+
+                Volta para a Conta, que é onde ela foi procurar. A porta da
+                tela inicial fica: quem ainda cai lá não perde o atalho, e
+                dois caminhos para o painel não atrapalham quem administra
+                — atrapalha é não achar nenhum. */}
             <div className="ei-lista">
+              <Linha para="/admin" icone={<IconeEscudo />}>
+                Painel administrativo
+              </Linha>
               <Linha para="/configuracao" icone={<IconeEngrenagem />}>
                 Configuração do app
               </Linha>
@@ -908,6 +930,18 @@ function IconeBaixar() {
   );
 }
 
+
+/* Escudo, e não outra engrenagem: as duas linhas desta seção iriam com o
+   mesmo desenho, e aí o ícone deixa de distinguir uma da outra — que é a
+   única coisa que ele faz numa lista. */
+function IconeEscudo() {
+  return (
+    <svg {...traco}>
+      <path d="M12 3l7 3v5.5c0 4.2-2.9 7.6-7 9.5-4.1-1.9-7-5.3-7-9.5V6z" />
+      <path d="M9.2 12.2l2 2 3.6-4" />
+    </svg>
+  );
+}
 
 function IconeEngrenagem() {
   return (
