@@ -99,7 +99,7 @@ export function MeuDesempenhoPage() {
 
         {dados && recado && (
           <>
-            {/* ── REFEITA: TRÊS NÚMEROS, UM RECADO, UM BOTÃO — 04/09 ────
+            {/* ── REFEITA: NÚMEROS, UM RECADO CURTO, UM BOTÃO — 04/09 ───
                 A dona: "a tela de desempenho está muito ruim. Faça mais
                 clean e mais atrativa. Muita confusão e escrita extensa.
                 Refaça e quando oferecer pra aparecer na frente, ter o
@@ -109,30 +109,52 @@ export function MeuDesempenhoPage() {
                 linha com duas linhas de explicação embaixo. Três dessas
                 seções eram conselho ("o que costuma destravar") — as
                 mesmas frases para todo mundo, que quem já tentou não tem
-                o que fazer com elas.
+                o que fazer com elas. Saíram.
 
                 Agora a tela responde três perguntas, nesta ordem: quantos
-                me viram, o que fazer com isso, e como aparecer mais. O
-                resto saiu. Números grandes primeiro porque é o que a
-                pessoa vem ver — e porque número grande é o que faz uma
-                tela de métrica parecer uma tela de métrica. */}
-            <div className="ei-desempenho-numeros">
-              <div className="ei-desempenho-numero">
-                <span className="ei-desempenho-valor">{dados.empresasNaSemana}</span>
-                <span className="ei-desempenho-rotulo">empresas te viram</span>
+                me viram, o que fazer com isso, e como aparecer mais.
+
+                Os números vêm primeiro porque é o que a pessoa vem ver —
+                e todos com a MESMA forma (número grande, o que ele é, uma
+                linha miúda do que conta). Antes eram duas seções e cinco
+                medidas em dois formatos diferentes, uma embaixo da outra:
+                era isso que fazia a tela parecer cheia sem dizer muito.
+
+                E sumiu uma medida: "empresas que já abriram seu cadastro
+                (desde sempre)" era a MESMA coisa que "empresas que te
+                viram (7 dias)" com outro prazo — duas linhas quase iguais
+                com números diferentes é o convite mais fácil para achar
+                que o app se contradiz. O total virou a linha miúda do
+                próprio quadrado. */}
+            <div className="ei-numeros">
+              <div className="ei-numero-caixa">
+                <span className="ei-numero-valor">{dados.buscasNaSemana}</span>
+                <span className="ei-numero-nome">Buscas em que apareceu</span>
+                <span className="ei-numero-nota">nos últimos 7 dias</span>
               </div>
-              <div className="ei-desempenho-numero">
-                <span className="ei-desempenho-valor">{dados.buscasNaSemana}</span>
-                <span className="ei-desempenho-rotulo">buscas em que apareceu</span>
-              </div>
-              <div className="ei-desempenho-numero">
-                <span className="ei-desempenho-valor">{dados.vagasMuitoCompativeis}</span>
-                <span className="ei-desempenho-rotulo">vagas que combinam</span>
-              </div>
+
+              <Link to="/meu-perfil" className="ei-numero-caixa">
+                <span className="ei-numero-valor">{dados.empresasNaSemana}</span>
+                <span className="ei-numero-nome">Empresas que te viram</span>
+                <span className="ei-numero-nota">
+                  abriram seu cadastro · {dados.empresasTotal} desde o começo
+                </span>
+              </Link>
+
+              <Link to="/vagas" className="ei-numero-caixa">
+                <span className="ei-numero-valor">{dados.vagasMuitoCompativeis}</span>
+                <span className="ei-numero-nome">Vagas que combinam com você</span>
+                <span className="ei-numero-nota">
+                  de {dados.vagasNoAr} {dados.vagasNoAr === 1 ? "aberta" : "abertas"} na cidade
+                </span>
+              </Link>
+
+              <Link to="/vagas-para-mim" className="ei-numero-caixa">
+                <span className="ei-numero-valor">{dados.interessesEnviados}</span>
+                <span className="ei-numero-nome">Vagas que você respondeu</span>
+                <span className="ei-numero-nota">a empresa recebeu seu telefone</span>
+              </Link>
             </div>
-            <p className="ei-apoio ei-margem" style={{ marginTop: 6 }}>
-              Nos últimos 7 dias
-            </p>
 
             {/* O recado, curto. Ele diz o que fazer com os números de
                 cima — e por isso vem depois deles, e não antes: sozinho,
@@ -149,10 +171,10 @@ export function MeuDesempenhoPage() {
                 Era um link escrito no meio do recado. A decisão anterior
                 de deixá-lo como texto tinha um motivo bom (não empurrar
                 pagamento para quem está desempregado), mas ela pediu o
-                botão com todas as letras, duas vezes — e o cuidado
-                continua onde importa: o cartão só aparece nos recados que
-                falam de ser vista, nunca em cima de quem já está sendo
-                procurada.
+                botão com todas as letras — e o cuidado continua onde
+                importa: o cartão vem DEPOIS dos números e do recado, nunca
+                como primeira resposta a "ninguém me viu", e só nos recados
+                que falam de ser vista (`ofereceDestaque`).
 
                 Dentro do app da Play Store ele não existe (`podeVender`):
                 vender por fora da cobrança do Google é infração, e
@@ -203,6 +225,21 @@ export function MeuDesempenhoPage() {
                 <span className="ei-linha-nome">Ver as vagas que combinam comigo</span>
                 <span className="ei-linha-valor">{dados.vagasNoAr}</span>
               </Link>
+
+              {/* Quando o recado do topo NÃO ofereceu destaque, a opção
+                  continua existindo aqui embaixo, discreta. Se ele já
+                  ofereceu, não repete: duas ofertas iguais numa tela curta
+                  leem como insistência, não como opção. */}
+              {podeVender() && !recado.ofereceDestaque && (
+                <Link to="/destaque" className="ei-linha-item">
+                  <span className="ei-linha-nome">
+                    Aparecer primeiro na lista
+                    <span className="ei-linha-sub">
+                      {DESTAQUE_DIAS} dias no topo, com selo “Em alta” — {precoDoDestaqueEmTexto()}
+                    </span>
+                  </span>
+                </Link>
+              )}
             </div>
           </>
         )}

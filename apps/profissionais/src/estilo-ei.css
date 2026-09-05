@@ -6226,80 +6226,89 @@
   color: var(--ei-tinta-fraca);
 }
 
-/* ═══════════════════════════════════════════════════════════════════════
-   MEU DESEMPENHO, REFEITA — 04/09
-   ═══════════════════════════════════════════════════════════════════════
-   A dona: "a tela de desempenho está muito ruim. Faça mais clean e mais
-   atrativa. Muita confusão e escrita extensa."
+/* ── OS QUADRADOS DE NÚMERO DO "MEU DESEMPENHO" — 04/09 ───────────────
+   A dona: "a tela de desempenho está horrível, reformule pra ficar
+   atraente e clean. Falta respiros."
 
-   Os três números primeiro, grandes, um do lado do outro. Uma tela de
-   métrica que abre com parágrafo não parece tela de métrica — parece
-   recado. E cada número tem UM rótulo de duas ou três palavras: era isto
-   que estava inchado, com rótulo, número e ainda uma nota explicando o
-   rótulo.
+   Dois por linha, com folga entre eles: o respiro que faltava não era
+   margem no topo da tela, era ar ENTRE as coisas — cinco medidas em dois
+   formatos diferentes, encostadas, sem nada separando um assunto do
+   outro.
 
-   Grade de três colunas iguais, e não `flex` com `gap`: com larguras
-   diferentes os números dançam de lugar e param de se comparar, que é a
-   única coisa que três números lado a lado servem para fazer. */
-.ei-desempenho-numeros {
+   Na régua do app: caixa começa a 12px (ver "A RÉGUA DO APP"). */
+.ei .ei-numeros {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 8px;
-  margin: 14px 20px 0;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  padding: 0 12px;
 }
 
-.ei-desempenho-numero {
-  display: grid;
+.ei .ei-numero-caixa {
+  display: flex;
+  flex-direction: column;
   gap: 2px;
-  align-content: start;
-  padding: 14px 12px;
+  padding: 16px 16px 18px;
+  border-radius: 18px;
   background: var(--ei-papel);
   border: 1px solid var(--ei-fio);
-  border-radius: var(--ei-raio, 14px);
-  text-align: center;
+  text-decoration: none;
+  color: inherit;
+  min-height: 118px;
 }
+.ei a.ei-numero-caixa:active { opacity: 0.7; }
 
-.ei-desempenho-valor {
-  font-size: 1.9rem;
-  line-height: 1.1;
+.ei .ei-numero-valor {
+  font-size: 2rem;
+  line-height: 1.05;
   font-weight: 700;
   letter-spacing: -0.02em;
-  /* Algarismo de largura fixa: sem ele o "1" some ao lado do "8" e as
-     três colunas deixam de se comparar de relance. */
+  /* Algarismo de largura fixa: sem isto o "1" some ao lado do "8" quando
+     os números são lidos em coluna. */
   font-variant-numeric: tabular-nums;
+  color: var(--ei-tinta);
 }
 
-.ei-desempenho-rotulo {
-  font-size: 0.72rem;
-  line-height: 1.25;
+.ei .ei-numero-nome {
+  margin-top: 6px;
+  font-size: 0.86rem;
+  font-weight: 600;
+  line-height: 1.3;
+  color: var(--ei-tinta);
+}
+
+.ei .ei-numero-nota {
+  font-size: 0.74rem;
+  line-height: 1.35;
   color: var(--ei-tinta-fraca);
 }
 
-/* A oferta de aparecer primeiro, com o botão que a dona pediu. Fica um
-   cartão à parte — e não uma linha no meio da lista — porque é a única
-   coisa da tela que custa dinheiro, e misturá-la com as gratuitas é o que
-   fazia o caminho da compra sumir. */
-.ei-destaque-oferta {
+/* Num celular estreito dois quadrados com quatro palavras cada ficam
+   altos demais e o texto quebra em cinco linhas. Aí eles viram um por
+   linha, que é mais alto no total e MENOS apertado em cada um. */
+@media (max-width: 340px) {
+  .ei .ei-numeros { grid-template-columns: 1fr; }
+  .ei .ei-numero-caixa { min-height: 0; }
+}
+
+/* A oferta de aparecer primeiro, com o BOTÃO que a dona pediu ("quando
+   oferecer pra aparecer na frente, ter o botão pra assinar o plano").
+
+   Fica um cartão à parte — e não uma linha no meio da lista — porque é a
+   única coisa da tela que custa dinheiro, e misturá-la com as gratuitas
+   é o que fazia o caminho da compra sumir. */
+.ei .ei-destaque-oferta {
   display: grid;
   gap: 4px;
   margin-top: 14px;
 }
 
-.ei-destaque-titulo { font-size: 1rem; font-weight: 600; }
-.ei-destaque-nota { font-size: 0.85rem; color: var(--ei-tinta-fraca); }
-.ei-destaque-preco {
+.ei .ei-destaque-titulo { font-size: 1rem; font-weight: 600; }
+.ei .ei-destaque-nota { font-size: 0.85rem; color: var(--ei-tinta-fraca); }
+.ei .ei-destaque-preco {
   font-size: 1.35rem;
   font-weight: 700;
   letter-spacing: -0.02em;
+  font-variant-numeric: tabular-nums;
   margin-top: 2px;
 }
-.ei-destaque-oferta .ei-btn { margin-top: 10px; }
-
-/* Em tela estreita (390px é o comum aqui) três colunas apertam o rótulo
-   até quebrar palavra no meio. Abaixo disso o rótulo encolhe junto. */
-@media (max-width: 360px) {
-  .ei-desempenho-numeros { gap: 6px; }
-  .ei-desempenho-numero { padding: 12px 8px; }
-  .ei-desempenho-valor { font-size: 1.6rem; }
-  .ei-desempenho-rotulo { font-size: 0.68rem; }
-}
+.ei .ei-destaque-oferta .ei-btn { margin-top: 10px; }

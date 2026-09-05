@@ -13,7 +13,12 @@ import { BottomSheet } from "../components/BottomSheet";
 import { BotaoFavorito } from "../components/ei/BotaoFavorito";
 import { lerFavoritos, SEM_FAVORITOS, type Favoritos } from "../lib/favoritos";
 import { contarAparicaoEmBusca } from "../lib/compativeis";
-import { destaqueValendo } from "../lib/destaque";
+import {
+  destaqueValendo,
+  precoDoDestaqueEmTexto,
+  DESTAQUE_DIAS,
+} from "../lib/destaque";
+import { podeVender } from "../lib/plataforma";
 import Esqueleto from "../components/ei/Esqueleto";
 
 type Disponivel = {
@@ -324,6 +329,73 @@ export function ProfissionaisPage() {
       .sort((a, b) => Number(destaqueValendo(b)) - Number(destaqueValendo(a)));
   }, [lista, filtro, oficio, bairro, ligados]);
 
+  /* As pagas primeiro, e em lista própria — ver o comentário da área de
+     destaque, mais abaixo. `visiveis` já vem ordenada com elas na frente. */
+  const emAlta = useMemo(() => visiveis.filter((p) => destaqueValendo(p)), [visiveis]);
+  const osOutros = useMemo(() => visiveis.filter((p) => !destaqueValendo(p)), [visiveis]);
+
+  /* Uma linha da lista. Vira função porque agora ela é desenhada em DOIS
+     lugares (a área de destaque e o resto), e duas cópias do mesmo JSX
+     divergem no primeiro conserto. */
+  const linhaDaPessoa = (p: Disponivel) => {
+              const funcoes = p.areas_de_interesse ?? [];
+              return (
+                /* A linha vira LINK. Era um `<article>` sem link nenhum:
+                   a empresa via a lista, tocava numa pessoa e não
+                   acontecia nada — e não havia telefone em lugar nenhum
+                   do app. A parte gratuita da oferta não existia. */
+                <Link key={p.id} to={`/profissional/${p.id}`} className="ei-pessoa">
+                  <Retrato foto={p.photo_url} nome={p.name} />
+                  <div className="ei-pessoa-texto">
+                    {/* Na linha inteira cabem duas funções sem cortar — no
+                        cartão de 163px não cabia nem uma. */}
+                    <div className="ei-pessoa-nome ei-uma-linha">
+                      {p.name}
+                      {/* "Em alta" é o nome que a dona deu ao selo. Ele
+                          fica DEPOIS do nome, e não antes: antes, o olho
+                          lê o selo como parte do nome da pessoa. */}
+                      {destaqueValendo(p) && (
+                        <span className="ei-selo ei-selo-laranja" style={{ marginLeft: 8 }}>
+                          Em alta
+                        </span>
+                      )}
+                    </div>
+                    {/* Duas linhas, e não uma: o ofício é o ÚNICO campo
+                        que a empresa lê para decidir se abre a ficha, e
+                        cortá-lo em "Técnico em celular…" esconde
+                        justamente a parte que diferencia uma pessoa da
+                        outra. */}
+                    <div className="ei-pessoa-oficio ei-duas-linhas">
+                      {funcoes.slice(0, 2).join(" · ") || p.especialidade || "Sem função"}
+                      {funcoes.length > 2 && ` +${funcoes.length - 2}`}
+                    </div>
+                  </div>
+                  {/* O coração ANTES da seta: a seta diz "abre", o coração
+                      diz "guarda". Depois dela, o coração pareceria parte
+                      do gesto de abrir. */}
+                  <BotaoFavorito
+                    pessoa={p.id}
+                    marcado={favoritos.pessoas.has(p.id)}
+                    rotulo={p.name}
+                    aoMudar={(novo) =>
+                      setFavoritos((f) => {
+                        /* Conjunto NOVO, e não o mesmo mudado por dentro: o
+                           React compara por identidade, e mexer no conjunto
+                           existente não redesenha coração nenhum. */
+                        const pessoas = new Set(f.pessoas);
+                        if (novo) pessoas.add(p.id);
+                        else pessoas.delete(p.id);
+                        return { ...f, pessoas };
+                      })
+                    }
+                  />
+                  <span className="ei-linha-seta" aria-hidden="true">
+                    <IconeSeta />
+                  </span>
+                </Link>
+              );
+  };
+
   /* ── APARECER NUMA BUSCA VIRA NÚMERO — 04/09 ─────────────────────
      A dona: "ter uma opção de métricas... você apareceu em 14 buscas."
 
@@ -494,72 +566,51 @@ export function ProfissionaisPage() {
           </div>
         )}
 
-        {visiveis.length > 0 && (
+        {/* ── A ÁREA DE DESTAQUE DOS PROFISSIONAIS — 04/09 ─────────────
+            A dona: "criar área de destaque também."
+
+            Mesma história das vagas, e o mesmo conserto: quem pagava os
+            R$ 10,90 já subia para o topo, mas MISTURADO — com um selo
+            "Em alta" do lado e nada dizendo que aquele lugar se compra.
+            Sem área, o destaque não tem vitrine.
+
+            E, como lá, separar é honestidade: uma lista cuja ordem foi
+            paga tem de dizer que foi paga. Misturada, ela parecia
+            ordenada por quem combina mais. */}
+        {emAlta.length > 0 && (
+          <>
+            <h2 className="ei-secao">Em alta</h2>
+            <div className="ei-lista ei-lista-destaque">{emAlta.map(linhaDaPessoa)}</div>
+          </>
+        )}
+
+        {emAlta.length > 0 && osOutros.length > 0 && (
+          <h2 className="ei-secao">Os outros profissionais</h2>
+        )}
+
+        {osOutros.length > 0 && (
           /* `ei-lista`, e não um `div` pelado: sem ela a lista inteira de
              pessoas ficava direto no chão cinza da tela, sem superfície
              branca embaixo — a única lista do app assim. Os fios entre as
              linhas viravam riscos soltos no cinza, e a tela parecia não ter
              terminado de carregar. */
-          <div className="ei-lista">
-            {visiveis.map((p) => {
-              const funcoes = p.areas_de_interesse ?? [];
-              return (
-                /* A linha vira LINK. Era um `<article>` sem link nenhum:
-                   a empresa via a lista, tocava numa pessoa e não
-                   acontecia nada — e não havia telefone em lugar nenhum
-                   do app. A parte gratuita da oferta não existia. */
-                <Link key={p.id} to={`/profissional/${p.id}`} className="ei-pessoa">
-                  <Retrato foto={p.photo_url} nome={p.name} />
-                  <div className="ei-pessoa-texto">
-                    {/* Na linha inteira cabem duas funções sem cortar — no
-                        cartão de 163px não cabia nem uma. */}
-                    <div className="ei-pessoa-nome ei-uma-linha">
-                      {p.name}
-                      {/* "Em alta" é o nome que a dona deu ao selo. Ele
-                          fica DEPOIS do nome, e não antes: antes, o olho
-                          lê o selo como parte do nome da pessoa. */}
-                      {destaqueValendo(p) && (
-                        <span className="ei-selo ei-selo-laranja" style={{ marginLeft: 8 }}>
-                          Em alta
-                        </span>
-                      )}
-                    </div>
-                    {/* Duas linhas, e não uma: o ofício é o ÚNICO campo
-                        que a empresa lê para decidir se abre a ficha, e
-                        cortá-lo em "Técnico em celular…" esconde
-                        justamente a parte que diferencia uma pessoa da
-                        outra. */}
-                    <div className="ei-pessoa-oficio ei-duas-linhas">
-                      {funcoes.slice(0, 2).join(" · ") || p.especialidade || "Sem função"}
-                      {funcoes.length > 2 && ` +${funcoes.length - 2}`}
-                    </div>
-                  </div>
-                  {/* O coração ANTES da seta: a seta diz "abre", o coração
-                      diz "guarda". Depois dela, o coração pareceria parte
-                      do gesto de abrir. */}
-                  <BotaoFavorito
-                    pessoa={p.id}
-                    marcado={favoritos.pessoas.has(p.id)}
-                    rotulo={p.name}
-                    aoMudar={(novo) =>
-                      setFavoritos((f) => {
-                        /* Conjunto NOVO, e não o mesmo mudado por dentro: o
-                           React compara por identidade, e mexer no conjunto
-                           existente não redesenha coração nenhum. */
-                        const pessoas = new Set(f.pessoas);
-                        if (novo) pessoas.add(p.id);
-                        else pessoas.delete(p.id);
-                        return { ...f, pessoas };
-                      })
-                    }
-                  />
-                  <span className="ei-linha-seta" aria-hidden="true">
-                    <IconeSeta />
-                  </span>
-                </Link>
-              );
-            })}
-          </div>
+          <div className="ei-lista">{osOutros.map(linhaDaPessoa)}</div>
+        )}
+
+        {/* O convite para quem quer o lugar. No pé, como no banco de
+            vagas: esta tela é de quem PROCURA gente, e a compra é de quem
+            oferece trabalho — quem se interessa rola até o fim.
+
+            Fora do app da loja (`podeVender`). */}
+        {visiveis.length > 0 && podeVender() && (
+          <Link to="/destaque" className="ei-convite-destaque">
+            <span className="ei-convite-destaque-titulo">
+              Seu cadastro aqui em cima, na área de destaque
+            </span>
+            <span className="ei-convite-destaque-nota">
+              {precoDoDestaqueEmTexto()} por {DESTAQUE_DIAS} dias, com selo “Em alta”.
+            </span>
+          </Link>
         )}
 
         {folhaAberta && (
