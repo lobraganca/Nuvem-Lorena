@@ -831,7 +831,11 @@ export function MeuPerfilPage() {
               <button
                 type="button"
                 className="ei-btn ei-btn-tonal ei-btn-largo"
-                style={{ marginTop: perfil.telefonesExtra.length ? 22 : 0 }}
+                /* Eram 22px, e no print da dona o vão ficava maior que o
+                   respiro de qualquer outro campo da tela — sobra do tempo
+                   em que o "Tirar" ao lado partia em duas linhas e empurrava
+                   tudo. Com ele consertado, 10 é o mesmo ar do resto. */
+                style={{ marginTop: perfil.telefonesExtra.length ? 10 : 0 }}
                 onClick={() =>
                   setPerfil((x) => ({ ...x, telefonesExtra: [...x.telefonesExtra, ""] }))
                 }

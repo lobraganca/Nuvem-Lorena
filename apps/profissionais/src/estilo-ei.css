@@ -1543,13 +1543,28 @@
 /* ── A foto na tela de completar a conta ──────────────────────────────
    Quadrado de 84px centrado, com a inicial dentro quando não há retrato, e
    o convite logo abaixo. Sem canto redondo, como tudo aqui. */
+/* ── O BOTÃO AO LADO DA FOTO, E NÃO EMBAIXO — 05/09 ──────────────────
+   A dona: "na tela de cadastro o editar pode ficar do lado da foto pra
+   economizar espaço."
+
+   Era uma coluna centralizada: foto, e "Trocar foto" embaixo. Duas
+   linhas para uma coisa só, logo na abertura do cadastro — e o cadastro
+   é justamente a tela mais longa do app, onde cada linha economizada no
+   topo é um campo a mais visível sem rolar.
+
+   Lado a lado também alinha o começo do bloco com o começo dos campos
+   de baixo, que é o que a coluna centralizada quebrava. */
 .ei-foto-escolha {
-  display: grid;
-  justify-items: center;
-  gap: 8px;
+  display: flex;
+  align-items: center;
+  gap: 14px;
   cursor: pointer;
   padding: 4px 0 2px;
 }
+
+/* A foto não encolhe quando o texto do botão cresce ("Enviando…"), e o
+   botão não estica para preencher a linha. */
+.ei-foto-escolha > * { flex: 0 0 auto; }
 
 .ei-foto-escolha-img,
 .ei-foto-escolha-vazia {
@@ -2984,7 +2999,24 @@
   gap: 8px;
   margin-bottom: 8px;
 }
-.ei .ei-linha-com-tirar input { flex: 1 1 auto; }
+/* ── O "TIRAR" QUEBRADO NO MEIO — 05/09 ──────────────────────────────
+   A dona: "o tirar ficou desalinhado." No print ele aparecia como
+   "Tira" numa linha e "r" na outra, jogado para cima do campo.
+
+   Não era alinhamento: era o botão sendo ESPREMIDO. Num `flex`, um item
+   não encolhe abaixo do tamanho do próprio conteúdo por padrão — e o
+   campo de texto tem largura própria, então quem cedia era o botão, até
+   a palavra partir no meio. Aí `align-items: center` centralizava duas
+   linhas de texto ao lado de um campo de uma, e o resultado parecia
+   desalinhado.
+
+   `min-width: 0` no campo é o que o deixa encolher de verdade; o resto
+   garante que o botão nunca mais ceda nem parta a palavra. */
+.ei .ei-linha-com-tirar input { flex: 1 1 auto; min-width: 0; }
+.ei .ei-linha-com-tirar > .ei-btn {
+  flex: 0 0 auto;
+  white-space: nowrap;
+}
 
 /* A competência: nome, nível e o botão de tirar, na mesma linha.
    O nível é um `select` estreito de propósito — os três valores cabem, e
