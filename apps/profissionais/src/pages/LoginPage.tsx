@@ -360,6 +360,35 @@ export function LoginPage() {
           Acima da escolha do lado de propósito: ela serve para os dois
           lados igualmente, e quem lê ainda não escolheu nenhum. */}
       <ProvaDeContratacao />
+      {/* ── A INSTRUÇÃO EM CIMA DOS BOTÕES — 06/09 ──────────────────
+          A dona: "'Escolha uma das duas para continuar' tem que ficar em
+          cima dos botões."
+
+          Ela estava embaixo, e embaixo ela chega tarde: quem lê de cima
+          para baixo já passou pelas duas portas quando descobre o que
+          fazer com elas. Instrução é legenda do que vem DEPOIS dela.
+
+          A mesma linha também responde ao toque — "dentro do app você vê
+          só o lado de quem contrata" —, e aí ela é a confirmação do que
+          acabou de acontecer logo abaixo. Nos dois casos ela fala DAS
+          portas, então mora ao lado delas; o lugar certo é o de cima,
+          porque é o único que serve para os dois momentos.
+
+          Por que a frase existe (05/09): a dona, "quando clico em procuro
+          emprego está me direcionando para uma OUTRA ÁREA pra clicar a
+          senha". A senha passou a ser pedida aqui mesmo — e sem uma frase
+          dizendo isso, o toque no lado não teria efeito visível nenhum, e
+          a pessoa tocaria de novo achando que o botão não funcionou. */}
+      <p className="muted entrar-apoio">
+        {pedindoSenhaDaAbertura
+          ? "Falta só a sua senha, aqui embaixo, para entrar."
+          : ladoEscolhido === null
+            ? "Escolha uma das duas para continuar."
+            : ladoEscolhido === "company"
+              ? "Dentro do app você vê só o lado de quem contrata. Para trocar, é só sair e entrar de novo."
+              : "Dentro do app você vê só o lado de quem procura emprego. Para trocar, é só sair e entrar de novo."}
+      </p>
+
       {/* ── A CHAVE DO LADO, NA MESMA TELA DO LOGIN — 04/09 ─────────────
           A dona: "na tela de login a pessoa vai ter que escolher entre quero
           contratar ou procuro emprego. Serão dois logins diferentes e as
@@ -402,23 +431,6 @@ export function LoginPage() {
         </button>
       </div>
 
-      {/* ── POR QUE A TELA NÃO SAIU DO LUGAR — 05/09 ─────────────────
-          A dona: "quando clico em procuro emprego está me direcionando
-          para uma OUTRA ÁREA pra clicar a senha."
-
-          Agora a senha é pedida aqui mesmo, e não na tela seguinte — mas
-          sem uma frase dizendo isso, o toque no lado não teria efeito
-          visível nenhum, e a pessoa tocaria de novo achando que o botão
-          não funcionou. */}
-      <p className="muted entrar-apoio">
-        {pedindoSenhaDaAbertura
-          ? "Falta só a sua senha, aqui embaixo, para entrar."
-          : ladoEscolhido === null
-            ? "Escolha uma das duas para continuar."
-            : ladoEscolhido === "company"
-              ? "Dentro do app você vê só o lado de quem contrata. Para trocar, é só sair e entrar de novo."
-              : "Dentro do app você vê só o lado de quem procura emprego. Para trocar, é só sair e entrar de novo."}
-      </p>
       </div>
 
 

@@ -3577,8 +3577,12 @@ h3 {
   font-size: 1.42rem;
   color: #ffffff;
 }
+/* A instrução fica COLADA nos botões que ela explica, e afastada do que
+   veio antes: 12px em cima, 6px embaixo. Com o mesmo respiro dos dois
+   lados ela pareceria pertencer à linha das contratações, que é o bloco
+   de cima. */
 .entrar-topo > .muted {
-  margin: 8px 0 0;
+  margin: 12px 0 0;
   color: rgba(255, 255, 255, 0.92);
 }
 
@@ -3690,7 +3694,9 @@ h3 {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 8px;
-  margin-top: 12px;
+  /* 6px porque a linha de instrução está logo acima — ver o comentário
+     dela. Este número é o que faz as duas coisas se lerem como uma só. */
+  margin-top: 6px;
 }
 
 .entrar-lado {
@@ -3794,7 +3800,7 @@ h3 {
     margin-top: 4px;
   }
   .entrar-lados {
-    margin-top: 8px;
+    margin-top: 5px;
   }
   .entrar-bloco {
     gap: 4px;
