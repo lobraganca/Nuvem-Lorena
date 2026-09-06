@@ -330,6 +330,22 @@ export function LoginPage() {
 
   return (
     <div className="container entrar-pagina">
+      {/* ── A FAIXA AZUL VIROU UM BLOCO — 06/09 ───────────────────────
+          A dona: "a tela inicial pode ficar fixa. Ajuste pra que fique
+          tudo dentro da tela."
+
+          Antes o azul era um degradê com PARADA FIXA em 345px, contada do
+          alto da página. Três comentários deste arquivo contam a mesma
+          história: cada vez que alguma coisa mudava de altura aqui em
+          cima, a parada tinha de ser recalculada à mão — 300px, 400px,
+          345px — e no meio do caminho a frase "Escolha uma das duas"
+          ficou cortada exatamente na linha do corte.
+
+          Agora o azul é ESTE bloco. Ele acaba onde o conteúdo dele acaba,
+          e nenhuma medida precisa ser adivinhada de novo. As margens
+          negativas fazem a cor sangrar até as bordas da tela, que é o que
+          o degradê fazia. */}
+      <div className="entrar-topo">
       <h1>{modo === "sms" && !comEmail ? "Criar conta ou entrar" : "Entrar"}</h1>
       {/* ── A PROVA, NA PRIMEIRA TELA DE TODAS — 06/09 ─────────────────
           Esta é a tela que quem não tem conta vê: `/` manda para cá.
@@ -394,7 +410,7 @@ export function LoginPage() {
           sem uma frase dizendo isso, o toque no lado não teria efeito
           visível nenhum, e a pessoa tocaria de novo achando que o botão
           não funcionou. */}
-      <p className="muted" style={{ marginTop: 10 }}>
+      <p className="muted entrar-apoio">
         {pedindoSenhaDaAbertura
           ? "Falta só a sua senha, aqui embaixo, para entrar."
           : ladoEscolhido === null
@@ -403,6 +419,7 @@ export function LoginPage() {
               ? "Dentro do app você vê só o lado de quem contrata. Para trocar, é só sair e entrar de novo."
               : "Dentro do app você vê só o lado de quem procura emprego. Para trocar, é só sair e entrar de novo."}
       </p>
+      </div>
 
 
       {/* Quando o app nao consegue falar com o banco.

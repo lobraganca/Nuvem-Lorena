@@ -692,6 +692,25 @@ textarea::placeholder {
   padding-bottom: calc(var(--bottom-nav-height) + env(safe-area-inset-bottom) + 20px);
 }
 
+/* ── E DEVOLVE O ESPAÇO QUANDO NÃO HÁ BARRA — 06/09 ─────────────────
+   A dona: "a tela inicial pode ficar fixa. Ajuste pra que fique tudo
+   dentro da tela."
+
+   Medido: a tela de entrar tinha 782px de conteúdo numa tela de 782px
+   úteis — cabia exatamente — e mesmo assim rolava 100px. Os 100px eram
+   ESTA reserva, guardando lugar para uma barra que a tela de entrar não
+   tem (o visitante não tem barra embaixo; ver `NavegacaoEi`).
+
+   `~ .nav-ei` pergunta se a barra está desenhada logo depois deste
+   bloco. Está escrito na forma negativa de propósito: num navegador
+   antigo, que não conheça `:has`, o seletor inteiro é ignorado e fica
+   valendo a regra de cima — a reserva. Escrito ao contrário, o mesmo
+   navegador antigo esconderia o último cartão de toda lista atrás da
+   barra. */
+.app-content:not(:has(~ .nav-ei)) {
+  padding-bottom: calc(env(safe-area-inset-bottom) + 20px);
+}
+
 /* Ícone em cima, nome embaixo.
    A barra já foi só de ícones, e o argumento de então era o espaço: em
    celular estreito o texto encolhia a fonte até ninguém ler. O erro estava
@@ -3497,60 +3516,69 @@ h3 {
    A faixa é pintada no `body` por trás, e não como bloco: assim ela
    continua atrás da barra do sistema no celular (a página começa embaixo
    do relógio), e não fica uma tira branca acima do azul. */
+/* ── A TELA DE ENTRAR CABE NA TELA — 06/09 ──────────────────────────
+   A dona: "a tela inicial pode ficar fixa. Ajuste pra que fique tudo
+   dentro da tela."
+
+   Medido antes de mexer, com a tela de entrar aberta: 994px de conteúdo
+   num celular de 844px. Sobravam 150px para fora — e num aparelho
+   pequeno (667px de altura) sobravam 361. A primeira tela do app pedia
+   rolagem para chegar no botão de entrar.
+
+   O conserto tem três partes, e nenhuma delas tira nada da tela:
+
+   1. A ALTURA É A DA TELA. `100dvh` (e não `100vh`) porque no celular a
+      barra do navegador aparece e some, e `vh` conta a versão GRANDE:
+      com `vh` a tela "que cabe" ainda rolaria uns 60px enquanto a barra
+      estivesse à vista.
+   2. AS DUAS PORTAS FICAM LADO A LADO. Empilhadas custavam 141px; lado a
+      lado, 76. É a maior economia da tela, e não esconde nem encurta
+      nada — as duas continuam inteiras, com a explicação embaixo do nome.
+   3. OS RESPIROS ENCOLHERAM onde havia folga (título, margens, o vão
+      entre o cartão e a faixa azul), e não onde havia toque: campo,
+      botão e caixa de marcar continuam do mesmo tamanho.
+
+   E continua ROLANDO se precisar. "Fixa" aqui quer dizer "não precisa
+   rolar", e não "não pode": com o teclado aberto o celular corta metade
+   da altura, e uma tela travada esconderia o campo que a pessoa está
+   digitando, sem saída. */
 .entrar-pagina {
   max-width: 420px;
-  /* ── O RECORTE DO IPHONE ESTAVA RESERVADO DUAS VEZES — 04/09 ────────
-     A dona: "a tela está começando muito embaixo."
+  /* O que NÃO é esta página, e mesmo assim ocupa altura: a barra azul do
+     topo (62px) e o respiro que o `app-content` deixa no pé (20px). Sem
+     descontar os dois, a conta de "cabe na tela" erra por 82px — e foi
+     exatamente o que a primeira medição mostrou. */
+  min-height: calc(100dvh - 82px);
+  display: flex;
+  flex-direction: column;
+  padding-top: 0;
+  /* Era 40px. Num celular, 40px de nada no pé é o que faltava para o
+     botão "Criar conta" caber. */
+  padding-bottom: 16px;
+}
 
-     Medido, simulando os 47px de recorte de um iPhone: entre o fim da
-     barra azul e a palavra "Entrar" havia 91px de azul vazio. Sem
-     recorte (navegador de computador) eram 43px — ou seja, quase toda a
-     sobra era o recorte, contado DE NOVO aqui.
-
-     A barra azul do topo já reserva essa faixa (`.cabecalho-ei`, com o
-     mesmo `env`), e ela está em todas as telas desde 03/09. Quando esta
-     regra foi escrita, a tela de entrar escondia o cabeçalho e precisava
-     reservar sozinha; hoje reservar aqui é somar a mesma faixa duas
-     vezes, e o resultado é um vão que ninguém pediu.
-
-     28px viraram 18px na mesma passada: o título já traz 15px de margem
-     própria, e os dois juntos empurravam a decisão da tela para baixo da
-     dobra num celular pequeno. */
-  padding-top: 18px;
-  padding-bottom: 40px;
-  /* A faixa azul é um degradê do PRÓPRIO bloco, e não um retângulo fixo
-     atrás da página. A primeira tentativa usou `position: fixed` com
-     `z-index: -1`: ela pintou o app inteiro de azul, inclusive por trás de
-     tudo que não tem fundo próprio, e o cartão pareceu translúcido. Um
-     degradê com parada dura resolve sem tirar nada do lugar — e acaba onde
-     a página acaba. */
-  /* 04/09: a faixa foi de 300px para 400px. A tela de entrar ganhou a
-     chave do lado (os dois cartões "Procuro emprego" / "Quero
-     contratar", ver `.entrar-lados`), e com ela a linha que explica a
-     escolha passou a cair FORA do azul — a última palavra ficava cortada
-     exatamente na parada do degradê, que é o tipo de detalhe que faz a
-     tela parecer quebrada.
-
-     E de 400px para 345px no mesmo dia, quando o recuo do topo deixou de
-     reservar o recorte do iPhone duas vezes (ver logo abaixo): o conteúdo
-     subiu 57px e a parada, que é contada do alto DESTE bloco, ficou 57px
-     mais funda — sobrando azul atrás do cartão branco. Medido: a linha
-     da explicação termina a 251px daqui, então 345 mantém a mesma folga
-     de antes sem cortar palavra nenhuma. */
-  background: linear-gradient(
-    to bottom,
-    var(--color-marca-azul) 0,
-    var(--color-marca-azul) 345px,
-    transparent 345px
-  );
+/* A faixa azul, agora um bloco de verdade.
+   ─────────────────────────────────────────
+   As margens negativas sangram a cor até as bordas da tela e o padding
+   devolve o recuo do texto — é assim que um bloco dentro de um
+   `.container` pinta de ponta a ponta sem sair do lugar. */
+.entrar-topo {
+  margin: 0 -20px;
+  padding: 14px 20px 18px;
+  background: var(--color-marca-azul);
 }
 
 /* O título e a linha de apoio ficam DENTRO da faixa: letra branca. */
 .entrar-pagina h1 {
-  margin-bottom: 4px;
+  /* A margem de cima era do `h1` de qualquer página (15px) e aqui só
+     empurrava a decisão da tela para baixo — a faixa azul já dá o
+     respiro. */
+  margin: 0 0 2px;
+  font-size: 1.42rem;
   color: #ffffff;
 }
-.entrar-pagina > .muted {
+.entrar-topo > .muted {
+  margin: 8px 0 0;
   color: rgba(255, 255, 255, 0.92);
 }
 
@@ -3559,9 +3587,11 @@ h3 {
 .entrar-bloco {
   display: flex;
   flex-direction: column;
-  gap: 8px;
-  margin-top: 22px;
-  padding: 18px;
+  gap: 7px;
+  /* 22px viraram 14: o cartão tem sombra própria e já se descola do
+     azul sem precisar de um vão desse tamanho. */
+  margin-top: 14px;
+  padding: 15px;
   border: 0;
   border-radius: 14px;
   background: #ffffff;
@@ -3648,17 +3678,26 @@ h3 {
    escolhido inverte: fundo escuro, letra branca. Inverter, e não só pôr
    um contorno — sobre azul um contorno de 2px some, que foi o mesmo
    motivo de o cartão do formulário usar sombra em vez de fio. */
+/* ── LADO A LADO, E NÃO EMPILHADAS — 06/09 ─────────────────────────
+   Empilhadas, as duas portas custavam 141px de altura; lado a lado,
+   76 — foi a maior economia de "fazer tudo caber na tela", e é a única
+   que não encolhe nada: as duas continuam com o nome e a explicação.
+
+   E há um ganho que não é de espaço: elas são uma ESCOLHA entre duas
+   coisas, e escolha se lê melhor comparando lado a lado do que rolando
+   de uma para a outra. */
 .entrar-lados {
   display: grid;
-  grid-template-columns: 1fr;
+  grid-template-columns: 1fr 1fr;
   gap: 8px;
-  margin-top: 16px;
+  margin-top: 12px;
 }
 
 .entrar-lado {
   display: grid;
   gap: 2px;
-  padding: 12px 14px;
+  align-content: start;
+  padding: 10px 12px;
   text-align: left;
   border: 2px solid transparent;
   border-radius: 12px;
@@ -3676,6 +3715,107 @@ h3 {
   color: #ffffff;
 }
 
-.entrar-lado-nome { font-size: 0.98rem; font-weight: 700; }
-.entrar-lado-nota { font-size: 0.82rem; line-height: 1.35; opacity: 0.75; }
+/* Em duas colunas o nome tem metade da largura: "Procuro emprego" cabe
+   em uma linha em qualquer celular a partir de 320px, e "Quero
+   contratar" também. Medido. */
+.entrar-lado-nome { font-size: 0.9rem; font-weight: 700; line-height: 1.25; }
+.entrar-lado-nota { font-size: 0.78rem; line-height: 1.3; opacity: 0.75; }
 .entrar-lado[aria-pressed="true"] .entrar-lado-nota { opacity: 0.9; }
+
+/* ── CELULAR BAIXINHO — 06/09 ──────────────────────────────────────
+   Com os ajustes acima, a tela de entrar cabe inteira num celular de
+   844px de altura (o tamanho comum hoje) e num de 915. Num aparelho
+   antigo, de 667 ou 640, ainda sobravam 181px para fora — e é
+   justamente quem tem aparelho antigo que menos tolera uma primeira
+   tela que rola.
+
+   Então aqui a tela abre mão do que é APOIO e guarda o que é DECISÃO:
+
+   - sai a linha "37 pessoas já foram contratadas" (é motivo para
+     confiar, não é o que se faz na tela);
+   - saem as explicações debaixo dos nomes das duas portas — "Procuro
+     emprego" e "Quero contratar" já dizem o que são;
+   - os respiros encolhem, e mais nada.
+
+   Continuam do mesmo tamanho: os dois campos, a caixa de marcar, o
+   botão de entrar e o de criar conta. Alvo de dedo não encolhe. */
+@media (max-height: 740px) {
+  .entrar-topo {
+    padding: 10px 20px 14px;
+  }
+  .entrar-topo .ei-ja-contratou {
+    display: none;
+  }
+  .entrar-pagina h1 {
+    font-size: 1.2rem;
+  }
+  .entrar-lado-nota {
+    display: none;
+  }
+  .entrar-topo > .muted {
+    margin-top: 6px;
+    font-size: 0.82rem;
+  }
+  .entrar-bloco {
+    gap: 5px;
+    margin-top: 10px;
+    padding: 12px;
+  }
+  .entrar-gravar {
+    margin-top: 8px;
+  }
+  .entrar-bloco .entrar-link {
+    margin-top: 8px;
+  }
+  .entrar-rodape {
+    margin-top: 12px;
+    padding-top: 12px;
+    gap: 8px;
+  }
+}
+
+/* ── E O CELULAR MAIS BAIXINHO AINDA ───────────────────────────────
+   640px de altura é o Android popular de uns anos atrás, e ainda é o
+   aparelho de muita gente que procura emprego. Aqui os campos vão de
+   50px para 46 — continuam acima dos 44px de alvo de dedo que o app
+   usa como régua — e o que sobra de respiro é o mínimo. */
+@media (max-height: 700px) {
+  .entrar-pagina {
+    padding-bottom: 10px;
+  }
+  .entrar-pagina h1 {
+    font-size: 1.08rem;
+  }
+  .entrar-topo {
+    padding-top: 8px;
+    padding-bottom: 12px;
+  }
+  .entrar-topo > .muted {
+    margin-top: 4px;
+  }
+  .entrar-lados {
+    margin-top: 8px;
+  }
+  .entrar-bloco {
+    gap: 4px;
+    padding: 10px;
+  }
+  .entrar-rodape {
+    margin-top: 10px;
+    padding-top: 10px;
+  }
+  .entrar-bloco input,
+  .entrar-bloco .ei-senha input {
+    padding-top: 13px;
+    padding-bottom: 13px;
+  }
+  .entrar-gravar {
+    margin-top: 6px;
+  }
+  .entrar-bloco .entrar-link {
+    margin-top: 4px;
+  }
+  .entrar-rodape-nota {
+    font-size: 0.8rem;
+  }
+}
