@@ -14,6 +14,7 @@ import { useOnboardingStatus } from "../lib/useOnboardingStatus";
 import { empresaAtual } from "../lib/company";
 import { BottomSheet } from "../components/BottomSheet";
 import { BotaoFavorito } from "../components/ei/BotaoFavorito";
+import { aoTocarNoRetrato, MarcaDeLupa, useVisorDeFoto } from "../components/ei/BotaoVerFoto";
 import { lerFavoritos, SEM_FAVORITOS, type Favoritos } from "../lib/favoritos";
 import { contarAparicaoEmBusca } from "../lib/compativeis";
 import {
@@ -397,6 +398,11 @@ export function ProfissionaisPage() {
      descuido, é o que ela comprou. */
   const todos = visiveis;
 
+  /* A foto em tela cheia, aberta do próprio cartão — 06/09.
+     A dona: "ainda não consegui ver a função pra ver a foto. Coloque
+     dentro do card do candidato também." Ver `BotaoVerFoto`. */
+  const { abrir: abrirFoto, visor } = useVisorDeFoto();
+
   /* Uma linha da lista. Vira função porque agora ela é desenhada em DOIS
      lugares (a área de destaque e o resto), e duas cópias do mesmo JSX
      divergem no primeiro conserto. */
@@ -407,7 +413,14 @@ export function ProfissionaisPage() {
                    a empresa via a lista, tocava numa pessoa e não
                    acontecia nada — e não havia telefone em lugar nenhum
                    do app. A parte gratuita da oferta não existia. */
-                <Link key={p.id} to={`/profissional/${p.id}`} className="ei-pessoa">
+                <Link
+                  key={p.id}
+                  to={`/profissional/${p.id}`}
+                  className="ei-pessoa"
+                  /* Toque no retrato abre a FOTO; em qualquer outro lugar
+                     do cartão, abre a ficha. Ver `BotaoVerFoto`. */
+                  onClick={aoTocarNoRetrato(p.photo_url, p.name, abrirFoto)}
+                >
                   <Retrato foto={p.photo_url} nome={p.name} />
                   {/* ── O SELO NO CANTO SUPERIOR DIREITO — 05/09 ────────
                       A dona: "acho que o selo de em alta do card do
@@ -877,6 +890,10 @@ export function ProfissionaisPage() {
           </BottomSheet>
         )}
       </div>
+      {/* O visor da foto fica no fim da tela, e não dentro do cartão:
+          ele cobre a tela inteira, e um `position: fixed` dentro de um
+          cartão com `transform` ou `overflow` deixaria de ser fixo. */}
+      {visor}
     </div>
   );
 }
@@ -900,7 +917,13 @@ function Retrato({ foto, nome }: { foto: string | null; nome: string }) {
   return (
     <span className="ei-pessoa-retrato" aria-hidden="true">
       {foto && !falhou ? (
-        <img src={foto} alt="" loading="lazy" onError={() => setFalhou(true)} />
+        <>
+          <img src={foto} alt="" loading="lazy" onError={() => setFalhou(true)} />
+          {/* A lupa só quando há foto de verdade: sobre a inicial de um
+              nome ela prometeria uma foto que não existe. E some junto se
+              a imagem falhar ao carregar (`falhou`). */}
+          <MarcaDeLupa />
+        </>
       ) : (
         inicial
       )}

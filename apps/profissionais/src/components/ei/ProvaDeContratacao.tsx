@@ -1,7 +1,7 @@
 import { useContratados } from "../../lib/numerosDoEi";
 
 /**
- * "🤝 37 pessoas já foram contratadas pelo Ei Emprego."
+ * "🤝 37 pessoas já foram contratadas."
  *
  * ── De onde vem o número ──────────────────────────────────────────────
  *
@@ -42,10 +42,18 @@ export function ProvaDeContratacao({ className = "" }: { className?: string }) {
       {/* "já foram contratadas", e não "conseguiram emprego": o app sabe
           que a contratação aconteceu, não sabe se a pessoa continua lá. A
           frase menor é a que dá para provar. */}
+      {/* ── SEM O "PELO EI EMPREGO" — 06/09 ───────────────────────
+          A dona: "onde tá escrito 37 pessoas já foram contratadas no Ei
+          Emprego, ficar só 37 pessoas já foram contratadas."
+
+          Ela tem razão, e o motivo é o lugar: a frase aparece na tela de
+          entrar e na de planos, as duas com o nome do app na barra de
+          cima. Repetir "pelo Ei Emprego" ali é dizer duas vezes onde a
+          pessoa já está — e a frase encurtada cabe numa linha só no
+          celular, em vez de quebrar em duas. */}
       <span>
         <strong>{quantos}</strong>{" "}
-        {quantos === 1 ? "pessoa já foi contratada" : "pessoas já foram contratadas"} pelo
-        Ei Emprego
+        {quantos === 1 ? "pessoa já foi contratada" : "pessoas já foram contratadas"}
       </span>
     </p>
   );

@@ -131,10 +131,9 @@ export function PlanosEmpresaPage() {
         {/* ── A PROVA, ANTES DOS PREÇOS — 06/09 ───────────────────────
             Esta é a tela em que alguém decide gastar dinheiro, e até hoje
             ela argumentava só com o que a empresa GANHA (vagas, lista de
-            interessados). "37 pessoas já foram contratadas pelo Ei
-            Emprego" é a única frase do app que responde à pergunta que
-            vem antes dessa — isto funciona? — e com número, não com
-            adjetivo.
+            interessados). "37 pessoas já foram contratadas" é a única
+            frase do app que responde à pergunta que vem antes dessa —
+            isto funciona? — e com número, não com adjetivo.
 
             Acima dos cartões de propósito: depois deles a pessoa já
             decidiu, e a prova chega tarde. */}

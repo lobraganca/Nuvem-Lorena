@@ -353,7 +353,7 @@ export function LoginPage() {
           esperar um SMS — e até hoje a tela pedia isso sem oferecer um
           único motivo.
 
-          "37 pessoas já foram contratadas pelo Ei Emprego" é o motivo. O
+          "37 pessoas já foram contratadas" é o motivo. O
           número vem da pergunta que o app faz à empresa ao encerrar a
           vaga, e estava guardado no painel da administração desde a 0109.
 

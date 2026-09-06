@@ -7806,6 +7806,34 @@
   column-gap: 14px;
   row-gap: 6px;
 }
+/* ── O CARTÃO DO INTERESSADO ESTAVA FORA DA GRADE — 06/09 ──────────
+   Achado ao medir a lista de interessados: a foto aparecia EMBAIXO das
+   pastilhas, o resumo em cima de tudo e o nome espremido num canto,
+   cortado em "Profis…". No print da dona de 05/09 é exatamente esta
+   tela — "esse card ficou muito estranho, respiros grandes e tudo
+   desalinhado".
+
+   A causa: `.ei-pessoa-ficha` (o bloco com funções, resumo e o pé com
+   bairro e data) NÃO TINHA REGRA NENHUMA no arquivo de estilo. Numa
+   grade com áreas nomeadas, quem não tem área é colocado sozinho pelo
+   navegador, na primeira célula livre — que aqui é a do selo, lá em
+   cima. Um só elemento sem área desmonta o cartão inteiro.
+
+   Isto é o resto do conserto de 05/09: as áreas foram desenhadas para os
+   cartões do banco de talentos, onde os mesmos pedaços são filhos
+   diretos do cartão. Na lista de interessados eles vêm embrulhados neste
+   `span`, e o embrulho ficou de fora.
+
+   `min-width: 0` porque o embrulho é filho de uma coluna `1fr`: sem ele,
+   um resumo comprido empurra a coluna e o nome é que encolhe — que é o
+   "Profis…" do print. */
+.ei .ei-pessoa > .ei-pessoa-ficha {
+  grid-area: funcoes;
+  display: grid;
+  gap: 6px;
+  min-width: 0;
+}
+
 .ei .ei-pessoa > .ei-pessoa-selo {
   grid-area: selo;
   justify-self: end;
@@ -8919,4 +8947,65 @@
   -webkit-appearance: none;
   appearance: none;
   display: none;
+}
+
+/* ── VER A FOTO A PARTIR DO PRÓPRIO CARTÃO — 06/09 ───────────────────
+   A dona: "ainda não consegui ver a função pra ver a foto. Coloque
+   dentro do card do candidato também."
+
+   Ela não achou porque não havia o que achar: o retrato do cartão era
+   igual a qualquer retrato, sem nada dizendo que abria. A lupa no canto
+   resolve isso — e o alvo de toque é o retrato INTEIRO (84px), não o
+   iconezinho de 26.
+
+   A marca não recebe toque nenhum (`pointer-events: none`): quem decide
+   o que o dedo faz é o cartão, em `aoTocarNoRetrato`. Se ela fosse
+   clicável, o toque na borda do ícone e o toque na foto seguiriam
+   caminhos diferentes — e o de fora abriria a ficha, que é o oposto do
+   que a lupa promete. */
+.ei .ei-pessoa-retrato {
+  position: relative;
+  /* A mãozinha de "isto amplia", em quem tem foto. Sem foto, o retrato é
+     a inicial do nome e não amplia nada — daí a regra abaixo. */
+  cursor: zoom-in;
+}
+.ei .ei-pessoa-retrato:not(:has(img)) { cursor: inherit; }
+
+.ei .ei-pessoa-lupa-marca {
+  position: absolute;
+  right: 4px;
+  bottom: 4px;
+  display: grid;
+  place-items: center;
+  width: 26px;
+  height: 26px;
+  border-radius: 999px;
+  /* Preto translúcido, e não uma cor do app: a lupa fica SOBRE o rosto de
+     alguém, e qualquer cor forte disputa com ele. O escuro funciona sobre
+     foto clara e sobre foto escura, que é o que não dá para prever. */
+  background: rgba(17, 17, 17, 0.62);
+  color: #ffffff;
+  pointer-events: none;
+}
+.ei .ei-pessoa-lupa-marca svg { width: 15px; height: 15px; }
+
+/* A mesma lupa na ficha da pessoa, sobre o retrato de 168px. Lá o retrato
+   já era um botão de verdade desde a manhã de 06/09 — e mesmo assim a
+   dona não achou a função, porque nada dizia que ele era um botão. */
+.ei .ei-ficha-foto {
+  position: relative;
+}
+.ei .ei-ficha-foto::after {
+  content: "";
+  position: absolute;
+  right: 8px;
+  bottom: 8px;
+  width: 30px;
+  height: 30px;
+  border-radius: 999px;
+  /* A lupa desenhada no próprio fundo: um `::after` não tem filhos, e
+     assim não é preciso mais um elemento em toda ficha. */
+  background: rgba(17, 17, 17, 0.62)
+    url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='2.2' stroke-linecap='round'><circle cx='10.5' cy='10.5' r='6.5'/><path d='M10.5 7.8v5.4M7.8 10.5h5.4'/><path d='M20 20l-4.6-4.6'/></svg>")
+    center / 17px 17px no-repeat;
 }

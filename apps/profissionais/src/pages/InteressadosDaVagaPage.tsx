@@ -11,6 +11,7 @@ import { Pagina, Abas } from "../components/ei/Pagina";
 import { useTituloDaPagina } from "../lib/tituloDaPagina";
 import type { JobListing, JobResponse } from "../types/domain";
 import Esqueleto from "../components/ei/Esqueleto";
+import { aoTocarNoRetrato, MarcaDeLupa, useVisorDeFoto } from "../components/ei/BotaoVerFoto";
 
 /**
  * Como cada marca da triagem aparece na lista.
@@ -40,6 +41,15 @@ export function InteressadosDaVagaPage() {
   const { id: vagaId } = useParams<{ id: string }>();
   const navegar = useNavigate();
   useTituloDaPagina("Interessados");
+
+  /* A foto em tela cheia, aberta do próprio cartão — 06/09.
+     A dona: "ainda não consegui ver a função pra ver a foto. Coloque
+     dentro do card do candidato também."
+
+     É a tela onde isso mais serve: escolher entre doze interessados é
+     comparar rostos, e até aqui ver a foto de cada um exigia abrir a
+     ficha, voltar, abrir a próxima. */
+  const { abrir: abrirFoto, visor } = useVisorDeFoto();
 
   const [vaga, setVaga] = useState<JobListing | null>(null);
   const [respostas, setRespostas] = useState<RespostaComPessoa[]>([]);
@@ -264,10 +274,19 @@ export function InteressadosDaVagaPage() {
                 }
                 className="ei-pessoa ei-pessoa-triagem"
                 style={resp.cadastroId ? undefined : { pointerEvents: "none", opacity: 0.6 }}
+                /* Toque no retrato abre a FOTO em tela cheia; em qualquer
+                   outro lugar do cartão, abre a ficha. É a tela onde isso
+                   mais serve — escolher entre doze interessados é comparar
+                   rostos, e até aqui cada rosto custava abrir a ficha e
+                   voltar. Ver `BotaoVerFoto`. */
+                onClick={aoTocarNoRetrato(resp.foto, resp.nome, abrirFoto)}
               >
                 <span className="ei-pessoa-retrato" aria-hidden="true">
                   {resp.foto ? (
-                    <img src={resp.foto} alt="" loading="lazy" />
+                    <>
+                      <img src={resp.foto} alt="" loading="lazy" />
+                      <MarcaDeLupa />
+                    </>
                   ) : (
                     (resp.nome || "?").trim().charAt(0).toLocaleUpperCase("pt-BR")
                   )}
@@ -414,6 +433,9 @@ export function InteressadosDaVagaPage() {
         )}
       </section>
       </div>
+      {/* Fora da lista: o visor cobre a tela inteira, e dentro de um
+          cartão ele deixaria de ser fixo. */}
+      {visor}
     </div>
   );
 }
