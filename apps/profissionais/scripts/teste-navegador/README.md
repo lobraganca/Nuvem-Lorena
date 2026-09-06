@@ -8,6 +8,52 @@ Existe porque um defeito real passou despercebido por meses e não seria
 encontrado lendo código: **abrir um cadastro e voltar apagava a busca**. Só
 apareceu quando o caminho foi percorrido de ponta a ponta.
 
+## Os interruptores
+
+O falso responde a chaves no endereço (`?plano=nao`) e a chaves no
+`localStorage`. Elas existem porque **caso que não dá para reproduzir é
+caso que passa em qualquer teste sem nunca ter rodado** — foi assim com o
+contador de on-line, que só quebrava para quem estava sozinha, e com os
+dois planos pagos que valiam zero, porque o falso fixava o plano num dos
+três que funcionavam.
+
+Esta lista existe porque em 06/09 três interruptores foram inventados de
+novo por não estarem escritos em lugar nenhum.
+
+### No endereço
+
+| Chave | O que exercita |
+|---|---|
+| `?vagas=0` | banco de vagas VAZIO — a tela do estado vazio tem texto próprio |
+| `?falsos=3` | cidade quase sem cadastro, onde as prateleiras ficam feias |
+| `?plano=nao` | empresa SEM plano — a barreira de publicar vaga |
+| `?plano=pro\|cinco\|dez\|ilimitado` | qual plano (o padrão é `tres`) |
+| `?cortesia=1` | o plano é TESTE GRÁTIS (0123): "faltam 3 dias" |
+| `?conta=nova` | quem acabou de entrar: sem cadastro, sem empresa, sem nada |
+| `?semperfil=1` | tem empresa e NÃO tem cadastro de pessoa — o caso mais comum de quem contrata |
+| `?lado=empresa\|novo` | de que lado a sessão entrou, ou nenhum ainda |
+| `?telefone=nao` | telefone da empresa não confirmado |
+| `?confirmado=nao` | WhatsApp da pessoa não confirmado |
+| `?foto=nao` | conta sem foto — o círculo com as iniciais |
+| `?sozinha=1` | ninguém mais on-line, que é quando o contador some |
+| `?cheio=hoje` | o dia já com 5 candidaturas — o teto |
+| `?combina=1` | uma vaga do ofício da pessoa, para a compatibilidade passar de 80% |
+
+`?combina=1` mexe na SEGUNDA vaga de propósito: a primeira já tem resposta
+no falso, e vaga respondida fica fora do baralho — o caso alto apareceria
+na lista e nunca nos cartões.
+
+### No `localStorage`
+
+| Chave | O que exercita |
+|---|---|
+| `falso-usuario` | quem está logado (`telefone`, ou vazio para deslogado) |
+| `falso-admin` | a conta é da administração, e o painel abre |
+| `falso-perfil-completo` | perfil preenchido, com nome e foto |
+| `falso-tem-senha` | a conta já criou senha |
+| `falso-colunas-estrito` | o banco RECUSA coluna que não existe, nos dois sentidos — é o que prova que `colunasNovas.ts` está tolerando de verdade |
+
+
 ## Como rodar
 
 ```bash

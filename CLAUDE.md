@@ -57,26 +57,31 @@ workflow escutava a `duqnk8`; hoje ele escuta a `ei-itabirito`.
 
 Nunca empurrar para outra branch sem a dona pedir.
 
-### ⚠ A BRANCH PADRÃO DO REPOSITÓRIO É A VELHA DO EI
+### A branch padrão JÁ É a `ei-itabirito` — resolvido em 06/09
 
-A padrão é a `claude/professional-search-app-duqnk8`, parada 226 commits
-atrás — o último commit dela é "Migration 0065: tira o Ei Itabirito do
-banco do procurô".
+Este arquivo dizia, até 06/09, que a padrão era a `duqnk8` (a velha do
+Ei) e que por isso a rotina agendada nunca rodava. **A dona trocou, e
+agora está certo.** Conferido:
 
-Isso não é detalhe de organização, tem efeito: **o GitHub roda os
-workflows AGENDADOS a partir da branch padrão, e não da que publica.**
-Então:
+```bash
+git remote show origin | grep "HEAD branch"   # → ei-itabirito
+```
 
-- a rotina de 15 em 15 minutos que reenvia aviso de vaga
-  (`esvaziar-fila-de-avisos.yml`) **nunca roda no horário**, porque o
-  arquivo não existe na `duqnk8`;
-- o que roda todo dia de lá é a `rotina-diaria.yml`, que é do **procurô**,
-  contra o banco do procurô.
+O efeito é o esperado: a `esvaziar-fila-de-avisos.yml` passou a rodar
+sozinha, com `event: schedule` e a partir da `ei-itabirito`. E a
+`rotina-diaria.yml` do procurô não roda mais, porque ela não existe nesta
+branch.
 
-Enquanto a padrão não mudar para `ei-itabirito`, consertar um workflow
-agendado nesta branch não muda nada no horário — só quando disparado à
-mão. Trocar a padrão é em Settings > General > Default branch, e é
-decisão da dona.
+**Mas o horário dela não é o que o arquivo pede.** O cron diz
+`*/15 * * * *` (de 15 em 15 minutos) e as execuções de verdade saíram às
+17:29, 19:22, 21:30 e 23:20 — de duas em duas horas. É o GitHub
+espaçando agendamento em repositório de pouco movimento, não defeito
+nosso: não adianta mexer no cron. Quem depende de minuto exato precisa de
+outro gatilho (o `pg_cron` do próprio Supabase, por exemplo).
+
+Na prática: um aviso de vaga que entra na fila pode esperar até duas
+horas para sair. Para uma cidade do tamanho de Itabirito isso costuma
+estar bom — mas é bom saber, em vez de descobrir com alguém reclamando.
 
 ### CONFIRA EM QUE BRANCH VOCÊ ESTÁ, NA PRIMEIRA MENSAGEM
 
@@ -90,12 +95,11 @@ respostas foram redesenhos sucessivos — três paletas, dois sistemas de
 design inteiros — todos julgados contra um site que nunca recebeu
 nenhum deles.
 
-O que teria evitado, em dez segundos, na primeira mensagem:
+O que teria evitado, em dez segundos, na primeira mensagem (a branch de
+comparação agora é a `ei-itabirito`, que é a padrão E a que publica):
 
 ```bash
-git fetch origin claude/professional-search-app-duqnk8
-git merge-base --is-ancestor HEAD origin/claude/professional-search-app-duqnk8 \
-  && echo "publica" || echo "NÃO PUBLICA — nada do que eu fizer vai aparecer"
+git branch --show-current   # tem de dizer ei-itabirito
 ```
 
 E, quando a dona reclamar da aparência ou do funcionamento do site, a
@@ -187,7 +191,8 @@ que é onde nasce o erro de aplicar no banco do Avena:
 https://supabase.com/dashboard/project/ahigenhenzmsjxlmrzhz/sql/new
 ```
 
-- Numeração sequencial: a última hoje é a `0060`.
+- Numeração sequencial: a última hoje é a `0123` (teste grátis da empresa,
+  e o plano deixando de ser editável pela própria empresa).
 - `supabase/banco-completo.sql` **está desatualizado** (para na 0051). Serve
   para montar um banco do zero até ali, não como retrato do que está no ar.
 - Edge Functions ficam em `supabase/functions/` e sobem pelo workflow.
