@@ -7834,6 +7834,31 @@
   min-width: 0;
 }
 
+/* ── E O CARTÃO DA VAGA CAÍA NO MESMO BURACO — 06/09 ────────────────
+   A dona, com o print do banco de vagas: "a foto tem que ficar do lado.
+   Assim está gastando muito espaço."
+
+   Mesma causa do `ei-pessoa-ficha` acima, outro embrulho:
+   `.ei-pessoa-texto` — o bloco com o cargo, a empresa e as pastilhas —
+   também não tinha área nomeada. Sem área, o navegador o punha na
+   primeira célula livre, que é a do selo, LÁ EM CIMA; e o logo da
+   empresa, que tem área (`foto`), ficava na linha de baixo. Resultado:
+   texto em cima, quadrado embaixo, e cada vaga gastando o dobro da
+   altura numa lista em que se rola procurando cargo.
+
+   Este embrulho é usado por várias listas (vagas, favoritos, empresas),
+   então a regra vale para todas de uma vez — era o mesmo defeito em
+   todas elas.
+
+   `nome` e não uma área maior: o bloco já se empilha por dentro
+   (`display: grid`, logo acima), e ocupando só a faixa do nome ele deixa
+   a coluna das ações livre para o coração e a seta, que é onde eles
+   sempre estiveram. As faixas de baixo ficam vazias e sobem sozinhas. */
+.ei .ei-pessoa > .ei-pessoa-texto {
+  grid-area: nome;
+  min-width: 0;
+}
+
 .ei .ei-pessoa > .ei-pessoa-selo {
   grid-area: selo;
   justify-self: end;
