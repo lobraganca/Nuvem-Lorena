@@ -288,6 +288,25 @@ export function ComecarPage({ lado }: { lado: "professional" | "company" }) {
             depois de TODAS as portas, não entre elas nem antes. */}
         <Atalhos />
 
+        {/* ── O TERMÔMETRO, NOS DOIS LADOS — 06/09 ────────────────────
+            Depois dos atalhos e antes do pé: ele não é um caminho para
+            fazer alguma coisa, é uma resposta — "o que está contratando
+            na cidade?". Quem procura emprego lê para saber onde tentar;
+            quem contrata lê para saber com quem está disputando.
+
+            É a única tela do app que não pede conta (ver a rota em
+            `App.tsx`), e por isso ela também é o link que se manda para
+            alguém de fora. */}
+        <Link to="/termometro" className="ei-termometro-porta">
+          <span aria-hidden="true">📊</span>
+          <span>
+            <strong>O que está contratando em Itabirito</strong>
+            <span className="ei-termometro-porta-nota">
+              As vagas dos últimos 30 dias, por área
+            </span>
+          </span>
+        </Link>
+
         <div className="ei-entrada-pe">
           <InstalarApp variante="botao" />
         </div>

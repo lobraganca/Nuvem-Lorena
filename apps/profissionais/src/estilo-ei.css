@@ -8677,3 +8677,105 @@
   margin-top: 4px;
   margin-bottom: 16px;
 }
+
+/* ── O TERMÔMETRO DO EMPREGO — 06/09 ─────────────────────────────────
+   A dona: "criar TERMÔMETRO DO EMPREGO... Vendas ↑, Construção ↑,
+   Administrativo →."
+
+   Uma grade de quatro colunas e duas linhas por setor: a seta abre a
+   linha, o nome do setor ocupa o meio, a contagem fecha à direita, e a
+   explicação escrita atravessa por baixo.
+
+   A SETA VEM PRIMEIRO, e não depois do nome como no pedido. O motivo é
+   de leitura: numa lista de doze setores, o olho desce pela coluna da
+   esquerda procurando as subidas — com a seta no fim de cada linha ela
+   muda de lugar conforme o nome é comprido ou curto, e não dá para
+   varrer. O sentido é o mesmo; a coluna é que passa a existir. */
+.ei .ei-termometro {
+  display: grid;
+  gap: 0;
+  padding-top: 4px;
+  padding-bottom: 4px;
+}
+.ei .ei-termometro-linha {
+  display: grid;
+  grid-template-columns: 22px 1fr auto;
+  grid-template-areas:
+    "seta setor conta"
+    ".    nota  nota";
+  align-items: baseline;
+  column-gap: 10px;
+  row-gap: 2px;
+  padding: 12px 0;
+  border-bottom: 1px solid var(--ei-fio);
+}
+.ei .ei-termometro-linha:last-child {
+  border-bottom: 0;
+}
+.ei .ei-termometro-seta {
+  grid-area: seta;
+  font-size: 1.15rem;
+  font-weight: 700;
+  line-height: 1;
+}
+.ei .ei-termometro-setor {
+  grid-area: setor;
+  font-weight: 600;
+  line-height: 1.3;
+}
+.ei .ei-termometro-conta {
+  grid-area: conta;
+  font-size: 0.86rem;
+  font-weight: 600;
+  color: var(--ei-tinta-fraca);
+  white-space: nowrap;
+}
+.ei .ei-termometro-nota {
+  grid-area: nota;
+  font-size: 0.8rem;
+  line-height: 1.35;
+  color: var(--ei-tinta-fraca);
+}
+
+/* Verde sobe, vermelho desce, cinza igual. As duas primeiras são as
+   mesmas cores que o app já usa para "deu certo" e "atenção" — e o
+   vermelho aqui NÃO é o `--ei-destaque` da área paga, que quer dizer
+   outra coisa na mesma tela do app. */
+.ei .ei-seta-sobe { color: #1a6b3f; }
+.ei .ei-seta-desce { color: #b42318; }
+.ei .ei-seta-igual { color: var(--ei-tinta-fraca); }
+/* O traço de "poucas vagas" é o mais apagado de todos: ele existe para
+   ocupar a coluna e manter os nomes alinhados, não para informar. */
+.ei .ei-seta-poucas { color: var(--ei-tinta-fraquissima); }
+
+/* A porta do termômetro, na tela inicial dos dois lados. Uma faixa e não
+   um cartão quadrado como os atalhos: ela não é irmã do "Banco de vagas"
+   — aqueles são lugares para onde ir, este é um assunto. */
+.ei .ei-termometro-porta {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 12px 12px 0;
+  padding: 14px;
+  border: 1px solid var(--ei-fio);
+  border-radius: 14px;
+  background: var(--ei-papel);
+  color: inherit;
+  text-decoration: none;
+}
+.ei .ei-termometro-porta > span:last-child {
+  display: grid;
+  gap: 2px;
+  min-width: 0;
+}
+.ei .ei-termometro-porta strong {
+  font-size: 0.95rem;
+  font-weight: 600;
+  line-height: 1.3;
+}
+.ei .ei-termometro-porta-nota {
+  font-size: 0.82rem;
+  line-height: 1.35;
+  color: var(--ei-tinta-fraca);
+}
+.ei .ei-termometro-porta:active { background: var(--ei-afunda); }

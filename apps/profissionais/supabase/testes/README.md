@@ -23,7 +23,7 @@ cada teste e imprime um resumo. Banco novo a cada execução é o que torna o
 resultado confiável: teste que roda sobre a sobra do anterior passa a
 depender da ordem e um dia mente.
 
-Hoje: **22 passam, 0 falham**. Os cinco que vinham do outro produto estão
+Hoje: **23 passam, 0 falham**. Os cinco que vinham do outro produto estão
 em `herdados/` — ver o LEIA.md de lá, e o motivo de terem saído da
 bateria principal.
 
