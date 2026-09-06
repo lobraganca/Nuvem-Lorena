@@ -1,4 +1,6 @@
 import type { JobListing } from "../types/domain";
+import { mesmoOficio } from "./sinonimosDeOficio";
+import { normalizar } from "./normalizar";
 
 /**
  * A conta de compatibilidade entre uma VAGA e um CADASTRO — de 0 a 100.
@@ -61,15 +63,79 @@ export const ESCADA_ESCOLARIDADE = [
   "doutorado",
 ];
 
-export function normalizar(t: string): string {
-  return t
-    .toLowerCase()
-    .normalize("NFD")
-    /* Tira o acento. Sem isto "atendimento a domicílio" e "atendimento a
-       domicilio" são duas coisas diferentes para o computador, e são a
-       mesma para todo mundo que digitou. */
-    .replace(/[\u0300-\u036f]/g, "")
-    .trim();
+/* `normalizar` mudou de casa em 06/09 (ver `normalizar.ts`) e continua
+   saindo por aqui: várias telas o importam deste arquivo, e o círculo de
+   importação que a mudança evita não é problema delas. */
+export { normalizar } from "./normalizar";
+
+/**
+ * O ofício desta pessoa serve para esta vaga?
+ *
+ * ── Por que é exportada, e não uma linha dentro da conta — 06/09 ──────
+ *
+ * Existiam DUAS cópias desta regra: aqui e na ficha da pessoa
+ * (`PerfilPublicoPage`), onde ela decide o visto verde de "bate o
+ * ofício". O comentário de lá já dizia que a regra "é a MESMA da conta de
+ * compatibilidade" — e era mesmo, letra por letra, o que só funciona
+ * enquanto alguém copia a mudança para os dois lados.
+ *
+ * Ao acrescentar o dicionário de sinônimos, a cópia ia ficar para trás na
+ * hora: a nota diria 85% e a ficha mostraria o ofício SEM visto, na mesma
+ * tela, para a mesma pessoa. É exatamente o estrago que aquele comentário
+ * temia.
+ *
+ * ── As duas maneiras de bater ─────────────────────────────────────────
+ *
+ * 1. Por TEXTO, nos dois sentidos: "auxiliar de cozinha" no cadastro casa
+ *    com a vaga de "cozinha", e a vaga de "auxiliar de cozinha" casa com
+ *    quem se cadastrou só como "cozinha". Igualdade exata perderia as
+ *    duas. Aqui entra o título da vaga, porque é comparação literal.
+ *
+ * 2. Pelo DICIONÁRIO de sinônimos, que reconhece o mesmo ofício escrito
+ *    com outra palavra — "Cozinheiro" x "Auxiliar de cozinha",
+ *    "Serviços gerais" x "Marido de aluguel", "Vendedor" x "Atendente de
+ *    loja". Ver `sinonimosDeOficio.ts`, inclusive o porquê de ser
+ *    dicionário e não IA.
+ *
+ *    Sem os 60 pontos do ofício a nota cai da faixa da onda 1, e a vaga
+ *    nunca chega até a pessoa. É o defeito que não deixa rastro: ninguém
+ *    reclama do aviso que não recebeu.
+ *
+ *    Aqui o TÍTULO fica de fora, de propósito. Ele é frase solta
+ *    ("Vendedor para loja de material de construção") e traria ofícios de
+ *    carona — "material de construção" acenderia a família da obra, e um
+ *    pedreiro receberia a onda 1 de uma vaga de vendas. O que a empresa
+ *    respondeu em "qual profissional você procura" é a resposta à
+ *    pergunta certa.
+ */
+export function bateOficio(
+  funcoes: string[],
+  vaga: Pick<JobListing, "profession" | "specialty" | "title">
+): boolean {
+  const alvo = normalizar(`${vaga.profession ?? ""} ${vaga.specialty ?? ""} ${vaga.title ?? ""}`);
+  const profissao = normalizar(vaga.profession ?? "");
+  const oficioDaVaga = `${vaga.profession ?? ""} ${vaga.specialty ?? ""}`;
+  return funcoes.some((f) => {
+    const n = normalizar(f);
+    /* ── VAGA SEM PROFISSÃO BATIA COM TODO MUNDO — achado em 06/09 ──
+       Este `profissao.length > 2` não estava aqui, e a falta dele era um
+       defeito calado desde sempre: `n.includes("")` é SEMPRE verdadeiro,
+       porque texto vazio é pedaço de qualquer texto.
+
+       Ou seja, uma vaga com o campo "qual profissional você procura"
+       vazio ganhava os 60 pontos do ofício com QUALQUER cadastro — e 60
+       pontos é o que joga a pessoa na faixa da onda 1. Uma vaga mal
+       preenchida disparava para a cidade inteira.
+
+       O formulário marca o campo como obrigatório, então isso não
+       acontece pelo caminho normal. Mas linha antiga, importação e vaga
+       criada antes da regra passam por fora do formulário — e o app não
+       pode depender de a tela ter feito o trabalho do banco. */
+    if (n.length > 2 && (alvo.includes(n) || (profissao.length > 2 && n.includes(profissao)))) {
+      return true;
+    }
+    return mesmoOficio(f, oficioDaVaga);
+  });
 }
 
 /**
@@ -130,15 +196,7 @@ export function calcular(
     vale?: boolean;
   }[] = [];
 
-  const alvo = normalizar(`${vaga.profession ?? ""} ${vaga.specialty ?? ""} ${vaga.title ?? ""}`);
-  const bateFuncao = quem.funcoes.some((f) => {
-    const n = normalizar(f);
-    /* Nos dois sentidos: "auxiliar de cozinha" no cadastro casa com a
-       vaga de "cozinha", e a vaga de "auxiliar de cozinha" casa com quem
-       se cadastrou só como "cozinha". Uma comparação de igualdade exata
-       perderia as duas. */
-    return n.length > 2 && (alvo.includes(n) || n.includes(normalizar(vaga.profession ?? "")));
-  });
+  const bateFuncao = bateOficio(quem.funcoes, vaga);
   /* O ofício conta SEMPRE, marcado ou não.
      ────────────────────────────────────
      Antes ele obedecia à marcação como os outros, e isso abria um buraco

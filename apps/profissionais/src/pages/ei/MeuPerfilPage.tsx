@@ -11,6 +11,7 @@ import { Pagina, Callout } from "../../components/ei/Pagina";
 import { AjustarFoto } from "../../components/ei/AjustarFoto";
 import { uploadProfessionalPhoto } from "../../lib/storage";
 import { CATEGORIES, CITIES, DEFAULT_CITY, MAX_FUNCOES, DISPONIBILIDADE, PERIODOS_DE_SALARIO } from "../../types/domain";
+import { familiasDoTexto } from "../../lib/sinonimosDeOficio";
 import {
   lerMeuPerfil,
   escolherCadastro,
@@ -694,8 +695,29 @@ export function MeuPerfilPage() {
      pessoa está no meio de digitar. */
   const podeCriar = escrita.length >= 3 && !jaExisteNaLista && !jaMarcada && !cheio;
 
-  /** A função não está na lista fechada — logo, não recebe onda ainda. */
+  /** A função foi escrita pela pessoa, e não escolhida da lista. */
   const foraDaLista = (f: string) => !CATEGORIES.includes(f);
+
+  /* ── QUANDO A FUNÇÃO ESCRITA À MÃO ALCANÇA VAGA — 06/09 ─────────────
+     Até hoje "fora da lista" e "não recebe vaga" eram a mesma coisa, e o
+     aviso lá embaixo dizia isso. As duas premissas dele caíram:
+
+     1. a empresa NÃO escolhe de uma lista fechada. O campo da vaga é um
+        `input` com `list` — a lista sugere e ela digita o que quiser (ver
+        `CriarVagaPage`). Então quem escreveu "Soldador" sempre alcançou a
+        vaga em que a empresa também escreveu "Soldador";
+     2. desde 06/09 existe o dicionário de sinônimos
+        (`sinonimosDeOficio.ts`), e por ele "Soldador" alcança também a
+        vaga de "Serralheiro".
+
+     Sobrou um caso só, e é este que o aviso deve descrever: a palavra que
+     o dicionário não conhece. Aí sim a vaga só chega se a empresa
+     escrever exatamente igual.
+
+     Dizer "não chega" para quem escreveu "Soldador" seria mentir na
+     direção que faz desistir. */
+  const dicionarioConhece = (f: string) => familiasDoTexto(f).size > 0;
+  const soSeEscreverIgual = (f: string) => foraDaLista(f) && !dicionarioConhece(f);
 
   function criarFuncao() {
     const nome = escrita;
@@ -1516,9 +1538,11 @@ export function MeuPerfilPage() {
                   aria-pressed={true}
                   onClick={() => alternar(f)}
                   title={
-                    foraDaLista(f)
-                      ? "Função escrita por você — ainda não recebe vaga por ela"
-                      : undefined
+                    soSeEscreverIgual(f)
+                      ? "Escrita por você — a vaga só chega se a empresa escrever igual"
+                      : foraDaLista(f)
+                        ? "Escrita por você — e a vaga chega por ela"
+                        : undefined
                   }
                 >
                   {f} <span aria-hidden="true">✕</span>
@@ -1527,16 +1551,17 @@ export function MeuPerfilPage() {
             </div>
           )}
 
-          {/* O aviso que impede a mentira calma. Ver o comentário de
-              `criarFuncao`: a onda cruza o que a pessoa marcou com a
-              profissão que a EMPRESA escolheu de uma lista fechada, então
-              função escrita à mão não cruza com nada — e sem esta linha a
-              pessoa esperaria para sempre uma vaga que não vem. */}
-          {funcoes.some(foraDaLista) && (
+          {/* O aviso que impede a mentira calma — reescrito em 06/09.
+              Ele dizia que NENHUMA função escrita à mão recebia vaga, o
+              que deixou de ser verdade: ver `soSeEscreverIgual` acima. A
+              versão antiga fazia desistir quem já estava alcançado. */}
+          {funcoes.some(soSeEscreverIgual) && (
             <p className="ei-apoio" style={{ marginTop: 10 }}>
-              As funções com <strong>+</strong> foram escritas por você. Elas
-              aparecem no seu perfil para quem procurar, mas a vaga ainda não
-              chega por elas — mandamos para a gente incluir na lista.
+              Você escreveu{" "}
+              <strong>{funcoes.filter(soSeEscreverIgual).join(", ")}</strong>. Aparece
+              no seu perfil para quem procurar, mas a vaga só chega se a empresa
+              escrever essa mesma palavra. Se puder, marque também uma função
+              parecida da lista.
             </p>
           )}
 

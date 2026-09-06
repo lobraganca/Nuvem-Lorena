@@ -11,7 +11,7 @@ import type { JobResponse } from "../types/domain";
 import { registrarVisita } from "../lib/quemMeViu";
 import { obterVaga } from "../lib/company";
 import type { JobListing } from "../types/domain";
-import { normalizar, ESCADA_ESCOLARIDADE } from "../lib/compatibilidade";
+import { normalizar, bateOficio, ESCADA_ESCOLARIDADE } from "../lib/compatibilidade";
 import { BotaoFavorito } from "../components/ei/BotaoFavorito";
 import { lerFavoritos } from "../lib/favoritos";
 
@@ -323,14 +323,11 @@ export function PerfilPublicoPage() {
      de confiar nos dois números. */
   const v = vagaDeOrigem;
   const bate = {
-    oficio:
-      v == null
-        ? undefined
-        : funcoes.some((f) => {
-            const n = normalizar(f);
-            const alvo = normalizar(`${v.profession ?? ""} ${v.specialty ?? ""} ${v.title ?? ""}`);
-            return n.length > 2 && (alvo.includes(n) || n.includes(normalizar(v.profession ?? "")));
-          }),
+    /* A MESMA função da conta, e não uma cópia dela — 06/09. Era uma
+       cópia, letra por letra, e o dicionário de sinônimos ia deixá-la
+       para trás na hora: a nota diria 85% e o ofício apareceria sem
+       visto, na mesma tela, para a mesma pessoa. */
+    oficio: v == null ? undefined : bateOficio(funcoes, v),
     cidade: v == null ? undefined : normalizar(p.city ?? "") === normalizar(v.city ?? ""),
     modo:
       v == null || !v.work_modality || !p.modo_trabalho
