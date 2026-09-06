@@ -341,7 +341,18 @@ const VAGAS: Linha[] = [
   skills: [],
   salary_range_min: null,
   salary_range_max: null,
-  city: "Itabirito",
+  /* ── NEM TODA VAGA É DE ITABIRITO — 06/09 ─────────────────────────
+     Eram todas, e o efeito era o mesmo que os cadastros tinham antes de
+     05/09: o seletor de cidade do banco de vagas NUNCA aparecia, porque
+     ele só existe quando há mais de uma cidade para escolher. O teste
+     dizia "não achei o filtro" e não havia como saber se era a regra
+     funcionando ou a peça quebrada — e foi exatamente o que aconteceu ao
+     conferir a cor laranja dele.
+
+     Uma em cada quatro de Ouro Preto: chega para o seletor existir, e
+     pouco o bastante para Itabirito continuar sendo a lista que quase
+     todo teste vê. */
+  city: i % 4 === 2 ? "Ouro Preto" : "Itabirito",
   uf: "MG",
   neighborhood: "Centro",
   anunciada_ate: null,

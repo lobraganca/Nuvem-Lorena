@@ -8450,6 +8450,43 @@
 .ei .ei-cidade-alfinete,
 .ei .ei-cidade-seta { display: inline-flex; color: var(--ei-tinta-fraca); }
 
+/* ── O FILTRO DE CIDADE FICA LARANJA — 06/09 ─────────────────────────
+   A dona: "o filtro das cidades podem fixar na cor laranja."
+
+   Ele era mais um botão de contorno cinza numa faixa que já tem o
+   "Filtros" e a contagem, e some no meio dos três. Só que ele não é
+   igual aos outros: os outros afinam a lista, e este diz DE ONDE ela é —
+   e o app inteiro depende dessa resposta estar certa. Alguém procurando
+   pedreiro em Itabirito e vendo a lista de Ouro Preto não descobre isso
+   por acaso.
+
+   Laranja, e não a cor da marca: azul aqui somaria com os botões azuis
+   da tela e o filtro continuaria escondido no meio deles. E não vermelho
+   — desde 06/09 o vermelho é a cor do DESTAQUE pago ("Em alta"), e um
+   filtro de cidade vermelho leria como área paga.
+
+   Fundo fraco e não cheio: um botão laranja sólido numa faixa de
+   ferramentas pesa mais que a lista que ele filtra, e a lista é o
+   assunto da tela.
+
+   O alfinete e a seta pegam a mesma cor por herança — sem a regra abaixo
+   eles continuariam cinzas dentro de um botão laranja, que é o tipo de
+   meio-conserto que fica pior que não ter mexido. */
+.ei .ei-cidade-botao {
+  border-color: var(--ei-laranja);
+  background: var(--ei-laranja-fraco);
+  color: var(--ei-sobre-laranja-fraco);
+}
+.ei .ei-cidade-botao .ei-cidade-alfinete,
+.ei .ei-cidade-botao .ei-cidade-seta {
+  color: inherit;
+}
+/* No toque ele escurece o próprio laranja, e não cai no cinza do
+   `--ei-afunda` — que faria o botão piscar de cor ao ser tocado. */
+.ei .ei-cidade-botao:active {
+  background: #f7d9c8;
+}
+
 .ei-cidade-lista { display: grid; gap: 2px; }
 .ei-cidade-opcao {
   display: flex;
