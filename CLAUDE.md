@@ -191,7 +191,10 @@ que é onde nasce o erro de aplicar no banco do Avena:
 https://supabase.com/dashboard/project/ahigenhenzmsjxlmrzhz/sql/new
 ```
 
-- Numeração sequencial: a última hoje é a `0127` (`professionals.visto_em`,
+- Numeração sequencial: a última hoje é a `0128`
+  (`professionals.consentimento_em` e `consentimento_versao` — o aceite de
+  divulgação que a caixinha antes do Salvar grava). Antes dela, a `0127`
+  (`professionals.visto_em`,
   para saber quem sumiu). A `0126` criou a função do termômetro do emprego,
   que **saiu do app em 06/09** — a dona não gostou da tela. A função ficou
   no banco de quem já aplicou: ela não é chamada por ninguém e não atrapalha
@@ -199,7 +202,8 @@ https://supabase.com/dashboard/project/ahigenhenzmsjxlmrzhz/sql/new
   `0125` (quantas pessoas o app já empregou), a `0124` (reembolso
   encerrando o plano sozinho) e a `0123` (teste grátis da empresa, e o
   plano deixando de ser editável pela própria empresa). **Da 0123 à 0126
-  estão aplicadas** — confirmado pela dona em 06/09.
+  estão aplicadas** — confirmado pela dona em 06/09. **A 0127 e a 0128
+  ainda não** — as duas foram mandadas no chat e esperam ela colar.
 - `supabase/banco-completo.sql` **está desatualizado** (para na 0051). Serve
   para montar um banco do zero até ali, não como retrato do que está no ar.
 - Edge Functions ficam em `supabase/functions/` e sobem pelo workflow.
