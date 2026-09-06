@@ -148,6 +148,18 @@ const LIVRES = [
      um do suporte é "não recebi o código", e trancar a resposta dela
      atrás da conta é trancá-la atrás do próprio problema. */
   "/ajuda",
+  /* ── A EXCLUSÃO DE CONTA — 06/09 ────────────────────────────────
+     A tela `/excluir-conta` foi ESCRITA para ser pública — o próprio
+     comentário dela diz isso, e diz por quê: a Google Play exige um
+     endereço, informado na ficha da loja, onde qualquer um entenda como
+     apagar a conta. Ela só nunca entrou nesta lista, e o resultado é que
+     o endereço exigido pela loja mandava o visitante para o login.
+
+     Quem mais precisa dessa página é justamente quem NÃO consegue mais
+     entrar — e é ela que o revisor da Google abre, deslogado, antes de
+     aprovar. Medido no navegador: `/excluir-conta` terminava em
+     `/login`. */
+  "/excluir-conta",
 ];
 
 /**

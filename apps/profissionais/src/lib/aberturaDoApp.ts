@@ -69,6 +69,10 @@ const COMPARTILHAVEIS = [
      pergunta mais comum do suporte é "não recebi o código" — desviar essa
      pessoa para a tela de entrar seria devolvê-la ao problema. */
   "/ajuda",
+  /* Pelo mesmo motivo, e mais um: este é o endereço que fica escrito na
+     ficha da Play Store. Quem chega por ele veio de fora, com uma coisa
+     só na cabeça. */
+  "/excluir-conta",
   "/login",
   "/onboarding-tipo",
 ];
