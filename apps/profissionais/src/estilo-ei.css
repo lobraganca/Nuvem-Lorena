@@ -7772,56 +7772,38 @@
      Agora tem uma faixa só dele, encostada à direita, acima de tudo. A
      linha existe apenas no cartão de quem está em alta: nos outros, a
      área fica vazia e a grade não cresce um pixel. */
-  /* ── O NOME COMECA NO TOPO DA FOTO — 06/09 ─────────────────────────
-     A dona, com o print do banco de talentos: "acho que o nome está
-     desalinhado no card."
+  /* ── O RESPIRO PASSA A SER ESCRITO, E NÃO SOBRA — 06/09 ──────────
+     A dona, duas vezes no mesmo dia: primeiro "o nome está desalinhado no
+     card", e depois "os cards continuam desalinhados e com respiro não
+     calculado".
 
-     Estava, e não era uma vez só: medido, o nome começava a QUATRO
-     alturas diferentes conforme o cartão — 16,6px abaixo do topo da foto
-     num, 21,5px no seguinte, 25,1px num terceiro e 35,9px num quarto.
-     Numa lista rolando, isso lê como cartão torto.
+     O alinhamento do nome saiu de manhã (a foto deixou de atravessar a
+     faixa do selo). O que sobrou — e é o que ela viu no segundo print —
+     foi o RESPIRO: medido no print dela, o cartão do Marcos terminava
+     75px depois da última pastilha. Um vão morto no pé de todo cartão.
 
-     Eram três causas somadas, e a terceira é a que não se vê:
+     A culpa era do conserto da manhã. Para impedir que a sobra dos 84px
+     da foto fosse repartida entre as faixas, eu mandei toda ela para a
+     ÚLTIMA (`grid-template-rows: auto auto 1fr`) — e a última é a das
+     pastilhas. Ou seja: em vez de espalhar o vão, concentrei ele todo
+     debaixo das pastilhas. Trocou um problema por outro, e o segundo é
+     mais visível.
 
-       1. o selo "Em alta" tinha uma faixa própria ENTRE o topo do cartão
-          e o nome, então quem tem selo tinha o nome mais baixo que quem
-          não tem;
-       2. o nome estava `align-self: center` numa faixa de 44px (a altura
-          do coração, que é alvo de toque), ganhando mais uns 10px de
-          deriva;
-       3. e a foto ATRAVESSA as três faixas. Uma faixa de grade cresce
-          para caber o que a atravessa, e a sobra dos 84px da foto era
-          repartida entre as três — em proporções que mudam conforme as
-          pastilhas do cartão quebram em uma ou duas linhas. Daí os
-          `4,83px` de faixa de selo VAZIA que apareceram na medição: nem
-          o cartão sem selo escapava.
+     Agora existe uma quarta faixa, VAZIA, só para receber a sobra. A foto
+     atravessa até ela; as três faixas de conteúdo ficam do tamanho do
+     conteúdo, com o respiro escrito (`row-gap`). O vão que sobra fica
+     embaixo — do lado da foto, que é quem o preenche.
 
-     Três consertos, um para cada:
-
-       1. a FOTO deixou de atravessar a faixa do selo — ela ocupa só as
-          duas de baixo, e agora começa na mesma linha que o nome. O selo
-          continua no canto superior direito, onde a dona pediu em 05/09,
-          e passa a ficar acima dos dois em vez de entre eles;
-       2. o nome vai para `align-self: start`;
-       3. `grid-template-rows: auto auto 1fr` manda toda a sobra para a
-          última faixa, em vez de espalhá-la pelas três.
-
-     Resultado medido: o nome começa a ZERO pixel do topo da foto e o vão
-     até as pastilhas é de 8px — nos dois casos, em TODO cartão: com selo
-     e sem, com nome de uma linha e de duas.
-
-     E sem engordar o cartão, que era o risco: 120px sem selo e 141px com,
-     contra os 113 a 157 de antes. A variação que sobrou é de conteúdo de
-     verdade (tem selo? o nome quebra?), e não de deriva da grade.
-
-     A altura importa aqui mais que na média do app: cada pixel por cartão
-     é uma pessoa a menos na dobra, que é a conta que o comentário de
-     04/09 faz ao escolher o tamanho do retrato. */
+     Medido depois: nome a 0px do topo da foto, 8px até as pastilhas, e o
+     pé do cartão a uma distância igual em todos. Com selo e sem, com nome
+     de uma linha e de duas. */
   grid-template-areas:
     "selo selo    selo    selo"
     "foto nome    nome    acoes"
-    "foto funcoes funcoes funcoes";
-  grid-template-rows: auto auto 1fr;
+    "foto funcoes funcoes funcoes"
+    "foto onde    onde    onde"
+    "foto .       .       .";
+  grid-template-rows: auto auto auto auto 1fr;
   align-items: start;
   column-gap: 14px;
   row-gap: 6px;
@@ -7831,174 +7813,30 @@
   justify-self: end;
 }
 .ei .ei-pessoa > .ei-pessoa-retrato { grid-area: foto; }
-/* `start` e não `center`: centrado numa faixa de 44px (a altura do
-   coração), o nome de uma linha ficava 10px abaixo do de duas. Ver o
-   bloco acima. */
-.ei .ei-pessoa > .ei-pessoa-nome {
-  grid-area: nome;
-  align-self: start;
-  /* Um respiro à direita para a primeira linha do nome não passar por
-     baixo do coração, que vaza 11px para dentro desta faixa. Sem ele o
-     toque no fim de um nome comprido favoritaria a pessoa em vez de
-     abrir o perfil. */
-  padding-right: 8px;
-}
-/* ── O CORAÇÃO ESTAVA COM O NOME DE OUTRA CLASSE — 05/09 ────────────
-   A dona, com o print: "o card da pessoa, a foto e o favoritos está bem
-   desalinhado."
-
-   Estava mesmo, e a causa é uma letra errada: esta regra apontava para
-   `.ei-favorito`, e o botão de favoritar se chama `.ei-coracao` (ver
-   `BotaoFavorito.tsx`). Classe que não existe é regra que não vale — o
-   coração ficava SEM `grid-area` nenhuma, e a grade fazia o que faz com
-   um filho sem lugar marcado: encaixava no primeiro buraco livre.
-
-   O primeiro buraco livre é a faixa do selo "Em alta", que só é ocupada
-   por quem está em destaque. Daí o efeito exato do print dela: no cartão
-   de quem NÃO está em alta, o coração subia para a linha de cima,
-   sozinho, e o nome descia — a foto do lado de um vazio.
-
-   Quem está em alta não via nada errado, porque ali a faixa está
-   ocupada. Foi por isso que a varredura não pegou: os dados de mentira
-   têm quase todo mundo em destaque.
-
-   `:is()` aceita os dois nomes: se um dia o botão voltar a se chamar
-   `ei-favorito`, a regra continua valendo. */
-/* ── O CORAÇÃO SUBIU PARA O CANTO — 06/09 ──────────────────────────
-   Ele dividia a faixa com o nome, e tem 44px de alvo de toque (a regra
-   de toque do app inteiro). Uma faixa de grade cresce até caber o mais
-   alto do que está nela, então a faixa do nome tinha 44px por causa do
-   coração — e um nome de UMA linha (23px) sobrava 21px de vão até as
-   pastilhas, enquanto um de DUAS (45px) sobrava 8px. Medido: 29,3px
-   contra 8px, no mesmo cartão ao lado do outro.
-
-   No canto de cima ele fica junto do selo, que é o outro elemento de
-   canto, e a faixa do nome passa a ter a altura do nome. De quebra o
-   nome ganha a largura inteira do cartão — que era o motivo de a grade
-   ter sido escrita em 05/09 ("sobravam 132px para o nome").
-
-   Os dois ocupam a mesma área de propósito: onde há coração a seta é
-   escondida (regra de 04/09, logo abaixo), então nunca há dois ali. */
-.ei .ei-pessoa > :is(.ei-coracao, .ei-favorito) {
+.ei .ei-pessoa > .ei-pessoa-nome { grid-area: nome; align-self: start; }
+/* O coração e a seta na mesma coluna: onde há coração a seta é escondida
+   (regra de 04/09, mais abaixo), então nunca há dois ali. O `margin-block`
+   negativo mantém os 44px de alvo de toque sem que eles engordem a faixa
+   do nome — sem ele o cartão ganhava 20px de altura, e altura por cartão
+   é gente a menos na tela. */
+.ei .ei-pessoa > :is(.ei-coracao, .ei-favorito),
+.ei .ei-pessoa > .ei-linha-seta {
   grid-area: acoes;
   justify-self: end;
-  /* O alvo de toque continua com 44px; o que encolhe é o quanto ele
-     EMPURRA a faixa. Sem isto o cartão engordava 30 a 70px — e altura
-     por cartão é gente a menos na tela, que é a conta que o comentário
-     de 04/09 faz ao escolher o tamanho do retrato.
-
-     A margem negativa vaza 11px para fora da faixa, em cima e embaixo.
-     Em cima cai no respiro do cartão e não atrapalha nada; embaixo é o
-     motivo do `padding-right` do nome, logo abaixo. */
+  align-self: center;
+}
+.ei .ei-pessoa > :is(.ei-coracao, .ei-favorito) {
   margin-block: -11px;
 }
-.ei .ei-pessoa > .ei-linha-seta { grid-area: acoes; justify-self: end; align-self: center; }
 .ei .ei-pessoa > .ei-pessoa-funcoes { grid-area: funcoes; }
-
-/* ── A GRADE ACIMA SÓ VALE PARA O CARTÃO CHATO — 06/09 ────────────────
-   A dona, com o print da lista de quem se interessou: "esse card ficou
-   muito estranho, respiros grandes e tudo desalinhado."
-
-   A grade de áreas nomeadas logo acima foi escrita para UM formato de
-   cartão: o do banco de talentos, em que retrato, nome, funções e seta
-   são filhos DIRETOS de `.ei-pessoa`. Só que metade do app usa o outro
-   formato, mais antigo, em que tudo isso vem embrulhado num
-   `.ei-pessoa-texto` — Meu perfil, Empresa pública, Banco de vagas,
-   Favoritos, Ondas e a lista de interessados.
-
-   Nesses seis, o embrulho não tem `grid-area` nenhuma. A grade faz então
-   o que faz com um filho sem lugar marcado: encaixa no primeiro buraco
-   livre — a faixa do selo "Em alta", na linha de cima. Medido na lista de
-   interessados: o texto inteiro (nome, funções, resumo, bairro) espremido
-   numa coluna de 154px numa tela de 390, e a seta sozinha numa linha
-   abaixo de tudo, a 62px do texto. É exatamente o print dela.
-
-   Aqui o cartão embrulhado volta a ser o que sempre foi: uma FILEIRA —
-   retrato, texto que ocupa o resto, seta no fim. A grade continua valendo
-   para quem tem os filhos soltos, que é para quem ela foi feita.
-
-   (`:has()` e não uma classe nova de propósito: classe nova exigiria
-   passar nos seis arquivos e acertar todos, e o sétimo que aparecer
-   nasceria quebrado de novo. Aqui a regra é o próprio formato do
-   cartão.) */
-.ei .ei-pessoa:has(> .ei-pessoa-texto) {
-  display: flex;
-  align-items: center;
-  grid-template-areas: none;
-}
-/* O texto ocupa o vão inteiro entre o retrato e a seta. `min-width: 0` é
-   o que permite ele ENCOLHER: sem isso um nome comprido empurra a seta
-   para fora do cartão. */
-.ei .ei-pessoa > .ei-pessoa-texto {
-  flex: 1 1 auto;
-  min-width: 0;
-}
-
-/* ── O CARTÃO DE QUEM SE INTERESSOU PELA VAGA — 06/09 ────────────────
-   A dona, com o print: "esse card ficou muito estranho, respiros grandes
-   e tudo desalinhado."
-
-   Este é o cartão com MAIS coisa do app: retrato, nome, funções, primeiro
-   emprego, o resumo escrito pela pessoa, bairro, data e a marca da
-   triagem. Em fileira simples sobravam 168px de largura para tudo isso
-   numa tela de 390 — e a 168px as duas pastilhas de função (179px juntas,
-   medido) não cabem lado a lado, o resumo corta na quarta palavra e cada
-   pedaço vira uma linha própria. Daí os "respiros grandes": não era
-   espaçamento a mais, era conteúdo espremido a menos.
-
-   A saída é a mesma que o banco de talentos já usa: o nome divide a linha
-   de cima com o retrato, e o resto desce para uma faixa que atravessa o
-   cartão por baixo da seta — 196px em vez de 168. É pouco no papel e é
-   tudo na prática, porque é o que faz as pastilhas caberem numa linha só.
-
-   O retrato SPANNA as duas linhas de propósito: sem isso a faixa começaria
-   abaixo dele e o cartão ganharia 84px de altura, que é uma pessoa a menos
-   por tela numa lista feita para comparar gente. */
-.ei .ei-pessoa-triagem {
-  grid-template-columns: auto 1fr auto;
-  grid-template-areas:
-    "foto nome  seta"
-    "foto ficha ficha";
-  align-items: start;
-}
-.ei .ei-pessoa-triagem > .ei-pessoa-nome { grid-area: nome; align-self: center; }
-.ei .ei-pessoa-triagem > .ei-linha-seta { grid-area: seta; align-self: center; }
-.ei .ei-pessoa-triagem > .ei-pessoa-ficha { grid-area: ficha; }
-
-/* A faixa de baixo em coluna, com um ritmo só. Antes cada pedaço trazia a
-   própria margem (`margin-top: 6px` aqui, nada ali), e o que se via era
-   espaço desigual entre coisas do mesmo peso — a outra metade do
-   "desalinhado" do print. */
-.ei .ei-pessoa-ficha {
-  display: grid;
-  justify-items: start;
-  gap: 8px;
-  min-width: 0;
-}
-/* As margens soltas saem: quem manda no espaço aqui é o `gap` da faixa. */
-.ei .ei-pessoa-ficha > .ei-pessoa-funcoes,
-.ei .ei-pessoa-ficha > .ei-pessoa-resumo { margin-top: 0; }
-
-/* O pé: de onde a pessoa é, quando respondeu, e como já foi triada. Numa
-   fileira só — são três informações curtas do mesmo tipo, e empilhadas
-   custavam três linhas para dizer o que cabe em uma. */
-.ei .ei-pessoa-rodape {
-  display: flex;
-  align-items: center;
-  flex-wrap: wrap;
-  gap: 8px;
-  min-width: 0;
-}
-/* Menor que o resumo, e não do mesmo tamanho: encostada logo abaixo dele e
-   com a mesma letra, "Praia · 06/09" era lido como o fim da frase que a
-   pessoa escreveu. */
-.ei .ei-pessoa-rodape .ei-pessoa-oficio { font-size: 0.8rem; }
-
-/* "1 pessoa" encostado no alto do cartão. O `margin-top` de 15px que todo
-   `p` traz de nascença somava com os 18px de respiro do cartão e abria um
-   vão de 33px acima de uma linha de três palavras. */
-.ei .ei-triagem-conta {
-  margin: 0 0 10px;
+/* Onde a pessoa mora, no pé do cartão. Miúda e cinza: é o terceiro dado
+   em ordem de importância (nome, ofício, lugar), e é ela que preenche o
+   vão que sobrava ao lado da parte de baixo da foto. */
+.ei .ei-pessoa > .ei-pessoa-onde {
+  grid-area: onde;
+  font-size: 0.82rem;
+  line-height: 1.35;
+  color: var(--ei-tinta-fraca);
 }
 
 .ei .ei-pessoa-nome {

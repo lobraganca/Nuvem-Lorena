@@ -498,6 +498,37 @@ export function ProfissionaisPage() {
                       </span>
                     )}
                   </div>
+
+                  {/* ── ONDE A PESSOA MORA — 06/09 ─────────────────────
+                      A dona: "melhore a visão e faça os cards mais
+                      bonitos."
+
+                      O que fazia o cartão parecer inacabado era o vazio à
+                      direita, na altura de baixo da foto: o retrato tem
+                      84px e nome + pastilhas somavam uns 57. Dava para
+                      encolher a foto, e seria o conserto errado — o
+                      tamanho dela foi escolhido em 04/09 para o rosto ser
+                      RECONHECÍVEL, que numa cidade pequena é metade do
+                      motivo de a lista existir.
+
+                      Então o vazio foi preenchido com informação, e com a
+                      que decide contratação aqui: onde a pessoa mora. Num
+                      lugar onde o ônibus para o distrito passa duas vezes
+                      por dia, "Centro" e "Vila Rica" não são a mesma
+                      candidata — e até hoje isso só aparecia depois de
+                      abrir a ficha.
+
+                      A cidade entra só quando é OUTRA: numa lista que já
+                      está filtrada por Itabirito, repetir "Itabirito" em
+                      sessenta cartões é sessenta linhas que não informam
+                      nada. */}
+                  {(p.neighborhood?.trim() || p.city?.trim()) && (
+                    <div className="ei-pessoa-onde ei-uma-linha">
+                      {[p.neighborhood?.trim(), cidade ? null : p.city?.trim()]
+                        .filter(Boolean)
+                        .join(" · ")}
+                    </div>
+                  )}
                 </Link>
               );
   };
