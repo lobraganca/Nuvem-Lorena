@@ -1,4 +1,4 @@
-import type { ReactNode } from "react";
+import { useState, type ReactNode } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { telaAnterior } from "../../lib/historicoDoApp";
 
@@ -86,6 +86,7 @@ export function Pagina({
   children?: ReactNode;
 }) {
   const navegar = useNavigate();
+  const [fotoAberta, setFotoAberta] = useState(false);
   /* `history.length > 1` responde "há um passo para desfazer?". Numa aba
      aberta direto no endereço da tela, ele é 1 e a seta não aparece. */
   const temHistorico = typeof window !== "undefined" && window.history.length > 1;
@@ -121,16 +122,62 @@ export function Pagina({
             </svg>
           </Link>
         )}
+        {/* ── A FOTO ABRE — 06/09 ─────────────────────────────────────
+            A dona: "dentro do app não tem como a empresa ver a foto da
+            pessoa, não tem onde abrir pra ver."
+
+            Não tinha mesmo. A foto existia só aqui, num quadrado de 30px
+            dentro da barra, e `aria-hidden` — ou seja, nem para quem usa
+            leitor de tela ela existia. Numa cidade em que quem contrata
+            muitas vezes RECONHECE a pessoa antes de ler o nome, esconder
+            o rosto atrás de 30 pixels é esconder metade do cadastro.
+
+            Agora ela é um botão: toca e abre inteira. O alvo continua
+            sendo o mesmo quadradinho da barra — o que muda é ele passar a
+            responder ao toque, e dizer isso a quem não vê. */}
         {foto && (
-          <span className="ei-barra-foto" aria-hidden="true">
+          <button
+            type="button"
+            className="ei-barra-foto ei-barra-foto-abre"
+            onClick={() => setFotoAberta(true)}
+            aria-label={`Ver a foto de ${titulo}`}
+          >
             <img src={foto} alt="" />
-          </span>
+          </button>
         )}
         <h1 className="ei-barra-titulo">{titulo}</h1>
         {acao && <div className="ei-barra-acao">{acao}</div>}
       </div>
 
       {children}
+
+      {/* O visor. Fundo preto e a foto no meio, sem moldura e sem botão de
+          fechar desenhado: toca em qualquer lugar e fecha. É o gesto que
+          toda galeria de celular ensina, e um "X" no canto seria mais uma
+          coisa para acertar com o dedo.
+
+          `role="dialog"` e o Esc para quem está no computador — a mesma
+          tela serve os dois, e fechar só por toque deixaria alguém preso
+          num retrato em tela cheia. */}
+      {fotoAberta && foto && (
+        <div
+          className="ei-visor-foto"
+          role="dialog"
+          aria-modal="true"
+          aria-label={`Foto de ${titulo}`}
+          tabIndex={-1}
+          ref={(el) => el?.focus()}
+          onClick={() => setFotoAberta(false)}
+          onKeyDown={(e) => {
+            if (e.key === "Escape" || e.key === "Enter" || e.key === " ") {
+              setFotoAberta(false);
+            }
+          }}
+        >
+          <img src={foto} alt={`Foto de ${titulo}`} />
+          <span className="ei-visor-foto-nota">Toque para fechar</span>
+        </div>
+      )}
     </>
   );
 }

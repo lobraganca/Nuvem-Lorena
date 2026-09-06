@@ -38,7 +38,6 @@ import type { JobListing } from "../types/domain";
    também quem a onda avisa, e duas cópias da mesma fórmula divergiriam
    sem ninguém perceber — a tela diria 82% e a onda trataria como 60%. */
 import { calcular, ESCADA_ESCOLARIDADE, type QuemOlha } from "./compatibilidade";
-import { vagaEmDestaque } from "./destaque";
 import { lerTolerando } from "./colunasNovas";
 
 export type VagaNoBanco = {
@@ -64,6 +63,10 @@ export type VagaNoBanco = {
  * das telas em que a mentira calada custa o emprego de alguém.
  */
 export async function bancoDeVagas(userId?: string): Promise<VagaNoBanco[]> {
+  /* O bairro de quem está olhando, para o desempate da ordem (ver o fim
+     desta função). Vazio quando não há cadastro ou o campo está em
+     branco — e aí o desempate simplesmente não acontece. */
+  let meuBairro = "";
   const sb = supabase();
   /* Sem cliente do Supabase, o erro SOBE — nunca vira lista vazia.
      ─────────────────────────────────────────────────────────────────
@@ -137,7 +140,10 @@ export async function bancoDeVagas(userId?: string): Promise<VagaNoBanco[]> {
     const { data: perfis, error: erroPerfil } = await sb
       .from("professionals")
       .select(
-        "id, areas_de_interesse, city, modo_trabalho, cnh, cnh_categorias, " +
+        /* `neighborhood` entra em 06/09 para o desempate por bairro, lá
+           embaixo. Ele NÃO entra na conta de compatibilidade — ver o
+           comentário da ordenação. */
+        "id, areas_de_interesse, city, neighborhood, modo_trabalho, cnh, cnh_categorias, " +
           "aceita_viajar, inicio_imediato, fim_de_semana, " +
           "pretensao_centavos, pretensao_combinar, disponibilidade"
       )
@@ -148,6 +154,7 @@ export async function bancoDeVagas(userId?: string): Promise<VagaNoBanco[]> {
     const p = (perfis ?? [])[0] ?? null;
     if (p) {
       const linha = p as Record<string, any>;
+      meuBairro = String(linha.neighborhood ?? "").trim();
 
       /* A escolaridade não é coluna: é a maior das linhas de FORMAÇÃO na
          `professional_courses` (0104). Numa consulta à parte porque o
@@ -220,22 +227,58 @@ export async function bancoDeVagas(userId?: string): Promise<VagaNoBanco[]> {
      Quem não tem cadastro vê a lista em ordem cronológica, que é a única
      ordem honesta para quem o app ainda não conhece. */
   if (quem) {
-    lista.sort((a, b) => (b.compatibilidade ?? 0) - (a.compatibilidade ?? 0));
+    /* ── E O BAIRRO DESEMPATA — 06/09 ────────────────────────────────
+       A dona: "o app deve utilizar a localização para sugerir vagas
+       melhores aos candidatos. A tela de vagas está vindo marcado a
+       cidade. Utilize dessa localização."
+
+       A CIDADE já valia 25 pontos na conta desde sempre. O que não era
+       usado é o BAIRRO — e em Itabirito ele decide: o ônibus para o
+       distrito passa duas vezes por dia, e uma vaga no Centro e outra na
+       Praia não são a mesma oferta para quem mora no Centro.
+
+       Ele entra como DESEMPATE, e não como pontos, de propósito. A conta
+       de compatibilidade é a mesma nas três telas do app e é ela que
+       decide quem recebe a onda: mexer nos pesos aqui mudaria quem é
+       avisado de cada vaga na cidade inteira, que não é o que ela pediu.
+       Como desempate, ele só reordena o que já estava empatado — duas
+       vagas de 85% deixam de aparecer em ordem arbitrária e a do bairro
+       dela vem primeiro.
+
+       `localeCompare` no fim: sem um terceiro critério, duas vagas
+       empatadas nos dois primeiros ficariam na ordem que o banco
+       devolveu, que muda entre consultas. Lista que troca de ordem
+       sozinha parece defeito. */
+    const daMinhaRua = (v: VagaNoBanco) =>
+      meuBairro && String(v.vaga.neighborhood ?? "").trim().toLocaleLowerCase("pt-BR") ===
+        meuBairro.toLocaleLowerCase("pt-BR")
+        ? 1
+        : 0;
+    lista.sort(
+      (a, b) =>
+        (b.compatibilidade ?? 0) - (a.compatibilidade ?? 0) ||
+        daMinhaRua(b) - daMinhaRua(a) ||
+        (a.vaga.title ?? "").localeCompare(b.vaga.title ?? "", "pt-BR")
+    );
   }
 
-  /* ── A VAGA EM DESTAQUE VEM PRIMEIRO — 04/09 ──────────────────────
-     A dona: "também opção de dar destaque a uma vaga" (R$ 19,90 por 7
-     dias).
+  /* ── A ORDEM DA LISTA É A DA COMPATIBILIDADE, E SÓ — 06/09 ────────
+     A dona: "o em alta aparece já primeiro e depois na lista de todos
+     aparece de novo, em primeiro. Na lista onde tem todos, não há
+     necessidade de aparecer primeiro novamente. Faça isso também para as
+     empresas."
 
-     A ordenação do destaque é feita DEPOIS da de compatibilidade, e não
-     no lugar dela: dentro do grupo das destacadas, quem mais combina
-     continua na frente. Assim o dinheiro compra o topo da lista, e não a
-     ordem interna — e quem paga por uma vaga que não tem nada a ver com
-     ninguém não passa na frente de uma vaga destacada que combina.
+     Aqui havia um `sort` pondo as vagas pagas na frente. Ele nasceu em
+     04/09 ("também opção de dar destaque a uma vaga"), quando a lista era
+     uma só e o topo dela ERA o destaque.
 
-     `sort` do JavaScript é estável (garantido desde 2019), então a ordem
-     de cima sobrevive dentro de cada grupo. */
-  lista.sort((a, b) => Number(vagaEmDestaque(b.vaga)) - Number(vagaEmDestaque(a.vaga)));
+     Com a faixa própria de destaque (05/09), o `sort` virou repetição: a
+     mesma vaga no alto da faixa e de novo no alto da lista logo abaixo,
+     duas vezes seguidas, com o mesmo selo. O que se compra é a faixa.
+
+     A vaga paga continua na lista de baixo — ela não sai de lugar
+     nenhum —, agora na posição que a COMPATIBILIDADE lhe der, que é a
+     ordem que serve a quem está procurando. */
 
   return lista;
 }

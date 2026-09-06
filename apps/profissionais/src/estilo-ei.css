@@ -68,12 +68,10 @@
      que é como um app monocromático usa cor sem virar colorido. */
   /* Medido na arte da marca, igual ao --color-marca-azul. */
   --ei-marca: #12a5fa;
-  /* O laranja DA LOGO — medido na arte (`public/marca-ei.png`), como o
-     azul acima: é o tom do pingo do "i", 7203 pixels dele. Diferente do
-     `--ei-laranja` de baixo, que é um marrom-alaranjado escuro e serve
-     de TINTA; este é claro e serve de FUNDO. Os dois existem porque as
-     duas coisas são necessárias e nenhuma faz o trabalho da outra. */
-  --ei-laranja-marca: #f7a64a;
+  /* `--ei-laranja-marca` e `--ei-laranja-botao` (o mesmo laranja
+     clareado) moram mais abaixo, no bloco do tema do Ei — eu cheguei a
+     declarar o primeiro aqui em cima antes de achar o que já existia, e
+     token declarado duas vezes é o começo de duas verdades. */
   --ei-laranja: #c2410c;
   --ei-verde: #1b6b3f;
 
@@ -8317,16 +8315,19 @@
    eles continuariam cinzas dentro de um botão laranja, que é o tipo de
    meio-conserto que fica pior que não ter mexido. */
 .ei .ei-cidade-botao {
-  /* O laranja DA LOGO, cheio — a dona: "o laranja do filtro pode ser o
-     que é parecido com a logo." Era o `--ei-laranja-fraco`, um bege que
-     lembrava o tom errado.
+  /* O laranja CLARO — o mesmo `--ei-laranja-botao` das portas e dos
+     botões laranja do app. A dona pediu primeiro "o laranja parecido com
+     a logo" e eu usei o tom cheio da marca (`#f7a64a`); ela olhou e
+     disse que ficou escuro demais, pedindo "o laranja mais claro como
+     usa em outras telas".
 
-     Cheio e não fraco porque este laranja é claro: como fundo ele dá
-     6,77:1 com a tinta do app (medido), e como tinta sobre branco daria
-     2:1 — ilegível. A cor da marca só funciona aqui deste lado. */
-  border-color: var(--ei-laranja-marca);
-  background: var(--ei-laranja-marca);
-  color: var(--ei-tinta);
+     São os dois o mesmo laranja: este é a versão clareada, que já veste
+     `.ei-porta-laranja` e `.ei-btn-laranja`. Usar o token que já existe,
+     em vez de um tom só desta tela, é o que mantém o app parecendo um app
+     só. */
+  border-color: var(--ei-laranja-botao);
+  background: var(--ei-laranja-botao);
+  color: var(--ei-sobre-laranja-marca);
 }
 .ei .ei-cidade-botao .ei-cidade-alfinete,
 .ei .ei-cidade-botao .ei-cidade-seta {
@@ -8335,7 +8336,9 @@
 /* No toque ele escurece o próprio laranja, e não cai no cinza do
    `--ei-afunda` — que faria o botão piscar de cor ao ser tocado. */
 .ei .ei-cidade-botao:active {
-  background: #e89234;
+  /* O mesmo escurecido que `.ei-porta-laranja:hover` usa, para o toque
+     ter a mesma resposta em toda peça laranja do app. */
+  background: #f0982f;
 }
 
 .ei-cidade-lista { display: grid; gap: 2px; }
@@ -8682,4 +8685,51 @@
 .ei .ei-voltou-botoes {
   display: grid;
   gap: 8px;
+}
+
+/* ── A FOTO DA BARRA VIROU BOTÃO, E ABRE — 06/09 ─────────────────────
+   A dona: "dentro do app não tem como a empresa ver a foto da pessoa,
+   não tem onde abrir pra ver."
+
+   O quadradinho de 30px continua com o mesmo tamanho — ele não pode
+   crescer sem empurrar o nome da barra. O que muda é ele ser tocável, e
+   dizer isso: `cursor` e o afundar no toque. */
+.ei .ei-barra-foto-abre {
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  cursor: pointer;
+  /* Um fio branco fino em volta: sobre a barra azul, uma foto escura sem
+     contorno some, e some justamente o que a pessoa deve perceber que dá
+     para tocar. */
+  outline: 1px solid rgba(255, 255, 255, 0.55);
+  outline-offset: 0;
+}
+.ei .ei-barra-foto-abre:active { opacity: 0.75; }
+
+/* O visor: a foto inteira sobre preto. Sem moldura e sem "X" — toca em
+   qualquer lugar e fecha, que é o gesto que toda galeria de celular
+   ensina. */
+.ei .ei-visor-foto {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  display: grid;
+  place-items: center;
+  gap: 18px;
+  padding: 24px;
+  background: rgba(0, 0, 0, 0.92);
+  cursor: zoom-out;
+}
+.ei .ei-visor-foto img {
+  max-width: 100%;
+  /* Deixa lugar para a linha de baixo e para os recortes do aparelho: em
+     `100%` a foto encosta nas duas bordas e a frase some por fora. */
+  max-height: 78vh;
+  object-fit: contain;
+  border-radius: 12px;
+}
+.ei .ei-visor-foto-nota {
+  color: rgba(255, 255, 255, 0.78);
+  font-size: 0.86rem;
 }

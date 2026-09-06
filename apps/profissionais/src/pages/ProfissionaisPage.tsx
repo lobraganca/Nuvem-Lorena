@@ -359,24 +359,28 @@ export function ProfissionaisPage() {
         (p.areas_de_interesse ?? []).some((f) => f.toLocaleLowerCase("pt-BR").includes(t))
       );
     })
-      /* ── QUEM PAGOU O DESTAQUE VEM PRIMEIRO — 04/09 ──────────────────
-         A dona: "R$ 10,90 por 7 dias, daí aparece profissional em alta e
-         ele no topo."
+      /* ── E A ORDEM DA LISTA DE BAIXO É A NATURAL — 06/09 ────────────
+         A dona: "o em alta aparece já primeiro e depois na lista de todos
+         os profissionais aparece de novo, em primeiro. Na lista onde tem
+         todos, não há necessidade de aparecer primeiro novamente."
 
-         A ordem é feita AQUI e não no banco porque a lista já vem inteira
-         e é filtrada na tela (busca, ofício, bairro, as cinco chaves):
-         ordenar no `select` seria ordenar antes de filtrar, e o destaque
-         se perderia no primeiro filtro que a empresa ligasse.
+         Aqui havia um `.sort` pondo quem paga na frente. Ele nasceu em
+         04/09 ("aparece profissional em alta e ele no topo"), quando a
+         área de destaque ainda não existia — o topo da lista ERA o
+         destaque.
 
-         Entre destacados, a ordem original é mantida (mais novo
-         primeiro): sortear entre eles, como o outro app faz, é justo com
-         quem paga, mas aqui são poucos — e uma lista que muda de ordem a
-         cada toque parece defeito. */
-      .sort((a, b) => Number(destaqueValendo(b)) - Number(destaqueValendo(a)));
+         Com a área própria (05/09), o `sort` virou repetição: a mesma
+         pessoa aparecia no alto da faixa vermelha e de novo no alto da
+         lista logo abaixo, duas vezes seguidas, com o mesmo selo. Não é o
+         que ela comprou — o que ela comprou é a faixa.
+
+         Quem está em alta continua na lista de baixo (o pedido de 05/09:
+         "ALÉM de estar na lista também"), agora no lugar que a ordem
+         natural lhe der. */;
   }, [lista, filtro, cidade, oficio, bairro, ligados]);
 
-  /* As pagas primeiro, e em lista própria — ver o comentário da área de
-     destaque, mais abaixo. `visiveis` já vem ordenada com elas na frente. */
+  /* Quem paga, para a faixa própria. A lista de baixo não é ordenada por
+     destaque desde 06/09 — ver o comentário logo acima. */
   const emAlta = useMemo(() => visiveis.filter((p) => destaqueValendo(p)), [visiveis]);
   /* ── QUEM PAGA FICA NOS DOIS LUGARES — 05/09 ────────────────────────
      A dona: "para as pessoas que pagarem para estar em destaque precisam
