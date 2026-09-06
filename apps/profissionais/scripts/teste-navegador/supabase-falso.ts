@@ -1425,61 +1425,6 @@ const clienteFalso = {
        Devolve um ARRAY de uma linha, como faz o PostgREST com função que
        retorna `table`. Devolvendo o objeto solto, o app funcionaria aqui
        e mostraria "undefined pessoas" no banco de verdade. */
-    /* ── O TERMÔMETRO DO EMPREGO (0126) ───────────────────────────────
-       Três estados, e o terceiro é o que mais importa:
-
-         ?termometro=cheio   a lista completa, com subida e descida
-         ?termometro=poucas  vaga demais de menos — nenhuma seta aparece
-         ?termometro=semsql  a função NÃO EXISTE no banco
-
-       O `semsql` é o estado real enquanto a 0126 não for colada, e o
-       certo ali é a tela dizer que ainda não há vagas suficientes — e
-       nunca "a cidade parou de contratar", que é a mentira fácil desta
-       tela.
-
-       As profissões saem em texto CRU, como a função de verdade devolve:
-       quem agrupa em setores é o app. Se este falso já devolvesse setor
-       pronto, o agrupamento — que é a parte com regra — nunca seria
-       exercitado. */
-    if (nome === "termometro_do_emprego") {
-      const forcado = ajuste("termometro");
-      if (forcado === "semsql") {
-        return {
-          data: null,
-          error: {
-            code: "PGRST202",
-            message: "Could not find the function public.termometro_do_emprego",
-          },
-        };
-      }
-      if (forcado === "poucas") {
-        return {
-          data: [
-            { profissao: "Vendedor", agora: 2, antes: 1 },
-            { profissao: "Pedreiro", agora: 1, antes: 2 },
-          ],
-          error: null,
-        };
-      }
-      return {
-        data: [
-          /* Duas profissões do MESMO setor, de propósito: só somando as
-             duas o "Comércio e vendas" chega a 14, e é essa soma que o
-             agrupamento tem de fazer. */
-          { profissao: "Vendedor", agora: 9, antes: 4 },
-          { profissao: "Atendente de loja", agora: 5, antes: 3 },
-          { profissao: "Pedreiro", agora: 7, antes: 7 },
-          { profissao: "Servente de obra", agora: 3, antes: 2 },
-          { profissao: "Auxiliar de cozinha", agora: 4, antes: 9 },
-          { profissao: "Diarista", agora: 6, antes: 5 },
-          { profissao: "Auxiliar administrativo", agora: 3, antes: 1 },
-          { profissao: "Motorista", agora: 2, antes: 2 },
-          /* Fora de qualquer setor: entra no total e em nenhuma linha. */
-          { profissao: "Operador de britador", agora: 3, antes: 1 },
-        ],
-        error: null,
-      };
-    }
     if (nome === "numeros_do_ei") {
       const forcado = ajuste("contratados");
       if (forcado === "semsql") {

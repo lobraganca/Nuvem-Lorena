@@ -192,7 +192,10 @@ https://supabase.com/dashboard/project/ahigenhenzmsjxlmrzhz/sql/new
 ```
 
 - Numeração sequencial: a última hoje é a `0127` (`professionals.visto_em`,
-  para saber quem sumiu). Antes dela: a `0126` (termômetro do emprego), a
+  para saber quem sumiu). A `0126` criou a função do termômetro do emprego,
+  que **saiu do app em 06/09** — a dona não gostou da tela. A função ficou
+  no banco de quem já aplicou: ela não é chamada por ninguém e não atrapalha
+  nada. Antes delas: a
   `0125` (quantas pessoas o app já empregou), a `0124` (reembolso
   encerrando o plano sozinho) e a `0123` (teste grátis da empresa, e o
   plano deixando de ser editável pela própria empresa). **Da 0123 à 0126

@@ -56,6 +56,11 @@ import { ProvaDeContratacao } from "../components/ei/ProvaDeContratacao";
  */
 export function LoginPage() {
   useTituloDaPagina("Entrar");
+  /* Os dois sobem para o topo em 06/09: o modo da tela passou a ser lido
+     do endereço e trocado com `navegar` (ver logo abaixo), e os dois
+     precisam existir antes disso. */
+  const navegar = useNavigate();
+  const { search } = useLocation();
   const [error, setError] = useState("");
   const [aviso, setAviso] = useState("");
 
@@ -93,24 +98,40 @@ export function LoginPage() {
      SMS, porque senha que ainda não existe não serve de porta. A marca no
      armazenamento é só uma lembrança de conveniência — errar nela não
      tranca ninguém, os dois caminhos estão sempre a um toque. */
-  const [modo, setModo] = useState<"senha" | "sms">(() => {
-    /* ── A SENHA É O CAMINHO NORMAL; O SMS É O CONSERTO ────────────────
-       A dona: "toda vez que entra está me pedindo pra enviar o sms. a
-       partir do momento que tem o sms confirmado, deve abrir uma tela pra
-       cadastrar a senha, após isso a pessoa só consegue abrir com o número
-       e senha. ou se esquecer a senha, aí manda outro sms."
+  /* ── O MODO MORA NO ENDEREÇO, E NÃO NUM ESTADO — 06/09 ────────────
+     A dona: "quando clico em criar conta e depois me arrependo e quero
+     voltar, ele volta pra uma tela de quem já tem senha"; e "quando clico
+     em esqueci senha e volto, ele entrou sem senha".
 
-       Antes o padrão era o SMS, e a senha só aparecia se o aparelho
-       lembrasse que ela existia. O efeito é o que ela descreve: quem já
-       tem senha era recebido, toda vez, pela tela que gasta uma mensagem.
+     As duas têm a mesma causa. "Criar conta" e "Esqueci minha senha"
+     trocavam a tela com um `setModo` — mudança de ESTADO, que não deixa
+     rastro no histórico do navegador. Então o Voltar do celular não
+     desfazia o toque: ele saía da tela de entrar inteira, para o endereço
+     anterior. E como a conta muitas vezes JÁ está conectada nesse ponto
+     (é o caso de toda abertura do app), sair da tela de entrar quer dizer
+     entrar no app — sem senha, sem escolher lado, sem nada.
 
-       Agora abre na senha, sempre. O SMS continua a um toque, com o nome
-       do que ele resolve — "esqueci a senha" —, e é ele que cria a conta
-       de quem chega pelo botão "Criar conta". */
-    const pedido = new URLSearchParams(window.location.search || "").get("acao")
-      ?? new URLSearchParams(window.location.hash.split("?")[1] ?? "").get("acao");
-    return pedido === "criar" ? "sms" : "senha";
-  });
+     Não era o app "deixando passar": era o Voltar fazendo o que o
+     histórico mandava, porque ninguém tinha escrito nada nele.
+
+     Agora o modo é lido de `?acao=` e trocado com `navegar`. Cada toque
+     vira um degrau no histórico, e o Voltar desce um degrau — de "Criar
+     conta" para "Entrar", e de "Entrar" para onde a pessoa estava antes.
+     É o que ela esperava que acontecesse.
+
+     Continua abrindo na senha, sempre (a dona, em 02/09: "toda vez que
+     entra está me pedindo pra enviar o sms"): sem `?acao=` o modo é
+     `senha`, e o SMS fica a um toque com o nome do que ele resolve. */
+  const acaoDaUrl =
+    new URLSearchParams(search || "").get("acao") ??
+    new URLSearchParams(window.location.hash.split("?")[1] ?? "").get("acao");
+  const modo: "senha" | "sms" = acaoDaUrl === "criar" ? "sms" : "senha";
+
+  /* `replace: false` de propósito: é justamente o degrau no histórico que
+     faz o Voltar funcionar. Com `replace` voltaríamos ao defeito. */
+  const trocarModo = (novo: "senha" | "sms") =>
+    navegar(`/login?acao=${novo === "sms" ? "criar" : "entrar"}`, { replace: false });
+
   const [senhaEntrada, setSenhaEntrada] = useState("");
   /* "Gravar a senha", na tela de início.
      ─────────────────────────────────────
@@ -158,8 +179,6 @@ export function LoginPage() {
      RetomarDestinoLogin, que sabe o destino certo. Sem destino guardado,
      o usuário passa pelo onboarding (se primeira vez) ou vai ao destino padrão. */
   const { user, loading: carregandoConta } = useAuth();
-  const navegar = useNavigate();
-  const { search } = useLocation();
 
   /* ── A ESCOLHA DO LADO É O PRIMEIRO PASSO DO LOGIN — 04/09 ──────────
      A dona: "na tela de login a pessoa vai ter que escolher entre quero
@@ -547,9 +566,9 @@ export function LoginPage() {
               type="button"
               className="entrar-link"
               onClick={() => {
-                setModo(modo === "senha" ? "sms" : "senha");
                 setSenhaEntrada("");
                 limpar();
+                trocarModo(modo === "senha" ? "sms" : "senha");
               }}
             >
               {modo === "senha"
@@ -579,9 +598,9 @@ export function LoginPage() {
                   type="button"
                   className="btn btn-block"
                   onClick={() => {
-                    setModo("sms");
                     setSenhaEntrada("");
                     limpar();
+                    trocarModo("sms");
                   }}
                 >
                   Criar conta
@@ -663,10 +682,10 @@ export function LoginPage() {
               className="entrar-link"
               disabled={enviando}
               onClick={() => {
-                setModo("senha");
                 setPassoTelefone("numero");
                 setCodigo("");
                 limpar();
+                trocarModo("senha");
               }}
             >
               Prefiro entrar com a minha senha

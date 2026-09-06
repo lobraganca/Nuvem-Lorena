@@ -60,7 +60,6 @@ const EmpresaPublicaPage = lazy(importarPagina(() => import("./pages/ei/EmpresaP
 const FavoritosPage = lazy(importarPagina(() => import("./pages/ei/FavoritosPage").then((m) => ({ default: m.FavoritosPage }))));
 const PlanosEmpresaPage = lazy(importarPagina(() => import("./pages/PlanosEmpresaPage").then((m) => ({ default: m.PlanosEmpresaPage }))));
 const ReembolsoPage = lazy(importarPagina(() => import("./pages/ei/ReembolsoPage").then((m) => ({ default: m.ReembolsoPage }))));
-const TermometroPage = lazy(importarPagina(() => import("./pages/ei/TermometroPage").then((m) => ({ default: m.TermometroPage }))));
 const DenunciarPage = lazy(importarPagina(() => import("./pages/ei/DenunciarPage").then((m) => ({ default: m.DenunciarPage }))));
 const MeuDesempenhoPage = lazy(importarPagina(() => import("./pages/ei/MeuDesempenhoPage").then((m) => ({ default: m.MeuDesempenhoPage }))));
 const DestaquePage = lazy(importarPagina(() => import("./pages/ei/DestaquePage").then((m) => ({ default: m.DestaquePage }))));
@@ -203,7 +202,6 @@ const TELAS_DE_APP = [
   "/meu-desempenho",
   "/destaque",
   "/reembolso",
-  "/termometro",
   "/meus-cadastros",
   "/planos-empresa",
   "/profissionais",
@@ -424,13 +422,6 @@ export default function App() {
             quer desfazer uma compra não deve ter de pedir isso no meio de
             uma tela que mostra três preços. */}
         <Route path="/reembolso" element={<ReembolsoPage />} />
-        {/* O termômetro não tem `SoDesteLado` nem exige conta, e é a única
-            tela assim de propósito: ela responde "o que está contratando
-            em Itabirito?", que é pergunta da cidade e não de um lado do
-            app. É a tela que alguém manda num grupo de WhatsApp — e um
-            link que pede login antes de responder não é compartilhado
-            duas vezes. */}
-        <Route path="/termometro" element={<TermometroPage />} />
         {/* A denúncia de uma vaga ou de um cadastro. Ela vai para a seção
             "Denúncias" do painel, com motivo e descrição — antes ia para o
             WhatsApp, e lá não havia fila nem botão de tirar do ar. Ver

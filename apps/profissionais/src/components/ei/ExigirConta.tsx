@@ -41,18 +41,7 @@ import { Navigate, useLocation } from "react-router-dom";
 import { useAuth } from "../../lib/useAuth";
 import { guardarDestinoLogin } from "../../lib/auth";
 
-/* As telas que abrem sem conta.
-   ─────────────────────────────
-   Eram três, e as três por obrigação: entrar, e os dois documentos que a
-   lei manda deixar acessíveis.
-
-   `/termometro` entrou em 06/09 e é a primeira que está aqui por ESCOLHA.
-   Ela responde "o que está contratando em Itabirito?", que é pergunta da
-   cidade e não de quem já usa o app — é a tela que alguém manda num grupo
-   de WhatsApp, e um link que pede login antes de responder não é
-   compartilhado duas vezes. O convite para criar conta fica no fim dela,
-   depois da resposta. */
-const LIVRES = ["/login", "/termos", "/privacidade", "/termometro"];
+const LIVRES = ["/login", "/termos", "/privacidade"];
 
 export function ehTelaLivre(caminho: string): boolean {
   return LIVRES.some((t) => caminho === t || caminho.startsWith(`${t}/`));

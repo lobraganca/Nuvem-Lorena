@@ -189,6 +189,8 @@ export function MeuPerfilPage() {
      servindo para nada" — some do app calada. Isto é o primeiro sinal de
      que o app está funcionando para ela. */
   const [quemViu, setQuemViu] = useState<QuemViu[]>([]);
+  /** A leitura falhou? Diferente de "ninguém viu" — ver o `catch` abaixo. */
+  const [erroQuemViu, setErroQuemViu] = useState(false);
   const [busca, setBusca] = useState("");
   const [carregando, setCarregando] = useState(true);
   const [salvando, setSalvando] = useState(false);
@@ -387,9 +389,29 @@ export function MeuPerfilPage() {
                tela que funciona sem ela. Derrubar o cadastro inteiro
                porque a lista de visitas falhou seria trocar a tela que a
                pessoa veio usar por uma mensagem de erro. */
+            /* ── FALHAR NÃO PODE PARECER "NINGUÉM TE VIU" — 06/09 ──
+               A dona: "o campo empresas que te viram parece que não está
+               funcionando."
+
+               Aqui estava `.catch(() => setQuemViu([]))`, e o efeito é o
+               defeito que este projeto mais persegue: uma consulta que
+               FALHA vira uma lista vazia, a seção some, e a tela fica
+               idêntica à de quem realmente não foi visto por ninguém. Não
+               há como a pessoa — nem a dona — distinguir as duas.
+
+               Agora a falha é guardada e a seção diz que não conseguiu
+               ler, com o motivo no console. Continua sem derrubar a tela:
+               é informação a mais numa tela que funciona sem ela. */
             quemViuMeuPerfil(meu.id)
-              .then(setQuemViu)
-              .catch(() => setQuemViu([]));
+              .then((v) => {
+                setQuemViu(v);
+                setErroQuemViu(false);
+              })
+              .catch((err) => {
+                console.error("[Ei] não consegui ler quem viu o cadastro:", err);
+                setQuemViu([]);
+                setErroQuemViu(true);
+              });
             setExperiencias(
               exps.map((e) => ({
                 cargo: e.cargo,
@@ -1682,6 +1704,17 @@ export function MeuPerfilPage() {
             uma seção dizendo "ninguém ainda" é a frase mais desanimadora
             que esta tela poderia dar, e ela apareceria justamente para
             quem acabou de se cadastrar. */}
+        {/* A falha aparece, e não se disfarça de silêncio. Curta e sem
+            botão: quem está com o cadastro aberto não veio consertar
+            isto, mas precisa saber que o número que ela NÃO está vendo
+            não é zero — é "não sei". */}
+        {erroQuemViu && (
+          <p className="ei-apoio ei-margem" style={{ marginTop: 10 }}>
+            Não consegui carregar quem viu seu cadastro agora. Tente abrir de
+            novo daqui a pouco.
+          </p>
+        )}
+
         {quemViu.length > 0 && (
           <>
             <h2 className="ei-secao">Quem viu seu cadastro</h2>
