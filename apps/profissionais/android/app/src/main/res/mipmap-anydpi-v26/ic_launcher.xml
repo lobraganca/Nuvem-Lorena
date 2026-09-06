@@ -1,8 +1,24 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!--
+  O ícone do Android moderno é feito de duas camadas: o sistema junta as
+  duas e recorta no formato que o fabricante escolheu — círculo, quadrado
+  com canto, gota.
+
+  ── O FUNDO NÃO PODE SER ENCOLHIDO — 06/09 ─────────────────────────────
+
+  Aqui as DUAS camadas vinham encolhidas em 16,7%. Simulado o desenho do
+  Android: o fundo azul virava um quadrado no meio de um círculo vazio —
+  os cantos do recorte ficavam transparentes, e o ícone aparecia como um
+  quadradinho flutuando. Estava assim desde sempre, e não dava para ver na
+  imagem solta: o `ic_launcher.png` (o ícone do Android antigo) sempre
+  esteve certo, e é ele que se abre ao olhar o arquivo.
+
+  Agora o fundo ocupa a tela inteira e o recorte cai sobre cor, não sobre
+  vazio. A MARCA continua encolhida, e tem de continuar: 16,7% é a margem
+  de segurança do Android, e o que passar dela é cortado fora.
+-->
 <adaptive-icon xmlns:android="http://schemas.android.com/apk/res/android">
-    <background>
-        <inset android:drawable="@mipmap/ic_launcher_background" android:inset="16.7%" />
-    </background>
+    <background android:drawable="@mipmap/ic_launcher_background" />
     <foreground>
         <inset android:drawable="@mipmap/ic_launcher_foreground" android:inset="16.7%" />
     </foreground>

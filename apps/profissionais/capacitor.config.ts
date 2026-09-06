@@ -26,8 +26,16 @@ const config: CapacitorConfig = {
    */
   appId: "br.com.eiitabirito.app",
 
-  /** O nome que aparece embaixo do ícone, na tela do celular. */
-  appName: "Ei Itabirito",
+  /**
+   * O nome do app.
+   *
+   * Ele NÃO é o que aparece embaixo do ícone — quem manda nisso é o
+   * `app_name` do `android/app/src/main/res/values/strings.xml`, e o
+   * Capacitor não o reescreve depois de a pasta `android/` existir. Os
+   * dois ficaram anos discordando por causa disso: aqui dizia "Ei
+   * Itabirito" e lá, "procurô". Trocar o nome é trocar nos dois.
+   */
+  appName: "Ei Emprego",
 
   /**
    * De onde vêm os arquivos do app: a mesma pasta que o site publica.

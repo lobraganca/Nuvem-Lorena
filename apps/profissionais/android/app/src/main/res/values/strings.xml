@@ -1,7 +1,35 @@
 <?xml version='1.0' encoding='utf-8'?>
+<!--
+  Os nomes do app DENTRO do aparelho.
+
+  ── Estavam todos do procurô — 06/09 ───────────────────────────────────
+
+  As quatro linhas abaixo ainda diziam "procurô" e "br.com.procuroapp.app",
+  de quando este projeto Android foi criado. O app se chama Ei Emprego
+  desde a troca de marca, e o `applicationId` virou `br.com.eiitabirito.app`
+  — mas ISTO aqui ficou para trás, e ninguém veria antes de instalar: o
+  nome embaixo do ícone e o da lista de aplicativos saem daqui.
+
+  ── E `npx cap sync` NÃO conserta ──────────────────────────────────────
+
+  A tentação é achar que o `appName` do `capacitor.config.ts` chega aqui
+  sozinho. Não chega: o Capacitor escreve este arquivo uma vez, ao criar a
+  pasta `android/`, e nunca mais o toca. A prova estava no próprio
+  repositório — o `appName` já dizia "Ei Itabirito" havia semanas e aqui
+  continuava "procurô".
+
+  Quem trocar o nome do app troca nos DOIS lugares, à mão.
+-->
 <resources>
-    <string name="app_name">procurô</string>
-    <string name="title_activity_main">procurô</string>
-    <string name="package_name">br.com.procuroapp.app</string>
-    <string name="custom_url_scheme">br.com.procuroapp.app</string>
+    <string name="app_name">Ei Emprego</string>
+    <string name="title_activity_main">Ei Emprego</string>
+    <!--
+      Estes dois têm de ser IGUAIS ao `applicationId` do build.gradle. Não
+      são enfeite: o Capacitor monta com eles o endereço do provedor de
+      arquivos e o esquema de link próprio do app. Apontando para um pacote
+      que não existe mais, o que quebra são coisas que só aparecem no
+      aparelho — abrir arquivo, voltar de um link.
+    -->
+    <string name="package_name">br.com.eiitabirito.app</string>
+    <string name="custom_url_scheme">br.com.eiitabirito.app</string>
 </resources>
