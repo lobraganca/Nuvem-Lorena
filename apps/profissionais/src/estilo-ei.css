@@ -7903,17 +7903,39 @@
    Na lista de baixo — a que mostra todo mundo — o cartão de quem pagou
    fica entre os outros, e só o texto miúdo do selo o distinguia. Com o
    foguinho o olho acha de longe, que é o que se compra. */
+/* ── O SELO "EM ALTA" — 06/09, segunda volta ──────────────────────────
+   A dona: "os destaques do card, fazer mais vermelho igual ao da aba de
+   destaque."
+
+   Ela está apontando uma incoerência real. O título da seção é o vermelho
+   da marca (`--ei-destaque`, #d92d20); o selo de cada cartão era rosa
+   pálido com letra marrom-escura (#8c1d18). Duas cores para a mesma
+   coisa — e a do cartão, que é a que aparece sessenta vezes na lista, era
+   justamente a apagada.
+
+   ── Por que preenchido, e não só a letra vermelha ───────────────────
+   O caminho óbvio era pintar a letra de #d92d20 e manter o fundo rosa.
+   Medido: dá 4,22:1 de contraste, e o mínimo para letra pequena é 4,5.
+   Reprovaria — num selo de 0,74rem, que é dos textos menores do app.
+
+   Preenchido com o MESMO #d92d20 e letra branca dá 4,83:1, passa, e é
+   mais vermelho dos dois jeitos que importam: usa exatamente a cor da
+   seção e ocupa área, em vez de um fiozinho de letra.
+
+   Faz sentido também pelo que o selo é: alguém PAGOU para aparecer ali.
+   O selo pálido pedia licença. */
 .ei .ei-selo-fogo {
   display: inline-flex;
   align-items: center;
   gap: 4px;
-  /* Vermelho claro em cima do `ei-selo-laranja` que vem no HTML — 06/09.
-     A classe laranja continua no lugar porque ela veste OUTROS selos ("1º
-     emprego", por exemplo), e trocá-la pintaria de vermelho coisa que não
-     é destaque. Aqui a regra é mais específica e ganha. O foguinho vai
-     junto: ele é `fill: currentColor`. */
-  background: var(--ei-destaque-fraco);
-  color: var(--ei-sobre-destaque-fraco);
+  /* Em cima do `ei-selo-laranja` que vem no HTML. A classe laranja
+     continua lá porque ela veste OUTROS selos ("1º emprego", por
+     exemplo), e trocá-la pintaria de vermelho coisa que não é destaque.
+     Aqui a regra é mais específica e ganha. O foguinho vem junto: ele é
+     `fill: currentColor`. */
+  background: var(--ei-destaque);
+  color: #ffffff;
+  font-weight: 600;
 }
 .ei .ei-selo-fogo svg { flex: 0 0 auto; }
 
