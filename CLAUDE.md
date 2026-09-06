@@ -202,8 +202,10 @@ https://supabase.com/dashboard/project/ahigenhenzmsjxlmrzhz/sql/new
   `0125` (quantas pessoas o app já empregou), a `0124` (reembolso
   encerrando o plano sozinho) e a `0123` (teste grátis da empresa, e o
   plano deixando de ser editável pela própria empresa). **Da 0123 à 0126
-  estão aplicadas** — confirmado pela dona em 06/09. **A 0127 e a 0128
-  ainda não** — as duas foram mandadas no chat e esperam ela colar.
+  estão aplicadas**, e **a 0127 e a 0128 também** — confirmado pela dona
+  em 06/09, com a consulta de conferência colada no SQL Editor ("Nada
+  pendente"). Ou seja: hoje o banco está em dia com o repositório, da
+  0001 à 0128.
 - `supabase/banco-completo.sql` **está desatualizado** (para na 0051). Serve
   para montar um banco do zero até ali, não como retrato do que está no ar.
 - Edge Functions ficam em `supabase/functions/` e sobem pelo workflow.
