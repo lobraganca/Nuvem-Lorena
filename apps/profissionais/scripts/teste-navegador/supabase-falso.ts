@@ -214,6 +214,24 @@ function semCadastroDePessoa(): boolean {
   return ajuste("semperfil") === "1";
 }
 
+/* ── `?combina=1`: UMA VAGA QUE BATE DE VERDADE — 06/09 ───────────────
+   A compatibilidade não é inventada aqui: ela é calculada pelo app, em
+   `compatibilidade.ts`, cruzando o ofício do cadastro com a profissão da
+   vaga. E as três vagas falsas são de Pedreiro, Cozinheiro e Motorista,
+   enquanto a pessoa falsa é Encanador — nenhuma passava de "combina em
+   parte".
+
+   Ou seja: o caso ALTO nunca acontecia no teste. Isso passou despercebido
+   enquanto o rótulo aparecia sempre; virou problema no dia em que ele
+   passou a só aparecer acima de 80% (a dona: "nos cards, descreva que tem
+   compatibilidade somente se for maior que 80%"), porque aí só dava para
+   provar que o rótulo SOME — e some também quando se quebra tudo.
+
+   Com a chave, a primeira vaga vira do ofício da pessoa, na cidade dela.
+   A conta continua sendo a de verdade; o que muda é só o dado de
+   entrada. */
+const VAGA_QUE_COMBINA = ajuste("combina") === "1";
+
 /* `?plano=nao` exercita a empresa SEM plano — que é o estado em que ela
    chega, e o único em que o cartão do plano tem trabalho a fazer. */
 const planoFalso = () => ajuste("plano") !== "nao";
@@ -276,8 +294,12 @@ const VAGAS: Linha[] = [
     salary_range_max: 25000,
   },
   {
-    title: "Ajudante de cozinha",
-    profession: "Cozinheiro",
+    /* É NESTA que `?combina=1` mexe, e não na primeira: a primeira já tem
+       resposta no falso, e vaga respondida fica de fora do baralho — o
+       caso alto apareceria na lista e nunca nos cartões, que são
+       justamente onde a dona pediu a mudança. */
+    title: VAGA_QUE_COMBINA ? "Encanador para a padaria" : "Ajudante de cozinha",
+    profession: VAGA_QUE_COMBINA ? "Encanador" : "Cozinheiro",
     specialty: "",
     description: "Padaria no Centro, de segunda a sábado, das 6h às 14h.",
     required_experience: "",

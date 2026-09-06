@@ -2870,7 +2870,11 @@
 }
 .ei-compat-alta { color: var(--ei-verde, #1b6b3f); }
 .ei-compat-media { color: #8a5a12; }
-.ei-compat-baixa { color: var(--ei-tinta-fraca); }
+/* `ei-compat-baixa` saiu em 06/09: nenhuma tela escreve mais "Outro
+   ofício" nem "Combina em parte" — o rótulo da compatibilidade só aparece
+   acima de 80% (ver `COMBINA_MUITO`, no banco de vagas). O tom âmbar do
+   `-media` ficou, porque é ele que veste o aviso "esta empresa só chama
+   quem bate com o pedido", que continua saindo em qualquer nota. */
 .ei-compat-respondida { color: var(--ei-acento); }
 
 /* ── A escolha de empresa (itens 3, 4 e 6) ──────────────────────────────
@@ -8211,14 +8215,6 @@
 }
 .ei .ei-balao-compat.ei-compat-media .ei-balao-compat-marca {
   color: var(--ei-laranja-fraco);
-}
-.ei .ei-balao-compat.ei-compat-baixa {
-  background: var(--ei-afunda-forte);
-  border-color: var(--ei-fio-forte);
-  color: var(--ei-tinta-fraca);
-}
-.ei .ei-balao-compat.ei-compat-baixa .ei-balao-compat-marca {
-  color: var(--ei-afunda-forte);
 }
 
 

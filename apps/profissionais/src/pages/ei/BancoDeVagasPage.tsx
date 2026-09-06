@@ -15,7 +15,7 @@ import {
 } from "../../lib/destaque";
 import { podeVender, vendendoPara } from "../../lib/plataforma";
 import { lerMeuPerfil } from "../../lib/meuPerfil";
-import { nomeDoContrato, salarioEmTexto } from "../../types/domain";
+import { FAIXAS_DAS_ONDAS, nomeDoContrato, salarioEmTexto } from "../../types/domain";
 import { Pagina } from "../../components/ei/Pagina";
 import { BottomSheet } from "../../components/BottomSheet";
 import { SeletorDeCidade } from "../../components/ei/SeletorDeCidade";
@@ -231,23 +231,32 @@ export function BancoDeVagasPage() {
                       Você já respondeu que tem interesse
                     </div>
                   ) : (
-                    v.compatibilidade !== null && (
-                      <div className={`ei-compat ei-uma-linha ${classeDaCompat(v.compatibilidade)}`}>
-                        {/* A empresa marcou que NÃO aceita quem não bate
-                            (item 16, 0105). A pessoa fica sabendo AQUI, e
-                            não depois de responder e nunca receber
-                            retorno — que é a única forma pior de não ser
-                            chamada. */}
-                        {!v.vaga.aceita_sem_compatibilidade && v.compatibilidade < 75
-                          ? "Esta empresa só chama quem bate com o pedido"
-                          : rotuloDaCompat(v.compatibilidade)}
-                        {/* Só o primeiro motivo: dois estouram a linha, e o segundo
-                            nunca é o que decide. */}
-                        {v.vaga.aceita_sem_compatibilidade !== false &&
-                          v.porque.length > 0 &&
-                          ` · ${v.porque[0]}`}
+                    /* Duas coisas diferentes, e só uma delas é a
+                       compatibilidade.
+
+                       O AVISO de que a empresa só chama quem bate (item
+                       16, 0105) continua saindo em qualquer nota: ele não
+                       é um palpite sobre a pessoa, é uma regra que a
+                       empresa marcou — e não dizê-la faria alguém
+                       responder e nunca receber retorno, que é a única
+                       forma pior de não ser chamada.
+
+                       O RÓTULO da compatibilidade, esse, só acima de 80
+                       (ver `COMBINA_MUITO`). */
+                    v.compatibilidade !== null &&
+                    (!v.vaga.aceita_sem_compatibilidade &&
+                    v.compatibilidade < COMBINA_MUITO ? (
+                      <div className="ei-compat ei-uma-linha ei-compat-media">
+                        Esta empresa só chama quem bate com o pedido
                       </div>
-                    )
+                    ) : v.compatibilidade >= COMBINA_MUITO ? (
+                      <div className="ei-compat ei-uma-linha ei-compat-alta">
+                        Combina com você
+                        {/* Só o primeiro motivo: dois estouram a linha, e o
+                            segundo nunca é o que decide. */}
+                        {v.porque.length > 0 && ` · ${v.porque[0]}`}
+                      </div>
+                    ) : null)
                   )}
                 </div>
                 <span className="ei-linha-seta" aria-hidden="true">
@@ -567,17 +576,28 @@ export function BancoDeVagasPage() {
 
    Três faixas dizem o que dá para dizer com honestidade — e nenhuma delas
    diz "não tente". */
-function rotuloDaCompat(n: number): string {
-  if (n >= 75) return "Combina com você";
-  if (n >= 40) return "Combina em parte";
-  return "Outro ofício";
-}
+/* ── SÓ SE FOR ALTA — 06/09 ───────────────────────────────────────────
+   A dona: "nos cards, descreva que tem compatibilidade somente se for
+   maior que 80%."
 
-function classeDaCompat(n: number): string {
-  if (n >= 75) return "ei-compat-alta";
-  if (n >= 40) return "ei-compat-media";
-  return "ei-compat-baixa";
-}
+   Antes o cartão dizia SEMPRE alguma coisa: "Combina com você" acima de
+   75, "Combina em parte" entre 40 e 75, "Outro ofício" abaixo disso. Duas
+   dessas três frases são notícia ruim dada a quem está procurando
+   emprego, na hora exata em que a pessoa está decidindo se tenta — e
+   dadas por uma conta que compara TEXTO escrito à mão por duas pessoas
+   diferentes. Ela erra justamente para quem menos sabe se descrever: a
+   pessoa se cadastrou como "auxiliar de limpeza" e é exatamente a
+   camareira que a vaga procura.
+
+   Ou seja, o app estava desanimando gente com um palpite. Agora ele só
+   fala quando tem certeza — e o silêncio não impede ninguém de nada: os
+   dois botões continuam ali, para qualquer vaga.
+
+   80 e não 75: é a régua da ONDA 1 (`FAIXAS_DAS_ONDAS`), a mesma que
+   decide quem o app avisa primeiro. Ter dois números diferentes para
+   "combina muito" no mesmo app é o tipo de coisa que sai do lugar
+   sozinha. */
+const COMBINA_MUITO = FAIXAS_DAS_ONDAS[1].de;
 
 /**
  * A marca da empresa na linha.
@@ -944,13 +964,13 @@ function Baralho({ vagas, verLista }: { vagas: VagaNoBanco[]; verLista: () => vo
                   mesmo peso de tudo o mais no cartão. Aqui a pessoa decide
                   em dois segundos, com o dedo já no botão, e o dado que
                   mais importa para essa decisão era o menos visível. */}
-              {v.compatibilidade !== null && (
-                <p className={`ei-balao-compat ${classeDaCompat(v.compatibilidade)}`}>
+              {v.compatibilidade !== null && v.compatibilidade >= COMBINA_MUITO && (
+                <p className="ei-balao-compat ei-compat-alta">
                   <span className="ei-balao-compat-marca" aria-hidden="true">
-                    {v.compatibilidade >= 75 ? "✓" : v.compatibilidade >= 40 ? "~" : "!"}
+                    ✓
                   </span>
                   <span>
-                    {rotuloDaCompat(v.compatibilidade)}
+                    Combina com você
                     {v.porque.length > 0 && ` · ${v.porque[0]}`}
                   </span>
                 </p>
