@@ -785,6 +785,22 @@ export interface Company {
    * a tela mostra só até quando vale — que é o dado que já existia.
    */
   plano_desde?: string | null;
+  /**
+   * Este plano é um TESTE GRÁTIS, e não uma assinatura (0123).
+   *
+   * A dona: "vou dar 5 dias do plano de 1 vaga."
+   *
+   * Opcional no tipo porque a coluna é nova e as migrations são aplicadas
+   * à mão: até a 0123 rodar, ela chega indefinida — e indefinido aqui lê
+   * como "não é cortesia", que é a resposta certa para todo plano que já
+   * existia.
+   *
+   * Ela vale por três coisas que sem ela não têm resposta: a empresa
+   * saber que está testando (senão perde a vaga no quinto dia sem
+   * entender), a administração distinguir teste de cliente na lista, e a
+   * contagem de "quantas empresas assinaram?" não somar os dois.
+   */
+  plano_cortesia?: boolean | null;
   plano_recorrente: boolean;
   created_at: string;
 }
@@ -915,6 +931,22 @@ export const PLANOS_EMPRESA: Record<
     resumo: "quantas vagas abertas quiser, combinado com a gente",
     beneficios: ["Vagas abertas sem limite", "Condição combinada com você"],
   },
+};
+
+/**
+ * O teste grátis que a administração concede — 0123.
+ *
+ * A dona: "vou dar 5 dias do plano de 1 vaga."
+ *
+ * Cinco dias no Ei Conecta. Os dois números moram aqui, e não espalhados
+ * pelo painel e pelas telas, porque eles aparecem em quatro lugares
+ * diferentes (o botão que concede, a frase que a empresa lê, a contagem
+ * do menu e o convite do último dia) — e um deles ficar para trás numa
+ * mudança é o tipo de coisa que ninguém percebe até uma empresa reclamar.
+ */
+export const TESTE_GRATIS = {
+  plano: "pro" as PlanoEmpresa,
+  dias: 5,
 };
 
 /**

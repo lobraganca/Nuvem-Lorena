@@ -70,7 +70,36 @@ export function PortaDoPlano() {
      0120, e era ela que escrevia "Ei Começo" (o plano de graça) na tela de
      quem paga o Ei Impulso ou o Ei Máximo. */
   const plano = melhorPlanoEmDia(empresas);
-  const nome = plano ? `Plano ${PLANOS_EMPRESA[plano].nome}` : PLANO_GRATUITO.nome;
+
+  /* ── O TESTE GRÁTIS SE DIZ, E DIZ QUANDO ACABA — 0123 ────────────────
+     A dona: "vou dar 5 dias do plano de 1 vaga."
+
+     Sem esta linha, quem está testando lia "Plano Ei Conecta · 0 de 1
+     vaga" — exatamente o que quem PAGA lê. No quinto dia a vaga sairia do
+     ar e a empresa não teria como entender o que aconteceu; pior, podia
+     achar que tinha pagado e que o app tomou o dinheiro.
+
+     A contagem de dias vem da empresa cuja cortesia está valendo, e não
+     da primeira da lista: quem tem duas lojas pode estar testando numa e
+     pagando na outra. */
+  const cortesia = empresas.find(
+    (e) => e.plano_cortesia === true && e.plano_ate && new Date(e.plano_ate).getTime() > Date.now()
+  );
+  /* Só é teste se NÃO houver plano pago em dia: quem testou e assinou
+     depois é cliente, e continuar chamando de teste seria dizer a alguém
+     que paga que ela não paga. */
+  const emDia = (e: Company) =>
+    !!e.plano && !!e.plano_ate && new Date(e.plano_ate).getTime() > Date.now();
+  const soTeste = !!cortesia && empresas.every((e) => e.plano_cortesia === true || !emDia(e));
+  const diasQueFaltam = cortesia?.plano_ate
+    ? Math.max(0, Math.ceil((new Date(cortesia.plano_ate).getTime() - Date.now()) / 86_400_000))
+    : 0;
+
+  const nome = soTeste
+    ? "Teste grátis"
+    : plano
+      ? `Plano ${PLANOS_EMPRESA[plano].nome}`
+      : PLANO_GRATUITO.nome;
 
   /* Sem plano não há "de quantas": o gratuito não publica vaga, e "0 de 0"
      lê como defeito. `-1` é o sem teto, e "3 de -1" seria o número mágico
@@ -90,6 +119,11 @@ export function PortaDoPlano() {
       <span className="ei-porta-nome">Meu plano</span>
       <span className="ei-porta-nota">
         {nome}
+        {/* No teste, os dias que faltam vêm ANTES da conta de vagas: é o
+            que muda o que a pessoa vai fazer hoje. */}
+        {soTeste
+          ? ` · ${diasQueFaltam === 0 ? "termina hoje" : diasQueFaltam === 1 ? "falta 1 dia" : `faltam ${diasQueFaltam} dias`}`
+          : ""}
         {quanto ? ` · ${quanto}` : ""}
       </span>
     </Link>

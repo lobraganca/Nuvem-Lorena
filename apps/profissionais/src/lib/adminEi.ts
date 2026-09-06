@@ -1,5 +1,7 @@
 import { supabase } from "./supabase";
 import { lerTudo } from "./lerTudo";
+import { erroDeColunaDesconhecida, gravarTolerando } from "./colunasNovas";
+import { TESTE_GRATIS } from "../types/domain";
 import type { Company, JobListing, PlanoEmpresa } from "../types/domain";
 
 /**
@@ -32,7 +34,10 @@ export type EmpresaNoPainel = Company & {
 
 export type NumerosDoEi = {
   empresas: number;
+  /** Quantas ASSINAM: plano em dia que não é cortesia. */
   comPlano: number;
+  /** Quantas estão no teste grátis agora (0123). */
+  testando: number;
   vagasNoAr: number;
   vagasTotal: number;
   candidaturas: number;
@@ -94,8 +99,28 @@ export async function panoramaDoEi(): Promise<{
   return {
     numeros: {
       empresas: empresas.length,
+      /* ── ASSINANTE E QUEM ESTÁ TESTANDO SÃO NÚMEROS DIFERENTES — 0123 ──
+         `comPlano` sozinho passaria a somar os testes grátis, e a pergunta
+         que a dona faz todo dia ("quantas empresas assinaram?") nasceria
+         inflada — justamente no momento em que ela começa a dar teste, e
+         justamente por causa disso.
+
+         `plano_cortesia !== true` e não `=== false`: até a 0123 ser
+         aplicada a coluna chega indefinida, e indefinido aqui é "não é
+         cortesia" — a resposta certa para todo plano que já existia. */
       comPlano: empresas.filter(
-        (e) => e.plano && e.plano_ate && new Date(e.plano_ate).getTime() > agora
+        (e) =>
+          e.plano &&
+          e.plano_ate &&
+          new Date(e.plano_ate).getTime() > agora &&
+          e.plano_cortesia !== true
+      ).length,
+      testando: empresas.filter(
+        (e) =>
+          e.plano &&
+          e.plano_ate &&
+          new Date(e.plano_ate).getTime() > agora &&
+          e.plano_cortesia === true
       ).length,
       vagasNoAr: vagas.filter((v) => v.status === "active").length,
       vagasTotal: vagas.length,
@@ -143,25 +168,73 @@ export async function panoramaDoEi(): Promise<{
 export async function ligarPlano(
   companyId: string,
   plano: PlanoEmpresa,
-  dias: number
+  dias: number,
+  /* Teste grátis, e não assinatura — ver `TESTE_GRATIS` e a 0123. O padrão
+     é `false` de propósito: ligar plano continua querendo dizer "esta
+     empresa fechou com a gente", que é o caso mais comum e o que a
+     contagem de assinantes conta. */
+  cortesia = false
 ): Promise<void> {
   const sb = supabase();
   if (!sb) throw new Error("Sem conexão com o banco.");
   const ate = new Date(Date.now() + dias * 86_400_000).toISOString();
-  const { error } = await sb
-    .from("companies")
-    .update({ plano, plano_ate: ate })
-    .eq("id", companyId);
-  if (error) throw error;
+  /* ── A TOLERÂNCIA VALE PARA O PLANO PAGO, E NÃO PARA O TESTE ────────
+     `plano_cortesia` é da 0123 e pode ainda não existir: as migrations são
+     aplicadas à mão e o código sobe sozinho. Coluna desconhecida faz o
+     PostgREST recusar a gravação INTEIRA, e sem tolerância o dia entre
+     subir o código e aplicar a SQL seria um dia sem ligar plano nenhum.
+
+     Só que tolerar tem um preço, e no TESTE o preço é alto demais: a
+     gravação passaria sem a marca, o plano ficaria ligado por 5 dias como
+     se fosse assinatura, a empresa não veria "teste grátis" na tela dela e
+     a contagem de assinantes somaria mais um. A dona acharia que deu um
+     teste, e teria dado um plano de graça sem prazo visível para ninguém.
+
+     Isso é uma mentira calma — a tela fica normal e o defeito não aparece
+     em lugar nenhum. Então o teste FALHA em voz alta, com a frase que
+     resolve, e o plano pago segue tolerando. */
+  const campos = { plano, plano_ate: ate, plano_cortesia: cortesia };
+  const { error } = cortesia
+    ? await sb.from("companies").update(campos).eq("id", companyId)
+    : await gravarTolerando(campos, ["plano_cortesia"], (c) =>
+        sb.from("companies").update(c).eq("id", companyId)
+      );
+  if (error) {
+    if (cortesia && erroDeColunaDesconhecida(error)) {
+      throw new Error(
+        "O banco ainda não conhece o teste grátis. Aplique a migration 0123 " +
+          "no SQL Editor e tente de novo — sem ela, o plano ligaria como " +
+          "assinatura e a empresa não veria que é teste."
+      );
+    }
+    throw error;
+  }
+}
+
+/**
+ * Dá o teste grátis: o plano e os dias que a dona definiu, marcados como
+ * cortesia.
+ *
+ * Função própria, e não um `ligarPlano(..., true)` escrito em cada tela:
+ * conceder teste é uma decisão diferente de ligar plano pago, e ter um
+ * nome só para ela é o que impede alguém de conceder cortesia sem querer
+ * ao mexer num parâmetro.
+ */
+export async function darTesteGratis(companyId: string): Promise<void> {
+  await ligarPlano(companyId, TESTE_GRATIS.plano, TESTE_GRATIS.dias, true);
 }
 
 /** Desliga o plano. As vagas no ar continuam no ar até vencerem. */
 export async function desligarPlano(companyId: string): Promise<void> {
   const sb = supabase();
   if (!sb) throw new Error("Sem conexão com o banco.");
-  const { error } = await sb
-    .from("companies")
-    .update({ plano: null, plano_ate: null })
-    .eq("id", companyId);
+  /* A marca de cortesia sai junto: sem isso, uma empresa que testou e
+     depois assinou continuaria contada como teste — e a conta de quem
+     paga nasceria errada. */
+  const { error } = await gravarTolerando(
+    { plano: null, plano_ate: null, plano_cortesia: false },
+    ["plano_cortesia"],
+    (campos) => sb.from("companies").update(campos).eq("id", companyId)
+  );
   if (error) throw error;
 }

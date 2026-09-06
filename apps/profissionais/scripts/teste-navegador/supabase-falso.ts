@@ -254,6 +254,12 @@ const QUAL_PLANO = (() => {
   return p === "cinco" || p === "dez" || p === "ilimitado" || p === "pro" ? p : "tres";
 })();
 
+/* `?cortesia=1`: o plano da empresa é um TESTE GRÁTIS (0123). Sem esta
+   chave a tela do teste — "Teste grátis · faltam 3 dias" — não teria como
+   ser aberta, e ela é justamente a que existe para a empresa não perder a
+   vaga sem entender por quê. */
+const PLANO_DE_CORTESIA = ajuste("cortesia") === "1";
+
 /* Os tetos da 0120, na mesma ordem da função `limite_de_vagas_do_plano`.
    `-1` é o sem-teto. */
 const TETO_DO_PLANO: Record<string, number> = {
@@ -478,7 +484,8 @@ const TABELAS: Record<string, Linha[]> = {
          painel escrever "Plano pro3" na tela — o nome cru da coluna, que
          no banco de verdade nunca poderia chegar ali. */
       plano: planoFalso() ? QUAL_PLANO : null,
-      plano_ate: planoFalso() ? emDias(20) : null,
+      plano_ate: planoFalso() ? (PLANO_DE_CORTESIA ? emDias(3) : emDias(20)) : null,
+      plano_cortesia: planoFalso() && PLANO_DE_CORTESIA,
       plano_recorrente: true,
       created_at: emDias(-60),
     },

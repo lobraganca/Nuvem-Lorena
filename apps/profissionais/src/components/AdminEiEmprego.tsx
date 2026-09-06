@@ -4,6 +4,7 @@ import {
   panoramaDoEi,
   ligarPlano,
   desligarPlano,
+  darTesteGratis,
   type EmpresaNoPainel,
   type NumerosDoEi,
 } from "../lib/adminEi";
@@ -20,7 +21,7 @@ import {
   responderPedidoDeReembolso,
   type PedidoDeReembolso,
 } from "../lib/reembolso";
-import { PLANOS_EMPRESA, type JobListing, type PlanoEmpresa } from "../types/domain";
+import { PLANOS_EMPRESA, TESTE_GRATIS, type JobListing, type PlanoEmpresa } from "../types/domain";
 
 /**
  * O Ei Emprego dentro do painel de administração — em DUAS seções.
@@ -90,6 +91,22 @@ function usarPanorama() {
 const agoraMais = () => Date.now();
 const emDia = (e: { plano: string | null; plano_ate: string | null }) =>
   !!e.plano && !!e.plano_ate && new Date(e.plano_ate).getTime() > agoraMais();
+
+/* ── TESTE E CLIENTE SÃO COISAS DIFERENTES — 06/09 ────────────────────
+   A dona: "vou dar 5 dias do plano de 1 vaga."
+
+   `emDia` sozinho misturaria os dois, e a pergunta que ela faz todo dia
+   ("quantas empresas assinaram?") passaria a ter resposta inflada pelos
+   testes. Um plano em dia é de TESTE quando `plano_cortesia` está ligado,
+   e de CLIENTE quando não está. */
+const testando = (e: { plano: string | null; plano_ate: string | null; plano_cortesia?: boolean | null }) =>
+  emDia(e) && e.plano_cortesia === true;
+const pagando = (e: { plano: string | null; plano_ate: string | null; plano_cortesia?: boolean | null }) =>
+  emDia(e) && e.plano_cortesia !== true;
+
+/** Quantos dias faltam para o plano vencer. Zero quando vence hoje. */
+const diasQueFaltam = (iso: string | null) =>
+  iso ? Math.max(0, Math.ceil((new Date(iso).getTime() - Date.now()) / 86_400_000)) : 0;
 const dia = (iso: string | null) => (iso ? new Date(iso).toLocaleDateString("pt-BR") : "—");
 
 /** Sem acento e em minúsculas — quem procura "pao" tem de achar "Pão". */
@@ -117,8 +134,17 @@ export function AdminNumerosDoEi() {
           que fatura. */}
       <div className="admin-numero">
         <strong>{numeros.comPlano}</strong>
-        <span>com plano em dia</span>
+        <span>assinando</span>
       </div>
+      {/* Só aparece quando há teste rolando: um "0 testando" fixo no
+          painel seria mais um número para ler todo dia sem notícia
+          nenhuma. */}
+      {numeros.testando > 0 && (
+        <div className="admin-numero">
+          <strong>{numeros.testando}</strong>
+          <span>no teste grátis</span>
+        </div>
+      )}
       <div className="admin-numero">
         <strong>{numeros.vagasNoAr}</strong>
         <span>vagas no ar</span>
@@ -197,6 +223,21 @@ export function AdminEmpresas() {
     }
   }
 
+  /** O teste grátis: mesmo caminho, com a marca de cortesia. */
+  async function conceder(empresa: EmpresaNoPainel) {
+    setMexendo(empresa.id);
+    setErro("");
+    try {
+      await darTesteGratis(empresa.id);
+      await carregar();
+      setAberta(null);
+    } catch (err) {
+      setErro(mensagemDeErro(err, "Não consegui dar o teste grátis para esta empresa."));
+    } finally {
+      setMexendo(null);
+    }
+  }
+
   if (carregando) return <p className="muted">Lendo as empresas…</p>;
 
   return (
@@ -238,9 +279,11 @@ export function AdminEmpresas() {
                   </p>
                 </div>
                 <span className="muted" style={{ fontSize: "0.85rem", textAlign: "right", flexShrink: 0 }}>
-                  {emDia(e)
-                    ? `Plano ${PLANOS_EMPRESA[e.plano as PlanoEmpresa]?.nome ?? e.plano} até ${dia(e.plano_ate)}`
-                    : "Sem plano"}
+                  {!emDia(e)
+                    ? "Sem plano"
+                    : testando(e)
+                      ? `Teste grátis · ${PLANOS_EMPRESA[e.plano as PlanoEmpresa]?.nome ?? e.plano} até ${dia(e.plano_ate)}`
+                      : `Plano ${PLANOS_EMPRESA[e.plano as PlanoEmpresa]?.nome ?? e.plano} até ${dia(e.plano_ate)}`}
                 </span>
               </div>
 
@@ -256,6 +299,24 @@ export function AdminEmpresas() {
                   {/* Os planos com o nome que a empresa vê na tela de preços,
                       e não a palavra do banco: "tres" no botão faria a
                       administração ligar o plano errado. */}
+                  {/* O teste vem PRIMEIRO e separado dos planos pagos: é a
+                      coisa que a dona vai fazer com mais frequência
+                      enquanto a cidade não conhece o app, e no meio da
+                      lista de planos ele viraria mais um botão igual aos
+                      outros — com o risco de ligar um plano pago achando
+                      que estava dando cortesia. */}
+                  <button
+                    className="btn btn-outline"
+                    disabled={mexendo === e.id}
+                    onClick={() => conceder(e)}
+                  >
+                    Dar teste grátis — {PLANOS_EMPRESA[TESTE_GRATIS.plano].nome} por{" "}
+                    {TESTE_GRATIS.dias} dias
+                  </button>
+                  <p className="muted" style={{ margin: "2px 0 6px", fontSize: "0.8rem" }}>
+                    A empresa vê que é teste e quando termina. Os planos abaixo
+                    contam como assinatura.
+                  </p>
                   {(Object.keys(PLANOS_EMPRESA) as PlanoEmpresa[]).map((p) => (
                     <button
                       key={p}
