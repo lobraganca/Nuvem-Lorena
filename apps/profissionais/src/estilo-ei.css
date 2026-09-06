@@ -91,6 +91,24 @@
   --ei-sobre-verde-fraco: #10381f;
   --ei-erro-fraco: #fbe9e8;
   --ei-sobre-erro-fraco: #6b1512;
+  /* ── O VERMELHO DO DESTAQUE — 06/09 ───────────────────────────────
+     A dona: "onde fala em destaque pode ser na cor vermelha clara."
+
+     Tokens PRÓPRIOS, e não os do erro (`--ei-erro-fraco`), embora os dois
+     sejam vermelho claro. O do erro já veste duas coisas que são o
+     contrário de um destaque: a mensagem de campo errado e o botão de
+     inativar o próprio cadastro. Um selo "Em destaque" idêntico ao botão
+     de desligar a conta é o tipo de semelhança que faz alguém tocar no
+     lugar errado — e "quem pagou para aparecer" nunca deve ler como
+     problema.
+
+     Então é um vermelho mais vivo e mais quente que o do erro (#b3261e,
+     apagado de propósito para não gritar): este aqui É para chamar
+     atenção, que é justamente o que se compra. */
+  --ei-destaque: #d92d20;
+  --ei-destaque-fraco: #fdecea;
+  --ei-sobre-destaque-fraco: #8c1d18;
+  --ei-fio-destaque: #f3cdc9;
   --ei-linha: var(--ei-fio);
   --ei-contorno: var(--ei-fio-forte);
 
@@ -6519,7 +6537,10 @@
    inteira separaria demais — quem procura emprego não deve sentir que
    está lendo publicidade em vez de vagas. */
 .ei .ei-lista-destaque {
-  border-left: 3px solid var(--ei-laranja-botao);
+  /* Vermelho desde 06/09, como o resto do destaque. Esta barra só aparece
+     FORA da faixa (dentro dela ela é apagada, logo abaixo) — no banco de
+     vagas em que a faixa não existe. */
+  border-left: 3px solid var(--ei-destaque);
 }
 
 /* O convite para a empresa comprar o lugar. No pé da lista, escrito e
@@ -7548,7 +7569,10 @@
   display: flex;
   align-items: center;
   gap: 7px;
-  color: var(--ei-laranja);
+  /* Vermelho desde 06/09 — a dona: "onde fala em destaque pode ser na cor
+     vermelha clara". O foguinho ao lado pega esta cor sozinho
+     (`fill: currentColor`). */
+  color: var(--ei-destaque);
 }
 .ei .ei-secao-fogo svg { flex: 0 0 auto; }
 
@@ -7594,8 +7618,8 @@
   flex: 0 0 auto;
   padding: 5px 11px;
   border-radius: 999px;
-  background: var(--ei-laranja-fraco);
-  color: var(--ei-sobre-laranja-fraco);
+  background: var(--ei-destaque-fraco);
+  color: var(--ei-sobre-destaque-fraco);
   /* A seção é escrita em caixa alta; a pastilha não — ela é um convite,
      e não mais um pedaço do rótulo. */
   text-transform: none;
@@ -7725,6 +7749,13 @@
   display: inline-flex;
   align-items: center;
   gap: 4px;
+  /* Vermelho claro em cima do `ei-selo-laranja` que vem no HTML — 06/09.
+     A classe laranja continua no lugar porque ela veste OUTROS selos ("1º
+     emprego", por exemplo), e trocá-la pintaria de vermelho coisa que não
+     é destaque. Aqui a regra é mais específica e ganha. O foguinho vai
+     junto: ele é `fill: currentColor`. */
+  background: var(--ei-destaque-fraco);
+  color: var(--ei-sobre-destaque-fraco);
 }
 .ei .ei-selo-fogo svg { flex: 0 0 auto; }
 
@@ -7844,12 +7875,12 @@
 .ei .ei-area-destaque {
   margin: 8px 0 4px;
   padding: 4px 0 12px;
-  border-top: 1px solid #f1cfbb;
-  border-bottom: 1px solid #f1cfbb;
-  background: var(--ei-laranja-fraco);
+  border-top: 1px solid var(--ei-fio-destaque);
+  border-bottom: 1px solid var(--ei-fio-destaque);
+  background: var(--ei-destaque-fraco);
 }
-/* Dentro da faixa os cartões perdem a barra laranja da esquerda: sobre um
-   fundo da mesma cor ela vira um risco em cima de outro. */
+/* Dentro da faixa os cartões perdem a barra vermelha da esquerda: sobre um
+   fundo da mesma família ela vira um risco em cima de outro. */
 .ei .ei-area-destaque > .ei-lista-destaque { border-left: 0; }
 
 /* ── O TÍTULO NÃO SEPARA DUAS VEZES — 05/09 ──────────────────────────
@@ -7880,11 +7911,11 @@
 .ei .ei-area-destaque-vazia {
   margin: 0 12px;
   padding: 12px 14px;
-  border: 1px dashed #e2b79c;
+  border: 1px dashed #eab6b1;
   border-radius: 14px;
   font-size: 0.86rem;
   line-height: 1.45;
-  color: var(--ei-sobre-laranja-fraco);
+  color: var(--ei-sobre-destaque-fraco);
   background: rgba(255, 255, 255, 0.55);
 }
 
