@@ -12,6 +12,7 @@ import { compativeisComAVaga, contarAparicaoEmBusca, type CandidatoCompativel } 
 import { Pagina } from "../components/ei/Pagina";
 import { useTituloDaPagina } from "../lib/tituloDaPagina";
 import Esqueleto from "../components/ei/Esqueleto";
+import { BottomSheet } from "../components/BottomSheet";
 import {
   FAIXAS_DAS_ONDAS,
   ONDAS,
@@ -97,6 +98,22 @@ export function OndasDaVagaPage() {
   /* A lista de gente começa curta: doze cabem numa rolagem, e o resto vem
      a pedido. Ver o comentário longo lá embaixo. */
   const [mostrarTodas, setMostrarTodas] = useState(false);
+  /* ── UM TOQUE NÃO MANDA AVISO PARA 44 CELULARES — 06/09 ─────────────
+     A dona: "penso que tem que ser algo mais intuitivo pra pessoa
+     entender como funciona."
+
+     Procurando o que faltava, apareceu uma coisa pior que confusa: o
+     botão disparava DIRETO. Um toque sem querer na onda 3 desta vaga
+     mandaria aviso para 44 celulares, e não há como desfazer — a onda é
+     gravada, as pessoas já receberam, e a vaga fica com uma a menos.
+
+     A confirmação resolve as duas coisas de uma vez: segura o toque sem
+     querer, e é o melhor lugar do app para explicar o mecanismo, porque
+     ela aparece no instante exato em que a pessoa quer saber o que vai
+     acontecer.
+
+     `null` = nenhuma pergunta aberta. */
+  const [confirmando, setConfirmando] = useState<WaveNumber | null>(null);
 
   useEffect(() => {
     if (!vagaId) {
@@ -235,6 +252,10 @@ export function OndasDaVagaPage() {
     if (!vaga || !proximaOnda) return;
     setAbrindo(true);
     setErro("");
+    /* Fecha a pergunta antes de mandar: deixá-la aberta durante o envio
+       faria a folha ficar na tela com o botão desligado, e quem não
+       soubesse que estava mandando tocaria de novo. */
+    setConfirmando(null);
     try {
       await abrirOnda(vaga, proximaOnda);
       setOndas(await obterOndasDaVaga(vaga.id));
@@ -401,10 +422,41 @@ export function OndasDaVagaPage() {
           A lista de gente continua na tela, embaixo: primeiro se decide,
           depois se confere quem são. */}
       <h2 className="ei-secao">Avisar quem combina</h2>
-      <p className="ei-apoio ei-margem" style={{ marginBottom: 4 }}>
-        São três ondas por vaga, da que combina mais para a que combina
-        menos. Cada uma sai quando você mandar, e não volta.
-      </p>
+
+      {/* ── O QUE É UMA ONDA, DITO ANTES DA PRIMEIRA — 06/09 ────────────
+          A dona: "a parte das ondas ainda estou achando que pode melhorar.
+          Penso que tem que ser algo mais intuitivo pra pessoa entender
+          como funciona."
+
+          Relendo a tela como quem chega nela: ela dizia o que cada onda
+          CONTÉM (a faixa, o nome, quantas pessoas) e nunca as duas coisas
+          que fazem a palavra "onda" querer dizer alguma coisa:
+
+            1. que o aviso CHEGA NO CELULAR da pessoa — "avisar" sugere,
+               mas nunca estava escrito, e uma empresa que não sabe disso
+               não entende por que o disparo é sério;
+            2. por que são TRÊS e não todo mundo de uma vez — a escala
+               inteira do desenho estava só no "sai depois da onda 1", que
+               diz a regra e esconde o motivo.
+
+          Três linhas numeradas, e não um parágrafo: o mecanismo É uma
+          sequência, e lido como sequência ele se explica sozinho. Ficam
+          acima dos cartões porque é o que a pessoa precisa saber ANTES de
+          olhar para um botão que dispara aviso para 44 celulares. */}
+      <ol className="ei-como-funciona ei-margem">
+        <li>
+          Você manda uma onda, e a vaga vira <strong>aviso no celular</strong> de
+          quem está naquela faixa.
+        </li>
+        <li>
+          Começa por quem mais combina. <strong>Se ninguém responder</strong>, você
+          abre a próxima e alcança mais gente.
+        </li>
+        <li>
+          São <strong>três por vaga</strong>, e uma onda que saiu não volta — por
+          isso vale esperar um pouco antes da seguinte.
+        </li>
+      </ol>
 
       <div className="ei-ondas">
         {([1, 2, 3] as WaveNumber[]).map((n) => {
@@ -532,7 +584,7 @@ export function OndasDaVagaPage() {
                     abrindo ||
                     (notas !== null && notas.length === 0 && n === ONDAS_POR_VAGA)
                   }
-                  onClick={dispararProximaOnda}
+                  onClick={() => setConfirmando(n)}
                 >
                   {abrindo
                     ? "Avisando…"
@@ -581,7 +633,10 @@ export function OndasDaVagaPage() {
 
       {compativeis !== null && !erroLista && (
         <>
-          <h2 className="ei-secao">Quem mais combina</h2>
+          {/* "Quem mais combina" era o nome da onda 1 E o título desta
+              lista, na mesma tela — duas coisas diferentes com o mesmo
+              nome. Aqui não é uma faixa: é a cidade inteira, ordenada. */}
+          <h2 className="ei-secao">Quem existe na cidade</h2>
           {compativeis.length > 0 && (
             <p className="ei-apoio ei-margem">
               {compativeis.length}{" "}
@@ -663,6 +718,81 @@ export function OndasDaVagaPage() {
             </p>
           )}
         </>
+      )}
+
+      {/* ── A PERGUNTA ANTES DE MANDAR — 06/09 ─────────────────────────
+          Ela diz, em três frases, exatamente o que o botão vai fazer: para
+          quantos celulares vai, que não dá para desfazer, e quantas ondas
+          sobram depois. É o mesmo mecanismo do cartão "como funciona" lá
+          em cima, mas dito no instante em que a pessoa quer saber — e é
+          por isso que ele ensina melhor que qualquer parágrafo.
+
+          E segura o toque sem querer: sem ela, um encostão na onda 3 desta
+          vaga mandava aviso para 44 celulares, sem volta. */}
+      {confirmando !== null && (
+        <BottomSheet
+          title={
+            (resultado?.get(confirmando)?.length ?? 0) === 0
+              ? `Liberar a onda ${confirmando + 1}?`
+              : `Avisar ${resultado?.get(confirmando)?.length} ${
+                  resultado?.get(confirmando)?.length === 1 ? "pessoa" : "pessoas"
+                }?`
+          }
+          onClose={() => setConfirmando(null)}
+        >
+          {(resultado?.get(confirmando)?.length ?? 0) === 0 ? (
+            <p className="ei-corpo" style={{ marginTop: 0 }}>
+              Não há ninguém entre {FAIXAS_DAS_ONDAS[confirmando].de}% e{" "}
+              {FAIXAS_DAS_ONDAS[confirmando].ate}% hoje, então{" "}
+              <strong>ninguém vai ser avisado</strong>. Passar esta onda serve para
+              destravar a próxima, que alcança mais gente.
+            </p>
+          ) : (
+            <>
+              <p className="ei-corpo" style={{ marginTop: 0 }}>
+                A vaga <strong>{vaga.title}</strong> vai virar um aviso no celular de{" "}
+                <strong>
+                  {resultado?.get(confirmando)?.length}{" "}
+                  {resultado?.get(confirmando)?.length === 1 ? "pessoa" : "pessoas"}
+                </strong>{" "}
+                de {vaga.city} — as que combinam de {FAIXAS_DAS_ONDAS[confirmando].de}%
+                a {FAIXAS_DAS_ONDAS[confirmando].ate}% com ela.
+              </p>
+              <p className="ei-apoio">
+                Depois de mandar <strong>não dá para desfazer</strong>: quem recebeu,
+                recebeu.
+              </p>
+            </>
+          )}
+          <p className="ei-apoio">
+            {ONDAS_POR_VAGA - ondas.length - 1 === 0
+              ? "Esta é a última onda desta vaga."
+              : `Sobra${ONDAS_POR_VAGA - ondas.length - 1 === 1 ? "" : "m"} ${
+                  ONDAS_POR_VAGA - ondas.length - 1
+                } onda${ONDAS_POR_VAGA - ondas.length - 1 === 1 ? "" : "s"} para esta vaga depois desta.`}
+          </p>
+          <div style={{ display: "grid", gap: 8, marginTop: 14 }}>
+            <button
+              type="button"
+              className="ei-btn ei-btn-cheio ei-btn-largo ei-btn-alto"
+              disabled={abrindo}
+              onClick={dispararProximaOnda}
+            >
+              {abrindo
+                ? "Mandando…"
+                : (resultado?.get(confirmando)?.length ?? 0) === 0
+                  ? "Passar e liberar a próxima"
+                  : "Mandar o aviso agora"}
+            </button>
+            <button
+              type="button"
+              className="ei-btn ei-btn-contorno ei-btn-largo"
+              onClick={() => setConfirmando(null)}
+            >
+              Agora não
+            </button>
+          </div>
+        </BottomSheet>
       )}
 
       </div>

@@ -4234,6 +4234,59 @@
    cartão parecer inacabado. */
 .ei .ei-onda .ei-btn { margin-top: 2px; }
 
+/* ── COMO A ONDA FUNCIONA, EM TRÊS PASSOS — 06/09 ────────────────────
+   A dona: "penso que tem que ser algo mais intuitivo pra pessoa entender
+   como funciona."
+
+   Uma lista numerada de verdade (`<ol>`), e não três parágrafos com
+   números escritos à mão: o mecanismo É uma sequência, e o número do lado
+   de fora do texto é o que faz o olho ler como sequência antes de ler as
+   palavras.
+
+   Os números em círculo cinza, e não nas cores das ondas: estes três
+   passos são a EXPLICAÇÃO, e os cartões logo abaixo são as ondas. Se os
+   dois usassem as mesmas cores, o passo 1 pareceria a onda 1 — e o passo
+   3 ("são três por vaga") pareceria a onda 3, que é justamente a que
+   alcança menos. */
+.ei .ei-como-funciona {
+  display: grid;
+  gap: 10px;
+  margin: 0 0 14px;
+  padding: 0;
+  list-style: none;
+  counter-reset: passo;
+}
+.ei .ei-como-funciona li {
+  position: relative;
+  padding-left: 30px;
+  font-size: 0.9rem;
+  line-height: 1.45;
+  color: var(--ei-tinta-fraca);
+  counter-increment: passo;
+}
+.ei .ei-como-funciona li::before {
+  content: counter(passo);
+  position: absolute;
+  left: 0;
+  /* Alinhado com a PRIMEIRA linha do texto, e não com o topo da caixa:
+     num passo de duas linhas o número flutuaria acima da frase. */
+  top: 0.1em;
+  width: 20px;
+  height: 20px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  background: var(--ei-afunda-forte);
+  color: var(--ei-tinta-fraca);
+  font-size: 0.72rem;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+/* O que a frase tem de mais importante fica na cor da tinta cheia: são as
+   três coisas que a tela não dizia — celular, "se ninguém responder", e
+   três por vaga. */
+.ei .ei-como-funciona strong { color: var(--ei-tinta); font-weight: 600; }
+
 /* ── O CARTÃO DOS CRITÉRIOS, FECHADO — 05/09 ─────────────────────────
    Dezesseis pastilhas medem 627px. Fechado, o cartão diz o que está
    valendo numa linha, e abre para quem vai mudar. */
@@ -5671,6 +5724,16 @@
 .ei .ei-atalhos,
 .ei .ei-abas,
 .ei .ei-filtros,
+/* `ei-linha-filtros` faltava aqui, e por isso a linha do filtro de cidade
+   nascia em 33px enquanto a busca logo acima, a faixa de destaque e as
+   listas nasciam em 12 — 21px de degrau, nos dois bancos (a dona, 06/09:
+   "filtros de todas as cidades está desalinhado").
+
+   É a mesma armadilha que este bloco existe para consertar: a linha
+   carrega `ei-margem` no HTML, e sem estar nesta lista ela ganhava o
+   recuo de TEXTO. Só que ela não segura texto nenhum — segura o botão da
+   cidade, a pastilha de filtros e a contagem, que são caixas. */
+.ei .ei-linha-filtros,
 .ei .ei-planos,
 .ei .ei-busca,
 .ei .ei-empresas,
