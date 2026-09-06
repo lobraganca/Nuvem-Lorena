@@ -144,7 +144,11 @@
      quadrado atras da logo e a tela de abertura; a arte e transparente,
      entao ele e literalmente o fundo do simbolo — trocar aqui troca a
      marca inteira de uma vez. */
-  --color-marca-azul: #12a5fa;
+  /* O azul da logo, medido no arquivo que a dona mandou
+     (`docs/logo-ei.png`) — 06/09. Era #12a5fa, escolhido a olho e
+     parecido; agora é o mesmo número, para a tela de abertura e o fundo
+     do símbolo serem a mesma cor de verdade, e não duas quase iguais. */
+  --color-marca-azul: #01a7fd;
   /* Sobrou do desenho antigo e ainda é usado como cor de tinta em algumas
      telas. Aponta para a tinta nova até cada uma ser revisitada. */
   --color-navy: var(--color-text);

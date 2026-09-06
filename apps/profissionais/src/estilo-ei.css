@@ -66,8 +66,12 @@
      Continua sendo o navy e o laranja do logotipo. Aqui eles não pintam
      superfície nenhuma: servem de marcador de 2px e de tinta de etiqueta,
      que é como um app monocromático usa cor sem virar colorido. */
-  /* Medido na arte da marca, igual ao --color-marca-azul. */
-  --ei-marca: #12a5fa;
+  /* Medido na arte da marca, igual ao --color-marca-azul — e desde 06/09
+     lido do arquivo da logo (`docs/logo-ei.png`) em vez de escolhido a
+     olho. Os dois têm de andar juntos: este veste etiqueta e fio de 2px,
+     aquele pinta a tela de abertura, e um azul de diferença entre os dois
+     aparece justamente onde eles se encontram. */
+  --ei-marca: #01a7fd;
   /* `--ei-laranja-marca` e `--ei-laranja-botao` (o mesmo laranja
      clareado) moram mais abaixo, no bloco do tema do Ei — eu cheguei a
      declarar o primeiro aqui em cima antes de achar o que já existia, e

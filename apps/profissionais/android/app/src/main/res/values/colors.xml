@@ -1,12 +1,24 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <!--
-      O azul da abertura.
+      O azul da abertura do aplicativo.
 
-      É o meio do degradê da tela de abertura do app (`.splash` no
-      theme.css, de #12305e a #0a1a2f). O valor não é escolha nova: é o
-      mesmo azul, para que a tela do Android e a do app sejam
-      indistinguíveis uma da outra.
+      É a cor que o Android pinta ANTES de o app existir na tela — entre
+      tocar no ícone e a primeira tela aparecer. Por isso ela tem de ser a
+      mesma cor do fundo do ícone e a mesma do `--color-marca-azul` do
+      `theme.css`: se as três não forem idênticas, a abertura vira três
+      azuis em sequência, e o que devia ser um movimento só parece o app
+      piscando.
+
+      ── Estava no azul-marinho antigo — 06/09 ──────────────────────────
+
+      Era #031E52, a cor da marca de antes. O app abria escuro e clareava
+      de repente ao chegar na primeira tela. A dona: "altere a cor da tela
+      para a cor da logo."
+
+      #01A7FD é o azul lido do próprio arquivo da logo (`docs/logo-ei.png`),
+      o mesmo que o `scripts/gerar-icones.py` usa para pintar o fundo dos
+      ícones. Trocar a marca de novo é trocar nos três lugares.
     -->
-    <color name="abertura">#031E52</color>
+    <color name="abertura">#01A7FD</color>
 </resources>
