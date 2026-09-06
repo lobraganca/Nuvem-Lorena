@@ -34,3 +34,6 @@ ios
 # A montagem da demonstração num arquivo só (vite.demo.ts). É saída de
 # build, como a dist: se refaz em um comando e não vai para o repositório.
 dist-demo
+
+# O import entre os geradores de arte (scripts/artes_ei.py) gera cache.
+__pycache__/
