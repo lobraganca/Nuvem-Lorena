@@ -34,14 +34,26 @@
  *   /termos
  *   /privacidade    exigência da Play Store e da LGPD: precisam ser
  *                   alcançáveis por quem ainda não tem conta, inclusive
- *                   pelo revisor da loja.
+ *                   pelo revisor da loja;
+ *   /ajuda          a central de dúvidas. A pergunta mais comum do
+ *                   suporte é "não recebi o código" — exigir conta para
+ *                   ler a resposta seria exigir justamente o que a
+ *                   pessoa não consegue fazer.
  */
 import type { ReactNode } from "react";
 import { Navigate, useLocation } from "react-router-dom";
 import { useAuth } from "../../lib/useAuth";
 import { guardarDestinoLogin } from "../../lib/auth";
 
-const LIVRES = ["/login", "/termos", "/privacidade"];
+const LIVRES = [
+  "/login",
+  "/termos",
+  "/privacidade",
+  /* A ajuda — 06/09. Não é conteúdo do app: é o socorro. A dúvida número
+     um do suporte é "não recebi o código", e trancar a resposta dela
+     atrás da conta é trancá-la atrás do próprio problema. */
+  "/ajuda",
+];
 
 export function ehTelaLivre(caminho: string): boolean {
   return LIVRES.some((t) => caminho === t || caminho.startsWith(`${t}/`));

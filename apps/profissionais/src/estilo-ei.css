@@ -8733,3 +8733,190 @@
   color: rgba(255, 255, 255, 0.78);
   font-size: 0.86rem;
 }
+
+/* ── O RETRATO GRANDE, NO ALTO DA FICHA — 06/09 ──────────────────────
+   A dona: "coloque a foto também quando abre o card da pessoa."
+
+   Um quadrado grande e centrado, antes de qualquer campo. Numa cidade
+   pequena a empresa muitas vezes RECONHECE a pessoa antes de ler o nome,
+   e até hoje o rosto só existia num quadradinho de 30px na barra.
+
+   Não é a tela inteira de propósito: a ficha existe para DECIDIR (ver o
+   telefone, as funções, a experiência), e uma foto de 100% de largura
+   empurraria tudo isso para baixo da dobra. Este tamanho mostra o rosto e
+   deixa o resto à vista. */
+.ei .ei-ficha-foto {
+  display: block;
+  width: 168px;
+  height: 168px;
+  margin: 14px auto 4px;
+  padding: 0;
+  border: 0;
+  border-radius: 16px;
+  overflow: hidden;
+  background: var(--ei-afunda-forte);
+  cursor: zoom-in;
+}
+.ei .ei-ficha-foto img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+.ei .ei-ficha-foto:active { opacity: 0.85; }
+
+/* ── DOCUMENTOS: TERMOS E PRIVACIDADE — 06/09 ────────────────────────
+   A dona: "preciso que todos esses termos sejam escritos de forma
+   profissional e que deixem claro que o Ei não tem responsabilidade."
+
+   Profissional, aqui, é sobre poder ENCONTRAR a cláusula. Antes eram
+   parágrafos soltos num `.card` genérico, com os títulos do mesmo peso do
+   texto: a isenção de responsabilidade existia e ninguém achava. Agora
+   cada seção é numerada e tem um título que se destaca, para caber num
+   "está no item 4" — que é como se aponta para uma cláusula.
+
+   O corpo respeita as réguas do app (texto 33px, caixas 12px) e a medida
+   de linha fica presa em 62 caracteres: num tablet deitado, uma linha da
+   largura da tela é ilegível, e documento longo é onde isso mais pesa. */
+.ei .ei-documento {
+  display: grid;
+  gap: 0;
+  max-width: 62ch;
+  line-height: 1.62;
+}
+.ei .ei-documento p {
+  margin: 0 0 12px;
+  color: var(--ei-tinta);
+}
+.ei .ei-documento p:last-child { margin-bottom: 0; }
+
+.ei .ei-doc-secao {
+  /* O respiro em cima separa desta seção da anterior; o de baixo é curto
+     de propósito, porque o título tem de estar mais perto do texto que ele
+     nomeia do que do parágrafo que ele deixou para trás. */
+  margin: 26px 0 10px;
+  font-size: 1.02rem;
+  font-weight: 800;
+  line-height: 1.35;
+  color: var(--ei-tinta);
+  /* Um fio à esquerda no lugar de uma linha por baixo: em documento com
+     onze seções, onze linhas horizontais viram grade e cansam. */
+  border-left: 3px solid var(--ei-laranja-botao);
+  padding-left: 10px;
+}
+.ei .ei-doc-secao:first-child { margin-top: 0; }
+
+.ei .ei-doc-lista {
+  margin: 0 0 12px;
+  padding-left: 20px;
+  display: grid;
+  gap: 8px;
+  color: var(--ei-tinta);
+}
+.ei .ei-doc-lista li { line-height: 1.55; }
+/* O marcador no laranja da marca: a lista aqui é sempre a enumeração de
+   uma cláusula, e o ponto colorido a separa do texto corrido em volta. */
+.ei .ei-doc-lista li::marker { color: var(--ei-laranja); }
+
+/* O parágrafo que a pessoa precisa ver mesmo se só passar o olho: a
+   isenção nos Termos, a divulgação dos dados na Privacidade. Não é um
+   aviso de erro — é o resumo honesto de uma seção, no tom do app. */
+.ei .ei-doc-destaque {
+  margin: 0 0 12px;
+  padding: 12px 14px;
+  border-radius: 12px;
+  background: var(--ei-afunda);
+  border-left: 3px solid var(--ei-laranja);
+}
+
+/* ── A AUTORIZAÇÃO DE DIVULGAÇÃO, ANTES DE SALVAR — 06/09 ────────────
+   A dona: "ter um campo antes de salvar o cadastro onde a pessoa marque e
+   se comprometa com as regras de divulgação dos dados."
+
+   O cartão tem cor própria e um fio laranja à esquerda porque ele NÃO é
+   mais um campo: é a última coisa que a pessoa lê antes de o cadastro
+   virar público. Num formulário desta altura, um bloco igual a todos os
+   outros passaria batido — e um consentimento que passou batido não vale
+   como consentimento. */
+.ei .ei-consentimento {
+  background: var(--ei-afunda);
+  border-left: 3px solid var(--ei-laranja);
+}
+/* O texto tem quatro linhas; `center` (o padrão da `.ei-caixa`) jogaria a
+   caixa de marcar para o meio do parágrafo, longe da primeira palavra. */
+.ei .ei-consentimento .ei-caixa {
+  align-items: flex-start;
+  font-weight: 400;
+  line-height: 1.5;
+}
+/* A caixa desce 2px para acompanhar a linha do texto: alinhada ao topo do
+   bloco, ela flutua acima da primeira letra. */
+.ei .ei-consentimento .ei-caixa input[type="checkbox"] {
+  margin-top: 2px;
+}
+
+/* ── A CENTRAL DE AJUDA — 06/09 ──────────────────────────────────────
+   A dona: "quero criar no app um FAQ com as principais dúvidas de suporte
+   onde tenha todas as funcionalidades explicadas."
+
+   Cada dúvida é um cartão com o título clicável. A sanfona existe para a
+   LISTA caber na tela — trinta respostas abertas seriam meia hora de
+   rolagem —, mas na busca as respostas vêm abertas: quem digitou a
+   palavra dele veio ler, e mais um toque ali seria só pedágio. */
+.ei .ei-duvida { padding: 0; overflow: hidden; }
+
+.ei .ei-duvida-titulo {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  /* 14px em cima e embaixo dão os 44px de alvo com a linha de texto no
+     meio — a mesma régua de toque do resto do app. */
+  padding: 14px 16px;
+  border: 0;
+  background: none;
+  font: inherit;
+  font-weight: 600;
+  line-height: 1.4;
+  color: var(--ei-tinta);
+  text-align: left;
+  cursor: pointer;
+}
+.ei .ei-duvida-titulo > span:first-child { flex: 1 1 auto; }
+.ei .ei-duvida-titulo:active { background: var(--ei-afunda); }
+
+/* O "+" e o "−" no lugar de uma seta girando: em 16px a seta vira um
+   borrão, e o sinal se lê à distância de braço. */
+.ei .ei-duvida-seta {
+  flex: 0 0 auto;
+  width: 20px;
+  font-size: 1.15rem;
+  font-weight: 700;
+  line-height: 1;
+  color: var(--ei-laranja);
+  text-align: center;
+}
+
+.ei .ei-duvida-resposta {
+  padding: 0 16px 16px;
+  color: var(--ei-tinta);
+  line-height: 1.6;
+}
+.ei .ei-duvida-resposta p { margin: 0 0 10px; }
+.ei .ei-duvida-resposta p:last-of-type { margin-bottom: 0; }
+/* O botão da resposta ("Abrir meu cadastro", "Ver as vagas") ganha ar em
+   cima: colado no último parágrafo ele se lê como parte da frase. */
+.ei .ei-duvida-resposta .ei-btn { margin-top: 12px; }
+
+/* Dois "✕" na mesma busca — 06/09.
+   Medido na foto da central de ajuda: o campo mostrava o botão de limpar
+   do app E o do próprio navegador, um do lado do outro. O do navegador
+   nasce do `type="search"` e some com esta regra; o do app fica, porque é
+   ele que tem tamanho de alvo e rótulo para leitor de tela. Vale para
+   todas as buscas (vagas, talentos, ajuda), que têm a mesma marcação. */
+.ei .ei-busca input[type="search"]::-webkit-search-cancel-button,
+.ei .ei-busca input[type="search"]::-webkit-search-decoration {
+  -webkit-appearance: none;
+  appearance: none;
+  display: none;
+}

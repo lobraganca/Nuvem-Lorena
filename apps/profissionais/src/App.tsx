@@ -38,6 +38,7 @@ const AdminPage = lazy(importarPagina(() => import("./pages/AdminPage").then((m)
 const TermosPage = lazy(importarPagina(() => import("./pages/TermosPage").then((m) => ({ default: m.TermosPage }))));
 const ComoFuncionaPage = lazy(importarPagina(() => import("./pages/ComoFuncionaPage").then((m) => ({ default: m.ComoFuncionaPage }))));
 const PrivacidadePage = lazy(importarPagina(() => import("./pages/PrivacidadePage").then((m) => ({ default: m.PrivacidadePage }))));
+const AjudaPage = lazy(importarPagina(() => import("./pages/ei/AjudaPage").then((m) => ({ default: m.AjudaPage }))));
 const DiagnosticoPage = lazy(importarPagina(() => import("./pages/DiagnosticoPage").then((m) => ({ default: m.DiagnosticoPage }))));
 const ExcluirContaPage = lazy(importarPagina(() => import("./pages/ExcluirContaPage").then((m) => ({ default: m.ExcluirContaPage }))));
 const ConfiguracaoPage = lazy(importarPagina(() => import("./pages/ConfiguracaoPage").then((m) => ({ default: m.ConfiguracaoPage }))));
@@ -250,6 +251,9 @@ function Footer() {
 
           <nav className="rodape-grupo" aria-label="Documentos">
             <h2 className="rodape-grupo-titulo">Documentos</h2>
+            {/* A ajuda vem PRIMEIRO: quem procura o rodapé quase sempre
+                está procurando socorro, não cláusula. */}
+            <Link to="/ajuda">Ajuda e dúvidas</Link>
             <Link to="/termos">Termos de Uso</Link>
             <Link to="/privacidade">Privacidade</Link>
           </nav>
@@ -473,6 +477,10 @@ export default function App() {
         <Route path="/configuracao" element={<ConfiguracaoPage />} />
         <Route path="/termos" element={<TermosPage />} />
         <Route path="/como-funciona" element={<ComoFuncionaPage />} />
+        {/* A central de ajuda. Fora da barreira de login de propósito:
+            "não consigo entrar" é a dúvida mais comum de todas, e a
+            resposta dela não pode estar do outro lado da entrada. */}
+        <Route path="/ajuda" element={<AjudaPage />} />
         <Route path="/privacidade" element={<PrivacidadePage />} />
         <Route path="/excluir-conta" element={<ExcluirContaPage />} />
         {/* Sem link em lugar nenhum: existe para depurar login a distância. */}

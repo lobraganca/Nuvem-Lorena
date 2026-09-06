@@ -64,6 +64,11 @@ const COMPARTILHAVEIS = [
   "/termos",
   "/privacidade",
   "/como-funciona",
+  /* A ajuda entra aqui por um motivo diferente dos outros: não é um link
+     que se manda para alguém, é o socorro de quem não consegue entrar. A
+     pergunta mais comum do suporte é "não recebi o código" — desviar essa
+     pessoa para a tela de entrar seria devolvê-la ao problema. */
+  "/ajuda",
   "/login",
   "/onboarding-tipo",
 ];

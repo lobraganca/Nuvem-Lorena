@@ -41,7 +41,15 @@ import { CampoSenha } from "./CampoSenha";
    precisam ser alcançáveis sempre (Play Store e LGPD), e `/login` porque
    é de onde a pessoa vem — cobri-la faria a barreira aparecer por cima do
    próprio formulário de entrar. */
-const LIVRES = ["/login", "/termos", "/privacidade"];
+const LIVRES = [
+  "/login",
+  "/termos",
+  "/privacidade",
+  /* A ajuda — 06/09. Não é conteúdo do app: é o socorro. A dúvida número
+     um do suporte é "não recebi o código", e trancar a resposta dela
+     atrás da conta é trancá-la atrás do próprio problema. */
+  "/ajuda",
+];
 
 export function exigeSenha(caminho: string): boolean {
   return !LIVRES.some((t) => caminho === t || caminho.startsWith(`${t}/`));

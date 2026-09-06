@@ -14,6 +14,7 @@ import type { JobListing } from "../types/domain";
 import { normalizar, bateOficio, ESCADA_ESCOLARIDADE } from "../lib/compatibilidade";
 import { BotaoFavorito } from "../components/ei/BotaoFavorito";
 import { lerFavoritos } from "../lib/favoritos";
+import { VisorDeFoto } from "../components/ei/VisorDeFoto";
 
 /* ── O PERFIL INTEIRO, E NÃO UM RESUMO — 04/09 ─────────────────────────
    A dona: "ao clicar no pedido de um candidato tem que ter todas as
@@ -93,6 +94,8 @@ type Competencia = { nome: string; nivel: string | null };
 export function PerfilPublicoPage() {
   const { user } = useAuth();
   const [favorito, setFavorito] = useState(false);
+  /* O retrato grande da ficha abre em tela cheia. Ver `VisorDeFoto`. */
+  const [fotoAberta, setFotoAberta] = useState(false);
   const { id = "" } = useParams();
   const [p, setP] = useState<Publico | null>(null);
   const [experiencias, setExperiencias] = useState<ProfessionalExperience[]>([]);
@@ -379,6 +382,34 @@ export function PerfilPublicoPage() {
             />
           }
         >
+          {/* ── A FOTO, GRANDE, LOGO NO ALTO DA FICHA — 06/09 ──────────
+              A dona: "coloque a foto também quando abre o card da
+              pessoa."
+
+              De manhã a miniatura da barra virou botão e passou a abrir
+              em tela cheia. Continuava sendo pouco: para VER o rosto era
+              preciso saber que aquele quadradinho de 30px respondia ao
+              toque. Ninguém sabe.
+
+              Agora o retrato abre a ficha, com o tamanho de um retrato —
+              e continua tocável para ver em tela cheia. Numa cidade
+              pequena, reconhecer a pessoa é metade do motivo de a empresa
+              abrir esta tela.
+
+              Sem foto, nada aparece: um quadrado cinza com uma inicial no
+              alto da ficha ocuparia a dobra inteira para dizer "esta
+              pessoa não pôs foto". */}
+          {p.photo_url && (
+            <button
+              type="button"
+              className="ei-ficha-foto"
+              onClick={() => setFotoAberta(true)}
+              aria-label={`Ver a foto de ${p.name} em tela cheia`}
+            >
+              <img src={p.photo_url} alt={`Foto de ${p.name}`} />
+            </button>
+          )}
+
           <div className="ei-props">
             <Prop rotulo="Situação">
               {p.disponivel === false ? (
@@ -423,6 +454,13 @@ export function PerfilPublicoPage() {
               )}
             </Prop>
           </div>
+        {fotoAberta && p.photo_url && (
+          <VisorDeFoto
+            foto={p.photo_url}
+            nome={p.name}
+            aoFechar={() => setFotoAberta(false)}
+          />
+        )}
         </Pagina>
 
         {/* O contato, logo abaixo dos dados: é o que a empresa veio fazer

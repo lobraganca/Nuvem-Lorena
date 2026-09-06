@@ -23,8 +23,24 @@ export function IconeFogo({ tamanho = 18 }: { tamanho?: number }) {
       aria-hidden="true"
       focusable="false"
     >
-      <path d="M13.4 2.2c.3 2.6-.6 4.3-2 5.7-1.6 1.6-3.6 3-3.6 6.1 0 3.3 2.7 6 6.1 6s6.1-2.7 6.1-6c0-4.2-2.6-6.6-4.2-8.7-.6-.8-1.5-1.9-2.4-3.1Z" />
-      <path d="M8.6 12.9c-1.5 1-2.4 2.4-2.4 4.1 0 1.4.6 2.7 1.6 3.6-1.9-.9-3.2-2.8-3.2-5 0-1.4.5-2.4 1.3-3.3.6-.6 1.5-1.2 2.7-1.9-.1.9 0 1.7 0 2.5Z" opacity=".55" />
+      {/* ── O FOGUINHO FICOU CHEIO E CENTRADO — 06/09 ──────────────────
+          A dona: "o foguinho do app pode ser melhor. Mais chamativo."
+
+          O antigo era uma chama fina e TORTA: o desenho pendia para a
+          direita e a labareda de trás vinha com 55% de opacidade. Em 13px
+          — que é o tamanho dele dentro do selo "Em alta" — sobrava um
+          borrão sem forma, e a coisa mais cara do app (o destaque que a
+          pessoa paga) era anunciada por uma mancha.
+
+          O novo é simétrico, ocupa a caixa toda e tem a chama interna
+          RECORTADA em vez de translúcida — buraco no desenho continua
+          nítido em qualquer tamanho, opacidade não. `evenodd` é o que faz
+          o recorte: o miolo é um segundo contorno dentro do primeiro. */}
+      <path
+        fillRule="evenodd"
+        clipRule="evenodd"
+        d="M12 1.5c.6 2.1.2 3.8-.9 5.2-.5.7-1.1 1.3-1.7 1.9-1 1-2 2-2.7 3.2-.8 1.3-1.2 2.8-1.2 4.5 0 3.7 3 6.7 6.5 6.7s6.5-3 6.5-6.7c0-2-.6-3.7-1.5-5.2-.7-1.2-1.6-2.3-2.4-3.3-1.1-1.4-2.1-2.7-2.6-4.2-.1-.3-.1-.6 0-.9Zm0 17.9c-1.7 0-3.1-1.4-3.1-3.2 0-1.1.5-1.9 1.1-2.7.4-.5.8-1 1.1-1.6.2-.4.3-.8.3-1.2.7.9 1.3 1.6 1.9 2.4.7 1 1.1 1.9 1.1 3.1 0 1.8-1.4 3.2-3.1 3.2Z"
+      />
     </svg>
   );
 }

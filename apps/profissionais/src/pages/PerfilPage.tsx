@@ -477,6 +477,21 @@ export function PerfilPage() {
               suporte — o roteiro de quem não sabe se o app está fazendo o
               que devia, antes de escrever para o suporte. Por isso vem
               primeiro nesta lista. */}
+          {/* ── PERGUNTAS FREQUENTES, ANTES DO E-MAIL — 06/09 ──────────
+              A dona: "quero criar no app um FAQ com as principais dúvidas
+              de suporte onde tenha todas as funcionalidades explicadas."
+
+              Vem antes dos canais de contato de propósito: a maioria das
+              dúvidas que chegam por e-mail e WhatsApp já tem resposta
+              escrita, e a pessoa espera horas por algo que estava a um
+              toque. Quem não achar continua tendo os dois canais logo
+              abaixo — e a própria tela de ajuda termina neles. */}
+          <Linha para="/ajuda" icone={<IconeAjuda />}>
+            Perguntas frequentes
+            <span className="ei-linha-sub">
+              Dúvidas de cadastro, vagas, planos e dados
+            </span>
+          </Linha>
           <Linha para="/como-funciona" icone={<IconeAjuda />}>
             Como funciona
           </Linha>

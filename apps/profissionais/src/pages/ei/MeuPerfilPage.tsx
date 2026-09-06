@@ -545,6 +545,22 @@ export function MeuPerfilPage() {
       return;
     }
 
+    /* O aceite da divulgação, tratado como campo obrigatório — 06/09.
+       ────────────────────────────────────────────────────────────────
+       A recusa também existe dentro de `salvarMeuPerfil`, e de propósito:
+       lá é a trava (nenhum caminho grava sem aceite), aqui é o RECADO —
+       dito antes de tentar gravar, apontando para onde resolver. Um erro
+       vindo do banco chegaria depois do "Salvando…", sem dizer que a
+       caixa está logo acima do botão. */
+    if (!perfil.consentidoEm) {
+      setSalvo(false);
+      setErro(
+        "Falta marcar a autorização de divulgação, na caixinha logo acima do botão " +
+          "Salvar — é ela que permite mostrar o seu cadastro para as empresas."
+      );
+      return;
+    }
+
     setSalvando(true);
     setErro("");
     setSalvo(false);
@@ -1956,6 +1972,55 @@ export function MeuPerfilPage() {
             </span>
           </div>
         )}
+
+        {/* ── A AUTORIZAÇÃO DE DIVULGAÇÃO — 06/09 ─────────────────────
+            A dona: "sobre privacidade, ter um campo antes de salvar o
+            cadastro onde a pessoa marque e se comprometa com as regras de
+            divulgação dos dados e utilização deles para encontro de
+            oportunidades. Que inclusive os dados coletados serão
+            divulgados, pois esse é o intuito da plataforma."
+
+            Fica COLADA no botão de Salvar, e não no alto da tela, porque
+            consentimento é sobre o que vai acontecer no instante seguinte:
+            lá em cima, vinte campos antes, ninguém lembraria de tê-la
+            marcado. É a mesma razão de o texto dizer o que fica visível em
+            vez de mandar ler a política — a política está linkada para
+            quem quiser o detalhe, mas o que a pessoa está autorizando tem
+            de caber aqui.
+
+            A caixa começa DESMARCADA para quem nunca aceitou, inclusive
+            para quem já tinha cadastro antes desta data: consentimento
+            pré-marcado não é consentimento.
+
+            Guardamos a data (`consentidoEm`), não um "sim": ver o
+            comentário do campo em `meuPerfil.ts`. */}
+        <div className="ei-cartao ei-consentimento" style={{ marginTop: 18 }}>
+          <label className="ei-caixa">
+            <input
+              type="checkbox"
+              checked={perfil.consentidoEm != null}
+              onChange={(e) =>
+                setPerfil((x) => ({
+                  ...x,
+                  consentidoEm: e.target.checked ? new Date().toISOString() : null,
+                }))
+              }
+            />
+            <span>
+              <strong>Autorizo a divulgação do meu cadastro.</strong> Entendo que meu
+              nome, foto, cidade, funções, experiência e telefone ficam{" "}
+              <strong>visíveis para empresas e para qualquer pessoa na internet</strong>,
+              e que o Ei Emprego usa esses dados para me aproximar de oportunidades de
+              trabalho. É para isso que a plataforma existe.
+            </span>
+          </label>
+          <p className="ei-campo-ajuda" style={{ marginTop: 10 }}>
+            Você pode sair da divulgação quando quiser, ligando o modo oculto aqui no
+            cadastro, ou apagar tudo em Excluir minha conta. Detalhes na{" "}
+            <Link to="/privacidade">Política de Privacidade</Link> e nos{" "}
+            <Link to="/termos">Termos de Uso</Link>.
+          </p>
+        </div>
 
         {/* O pé da tela.
             ─────────────

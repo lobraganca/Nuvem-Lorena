@@ -1,6 +1,7 @@
 import { supabase } from "./supabase";
 import { gravarTolerando, lerTolerando } from "./colunasNovas";
 import { DEFAULT_CITY, DEFAULT_UF, type Professional } from "../types/domain";
+import { VERSAO_DOCUMENTOS } from "../config";
 
 /**
  * O cadastro de quem procura trabalho: ler e gravar.
@@ -72,6 +73,22 @@ export type MeuPerfil = {
    * gatilho zera o campo em qualquer outra escrita. Aqui é só leitura.
    */
   confirmado: boolean;
+  /**
+   * Quando a pessoa aceitou que o cadastro dela seja divulgado — 06/09.
+   *
+   * A dona: "sobre privacidade, ter um campo antes de salvar o cadastro
+   * onde a pessoa marque e se comprometa com as regras de divulgação dos
+   * dados e utilização deles para encontro de oportunidades."
+   *
+   * É a data, e não um `true`, porque consentimento sem data não prova
+   * nada: a LGPD pede que se demonstre QUANDO e a QUE TEXTO a pessoa
+   * consentiu (por isso `consentimento_versao` anda junto no banco). Um
+   * booleano diria "aceitou", sem dizer o que nem quando.
+   *
+   * `null` quer dizer que ainda não aceitou — e é o que faz a caixa
+   * aparecer desmarcada para quem se cadastrou antes desta data.
+   */
+  consentidoEm: string | null;
   /* ── O QUE A PESSOA QUER (0101) ────────────────────────────────────
      A dona: "o cadastro do candidato está muito simples. tem que ter
      pretensão salarial, horário melhor, se aceita viajar."
@@ -182,6 +199,7 @@ export const PERFIL_VAZIO: MeuPerfil = {
   disponivel: true,
   oculto: false,
   confirmado: false,
+  consentidoEm: null,
   pretensao: "",
   pretensaoCombinar: false,
   pretensaoPeriodo: "mes",
@@ -343,8 +361,9 @@ export async function lerMeuPerfil(ownerId: string): Promise<MeuPerfil | null> {
     "id, name, phone, email, photo_url, bio, city, uf, neighborhood, areas_de_interesse, disponivel, paused, whatsapp_verified, " +
       "pretensao_centavos, pretensao_combinar, pretensao_periodo, disponibilidade, aceita_viajar, " +
       "data_nascimento, cnh, cnh_categorias, telefones_extra, modo_trabalho, " +
-      "fim_de_semana, inicio_imediato, primeiro_emprego, aceita_freela, genero, pcd",
-    ["genero", "pcd"],
+      "fim_de_semana, inicio_imediato, primeiro_emprego, aceita_freela, genero, pcd, " +
+      "consentimento_em",
+    ["genero", "pcd", "consentimento_em"],
     (colunas) =>
       sb
         .from("professionals")
@@ -396,6 +415,11 @@ export async function lerMeuPerfil(ownerId: string): Promise<MeuPerfil | null> {
     disponivel: linha.disponivel ?? true,
     oculto: linha.paused ?? false,
     confirmado: linha.whatsapp_verified ?? false,
+    /* Sem a coluna (banco ainda sem a 0128), vem indefinido e a caixa
+       aparece desmarcada — pedir de novo é o certo quando não há prova de
+       que já foi aceito. */
+    consentidoEm:
+      (linha as { consentimento_em?: string | null }).consentimento_em ?? null,
     pretensao:
       linha.pretensao_centavos == null
         ? ""
@@ -448,6 +472,20 @@ export async function salvarMeuPerfil(
   const telefone = soDigitos(perfil.phone);
   if (telefone.length < 10) {
     throw new Error("O telefone precisa ter DDD e número, como (31) 99999-8888.");
+  }
+
+  /* ── SEM O ACEITE, NÃO GRAVA — 06/09 ───────────────────────────────
+     A caixa de consentimento está na tela, mas a recusa mora AQUI, junto
+     do nome e do telefone, porque a tela não é o único caminho: o campo
+     da foto também grava o cadastro para conseguir um `id` antes de
+     subir o arquivo. Uma checagem só na tela deixaria esse caminho
+     gravar sem aceite — e um cadastro divulgado sem consentimento é
+     justamente o que a caixa existe para impedir. */
+  if (!perfil.consentidoEm) {
+    throw new Error(
+      "Falta marcar a autorização de divulgação, no fim do cadastro — é ela que " +
+        "permite mostrar o seu perfil para as empresas."
+    );
   }
 
   /* `categories` anda junto com `areas_de_interesse` de propósito. A busca
@@ -509,6 +547,11 @@ export async function salvarMeuPerfil(
        o padrão em Itabirito para quem nunca abriu esse campo. */
     city: perfil.city || DEFAULT_CITY,
     uf: perfil.uf || DEFAULT_UF,
+    /* A data do aceite e o texto aceito. A versão anda junto porque
+       consentimento é a UM documento: se a política mudar, saber que
+       alguém aceitou não diz o quê. */
+    consentimento_em: perfil.consentidoEm,
+    consentimento_versao: VERSAO_DOCUMENTOS,
   };
 
   /* ── AS COLUNAS MAIS NOVAS ─────────────────────────────────────────
@@ -518,7 +561,7 @@ export async function salvarMeuPerfil(
      INTEIRA — foi assim que a coluna `uf` deixou a cidade sem conseguir
      se cadastrar por catorze horas. `gravarTolerando` refaz sem elas
      nesse caso, e escreve no console qual faltou. Ver `colunasNovas.ts`. */
-  const NOVAS = ["genero", "pcd"];
+  const NOVAS = ["genero", "pcd", "consentimento_em", "consentimento_versao"];
 
   if (perfil.id) {
     const { error } = await gravarTolerando(campos, NOVAS, (c) =>

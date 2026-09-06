@@ -140,7 +140,15 @@ export function senhaGravadaNesteAparelho(): boolean {
   return naoPedirNesteAparelho();
 }
 
-const LIVRES = ["/login", "/termos", "/privacidade"];
+const LIVRES = [
+  "/login",
+  "/termos",
+  "/privacidade",
+  /* A ajuda — 06/09. Não é conteúdo do app: é o socorro. A dúvida número
+     um do suporte é "não recebi o código", e trancar a resposta dela
+     atrás da conta é trancá-la atrás do próprio problema. */
+  "/ajuda",
+];
 
 /**
  * A senha da abertura ainda está pendente?

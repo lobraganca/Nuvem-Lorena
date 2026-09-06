@@ -1,6 +1,7 @@
 import { useState, type ReactNode } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { telaAnterior } from "../../lib/historicoDoApp";
+import { VisorDeFoto } from "./VisorDeFoto";
 
 /**
  * A barra de topo da tela.
@@ -151,32 +152,8 @@ export function Pagina({
 
       {children}
 
-      {/* O visor. Fundo preto e a foto no meio, sem moldura e sem botão de
-          fechar desenhado: toca em qualquer lugar e fecha. É o gesto que
-          toda galeria de celular ensina, e um "X" no canto seria mais uma
-          coisa para acertar com o dedo.
-
-          `role="dialog"` e o Esc para quem está no computador — a mesma
-          tela serve os dois, e fechar só por toque deixaria alguém preso
-          num retrato em tela cheia. */}
       {fotoAberta && foto && (
-        <div
-          className="ei-visor-foto"
-          role="dialog"
-          aria-modal="true"
-          aria-label={`Foto de ${titulo}`}
-          tabIndex={-1}
-          ref={(el) => el?.focus()}
-          onClick={() => setFotoAberta(false)}
-          onKeyDown={(e) => {
-            if (e.key === "Escape" || e.key === "Enter" || e.key === " ") {
-              setFotoAberta(false);
-            }
-          }}
-        >
-          <img src={foto} alt={`Foto de ${titulo}`} />
-          <span className="ei-visor-foto-nota">Toque para fechar</span>
-        </div>
+        <VisorDeFoto foto={foto} nome={titulo} aoFechar={() => setFotoAberta(false)} />
       )}
     </>
   );
