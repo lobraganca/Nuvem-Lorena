@@ -1386,6 +1386,45 @@ const clienteFalso = {
       return { data: planoFalso() ? TETO_DO_PLANO[QUAL_PLANO] : 0, error: null };
     }
     if (nome === "vagas_ativas_agora") return { data: VAGAS.length, error: null };
+    /* ── QUANTAS PESSOAS O EI JÁ EMPREGOU (0125) ──────────────────────
+       Três estados, e o terceiro é o que mais importa:
+
+         ?contratados=37      o número aparece
+         ?contratados=2       abaixo do piso — a linha some
+         ?contratados=semsql  a função NÃO EXISTE no banco
+
+       O `semsql` é o estado real do app enquanto a 0125 não for colada, e
+       é justamente o que não dá para ver olhando a tela pronta: o certo é
+       a tela ficar inteira e sem a linha. Sem este caso ligável, um erro
+       aqui só apareceria em produção, na tela inicial, para quem ainda
+       não entrou — o pior lugar possível.
+
+       Devolve um ARRAY de uma linha, como faz o PostgREST com função que
+       retorna `table`. Devolvendo o objeto solto, o app funcionaria aqui
+       e mostraria "undefined pessoas" no banco de verdade. */
+    if (nome === "numeros_do_ei") {
+      const forcado = ajuste("contratados");
+      if (forcado === "semsql") {
+        return {
+          data: null,
+          error: {
+            code: "PGRST202",
+            message: "Could not find the function public.numeros_do_ei without parameters",
+          },
+        };
+      }
+      const contratados = forcado !== null && forcado !== "" ? Number(forcado) : 37;
+      return {
+        data: [
+          {
+            contratados,
+            /* Menos vagas que pessoas: uma vaga pode contratar duas. */
+            vagas_que_contrataram: Math.max(1, Math.ceil(contratados / 1.4)),
+          },
+        ],
+        error: null,
+      };
+    }
     /* ── O REEMBOLSO, E O QUE ELE CAUSA (0124) ────────────────────────
        No banco de verdade quem decide é a função, comparando `plano_desde`
        com os 7 dias. Aqui a decisão é a mesma, com a data da empresa

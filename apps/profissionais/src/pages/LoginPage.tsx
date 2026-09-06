@@ -28,6 +28,7 @@ import {
   lerLadoDaSessao,
 } from "../lib/ladoDaSessao";
 import { registrarTipoDeUsuario } from "../lib/company";
+import { ProvaDeContratacao } from "../components/ei/ProvaDeContratacao";
 
 /**
  * Entrar: pelo telefone, pelo Google, ou por e-mail e senha.
@@ -311,6 +312,19 @@ export function LoginPage() {
   return (
     <div className="container entrar-pagina">
       <h1>{modo === "sms" && !comEmail ? "Criar conta ou entrar" : "Entrar"}</h1>
+      {/* ── A PROVA, NA PRIMEIRA TELA DE TODAS — 06/09 ─────────────────
+          Esta é a tela que quem não tem conta vê: `/` manda para cá.
+          Então é AQUI que alguém decide se vale a pena dar o telefone e
+          esperar um SMS — e até hoje a tela pedia isso sem oferecer um
+          único motivo.
+
+          "37 pessoas já foram contratadas pelo Ei Emprego" é o motivo. O
+          número vem da pergunta que o app faz à empresa ao encerrar a
+          vaga, e estava guardado no painel da administração desde a 0109.
+
+          Acima da escolha do lado de propósito: ela serve para os dois
+          lados igualmente, e quem lê ainda não escolheu nenhum. */}
+      <ProvaDeContratacao />
       {/* ── A CHAVE DO LADO, NA MESMA TELA DO LOGIN — 04/09 ─────────────
           A dona: "na tela de login a pessoa vai ter que escolher entre quero
           contratar ou procuro emprego. Serão dois logins diferentes e as

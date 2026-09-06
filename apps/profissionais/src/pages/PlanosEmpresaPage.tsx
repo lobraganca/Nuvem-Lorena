@@ -7,6 +7,7 @@ import { useAuth } from "../lib/useAuth";
 import { minhasEmpresas } from "../lib/company";
 import type { Company } from "../types/domain";
 import { podeVender } from "../lib/plataforma";
+import { ProvaDeContratacao } from "../components/ei/ProvaDeContratacao";
 import {
   PLANOS_EMPRESA,
   PLANO_GRATUITO,
@@ -126,6 +127,18 @@ export function PlanosEmpresaPage() {
 
         {/* O que está valendo hoje, antes de qualquer preço. */}
         {!antesDoCadastro && <AssinaturaAtual />}
+
+        {/* ── A PROVA, ANTES DOS PREÇOS — 06/09 ───────────────────────
+            Esta é a tela em que alguém decide gastar dinheiro, e até hoje
+            ela argumentava só com o que a empresa GANHA (vagas, lista de
+            interessados). "37 pessoas já foram contratadas pelo Ei
+            Emprego" é a única frase do app que responde à pergunta que
+            vem antes dessa — isto funciona? — e com número, não com
+            adjetivo.
+
+            Acima dos cartões de propósito: depois deles a pessoa já
+            decidiu, e a prova chega tarde. */}
+        <ProvaDeContratacao className="ei-margem ei-planos-prova" />
 
         {/* Uma linha só, e curta: ela vive na faixa branca logo abaixo da
             barra azul, e cada palavra a mais empurra o primeiro preço para

@@ -8619,3 +8619,61 @@
 .ei .ei-entrada-topo .ei-ao-vivo {
   margin: 0 0 8px;
 }
+
+/* ── QUANTAS PESSOAS O EI JÁ EMPREGOU — 06/09 ────────────────────────
+   O dado existia desde a 0109, guardado: ao encerrar uma vaga o app
+   pergunta se a contratação veio daqui e quantas pessoas foram, e as duas
+   respostas só apareciam no painel da administração.
+
+   ── SEM O PREFIXO `.ei`, e é a única regra deste arquivo assim ───────
+
+   Todo o resto aqui começa com `.ei ` porque o app do Ei vive dentro
+   dessa classe. A TELA DE LOGIN não: ela é `.container.entrar-pagina`, do
+   tema antigo, e é a única tela do app fora do `.ei`.
+
+   Isso não foi teoria — foi o que aconteceu. Escrito como `.ei
+   .ei-ja-contratou`, o bloco apareceu no login como texto solto sobre o
+   azul, sem fundo, sem cantos e com o emoji colado no número, porque
+   nenhuma das regras valia ali. E o login é justamente onde este número
+   mais importa: é a primeira tela de quem ainda não tem conta.
+
+   ── Duas peles, porque são dois fundos ───────────────────────────────
+
+   Sobre papel (a tela de planos), verde claro: é a cor que o app já usa
+   para "deu certo" — o ponto do on-line, o selo de confirmado. Azul aqui
+   somaria com os botões e o bloco viraria decoração.
+
+   Sobre a faixa azul do login, branco translúcido: o verde claro sobre
+   azul forte briga, e escurecer o texto o deixaria ilegível. */
+.ei-ja-contratou {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 12px 0 0;
+  padding: 9px 12px;
+  border-radius: 12px;
+  background: #eaf7ef;
+  color: #1a6b3f;
+  font-size: 0.86rem;
+  line-height: 1.35;
+}
+.ei-ja-contratou strong {
+  font-weight: 700;
+}
+
+/* Na faixa azul do login. O `-4px` de margem embaixo é dívida daquele
+   degradê: ele é pintado até 345px contados do alto do bloco, e o que
+   passar disso fica sobre papel branco — cada pixel a mais aqui empurra a
+   linha "Escolha uma das duas" para fora do azul. Medido com folga. */
+.entrar-pagina .ei-ja-contratou {
+  background: rgba(255, 255, 255, 0.18);
+  color: #ffffff;
+  margin-bottom: 4px;
+}
+
+/* Na tela de planos ela abre o bloco dos cartões, então o vão embaixo é
+   maior que o de cima. */
+.ei-planos-prova {
+  margin-top: 4px;
+  margin-bottom: 16px;
+}
