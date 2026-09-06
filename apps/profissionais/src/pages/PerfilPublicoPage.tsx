@@ -96,6 +96,11 @@ export function PerfilPublicoPage() {
   const [favorito, setFavorito] = useState(false);
   /* O retrato grande da ficha abre em tela cheia. Ver `VisorDeFoto`. */
   const [fotoAberta, setFotoAberta] = useState(false);
+  /* A foto existe no cadastro mas não carregou (arquivo removido do
+     Storage, bucket trocado). É diferente de não ter foto, e a ficha diz
+     as duas coisas com frases diferentes — foi a confusão que fez a dona
+     perguntar "quando entra no card do empregado não tem foto". */
+  const [fotoFalhou, setFotoFalhou] = useState(false);
   const { id = "" } = useParams();
   const [p, setP] = useState<Publico | null>(null);
   const [experiencias, setExperiencias] = useState<ProfessionalExperience[]>([]);
@@ -363,6 +368,12 @@ export function PerfilPublicoPage() {
           ),
   };
 
+  /* Uma resposta só para "há rosto para mostrar?", usada na barra, no
+     retrato grande e no visor. Sem ela, os três decidiriam por conta
+     própria e a barra continuaria mostrando um quadrado quebrado depois
+     de o retrato já ter desistido da mesma imagem. */
+  const temFoto = !!p.photo_url && !fotoFalhou;
+
   return (
     <div className="ei">
       <div className="ei-tela">
@@ -370,7 +381,7 @@ export function PerfilPublicoPage() {
             tela (a principal é o telefone), e a barra é onde o app já põe
             a ação secundária de cada página. */}
         <Pagina
-          foto={p.photo_url}
+          foto={temFoto ? p.photo_url : null}
           titulo={p.name}
           voltar="/profissionais"
           acao={
@@ -396,18 +407,47 @@ export function PerfilPublicoPage() {
               pequena, reconhecer a pessoa é metade do motivo de a empresa
               abrir esta tela.
 
-              Sem foto, nada aparece: um quadrado cinza com uma inicial no
-              alto da ficha ocuparia a dobra inteira para dizer "esta
-              pessoa não pôs foto". */}
-          {p.photo_url && (
+              ── SEM FOTO, A FICHA DIZ ISSO — 06/09 ─────────────────
+              A dona: "quando entra no card do empregado não tem foto."
+
+              Aqui não aparecia NADA quando a pessoa não tinha foto. A
+              intenção era boa (não gastar a dobra com um quadrado cinza),
+              e o efeito foi o oposto: ausência não explica nada. Quem
+              abre a ficha e não vê rosto nenhum não sabe se a pessoa não
+              pôs foto, se o app perdeu, ou se está quebrado — e foi
+              exatamente essa a dúvida que chegou.
+
+              Agora o vazio tem legenda. O quadrado é menor que o do
+              retrato (96px contra 168), porque ele não é o rosto de
+              ninguém: é só o lugar onde o rosto estaria, com uma linha
+              dizendo por que não está. */}
+          {temFoto ? (
             <button
               type="button"
               className="ei-ficha-foto"
               onClick={() => setFotoAberta(true)}
               aria-label={`Ver a foto de ${p.name} em tela cheia`}
             >
-              <img src={p.photo_url} alt={`Foto de ${p.name}`} />
+              {/* `onError` porque URL guardada não é foto que carrega: se o
+                  arquivo sumiu do Storage, sem isto ficava um quadrado
+                  branco — mais um jeito de a tela não dizer o que houve. */}
+              <img
+                src={p.photo_url!}
+                alt={`Foto de ${p.name}`}
+                onError={() => setFotoFalhou(true)}
+              />
             </button>
+          ) : (
+            <div className="ei-ficha-sem-foto">
+              <span className="ei-ficha-sem-foto-inicial" aria-hidden="true">
+                {p.name.trim().charAt(0).toLocaleUpperCase("pt-BR") || "?"}
+              </span>
+              <span className="ei-ficha-sem-foto-nota">
+                {fotoFalhou
+                  ? "A foto desta pessoa não carregou."
+                  : "Esta pessoa ainda não colocou foto."}
+              </span>
+            </div>
           )}
 
           <div className="ei-props">
@@ -454,9 +494,9 @@ export function PerfilPublicoPage() {
               )}
             </Prop>
           </div>
-        {fotoAberta && p.photo_url && (
+        {fotoAberta && temFoto && (
           <VisorDeFoto
-            foto={p.photo_url}
+            foto={p.photo_url!}
             nome={p.name}
             aoFechar={() => setFotoAberta(false)}
           />

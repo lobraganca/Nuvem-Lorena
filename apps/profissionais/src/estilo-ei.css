@@ -9009,3 +9009,36 @@
     url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='2.2' stroke-linecap='round'><circle cx='10.5' cy='10.5' r='6.5'/><path d='M10.5 7.8v5.4M7.8 10.5h5.4'/><path d='M20 20l-4.6-4.6'/></svg>")
     center / 17px 17px no-repeat;
 }
+
+/* ── O LUGAR DA FOTO, QUANDO NÃO HÁ FOTO — 06/09 ─────────────────────
+   A dona: "quando entra no card do empregado não tem foto."
+
+   A ficha simplesmente não desenhava nada nesse caso, e ausência não
+   explica nada: quem abre e não vê rosto não sabe se a pessoa não pôs
+   foto, se o app perdeu ou se está quebrado. Agora o vazio tem legenda.
+
+   96px, e não os 168 do retrato de verdade: isto não é o rosto de
+   ninguém, é o lugar onde o rosto estaria. Gastar a mesma altura para
+   dizer "não tem" seria trocar um problema por outro. */
+.ei .ei-ficha-sem-foto {
+  display: grid;
+  justify-items: center;
+  gap: 8px;
+  margin: 14px auto 4px;
+}
+.ei .ei-ficha-sem-foto-inicial {
+  display: grid;
+  place-items: center;
+  width: 96px;
+  height: 96px;
+  border-radius: 16px;
+  background: var(--ei-afunda-forte);
+  color: var(--ei-tinta);
+  font-size: 2.2rem;
+  font-weight: 600;
+}
+.ei .ei-ficha-sem-foto-nota {
+  color: var(--ei-tinta-fraca);
+  font-size: 0.86rem;
+  text-align: center;
+}
