@@ -7565,10 +7565,9 @@
   flex-wrap: wrap;
 }
 
-.ei .ei-pessoa-primeiro {
-  margin-top: 6px;
-  align-self: start;
-}
+/* `.ei-pessoa-primeiro` saiu daqui em 06/09: a pastilha "Primeiro
+   emprego" passou a entrar na mesma fileira das funções, e ali não tem
+   margem nem alinhamento próprios — ela é mais uma pastilha. */
 
 .ei .ei-pessoa-resumo {
   margin-top: 6px;
@@ -7769,6 +7768,112 @@
 }
 .ei .ei-pessoa > .ei-linha-seta { grid-area: seta; align-self: center; }
 .ei .ei-pessoa > .ei-pessoa-funcoes { grid-area: funcoes; }
+
+/* ── A GRADE ACIMA SÓ VALE PARA O CARTÃO CHATO — 06/09 ────────────────
+   A dona, com o print da lista de quem se interessou: "esse card ficou
+   muito estranho, respiros grandes e tudo desalinhado."
+
+   A grade de áreas nomeadas logo acima foi escrita para UM formato de
+   cartão: o do banco de talentos, em que retrato, nome, funções e seta
+   são filhos DIRETOS de `.ei-pessoa`. Só que metade do app usa o outro
+   formato, mais antigo, em que tudo isso vem embrulhado num
+   `.ei-pessoa-texto` — Meu perfil, Empresa pública, Banco de vagas,
+   Favoritos, Ondas e a lista de interessados.
+
+   Nesses seis, o embrulho não tem `grid-area` nenhuma. A grade faz então
+   o que faz com um filho sem lugar marcado: encaixa no primeiro buraco
+   livre — a faixa do selo "Em alta", na linha de cima. Medido na lista de
+   interessados: o texto inteiro (nome, funções, resumo, bairro) espremido
+   numa coluna de 154px numa tela de 390, e a seta sozinha numa linha
+   abaixo de tudo, a 62px do texto. É exatamente o print dela.
+
+   Aqui o cartão embrulhado volta a ser o que sempre foi: uma FILEIRA —
+   retrato, texto que ocupa o resto, seta no fim. A grade continua valendo
+   para quem tem os filhos soltos, que é para quem ela foi feita.
+
+   (`:has()` e não uma classe nova de propósito: classe nova exigiria
+   passar nos seis arquivos e acertar todos, e o sétimo que aparecer
+   nasceria quebrado de novo. Aqui a regra é o próprio formato do
+   cartão.) */
+.ei .ei-pessoa:has(> .ei-pessoa-texto) {
+  display: flex;
+  align-items: center;
+  grid-template-areas: none;
+}
+/* O texto ocupa o vão inteiro entre o retrato e a seta. `min-width: 0` é
+   o que permite ele ENCOLHER: sem isso um nome comprido empurra a seta
+   para fora do cartão. */
+.ei .ei-pessoa > .ei-pessoa-texto {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+/* ── O CARTÃO DE QUEM SE INTERESSOU PELA VAGA — 06/09 ────────────────
+   A dona, com o print: "esse card ficou muito estranho, respiros grandes
+   e tudo desalinhado."
+
+   Este é o cartão com MAIS coisa do app: retrato, nome, funções, primeiro
+   emprego, o resumo escrito pela pessoa, bairro, data e a marca da
+   triagem. Em fileira simples sobravam 168px de largura para tudo isso
+   numa tela de 390 — e a 168px as duas pastilhas de função (179px juntas,
+   medido) não cabem lado a lado, o resumo corta na quarta palavra e cada
+   pedaço vira uma linha própria. Daí os "respiros grandes": não era
+   espaçamento a mais, era conteúdo espremido a menos.
+
+   A saída é a mesma que o banco de talentos já usa: o nome divide a linha
+   de cima com o retrato, e o resto desce para uma faixa que atravessa o
+   cartão por baixo da seta — 196px em vez de 168. É pouco no papel e é
+   tudo na prática, porque é o que faz as pastilhas caberem numa linha só.
+
+   O retrato SPANNA as duas linhas de propósito: sem isso a faixa começaria
+   abaixo dele e o cartão ganharia 84px de altura, que é uma pessoa a menos
+   por tela numa lista feita para comparar gente. */
+.ei .ei-pessoa-triagem {
+  grid-template-columns: auto 1fr auto;
+  grid-template-areas:
+    "foto nome  seta"
+    "foto ficha ficha";
+  align-items: start;
+}
+.ei .ei-pessoa-triagem > .ei-pessoa-nome { grid-area: nome; align-self: center; }
+.ei .ei-pessoa-triagem > .ei-linha-seta { grid-area: seta; align-self: center; }
+.ei .ei-pessoa-triagem > .ei-pessoa-ficha { grid-area: ficha; }
+
+/* A faixa de baixo em coluna, com um ritmo só. Antes cada pedaço trazia a
+   própria margem (`margin-top: 6px` aqui, nada ali), e o que se via era
+   espaço desigual entre coisas do mesmo peso — a outra metade do
+   "desalinhado" do print. */
+.ei .ei-pessoa-ficha {
+  display: grid;
+  justify-items: start;
+  gap: 8px;
+  min-width: 0;
+}
+/* As margens soltas saem: quem manda no espaço aqui é o `gap` da faixa. */
+.ei .ei-pessoa-ficha > .ei-pessoa-funcoes,
+.ei .ei-pessoa-ficha > .ei-pessoa-resumo { margin-top: 0; }
+
+/* O pé: de onde a pessoa é, quando respondeu, e como já foi triada. Numa
+   fileira só — são três informações curtas do mesmo tipo, e empilhadas
+   custavam três linhas para dizer o que cabe em uma. */
+.ei .ei-pessoa-rodape {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+  min-width: 0;
+}
+/* Menor que o resumo, e não do mesmo tamanho: encostada logo abaixo dele e
+   com a mesma letra, "Praia · 06/09" era lido como o fim da frase que a
+   pessoa escreveu. */
+.ei .ei-pessoa-rodape .ei-pessoa-oficio { font-size: 0.8rem; }
+
+/* "1 pessoa" encostado no alto do cartão. O `margin-top` de 15px que todo
+   `p` traz de nascença somava com os 18px de respiro do cartão e abria um
+   vão de 33px acima de uma linha de três palavras. */
+.ei .ei-triagem-conta {
+  margin: 0 0 10px;
+}
 
 .ei .ei-pessoa-nome {
   /* Nome de gente não se abrevia: quebra em duas linhas e só corta

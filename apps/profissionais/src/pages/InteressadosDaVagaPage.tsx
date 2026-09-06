@@ -215,7 +215,10 @@ export function InteressadosDaVagaPage() {
         {/* Sem repetir "interessados": o título da tela já diz. Aqui só a
             contagem, que é o que muda de uma visita para a outra. */}
         {respostas.length > 0 && (
-          <p className="muted" style={{ marginBottom: 10 }}>
+          /* Sem a margem que todo `p` traz de nascença: somada aos 18px de
+             respiro do cartão, ela abria 33px em cima de "1 pessoa" e
+             deixava a contagem boiando sozinha no alto — 06/09. */
+          <p className="muted ei-triagem-conta">
             {daAba.length === 1 ? "1 pessoa" : `${daAba.length} pessoas`}
           </p>
         )}
@@ -259,7 +262,7 @@ export function InteressadosDaVagaPage() {
                     ? `/profissional/${resp.cadastroId}?resposta=${resp.id}&vaga=${vagaId}`
                     : "#"
                 }
-                className="ei-pessoa"
+                className="ei-pessoa ei-pessoa-triagem"
                 style={resp.cadastroId ? undefined : { pointerEvents: "none", opacity: 0.6 }}
               >
                 <span className="ei-pessoa-retrato" aria-hidden="true">
@@ -269,10 +272,21 @@ export function InteressadosDaVagaPage() {
                     (resp.nome || "?").trim().charAt(0).toLocaleUpperCase("pt-BR")
                   )}
                 </span>
-                <span className="ei-pessoa-texto">
-                  <span className="ei-pessoa-nome ei-uma-linha">
-                    {resp.nome || "Sem nome"}
+                {/* O nome é filho DIRETO do cartão, e o resto vai na faixa
+                    de baixo. Não é arrumação de código: enquanto tudo
+                    estava embrulhado num `ei-pessoa-texto`, sobravam 168px
+                    de largura ao lado do retrato de 84px — e as duas
+                    pastilhas de função (179px juntas) não cabiam lado a
+                    lado, cada uma descia para uma linha. Medido. */}
+                <span className="ei-pessoa-nome ei-uma-linha">
+                  {resp.nome || "Sem nome"}
+                </span>
+                {resp.cadastroId && (
+                  <span className="ei-linha-seta" aria-hidden="true">
+                    <IconeSeta />
                   </span>
+                )}
+                <span className="ei-pessoa-ficha">
                   {/* ── O QUE A PESSOA FAZ — 05/09 ────────────────────
                       A dona: "como escolher nessa tela se não tem nada
                       informando o que a pessoa faz e as experiências?"
@@ -288,7 +302,14 @@ export function InteressadosDaVagaPage() {
                       pastilhas já empurram o cartão para três linhas, e
                       quem tem muitas funções marcadas é justamente quem
                       não se decidiu por nenhuma. */}
-                  {resp.funcoes.length > 0 && (
+                  {/* "Primeiro emprego" entra NA MESMA fileira das funções,
+                      e não numa linha própria embaixo — 06/09. Sozinho ele
+                      era uma pastilha verde do tamanho de uma frase,
+                      encostada à esquerda debaixo de duas pastilhas cinzas
+                      pequenas: fora de escala, e foi um dos "desalinhados"
+                      do print da dona. Junto, ele é o que sempre foi — mais
+                      uma coisa que se sabe sobre a pessoa. */}
+                  {(resp.funcoes.length > 0 || resp.primeiroEmprego) && (
                     <span className="ei-chips ei-pessoa-funcoes">
                       {resp.funcoes.slice(0, 3).map((f) => (
                         <span key={f} className="ei-selo ei-selo-cinza">
@@ -300,16 +321,13 @@ export function InteressadosDaVagaPage() {
                           +{resp.funcoes.length - 3}
                         </span>
                       )}
-                    </span>
-                  )}
-
-                  {/* "Está atrás do primeiro emprego" é INFORMAÇÃO, e não
-                      falta dela: sem esta linha, um cadastro sem
-                      experiência nenhuma é lido como cadastro pela metade
-                      — e é o contrário, é alguém começando. */}
-                  {resp.primeiroEmprego && (
-                    <span className="ei-selo ei-selo-verde ei-pessoa-primeiro">
-                      Primeiro emprego
+                      {/* "Está atrás do primeiro emprego" é INFORMAÇÃO, e
+                          não falta dela: sem isto, um cadastro sem
+                          experiência nenhuma é lido como cadastro pela
+                          metade — e é o contrário, é alguém começando. */}
+                      {resp.primeiroEmprego && (
+                        <span className="ei-selo ei-selo-verde">Primeiro emprego</span>
+                      )}
                     </span>
                   )}
 
@@ -321,31 +339,34 @@ export function InteressadosDaVagaPage() {
                     <span className="ei-pessoa-resumo">{resp.resumo.trim()}</span>
                   )}
 
-                  <span className="ei-pessoa-oficio ei-uma-linha">
-                    {/* Só o dia e o mês. Com o retrato maior (04/09) a linha
-                        encurtou, e "Praia · respondeu em 04/09/2026" passou a
-                        ser cortada JUSTO NA DATA — sobrava "respondeu em …",
-                        que é a metade sem informação nenhuma. */}
-                    {resp.bairro ? `${resp.bairro} · ` : ""}
-                    {new Date(resp.responded_at).toLocaleDateString("pt-BR", {
-                      day: "2-digit",
-                      month: "2-digit",
-                    })}
-                  </span>
-                  {/* A marca da triagem no próprio card, e não só na aba:
-                      quem está em "Todos" precisa ver quem já foi decidido
-                      sem trocar de filtro. */}
-                  {SELO[resp.status] && (
-                    <span className={SELO[resp.status]!.classe}>
-                      {SELO[resp.status]!.texto}
+                  {/* O bairro, a data e a marca da triagem numa fileira só,
+                      no pé do cartão — 06/09. Empilhados, cada um numa
+                      linha, "Praia · 04/09" caía logo abaixo do resumo com
+                      o mesmo tamanho e a mesma cor, e lia como se fosse a
+                      última frase do que a pessoa escreveu. Aqui embaixo, e
+                      menor, ele volta a ser o que é: de onde e de quando. */}
+                  <span className="ei-pessoa-rodape">
+                    <span className="ei-pessoa-oficio ei-uma-linha">
+                      {/* Só o dia e o mês. Com o retrato maior (04/09) a linha
+                          encurtou, e "Praia · respondeu em 04/09/2026" passou a
+                          ser cortada JUSTO NA DATA — sobrava "respondeu em …",
+                          que é a metade sem informação nenhuma. */}
+                      {resp.bairro ? `${resp.bairro} · ` : ""}
+                      {new Date(resp.responded_at).toLocaleDateString("pt-BR", {
+                        day: "2-digit",
+                        month: "2-digit",
+                      })}
                     </span>
-                  )}
-                </span>
-                {resp.cadastroId && (
-                  <span className="ei-linha-seta" aria-hidden="true">
-                    <IconeSeta />
+                    {/* A marca da triagem no próprio card, e não só na aba:
+                        quem está em "Todos" precisa ver quem já foi decidido
+                        sem trocar de filtro. */}
+                    {SELO[resp.status] && (
+                      <span className={SELO[resp.status]!.classe}>
+                        {SELO[resp.status]!.texto}
+                      </span>
+                    )}
                   </span>
-                )}
+                </span>
               </Link>
               {/* ── A DECISÃO NA PRÓPRIA LINHA — 04/09 ─────────────────
                   Fora do `<Link>` de propósito: botão dentro de link é o
