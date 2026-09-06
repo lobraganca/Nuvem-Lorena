@@ -191,10 +191,12 @@ que é onde nasce o erro de aplicar no banco do Avena:
 https://supabase.com/dashboard/project/ahigenhenzmsjxlmrzhz/sql/new
 ```
 
-- Numeração sequencial: a última hoje é a `0126` (o termômetro do emprego).
-  Antes dela: a `0125` (quantas pessoas o app já empregou), a `0124`
-  (reembolso encerrando o plano sozinho) e a `0123` (teste grátis da
-  empresa, e o plano deixando de ser editável pela própria empresa).
+- Numeração sequencial: a última hoje é a `0127` (`professionals.visto_em`,
+  para saber quem sumiu). Antes dela: a `0126` (termômetro do emprego), a
+  `0125` (quantas pessoas o app já empregou), a `0124` (reembolso
+  encerrando o plano sozinho) e a `0123` (teste grátis da empresa, e o
+  plano deixando de ser editável pela própria empresa). **Da 0123 à 0126
+  estão aplicadas** — confirmado pela dona em 06/09.
 - `supabase/banco-completo.sql` **está desatualizado** (para na 0051). Serve
   para montar um banco do zero até ali, não como retrato do que está no ar.
 - Edge Functions ficam em `supabase/functions/` e sobem pelo workflow.

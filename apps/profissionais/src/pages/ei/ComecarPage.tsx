@@ -9,6 +9,7 @@ import { lerMeuPerfil } from "../../lib/meuPerfil";
 import { empresaAtual } from "../../lib/company";
 import { InstalarApp } from "../../components/InstalarApp";
 import { AvisoPerfilIncompleto } from "../../components/ei/AvisoPerfilIncompleto";
+import { AindaEstaDisponivel } from "../../components/ei/AindaEstaDisponivel";
 import { PortaDosAvisos } from "../../components/ei/PortaDosAvisos";
 import { PortaDoPlano } from "../../components/ei/PortaDoPlano";
 
@@ -162,6 +163,21 @@ export function ComecarPage({ lado }: { lado: "professional" | "company" }) {
             cá: é sobre o que a pessoa vai fazer ao tocar numa delas —
             longe das portas, ela já teria saído da tela antes de ler. */}
         {entrou && tipo === lado && <AvisoPerfilIncompleto lado={lado} />}
+
+        {/* ── "AINDA ESTÁ DISPONÍVEL?" — 06/09 ────────────────────────
+            Só do lado de quem procura emprego: a pergunta é sobre estar
+            disponível para ser contratada, e não faz sentido nenhum para
+            quem entra para contratar.
+
+            Acima das portas, e não no fim da tela: quem sumiu por dois
+            meses não rola a tela inteira: abre, olha o alto e decide se
+            fica. No pé, a pergunta seria lida por quem já ia ficar de
+            qualquer jeito — justamente quem ela não precisa alcançar.
+
+            Ela se esconde sozinha quando não é o caso (ver
+            `aindaDisponivel.ts`), então não há condição aqui além do
+            lado. */}
+        {entrou && lado === "professional" && <AindaEstaDisponivel />}
 
         <div className="ei-portas">
           {lado === "company" ? (

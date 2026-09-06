@@ -8893,3 +8893,42 @@
   color: var(--ei-tinta-fraca);
 }
 .ei .ei-termometro-porta:active { background: var(--ei-afunda); }
+
+/* ── "AINDA ESTÁ DISPONÍVEL?" — 06/09 ────────────────────────────────
+   A pergunta para quem passou 30 dias sem abrir o app.
+
+   Ela tem fundo próprio porque não é mais um cartão da tela: é uma
+   pergunta que espera resposta, e some assim que for respondida. Um
+   cartão branco igual aos outros seria lido como conteúdo e rolado junto
+   com o resto.
+
+   `--ei-afunda` e não laranja nem vermelho: os dois já querem dizer outra
+   coisa neste app (filtro de cidade e destaque pago), e nada aqui está
+   errado nem é urgente — o app só quer saber se a pessoa continua
+   procurando. É um tom que o app já tem, e não uma cor nova: cor nova
+   pede significado, e esta pergunta não tem significado de cor. */
+.ei .ei-voltou {
+  display: grid;
+  gap: 10px;
+  background: var(--ei-afunda);
+  border-color: var(--ei-fio-forte);
+}
+.ei .ei-voltou-titulo {
+  margin: 0;
+  font-size: 1rem;
+  font-weight: 700;
+  line-height: 1.3;
+}
+.ei .ei-voltou-texto {
+  margin: 0;
+  font-size: 0.9rem;
+  line-height: 1.45;
+  color: var(--ei-tinta-fraca);
+}
+/* Empilhados e da largura toda: são duas respostas de peso parecido, e
+   lado a lado numa tela de 390px "Não estou procurando agora" ficaria em
+   duas linhas dentro de um botão pela metade. */
+.ei .ei-voltou-botoes {
+  display: grid;
+  gap: 8px;
+}

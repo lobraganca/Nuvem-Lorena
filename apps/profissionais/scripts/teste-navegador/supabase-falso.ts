@@ -137,6 +137,18 @@ const professionals: Linha[] = Array.from({ length: QUANTOS }, (_, i) => ({
   disponivel: true,
   verified: i % 7 === 0,
   verified_until: i % 7 === 0 ? emDias(30) : null,
+  /* ── HÁ QUANTO TEMPO ESTA PESSOA NÃO APARECE (0127) ───────────────
+     `?sumida=45` faz o cadastro da própria pessoa dizer que ela não abre
+     o app há 45 dias — que é o que dispara a pergunta "ainda está
+     disponível?". Sem essa chave todo mundo apareceu hoje, que é o
+     estado normal e o que os outros testes precisam ver.
+
+     A pergunta só olha o cadastro de QUEM ESTÁ USANDO o app, então só os
+     dois primeiros (que são do dono da sessão) precisam da data velha. */
+  visto_em:
+    i < 2 && ajuste("sumida")
+      ? emDias(-Number(ajuste("sumida")))
+      : new Date().toISOString(),
   boosted: i % 6 === 0,
   boosted_until: i % 6 === 0 ? emDias(30) : null,
   suspended: false,
