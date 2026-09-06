@@ -37,30 +37,72 @@ export type PedidoDeReembolso = {
   contato: string | null;
   status: "novo" | "lido" | "resolvido";
   observacao: string | null;
+  /* O que o pedido causou no plano (0124). Opcional porque a coluna é
+     nova: pedido antigo não tem, e aí não há o que mostrar. */
+  efeito?: EfeitoDoReembolso | null;
   created_at: string;
   company_id: string | null;
   subscription_id: string | null;
 };
 
-/** Registra o pedido. Quem pede é sempre a conta que está aberta. */
+/**
+ * O que o pedido CAUSOU no plano — 0124.
+ *
+ *   `encerrado_agora`    dentro dos 7 dias: plano desligado e vagas fora
+ *                        do ar na hora (art. 49 do CDC)
+ *   `ate_o_vencimento`   depois dos 7 dias: não renova, e vale até o fim
+ *                        do mês pago
+ *   `sem_plano`          não havia plano valendo; o pedido foi só gravado
+ */
+export type EfeitoDoReembolso = "encerrado_agora" | "ate_o_vencimento" | "sem_plano";
+
+/**
+ * Registra o pedido E encerra o plano, conforme o caso.
+ *
+ * ── POR QUE UMA FUNÇÃO DO BANCO, E NÃO TRÊS GRAVAÇÕES DAQUI — 06/09 ───
+ *
+ * A dona: "quero que faça tudo automático. Se a pessoa pedir reembolso
+ * antes dos 7 dias, [encerra]; depois dos 7 dias, o plano se encerra no
+ * vencimento do mês."
+ *
+ * Tudo isso mora em `pedir_reembolso`, no banco (0124), por três motivos
+ * que o navegador não tem como cumprir:
+ *
+ *  1. quem conta os 7 dias tem de ser o banco. Feita aqui, a conta usaria
+ *     o relógio do celular — e atrasar o relógio transformaria um
+ *     cancelamento em arrependimento;
+ *  2. ou grava tudo, ou não grava nada. Um pedido registrado com o plano
+ *     ainda ligado (ou o contrário) é pior que qualquer um dos dois, e
+ *     três chamadas daqui quebram no meio quando o 4G cai;
+ *  3. desde a 0123 a empresa NÃO consegue mexer no próprio plano — foi
+ *     assim que se fechou o buraco de alguém se dar o Ei Infinit. Este
+ *     código roda como a empresa, então um `update` daqui seria desfeito
+ *     em silêncio pelo gatilho. Quem tem direito é a função, e só ela.
+ *
+ * Devolve qual das portas foi usada, para a tela dizer o que acabou de
+ * acontecer em vez de um "pedido enviado" que não conta metade.
+ */
 export async function pedirReembolso(entrada: {
   userId: string;
   motivo: string;
   contato?: string | null;
   companyId?: string | null;
   subscriptionId?: string | null;
-}): Promise<void> {
+}): Promise<EfeitoDoReembolso> {
   const sb = supabase();
   if (!sb) throw new Error("Sem conexão com o banco.");
 
-  const { error } = await sb.from("pedidos_reembolso").insert({
-    user_id: entrada.userId,
-    motivo: entrada.motivo.trim(),
-    contato: entrada.contato?.trim() || null,
-    company_id: entrada.companyId ?? null,
-    subscription_id: entrada.subscriptionId ?? null,
+  const { data, error } = await sb.rpc("pedir_reembolso", {
+    p_motivo: entrada.motivo.trim(),
+    p_contato: entrada.contato?.trim() || null,
+    p_company_id: entrada.companyId ?? null,
   });
   if (error) throw error;
+  /* Resposta estranha não vira caso inventado: `sem_plano` é o único que
+     não promete nada sobre o plano, então é a queda segura. */
+  return data === "encerrado_agora" || data === "ate_o_vencimento"
+    ? data
+    : "sem_plano";
 }
 
 /** Os pedidos desta pessoa, para a tela poder dizer "seu pedido chegou". */

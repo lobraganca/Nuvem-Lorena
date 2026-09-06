@@ -1386,6 +1386,52 @@ const clienteFalso = {
       return { data: planoFalso() ? TETO_DO_PLANO[QUAL_PLANO] : 0, error: null };
     }
     if (nome === "vagas_ativas_agora") return { data: VAGAS.length, error: null };
+    /* ── O REEMBOLSO, E O QUE ELE CAUSA (0124) ────────────────────────
+       No banco de verdade quem decide é a função, comparando `plano_desde`
+       com os 7 dias. Aqui a decisão é a mesma, com a data da empresa
+       falsa — `?reembolso=` força a porta, para as três telas poderem ser
+       abertas:
+
+         ?reembolso=agora      dentro dos 7 dias (encerra na hora)
+         ?reembolso=vencimento depois dos 7 dias (vale até o fim do mês)
+         ?reembolso=semplano   não havia plano
+
+       Sem a chave, ele responde pela regra: a empresa falsa tem plano
+       valendo e `plano_desde` de 30 dias atrás, então cai no cancelamento.
+
+       O falso também MEXE nas tabelas, e não só devolve a palavra: sem
+       isso a tela diria "as suas vagas saíram do ar" com as vagas ainda
+       na lista, e o teste passaria numa mentira. */
+    if (nome === "pedir_reembolso") {
+      const forcado = ajuste("reembolso");
+      const efeito =
+        forcado === "agora" || forcado === "vencimento" || forcado === "semplano"
+          ? forcado === "semplano"
+            ? "sem_plano"
+            : forcado === "agora"
+              ? "encerrado_agora"
+              : "ate_o_vencimento"
+          : planoFalso()
+            ? "ate_o_vencimento"
+            : "sem_plano";
+
+      const empresa = (TABELAS.companies ?? []).find((c) => c.owner_id === DONO_FALSO);
+      if (efeito === "encerrado_agora" && empresa) {
+        empresa.plano = null;
+        empresa.plano_ate = null;
+        empresa.plano_cortesia = false;
+        for (const v of TABELAS.job_listings ?? []) {
+          if (v.company_id === empresa.id && v.status === "active") {
+            v.status = "paused";
+            v.anunciada_ate = null;
+          }
+        }
+      }
+      if (efeito === "ate_o_vencimento" && empresa) {
+        empresa.plano_recorrente = false;
+      }
+      return { data: efeito, error: null };
+    }
     return { data: 0, error: null };
   },
   auth,

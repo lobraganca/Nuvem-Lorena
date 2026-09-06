@@ -7,6 +7,7 @@ import { mensagemDeErro } from "../../lib/erros";
 import {
   pedirReembolso,
   meusPedidosDeReembolso,
+  type EfeitoDoReembolso,
   type PedidoDeReembolso,
 } from "../../lib/reembolso";
 
@@ -43,6 +44,9 @@ export function ReembolsoPage() {
   const [enviando, setEnviando] = useState(false);
   const [erro, setErro] = useState("");
   const [pronto, setPronto] = useState(false);
+  /* O que o pedido causou no plano (0124). `null` enquanto não se sabe —
+     e a tela só usa depois de enviar. */
+  const [efeito, setEfeito] = useState<EfeitoDoReembolso | null>(null);
   const [anteriores, setAnteriores] = useState<PedidoDeReembolso[]>([]);
 
   useEffect(() => {
@@ -70,7 +74,7 @@ export function ReembolsoPage() {
     setEnviando(true);
     setErro("");
     try {
-      await pedirReembolso({ userId: user.id, motivo, contato });
+      setEfeito(await pedirReembolso({ userId: user.id, motivo, contato }));
       setPronto(true);
       setMotivo("");
       setAnteriores(await meusPedidosDeReembolso(user.id));
@@ -88,14 +92,59 @@ export function ReembolsoPage() {
 
         {pronto ? (
           <>
+            {/* ── O QUE ACONTECEU COM O PLANO, DITO AQUI — 06/09 ────────
+                Antes esta tela dizia sempre a mesma frase: "seu pedido
+                chegou". Agora o pedido MEXE no plano na hora (ver a 0124),
+                e não dizer o que mudou seria a pior parte do app — a
+                empresa descobriria pela vaga sumida.
+
+                Três frases porque são três situações de verdade, e a
+                diferença entre elas é dinheiro e vaga no ar. */}
             <div className="ei-cartao">
               <h2 className="ei-titulo" style={{ marginTop: 0 }}>
                 Pedido enviado
               </h2>
+
+              {efeito === "encerrado_agora" && (
+                <>
+                  <p className="ei-corpo">
+                    Como faz <strong>menos de 7 dias</strong> que você assinou,
+                    o valor volta inteiro — é o seu direito de arrependimento.
+                  </p>
+                  <p className="ei-corpo">
+                    O plano <strong>já foi encerrado</strong> e as suas vagas
+                    saíram do ar agora. Quem já tinha se interessado continua
+                    guardado: se você voltar atrás, a vaga volta com eles.
+                  </p>
+                </>
+              )}
+
+              {efeito === "ate_o_vencimento" && (
+                <>
+                  <p className="ei-corpo">
+                    Seu plano <strong>não vai renovar</strong>, e continua
+                    valendo até o fim do mês que você já pagou.
+                  </p>
+                  <p className="ei-corpo">
+                    Até lá está tudo no ar do mesmo jeito — as vagas saem
+                    sozinhas no dia do vencimento. Se quiser voltar atrás antes
+                    disso, é só falar com a gente.
+                  </p>
+                </>
+              )}
+
+              {efeito === "sem_plano" && (
+                <p className="ei-corpo">
+                  Não achei nenhum plano ativo nesta conta, então não havia
+                  nada para encerrar. Seu pedido chegou do mesmo jeito e a
+                  gente vai olhar a cobrança.
+                </p>
+              )}
+
               <p className="ei-corpo">
-                Seu pedido chegou. A gente responde pelo seu telefone, e o
-                dinheiro volta pelo mesmo caminho do pagamento — o prazo é do
-                banco ou do cartão, normalmente até 10 dias.
+                A gente responde pelo seu telefone, e o dinheiro volta pelo
+                mesmo caminho do pagamento — o prazo é do banco ou do cartão,
+                normalmente até 10 dias.
               </p>
               <Link className="ei-btn-inline" to="/perfil">
                 Voltar para a Conta

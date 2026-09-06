@@ -191,8 +191,9 @@ que é onde nasce o erro de aplicar no banco do Avena:
 https://supabase.com/dashboard/project/ahigenhenzmsjxlmrzhz/sql/new
 ```
 
-- Numeração sequencial: a última hoje é a `0123` (teste grátis da empresa,
-  e o plano deixando de ser editável pela própria empresa).
+- Numeração sequencial: a última hoje é a `0124` (o reembolso encerrando o
+  plano sozinho). A `0123` é a de antes: teste grátis da empresa, e o plano
+  deixando de ser editável pela própria empresa.
 - `supabase/banco-completo.sql` **está desatualizado** (para na 0051). Serve
   para montar um banco do zero até ali, não como retrato do que está no ar.
 - Edge Functions ficam em `supabase/functions/` e sobem pelo workflow.
