@@ -6051,10 +6051,53 @@
    dois botões numa tela de 390, e "Não é para a vaga" ficava espremido
    ao lado de um vão vazio embaixo do retrato. Largura inteira, alvo de
    toque inteiro. */
+/* O recuo de 20px é da LINHA da lista, e não da classe — 06/09.
+   A dona, com o print da ficha da pessoa: "totalmente desalinhado."
+
+   Escrito em `.ei-triagem` solto, ele pegava também os botões da ficha,
+   onde não há borda nenhuma para compensar: a pergunta "o que você achou
+   desta pessoa para a vaga?" começava em 48px e os botões dela em 68px.
+   Vinte pixels de diferença entre uma frase e a resposta dela, medidos.
+
+   Aqui o recuo vale só onde ele foi feito para valer: dentro da linha da
+   lista de interessados, cujo bloco atravessa o cartão de borda a borda
+   (`margin: 0 -20px`) e precisa trazer os botões de volta para dentro. */
 .ei .ei-triagem {
   display: flex;
   gap: 8px;
+}
+.ei .ei-triagem-linha > .ei-triagem {
   padding: 2px 20px 14px;
+}
+
+/* ── OS TRÊS BOTÕES DA FICHA DA PESSOA — 06/09 ───────────────────────
+   A dona, com o print: "totalmente desalinhado."
+
+   São três escolhas de uma só, e os rótulos somam 306px numa faixa de
+   294 — não cabem em fileira por doze pixels. Em fileira que quebra, o
+   resultado é o do print: duas em cima com larguras diferentes, a
+   terceira embaixo, e a linha de cima terminando no meio da tela.
+
+   Duas colunas iguais, com a terceira atravessando as duas. Fica mais
+   baixo que a fileira quebrada (80px contra 96px), fecha nas duas
+   margens, e o alvo de toque de cada botão cresce em vez de encolher. */
+.ei .ei-triagem-perfil {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+.ei .ei-triagem-perfil > .ei-chip {
+  /* Centrado: num botão que ocupa metade da linha, o rótulo encostado à
+     esquerda faz a caixa parecer um campo de formulário vazio pela
+     direita. */
+  justify-content: center;
+  text-align: center;
+  min-height: 40px;
+}
+/* "Não é para a vaga" é o mais comprido dos três, e é ele que atravessa —
+   assim nenhum rótulo precisa quebrar em duas linhas. */
+.ei .ei-triagem-perfil > .ei-chip:last-child {
+  grid-column: 1 / -1;
 }
 
 .ei .ei-triagem-botao {

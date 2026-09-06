@@ -495,7 +495,14 @@ export function PerfilPublicoPage() {
             <p className="ei-apoio" style={{ margin: "0 0 8px" }}>
               O que você achou desta pessoa para a vaga?
             </p>
-            <div className="ei-triagem">
+            {/* Grade de duas colunas, e não uma fileira que quebra sozinha
+                — 06/09. Os três rótulos somam 306px numa faixa de 294, e
+                a quebra deixava "Gostei" e "Analisando" em cima e "Não é
+                para a vaga" embaixo, cada um com uma largura diferente e
+                a fileira de cima morrendo no meio da tela. Aqui as duas
+                primeiras dividem a linha em partes iguais e a terceira
+                atravessa as duas: as bordas fecham dos dois lados. */}
+            <div className="ei-triagem ei-triagem-perfil">
               {(
                 [
                   { chave: "accepted", rotulo: "Gostei" },
