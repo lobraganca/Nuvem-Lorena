@@ -129,20 +129,25 @@ export function ComecarPage({ lado }: { lado: "professional" | "company" }) {
               da tela. Acima do título ela é a primeira coisa que se lê e
               some do caminho; no lugar do título, viraria o assunto. */}
           {entrou && <p className="ei-saudacao">{saudacaoDoDia(quem.nome, quem.de)}</p>}
-          {/* ── O LADO DE QUEM PROCURA VIROU PERGUNTA — 05/09 ────────
+          {/* ── OS DOIS LADOS VIRARAM PERGUNTA — 05 e 06/09 ──────────
               A dona: "a pergunta da tela inicial deve ser 'Procura
-              emprego?'".
+              emprego?'" — e, no dia seguinte, sobre o outro lado: "quer
+              contratar? Sim, pode mudar."
 
-              Era "Procuro emprego", na primeira pessoa — a mesma frase do
-              botão da porta, onde ela é a RESPOSTA de quem escolheu o
-              lado. Repetida aqui dentro ela não diz mais nada: a pessoa já
-              escolheu, e o app está afirmando por ela uma coisa que ela
-              acabou de afirmar.
+              Eram "Procuro emprego" e "Quero contratar", na primeira
+              pessoa — as mesmas frases dos botões da porta, onde elas são
+              a RESPOSTA de quem escolheu o lado. Repetidas aqui dentro
+              não diziam mais nada: a pessoa já escolheu, e o app estava
+              afirmando por ela uma coisa que ela acabou de afirmar.
 
               Como pergunta, o título volta a ter trabalho: ele abre a
-              tela e a linha de apoio logo abaixo responde. */}
+              tela e a linha de apoio logo abaixo responde.
+
+              Na PORTA elas continuam na primeira pessoa, e é de propósito:
+              lá são as duas respostas de "o que você veio fazer", e
+              pergunta respondendo pergunta não escolhe nada. */}
           <h1 className="ei-entrada-titulo">
-            {lado === "company" ? "Quero contratar" : "Procura emprego?"}
+            {lado === "company" ? "Quer contratar?" : "Procura emprego?"}
           </h1>
           <p className="ei-entrada-apoio">
             {lado === "company"
