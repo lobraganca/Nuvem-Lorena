@@ -16,6 +16,7 @@ import {
 import { CampoSenha } from "../components/ei/CampoSenha";
 import { useTituloDaPagina } from "../lib/tituloDaPagina";
 import { mensagemDeErro } from "../lib/erros";
+import { registrarAcesso } from "../lib/acessos";
 import { formatPhone } from "../lib/phone";
 import { useLocation, useNavigate } from "react-router-dom";
 import { LOGIN_EMAIL_ATIVO, LOGIN_TELEFONE_ATIVO } from "../config";
@@ -225,6 +226,15 @@ export function LoginPage() {
     guardarLadoDaSessao(l);
     setLadoEscolhido(l);
     limpar();
+    /* Acrescenta a porta ao acesso que já foi contado na abertura — não
+       cria acesso novo, quem garante isso é a marca da sessão. É este o
+       número que a dona lê no painel: de quem entrou hoje, quantos vieram
+       contratar e quantos vieram procurar. Ver `acessos.ts`.
+
+       `void`: se falhar, falha só a contagem. A pessoa entra do mesmo
+       jeito, e travar a porta por causa de um contador seria trocar o app
+       pelo relatório sobre o app. */
+    void registrarAcesso(l === "company" ? "empresa" : "candidato");
   }
 
   useEffect(() => {

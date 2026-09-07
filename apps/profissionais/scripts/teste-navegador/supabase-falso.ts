@@ -1442,6 +1442,47 @@ const clienteFalso = {
        Devolve um ARRAY de uma linha, como faz o PostgREST com função que
        retorna `table`. Devolvendo o objeto solto, o app funcionaria aqui
        e mostraria "undefined pessoas" no banco de verdade. */
+    /* ── OS ACESSOS DO DIA (0131) — 07/09 ─────────────────────────────
+       `registrar_acesso` não devolve nada e não guarda nada aqui: o que
+       o app precisa saber é que a chamada não explode. O NÚMERO vem da
+       outra função.
+
+       `?acessos=semsql` finge a migration não aplicada, e `?acessos=0`
+       finge o dia que ainda não começou — os dois estados em que o bloco
+       "Hoje" some do painel, e que sem interruptor ninguém veria nunca. */
+    if (nome === "registrar_acesso") {
+      return { data: null, error: null };
+    }
+    if (nome === "acessos_de_hoje") {
+      const forcado = ajuste("acessos");
+      if (forcado === "semsql") {
+        return {
+          data: null,
+          error: {
+            code: "PGRST202",
+            message: "Could not find the function public.acessos_de_hoje without parameters",
+          },
+        };
+      }
+      const total = forcado !== null && forcado !== "" ? Number(forcado) : 41;
+      /* Nem toda visita escolhe uma porta — e é justamente essa sobra que
+         o painel mostra em âmbar. Com a soma fechando certinho, o número
+         "não escolheram" nunca apareceria no teste. */
+      const empresa = Math.round(total * 0.3);
+      const candidato = Math.round(total * 0.55);
+      return {
+        data: [
+          {
+            total,
+            empresa,
+            candidato,
+            sem_escolha: Math.max(0, total - empresa - candidato),
+          },
+        ],
+        error: null,
+      };
+    }
+
     if (nome === "numeros_do_ei") {
       const forcado = ajuste("contratados");
       if (forcado === "semsql") {

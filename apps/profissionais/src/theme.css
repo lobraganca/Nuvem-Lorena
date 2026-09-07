@@ -3829,3 +3829,29 @@ h3 {
     font-size: 0.8rem;
   }
 }
+
+/* ── "HOJE", em cima dos números acumulados — 07/09 ────────────────────
+   A dona: "quero ter no painel bem claramente 3 coisas."
+
+   O título existe para separar duas perguntas que se pareciam na tela: a
+   fila de cima é o movimento de HOJE, a de baixo é o acumulado. Sem ele,
+   dois blocos idênticos e grudados fariam alguém ler "12 acessos" como
+   "12 empresas". */
+.admin-hoje-titulo {
+  margin: 0 0 6px;
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--color-text-muted);
+}
+
+/* O total do dia é o número que a linha existe para dar; os outros o
+   explicam. `.admin-numero-forte` já existia (o "contratados aqui"), com
+   fundo pintado e texto branco — reaproveitada em vez de duplicada, que é
+   como duas regras com o mesmo nome começam a divergir. Aqui só o tamanho
+   muda, e ele vale para os dois usos: nos dois o item é o que a fila veio
+   dizer. */
+.admin-numero-forte strong {
+  font-size: 2rem;
+}

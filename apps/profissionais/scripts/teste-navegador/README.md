@@ -39,7 +39,8 @@ novo por não estarem escritos em lugar nenhum.
 | `?cheio=hoje` | o dia já com 5 candidaturas — o teto |
 | `?combina=1` | uma vaga do ofício da pessoa, para a compatibilidade passar de 80% |
 | `?destaque=nao` | a pessoa NÃO está em destaque — é o único jeito de ver a tela que VENDE o destaque |
-| `?cadastro=metade` | a empresa SEM foto — é o único jeito de ver o aviso de cadastro |
+| `?cadastro=metade` | a empresa SEM foto |
+| `?acessos=N` \| `semsql` \| `0` | os acessos de hoje no painel: um número, a migration 0131 não aplicada, ou o dia zerado |
 
 `?combina=1` mexe na SEGUNDA vaga de propósito: a primeira já tem resposta
 no falso, e vaga respondida fica fora do baralho — o caso alto apareceria

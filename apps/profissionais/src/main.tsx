@@ -10,6 +10,7 @@ import { ErrorBoundary } from "./components/ErrorBoundary";
 import { irParaEnderecoCanonico } from "./lib/enderecoCanonico";
 import { cuidarDasAtualizacoes } from "./lib/atualizacao";
 import { aplicarAberturaDoApp } from "./lib/aberturaDoApp";
+import { registrarAcesso } from "./lib/acessos";
 
 // Antes de qualquer outra coisa: se a pessoa chegou pelo endereço sem www,
 // manda para o com www. Desenhar a tela primeiro faria o app guardar sessão
@@ -32,6 +33,13 @@ if (!irParaEnderecoCanonico()) {
    está aqui embaixo: não vale mexer no endereço de uma página que vai ser
    abandonada no instante seguinte. */
 aplicarAberturaDoApp();
+
+/* Conta esta abertura para o painel — uma vez por aba aberta, e não por
+   tela. Aqui e não dentro do React porque é o único ponto por onde TODA
+   abertura passa, seja ela pela tela inicial, por um link de vaga ou pelo
+   app instalado reabrindo na última tela.
+   `void` de propósito: nada no app espera por isto. Ver `acessos.ts`. */
+void registrarAcesso();
 cuidarDasAtualizacoes();
 createRoot(document.getElementById("root") as HTMLElement).render(
   <StrictMode>

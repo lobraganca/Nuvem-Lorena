@@ -9,6 +9,7 @@ import {
   type NumerosDoEi,
 } from "../lib/adminEi";
 import { mensagemDeErro } from "../lib/erros";
+import { acessosDeHoje, type AcessosDeHoje } from "../lib/acessos";
 import {
   destacarVaga,
   tirarDestaqueDaVaga,
@@ -112,6 +113,85 @@ const dia = (iso: string | null) => (iso ? new Date(iso).toLocaleDateString("pt-
 /** Sem acento e em minúsculas — quem procura "pao" tem de achar "Pão". */
 const simples = (t: string) =>
   t.normalize("NFD").replace(/[̀-ͯ]/g, "").toLocaleLowerCase("pt-BR");
+
+/* ══════════════════════════════════════════════════════════════════════
+   HOJE — os três números do dia
+   ══════════════════════════════════════════════════════════════════════
+
+   A dona: "quero ter no painel bem claramente 3 coisas: quantidade total
+   de acessos do dia; quantidade de pessoas que entraram em empresa e em
+   candidatos."
+
+   ── POR QUE UM BLOCO SEPARADO, E EM CIMA ────────────────────────────
+
+   "Bem claramente" foi pedido com essas palavras. A fila de números que
+   vem logo abaixo já tem sete itens, todos do mesmo tamanho — jogar mais
+   três ali dentro seria escondê-los em plena vista.
+
+   E eles respondem a outra pergunta. Os de baixo são ACUMULADOS ("quantas
+   empresas existem"); estes são de HOJE ("quanta gente veio"). Misturar
+   os dois faria alguém ler "12" achando que são doze empresas.
+
+   ── UM ACESSO É UMA ABERTURA, NÃO UMA TELA ──────────────────────────
+
+   Quem entra e navega por dez telas veio uma vez. Ver `acessos.ts`.
+
+   ── E O TERCEIRO NÚMERO É O QUE ELA NÃO PEDIU ───────────────────────
+
+   "Não escolheram" — quem abriu e não entrou por nenhuma das duas
+   portas. Ele aparece porque é a única leitura ruim possível desta linha:
+   com 40 acessos e 3 entradas, o problema não é falta de gente, é a
+   porta. Sem esse número, os outros dois contariam metade da história e a
+   metade que falta é justamente a acionável. */
+export function AdminAcessosDeHoje() {
+  const [dados, setDados] = useState<AcessosDeHoje | null>(null);
+  const [carregando, setCarregando] = useState(true);
+
+  useEffect(() => {
+    let vivo = true;
+    acessosDeHoje()
+      .then((d) => vivo && setDados(d))
+      .catch(() => {})
+      .finally(() => vivo && setCarregando(false));
+    return () => {
+      vivo = false;
+    };
+  }, []);
+
+  if (carregando) return <p className="muted">Contando quem entrou hoje…</p>;
+  /* `null` é "a 0131 ainda não foi colada" ou o banco fora do ar. O painel
+     inteiro não pode sumir por causa disso — e o console já explica qual
+     dos dois é (ver `acessos.ts`). */
+  if (!dados) return null;
+
+  return (
+    <>
+      <p className="admin-hoje-titulo">Hoje</p>
+      <div className="admin-resumo">
+        <div className="admin-numero admin-numero-forte">
+          <strong>{dados.total}</strong>
+          <span>{dados.total === 1 ? "acesso" : "acessos"}</span>
+        </div>
+        <div className="admin-numero">
+          <strong>{dados.empresa}</strong>
+          <span>entraram para contratar</span>
+        </div>
+        <div className="admin-numero">
+          <strong>{dados.candidato}</strong>
+          <span>entraram para procurar emprego</span>
+        </div>
+        {/* Só quando há: um "0 não escolheram" fixo é ruído, e o dia em que
+            ele não for zero é o dia em que ele importa. */}
+        {dados.semEscolha > 0 && (
+          <div className="admin-numero admin-numero-alerta">
+            <strong>{dados.semEscolha}</strong>
+            <span>abriram e não escolheram</span>
+          </div>
+        )}
+      </div>
+    </>
+  );
+}
 
 /* ══════════════════════════════════════════════════════════════════════
    OS NÚMEROS, no menu do painel

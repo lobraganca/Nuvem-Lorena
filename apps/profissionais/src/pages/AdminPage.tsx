@@ -27,7 +27,13 @@ import {
 } from "../lib/professionals";
 import { listSuggestions, updateSuggestionStatus } from "../lib/suggestions";
 import { CITIES, type Suggestion, type SuggestionStatus } from "../types/domain";
-import { AdminEmpresas, AdminVagas, AdminNumerosDoEi, AdminReembolsos } from "../components/AdminEiEmprego";
+import {
+  AdminEmpresas,
+  AdminVagas,
+  AdminNumerosDoEi,
+  AdminAcessosDeHoje,
+  AdminReembolsos,
+} from "../components/AdminEiEmprego";
 import {
   ligarDestaque,
   desligarDestaque,
@@ -393,6 +399,10 @@ export function AdminPage() {
               hoje?" sem entrar em seção nenhuma, que é justamente o que se
               espera de um resumo. Dentro de uma seção eles obrigariam a
               abrir uma porta para saber se era preciso abri-la. */}
+          {/* Os três números de HOJE vêm ANTES dos acumulados: a primeira
+              pergunta de quem abre o painel de manhã é "veio gente?", e
+              não "quantas empresas existem". Ver AdminAcessosDeHoje. */}
+          <AdminAcessosDeHoje />
           <AdminNumerosDoEi />
         </>
       )}
