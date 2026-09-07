@@ -7,7 +7,6 @@ import { saudacaoDoDia } from "../../lib/saudacao";
 import { useQuemEstaOnline } from "../../lib/presence";
 import { lerMeuPerfil } from "../../lib/meuPerfil";
 import { empresaAtual } from "../../lib/company";
-import { AvisoPerfilIncompleto } from "../../components/ei/AvisoPerfilIncompleto";
 import { AindaEstaDisponivel } from "../../components/ei/AindaEstaDisponivel";
 import { PortaDosAvisos } from "../../components/ei/PortaDosAvisos";
 import { PortaDoPlano } from "../../components/ei/PortaDoPlano";
@@ -161,7 +160,25 @@ export function ComecarPage({ lado }: { lado: "professional" | "company" }) {
             na tela"). Veio junto das portas quando elas se mudaram para
             cá: é sobre o que a pessoa vai fazer ao tocar numa delas —
             longe das portas, ela já teria saído da tela antes de ler. */}
-        {entrou && tipo === lado && <AvisoPerfilIncompleto lado={lado} />}
+        {/* ── O AVISO DE CADASTRO SAIU — 07/09 ──────────────────────────
+            A dona: "tire o aviso de cadastro incompleto. Tá muito
+            incômodo."
+
+            Ele nasceu de um pedido dela ("se o perfil não estiver
+            preenchido, deve ter um aviso na tela") e não sobreviveu ao
+            uso: aparecia em três telas, voltava a cada visita porque o
+            "dispensar" só valia naquela, e cobrava do lado da empresa
+            duas coisas que o próprio formulário chama de "(opcional)" —
+            a contradição que ela apontou algumas horas antes.
+
+            Reescrever o texto não bastou. O incômodo não era a palavra,
+            era o aviso.
+
+            Se um dia voltar: o componente inteiro está no histórico do
+            git (`AvisoPerfilIncompleto.tsx`, apagado neste commit), e o
+            que ele cobrava de cada lado está escrito no cabeçalho dele.
+            Antes de trazer de volta, vale pensar em dizer isso UMA vez,
+            no fim do cadastro, e não em toda visita. */}
 
         {/* ── "AINDA ESTÁ DISPONÍVEL?" — 06/09 ────────────────────────
             Só do lado de quem procura emprego: a pergunta é sobre estar

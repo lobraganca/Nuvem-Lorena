@@ -12,7 +12,6 @@ import {
 } from "../../lib/company";
 import type { Company } from "../../types/domain";
 import { Pagina } from "../../components/ei/Pagina";
-import { AvisoPerfilIncompleto } from "../../components/ei/AvisoPerfilIncompleto";
 import Esqueleto from "../../components/ei/Esqueleto";
 
 /**
@@ -152,7 +151,25 @@ export function MinhasEmpresasPage() {
           Escolha qual você quer abrir agora.
         </p>
 
-        <AvisoPerfilIncompleto lado="company" />
+        {/* ── O AVISO DE CADASTRO SAIU — 07/09 ──────────────────────────
+            A dona: "tire o aviso de cadastro incompleto. Tá muito
+            incômodo."
+
+            Ele nasceu de um pedido dela ("se o perfil não estiver
+            preenchido, deve ter um aviso na tela") e não sobreviveu ao
+            uso: aparecia em três telas, voltava a cada visita porque o
+            "dispensar" só valia naquela, e cobrava do lado da empresa
+            duas coisas que o próprio formulário chama de "(opcional)" —
+            a contradição que ela apontou algumas horas antes.
+
+            Reescrever o texto não bastou. O incômodo não era a palavra,
+            era o aviso.
+
+            Se um dia voltar: o componente inteiro está no histórico do
+            git (`AvisoPerfilIncompleto.tsx`, apagado neste commit), e o
+            que ele cobrava de cada lado está escrito no cabeçalho dele.
+            Antes de trazer de volta, vale pensar em dizer isso UMA vez,
+            no fim do cadastro, e não em toda visita. */}
 
         <div className="ei-empresas">
           {lista.map((e) => (
