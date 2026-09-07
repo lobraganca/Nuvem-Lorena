@@ -145,6 +145,25 @@ await p.evaluate(() => {
 Arquivos `*.mjs` na raiz do repositório são ignorados pelo git, então dá para
 deixar os scripts de teste lá enquanto se trabalha.
 
+### Fingir o aparelho: `userAgent` **e** o dedo
+
+Para testar o que muda entre iPhone, Android e computador não basta o
+`userAgent` do `newContext`. O iPad se apresenta como `Macintosh` desde o
+iPadOS 13 — o texto dele é igual ao de um Mac —, e o que separa os dois é
+`navigator.maxTouchPoints`. Ele se finge assim, num `addInitScript`:
+
+```js
+Object.defineProperty(navigator, 'maxTouchPoints', { get: () => 5 });
+```
+
+E para exercitar o convite de instalar do Android (`beforeinstallprompt`),
+o instante importa: ele tem de ser disparado **depois** do script do
+`index.html` e **antes** de o React montar, que é a corrida onde ele se
+perdia. `checar-instalar.mjs` faz isso com um `setInterval` que espera
+`window.__eiPromptDeInstalacao` deixar de ser `undefined`, e depois confere
+que o React ainda não tinha montado — sem essa conferência o teste passaria
+sem ter exercitado nada.
+
 ## Medir alinhamento em vez de olhar
 
 Para "está torto" — que já foi apontado três vezes na mesma marca —,

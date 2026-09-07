@@ -31,6 +31,38 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet" />
 
+    <!-- ══ GUARDAR O CONVITE DE INSTALAR ANTES DO REACT — 07/09 ══════════
+         O Chrome do Android avisa uma única vez que o app pode ser
+         instalado, pelo evento `beforeinstallprompt`, e esse aviso não se
+         repete: quem não estiver escutando NAQUELE instante perde o
+         convite para sempre naquela carga da página.
+
+         O escutador morava dentro do componente do botão, ou seja, só
+         começava a escutar depois de o React montar a tela inteira. Na
+         segunda visita — com os arquivos já guardados — o Chrome dispara
+         antes disso, e o evento cai no vazio. O botão "Baixar App" então
+         não tinha nada para oferecer e caía no passo a passo escrito, que
+         é o caminho do iPhone. Foi assim que a dona viu "a mensagem do
+         iPhone" no Android.
+
+         Aqui ele é guardado no `window`, num script comum que roda antes
+         de qualquer módulo. O componente lê o que já estiver guardado ao
+         montar, e o evento `ei-pode-instalar` avisa se chegar depois. -->
+    <script>
+      window.__eiPromptDeInstalacao = null;
+      window.addEventListener("beforeinstallprompt", function (e) {
+        // Sem o preventDefault, o Chrome mostra a barra dele no rodapé, que
+        // a pessoa fecha por reflexo — e o convite some para sempre.
+        e.preventDefault();
+        window.__eiPromptDeInstalacao = e;
+        window.dispatchEvent(new Event("ei-pode-instalar"));
+      });
+      window.addEventListener("appinstalled", function () {
+        window.__eiPromptDeInstalacao = null;
+        window.dispatchEvent(new Event("ei-pode-instalar"));
+      });
+    </script>
+
     <!-- PWA -->
     <link rel="manifest" href="/manifest.json" />
     <!-- Igual ao azul da barra de topo do app (--ei-acento). Se os dois

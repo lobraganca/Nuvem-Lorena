@@ -11,17 +11,25 @@ import { ehAppDaLoja } from "../lib/plataforma";
  * app volta uma vez e esquece — é a diferença entre estar no bolso e estar
  * numa aba perdida.
  *
- * Os dois caminhos são diferentes por imposição de cada sistema:
+ * Os caminhos são diferentes por imposição de cada sistema:
  *
  * - Android/Chrome dispara `beforeinstallprompt`, que precisa ser guardado
  *   para ser usado depois, no toque da pessoa. Fora de um gesto dela o
- *   navegador ignora o pedido.
+ *   navegador ignora o pedido. Quem guarda esse evento é o `index.html`, e
+ *   não este arquivo — ele chega antes de o React montar. Quando ele não
+ *   vem (app já instalado, recusa anterior, outro navegador), sobra
+ *   ensinar o menu do Chrome.
  * - iPhone não expõe evento nenhum. Lá o único caminho é Compartilhar →
  *   "Adicionar à Tela de Início", então o que resta é ensinar, com o nome
  *   exato de cada botão. O primeiro passo muda de aparelho para aparelho: em
  *   boa parte dos iPhones de hoje o Compartilhar está escondido dentro dos
  *   três pontinhos da barra de baixo, e não solto nela — por isso os dois
  *   caminhos aparecem descritos.
+ * - Computador: o menu do próprio navegador.
+ *
+ * São, portanto, três passo a passo diferentes, e mandar o de um aparelho
+ * para outro é o defeito que a dona relatou em 07/09 — ver o comentário
+ * das folhas, mais abaixo. O teste `checar-instalar.mjs` reprova a volta.
  *
  * O convite some num caso só: quando a página já está rodando DENTRO do app
  * instalado (`display-mode: standalone`), onde ele não teria o que fazer.
@@ -34,6 +42,14 @@ interface PromptDeInstalacao extends Event {
   userChoice: Promise<{ outcome: "accepted" | "dismissed" }>;
 }
 
+declare global {
+  interface Window {
+    /* Guardado pelo script do `index.html`, que escuta o
+       `beforeinstallprompt` antes de o React existir. Ver o comentário lá. */
+    __eiPromptDeInstalacao?: PromptDeInstalacao | null;
+  }
+}
+
 function estaInstalado(): boolean {
   if (typeof window === "undefined") return false;
   return (
@@ -43,9 +59,31 @@ function estaInstalado(): boolean {
   );
 }
 
+/**
+ * iPhone ou iPad?
+ *
+ * ── O iPad MENTE, e por isso ele estava caindo no lugar errado — 07/09 ──
+ *
+ * Isto era só `/iphone|ipad|ipod/`, e no iPhone funciona. No iPad, não:
+ * desde o iPadOS 13 o Safari se apresenta como `Macintosh` para receber a
+ * versão de computador dos sites, e a palavra "iPad" não aparece em lugar
+ * nenhum do `userAgent`. O iPad da dona era lido como computador, e o
+ * botão "Baixar App" abria o passo a passo do MENU DO NAVEGADOR — três
+ * pontinhos, "Instalar aplicativo" — coisa que o Safari não tem.
+ *
+ * O que separa um iPad de um Mac de verdade é o toque: Mac responde
+ * `maxTouchPoints` 0 (ou 1, com alguns acessórios), iPad responde 5.
+ */
 function ehIOS(): boolean {
   if (typeof navigator === "undefined") return false;
-  return /iphone|ipad|ipod/i.test(navigator.userAgent);
+  const ua = navigator.userAgent;
+  if (/iphone|ipad|ipod/i.test(ua)) return true;
+  return /Macintosh/i.test(ua) && (navigator.maxTouchPoints ?? 0) > 1;
+}
+
+function ehAndroid(): boolean {
+  if (typeof navigator === "undefined") return false;
+  return /android/i.test(navigator.userAgent);
 }
 
 /**
@@ -72,7 +110,11 @@ export function InstalarApp({ variante = "lista" }: { variante?: "lista" | "faix
      app está travado. */
   if (ehAppDaLoja()) return null;
 
-  const [prompt, setPrompt] = useState<PromptDeInstalacao | null>(null);
+  /* Começa com o que o `index.html` já tiver guardado. Escutar só a partir
+     daqui perdia o evento na maioria das visitas — ver o comentário lá. */
+  const [prompt, setPrompt] = useState<PromptDeInstalacao | null>(
+    () => (typeof window === "undefined" ? null : (window.__eiPromptDeInstalacao ?? null))
+  );
   /* Só isto esconde o botão: estar rodando dentro do app instalado. O
      "já instalou alguma vez" deixou de esconder — ver o comentário no
      `return null` abaixo. */
@@ -81,27 +123,22 @@ export function InstalarApp({ variante = "lista" }: { variante?: "lista" | "faix
      marcava o app como instalado — o mesmo estado de quem tinha instalado de
      verdade —, então fechar a faixa fazia sumir também o botão do cabeçalho. */
   const [dispensado, setDispensado] = useState(false);
-  const [ensinandoIOS, setEnsinandoIOS] = useState(false);
+  /* `ensinando`, e não `ensinandoIOS`: o passo a passo deixou de ser um só.
+     São três — iPhone, Android e computador —, e o nome antigo fazia a
+     leitura acreditar que abrir esta folha era coisa de iPhone. */
+  const [ensinando, setEnsinando] = useState(false);
 
   useEffect(() => {
-    function capturar(e: Event) {
-      // Sem o preventDefault, o Chrome mostra a barra dele no rodapé, que a
-      // pessoa fecha por reflexo — e o convite some para sempre.
-      e.preventDefault();
-      setPrompt(e as PromptDeInstalacao);
+    /* Quem guarda o evento é o script do `index.html`; aqui só se lê o que
+       ele guardou. Ele avisa por `ei-pode-instalar` tanto quando o convite
+       chega quanto quando o app é instalado (e o convite deixa de valer —
+       o evento só serve uma vez, e o navegador não manda outro). */
+    function conferir() {
+      setPrompt(window.__eiPromptDeInstalacao ?? null);
     }
-    /* Instalou agora, nesta aba: o prompt foi gasto (o evento só vale uma
-       vez) e o navegador não manda outro. A aba continua sendo uma aba, e o
-       botão continua ali — daí em diante ensinando pelo passo a passo. */
-    function instalou() {
-      setPrompt(null);
-    }
-    window.addEventListener("beforeinstallprompt", capturar);
-    window.addEventListener("appinstalled", instalou);
-    return () => {
-      window.removeEventListener("beforeinstallprompt", capturar);
-      window.removeEventListener("appinstalled", instalou);
-    };
+    window.addEventListener("ei-pode-instalar", conferir);
+    conferir();
+    return () => window.removeEventListener("ei-pode-instalar", conferir);
   }, []);
 
   /* Em aba de navegador o convite aparece sempre, mesmo que o app já esteja
@@ -124,8 +161,14 @@ export function InstalarApp({ variante = "lista" }: { variante?: "lista" | "faix
     await prompt.userChoice;
     /* O evento só pode ser usado uma vez, tenha a pessoa aceitado ou não.
        O botão continua na tela: instalado aqui não quer dizer instalado no
-       celular dela, e o passo a passo passa a ser o caminho. */
-    setPrompt(null);
+       celular dela, e o passo a passo passa a ser o caminho.
+
+       Apagar também o que está no `window` não é detalhe: o botão do
+       cabeçalho e o da tela de Conta são dois componentes, cada um com o
+       seu estado. Sem isto, o segundo continuaria oferecendo um convite
+       que o navegador já recusa. */
+    window.__eiPromptDeInstalacao = null;
+    window.dispatchEvent(new Event("ei-pode-instalar"));
   }
 
   /* Quando não há prompt para oferecer, o botão ensina em vez de não fazer
@@ -133,7 +176,7 @@ export function InstalarApp({ variante = "lista" }: { variante?: "lista" | "faix
      vez instalado, o Chrome não manda mais o `beforeinstallprompt` naquele
      perfil — nem depois de apagar o ícone. Sem este texto, o botão que ela
      pediu para deixar sempre visível seria um botão que não responde. */
-  const folhaNavegador = (
+  const folhaComputador = (
     <BottomSheet
       title={emModoApp ? "Instalar em outro aparelho" : "Instalar o Ei Emprego"}
       subtitle={
@@ -141,7 +184,7 @@ export function InstalarApp({ variante = "lista" }: { variante?: "lista" | "faix
           ? "Aqui já está instalado. Para pôr no celular ou em outro computador:"
           : "Pelo menu do próprio navegador — são dois cliques."
       }
-      onClose={() => setEnsinandoIOS(false)}
+      onClose={() => setEnsinando(false)}
     >
       {/* Aberta de dentro do app instalado, a folha muda de assunto: os
           passos abaixo são para o navegador do OUTRO aparelho, e sem esta
@@ -178,13 +221,26 @@ export function InstalarApp({ variante = "lista" }: { variante?: "lista" | "faix
     </BottomSheet>
   );
 
-  /* A folha do iPhone é a mesma nas três variantes — declarada uma vez para
-     não haver duas versões do texto se um dia ele mudar. */
+  /* ── UMA FOLHA PARA CADA APARELHO — 07/09 ──────────────────────────────
+     A dona: "no baixar app está dando a mensagem do iPhone pros dois,
+     iPhone e Android. Para iPhone dê a opção de salvar na tela."
+
+     Eram duas folhas: a do iPhone e uma de "menu do navegador", que servia
+     para todo o resto. O Android caía nessa segunda por dois motivos que
+     se somaram — o evento de instalar se perdia (ver o `index.html`), e o
+     iPad era lido como computador (ver `ehIOS`). O resultado é o que ela
+     descreve: um passo a passo escrito onde ela esperava o app instalar,
+     e o passo a passo errado no aparelho da Apple.
+
+     Agora são três, cada uma com o nome exato dos botões daquele sistema.
+     Declaradas uma vez, fora do JSX, porque as quatro variantes do botão
+     usam as mesmas — dois textos para a mesma instrução acabariam
+     discordando na primeira vez que um deles mudasse. */
   const folhaIOS = (
     <BottomSheet
-      title="Adicionar à tela de início"
-      subtitle="No iPhone, quem instala é o próprio Safari — são três toques."
-      onClose={() => setEnsinandoIOS(false)}
+      title="Salvar na tela de início"
+      subtitle="No iPhone e no iPad, quem instala é o próprio Safari — são três toques."
+      onClose={() => setEnsinando(false)}
     >
       <ol className="passos-ios">
         <li>
@@ -192,7 +248,7 @@ export function InstalarApp({ variante = "lista" }: { variante?: "lista" | "faix
           <strong>Compartilhar</strong>.
           <span className="passo-obs">
             Em alguns iPhones o Compartilhar já fica direto na barra, como um quadrado com uma seta para cima.
-            Nesse caso, é só tocar nele.
+            Nesse caso, é só tocar nele. No iPad ele fica no alto, à direita.
           </span>
         </li>
         <li>
@@ -213,6 +269,48 @@ export function InstalarApp({ variante = "lista" }: { variante?: "lista" | "faix
     </BottomSheet>
   );
 
+  /* O Android quase sempre instala sozinho, no toque do botão. Esta folha é
+     para quando o Chrome não oferece o convite — e ele não oferece em três
+     casos comuns: o app já está instalado neste celular, a pessoa recusou
+     antes (ele fica meses sem perguntar de novo), ou o navegador não é o
+     Chrome (Samsung Internet, Firefox, Opera). Sem ela, o botão que a dona
+     pediu para deixar sempre visível não faria nada nesses casos. */
+  const folhaAndroid = (
+    <BottomSheet
+      title="Instalar o Ei Emprego"
+      subtitle="No Android, quem instala é o próprio navegador — são dois toques."
+      onClose={() => setEnsinando(false)}
+    >
+      <ol className="passos-ios">
+        <li>
+          Toque em <strong>⋮</strong> (os três pontinhos), no canto de cima à direita.
+          <span className="passo-obs">
+            No Samsung Internet são três risquinhos (<strong>☰</strong>) no canto de baixo à direita.
+          </span>
+        </li>
+        <li>
+          Toque em <strong>Instalar aplicativo</strong> — em alguns celulares aparece como{" "}
+          <strong>Adicionar à tela inicial</strong>.
+          <span className="passo-obs">
+            Se não achar nenhuma das duas, procure dentro de <strong>Adicionar a…</strong> ou de{" "}
+            <strong>Compartilhar</strong>.
+          </span>
+        </li>
+      </ol>
+      <p className="muted" style={{ marginTop: 14, fontSize: "0.88rem" }}>
+        Se o app já estiver instalado neste celular, o navegador não oferece de novo — nesse caso ele já
+        está aí, é só procurar o ícone do Ei Emprego junto dos outros aplicativos.
+      </p>
+    </BottomSheet>
+  );
+
+  /* ── QUAL FOLHA ABRE ────────────────────────────────────────────────────
+     Dentro do app já instalado, a pergunta é outra: os passos são para o
+     navegador de OUTRO aparelho, que não se sabe qual é. Por isso ali a
+     folha genérica fica, e a escolha por sistema só vale para quem está
+     numa aba de navegador. */
+  const folha = emModoApp ? folhaComputador : ehIOS() ? folhaIOS : ehAndroid() ? folhaAndroid : folhaComputador;
+
   if (variante === "botao") {
     /* O botão pequeno e redondo do fim da tela.
        ─────────────────────────────────────────
@@ -232,7 +330,7 @@ export function InstalarApp({ variante = "lista" }: { variante?: "lista" | "faix
         <button
           type="button"
           className="ei-btn-instalar-pilula"
-          onClick={() => (podeInstalarDireto ? instalar() : setEnsinandoIOS(true))}
+          onClick={() => (podeInstalarDireto ? instalar() : setEnsinando(true))}
         >
           <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor"
                strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
@@ -251,7 +349,7 @@ export function InstalarApp({ variante = "lista" }: { variante?: "lista" | "faix
               lá quem instala é o próprio Safari. */}
           <span className="btn-instalar-topo-texto">Baixar App</span>
         </button>
-        {ensinandoIOS && (ehIOS() ? folhaIOS : folhaNavegador)}
+        {ensinando && folha}
       </>
     );
   }
@@ -266,7 +364,7 @@ export function InstalarApp({ variante = "lista" }: { variante?: "lista" | "faix
         <button
           type="button"
           className="btn-instalar-topo"
-          onClick={() => (podeInstalarDireto ? instalar() : setEnsinandoIOS(true))}
+          onClick={() => (podeInstalarDireto ? instalar() : setEnsinando(true))}
           title="Adicionar o Ei Emprego à tela do celular"
         >
           {/* 13px e traço de 1,8: acompanha o botão menor e mais delicado
@@ -288,7 +386,7 @@ export function InstalarApp({ variante = "lista" }: { variante?: "lista" | "faix
               app fariam parecer duas coisas diferentes. */}
           <span className="btn-instalar-topo-texto">Baixar App</span>
         </button>
-        {ensinandoIOS && (ehIOS() ? folhaIOS : folhaNavegador)}
+        {ensinando && folha}
       </>
     );
   }
@@ -307,7 +405,7 @@ export function InstalarApp({ variante = "lista" }: { variante?: "lista" | "faix
             <button
               type="button"
               className="btn btn-primary"
-              onClick={() => (podeInstalarDireto ? instalar() : setEnsinandoIOS(true))}
+              onClick={() => (podeInstalarDireto ? instalar() : setEnsinando(true))}
             >
               Adicionar
             </button>
@@ -328,7 +426,7 @@ export function InstalarApp({ variante = "lista" }: { variante?: "lista" | "faix
         <button
           type="button"
           className="ei-linha-item"
-          onClick={() => (podeInstalarDireto ? instalar() : setEnsinandoIOS(true))}
+          onClick={() => (podeInstalarDireto ? instalar() : setEnsinando(true))}
         >
           <span className="ei-linha-icone" aria-hidden="true">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"
@@ -348,7 +446,7 @@ export function InstalarApp({ variante = "lista" }: { variante?: "lista" | "faix
         </button>
       )}
 
-      {ensinandoIOS && (ehIOS() ? folhaIOS : folhaNavegador)}
+      {ensinando && folha}
     </>
   );
 }
