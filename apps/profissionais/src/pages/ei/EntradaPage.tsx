@@ -4,7 +4,6 @@ import { useAuth } from "../../lib/useAuth";
 import { useOnboardingStatus } from "../../lib/useOnboardingStatus";
 import { isAdmin } from "../../lib/admin";
 import { useTituloDaPagina } from "../../lib/tituloDaPagina";
-import { InstalarApp } from "../../components/InstalarApp";
 import { IconePorta } from "./ComecarPage";
 import { casaDoLado } from "../../lib/ladoDaSessao";
 
@@ -246,25 +245,20 @@ export function EntradaPage() {
               mesmo pra ver"). Ele continuaria clicável e devolveria a
               pessoa ao login — prometendo uma porta que não existe mais. */}
 
-          {/* Instalar, para quem ainda não entrou. O caminho mora na Conta,
-              e quem chega aqui pela primeira vez não tem conta — ficava sem
-              nenhum. E é justamente esta pessoa que precisa dele: quem
-              gostou do app e não o deixou no celular volta uma vez e
-              esquece o endereço.
+          {/* ── O CONVITE DE INSTALAR SAIU — 07/09 ─────────────────────
+              A dona: "deixe somente o baixar app do topo."
 
-              Some sozinho dentro do app já instalado e dentro do app da
-              loja. Ver InstalarApp. */}
-          {/* Botão pequeno e redondo, no fim da tela — a forma que a
-              dona pediu. Antes era uma linha de lista larga, do tamanho
-              das portas principais, competindo com a decisão desta tela.
+              Ele existia aqui porque quem chega pela primeira vez não tem
+              conta, e o caminho morava na Conta — essa pessoa ficava sem
+              nenhum. Hoje o botão do cabeçalho aparece em TODA tela,
+              inclusive nesta e inclusive para quem já instalou (pedido
+              dela em 04/09), então o argumento não vale mais: o convite
+              continua aqui, um dedo acima.
 
-              O que ele FAZ continua sendo decidido pelo aparelho: no
-              Android o toque instala de verdade; no iPhone abre o passo a
-              passo, porque lá quem instala é o próprio Safari. */}
-          {/* "Banco de talentos" e "Banco de vagas" moraram aqui até
-              02/09. Foram para o rodapé das telas de `ComecarPage` — esta
-              tela deixou de ter porta nenhuma, e as duas são portas. */}
-          <InstalarApp variante="botao" />
+              "Banco de talentos" e "Banco de vagas" moraram neste mesmo
+              lugar até 02/09. Foram para o rodapé das telas de
+              `ComecarPage` — esta tela deixou de ter porta nenhuma, e as
+              duas são portas. */}
         </div>
       </div>
     </div>

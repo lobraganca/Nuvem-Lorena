@@ -11,7 +11,6 @@ import { excluirMinhaConta } from "../lib/account";
 import { BottomSheet } from "../components/BottomSheet";
 import { baixarMeusDados } from "../lib/meusDados";
 import type { Profile } from "../types/domain";
-import { InstalarApp, instalarServeAqui } from "../components/InstalarApp";
 import { Pagina, Prop } from "../components/ei/Pagina";
 import { useTituloDaPagina } from "../lib/tituloDaPagina";
 import { useOnboardingStatus } from "../lib/useOnboardingStatus";
@@ -440,33 +439,19 @@ export function PerfilPage() {
           />
         </div>
 
-        {/* Instalar o app.
-            ─────────────────
-            Some do celular de quem já está dentro do app instalado, e só
-            ali — em aba de navegador aparece sempre, inclusive para quem
-            instalou em outro aparelho. Ver InstalarApp.
+        {/* ── A SEÇÃO "O APP" SAIU — 07/09 ──────────────────────────
+            A dona: "deixe somente o baixar app do topo."
 
-            Ficou um tempo sem aparecer em lugar NENHUM: saiu do cabeçalho
-            na arrumação do topo e saiu daqui na reescrita da Conta, e
-            ninguém percebeu porque o componente continuava importado. Era
-            a dona quem não achava mais como pôr o app no celular. */}
-        {/* 04/09: a seção inteira só existe quando há o que instalar — a
-            dona: "a seção app na parte de contas está vazia, retire."
+            O convite existia em quatro lugares: aqui, na tela de entrada,
+            no rodapé do começo e no cabeçalho. Ele já apareceu de menos
+            (houve um tempo em que não estava em lugar NENHUM, e era a
+            própria dona quem não achava como pôr o app no celular), e
+            agora aparecia de mais — o do cabeçalho está em toda tela, o
+            tempo todo, então os outros três só repetiam.
 
-            Dentro do app já instalado o convite devolve `null`, mas o
-            TÍTULO continuava na tela com uma lista vazia embaixo. Era o
-            caso dela, que usa o app no celular. Em aba de navegador a
-            seção volta a aparecer, porque aí instalar faz sentido. */}
-        {instalarServeAqui() && (
-          <>
-            <div className="ei-secao-linha">
-              <h2>O app</h2>
-            </div>
-            <div className="ei-lista">
-              <InstalarApp />
-            </div>
-          </>
-        )}
+            Ficou o do cabeçalho, que é o que ela pediu em 04/09 para
+            "aparecer a todo tempo, inclusive quando já está instalado".
+            Um convite em todo lugar não é mais convite, é ruído. */}
 
         <div className="ei-secao-linha">
           <h2>Ajuda</h2>

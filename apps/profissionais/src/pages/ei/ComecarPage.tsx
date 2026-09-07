@@ -7,7 +7,6 @@ import { saudacaoDoDia } from "../../lib/saudacao";
 import { useQuemEstaOnline } from "../../lib/presence";
 import { lerMeuPerfil } from "../../lib/meuPerfil";
 import { empresaAtual } from "../../lib/company";
-import { InstalarApp } from "../../components/InstalarApp";
 import { AvisoPerfilIncompleto } from "../../components/ei/AvisoPerfilIncompleto";
 import { AindaEstaDisponivel } from "../../components/ei/AindaEstaDisponivel";
 import { PortaDosAvisos } from "../../components/ei/PortaDosAvisos";
@@ -305,9 +304,9 @@ export function ComecarPage({ lado }: { lado: "professional" | "company" }) {
         <Atalhos />
 
 
-        <div className="ei-entrada-pe">
-          <InstalarApp variante="botao" />
-        </div>
+        {/* O convite de instalar saiu daqui em 07/09 — "deixe somente o
+            baixar app do topo". O do cabeçalho está em toda tela, então
+            este só repetia. */}
       </div>
     </div>
   );
