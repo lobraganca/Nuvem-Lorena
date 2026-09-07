@@ -5,6 +5,7 @@ import { useTituloDaPagina } from "../lib/tituloDaPagina";
 import { mensagemDeErro } from "../lib/erros";
 import { supabase } from "../lib/supabase";
 import { lerTudo } from "../lib/lerTudo";
+import { lerComVitrine } from "../lib/vitrine";
 import { lerMeuPerfil } from "../lib/meuPerfil";
 import { cidadeParaMostrar } from "../lib/cidadeEscolhida";
 import { SeletorDeCidade } from "../components/ei/SeletorDeCidade";
@@ -223,9 +224,28 @@ export function ProfissionaisPage() {
     /* `lerTudo` e não um `select` simples: a migration 0062 pôs teto de 200
        linhas por consulta, e uma lista que para no ducentésimo profissional
        sem avisar é o número que mente calado. */
-    lerTudo<Disponivel>(() =>
+    /* ── LÊ A VITRINE, QUE ABRE SEM CONTA — 07/09 ──────────────────
+       A dona: "ao entrar no site a pessoa tem que ter uma tela bonita pra
+       ver as vagas e os candidatos. Sem ter que fazer login."
+
+       Aqui estava `professionals_public`, que a migration 0118 fechou
+       para quem não tem conta — e por um bom motivo: aquela view carrega
+       telefone, WhatsApp e e-mail, e a chave do site é pública, então a
+       lista de contatos de todos os desempregados da cidade saía com uma
+       linha de `curl`. Esta tela abria, e vinha vazia para quem não
+       entrou.
+
+       A `professionals_vitrine` (0132) tem exatamente estas colunas e
+       nenhuma de contato. Quem não tem conta lê; quem quer falar com
+       alguém continua precisando entrar, que é o que a dona pediu e o que
+       mantém o plano pago de pé.
+
+       `lerListaDeCandidatos` cuida do intervalo entre o código e a SQL:
+       se a view nova ainda não existir, refaz com a antiga. */
+    lerComVitrine<Disponivel>((view) =>
+      lerTudo<Disponivel>(() =>
       sb
-        .from("professionals_public")
+        .from(view)
         /* A lista de colunas é UMA string literal, e não uma soma de
            pedaços: o supabase-js lê o texto dela para saber o formato da
            resposta, e uma concatenação vira `string` — a conferência de
@@ -275,6 +295,7 @@ export function ProfissionaisPage() {
         .not("areas_de_interesse", "is", null)
         .neq("areas_de_interesse", "{}")
         .order("created_at", { ascending: false })
+      )
     )
       .then(setLista)
       .catch((err) => {

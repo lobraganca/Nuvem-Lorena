@@ -420,6 +420,12 @@ const VAGAS: Linha[] = [
 const TABELAS: Record<string, Linha[]> = {
   professionals,
   professionals_public: professionals,
+  /* A vitrine da 0132: a MESMA lista, sem as colunas de contato. Ela
+     existe aqui para o caso que a dona pediu — abrir o site sem conta e
+     ver os candidatos — poder ser exercitado no navegador. O recorte de
+     colunas acontece no `resolver`, junto com o `where`, porque é lá que
+     as outras views são montadas. */
+  professionals_vitrine: professionals,
   professional_ratings: professionals.map((p, i) => ({
     professional_id: p.id,
     average_rating: i % 3 === 0 ? null : 3 + (i % 3),
@@ -937,11 +943,25 @@ class Consulta implements PromiseLike<{ data: Linha[] | Linha | null; error: unk
        As três condições são as mesmas da migration 0076. Se um dia elas
        mudarem lá, mudam aqui — e é por isso que estão escritas por
        extenso, e não escondidas atrás de um `filter` genérico. */
-    if (this.tabela === "professionals_public") {
-      TABELAS.professionals_public = (TABELAS.professionals ?? []).filter(
+    if (this.tabela === "professionals_public" || this.tabela === "professionals_vitrine") {
+      const visiveis = (TABELAS.professionals ?? []).filter(
         (l) =>
           l.suspended === false && l.paused === false && l.whatsapp_verified === true
       );
+      TABELAS.professionals_public = visiveis;
+      /* A vitrine tem o mesmo `where` e MENOS COLUNAS. Tirar as de contato
+         aqui é o que faz o falso conseguir reprovar o dia em que alguém
+         puser telefone na view pública sem conta — que é justamente o
+         vazamento que a 0118 fechou e a 0132 tomou o cuidado de não
+         reabrir. */
+      const SEM_CONTATO = ["phone", "whatsapp", "email", "telefones_extra",
+                           "instagram", "linkedin", "bio", "cep", "street",
+                           "street_number"];
+      TABELAS.professionals_vitrine = visiveis.map((l) => {
+        const copia: Linha = { ...l };
+        for (const c of SEM_CONTATO) delete copia[c];
+        return copia;
+      });
     }
 
     const tabela = (TABELAS[this.tabela] ??= []);

@@ -33,6 +33,29 @@ do $$ begin
   if not exists (select 1 from pg_roles where rolname='authenticated') then create role authenticated nologin; end if;
 end $$;
 
+-- ── AS PERMISSÕES QUE O SUPABASE DÁ SOZINHO ────────────────────────────
+--
+-- Isto faltava, e fazia o banco de teste MENTIR sobre a coisa mais
+-- perigosa que ele tem para medir: o que quem não tem conta consegue ler.
+--
+-- No Supabase de verdade, toda tabela ou view criada no schema `public`
+-- nasce legível para `anon` e `authenticated` — é assim que o app funciona
+-- sem ninguém escrever `grant` em lugar nenhum, e é por isso que a 0118
+-- precisou de um `revoke` explícito para tapar o vazamento de telefone.
+--
+-- Aqui os dois papéis existiam sem permissão nenhuma. Um teste que
+-- perguntasse "o anon lê isto?" respondia "não" para TUDO, inclusive para
+-- o que estivesse escancarado em produção. A resposta certa pelo motivo
+-- errado é pior que resposta errada: ela passa, e cala.
+--
+-- `alter default privileges` e não um `grant on all tables`: o segundo só
+-- alcança o que já existe, e as migrations rodam DEPOIS desta linha.
+grant usage on schema public to anon, authenticated;
+alter default privileges in schema public
+  grant select, insert, update, delete on tables to anon, authenticated;
+alter default privileges in schema public
+  grant usage, select on sequences to anon, authenticated;
+
 -- Mínimo do Storage: as políticas das fotos (migration 0026) escrevem em
 -- `storage.objects` e usam `storage.foldername`. Sem este armário, o schema
 -- completo não roda fora do Supabase — e um teste que não roda inteiro deixa

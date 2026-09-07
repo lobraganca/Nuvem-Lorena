@@ -65,6 +65,58 @@ const LIVRES = [
      aprovar. Medido no navegador: `/excluir-conta` terminava em
      `/login`. */
   "/excluir-conta",
+
+  /* ══════════════════════════════════════════════════════════════════
+     A VITRINE — 07/09. Isto DESFAZ o pedido de 01/09 que abre este
+     arquivo, e é de propósito.
+
+     A dona: "ao entrar no site a pessoa tem que ter uma tela bonita pra
+     ver as vagas e os candidatos. Sem ter que fazer login. Se quiser
+     abrir uma vaga ou se candidatar tem que fazer login."
+
+     O cabeçalho lá em cima listou o que a exigência de conta ganhava e o
+     que perdia. O que ela perdia acabou decidindo: quem chega por
+     indicação topava com um cadastro antes de ver qualquer coisa, e uma
+     tela de entrar não responde à única pergunta de quem chega — "tem
+     alguma coisa aqui pra mim?".
+
+     O que a exigência GANHAVA não se perde, porque a linha mudou de
+     lugar em vez de sumir. Ela agora está na AÇÃO, e não na leitura:
+
+       ver a lista de vagas ....... sem conta
+       ver a lista de candidatos .. sem conta, e SEM CONTATO NENHUM
+                                    (view separada, migration 0132)
+       ler uma vaga inteira ....... sem conta (é um anúncio, e já era
+                                    compartilhável por link)
+       se candidatar .............. exige conta
+       publicar vaga .............. exige conta
+       abrir a ficha de alguém .... exige conta, porque é lá que está o
+                                    telefone
+
+     A última linha sustenta as outras. A 0118 fechou a lista de
+     candidatos para quem não tem conta porque a view carregava telefone,
+     WhatsApp e e-mail — e a chave do site é pública, então a lista de
+     contatos de todos os desempregados da cidade saía com uma linha de
+     `curl`. Isso continua fechado. O que abriu foi uma view sem nenhuma
+     dessas colunas.
+
+     `/profissional/:id` NÃO entra aqui, por isso mesmo: é a ficha, e a
+     ficha tem o contato. É também o que mantém o plano pago de pé — a
+     empresa paga para falar com as pessoas, não para saber que existem.
+     ══════════════════════════════════════════════════════════════════ */
+  /* `"/"` casa só com a raiz exata: a conferência é `caminho === t` ou
+     `caminho.startsWith(t + "/")`, e nenhum caminho começa com "//". Se
+     casasse por prefixo, esta única linha abriria o app inteiro. */
+  "/",
+  "/inicio",
+  "/vagas",
+  "/vaga-aberta",
+  "/profissionais",
+  /* A empresa vista por quem procura trabalho, com as vagas dela no ar.
+     Vem junto porque é para onde o cartão da vaga leva, e uma vitrine com
+     um link que cai no login é pior que uma vitrine sem link. */
+  "/empresa",
+  "/como-funciona",
 ];
 
 export function ehTelaLivre(caminho: string): boolean {

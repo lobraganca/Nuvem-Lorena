@@ -130,7 +130,24 @@ export function paraOndeAbrirOApp(caminhoAtual: string): string | null {
   /* A conta segue conectada: some só a escolha do lado, para a pergunta
      da porta ser feita de novo. */
   esquecerLadoDaSessao();
-  return "/login";
+  /* ── ABRE NA VITRINE, E NÃO NA TELA DE ENTRAR — 07/09 ────────────────
+     A dona: "ao entrar no site a pessoa tem que ter uma tela bonita pra
+     ver as vagas e os candidatos. Sem ter que fazer login."
+
+     Aqui estava `/login`, e o motivo original continua valendo: toda
+     abertura tem de cair num lugar reconhecível de começo, com a pergunta
+     da porta. O que mudou foi QUAL é esse lugar.
+
+     Uma tela de entrar não responde à única pergunta de quem chega — "tem
+     alguma coisa aqui pra mim?" — e numa cidade onde o app se espalha por
+     link de WhatsApp, quem abre e vê um formulário fecha. Agora a
+     abertura cai em `/`, que mostra as vagas e as pessoas de verdade e
+     tem as duas portas logo abaixo.
+
+     Nada se perdeu do pedido antigo: a escolha do lado continua sendo
+     esquecida a cada abertura (a linha acima), e quem toca numa porta
+     entra sem digitar nada se a conta já estiver conectada. */
+  return "/";
 }
 
 /**

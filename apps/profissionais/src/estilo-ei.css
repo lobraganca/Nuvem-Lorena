@@ -9139,3 +9139,136 @@
   font-size: 0.86rem;
   text-align: center;
 }
+
+/* ── A VITRINE DA TELA INICIAL — 07/09 ──────────────────────────────────
+   A dona: "ao entrar no site a pessoa tem que ter uma tela bonita pra ver
+   as vagas e os candidatos. Sem ter que fazer login."
+
+   Duas prateleiras que rolam de lado. De lado, e não empilhadas, por uma
+   razão de tela: num celular de 390×844, seis cartões empilhados
+   empurrariam a segunda prateleira — a dos candidatos — para fora da
+   vista, e ela é metade do pedido. Rolando, as duas cabem na primeira
+   dobra e a pessoa vê que o app tem os dois lados sem precisar rolar
+   nada. */
+.ei .ei-vitrine {
+  display: grid;
+  gap: 22px;
+  margin: 18px 0 22px;
+}
+
+.ei .ei-vitrine-cabeca {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  padding: 0 var(--ei-margem, 18px);
+  margin-bottom: 10px;
+}
+
+.ei .ei-vitrine-secao {
+  font-size: 0.95rem;
+  font-weight: 700;
+  letter-spacing: 0.01em;
+  margin: 0;
+}
+
+/* O total ao lado do título. É ele que dá tamanho à cidade: "Vagas
+   abertas" sozinho não diz se são três ou trinta, e é essa diferença que
+   decide se quem chegou cria a conta. */
+.ei .ei-vitrine-conta {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--ei-tinta-fraca);
+}
+
+.ei .ei-vitrine-trilho {
+  display: flex;
+  gap: 10px;
+  overflow-x: auto;
+  padding: 2px var(--ei-margem, 18px) 4px;
+  /* Cada cartão para no lugar, em vez de a prateleira parar no meio de
+     um. Sem isto o dedo deixa meio cartão à mostra e a fileira parece
+     desalinhada — que é o defeito que já foi apontado nas artes. */
+  scroll-snap-type: x mandatory;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+}
+.ei .ei-vitrine-trilho::-webkit-scrollbar { display: none; }
+
+.ei .ei-vitrine-item {
+  scroll-snap-align: start;
+  flex: 0 0 auto;
+  width: 224px;
+  display: grid;
+  align-content: start;
+  gap: 4px;
+  padding: 14px;
+  border: 1px solid var(--ei-fio);
+  border-radius: var(--ei-raio-toque, 12px);
+  background: var(--ei-papel, #fff);
+  color: inherit;
+  text-decoration: none;
+  /* Altura igual em todos: um cartão sem salário ao lado de outro com
+     salário deixava a fileira com dois tamanhos, que é exatamente o
+     desalinhamento que a dona reprovou nas artes dos planos. */
+  min-height: 104px;
+}
+
+.ei .ei-vitrine-titulo {
+  font-weight: 700;
+  font-size: 0.95rem;
+  line-height: 1.25;
+  /* Duas linhas no máximo: título de vaga é escrito pela empresa e às
+     vezes vem com meia descrição dentro. */
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.ei .ei-vitrine-nota {
+  font-size: 0.82rem;
+  color: var(--ei-tinta-fraca);
+  line-height: 1.3;
+}
+
+.ei .ei-vitrine-valor {
+  margin-top: auto;
+  font-size: 0.86rem;
+  font-weight: 600;
+}
+
+.ei .ei-vitrine-pessoa { justify-items: start; }
+
+.ei .ei-vitrine-foto {
+  width: 44px;
+  height: 44px;
+  border-radius: 10px;
+  object-fit: cover;
+  margin-bottom: 4px;
+}
+
+.ei .ei-vitrine-foto-vazia {
+  display: grid;
+  place-items: center;
+  background: var(--ei-fio);
+  color: var(--ei-tinta-fraca);
+  font-weight: 700;
+}
+
+.ei .ei-vitrine-tudo {
+  display: inline-block;
+  margin: 8px var(--ei-margem, 18px) 0;
+  font-size: 0.86rem;
+  font-weight: 600;
+}
+
+/* Espera e erro. Erro NUNCA vira lista vazia — "nenhuma vaga aberta" e "a
+   consulta falhou" são a mesma tela e coisas opostas, e a primeira faz a
+   dona achar que a cidade parou. */
+.ei .ei-vitrine-espera,
+.ei .ei-vitrine-erro {
+  padding: 18px var(--ei-margem, 18px);
+  font-size: 0.9rem;
+  color: var(--ei-tinta-fraca);
+}
+.ei .ei-vitrine-erro { color: var(--ei-perigo, #b3261e); }

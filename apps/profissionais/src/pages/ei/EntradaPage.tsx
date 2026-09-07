@@ -6,6 +6,7 @@ import { isAdmin } from "../../lib/admin";
 import { useTituloDaPagina } from "../../lib/tituloDaPagina";
 import { IconePorta } from "./ComecarPage";
 import { casaDoLado } from "../../lib/ladoDaSessao";
+import { Vitrine } from "../../components/ei/Vitrine";
 
 /**
  * A porta de entrada do Ei Emprego.
@@ -165,7 +166,10 @@ export function EntradaPage() {
                  abaixo, e que já diz o mesmo com todas as letras: "Você
                  está em — toque para trocar de lado". */
               ? "Escolha por onde entrar."
-              : "Quem contrata e quem procura trabalho, no mesmo lugar."}
+              /* Agora a tela mostra a cidade antes de pedir qualquer coisa,
+                 e a frase diz isso — a anterior descrevia o app, não a
+                 tela. */
+              : "Veja as vagas e quem está procurando. Sem criar conta."}
           </p>
         </div>
 
@@ -197,6 +201,21 @@ export function EntradaPage() {
 
             O que sobrou aqui é a entrada de quem NÃO tem conta. */}
 
+        {/* ── A VITRINE VEM ANTES DAS PORTAS — 07/09 ──────────────────
+            A dona: "ao entrar no site a pessoa tem que ter uma tela bonita
+            pra ver as vagas e os candidatos. Sem ter que fazer login. Se
+            quiser abrir uma vaga ou se candidatar tem que fazer login."
+
+            E isto DESFAZ o pedido de 01/09 ("todos devem criar conta ao
+            entrar, até mesmo pra ver"), que é o motivo de o link "ver sem
+            conta" ter saído daqui. Está escrito para a próxima sessão não
+            "consertar" de volta: a regra de hoje é a de 07/09.
+
+            A ordem é o assunto. Antes vinha o pedido de cadastro e depois
+            nada; agora vem a resposta ("tem isto aqui na sua cidade") e a
+            conta fica para quando a pessoa quiser FAZER alguma coisa. */}
+        {!entrou && <Vitrine />}
+
         {!entrou && (
           /* Dois botões, e não um "entrar ou criar conta": quem já tem
              conta quer digitar a senha e passar; quem é novo precisa do
@@ -204,7 +223,7 @@ export function EntradaPage() {
           <div className="ei-portas">
             <Link to="/login?acao=criar" className="ei-porta ei-porta-cheia">
               <span className="ei-porta-nome">Criar conta</span>
-              <span className="ei-porta-nota">Pelo celular, com um código por SMS</span>
+              <span className="ei-porta-nota">Para se candidatar ou publicar vaga</span>
             </Link>
             <Link to="/login?acao=entrar" className="ei-porta">
               <span className="ei-porta-nome">Já tenho conta</span>

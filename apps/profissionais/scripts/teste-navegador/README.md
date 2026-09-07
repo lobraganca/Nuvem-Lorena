@@ -56,6 +56,19 @@ na lista e nunca nos cartões.
 | `falso-tem-senha` | a conta já criou senha |
 | `falso-colunas-estrito` | o banco RECUSA coluna que não existe, nos dois sentidos — é o que prova que `colunasNovas.ts` está tolerando de verdade |
 
+### A vitrine, sem conta
+
+A partir de 07/09 a tela inicial mostra vagas e candidatos para quem NÃO
+tem conta. Para exercitar isso não há interruptor: basta **não** gravar
+`falso-usuario`. Deslogada, o app abre em `/` e as duas prateleiras
+carregam.
+
+O falso conhece a view `professionals_vitrine` (migration 0132) e serve
+dela a MESMA lista da `professionals_public`, com as colunas de contato
+removidas. É isso que permite reprovar, no navegador, o dia em que alguém
+puser telefone na lista que abre sem conta — que é o vazamento que a 0118
+fechou.
+
 
 ## Como rodar
 
