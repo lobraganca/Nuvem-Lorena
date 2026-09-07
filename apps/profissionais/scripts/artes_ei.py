@@ -336,42 +336,38 @@ LARGURA_TEXTO = L - MARGEM * 2   # 824
 
 CINZA_CLARO = (203, 212, 221)   # o que ainda não aconteceu
 
-# ── COR CHAPADA, E MAIS ESCURA — "sem degradê e acabamento premium" ─────
+# ── COR CHAPADA, NA COR DO EI — "sem degradê", "da cor do Ei" ──────────
 #
-# A dona pediu as duas coisas na mesma frase, e é uma coisa só. Degradê,
-# clarão e sombra são efeito, e efeito é o que barateia: quem faz peça cara
-# tira, não põe. O que sobra tem de se sustentar sozinho — cor, espaço,
-# letra e alinhamento.
+# A dona pediu três coisas em rodadas seguidas: sem degradê, acabamento
+# premium, e "da cor do Ei". As duas primeiras eu já tinha resolvido — mas
+# resolvi trocando o azul da marca por um azul-marinho quase preto, e isso
+# era resolver o problema errado. O azul do Ei É a marca; o app inteiro é
+# ele. Uma peça bonita numa cor que não é a da empresa não serve.
 #
-# A TINTA é o azul do logo (matiz 200,5°) levado ao fundo da escala. Azul
-# claro chapado parece cartaz de promoção; azul profundo chapado é o fundo
-# de capa de revista e de embalagem cara. Branco em cima dele dá 13,9 de
-# contraste — três vezes o mínimo — e é por isso que a manchete "bate" sem
-# precisar de sombra nenhuma.
+# O que impedia usar o azul do logo era o texto BRANCO em cima: dá 2,64 de
+# contraste, quando o mínimo é 4,5. A saída não era mudar o azul — era
+# mudar a letra. Texto ESCURO sobre o azul do Ei dá 5,41, passa folgado, e
+# é o que dá à peça a cara de coisa impressa em vez de banner iluminado.
 #
-# O PAPEL não é branco puro. Branco de tela é a cor do "documento em
-# branco"; um creme quase imperceptível é a cor de papel bom, e é o que faz
-# a tela clara parecer impressa em vez de vazia. A diferença é de 11 pontos
-# num canal só — ninguém vê, todo mundo sente.
-TINTA = (8, 45, 68)
-PAPEL = (245, 242, 236)
+# Então a regra da casa, agora: sobre o azul do Ei escreve-se em tinta,
+# nunca em branco. Foi medido, não chutado — `conferir_contraste` recusa
+# gerar se alguém voltar a escrever branco aqui.
+AZUL_EI = (1, 167, 253)              # o azul do logo, exatamente ele
+PAPEL = (245, 242, 236)              # não é branco: é creme, cor de papel bom
+TINTA = (8, 45, 68)                  # o texto, nos dois fundos
 
-SOBRE_TINTA = (196, 214, 227)        # o texto de apoio sobre a tinta
-SOBRE_TINTA_FRACO = (139, 165, 185)  # o discreto (endereço, contador)
-SOBRE_PAPEL_FRACO = (96, 106, 115)   # o mesmo, no claro (4,8 de contraste)
-FIO_TINTA = (44, 80, 105)            # o fio fino sobre a tinta
+# 4,78 de contraste: o rodapé e o contador têm 22-25px, que fica na
+# fronteira do que a WCAG chama de letra grande. Na dúvida, o valor que
+# passa como letra pequena — é texto que alguém pode precisar ler.
+SOBRE_AZUL_FRACO = (9, 54, 82)       # o discreto sobre o azul — 4,78
+SOBRE_PAPEL_FRACO = (96, 106, 115)   # o discreto sobre o papel — 4,8
+FIO_AZUL = (0, 138, 212)             # o fio fino sobre o azul
 FIO_PAPEL = (216, 211, 202)          # o fio fino sobre o papel
 
-# ── O ACENTO TEM DUAS VERSÕES, UMA PARA CADA FUNDO ─────────────────────
-#
-# O laranja da marca sobre o papel dá 2,42 de contraste — some. Sobre a
-# tinta ele até passa, mas fica pesado. Então o acento é um só na ideia e
-# dois no arquivo: âmbar claro no escuro, âmbar queimado no claro. É o que
-# qualquer marca séria faz com a cor de destaque; usar o mesmo valor nos
-# dois fundos é o atalho que deixa metade das peças com o acento invisível.
-AMBAR_CLARO = (240, 158, 74)         # sobre a tinta — 6,6
-AMBAR_ESCURO = (170, 79, 0)          # sobre o papel — 5,1
-
+# O PAPEL NÃO É BRANCO PURO. Branco de tela é a cor do "documento em
+# branco"; um creme quase imperceptível é a cor de papel bom, e é o que faz
+# a tela clara parecer impressa em vez de vazia. Onze pontos num canal só —
+# ninguém vê, todo mundo sente.
 
 def escrever(d, xy, texto: str, fonte, cor, tracking: float = 0.0) -> float:
     """Escreve uma linha, com espaçamento de letra ajustável.
@@ -435,13 +431,17 @@ def quebrar(d, texto: str, fonte, largura: int) -> list[str]:
 def fundo_chapado(escura: bool) -> Image.Image:
     """Uma cor, do jeito que ela é. Sem degradê, sem brilho, sem sombra.
 
+    `escura=True` é o azul do Ei; `False` é o papel. O nome ficou de quando
+    o fundo escuro era azul-marinho — hoje o que ele quer dizer é "a tela
+    de cor cheia", que continua sendo a que leva o cabeçalho invertido.
+
     Isto é o pedido "sem degradê e acabamento premium" virado código, e é
     de propósito que a função seja uma linha só: não há o que acrescentar
     a um fundo bem escolhido. O que faz a peça parecer cara está no
     espaço, na letra e no alinhamento — e cada efeito posto aqui rouba
     atenção justamente disso.
     """
-    return Image.new("RGB", (L, A), TINTA if escura else PAPEL)
+    return Image.new("RGB", (L, A), AZUL_EI if escura else PAPEL)
 
 
 # ══════════════════════════════════════════════════════════════════════
@@ -555,91 +555,6 @@ def _unificar(foto: Image.Image) -> Image.Image:
     return Image.blend(foto, Image.new("RGB", foto.size, TINTA), 0.10)
 
 
-# ── A FOTO GANHA MOLDURA, E NÃO VÉU ────────────────────────────────────
-#
-# A versão anterior punha o texto EM CIMA da foto, e para a letra branca
-# aparecer havia um véu escuro que ia clareando para o meio — ou seja, um
-# degradê. Com "sem degradê" isso caiu, e caiu para melhor.
-#
-# Agora a foto mora num retângulo próprio e o texto fica FORA dela, na cor
-# chapada. É como revista impressa monta uma página, e resolve três coisas
-# de uma vez: não há degradê nenhum; a foto aparece inteira, sem nada
-# escurecendo o assunto; e o contraste do texto deixa de depender da foto —
-# branco sobre a tinta dá 13,9 em qualquer imagem que ela mande.
-#
-# O preço é a foto ficar menor. Vale: foto pequena e nítida num
-# enquadramento firme parece cara; foto grande com letra por cima e um véu
-# no meio parece banner.
-
-FOTOS = Path(__file__).resolve().parent / "fotos-dia1"
-
-
-def moldar_foto(img: Image.Image, caminho, caixa, raio: int = 0) -> None:
-    """Cola a foto dentro da caixa, recortada na medida.
-
-    `raio` é o arredondamento dos cantos. O padrão é ZERO: canto reto é o
-    da página de revista, canto redondo é o do aplicativo. Aqui a peça quer
-    parecer impressa.
-    """
-    e, t, di, b = caixa
-    foto = _unificar(_recortar(Image.open(caminho).convert("RGB"), di - e, b - t))
-    if raio <= 0:
-        img.paste(foto, (e, t))
-        return
-    mascara = Image.new("L", foto.size, 0)
-    ImageDraw.Draw(mascara).rounded_rectangle((0, 0, foto.width - 1, foto.height - 1),
-                                             raio, fill=255)
-    img.paste(foto, (e, t), mascara)
-
-
-def moldar_exemplo(img: Image.Image, d, caixa, rotulo: str, escura: bool) -> None:
-    """O lugar da foto, riscado, enquanto ela não chega.
-
-    Mostra o ENQUADRAMENTO: o tamanho exato que a foto vai ocupar e quanto
-    dela cabe. É feio de propósito — exemplo bonito é exemplo que vai para
-    o ar por engano.
-    """
-    e, t, di, b = caixa
-    fundo = (18, 58, 84) if escura else (226, 222, 214)
-    risco = (30, 74, 102) if escura else (214, 209, 200)
-    letra = SOBRE_TINTA_FRACO if escura else SOBRE_PAPEL_FRACO
-
-    # O riscado é desenhado NUMA IMAGEM DO TAMANHO DA CAIXA e colado. Riscar
-    # direto na peça faz cada linha diagonal continuar para fora da moldura —
-    # que foi o que aconteceu, e o exemplo saiu com listras atravessando a
-    # página inteira.
-    larg, alto = di - e, b - t
-    tira = Image.new("RGB", (larg, alto), fundo)
-    dt = ImageDraw.Draw(tira)
-    for x in range(-alto, larg, 46):
-        dt.line((x, alto, x + alto, 0), fill=risco, width=14)
-    img.paste(tira, (e, t))
-    d.rectangle((e, t, di - 1, b - 1), outline=letra, width=2)
-
-    # A letra do exemplo encolhe até caber na moldura, e SÓ ela: aqui
-    # encolher é certo, porque o rótulo é descartável e o que importa é ver
-    # o retângulo inteiro. Nas frases da arte é o contrário — lá a letra não
-    # encolhe e a geração estoura (`conferir_cabe`).
-    texto = f"SUA FOTO AQUI · {rotulo.upper()}"
-    for tamanho in range(34, 15, -1):
-        fonte = f(INTER_PESADA, tamanho)
-        largura = largura_com_tracking(d, texto, fonte, 3.0)
-        if largura <= larg - 80:
-            break
-    escrever(d, (e + (larg - largura) / 2, t + alto / 2 - tamanho * 0.65), texto,
-             fonte, letra, 3.0)
-
-
-def foto_ou_exemplo(img, d, caixa, arquivo: str, rotulo: str, escura: bool) -> None:
-    """A foto de verdade, ou o exemplo riscado enquanto ela não existe."""
-    caminho = FOTOS / arquivo
-    if caminho.exists():
-        moldar_foto(img, caminho, caixa)
-    else:
-        print(f"     falta a foto {arquivo} — entrou o exemplo riscado")
-        moldar_exemplo(img, d, caixa, rotulo, escura)
-
-
 def peca_lisa(escura: bool) -> tuple[Image.Image, ImageDraw.ImageDraw]:
     """Uma peça de cor chapada. O começo do molde aberto.
 
@@ -693,17 +608,21 @@ def cabecalho(img, d, escura: bool, numero: int, total: int) -> None:
     # logo sobre claro dá 2,3 de contraste e some. O logo nunca vive sobre
     # branco no app — mora dentro do quadrado azul — então não há versão
     # "certa" a copiar, e a legível é a que serve.
-    marca = _marca_colorida(38, None if escura else TINTA)
+    # A marca vai na TINTA nos DOIS fundos. Sobre o azul do Ei a marca
+    # branca dá 2,64 e some — e é o mesmo motivo de o texto ser escuro
+    # aqui. O logo branco existe para o quadrado azul do ícone, que é
+    # outro tamanho e outro uso.
+    marca = _marca_colorida(38, TINTA)
     img.paste(marca, (MARGEM, Y_CABECALHO), marca)
 
     fonte = f(INTER_SEMI, 22)
     texto = f"{numero:02d} / {total:02d}"
-    cor = SOBRE_TINTA_FRACO if escura else SOBRE_PAPEL_FRACO
+    cor = SOBRE_AZUL_FRACO if escura else SOBRE_PAPEL_FRACO
     largura = largura_com_tracking(d, texto, fonte, 3.0)
     escrever(d, (L - MARGEM - largura, Y_CABECALHO + 10), texto, fonte, cor, 3.0)
 
     d.line((MARGEM, Y_FIO_ALTO, L - MARGEM, Y_FIO_ALTO),
-           fill=FIO_TINTA if escura else FIO_PAPEL, width=2)
+           fill=FIO_AZUL if escura else FIO_PAPEL, width=2)
 
 
 def rodape(img, d, escura: bool) -> None:
@@ -714,10 +633,10 @@ def rodape(img, d, escura: bool) -> None:
     que chega sozinha tem de dizer onde fica o app.
     """
     d.line((MARGEM, Y_RODAPE, L - MARGEM, Y_RODAPE),
-           fill=FIO_TINTA if escura else FIO_PAPEL, width=2)
+           fill=FIO_AZUL if escura else FIO_PAPEL, width=2)
 
     fonte = f(INTER_MEDIA, 25)
-    cor = SOBRE_TINTA_FRACO if escura else SOBRE_PAPEL_FRACO
+    cor = SOBRE_AZUL_FRACO if escura else SOBRE_PAPEL_FRACO
     escrever(d, (MARGEM, Y_RODAPE + 36), "empregoitabirito.com.br", fonte, cor, 1.0)
 
 
@@ -731,7 +650,7 @@ def sobrenome(d, texto: str, escura: bool, y: int = None) -> None:
     """
     fonte = f(INTER_SEMI, 23)
     escrever(d, (MARGEM, y if y is not None else Y_CORPO), texto.upper(), fonte,
-             AMBAR_CLARO if escura else AMBAR_ESCURO, 6.0)
+             TINTA if escura else SOBRE_PAPEL_FRACO, 6.0)
 
 
 def manchete(d, texto: str, tamanho: int, cor, topo: int,
