@@ -9456,9 +9456,34 @@
    alguém reparar que o "37" tem um risco no meio. */
 .ei .ei-capa > h1,
 .ei .ei-capa > .ei-capa-numeros,
-.ei .ei-capa > .ei-capa-portas {
+.ei .ei-capa > .ei-capa-portas,
+.ei .ei-capa > .ei-capa-cidade {
   position: relative;
   z-index: 1;
+}
+
+/* ── O BOTÃO DA CIDADE, SOBRE O AZUL ───────────────────────────────────
+   O seletor é o MESMO componente do banco de talentos — mesma folha
+   embaixo, mesma contagem, mesma memória do aparelho. O que muda aqui é
+   só a pele: lá ele é escuro sobre papel, e aqui precisa ser claro sobre
+   o azul.
+
+   Contorno e não preenchido: cheio, ele competiria com as duas portas
+   logo abaixo, que são a ação da tela. Este é um ajuste, não um destino. */
+.ei .ei-capa-cidade {
+  padding: 0 33px;
+  margin-bottom: 14px;
+}
+
+.ei .ei-capa-cidade .ei-cidade-botao {
+  /* Véu ESCURO e não claro. O primeiro palpite foi branco a 14%, que
+     clareia o azul para (44,134,204) — e aí a letra branca de 0,86rem
+     fica em 3,90 de contraste, abaixo dos 4,5 que letra pequena exige.
+     Escurecendo, o contraste SOBE: aqui dá 5,7. Medido, como o resto
+     desta faixa. */
+  background: rgba(0, 0, 0, 0.14);
+  border: 1px solid rgba(255, 255, 255, 0.6);
+  color: #fff;
 }
 
 .ei .ei-capa-titulo {

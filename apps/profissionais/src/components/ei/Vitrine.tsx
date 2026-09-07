@@ -1,7 +1,9 @@
 import { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useSearchParams } from "react-router-dom";
 import { lerVitrine, type Vitrine as Dados, type VagaDaVitrine } from "../../lib/vitrine";
 import { salarioEmTexto } from "../../types/domain";
+import { SeletorDeCidade } from "./SeletorDeCidade";
+import { cidadeParaMostrar } from "../../lib/cidadeEscolhida";
 
 /**
  * A vitrine da cidade, para quem chegou agora e não tem conta.
@@ -43,16 +45,44 @@ export function Vitrine() {
   const [erro, setErro] = useState("");
   const [carregando, setCarregando] = useState(true);
 
+  /* ── A CIDADE MORA NA URL ──────────────────────────────────────────
+     A dona: "na primeira tela ter um botão para escolha da cidade. O app
+     funcionará em mais cidades."
+
+     Na URL (`?c=`) e não só no estado da tela, que é a convenção do resto
+     do app: filtro que não mora na URL some quando a pessoa abre uma vaga
+     e volta — defeito que este projeto já pagou caro, e que o CLAUDE.md
+     registra.
+
+     Sem `?c=`, `cidadeParaMostrar` cai na última cidade escolhida neste
+     aparelho e, se nunca houve nenhuma, em Itabirito. O segundo argumento
+     é a cidade do cadastro da pessoa: aqui é sempre `null`, porque esta
+     tela é a de quem NÃO tem conta. */
+  const [params, setParams] = useSearchParams();
+  const cidade = cidadeParaMostrar(params.get("c"), null);
+
+  function escolherCidade(nova: string) {
+    /* `guardarCidade` já foi chamado pelo seletor; aqui só o endereço.
+       `replace` para a escolha não encher o botão de voltar: trocar de
+       cidade três vezes exigiria três toques em voltar para sair da
+       tela. */
+    const p = new URLSearchParams(params);
+    p.set("c", nova);
+    setParams(p, { replace: true });
+  }
+
   useEffect(() => {
     let vivo = true;
-    lerVitrine()
+    setCarregando(true);
+    setErro("");
+    lerVitrine(cidade)
       .then((d) => vivo && setDados(d))
       .catch((e: unknown) => vivo && setErro(e instanceof Error ? e.message : String(e)))
       .finally(() => vivo && setCarregando(false));
     return () => {
       vivo = false;
     };
-  }, []);
+  }, [cidade]);
 
   /* A CAPA APARECE ANTES DOS DADOS, sempre.
 
@@ -100,6 +130,20 @@ export function Vitrine() {
           logo. O logo de verdade está no cabeçalho, um dedo acima — dois
           logos do mesmo tamanho na mesma dobra seriam um a mais. */}
       <img className="ei-capa-marca" src="/marca-ei.png" alt="" aria-hidden="true" />
+      {/* O botão da cidade vem ANTES do título: ele diz de onde é tudo o
+          que vem abaixo, e lido depois viraria uma correção ("ah, era de
+          outra cidade"). Ele some sozinho enquanto houver uma cidade só —
+          ver o `SeletorDeCidade`: botão que não muda nada é ruído. */}
+      {dados && dados.cidades.length > 0 && (
+        <div className="ei-capa-cidade">
+          <SeletorDeCidade
+            cidade={cidade}
+            cidades={dados.cidades}
+            aoEscolher={escolherCidade}
+          />
+        </div>
+      )}
+
       {/* ── A FRASE VOLTOU — 07/09 ────────────────────────────────
           A dona: "pode deixar a frase que estava antes. Quem contrata e
           quem procura…"

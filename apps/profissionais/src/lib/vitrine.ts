@@ -1,6 +1,7 @@
 import { supabase } from "./supabase";
 import { mensagemDeErro } from "./erros";
 import { numerosDoEi } from "./numerosDoEi";
+import { lerTudo } from "./lerTudo";
 
 /**
  * O que a cidade tem, para quem ainda não tem conta.
@@ -93,6 +94,8 @@ export type Vitrine = {
      zero. "0 já contrataram" é pior que silêncio: é a única frase da capa
      que faria alguém fechar o app. */
   contratados: number | null;
+  /** As cidades que têm alguma coisa, com quantas — para o seletor. */
+  cidades: [string, number][];
 };
 
 /**
@@ -127,7 +130,16 @@ function estaEmDestaque(v: VagaDaVitrine): boolean {
   return !!v.destaque_ate && new Date(v.destaque_ate).getTime() > Date.now();
 }
 
-export async function lerVitrine(): Promise<Vitrine> {
+/**
+ * A vitrine de UMA cidade.
+ *
+ * `cidade` vazia é "todas as cidades" — uma escolha legítima, e não a
+ * ausência de escolha: numa região onde muita gente pega ônibus para a
+ * cidade vizinha, travar tudo na própria cidade esconde justamente a vaga
+ * que fica a vinte minutos. É a mesma convenção do resto do app
+ * (`TODAS_AS_CIDADES`, em `cidadeEscolhida.ts`).
+ */
+export async function lerVitrine(cidade: string): Promise<Vitrine> {
   const sb = supabase();
   if (!sb) throw new Error("Sem conexão com o banco.");
 
@@ -137,13 +149,17 @@ export async function lerVitrine(): Promise<Vitrine> {
 
      `allSettled` e não `all`: ver `erroVagas`/`erroPessoas` no tipo acima.
      Uma faixa que falha não pode levar a outra junto. */
-  const [vagas, pessoas, numeros] = await Promise.allSettled([
-    lerVagas(sb),
-    lerPessoas(sb),
+  const [vagas, pessoas, numeros, cidades] = await Promise.allSettled([
+    lerVagas(sb, cidade),
+    lerPessoas(sb, cidade),
     /* Este já sabe devolver `null` quando a função não existe no banco —
        ver `numerosDoEi.ts`. Entra no mesmo `allSettled` para não ser mais
        uma ida à rede em série na abertura do site. */
     numerosDoEi(),
+    /* A lista de cidades NÃO é filtrada por cidade — se fosse, escolher
+       Ouro Preto deixaria o seletor com Ouro Preto só, e não haveria como
+       voltar. É o tipo de beco que só aparece depois de publicado. */
+    lerCidades(sb),
   ]);
 
   const texto = (r: PromiseRejectedResult) =>
@@ -163,14 +179,18 @@ export async function lerVitrine(): Promise<Vitrine> {
       numeros.status === "fulfilled" && (numeros.value?.contratados ?? 0) > 0
         ? numeros.value!.contratados
         : null,
+    /* Falhar aqui esconde o seletor e não quebra mais nada: a tela mostra
+       a cidade que já estava escolhida. Um seletor a menos é chato; uma
+       vitrine que não abre por causa dele seria bem pior. */
+    cidades: cidades.status === "fulfilled" ? cidades.value : [],
   };
 }
 
-async function lerVagas(sb: NonNullable<ReturnType<typeof supabase>>) {
+async function lerVagas(sb: NonNullable<ReturnType<typeof supabase>>, cidade: string) {
   /* `count: "exact"` junto da mesma consulta: o total é o que dá a
      dimensão ("47 vagas abertas"), e pedi-lo numa segunda consulta seria
      uma ida a mais à rede para um número que já vem de graça aqui. */
-  const { data, error, count } = await sb
+  let q = sb
     .from("job_listings")
     .select(
       "id, title, city, uf, salario_a_combinar, salary_range_min, salary_range_max, salario_periodo, destaque_ate, created_at, companies(company_name)",
@@ -180,7 +200,13 @@ async function lerVagas(sb: NonNullable<ReturnType<typeof supabase>>) {
        o filtro vai escrito aqui também: policy é a garantia, e este `eq` é
        a intenção. Sem ele, o dia em que a policy mudar esta tela passa a
        mostrar vaga encerrada sem ninguém entender por quê. */
-    .eq("status", "active")
+    .eq("status", "active");
+  /* O filtro entra DEPOIS do `select` e só quando há cidade: `.eq("city",
+     "")` não devolveria "todas", devolveria as linhas com cidade vazia —
+     ou seja, nenhuma. */
+  if (cidade) q = q.eq("city", cidade);
+
+  const { data, error, count } = await q
     /* Destaque primeiro, e depois a mais nova. É a mesma ordem do banco de
        vagas — quem pagou pelo topo tem de aparecer no topo aqui também,
        senão a vitrine desmente o que a empresa comprou. */
@@ -212,12 +238,15 @@ async function lerVagas(sb: NonNullable<ReturnType<typeof supabase>>) {
   return { linhas, total: count ?? linhas.length };
 }
 
-async function lerPessoas(sb: NonNullable<ReturnType<typeof supabase>>) {
-  const { data, error, count } = await sb
+async function lerPessoas(sb: NonNullable<ReturnType<typeof supabase>>, cidade: string) {
+  let q = sb
     .from("professionals_vitrine")
     .select("id, name, especialidade, city, photo_url, areas_de_interesse", {
       count: "exact",
-    })
+    });
+  if (cidade) q = q.eq("city", cidade);
+
+  const { data, error, count } = await q
     /* O mesmo filtro do banco de talentos: quem não preencheu
        `areas_de_interesse` não fez o cadastro do Ei (é gente do procurô, no
        mesmo banco) e não tem o que mostrar aqui. */
@@ -274,4 +303,60 @@ export async function lerComVitrine<T>(
     );
     return carregar("professionals_public");
   }
+}
+
+
+/**
+ * As cidades que têm alguma coisa, com quantas coisas em cada uma.
+ *
+ * ── POR QUE ISTO EXISTE ───────────────────────────────────────────────
+ *
+ * A dona: "na primeira tela ter um botão para escolha da cidade. O app
+ * funcionará em mais cidades."
+ *
+ * A lista sai DOS DADOS, e não de uma lista fixa de cidades escrita no
+ * código. Uma fileira com "Congonhas" numa hora em que Congonhas não tem
+ * nada é um filtro que só sabe devolver tela vazia — e é o mesmo motivo
+ * pelo qual os ofícios do banco de talentos são contados em vez de
+ * listados à mão.
+ *
+ * ── SOMA VAGA E PESSOA ────────────────────────────────────────────────
+ *
+ * O número ao lado de cada cidade é "quanta coisa tem aqui", e não
+ * "quantas vagas": quem abre a tela pode estar procurando emprego OU
+ * procurando gente, e a mesma lista serve aos dois. Separar em duas
+ * contagens obrigaria a perguntar de que lado a pessoa está antes de ela
+ * escolher a cidade — que é justamente a ordem que esta tela evita.
+ *
+ * ── `lerTudo` E NÃO UM `select` SIMPLES ───────────────────────────────
+ *
+ * A 0062 pôs teto de 200 linhas por consulta. Com um `select` direto, a
+ * cidade nº 201 sumiria da lista sem nada avisando — e o seletor mentiria
+ * dizendo que a cidade não existe.
+ */
+async function lerCidades(
+  sb: NonNullable<ReturnType<typeof supabase>>
+): Promise<[string, number][]> {
+  const [vagas, pessoas] = await Promise.all([
+    lerTudo<{ city: string | null }>(() =>
+      sb.from("job_listings").select("city").eq("status", "active")
+    ),
+    lerTudo<{ city: string | null }>(() =>
+      sb
+        .from("professionals_vitrine")
+        .select("city")
+        .not("areas_de_interesse", "is", null)
+        .neq("areas_de_interesse", "{}")
+    ),
+  ]);
+
+  const conta = new Map<string, number>();
+  for (const linha of [...vagas, ...pessoas]) {
+    const c = (linha.city ?? "").trim();
+    if (!c) continue;
+    conta.set(c, (conta.get(c) ?? 0) + 1);
+  }
+  /* Ordenadas por quantidade, e a de mesmo tamanho pelo nome: assim a
+     lista não troca de ordem sozinha entre uma abertura e outra. */
+  return [...conta.entries()].sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0]));
 }
