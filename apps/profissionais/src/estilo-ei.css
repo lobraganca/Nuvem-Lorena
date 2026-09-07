@@ -9152,9 +9152,23 @@
    nada. */
 .ei .ei-vitrine {
   display: grid;
+  /* `minmax(0, 1fr)` e não `1fr`. Item de grid tem largura mínima
+     `auto` — ou seja, ele se recusa a ficar menor que o conteúdo. E o
+     conteúdo aqui inclui a prateleira que rola de lado, que é mais larga
+     que a tela: a coluna inteira esticava junto, e o TÍTULO da capa saía
+     pela direita sem quebrar linha. O sintoma engana, porque parece
+     defeito do título — e o título não tem defeito nenhum.
+
+     Vale para o `.ei-vitrine-faixa` também, pelo mesmo motivo. */
+  grid-template-columns: minmax(0, 1fr);
   gap: 22px;
-  margin: 18px 0 22px;
+  /* Sem margem em cima: a capa azul é o primeiro filho e tem de encostar
+     no cabeçalho azul. Com os 18px que havia aqui, nascia uma listra
+     cinza entre as duas faixas da mesma cor. */
+  margin: 0 0 22px;
 }
+
+.ei .ei-vitrine-faixa { min-width: 0; }
 
 .ei .ei-vitrine-cabeca {
   display: flex;
@@ -9187,8 +9201,15 @@
   padding: 2px var(--ei-margem, 18px) 4px;
   /* Cada cartão para no lugar, em vez de a prateleira parar no meio de
      um. Sem isto o dedo deixa meio cartão à mostra e a fileira parece
-     desalinhada — que é o defeito que já foi apontado nas artes. */
-  scroll-snap-type: x mandatory;
+     desalinhada — que é o defeito que já foi apontado nas artes.
+
+     `proximity` e não `mandatory`, com `scroll-padding` junto: o
+     `mandatory` alinha o primeiro cartão à borda do trilho e COME o
+     recuo de 18px, então a fileira nascia grudada na lateral da tela
+     enquanto o título dela ficava recuado. O sintoma parece falta de
+     padding — e o padding está lá o tempo todo. */
+  scroll-snap-type: x proximity;
+  scroll-padding-left: var(--ei-margem, 18px);
   -webkit-overflow-scrolling: touch;
   scrollbar-width: none;
 }
@@ -9272,3 +9293,89 @@
   color: var(--ei-tinta-fraca);
 }
 .ei .ei-vitrine-erro { color: var(--ei-perigo, #b3261e); }
+
+/* ── A CAPA DA TELA INICIAL — 07/09 ─────────────────────────────────────
+   A dona: "preciso que a primeira tela seja mais bonita. Chamativa."
+
+   A tela abria cinza: título preto sobre papel, e o azul do Ei só numa
+   barrinha lá no alto. Agora a primeira dobra é uma faixa do azul da
+   marca, com os três números da cidade dentro dela.
+
+   ── A LETRA SOBRE O AZUL É ESCURA, E ISSO É MEDIDO ───────────────────
+
+   Branco sobre o azul do Ei dá 2,64 de contraste, quando o mínimo é 4,5.
+   É o mesmo defeito da tela "Quem está contratando", que foi apontada
+   três vezes de olho ("essa tela tá ruim") antes de alguém medir. A saída
+   não é trocar o azul da marca — é escrever em tinta escura por cima
+   dele:
+
+     título   #0b2f44 sobre #01a7fd .... 5,28
+     apoio    #09364f ................... 4,78
+     rótulo   #0c4262 ................... 4,03 (letra grande, mínimo 3)
+
+   É a mesma dupla das artes do Instagram (`scripts/artes_ei.py`), e de
+   propósito: o post e a tela do celular têm de parecer a mesma empresa. */
+.ei .ei-capa {
+  background: var(--ei-marca, #01a7fd);
+  padding: 26px 0 22px;
+  /* Encosta no cabeçalho azul: as duas faixas viram uma só, e a tela
+     começa com um bloco de cor inteiro em vez de uma listra. */
+  margin-top: -1px;
+}
+
+.ei .ei-capa-titulo {
+  margin: 0;
+  padding: 0 33px;
+  color: #0b2f44;
+  font-size: 1.72rem;
+  font-weight: 800;
+  line-height: 1.16;
+  /* O mesmo aperto das manchetes das artes: letra grande com espaçamento
+     de letra pequena fica frouxa, e é a diferença mais visível entre
+     "digitado" e "composto". */
+  letter-spacing: -0.022em;
+}
+
+.ei .ei-capa-apoio {
+  margin: 10px 0 0;
+  padding: 0 33px;
+  color: #09364f;
+  font-size: 0.95rem;
+  line-height: 1.35;
+}
+
+/* Os três números. Altura reservada desde o primeiro quadro (ver o
+   componente `Numeros`): sem isso a capa cresce quando a consulta chega e
+   empurra a página inteira debaixo do dedo de quem já começou a ler. */
+.ei .ei-capa-numeros {
+  display: flex;
+  gap: 22px;
+  padding: 0 33px;
+  margin-top: 20px;
+  min-height: 52px;
+  flex-wrap: wrap;
+}
+
+.ei .ei-capa-numero {
+  display: grid;
+  gap: 1px;
+}
+
+.ei .ei-capa-valor {
+  color: #0b2f44;
+  font-size: 1.7rem;
+  font-weight: 800;
+  line-height: 1;
+  letter-spacing: -0.02em;
+}
+
+.ei .ei-capa-rotulo {
+  color: #0c4262;
+  font-size: 0.78rem;
+  font-weight: 600;
+  line-height: 1.2;
+  max-width: 96px;
+}
+
+/* Com a capa colorida, as prateleiras começam logo abaixo dela. */
+.ei .ei-capa + .ei-vitrine-faixa { margin-top: 22px; }

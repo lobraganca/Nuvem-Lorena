@@ -140,82 +140,26 @@ export function EntradaPage() {
           merece o centro óptico) e o que é rodapé — ver sem conta,
           instalar, privacidade — se junta embaixo, num bloco só. */}
       <div className="ei-tela ei-entrada">
-        <div className="ei-entrada-topo">
-          {/* O "Ei" gigante saiu daqui.
-              ─────────────────────────
-              Ele entrou quando esta tela era a única sem a barra azul do
-              topo — e fazia sentido: a marca precisava aparecer em algum
-              lugar. Agora a barra está em todas as telas (ver AppShell), e
-              duas marcas na mesma dobra é uma marca a mais.
+        {/* ── A CAPA SAIU DAQUI E FOI PARA A VITRINE — 07/09 ──────────
+            A dona: "preciso que a primeira tela seja mais bonita.
+            Chamativa."
 
-              O que fica é a pergunta que a tela faz. "Emprego em
-              Itabirito" continua fora, como a dona pediu no item 12: quem
-              diz o nome agora é a barra. */}
-          <h1 className="ei-entrada-titulo">
-            {entrou ? "Por onde começamos?" : "Quem contrata e quem procura, aqui se encontram"}
-          </h1>
-          {/* Uma linha. A anterior tinha duas orações e dizia, com vinte
-              palavras, o que os dois botões logo abaixo dizem com seis. */}
-          {/* Era "De que lado você está?", que fazia par com as duas
-              portas. Com a pergunta adiada para depois da conta, a frase
-              ficou anunciando uma escolha que não está mais nesta tela. */}
-          <p className="ei-entrada-apoio">
-            {entrou
-              /* 02/09: "Dá para trocar quando quiser" saiu a pedido da
-                 dona. Ela explicava o controle de lado que está logo
-                 abaixo, e que já diz o mesmo com todas as letras: "Você
-                 está em — toque para trocar de lado". */
-              ? "Escolha por onde entrar."
-              /* ── O ENCONTRO, E NÃO O CATÁLOGO — 07/09 ──────────────
-                 A dona: "na primeira página colocar algo mais ligado a
-                 fazer conexões de um jeito diferente. Ao invés de vagas e
-                 serviços."
+            O título e a linha de apoio moravam aqui, em preto sobre
+            papel, e a tela abria cinza. Agora eles vivem dentro da
+            `Vitrine`, numa faixa do azul do Ei com os três números da
+            cidade logo abaixo — e é ali que eles têm de estar, porque os
+            números vêm da MESMA consulta que já carrega as prateleiras.
+            Mantê-los aqui obrigaria a tela a buscar duas vezes a mesma
+            coisa só para escrever um título.
 
-                 "Vagas e serviços de Itabirito" descrevia um CATÁLOGO —
-                 uma lista de coisas — e catálogo é o que o app não é. O
-                 que ele faz é aproximar duas pessoas da mesma cidade, e o
-                 título passou a dizer isso.
-
-                 A linha de apoio carrega o "de um jeito diferente", pelo
-                 avesso: nomeia as duas coisas que aqui NÃO acontecem. É a
-                 mesma dor do carrossel do Dia 1 — deixar currículo em
-                 quatro lugares e não receber ligação nenhuma —, agora do
-                 lado de quem contrata também.
-
-                 E "Sem criar conta" saiu daqui a pedido dela. A tela
-                 continua abrindo sem conta; o que muda é que ela não
-                 anuncia mais isso como se fosse a vantagem principal. */
-              : "Sem currículo de porta em porta, sem anúncio que ninguém vê."}
-          </p>
-        </div>
-
-        {/* ── A ORDEM MUDOU: PRIMEIRO A CONTA, DEPOIS O LADO ─────────
-            A dona: "acho que antes de perguntar se é empresa ou se é
-            profissional, tinha que ter a tela pra entrar no app e criar
-            senha. depois de criar a pessoa escolhe o perfil de empresa ou
-            de profissional."
-
-            Ela está certa, e o desenho anterior tinha um problema real:
-            as duas portas ("Procuro trabalho" / "Estou contratando")
-            faziam a pessoa escolher um LADO antes de existir como conta.
-            Quem tocasse errado — e "estou contratando" é ambíguo para
-            quem está montando um serviço próprio — só descobria depois de
-            entrar, com o lado já gravado.
-
-            Agora a ordem é a natural: entra (ou cria a conta, com senha),
-            e só então escolhe de que lado está, numa tela que existe só
-            para isso e pode explicar cada opção com calma. */}
-        {/* ── A ESCOLHA DE LADO SAIU DAQUI — 04/09 ────────────────────
-            A dona: "na tela de login a pessoa vai ter que escolher entre
-            quero contratar ou procuro emprego."
-
-            Ficavam aqui os dois botões que trocavam de lado a qualquer
-            momento — o lugar do app onde as duas metades apareciam juntas
-            para todo mundo. Agora a escolha é feita na porta, uma vez, e
-            quem já entrou nem chega a ver esta tela: o desvio lá em cima
-            manda cada um para a casa do seu lado.
-
-            O que sobrou aqui é a entrada de quem NÃO tem conta. */}
+            Quem entrou continua vendo o cabeçalho simples: para essa
+            pessoa a tela é um menu, não uma vitrine. */}
+        {entrou && (
+          <div className="ei-entrada-topo">
+            <h1 className="ei-entrada-titulo">Por onde começamos?</h1>
+            <p className="ei-entrada-apoio">Escolha por onde entrar.</p>
+          </div>
+        )}
 
         {/* ── A VITRINE VEM ANTES DAS PORTAS — 07/09 ──────────────────
             A dona: "ao entrar no site a pessoa tem que ter uma tela bonita

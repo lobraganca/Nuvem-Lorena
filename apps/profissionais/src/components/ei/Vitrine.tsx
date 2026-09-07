@@ -54,11 +54,33 @@ export function Vitrine() {
     };
   }, []);
 
+  /* A CAPA APARECE ANTES DOS DADOS, sempre.
+
+     Ela é a primeira coisa que a pessoa vê, e não pode piscar: se o
+     título só nascesse junto com a consulta, a abertura do site seria
+     meio segundo de tela cinza vazia — que é exatamente a impressão que
+     esta tela existe para desfazer. Só os NÚMEROS esperam, e eles entram
+     no lugar já reservado, sem empurrar nada. */
+  const capa = (
+    <header className="ei-capa">
+      <h1 className="ei-capa-titulo">
+        Quem contrata e quem procura, aqui se encontram
+      </h1>
+      <p className="ei-capa-apoio">
+        Sem currículo de porta em porta, sem anúncio que ninguém vê.
+      </p>
+      <Numeros dados={dados} />
+    </header>
+  );
+
   if (carregando) {
     return (
-      <p className="ei-vitrine-espera" aria-live="polite">
-        Carregando o que tem na cidade…
-      </p>
+      <div className="ei-vitrine">
+        {capa}
+        <p className="ei-vitrine-espera" aria-live="polite">
+          Carregando o que tem na cidade…
+        </p>
+      </div>
     );
   }
 
@@ -67,16 +89,20 @@ export function Vitrine() {
      faixa, para a outra continuar aparecendo. */
   if (erro) {
     return (
-      <p className="ei-vitrine-erro" role="alert">
-        {erro}
-      </p>
+      <div className="ei-vitrine">
+        {capa}
+        <p className="ei-vitrine-erro" role="alert">
+          {erro}
+        </p>
+      </div>
     );
   }
 
-  if (!dados) return null;
+  if (!dados) return capa;
 
   return (
     <div className="ei-vitrine">
+      {capa}
       <Faixa
         titulo="Vagas abertas"
         total={dados.totalVagas}
@@ -131,6 +157,59 @@ export function Vitrine() {
           </div>
         ))}
       </Faixa>
+    </div>
+  );
+}
+
+/**
+ * Os três números da capa: vagas abertas, gente procurando, já contratadas.
+ *
+ * ── POR QUE NÚMERO, E NÃO UMA FRASE BONITA ────────────────────────────
+ *
+ * A dona: "preciso que a primeira tela seja mais bonita. Chamativa."
+ *
+ * O que chama atenção numa cidade pequena não é adjetivo — é a prova de
+ * que tem gente ali. "47" e "3" dizem em dois caracteres o que nenhuma
+ * frase de propaganda diz: o app está vivo, e vale a pena criar conta.
+ * São os números de VERDADE do banco, lidos na hora; nenhum deles é
+ * escrito à mão em lugar nenhum.
+ *
+ * ── O ZERO NÃO APARECE ────────────────────────────────────────────────
+ *
+ * Cada número só entra se for maior que zero. "0 já contratadas" é a
+ * única frase desta tela capaz de fazer alguém fechar o app — e num
+ * começo de operação ela seria verdade por semanas. Esconder o zero não é
+ * mentir: é não afirmar nada enquanto não há o que afirmar.
+ */
+function Numeros({ dados }: { dados: Dados | null }) {
+  if (!dados) {
+    /* O espaço fica reservado enquanto os números não chegam, para a capa
+       não pular de altura no meio da leitura. */
+    return <div className="ei-capa-numeros" aria-hidden="true" />;
+  }
+
+  /* Rótulos curtos de propósito. "procurando trabalho" quebrava em duas
+     linhas enquanto "vagas abertas" ficava numa, e as três colunas saíam
+     com alturas diferentes — o mesmo desalinhamento que já foi reprovado
+     nas artes. Em três colunas de 96px numa tela de 390, não cabe frase. */
+  const itens: { valor: number; rotulo: string }[] = [];
+  if (dados.totalVagas > 0)
+    itens.push({ valor: dados.totalVagas, rotulo: dados.totalVagas === 1 ? "vaga aberta" : "vagas abertas" });
+  if (dados.totalPessoas > 0)
+    itens.push({ valor: dados.totalPessoas, rotulo: "candidatos" });
+  if (dados.contratados)
+    itens.push({ valor: dados.contratados, rotulo: "já contratadas" });
+
+  if (itens.length === 0) return null;
+
+  return (
+    <div className="ei-capa-numeros">
+      {itens.map((n) => (
+        <div key={n.rotulo} className="ei-capa-numero">
+          <span className="ei-capa-valor">{n.valor}</span>
+          <span className="ei-capa-rotulo">{n.rotulo}</span>
+        </div>
+      ))}
     </div>
   );
 }

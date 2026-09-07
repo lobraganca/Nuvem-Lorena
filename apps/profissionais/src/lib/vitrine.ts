@@ -1,5 +1,6 @@
 import { supabase } from "./supabase";
 import { mensagemDeErro } from "./erros";
+import { numerosDoEi } from "./numerosDoEi";
 
 /**
  * O que a cidade tem, para quem ainda não tem conta.
@@ -82,6 +83,12 @@ export type Vitrine = {
      `null` é "esta faixa está bem". */
   erroVagas: string | null;
   erroPessoas: string | null;
+  /* Quantas pessoas o app já empregou (0125). `null` quando o banco ainda
+     não tem a função, ou quando ninguém foi contratado ainda — e nos dois
+     casos a tela simplesmente não mostra o número, em vez de mostrar um
+     zero. "0 já contrataram" é pior que silêncio: é a única frase da capa
+     que faria alguém fechar o app. */
+  contratados: number | null;
 };
 
 /**
@@ -116,7 +123,14 @@ export async function lerVitrine(): Promise<Vitrine> {
 
      `allSettled` e não `all`: ver `erroVagas`/`erroPessoas` no tipo acima.
      Uma faixa que falha não pode levar a outra junto. */
-  const [vagas, pessoas] = await Promise.allSettled([lerVagas(sb), lerPessoas(sb)]);
+  const [vagas, pessoas, numeros] = await Promise.allSettled([
+    lerVagas(sb),
+    lerPessoas(sb),
+    /* Este já sabe devolver `null` quando a função não existe no banco —
+       ver `numerosDoEi.ts`. Entra no mesmo `allSettled` para não ser mais
+       uma ida à rede em série na abertura do site. */
+    numerosDoEi(),
+  ]);
 
   const texto = (r: PromiseRejectedResult) =>
     r.reason instanceof Error ? r.reason.message : String(r.reason);
@@ -128,6 +142,10 @@ export async function lerVitrine(): Promise<Vitrine> {
     pessoas: pessoas.status === "fulfilled" ? pessoas.value.linhas : [],
     totalPessoas: pessoas.status === "fulfilled" ? pessoas.value.total : 0,
     erroPessoas: pessoas.status === "rejected" ? texto(pessoas) : null,
+    contratados:
+      numeros.status === "fulfilled" && (numeros.value?.contratados ?? 0) > 0
+        ? numeros.value!.contratados
+        : null,
   };
 }
 
