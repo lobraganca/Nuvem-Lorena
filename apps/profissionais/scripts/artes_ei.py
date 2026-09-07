@@ -312,8 +312,8 @@ INTER_NEGRITO = str(FONTES / "Inter-700.ttf")
 INTER_PESADA = str(FONTES / "Inter-800.ttf")
 INTER_PRETA = str(FONTES / "Inter-900.ttf")
 
-MARGEM = 110
-LARGURA_TEXTO = L - MARGEM * 2   # 860
+MARGEM = 128
+LARGURA_TEXTO = L - MARGEM * 2   # 824
 
 # ── AS OUTRAS TRÊS COISAS QUE FAZIAM PARECER POBRE ─────────────────────
 #
@@ -336,25 +336,41 @@ LARGURA_TEXTO = L - MARGEM * 2   # 860
 
 CINZA_CLARO = (203, 212, 221)   # o que ainda não aconteceu
 
-# ── O AZUL DO FUNDO É MAIS ESCURO QUE O AZUL DA MARCA, E ISSO É MEDIDO ──
+# ── COR CHAPADA, E MAIS ESCURA — "sem degradê e acabamento premium" ─────
 #
-# O azul do logo (1,167,253) é lindo num ícone e péssimo como fundo de
-# texto: BRANCO sobre ele dá 2,55 de contraste, quando o mínimo é 4,5 para
-# letra pequena e 3 para manchete. A primeira leva do molde aberto usava
-# ele, e a peça parecia lavada — a manchete não "batia".
+# A dona pediu as duas coisas na mesma frase, e é uma coisa só. Degradê,
+# clarão e sombra são efeito, e efeito é o que barateia: quem faz peça cara
+# tira, não põe. O que sobra tem de se sustentar sozinho — cor, espaço,
+# letra e alinhamento.
 #
-# Estes dois são o MESMO matiz do logo (200,5°, saturação cheia), só mais
-# escuros. A marca continua reconhecível e o branco passa a ter 4,6 no alto
-# e 8,1 no pé. Não é palpite: `conferir_contraste` mede a peça pronta e
-# recusa gerar se algum texto ficar abaixo do mínimo — foi assim que a tela
-# "Quem está contratando" foi consertada, depois de ser apontada de olho
-# três vezes sem ninguém medir.
-AZUL_TOPO = (0, 114, 174)
-AZUL_PE = (0, 78, 119)
-AZUL_BRILHO = (40, 170, 232)    # o clarão do alto, de leve
+# A TINTA é o azul do logo (matiz 200,5°) levado ao fundo da escala. Azul
+# claro chapado parece cartaz de promoção; azul profundo chapado é o fundo
+# de capa de revista e de embalagem cara. Branco em cima dele dá 13,9 de
+# contraste — três vezes o mínimo — e é por isso que a manchete "bate" sem
+# precisar de sombra nenhuma.
+#
+# O PAPEL não é branco puro. Branco de tela é a cor do "documento em
+# branco"; um creme quase imperceptível é a cor de papel bom, e é o que faz
+# a tela clara parecer impressa em vez de vazia. A diferença é de 11 pontos
+# num canal só — ninguém vê, todo mundo sente.
+TINTA = (8, 45, 68)
+PAPEL = (245, 242, 236)
 
-SOBRE_AZUL = (224, 241, 254)    # o texto de apoio sobre o fundo azul
-SOBRE_AZUL_FRACO = (168, 208, 235)   # o discreto ("arraste", endereço)
+SOBRE_TINTA = (196, 214, 227)        # o texto de apoio sobre a tinta
+SOBRE_TINTA_FRACO = (139, 165, 185)  # o discreto (endereço, contador)
+SOBRE_PAPEL_FRACO = (96, 106, 115)   # o mesmo, no claro (4,8 de contraste)
+FIO_TINTA = (44, 80, 105)            # o fio fino sobre a tinta
+FIO_PAPEL = (216, 211, 202)          # o fio fino sobre o papel
+
+# ── O ACENTO TEM DUAS VERSÕES, UMA PARA CADA FUNDO ─────────────────────
+#
+# O laranja da marca sobre o papel dá 2,42 de contraste — some. Sobre a
+# tinta ele até passa, mas fica pesado. Então o acento é um só na ideia e
+# dois no arquivo: âmbar claro no escuro, âmbar queimado no claro. É o que
+# qualquer marca séria faz com a cor de destaque; usar o mesmo valor nos
+# dois fundos é o atalho que deixa metade das peças com o acento invisível.
+AMBAR_CLARO = (240, 158, 74)         # sobre a tinta — 6,6
+AMBAR_ESCURO = (170, 79, 0)          # sobre o papel — 5,1
 
 
 def escrever(d, xy, texto: str, fonte, cor, tracking: float = 0.0) -> float:
@@ -416,27 +432,16 @@ def quebrar(d, texto: str, fonte, largura: int) -> list[str]:
     return linhas
 
 
-def fundo_azul() -> Image.Image:
-    """O azul da marca, com profundidade.
+def fundo_chapado(escura: bool) -> Image.Image:
+    """Uma cor, do jeito que ela é. Sem degradê, sem brilho, sem sombra.
 
-    Não é um azul diferente: é o MESMO, com um brilho suave no alto à
-    esquerda e um escurecimento no pé. De perto quase não se vê; é no
-    conjunto que a peça deixa de parecer um retângulo pintado.
+    Isto é o pedido "sem degradê e acabamento premium" virado código, e é
+    de propósito que a função seja uma linha só: não há o que acrescentar
+    a um fundo bem escolhido. O que faz a peça parecer cara está no
+    espaço, na letra e no alinhamento — e cada efeito posto aqui rouba
+    atenção justamente disso.
     """
-    degrade = Image.new("RGB", (2, A))
-    dd = ImageDraw.Draw(degrade)
-    for y in range(A):
-        p = y / (A - 1)
-        dd.line((0, y, 2, y), fill=tuple(
-            round(AZUL_TOPO[i] + (AZUL_PE[i] - AZUL_TOPO[i]) * p) for i in range(3)))
-    img = degrade.resize((L, A), Image.BILINEAR)
-
-    brilho = Image.new("L", (L // 4, A // 4), 0)
-    db = ImageDraw.Draw(brilho)
-    db.ellipse((-L // 10, -A // 9, L // 3, A // 7), fill=62)
-    brilho = brilho.filter(ImageFilter.GaussianBlur(30)).resize((L, A), Image.LANCZOS)
-    img.paste(Image.new("RGB", (L, A), AZUL_BRILHO), (0, 0), brilho)
-    return img
+    return Image.new("RGB", (L, A), TINTA if escura else PAPEL)
 
 
 # ══════════════════════════════════════════════════════════════════════
@@ -520,110 +525,130 @@ def conferir_contraste(img: Image.Image, cor_texto, caixa, minimo: float, onde: 
 FOTOS = Path(__file__).resolve().parent / "fotos-dia1"
 
 
-def _recortar_na_medida(foto: Image.Image) -> Image.Image:
-    """Preenche 1080×1350 cortando o excesso, nunca esticando."""
-    escala = max(L / foto.width, A / foto.height)
-    nova = foto.resize((max(L, round(foto.width * escala)),
-                        max(A, round(foto.height * escala))), Image.LANCZOS)
-    e = (nova.width - L) // 2
-    # Corta mais de baixo do que de cima: em foto de rua o assunto (fachada,
+def _recortar(foto: Image.Image, larg: int, alt: int) -> Image.Image:
+    """Preenche a moldura cortando o excesso, NUNCA esticando.
+
+    Esticar é o que mais denuncia arte amadora: rosto engorda, poste
+    entorta, e quem olha sente que está errado sem saber dizer o quê.
+    """
+    escala = max(larg / foto.width, alt / foto.height)
+    nova = foto.resize((max(larg, round(foto.width * escala)),
+                        max(alt, round(foto.height * escala))), Image.LANCZOS)
+    e = (nova.width - larg) // 2
+    # Corta mais de baixo que de cima: em foto de rua o assunto (fachada,
     # placa, gente) fica no terço de cima, e chão é o que sobra.
-    t = round((nova.height - A) * 0.38)
-    return nova.crop((e, t, e + L, t + A))
+    t = round((nova.height - alt) * 0.38)
+    return nova.crop((e, t, e + larg, t + alt))
 
 
 def _unificar(foto: Image.Image) -> Image.Image:
-    """Dessatura de leve e passa um véu azul — cinco fotos, uma campanha."""
+    """Dessatura de leve e passa um véu de tinta — cinco fotos, uma campanha.
+
+    Fotos de celulares e horas diferentes brigam entre si num carrossel:
+    uma amarelada, outra azulada, outra estourada. Puxar todas 26% para o
+    cinza e 10% para a tinta da marca põe as cinco no mesmo tom sem virar
+    filtro de rede social — que é o efeito que a peça está justamente
+    tirando.
+    """
     cinza = foto.convert("L").convert("RGB")
-    foto = Image.blend(foto, cinza, 0.28)
-    return Image.blend(foto, Image.new("RGB", foto.size, AZUL_PE), 0.12)
+    foto = Image.blend(foto, cinza, 0.26)
+    return Image.blend(foto, Image.new("RGB", foto.size, TINTA), 0.10)
 
 
-def _veu(forca: float) -> Image.Image:
-    """A máscara do escurecimento: mais forte em cima e embaixo.
+# ── A FOTO GANHA MOLDURA, E NÃO VÉU ────────────────────────────────────
+#
+# A versão anterior punha o texto EM CIMA da foto, e para a letra branca
+# aparecer havia um véu escuro que ia clareando para o meio — ou seja, um
+# degradê. Com "sem degradê" isso caiu, e caiu para melhor.
+#
+# Agora a foto mora num retângulo próprio e o texto fica FORA dela, na cor
+# chapada. É como revista impressa monta uma página, e resolve três coisas
+# de uma vez: não há degradê nenhum; a foto aparece inteira, sem nada
+# escurecendo o assunto; e o contraste do texto deixa de depender da foto —
+# branco sobre a tinta dá 13,9 em qualquer imagem que ela mande.
+#
+# O preço é a foto ficar menor. Vale: foto pequena e nítida num
+# enquadramento firme parece cara; foto grande com letra por cima e um véu
+# no meio parece banner.
 
-    Em cima mora a manchete e embaixo o rodapé; o meio da foto é onde ela
-    tem de continuar sendo uma foto. Um véu chapado escureceria o assunto
-    junto com o fundo e devolveria uma imagem suja.
+FOTOS = Path(__file__).resolve().parent / "fotos-dia1"
+
+
+def moldar_foto(img: Image.Image, caminho, caixa, raio: int = 0) -> None:
+    """Cola a foto dentro da caixa, recortada na medida.
+
+    `raio` é o arredondamento dos cantos. O padrão é ZERO: canto reto é o
+    da página de revista, canto redondo é o do aplicativo. Aqui a peça quer
+    parecer impressa.
     """
-    m = Image.new("L", (1, A))
-    dm = ImageDraw.Draw(m)
-    for y in range(A):
-        p = y / (A - 1)
-        if p < 0.52:
-            k = 1.0 - (p / 0.52) * 0.55       # 1,00 no topo → 0,45 no meio
-        else:
-            k = 0.45 + ((p - 0.52) / 0.48) * 0.55
-        dm.line((0, y, 1, y), fill=round(255 * forca * k))
-    return m.resize((L, A), Image.BILINEAR)
+    e, t, di, b = caixa
+    foto = _unificar(_recortar(Image.open(caminho).convert("RGB"), di - e, b - t))
+    if raio <= 0:
+        img.paste(foto, (e, t))
+        return
+    mascara = Image.new("L", foto.size, 0)
+    ImageDraw.Draw(mascara).rounded_rectangle((0, 0, foto.width - 1, foto.height - 1),
+                                             raio, fill=255)
+    img.paste(foto, (e, t), mascara)
 
 
-def foto_de_fundo(caminho, checagens=(), rotulo: str = "") -> Image.Image:
-    """A foto pronta para receber texto: recortada, unificada e escurecida.
+def moldar_exemplo(img: Image.Image, d, caixa, rotulo: str, escura: bool) -> None:
+    """O lugar da foto, riscado, enquanto ela não chega.
 
-    `checagens` é uma lista de `(caixa, cor, mínimo)` — SÓ onde há texto, e
-    não a peça inteira. O véu é forte em cima e embaixo e fraco no meio;
-    exigir contraste no meio da foto obrigaria a escurecer tudo e devolveria
-    uma imagem preta com letra. Cada zona de texto se defende sozinha.
-
-    O escurecimento sobe de 5% em 5% até TODAS as zonas passarem, e o
-    quanto precisou é IMPRESSO — foto clara é escolha de quem fotografou,
-    não do gerador, e ela tem de saber. Se nem no máximo passar, para: a
-    saída é outra foto, e não letra cinza.
+    Mostra o ENQUADRAMENTO: o tamanho exato que a foto vai ocupar e quanto
+    dela cabe. É feio de propósito — exemplo bonito é exemplo que vai para
+    o ar por engano.
     """
-    base = _unificar(_recortar_na_medida(Image.open(caminho).convert("RGB")))
-    if not checagens:
-        return base
+    e, t, di, b = caixa
+    fundo = (18, 58, 84) if escura else (226, 222, 214)
+    risco = (30, 74, 102) if escura else (214, 209, 200)
+    letra = SOBRE_TINTA_FRACO if escura else SOBRE_PAPEL_FRACO
 
-    preto = Image.new("RGB", (L, A), (0, 0, 0))
-    for passo in range(3, 17):              # 15% até 80%
-        forca = passo * 0.05
-        pronta = Image.composite(preto, base, _veu(forca))
-        try:
-            for caixa, cor, minimo in checagens:
-                conferir_contraste(pronta, cor, caixa, minimo, rotulo)
-        except SystemExit:
-            continue
-        print(f"     véu {forca:.0%} em {rotulo or Path(caminho).name}")
-        return pronta
+    # O riscado é desenhado NUMA IMAGEM DO TAMANHO DA CAIXA e colado. Riscar
+    # direto na peça faz cada linha diagonal continuar para fora da moldura —
+    # que foi o que aconteceu, e o exemplo saiu com listras atravessando a
+    # página inteira.
+    larg, alto = di - e, b - t
+    tira = Image.new("RGB", (larg, alto), fundo)
+    dt = ImageDraw.Draw(tira)
+    for x in range(-alto, larg, 46):
+        dt.line((x, alto, x + alto, 0), fill=risco, width=14)
+    img.paste(tira, (e, t))
+    d.rectangle((e, t, di - 1, b - 1), outline=letra, width=2)
 
-    raise SystemExit(
-        f"a foto «{Path(caminho).name}» é clara demais para receber texto.\n"
-        f"  nem escurecendo 80% o texto de {rotulo} chega ao contraste mínimo.\n"
-        f"  troque a foto — não vale clarear a letra até sumir."
-    )
-
-
-def foto_de_exemplo(rotulo: str) -> Image.Image:
-    """Um retângulo riscado dizendo "sua foto aqui".
-
-    Existe para mostrar o ENQUADRAMENTO antes de a foto existir: onde o
-    texto cai, quanto sobra de imagem, o que fica escondido pelo véu. É
-    feio de propósito — placeholder bonito é placeholder que vai para o ar
-    por engano.
-    """
-    img = Image.new("RGB", (L, A), (108, 118, 128))
-    d = ImageDraw.Draw(img)
-    for x in range(-A, L, 44):
-        d.line((x, A, x + A, 0), fill=(122, 132, 142), width=16)
-    fonte = f(INTER_PESADA, 40)
+    # A letra do exemplo encolhe até caber na moldura, e SÓ ela: aqui
+    # encolher é certo, porque o rótulo é descartável e o que importa é ver
+    # o retângulo inteiro. Nas frases da arte é o contrário — lá a letra não
+    # encolhe e a geração estoura (`conferir_cabe`).
     texto = f"SUA FOTO AQUI · {rotulo.upper()}"
-    largura = largura_com_tracking(d, texto, fonte, 3.0)
-    # Abaixo do meio: no meio ele batia na manchete da capa, e um
-    # exemplo que se sobrepõe ao texto não mostra o enquadramento.
-    escrever(d, ((L - largura) / 2, 800), texto, fonte, (238, 242, 246), 3.0)
-    return img
+    for tamanho in range(34, 15, -1):
+        fonte = f(INTER_PESADA, tamanho)
+        largura = largura_com_tracking(d, texto, fonte, 3.0)
+        if largura <= larg - 80:
+            break
+    escrever(d, (e + (larg - largura) / 2, t + alto / 2 - tamanho * 0.65), texto,
+             fonte, letra, 3.0)
+
+
+def foto_ou_exemplo(img, d, caixa, arquivo: str, rotulo: str, escura: bool) -> None:
+    """A foto de verdade, ou o exemplo riscado enquanto ela não existe."""
+    caminho = FOTOS / arquivo
+    if caminho.exists():
+        moldar_foto(img, caminho, caixa)
+    else:
+        print(f"     falta a foto {arquivo} — entrou o exemplo riscado")
+        moldar_exemplo(img, d, caixa, rotulo, escura)
 
 
 def peca_lisa(escura: bool) -> tuple[Image.Image, ImageDraw.ImageDraw]:
-    """Uma peça de fundo cheio, sem cartão. O começo do molde aberto.
+    """Uma peça de cor chapada. O começo do molde aberto.
 
-    `escura=True` é o azul da marca; `False` é o branco. Recebe um SIM ou
-    NÃO em vez de uma cor porque tudo mais na peça — cor da letra, cor da
-    marca, cor do fio do rodapé — decorre dessa escolha, e passar a cor
-    solta já deixou uma peça com fundo azul e fio cinza-claro invisível.
+    `escura=True` é a tinta; `False` é o papel. Recebe um SIM ou NÃO em vez
+    de uma cor porque tudo mais na peça — cor da letra, da marca, do fio —
+    decorre dessa escolha, e passar a cor solta já deixou uma peça com fundo
+    escuro e fio claro invisível.
     """
-    img = fundo_azul() if escura else Image.new("RGB", (L, A), BRANCO)
+    img = fundo_chapado(escura)
     return img, ImageDraw.Draw(img)
 
 
@@ -638,30 +663,47 @@ def _marca_colorida(alto: int, cor=None) -> Image.Image:
     return tinta
 
 
-# O alto e o pé, iguais em todas as telas do carrossel.
-Y_CABECALHO = 96
-Y_RODAPE = A - 138
+# ── A GRADE ────────────────────────────────────────────────────────────
+#
+# A margem subiu de 110 para 128, e isso é metade do "acabamento premium".
+# Margem apertada é o reflexo de quem quer caber mais coisa; margem larga é
+# a de quem já decidiu o que tirar. Ninguém repara na margem — todo mundo
+# repara no resultado dela.
+#
+# Estas alturas valem para as NOVE telas. É a repetição exata delas que faz
+# nove imagens virarem um carrossel, e não nove posts parecidos.
+Y_CABECALHO = 104
+Y_FIO_ALTO = 178          # o fio fino que fecha o cabeçalho
+Y_CORPO = 268             # onde começa o conteúdo de cada tela
+Y_RODAPE = A - 146
 
 
 def cabecalho(img, d, escura: bool, numero: int, total: int) -> None:
-    """A marca à esquerda, o número da tela à direita.
+    """A marca à esquerda, o número da tela à direita, e um fio fechando.
 
     O contador ("03 / 09") é pequeno e some no canto, mas é ele que avisa
     que há mais para arrastar — sem isso, muita gente lê a primeira tela e
     passa reto, e o carrossel inteiro é escrito para a última.
+
+    O fio embaixo é o que transforma isto num cabeçalho de página em vez de
+    duas coisas soltas no alto. É o detalhe mais barato e o que mais faz a
+    peça parecer composta.
     """
-    # No fundo branco a marca vai no azul ESCURO, não no azul do logo: o
-    # ciano do logo sobre branco dá 2,3 de contraste e some no papel. O logo
-    # nunca vive sobre branco no app — ele mora dentro do quadrado azul —
-    # então não há versão "certa" a copiar, e a legível é a que serve.
-    marca = _marca_colorida(40, None if escura else AZUL_TOPO)
+    # Sobre o papel a marca vai na TINTA, não no azul do logo: o ciano do
+    # logo sobre claro dá 2,3 de contraste e some. O logo nunca vive sobre
+    # branco no app — mora dentro do quadrado azul — então não há versão
+    # "certa" a copiar, e a legível é a que serve.
+    marca = _marca_colorida(38, None if escura else TINTA)
     img.paste(marca, (MARGEM, Y_CABECALHO), marca)
 
-    fonte = f(INTER_SEMI, 24)
+    fonte = f(INTER_SEMI, 22)
     texto = f"{numero:02d} / {total:02d}"
-    cor = (255, 255, 255) if escura else CINZA
-    largura = largura_com_tracking(d, texto, fonte, 2.0)
-    escrever(d, (L - MARGEM - largura, Y_CABECALHO + 8), texto, fonte, cor, 2.0)
+    cor = SOBRE_TINTA_FRACO if escura else SOBRE_PAPEL_FRACO
+    largura = largura_com_tracking(d, texto, fonte, 3.0)
+    escrever(d, (L - MARGEM - largura, Y_CABECALHO + 10), texto, fonte, cor, 3.0)
+
+    d.line((MARGEM, Y_FIO_ALTO, L - MARGEM, Y_FIO_ALTO),
+           fill=FIO_TINTA if escura else FIO_PAPEL, width=2)
 
 
 def rodape(img, d, escura: bool) -> None:
@@ -671,16 +713,25 @@ def rodape(img, d, escura: bool) -> None:
     fotografado e mandado no WhatsApp solto, sem a legenda junto. A tela
     que chega sozinha tem de dizer onde fica o app.
     """
-    cor_fio = (255, 255, 255, 90) if escura else FIO
-    if escura:
-        fio_img = Image.new("RGBA", (L - MARGEM * 2, 2), cor_fio)
-        img.paste(fio_img, (MARGEM, Y_RODAPE), fio_img)
-    else:
-        d.line((MARGEM, Y_RODAPE, L - MARGEM, Y_RODAPE), fill=FIO, width=2)
+    d.line((MARGEM, Y_RODAPE, L - MARGEM, Y_RODAPE),
+           fill=FIO_TINTA if escura else FIO_PAPEL, width=2)
 
-    fonte = f(INTER_MEDIA, 26)
-    cor = SOBRE_AZUL_FRACO if escura else CINZA
-    escrever(d, (MARGEM, Y_RODAPE + 34), "empregoitabirito.com.br", fonte, cor, 0.6)
+    fonte = f(INTER_MEDIA, 25)
+    cor = SOBRE_TINTA_FRACO if escura else SOBRE_PAPEL_FRACO
+    escrever(d, (MARGEM, Y_RODAPE + 36), "empregoitabirito.com.br", fonte, cor, 1.0)
+
+
+def sobrenome(d, texto: str, escura: bool, y: int = None) -> None:
+    """A tarja de cima: uma palavra em versal, bem espaçada, bem pequena.
+
+    É o elemento que mais distingue peça composta de peça digitada. Letra
+    minúscula bem espaçada não funciona; versalete espaçado, sim — o olho
+    lê como "seção", e não como frase, e por isso ele não compete com a
+    manchete que vem logo abaixo.
+    """
+    fonte = f(INTER_SEMI, 23)
+    escrever(d, (MARGEM, y if y is not None else Y_CORPO), texto.upper(), fonte,
+             AMBAR_CLARO if escura else AMBAR_ESCURO, 6.0)
 
 
 def manchete(d, texto: str, tamanho: int, cor, topo: int,

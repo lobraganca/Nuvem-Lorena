@@ -32,14 +32,15 @@ seria pior do que não ter nenhuma.
 
 ## Como tirar, para a arte sair boa
 
-1. **Em pé** (vertical). A arte é 1080×1350; foto deitada perde as bordas
-   no corte.
-2. **De longe o suficiente** para caber a fachada inteira. O texto entra no
-   terço de baixo e cobre o que estiver ali — enquadre o assunto no meio e
-   no alto.
-3. **Luz do dia**, sem contraluz. Foto muito clara faz o gerador escurecer
-   demais para o texto branco aparecer, e a foto some atrás do véu; se ela
-   for clara demais até para isso, o gerador **para** e avisa qual é.
+1. **Deitada** (horizontal). A moldura da foto é um retângulo deitado —
+   824×556 na arte. Foto em pé entra, mas perde o alto e o pé no corte, e é
+   justamente onde costuma estar a fachada.
+2. **De longe o suficiente** para caber a fachada inteira, com o assunto no
+   meio. O corte tira um pouco mais de chão do que de céu.
+3. **Luz do dia**, sem contraluz. A foto aparece inteira, do jeito que
+   você tirou — não tem nada escurecendo por cima dela, porque o texto fica
+   FORA da moldura. Então foto ruim aparece ruim: é o único lugar da arte
+   que depende de você.
 4. **Sem rosto identificável em primeiro plano.** Pessoa de costas ou de
    longe tudo bem; rosto reconhecível precisa de autorização de quem
    aparece, e isso vale para post de empresa.
@@ -52,9 +53,13 @@ real, e a vida real não tem estúdio.
 
 ## O que o gerador faz com elas
 
-- **Recorta** para 1080×1350 sem esticar (corta o excesso, tirando um pouco
-  mais de chão que de céu).
-- **Unifica**: dessatura de leve e passa um véu azul de 12%, para cinco
-  fotos de horas e celulares diferentes parecerem a mesma campanha.
-- **Escurece só o quanto precisa** para o texto branco passar no contraste
-  mínimo, e imprime quanto foi (`véu 35% em Na padaria da esquina.`).
+- **Recorta** na medida da moldura sem esticar (corta o excesso, tirando um
+  pouco mais de chão que de céu). A moldura é a mesma nas quatro telas dos
+  lugares, e é isso que faz as quatro serem a MESMA tela com outra foto.
+- **Unifica**: puxa 26% para o cinza e 10% para o azul escuro da marca, para
+  cinco fotos de horas e celulares diferentes parecerem a mesma campanha —
+  sem virar filtro de rede social.
+
+A foto NÃO leva texto por cima nem escurecimento. Ela mora num retângulo
+próprio e o texto fica fora, na cor chapada, do jeito que revista impressa
+monta uma página. Foi assim que sumiu o último degradê da peça.

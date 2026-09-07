@@ -13,49 +13,37 @@ de vantagens e pílula laranja fazem qualquer frase parecer anúncio — e
 anúncio é justamente o que a primeira peça não pode parecer. O trabalho
 dela é a pessoa se RECONHECER, e ninguém se reconhece num banner.
 
-Então ela usa o molde aberto (`artes_ei.py`): fundo cheio, texto grande,
-ar. Mesma marca, mesmo azul, mesma tipografia — outra conversa.
-
 ── A VIRADA É VISUAL, E NÃO SÓ DE TEXTO ───────────────────────────────
 
 O carrossel tem três atos, e cada um tem o seu fundo:
 
-  1. AZUL   a pergunta. É a voz do Ei chamando.
-  2. BRANCO os lugares e a resposta. É a vida da pessoa.
-  3. AZUL   a conclusão e o convite. O Ei volta a falar.
+  1. TINTA  a pergunta. É a voz do Ei chamando.
+  2. PAPEL  os lugares e a resposta. É a vida da pessoa.
+  3. TINTA  a conclusão e o convite. O Ei volta a falar.
 
-── A LISTA JÁ VEM INTEIRA, E SÓ MUDA DE COR ───────────────────────────
+── AS TRÊS RODADAS QUE ESTA PEÇA LEVOU ────────────────────────────────
 
-A primeira versão do ato 2 mostrava um lugar por tela, sozinho no alto de
-uma página branca. Quatro telas seguidas com metade de baixo vazia não
-leem como "ar": leem como arquivo que não terminou de carregar. E pior,
-"Na padaria da esquina." quebrava em duas linhas enquanto "No mercado
-grande." cabia numa — as telas que existem justamente para serem IGUAIS
-saíam com alturas diferentes. É o mesmo defeito que reprovou a primeira
-leva das artes dos planos, com outra roupa.
+Cada uma consertou uma coisa diferente, e vale saber qual foi qual antes
+de mexer em qualquer medida daqui.
 
-Agora as quatro linhas aparecem desde a primeira tela, nas mesmas alturas
-sempre. O que muda é a cor: a de agora em escuro com o ponto laranja, as
-já passadas em cinza, as que ainda vêm em cinza claro. Nada se mexe entre
-uma tela e outra — quem passa o dedo vê a conta subir, não a página
-remontar.
+1ª — "está muito desalinhado". O ato do meio mostrava um lugar por tela,
+sozinho no alto de uma página vazia, e "Na padaria da esquina." quebrava
+em duas linhas enquanto "No mercado grande." cabia numa. Telas que existem
+para serem IGUAIS saíam com alturas diferentes. Daí `conferir_cabe` valer
+também aqui: frase que não cabe estoura na geração, com o nome dela, em
+vez de sair torta.
 
-E a lista cheia é o que faz a 7ª tela funcionar: depois de quatro páginas
-ocupadas, um "Nenhum." sozinho no branco é um susto. Antes, no meio de
-telas que já eram vazias, era só mais uma.
+2ª — "achei pobre". Era o acabamento: a letra do sistema no lugar da letra
+do app, manchete com espaçamento frouxo, nenhuma moldura. Consertado em
+`artes_ei.py` (Inter, tracking negativo, cabeçalho e rodapé fixos).
 
-── A SEGUNDA RODADA: "ACHEI POBRE" ────────────────────────────────────
-
-A dona olhou a primeira leva e disse isso. Não era o texto — era o
-acabamento, e o conserto foi todo em `artes_ei.py`: a letra do app no
-lugar da letra do sistema, manchete com o espaçamento apertado, fundo azul
-com profundidade em vez de chapado, e um alto e um pé fixos (marca,
-"03 / 09", endereço) que fazem nove imagens virarem um carrossel só.
-
-Aqui dentro sobrou o que é desta peça: a lista virou uma tabela de linhas
-finas, e não uma lista de bolinhas. Bolinha é o desenho de "tópicos de
-apresentação"; linha fina é o de coisa registrada — e o assunto da tela é
-justamente um registro do que a pessoa já fez.
+3ª — "sem degradê, acabamento premium". Caiu o fundo com degradê, caiu o
+clarão, caiu a pílula laranja cheia. E caiu o véu escuro que ficava por
+cima da foto — que era um degradê também. A foto passou a ter MOLDURA
+própria, com o texto fora dela, do jeito que revista impressa monta uma
+página. Ganhou nos três lados: sem degradê nenhum, a foto aparece inteira
+sem nada escurecendo o assunto, e o contraste do texto parou de depender
+da foto que ela mandar.
 
 ── O QUE ESTA PEÇA NÃO FAZ ────────────────────────────────────────────
 
@@ -79,154 +67,124 @@ LUGARES = [
 
 TOTAL = 9
 
-TAM_MANCHETE = 94
-TAM_LUGAR = 48
-TAM_APOIO = 36
-
-# A régua do ato 2. Estas alturas são as MESMAS nas cinco telas brancas —
-# é isso que faz a lista crescer sem a página remontar embaixo do dedo.
-Y_TOPO_BLOCO = 268
-LISTA_TOPO = 508
-PASSO_LISTA = 138
-X_TEXTO = ei.MARGEM
-X_RISCO = 820          # onde começa o traço da resposta em branco (tela 6)
-LARGURA_ITEM = X_RISCO - 40 - X_TEXTO
-
+TAM_MANCHETE = 86
+TAM_LUGAR = 44
+TAM_APOIO = 34
 
 # ── AS FOTOS ───────────────────────────────────────────────────────────
 #
-# Cinco telas são fotografia: a capa e os quatro lugares. Os arquivos vão
-# em `scripts/fotos-dia1/` com estes nomes; enquanto não existirem, entra o
-# retângulo riscado de exemplo, para se ver o enquadramento.
+# Cinco telas têm fotografia: a capa e os quatro lugares. Os arquivos vão
+# em `scripts/fotos-dia1/` com estes nomes (ver o LEIA-ME de lá); enquanto
+# não existirem, entra o retângulo riscado, que mostra o enquadramento e
+# nunca deve ir para o ar.
 #
 # São fotos de ITABIRITO, tiradas pela dona. Foto de banco de imagem
-# estragaria a peça inteira: a graça de "na padaria da esquina" é a pessoa
-# reconhecer a padaria. Uma padaria genérica de outro país diz o contrário
-# do que a frase promete, e quem mora lá percebe na hora.
+# estragaria a peça: a graça de "na padaria da esquina" é a pessoa
+# reconhecer a padaria. Uma padaria genérica diz o contrário do que a frase
+# promete, e quem mora lá percebe na hora.
 FOTO_CAPA = "1-cidade.jpg"
 FOTO_LUGARES = ["2-padaria.jpg", "3-loja.jpg", "4-posto.jpg", "5-mercado.jpg"]
 
+# As molduras. Larguras iguais, alturas iguais dentro de cada ato — é o
+# que faz as quatro telas dos lugares serem a MESMA tela com outra foto.
+CAIXA_CAPA = (ei.MARGEM, 236, ei.L - ei.MARGEM, 700)
+CAIXA_LUGAR = (ei.MARGEM, 236, ei.L - ei.MARGEM, 792)
 
-# As zonas de texto de uma tela sobre foto: o alto (marca e contador) e o
-# bloco de baixo (o que se escreve em cima da imagem). O miolo fica de fora
-# de propósito — é onde a foto continua sendo foto.
-ZONA_ALTO = ((0, 70, ei.L, 150), ei.BRANCO, 4.5)
-ZONA_PE = ((0, 300, ei.L, 820), ei.BRANCO, 4.5)          # a capa
-ZONA_LUGAR = ((0, 880, ei.L, 1170), ei.BRANCO, 4.5)      # os quatro lugares
-ZONA_RODAPE = ((0, ei.Y_RODAPE - 20, ei.L, ei.A), ei.SOBRE_AZUL_FRACO, 3.0)
-
-
-def _com_foto(arquivo: str, rotulo: str, zonas):
-    """A foto de fundo, ou o exemplo riscado quando ela ainda não chegou."""
-    caminho = ei.FOTOS / arquivo
-    if caminho.exists():
-        return ei.foto_de_fundo(caminho, zonas, rotulo)
-    print(f"     falta a foto {arquivo} — entrou o exemplo riscado")
-    return ei.foto_de_exemplo(rotulo)
+# A régua do ato 2 (as telas de papel). Repetida igual nas cinco.
+Y_FIO_FOTO = 842          # o fio fino logo abaixo da moldura
+Y_CONTA = 884             # o número grande
+Y_NOME = 1024             # o nome do lugar
+LISTA_TOPO = 456          # a lista de resumo, na tela 6
+PASSO_LISTA = 132
+X_RISCO = 800             # onde começa o traço da resposta em branco
+LARGURA_ITEM = X_RISCO - 40 - ei.MARGEM
 
 
-def _moldura(escura: bool, numero: int, fundo=None):
-    """Toda tela começa igual: fundo, marca, contador e rodapé."""
-    if fundo is None:
-        img, d = ei.peca_lisa(escura)
-    else:
-        img, d = fundo, ei.ImageDraw.Draw(fundo)
+def _moldura(escura: bool, numero: int):
+    """Toda tela começa igual: cor chapada, cabeçalho e rodapé."""
+    img, d = ei.peca_lisa(escura)
     ei.cabecalho(img, d, escura, numero, TOTAL)
     ei.rodape(img, d, escura)
     return img, d
 
 
 def capa():
-    """Ato 1 — a pergunta, sobre a cidade."""
-    fundo = _com_foto(FOTO_CAPA, "a capa", [ZONA_ALTO, ZONA_PE, ZONA_RODAPE])
-    img, d = _moldura(escura=True, numero=1, fundo=fundo)
+    """Ato 1 — a pergunta, e a cidade logo acima dela."""
+    img, d = _moldura(escura=True, numero=1)
+    ei.foto_ou_exemplo(img, d, CAIXA_CAPA, FOTO_CAPA, "a cidade", True)
     ei.manchete(d, "Em quantos lugares você deixou currículo esse ano?",
-                TAM_MANCHETE, ei.BRANCO, 330)
-
-    # "arraste" com a seta: a peça inteira é escrita para a última tela, e
-    # quem para na primeira nunca chega lá. Discreto, no pé, para convidar
-    # sem gritar.
-    fonte = ei.f(ei.INTER_SEMI, 28)
-    ei.escrever(d, (ei.MARGEM, ei.Y_RODAPE - 92), "arraste  →", fonte,
-                ei.SOBRE_AZUL_FRACO, 3.0)
+                TAM_MANCHETE, ei.BRANCO, 762)
     return img
-
-
-def _linha_da_lista(d, i: int, cor_texto, negrito: bool, marcador) -> int:
-    """Uma linha da tabela. Devolve o y do fio de baixo.
-
-    Fio fino em vez de bolinha: bolinha é o desenho de "tópicos de
-    apresentação" e faz a tela parecer slide de escritório. Linha fina é o
-    desenho de coisa anotada — que é exatamente o assunto aqui.
-    """
-    y = LISTA_TOPO + i * PASSO_LISTA
-    fonte = ei.f(ei.INTER_PESADA if negrito else ei.INTER_SEMI, TAM_LUGAR)
-    ei.escrever(d, (X_TEXTO, y), LUGARES[i], fonte, cor_texto, -TAM_LUGAR * 0.018)
-
-    fio = y + TAM_LUGAR + 34
-    d.line((ei.MARGEM, fio, ei.L - ei.MARGEM, fio), fill=ei.FIO, width=2)
-    if marcador is not None:
-        # A marca da linha de agora: um traço laranja curto EM CIMA do fio,
-        # como quem passa a caneta. Some nas outras, e é só ele que muda de
-        # lugar entre uma tela e outra.
-        d.rounded_rectangle((ei.MARGEM, fio - 2, ei.MARGEM + 96, fio + 4), 3,
-                            fill=marcador)
-    return fio
 
 
 def lugar(numero: int):
     """Ato 2 — um lugar por tela, e a foto é o lugar.
 
-    A lista que estas telas tinham antes saiu daqui: sobre fotografia ela
-    vira sujeira, e a foto já diz "é este lugar" melhor do que qualquer
-    linha escrita. Quem carrega a conta subindo é o número grande no pé, e
-    a lista inteira reaparece de uma vez na tela 6 — depois de quatro
-    fotos, o resumo bate mais forte do que batia repetido quatro vezes.
-
-    O texto vai todo no terço de baixo, que é onde o véu escurece: em cima
-    a foto continua limpa, e é ela que a pessoa vê primeiro.
+    A lista que estas telas tinham antes saiu daqui: a foto já diz "é este
+    lugar" melhor do que qualquer linha escrita, e quatro listas seguidas
+    eram repetição sem função. Quem carrega a conta subindo é o número
+    grande, e a lista inteira reaparece de uma vez na tela 6 — depois de
+    quatro fotos, o resumo bate mais forte do que batia repetido quatro
+    vezes.
     """
-    fundo = _com_foto(FOTO_LUGARES[numero - 1], LUGARES[numero - 1],
-                      [ZONA_ALTO, ZONA_LUGAR, ZONA_RODAPE])
-    img, d = _moldura(escura=True, numero=numero + 1, fundo=fundo)
+    img, d = _moldura(escura=False, numero=numero + 1)
+    ei.foto_ou_exemplo(img, d, CAIXA_LUGAR, FOTO_LUGARES[numero - 1],
+                       LUGARES[numero - 1], False)
+
+    # O fio fino entre a foto e o texto. Sem ele a imagem e a letra ficam
+    # apenas próximas; com ele viram duas partes da mesma página.
+    d.line((ei.MARGEM, Y_FIO_FOTO, ei.L - ei.MARGEM, Y_FIO_FOTO),
+           fill=ei.FIO_PAPEL, width=2)
 
     # "1 lugar" / "2 lugares": o número é o assunto, a palavra só o explica.
-    fn = ei.f(ei.INTER_PRETA, 116)
-    fp = ei.f(ei.INTER_SEMI, 40)
-    largura = ei.escrever(d, (ei.MARGEM, 892), f"{numero}", fn, ei.BRANCO, -116 * 0.03)
-    d.text((ei.MARGEM + largura + 18, 892 + 116 - 8),
+    fn = ei.f(ei.INTER_PRETA, 104)
+    fp = ei.f(ei.INTER_SEMI, 38)
+    largura = ei.escrever(d, (ei.MARGEM, Y_CONTA), f"{numero}", fn, ei.TINTA,
+                          -104 * 0.03)
+    d.text((ei.MARGEM + largura + 16, Y_CONTA + 104 - 6),
            "lugar" if numero == 1 else "lugares",
-           font=fp, fill=ei.SOBRE_AZUL, anchor="ls")
+           font=fp, fill=ei.SOBRE_PAPEL_FRACO, anchor="ls")
 
-    ei.manchete(d, LUGARES[numero - 1], 72, ei.BRANCO, 1044)
+    ei.manchete(d, LUGARES[numero - 1], 62, ei.TINTA, Y_NOME)
     return img
 
 
 def pergunta():
-    """A virada. A mesma lista, agora com o espaço da resposta em branco.
+    """A virada. A lista inteira, com o espaço da resposta em branco.
 
     O traço vazio ao lado de cada lugar é o desenho da pergunta: é um
     formulário que ninguém preencheu. Dizer "nenhum" na tela seguinte só
     tem força porque aqui há quatro espaços esperando resposta.
     """
     img, d = _moldura(escura=False, numero=6)
-    ei.manchete(d, "E quantos ligaram?", TAM_MANCHETE, ei.ESCURO, Y_TOPO_BLOCO)
+    ei.manchete(d, "E quantos ligaram?", TAM_MANCHETE, ei.TINTA, ei.Y_CORPO)
 
-    for i in range(len(LUGARES)):
-        fio = _linha_da_lista(d, i, ei.CINZA, False, None)
+    fonte = ei.f(ei.INTER_SEMI, TAM_LUGAR)
+    for i, texto in enumerate(LUGARES):
+        y = LISTA_TOPO + i * PASSO_LISTA
+        ei.escrever(d, (ei.MARGEM, y), texto, fonte, ei.SOBRE_PAPEL_FRACO,
+                    -TAM_LUGAR * 0.018)
+        base = y + TAM_LUGAR + 30
+        d.line((ei.MARGEM, base, ei.L - ei.MARGEM, base), fill=ei.FIO_PAPEL, width=2)
         # O traço da resposta começa sempre no mesmo x, e não colado no fim
         # de cada frase: quatro riscos de tamanhos diferentes viram sujeira,
         # quatro iguais viram uma coluna de respostas em branco.
-        d.line((X_RISCO, fio - 16, ei.L - ei.MARGEM, fio - 16),
-               fill=ei.CINZA_CLARO, width=5)
+        d.line((X_RISCO, base - 18, ei.L - ei.MARGEM, base - 18),
+               fill=(188, 196, 204), width=5)
     return img
 
 
 def silencio():
-    """A tela quase vazia. O vazio é o assunto — não preencher é o desenho."""
+    """A tela quase vazia. O vazio é o assunto — não preencher é o desenho.
+
+    Ela só funciona porque as cinco anteriores estão cheias. Numa sequência
+    que já fosse vazia, esta seria só mais uma.
+    """
     img, d = _moldura(escura=False, numero=7)
-    fim = ei.manchete(d, "Nenhum.", 132, ei.ESCURO, 590)
-    ei.apoio(d, "Talvez um. Você lembra qual.", TAM_APOIO, ei.CINZA, fim + 26)
+    ei.sobrenome(d, "a resposta", False, 560)
+    fim = ei.manchete(d, "Nenhum.", 124, ei.TINTA, 620)
+    ei.apoio(d, "Talvez um. Você lembra qual.", TAM_APOIO,
+             ei.SOBRE_PAPEL_FRACO, fim + 24)
     return img
 
 
@@ -239,40 +197,66 @@ def conclusao():
     """
     img, d = _moldura(escura=True, numero=8)
     fim = ei.manchete(d, "O problema não é falta de vaga.", TAM_MANCHETE,
-                      ei.SOBRE_AZUL, 300, fonte_arq=ei.INTER_MEDIA)
-    ei.manchete(d, "É você não ficar sabendo.", TAM_MANCHETE, ei.BRANCO, fim + 34,
-                fonte_arq=ei.INTER_PRETA)
+                      ei.SOBRE_TINTA, 380, fonte_arq=ei.INTER_MEDIA)
+    ei.manchete(d, "É você não ficar sabendo.", TAM_MANCHETE, ei.BRANCO,
+                fim + 36, fonte_arq=ei.INTER_PRETA)
     return img
 
 
 def convite():
-    """O convite. Uma faixa laranja só, e nenhuma promessa de emprego."""
+    """O convite. Uma chamada só, e nenhuma promessa de emprego.
+
+    A pílula é de PAPEL sobre a tinta, e não mais laranja cheia. Lozango
+    laranja gritando no pé é o desenho de anúncio de liquidação; a mesma
+    pílula na cor do papel tem 13 de contraste, continua sendo obviamente
+    um botão, e não briga com nada. O laranja fica onde ele rende: no
+    versalete pequeno lá em cima.
+    """
     img, d = _moldura(escura=True, numero=9)
+    ei.sobrenome(d, "o convite", True)
     fim = ei.manchete(d, "No Ei Emprego a vaga procura você.", TAM_MANCHETE,
-                      ei.BRANCO, 268)
+                      ei.BRANCO, 330)
     ei.apoio(d, "Você marca o que faz. Quando abre uma vaga do seu ofício em "
                 "Itabirito, o aviso chega no seu celular.",
-             TAM_APOIO, ei.SOBRE_AZUL, fim + 40)
+             TAM_APOIO, ei.SOBRE_TINTA, fim + 40)
 
-    alto = 112
-    topo = ei.Y_RODAPE - 76 - alto
+    alto = 108
+    topo = ei.Y_RODAPE - 92 - alto
     d.rounded_rectangle((ei.MARGEM, topo, ei.L - ei.MARGEM, topo + alto),
-                        alto // 2, fill=ei.LARANJA)
-    fonte = ei.f(ei.INTER_PESADA, 44)
-    largura = ei.largura_com_tracking(d, "Cadastro grátis em 5 minutos", fonte, -0.6)
-    ei.escrever(d, ((ei.L - largura) / 2, topo + (alto - 56) // 2),
-                "Cadastro grátis em 5 minutos", fonte, ei.BRANCO, -0.6)
+                        alto // 2, fill=ei.PAPEL)
+    fonte = ei.f(ei.INTER_PESADA, 40)
+    frase = "Cadastro grátis em 5 minutos"
+    largura = ei.largura_com_tracking(d, frase, fonte, -0.4)
+    ei.escrever(d, ((ei.L - largura) / 2, topo + (alto - 52) // 2), frase, fonte,
+                ei.TINTA, -0.4)
     return img
 
 
 def main() -> None:
-    # Uma linha que quebra em duas desalinha a lista inteira — e a lista só
-    # existe para ser igual nas cinco telas. Estoura aqui, com o nome da
-    # frase, em vez de sair torto na arte.
-    ei.conferir_cabe(ei.INTER_PESADA, TAM_LUGAR, LUGARES, LARGURA_ITEM,
-                     "a lista de lugares da tela 6")
-    ei.conferir_cabe(ei.INTER_PESADA, 72, LUGARES, ei.LARGURA_TEXTO,
-                     "o nome do lugar sobre a foto")
+    # Frase que não cabe estoura aqui, com o nome dela, em vez de sair
+    # torta ou encolhida — o defeito da primeira rodada.
+    ei.conferir_cabe(ei.INTER_PESADA, 62, LUGARES, ei.LARGURA_TEXTO,
+                     "o nome do lugar")
+    ei.conferir_cabe(ei.INTER_SEMI, TAM_LUGAR, LUGARES, LARGURA_ITEM,
+                     "a lista de resumo da tela 6")
+
+    # O contraste, medido nas cores chapadas. Com fundo de cor única não há
+    # ponto pior — mas a conferência fica, porque a cor pode mudar e o
+    # esquecimento é justamente o que deixou a tela "Quem está contratando"
+    # em 1,1 de contraste por três rodadas.
+    for cor, fundo, minimo, onde in [
+        (ei.BRANCO, ei.TINTA, 4.5, "manchete branca sobre a tinta"),
+        (ei.SOBRE_TINTA, ei.TINTA, 4.5, "texto de apoio sobre a tinta"),
+        (ei.SOBRE_TINTA_FRACO, ei.TINTA, 3.0, "o discreto sobre a tinta"),
+        (ei.TINTA, ei.PAPEL, 4.5, "manchete escura sobre o papel"),
+        (ei.SOBRE_PAPEL_FRACO, ei.PAPEL, 4.5, "o apoio sobre o papel"),
+        (ei.AMBAR_ESCURO, ei.PAPEL, 4.5, "o versalete âmbar sobre o papel"),
+        (ei.AMBAR_CLARO, ei.TINTA, 4.5, "o versalete âmbar sobre a tinta"),
+    ]:
+        real = ei.contraste(cor, fundo)
+        if real < minimo:
+            raise SystemExit(f"contraste baixo: {onde} está em {real:.2f}, "
+                             f"mínimo {minimo}")
 
     telas = [("dia1-1-pergunta.png", capa())]
     for i in range(1, len(LUGARES) + 1):
@@ -283,23 +267,6 @@ def main() -> None:
         ("dia1-8-conclusao.png", conclusao()),
         ("dia1-9-convite.png", convite()),
     ]
-    # A conferência de contraste. Mede o FUNDO azul limpo, sem o texto: o
-    # fundo é um degradê com um clarão por cima, a cor exata debaixo de cada
-    # letra não é a que se escolheria de cabeça, e medir a peça pronta
-    # mediria a letra contra ela mesma.
-    #
-    # 3 é o mínimo da WCAG para letra grande (manchete) e 4,5 para o resto.
-    # Aqui as manchetes brancas passam dos 4,5 também; só o rodapé e o
-    # "arraste", que são pequenos e discretos de propósito, ficam nos 3.
-    fundo = ei.fundo_azul()
-    ei.conferir_contraste(fundo, ei.BRANCO, (0, 240, ei.L, 960), 4.5,
-                          "as manchetes brancas das telas azuis")
-    ei.conferir_contraste(fundo, ei.SOBRE_AZUL, (0, 240, ei.L, 1120), 4.0,
-                          "o texto de apoio das telas azuis")
-    ei.conferir_contraste(fundo, ei.SOBRE_AZUL_FRACO,
-                          (0, ei.Y_RODAPE - 110, ei.L, ei.A), 3.0,
-                          "o rodapé das telas azuis")
-
     for nome, img in telas:
         print("  ", ei.salvar(img, nome))
 
