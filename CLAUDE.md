@@ -204,21 +204,51 @@ que é onde nasce o erro de aplicar no banco do Avena:
 https://supabase.com/dashboard/project/ahigenhenzmsjxlmrzhz/sql/new
 ```
 
-- Numeração sequencial: a última hoje é a `0128`
-  (`professionals.consentimento_em` e `consentimento_versao` — o aceite de
-  divulgação que a caixinha antes do Salvar grava). Antes dela, a `0127`
-  (`professionals.visto_em`,
-  para saber quem sumiu). A `0126` criou a função do termômetro do emprego,
-  que **saiu do app em 06/09** — a dona não gostou da tela. A função ficou
-  no banco de quem já aplicou: ela não é chamada por ninguém e não atrapalha
-  nada. Antes delas: a
-  `0125` (quantas pessoas o app já empregou), a `0124` (reembolso
-  encerrando o plano sozinho) e a `0123` (teste grátis da empresa, e o
-  plano deixando de ser editável pela própria empresa). **Da 0123 à 0126
-  estão aplicadas**, e **a 0127 e a 0128 também** — confirmado pela dona
-  em 06/09, com a consulta de conferência colada no SQL Editor ("Nada
-  pendente"). Ou seja: hoje o banco está em dia com o repositório, da
-  0001 à 0128.
+- Numeração sequencial: a última hoje é a `0132`. O estado de cada uma das
+  recentes, porque este parágrafo já esteve desatualizado e isso custa uma
+  investigação inteira:
+
+  | Migration | O que faz | Aplicada? |
+  |---|---|---|
+  | `0132` | a **vitrine**: view `professionals_vitrine`, sem coluna de contato, liberada para quem NÃO tem conta | **sim** — 07/09 |
+  | `0131` | os acessos do dia por porta (`registrar_acesso`, `acessos_de_hoje`) | **NÃO confirmada** |
+  | `0130` | assinatura que renova sozinha (`mp_preapproval_id`) | sim — 07/09 |
+  | `0129` | tabela `pedidos`, do pagamento | sim — 07/09 |
+  | `0123`–`0128` | teste grátis, reembolso, números do Ei, termômetro, `visto_em`, consentimento | sim — 06/09 |
+
+  Enquanto a **0131** não for colada, o bloco "Hoje" do painel
+  administrativo simplesmente não aparece (`acessos.ts` reconhece o 42883 e
+  avisa no console em vez de mostrar zero).
+
+  A `0126` criou a função do termômetro do emprego, que **saiu do app em
+  06/09** — a dona não gostou da tela. A função ficou no banco de quem já
+  aplicou: não é chamada por ninguém e não atrapalha nada.
+
+### A vitrine, e por que a `professionals_public` continua fechada (07/09)
+
+A dona: "ao entrar no site a pessoa tem que ter uma tela bonita pra ver as
+vagas e os candidatos. Sem ter que fazer login."
+
+Isto **desfaz o pedido de 01/09** ("todos devem criar conta ao entrar, até
+mesmo pra ver"). A linha não sumiu, mudou de lugar: sai da LEITURA e vai
+para a AÇÃO. Ver, sem conta; se candidatar, publicar vaga e abrir a ficha
+de alguém, com conta.
+
+**Não reabra a `professionals_public` para o `anon`.** A 0118 a fechou
+porque ela carrega `phone`, `whatsapp`, `email` e `telefones_extra`, e a
+chave do papel `anon` vai dentro do JavaScript da página: com uma linha de
+`curl` saía a lista de contatos de todos os desempregados da cidade — o
+insumo do golpe de emprego falso. A 0132 é a Parte 2 que a própria 0118
+deixou pendente: uma view **separada**, mesmo `where`, sem nenhuma coluna
+de contato. A `bio` também fica de fora, e por um motivo que não é óbvio —
+é texto livre, e gente escreve telefone ali.
+
+O teste `30-a-vitrine-sem-conta.sql` reprova se isso voltar, e foi
+verificado ao contrário. E o `00-ambiente-supabase.sql` ganhou o
+`alter default privileges` para `anon`/`authenticated`: sem ele o banco de
+teste respondia "o anon não lê" para TUDO, inclusive para o que estivesse
+escancarado em produção — resposta certa pelo motivo errado, que passa e
+cala.
 - `supabase/banco-completo.sql` **está desatualizado** (para na 0051). Serve
   para montar um banco do zero até ali, não como retrato do que está no ar.
 - Edge Functions ficam em `supabase/functions/` e sobem pelo workflow.
