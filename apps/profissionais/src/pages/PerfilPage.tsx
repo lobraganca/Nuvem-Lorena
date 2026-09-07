@@ -304,11 +304,48 @@ export function PerfilPage() {
           </Linha>
         </div>
 
-        <p className="ei-apoio ei-margem" style={{ marginTop: 8 }}>
-          Você entrou {tipo === "company" ? "para contratar" : "para procurar emprego"}. Para
-          usar o outro lado, saia da conta e entre escolhendo ele — o mesmo número de
-          celular serve para os dois.
-        </p>
+        {/* ── A INSTRUÇÃO VIROU O BOTÃO QUE ELA MANDAVA APERTAR — 07/09
+            A dona: "tem um aviso falando de trocar de lado se você não é
+            empresa. Faça com que ele saia da conta e leve pra tela de
+            login."
+
+            O parágrafo dizia "saia da conta e entre escolhendo o outro
+            lado". Estava certo e era inútil: mandava a pessoa rolar até o
+            fim da Conta, achar "Sair da conta", e lembrar, na tela
+            seguinte, por que tinha saído. Três passos para uma coisa que
+            é um toque.
+
+            Quando a instrução descreve exatamente o que um botão faria, o
+            botão é a resposta — o texto vira a legenda dele.
+
+            Mesmo `signOut` + `location.href` do botão de sair, lá
+            embaixo, e pelo mesmo motivo: o app tem telas já montadas com
+            os dados desta conta, e só o recarregamento completo garante
+            que nenhuma continue de pé mostrando o que era de quem acabou
+            de sair. */}
+        <div className="ei-lista" style={{ marginTop: 12 }}>
+          <button
+            type="button"
+            className="ei-linha-item"
+            onClick={async () => {
+              try {
+                await signOut();
+              } catch {
+                /* Ir para o login é melhor que travar aqui: lá dá para
+                   tentar de novo. */
+              }
+              window.location.href = "/login";
+            }}
+          >
+            <span className="ei-linha-nome">
+              {tipo === "company" ? "Usar o lado de quem procura emprego" : "Usar o lado de quem contrata"}
+              <span className="ei-linha-sub">
+                Sai da conta e volta para a tela de entrar — o mesmo número de celular
+                serve para os dois lados
+              </span>
+            </span>
+          </button>
+        </div>
 
         <div className="ei-lista" style={{ marginTop: 12 }}>
           {/* Favoritos vale para os DOIS lados, e por isso fica fora dos
