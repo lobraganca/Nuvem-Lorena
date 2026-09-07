@@ -399,9 +399,13 @@ function QuemEstaAqui() {
           sobre a solidão dela. "1 pessoa on-line" é a mesma informação
           contada do jeito que se conta um número — e no dia em que
           houver quinze, a frase é a mesma, só com outro número. */}
+      {/* "online", sem hífen — a dona, 07/09. É como se escreve e é como
+          a cidade lê; o hífen fazia a frase parecer manual de aparelho.
+          Estas duas linhas são o ÚNICO lugar em que a palavra aparece na
+          tela: o resto das ocorrências no código são comentários. */}
       {pedacos.length === 0
-        ? `${quem.total} ${quem.total === 1 ? "pessoa" : "pessoas"} on-line`
-        : `${pedacos.join(" e ")} on-line`}
+        ? `${quem.total} ${quem.total === 1 ? "pessoa" : "pessoas"} online`
+        : `${pedacos.join(" e ")} online`}
     </p>
   );
 }

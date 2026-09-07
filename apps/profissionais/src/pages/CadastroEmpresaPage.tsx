@@ -780,9 +780,12 @@ export function CadastroEmpresaPage() {
           )}
         </div>
 
-        <p className="ei-apoio ei-margem">
-          Dá para mudar tudo isso depois, no painel da empresa.
-        </p>
+        {/* "Dá para mudar tudo isso depois, no painel da empresa" saiu em
+            07/09, a pedido da dona. Ela tranquilizava sobre uma coisa que
+            ninguém teme no momento de apertar Salvar — e o botão de
+            editar está no próprio painel, à vista de quem chega lá. Linha
+            de texto que não muda nenhuma decisão é linha a menos para
+            ler. */}
 
         {/* ── EXCLUIR ESTA EMPRESA, NO FIM DA PÁGINA — 03/09 ───────────
             A dona: "dentro da opção cadastro, ter opção de excluir no
