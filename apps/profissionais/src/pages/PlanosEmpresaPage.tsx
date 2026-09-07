@@ -4,7 +4,8 @@ import { SUPORTE_WHATSAPP, PAGAMENTO_ATIVO } from "../config";
 import { useTituloDaPagina } from "../lib/tituloDaPagina";
 import { Pagina } from "../components/ei/Pagina";
 import { useAuth } from "../lib/useAuth";
-import { minhasEmpresas } from "../lib/company";
+import { empresaAtual, minhasEmpresas } from "../lib/company";
+import { OfertaTesteGratis } from "../components/ei/OfertaTesteGratis";
 import type { Company } from "../types/domain";
 import { podeVender } from "../lib/plataforma";
 import { ProvaDeContratacao } from "../components/ei/ProvaDeContratacao";
@@ -90,6 +91,28 @@ export function PlanosEmpresaPage() {
      contrário seria vender o que não existe. */
   const [busca] = useSearchParams();
   const antesDoCadastro = busca.get("antes") === "cadastro";
+
+  /* ── A EMPRESA, SÓ PARA A PROMOÇÃO DOS 30 DIAS — 07/09 ─────────────
+     Esta tela nunca precisou saber em qual loja a pessoa está: ela mostra
+     preço, e preço é igual para todas. A promoção precisa, porque ativar
+     é gravar numa empresa.
+
+     Não busca antes do cadastro: ali a empresa ainda não existe, e o
+     cartão da oferta some sozinho com o id nulo. */
+  const [empresaId, setEmpresaId] = useState<string | null>(null);
+  useEffect(() => {
+    if (antesDoCadastro || !quemEsta) return;
+    let vivo = true;
+    empresaAtual(quemEsta.id)
+      .then((e) => vivo && setEmpresaId(e?.id ?? null))
+      /* Em silêncio: sem o id, a oferta não aparece e o resto da tela de
+         preços continua inteira. Derrubar a tela de planos por causa do
+         convite seria trocar um defeito pequeno por um caro. */
+      .catch(() => {});
+    return () => {
+      vivo = false;
+    };
+  }, [antesDoCadastro, quemEsta]);
 
   /* ── O BOTÃO QUE COBRA DE VERDADE — 07/09 ──────────────────────────
      Qual plano está sendo aberto (para o botão dizer "Abrindo…" só nele,
@@ -201,6 +224,18 @@ export function PlanosEmpresaPage() {
 
         {/* O que está valendo hoje, antes de qualquer preço. */}
         {!antesDoCadastro && <AssinaturaAtual />}
+
+        {/* ── A PROMOÇÃO, ACIMA DOS PREÇOS — 07/09 ────────────────────
+            A dona: "quero liberar 30 dias de 1 vaga grátis. Escrever que é
+            por tempo limitado."
+
+            Acima dos cartões pelo mesmo motivo da prova de contratação: um
+            convite que aparece depois dos cinco preços chega quando a
+            pessoa já decidiu — inclusive já decidiu ir embora.
+
+            Some sozinha para quem não tem direito, e some inteira antes do
+            cadastro, quando ainda não há empresa em que ativar. */}
+        <OfertaTesteGratis companyId={empresaId} />
 
         {/* ── A PROVA, ANTES DOS PREÇOS — 06/09 ───────────────────────
             Esta é a tela em que alguém decide gastar dinheiro, e até hoje

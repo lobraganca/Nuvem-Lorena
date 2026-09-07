@@ -280,6 +280,20 @@ const QUAL_PLANO = (() => {
    vaga sem entender por quê. */
 const PLANO_DE_CORTESIA = ajuste("cortesia") === "1";
 
+/* ── A PROMOÇÃO DOS 30 DIAS (0133) — 07/09 ────────────────────────────
+   `?promo=nao`   a promoção está desligada, ou esta conta já usou
+   `?promo=semsql` a migration 0133 ainda NÃO foi aplicada
+
+   O `semsql` é o estado real do app enquanto a dona não cola a SQL, e é
+   justamente o que não dá para ver olhando a tela pronta: o certo é o
+   cartão da oferta não aparecer e o resto da tela ficar inteiro. Sem
+   este caso ligável, um erro aqui só apareceria em produção — na tela em
+   que a empresa leva o "não" na hora de publicar.
+
+   O padrão é a promoção LIGADA e disponível: é o estado da maioria
+   agora, e é o que precisa ser exercitado toda vez. */
+const PROMOCAO = ajuste("promo");
+
 /* Os tetos da 0120, na mesma ordem da função `limite_de_vagas_do_plano`.
    `-1` é o sem-teto. */
 const TETO_DO_PLANO: Record<string, number> = {
@@ -1503,8 +1517,16 @@ const clienteFalso = {
     if (nome === "limite_de_vagas_do_plano") {
       /* O mesmo teto que a coluna `plano` da empresa falsa diz — antes
          eram dois números escritos à mão em lugares diferentes, e o do
-         RPC ficava em 3 mesmo com a empresa em outro plano. */
-      return { data: planoFalso() ? TETO_DO_PLANO[QUAL_PLANO] : 0, error: null };
+         RPC ficava em 3 mesmo com a empresa em outro plano.
+
+         E lê a LINHA, não a chave da URL: a promoção dos 30 dias (0133)
+         grava o plano na empresa no meio da sessão, e lendo a URL o teto
+         continuaria zero depois de ativada — a barreira "precisa de um
+         plano" ficaria na tela para quem acabou de ganhar a vaga. */
+      const dela = (TABELAS.companies ?? []).find((c) => c.owner_id === DONO_FALSO);
+      const plano = dela?.plano as string | null | undefined;
+      const vale = !!plano && !!dela?.plano_ate && new Date(String(dela.plano_ate)) > new Date();
+      return { data: vale ? (TETO_DO_PLANO[plano] ?? 0) : 0, error: null };
     }
     if (nome === "vagas_ativas_agora") return { data: VAGAS.length, error: null };
     /* ── QUANTAS PESSOAS O EI JÁ EMPREGOU (0125) ──────────────────────
@@ -1533,6 +1555,44 @@ const clienteFalso = {
        "Hoje" some do painel, e que sem interruptor ninguém veria nunca. */
     if (nome === "registrar_acesso") {
       return { data: null, error: null };
+    }
+
+    /* ── OS 30 DIAS DE 1 VAGA GRÁTIS (0133) — 07/09 ───────────────────
+       Duas funções, e o falso imita as DUAS respostas de recusa, que são
+       diferentes e a tela trata diferente:
+
+         . `false` / `null` — não tem direito (já usou, já paga, acabou)
+         . erro PGRST202    — a função não existe: migration não aplicada
+
+       Ativar mexe na empresa falsa de verdade, e não só devolve a data:
+       sem isso a barreira "Precisa de um plano" continuaria na tela
+       depois de ativar, e é justamente essa passagem que precisa ser
+       vista de ponta a ponta. */
+    if (nome === "teste_gratis_disponivel" || nome === "ativar_teste_gratis") {
+      if (PROMOCAO === "semsql") {
+        return {
+          data: null,
+          error: {
+            code: "PGRST202",
+            message: `Could not find the function public.${nome} in the schema cache`,
+          },
+        };
+      }
+      /* Quem já tem plano não pega — a mesma regra do banco, e o motivo
+         de `?plano=nao` ser obrigatório para ver a oferta. */
+      const podePegar = PROMOCAO !== "nao" && !planoFalso();
+      if (nome === "teste_gratis_disponivel") return { data: podePegar, error: null };
+      if (!podePegar) return { data: null, error: null };
+      const ate = emDias(30);
+      for (const l of TABELAS.companies ?? []) {
+        if (l.owner_id === DONO_FALSO) {
+          l.plano = "pro";
+          l.plano_ate = ate;
+          l.plano_cortesia = true;
+          l.plano_recorrente = false;
+        }
+      }
+      return { data: ate, error: null };
     }
     if (nome === "acessos_de_hoje") {
       const forcado = ajuste("acessos");

@@ -41,6 +41,7 @@ novo por não estarem escritos em lugar nenhum.
 | `?destaque=nao` | a pessoa NÃO está em destaque — é o único jeito de ver a tela que VENDE o destaque |
 | `?cadastro=metade` | a empresa SEM foto |
 | `?acessos=N` \| `semsql` \| `0` | os acessos de hoje no painel: um número, a migration 0131 não aplicada, ou o dia zerado |
+| `?promo=nao` \| `semsql` | a promoção dos 30 dias (0133): desligada/já usada, ou a migration não aplicada |
 
 `?combina=1` mexe na SEGUNDA vaga de propósito: a primeira já tem resposta
 no falso, e vaga respondida fica fora do baralho — o caso alto apareceria
@@ -163,6 +164,28 @@ perdia. `checar-instalar.mjs` faz isso com um `setInterval` que espera
 `window.__eiPromptDeInstalacao` deixar de ser `undefined`, e depois confere
 que o React ainda não tinha montado — sem essa conferência o teste passaria
 sem ter exercitado nada.
+
+### A PRIMEIRA navegação do teste é sempre engolida
+
+`aplicarAberturaDoApp()` roda antes do React e manda toda ABERTURA do app
+para a tela inicial — é pedido da dona ("sempre que o app for aberto, ele
+tem que cair na tela inicial"). Então um teste que vai direto para
+`/criar-vaga` cai no login, e o sintoma engana: parece que a tela testada
+não existe mais.
+
+A marca de "já abriu" mora no `sessionStorage`. Basta visitar `/` uma vez
+antes, no mesmo contexto; da segunda navegação em diante o endereço pedido
+é respeitado.
+
+### Nome de classe é global — confira antes de criar
+
+A promoção dos 30 dias nasceu com as classes `ei-oferta*`, que JÁ EXISTEM e
+são o cartão de plano da tela de preços. O resultado foi o fio laranja da
+promoção pintando os cinco cartões de plano — e nada reclamaria: a
+conferência de tipos não olha CSS. Só apareceu no navegador, e por acaso,
+porque o teste procurava `.ei-oferta` e achava plano.
+
+Um `grep` do nome no `estilo-ei.css` antes de escrever custa dez segundos.
 
 ## Medir alinhamento em vez de olhar
 

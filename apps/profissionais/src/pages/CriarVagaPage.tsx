@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { useAuth } from "../lib/useAuth";
+import { OfertaTesteGratis } from "../components/ei/OfertaTesteGratis";
 import { useRascunho, CHAVE_RASCUNHO_VAGA } from "../lib/rascunho";
 import {
   empresaAtual,
@@ -229,6 +230,11 @@ export function CriarVagaPage() {
     cabeMais: boolean;
   } | null>(null);
   const [empresaConfirmada, setEmpresaConfirmada] = useState(false);
+  /* O id da empresa selecionada, guardado à parte do formulário: a tela de
+     bloqueio aparece ANTES de o formulário ser preenchido (e no caminho de
+     edição ele nem chega a receber `company_id`), e é justamente nela que
+     a oferta dos 30 dias precisa saber em qual loja ativar. */
+  const [empresaId, setEmpresaId] = useState<string | null>(null);
 
   useEffect(() => {
     if (carregandoConta || !user) return;
@@ -285,6 +291,8 @@ export function CriarVagaPage() {
             "Dá para fazer isso no seu painel, no aviso do topo."
         );
       }
+
+      setEmpresaId(empresa.id);
 
       /* O plano é buscado AQUI, ao abrir a tela, e não no fim: a empresa
          precisa saber que o plano dela já está cheio antes de escrever a
@@ -558,6 +566,26 @@ export function CriarVagaPage() {
               serviço na cidade, e as pessoas interessadas chegam até você.
             </p>
           </Pagina>
+
+          {/* ── A PROMOÇÃO VEM ANTES DE TUDO — 07/09 ────────────────
+              A dona: "quero liberar 30 dias de 1 vaga grátis. Escrever que
+              é por tempo limitado."
+
+              Esta é A tela onde a promoção importa: é aqui que a empresa
+              leva o "não" na hora de publicar. Oferecê-la depois dos
+              botões, ou só na tela de planos, seria pedir que a pessoa
+              procurasse a saída — e quem leva um não fecha o app.
+
+              Some sozinha para quem não tem direito (já usou, já paga, ou
+              a promoção acabou): quem decide é o banco, ver
+              `OfertaTesteGratis`. E ativada, a barreira inteira sai da
+              frente, porque `situacaoDoPlano` é buscada de novo. */}
+          <OfertaTesteGratis
+            companyId={empresaId}
+            onAtivou={() => {
+              if (empresaId) situacaoDoPlano(empresaId).then(setPlano).catch(() => {});
+            }}
+          />
 
           {/* A dona mandou tirar a mesma fala da tela de planos (04/09), e
               ela estava aqui também, palavra por palavra. O que ela

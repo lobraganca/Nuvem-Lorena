@@ -9617,3 +9617,79 @@
 
 /* Com a capa colorida, as prateleiras começam logo abaixo dela. */
 .ei .ei-capa + .ei-vitrine-faixa { margin-top: 22px; }
+
+/* ═══════════════════════════════════════════════════════════════════════
+   A PROMOÇÃO DOS 30 DIAS GRÁTIS — 07/09
+   ═══════════════════════════════════════════════════════════════════════
+   A dona: "quero liberar 30 dias de 1 vaga grátis. Escrever que é por
+   tempo limitado."
+
+   Mesma geometria do `.ei-callout` (margem 12, recuo interno 20), porque
+   ela aparece ao lado de um na tela de "Precisa de um plano": duas caixas
+   de largura diferente lado a lado leem como uma delas estar quebrada.
+
+   O que muda é o fio da esquerda, em laranja da marca. É o mesmo recurso
+   do `.ei-callout-atencao` — num app monocromático, 3px de cor é o
+   suficiente para dizer "isto aqui é diferente" sem virar cartaz. */
+.ei .ei-promo {
+  margin: 12px;
+  padding: 16px 20px;
+  background: var(--ei-papel);
+  border: 1px solid var(--ei-fio);
+  border-left: 3px solid var(--ei-laranja);
+}
+
+/* "Oferta por tempo limitado", em cima de tudo.
+   ────────────────────────────────────────────
+   Vem ANTES do título e não depois: é a razão de a pessoa decidir agora
+   em vez de depois, e embaixo do botão ninguém leria.
+
+   O par laranja-fraco/sobre-laranja-fraco é o mesmo que o app já usa nas
+   etiquetas — foi medido quando entrou (7,4:1), então não há cor nova
+   nascendo aqui. */
+.ei .ei-promo-selo {
+  display: inline-block;
+  margin: 0 0 8px;
+  padding: 3px 8px;
+  background: var(--ei-laranja-fraco);
+  color: var(--ei-sobre-laranja-fraco);
+  border-radius: 999px;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+}
+
+.ei .ei-promo-titulo {
+  margin: 0 0 6px;
+  font-size: 1.15rem;
+  font-weight: 700;
+  line-height: 1.2;
+}
+
+.ei .ei-promo-texto {
+  margin: 0 0 14px;
+  font-size: 0.9rem;
+  line-height: 1.5;
+  color: var(--ei-tinta-fraca);
+}
+
+/* Ativada: o mesmo lugar passa a dizer até quando vale, em verde. Sem
+   botão embaixo — não há mais o que fazer aqui, e um botão desligado só
+   faria a pessoa tentar de novo. */
+.ei .ei-promo-pronta {
+  border-left-color: var(--ei-verde);
+  background: var(--ei-verde-fraco);
+}
+.ei .ei-promo-pronta .ei-promo-titulo { color: var(--ei-sobre-verde-fraco); }
+.ei .ei-promo-pronta .ei-promo-texto { color: var(--ei-sobre-verde-fraco); }
+/* O respiro some só quando o texto é a ÚLTIMA coisa da caixa — na tela de
+   planos não há botão embaixo. Zerando sempre, o "Publicar minha vaga" da
+   tela de criar vaga nascia colado na frase, visto na foto do cartão. */
+.ei .ei-promo-pronta .ei-promo-texto:last-child { margin-bottom: 0; }
+
+.ei .ei-promo-erro {
+  margin: 10px 0 0;
+  font-size: 0.86rem;
+  color: var(--ei-erro);
+}
