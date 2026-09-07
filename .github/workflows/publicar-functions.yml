@@ -162,6 +162,10 @@ jobs:
           #   delete-account         apagar a conta. Exigência da Play.
           #   notify-suspension      avisa quem foi suspenso pela adm.
           #   criar-pagamento        abre a tela do Mercado Pago (07/09).
+          #   criar-assinatura       abre a mensalidade automática (07/09).
+          #   cancelar-assinatura-ei desliga a mensalidade (07/09). Não é
+          #                          opcional: esconder cancelamento é
+          #                          infração do CDC, não escolha de produto.
           #   retorno-do-pagamento   recebe o aviso e liga o plano (07/09).
           #
           # As duas de pagamento são do EI, e não do procurô: elas usam a
@@ -173,7 +177,7 @@ jobs:
           # 01/09 a 04/09 com a `enviar-avisos-de-vaga`. No caso do
           # `retorno-do-pagamento` o preço seria mais alto: o Mercado Pago
           # recebe 404, o dinheiro entra e o plano nunca liga.
-          DO_EI="enviar-avisos-de-vaga delete-account notify-suspension criar-pagamento retorno-do-pagamento"
+          DO_EI="enviar-avisos-de-vaga delete-account notify-suspension criar-pagamento criar-assinatura cancelar-assinatura-ei retorno-do-pagamento"
 
           if [ "$ESCOLHA" = "todas" ]; then
             # `_shared` não é uma function, é a pasta de código comum que as

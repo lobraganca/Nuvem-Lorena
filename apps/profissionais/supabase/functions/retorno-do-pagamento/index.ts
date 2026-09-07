@@ -101,6 +101,197 @@ async function assinaturaConfere(req: Request, idDoPagamento: string): Promise<b
   return diferenca === 0;
 }
 
+/**
+ * Até quando o benefício passa a valer.
+ *
+ * A partir de AGORA **ou** do que ainda resta, o que for maior.
+ *
+ * É diferente do `ligarPlano` do painel, que sempre conta de agora — e a
+ * diferença é justa: lá quem liga é a dona, e o caso dela é a empresa que
+ * sumiu por três meses e voltou (somar devolveria os três meses). Aqui
+ * quem paga é a empresa, e o caso é a que paga ANTES de vencer para não
+ * ficar sem. Contar de agora tiraria dela os dias que já pagou — quem
+ * renova cedo seria punido por renovar cedo.
+ */
+function novaValidade(atual: string | null | undefined, dias: number): string {
+  const resta = atual ? new Date(atual).getTime() : 0;
+  const base = Math.max(Date.now(), resta || 0);
+  return new Date(base + dias * 86_400_000).toISOString();
+}
+
+/**
+ * A assinatura mudou de estado: foi autorizada, pausada ou cancelada.
+ *
+ * ── POR QUE A AUTORIZAÇÃO JÁ LIGA O PLANO ─────────────────────────────
+ *
+ * Porque no Mercado Pago a primeira cobrança acontece junto da
+ * autorização. Esperar o aviso da mensalidade para ligar deixaria a
+ * empresa pagando e sem plano por alguns minutos — e nesses minutos ela
+ * tenta publicar a vaga, não consegue, e escreve para o suporte.
+ *
+ * Ligar aqui é seguro porque o estado vem da API deles, não do aviso: uma
+ * assinatura "authorized" é uma assinatura com cobrança aceita.
+ */
+async function tratarAssinatura(admin: any, idDaAssinatura: string): Promise<Response> {
+  const resposta = await fetch(`https://api.mercadopago.com/preapproval/${idDaAssinatura}`, {
+    headers: { Authorization: `Bearer ${MP_ACCESS_TOKEN}` },
+  });
+  if (resposta.status === 404) return ok("assinatura não existe");
+  if (!resposta.ok) {
+    console.error("não consegui consultar a assinatura:", resposta.status);
+    return new Response("consulta falhou", { status: 500 });
+  }
+
+  const assinatura = await resposta.json().catch(() => null);
+  if (!assinatura) return new Response("resposta ilegível", { status: 500 });
+
+  const idDoPedido = String(assinatura.external_reference ?? "").trim();
+  if (!idDoPedido) return ok("assinatura sem pedido");
+
+  const { data: pedido, error: erroDoPedido } = await admin
+    .from("pedidos")
+    .select("id, plano, company_id, dias, status")
+    .eq("id", idDoPedido)
+    .maybeSingle();
+  if (erroDoPedido) {
+    console.error("não consegui ler o pedido da assinatura:", erroDoPedido);
+    return new Response("banco fora", { status: 500 });
+  }
+  if (!pedido?.company_id || !pedido.plano) return ok("pedido não existe");
+
+  /* ── CANCELADA OU PAUSADA ─────────────────────────────────────────
+     O plano NÃO é desligado: quem cancela no meio do mês já pagou aquele
+     mês, e tirar o acesso na hora seria ficar com o dinheiro e devolver o
+     serviço. O que se desliga é a renovação — o plano vence sozinho na
+     data que já estava marcada, e a 0124 (reembolso) segue mandando no
+     caso em que há devolução. */
+  if (assinatura.status === "cancelled" || assinatura.status === "paused") {
+    const { error } = await admin
+      .from("companies")
+      .update({ plano_recorrente: false, mp_preapproval_id: null })
+      .eq("id", pedido.company_id);
+    if (error) {
+      console.error("não consegui desligar a renovação:", error);
+      return new Response("banco recusou", { status: 500 });
+    }
+    await admin.from("pedidos").update({ status: "cancelado" }).eq("id", idDoPedido);
+    return ok("renovação desligada");
+  }
+
+  if (assinatura.status !== "authorized") return ok(`assinatura ${assinatura.status}`);
+
+  const { data: empresa } = await admin
+    .from("companies")
+    .select("plano_ate")
+    .eq("id", pedido.company_id)
+    .maybeSingle();
+
+  const { error } = await admin
+    .from("companies")
+    .update({
+      plano: pedido.plano,
+      plano_ate: novaValidade(empresa?.plano_ate, pedido.dias),
+      plano_recorrente: true,
+      plano_cortesia: false,
+      mp_preapproval_id: idDaAssinatura,
+    })
+    .eq("id", pedido.company_id);
+
+  if (error) {
+    console.error("ASSINOU MAS NÃO LIGOU — pedido", idDoPedido, error);
+    return new Response("não consegui ligar o plano", { status: 500 });
+  }
+
+  await admin
+    .from("pedidos")
+    .update({
+      status: "pago",
+      mp_preapproval_id: idDaAssinatura,
+      pago_em: new Date().toISOString(),
+    })
+    .eq("id", idDoPedido);
+
+  return ok("assinatura ligada");
+}
+
+/**
+ * A mensalidade daquela assinatura foi cobrada — todo mês, sozinha.
+ *
+ * Aqui não há pedido novo: o que existe é uma empresa com o número da
+ * assinatura guardado (0130), e o que se faz é empurrar a validade por
+ * mais um mês.
+ *
+ * A busca é PELO NÚMERO DA ASSINATURA, e não pelo pedido: um ano depois,
+ * o pedido original é história antiga, e a assinatura é o que continua
+ * valendo.
+ */
+async function tratarMensalidade(admin: any, idDaCobranca: string): Promise<Response> {
+  const resposta = await fetch(
+    `https://api.mercadopago.com/authorized_payments/${idDaCobranca}`,
+    { headers: { Authorization: `Bearer ${MP_ACCESS_TOKEN}` } }
+  );
+  if (resposta.status === 404) return ok("cobrança não existe");
+  if (!resposta.ok) {
+    console.error("não consegui consultar a mensalidade:", resposta.status);
+    return new Response("consulta falhou", { status: 500 });
+  }
+
+  const cobranca = await resposta.json().catch(() => null);
+  if (!cobranca) return new Response("resposta ilegível", { status: 500 });
+
+  /* O estado da cobrança vem em `payment.status` — `status` no primeiro
+     nível é o da PROGRAMAÇÃO da mensalidade ("scheduled", "processed"), e
+     confundir os dois ligaria o plano de quem teve o cartão recusado. */
+  const situacao = cobranca?.payment?.status ?? "";
+  if (situacao !== "approved") return ok(`mensalidade ${situacao || "sem estado"}`);
+
+  const idDaAssinatura = String(cobranca.preapproval_id ?? "").trim();
+  if (!idDaAssinatura) return ok("mensalidade sem assinatura");
+
+  /* Mesma trava de repetição do pagamento avulso: o Mercado Pago reenvia,
+     e sem isto o mês seria somado duas vezes. */
+  const idDoPagamento = String(cobranca?.payment?.id ?? idDaCobranca);
+  const { error: erroDaReserva } = await admin.from("processed_payments").insert({
+    payment_id: idDoPagamento,
+    valor_centavos: Math.round(Number(cobranca.transaction_amount ?? 0) * 100),
+    tipo: "ei-assinatura",
+  });
+  if (erroDaReserva) {
+    if ((erroDaReserva as any).code === "23505") return ok("mensalidade já processada");
+    console.error("não consegui reservar a mensalidade:", erroDaReserva);
+    return new Response("banco recusou a reserva", { status: 500 });
+  }
+
+  const { data: empresa, error: erroDaEmpresa } = await admin
+    .from("companies")
+    .select("id, plano_ate")
+    .eq("mp_preapproval_id", idDaAssinatura)
+    .maybeSingle();
+
+  if (erroDaEmpresa) {
+    await admin.from("processed_payments").delete().eq("payment_id", idDoPagamento);
+    console.error("não consegui achar a empresa da assinatura:", erroDaEmpresa);
+    return new Response("banco fora", { status: 500 });
+  }
+  if (!empresa) {
+    console.error("mensalidade paga sem empresa correspondente:", idDaAssinatura);
+    return ok("assinatura sem empresa");
+  }
+
+  const { error } = await admin
+    .from("companies")
+    .update({ plano_ate: novaValidade(empresa.plano_ate, 30), plano_recorrente: true })
+    .eq("id", empresa.id);
+
+  if (error) {
+    await admin.from("processed_payments").delete().eq("payment_id", idDoPagamento);
+    console.error("MENSALIDADE PAGA MAS NÃO RENOVOU —", idDaAssinatura, error);
+    return new Response("não consegui renovar", { status: 500 });
+  }
+
+  return ok("mês somado");
+}
+
 Deno.serve(async (req) => {
   if (req.method !== "POST") return ok();
 
@@ -119,18 +310,39 @@ Deno.serve(async (req) => {
     return ok("corpo ilegível");
   }
 
-  /* Só interessa pagamento. Contestação, fraude e afins chegam no mesmo
-     endereço e não têm o que fazer aqui. */
+  /* ── QUAL AVISO É ESTE ──────────────────────────────────────────────
+     Três interessam, e cada um mexe numa coisa diferente:
+
+       payment                          uma cobrança de uma vez só (0129)
+       subscription_preapproval         a assinatura foi autorizada, ou
+                                        cancelada (0130)
+       subscription_authorized_payment  a mensalidade daquela assinatura
+                                        foi cobrada
+
+     Contestação, fraude e afins chegam no mesmo endereço e não têm o que
+     fazer aqui. */
   const tipo = aviso?.type ?? aviso?.topic;
-  if (tipo !== "payment") return ok("não é pagamento");
+  const idDoAviso = String(aviso?.data?.id ?? aviso?.resource ?? "").trim();
+  if (!idDoAviso) return ok("sem id");
 
-  const idDoPagamento = String(aviso?.data?.id ?? aviso?.resource ?? "").trim();
-  if (!idDoPagamento) return ok("sem id");
-
-  if (!(await assinaturaConfere(req, idDoPagamento))) {
+  if (!(await assinaturaConfere(req, idDoAviso))) {
     console.error("assinatura do Mercado Pago não confere; aviso descartado");
     return new Response("assinatura inválida", { status: 401 });
   }
+
+  const admin = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY, {
+    auth: { persistSession: false },
+  });
+
+  if (tipo === "subscription_preapproval") {
+    return await tratarAssinatura(admin, idDoAviso);
+  }
+  if (tipo === "subscription_authorized_payment") {
+    return await tratarMensalidade(admin, idDoAviso);
+  }
+  if (tipo !== "payment") return ok("não é pagamento");
+
+  const idDoPagamento = idDoAviso;
 
   /* ── O ESTADO REAL, PERGUNTADO NA FONTE ───────────────────────────── */
   const resposta = await fetch(`https://api.mercadopago.com/v1/payments/${idDoPagamento}`, {
@@ -152,10 +364,6 @@ Deno.serve(async (req) => {
        exatamente assim. */
     return ok(`pagamento ${pagamento.status}`);
   }
-
-  const admin = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY, {
-    auth: { persistSession: false },
-  });
 
   const valorCentavos = Math.round(Number(pagamento.transaction_amount ?? 0) * 100);
 
@@ -210,17 +418,10 @@ Deno.serve(async (req) => {
   }
   if (pedido.status === "pago") return ok("pedido já estava pago");
 
-  /* ── LIGA O QUE FOI COMPRADO ────────────────────────────────────────
-     A validade conta a partir de AGORA **ou** da validade que ainda
-     resta, o que for maior.
-
-     É diferente do `ligarPlano` do painel, que sempre conta de agora — e a
-     diferença é justa: lá quem liga é a dona, e o caso dela é a empresa
-     que sumiu por três meses e voltou (somar devolveria os três meses).
-     Aqui quem paga é a empresa, e o caso é a que paga ANTES de vencer para
-     não ficar sem. Contar de agora tiraria dela os dias que ela já tinha
-     pago — quem renova cedo seria punido por renovar cedo. */
-  const agora = Date.now();
+  /* ── LIGA O QUE FOI COMPRADO ───────────────────────────────────────
+     `novaValidade` explica por que a conta é "de agora ou do que resta, o
+     que for maior" — e é a mesma usada pela assinatura mensal, para as
+     duas nunca divergirem. */
   let erroAoLigar: any = null;
 
   if (pedido.tipo === "plano_empresa" && pedido.company_id && pedido.plano) {
@@ -230,13 +431,13 @@ Deno.serve(async (req) => {
       .eq("id", pedido.company_id)
       .maybeSingle();
 
-    const restante = empresa?.plano_ate ? new Date(empresa.plano_ate).getTime() : 0;
-    const base = Math.max(agora, restante || 0);
-    const ate = new Date(base + pedido.dias * 86_400_000).toISOString();
-
     const { error } = await admin
       .from("companies")
-      .update({ plano: pedido.plano, plano_ate: ate, plano_cortesia: false })
+      .update({
+        plano: pedido.plano,
+        plano_ate: novaValidade(empresa?.plano_ate, pedido.dias),
+        plano_cortesia: false,
+      })
       .eq("id", pedido.company_id);
     erroAoLigar = error;
   } else if (pedido.tipo === "destaque_profissional" && pedido.professional_id) {
@@ -246,13 +447,9 @@ Deno.serve(async (req) => {
       .eq("id", pedido.professional_id)
       .maybeSingle();
 
-    const restante = cadastro?.boosted_until ? new Date(cadastro.boosted_until).getTime() : 0;
-    const base = Math.max(agora, restante || 0);
-    const ate = new Date(base + pedido.dias * 86_400_000).toISOString();
-
     const { error } = await admin
       .from("professionals")
-      .update({ boosted: true, boosted_until: ate })
+      .update({ boosted: true, boosted_until: novaValidade(cadastro?.boosted_until, pedido.dias) })
       .eq("id", pedido.professional_id);
     erroAoLigar = error;
   } else {
