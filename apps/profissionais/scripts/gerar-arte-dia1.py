@@ -93,17 +93,53 @@ X_RISCO = 820          # onde começa o traço da resposta em branco (tela 6)
 LARGURA_ITEM = X_RISCO - 40 - X_TEXTO
 
 
-def _moldura(escura: bool, numero: int):
+# ── AS FOTOS ───────────────────────────────────────────────────────────
+#
+# Cinco telas são fotografia: a capa e os quatro lugares. Os arquivos vão
+# em `scripts/fotos-dia1/` com estes nomes; enquanto não existirem, entra o
+# retângulo riscado de exemplo, para se ver o enquadramento.
+#
+# São fotos de ITABIRITO, tiradas pela dona. Foto de banco de imagem
+# estragaria a peça inteira: a graça de "na padaria da esquina" é a pessoa
+# reconhecer a padaria. Uma padaria genérica de outro país diz o contrário
+# do que a frase promete, e quem mora lá percebe na hora.
+FOTO_CAPA = "1-cidade.jpg"
+FOTO_LUGARES = ["2-padaria.jpg", "3-loja.jpg", "4-posto.jpg", "5-mercado.jpg"]
+
+
+# As zonas de texto de uma tela sobre foto: o alto (marca e contador) e o
+# bloco de baixo (o que se escreve em cima da imagem). O miolo fica de fora
+# de propósito — é onde a foto continua sendo foto.
+ZONA_ALTO = ((0, 70, ei.L, 150), ei.BRANCO, 4.5)
+ZONA_PE = ((0, 300, ei.L, 820), ei.BRANCO, 4.5)          # a capa
+ZONA_LUGAR = ((0, 880, ei.L, 1170), ei.BRANCO, 4.5)      # os quatro lugares
+ZONA_RODAPE = ((0, ei.Y_RODAPE - 20, ei.L, ei.A), ei.SOBRE_AZUL_FRACO, 3.0)
+
+
+def _com_foto(arquivo: str, rotulo: str, zonas):
+    """A foto de fundo, ou o exemplo riscado quando ela ainda não chegou."""
+    caminho = ei.FOTOS / arquivo
+    if caminho.exists():
+        return ei.foto_de_fundo(caminho, zonas, rotulo)
+    print(f"     falta a foto {arquivo} — entrou o exemplo riscado")
+    return ei.foto_de_exemplo(rotulo)
+
+
+def _moldura(escura: bool, numero: int, fundo=None):
     """Toda tela começa igual: fundo, marca, contador e rodapé."""
-    img, d = ei.peca_lisa(escura)
+    if fundo is None:
+        img, d = ei.peca_lisa(escura)
+    else:
+        img, d = fundo, ei.ImageDraw.Draw(fundo)
     ei.cabecalho(img, d, escura, numero, TOTAL)
     ei.rodape(img, d, escura)
     return img, d
 
 
 def capa():
-    """Ato 1 — a pergunta, na voz do Ei."""
-    img, d = _moldura(escura=True, numero=1)
+    """Ato 1 — a pergunta, sobre a cidade."""
+    fundo = _com_foto(FOTO_CAPA, "a capa", [ZONA_ALTO, ZONA_PE, ZONA_RODAPE])
+    img, d = _moldura(escura=True, numero=1, fundo=fundo)
     ei.manchete(d, "Em quantos lugares você deixou currículo esse ano?",
                 TAM_MANCHETE, ei.BRANCO, 330)
 
@@ -139,28 +175,30 @@ def _linha_da_lista(d, i: int, cor_texto, negrito: bool, marcador) -> int:
 
 
 def lugar(numero: int):
-    """Ato 2 — a conta subindo, com a lista inteira sempre na tela."""
-    img, d = _moldura(escura=False, numero=numero + 1)
+    """Ato 2 — um lugar por tela, e a foto é o lugar.
+
+    A lista que estas telas tinham antes saiu daqui: sobre fotografia ela
+    vira sujeira, e a foto já diz "é este lugar" melhor do que qualquer
+    linha escrita. Quem carrega a conta subindo é o número grande no pé, e
+    a lista inteira reaparece de uma vez na tela 6 — depois de quatro
+    fotos, o resumo bate mais forte do que batia repetido quatro vezes.
+
+    O texto vai todo no terço de baixo, que é onde o véu escurece: em cima
+    a foto continua limpa, e é ela que a pessoa vê primeiro.
+    """
+    fundo = _com_foto(FOTO_LUGARES[numero - 1], LUGARES[numero - 1],
+                      [ZONA_ALTO, ZONA_LUGAR, ZONA_RODAPE])
+    img, d = _moldura(escura=True, numero=numero + 1, fundo=fundo)
 
     # "1 lugar" / "2 lugares": o número é o assunto, a palavra só o explica.
-    fn = ei.f(ei.INTER_PRETA, 150)
-    fp = ei.f(ei.INTER_SEMI, 46)
-    n = f"{numero}"
-    base = Y_TOPO_BLOCO + 150
-    # O mesmo azul escuro da marca no alto, e não o ciano do logo: dois
-    # azuis diferentes na mesma página leem como descuido, e o ciano em
-    # cima do branco fica lavado.
-    largura = ei.escrever(d, (ei.MARGEM, Y_TOPO_BLOCO), n, fn, ei.AZUL_TOPO, -150 * 0.03)
-    d.text((ei.MARGEM + largura + 20, base - 8), "lugar" if numero == 1 else "lugares",
-           font=fp, fill=ei.ESCURO, anchor="ls")
+    fn = ei.f(ei.INTER_PRETA, 116)
+    fp = ei.f(ei.INTER_SEMI, 40)
+    largura = ei.escrever(d, (ei.MARGEM, 892), f"{numero}", fn, ei.BRANCO, -116 * 0.03)
+    d.text((ei.MARGEM + largura + 18, 892 + 116 - 8),
+           "lugar" if numero == 1 else "lugares",
+           font=fp, fill=ei.SOBRE_AZUL, anchor="ls")
 
-    for i in range(len(LUGARES)):
-        if i == numero - 1:
-            _linha_da_lista(d, i, ei.ESCURO, True, ei.LARANJA)
-        elif i < numero:
-            _linha_da_lista(d, i, ei.ESCURO, False, None)
-        else:
-            _linha_da_lista(d, i, ei.CINZA_CLARO, False, None)
+    ei.manchete(d, LUGARES[numero - 1], 72, ei.BRANCO, 1044)
     return img
 
 
@@ -232,7 +270,9 @@ def main() -> None:
     # existe para ser igual nas cinco telas. Estoura aqui, com o nome da
     # frase, em vez de sair torto na arte.
     ei.conferir_cabe(ei.INTER_PESADA, TAM_LUGAR, LUGARES, LARGURA_ITEM,
-                     "a lista de lugares")
+                     "a lista de lugares da tela 6")
+    ei.conferir_cabe(ei.INTER_PESADA, 72, LUGARES, ei.LARGURA_TEXTO,
+                     "o nome do lugar sobre a foto")
 
     telas = [("dia1-1-pergunta.png", capa())]
     for i in range(1, len(LUGARES) + 1):

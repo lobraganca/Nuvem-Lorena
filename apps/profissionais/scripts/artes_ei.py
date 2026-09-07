@@ -439,6 +439,38 @@ def fundo_azul() -> Image.Image:
     return img
 
 
+# ══════════════════════════════════════════════════════════════════════
+#  FOTOGRAFIA DE FUNDO
+# ══════════════════════════════════════════════════════════════════════
+#
+# A dona pediu "artes mais realistas". Realista aqui é FOTO — e foto de
+# Itabirito, tirada por ela. Não há como fabricar isso: este container não
+# alcança nenhum banco de imagem (a política de rede recusa), e inventar
+# fotografia de um lugar que existe seria pior do que não ter nenhuma.
+#
+# Então o que mora aqui é o molde que RECEBE a foto. Quando os arquivos
+# chegarem em `scripts/fotos-dia1/`, o carrossel sai pronto com um comando.
+#
+# ── AS TRÊS COISAS QUE O MOLDE FAZ COM A FOTO ─────────────────────────
+#
+#  1. RECORTA na medida, sem deformar. Esticar a foto para 1080×1350 é o
+#     erro que mais denuncia amadorismo: rosto fica gordo, poste fica
+#     torto, e ninguém sabe dizer por quê.
+#
+#  2. UNIFICA. Fotos de celulares e horas diferentes brigam entre si num
+#     carrossel. Uma dessaturação leve e um véu azul de 12% fazem cinco
+#     fotos distintas parecerem a mesma campanha, sem virar filtro de rede
+#     social.
+#
+#  3. ESCURECE ATÉ O TEXTO FICAR LEGÍVEL, e diz quanto precisou. Texto
+#     branco sobre foto clara some — é o defeito mais comum de post com
+#     foto, e é invisível para quem já sabe o que está escrito. O véu
+#     escuro aumenta de 5% em 5% até o contraste passar de 4,5, e o
+#     gerador IMPRIME o valor. Se nem no máximo passar, ele para: essa foto
+#     é clara demais para receber texto por cima, e a saída é outra foto,
+#     não uma letra cinza.
+
+
 def _luminancia(cor) -> float:
     def canal(v: float) -> float:
         v /= 255
@@ -483,6 +515,104 @@ def conferir_contraste(img: Image.Image, cor_texto, caixa, minimo: float, onde: 
             f"  texto {cor_texto} sobre o fundo dali\n"
             f"  escureça o fundo ou clareie o texto — não deixe passar."
         )
+
+
+FOTOS = Path(__file__).resolve().parent / "fotos-dia1"
+
+
+def _recortar_na_medida(foto: Image.Image) -> Image.Image:
+    """Preenche 1080×1350 cortando o excesso, nunca esticando."""
+    escala = max(L / foto.width, A / foto.height)
+    nova = foto.resize((max(L, round(foto.width * escala)),
+                        max(A, round(foto.height * escala))), Image.LANCZOS)
+    e = (nova.width - L) // 2
+    # Corta mais de baixo do que de cima: em foto de rua o assunto (fachada,
+    # placa, gente) fica no terço de cima, e chão é o que sobra.
+    t = round((nova.height - A) * 0.38)
+    return nova.crop((e, t, e + L, t + A))
+
+
+def _unificar(foto: Image.Image) -> Image.Image:
+    """Dessatura de leve e passa um véu azul — cinco fotos, uma campanha."""
+    cinza = foto.convert("L").convert("RGB")
+    foto = Image.blend(foto, cinza, 0.28)
+    return Image.blend(foto, Image.new("RGB", foto.size, AZUL_PE), 0.12)
+
+
+def _veu(forca: float) -> Image.Image:
+    """A máscara do escurecimento: mais forte em cima e embaixo.
+
+    Em cima mora a manchete e embaixo o rodapé; o meio da foto é onde ela
+    tem de continuar sendo uma foto. Um véu chapado escureceria o assunto
+    junto com o fundo e devolveria uma imagem suja.
+    """
+    m = Image.new("L", (1, A))
+    dm = ImageDraw.Draw(m)
+    for y in range(A):
+        p = y / (A - 1)
+        if p < 0.52:
+            k = 1.0 - (p / 0.52) * 0.55       # 1,00 no topo → 0,45 no meio
+        else:
+            k = 0.45 + ((p - 0.52) / 0.48) * 0.55
+        dm.line((0, y, 1, y), fill=round(255 * forca * k))
+    return m.resize((L, A), Image.BILINEAR)
+
+
+def foto_de_fundo(caminho, checagens=(), rotulo: str = "") -> Image.Image:
+    """A foto pronta para receber texto: recortada, unificada e escurecida.
+
+    `checagens` é uma lista de `(caixa, cor, mínimo)` — SÓ onde há texto, e
+    não a peça inteira. O véu é forte em cima e embaixo e fraco no meio;
+    exigir contraste no meio da foto obrigaria a escurecer tudo e devolveria
+    uma imagem preta com letra. Cada zona de texto se defende sozinha.
+
+    O escurecimento sobe de 5% em 5% até TODAS as zonas passarem, e o
+    quanto precisou é IMPRESSO — foto clara é escolha de quem fotografou,
+    não do gerador, e ela tem de saber. Se nem no máximo passar, para: a
+    saída é outra foto, e não letra cinza.
+    """
+    base = _unificar(_recortar_na_medida(Image.open(caminho).convert("RGB")))
+    if not checagens:
+        return base
+
+    preto = Image.new("RGB", (L, A), (0, 0, 0))
+    for passo in range(3, 17):              # 15% até 80%
+        forca = passo * 0.05
+        pronta = Image.composite(preto, base, _veu(forca))
+        try:
+            for caixa, cor, minimo in checagens:
+                conferir_contraste(pronta, cor, caixa, minimo, rotulo)
+        except SystemExit:
+            continue
+        print(f"     véu {forca:.0%} em {rotulo or Path(caminho).name}")
+        return pronta
+
+    raise SystemExit(
+        f"a foto «{Path(caminho).name}» é clara demais para receber texto.\n"
+        f"  nem escurecendo 80% o texto de {rotulo} chega ao contraste mínimo.\n"
+        f"  troque a foto — não vale clarear a letra até sumir."
+    )
+
+
+def foto_de_exemplo(rotulo: str) -> Image.Image:
+    """Um retângulo riscado dizendo "sua foto aqui".
+
+    Existe para mostrar o ENQUADRAMENTO antes de a foto existir: onde o
+    texto cai, quanto sobra de imagem, o que fica escondido pelo véu. É
+    feio de propósito — placeholder bonito é placeholder que vai para o ar
+    por engano.
+    """
+    img = Image.new("RGB", (L, A), (108, 118, 128))
+    d = ImageDraw.Draw(img)
+    for x in range(-A, L, 44):
+        d.line((x, A, x + A, 0), fill=(122, 132, 142), width=16)
+    fonte = f(INTER_PESADA, 40)
+    texto = f"SUA FOTO AQUI · {rotulo.upper()}"
+    largura = largura_com_tracking(d, texto, fonte, 3.0)
+    # Abaixo do meio: no meio ele batia na manchete da capa, e um
+    # exemplo que se sobrepõe ao texto não mostra o enquadramento.
+    escrever(d, ((L - largura) / 2, 800), texto, fonte, (238, 242, 246), 3.0)
+    return img
 
 
 def peca_lisa(escura: bool) -> tuple[Image.Image, ImageDraw.ImageDraw]:
