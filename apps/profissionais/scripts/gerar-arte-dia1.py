@@ -106,13 +106,13 @@ def capa():
     # como página que não terminou de carregar, não como respiro.
     ei.sobrenome(d, "quem procura emprego em itabirito", True, 470)
     ei.manchete(d, "Em quantos lugares você deixou currículo esse ano?",
-                TAM_MANCHETE, ei.TINTA, 558)
+                TAM_MANCHETE, ei.SOBRE_CAPA, 558)
 
     # "arraste" com a seta: a peça inteira é escrita para a última tela, e
     # quem para na primeira nunca chega lá. Discreto, no pé, para convidar
     # sem gritar.
     ei.escrever(d, (ei.MARGEM, ei.Y_RODAPE - 84), "arraste  →",
-                ei.f(ei.INTER_SEMI, 25), ei.SOBRE_AZUL_FRACO, 3.0)
+                ei.f(ei.INTER_SEMI, 25), ei.SOBRE_CAPA_FRACO, 3.0)
     return img
 
 
@@ -217,8 +217,8 @@ def conclusao():
     # some em vez de ceder o lugar. Peso é o jeito certo de dizer "esta é a
     # de apoio" sem tirar a legibilidade dela.
     fim = ei.manchete(d, "O problema não é falta de vaga.", TAM_MANCHETE,
-                      ei.TINTA, 540, fonte_arq=ei.INTER_MEDIA)
-    ei.manchete(d, "É você não ficar sabendo.", TAM_MANCHETE, ei.TINTA,
+                      ei.SOBRE_CAPA, 540, fonte_arq=ei.INTER_MEDIA)
+    ei.manchete(d, "É você não ficar sabendo.", TAM_MANCHETE, ei.SOBRE_CAPA,
                 fim + 30, fonte_arq=ei.INTER_PRETA)
     return img
 
@@ -234,20 +234,20 @@ def convite():
     img, d = _moldura(escura=True, numero=9)
     ei.sobrenome(d, "o convite", True)
     fim = ei.manchete(d, "No Ei Emprego a vaga procura você.", TAM_MANCHETE,
-                      ei.TINTA, 356)
+                      ei.SOBRE_CAPA, 356)
     ei.apoio(d, "Você marca o que faz. Quando abre uma vaga do seu ofício em "
                 "Itabirito, o aviso chega no seu celular.",
-             TAM_APOIO, ei.SOBRE_AZUL_FRACO, fim + 36)
+             TAM_APOIO, ei.SOBRE_CAPA_FRACO, fim + 36)
 
     alto = 100
     topo = ei.Y_RODAPE - 96 - alto
     d.rounded_rectangle((ei.MARGEM, topo, ei.L - ei.MARGEM, topo + alto),
-                        alto // 2, fill=ei.TINTA)
+                        alto // 2, fill=ei.PAPEL)
     fonte = ei.f(ei.INTER_PESADA, 36)
     frase = "Cadastro grátis em 5 minutos"
     largura = ei.largura_com_tracking(d, frase, fonte, -0.4)
     ei.escrever(d, ((ei.L - largura) / 2, topo + (alto - 48) // 2), frase, fonte,
-                ei.PAPEL, -0.4)
+                ei.TINTA, -0.4)
     return img
 
 
@@ -261,14 +261,23 @@ def main() -> None:
     # a conferência fica, porque a cor pode mudar, e esquecer disso é o que
     # deixou a tela "Quem está contratando" em 1,1 por três rodadas.
     #
-    # A primeira linha é a que importa mais: ela é o motivo de o texto sobre
-    # o azul do Ei ser escuro. Branco ali dá 2,64 e reprovaria.
+    # ── A LETRA SOBRE O AZUL VOLTOU A SER BRANCA — 07/09 ──────────────
+    # A dona: "as letras em preto não ficou bom!". Ela tem razão, e a saída
+    # não foi baixar a régua: foi trocar o azul do FUNDO pelo da capa do
+    # app (#0a72c4), que é onde o app escreve em branco desde sempre.
+    # Branco ali dá 4,98; sobre o azul do LOGO daria 2,64, e era por isso
+    # que o preto tinha entrado. Ver a paleta em `artes_ei.py`.
+    #
+    # Esta tabela pegou o conserto pela metade na primeira tentativa: as
+    # cores tinham sido trocadas no desenho e aqui ainda diziam `AZUL_EI`.
+    # Ela reprovou em 2,41 e mostrou o esquecimento — que é exatamente o
+    # trabalho dela.
     for cor, fundo, minimo, onde in [
-        (ei.TINTA, ei.AZUL_EI, 4.5, "a manchete sobre o azul do Ei"),
-        (ei.SOBRE_AZUL_FRACO, ei.AZUL_EI, 4.5, "o discreto sobre o azul do Ei"),
+        (ei.SOBRE_CAPA, ei.AZUL_CAPA, 4.5, "a manchete sobre o azul da capa"),
+        (ei.SOBRE_CAPA_FRACO, ei.AZUL_CAPA, 4.5, "o discreto sobre o azul da capa"),
         (ei.TINTA, ei.PAPEL, 4.5, "a manchete sobre o papel"),
         (ei.SOBRE_PAPEL_FRACO, ei.PAPEL, 4.5, "o apoio sobre o papel"),
-        (ei.PAPEL, ei.TINTA, 4.5, "a letra dentro da pílula"),
+        (ei.TINTA, ei.PAPEL, 4.5, "a letra dentro da pílula"),
     ]:
         real = ei.contraste(cor, fundo)
         if real < minimo:

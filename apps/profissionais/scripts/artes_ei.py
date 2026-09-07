@@ -354,7 +354,39 @@ CINZA_CLARO = (203, 212, 221)   # o que ainda não aconteceu
 # gerar se alguém voltar a escrever branco aqui.
 AZUL_EI = (1, 167, 253)              # o azul do logo, exatamente ele
 PAPEL = (245, 242, 236)              # não é branco: é creme, cor de papel bom
-TINTA = (8, 45, 68)                  # o texto, nos dois fundos
+TINTA = (8, 45, 68)                  # o texto sobre o PAPEL
+
+# ══════════════════════════════════════════════════════════════════════
+#  A LETRA BRANCA VOLTOU, E COM ELA OUTRO AZUL DA CASA — 07/09
+# ══════════════════════════════════════════════════════════════════════
+#
+# A dona, vendo as duas peças novas: "as letras em preto não ficou bom!"
+#
+# Ela tem razão, e o texto acima explica por que elas estavam pretas: o
+# azul do LOGO (#01a7fd) é claro, e branco sobre ele dá 2,64 de contraste
+# — some. Escurecer a letra foi a saída, e resolveu o contraste às custas
+# da aparência.
+#
+# Só que existe um terceiro caminho, e ele estava na frente o tempo todo:
+# o app NÃO usa o azul do logo nas suas faixas. A barra de cima e a capa
+# da tela inicial são #0a72c4 — mais fundo —, e é sobre ELE que o app
+# escreve em branco desde sempre. Medido: 4,98, passa.
+#
+# Ou seja, não é um azul inventado para resolver um problema de arte: é o
+# azul que ela já aprovou na tela do app ("a capa azul"), e usá-lo faz o
+# post e a tela inicial parecerem a mesma coisa — que é exatamente o que
+# um anúncio precisa fazer.
+#
+# A regra da casa passa a ser: sobre o azul da CAPA escreve-se em branco;
+# sobre o PAPEL, em tinta. O azul do logo continua sendo o do logo, e não
+# recebe texto nenhum.
+AZUL_CAPA = (10, 114, 196)           # `--ei-acento` do app: a barra e a capa
+SOBRE_CAPA = (255, 255, 255)         # branco sobre a capa — 4,98
+# O discreto (rodapé, contador) tem de ser QUASE branco: sobre este azul,
+# qualquer tom mais escuro que este cai abaixo de 4,5. Medido de 255 para
+# baixo até achar o último que passa.
+SOBRE_CAPA_FRACO = (234, 246, 255)   # 4,53
+FIO_CAPA = (72, 150, 212)            # o fio fino sobre a capa
 
 # 4,78 de contraste: o rodapé e o contador têm 22-25px, que fica na
 # fronteira do que a WCAG chama de letra grande. Na dúvida, o valor que
@@ -459,7 +491,7 @@ def fundo_chapado(escura: bool) -> Image.Image:
     espaço, na letra e no alinhamento — e cada efeito posto aqui rouba
     atenção justamente disso.
     """
-    return Image.new("RGB", (L, A), AZUL_EI if escura else PAPEL)
+    return Image.new("RGB", (L, A), AZUL_CAPA if escura else PAPEL)
 
 
 # ══════════════════════════════════════════════════════════════════════
@@ -630,17 +662,17 @@ def cabecalho(img, d, escura: bool, numero: int, total: int) -> None:
     # branca dá 2,64 e some — e é o mesmo motivo de o texto ser escuro
     # aqui. O logo branco existe para o quadrado azul do ícone, que é
     # outro tamanho e outro uso.
-    marca = _marca_colorida(38, TINTA)
+    marca = _marca_colorida(38, SOBRE_CAPA if escura else TINTA)
     img.paste(marca, (MARGEM, Y_CABECALHO), marca)
 
     fonte = f(INTER_SEMI, 22)
     texto = f"{numero:02d} / {total:02d}"
-    cor = SOBRE_AZUL_FRACO if escura else SOBRE_PAPEL_FRACO
+    cor = SOBRE_CAPA_FRACO if escura else SOBRE_PAPEL_FRACO
     largura = largura_com_tracking(d, texto, fonte, 3.0)
     escrever(d, (L - MARGEM - largura, Y_CABECALHO + 10), texto, fonte, cor, 3.0)
 
     d.line((MARGEM, Y_FIO_ALTO, L - MARGEM, Y_FIO_ALTO),
-           fill=FIO_AZUL if escura else FIO_PAPEL, width=2)
+           fill=FIO_CAPA if escura else FIO_PAPEL, width=2)
 
 
 def rodape(img, d, escura: bool) -> None:
@@ -651,10 +683,10 @@ def rodape(img, d, escura: bool) -> None:
     que chega sozinha tem de dizer onde fica o app.
     """
     d.line((MARGEM, Y_RODAPE, L - MARGEM, Y_RODAPE),
-           fill=FIO_AZUL if escura else FIO_PAPEL, width=2)
+           fill=FIO_CAPA if escura else FIO_PAPEL, width=2)
 
     fonte = f(INTER_MEDIA, 25)
-    cor = SOBRE_AZUL_FRACO if escura else SOBRE_PAPEL_FRACO
+    cor = SOBRE_CAPA_FRACO if escura else SOBRE_PAPEL_FRACO
     escrever(d, (MARGEM, Y_RODAPE + 36), "empregoitabirito.com.br", fonte, cor, 1.0)
 
 
@@ -668,7 +700,7 @@ def sobrenome(d, texto: str, escura: bool, y: int = None) -> None:
     """
     fonte = f(INTER_SEMI, 23)
     escrever(d, (MARGEM, y if y is not None else Y_CORPO), texto.upper(), fonte,
-             TINTA if escura else SOBRE_PAPEL_FRACO, 6.0)
+             SOBRE_CAPA_FRACO if escura else SOBRE_PAPEL_FRACO, 6.0)
 
 
 def manchete(d, texto: str, tamanho: int, cor, topo: int,

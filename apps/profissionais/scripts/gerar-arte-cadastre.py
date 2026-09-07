@@ -102,27 +102,27 @@ def gerar() -> None:
     # Medindo a peça acabada, os pixels da própria letra entram na conta e
     # o resultado é 1,00 — o erro que a primeira geração destas artes
     # cometeu, e que engana porque parece problema de cor.
-    ei.conferir_contraste(img, ei.TINTA,
+    ei.conferir_contraste(img, ei.SOBRE_CAPA_FRACO,
                           (ei.MARGEM, Y_TARJA, x1, Y_TARJA + 40), 4.5, "tarja")
-    ei.conferir_contraste(img, ei.TINTA,
+    ei.conferir_contraste(img, ei.SOBRE_CAPA,
                           (ei.MARGEM, Y_MANCHETE, x1, Y_MANCHETE + 290), 3.0, "manchete")
-    ei.conferir_contraste(img, ei.TINTA,
+    ei.conferir_contraste(img, ei.SOBRE_CAPA,
                           (ei.MARGEM, Y_FRASE, x1, Y_FRASE + 120), 4.5, "frase")
     ei.conferir_contraste(img, ei.TINTA,
                           (x0 + 40, Y_CHAMADA + 40, x1 - 40, Y_CHAMADA + 130),
                           4.5, "chamada")
-    ei.conferir_contraste(img, ei.SOBRE_AZUL_FRACO,
+    ei.conferir_contraste(img, ei.SOBRE_CAPA_FRACO,
                           (ei.MARGEM, ei.Y_RODAPE + 30, x1, ei.Y_RODAPE + 70),
                           4.5, "endereço")
 
     # ── Agora a letra ─────────────────────────────────────────────────
-    marca = ei._marca_colorida(38, ei.TINTA)
+    marca = ei._marca_colorida(38, ei.SOBRE_CAPA)
     img.paste(marca, (ei.MARGEM, ei.Y_CABECALHO), marca)
-    d.line((ei.MARGEM, ei.Y_FIO_ALTO, x1, ei.Y_FIO_ALTO), fill=ei.FIO_AZUL, width=2)
+    d.line((ei.MARGEM, ei.Y_FIO_ALTO, x1, ei.Y_FIO_ALTO), fill=ei.FIO_CAPA, width=2)
 
     ei.sobrenome(d, TARJA, escura=True, y=Y_TARJA)
-    ei.manchete(d, MANCHETE, 104, ei.TINTA, Y_MANCHETE)
-    ei.apoio(d, FRASE, 38, ei.TINTA, Y_FRASE, entrelinha=1.36)
+    ei.manchete(d, MANCHETE, 104, ei.SOBRE_CAPA, Y_MANCHETE)
+    ei.apoio(d, FRASE, 38, ei.SOBRE_CAPA, Y_FRASE, entrelinha=1.36)
 
     # A chamada, centralizada na caixa. Centralizada aqui e à esquerda no
     # resto da peça de propósito: é um BOTÃO, e botão tem o texto no meio.
@@ -139,9 +139,9 @@ def gerar() -> None:
     # é o mesmo elemento que já fecha o cabeçalho e o rodapé da peça, então
     # ele lê como parte do desenho e não como enfeite avulso.
 
-    d.line((ei.MARGEM, ei.Y_RODAPE, x1, ei.Y_RODAPE), fill=ei.FIO_AZUL, width=2)
+    d.line((ei.MARGEM, ei.Y_RODAPE, x1, ei.Y_RODAPE), fill=ei.FIO_CAPA, width=2)
     ei.escrever(d, (ei.MARGEM, ei.Y_RODAPE + 36), ENDERECO,
-                ei.f(ei.INTER_MEDIA, 25), ei.SOBRE_AZUL_FRACO, 1.0)
+                ei.f(ei.INTER_MEDIA, 25), ei.SOBRE_CAPA_FRACO, 1.0)
 
     print(f"pronto: {ei.salvar(img, 'ei-nova-era-cadastre.png')}")
 

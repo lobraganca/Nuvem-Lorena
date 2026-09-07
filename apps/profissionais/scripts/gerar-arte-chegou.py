@@ -85,9 +85,9 @@ def _rede(d, topo: int, base: int) -> None:
             (0, 5), (2, 6), (4, 8), (1, 6), (3, 7)]
     for a, b in fios:
         d.line((nos[a][0], topo + nos[a][1], nos[b][0], topo + nos[b][1]),
-               fill=ei.FIO_AZUL, width=2)
+               fill=ei.FIO_CAPA, width=2)
     for x, y in nos:
-        d.ellipse((x - 5, topo + y - 5, x + 5, topo + y + 5), fill=ei.FIO_AZUL)
+        d.ellipse((x - 5, topo + y - 5, x + 5, topo + y + 5), fill=ei.FIO_CAPA)
 
 
 def _bloco(d, x: int, y: int, largura: int, texto: str) -> None:
@@ -139,37 +139,37 @@ def gerar() -> None:
     #    do texto. Medindo a peça acabada, os pixels da própria letra
     #    entram na conta e o resultado é 1,00 — o erro que a primeira
     #    geração destas artes cometeu.
-    ei.conferir_contraste(img, ei.TINTA,
+    ei.conferir_contraste(img, ei.SOBRE_CAPA,
                           (ei.MARGEM, Y_MANCHETE, ei.L - ei.MARGEM, Y_MANCHETE + 190),
                           3.0, "manchete")
-    ei.conferir_contraste(img, ei.TINTA,
+    ei.conferir_contraste(img, ei.SOBRE_CAPA_FRACO,
                           (ei.MARGEM, Y_TARJA, ei.L - ei.MARGEM, Y_TARJA + 40),
                           4.5, "tarja")
-    ei.conferir_contraste(img, ei.TINTA,
+    ei.conferir_contraste(img, ei.SOBRE_CAPA,
                           (ei.MARGEM, Y_FRASE, ei.L - ei.MARGEM, Y_FRASE + 140),
                           4.5, "frase")
-    ei.conferir_contraste(img, ei.SOBRE_AZUL_FRACO,
+    ei.conferir_contraste(img, ei.SOBRE_CAPA_FRACO,
                           (ei.MARGEM, ei.Y_RODAPE + 30, ei.L - ei.MARGEM, ei.Y_RODAPE + 70),
                           4.5, "endereço")
 
     # ── Agora o texto ─────────────────────────────────────────────────
-    marca = ei._marca_colorida(38, ei.TINTA)
+    marca = ei._marca_colorida(38, ei.SOBRE_CAPA)
     img.paste(marca, (ei.MARGEM, ei.Y_CABECALHO), marca)
     d.line((ei.MARGEM, ei.Y_FIO_ALTO, ei.L - ei.MARGEM, ei.Y_FIO_ALTO),
-           fill=ei.FIO_AZUL, width=2)
+           fill=ei.FIO_CAPA, width=2)
 
     ei.sobrenome(d, TARJA, escura=True, y=Y_TARJA)
-    ei.manchete(d, MANCHETE, 118, ei.TINTA, Y_MANCHETE)
+    ei.manchete(d, MANCHETE, 118, ei.SOBRE_CAPA, Y_MANCHETE)
 
     _bloco(d, x_a, Y_ENCONTRO, largura_bloco, LADO_A)
     _bloco(d, x_b, Y_ENCONTRO, largura_bloco, LADO_B)
 
-    ei.apoio(d, FRASE, 38, ei.TINTA, Y_FRASE, entrelinha=1.36)
+    ei.apoio(d, FRASE, 38, ei.SOBRE_CAPA, Y_FRASE, entrelinha=1.36)
 
     d.line((ei.MARGEM, ei.Y_RODAPE, ei.L - ei.MARGEM, ei.Y_RODAPE),
-           fill=ei.FIO_AZUL, width=2)
+           fill=ei.FIO_CAPA, width=2)
     ei.escrever(d, (ei.MARGEM, ei.Y_RODAPE + 36), ENDERECO,
-                ei.f(ei.INTER_MEDIA, 25), ei.SOBRE_AZUL_FRACO, 1.0)
+                ei.f(ei.INTER_MEDIA, 25), ei.SOBRE_CAPA_FRACO, 1.0)
 
     caminho = ei.salvar(img, "ei-chegou-itabirito.png")
     print(f"pronto: {caminho}")
