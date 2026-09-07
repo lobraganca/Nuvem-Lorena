@@ -52,20 +52,63 @@ const MP_WEBHOOK_SECRET = Deno.env.get("MP_WEBHOOK_SECRET") ?? "";
 const ok = (texto = "ok") => new Response(texto, { status: 200 });
 
 /**
+ * O número do pagamento, venha ele como número ou como endereço.
+ *
+ * ── POR QUE ISTO PRECISA EXISTIR — 07/09 ──────────────────────────────
+ *
+ * O painel do Mercado Pago oferece DOIS eventos de pagamento: "Pagamentos"
+ * e "Pagamentos (legacy)". O antigo é o formato IPN, e nele o aviso chega
+ * com `topic=payment` e um `resource` que às vezes é o endereço inteiro
+ * (`https://api.mercadolibre.com/collections/notifications/123456`) em vez
+ * do número seco.
+ *
+ * Sem esta função, o endereço inteiro seria enfiado na consulta e a API
+ * responderia 404 para todo pagamento — o dinheiro entraria e o plano
+ * nunca ligaria, sem erro nenhum aparecendo para ninguém.
+ *
+ * Qual dos dois a dona marcou no painel não pode ser coisa que o código
+ * precise saber.
+ */
+function soONumero(bruto: string): string {
+  const limpo = bruto.trim();
+  if (!limpo.includes("/")) return limpo;
+  const pedacos = limpo.split("?")[0].split("/").filter(Boolean);
+  return pedacos[pedacos.length - 1] ?? limpo;
+}
+
+/**
  * Confere a assinatura que o Mercado Pago manda em `x-signature`.
  *
  * O cabeçalho vem como `ts=1699...,v1=abc...`, e o que se assina é
  * `id:<pagamento>;request-id:<x-request-id>;ts:<ts>;`.
  *
- * Devolve `true` quando não há segredo configurado — ver o cabeçalho do
- * arquivo: a reconsulta na API é a defesa que sustenta isso.
+ * ── TRÊS RESPOSTAS, E A DO MEIO É A QUE IMPORTA ───────────────────────
+ *
+ *   sem segredo configurado      passa (a reconsulta sustenta)
+ *   sem cabeçalho nenhum         passa, com aviso no log
+ *   cabeçalho que não bate       RECUSA
+ *
+ * A do meio é assim porque o aviso no formato antigo ("Pagamentos
+ * (legacy)", que é o que aparece marcado em algumas contas) NÃO é
+ * assinado. Recusar por falta de cabeçalho deixaria todo pagamento sem
+ * efeito, calado — e a dona só descobriria pela empresa reclamando que
+ * pagou e não liberou.
+ *
+ * Passar sem cabeçalho não abre porta: o que decide qualquer coisa aqui é
+ * a resposta da API do Mercado Pago, consultada com o token da conta. Um
+ * aviso forjado precisaria apontar para um pagamento aprovado DE VERDADE
+ * na conta dela — e, se apontasse para um verdadeiro, a trava de repetição
+ * (`processed_payments`) já teria processado aquele pagamento uma vez só.
  */
 async function assinaturaConfere(req: Request, idDoPagamento: string): Promise<boolean> {
   if (!MP_WEBHOOK_SECRET) return true;
 
   const cabecalho = req.headers.get("x-signature") ?? "";
   const requestId = req.headers.get("x-request-id") ?? "";
-  if (!cabecalho) return false;
+  if (!cabecalho) {
+    console.warn("aviso sem x-signature (formato antigo?); seguindo pela reconsulta na API");
+    return true;
+  }
 
   let ts = "";
   let v1 = "";
@@ -322,7 +365,7 @@ Deno.serve(async (req) => {
      Contestação, fraude e afins chegam no mesmo endereço e não têm o que
      fazer aqui. */
   const tipo = aviso?.type ?? aviso?.topic;
-  const idDoAviso = String(aviso?.data?.id ?? aviso?.resource ?? "").trim();
+  const idDoAviso = soONumero(String(aviso?.data?.id ?? aviso?.resource ?? ""));
   if (!idDoAviso) return ok("sem id");
 
   if (!(await assinaturaConfere(req, idDoAviso))) {
