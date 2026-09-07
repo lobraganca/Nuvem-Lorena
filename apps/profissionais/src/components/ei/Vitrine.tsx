@@ -414,7 +414,20 @@ function Faixa({
           {erro}
         </p>
       ) : children.length === 0 ? (
-        <p className="ei-vitrine-nota">{vazio}</p>
+        /* ── CLASSE PRÓPRIA, E NÃO A DO CARTÃO — 07/09 ───────────────
+           A dona: "Nenhuma vaga aberta agora. Desalinhado na tela de
+           início."
+
+           Estava com `ei-vitrine-nota`, que é a linhinha cinza de DENTRO
+           do cartão — e lá dentro ela não precisa de recuo nenhum, porque
+           o cartão já tem o seu. Solta na prateleira, ela nascia 18px à
+           esquerda do título logo acima: medido, título em 33px e esta
+           linha em 15px.
+
+           O engano é fácil de repetir, porque a cor e o tamanho estavam
+           certos; só o lugar estava errado. Daí a classe separada, com o
+           recuo escrito nela. */
+        <p className="ei-vitrine-nenhum">{vazio}</p>
       ) : (
         <>
           {/* Rola de lado, como as prateleiras do resto do app. Numa tela

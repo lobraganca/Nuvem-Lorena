@@ -9284,6 +9284,26 @@
   line-height: 1.3;
 }
 
+/* ── "NENHUMA VAGA ABERTA AGORA" — 07/09 ───────────────────────────────
+   A dona: "Nenhuma vaga aberta agora. Desalinhado na tela de início."
+
+   Esta linha usava a `ei-vitrine-nota` acima, que é a linhinha cinza de
+   DENTRO do cartão. Lá ela não leva recuo nenhum, porque o cartão já tem
+   o dele — solta na prateleira, ela começava 18px antes do título logo
+   acima (medido: título em 33px, ela em 15px).
+
+   Todo bloco da prateleira repete a mesma margem: a cabeça, o trilho, o
+   "ver todas" e a linha de erro. Esta é a quinta. `medir-vitrine-
+   alinhamento.mjs` compara cada uma com o título da própria seção e
+   reprova se voltar a fugir. */
+.ei .ei-vitrine-nenhum {
+  margin: 0;
+  padding: 0 var(--ei-margem, 18px);
+  font-size: 0.86rem;
+  color: var(--ei-tinta-fraca);
+  line-height: 1.4;
+}
+
 .ei .ei-vitrine-valor {
   margin-top: auto;
   font-size: 0.86rem;
@@ -9470,8 +9490,23 @@
 
    Contorno e não preenchido: cheio, ele competiria com as duas portas
    logo abaixo, que são a ação da tela. Este é um ajuste, não um destino. */
+/* ── O RECUO DA CAPA É O MESMO DAS PRATELEIRAS — 07/09 ─────────────────
+   A dona: "desalinhado na tela de início."
+
+   Os quatro blocos da capa (cidade, manchete, números e portas) traziam
+   `padding: 0 33px`, escrito à mão. O 33 não saiu do nada: é onde as
+   prateleiras de baixo começam, medido na tela. Só que elas chegam nos 33
+   somando DOIS recuos — os 15px do bloco que embrulha a página e os 18 da
+   própria prateleira —, e a capa mora dentro do mesmo bloco de 15. Somando
+   de novo, ela nascia em 48px: a manchete 15px mais para dentro que o
+   "Vagas abertas" logo abaixo, na mesma coluna do olho.
+
+   Com a variável, os dois recuos passam a ser o MESMO número em um lugar
+   só, e mudar a margem do app move a capa junto. Número solto copiado de
+   uma medição é a armadilha aqui: ele estava certo no dia em que foi
+   medido e errado no lugar onde foi escrito. */
 .ei .ei-capa-cidade {
-  padding: 0 33px;
+  padding: 0 var(--ei-margem, 18px);
   margin-bottom: 14px;
 }
 
@@ -9488,7 +9523,7 @@
 
 .ei .ei-capa-titulo {
   margin: 0;
-  padding: 0 33px;
+  padding: 0 var(--ei-margem, 18px);
   color: #fff;
   /* 1,72rem e não 2rem: a frase que a dona quis de volta é longa, e neste
      tamanho ela fecha em duas linhas. A 2rem eram três, e a terceira
@@ -9509,7 +9544,7 @@
 .ei .ei-capa-numeros {
   display: flex;
   gap: 20px;
-  padding: 0 33px;
+  padding: 0 var(--ei-margem, 18px);
   margin-top: 18px;
   min-height: 46px;
   flex-wrap: wrap;
@@ -9548,7 +9583,7 @@
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 10px;
-  padding: 0 33px;
+  padding: 0 var(--ei-margem, 18px);
   margin-top: 22px;
 }
 
