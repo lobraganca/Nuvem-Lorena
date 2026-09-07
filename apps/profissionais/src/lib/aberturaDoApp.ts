@@ -73,6 +73,24 @@ const COMPARTILHAVEIS = [
      ficha da Play Store. Quem chega por ele veio de fora, com uma coisa
      só na cabeça. */
   "/excluir-conta",
+  /* ── A VOLTA DO MERCADO PAGO — 07/09 ────────────────────────────────
+     Estes dois endereços são o que o Mercado Pago abre depois do
+     pagamento, e eles vêm DE FORA do app — exatamente como um link que
+     alguém mandou.
+
+     Sem esta linha, sair para pagar e voltar parecia uma abertura nova
+     (o `sessionStorage` se perde quando o navegador abre a volta noutra
+     aba), e o desvio fazia duas coisas ruins de uma vez: pedia a entrada
+     de novo E reescrevia o endereço, JOGANDO FORA o `?pedido=`. Com o
+     número do pedido perdido, a tela de confirmação não tinha como achar
+     o pagamento — quem tinha acabado de pagar via a tela de entrar, e
+     depois nada.
+
+     Foi a dona quem topou com isso no primeiro pagamento de verdade:
+     "quando sai pro pagamento e volta tá tendo que colocar o login
+     novamente". */
+  "/pagamento-ok",
+  "/pagamento-nao",
   "/login",
   "/onboarding-tipo",
 ];

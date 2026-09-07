@@ -160,6 +160,15 @@ const LIVRES = [
      aprovar. Medido no navegador: `/excluir-conta` terminava em
      `/login`. */
   "/excluir-conta",
+  /* ── A VOLTA DO MERCADO PAGO — 07/09 ────────────────────────────────
+     Mesma história da `aberturaDoApp`: voltar de fora parece abertura
+     nova, e aí a tela de senha aparecia POR CIMA da confirmação do
+     pagamento. Quem acabou de pagar precisa ler que deu certo antes de
+     qualquer outra coisa — e a tela em si não mostra nada que a senha
+     esteja protegendo: ela diz "seu plano está ativo por 30 dias", lendo
+     um pedido que o banco já só entrega para o dono dele. */
+  "/pagamento-ok",
+  "/pagamento-nao",
 ];
 
 /**
