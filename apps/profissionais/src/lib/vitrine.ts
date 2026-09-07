@@ -53,6 +53,8 @@ export type VagaDaVitrine = {
   salary_range_min: number | null;
   salary_range_max: number | null;
   salario_periodo: string | null;
+  /** Até quando a vaga fica no topo (0116). Passado ou nulo = sem destaque. */
+  destaque_ate: string | null;
   created_at: string;
 };
 
@@ -67,6 +69,8 @@ export type PessoaDaVitrine = {
 };
 
 export type Vitrine = {
+  /** As vagas em destaque (pagas), separadas — a dona pediu prateleira só delas. */
+  destaques: VagaDaVitrine[];
   vagas: VagaDaVitrine[];
   pessoas: PessoaDaVitrine[];
   /** Quantas vagas e quantas pessoas existem ao todo, não só as mostradas. */
@@ -113,6 +117,16 @@ function faltaAVitrine(erro: unknown): boolean {
 /** Quantas linhas cada faixa mostra. Poucas: isto é vitrine, não lista. */
 const QUANTAS = 6;
 
+/* As vagas vêm em UMA consulta e são separadas aqui, e não em duas
+   consultas com filtros opostos. Duas consultas é uma ida a mais à rede na
+   abertura do site — e, pior, elas podem discordar: uma vaga cujo destaque
+   vence entre a primeira e a segunda apareceria nas duas prateleiras, ou
+   em nenhuma. Pedimos o dobro para as duas prateleiras terem o que
+   mostrar. */
+function estaEmDestaque(v: VagaDaVitrine): boolean {
+  return !!v.destaque_ate && new Date(v.destaque_ate).getTime() > Date.now();
+}
+
 export async function lerVitrine(): Promise<Vitrine> {
   const sb = supabase();
   if (!sb) throw new Error("Sem conexão com o banco.");
@@ -135,8 +149,11 @@ export async function lerVitrine(): Promise<Vitrine> {
   const texto = (r: PromiseRejectedResult) =>
     r.reason instanceof Error ? r.reason.message : String(r.reason);
 
+  const todasAsVagas = vagas.status === "fulfilled" ? vagas.value.linhas : [];
+
   return {
-    vagas: vagas.status === "fulfilled" ? vagas.value.linhas : [],
+    destaques: todasAsVagas.filter(estaEmDestaque).slice(0, QUANTAS),
+    vagas: todasAsVagas.filter((v) => !estaEmDestaque(v)).slice(0, QUANTAS),
     totalVagas: vagas.status === "fulfilled" ? vagas.value.total : 0,
     erroVagas: vagas.status === "rejected" ? texto(vagas) : null,
     pessoas: pessoas.status === "fulfilled" ? pessoas.value.linhas : [],
@@ -156,7 +173,7 @@ async function lerVagas(sb: NonNullable<ReturnType<typeof supabase>>) {
   const { data, error, count } = await sb
     .from("job_listings")
     .select(
-      "id, title, city, uf, salario_a_combinar, salary_range_min, salary_range_max, salario_periodo, created_at, companies(company_name)",
+      "id, title, city, uf, salario_a_combinar, salary_range_min, salary_range_max, salario_periodo, destaque_ate, created_at, companies(company_name)",
       { count: "exact" }
     )
     /* A policy "Qualquer um lê vaga ativa" (0067) já filtra no banco, mas
@@ -164,8 +181,12 @@ async function lerVagas(sb: NonNullable<ReturnType<typeof supabase>>) {
        a intenção. Sem ele, o dia em que a policy mudar esta tela passa a
        mostrar vaga encerrada sem ninguém entender por quê. */
     .eq("status", "active")
+    /* Destaque primeiro, e depois a mais nova. É a mesma ordem do banco de
+       vagas — quem pagou pelo topo tem de aparecer no topo aqui também,
+       senão a vitrine desmente o que a empresa comprou. */
+    .order("destaque_ate", { ascending: false, nullsFirst: false })
     .order("created_at", { ascending: false })
-    .limit(QUANTAS);
+    .limit(QUANTAS * 2);
 
   if (error) throw new Error(mensagemDeErro(error, "Não consegui carregar as vagas."));
 
@@ -184,6 +205,7 @@ async function lerVagas(sb: NonNullable<ReturnType<typeof supabase>>) {
     salary_range_min: v.salary_range_min ?? null,
     salary_range_max: v.salary_range_max ?? null,
     salario_periodo: v.salario_periodo ?? null,
+    destaque_ate: v.destaque_ate ?? null,
     created_at: v.created_at,
   }));
 

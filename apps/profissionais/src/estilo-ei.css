@@ -9234,6 +9234,38 @@
   min-height: 104px;
 }
 
+/* ── A VAGA EM DESTAQUE — 07/09 ────────────────────────────────────────
+   A dona: "inclusive ter uma sessão para as em destaque."
+
+   O destaque é PAGO (0116). O cartão precisa PARECER diferente, senão a
+   prateleira separada é a única coisa que a empresa levou pelo dinheiro —
+   e quem chega pela rolagem lateral nem vê o título da seção.
+
+   Laranja da marca no fio e no selo: é a cor de destaque do app inteiro
+   (o foguinho, o filtro), e usar outra aqui inventaria um segundo
+   vocabulário de "isto é especial".
+
+   E é o `--ei-laranja` (#c2410c), não o laranja claro do logo: o selo tem
+   letra BRANCA por cima, e no laranja claro isso dá 2,7 de contraste —
+   some. Neste dá 5,18. Medido antes de escolher, como o azul da capa. */
+.ei .ei-vitrine-item-destaque {
+  border-color: var(--ei-laranja, #c2410c);
+  border-width: 2px;
+}
+
+.ei .ei-vitrine-selo {
+  justify-self: start;
+  padding: 2px 8px;
+  border-radius: 999px;
+  background: var(--ei-laranja, #c2410c);
+  color: #fff;
+  font-size: 0.68rem;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  margin-bottom: 2px;
+}
+
 .ei .ei-vitrine-titulo {
   font-weight: 700;
   font-size: 0.95rem;
@@ -9258,14 +9290,40 @@
   font-weight: 600;
 }
 
-.ei .ei-vitrine-pessoa { justify-items: start; }
+/* ── FOTO E TEXTO LADO A LADO — 07/09 ──────────────────────────────────
+   A dona: "acho que a foto e as informações têm que ficar lado a lado."
+
+   Estavam empilhados. O cartão ficava alto e estreito, e a foto empurrava
+   o nome para baixo, para fora do olhar de quem passa o dedo rápido. Em
+   duas colunas o cartão fica na proporção de uma linha de lista — que é o
+   que ele é.
+
+   `minmax(0, 1fr)` na segunda coluna pelo mesmo motivo da vitrine inteira:
+   sem isso o nome comprido se recusa a encolher e estoura o cartão. */
+.ei .ei-vitrine-pessoa {
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: center;
+  /* Centralizado e mais baixo que o cartão de vaga: com foto e texto lado
+     a lado o conteúdo tem metade da altura, e os 104px do cartão de vaga
+     deixavam um vazio embaixo do nome. A vaga continua com 104 porque ela
+     tem três linhas — as duas prateleiras não precisam ter a mesma altura
+     entre si, só cada uma consigo mesma. */
+  align-content: center;
+  min-height: 84px;
+  gap: 12px;
+}
+
+.ei .ei-vitrine-quem {
+  display: grid;
+  gap: 3px;
+  min-width: 0;
+}
 
 .ei .ei-vitrine-foto {
-  width: 44px;
-  height: 44px;
+  width: 52px;
+  height: 52px;
   border-radius: 10px;
   object-fit: cover;
-  margin-bottom: 4px;
 }
 
 .ei .ei-vitrine-foto-vazia {
@@ -9336,9 +9394,13 @@
   margin: 0;
   padding: 0 33px;
   color: #fff;
-  font-size: 2rem;
+  /* 1,72rem e não 2rem: a frase que a dona quis de volta é longa, e neste
+     tamanho ela fecha em duas linhas. A 2rem eram três, e a terceira
+     empurrava os botões para fora da primeira dobra — que é o defeito que
+     a mesma mensagem pediu para consertar. */
+  font-size: 1.72rem;
   font-weight: 800;
-  line-height: 1.1;
+  line-height: 1.14;
   /* O mesmo aperto das manchetes das artes: letra grande com espaçamento
      de letra pequena fica frouxa, e é a diferença mais visível entre
      "digitado" e "composto". */

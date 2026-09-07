@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import { lerVitrine, type Vitrine as Dados } from "../../lib/vitrine";
+import { lerVitrine, type Vitrine as Dados, type VagaDaVitrine } from "../../lib/vitrine";
 import { salarioEmTexto } from "../../types/domain";
 
 /**
@@ -63,7 +63,19 @@ export function Vitrine() {
      no lugar já reservado, sem empurrar nada. */
   const capa = (
     <header className="ei-capa">
-      <h1 className="ei-capa-titulo">Itabirito contrata Itabirito</h1>
+      {/* ── A FRASE VOLTOU — 07/09 ────────────────────────────────
+          A dona: "pode deixar a frase que estava antes. Quem contrata e
+          quem procura…"
+
+          Ela tinha saído na rodada do "muito texto", trocada por três
+          palavras. A dona preferiu esta, e é dela a escolha — o que dá
+          para fazer é caber melhor: 1,72rem em vez de 2rem, para o bloco
+          ficar em duas linhas e os botões continuarem na primeira dobra,
+          que era o outro pedido da mesma mensagem ("não sei onde
+          clicar"). */}
+      <h1 className="ei-capa-titulo">
+        Quem contrata e quem procura, aqui se encontram
+      </h1>
       <Numeros dados={dados} />
       {/* AS DUAS PORTAS DENTRO DA CAPA, e não lá embaixo.
 
@@ -117,6 +129,29 @@ export function Vitrine() {
   return (
     <div className="ei-vitrine">
       {capa}
+      {/* ── AS VAGAS EM DESTAQUE VÊM PRIMEIRO — 07/09 ─────────────────
+          A dona: "coloque as vagas primeiro e inclusive ter uma sessão
+          para as em destaque."
+
+          O destaque é PAGO (migration 0116): a empresa compra para a vaga
+          dela ficar no topo. Uma vitrine que não honra isso desmente o que
+          foi vendido — e é a primeira tela do site, onde mais gente passa.
+
+          A prateleira só existe quando há alguma: uma seção "Em destaque"
+          vazia anuncia um produto que ninguém comprou. */}
+      {dados.destaques.length > 0 && (
+        <Faixa
+          titulo="Em destaque"
+          total={dados.destaques.length}
+          erro={null}
+          vazio=""
+        >
+          {dados.destaques.map((v) => (
+            <CartaoDeVaga key={v.id} vaga={v} destaque />
+          ))}
+        </Faixa>
+      )}
+
       <Faixa
         titulo="Vagas abertas"
         total={dados.totalVagas}
@@ -126,19 +161,7 @@ export function Vitrine() {
         verTudo="Ver todas as vagas"
       >
         {dados.vagas.map((v) => (
-          /* O link vai para a vaga aberta, que JÁ abre sem conta (ela está
-             em `COMPARTILHAVEIS`, porque é o que se manda no WhatsApp).
-             Quem quiser responder é que encontra o login — e encontra
-             dentro da vaga, tendo lido o que está respondendo. */
-          <Link key={v.id} to={`/vaga-aberta/${v.id}`} className="ei-vitrine-item">
-            <span className="ei-vitrine-titulo">{v.title}</span>
-            <span className="ei-vitrine-nota">
-              {[v.empresa, v.city].filter(Boolean).join(" · ")}
-            </span>
-            {salarioEmTexto(v) && (
-              <span className="ei-vitrine-valor">{salarioEmTexto(v)}</span>
-            )}
-          </Link>
+          <CartaoDeVaga key={v.id} vaga={v} />
         ))}
       </Faixa>
 
@@ -162,16 +185,54 @@ export function Vitrine() {
                 {(p.name ?? "?").trim().charAt(0).toUpperCase()}
               </span>
             )}
-            <span className="ei-vitrine-titulo">{p.name}</span>
-            <span className="ei-vitrine-nota">
-              {[p.especialidade ?? p.areas_de_interesse?.[0], p.city]
-                .filter(Boolean)
-                .join(" · ")}
-            </span>
+            {/* ── FOTO E TEXTO LADO A LADO — 07/09 ────────────────────
+                A dona: "acho que a foto e as informações têm que ficar
+                lado a lado."
+
+                Estavam empilhados: foto em cima, nome e ofício embaixo. O
+                cartão ficava alto e estreito, e a foto empurrava o nome
+                para fora do olhar de quem passa o dedo rápido. Lado a
+                lado, o cartão fica na proporção de uma linha de lista —
+                que é o que ele é. */}
+            <div className="ei-vitrine-quem">
+              <span className="ei-vitrine-titulo">{p.name}</span>
+              <span className="ei-vitrine-nota">
+                {[p.especialidade ?? p.areas_de_interesse?.[0], p.city]
+                  .filter(Boolean)
+                  .join(" · ")}
+              </span>
+            </div>
           </div>
         ))}
       </Faixa>
     </div>
+  );
+}
+
+/**
+ * Um cartão de vaga. O mesmo nas duas prateleiras — a de destaque e a
+ * comum —, mudando só o selo.
+ *
+ * O link vai para a vaga aberta, que JÁ abre sem conta (ela está em
+ * `COMPARTILHAVEIS`, porque é o que se manda no WhatsApp). Quem quiser
+ * responder é que encontra o login, e encontra dentro da vaga, tendo lido
+ * o que está respondendo.
+ */
+function CartaoDeVaga({ vaga, destaque }: { vaga: VagaDaVitrine; destaque?: boolean }) {
+  return (
+    <Link
+      to={`/vaga-aberta/${vaga.id}`}
+      className={`ei-vitrine-item${destaque ? " ei-vitrine-item-destaque" : ""}`}
+    >
+      {destaque && <span className="ei-vitrine-selo">Destaque</span>}
+      <span className="ei-vitrine-titulo">{vaga.title}</span>
+      <span className="ei-vitrine-nota">
+        {[vaga.empresa, vaga.city].filter(Boolean).join(" · ")}
+      </span>
+      {salarioEmTexto(vaga) && (
+        <span className="ei-vitrine-valor">{salarioEmTexto(vaga)}</span>
+      )}
+    </Link>
   );
 }
 
@@ -248,8 +309,12 @@ function Faixa({
   total: number;
   erro: string | null;
   vazio: string;
-  para: string;
-  verTudo: string;
+  /* Opcionais: a prateleira de destaque não leva a lugar nenhum próprio.
+     A de vagas, logo abaixo, já vai para `/vagas` — e dois links iguais a
+     dois dedos de distância fazem a pessoa achar que são destinos
+     diferentes. */
+  para?: string;
+  verTudo?: string;
   children: React.ReactNode[];
 }) {
   return (
@@ -275,9 +340,11 @@ function Faixa({
               de 390px, seis cartões empilhados empurrariam a segunda faixa
               para fora da vista — e a segunda faixa é metade do pedido. */}
           <div className="ei-vitrine-trilho">{children}</div>
-          <Link to={para} className="ei-vitrine-tudo">
-            {verTudo} →
-          </Link>
+          {para && verTudo && (
+            <Link to={para} className="ei-vitrine-tudo">
+              {verTudo} →
+            </Link>
+          )}
         </>
       )}
     </section>
