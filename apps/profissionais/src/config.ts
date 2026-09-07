@@ -184,6 +184,24 @@ export const VAPID_PUBLICA = import.meta.env.VITE_VAPID_PUBLICA ?? "";
  *   3. republicar as Edge Functions — segredo novo só passa a valer na
  *      publicação seguinte.
  *
+ * ── OS QUATRO PASSOS FORAM FEITOS EM 07/09 ─────────────────────────────
+ *
+ * As migrations 0129 e 0130 estão aplicadas, os dois segredos estão no
+ * Supabase (token de PRODUÇÃO, `APP_USR-`), as funções foram republicadas
+ * e o teste do painel do Mercado Pago respondeu 200 — ou seja, o aviso
+ * sai de lá e chega aqui, com a assinatura secreta conferindo.
+ *
+ * O que ainda NÃO foi provado quando esta linha foi escrita: um pagamento
+ * de verdade, ponta a ponta. O site do Mercado Pago é bloqueado do
+ * container da sessão, então quem faz esse teste é a dona. Enquanto ele
+ * não acontecer, "está configurado" não é o mesmo que "funciona".
+ *
+ * E uma dúvida em aberto: a aplicação está registrada lá como
+ * `CheckoutBricks`, e este código usa Checkout Pro (`/checkout/preferences`)
+ * e Assinaturas (`/preapproval`). O token é da conta e não do produto, o
+ * que faz supor que funcione — mas supor não é saber, e o primeiro
+ * pagamento é que vai dizer.
+ *
  * ── E ELA NÃO VALE DENTRO DO APP DA PLAY STORE ─────────────────────────
  *
  * Isso não é decidido aqui: quem decide é `podeVender()`, em
