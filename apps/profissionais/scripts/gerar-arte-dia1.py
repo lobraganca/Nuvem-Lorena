@@ -44,6 +44,19 @@ E a lista cheia é o que faz a 7ª tela funcionar: depois de quatro páginas
 ocupadas, um "Nenhum." sozinho no branco é um susto. Antes, no meio de
 telas que já eram vazias, era só mais uma.
 
+── A SEGUNDA RODADA: "ACHEI POBRE" ────────────────────────────────────
+
+A dona olhou a primeira leva e disse isso. Não era o texto — era o
+acabamento, e o conserto foi todo em `artes_ei.py`: a letra do app no
+lugar da letra do sistema, manchete com o espaçamento apertado, fundo azul
+com profundidade em vez de chapado, e um alto e um pé fixos (marca,
+"03 / 09", endereço) que fazem nove imagens virarem um carrossel só.
+
+Aqui dentro sobrou o que é desta peça: a lista virou uma tabela de linhas
+finas, e não uma lista de bolinhas. Bolinha é o desenho de "tópicos de
+apresentação"; linha fina é o de coisa registrada — e o assunto da tela é
+justamente um registro do que a pessoa já fez.
+
 ── O QUE ESTA PEÇA NÃO FAZ ────────────────────────────────────────────
 
 Não promete emprego, não mostra preço e não pede seguidor. A chamada é
@@ -55,8 +68,8 @@ ninguém.
 import artes_ei as ei
 
 # Os lugares. São quatro, e são de Itabirito — "na loja do shopping" não
-# diria nada aqui. Cada um vira uma tela, na ordem em que se anda pela
-# cidade procurando: começa perto de casa e termina no que é mais longe.
+# diria nada aqui. A ordem é a de quem anda pela cidade procurando: começa
+# perto de casa e termina no que é mais longe.
 LUGARES = [
     "Na padaria da esquina.",
     "Na loja do centro.",
@@ -64,76 +77,90 @@ LUGARES = [
     "No mercado grande.",
 ]
 
-TAM_MANCHETE = 92
+TOTAL = 9
+
+TAM_MANCHETE = 94
 TAM_LUGAR = 48
-TAM_APOIO = 38
+TAM_APOIO = 36
 
 # A régua do ato 2. Estas alturas são as MESMAS nas cinco telas brancas —
 # é isso que faz a lista crescer sem a página remontar embaixo do dedo.
-Y_CONTA = 196          # o número grande da contagem
-Y_REGUA = 372          # a barrinha laranja, a mesma marca do molde dos planos
-LISTA_TOPO = 470
-PASSO_LISTA = 132
-X_PONTO = ei.MARGEM + 14
-X_TEXTO = ei.MARGEM + 62
-# A linha do lugar tem de terminar ANTES do traço da tela 6 (x=820),
-# senão texto e resposta em branco se encostam. 800 é o limite com folga.
-LARGURA_ITEM = 800 - X_TEXTO
+Y_TOPO_BLOCO = 268
+LISTA_TOPO = 508
+PASSO_LISTA = 138
+X_TEXTO = ei.MARGEM
+X_RISCO = 820          # onde começa o traço da resposta em branco (tela 6)
+LARGURA_ITEM = X_RISCO - 40 - X_TEXTO
 
-PALIDO = (203, 212, 221)   # o que ainda não aconteceu — visível, mas apagado
+
+def _moldura(escura: bool, numero: int):
+    """Toda tela começa igual: fundo, marca, contador e rodapé."""
+    img, d = ei.peca_lisa(escura)
+    ei.cabecalho(img, d, escura, numero, TOTAL)
+    ei.rodape(img, d, escura)
+    return img, d
 
 
 def capa():
     """Ato 1 — a pergunta, na voz do Ei."""
-    img, d = ei.peca_lisa(ei.AZUL_FUNDO)
+    img, d = _moldura(escura=True, numero=1)
     ei.manchete(d, "Em quantos lugares você deixou currículo esse ano?",
-                TAM_MANCHETE, ei.BRANCO, 250)
-    ei.marca_no_pe(img, clara=True)
+                TAM_MANCHETE, ei.BRANCO, 330)
+
+    # "arraste" com a seta: a peça inteira é escrita para a última tela, e
+    # quem para na primeira nunca chega lá. Discreto, no pé, para convidar
+    # sem gritar.
+    fonte = ei.f(ei.INTER_SEMI, 28)
+    ei.escrever(d, (ei.MARGEM, ei.Y_RODAPE - 92), "arraste  →", fonte,
+                ei.SOBRE_AZUL_FRACO, 3.0)
     return img
 
 
-def _lista(d, ate: int) -> None:
-    """As quatro linhas, sempre nas mesmas alturas. Só a cor muda.
+def _linha_da_lista(d, i: int, cor_texto, negrito: bool, marcador) -> int:
+    """Uma linha da tabela. Devolve o y do fio de baixo.
 
-    `ate` é quantas já aconteceram. A última delas é a de agora (escuro,
-    com o ponto laranja), as anteriores viram cinza e as que faltam ficam
-    pálidas. `ate=0` pinta todas pálidas; `ate=4` não deixa nenhuma.
+    Fio fino em vez de bolinha: bolinha é o desenho de "tópicos de
+    apresentação" e faz a tela parecer slide de escritório. Linha fina é o
+    desenho de coisa anotada — que é exatamente o assunto aqui.
     """
-    fonte = ei.f(ei.FONTE_N, TAM_LUGAR)
-    for i, texto in enumerate(LUGARES):
-        y = LISTA_TOPO + i * PASSO_LISTA
-        meio = y + TAM_LUGAR // 2 + 2
-        if i == ate - 1:
-            d.ellipse((X_PONTO - 15, meio - 15, X_PONTO + 15, meio + 15), fill=ei.LARANJA)
-            cor = ei.ESCURO
-        elif i < ate:
-            d.ellipse((X_PONTO - 10, meio - 10, X_PONTO + 10, meio + 10), fill=ei.CINZA)
-            cor = ei.CINZA
-        else:
-            d.ellipse((X_PONTO - 10, meio - 10, X_PONTO + 10, meio + 10),
-                      outline=PALIDO, width=3)
-            cor = PALIDO
-        d.text((X_TEXTO, y), texto, font=fonte, fill=cor)
+    y = LISTA_TOPO + i * PASSO_LISTA
+    fonte = ei.f(ei.INTER_PESADA if negrito else ei.INTER_SEMI, TAM_LUGAR)
+    ei.escrever(d, (X_TEXTO, y), LUGARES[i], fonte, cor_texto, -TAM_LUGAR * 0.018)
+
+    fio = y + TAM_LUGAR + 34
+    d.line((ei.MARGEM, fio, ei.L - ei.MARGEM, fio), fill=ei.FIO, width=2)
+    if marcador is not None:
+        # A marca da linha de agora: um traço laranja curto EM CIMA do fio,
+        # como quem passa a caneta. Some nas outras, e é só ele que muda de
+        # lugar entre uma tela e outra.
+        d.rounded_rectangle((ei.MARGEM, fio - 2, ei.MARGEM + 96, fio + 4), 3,
+                            fill=marcador)
+    return fio
 
 
 def lugar(numero: int):
     """Ato 2 — a conta subindo, com a lista inteira sempre na tela."""
-    img, d = ei.peca_lisa(ei.BRANCO)
+    img, d = _moldura(escura=False, numero=numero + 1)
 
     # "1 lugar" / "2 lugares": o número é o assunto, a palavra só o explica.
-    fn = ei.f(ei.FONTE_N, 132)
-    fp = ei.f(ei.FONTE_N, 52)
+    fn = ei.f(ei.INTER_PRETA, 150)
+    fp = ei.f(ei.INTER_SEMI, 46)
     n = f"{numero}"
-    largura = d.textlength(n, font=fn)
-    base = Y_CONTA + 132
-    d.text((ei.MARGEM, base), n, font=fn, fill=ei.AZUL, anchor="ls")
-    d.text((ei.MARGEM + largura + 18, base), "lugar" if numero == 1 else "lugares",
+    base = Y_TOPO_BLOCO + 150
+    # O mesmo azul escuro da marca no alto, e não o ciano do logo: dois
+    # azuis diferentes na mesma página leem como descuido, e o ciano em
+    # cima do branco fica lavado.
+    largura = ei.escrever(d, (ei.MARGEM, Y_TOPO_BLOCO), n, fn, ei.AZUL_TOPO, -150 * 0.03)
+    d.text((ei.MARGEM + largura + 20, base - 8), "lugar" if numero == 1 else "lugares",
            font=fp, fill=ei.ESCURO, anchor="ls")
 
-    d.rounded_rectangle((ei.MARGEM, Y_REGUA, ei.MARGEM + 108, Y_REGUA + 6), 3,
-                        fill=ei.LARANJA)
-    _lista(d, numero)
-    ei.marca_no_pe(img, clara=False)
+    for i in range(len(LUGARES)):
+        if i == numero - 1:
+            _linha_da_lista(d, i, ei.ESCURO, True, ei.LARANJA)
+        elif i < numero:
+            _linha_da_lista(d, i, ei.ESCURO, False, None)
+        else:
+            _linha_da_lista(d, i, ei.CINZA_CLARO, False, None)
     return img
 
 
@@ -144,63 +171,59 @@ def pergunta():
     formulário que ninguém preencheu. Dizer "nenhum" na tela seguinte só
     tem força porque aqui há quatro espaços esperando resposta.
     """
-    img, d = ei.peca_lisa(ei.BRANCO)
+    img, d = _moldura(escura=False, numero=6)
+    ei.manchete(d, "E quantos ligaram?", TAM_MANCHETE, ei.ESCURO, Y_TOPO_BLOCO)
 
-    # Sem a barrinha laranja das outras quatro: a manchete tem duas linhas e
-    # desce até onde ela ficaria. Aqui é o texto que ocupa o cabeçalho — o
-    # que precisa continuar na mesma altura é a LISTA, e ela continua.
-    ei.manchete(d, "E quantos ligaram?", TAM_MANCHETE, ei.ESCURO, Y_CONTA)
-
-    fonte = ei.f(ei.FONTE_N, TAM_LUGAR)
-    for i, texto in enumerate(LUGARES):
-        y = LISTA_TOPO + i * PASSO_LISTA
-        meio = y + TAM_LUGAR // 2 + 2
-        d.text((X_TEXTO, y), texto, font=fonte, fill=ei.CINZA)
-        # O traço começa sempre no mesmo x, e não colado no fim de cada
-        # frase: quatro riscos de tamanhos diferentes viram sujeira, quatro
-        # iguais viram uma coluna de respostas em branco.
-        d.line((820, meio + 26, ei.L - ei.MARGEM, meio + 26), fill=PALIDO, width=4)
-
-    ei.marca_no_pe(img, clara=False)
+    for i in range(len(LUGARES)):
+        fio = _linha_da_lista(d, i, ei.CINZA, False, None)
+        # O traço da resposta começa sempre no mesmo x, e não colado no fim
+        # de cada frase: quatro riscos de tamanhos diferentes viram sujeira,
+        # quatro iguais viram uma coluna de respostas em branco.
+        d.line((X_RISCO, fio - 16, ei.L - ei.MARGEM, fio - 16),
+               fill=ei.CINZA_CLARO, width=5)
     return img
 
 
 def silencio():
     """A tela quase vazia. O vazio é o assunto — não preencher é o desenho."""
-    img, d = ei.peca_lisa(ei.BRANCO)
-    ei.manchete(d, "Nenhum.", 108, ei.ESCURO, 560)
-    ei.apoio(d, "Talvez um. Você lembra qual.", TAM_APOIO, ei.CINZA, 700)
-    ei.marca_no_pe(img, clara=False)
+    img, d = _moldura(escura=False, numero=7)
+    fim = ei.manchete(d, "Nenhum.", 132, ei.ESCURO, 590)
+    ei.apoio(d, "Talvez um. Você lembra qual.", TAM_APOIO, ei.CINZA, fim + 26)
     return img
 
 
 def conclusao():
-    """Ato 3 — o Ei volta a falar, e diz a única coisa nova do carrossel."""
-    img, d = ei.peca_lisa(ei.AZUL_FUNDO)
-    fim = ei.manchete(d, "O problema não é falta de vaga.", TAM_MANCHETE, ei.BRANCO, 250)
-    ei.manchete(d, "É você não ficar sabendo.", TAM_MANCHETE, ei.BRANCO, fim + 40)
-    ei.marca_no_pe(img, clara=True)
+    """Ato 3 — o Ei volta a falar, e diz a única coisa nova do carrossel.
+
+    As duas frases têm pesos diferentes de propósito: a primeira tira uma
+    culpa ("não é falta de vaga"), a segunda entrega o motivo. Em pesos
+    iguais elas competem; assim a segunda é onde o olho para.
+    """
+    img, d = _moldura(escura=True, numero=8)
+    fim = ei.manchete(d, "O problema não é falta de vaga.", TAM_MANCHETE,
+                      ei.SOBRE_AZUL, 300, fonte_arq=ei.INTER_MEDIA)
+    ei.manchete(d, "É você não ficar sabendo.", TAM_MANCHETE, ei.BRANCO, fim + 34,
+                fonte_arq=ei.INTER_PRETA)
     return img
 
 
 def convite():
-    """O convite. Uma linha laranja só, e nenhuma promessa de emprego."""
-    img, d = ei.peca_lisa(ei.AZUL_FUNDO)
+    """O convite. Uma faixa laranja só, e nenhuma promessa de emprego."""
+    img, d = _moldura(escura=True, numero=9)
     fim = ei.manchete(d, "No Ei Emprego a vaga procura você.", TAM_MANCHETE,
-                      ei.BRANCO, 250)
-    fim = ei.apoio(d, "Você marca o que faz. Quando abre uma vaga do seu "
-                      "ofício em Itabirito, o aviso chega no seu celular.",
-                   TAM_APOIO, ei.BRANCO, fim + 44)
+                      ei.BRANCO, 268)
+    ei.apoio(d, "Você marca o que faz. Quando abre uma vaga do seu ofício em "
+                "Itabirito, o aviso chega no seu celular.",
+             TAM_APOIO, ei.SOBRE_AZUL, fim + 40)
 
-    # A faixa laranja com o endereço: a única coisa a fazer depois de ler.
-    alto = 116
-    topo = ei.A - ei.MARGEM - 150 - alto
+    alto = 112
+    topo = ei.Y_RODAPE - 76 - alto
     d.rounded_rectangle((ei.MARGEM, topo, ei.L - ei.MARGEM, topo + alto),
                         alto // 2, fill=ei.LARANJA)
-    ei.centrado(d, topo + (alto - 46) // 2, "empregoitabirito.com.br",
-                ei.f(ei.FONTE_N, 46), ei.BRANCO)
-    ei.centrado(d, topo + alto + 26, "Cadastro grátis · 5 minutos",
-                ei.f(ei.FONTE, 32), ei.BRANCO)
+    fonte = ei.f(ei.INTER_PESADA, 44)
+    largura = ei.largura_com_tracking(d, "Cadastro grátis em 5 minutos", fonte, -0.6)
+    ei.escrever(d, ((ei.L - largura) / 2, topo + (alto - 56) // 2),
+                "Cadastro grátis em 5 minutos", fonte, ei.BRANCO, -0.6)
     return img
 
 
@@ -208,7 +231,8 @@ def main() -> None:
     # Uma linha que quebra em duas desalinha a lista inteira — e a lista só
     # existe para ser igual nas cinco telas. Estoura aqui, com o nome da
     # frase, em vez de sair torto na arte.
-    ei.conferir_cabe(ei.FONTE_N, TAM_LUGAR, LUGARES, LARGURA_ITEM, "a lista de lugares")
+    ei.conferir_cabe(ei.INTER_PESADA, TAM_LUGAR, LUGARES, LARGURA_ITEM,
+                     "a lista de lugares")
 
     telas = [("dia1-1-pergunta.png", capa())]
     for i in range(1, len(LUGARES) + 1):
@@ -219,6 +243,23 @@ def main() -> None:
         ("dia1-8-conclusao.png", conclusao()),
         ("dia1-9-convite.png", convite()),
     ]
+    # A conferência de contraste. Mede o FUNDO azul limpo, sem o texto: o
+    # fundo é um degradê com um clarão por cima, a cor exata debaixo de cada
+    # letra não é a que se escolheria de cabeça, e medir a peça pronta
+    # mediria a letra contra ela mesma.
+    #
+    # 3 é o mínimo da WCAG para letra grande (manchete) e 4,5 para o resto.
+    # Aqui as manchetes brancas passam dos 4,5 também; só o rodapé e o
+    # "arraste", que são pequenos e discretos de propósito, ficam nos 3.
+    fundo = ei.fundo_azul()
+    ei.conferir_contraste(fundo, ei.BRANCO, (0, 240, ei.L, 960), 4.5,
+                          "as manchetes brancas das telas azuis")
+    ei.conferir_contraste(fundo, ei.SOBRE_AZUL, (0, 240, ei.L, 1120), 4.0,
+                          "o texto de apoio das telas azuis")
+    ei.conferir_contraste(fundo, ei.SOBRE_AZUL_FRACO,
+                          (0, ei.Y_RODAPE - 110, ei.L, ei.A), 3.0,
+                          "o rodapé das telas azuis")
+
     for nome, img in telas:
         print("  ", ei.salvar(img, nome))
 

@@ -291,8 +291,105 @@ def chamada(d, texto: str, tamanho: int) -> None:
 # "Ei"), e é isso que faz as duas séries parecerem da mesma conta sem
 # parecerem o mesmo post.
 
-MARGEM = 96
-LARGURA_TEXTO = L - MARGEM * 2   # 888
+# ── A LETRA: A MESMA DO APP ────────────────────────────────────────────
+#
+# A primeira leva do molde aberto saiu na DejaVu Sans, que é a letra que
+# vem no Linux. A dona olhou e disse: "achei pobre". Estava certa, e a
+# letra era metade do motivo — a DejaVu é larga, de desenho antigo, e
+# aparece em tudo que foi feito sem escolher tipografia. Ninguém sabe
+# nomear isso; todo mundo reconhece.
+#
+# A Inter é a que o app já usa (`estilo-ei.css`). Usar a mesma nas artes
+# não é capricho: é o que faz o post e a tela do celular parecerem a mesma
+# empresa. Os arquivos estão em `scripts/fontes/` de propósito — baixar na
+# hora de gerar quebraria no dia em que a rede saísse, e a arte tem de sair
+# igual daqui a um ano. A licença da Inter (SIL OFL) permite guardá-la aqui.
+FONTES = Path(__file__).resolve().parent / "fontes"
+INTER = str(FONTES / "Inter-400.ttf")
+INTER_MEDIA = str(FONTES / "Inter-500.ttf")
+INTER_SEMI = str(FONTES / "Inter-600.ttf")
+INTER_NEGRITO = str(FONTES / "Inter-700.ttf")
+INTER_PESADA = str(FONTES / "Inter-800.ttf")
+INTER_PRETA = str(FONTES / "Inter-900.ttf")
+
+MARGEM = 110
+LARGURA_TEXTO = L - MARGEM * 2   # 860
+
+# ── AS OUTRAS TRÊS COISAS QUE FAZIAM PARECER POBRE ─────────────────────
+#
+#  1. FUNDO CHAPADO. Um retângulo de uma cor só é o que sai de qualquer
+#     gerador. `fundo_azul` põe um brilho no alto e escurece no pé — de
+#     leve, quase imperceptível olhando de perto, e é justamente aí que
+#     está o efeito: a peça ganha profundidade sem ganhar enfeite.
+#
+#  2. LETRA GRANDE COM ESPAÇO DE LETRA PEQUENA. Toda fonte é desenhada
+#     com o espaçamento certo para corpo de texto. Ampliada para 96px,
+#     esse mesmo espaçamento fica FROUXO — a manchete parece esticada. Em
+#     revista e em anúncio bom, manchete grande sempre leva o espaçamento
+#     apertado. É o que `escrever` faz com `tracking` negativo, e é a
+#     diferença mais visível entre "digitado" e "composto".
+#
+#  3. NENHUMA MOLDURA. Uma folha com texto no meio e nada em volta parece
+#     inacabada. `cabecalho` e `rodape` dão à peça um alto e um pé fixos —
+#     a marca, o número da tela ("03/09") e o endereço. Repetidos em todas,
+#     eles são o que faz nove imagens virarem UM carrossel.
+
+CINZA_CLARO = (203, 212, 221)   # o que ainda não aconteceu
+
+# ── O AZUL DO FUNDO É MAIS ESCURO QUE O AZUL DA MARCA, E ISSO É MEDIDO ──
+#
+# O azul do logo (1,167,253) é lindo num ícone e péssimo como fundo de
+# texto: BRANCO sobre ele dá 2,55 de contraste, quando o mínimo é 4,5 para
+# letra pequena e 3 para manchete. A primeira leva do molde aberto usava
+# ele, e a peça parecia lavada — a manchete não "batia".
+#
+# Estes dois são o MESMO matiz do logo (200,5°, saturação cheia), só mais
+# escuros. A marca continua reconhecível e o branco passa a ter 4,6 no alto
+# e 8,1 no pé. Não é palpite: `conferir_contraste` mede a peça pronta e
+# recusa gerar se algum texto ficar abaixo do mínimo — foi assim que a tela
+# "Quem está contratando" foi consertada, depois de ser apontada de olho
+# três vezes sem ninguém medir.
+AZUL_TOPO = (0, 114, 174)
+AZUL_PE = (0, 78, 119)
+AZUL_BRILHO = (40, 170, 232)    # o clarão do alto, de leve
+
+SOBRE_AZUL = (224, 241, 254)    # o texto de apoio sobre o fundo azul
+SOBRE_AZUL_FRACO = (168, 208, 235)   # o discreto ("arraste", endereço)
+
+
+def escrever(d, xy, texto: str, fonte, cor, tracking: float = 0.0) -> float:
+    """Escreve uma linha, com espaçamento de letra ajustável.
+
+    O Pillow não tem `letter-spacing`, então cada letra é desenhada no seu
+    lugar. A posição vem de medir o PEDAÇO DE TEXTO INTEIRO até ali, e não
+    de somar a largura de cada letra: assim o encaixe que a fonte já faz
+    entre pares ("Va", "To") continua valendo, e só o tracking é somado por
+    cima. Somando larguras soltas, palavra grande sai com buraco entre as
+    letras — que é o defeito que este código existe para evitar.
+
+    O ESPAÇO ENTRE PALAVRAS NÃO ENCOLHE. Apertando tudo por igual, "Em
+    quantos" saiu quase colado — parecia uma palavra só. Aperto de
+    manchete é entre LETRAS; o espaço entre palavras é o que separa uma
+    ideia da outra e tem de continuar do tamanho que a fonte desenhou.
+
+    Devolve a largura total, já com o tracking.
+    """
+    x, y = xy
+    if not tracking:
+        d.text((x, y), texto, font=fonte, fill=cor)
+        return d.textlength(texto, font=fonte)
+    desloc = 0.0
+    for i, letra in enumerate(texto):
+        d.text((x + d.textlength(texto[:i], font=fonte) + desloc, y),
+               letra, font=fonte, fill=cor)
+        if letra != " ":
+            desloc += tracking
+    return d.textlength(texto, font=fonte) + desloc
+
+
+def largura_com_tracking(d, texto: str, fonte, tracking: float = 0.0) -> float:
+    apertadas = sum(1 for letra in texto if letra != " ")
+    return d.textlength(texto, font=fonte) + apertadas * tracking
 
 
 def quebrar(d, texto: str, fonte, largura: int) -> list[str]:
@@ -319,58 +416,174 @@ def quebrar(d, texto: str, fonte, largura: int) -> list[str]:
     return linhas
 
 
-def peca_lisa(cor_fundo) -> tuple[Image.Image, ImageDraw.ImageDraw]:
-    """Uma peça de fundo cheio, sem cartão. O começo do molde aberto."""
-    img = Image.new("RGB", (L, A), cor_fundo)
+def fundo_azul() -> Image.Image:
+    """O azul da marca, com profundidade.
+
+    Não é um azul diferente: é o MESMO, com um brilho suave no alto à
+    esquerda e um escurecimento no pé. De perto quase não se vê; é no
+    conjunto que a peça deixa de parecer um retângulo pintado.
+    """
+    degrade = Image.new("RGB", (2, A))
+    dd = ImageDraw.Draw(degrade)
+    for y in range(A):
+        p = y / (A - 1)
+        dd.line((0, y, 2, y), fill=tuple(
+            round(AZUL_TOPO[i] + (AZUL_PE[i] - AZUL_TOPO[i]) * p) for i in range(3)))
+    img = degrade.resize((L, A), Image.BILINEAR)
+
+    brilho = Image.new("L", (L // 4, A // 4), 0)
+    db = ImageDraw.Draw(brilho)
+    db.ellipse((-L // 10, -A // 9, L // 3, A // 7), fill=62)
+    brilho = brilho.filter(ImageFilter.GaussianBlur(30)).resize((L, A), Image.LANCZOS)
+    img.paste(Image.new("RGB", (L, A), AZUL_BRILHO), (0, 0), brilho)
+    return img
+
+
+def _luminancia(cor) -> float:
+    def canal(v: float) -> float:
+        v /= 255
+        return v / 12.92 if v <= 0.03928 else ((v + 0.055) / 1.055) ** 2.4
+    return 0.2126 * canal(cor[0]) + 0.7152 * canal(cor[1]) + 0.0722 * canal(cor[2])
+
+
+def contraste(a, b) -> float:
+    """A razão de contraste da WCAG entre duas cores. 21 é preto no branco."""
+    l1, l2 = sorted((_luminancia(a), _luminancia(b)), reverse=True)
+    return (l1 + 0.05) / (l2 + 0.05)
+
+
+def conferir_contraste(img: Image.Image, cor_texto, caixa, minimo: float, onde: str) -> None:
+    """Mede o contraste do texto contra o fundo REAL, e recusa se for baixo.
+
+    A `img` tem de ser o FUNDO, sem o texto desenhado. Medindo a peça
+    pronta, os pixels da própria letra entram na conta e o resultado é
+    1,00 — branco contra branco. Foi o que aconteceu na primeira vez que
+    isto rodou, e é um erro que se repete facilmente porque a mensagem
+    ("contraste 1,00") parece um problema de cor, e não de medição.
+
+    Contra o fundo real, e não contra a cor que eu acho que está lá: o
+    fundo é um degradê com um clarão por cima, então o pior ponto não é o
+    que se escolheria de cabeça. Mede-se a caixa inteira e vale o pior.
+
+    O mínimo da WCAG é 4,5 para letra de corpo e 3 para letra grande
+    (manchete). Isto existe porque a tela "Quem está contratando" saiu com
+    1,1 de contraste, foi apontada três vezes de olho ("essa tela tá ruim")
+    e só foi consertada quando alguém mediu.
+    """
+    e, t, di, b = (max(0, caixa[0]), max(0, caixa[1]),
+                   min(L, caixa[2]), min(A, caixa[3]))
+    recorte = img.convert("RGB").crop((e, t, di, b))
+    # Um pixel a cada 8 já encontra o pior ponto de um degradê, e evita
+    # medir um milhão de pontos a cada peça.
+    pequeno = recorte.resize((max(1, recorte.width // 8), max(1, recorte.height // 8)))
+    pior = min(contraste(cor_texto, px) for px in pequeno.getdata())
+    if pior < minimo:
+        raise SystemExit(
+            f"contraste baixo em {onde}: {pior:.2f}, mínimo {minimo}\n"
+            f"  texto {cor_texto} sobre o fundo dali\n"
+            f"  escureça o fundo ou clareie o texto — não deixe passar."
+        )
+
+
+def peca_lisa(escura: bool) -> tuple[Image.Image, ImageDraw.ImageDraw]:
+    """Uma peça de fundo cheio, sem cartão. O começo do molde aberto.
+
+    `escura=True` é o azul da marca; `False` é o branco. Recebe um SIM ou
+    NÃO em vez de uma cor porque tudo mais na peça — cor da letra, cor da
+    marca, cor do fio do rodapé — decorre dessa escolha, e passar a cor
+    solta já deixou uma peça com fundo azul e fio cinza-claro invisível.
+    """
+    img = fundo_azul() if escura else Image.new("RGB", (L, A), BRANCO)
     return img, ImageDraw.Draw(img)
 
 
-def manchete(d, texto: str, tamanho: int, cor, topo: int, entrelinha: float = 1.12) -> int:
-    """Texto grande, alinhado à esquerda, quebrado na medida.
+def _marca_colorida(alto: int, cor=None) -> Image.Image:
+    marca = _marca()
+    largura = round(marca.width * alto / marca.height)
+    pequena = marca.resize((largura, alto), Image.LANCZOS)
+    if cor is None:
+        return pequena
+    tinta = Image.new("RGBA", pequena.size, cor + (255,))
+    tinta.putalpha(pequena.split()[3])
+    return tinta
+
+
+# O alto e o pé, iguais em todas as telas do carrossel.
+Y_CABECALHO = 96
+Y_RODAPE = A - 138
+
+
+def cabecalho(img, d, escura: bool, numero: int, total: int) -> None:
+    """A marca à esquerda, o número da tela à direita.
+
+    O contador ("03 / 09") é pequeno e some no canto, mas é ele que avisa
+    que há mais para arrastar — sem isso, muita gente lê a primeira tela e
+    passa reto, e o carrossel inteiro é escrito para a última.
+    """
+    # No fundo branco a marca vai no azul ESCURO, não no azul do logo: o
+    # ciano do logo sobre branco dá 2,3 de contraste e some no papel. O logo
+    # nunca vive sobre branco no app — ele mora dentro do quadrado azul —
+    # então não há versão "certa" a copiar, e a legível é a que serve.
+    marca = _marca_colorida(40, None if escura else AZUL_TOPO)
+    img.paste(marca, (MARGEM, Y_CABECALHO), marca)
+
+    fonte = f(INTER_SEMI, 24)
+    texto = f"{numero:02d} / {total:02d}"
+    cor = (255, 255, 255) if escura else CINZA
+    largura = largura_com_tracking(d, texto, fonte, 2.0)
+    escrever(d, (L - MARGEM - largura, Y_CABECALHO + 8), texto, fonte, cor, 2.0)
+
+
+def rodape(img, d, escura: bool) -> None:
+    """Um fio fino e o endereço. É a assinatura, e não um anúncio.
+
+    O endereço no pé de TODA tela existe porque carrossel bom é
+    fotografado e mandado no WhatsApp solto, sem a legenda junto. A tela
+    que chega sozinha tem de dizer onde fica o app.
+    """
+    cor_fio = (255, 255, 255, 90) if escura else FIO
+    if escura:
+        fio_img = Image.new("RGBA", (L - MARGEM * 2, 2), cor_fio)
+        img.paste(fio_img, (MARGEM, Y_RODAPE), fio_img)
+    else:
+        d.line((MARGEM, Y_RODAPE, L - MARGEM, Y_RODAPE), fill=FIO, width=2)
+
+    fonte = f(INTER_MEDIA, 26)
+    cor = SOBRE_AZUL_FRACO if escura else CINZA
+    escrever(d, (MARGEM, Y_RODAPE + 34), "empregoitabirito.com.br", fonte, cor, 0.6)
+
+
+def manchete(d, texto: str, tamanho: int, cor, topo: int,
+             entrelinha: float = 1.06, fonte_arq: str = None) -> int:
+    """Texto grande, alinhado à esquerda, com o espaçamento apertado.
 
     À esquerda e não centralizado: manchete centralizada de três linhas
     obriga o olho a procurar onde cada linha começa, e estas são para ler
     de relance, rolando o dedo.
 
+    O tracking negativo é proporcional ao tamanho (`-0.022em`) — o aperto
+    que uma manchete de 96px precisa não é o mesmo de uma de 48px, e um
+    valor fixo em pixels erraria nos dois.
+
     Devolve onde o bloco terminou, para quem quiser pôr algo embaixo.
     """
-    fonte = f(FONTE_N, tamanho)
+    fonte = f(fonte_arq or INTER_PESADA, tamanho)
+    tracking = -tamanho * 0.022
+    y = topo
+    for linha in quebrar(d, texto, fonte, LARGURA_TEXTO):
+        escrever(d, (MARGEM, y), linha, fonte, cor, tracking)
+        y += round(tamanho * entrelinha)
+    return y
+
+
+def apoio(d, texto: str, tamanho: int, cor, topo: int, entrelinha: float = 1.42) -> int:
+    """O mesmo, em corpo de texto — sem aperto, que aqui atrapalharia ler."""
+    fonte = f(INTER, tamanho)
     y = topo
     for linha in quebrar(d, texto, fonte, LARGURA_TEXTO):
         d.text((MARGEM, y), linha, font=fonte, fill=cor)
         y += round(tamanho * entrelinha)
     return y
-
-
-def apoio(d, texto: str, tamanho: int, cor, topo: int, entrelinha: float = 1.35) -> int:
-    """O mesmo, em corpo de texto."""
-    fonte = f(FONTE, tamanho)
-    y = topo
-    for linha in quebrar(d, texto, fonte, LARGURA_TEXTO):
-        d.text((MARGEM, y), linha, font=fonte, fill=cor)
-        y += round(tamanho * entrelinha)
-    return y
-
-
-def marca_no_pe(img: Image.Image, clara: bool) -> None:
-    """O "Ei" pequeno, no rodapé.
-
-    Pequeno de propósito: numa peça de dor, marca grande no topo faz a
-    frase virar anúncio antes de ser lida. Ela assina, não anuncia.
-
-    `clara=True` é a marca branca (sobre o azul); `False` pinta o mesmo
-    desenho de azul, para o fundo claro — em vez de uma segunda arte, que
-    um dia divergiria da primeira.
-    """
-    alto = 44
-    marca = _marca()
-    largura = round(marca.width * alto / marca.height)
-    pequena = marca.resize((largura, alto), Image.LANCZOS)
-    if not clara:
-        tinta = Image.new("RGBA", pequena.size, AZUL + (255,))
-        tinta.putalpha(pequena.split()[3])
-        pequena = tinta
-    img.paste(pequena, (MARGEM, A - MARGEM - alto), pequena)
 
 
 def salvar(img: Image.Image, nome: str) -> Path:
