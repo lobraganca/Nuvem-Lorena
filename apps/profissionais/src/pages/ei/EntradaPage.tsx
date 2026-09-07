@@ -108,22 +108,33 @@ export function EntradaPage() {
      Sem lado nenhum só sobra quem entrou por um caminho antigo, de antes
      desta mudança; para essas pessoas a pergunta continua existindo, na
      tela dela. */
-  const paraOnde =
-    !loading && user
-      ? tipo === "professional" || tipo === "company"
-        ? casaDoLado(tipo)
-        : tipo === false
-          ? "/login"
-          : null
-      : null;
+  /* ── A TELA INICIAL NÃO DESVIA MAIS NINGUÉM — 07/09 ──────────────────
+     A dona: "faça com que a tela inicial com as vagas e candidatos
+     expostos sempre apareça. Inclusive quando está logado."
 
-  useEffect(() => {
-    if (paraOnde) navegar(paraOnde, { replace: true });
-  }, [paraOnde, navegar]);
+     Aqui havia um desvio: quem tinha entrado era mandado para a casa do
+     seu lado, e quem tinha entrado SEM lado escolhido era mandado para
+     `/login`. Os dois sumiam com a vitrine — e o segundo é metade do
+     outro defeito da mesma mensagem: "assim que coloca a senha vai pra
+     outra tela de login". Era esta linha. A pessoa destravava o app e
+     caía numa tela de entrar, já logada.
 
-  if (paraOnde) return null;
+     Agora `/` é a mesma tela para todo mundo: a cidade em vagas e
+     candidatos. O que muda para quem entrou é a porta da capa, que deixa
+     de ser "Procuro emprego / Quero contratar" e vira uma só, a do lado
+     dela — ver `minhaCasa`, logo abaixo.
 
+     Quem entrou e ainda não escolheu lado continua vendo as duas portas,
+     que é o certo: elas levam ao login com o lado escolhido, e é lá que a
+     escolha é gravada. */
   const entrou = !loading && !!user;
+  const minhaCasa =
+    entrou && (tipo === "professional" || tipo === "company")
+      ? {
+          para: casaDoLado(tipo),
+          rotulo: tipo === "company" ? "Ir para minhas vagas" : "Ver vagas para mim",
+        }
+      : null;
 
   return (
     <div className="ei">
@@ -154,12 +165,11 @@ export function EntradaPage() {
 
             Quem entrou continua vendo o cabeçalho simples: para essa
             pessoa a tela é um menu, não uma vitrine. */}
-        {entrou && (
-          <div className="ei-entrada-topo">
-            <h1 className="ei-entrada-titulo">Por onde começamos?</h1>
-            <p className="ei-entrada-apoio">Escolha por onde entrar.</p>
-          </div>
-        )}
+        {/* O cabeçalho "Por onde começamos?" saiu: ele existia para quem
+            já tinha entrado, porque para essa pessoa a tela era um menu.
+            Agora a tela é a vitrine para todo mundo, e a manchete dela é
+            a da capa azul. Dois títulos, um em cima do outro, seriam duas
+            telas coladas. */}
 
         {/* ── A VITRINE VEM ANTES DAS PORTAS — 07/09 ──────────────────
             A dona: "ao entrar no site a pessoa tem que ter uma tela bonita
@@ -174,7 +184,7 @@ export function EntradaPage() {
             A ordem é o assunto. Antes vinha o pedido de cadastro e depois
             nada; agora vem a resposta ("tem isto aqui na sua cidade") e a
             conta fica para quando a pessoa quiser FAZER alguma coisa. */}
-        {!entrou && <Vitrine />}
+        <Vitrine minhaCasa={minhaCasa} />
 
         {/* ── OS BOTÕES DE CONTA SAÍRAM DAQUI — 07/09 ────────────────
             A dona: "não sei onde clicar."

@@ -1,4 +1,3 @@
-import { esquecerLadoDaSessao } from "./ladoDaSessao";
 
 /**
  * Toda ABERTURA do app começa na tela de entrar, com a escolha do lado.
@@ -127,9 +126,31 @@ export function paraOndeAbrirOApp(caminhoAtual: string): string | null {
   if (jaMarcado()) return null;
   marcar();
   if (ehCompartilhavel(caminhoAtual)) return null;
-  /* A conta segue conectada: some só a escolha do lado, para a pergunta
-     da porta ser feita de novo. */
-  esquecerLadoDaSessao();
+  /* ── O LADO NÃO É MAIS ESQUECIDO A CADA ABERTURA — 07/09 ────────────
+     Aqui havia um `esquecerLadoDaSessao()`, e o motivo estava escrito: "a
+     pergunta da porta é feita de novo". Ele fazia sentido quando a
+     abertura caía na TELA DE ENTRAR, onde a pergunta é o assunto.
+
+     Depois que a abertura passou a cair na vitrine, ele virou o defeito
+     que a dona relatou: "quando sair e entra de novo, aparece a tela de
+     colocar a senha novamente e assim que coloca vai pra outra tela de
+     login."
+
+     A conta era esta, e as quatro etapas aconteciam em silêncio:
+
+       1. abre o app  → esta linha apaga o lado;
+       2. vai para `/`;
+       3. a barreira da abertura pede a senha;
+       4. a tela inicial vê "logada e sem lado" e manda para `/login`.
+
+     Ou seja: a pessoa provava quem era e era recebida por uma tela de
+     entrar. Sem esta linha, ela abre na vitrine e tem UMA porta, a do
+     lado dela, que leva para dentro.
+
+     Trocar de lado continua tendo caminho, e é o mesmo de antes: sair da
+     conta apaga o lado (ver `signOut`). O que se perdeu foi só a pergunta
+     repetida a cada abertura — e ela deixou de fazer falta quando a tela
+     inicial passou a mostrar os DOIS lados para todo mundo. */
   /* ── ABRE NA VITRINE, E NÃO NA TELA DE ENTRAR — 07/09 ────────────────
      A dona: "ao entrar no site a pessoa tem que ter uma tela bonita pra
      ver as vagas e os candidatos. Sem ter que fazer login."

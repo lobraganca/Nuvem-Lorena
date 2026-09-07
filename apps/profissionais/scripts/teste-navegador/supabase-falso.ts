@@ -106,6 +106,11 @@ const professionals: Linha[] = Array.from({ length: QUANTOS }, (_, i) => ({
      Os restos de divisão são propositais e diferentes entre si: se todos
      seguissem o mesmo, marcar dois filtros devolveria sempre o mesmo
      grupo, e o teste nunca exercitaria a combinação. */
+  /* Um em cada cinco NÃO recebe aviso de vaga. É também o que o painel
+     administrativo mostra como "aparece na busca, mas não recebe aviso de
+     vaga" — o 55 cai aqui, e é por isso que o cadastro SUSPENSO do teste
+     é o 53: os dois no mesmo índice e um esconderia o outro, porque a
+     situação mostra o motivo mais forte. */
   disponivel: i % 5 !== 0,
   aceita_viajar: i % 3 === 0,
   fim_de_semana: i % 4 === 0,
@@ -153,7 +158,6 @@ const professionals: Linha[] = Array.from({ length: QUANTOS }, (_, i) => ({
      Nenhum é múltiplo de 6: esses são os turbinados, e turbinado vai para
      o topo antes de qualquer data. */
   whatsapp_verified: ajuste("confirmado") !== "nao" && i !== 58,
-  disponivel: i !== 57,
   verified: i % 7 === 0,
   verified_until: i % 7 === 0 ? emDias(30) : null,
   /* ── HÁ QUANTO TEMPO ESTA PESSOA NÃO APARECE (0127) ───────────────
@@ -178,7 +182,7 @@ const professionals: Linha[] = Array.from({ length: QUANTOS }, (_, i) => ({
      ninguém ter olhado para ele uma vez. */
   boosted: ajuste("destaque") === "nao" ? false : i % 6 === 0,
   boosted_until: ajuste("destaque") === "nao" ? null : i % 6 === 0 ? emDias(30) : null,
-  suspended: i === 55,
+  suspended: i === 53,
   paused: i === 59,
   // O índice 0 é o mais ANTIGO: created_at cresce com i, e a ordenação do
   // app é `created_at desc`. É exatamente a queixa — quem entrou primeiro
@@ -471,7 +475,12 @@ const TABELAS: Record<string, Linha[]> = {
       created_at: emDias(-i),
     }))
   ),
-  profile_views: [],
+  /* `profile_views: []` morava aqui e era LETRA MORTA: a mesma chave é
+     declarada de novo mais abaixo, com as duas visitas de verdade, e num
+     objeto a última vence. Ninguém viu porque a conferência de tipos não
+     olha `scripts/` — só apareceu quando este arquivo entrou no lugar do
+     cliente real e o `tsc` passou por ele. Não mudava nada hoje; mudaria
+     no dia em que alguém apagasse a segunda. */
   contact_requests: [],
   banners: [],
   subscriptions: [],
@@ -1449,6 +1458,26 @@ const auth = {
   signInWithOtp: async ({ phone }: { phone?: string }) => {
     localStorage.setItem("falso-telefone-pedido", phone ?? "");
     return { data: { user: null, session: null }, error: null };
+  },
+
+  /* ── ENTRAR COM SENHA — 07/09 ──────────────────────────────────────
+     Faltava, e o buraco era exatamente do tamanho do defeito que a dona
+     relatou: "quando sair e entra de novo, aparece a tela de colocar a
+     senha novamente e assim que coloca vai pra outra tela de login".
+
+     O caminho da SENHA é a porta principal de quem já tem conta, e não
+     dava para percorrê-lo aqui — o teste parava na tela de entrar sem
+     nunca entrar, e o relatório dizia "não reproduzi" quando o certo era
+     "não testei".
+
+     Recusa senha curta como o Supabase recusa: sem isso, a tela de erro
+     do login nunca é aberta. */
+  signInWithPassword: async ({ password }: { phone?: string; password?: string }) => {
+    if ((password ?? "").length < 4) {
+      return { data: { user: null, session: null }, error: { message: "Invalid login credentials" } };
+    }
+    const sessao = entrar("sms");
+    return { data: { user: sessao.user, session: sessao }, error: null };
   },
 
   verifyOtp: async ({ token }: { token?: string }) => {

@@ -141,6 +141,24 @@ export function senhaGravadaNesteAparelho(): boolean {
 }
 
 const LIVRES = [
+  /* ── A TELA INICIAL — 07/09 ─────────────────────────────────────────
+     A dona: "faça com que a tela inicial com as vagas e candidatos
+     expostos sempre apareça. Inclusive quando está logado."
+
+     "Sempre" inclui a abertura do app, e era justamente aí que ela não
+     aparecia: toda abertura cai em `/` (`aberturaDoApp`), e esta barreira
+     cobria `/` com a tela da senha. Quem já tinha conta nunca via a
+     vitrine — via um campo de senha, que é exatamente a tela que a
+     mudança de 07/09 tirou da frente de quem chega.
+
+     E não há o que proteger aqui: `/` mostra a mesma lista pública que
+     qualquer pessoa sem conta vê, sem telefone de ninguém (0132). A senha
+     continua sendo pedida no primeiro passo para DENTRO — que é onde ela
+     protege alguma coisa.
+
+     `"/"` casa só com a raiz: `exigeDesbloqueio` compara o caminho
+     inteiro ou o prefixo `"//"`, que não existe. Não libera o app todo. */
+  "/",
   "/login",
   "/termos",
   "/privacidade",

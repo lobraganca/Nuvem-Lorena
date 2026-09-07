@@ -40,7 +40,7 @@ import { cidadeParaMostrar } from "../../lib/cidadeEscolhida";
  * o que aconteceu. É a regra do CLAUDE.md, e esta tela é onde ela mais
  * importa: é a primeira coisa que qualquer pessoa vê.
  */
-export function Vitrine() {
+export function Vitrine({ minhaCasa }: { minhaCasa?: { para: string; rotulo: string } | null } = {}) {
   const [dados, setDados] = useState<Dados | null>(null);
   const [erro, setErro] = useState("");
   const [carregando, setCarregando] = useState(true);
@@ -169,14 +169,36 @@ export function Vitrine() {
           app inteiro é construído sobre essa escolha. Elas levam ao login
           já com o lado escolhido (`?lado=`), então ninguém responde a
           mesma pergunta duas vezes. */}
-      <div className="ei-capa-portas">
-        <Link to="/login?lado=trabalhar" className="ei-capa-porta ei-capa-porta-forte">
-          Procuro emprego
-        </Link>
-        <Link to="/login?lado=contratar" className="ei-capa-porta">
-          Quero contratar
-        </Link>
-      </div>
+      {/* ── QUEM JÁ ENTROU TEM UMA PORTA SÓ — 07/09 ─────────────────
+          A dona: "faça com que a tela inicial com as vagas e candidatos
+          expostos sempre apareça. Inclusive quando está logado."
+
+          As duas portas levam ao login com o lado já escolhido, e para
+          quem chega de fora está certo. Para quem JÁ ENTROU seria uma
+          armadilha: tocar em qualquer uma delas mandaria a pessoa logada
+          para uma tela de entrar — que é exatamente a queixa da mesma
+          mensagem ("assim que coloca a senha vai pra outra tela de
+          login").
+
+          Trocar de lado continua sendo sair e entrar de novo (04/09), e
+          por isso a segunda porta não vira "ir para o outro lado": ela
+          simplesmente não existe para quem está dentro. */}
+      {minhaCasa ? (
+        <div className="ei-capa-portas">
+          <Link to={minhaCasa.para} className="ei-capa-porta ei-capa-porta-forte">
+            {minhaCasa.rotulo}
+          </Link>
+        </div>
+      ) : (
+        <div className="ei-capa-portas">
+          <Link to="/login?lado=trabalhar" className="ei-capa-porta ei-capa-porta-forte">
+            Procuro emprego
+          </Link>
+          <Link to="/login?lado=contratar" className="ei-capa-porta">
+            Quero contratar
+          </Link>
+        </div>
+      )}
     </header>
   );
 
