@@ -384,6 +384,16 @@ def escrever(d, xy, texto: str, fonte, cor, tracking: float = 0.0) -> float:
     manchete é entre LETRAS; o espaço entre palavras é o que separa uma
     ideia da outra e tem de continuar do tamanho que a fonte desenhou.
 
+    MAS ELE CRESCE. Isto é o outro lado da mesma regra, e faltava — 07/09.
+    Numa tarja com tracking positivo (a de cima das peças, +6px), as
+    letras afastam e o espaço fica do tamanho que era: "AGORA EM
+    ITABIRITO" saía com as palavras mais juntas que as próprias letras, e
+    lia-se "EMITABIRITO". O olho separa palavras pelo espaço RELATIVO, não
+    pelo absoluto.
+
+    Então: tracking negativo não toca no espaço (aperta só as letras);
+    tracking positivo afasta tudo por igual, e a proporção se mantém.
+
     Devolve a largura total, já com o tracking.
     """
     x, y = xy
@@ -394,14 +404,22 @@ def escrever(d, xy, texto: str, fonte, cor, tracking: float = 0.0) -> float:
     for i, letra in enumerate(texto):
         d.text((x + d.textlength(texto[:i], font=fonte) + desloc, y),
                letra, font=fonte, fill=cor)
-        if letra != " ":
+        if letra != " " or tracking > 0:
             desloc += tracking
     return d.textlength(texto, font=fonte) + desloc
 
 
 def largura_com_tracking(d, texto: str, fonte, tracking: float = 0.0) -> float:
-    apertadas = sum(1 for letra in texto if letra != " ")
-    return d.textlength(texto, font=fonte) + apertadas * tracking
+    """A mesma conta que `escrever` faz — e tem de continuar sendo.
+
+    Quando as duas discordam, o texto sai desalinhado à direita e ninguém
+    encontra o motivo: a medida diz um número e o desenho usa outro.
+    """
+    if tracking > 0:
+        contadas = len(texto)
+    else:
+        contadas = sum(1 for letra in texto if letra != " ")
+    return d.textlength(texto, font=fonte) + contadas * tracking
 
 
 def quebrar(d, texto: str, fonte, largura: int) -> list[str]:
