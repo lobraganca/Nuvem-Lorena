@@ -973,6 +973,17 @@ class Consulta implements PromiseLike<{ data: Linha[] | Linha | null; error: unk
          gravar, a linha já teria a coluna nova e a conferência acharia
          que estava tudo certo — foi o primeiro jeito que tentei, e ele
          passava sem testar nada. */
+      const nuloNoInsert = this.obrigatoriaComNulo(this.inserir[0] ?? {});
+      if (nuloNoInsert) {
+        return {
+          data: null,
+          error: {
+            code: "23502",
+            message: `null value in column "${nuloNoInsert}" of relation "${this.tabela}" violates not-null constraint`,
+          },
+          count: 0,
+        };
+      }
       const faltaNoInsert = this.chavesQueFaltam(this.inserir[0] ?? {}, tabela[0]);
       if (faltaNoInsert) {
         console.warn(
@@ -1017,6 +1028,17 @@ class Consulta implements PromiseLike<{ data: Linha[] | Linha | null; error: unk
        chama, o falso responde "deu certo", e a lista volta igual. Foi
        exatamente o que aconteceu com o botão de pausar. */
     if (this.gravar) {
+      const nuloNoUpdate = this.obrigatoriaComNulo(this.gravar);
+      if (nuloNoUpdate) {
+        return {
+          data: null,
+          error: {
+            code: "23502",
+            message: `null value in column "${nuloNoUpdate}" of relation "${this.tabela}" violates not-null constraint`,
+          },
+          count: 0,
+        };
+      }
       const faltaNoUpdate = this.chavesQueFaltam(this.gravar, linhas[0] ?? tabela[0]);
       if (faltaNoUpdate) {
         console.warn(
@@ -1162,6 +1184,45 @@ class Consulta implements PromiseLike<{ data: Linha[] | Linha | null; error: unk
     lista.push({ tabela: this.tabela, chaves: Object.keys(escrito) });
     g.__falsoGravacoes = lista;
     g.__falsoUltimaGravacao = { tabela: this.tabela, chaves: Object.keys(escrito) };
+  }
+
+  /* ── COLUNA OBRIGATÓRIA RECEBENDO `null` — 07/09 ──────────────────
+     A dona, tentando salvar o cadastro: «null value in column "bio" of
+     relation "professionals" violates not-null constraint». Quem deixasse
+     o resumo em branco não conseguia salvar NADA.
+
+     O código mandava `bio: perfil.bio.trim() || null`, copiado das linhas
+     vizinhas (`email`, `neighborhood`), onde o `|| null` está certo
+     porque aquelas colunas aceitam nulo. A `bio` é `not null default ''`
+     — e o padrão só vale quando a coluna NÃO É ENVIADA; `null` explícito
+     passa por cima dele.
+
+     Nada aqui pegava isso. O falso aceitava qualquer valor, e a
+     conferência de tipos também: `string | null` é um tipo perfeitamente
+     válido para um campo de texto. Só o banco de verdade reprovava, na
+     mão de quem estava usando o app.
+
+     A lista abaixo é curta de propósito: são as colunas `not null` que
+     algum formulário do app ESCREVE. Conferidas uma a uma no banco de
+     teste (`select attnotnull from pg_attribute`), e não de cabeça. */
+  private static readonly OBRIGATORIAS: Record<string, string[]> = {
+    professionals: ["name", "category", "city", "uf", "bio", "phone", "disponibilidade"],
+    companies: ["company_name", "city", "uf", "phone", "responsible_name"],
+    job_listings: ["title", "description", "profession", "city", "uf", "status"],
+  };
+
+  /* Qual coluna obrigatória está recebendo `null` — ou `null` se nenhuma.
+
+     Vale SEMPRE, e não só no modo estrito: isto não é "o falso não tem
+     essa coluna nos dados de mentira" (que é o caso do modo estrito), é
+     uma regra do banco que vale hoje, em produção, para todo mundo. */
+  private obrigatoriaComNulo(escrito: Linha): string | null {
+    const lista = Consulta.OBRIGATORIAS[this.tabela];
+    if (!lista) return null;
+    for (const coluna of lista) {
+      if (coluna in escrito && escrito[coluna] === null) return coluna;
+    }
+    return null;
   }
 
   /* Qual chave gravada não existe na tabela — mesma ideia da conferência

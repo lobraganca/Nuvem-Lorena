@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { IconeFogo } from "../components/ei/IconeFogo";
-import { Link, useNavigate, useSearchParams } from "react-router-dom";
+import { Link, useSearchParams } from "react-router-dom";
 import { useTituloDaPagina } from "../lib/tituloDaPagina";
 import { mensagemDeErro } from "../lib/erros";
 import { supabase } from "../lib/supabase";
@@ -11,8 +11,6 @@ import { cidadeParaMostrar } from "../lib/cidadeEscolhida";
 import { SeletorDeCidade } from "../components/ei/SeletorDeCidade";
 import { Pagina } from "../components/ei/Pagina";
 import { useAuth } from "../lib/useAuth";
-import { useOnboardingStatus } from "../lib/useOnboardingStatus";
-import { empresaAtual } from "../lib/company";
 import { BottomSheet } from "../components/BottomSheet";
 import { BotaoFavorito } from "../components/ei/BotaoFavorito";
 import { aoTocarNoRetrato, MarcaDeLupa, useVisorDeFoto } from "../components/ei/BotaoVerFoto";
@@ -113,29 +111,31 @@ export function ProfissionaisPage() {
 
   const { user } = useAuth();
 
-  /* ── O BANCO DE TALENTOS PEDE EMPRESA CADASTRADA ────────────────────
-     A dona: "senão ela consegue verificar o banco de talentos e eu não
-     consigo ter dados para oferecer planos depois."
+  /* ── O DESVIO PARA O CADASTRO DE EMPRESA SAIU — 07/09 ───────────────
+     A dona: "entrei em quero contratar e clico em banco de talentos, abre
+     o cadastro."
 
-     Vale só para quem está no ambiente de EMPRESA: é o lado que usa a
-     lista para contratar, e é dele que vem a venda de plano. Quem está no
-     ambiente de quem procura trabalho continua vendo a lista — ali ela
-     serve para a pessoa comparar o próprio cadastro com o dos outros, e
-     não há nada a vender.
+     Abria mesmo. Havia aqui um desvio que mandava para `/cadastro-empresa`
+     quem estivesse do lado de empresa SEM empresa cadastrada. Ele foi
+     pedido por ela em 01/09, e com um motivo legítimo: "senão ela consegue
+     verificar o banco de talentos e eu não consigo ter dados para oferecer
+     planos depois."
 
-     O desvio é `replace` para o botão de voltar não trazer de volta a uma
-     tela que vai desviar de novo. */
-  const tipoDeConta = useOnboardingStatus();
-  const navegar = useNavigate();
-  useEffect(() => {
-    if (tipoDeConta !== "company" || !user) return;
-    let vivo = true;
-    empresaAtual(user.id).then((empresa) => {
-      if (vivo && !empresa) navegar("/cadastro-empresa", { replace: true });
-    });
-    return () => { vivo = false; };
-  }, [tipoDeConta, user, navegar]);
+     O que mudou não foi a opinião — foi o app. Desde 07/09 a lista de
+     candidatos abre para quem NÃO TEM CONTA NENHUMA (ver `ExigirConta`).
+     Com isso o desvio parou de capturar coisa alguma e passou a fazer só
+     o mal: qualquer pessoa vê a lista pela porta da frente, e justamente
+     quem já criou conta e escolheu "quero contratar" — a mais interessada
+     de todas — era a única jogada dentro de um formulário. Ela tocava em
+     "Banco de talentos" e recebia um cadastro de empresa.
 
+     O dado de quem contrata continua sendo pedido onde ele é devido: para
+     publicar vaga e para falar com alguém da lista. Ali a empresa é
+     necessária de verdade, e não uma pedágio na frente de uma vitrine que
+     já é pública.
+
+     `useOnboardingStatus` e `empresaAtual` saíram junto: eram usados só
+     por este desvio. */
   const [lista, setLista] = useState<Disponivel[]>([]);
   /* O que esta conta já guardou. Vem numa consulta só, antes de a lista
      desenhar: perguntar por pessoa seriam sessenta viagens ao banco. */

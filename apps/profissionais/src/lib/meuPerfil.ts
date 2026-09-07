@@ -502,7 +502,23 @@ export async function salvarMeuPerfil(
        salvar não apaga a foto, porque `perfil.photoUrl` continua com o
        valor que veio do banco até alguém trocar. */
     photo_url: perfil.photoUrl,
-    bio: perfil.bio.trim() || null,
+    /* ── VAZIO É "", E NÃO `null` — 07/09 ──────────────────────────
+       A dona, tentando salvar: «Não consegui salvar o seu perfil. (null
+       value in column "bio" of relation "professionals" violates
+       not-null constraint)». Ninguém com o resumo em branco conseguia
+       salvar o cadastro.
+
+       A coluna é `bio text not null default ''` (0001). O padrão só vale
+       quando a coluna NÃO É ENVIADA; mandar `null` explícito passa por
+       cima dele e bate na trava. O `|| null` daqui foi copiado das
+       linhas vizinhas — `email` e `neighborhood` —, e ali ele está
+       certo, porque aquelas duas aceitam nulo.
+
+       Conferido no banco de teste, coluna por coluna: das que este
+       formulário envia, `bio` era a única `not null` recebendo `null`.
+       `city` e `uf` já tinham padrão próprio (`|| DEFAULT_*`), e
+       `category` já gravava "". */
+    bio: perfil.bio.trim(),
     neighborhood: perfil.neighborhood.trim() || null,
     areas_de_interesse: perfil.funcoes,
     categories: perfil.funcoes,
