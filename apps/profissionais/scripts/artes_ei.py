@@ -271,6 +271,108 @@ def chamada(d, texto: str, tamanho: int) -> None:
     centrado(d, Y_CHAMADA + (ALTO_CHAMADA - tamanho - 8) // 2, texto, f(FONTE_N, tamanho), BRANCO)
 
 
+# ══════════════════════════════════════════════════════════════════════
+#  O MOLDE ABERTO — para conteúdo, e não para oferta
+# ══════════════════════════════════════════════════════════════════════
+#
+# Tudo acima é o molde do CARTÃO: fundo azul, caixa branca, título, preço,
+# três linhas e uma pílula laranja. Ele foi feito para vender — plano,
+# destaque, benefício — e faz isso bem.
+#
+# Ele é o molde errado para o conteúdo do Instagram que NÃO vende. O plano
+# de 30 dias começa por uma semana inteira de dor, sem oferta nenhuma:
+# "em quantos lugares você deixou currículo esse ano? E quantos ligaram?".
+# Numa caixa branca com lista e botão, essa frase vira anúncio — e anúncio
+# é justamente o que ela não pode parecer, porque o objetivo dela é a
+# pessoa se reconhecer.
+#
+# Então existe um segundo molde, sem caixa: fundo cheio, texto grande, ar.
+# A MARCA é a mesma (mesmo azul, mesmo laranja, mesma tipografia, mesmo
+# "Ei"), e é isso que faz as duas séries parecerem da mesma conta sem
+# parecerem o mesmo post.
+
+MARGEM = 96
+LARGURA_TEXTO = L - MARGEM * 2   # 888
+
+
+def quebrar(d, texto: str, fonte, largura: int) -> list[str]:
+    """Quebra o texto em linhas que cabem na largura.
+
+    Escrito à mão porque o `textwrap` do Python conta CARACTERES, e a
+    largura de uma letra na tela não tem nada a ver com isso: "MMMM" e
+    "iiii" têm quatro letras e larguras muito diferentes. Quebrar por
+    caractere numa manchete grande estoura a margem ou deixa metade da
+    linha vazia.
+    """
+    palavras = texto.split()
+    linhas: list[str] = []
+    atual = ""
+    for palavra in palavras:
+        tentativa = f"{atual} {palavra}".strip()
+        if d.textlength(tentativa, font=fonte) <= largura or not atual:
+            atual = tentativa
+        else:
+            linhas.append(atual)
+            atual = palavra
+    if atual:
+        linhas.append(atual)
+    return linhas
+
+
+def peca_lisa(cor_fundo) -> tuple[Image.Image, ImageDraw.ImageDraw]:
+    """Uma peça de fundo cheio, sem cartão. O começo do molde aberto."""
+    img = Image.new("RGB", (L, A), cor_fundo)
+    return img, ImageDraw.Draw(img)
+
+
+def manchete(d, texto: str, tamanho: int, cor, topo: int, entrelinha: float = 1.12) -> int:
+    """Texto grande, alinhado à esquerda, quebrado na medida.
+
+    À esquerda e não centralizado: manchete centralizada de três linhas
+    obriga o olho a procurar onde cada linha começa, e estas são para ler
+    de relance, rolando o dedo.
+
+    Devolve onde o bloco terminou, para quem quiser pôr algo embaixo.
+    """
+    fonte = f(FONTE_N, tamanho)
+    y = topo
+    for linha in quebrar(d, texto, fonte, LARGURA_TEXTO):
+        d.text((MARGEM, y), linha, font=fonte, fill=cor)
+        y += round(tamanho * entrelinha)
+    return y
+
+
+def apoio(d, texto: str, tamanho: int, cor, topo: int, entrelinha: float = 1.35) -> int:
+    """O mesmo, em corpo de texto."""
+    fonte = f(FONTE, tamanho)
+    y = topo
+    for linha in quebrar(d, texto, fonte, LARGURA_TEXTO):
+        d.text((MARGEM, y), linha, font=fonte, fill=cor)
+        y += round(tamanho * entrelinha)
+    return y
+
+
+def marca_no_pe(img: Image.Image, clara: bool) -> None:
+    """O "Ei" pequeno, no rodapé.
+
+    Pequeno de propósito: numa peça de dor, marca grande no topo faz a
+    frase virar anúncio antes de ser lida. Ela assina, não anuncia.
+
+    `clara=True` é a marca branca (sobre o azul); `False` pinta o mesmo
+    desenho de azul, para o fundo claro — em vez de uma segunda arte, que
+    um dia divergiria da primeira.
+    """
+    alto = 44
+    marca = _marca()
+    largura = round(marca.width * alto / marca.height)
+    pequena = marca.resize((largura, alto), Image.LANCZOS)
+    if not clara:
+        tinta = Image.new("RGBA", pequena.size, AZUL + (255,))
+        tinta.putalpha(pequena.split()[3])
+        pequena = tinta
+    img.paste(pequena, (MARGEM, A - MARGEM - alto), pequena)
+
+
 def salvar(img: Image.Image, nome: str) -> Path:
     caminho = SAIDA / nome
     img.save(caminho)
