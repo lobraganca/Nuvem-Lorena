@@ -6192,13 +6192,39 @@
   border-bottom: 0;
   padding-bottom: 10px;
 }
+/* ── 100px, E O NÚMERO FOI MEDIDO — 07/09 ──────────────────────────────
+   A dona: "ainda acho que as fotos podem ficar maiores e mais visíveis no
+   card. Está muito pequeno."
+
+   84px era o tamanho anterior, e 100px é o maior que cabe sem estragar o
+   resto. O número saiu de medir a lista de verdade, em três larguras de
+   celular, e não de escolher pelo olho:
+
+     tela de 390px   84 → 158px de cartão, 1 nome em 12 quebrando
+                    100 → 171px,           1 em 12   ← o limite
+                    108 → 198px,          11 em 12   ← o abismo
+     tela de 360px  já quebra em qualquer tamanho; 100px não piora
+     tela de 412px  folgado até 116px
+
+   Entre 100 e 108 há um degrau, não uma inclinação: o nome deixa de caber
+   na coluna que sobra e TODO cartão ganha uma linha. Por isso 100, e não
+   "um pouco maior ainda".
+
+   A grade já estava pronta para isto: a foto tem coluna própria e
+   atravessa quatro faixas, com uma quinta vazia para absorver a sobra
+   (ver `grid-template-areas` mais abaixo). Foi o conserto de 06/09 que
+   tornou este aumento barato — antes dele, crescer a foto empurrava o
+   nome para debaixo dela.
+
+   A inicial cresce junto: 1,8rem dentro de um quadrado de 100px voltaria
+   a parecer legenda. */
 .ei .ei-pessoa-retrato {
-  width: 84px;
-  height: 84px;
-  font-size: 1.8rem;
+  width: 100px;
+  height: 100px;
+  font-size: 2.1rem;
   /* Um canto suave: o quadrado vivo de antes fazia a foto parecer um
      ícone de sistema, e não o rosto de alguém. */
-  border-radius: 10px;
+  border-radius: 12px;
 }
 .ei .ei-pessoa-nome {
   font-size: 1.05rem;
