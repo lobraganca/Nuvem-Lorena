@@ -813,7 +813,8 @@ export function PerfilPage() {
               <p className="muted" style={{ margin: 0, fontSize: "0.86rem" }}>
                 Assinatura de profissional (selo ou impulso) ativa é cancelada — e
                 reembolsada, se ainda dentro dos 7 dias de arrependimento — automaticamente.
-                Plano de empresa é cobrado à parte: para cancelar o seu, fale com o suporte.
+                Plano de empresa que renova sozinho você cancela na tela de planos, no
+                cartão do seu plano.
               </p>
 
               <label style={{ display: "grid", gap: 6, fontSize: "0.88rem" }}>

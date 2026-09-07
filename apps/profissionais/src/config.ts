@@ -159,3 +159,35 @@ export const EXIGIR_NUMERO_ATIVO = (import.meta.env.VITE_EXIGIR_NUMERO ?? "") ==
  * Não afeta o app da Play Store, que usa o Firebase e não esta chave.
  */
 export const VAPID_PUBLICA = import.meta.env.VITE_VAPID_PUBLICA ?? "";
+
+/**
+ * A cobrança pelo site (Mercado Pago).
+ *
+ * ── POR QUE ELA NASCE DESLIGADA ────────────────────────────────────────
+ *
+ * Pelo mesmo motivo das três portas de entrada acima: ligada sem o resto
+ * da configuração, ela é uma porta que não abre. As peças do servidor
+ * existem e estão publicadas, mas elas precisam do `MP_ACCESS_TOKEN` nos
+ * segredos do Supabase — e sem ele o botão leva a empresa a um erro em vez
+ * de a uma tela de pagamento.
+ *
+ * Enquanto está desligada, as telas seguem exatamente como estavam: o
+ * botão abre a conversa no WhatsApp, que é o caminho que hoje funciona.
+ * Nada é prometido que não exista.
+ *
+ * Para LIGAR: criar VITE_PAGAMENTO com valor 1 na Vercel
+ * (Settings > Environment Variables), depois de:
+ *
+ *   1. aplicar as migrations 0129 e 0130 no SQL Editor;
+ *   2. pôr MP_ACCESS_TOKEN e MP_WEBHOOK_SECRET nos segredos do Supabase
+ *      (Project Settings > Edge Functions > Secrets);
+ *   3. republicar as Edge Functions — segredo novo só passa a valer na
+ *      publicação seguinte.
+ *
+ * ── E ELA NÃO VALE DENTRO DO APP DA PLAY STORE ─────────────────────────
+ *
+ * Isso não é decidido aqui: quem decide é `podeVender()`, em
+ * `lib/plataforma.ts`, e as telas que vendem já não existem lá. Esta chave
+ * é sobre o site.
+ */
+export const PAGAMENTO_ATIVO = (import.meta.env.VITE_PAGAMENTO ?? "") === "1";

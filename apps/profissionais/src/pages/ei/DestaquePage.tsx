@@ -6,7 +6,8 @@ import { useAuth } from "../../lib/useAuth";
 import { mensagemDeErro } from "../../lib/erros";
 import { lerMeuPerfil } from "../../lib/meuPerfil";
 import { podeVender } from "../../lib/plataforma";
-import { SUPORTE_WHATSAPP } from "../../config";
+import { pagarDestaque, irParaOPagamento } from "../../lib/pagamentos";
+import { SUPORTE_WHATSAPP, PAGAMENTO_ATIVO } from "../../config";
 import {
   meuDestaque,
   precoDoDestaqueEmTexto,
@@ -52,6 +53,12 @@ export function DestaquePage() {
   const [estado, setEstado] = useState<{ ativo: boolean; ate: string | null } | null>(null);
   const [semCadastro, setSemCadastro] = useState(false);
   const [erro, setErro] = useState("");
+  /* O botão de pagar tem estado próprio, separado do `erro` da tela: o
+     `erro` conta que a leitura do destaque falhou e aparece no topo; este
+     conta o que houve com o TOQUE, e precisa aparecer ao lado do botão que
+     foi tocado. */
+  const [abrindo, setAbrindo] = useState(false);
+  const [erroDoPagamento, setErroDoPagamento] = useState("");
 
   useEffect(() => {
     if (loading) return;
@@ -153,17 +160,52 @@ export function DestaquePage() {
                 de graça para ela, com ou sem destaque.
               </p>
 
-              <a
-                className="ei-btn-laranja"
-                style={{ margin: 0, width: "100%" }}
-                href={`https://wa.me/${SUPORTE_WHATSAPP}?text=${encodeURIComponent(
-                  `Olá! Quero o destaque de ${DESTAQUE_DIAS} dias no Ei Emprego (${precoDoDestaqueEmTexto()}).`
-                )}`}
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                Quero aparecer primeiro
-              </a>
+              {/* Com a cobrança ligada, o botão abre o Mercado Pago; sem
+                  ela, continua abrindo a conversa, como sempre foi. Um
+                  botão que leva a um erro é pior que o caminho manual que
+                  funciona. */}
+              {PAGAMENTO_ATIVO ? (
+                <>
+                  <button
+                    type="button"
+                    className="ei-btn-laranja"
+                    style={{ margin: 0, width: "100%" }}
+                    disabled={abrindo}
+                    onClick={async () => {
+                      setErroDoPagamento("");
+                      setAbrindo(true);
+                      try {
+                        const { url } = await pagarDestaque();
+                        irParaOPagamento(url);
+                      } catch (e) {
+                        setErroDoPagamento(
+                          mensagemDeErro(e, "Não consegui abrir o pagamento.")
+                        );
+                        setAbrindo(false);
+                      }
+                    }}
+                  >
+                    {abrindo ? "Abrindo o pagamento…" : "Quero aparecer primeiro"}
+                  </button>
+                  {erroDoPagamento && (
+                    <p className="ei-apoio" style={{ color: "var(--color-danger)", margin: "10px 0 0" }}>
+                      {erroDoPagamento}
+                    </p>
+                  )}
+                </>
+              ) : (
+                <a
+                  className="ei-btn-laranja"
+                  style={{ margin: 0, width: "100%" }}
+                  href={`https://wa.me/${SUPORTE_WHATSAPP}?text=${encodeURIComponent(
+                    `Olá! Quero o destaque de ${DESTAQUE_DIAS} dias no Ei Emprego (${precoDoDestaqueEmTexto()}).`
+                  )}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  Quero aparecer primeiro
+                </a>
+              )}
               {/* Mesma retirada da tela da vaga: o caminho do pagamento é
                   bastidor, e o botão já diz o que faz. */}
             </div>

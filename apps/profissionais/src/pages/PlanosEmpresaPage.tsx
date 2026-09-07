@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
-import { SUPORTE_WHATSAPP } from "../config";
+import { SUPORTE_WHATSAPP, PAGAMENTO_ATIVO } from "../config";
 import { useTituloDaPagina } from "../lib/tituloDaPagina";
 import { Pagina } from "../components/ei/Pagina";
 import { useAuth } from "../lib/useAuth";
@@ -8,6 +8,13 @@ import { minhasEmpresas } from "../lib/company";
 import type { Company } from "../types/domain";
 import { podeVender } from "../lib/plataforma";
 import { ProvaDeContratacao } from "../components/ei/ProvaDeContratacao";
+import {
+  assinarPlano,
+  pagarPlanoUmaVez,
+  cancelarAssinatura,
+  irParaOPagamento,
+} from "../lib/pagamentos";
+import { mensagemDeErro } from "../lib/erros";
 import {
   PLANOS_EMPRESA,
   PLANO_GRATUITO,
@@ -63,6 +70,38 @@ export function PlanosEmpresaPage() {
      contrário seria vender o que não existe. */
   const [busca] = useSearchParams();
   const antesDoCadastro = busca.get("antes") === "cadastro";
+
+  /* ── O BOTÃO QUE COBRA DE VERDADE — 07/09 ──────────────────────────
+     Qual plano está sendo aberto (para o botão dizer "Abrindo…" só nele,
+     e não nos cinco) e o que deu errado, se deu.
+
+     O erro fica GUARDADO por plano, e não num aviso solto no topo: com um
+     aviso no topo, quem tocou no quinto cartão não vê a resposta do
+     próprio toque — ela aparece acima da dobra, fora da tela. */
+  const [abrindo, setAbrindo] = useState<PlanoEmpresa | null>(null);
+  const [erroDoPlano, setErroDoPlano] = useState<{ plano: PlanoEmpresa; texto: string } | null>(
+    null
+  );
+
+  async function comprar(plano: PlanoEmpresa) {
+    setErroDoPlano(null);
+    setAbrindo(plano);
+    try {
+      /* A chavinha do topo deixou de ser enfeite: ela escolhe qual das
+         duas cobranças abre. Enquanto a cobrança não existia, o texto dela
+         prometia uma renovação automática que não acontecia — e prometer o
+         que não existe é o que este arquivo evita desde a primeira linha. */
+      const { url } =
+        ciclo === "recorrente" ? await assinarPlano(plano) : await pagarPlanoUmaVez(plano);
+      irParaOPagamento(url);
+    } catch (e) {
+      /* `mensagemDeErro` e não `e instanceof Error`: erro do Supabase é
+         objeto solto com `message` e `code`, e o `instanceof` cai sempre no
+         texto genérico — está no CLAUDE.md, escondeu defeito por semanas. */
+      setErroDoPlano({ plano, texto: mensagemDeErro(e, "Não consegui abrir o pagamento.") });
+      setAbrindo(null);
+    }
+  }
 
   function seguir(escolha: PlanoEmpresa | "gratuito") {
     /* O gratuito não leva ao formulário: leva ao banco de talentos.
@@ -376,22 +415,51 @@ export function PlanosEmpresaPage() {
 
                      O destaque é o único de fundo cheio: cinco botões
                      sólidos em coluna brigam entre si e nenhum chama. */
-                  <a
-                    className={
-                      destaque
-                        ? "ei-btn ei-btn-cheio ei-btn-largo ei-btn-alto"
-                        : "ei-btn ei-btn-contorno ei-btn-largo ei-btn-alto"
-                    }
-                    href={`https://wa.me/${SUPORTE_WHATSAPP}?text=${encodeURIComponent(
-                      p.sobConsulta
-                        ? `Olá! Quero saber sobre o plano ${p.nome} do Ei Emprego.`
-                        : `Olá! Quero assinar o plano ${p.nome} do Ei Emprego.`
-                    )}`}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                  >
-                    {rotulo}
-                  </a>
+                  /* ── O BOTÃO, EM TRÊS ESTADOS — 07/09 ──────────────
+                     1. plano sob consulta: WhatsApp, sempre. Não tem preço
+                        de tabela, então não tem o que cobrar sozinho;
+                     2. cobrança ligada: abre o Mercado Pago;
+                     3. cobrança desligada (ou ainda sendo configurada):
+                        WhatsApp, como sempre foi. Um botão que leva a um
+                        erro é pior que o caminho manual que funciona. */
+                  p.sobConsulta || !PAGAMENTO_ATIVO ? (
+                    <a
+                      className={
+                        destaque
+                          ? "ei-btn ei-btn-cheio ei-btn-largo ei-btn-alto"
+                          : "ei-btn ei-btn-contorno ei-btn-largo ei-btn-alto"
+                      }
+                      href={`https://wa.me/${SUPORTE_WHATSAPP}?text=${encodeURIComponent(
+                        p.sobConsulta
+                          ? `Olá! Quero saber sobre o plano ${p.nome} do Ei Emprego.`
+                          : `Olá! Quero assinar o plano ${p.nome} do Ei Emprego.`
+                      )}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
+                      {rotulo}
+                    </a>
+                  ) : (
+                    <>
+                      <button
+                        type="button"
+                        className={
+                          destaque
+                            ? "ei-btn ei-btn-cheio ei-btn-largo ei-btn-alto"
+                            : "ei-btn ei-btn-contorno ei-btn-largo ei-btn-alto"
+                        }
+                        disabled={abrindo !== null}
+                        onClick={() => comprar(chave)}
+                      >
+                        {abrindo === chave ? "Abrindo o pagamento…" : rotulo}
+                      </button>
+                      {erroDoPlano?.plano === chave && (
+                        <span className="ei-oferta-nota" style={{ color: "var(--color-danger)" }}>
+                          {erroDoPlano.texto}
+                        </span>
+                      )}
+                    </>
+                  )
                 )}
               </section>
             );
@@ -519,6 +587,10 @@ export function PlanosEmpresaPage() {
 function AssinaturaAtual() {
   const { user } = useAuth();
   const [empresas, setEmpresas] = useState<Company[] | null>(null);
+  const [confirmando, setConfirmando] = useState(false);
+  const [cancelando, setCancelando] = useState(false);
+  const [cancelada, setCancelada] = useState(false);
+  const [erroAoCancelar, setErroAoCancelar] = useState("");
 
   useEffect(() => {
     if (!user) return;
@@ -586,11 +658,86 @@ function AssinaturaAtual() {
         {melhor.plano_recorrente
           ? `Renova sozinho nessa data. ${
               faltam <= 1 ? "É amanhã." : `Faltam ${faltam} dias.`
-            } Dá para cancelar quando quiser, em Conta.`
+            }`
           : `Depois dessa data as vagas param de ser publicadas. ${
               faltam <= 1 ? "É amanhã." : `Faltam ${faltam} dias.`
             }`}
       </p>
+
+      {/* ── CANCELAR — 07/09 ──────────────────────────────────────────
+          A frase daqui dizia "dá para cancelar quando quiser, em Conta",
+          e em Conta não havia botão nenhum: quem quisesse cancelar tinha
+          de escrever para o suporte. Esconder ou dificultar cancelamento
+          é infração do CDC, não uma escolha de produto — e mandar a
+          pessoa para outra tela que não resolve é dificultar.
+
+          O botão fica AQUI, embaixo da data que ela acabou de ler, que é
+          onde a pergunta nasce.
+
+          Só aparece quando a renovação está ligada: no plano avulso não
+          há o que cancelar, ele vence sozinho. */}
+      {melhor.plano_recorrente && PAGAMENTO_ATIVO && !cancelada && (
+        <div style={{ display: "grid", gap: 8, marginTop: 4 }}>
+          {!confirmando ? (
+            <button
+              type="button"
+              className="ei-btn ei-btn-contorno"
+              onClick={() => setConfirmando(true)}
+            >
+              Cancelar a renovação
+            </button>
+          ) : (
+            <>
+              {/* Isto é o que a pessoa precisa saber ANTES de confirmar, e
+                  é a parte que costuma faltar: cancelar não devolve
+                  dinheiro nem tira o plano hoje. Sem esta frase, quem
+                  cancela dia 20 acha que perdeu os dez dias que pagou —
+                  e escreve para o suporte perguntando. */}
+              <p className="ei-assinatura-nota" style={{ margin: 0 }}>
+                Sua vaga continua no ar até {dia(ate)}, que é o mês que você já pagou.
+                O que para é a cobrança do mês seguinte.
+              </p>
+              <button
+                type="button"
+                className="ei-btn ei-btn-contorno"
+                disabled={cancelando}
+                onClick={async () => {
+                  setErroAoCancelar("");
+                  setCancelando(true);
+                  try {
+                    await cancelarAssinatura();
+                    setCancelada(true);
+                  } catch (e) {
+                    setErroAoCancelar(mensagemDeErro(e, "Não consegui cancelar agora."));
+                  }
+                  setCancelando(false);
+                }}
+              >
+                {cancelando ? "Cancelando…" : "Confirmar o cancelamento"}
+              </button>
+              <button
+                type="button"
+                className="ei-btn ei-btn-contorno"
+                onClick={() => setConfirmando(false)}
+              >
+                Deixar como está
+              </button>
+              {erroAoCancelar && (
+                <p className="ei-assinatura-nota" style={{ margin: 0, color: "var(--color-danger)" }}>
+                  {erroAoCancelar}
+                </p>
+              )}
+            </>
+          )}
+        </div>
+      )}
+
+      {cancelada && (
+        <p className="ei-assinatura-nota" style={{ marginTop: 4 }}>
+          Renovação cancelada. Seu plano continua valendo até {dia(ate)} e não vai ser
+          cobrado de novo.
+        </p>
+      )}
     </div>
   );
 }

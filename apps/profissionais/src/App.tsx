@@ -49,6 +49,7 @@ const CadastroEmpresaPage = lazy(importarPagina(() => import("./pages/CadastroEm
 const PainelEmpresaPage = lazy(importarPagina(() => import("./pages/PainelEmpresaPage").then((m) => ({ default: m.PainelEmpresaPage }))));
 const CriarVagaPage = lazy(importarPagina(() => import("./pages/CriarVagaPage").then((m) => ({ default: m.CriarVagaPage }))));
 const ProntoPage = lazy(() => import("./pages/ei/ProntoPage").then((m) => ({ default: m.ProntoPage })));
+const PagamentoPage = lazy(() => import("./pages/ei/PagamentoPage").then((m) => ({ default: m.PagamentoPage })));
 const EntradaPage = lazy(importarPagina(() => import("./pages/ei/EntradaPage").then((m) => ({ default: m.EntradaPage }))));
 const ComecarPage = lazy(importarPagina(() => import("./pages/ei/ComecarPage").then((m) => ({ default: m.ComecarPage }))));
 const MeuPerfilPage = lazy(importarPagina(() => import("./pages/ei/MeuPerfilPage").then((m) => ({ default: m.MeuPerfilPage }))));
@@ -188,6 +189,12 @@ const TELAS_DE_APP = [
   "/painel-empresa",
   "/criar-vaga",
   "/pronto",
+  /* A volta do Mercado Pago. Sem estas duas linhas, quem acabou de pagar
+     leria a confirmação com o rodapé de links do SITE embaixo — que é o
+     mesmo esquecimento já registrado abaixo para `/vagas` e
+     `/meu-desempenho`. */
+  "/pagamento-ok",
+  "/pagamento-nao",
   "/vaga",
   /* `/vaga-aberta` precisa estar escrito à parte: a comparação é por
      caminho exato ou com barra depois, então "/vaga" casa com "/vaga/123" e
@@ -390,6 +397,13 @@ export default function App() {
         } />
         {/* "Deu certo" — a confirmação depois de salvar. Ver ProntoPage. */}
         <Route path="/pronto" element={<ProntoPage />} />
+        {/* A volta do Mercado Pago. Estes dois endereços estão escritos
+            DENTRO da cobrança (o `back_urls` das Edge Functions): sem as
+            rotas, quem acabou de pagar cai num "não encontrado", e a
+            primeira coisa que a empresa faz é ligar reclamando de um
+            dinheiro que sumiu. Ver PagamentoPage. */}
+        <Route path="/pagamento-ok" element={<PagamentoPage deuCerto />} />
+        <Route path="/pagamento-nao" element={<PagamentoPage deuCerto={false} />} />
         {/* A MESMA tela de criar, no modo edição — ver CriarVagaPage. */}
         <Route path="/vaga/:id/editar" element={
           <SoDesteLado lado="company"><CriarVagaPage /></SoDesteLado>

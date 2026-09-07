@@ -38,6 +38,7 @@ novo por não estarem escritos em lugar nenhum.
 | `?sozinha=1` | ninguém mais on-line, que é quando o contador some |
 | `?cheio=hoje` | o dia já com 5 candidaturas — o teto |
 | `?combina=1` | uma vaga do ofício da pessoa, para a compatibilidade passar de 80% |
+| `?destaque=nao` | a pessoa NÃO está em destaque — é o único jeito de ver a tela que VENDE o destaque |
 
 `?combina=1` mexe na SEGUNDA vaga de propósito: a primeira já tem resposta
 no falso, e vaga respondida fica fora do baralho — o caso alto apareceria

@@ -149,8 +149,16 @@ const professionals: Linha[] = Array.from({ length: QUANTOS }, (_, i) => ({
     i < 2 && ajuste("sumida")
       ? emDias(-Number(ajuste("sumida")))
       : new Date().toISOString(),
-  boosted: i % 6 === 0,
-  boosted_until: i % 6 === 0 ? emDias(30) : null,
+  /* ── `?destaque=nao` — 07/09 ──────────────────────────────────────
+     Um em cada seis está em destaque, e o índice 0 é o cadastro do DONO
+     da sessão — então, por padrão, quem abre a tela "Aparecer primeiro"
+     já está em destaque e vê o estado "você está no topo". A tela de
+     COMPRAR o destaque, com o preço e o botão, não aparecia nunca.
+
+     Foi assim que o botão de pagar do destaque quase entrou no ar sem
+     ninguém ter olhado para ele uma vez. */
+  boosted: ajuste("destaque") === "nao" ? false : i % 6 === 0,
+  boosted_until: ajuste("destaque") === "nao" ? null : i % 6 === 0 ? emDias(30) : null,
   suspended: false,
   paused: false,
   // O índice 0 é o mais ANTIGO: created_at cresce com i, e a ordenação do
