@@ -509,7 +509,16 @@ const TABELAS: Record<string, Linha[]> = {
       description: "",
       /* A coluna da 0115, já aplicada no banco de verdade. */
       contrata_pcd: false,
-      photo_url: fotoFalsa(2),
+      /* ── `?cadastro=metade` — 07/09 ────────────────────────────────
+         A empresa do falso sempre teve foto, então o aviso "seu cadastro
+         está pela metade" NUNCA aparecia aqui — e passou meses sem nunca
+         ter sido lido por ninguém. Quando a dona finalmente o viu, ele
+         estava se contradizendo com o próprio formulário, que chama foto
+         e descrição de "(opcional)".
+
+         Sem este interruptor, a correção do texto também não teria como
+         ser conferida: o teste passaria por não achar o aviso. */
+      photo_url: ajuste("cadastro") === "metade" ? null : fotoFalsa(2),
       /* "tres" (o Premium), e não "pro3": o banco só aceita 'pro', 'tres'
          e 'ilimitado' (check da 0072), e um valor fora da lista fazia o
          painel escrever "Plano pro3" na tela — o nome cru da coluna, que
