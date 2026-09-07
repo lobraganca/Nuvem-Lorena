@@ -9388,6 +9388,77 @@
   padding: 22px 0 24px;
   /* Encosta no cabeçalho, que é da mesma cor: as duas viram um bloco só. */
   margin-top: -1px;
+  /* A rede e a marca são posicionadas dentro dela. `isolation` para o
+     `mix-blend` da marca não vazar para o resto da página. */
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+}
+
+/* ── A REDE DE CONEXÕES ────────────────────────────────────────────────
+   "Bem clarinhas" é o pedido E é o limite técnico, e por sorte os dois
+   coincidem. Branco a 6% sobre este azul ainda deixa o texto branco em
+   4,51 de contraste; a 10% cai para 4,19, abaixo do mínimo. Os fios ficam
+   nos 6%.
+
+   Os NÓS podem ser mais fortes porque são pontinhos de 1,5 a 2,6px: um
+   deles atrás de uma haste de letra não muda a leitura, e os maiores só
+   nascem na metade de baixo e à direita, longe da manchete (ver a
+   geração, no componente).
+
+   Tudo isto foi MEDIDO depois de desenhado, com a mesma conta das artes —
+   fotografa-se a faixa com o texto escondido e procura-se o pior pixel
+   debaixo de cada bloco de texto. Olhar não serve: a tela "Quem está
+   contratando" saiu com 1,1 de contraste e foi apontada três vezes de
+   olho antes de alguém medir. */
+.ei .ei-capa-rede {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 0;
+  pointer-events: none;
+}
+
+.ei .ei-capa-fios line {
+  stroke: rgba(255, 255, 255, 0.06);
+  stroke-width: 0.7;
+}
+
+.ei .ei-capa-fios .n1 { fill: rgba(255, 255, 255, 0.16); }
+.ei .ei-capa-fios .n2 { fill: rgba(255, 255, 255, 0.26); }
+
+/* A marca no canto: assinatura, não logo. Grande e quase transparente —
+   o logo de verdade está no cabeçalho, um dedo acima, e dois logos do
+   mesmo tamanho na mesma dobra seriam um a mais.
+
+   No canto de BAIXO à direita: em cima ela encostaria no logo do
+   cabeçalho, e à esquerda cairia atrás da manchete. */
+.ei .ei-capa-marca {
+  position: absolute;
+  /* No canto de cima à direita, e não embaixo: embaixo ela ficava ATRÁS
+     dos botões, e a medição mostrou 17% dos pixels de "Quero contratar"
+     abaixo do contraste mínimo. Aqui ela divide espaço só com o fim da
+     manchete, que quebra à esquerda. */
+  right: -16px;
+  top: -10px;
+  width: 132px;
+  height: auto;
+  /* 5%: medido. A 7% ela derrubava a ponta da primeira linha da
+     manchete abaixo do contraste mínimo. */
+  opacity: 0.05;
+  z-index: 0;
+  pointer-events: none;
+}
+
+/* O conteúdo por cima dos dois. Sem isto o texto nasce atrás da rede —
+   e como a rede é quase transparente, o defeito seria invisível até
+   alguém reparar que o "37" tem um risco no meio. */
+.ei .ei-capa > h1,
+.ei .ei-capa > .ei-capa-numeros,
+.ei .ei-capa > .ei-capa-portas {
+  position: relative;
+  z-index: 1;
 }
 
 .ei .ei-capa-titulo {

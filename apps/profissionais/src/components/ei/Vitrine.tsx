@@ -63,6 +63,43 @@ export function Vitrine() {
      no lugar já reservado, sem empurrar nada. */
   const capa = (
     <header className="ei-capa">
+      {/* ── A REDE DE CONEXÕES — 07/09 ─────────────────────────────────
+          A dona mandou uma imagem de referência (pontos ligados por
+          linhas, brilhando no escuro) e pediu: "a parte onde tem escrito
+          pode ter tipo essas conexões bem clarinhas. E a logo no canto."
+
+          É DESENHADA, e não a imagem que ela mandou. Três motivos, em
+          ordem de importância: a imagem é de banco de imagem e a licença
+          é desconhecida; ela é de outro azul e brigaria com a marca; e um
+          bitmap de fundo fica borrado no celular de tela boa e pesa no 4G
+          de quem abre o site pela primeira vez. Este SVG tem 4 KB, é
+          nítido em qualquer tela e usa a cor do app.
+
+          As posições são FIXAS, geradas uma vez com semente fixa. Rede
+          sorteada a cada abertura mudaria de desenho entre uma visita e
+          outra — e "por que a tela ficou diferente?" é uma pergunta que
+          ninguém deveria ter de fazer.
+
+          E o desenho não é enfeite qualquer: o app existe para ligar duas
+          pessoas da mesma cidade. É o assunto da tela, em imagem.
+
+          `slice` para a rede cobrir a faixa inteira sem deformar os
+          ângulos — esticada, ela vira uma malha achatada e denuncia que é
+          decoração. */}
+      <svg
+        className="ei-capa-rede"
+        viewBox="0 0 390 300"
+        preserveAspectRatio="xMidYMid slice"
+        aria-hidden="true"
+        focusable="false"
+      >
+        <g className="ei-capa-fios"><line x1="-7.0" y1="-10" x2="61.8" y2="-10"/><line x1="61.8" y1="-10" x2="112.9" y2="-4.8"/><line x1="112.9" y1="-4.8" x2="149.5" y2="0.3"/><line x1="112.9" y1="-4.8" x2="130.5" y2="58.7"/><line x1="149.5" y1="0.3" x2="204.4" y2="-2.4"/><line x1="149.5" y1="0.3" x2="130.5" y2="58.7"/><line x1="149.5" y1="0.3" x2="181.5" y2="67.4"/><line x1="204.4" y1="-2.4" x2="261.4" y2="-10"/><line x1="204.4" y1="-2.4" x2="181.5" y2="67.4"/><line x1="204.4" y1="-2.4" x2="208.6" y2="61.2"/><line x1="261.4" y1="-10" x2="331.3" y2="11.8"/><line x1="331.3" y1="11.8" x2="375.0" y2="-10.0"/><line x1="331.3" y1="11.8" x2="321.5" y2="77.9"/><line x1="5.1" y1="91.1" x2="58.8" y2="71.3"/><line x1="5.1" y1="91.1" x2="1.9" y2="134.3"/><line x1="5.1" y1="91.1" x2="38.1" y2="139.4"/><line x1="58.8" y1="71.3" x2="130.5" y2="58.7"/><line x1="58.8" y1="71.3" x2="38.1" y2="139.4"/><line x1="130.5" y1="58.7" x2="181.5" y2="67.4"/><line x1="181.5" y1="67.4" x2="208.6" y2="61.2"/><line x1="208.6" y1="61.2" x2="270.9" y2="86.4"/><line x1="270.9" y1="86.4" x2="321.5" y2="77.9"/><line x1="270.9" y1="86.4" x2="221.0" y2="142.8"/><line x1="270.9" y1="86.4" x2="290.3" y2="157.2"/><line x1="321.5" y1="77.9" x2="395.6" y2="70.4"/><line x1="321.5" y1="77.9" x2="324.0" y2="152.7"/><line x1="1.9" y1="134.3" x2="38.1" y2="139.4"/><line x1="118.6" y1="147.4" x2="159.7" y2="153.1"/><line x1="118.6" y1="147.4" x2="74.9" y2="211.3"/><line x1="159.7" y1="153.1" x2="221.0" y2="142.8"/><line x1="159.7" y1="153.1" x2="153.2" y2="224.6"/><line x1="221.0" y1="142.8" x2="290.3" y2="157.2"/><line x1="290.3" y1="157.2" x2="324.0" y2="152.7"/><line x1="290.3" y1="157.2" x2="289.2" y2="227.6"/><line x1="324.0" y1="152.7" x2="391.0" y2="163.5"/><line x1="324.0" y1="152.7" x2="349.3" y2="218.3"/><line x1="391.0" y1="163.5" x2="349.3" y2="218.3"/><line x1="391.0" y1="163.5" x2="397.8" y2="228.4"/><line x1="9.2" y1="217.4" x2="74.9" y2="211.3"/><line x1="74.9" y1="211.3" x2="108.2" y2="234.3"/><line x1="108.2" y1="234.3" x2="153.2" y2="224.6"/><line x1="108.2" y1="234.3" x2="110.4" y2="305.9"/><line x1="153.2" y1="224.6" x2="204.4" y2="231.1"/><line x1="289.2" y1="227.6" x2="349.3" y2="218.3"/><line x1="289.2" y1="227.6" x2="291.4" y2="292.2"/><line x1="349.3" y1="218.3" x2="397.8" y2="228.4"/><line x1="397.8" y1="228.4" x2="370.9" y2="298.6"/><line x1="3.2" y1="298.4" x2="69.3" y2="310"/><line x1="69.3" y1="310" x2="110.4" y2="305.9"/><line x1="110.4" y1="305.9" x2="149.6" y2="307.3"/><line x1="228.7" y1="310" x2="291.4" y2="292.2"/><line x1="291.4" y1="292.2" x2="329.7" y2="306.1"/><line x1="329.7" y1="306.1" x2="370.9" y2="298.6"/><circle cx="-7.0" cy="-10" r="1.3" className="n1"/><circle cx="61.8" cy="-10" r="1.3" className="n1"/><circle cx="112.9" cy="-4.8" r="1.3" className="n1"/><circle cx="149.5" cy="0.3" r="1.3" className="n1"/><circle cx="204.4" cy="-2.4" r="1.3" className="n1"/><circle cx="261.4" cy="-10" r="1.3" className="n1"/><circle cx="331.3" cy="11.8" r="1.3" className="n1"/><circle cx="375.0" cy="-10.0" r="1.3" className="n1"/><circle cx="5.1" cy="91.1" r="1.3" className="n1"/><circle cx="58.8" cy="71.3" r="1.3" className="n1"/><circle cx="130.5" cy="58.7" r="1.3" className="n1"/><circle cx="181.5" cy="67.4" r="1.3" className="n1"/><circle cx="208.6" cy="61.2" r="1.3" className="n1"/><circle cx="270.9" cy="86.4" r="1.3" className="n1"/><circle cx="321.5" cy="77.9" r="1.3" className="n1"/><circle cx="395.6" cy="70.4" r="1.3" className="n1"/><circle cx="1.9" cy="134.3" r="1.3" className="n1"/><circle cx="38.1" cy="139.4" r="1.3" className="n1"/><circle cx="118.6" cy="147.4" r="1.3" className="n1"/><circle cx="159.7" cy="153.1" r="1.3" className="n1"/><circle cx="221.0" cy="142.8" r="2.2" className="n2"/><circle cx="290.3" cy="157.2" r="2.2" className="n2"/><circle cx="324.0" cy="152.7" r="2.2" className="n2"/><circle cx="391.0" cy="163.5" r="2.2" className="n2"/><circle cx="9.2" cy="217.4" r="1.3" className="n1"/><circle cx="74.9" cy="211.3" r="1.3" className="n1"/><circle cx="108.2" cy="234.3" r="1.3" className="n1"/><circle cx="153.2" cy="224.6" r="1.3" className="n1"/><circle cx="204.4" cy="231.1" r="1.3" className="n1"/><circle cx="289.2" cy="227.6" r="1.3" className="n1"/><circle cx="349.3" cy="218.3" r="1.3" className="n1"/><circle cx="397.8" cy="228.4" r="1.3" className="n1"/><circle cx="3.2" cy="298.4" r="1.3" className="n1"/><circle cx="69.3" cy="310" r="1.3" className="n1"/><circle cx="110.4" cy="305.9" r="1.3" className="n1"/><circle cx="149.6" cy="307.3" r="1.3" className="n1"/><circle cx="228.7" cy="310" r="1.3" className="n1"/><circle cx="291.4" cy="292.2" r="1.3" className="n1"/><circle cx="329.7" cy="306.1" r="1.3" className="n1"/><circle cx="370.9" cy="298.6" r="1.3" className="n1"/></g>
+      </svg>
+
+      {/* A marca no canto, grande e quase transparente: é assinatura, não
+          logo. O logo de verdade está no cabeçalho, um dedo acima — dois
+          logos do mesmo tamanho na mesma dobra seriam um a mais. */}
+      <img className="ei-capa-marca" src="/marca-ei.png" alt="" aria-hidden="true" />
       {/* ── A FRASE VOLTOU — 07/09 ────────────────────────────────
           A dona: "pode deixar a frase que estava antes. Quem contrata e
           quem procura…"
