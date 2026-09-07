@@ -4399,6 +4399,26 @@
   line-height: 1.35;
   color: var(--ei-tinta-fraca);
 }
+/* ── A EXPLICAÇÃO SUMIA NO CARTÃO ESCOLHIDO — 07/09 ────────────────────
+   A dona mandou o print da tela "Quem está contratando": o cartão marcado
+   fica azul, o título dele vira branco (o `color` do `.ei-lado-cheio`) e a
+   explicação embaixo continuava com o cinza fixo da regra acima.
+
+   Medido: #6b6963 sobre o #0a72c4 dá 1,1 de contraste. O mínimo para texto
+   pequeno é 4,5. Não era "está meio apagado" — era ilegível, e justamente
+   no cartão que a pessoa acabou de escolher, que é onde ela quer conferir
+   se escolheu certo.
+
+   Branco puro, e não um branco suave: sobre este azul, o branco cheio dá
+   4,98 e um branco a 90% já cai para 4,34 — abaixo do mínimo. A diferença
+   entre o título e a explicação passa a ser o tamanho e o peso, que é como
+   se separa hierarquia sem depender de cor.
+
+   A lista (`.ei-lado-lista`) já tinha a regra equivalente logo acima; foi
+   só a nota que ficou para trás. */
+.ei .ei-lado-cheio .ei-lado-nota {
+  color: var(--ei-sobre-acao);
+}
 .ei .ei-lado-selo {
   margin-top: 2px;
   font-size: 0.75rem;

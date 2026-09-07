@@ -400,7 +400,22 @@ export function CadastroEmpresaPage() {
   return (
     <div className="ei">
       <div className="ei-tela">
-        <Pagina titulo={emEtapas ? "Cadastre sua empresa" : "Dados da empresa"} />
+        {/* O título da barra também acompanha a escolha — 07/09. Quem
+            marcou "sou pessoa física" para contratar uma diarista lia
+            "Dados da empresa" no alto da tela inteira, e a palavra
+            "empresa" é justamente a que faz essa pessoa achar que se
+            enganou de caminho. */}
+        <Pagina
+          titulo={
+            emEtapas
+              ? tipoDono === "pf"
+                ? "Cadastre-se para contratar"
+                : "Cadastre sua empresa"
+              : tipoDono === "pf"
+                ? "Seus dados"
+                : "Dados da empresa"
+          }
+        />
 
         {aEnquadrar && (
           <AjustarFoto
@@ -496,7 +511,15 @@ export function CadastroEmpresaPage() {
         {/* ── 2. A empresa ───────────────────────────────────────────── */}
         {mostra(2) && (
           <section className="ei-cartao">
-            <h2 className="ei-etapa-titulo">A empresa</h2>
+            {/* O título acompanha a escolha da etapa 1 — 07/09.
+                Os campos daqui já mudavam ("Seu nome ou o da casa/obra",
+                "CPF (opcional)"), e só o título continuava dizendo "A
+                empresa" para quem tinha acabado de marcar "sou pessoa
+                física". Quem contrata uma diarista para a própria casa lê
+                isso e acha que entrou no lugar errado. */}
+            <h2 className="ei-etapa-titulo">
+              {tipoDono === "pf" ? "Seus dados" : "A empresa"}
+            </h2>
 
             <div className="ei-campo">
               <label htmlFor="company_name">
