@@ -1,8 +1,9 @@
 Este arquivo é um botão.
 
 Salvar qualquer alteração aqui — mudar a data abaixo já basta — dispara o
-workflow "Publicar Edge Functions", que publica as 12 Edge Functions do
-procurô no Supabase.
+workflow "Publicar Edge Functions", que publica as Edge Functions do Ei
+Emprego no Supabase (a lista está no próprio workflow, em DO_EI — as do
+procurô saíram em 04/09).
 
 Existe porque o botão "Run workflow" da aba Actions só aparece para
 workflows presentes na branch padrão do repositório, e a padrão deste
@@ -16,3 +17,4 @@ Settings > Secrets and variables > Actions:
 
 Último disparo: 2026-08-23 (webhook: pagamento avulso volta a ser classificado por produto)
 Último disparo: 2026-09-04 (as funções não estavam no projeto novo do Ei — o aviso de vaga devolvia 404)
+Último disparo: 2026-09-07 (MP_ACCESS_TOKEN e MP_WEBHOOK_SECRET entraram nos segredos — segredo novo só vale na publicação seguinte)
