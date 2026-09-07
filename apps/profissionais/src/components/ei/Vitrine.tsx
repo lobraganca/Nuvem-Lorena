@@ -63,13 +63,27 @@ export function Vitrine() {
      no lugar já reservado, sem empurrar nada. */
   const capa = (
     <header className="ei-capa">
-      <h1 className="ei-capa-titulo">
-        Quem contrata e quem procura, aqui se encontram
-      </h1>
-      <p className="ei-capa-apoio">
-        Sem currículo de porta em porta, sem anúncio que ninguém vê.
-      </p>
+      <h1 className="ei-capa-titulo">Itabirito contrata Itabirito</h1>
       <Numeros dados={dados} />
+      {/* AS DUAS PORTAS DENTRO DA CAPA, e não lá embaixo.
+
+          A dona: "não sei onde clicar". E não sabia mesmo: a única ação da
+          tela era um "Criar conta" depois de duas prateleiras, fora da
+          primeira dobra. Quem chega numa tela que não diz o que fazer não
+          procura — sai.
+
+          São duas e não uma porque quem chega é uma de duas pessoas, e o
+          app inteiro é construído sobre essa escolha. Elas levam ao login
+          já com o lado escolhido (`?lado=`), então ninguém responde a
+          mesma pergunta duas vezes. */}
+      <div className="ei-capa-portas">
+        <Link to="/login?lado=trabalhar" className="ei-capa-porta ei-capa-porta-forte">
+          Procuro emprego
+        </Link>
+        <Link to="/login?lado=contratar" className="ei-capa-porta">
+          Quero contratar
+        </Link>
+      </div>
     </header>
   );
 

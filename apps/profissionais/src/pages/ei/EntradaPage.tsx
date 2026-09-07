@@ -176,21 +176,18 @@ export function EntradaPage() {
             conta fica para quando a pessoa quiser FAZER alguma coisa. */}
         {!entrou && <Vitrine />}
 
-        {!entrou && (
-          /* Dois botões, e não um "entrar ou criar conta": quem já tem
-             conta quer digitar a senha e passar; quem é novo precisa do
-             código por SMS. Cada botão abre o login no caminho certo. */
-          <div className="ei-portas">
-            <Link to="/login?acao=criar" className="ei-porta ei-porta-cheia">
-              <span className="ei-porta-nome">Criar conta</span>
-              <span className="ei-porta-nota">Para se candidatar ou publicar vaga</span>
-            </Link>
-            <Link to="/login?acao=entrar" className="ei-porta">
-              <span className="ei-porta-nome">Já tenho conta</span>
-              <span className="ei-porta-nota">Entrar com celular e senha</span>
-            </Link>
-          </div>
-        )}
+        {/* ── OS BOTÕES DE CONTA SAÍRAM DAQUI — 07/09 ────────────────
+            A dona: "não sei onde clicar."
+
+            Eram "Criar conta" e "Já tenho conta", no fim da tela, DEPOIS
+            das duas prateleiras — fora da primeira dobra num celular. A
+            única ação da página estava onde ninguém olha.
+
+            As portas agora vivem dentro da capa azul, no alto, e são as
+            duas do app ("Procuro emprego" / "Quero contratar") em vez de
+            duas formas de fazer a mesma coisa. Quem já tem conta toca na
+            porta do seu lado e entra sem digitar nada — a tela de entrar
+            reconhece a sessão. Ver `Vitrine.tsx`. */}
 
         {/* ── O PAINEL DA ADMINISTRAÇÃO, PARA QUEM ADMINISTRA — 04/09 ──
             A dona: "o botão do painel adm deve ficar na tela por onde

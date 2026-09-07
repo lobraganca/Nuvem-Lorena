@@ -9294,54 +9294,55 @@
 }
 .ei .ei-vitrine-erro { color: var(--ei-perigo, #b3261e); }
 
-/* ── A CAPA DA TELA INICIAL — 07/09 ─────────────────────────────────────
-   A dona: "preciso que a primeira tela seja mais bonita. Chamativa."
+/* ── A CAPA DA TELA INICIAL — 07/09, segunda volta ──────────────────────
+   A dona olhou a primeira versão e disse duas coisas: "muito texto e
+   apagada" e "não sei onde clicar". As duas têm a mesma raiz.
 
-   A tela abria cinza: título preto sobre papel, e o azul do Ei só numa
-   barrinha lá no alto. Agora a primeira dobra é uma faixa do azul da
-   marca, com os três números da cidade dentro dela.
+   ── POR QUE ESTAVA APAGADA ────────────────────────────────────────────
 
-   ── A LETRA SOBRE O AZUL É ESCURA, E ISSO É MEDIDO ───────────────────
+   A capa era o azul CLARO do logo com a letra escura por cima. A conta do
+   contraste passava (5,28), mas contraste não é energia: letra escura
+   sobre cor clara é o desenho de um aviso, não de uma capa. E ainda
+   brigava com o cabeçalho, que é de outro azul — duas faixas azuis
+   diferentes coladas uma na outra.
 
-   Branco sobre o azul do Ei dá 2,64 de contraste, quando o mínimo é 4,5.
-   É o mesmo defeito da tela "Quem está contratando", que foi apontada
-   três vezes de olho ("essa tela tá ruim") antes de alguém medir. A saída
-   não é trocar o azul da marca — é escrever em tinta escura por cima
-   dele:
+   Agora a capa é o MESMO azul do cabeçalho (#0a72c4), com a letra BRANCA.
+   Branco nele dá 4,98 — passa —, e o efeito é o oposto do anterior: o
+   alto da tela vira um bloco de cor só, do topo até o fim dos botões.
 
-     título   #0b2f44 sobre #01a7fd .... 5,28
-     apoio    #09364f ................... 4,78
-     rótulo   #0c4262 ................... 4,03 (letra grande, mínimo 3)
+   (Não é abandonar o azul do logo. Ele continua sendo a marca e continua
+   nas artes; aqui a superfície é a mesma que o app inteiro já usa nos
+   cabeçalhos, e é isso que faz a tela parecer uma peça só.)
 
-   É a mesma dupla das artes do Instagram (`scripts/artes_ei.py`), e de
-   propósito: o post e a tela do celular têm de parecer a mesma empresa. */
+   ── POR QUE NÃO SE SABIA ONDE CLICAR ──────────────────────────────────
+
+   Porque a única ação estava embaixo de duas prateleiras, fora da
+   primeira dobra. Agora as duas portas do app ficam DENTRO da capa, logo
+   abaixo dos números — o primeiro toque possível é também o único que
+   importa.
+
+   ── E O TEXTO ENCOLHEU ────────────────────────────────────────────────
+
+   Saiu a linha de apoio inteira e o título virou três palavras. Numa capa,
+   cada linha a mais empurra o botão para baixo — e o botão é o assunto. */
 .ei .ei-capa {
-  background: var(--ei-marca, #01a7fd);
-  padding: 26px 0 22px;
-  /* Encosta no cabeçalho azul: as duas faixas viram uma só, e a tela
-     começa com um bloco de cor inteiro em vez de uma listra. */
+  background: var(--ei-acento, #0a72c4);
+  padding: 22px 0 24px;
+  /* Encosta no cabeçalho, que é da mesma cor: as duas viram um bloco só. */
   margin-top: -1px;
 }
 
 .ei .ei-capa-titulo {
   margin: 0;
   padding: 0 33px;
-  color: #0b2f44;
-  font-size: 1.72rem;
+  color: #fff;
+  font-size: 2rem;
   font-weight: 800;
-  line-height: 1.16;
+  line-height: 1.1;
   /* O mesmo aperto das manchetes das artes: letra grande com espaçamento
      de letra pequena fica frouxa, e é a diferença mais visível entre
      "digitado" e "composto". */
-  letter-spacing: -0.022em;
-}
-
-.ei .ei-capa-apoio {
-  margin: 10px 0 0;
-  padding: 0 33px;
-  color: #09364f;
-  font-size: 0.95rem;
-  line-height: 1.35;
+  letter-spacing: -0.025em;
 }
 
 /* Os três números. Altura reservada desde o primeiro quadro (ver o
@@ -9349,10 +9350,10 @@
    empurra a página inteira debaixo do dedo de quem já começou a ler. */
 .ei .ei-capa-numeros {
   display: flex;
-  gap: 22px;
+  gap: 20px;
   padding: 0 33px;
-  margin-top: 20px;
-  min-height: 52px;
+  margin-top: 18px;
+  min-height: 46px;
   flex-wrap: wrap;
 }
 
@@ -9362,19 +9363,63 @@
 }
 
 .ei .ei-capa-valor {
-  color: #0b2f44;
-  font-size: 1.7rem;
+  color: #fff;
+  font-size: 1.5rem;
   font-weight: 800;
   line-height: 1;
   letter-spacing: -0.02em;
 }
 
+/* O rótulo também em branco, e não num azul clarinho: qualquer tom mais
+   fraco que o branco cai abaixo de 4,5 sobre este azul, e letra pequena
+   não tem a folga que manchete tem. Quem separa o número do rótulo é o
+   TAMANHO, não a cor. */
 .ei .ei-capa-rotulo {
-  color: #0c4262;
-  font-size: 0.78rem;
+  color: #fff;
+  font-size: 0.74rem;
   font-weight: 600;
   line-height: 1.2;
+  opacity: 0.92;
   max-width: 96px;
+}
+
+/* As duas portas. Lado a lado porque são uma escolha entre duas coisas do
+   mesmo peso — empilhadas, a de cima vira "a certa" e a de baixo, o
+   consolo. */
+.ei .ei-capa-portas {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  padding: 0 33px;
+  margin-top: 22px;
+}
+
+.ei .ei-capa-porta {
+  display: grid;
+  place-items: center;
+  min-height: 52px;
+  padding: 0 6px;
+  border-radius: var(--ei-raio-toque, 12px);
+  border: 2px solid rgba(255, 255, 255, 0.85);
+  color: #fff;
+  /* 0,92rem para "Procuro emprego" caber numa linha só. A 0,98 ele
+     quebrava e a porta do lado não — duas portas do mesmo tamanho com
+     texto de alturas diferentes é o desalinhamento que já foi apontado
+     três vezes neste projeto. */
+  font-size: 0.92rem;
+  font-weight: 700;
+  text-align: center;
+  text-decoration: none;
+  line-height: 1.15;
+}
+
+/* A primeira é cheia: branca com letra azul, 4,98 de contraste ao
+   contrário. Duas portas contornadas iguais fazem o olho parar para
+   escolher; uma cheia diz por onde a maioria entra sem impedir a outra. */
+.ei .ei-capa-porta-forte {
+  background: #fff;
+  border-color: #fff;
+  color: var(--ei-acento, #0a72c4);
 }
 
 /* Com a capa colorida, as prateleiras começam logo abaixo dela. */
