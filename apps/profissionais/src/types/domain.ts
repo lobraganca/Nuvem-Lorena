@@ -59,6 +59,16 @@ export interface Professional {
   boosted_until: string | null;
   /** Pausado pelo próprio dono: sai da busca e volta quando ele quiser. */
   paused: boolean;
+  /**
+   * "Estou disponível para receber vaga".
+   *
+   * A coluna existe no banco desde sempre e `definirCadastroAtivo` mexe
+   * nela junto com `paused` — "inativar" é sair da busca E parar de
+   * receber. Só faltava aqui, então quem lia um cadastro por este tipo
+   * não tinha como saber. Opcional porque as consultas que escolhem
+   * coluna a coluna nem sempre a pedem.
+   */
+  disponivel?: boolean | null;
   /** Etiquetas de atendimento marcadas no cadastro (ver `ATRIBUTOS`). */
   atributos: string[];
   /**

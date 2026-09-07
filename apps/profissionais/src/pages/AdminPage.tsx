@@ -25,8 +25,7 @@ import {
   searchProfessionals,
   type ProfessionalWithRating,
 } from "../lib/professionals";
-import { listSuggestions, updateSuggestionStatus } from "../lib/suggestions";
-import { CITIES, type Suggestion, type SuggestionStatus } from "../types/domain";
+import { CITIES } from "../types/domain";
 import {
   AdminEmpresas,
   AdminVagas,
@@ -51,10 +50,47 @@ const STATUS_LABEL: Record<ReportStatus, string> = {
   dismissed: "Descartada",
 };
 
-const SUGGESTION_STATUS_LABEL: Record<SuggestionStatus, string> = {
-  new: "Nova",
-  reviewed: "Revisada",
-};
+/**
+ * "Esta pessoa aparece na busca?" — em português, num lugar só.
+ *
+ * A dona: "no painel adm em cadastro, quero ver se a pessoa marcou para
+ * aparecer ou não."
+ *
+ * São QUATRO motivos diferentes para um cadastro não aparecer, e cada um
+ * pede uma providência diferente:
+ *
+ *   . a administração tirou do ar     → decisão dela, ela desfaz aqui
+ *   . a pessoa se marcou como oculta  → escolha da pessoa, se respeita
+ *   . o telefone não foi confirmado   → nada a fazer no painel; a pessoa
+ *                                       precisa confirmar o código
+ *   . a pessoa não recebe vaga        → aparece na busca, mas as ondas
+ *                                       passam por ela
+ *
+ * Uma etiqueta só dizendo "oculto" juntaria os dois primeiros, que são
+ * opostos: um se desfaz, o outro não se mexe. Daí a frase inteira.
+ *
+ * A ORDEM importa: quem está suspenso E oculto tem os dois motivos, e o
+ * que interessa ao painel é o de cima — é o único que ela decide.
+ */
+function situacaoDoCadastro(p: {
+  suspended: boolean;
+  paused: boolean;
+  disponivel?: boolean | null;
+  whatsapp_verified: boolean;
+}): { texto: string; cor: "no-ar" | "oculto" | "fora" } {
+  if (p.suspended) return { texto: "Fora do ar — você tirou", cor: "fora" };
+  if (p.paused) return { texto: "Oculto — a pessoa marcou para não aparecer", cor: "oculto" };
+  /* Telefone não confirmado é o motivo INVISÍVEL: o cadastro está pronto,
+     a pessoa acha que está no ar, e não está. É a linha que explica a
+     maior parte dos "me cadastrei e ninguém me chamou". */
+  if (!p.whatsapp_verified)
+    return { texto: "Não aparece — o telefone ainda não foi confirmado", cor: "oculto" };
+  /* Aqui a pessoa APARECE na busca; o que ela desligou foi receber aviso
+     de vaga. Por isso a cor é a de quem está no ar. */
+  if (p.disponivel === false)
+    return { texto: "Aparece na busca, mas não recebe aviso de vaga", cor: "no-ar" };
+  return { texto: "Aparece na busca", cor: "no-ar" };
+}
 
 /**
  * As seções do painel, cada uma com endereço próprio.
@@ -73,7 +109,7 @@ const SUGGESTION_STATUS_LABEL: Record<SuggestionStatus, string> = {
 const SECOES = [
   /* O Ei Emprego vem PRIMEIRO: é o app que está no ar hoje. As seções
      abaixo dele nasceram no outro produto e continuam servindo (denúncia,
-     sugestão, banner), mas nenhuma responde "quantas empresas assinaram?"
+     destaque), mas nenhuma responde "quantas empresas assinaram?"
      — que é a pergunta que a dona faz todo dia. */
   { id: "empresas", simbolo: "🏢", titulo: "Empresas", resumo: "Quem cadastrou, o plano de cada uma, e ligar ou renovar." },
   { id: "vagas", simbolo: "📢", titulo: "Vagas", resumo: "Tudo o que já foi publicado, com filtro por situação." },
@@ -92,9 +128,18 @@ const SECOES = [
                   exibe em tela nenhuma.
        Procurados serviços que faltam na cidade, do outro produto.
 
-     "Sugestões" e "Denúncias" FICARAM: o rodapé do Ei tem "Enviar
-     sugestão", que escreve na primeira, e a segunda é a tabela para onde
-     um dia vai a denúncia que hoje sai pelo WhatsApp.
+     "Denúncias" FICOU: é a tabela para onde um dia vai a denúncia que
+     hoje sai pelo WhatsApp.
+
+     ── E "SUGESTÕES" SAIU TAMBÉM — 07/09 ────────────────────────────
+     A dona: "pode tirar o painel de sugestões. Não precisa disso."
+
+     ATENÇÃO para quem mexer aqui: o botão "Enviar sugestão" CONTINUA no
+     rodapé do app (`PerfilPage`) e continua gravando em `suggestions`.
+     Ou seja, o que as pessoas escreverem fica guardado no banco e não é
+     lido por ninguém. Não foi descuido — tirar o painel foi o pedido, e
+     tirar o botão do app é outra mudança, visível para quem usa. Está
+     escrito para a próxima sessão não concluir que o botão quebrou.
 
      ── ESSE "UM DIA" CHEGOU — 05/09 ─────────────────────────────────
      A dona: "a situação de denunciar o perfil deve ser direcionado ao
@@ -103,7 +148,6 @@ const SECOES = [
      botões de denunciar do app passaram a escrever em `reports`, e a
      denúncia agora pode ser de uma VAGA também (0121). */
   { id: "denuncias", simbolo: "🚩", titulo: "Denúncias", resumo: "Vagas e cadastros denunciados, para apurar e tirar do ar." },
-  { id: "sugestoes", simbolo: "💬", titulo: "Sugestões", resumo: "O que as pessoas pediram pelo app." },
   { id: "destaques", simbolo: "🔥", titulo: "Destaques", resumo: "Quem está no topo da busca e quem está na fila." },
   { id: "cadastros", simbolo: "📋", titulo: "Cadastros", resumo: "Ver, editar, reenquadrar foto e tirar do ar." },
 ] as const;
@@ -131,8 +175,6 @@ export function AdminPage() {
   const [reports, setReports] = useState<ReportWithProfessional[]>([]);
   const [updating, setUpdating] = useState<string | null>(null);
   const [message, setMessage] = useState("");
-  const [suggestions, setSuggestions] = useState<Suggestion[]>([]);
-  const [updatingSuggestion, setUpdatingSuggestion] = useState<string | null>(null);
 
   const [pros, setPros] = useState<ProfessionalWithRating[]>([]);
   const [prosLoading, setProsLoading] = useState(false);
@@ -166,6 +208,10 @@ export function AdminPage() {
       city: cityFilter || undefined,
       category: categoryFilter || undefined,
       onlySuspended: onlySuspended || undefined,
+      /* Lê a TABELA, e não a view pública: quem se marcou como oculto
+         estava fora da lista do painel — ver `paraAdmin` em
+         `professionals.ts`. É o que faz a etiqueta "Oculto" existir. */
+      paraAdmin: true,
       page,
     });
   }
@@ -179,7 +225,6 @@ export function AdminPage() {
     getDestaquesAtivos().then(setDestaques);
     getDemandaDeDestaque().then(setDemanda);
     setReports(await listReports());
-    setSuggestions(await listSuggestions());
     const data = await fetchPros(0);
     setPros(data);
     setProsPage(0);
@@ -319,19 +364,6 @@ export function AdminPage() {
     }
   }
 
-  async function handleSuggestionReviewed(suggestionId: string) {
-    setUpdatingSuggestion(suggestionId);
-    setMessage("");
-    try {
-      await updateSuggestionStatus(suggestionId, "reviewed");
-      setSuggestions(await listSuggestions());
-    } catch (err) {
-      setMessage(mensagemDeErro(err, "Erro ao atualizar sugestão."));
-    } finally {
-      setUpdatingSuggestion(null);
-    }
-  }
-
   if (loading || checking) {
     return <div className="container" style={{ paddingTop: 40 }}>Carregando…</div>;
   }
@@ -354,13 +386,11 @@ export function AdminPage() {
 
   const pendingCount = reports.filter((r) => r.status === "pending").length;
 
-  const novasSugestoes = suggestions.filter((s) => s.status === "new").length;
   /* Contagem só onde ela é completa. A lista de cadastros vem paginada, e
      um "20" no menu leria como "a cidade tem 20 cadastros" quando é só o
      tamanho da primeira página — número errado no lugar mais visível. */
   const pendencias: Partial<Record<SecaoId, number>> = {
     denuncias: pendingCount,
-    sugestoes: novasSugestoes,
   };
   const aberta = SECOES.find((s) => s.id === secaoAberta);
 
@@ -598,48 +628,6 @@ export function AdminPage() {
       </section>
       )}
 
-      {mostrar("sugestoes") && (
-      <section>
-        {suggestions.length === 0 && <p className="muted">Nenhuma sugestão recebida ainda.</p>}
-        <div className="grid">
-          {suggestions.map((s) => (
-            <div
-              key={s.id}
-              className="card"
-              style={s.status === "new" ? { border: "1px solid var(--color-primary)" } : undefined}
-            >
-              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                <span
-                  className="badge"
-                  style={
-                    s.status === "new"
-                      ? { color: "var(--color-primary)", borderColor: "var(--color-primary)" }
-                      : { color: "var(--color-accent-teal)", borderColor: "var(--color-accent-teal)" }
-                  }
-                >
-                  {SUGGESTION_STATUS_LABEL[s.status]}
-                </span>
-                <span className="muted" style={{ fontSize: "0.85rem" }}>
-                  {new Date(s.created_at).toLocaleString("pt-BR")}
-                </span>
-              </div>
-              <p style={{ margin: "8px 0 4px" }}>{s.message}</p>
-              {s.status === "new" && (
-                <button
-                  className="btn btn-teal"
-                  style={{ marginTop: 8 }}
-                  disabled={updatingSuggestion === s.id}
-                  onClick={() => handleSuggestionReviewed(s.id)}
-                >
-                  Marcar como revisada
-                </button>
-              )}
-            </div>
-          ))}
-        </div>
-      </section>
-      )}
-
       {mostrar("destaques") && (
       <section>
 
@@ -805,12 +793,9 @@ export function AdminPage() {
           {pros.map((p) => {
             const verified = isCurrentlyVerified(p);
             const boosted = isCurrentlyBoosted(p);
+            const situacao = situacaoDoCadastro(p);
             return (
-            <div
-              key={p.id}
-              className="card"
-              style={p.suspended ? { border: "1px solid var(--color-primary)" } : undefined}
-            >
+            <div key={p.id} className="admin-cad" data-situacao={situacao.cor}>
               {/* A foto entra na lista porque é ela que a administração
                   precisa julgar: foto torta, cortada no pescoço ou tirada
                   de longe demais não dá erro em lugar nenhum — só afunda o
@@ -826,21 +811,34 @@ export function AdminPage() {
                   </span>
                 )}
                 <div className="admin-topo-texto">
-                  <Link to={`/profissional/${p.id}`}>
-                    <strong>{p.name}</strong>
+                  <Link to={`/profissional/${p.id}`} className="admin-cad-nome">
+                    {p.name}
                   </Link>
-                <div style={{ display: "flex", gap: 6, flexWrap: "wrap", marginTop: 4 }}>
-                  {verified && <span className="badge badge-verified">Premium ativo</span>}
-                  {boosted && <span className="badge badge-boosted">Em destaque</span>}
-                  {p.suspended && (
-                    <span className="badge" style={{ color: "var(--color-primary)", borderColor: "var(--color-primary)" }}>
-                      Fora do ar
-                    </span>
-                  )}
-                </div>
+                  <p className="admin-cad-oficio">{p.category} · {p.city}</p>
                 </div>
               </div>
-              <p className="muted">{p.category} · {p.city}</p>
+
+              {/* ── APARECE OU NÃO, EM PRIMEIRO LUGAR — 07/09 ───────────
+                  A dona: "no painel adm em cadastro, quero ver se a pessoa
+                  marcou para aparecer ou não."
+
+                  A frase inteira, e não um ícone: "Oculto" sozinho não diz
+                  se quem escondeu foi ela ou a administração, e essas duas
+                  coisas pedem providências opostas — uma é escolha da
+                  pessoa e se respeita, a outra é decisão dela e se
+                  desfaz. */}
+              <p className="admin-cad-situacao">{situacao.texto}</p>
+
+              {/* A etiqueta "Fora do ar" saiu daqui: a linha de cima já diz
+                  "Fora do ar — você tirou", com mais informação e em
+                  vermelho. Duas vezes a mesma coisa, uma embaixo da outra,
+                  faz a segunda parecer outra coisa que não se entendeu. */}
+              {(verified || boosted) && (
+                <div className="admin-cad-etiquetas">
+                  {verified && <span className="badge badge-verified">Premium ativo</span>}
+                  {boosted && <span className="badge badge-boosted">Em destaque</span>}
+                </div>
+              )}
               {/* ── ESTE BOTÃO IA PARA LUGAR NENHUM — 03/09 ─────────────
                   Ele apontava para `/painel/editar/:id`, uma rota que NÃO
                   EXISTE no app: quem tocasse caía numa tela em branco. O
@@ -852,11 +850,7 @@ export function AdminPage() {
                   dona pediu: consertar uma palavra, um bairro, uma foto. Ela
                   mexe só nisso — telefone confirmado, plano e situação
                   continuam cada um no seu lugar. */}
-              <Link
-                className="btn btn-outline"
-                to={`/admin/corrigir/profissional/${p.id}`}
-                style={{ marginTop: 4 }}
-              >
+              <Link className="btn btn-outline" to={`/admin/corrigir/profissional/${p.id}`}>
                 Corrigir cadastro e foto
               </Link>
 
@@ -874,8 +868,8 @@ export function AdminPage() {
                   antiga: quem paga de novo quer 7 dias inteiros. */}
               <BotaoDestaque profissional={p} />
               {p.suspended ? (
-                <>
-                  {p.suspended_reason && <p className="muted" style={{ fontSize: "0.85rem" }}>Motivo: {p.suspended_reason}</p>}
+                <div className="admin-cad-tirar">
+                  {p.suspended_reason && <p className="muted" style={{ fontSize: "0.85rem", margin: 0 }}>Motivo: {p.suspended_reason}</p>}
                   <button
                     className="btn btn-outline"
                     disabled={suspending === p.id}
@@ -883,9 +877,9 @@ export function AdminPage() {
                   >
                     Reativar cadastro
                   </button>
-                </>
+                </div>
               ) : (
-                <div style={{ marginTop: 8, display: "grid", gap: 8 }}>
+                <div className="admin-cad-tirar">
                   {/* Rótulo visível no lugar do exemplo dentro do campo:
                       o que some ao digitar deixa de responder "o que era
                       para escrever aqui?" na hora em que a dúvida vem. */}
@@ -899,7 +893,18 @@ export function AdminPage() {
                     <button className="btn btn-outline" disabled={suspending === p.id} onClick={() => handleSuspend(p.id, false)}>
                       Tirar do ar
                     </button>
-                    <button className="btn btn-primary" disabled={suspending === p.id} onClick={() => handleSuspend(p.id, true)}>
+                    {/* ── O QUE MAIS DÓI NÃO É O BOTÃO MAIS BONITO ────
+                        Era `btn-primary`: azul cheio, o vocabulário de
+                        "siga por aqui" do app inteiro. Num cartão em que
+                        as outras três ações são de contorno, a ação que
+                        tira uma pessoa da vista da cidade E bloqueia a
+                        conta era a única pintada — a que a mão acha
+                        primeiro.
+
+                        Vermelho claro é o que o app já usa para o que
+                        assusta e se desfaz (ver `ei-btn-perigo-claro`).
+                        Continua alcançável, sem ser o caminho natural. */}
+                    <button className="btn admin-cad-perigo" disabled={suspending === p.id} onClick={() => handleSuspend(p.id, true)}>
                       Tirar do ar e bloquear cadastro
                     </button>
                   </div>

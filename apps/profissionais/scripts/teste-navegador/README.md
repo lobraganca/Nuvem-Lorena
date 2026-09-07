@@ -43,6 +43,12 @@ novo por não estarem escritos em lugar nenhum.
 | `?acessos=N` \| `semsql` \| `0` | os acessos de hoje no painel: um número, a migration 0131 não aplicada, ou o dia zerado |
 | `?promo=nao` \| `semsql` | a promoção dos 30 dias (0133): desligada/já usada, ou a migration não aplicada |
 
+Os cadastros de índice 55 a 59 nascem em estados diferentes de propósito
+(suspenso, oculto pelo dono, sem telefone confirmado, sem receber vaga).
+São os ÚLTIMOS índices porque o painel administrativo ordena do mais novo
+para o mais velho — nos índices baixos eles cairiam na terceira página e o
+teste diria "não tem ninguém oculto" com todos eles lá.
+
 `?combina=1` mexe na SEGUNDA vaga de propósito: a primeira já tem resposta
 no falso, e vaga respondida fica fora do baralho — o caso alto apareceria
 na lista e nunca nos cartões.

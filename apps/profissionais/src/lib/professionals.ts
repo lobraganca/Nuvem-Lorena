@@ -62,6 +62,25 @@ export interface SearchFilters {
   pageSize?: number;
   /** Admin: incluir/filtrar por suspensos. Sem efeito na busca pública (que já filtra via RLS). */
   onlySuspended?: boolean;
+  /**
+   * A lista do painel administrativo — que precisa ver TODO MUNDO.
+   *
+   * ── O QUE ISTO CONSERTA — 07/09 ──────────────────────────────────
+   * A dona: "no painel adm em cadastro, quero ver se a pessoa marcou
+   * para aparecer ou não."
+   *
+   * Não dava, e não era falta de uma etiqueta na tela: quem escolheu
+   * ficar oculto simplesmente NÃO ESTAVA na lista. O painel lia a
+   * `professionals_public`, e a 0053 tirou dela os pausados e os
+   * suspensos — os dois grupos que o painel existe para olhar. Quem
+   * marcou "não quero aparecer" sumia também do lugar onde isso
+   * deveria ser visto.
+   *
+   * Com esta chave o painel lê a TABELA. Não é furo: ali vale a RLS —
+   * admin vê tudo, e qualquer outra pessoa recebe zero linha. É o
+   * mesmo caminho que `resumoDeCadastros` já usa para contar.
+   */
+  paraAdmin?: boolean;
 }
 
 export interface ProfessionalWithRating extends Professional {
@@ -118,7 +137,7 @@ export async function searchProfessionals(filters: SearchFilters): Promise<Profe
      tabela vale a RLS, que deixa admin ver tudo e devolve zero linha para
      qualquer outra pessoa. Se alguém chamar esta função com
      `onlySuspended` sem ser admin, recebe uma lista vazia. */
-  const fonte = filters.onlySuspended ? "professionals" : "professionals_public";
+  const fonte = filters.onlySuspended || filters.paraAdmin ? "professionals" : "professionals_public";
 
   let query = client
     .from(fonte)
@@ -222,7 +241,14 @@ export async function searchProfessionals(filters: SearchFilters): Promise<Profe
    * nota, e nem dinheiro nem sorte podem reordenar uma lista que a pessoa
    * mandou ordenar por outro critério.
    */
-  if (!filters.sort || filters.sort === "relevance") {
+  /* O painel administrativo NÃO embaralha.
+     ──────────────────────────────────────
+     O sorteio existe para a busca pública, e ali ele é justo. Numa lista
+     PAGINADA de administração ele é defeito: cada página é sorteada de
+     novo, então a mesma pessoa aparece duas vezes e outra não aparece
+     nunca — e ninguém desconfia, porque uma lista de cadastros não tem
+     ordem "certa" que se reconheça de olho. */
+  if ((!filters.sort || filters.sort === "relevance") && !filters.paraAdmin) {
     results = [
       ...embaralhar(results.filter((p) => isCurrentlyBoosted(p))),
       ...embaralhar(results.filter((p) => !isCurrentlyBoosted(p))),

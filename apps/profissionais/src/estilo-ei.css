@@ -9693,3 +9693,120 @@
   font-size: 0.86rem;
   color: var(--ei-erro);
 }
+
+/* ═══════════════════════════════════════════════════════════════════════
+   OS CARTÕES DE CADASTRO DO PAINEL — 07/09
+   ═══════════════════════════════════════════════════════════════════════
+   A dona: "faça os cards melhorzinhos."
+
+   Eram um `.card` cru com quatro botões soltos empilhados, todos do mesmo
+   tamanho e do mesmo peso: "Corrigir", "Destacar", o campo de motivo,
+   "Tirar do ar" e "Tirar do ar e bloquear". Nada dizia o que era leitura e
+   o que era decisão, e o cartão inteiro tinha uma altura só de botão.
+
+   O que muda: uma FAIXA de cor à esquerda dizendo se a pessoa aparece ou
+   não (é o pedido do mesmo dia), o nome com peso de título, e as ações
+   separadas em dois blocos — o que se faz sempre em cima, o que tira do ar
+   embaixo, atrás de um fio.
+
+   Estas classes moram aqui e não no `theme.css` porque são do Ei. O
+   `theme.css` é o tema herdado do procurô, e cada regra nova escrita lá é
+   uma a mais para separar depois. */
+.admin-cad {
+  background: var(--ei-papel, #fff);
+  border: 1px solid var(--ei-fio, #e9e9e7);
+  border-left: 4px solid var(--ei-fio-forte, #d7d6d2);
+  border-radius: 12px;
+  padding: 14px 16px;
+  display: grid;
+  gap: 10px;
+}
+
+/* A cor da faixa responde à MESMA pergunta em toda a lista: aparece ou
+   não. Verde é quem a cidade vê; âmbar é quem está fora por escolha da
+   própria pessoa (ou por telefone não confirmado); vermelho é o que a
+   administração tirou.
+
+   Verde e âmbar não podem ser a única diferença — daí a frase escrita
+   embaixo do nome. Quem não distingue as duas cores lê a mesma coisa. */
+.admin-cad[data-situacao="no-ar"] { border-left-color: var(--ei-verde, #1b6b3f); }
+.admin-cad[data-situacao="oculto"] { border-left-color: var(--ei-laranja, #c2410c); }
+.admin-cad[data-situacao="fora"] { border-left-color: var(--ei-erro, #b3261e); }
+
+.admin-cad-nome {
+  font-size: 1.02rem;
+  font-weight: 700;
+  line-height: 1.25;
+  color: var(--ei-tinta, #37352f);
+  text-decoration: none;
+}
+.admin-cad-nome:hover { text-decoration: underline; }
+
+.admin-cad-oficio {
+  margin: 2px 0 0;
+  font-size: 0.86rem;
+  color: var(--ei-tinta-fraca, #6b6963);
+}
+
+/* A frase da situação: pequena, mas em negrito e na cor do estado. É a
+   primeira coisa que se procura ao percorrer a lista. */
+.admin-cad-situacao {
+  margin: 0;
+  font-size: 0.84rem;
+  font-weight: 600;
+  line-height: 1.35;
+}
+.admin-cad[data-situacao="no-ar"] .admin-cad-situacao { color: var(--ei-verde, #1b6b3f); }
+.admin-cad[data-situacao="oculto"] .admin-cad-situacao { color: var(--ei-laranja, #c2410c); }
+.admin-cad[data-situacao="fora"] .admin-cad-situacao { color: var(--ei-erro, #b3261e); }
+
+.admin-cad-etiquetas {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+/* Os botões de leitura e correção ficam largos e um por linha: no celular,
+   dois botões lado a lado nesta largura viram dois alvos de 40px que a
+   pessoa erra. */
+.admin-cad > .btn { width: 100%; }
+
+/* ── O QUE TIRA DO AR FICA SEPARADO, ATRÁS DE UM FIO ──────────────────
+   O campo do motivo e os dois botões de tirar do ar estavam na mesma pilha
+   de "Corrigir cadastro" e "Destacar" — quatro ações do mesmo peso, sendo
+   que duas são reversíveis com um toque e duas tiram uma pessoa da vista
+   da cidade inteira.
+
+   O fio não impede nada; ele só faz a mão parar antes. */
+.admin-cad-tirar {
+  border-top: 1px solid var(--ei-fio, #e9e9e7);
+  padding-top: 12px;
+  margin-top: 2px;
+  display: grid;
+  gap: 8px;
+}
+
+/* ── "TIRAR DO AR E BLOQUEAR": VERMELHO CLARO, NÃO AZUL CHEIO ─────────
+   Era `btn-primary` — azul preenchido, o vocabulário de "siga por aqui"
+   do app inteiro. Num cartão em que as outras três ações são de contorno,
+   a única pintada era a que tira uma pessoa da vista da cidade E bloqueia
+   a conta: a que a mão acha primeiro.
+
+   As cores são as do `ei-btn-perigo-claro`, escritas de novo aqui e não
+   reaproveitadas — e isso NÃO é descuido. Aquela regra é `.ei
+   .ei-btn-perigo-claro`, e o painel administrativo não vive dentro de um
+   `.ei`: ele é uma tela do tema antigo, num `.container`. Usar a classe
+   de lá deixou o botão CINZA na primeira tentativa, visto na foto —
+   nenhuma das duas cores chegava, e o resultado parecia um botão
+   desligado.
+
+   Os valores são literais pelo mesmo motivo: as variáveis `--ei-*` são
+   declaradas no bloco `.ei`, e aqui elas não existem. */
+.admin-cad .btn.admin-cad-perigo {
+  background: #fbe9e8;
+  border: 1px solid #f0c9c6;
+  color: #6b1512;
+  font-weight: 600;
+}
+.admin-cad .btn.admin-cad-perigo:active { background: #f7dcda; }
+.admin-cad .btn.admin-cad-perigo:disabled { opacity: 0.6; }

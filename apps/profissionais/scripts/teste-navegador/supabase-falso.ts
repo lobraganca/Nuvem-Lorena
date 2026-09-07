@@ -133,8 +133,27 @@ const professionals: Linha[] = Array.from({ length: QUANTOS }, (_, i) => ({
      então o falso precisa nascer confirmado — senão a tela de
      profissionais abre vazia e o teste fotografa o estado errado.
      `?confirmado=nao` exercita o outro lado. */
-  whatsapp_verified: ajuste("confirmado") !== "nao",
-  disponivel: true,
+  /* ── OS QUATRO ESTADOS DO PAINEL — 07/09 ─────────────────────────
+     A dona: "no painel adm em cadastro, quero ver se a pessoa marcou
+     para aparecer ou não." A tela passou a dizer isso por extenso, com
+     quatro frases diferentes — e com todo mundo no ar não dava para ver
+     nenhuma delas a não ser a primeira.
+
+     Então alguns cadastros nascem em cada estado. Os índices são os
+     ÚLTIMOS de propósito, e por dois motivos:
+
+       . o 0 e o 1 são do dono da sessão e são usados por meia dúzia de
+         outros testes (a pergunta "ainda está disponível?", o destaque, o
+         perfil) — mexer neles quebraria coisa sem relação com isto;
+       . `created_at` cresce com o índice e o painel ordena do mais novo
+         para o mais velho, então os últimos índices são os PRIMEIROS da
+         lista. Nos índices baixos eles cairiam na terceira página e o
+         teste diria "não tem ninguém oculto" com todos eles lá.
+
+     Nenhum é múltiplo de 6: esses são os turbinados, e turbinado vai para
+     o topo antes de qualquer data. */
+  whatsapp_verified: ajuste("confirmado") !== "nao" && i !== 58,
+  disponivel: i !== 57,
   verified: i % 7 === 0,
   verified_until: i % 7 === 0 ? emDias(30) : null,
   /* ── HÁ QUANTO TEMPO ESTA PESSOA NÃO APARECE (0127) ───────────────
@@ -159,8 +178,8 @@ const professionals: Linha[] = Array.from({ length: QUANTOS }, (_, i) => ({
      ninguém ter olhado para ele uma vez. */
   boosted: ajuste("destaque") === "nao" ? false : i % 6 === 0,
   boosted_until: ajuste("destaque") === "nao" ? null : i % 6 === 0 ? emDias(30) : null,
-  suspended: false,
-  paused: false,
+  suspended: i === 55,
+  paused: i === 59,
   // O índice 0 é o mais ANTIGO: created_at cresce com i, e a ordenação do
   // app é `created_at desc`. É exatamente a queixa — quem entrou primeiro
   // fica por último.
