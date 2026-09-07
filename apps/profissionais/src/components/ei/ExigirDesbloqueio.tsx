@@ -238,8 +238,28 @@ export function ExigirDesbloqueio({ children }: { children: ReactNode }) {
   return (
     <div className="ei">
       <div className="ei-tela">
-        <div className="ei-margem" style={{ paddingTop: 20 }}>
-          <h1 className="ei-entrada-titulo">Olá de novo</h1>
+        {/* ── O RECUO ESTAVA CONTADO DUAS VEZES — 07/09 ────────────────
+            A dona, com print: "Olá de novo está desalinhada."
+
+            Estava, e de 33px: o `div` trazia `ei-margem` (recuo de texto)
+            e o `h1` traz o dele próprio, na mesma medida. Somando os dois,
+            o título nascia em 81px enquanto a linha de apoio, o cartão e
+            o campo da senha nasciam em 48 — medido, não olhado.
+
+            O `ei-margem` saiu e ficou só o respiro de cima. Cada filho
+            carrega o próprio recuo, que é a regra do resto do app: quem é
+            TEXTO recua 33, quem é CAIXA recua 12. */}
+        <div style={{ paddingTop: 20 }}>
+          {/* "Ei, bem-vindo novamente!", palavras dela. O hífen é o único
+              acréscimo — é como a palavra se escreve.
+
+              E ele vai dentro de um `nowrap` porque hífen é ponto de
+              quebra: sem isso o título saía "Ei, bem-" numa linha e
+              "vindo novamente!" na outra, que foi o que a foto mostrou.
+              Agora a palavra viaja inteira para a segunda linha. */}
+          <h1 className="ei-entrada-titulo">
+            Ei, <span style={{ whiteSpace: "nowrap" }}>bem-vindo</span> novamente!
+          </h1>
           <p className="ei-apoio" style={{ marginTop: 6 }}>
             {telefone ? `Entre com a senha de ${telefone}.` : "Entre com a sua senha."}
           </p>
