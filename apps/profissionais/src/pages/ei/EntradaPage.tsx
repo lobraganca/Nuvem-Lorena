@@ -152,7 +152,7 @@ export function EntradaPage() {
               Itabirito" continua fora, como a dona pediu no item 12: quem
               diz o nome agora é a barra. */}
           <h1 className="ei-entrada-titulo">
-            {entrou ? "Por onde começamos?" : "Vagas e serviços de Itabirito"}
+            {entrou ? "Por onde começamos?" : "Quem contrata e quem procura, aqui se encontram"}
           </h1>
           {/* Uma linha. A anterior tinha duas orações e dizia, com vinte
               palavras, o que os dois botões logo abaixo dizem com seis. */}
@@ -166,10 +166,26 @@ export function EntradaPage() {
                  abaixo, e que já diz o mesmo com todas as letras: "Você
                  está em — toque para trocar de lado". */
               ? "Escolha por onde entrar."
-              /* Agora a tela mostra a cidade antes de pedir qualquer coisa,
-                 e a frase diz isso — a anterior descrevia o app, não a
-                 tela. */
-              : "Veja as vagas e quem está procurando. Sem criar conta."}
+              /* ── O ENCONTRO, E NÃO O CATÁLOGO — 07/09 ──────────────
+                 A dona: "na primeira página colocar algo mais ligado a
+                 fazer conexões de um jeito diferente. Ao invés de vagas e
+                 serviços."
+
+                 "Vagas e serviços de Itabirito" descrevia um CATÁLOGO —
+                 uma lista de coisas — e catálogo é o que o app não é. O
+                 que ele faz é aproximar duas pessoas da mesma cidade, e o
+                 título passou a dizer isso.
+
+                 A linha de apoio carrega o "de um jeito diferente", pelo
+                 avesso: nomeia as duas coisas que aqui NÃO acontecem. É a
+                 mesma dor do carrossel do Dia 1 — deixar currículo em
+                 quatro lugares e não receber ligação nenhuma —, agora do
+                 lado de quem contrata também.
+
+                 E "Sem criar conta" saiu daqui a pedido dela. A tela
+                 continua abrindo sem conta; o que muda é que ela não
+                 anuncia mais isso como se fosse a vantagem principal. */
+              : "Sem currículo de porta em porta, sem anúncio que ninguém vê."}
           </p>
         </div>
 
