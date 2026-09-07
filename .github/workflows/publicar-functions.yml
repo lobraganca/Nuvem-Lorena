@@ -136,7 +136,12 @@ jobs:
           # virar assinatura ativa aqui. A function se defende sozinha: ela
           # confere a assinatura do MP_WEBHOOK_SECRET e reconsulta o status
           # real na API do Mercado Pago antes de acreditar em qualquer coisa.
-          sem_jwt="mercadopago-webhook renew-annual-plans"
+          #
+          # `retorno-do-pagamento` é a do Ei, e entrou em 07/09 — as outras
+          # duas são do procurô e nem sobem mais (ver o DO_EI abaixo); ficam
+          # na lista porque tirá-las não ganha nada e um dia alguém volta a
+          # publicá-las sem lembrar do motivo.
+          sem_jwt="retorno-do-pagamento mercadopago-webhook renew-annual-plans"
 
           # ── SÓ AS FUNCTIONS DO EI — 04/09 ───────────────────────────
           # A dona: "tudo dos apps tem que ser separados."
@@ -156,11 +161,19 @@ jobs:
           #   enviar-avisos-de-vaga  a onda. É o coração do app.
           #   delete-account         apagar a conta. Exigência da Play.
           #   notify-suspension      avisa quem foi suspenso pela adm.
+          #   criar-pagamento        abre a tela do Mercado Pago (07/09).
+          #   retorno-do-pagamento   recebe o aviso e liga o plano (07/09).
+          #
+          # As duas de pagamento são do EI, e não do procurô: elas usam a
+          # tabela `pedidos` (0129) e os preços de `_shared/precosDoEi.ts`.
+          # As do procurô continuam de fora — outra tabela, outro produto.
           #
           # Function nova do Ei entra NESTA lista. Sem isso ela não sobe, e
           # o app recebe 404 sem nada explicando — que foi o defeito de
-          # 01/09 a 04/09 com a `enviar-avisos-de-vaga`.
-          DO_EI="enviar-avisos-de-vaga delete-account notify-suspension"
+          # 01/09 a 04/09 com a `enviar-avisos-de-vaga`. No caso do
+          # `retorno-do-pagamento` o preço seria mais alto: o Mercado Pago
+          # recebe 404, o dinheiro entra e o plano nunca liga.
+          DO_EI="enviar-avisos-de-vaga delete-account notify-suspension criar-pagamento retorno-do-pagamento"
 
           if [ "$ESCOLHA" = "todas" ]; then
             # `_shared` não é uma function, é a pasta de código comum que as

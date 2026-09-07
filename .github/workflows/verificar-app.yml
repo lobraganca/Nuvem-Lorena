@@ -48,6 +48,14 @@ jobs:
       - name: Conferir os tipos
         run: npx tsc --noEmit
 
+      # A tabela de preços vive em dois lugares por necessidade: a tela lê
+      # `src/types/domain.ts`, e a cobrança roda numa Edge Function em Deno,
+      # que não consegue importar um arquivo do app. Divergência ali é
+      # silenciosa dos dois lados — a tela mostra um valor, o Mercado Pago
+      # cobra outro, e quem descobre é quem pagou, na fatura.
+      - name: A tela e o servidor cobram a mesma coisa
+        run: node scripts/conferir-precos.mjs
+
       - name: Montar o app
         run: npm run build
         env:
