@@ -48,10 +48,30 @@ export function PlanosEmpresaPage() {
   useTituloDaPagina("Planos para contratar");
   const navegar = useNavigate();
 
-  /* Recorrente por padrão porque é o que quase todo mundo quer: a vaga que
-     ficou no ar 30 dias e some sozinha, sem aviso, é a reclamação previsível
-     do avulso. Quem prefere pagar uma vez troca num toque. */
+  /* ── QUAL DOS DOIS VEM MARCADO — 07/09 ────────────────────────────
+     Recorrente é o que quase todo mundo quer: a vaga que ficou no ar 30
+     dias e some sozinha, sem aviso, é a reclamação previsível do avulso.
+
+     MENOS para quem entrou pelo telefone e não tem e-mail na conta. A
+     assinatura do Mercado Pago exige e-mail do pagador, e sem ele ela nem
+     abre. Com "todo mês" marcado por padrão, essa pessoa toca no plano,
+     lê um erro vermelho e vai embora — e ela é a MAIORIA aqui, porque a
+     porta principal do app é o SMS.
+
+     Foi o que aconteceu com a dona no primeiro teste de verdade. */
+  const { user: quemEsta } = useAuth();
+  const temEmail = !!quemEsta?.email;
   const [ciclo, setCiclo] = useState<CicloDoPlano>("recorrente");
+
+  /* A sessão chega alguns quadros depois do primeiro desenho, então a
+     escolha certa só dá para fazer quando ela chega — e uma vez só, senão
+     trocar a chavinha à mão seria desfeito pelo próximo desenho. */
+  const [jaEscolhi, setJaEscolhi] = useState(false);
+  useEffect(() => {
+    if (jaEscolhi || !quemEsta) return;
+    if (!quemEsta.email) setCiclo("avulso");
+    setJaEscolhi(true);
+  }, [quemEsta, jaEscolhi]);
 
   /* ── A MESMA TELA, DOIS MOMENTOS ────────────────────────────────────
      A dona: "antes de cadastrar a empresa o app deve mostrar em cards
@@ -82,6 +102,21 @@ export function PlanosEmpresaPage() {
   const [erroDoPlano, setErroDoPlano] = useState<{ plano: PlanoEmpresa; texto: string } | null>(
     null
   );
+
+  /* Pagar avulso SEM depender da chavinha: `setCiclo` só vale no desenho
+     seguinte, e o toque precisa abrir o pagamento agora. Chamar `comprar`
+     aqui leria o `ciclo` velho e repetiria o mesmo erro. */
+  async function comprarAvulso(plano: PlanoEmpresa) {
+    setErroDoPlano(null);
+    setAbrindo(plano);
+    try {
+      const { url } = await pagarPlanoUmaVez(plano);
+      irParaOPagamento(url);
+    } catch (e) {
+      setErroDoPlano({ plano, texto: mensagemDeErro(e, "Não consegui abrir o pagamento.") });
+      setAbrindo(null);
+    }
+  }
 
   async function comprar(plano: PlanoEmpresa) {
     setErroDoPlano(null);
@@ -264,6 +299,18 @@ export function PlanosEmpresaPage() {
               cancela quando quiser; <strong>uma vez só</strong> vale{" "}
               {DIAS_ANUNCIO_VAGA} dias e nunca cobra de novo.
             </p>
+            {/* Dito ANTES do toque, e não como erro depois dele — 07/09.
+                Quem entrou pelo telefone (a porta principal do app) não tem
+                e-mail na conta, e a assinatura do Mercado Pago exige um.
+                Sem esta linha, a pessoa escolhia "todo mês", tocava no
+                plano e só então descobria, em vermelho. */}
+            {!temEmail && (
+              <p className="ei-apoio ei-comopagar-nota">
+                <strong>Todo mês</strong> precisa de um e-mail na sua conta e de
+                cartão. Sem e-mail, dá para pagar <strong>uma vez só</strong> — por
+                Pix, boleto ou cartão.
+              </p>
+            )}
           </div>
         )}
 
@@ -454,9 +501,35 @@ export function PlanosEmpresaPage() {
                         {abrindo === chave ? "Abrindo o pagamento…" : rotulo}
                       </button>
                       {erroDoPlano?.plano === chave && (
-                        <span className="ei-oferta-nota" style={{ color: "var(--color-danger)" }}>
-                          {erroDoPlano.texto}
-                        </span>
+                        <>
+                          <span className="ei-oferta-nota" style={{ color: "var(--color-danger)" }}>
+                            {erroDoPlano.texto}
+                          </span>
+                          {/* ── O ERRO CARREGA A SAÍDA — 07/09 ───────────
+                              Antes, a mensagem explicava o que fazer
+                              ("você pode pagar uma vez só") e deixava a
+                              pessoa se virar: a chavinha que resolve fica
+                              no ALTO da tela, fora da vista de quem está
+                              lendo o erro no quinto cartão. Instrução que
+                              obriga a procurar o botão é instrução que
+                              não é seguida.
+
+                              Aqui o próprio erro vira o caminho: troca a
+                              chavinha e abre o pagamento no mesmo toque. */}
+                          {ciclo === "recorrente" && (
+                            <button
+                              type="button"
+                              className="ei-btn ei-btn-contorno ei-btn-largo"
+                              disabled={abrindo !== null}
+                              onClick={() => {
+                                setCiclo("avulso");
+                                comprarAvulso(chave);
+                              }}
+                            >
+                              Pagar uma vez só, {DIAS_ANUNCIO_VAGA} dias
+                            </button>
+                          )}
+                        </>
                       )}
                     </>
                   )
