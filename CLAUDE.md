@@ -120,6 +120,19 @@ O workflow `.github/workflows/publicar-busca-itabirito.yml` dispara em push
 na `duqnk8` que toque `apps/profissionais/**`, e chama um Deploy Hook da
 Vercel (`secrets.VERCEL_DEPLOY_HOOK`).
 
+**O projeto na Vercel é `lobragancas-projects/ei-itabirito`** — conferido com
+a dona em 07/09. Os dois endereços que se pede a ela toda hora, prontos:
+
+```
+https://vercel.com/lobragancas-projects/ei-itabirito/settings/environment-variables
+https://vercel.com/lobragancas-projects/ei-itabirito/deployments
+```
+
+Isto está escrito porque uma sessão inteira pediu "abra a Vercel e ache o
+projeto" três vezes: ela trabalha no celular, e caçar menu no celular é
+onde o passo trava. Link pronto é a diferença entre um toque e uma
+desistência.
+
 **Durante um dia inteiro o check ficou verde sem o site mudar.** Chamar o
 gatilho só prova que a Vercel *recebeu* o pedido: as builds estavam indo
 para **Preview**, e a **Production** continuava num commit antigo. Nada na
