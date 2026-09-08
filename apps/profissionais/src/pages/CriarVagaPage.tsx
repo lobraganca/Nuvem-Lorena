@@ -280,17 +280,30 @@ export function CriarVagaPage() {
       }
       setProntoParaGravar(true);
 
-      /* O telefone da empresa também precisa estar confirmado. Vale para
-         todo mundo, e aqui tem uma razão a mais: quem responde à vaga vai
-         procurar essa empresa de volta, e um número não provado do lado de
-         quem contrata é onde mora o golpe do falso emprego. */
+      /* ── A CONFIRMAÇÃO DO TELEFONE SAIU DAQUI — 08/09 ──────────────
+         A dona: "tirar a confirmação do telefone da empresa dentro do
+         cadastro da vaga."
+
+         A tela abria com um aviso vermelho e recusava publicar enquanto a
+         empresa não confirmasse o número — e a empresa lia isso DEPOIS de
+         chegar até aqui, com a intenção de anunciar já formada.
+
+         O motivo original não era à toa (quem responde à vaga procura a
+         empresa de volta, e número não provado do lado de quem contrata é
+         onde mora o golpe do falso emprego). Mas ele cobrava a prova na
+         hora errada: numa cidade que está começando, cada vaga que não sai
+         é uma vaga a menos na tela, e a empresa que desiste aqui não volta.
+
+         O que ficou guardado continua guardado — `phone_verified` continua
+         existindo, a empresa ainda pode confirmar pelo painel, e a
+         administração continua vendo quem confirmou e quem não (ver
+         `AdminEiEmprego`). O que saiu foi a TRAVA.
+
+         O `empresa.phone_verified` ainda é lido porque a mensagem de erro
+         lá embaixo precisa dele — enquanto a 0135 não for aplicada, quem
+         recusa é o banco, e a empresa merece ler o motivo em português em
+         vez de um erro de permissão. */
       setEmpresaConfirmada(empresa.phone_verified);
-      if (!empresa.phone_verified) {
-        setErro(
-          "Confirme o telefone da sua empresa antes de publicar vagas. " +
-            "Dá para fazer isso no seu painel, no aviso do topo."
-        );
-      }
 
       setEmpresaId(empresa.id);
 
@@ -430,22 +443,6 @@ export function CriarVagaPage() {
   }
 
   async function confirmarEAbrirPrimeiraOnda() {
-    /* A trava de verdade, e não só o aviso lá de cima. Sem esta linha o
-       aviso seria decoração: a empresa leria "confirme o telefone" e
-       publicaria a vaga do mesmo jeito, tocando o botão de baixo.
-
-       Quem recusa de verdade é o banco — a policy de INSERT em
-       `job_listings` exige `phone_verified` (migration 0071). Esta linha
-       existe para a empresa ler uma frase que explica, em vez de um erro de
-       permissão que não diz o que fazer. */
-    if (!empresaConfirmada) {
-      setErro(
-        "Confirme o telefone da sua empresa antes de publicar. " +
-          "É por ele que os profissionais vão te procurar de volta."
-      );
-      return;
-    }
-
     setSalvando(true);
     setErro("");
 
@@ -512,6 +509,29 @@ export function CriarVagaPage() {
         navegar(`/vaga/${vagaCriada}?parcial=1`, { replace: true });
         return;
       }
+
+      /* ── ENQUANTO A 0135 NÃO FOR COLADA ────────────────────────────
+         A trava do telefone saiu da tela, mas ela existe em DOIS lugares:
+         aqui e na policy de INSERT do banco (0107). Só o banco recusa de
+         verdade, e ele recusa com `42501` — "new row violates row-level
+         security policy", que na tela vira um texto técnico que não diz o
+         que fazer.
+
+         Enquanto a 0135 não for aplicada, esta linha devolve a frase em
+         português para o único caso que a explica. Quando ela for, este
+         `if` para de acontecer sozinho e vira código morto inofensivo —
+         que é o preço certo a pagar por o app não depender da ordem em que
+         a SQL e o código chegam (ver `colunasNovas.ts`, mesmo problema). */
+      const e = err as { code?: string };
+      if (e.code === "42501" && !empresaConfirmada) {
+        setErro(
+          "Confirme o telefone da sua empresa para publicar. " +
+            "Dá para fazer isso no seu painel, no aviso do topo."
+        );
+        setSalvando(false);
+        return;
+      }
+
       setErro(mensagemDeErro(err, "Não foi possível criar a vaga."));
       setSalvando(false);
     }

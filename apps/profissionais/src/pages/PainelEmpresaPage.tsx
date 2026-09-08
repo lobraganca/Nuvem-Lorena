@@ -435,20 +435,30 @@ export function PainelEmpresaPage() {
           </p>
         )}
 
-        {/* O telefone confirmado, antes de qualquer coisa.
-            ────────────────────────────────────────────────
+        {/* O telefone confirmado: um CONVITE, e não mais uma exigência.
+            ────────────────────────────────────────────────────────────
             Fica ACIMA de tudo, e não escondido nas configurações, porque é
             o que separa uma empresa de um número digitado — e do lado de
             quem contrata isso pesa mais: quem responde à vaga vai procurar
             essa empresa de volta, e é aí que mora o golpe do falso emprego.
 
-            O caminho de criar vaga continua aceso: quem trava a publicação
-            é a própria tela de criação, com o motivo escrito. Travar aqui
-            deixaria a empresa olhando um botão cinza sem saber o que fazer
-            para acendê-lo. */}
+            ── O TEXTO MUDOU EM 08/09 ────────────────────────────────
+            Ele dizia "sem o telefone confirmado a vaga não sai". Era
+            verdade até a dona mandar tirar a trava do cadastro da vaga; no
+            minuto seguinte virou mentira, e aviso que mente é pior que
+            aviso nenhum — a empresa confirmaria correndo para destravar
+            algo que já estava destravado, e da próxima vez não acreditaria
+            em nenhum aviso desta tela.
+
+            Agora ele diz o que a confirmação DÁ, que é o que sempre foi o
+            verdadeiro motivo: quem procura a empresa de volta encontra um
+            número provado. Continua no topo, continua com o botão, e
+            deixou de ser um portão. */}
         {!empresa.phone_verified && (
-          <Callout atencao>
-            <strong>Sem o telefone confirmado a vaga não sai.</strong>{" "}
+          <Callout>
+            <strong>Confirme seu telefone.</strong> É por ele que quem se
+            candidatar vai te procurar de volta — e quem confirma passa mais
+            confiança.{" "}
             <button
               type="button"
               className="ei-btn-inline"
