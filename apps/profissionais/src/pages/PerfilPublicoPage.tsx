@@ -103,6 +103,20 @@ export function PerfilPublicoPage() {
   const [fotoFalhou, setFotoFalhou] = useState(false);
   const { id = "" } = useParams();
   const [p, setP] = useState<Publico | null>(null);
+  /* ── O CONTATO VEM POR UMA PORTA PRÓPRIA — 07/09 ──────────────────────
+     A dona: "consegue ver o número de um candidato só por um perfil de
+     empresa."
+
+     Conseguia, e a lista inteira: a view pública levava telefone para
+     qualquer conta logada, sem teto e sem registro. A 0134 tirou as
+     colunas de lá e abriu `ver_contato()` — um cadastro por vez, com
+     registro de quem pediu e teto de 20 por dia.
+
+     `null` é "ainda não perguntei"; `{...}` é a resposta; `erro` é o teto
+     batido, e essa frase é para APARECER: "não consegui" calado faria a
+     empresa achar que a pessoa não tem telefone. */
+  const [contato, setContato] = useState<{ phone?: string; whatsapp?: string } | null>(null);
+  const [erroDoContato, setErroDoContato] = useState("");
   const [experiencias, setExperiencias] = useState<ProfessionalExperience[]>([]);
   const [cursos, setCursos] = useState<Curso[]>([]);
   const [competencias, setCompetencias] = useState<Competencia[]>([]);
@@ -211,8 +225,15 @@ export function PerfilPublicoPage() {
              ninguém acrescente aqui chega indefinida, sem erro nenhum — e
              o campo some da tela como se a pessoa não o tivesse
              preenchido. */
+          /* `phone` e `whatsapp` SAÍRAM daqui — 07/09.
+             ─────────────────────────────────────────
+             A view não os tem mais (0134). Eles chegam por
+             `ver_contato()`, um por vez, com registro e teto de 20 por
+             dia — ver o efeito logo abaixo. Pedi-los aqui derrubaria a
+             consulta inteira com "column does not exist", e a ficha
+             abriria vazia. */
           .select(
-            "id, name, photo_url, phone, whatsapp, neighborhood, city, uf, bio, " +
+            "id, name, photo_url, neighborhood, city, uf, bio, " +
               "categories, areas_de_interesse, especialidade, disponivel, whatsapp_verified, " +
               "idade, pretensao_centavos, pretensao_combinar, pretensao_periodo, " +
               "disponibilidade, aceita_viajar, fim_de_semana, inicio_imediato, " +
@@ -247,6 +268,25 @@ export function PerfilPublicoPage() {
           return;
         }
         setP(data as unknown as Publico);
+
+        /* Pedido em seguida, e não junto: a ficha abre sem esperar por
+           ele. Se o teto do dia estourou, o resto da tela continua
+           inteiro — nome, ofício, experiência — e só o telefone dá lugar
+           ao motivo. */
+        sb.rpc("ver_contato", { p_professional_id: id })
+          .then(({ data: c, error: e }: { data: unknown; error: unknown }) => {
+            if (e) {
+              setErroDoContato(
+                mensagemDeErro(e, "Não consegui abrir o contato agora.")
+              );
+              return;
+            }
+            /* A função devolve uma TABELA, então o PostgREST entrega um
+               array. Lendo como objeto, o telefone chegaria indefinido e
+               a tela diria "sem telefone" para todo mundo. */
+            const linha = Array.isArray(c) ? c[0] : c;
+            setContato((linha ?? {}) as { phone?: string; whatsapp?: string });
+          });
 
         const [{ data: exps }, { data: curs }, { data: comps }] = await Promise.all([
           sb
@@ -304,7 +344,7 @@ export function PerfilPublicoPage() {
     );
   }
 
-  const telefone = p.whatsapp || p.phone || "";
+  const telefone = contato?.whatsapp || contato?.phone || "";
   /* O que ela FAZ e onde ela ACEITARIA trabalhar são duas listas no banco
      (`categories` e `areas_de_interesse`). Para quem contrata, as duas
      respondem a mesma pergunta — "dá para me ajudar nisto?" —, então elas
@@ -478,7 +518,18 @@ export function PerfilPublicoPage() {
               {p.city}/{p.uf}
             </Prop>
             <Prop rotulo="Telefone">
-              {p.whatsapp_verified ? (
+              {/* ── TRÊS ESTADOS, E O DO MEIO É O QUE IMPORTA — 07/09 ──
+                  O contato agora vem por uma porta com teto (0134), então
+                  ele pode DEMORAR e pode ser RECUSADO. Sem estas duas
+                  linhas, os dois casos apareceriam como um telefone em
+                  branco — e telefone em branco lê como "essa pessoa não
+                  tem número", que é mentira e faz a empresa desistir de
+                  alguém que está esperando ser chamado. */}
+              {erroDoContato ? (
+                <span className="ei-apoio">{erroDoContato}</span>
+              ) : contato === null ? (
+                <span className="ei-apoio">Abrindo…</span>
+              ) : p.whatsapp_verified ? (
                 <>
                   {telefoneLegivel(telefone)}{" "}
                   <span className="ei-selo ei-selo-verde">Confirmado</span>

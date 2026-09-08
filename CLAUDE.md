@@ -204,12 +204,13 @@ que é onde nasce o erro de aplicar no banco do Avena:
 https://supabase.com/dashboard/project/ahigenhenzmsjxlmrzhz/sql/new
 ```
 
-- Numeração sequencial: a última hoje é a `0133`. O estado de cada uma das
+- Numeração sequencial: a última hoje é a `0134`. O estado de cada uma das
   recentes, porque este parágrafo já esteve desatualizado e isso custa uma
   investigação inteira:
 
   | Migration | O que faz | Aplicada? |
   |---|---|---|
+  | `0134` | o **telefone sai um por vez**: a view pública perde as colunas de contato, `ver_contato()` com registro e teto de 20/dia, `contatos_dos_interessados()` sem teto | **NÃO confirmada** |
   | `0133` | a promoção **30 dias de 1 vaga grátis**: tabela `ofertas` (o interruptor), `ativar_teste_gratis` e `teste_gratis_disponivel` | **NÃO confirmada** |
   | `0132` | a **vitrine**: view `professionals_vitrine`, sem coluna de contato, liberada para quem NÃO tem conta | **sim** — 07/09 |
   | `0131` | os acessos do dia por porta (`registrar_acesso`, `acessos_de_hoje`) | **NÃO confirmada** |

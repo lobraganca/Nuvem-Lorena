@@ -1020,12 +1020,25 @@ class Consulta implements PromiseLike<{ data: Linha[] | Linha | null; error: unk
         (l) =>
           l.suspended === false && l.paused === false && l.whatsapp_verified === true
       );
-      TABELAS.professionals_public = visiveis;
       /* A vitrine tem o mesmo `where` e MENOS COLUNAS. Tirar as de contato
          aqui é o que faz o falso conseguir reprovar o dia em que alguém
          puser telefone na view pública sem conta — que é justamente o
          vazamento que a 0118 fechou e a 0132 tomou o cuidado de não
          reabrir. */
+      /* ── A VIEW PÚBLICA TAMBÉM PERDEU O CONTATO — 0134 ──────────
+         Ela levava telefone para qualquer conta logada, sem teto e sem
+         registro. Agora o contato só sai por `ver_contato()`.
+
+         O falso precisa tirar as colunas AQUI também: deixando-as, uma
+         tela que ainda as pedisse funcionaria no teste e quebraria no app
+         de verdade com "column does not exist" — que é o pior tipo de
+         diferença entre os dois. */
+      TABELAS.professionals_public = visiveis.map((l) => {
+        const copia: Linha = { ...l };
+        for (const c of ["phone", "whatsapp", "email", "telefones_extra"]) delete copia[c];
+        return copia;
+      });
+
       const SEM_CONTATO = ["phone", "whatsapp", "email", "telefones_extra",
                            "instagram", "linkedin", "bio", "cep", "street",
                            "street_number"];
@@ -1572,10 +1585,14 @@ const clienteFalso = {
             .includes(especialidade)
         );
     }
-    return clienteFalso.rpcSimples(nome);
+    /* Os ARGUMENTOS vão junto — 07/09. Iam perdidos aqui, e qualquer
+       função do falso que precisasse deles morria com "args is not
+       defined" no meio da tela. Só apareceu quando a primeira função com
+       argumento (`ver_contato`) entrou. */
+    return clienteFalso.rpcSimples(nome, args);
   },
 
-  rpcSimples: async (nome: string) => {
+  rpcSimples: async (nome: string, args?: Record<string, unknown>) => {
     if (nome === "mais_vistos") {
       // os quatro primeiros, como se fossem os mais vistos da semana
       return { data: professionals.slice(0, 4).map((p) => ({ professional_id: p.id })), error: null };
@@ -1633,6 +1650,46 @@ const clienteFalso = {
        "Hoje" some do painel, e que sem interruptor ninguém veria nunca. */
     if (nome === "registrar_acesso") {
       return { data: null, error: null };
+    }
+
+    /* ── O TELEFONE, UM POR VEZ (0134) — 07/09 ────────────────────────
+       `?contatos=cheio` finge o teto do dia batido, que é o único estado
+       em que a ficha mostra o motivo no lugar do número — e o estado que
+       ninguém veria sem interruptor, porque exige abrir vinte fichas.
+
+       Devolve um ARRAY de uma linha, como o PostgREST faz com função que
+       retorna `table`. Devolvendo o objeto solto, o app funcionaria aqui
+       e mostraria telefone em branco no banco de verdade. */
+    if (nome === "ver_contato") {
+      if (ajuste("contatos") === "cheio") {
+        return {
+          data: null,
+          error: { code: "P0001", message: "Você já abriu 20 contatos hoje. Amanhã libera de novo." },
+        };
+      }
+      const id = String(args?.p_professional_id ?? "");
+      const pessoa = (TABELAS.professionals ?? []).find((l) => l.id === id);
+      if (!pessoa || pessoa.suspended || pessoa.paused || !pessoa.whatsapp_verified) {
+        return { data: [], error: null };
+      }
+      return {
+        data: [{ phone: pessoa.phone, whatsapp: pessoa.whatsapp, email: pessoa.email,
+                 telefones_extra: pessoa.telefones_extra ?? [] }],
+        error: null,
+      };
+    }
+
+    /* Quem se candidatou à vaga sai sem teto — o contato é consentido. */
+    if (nome === "contatos_dos_interessados") {
+      const vaga = String(args?.p_job_id ?? "");
+      const respostas = (TABELAS.job_responses ?? []).filter(
+        (r) => r.job_listing_id === vaga && r.interessado !== false
+      );
+      const contas = new Set(respostas.map((r) => String(r.professional_id)));
+      const linhas = (TABELAS.professionals ?? [])
+        .filter((p) => contas.has(String(p.owner_id)))
+        .map((p) => ({ owner_id: p.owner_id, phone: p.phone, whatsapp: p.whatsapp }));
+      return { data: linhas, error: null };
     }
 
     /* ── OS 30 DIAS DE 1 VAGA GRÁTIS (0133) — 07/09 ───────────────────

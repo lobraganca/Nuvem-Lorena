@@ -634,8 +634,15 @@ export async function interessadosDasVagas(
      PostgREST recusar a CONSULTA INTEIRA, e aí a empresa veria "ninguém
      se interessou" numa vaga com dez interessados: a frase mais cara do
      app para se dizer errado. `lerTolerando` refaz sem ela nesse caso. */
+  /* `whatsapp` e `phone` SAÍRAM desta consulta — 07/09.
+     ───────────────────────────────────────────────────
+     A view pública não os tem mais (0134): eles vazavam a lista inteira
+     de telefones para qualquer conta logada. Pedi-los aqui derrubaria a
+     consulta com "column does not exist", e a empresa leria "ninguém se
+     interessou" numa vaga com dez interessados — a frase mais cara do app
+     para se dizer errado. */
   const { data: pessoas } = await lerTolerando<Array<Record<string, unknown>>>(
-    "id, owner_id, name, whatsapp, phone, photo_url, neighborhood, " +
+    "id, owner_id, name, photo_url, neighborhood, " +
       "areas_de_interesse, bio, primeiro_emprego",
     ["primeiro_emprego"],
     (colunas) =>
@@ -646,6 +653,8 @@ export async function interessadosDasVagas(
   for (const p of (pessoas ?? []) as Record<string, unknown>[]) {
     porConta.set(String(p.owner_id), p);
   }
+
+
   const tituloDaVaga = new Map(vagas.map((v) => [v.id, v.title]));
 
   return respostas.map((r) => {
@@ -1017,8 +1026,12 @@ export async function obterRespostasDaVaga(vagaId: string): Promise<RespostaComP
      PostgREST recusar a CONSULTA INTEIRA, e aí a empresa veria "ninguém
      se interessou" numa vaga com dez interessados: a frase mais cara do
      app para se dizer errado. `lerTolerando` refaz sem ela nesse caso. */
+  /* `whatsapp` e `phone` saíram desta lista: a view não os tem mais
+     (0134). Deixá-los aqui derrubaria a consulta com "column does not
+     exist" — e a `lerTolerando` só refaz sem `primeiro_emprego`, não sem
+     eles. O contato vem logo abaixo, por outra porta. */
   const { data: pessoas } = await lerTolerando<Array<Record<string, unknown>>>(
-    "id, owner_id, name, whatsapp, phone, photo_url, neighborhood, " +
+    "id, owner_id, name, photo_url, neighborhood, " +
       "areas_de_interesse, bio, primeiro_emprego",
     ["primeiro_emprego"],
     (colunas) =>
@@ -1028,6 +1041,31 @@ export async function obterRespostasDaVaga(vagaId: string): Promise<RespostaComP
   const porConta = new Map<string, Record<string, unknown>>();
   for (const p of (pessoas ?? []) as Record<string, unknown>[]) {
     porConta.set(String(p.owner_id), p);
+  }
+
+  /* ── O CONTATO VEM POR UMA PORTA SEM TETO — 07/09 ──────────────────
+     A view pública perdeu as colunas de telefone (0134): elas entregavam
+     a lista inteira de números para qualquer conta logada.
+
+     Aqui o contato continua saindo inteiro, e não é exceção mal feita: a
+     pessoa APERTOU um botão para se oferecer a ESTA vaga. É contato
+     consentido, e o teto de 20 por dia não vale — fosse pela porta da
+     ficha, a empresa com trinta interessados não conseguiria falar com os
+     trinta, e aí o app deixaria de fazer a única coisa que existe para
+     fazer.
+
+     Falha em silêncio de propósito: sem o telefone a lista ainda mostra
+     quem se interessou, com nome, foto e bairro. Derrubar a tela por
+     causa do contato seria trocar meia informação por nenhuma. */
+  const { data: contatos } = await sb.rpc("contatos_dos_interessados", {
+    p_job_id: vagaId,
+  });
+  for (const c of (contatos ?? []) as Record<string, unknown>[]) {
+    const pessoa = porConta.get(String(c.owner_id));
+    if (pessoa) {
+      pessoa.whatsapp = c.whatsapp;
+      pessoa.phone = c.phone;
+    }
   }
 
   return respostas.map((r) => {
