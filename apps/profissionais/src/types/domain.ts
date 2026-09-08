@@ -1248,6 +1248,12 @@ export const BENEFICIOS_SUGERIDOS = [
   "Vale-alimentação",
   "Almoço no local",
   "Plano de saúde",
+  /* Os três de 08/09, a pedido da dona. O odontológico entra colado no
+     plano de saúde porque é assim que a empresa pensa nos dois — e quem
+     oferece um costuma oferecer o outro. */
+  "Plano odontológico",
+  "Seguro de vida",
+  "Day off",
   "Comissão",
   "Adiantamento quinzenal",
 ];

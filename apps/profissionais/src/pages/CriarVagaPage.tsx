@@ -752,7 +752,47 @@ export function CriarVagaPage() {
     return "";
   }
 
+  /**
+   * Guarda o benefício que ficou digitado na caixinha sem Enter.
+   *
+   * ── O QUE ESTAVA ACONTECENDO — 08/09 ──────────────────────────────
+   *
+   * A dona: "considerar o que for escrito no campo."
+   *
+   * A caixa de escrever benefício só entregava o texto no `Enter`. Quem
+   * digitava "Seguro de vida" e tocava em Continuar perdia a palavra, sem
+   * nenhum aviso — a etapa passava, e o benefício simplesmente não existia.
+   *
+   * E ninguém aperta Enter num celular: o teclado mostra "OK" ou uma seta,
+   * e o gesto natural é tocar no botão da tela. Ou seja, o único caminho
+   * que salvava era o que quase ninguém faz.
+   *
+   * ── E POR QUE NÃO NO `onBlur` ─────────────────────────────────────
+   *
+   * Foi a primeira tentativa, e ela criou um defeito pior que o original:
+   * o "Continuar" passou a precisar de DOIS toques.
+   *
+   * O motivo é layout, não evento. Sair do campo acrescenta um chip; o
+   * chip entra ACIMA do botão, a lista cresce, e o botão desce alguns
+   * pixels entre o dedo encostar e o dedo soltar. O toque termina onde o
+   * botão estava, não onde ele está — e se perde. Medido no navegador: o
+   * primeiro toque guardava o benefício e não mudava de etapa; o segundo
+   * avançava.
+   *
+   * Então quem chama é cada saída de etapa, explicitamente. Chamar duas
+   * vezes não faz mal — a função recusa o que já está na lista.
+   */
+  function guardarBeneficioDigitado() {
+    const novo = beneficioNovo.trim();
+    if (!novo) return;
+    setForm((f) =>
+      f.beneficios.includes(novo) ? f : { ...f, beneficios: [...f.beneficios, novo] }
+    );
+    setBeneficioNovo("");
+  }
+
   function continuarEtapa() {
+    guardarBeneficioDigitado();
     const problema = conferirEtapa(etapa);
     if (problema) {
       setErro(problema);
@@ -788,6 +828,7 @@ export function CriarVagaPage() {
             passos={ETAPAS}
             atual={etapa}
             aoVoltar={(n) => {
+              guardarBeneficioDigitado();
               setErro("");
               setEtapa(n);
               window.scrollTo({ top: 0 });
@@ -1307,16 +1348,16 @@ export function CriarVagaPage() {
               type="text"
               value={beneficioNovo}
               onChange={(e) => setBeneficioNovo(e.target.value)}
+              /* Sem `onBlur` de propósito — ver `guardarBeneficioDigitado`.
+                 Quem guarda o texto pendente é cada botão que sai da
+                 etapa. */
               onKeyDown={(e) => {
                 if (e.key !== "Enter") return;
                 /* Sem isto, o Enter envia o formulário — e a empresa perde
                    o que digitou junto com o benefício que ela ia
                    acrescentar. */
                 e.preventDefault();
-                const novo = beneficioNovo.trim();
-                if (!novo || form.beneficios.includes(novo)) return;
-                setForm((f) => ({ ...f, beneficios: [...f.beneficios, novo] }));
-                setBeneficioNovo("");
+                guardarBeneficioDigitado();
               }}
             />
           </div>
@@ -1684,6 +1725,9 @@ export function CriarVagaPage() {
             <button
               className="ei-btn ei-btn-contorno"
               onClick={() => {
+                /* Voltar também sai da etapa, e sair da etapa não pode
+                   comer o benefício que ficou digitado. */
+                guardarBeneficioDigitado();
                 setErro("");
                 setEtapa((e) => e - 1);
                 window.scrollTo({ top: 0 });
