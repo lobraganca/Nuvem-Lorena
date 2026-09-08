@@ -475,9 +475,27 @@ export default function App() {
             gratuita da oferta da empresa — ver e falar um a um — e não
             existia: a lista não levava a lugar nenhum. */}
         <Route path="/profissional/:id" element={<PerfilPublicoPage />} />
-        <Route path="/vaga-aberta/:id" element={
-          <SoDesteLado lado="professional"><VagaAbertaPage /></SoDesteLado>
-        } />
+        {/* ── A VAGA ABRE DOS DOIS LADOS — 08/09 ─────────────────────
+            A dona: "ao clicar na vaga, não está abrindo o perfil da vaga."
+
+            Reproduzido no navegador: entrando como EMPRESA, tocar numa
+            vaga do banco desviava para `/comecar-empresa`. A tranca de
+            lado estava aqui.
+
+            E era uma tranca sem sentido de existir: o banco de vagas
+            (`/vagas`) é aberto aos dois lados — a porta dele está na tela
+            inicial de quem contrata — então toda linha daquela lista era
+            um beco para a empresa. Ela via a lista e nenhuma vaga abria.
+
+            É o mesmo caso do perfil público da pessoa e da página da
+            empresa, logo acima e logo abaixo: telas PÚBLICAS, que contam o
+            que já está publicado, ficam abertas; as que mexem no que é
+            seu é que são trancadas por lado.
+
+            Quem contrata olhando a vaga do vizinho é uso legítimo, e é
+            como se aprende o que a cidade está pagando. O que ela NÃO
+            pode é se candidatar — disso cuida a própria tela. */}
+        <Route path="/vaga-aberta/:id" element={<VagaAbertaPage />} />
         {/* A empresa vista por quem procura trabalho, com as vagas dela no
             ar. Ver EmpresaPublicaPage. */}
         <Route path="/empresa/:id" element={<EmpresaPublicaPage />} />
