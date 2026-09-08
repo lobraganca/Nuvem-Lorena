@@ -4,7 +4,11 @@ import { lerVitrine, type Vitrine as Dados, type VagaDaVitrine } from "../../lib
 import { salarioEmTexto } from "../../types/domain";
 import { SeletorDeCidade } from "./SeletorDeCidade";
 import { cidadeParaMostrar } from "../../lib/cidadeEscolhida";
-import { DIAS_DO_TESTE_GRATIS, promocaoLigada } from "../../lib/testeGratis";
+import {
+  DIAS_DO_TESTE_GRATIS,
+  promocaoLigada,
+  testeGratisDisponivel,
+} from "../../lib/testeGratis";
 
 /**
  * A vitrine da cidade, para quem chegou agora e não tem conta.
@@ -41,7 +45,9 @@ import { DIAS_DO_TESTE_GRATIS, promocaoLigada } from "../../lib/testeGratis";
  * o que aconteceu. É a regra do CLAUDE.md, e esta tela é onde ela mais
  * importa: é a primeira coisa que qualquer pessoa vê.
  */
-export function Vitrine({ minhaCasa }: { minhaCasa?: { para: string; rotulo: string } | null } = {}) {
+export function Vitrine({
+  minhaCasa,
+}: { minhaCasa?: { para: string; rotulo: string; lado: "professional" | "company" } | null } = {}) {
   const [dados, setDados] = useState<Dados | null>(null);
   /* ── A CHAMADA DOS 30 DIAS, NA PRIMEIRA TELA — 07/09 ─────────────────
      A dona: "coloque sobre o teste grátis na 1 tela."
@@ -54,13 +60,64 @@ export function Vitrine({ minhaCasa }: { minhaCasa?: { para: string; rotulo: str
      Some sozinha quando a dona desligar a promoção, e some também
      enquanto a 0133 não for aplicada. */
   const [temPromocao, setTemPromocao] = useState(false);
+  const ehEmpresa = minhaCasa?.lado === "company";
+  const entrou = !!minhaCasa;
   useEffect(() => {
     let vivo = true;
-    promocaoLigada().then((sim) => vivo && setTemPromocao(sim));
+    /* ── A PERGUNTA MUDA CONFORME QUEM ESTÁ OLHANDO — 08/09 ────────────
+       A dona: "os botões na tela não subiu."
+
+       Não subiram para ELA, e a chamada dos 30 dias era a metade que
+       importava: ela estava dentro do bloco de quem NÃO tem conta, e
+       quem pode ativar a promoção é justamente quem TEM. A oferta ficava
+       escondida do único público capaz de aceitá-la.
+
+       Agora:
+         sem conta        → "a oferta existe?" (`promocaoLigada`, que lê a
+                            tabela e não precisa de login)
+         conta de empresa → "ESTA conta pode pegar?"
+                            (`testeGratisDisponivel`) — some sozinha para
+                            quem já ativou ou já assina, que é o certo:
+                            oferecer de novo a quem já pegou é ruído
+         conta de pessoa  → não pergunta nada. Quem entrou para procurar
+                            emprego não quer ler oferta de empresa na
+                            primeira tela. */
+    /* ── E QUANDO NÃO PERGUNTA, APAGA ─────────────────────────────────
+       Sem este `else`, a resposta de uma pergunta antiga ficava na tela.
+       A sessão chega alguns quadros depois do primeiro desenho: no
+       primeiro, `entrou` ainda é falso, a pergunta é "a oferta existe?" e
+       a resposta é sim. Quando o lado chega e ele é o de quem PROCURA
+       EMPREGO, este efeito roda de novo e não pergunta nada — e o "sim"
+       de antes continuava valendo.
+
+       O resultado, visto no navegador: quem entrou para procurar emprego
+       lia "sua vaga por nossa conta" na primeira tela. Oferta de empresa
+       para quem quer ser contratado. */
+    if (!entrou) {
+      promocaoLigada().then((sim) => vivo && setTemPromocao(sim));
+    } else if (ehEmpresa) {
+      testeGratisDisponivel().then((sim) => vivo && setTemPromocao(sim));
+    } else {
+      setTemPromocao(false);
+    }
     return () => {
       vivo = false;
     };
-  }, []);
+  }, [entrou, ehEmpresa]);
+
+  /* A chamada, declarada uma vez e usada nos dois lados da tela — com
+     conta e sem. Duas cópias do mesmo texto acabariam discordando na
+     primeira vez que uma delas mudasse. */
+  const chamadaDaPromocao = temPromocao ? (
+    <Link
+      to={entrou ? "/planos-empresa" : "/login?lado=contratar"}
+      className="ei-capa-promo"
+    >
+      <strong>{entrou ? "Sua vaga por nossa conta:" : "Vai contratar?"}</strong>{" "}
+      {DIAS_DO_TESTE_GRATIS} dias grátis para publicar sua primeira vaga — por
+      tempo limitado.
+    </Link>
+  ) : null;
   const [erro, setErro] = useState("");
   const [carregando, setCarregando] = useState(true);
 
@@ -203,11 +260,14 @@ export function Vitrine({ minhaCasa }: { minhaCasa?: { para: string; rotulo: str
           por isso a segunda porta não vira "ir para o outro lado": ela
           simplesmente não existe para quem está dentro. */}
       {minhaCasa ? (
-        <div className="ei-capa-portas">
-          <Link to={minhaCasa.para} className="ei-capa-porta ei-capa-porta-forte">
-            {minhaCasa.rotulo}
-          </Link>
-        </div>
+        <>
+          <div className="ei-capa-portas">
+            <Link to={minhaCasa.para} className="ei-capa-porta ei-capa-porta-forte">
+              {minhaCasa.rotulo}
+            </Link>
+          </div>
+          {chamadaDaPromocao}
+        </>
       ) : (
         <>
           {/* As duas IGUAIS, as duas de contorno — 07/09.
@@ -249,12 +309,7 @@ export function Vitrine({ minhaCasa }: { minhaCasa?: { para: string; rotulo: str
               uma oferta de empresa acima da porta de todo mundo
               empurraria para baixo a ação que a tela existe para
               provocar. */}
-          {temPromocao && (
-            <Link to="/login?lado=contratar" className="ei-capa-promo">
-              <strong>Vai contratar?</strong> {DIAS_DO_TESTE_GRATIS} dias grátis para
-              publicar sua primeira vaga — por tempo limitado.
-            </Link>
-          )}
+          {chamadaDaPromocao}
         </>
       )}
     </header>

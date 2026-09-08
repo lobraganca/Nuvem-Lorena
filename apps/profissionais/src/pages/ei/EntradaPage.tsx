@@ -122,6 +122,11 @@ export function EntradaPage() {
       ? {
           para: casaDoLado(tipo),
           rotulo: tipo === "company" ? "Ir para minhas vagas" : "Ver vagas para mim",
+          /* O lado vai junto porque a capa decide por ele o que mais
+             mostrar: a chamada dos 30 dias é para quem contrata, e quem
+             entrou para procurar emprego não quer ler oferta de empresa
+             na primeira tela. */
+          lado: tipo,
         }
       : null;
 
