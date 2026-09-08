@@ -773,7 +773,27 @@ export function CriarVagaPage() {
           voltar={editando ? `/vaga/${idParaEditar}` : "/painel-empresa"}
         />
 
-        {passo === "formulario" && <Etapas passos={ETAPAS} atual={etapa} />}
+        {/* `aoVoltar` faz as etapas JÁ FEITAS virarem botão — a dona pediu
+            "a opção de voltar nos campos anteriores", e a trilha do topo é
+            onde ela procurou. O mesmo que o "Voltar" do rodapé faz, só que
+            para qualquer etapa anterior em vez de uma por vez: quem está
+            na 5 e quer arrumar o salário toca em "3 Salário".
+
+            Voltar não valida nada de propósito. A etapa que se deixa para
+            trás já passou pela conferência ao ser vencida, e exigi-la de
+            novo prenderia a pessoa numa etapa que ela quer justamente
+            corrigir. Quem valida é o "Continuar", na subida. */}
+        {passo === "formulario" && (
+          <Etapas
+            passos={ETAPAS}
+            atual={etapa}
+            aoVoltar={(n) => {
+              setErro("");
+              setEtapa(n);
+              window.scrollTo({ top: 0 });
+            }}
+          />
+        )}
 
         {/* ── "VOLTAMOS DE ONDE VOCÊ PAROU" ──────────────────────────────
             O aviso existe por uma razão só: sem ele, quem abre a tela para

@@ -2108,6 +2108,13 @@
 }
 .ei-etapas::-webkit-scrollbar { display: none; }
 
+/* O `li` virou só o lugar; quem é o cartão é o filho (um botão, quando a
+   etapa já foi feita, ou uma `div`). Ver o comentário em `Etapas.tsx`. */
+.ei-etapas > .ei-etapa-lugar {
+  flex: 0 0 auto;
+  display: flex;
+}
+
 .ei-etapa {
   flex: 0 0 auto;
   display: flex;
@@ -2156,6 +2163,20 @@
 .ei-etapa-feita .ei-etapa-numero {
   background: var(--ei-acao);
   color: var(--ei-sobre-acao);
+}
+
+/* A etapa feita é um BOTÃO — e botão não herda a letra do resto da página
+   em todos os navegadores. Sem o `font: inherit` o cartão sai com a fonte
+   do sistema, menor, e a trilha fica com um cartão diferente dos outros.
+   Ver `Etapas.tsx` para o motivo de ela ser tocável. */
+.ei-etapa-toque {
+  font: inherit;
+  cursor: pointer;
+  -webkit-appearance: none;
+  appearance: none;
+}
+.ei-etapa-toque:active {
+  background: var(--ei-afunda);
 }
 
 /* O cabeçalho de dentro do cartão de etapa: o título do que se pede ali. */
