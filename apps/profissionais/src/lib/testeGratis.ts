@@ -70,6 +70,48 @@ export async function testeGratisDisponivel(): Promise<boolean> {
   return data === true;
 }
 
+/**
+ * A promoção está de pé — a pergunta que a TELA INICIAL faz.
+ *
+ * Diferente de `testeGratisDisponivel`, que responde "esta conta pode
+ * pegar?" e exige estar logada. Aqui a pergunta é outra e mais simples:
+ * "a oferta existe?". Quem chega no site sem conta precisa saber disso —
+ * é justamente essa pessoa que a chamada tem de convencer.
+ *
+ * Lê a tabela `ofertas` direto, que é liberada para quem não tem conta de
+ * propósito (0133): não há nada de sigiloso numa promoção, e o objetivo
+ * dela é ser vista.
+ *
+ * `false` quando a 0133 ainda não foi aplicada — e avisa no console, para
+ * o silêncio não virar mistério.
+ */
+export async function promocaoLigada(): Promise<boolean> {
+  const sb = supabase();
+  if (!sb) return false;
+
+  const { data, error } = await sb
+    .from("ofertas")
+    .select("ligada, ate")
+    .eq("chave", "teste_gratis_30_dias")
+    .maybeSingle();
+
+  if (error) {
+    const e = error as { code?: string };
+    /* 42P01 é o Postgres ("relation does not exist"); PGRST205 é o
+       PostgREST não achando a tabela no cache do schema. */
+    if (e.code === "42P01" || e.code === "PGRST205") {
+      console.warn("[Ei] a chamada dos 30 dias não aparece: falta aplicar a migration 0133.");
+    } else {
+      console.warn("[Ei] não consegui saber se a promoção está de pé:", error);
+    }
+    return false;
+  }
+  if (!data) return false;
+  const linha = data as { ligada?: boolean; ate?: string | null };
+  if (!linha.ligada) return false;
+  return !linha.ate || new Date(linha.ate).getTime() > Date.now();
+}
+
 export type ResultadoDoTeste =
   | { ok: true; ate: Date }
   | { ok: false; erro: string };

@@ -4,6 +4,7 @@ import { lerVitrine, type Vitrine as Dados, type VagaDaVitrine } from "../../lib
 import { salarioEmTexto } from "../../types/domain";
 import { SeletorDeCidade } from "./SeletorDeCidade";
 import { cidadeParaMostrar } from "../../lib/cidadeEscolhida";
+import { DIAS_DO_TESTE_GRATIS, promocaoLigada } from "../../lib/testeGratis";
 
 /**
  * A vitrine da cidade, para quem chegou agora e não tem conta.
@@ -42,6 +43,24 @@ import { cidadeParaMostrar } from "../../lib/cidadeEscolhida";
  */
 export function Vitrine({ minhaCasa }: { minhaCasa?: { para: string; rotulo: string } | null } = {}) {
   const [dados, setDados] = useState<Dados | null>(null);
+  /* ── A CHAMADA DOS 30 DIAS, NA PRIMEIRA TELA — 07/09 ─────────────────
+     A dona: "coloque sobre o teste grátis na 1 tela."
+
+     Ela pergunta ao banco se a oferta EXISTE (a tabela `ofertas`, aberta
+     para quem não tem conta), e não se esta conta pode pegar — quem chega
+     no site sem conta é justamente quem a chamada precisa convencer, e
+     para essa pessoa a segunda pergunta responderia sempre "não".
+
+     Some sozinha quando a dona desligar a promoção, e some também
+     enquanto a 0133 não for aplicada. */
+  const [temPromocao, setTemPromocao] = useState(false);
+  useEffect(() => {
+    let vivo = true;
+    promocaoLigada().then((sim) => vivo && setTemPromocao(sim));
+    return () => {
+      vivo = false;
+    };
+  }, []);
   const [erro, setErro] = useState("");
   const [carregando, setCarregando] = useState(true);
 
@@ -190,14 +209,53 @@ export function Vitrine({ minhaCasa }: { minhaCasa?: { para: string; rotulo: str
           </Link>
         </div>
       ) : (
-        <div className="ei-capa-portas">
-          <Link to="/login?lado=trabalhar" className="ei-capa-porta ei-capa-porta-forte">
-            Procuro emprego
+        <>
+          {/* As duas IGUAIS, as duas de contorno — 07/09.
+              "Procuro emprego" era preenchida de branco, e fazia sentido
+              enquanto ela era a ação principal da tela. Com o
+              "Cadastre-se" logo abaixo, viraram dois blocos brancos
+              cheios brigando pelo mesmo olhar; e o preenchido tem de ser
+              um só, senão nenhum é.
+
+              As portas voltam a ser o que são: a pergunta de qual lado.
+              Quem já sabe toca numa delas; quem só quer entrar toca no
+              branco. */}
+          <div className="ei-capa-portas">
+            <Link to="/login?lado=trabalhar" className="ei-capa-porta">
+              Procuro emprego
+            </Link>
+            <Link to="/login?lado=contratar" className="ei-capa-porta">
+              Quero contratar
+            </Link>
+          </div>
+
+          {/* ── O "CADASTRE-SE" — 07/09 ──────────────────────────────
+              A dona: "colocar um botão de cadastre-se."
+
+              As duas portas acima já levam ao cadastro, mas elas
+              perguntam DE QUE LADO a pessoa está — e quem ainda não
+              decidiu (ou só quer entrar) não tem onde tocar. É a mesma
+              palavra da arte que foi para o Instagram, e quem chegar por
+              lá procura ela na tela.
+
+              Leva ao `/login` sem `?lado=`: a própria tela de entrar faz
+              a pergunta do lado, então ninguém responde duas vezes. */}
+          <Link to="/login" className="ei-capa-cadastro">
+            Cadastre-se. É de graça.
           </Link>
-          <Link to="/login?lado=contratar" className="ei-capa-porta">
-            Quero contratar
-          </Link>
-        </div>
+
+          {/* A chamada dos 30 dias vem DEPOIS do cadastro, e não antes:
+              ela fala com metade de quem lê (só quem contrata), e pôr
+              uma oferta de empresa acima da porta de todo mundo
+              empurraria para baixo a ação que a tela existe para
+              provocar. */}
+          {temPromocao && (
+            <Link to="/login?lado=contratar" className="ei-capa-promo">
+              <strong>Vai contratar?</strong> {DIAS_DO_TESTE_GRATIS} dias grátis para
+              publicar sua primeira vaga — por tempo limitado.
+            </Link>
+          )}
+        </>
       )}
     </header>
   );

@@ -292,8 +292,25 @@ export function ProfissionaisPage() {
            Este filtro não apaga ninguém. Tira da lista do Ei quem não fez
            o cadastro do Ei, e deixa o procurô intacto. É reversível: sai
            daqui e todo mundo volta. */
-        .not("areas_de_interesse", "is", null)
-        .neq("areas_de_interesse", "{}")
+        /* ── O FILTRO SAIU — 07/09 ────────────────────────────────────
+           A dona: "coloque todas as pessoas na tela. Independente de como
+           está o cadastro."
+
+           O pedido foi sobre a tela inicial, e o filtro saiu daqui junto
+           de propósito: as duas listas mostram as mesmas pessoas, e a
+           daqui é o "Ver todos os candidatos" da outra. Tirando só de lá,
+           a pessoa apareceria na tela inicial e sumiria no toque
+           seguinte — que é pior que não aparecer.
+
+           O texto acima explica por que o filtro existia (separar o
+           cadastro do procurô do cadastro do Ei) e continua valendo como
+           história. O que mudou foi a conta: numa cidade que está
+           começando, esconder gente custa mais do que a separação
+           resolve.
+
+           E o aviso de vaga continua cruzando por `areas_de_interesse`:
+           quem não marcou nenhuma aparece aqui e não recebe aviso. É o
+           que o painel administrativo diz, com essas palavras. */
         .order("created_at", { ascending: false })
       )
     )

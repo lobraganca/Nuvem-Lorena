@@ -9810,3 +9810,56 @@
 }
 .admin-cad .btn.admin-cad-perigo:active { background: #f7dcda; }
 .admin-cad .btn.admin-cad-perigo:disabled { opacity: 0.6; }
+
+/* ── O "CADASTRE-SE" E A CHAMADA DOS 30 DIAS, NA CAPA — 07/09 ─────────
+   A dona: "colocar um botão de cadastre-se" e "coloque sobre o teste
+   grátis na 1 tela".
+
+   O cadastro é BRANCO CHEIO, e as duas portas acima são de contorno. É a
+   única coisa preenchida da capa, de propósito: numa faixa azul inteira,
+   o branco sólido é o que o olho acha primeiro, e esta é a ação que a
+   tela existe para provocar. Duas coisas cheias dividiriam essa atenção.
+
+   Letra AZUL sobre o branco, e não o contrário: branco sobre o azul da
+   capa dá 4,98 e passa, mas num botão preenchido o contraste se inverte —
+   e azul escuro sobre branco dá 6,9. */
+.ei .ei-capa-cadastro {
+  display: block;
+  margin: 12px var(--ei-margem, 18px) 0;
+  padding: 15px 12px;
+  border-radius: var(--ei-raio-toque, 12px);
+  background: #fff;
+  color: var(--ei-acento, #0a72c4);
+  font-size: 1rem;
+  font-weight: 700;
+  text-align: center;
+  text-decoration: none;
+}
+.ei .ei-capa-cadastro:active { background: #eef4fb; }
+
+/* A chamada da promoção é o oposto: um fio, não um bloco. Ela fala com
+   metade de quem lê (só quem contrata), e um segundo botão cheio aqui
+   competiria com o cadastro logo acima — que é para todo mundo.
+
+   O texto vai em branco quase puro porque sobre este azul qualquer tom
+   mais escuro cai abaixo de 4,5 — está medido no bloco da paleta das
+   artes, e vale igual aqui. */
+.ei .ei-capa-promo {
+  display: block;
+  margin: 12px var(--ei-margem, 18px) 0;
+  padding: 11px 13px;
+  /* VÉU ESCURO por baixo, e não só o contorno. Sem ele o texto claro
+     passa por cima dos pontinhos da rede — que são brancos a 16% e 26% —
+     e o contraste cai para 4,12 em 0,73% dos pixels. Medido, como o resto
+     desta faixa; é o mesmo remédio do botão da cidade, e pelo mesmo
+     motivo: sobre este azul, escurecer o fundo SOBE o contraste do texto
+     claro. */
+  background: rgba(0, 0, 0, 0.16);
+  border: 1px solid rgba(255, 255, 255, 0.45);
+  border-radius: var(--ei-raio-toque, 12px);
+  color: #fff;
+  font-size: 0.86rem;
+  line-height: 1.4;
+  text-decoration: none;
+}
+.ei .ei-capa-promo:active { background: rgba(0, 0, 0, 0.28); }

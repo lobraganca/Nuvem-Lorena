@@ -626,6 +626,16 @@ const TABELAS: Record<string, Linha[]> = {
      a seção "Quem viu seu cadastro" nunca aparece no teste — e ela só
      aparece quando há alguém, então o teste diria que está tudo certo por
      não ter o que mostrar. */
+  /* A promoção dos 30 dias (0133). `?promo=nao` desliga, e é o estado em
+     que a chamada da tela inicial tem de sumir sozinha. */
+  ofertas: [
+    {
+      chave: "teste_gratis_30_dias",
+      ligada: PROMOCAO !== "nao" && PROMOCAO !== "semsql",
+      ate: null,
+    },
+  ],
+
   profile_views: contaNova()
     ? []
     : [

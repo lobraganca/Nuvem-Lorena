@@ -246,12 +246,31 @@ async function lerPessoas(sb: NonNullable<ReturnType<typeof supabase>>, cidade: 
     });
   if (cidade) q = q.eq("city", cidade);
 
+  /* ── TODO MUNDO APARECE, MESMO SEM ÁREA MARCADA — 07/09 ─────────────
+     A dona: "algumas pessoas não estão aparecendo na tela inicial porque
+     não colocaram serviço. Coloque todas as pessoas na tela.
+     Independente de como está o cadastro."
+
+     Aqui havia `.not(areas_de_interesse is null)` e `.neq("{}")`, o mesmo
+     filtro do banco de talentos. Ele nasceu para separar quem fez o
+     cadastro do EI de quem veio do procurô (mesmo banco, outra coluna) —
+     e essa separação fazia sentido quando a lista era o produto.
+
+     Numa cidade que está começando, ela custa mais do que resolve: cada
+     pessoa escondida é uma pessoa a menos na tela que a empresa abre para
+     decidir se o app serve. E a pessoa não fez nada de errado — ela
+     preencheu o cadastro que existia.
+
+     O que continua valendo (e é a `professionals_vitrine`, 0132):
+     suspenso não aparece, oculto não aparece, telefone não confirmado não
+     aparece. Esses três são decisão de alguém; "não marcou área" é só um
+     campo em branco.
+
+     O QUE NÃO MUDA: o aviso de vaga continua cruzando por
+     `areas_de_interesse`. Quem não marcou nenhuma aparece na busca e não
+     recebe aviso nenhum — e é isso que o painel administrativo passa a
+     dizer, com essas palavras. */
   const { data, error, count } = await q
-    /* O mesmo filtro do banco de talentos: quem não preencheu
-       `areas_de_interesse` não fez o cadastro do Ei (é gente do procurô, no
-       mesmo banco) e não tem o que mostrar aqui. */
-    .not("areas_de_interesse", "is", null)
-    .neq("areas_de_interesse", "{}")
     .order("created_at", { ascending: false })
     .limit(QUANTAS);
 
@@ -341,12 +360,11 @@ async function lerCidades(
     lerTudo<{ city: string | null }>(() =>
       sb.from("job_listings").select("city").eq("status", "active")
     ),
+    /* Sem o filtro de área, como a lista acima: a contagem de cidades
+       tem de bater com o que a tela mostra, senão o seletor oferece
+       "Ouro Preto 3" e a prateleira abre com cinco. */
     lerTudo<{ city: string | null }>(() =>
-      sb
-        .from("professionals_vitrine")
-        .select("city")
-        .not("areas_de_interesse", "is", null)
-        .neq("areas_de_interesse", "{}")
+      sb.from("professionals_vitrine").select("city")
     ),
   ]);
 

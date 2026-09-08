@@ -404,7 +404,8 @@ export interface ResumoDeCadastros {
    */
   semTelefone: number;
   /**
-   * Sem NENHUMA área de interesse marcada.
+   * Sem NENHUMA área de interesse marcada — aparece na busca, mas NUNCA
+   * recebe aviso de vaga. Não conta como "fora do ar" desde 07/09.
    *
    * ── A COLUNA ESTAVA ERRADA — 07/09 ──────────────────────────────────
    * A dona: "algumas pessoas estão como aparecem na busca mas não estão
@@ -514,9 +515,17 @@ export async function resumoDeCadastros(): Promise<ResumoDeCadastros> {
        o seletor a ser montado a partir dos dados, quem está em Mariana
        aparece — basta escolher Mariana. Contar isso como motivo de sumiço
        mandava a administração consertar o que não estava quebrado. */
+    /* `some = true` NÃO entra aqui — 07/09.
+       ─────────────────────────────────────
+       Desde que a dona mandou mostrar todo mundo na tela inicial, quem
+       não marcou área APARECE. O que ela não recebe é aviso de vaga, e
+       isso continua valendo a pena contar: é o número que explica as
+       pessoas cadastradas há meses que nunca foram chamadas.
+
+       Mas contar como "fora do ar" seria mentira — e mentira que manda a
+       administração procurar um sumiço que não existe. */
     if (!l.areas_de_interesse || l.areas_de_interesse.length === 0) {
       resumo.semAreas += 1;
-      some = true;
     }
     if (some) resumo.foraDoAr += 1;
   }

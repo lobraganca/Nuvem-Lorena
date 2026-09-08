@@ -63,9 +63,10 @@ const STATUS_LABEL: Record<ReportStatus, string> = {
  *   . a pessoa se marcou como oculta  → escolha da pessoa, se respeita
  *   . o telefone não foi confirmado   → nada a fazer no painel; a pessoa
  *                                       precisa confirmar o código
- *   . não marcou área de interesse    → falta preencher o cadastro do Ei
  *   . a pessoa não recebe vaga        → aparece na busca, mas as ondas
- *                                       passam por ela
+ *                                       passam por ela (por ter desligado
+ *                                       o "disponível" ou por não ter
+ *                                       marcado nenhuma área)
  *
  * Uma etiqueta só dizendo "oculto" juntaria os dois primeiros, que são
  * opostos: um se desfaz, o outro não se mexe. Daí a frase inteira.
@@ -107,10 +108,23 @@ function situacaoDoCadastro(p: {
      maior parte dos "me cadastrei e ninguém me chamou". */
   if (!p.whatsapp_verified)
     return { texto: "Não aparece — o telefone ainda não foi confirmado", cor: "oculto" };
+  /* ── ELA APARECE, MAS NÃO É AVISADA — mudou em 07/09 ──────────────
+     Esta linha dizia "Não aparece — não marcou em que áreas quer
+     trabalhar", e estava certa até hoje: as duas listas filtravam por
+     essa coluna.
+
+     A dona mandou mostrar todo mundo ("independente de como está o
+     cadastro"), então a pessoa passou a aparecer. O que NÃO mudou é o
+     aviso de vaga: ele continua cruzando por `areas_de_interesse`, e quem
+     não marcou nenhuma nunca vai ser avisado de nada.
+
+     Ou seja, a frase mudou de "sumiu" para "está lá e não é chamada" — e
+     essa é a que importa para a administração, porque é a que explica uma
+     pessoa cadastrada há meses que nunca recebeu vaga. */
   if (!p.areas_de_interesse || p.areas_de_interesse.length === 0)
     return {
-      texto: "Não aparece — não marcou em que áreas quer trabalhar",
-      cor: "oculto",
+      texto: "Aparece na busca, mas não recebe aviso de vaga (sem área marcada)",
+      cor: "no-ar",
     };
   /* Aqui a pessoa APARECE na busca; o que ela desligou foi receber aviso
      de vaga. Por isso a cor é a de quem está no ar. */
@@ -782,10 +796,23 @@ export function AdminPage() {
               resumo.suspensos > 0 && `${resumo.suspensos} suspenso${resumo.suspensos > 1 ? "s" : ""} pela administração`,
               resumo.pausados > 0 && `${resumo.pausados} pausado${resumo.pausados > 1 ? "s" : ""} pelo próprio dono`,
               resumo.semTelefone > 0 && `${resumo.semTelefone} sem o telefone confirmado`,
-              resumo.semAreas > 0 && `${resumo.semAreas} sem marcar em que áreas quer trabalhar`,
+
             ]
               .filter(Boolean)
               .join(" · ")}
+          </p>
+        )}
+        {/* ── "APARECE E NÃO É CHAMADA" É OUTRA LISTA ─────────────────
+            Fora do bloco "não aparecem" de propósito: estas pessoas ESTÃO
+            na tela desde 07/09. O que falta a elas é a área marcada, sem
+            a qual o aviso de vaga nunca chega — e esse é o número que
+            explica quem se cadastrou há meses e nunca foi chamado. */}
+        {resumo && resumo.semAreas > 0 && (
+          <p className="muted admin-resumo-detalhe">
+            <strong>{resumo.semAreas}</strong>{" "}
+            {resumo.semAreas === 1 ? "cadastro aparece" : "cadastros aparecem"} na busca
+            mas nunca {resumo.semAreas === 1 ? "recebe" : "recebem"} aviso de vaga: falta
+            marcar em que áreas {resumo.semAreas === 1 ? "quer" : "querem"} trabalhar.
           </p>
         )}
         {prosLoading && <p className="muted">Atualizando a lista…</p>}
