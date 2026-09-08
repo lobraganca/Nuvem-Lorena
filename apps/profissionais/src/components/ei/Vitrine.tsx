@@ -234,17 +234,12 @@ export function Vitrine({
         Quem contrata e quem procura, aqui se encontram
       </h1>
       <Numeros dados={dados} />
-      {/* AS DUAS PORTAS DENTRO DA CAPA, e não lá embaixo.
+      {/* A AÇÃO DENTRO DA CAPA, e não lá embaixo.
 
           A dona: "não sei onde clicar". E não sabia mesmo: a única ação da
           tela era um "Criar conta" depois de duas prateleiras, fora da
           primeira dobra. Quem chega numa tela que não diz o que fazer não
-          procura — sai.
-
-          São duas e não uma porque quem chega é uma de duas pessoas, e o
-          app inteiro é construído sobre essa escolha. Elas levam ao login
-          já com o lado escolhido (`?lado=`), então ninguém responde a
-          mesma pergunta duas vezes. */}
+          procura — sai. */}
       {/* ── QUEM JÁ ENTROU TEM UMA PORTA SÓ — 07/09 ─────────────────
           A dona: "faça com que a tela inicial com as vagas e candidatos
           expostos sempre apareça. Inclusive quando está logado."
@@ -270,36 +265,27 @@ export function Vitrine({
         </>
       ) : (
         <>
-          {/* As duas IGUAIS, as duas de contorno — 07/09.
-              "Procuro emprego" era preenchida de branco, e fazia sentido
-              enquanto ela era a ação principal da tela. Com o
-              "Cadastre-se" logo abaixo, viraram dois blocos brancos
-              cheios brigando pelo mesmo olhar; e o preenchido tem de ser
-              um só, senão nenhum é.
+          {/* ── UM BOTÃO SÓ — 08/09 ──────────────────────────────────
+              A dona: "os 3 botões estão levando ao mesmo lugar, deixo
+              somente o cadastre grátis."
 
-              As portas voltam a ser o que são: a pergunta de qual lado.
-              Quem já sabe toca numa delas; quem só quer entrar toca no
-              branco. */}
-          <div className="ei-capa-portas">
-            <Link to="/login?lado=trabalhar" className="ei-capa-porta">
-              Procuro emprego
-            </Link>
-            <Link to="/login?lado=contratar" className="ei-capa-porta">
-              Quero contratar
-            </Link>
-          </div>
+              Estavam mesmo. "Procuro emprego" ia para
+              `/login?lado=trabalhar`, "Quero contratar" para
+              `?lado=contratar` e "Cadastre-se" para `/login` — três
+              caminhos para a MESMA tela, e a única diferença era um lado
+              já marcado lá dentro. Quem toca não vê essa diferença: vê
+              três botões que abrem a mesma coisa, e isso não parece
+              escolha, parece defeito.
 
-          {/* ── O "CADASTRE-SE" — 07/09 ──────────────────────────────
-              A dona: "colocar um botão de cadastre-se."
+              O `?lado=` não some do app — ele continua sendo como o login
+              sabe de que lado a pessoa chegou. O que sai é a ideia de
+              fazer a pergunta DUAS vezes, uma aqui e outra lá. Ela é
+              feita uma vez, na tela que existe para isso.
 
-              As duas portas acima já levam ao cadastro, mas elas
-              perguntam DE QUE LADO a pessoa está — e quem ainda não
-              decidiu (ou só quer entrar) não tem onde tocar. É a mesma
-              palavra da arte que foi para o Instagram, e quem chegar por
-              lá procura ela na tela.
-
-              Leva ao `/login` sem `?lado=`: a própria tela de entrar faz
-              a pergunta do lado, então ninguém responde duas vezes. */}
+              E sobra uma ação só na capa, que é o que uma primeira tela
+              deveria ter desde o começo: quem chega não escolhe entre
+              três, toca no único. É a mesma palavra da arte que foi para
+              o Instagram, e quem chegar por lá procura ela na tela. */}
           <Link to="/login" className="ei-capa-cadastro">
             Cadastre-se. É de graça.
           </Link>

@@ -9595,10 +9595,12 @@
   border-radius: var(--ei-raio-toque, 12px);
   border: 2px solid rgba(255, 255, 255, 0.85);
   color: #fff;
-  /* 0,92rem para "Procuro emprego" caber numa linha só. A 0,98 ele
-     quebrava e a porta do lado não — duas portas do mesmo tamanho com
-     texto de alturas diferentes é o desalinhamento que já foi apontado
-     três vezes neste projeto. */
+  /* 0,92rem vinha de quando eram duas lado a lado e "Procuro emprego"
+     estourava a linha em 0,98 — uma quebrava, a outra não, e duas portas
+     do mesmo tamanho com texto de alturas diferentes é o desalinhamento
+     já apontado três vezes neste projeto. Hoje só sobra a porta de quem
+     entrou, sozinha na largura toda, mas o tamanho fica: ela também tem
+     rótulo comprido ("Ir para minhas vagas"). */
   font-size: 0.92rem;
   font-weight: 700;
   text-align: center;
@@ -9613,6 +9615,19 @@
   background: #fff;
   border-color: #fff;
   color: var(--ei-acento, #0a72c4);
+}
+
+/* Sozinha, a porta ocupa as duas colunas — 08/09.
+   ─────────────────────────────────────────────
+   O grid é de duas colunas porque nasceu com duas portas. Desde 07/09
+   quem JÁ ENTROU vê uma só, e ela ficava na metade esquerda com um buraco
+   do mesmo tamanho do lado: medido, 157px de botão numa capa de 324px.
+
+   Ninguém tinha visto porque só aparece depois de entrar, e a tela era
+   olhada deslogada. Achado ao tirar as duas portas de quem não tem conta,
+   quando a régua passou pelos dois casos. */
+.ei .ei-capa-porta:only-child {
+  grid-column: 1 / -1;
 }
 
 /* Com a capa colorida, as prateleiras começam logo abaixo dela. */
@@ -9825,7 +9840,11 @@
    e azul escuro sobre branco dá 6,9. */
 .ei .ei-capa-cadastro {
   display: block;
-  margin: 12px var(--ei-margem, 18px) 0;
+  /* 22px, o mesmo respiro que as portas tinham. Eram 12px enquanto este
+     botão vinha DEPOIS delas — a folga já estava dada em cima. Com as
+     portas fora (08/09), ele passou a encostar nos números, e 12px de
+     dois blocos diferentes lê como erro de alinhamento. */
+  margin: 22px var(--ei-margem, 18px) 0;
   padding: 15px 12px;
   border-radius: var(--ei-raio-toque, 12px);
   background: #fff;
