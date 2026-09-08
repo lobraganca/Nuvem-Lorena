@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 import { lerVitrine, type Vitrine as Dados, type VagaDaVitrine } from "../../lib/vitrine";
-import { salarioEmTexto } from "../../types/domain";
+
 import { SeletorDeCidade } from "./SeletorDeCidade";
 import { cidadeParaMostrar } from "../../lib/cidadeEscolhida";
 import {
@@ -439,16 +439,40 @@ function CartaoDeVaga({ vaga, destaque }: { vaga: VagaDaVitrine; destaque?: bool
   return (
     <Link
       to={`/vaga-aberta/${vaga.id}`}
-      className={`ei-vitrine-item${destaque ? " ei-vitrine-item-destaque" : ""}`}
+      className={`ei-vitrine-item ei-vitrine-vaga${destaque ? " ei-vitrine-item-destaque" : ""}`}
     >
+      {/* ── A LOGO DA EMPRESA — 08/09 ────────────────────────────────
+          A dona: "o card da vaga na tela inicial tem que ter a logo."
+
+          Do mesmo jeito que o cartão da pessoa: imagem à esquerda, texto
+          à direita. Numa cidade pequena a marca da empresa é reconhecida
+          antes do nome ser lido — quem passa o dedo rápido vê a padaria
+          da esquina antes de ler "Padaria Pão de Minas".
+
+          Sem logo, a inicial do nome no lugar dela. Um buraco onde há
+          imagem nos vizinhos faz a fileira parecer quebrada, e a empresa
+          sem logo pareceria menos empresa que as outras — que é o
+          contrário do que a tela deveria fazer com quem está começando.
+
+          O selo de destaque sai de dentro das colunas e fica por cima
+          (ver o CSS): dentro do grid ele empurraria a logo para baixo, e
+          só o cartão em destaque ficaria diferente dos vizinhos. */}
       {destaque && <span className="ei-vitrine-selo">Destaque</span>}
-      <span className="ei-vitrine-titulo">{vaga.title}</span>
-      <span className="ei-vitrine-nota">
-        {[vaga.empresa, vaga.city].filter(Boolean).join(" · ")}
-      </span>
-      {salarioEmTexto(vaga) && (
-        <span className="ei-vitrine-valor">{salarioEmTexto(vaga)}</span>
+      {vaga.logo ? (
+        <img className="ei-vitrine-foto" src={vaga.logo} alt="" loading="lazy" />
+      ) : (
+        <span className="ei-vitrine-foto ei-vitrine-foto-vazia" aria-hidden="true">
+          {(vaga.empresa ?? vaga.title ?? "?").trim().charAt(0).toUpperCase()}
+        </span>
       )}
+      <div className="ei-vitrine-quem">
+        {/* Sem o salário — a dona: "não colocar salário no card inicial".
+            Ele continua na tela da vaga, com o resto do contexto. */}
+        <span className="ei-vitrine-titulo">{vaga.title}</span>
+        <span className="ei-vitrine-nota">
+          {[vaga.empresa, vaga.city].filter(Boolean).join(" · ")}
+        </span>
+      </div>
     </Link>
   );
 }

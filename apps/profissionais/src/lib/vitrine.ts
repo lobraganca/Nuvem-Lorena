@@ -46,14 +46,17 @@ export type VagaDaVitrine = {
   city: string | null;
   uf: string | null;
   empresa: string | null;
-  /* Os nomes são os do banco (0067/0106) e não os que eu chutaria: a
-     coluna chama `salary_range_min`, e o "a combinar" chama
-     `salario_a_combinar`. Renomear aqui obrigaria a traduzir de volta na
-     hora de chamar `salarioEmTexto`, que é quem sabe formatar isto. */
-  salario_a_combinar: boolean;
-  salary_range_min: number | null;
-  salary_range_max: number | null;
-  salario_periodo: string | null;
+  /** A logo da empresa (`companies.photo_url`). Nula quando ela não pôs. */
+  logo: string | null;
+  /* ── O SALÁRIO SAIU DAQUI — 08/09 ──────────────────────────────────
+     A dona: "não colocar salário no card inicial."
+
+     Saiu do cartão E da consulta. Deixar as colunas vindo "por via das
+     dúvidas" seria carregar quatro campos em toda vaga da tela mais
+     visitada do app para não mostrar nenhum — e, pior, deixaria um dado
+     morto que um dia alguém volta a exibir sem saber que foi decisão.
+     O salário continua inteiro na tela da vaga, que é onde ele é lido
+     com o resto do contexto. */
   /** Até quando a vaga fica no topo (0116). Passado ou nulo = sem destaque. */
   destaque_ate: string | null;
   created_at: string;
@@ -193,7 +196,7 @@ async function lerVagas(sb: NonNullable<ReturnType<typeof supabase>>, cidade: st
   let q = sb
     .from("job_listings")
     .select(
-      "id, title, city, uf, salario_a_combinar, salary_range_min, salary_range_max, salario_periodo, destaque_ate, created_at, companies(company_name)",
+      "id, title, city, uf, destaque_ate, created_at, companies(company_name, photo_url)",
       { count: "exact" }
     )
     /* A policy "Qualquer um lê vaga ativa" (0067) já filtra no banco, mas
@@ -227,10 +230,10 @@ async function lerVagas(sb: NonNullable<ReturnType<typeof supabase>>, cidade: st
     empresa: Array.isArray(v.companies)
       ? (v.companies[0]?.company_name ?? null)
       : (v.companies?.company_name ?? null),
-    salario_a_combinar: !!v.salario_a_combinar,
-    salary_range_min: v.salary_range_min ?? null,
-    salary_range_max: v.salary_range_max ?? null,
-    salario_periodo: v.salario_periodo ?? null,
+    /* A logo, do mesmo jeito defensivo e pelo mesmo motivo do nome. */
+    logo: Array.isArray(v.companies)
+      ? (v.companies[0]?.photo_url ?? null)
+      : (v.companies?.photo_url ?? null),
     destaque_ate: v.destaque_ate ?? null,
     created_at: v.created_at,
   }));
