@@ -4592,8 +4592,32 @@
   /* Sem o `.ei` na frente: a faixa da marca fica FORA dele (é o `header`
      do app), e com o prefixo a regra não a alcançava — o resultado era a
      faixa azul terminando 170px antes da barra de título logo abaixo. */
-  .cabecalho-ei {
+  .cabecalho-ei,
+  /* ── A BARRA DE BAIXO TAMBÉM — 08/09 ──────────────────────────────
+     A dona: "quando abro o site no computador está bem desconfigurado."
+
+     Medido num monitor de 1440px: o cabeçalho e o conteúdo tinham 1000px
+     e a barra de baixo tinha 1410 — a janela inteira. Três larguras
+     diferentes na mesma tela, e a mais visível delas era a errada: os
+     cinco itens da barra ficavam jogados nos cantos, a 400px do conteúdo
+     que eles servem, e o "Conta" encostava na borda direita do monitor.
+
+     Era a única peça do app sem tratamento de tela grande — o resto desta
+     regra já existia. Alinhada à mesma coluna, ela volta a ser o pé do
+     app em vez de uma faixa solta atrás dele. */
+  .nav-ei {
     max-width: 900px;
+  }
+
+  /* `left: 0` e `right: 0` já estão postos lá em cima; com uma largura
+     máxima, as margens automáticas é que centram. E as bordas laterais
+     fecham a coluna: sem elas a barra branca sangraria para os lados,
+     que é o que a fazia parecer solta. */
+  .nav-ei {
+    margin-left: auto;
+    margin-right: auto;
+    border-left: 1px solid var(--ei-fio, #e9e9e7);
+    border-right: 1px solid var(--ei-fio, #e9e9e7);
   }
 
   /* Listas de coisas iguais — vagas, avisos, pessoas, empresas — em duas
@@ -4645,7 +4669,10 @@
    cansa a leitura, e o app não tem conteúdo que peça três colunas. */
 @media (min-width: 1100px) {
   .ei .ei-tela,
-  .cabecalho-ei {
+  .cabecalho-ei,
+  /* A barra acompanha a coluna nas duas larguras — ver o comentário dela
+     na regra de 720px. */
+  .nav-ei {
     max-width: 1000px;
   }
 }
