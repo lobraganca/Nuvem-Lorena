@@ -515,7 +515,7 @@ export function DetalheVagaPage() {
           Fica DEPOIS das pessoas: quem abre a vaga vem ver quem
           apareceu, não reler o que escreveu. */}
       <h2 className="ei-secao">A vaga</h2>
-      <FichaDaVaga vaga={vaga} comDescricao />
+      <FichaDaVaga vaga={vaga} comDescricao comSelos />
 
       {/* ── GERENCIAR VEM LOGO DEPOIS DA VAGA — 05/09 ──────────────────
           A dona: "nessa tela a opção de gerenciar a vaga deve ficar abaixo
