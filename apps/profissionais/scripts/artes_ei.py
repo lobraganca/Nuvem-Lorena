@@ -138,19 +138,30 @@ def conferir_cabe(caminho: str, tamanho: int, frases, largura: int, onde: str) -
             )
 
 
-def marca_branca() -> Image.Image:
-    """O 'Ei' em branco, tirado da própria logo que a dona mandou.
+def marca_do_app() -> Image.Image:
+    """O 'Ei' recortado do fundo — o MESMO arquivo que o app mostra.
 
-    Não é digitado nem redesenhado: a tinta branca da `docs/logo-ei.png`
-    vira o desenho e o azul vira transparência. Assim a marca da arte é a
-    mesma do ícone do celular, e não uma parecida.
+    ── O PINGO TINHA SUMIDO — 08/09 ───────────────────────────────────
+
+    Esta função recortava a marca aqui dentro, e o alfa saía do menor dos
+    três canais. Branco tem menor = 255 e ficava; o laranja do pingo
+    (253,170,70) tem menor = 70 e **virava transparência**. A marca das
+    artes era um "Ei" sem o pingo do i — que, no tamanho do cabeçalho, lê
+    como "Eı", um erro de digitação.
+
+    Ninguém tinha visto porque a marca é pequena e some no canto, e porque
+    conferência de arte olha a manchete. Apareceu ao desenhar uma peça em
+    que a bolinha laranja é o centro do desenho: ela estava no meio da
+    peça e faltava no alto.
+
+    Agora lê `public/marca-ei.png`, que é gerada por `gerar-icones.py` a
+    partir da mesma logo e já vem com o pingo. É a mesma fonte única que a
+    troca de marca de 08/09 estabeleceu: se o app e a arte recortam a logo
+    cada um do seu jeito, um dos dois recorta errado — e foi o que
+    aconteceu.
     """
-    logo = Image.open(APP / "docs/logo-ei.png").convert("RGB")
-    r, g, b = logo.split()
-    minimo = ImageChops.darker(ImageChops.darker(r, g), b)
-    alfa = minimo.point(lambda v: 0 if v < 100 else (255 if v > 210 else (v - 100) * 255 // 110))
-    m = Image.merge("RGBA", (Image.new("L", logo.size, 255),) * 3 + (alfa,))
-    return m.crop(alfa.getbbox())
+    marca = Image.open(APP / "public/marca-ei.png").convert("RGBA")
+    return marca.crop(marca.split()[3].getbbox())
 
 
 _MARCA = None
@@ -159,7 +170,7 @@ _MARCA = None
 def _marca() -> Image.Image:
     global _MARCA
     if _MARCA is None:
-        _MARCA = marca_branca()
+        _MARCA = marca_do_app()
     return _MARCA
 
 
