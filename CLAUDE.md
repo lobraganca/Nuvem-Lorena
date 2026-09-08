@@ -210,8 +210,8 @@ https://supabase.com/dashboard/project/ahigenhenzmsjxlmrzhz/sql/new
 
   | Migration | O que faz | Aplicada? |
   |---|---|---|
-  | `0134` | o **telefone sai um por vez**: a view pública perde as colunas de contato, `ver_contato()` com registro e teto de 20/dia, `contatos_dos_interessados()` sem teto | **NÃO confirmada** |
-  | `0133` | a promoção **30 dias de 1 vaga grátis**: tabela `ofertas` (o interruptor), `ativar_teste_gratis` e `teste_gratis_disponivel` | **NÃO confirmada** |
+  | `0134` | o **telefone sai um por vez**: a view pública perde as colunas de contato, `ver_contato()` com registro e teto de 20/dia, `contatos_dos_interessados()` sem teto | **sim** — 08/09 |
+  | `0133` | a promoção **30 dias de 1 vaga grátis**: tabela `ofertas` (o interruptor), `ativar_teste_gratis` e `teste_gratis_disponivel` | **sim** — 08/09 |
   | `0132` | a **vitrine**: view `professionals_vitrine`, sem coluna de contato, liberada para quem NÃO tem conta | **sim** — 07/09 |
   | `0131` | os acessos do dia por porta (`registrar_acesso`, `acessos_de_hoje`) | **NÃO confirmada** |
   | `0130` | assinatura que renova sozinha (`mp_preapproval_id`) | sim — 07/09 |
@@ -251,6 +251,36 @@ verificado ao contrário. E o `00-ambiente-supabase.sql` ganhou o
 teste respondia "o anon não lê" para TUDO, inclusive para o que estivesse
 escancarado em produção — resposta certa pelo motivo errado, que passa e
 cala.
+
+### E o telefone agora sai UM POR VEZ, nem para quem tem conta (0134)
+
+A dona, em 08/09: "consegue ver o número de um candidato só por um perfil
+de empresa." Conseguia, e mais largo: a `professionals_public` levava
+`phone`, `whatsapp`, `email` e `telefones_extra` para **qualquer conta
+logada** — empresa ou candidato —, sem teto e sem registro. Uma conta feita
+em dois minutos por SMS baixava, em páginas, a lista de telefones de todos
+os desempregados da cidade. A 0118 tinha fechado essa porta só para quem
+não tem conta; a conta encarecia o ataque e não o impedia.
+
+A view perdeu as quatro colunas. **Contato só sai por duas portas:**
+
+| Porta | Quando | Teto |
+|---|---|---|
+| `ver_contato(cadastro)` | a ficha de alguém no banco de talentos | 20 por dia, por conta, com registro em `contatos_vistos` |
+| `contatos_dos_interessados(vaga)` | quem se candidatou à SUA vaga | nenhum — a pessoa se ofereceu |
+
+Quem for pôr telefone numa tela nova: **não peça `phone` a nenhuma view.**
+Ela não tem mais essa coluna, e pedir derruba a consulta inteira com
+"column does not exist" — a tela abre vazia, não com o telefone faltando.
+
+E há uma armadilha que só aparece ao RECRIAR uma view: o Supabase mantém
+um `alter default privileges` que concede `select` a `anon` em todo objeto
+NOVO do schema `public`. Uma view recriada é um objeto novo, então o
+`revoke ... from anon` **morre junto com a view antiga e tem de ser
+repetido**. O teste 30 pegou isso na primeira execução da 0134.
+
+### O resto do Supabase
+
 - `supabase/banco-completo.sql` **está desatualizado** (para na 0051). Serve
   para montar um banco do zero até ali, não como retrato do que está no ar.
 - Edge Functions ficam em `supabase/functions/` e sobem pelo workflow.
