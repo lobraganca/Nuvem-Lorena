@@ -121,7 +121,12 @@ export function EntradaPage() {
     entrou && (tipo === "professional" || tipo === "company")
       ? {
           para: casaDoLado(tipo),
-          rotulo: tipo === "company" ? "Ir para minhas vagas" : "Ver vagas para mim",
+          /* O rótulo do botão NÃO vem daqui — ele é o mesmo para os dois
+             lados e mora na capa (ver `Vitrine`). Saiu daqui em 08/09, a
+             pedido da dona: "tem que ser algo genérico tanto para quem tá
+             acessando como candidato ou como empresa". Enquanto ele era
+             calculado neste ponto, junto com o `tipo`, era só questão de
+             tempo até alguém voltar a diferenciá-lo. */
           /* O lado vai junto porque a capa decide por ele o que mais
              mostrar: a chamada dos 30 dias é para quem contrata, e quem
              entrou para procurar emprego não quer ler oferta de empresa

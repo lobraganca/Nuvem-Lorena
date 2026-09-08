@@ -47,7 +47,7 @@ import {
  */
 export function Vitrine({
   minhaCasa,
-}: { minhaCasa?: { para: string; rotulo: string; lado: "professional" | "company" } | null } = {}) {
+}: { minhaCasa?: { para: string; lado: "professional" | "company" } | null } = {}) {
   const [dados, setDados] = useState<Dados | null>(null);
   /* ── A CHAMADA DOS 30 DIAS, NA PRIMEIRA TELA — 07/09 ─────────────────
      A dona: "coloque sobre o teste grátis na 1 tela."
@@ -256,9 +256,24 @@ export function Vitrine({
           simplesmente não existe para quem está dentro. */}
       {minhaCasa ? (
         <>
+          {/* ── O RÓTULO É O MESMO PARA OS DOIS LADOS — 08/09 ──────────
+              A dona: "não ficou bom ir para minhas vagas. Tem que ser
+              algo genérico tanto para quem tá acessando como candidato ou
+              como empresa."
+
+              Era "Ir para minhas vagas" para a empresa e "Ver vagas para
+              mim" para quem procura. Dois textos para o mesmo botão, e o
+              da empresa lia errado até para ela: quem ainda não publicou
+              nada não tem "minhas vagas" para ir.
+
+              O DESTINO continua sendo o de cada lado (`casaDoLado`) — é o
+              texto que é único. E ele mora aqui, na capa, e não mais em
+              quem chama: enquanto o rótulo vinha de fora, ele podia
+              voltar a depender do lado sem ninguém perceber. Agora não há
+              onde essa diferença caber. */}
           <div className="ei-capa-portas">
             <Link to={minhaCasa.para} className="ei-capa-porta ei-capa-porta-forte">
-              {minhaCasa.rotulo}
+              Ir para a minha área
             </Link>
           </div>
           {chamadaDaPromocao}
