@@ -41,6 +41,7 @@ import {
 export function FichaDaVaga({
   vaga,
   comDescricao = false,
+  comSelos = false,
 }: {
   vaga: JobListing;
   /**
@@ -52,6 +53,18 @@ export function FichaDaVaga({
    * mesmo texto duas vezes na mesma rolagem.
    */
   comDescricao?: boolean;
+  /**
+   * Inclui os quatro avisos que a tela PÚBLICA já mostra em selos ao lado
+   * do título: quantas vagas, começa logo, aceita primeiro emprego, aceita
+   * PCD.
+   *
+   * Ligado só na tela da EMPRESA, pelo mesmo motivo do `comDescricao`: lá
+   * eles não existem em lugar nenhum, e a empresa não conseguia conferir
+   * na própria vaga o que tinha marcado. Na tela pública eles já estão em
+   * cima, e repetir aqui embaixo seria a mesma informação duas vezes na
+   * mesma rolagem.
+   */
+  comSelos?: boolean;
 }) {
   const salario = salarioEmTexto(vaga);
   const contrato = nomeDoContrato(vaga.tipo_contrato);
@@ -93,6 +106,49 @@ export function FichaDaVaga({
       a empresa parecer descuidada. A exceção é o SALÁRIO, que
       aparece ausente dizendo que está ausente, porque escondê-lo não
       o torna menos ausente: torna a vaga mais suspeita. */}
+  {/* ── A ESPECIALIDADE NÃO APARECIA EM LUGAR NENHUM — 08/09 ──────
+      A dona: "no perfil da vaga tem que aparecer tudo o que a empresa
+      escreveu."
+
+      A `specialty` era o caso: a empresa escreve "Vendas em loja de
+      roupas" na primeira etapa, o app usa esse texto para BUSCAR e para
+      calcular compatibilidade — e nunca o mostrava. Nem na tela pública,
+      nem na da própria empresa.
+
+      O comentário do formulário já dizia o tamanho da perda: "o que
+      diferencia uma vaga da outra dentro do mesmo ofício é a
+      Especialidade". Duas vagas de "Vendedor" ficavam idênticas na tela
+      exatamente no campo que existe para separá-las.
+
+      Vem antes do salário porque responde à primeira pergunta de quem
+      abre a vaga — que trabalho é este —, e o título sozinho responde
+      pela metade. */}
+  {(vaga.specialty?.trim() ||
+    (comSelos &&
+      (vaga.quantidade_vagas > 1 ||
+        vaga.available_immediately ||
+        vaga.aceita_primeiro_emprego ||
+        vaga.vaga_para_pcd))) && (
+    <section className="ei-ficha">
+      <h2 className="ei-ficha-titulo">A vaga</h2>
+      <div className="ei-props">
+        {vaga.specialty?.trim() && (
+          <Prop rotulo="Especialidade">{vaga.specialty}</Prop>
+        )}
+        {comSelos && vaga.quantidade_vagas > 1 && (
+          <Prop rotulo="Quantas">{vaga.quantidade_vagas} vagas</Prop>
+        )}
+        {comSelos && vaga.available_immediately && (
+          <Prop rotulo="Início">Começa logo</Prop>
+        )}
+        {comSelos && vaga.aceita_primeiro_emprego && (
+          <Prop rotulo="Primeiro emprego">Aceita</Prop>
+        )}
+        {comSelos && vaga.vaga_para_pcd && <Prop rotulo="PCD">Aceita</Prop>}
+      </div>
+    </section>
+  )}
+
   <section className="ei-ficha">
     <h2 className="ei-ficha-titulo">Salário e benefícios</h2>
   <div className="ei-props">
@@ -164,6 +220,14 @@ export function FichaDaVaga({
     )}
     {vaga.idiomas?.length > 0 && (
       <Prop rotulo="Idiomas">{vaga.idiomas.join(", ")}</Prop>
+    )}
+    {/* Só quando a empresa DESMARCOU, como o "Só quem mora em" acima.
+        O padrão é aceitar quem não bate com tudo, e escrever isso em toda
+        vaga seria repetir o normal — o que informa é o contrário. E
+        informa muito: para quem procura, saber que não adianta tentar
+        poupa uma candidatura de um teto de cinco por dia. */}
+    {vaga.aceita_sem_compatibilidade === false && (
+      <Prop rotulo="Candidatura">Só quem atende ao que está pedido</Prop>
     )}
   </div>
       </section>
