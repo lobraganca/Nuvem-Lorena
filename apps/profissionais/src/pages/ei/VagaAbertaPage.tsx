@@ -15,6 +15,7 @@ import { mensagemDeErro } from "../../lib/erros";
 import { Callout, Pagina } from "../../components/ei/Pagina";
 import { FichaDaVaga } from "../../components/ei/FichaDaVaga";
 import { BotaoCompartilhar } from "../../components/ei/BotaoCompartilhar";
+import { useOnboardingStatus } from "../../lib/useOnboardingStatus";
 import {
   type JobListing,
 } from "../../types/domain";
@@ -75,6 +76,10 @@ export function VagaAbertaPage() {
      Três estados, como na lista — sem isso, "não quis" e "não abriu"
      mostrariam a mesma tela. */
   const [interessado, setInteressado] = useState<boolean | undefined>(undefined);
+  /* De que lado a pessoa entrou. Esta tela abre para os dois desde 08/09
+     (ver o comentário da rota em App.tsx), e quem contrata vem aqui ver o
+     que a cidade está oferecendo — não para se candidatar. */
+  const lado = useOnboardingStatus();
   /* O estado do cadastro de quem está olhando:
        null      → ainda lendo
        "sem"     → nunca preencheu
@@ -525,6 +530,21 @@ export function VagaAbertaPage() {
                 {enviando ? "Enviando…" : "Mudei de ideia, tenho interesse"}
               </button>
             </>
+          ) : lado === "company" ? (
+            /* ── QUEM CONTRATA LÊ, MAS NÃO SE CANDIDATA — 08/09 ────────
+                A tela passou a abrir para os dois lados porque o banco de
+                vagas também é dos dois. Só que "Tenho interesse" aqui não
+                teria o que fazer: a candidatura precisa de um cadastro de
+                PROFISSIONAL, e o caminho para preencher um é trancado do
+                lado de quem contrata — o botão levaria a um desvio, que é
+                o mesmo beco que este conserto veio fechar.
+
+                Então, em vez do botão, a frase que explica por que ele não
+                está aí. Nada de erro: não houve erro nenhum. */
+            <p className="ei-nota-resposta">
+              Você está no lado de quem contrata. Para responder a uma vaga,
+              saia e entre de novo escolhendo <strong>Procuro emprego</strong>.
+            </p>
           ) : (
             <div style={{ display: "grid", gap: 8 }}>
               {/* O aviso aparece no lugar do "tenho interesse", e não como
