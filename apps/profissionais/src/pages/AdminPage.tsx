@@ -56,20 +56,41 @@ const STATUS_LABEL: Record<ReportStatus, string> = {
  * A dona: "no painel adm em cadastro, quero ver se a pessoa marcou para
  * aparecer ou não."
  *
- * São QUATRO motivos diferentes para um cadastro não aparecer, e cada um
+ * São CINCO motivos diferentes para um cadastro não aparecer, e cada um
  * pede uma providência diferente:
  *
  *   . a administração tirou do ar     → decisão dela, ela desfaz aqui
  *   . a pessoa se marcou como oculta  → escolha da pessoa, se respeita
  *   . o telefone não foi confirmado   → nada a fazer no painel; a pessoa
  *                                       precisa confirmar o código
+ *   . não marcou área de interesse    → falta preencher o cadastro do Ei
  *   . a pessoa não recebe vaga        → aparece na busca, mas as ondas
  *                                       passam por ela
  *
  * Uma etiqueta só dizendo "oculto" juntaria os dois primeiros, que são
  * opostos: um se desfaz, o outro não se mexe. Daí a frase inteira.
  *
- * A ORDEM importa: quem está suspenso E oculto tem os dois motivos, e o
+ * ── O QUINTO MOTIVO FALTAVA, E ERA O MAIS COMUM — 07/09 ───────────────
+ *
+ * A dona: "algumas pessoas estão como aparecem na busca mas não estão
+ * aparecendo."
+ *
+ * Estavam mesmo. Esta função olhava quatro coisas e dizia "Aparece na
+ * busca"; a LISTA olha uma quinta que ela não olhava — `areas_de_interesse`
+ * (ver o filtro em `ProfissionaisPage` e em `vitrine.ts`, que repetem
+ * `.not(is null)` e `.neq("{}")`).
+ *
+ * Quem não marcou nenhuma área não aparece no banco de talentos nem na
+ * vitrine, e não recebe onda de vaga nenhuma — porque é justamente por
+ * essa coluna que a onda cruza. São, na maioria, as pessoas que vieram do
+ * procurô: lá essa coluna não existia.
+ *
+ * A lição, para a próxima etiqueta deste tipo: uma tela que RESUME o que
+ * outra tela FILTRA precisa repetir a mesma lista de condições, e as duas
+ * saem do lugar em silêncio. Quando alguém acrescentar um filtro à lista,
+ * ele tem de vir também para cá.
+ *
+ * A ORDEM importa: quem está suspenso E sem área tem os dois motivos, e o
  * que interessa ao painel é o de cima — é o único que ela decide.
  */
 function situacaoDoCadastro(p: {
@@ -77,6 +98,7 @@ function situacaoDoCadastro(p: {
   paused: boolean;
   disponivel?: boolean | null;
   whatsapp_verified: boolean;
+  areas_de_interesse?: string[] | null;
 }): { texto: string; cor: "no-ar" | "oculto" | "fora" } {
   if (p.suspended) return { texto: "Fora do ar — você tirou", cor: "fora" };
   if (p.paused) return { texto: "Oculto — a pessoa marcou para não aparecer", cor: "oculto" };
@@ -85,6 +107,11 @@ function situacaoDoCadastro(p: {
      maior parte dos "me cadastrei e ninguém me chamou". */
   if (!p.whatsapp_verified)
     return { texto: "Não aparece — o telefone ainda não foi confirmado", cor: "oculto" };
+  if (!p.areas_de_interesse || p.areas_de_interesse.length === 0)
+    return {
+      texto: "Não aparece — não marcou em que áreas quer trabalhar",
+      cor: "oculto",
+    };
   /* Aqui a pessoa APARECE na busca; o que ela desligou foi receber aviso
      de vaga. Por isso a cor é a de quem está no ar. */
   if (p.disponivel === false)
@@ -754,8 +781,8 @@ export function AdminPage() {
             {[
               resumo.suspensos > 0 && `${resumo.suspensos} suspenso${resumo.suspensos > 1 ? "s" : ""} pela administração`,
               resumo.pausados > 0 && `${resumo.pausados} pausado${resumo.pausados > 1 ? "s" : ""} pelo próprio dono`,
-              resumo.cidadeDeFora > 0 && `${resumo.cidadeDeFora} com cidade fora da lista do app`,
-              resumo.semServico > 0 && `${resumo.semServico} sem nenhum serviço marcado`,
+              resumo.semTelefone > 0 && `${resumo.semTelefone} sem o telefone confirmado`,
+              resumo.semAreas > 0 && `${resumo.semAreas} sem marcar em que áreas quer trabalhar`,
             ]
               .filter(Boolean)
               .join(" · ")}

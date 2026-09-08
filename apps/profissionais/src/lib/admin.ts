@@ -1,9 +1,7 @@
 import { supabase } from "./supabase";
-import { CITIES } from "../types/domain";
 import { lerTudo } from "./lerTudo";
 
 /** As cidades que a busca oferece. Fora delas, o cadastro existe e ninguém acha. */
-const CIDADES_DO_APP: readonly string[] = CITIES;
 
 export type ReportStatus = "pending" | "reviewed" | "dismissed";
 
@@ -400,10 +398,24 @@ export interface ResumoDeCadastros {
   foraDoAr: number;
   suspensos: number;
   pausados: number;
-  /** Cidade fora da lista do app — some da busca sem ninguém ter pausado nada. */
-  cidadeDeFora: number;
-  /** Nunca marcaram um serviço: não casam com nenhuma categoria. */
-  semServico: number;
+  /**
+   * Telefone nunca confirmado. A view pública exige `whatsapp_verified`
+   * (0117), então estes somem da busca — e faltavam nesta conta.
+   */
+  semTelefone: number;
+  /**
+   * Sem NENHUMA área de interesse marcada.
+   *
+   * ── A COLUNA ESTAVA ERRADA — 07/09 ──────────────────────────────────
+   * A dona: "algumas pessoas estão como aparecem na busca mas não estão
+   * aparecendo."
+   *
+   * Isto contava `categories`, que é a coluna do PROCURÔ. A lista do Ei
+   * filtra por `areas_de_interesse` (ver `ProfissionaisPage` e
+   * `vitrine.ts`): quem não tem nenhuma some da busca e da vitrine,
+   * mesmo com tudo o mais em ordem. É o caso dela.
+   */
+  semAreas: number;
 }
 
 /**
@@ -440,7 +452,11 @@ export async function resumoDeCadastros(): Promise<ResumoDeCadastros> {
   /* Lido em páginas: o teto de 200 linhas da 0062 vale aqui também, e
      truncado este resumo mostraria "200 cadastros" para sempre. */
   const data = await lerTudo(() =>
-    client.from("professionals").select("owner_id, created_at, suspended, paused, city, categories")
+    client
+      .from("professionals")
+      .select(
+        "owner_id, created_at, suspended, paused, whatsapp_verified, areas_de_interesse"
+      )
   );
 
   const linhas = (data ?? []) as {
@@ -448,8 +464,8 @@ export async function resumoDeCadastros(): Promise<ResumoDeCadastros> {
     created_at: string;
     suspended: boolean;
     paused: boolean;
-    city: string | null;
-    categories: string[] | null;
+    whatsapp_verified: boolean;
+    areas_de_interesse: string[] | null;
   }[];
 
   const inicioDeHoje = new Date();
@@ -467,8 +483,8 @@ export async function resumoDeCadastros(): Promise<ResumoDeCadastros> {
     foraDoAr: 0,
     suspensos: 0,
     pausados: 0,
-    cidadeDeFora: 0,
-    semServico: 0,
+    semTelefone: 0,
+    semAreas: 0,
   };
 
   for (const l of linhas) {
@@ -488,12 +504,18 @@ export async function resumoDeCadastros(): Promise<ResumoDeCadastros> {
       resumo.pausados += 1;
       some = true;
     }
-    if (!l.city || !CIDADES_DO_APP.includes(l.city)) {
-      resumo.cidadeDeFora += 1;
+    if (!l.whatsapp_verified) {
+      resumo.semTelefone += 1;
       some = true;
     }
-    if (!l.categories || l.categories.length === 0) {
-      resumo.semServico += 1;
+    /* ── A CIDADE SAIU DESTA CONTA — 07/09 ───────────────────────────
+       Aqui havia "cidade fora da lista do app", e ela deixou de esconder
+       ninguém em 05/09: desde que a lista passou a ler TODAS as cidades e
+       o seletor a ser montado a partir dos dados, quem está em Mariana
+       aparece — basta escolher Mariana. Contar isso como motivo de sumiço
+       mandava a administração consertar o que não estava quebrado. */
+    if (!l.areas_de_interesse || l.areas_de_interesse.length === 0) {
+      resumo.semAreas += 1;
       some = true;
     }
     if (some) resumo.foraDoAr += 1;

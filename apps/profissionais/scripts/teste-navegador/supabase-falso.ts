@@ -65,7 +65,18 @@ const professionals: Linha[] = Array.from({ length: QUANTOS }, (_, i) => ({
   categories: [CATS[i % CATS.length]],
   /* A coluna do Ei: é por ela que a tela de profissionais filtra e monta a
      fileira de ofícios. Faltava, e a fileira nascia sempre vazia. */
-  areas_de_interesse: [CATS[i % CATS.length], CATS[(i + 7) % CATS.length]],
+  /* ── UM CADASTRO SEM ÁREA NENHUMA — 07/09 ────────────────────────
+     A dona: "algumas pessoas estão como aparecem na busca mas não estão
+     aparecendo." Era este caso: sem `areas_de_interesse` a pessoa some do
+     banco de talentos e da vitrine (as duas filtram por essa coluna), e o
+     painel dizia "Aparece na busca".
+
+     Na vida real são as pessoas que vieram do procurô, onde essa coluna
+     não existia. O 56 é o índice de teste — não é múltiplo de 6 (os
+     turbinados vão para o topo) e é alto o bastante para cair na primeira
+     página do painel, que ordena do mais novo para o mais velho. */
+  areas_de_interesse:
+    i === 56 ? [] : [CATS[i % CATS.length], CATS[(i + 7) % CATS.length]],
   neighborhood: ["Centro", "Praia", "Vila Rica", "Nossa Senhora do Carmo"][i % 4],
   /* ── NEM TODO MUNDO É DE ITABIRITO — 05/09 ───────────────────────────
      Eram todos, e por isso o seletor de cidade (que só aparece quando há
@@ -912,7 +923,26 @@ class Consulta implements PromiseLike<{ data: Linha[] | Linha | null; error: unk
     return this;
   }
   eq(c: string, v: unknown) { this.filtros.push((l) => valorEm(l, c) === v); return this; }
-  neq(c: string, v: unknown) { this.filtros.push((l) => valorEm(l, c) !== v); return this; }
+  /* ── `neq(coluna, "{}")` É "A LISTA NÃO ESTÁ VAZIA" — 07/09 ──────────
+     `{}` é como o PostgREST escreve um array vazio, e o app usa isso em
+     dois lugares para tirar da lista quem não marcou nenhuma área de
+     interesse (`ProfissionaisPage` e `vitrine.ts`).
+
+     O falso comparava um ARRAY de JavaScript com a STRING "{}", e isso é
+     sempre diferente — ou seja, o filtro não filtrava nada. Quem estava
+     sem área nenhuma aparecia aqui e NÃO aparecia no app de verdade, que
+     é o pior tipo de diferença: o teste passa e a tela mente.
+
+     Foi o buraco por onde passou o defeito que a dona relatou — "algumas
+     pessoas estão como aparecem na busca mas não estão aparecendo". */
+  neq(c: string, v: unknown) {
+    this.filtros.push((l) => {
+      const valor = valorEm(l, c);
+      if (v === "{}" && Array.isArray(valor)) return valor.length > 0;
+      return valor !== v;
+    });
+    return this;
+  }
   /* `is(coluna, null)` é como o PostgREST pergunta "está vazio?" — e é o
      que separa "vaga que ainda não foi vista" de todas as outras. Sem ele,
      o falso ignorava o filtro e a lista voltava inteira. */

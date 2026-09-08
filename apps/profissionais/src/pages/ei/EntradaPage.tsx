@@ -2,7 +2,6 @@ import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../../lib/useAuth";
 import { useOnboardingStatus } from "../../lib/useOnboardingStatus";
-import { isAdmin } from "../../lib/admin";
 import { useTituloDaPagina } from "../../lib/tituloDaPagina";
 import { IconePorta } from "./ComecarPage";
 import { casaDoLado } from "../../lib/ladoDaSessao";
@@ -80,20 +79,10 @@ export function EntradaPage() {
      entrar e criar conta. Com conta, mostra o nome de quem entrou e os
      caminhos daquele lado — e o desvio automático fica só para quem ainda
      não escolheu o lado, porque aí falta uma resposta, não um caminho. */
-  /* Quem administra vê a porta do painel logo aqui. `false` enquanto não
-     se sabe: mostrar o atalho e escondê-lo meio segundo depois pisca na
-     tela de quem não é administração. */
-  const [ehAdmin, setEhAdmin] = useState(false);
-  useEffect(() => {
-    if (!user) return;
-    let vivo = true;
-    isAdmin(user.id)
-      .then((sim) => vivo && setEhAdmin(sim))
-      .catch(() => {});
-    return () => {
-      vivo = false;
-    };
-  }, [user]);
+  /* A pergunta "esta conta administra?" saiu daqui junto com a porta —
+     07/09. Esta tela não mostra mais nada de administração, então nem
+     precisa perguntar: uma consulta ao banco a cada abertura do app, para
+     todo mundo, só para decidir um botão que não existe mais. */
 
   /* ── QUEM ENTROU JÁ ESCOLHEU O LADO, NA PORTA — 04/09 ────────────────
      A dona: "na tela de login a pessoa vai ter que escolher entre quero
@@ -199,29 +188,25 @@ export function EntradaPage() {
             porta do seu lado e entra sem digitar nada — a tela de entrar
             reconhece a sessão. Ver `Vitrine.tsx`. */}
 
-        {/* ── O PAINEL DA ADMINISTRAÇÃO, PARA QUEM ADMINISTRA — 04/09 ──
-            A dona: "o botão do painel adm deve ficar na tela por onde
-            começamos."
+        {/* ── O PAINEL SAIU DA TELA INICIAL — 07/09 ────────────────────
+            A dona: "painel adm aparecendo pra todo mundo na tela? Deixa só
+            dentro de conta e somente pro meu usuário."
 
-            Ele morava no fim da tela de Conta, depois de senha, instalação
-            e ajuda. Para quem administra o app isso está trocado: ver como
-            está a cidade é a primeira coisa do dia, não algo que se
-            procura no fim de outra tela.
+            Ele nunca apareceu para todo mundo — `isAdmin` pergunta ao
+            banco se ESTA conta está na tabela `admins`, e para qualquer
+            outra pessoa a resposta é não. Mas o susto dela é justo, e o
+            motivo é a mudança do dia: a tela inicial deixou de ser um menu
+            de quem entrou e virou a VITRINE, a tela que todo mundo vê. Um
+            botão de administração ali fica exposto na tela mais pública do
+            app — e não há como olhar e saber que ele só aparece para uma
+            pessoa.
 
-            Aparece SÓ para quem está em `admins` — e quem decide é o
-            banco, não esta tela: a rota `/admin` confere de novo, e sem a
-            permissão ela não abre nada. Isto aqui é atalho, não porteiro. */}
-        {ehAdmin && (
-          /* Dentro de `.ei-portas` para pegar a margem e o espaçamento das
-             outras portas: solto, ele encostava nas bordas da tela. */
-          <div className="ei-portas">
-            <Link to="/admin" className="ei-porta">
-              <IconePorta desenho="escudo" />
-              <span className="ei-porta-nome">Painel administrativo</span>
-              <span className="ei-porta-nota">Empresas, vagas, planos e o resto</span>
-            </Link>
-          </div>
-        )}
+            Ele existe na Conta desde 05/09 (ver `PerfilPage`), que é onde
+            ela mesma foi procurá-lo. Um caminho, no lugar reservado.
+
+            Isto NÃO é a permissão: quem barra é o banco. A rota `/admin`
+            confere de novo, e sem a linha em `admins` ela não abre nada
+            para ninguém. */}
 
         {/* O rodapé da tela. Três coisas quietas, do mesmo tamanho, no
             mesmo bloco — e não espalhadas pela altura da página. */}
