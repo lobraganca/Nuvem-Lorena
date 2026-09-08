@@ -543,6 +543,40 @@ Nos três lugares (capacitor.config.ts, namespace e applicationId).
 **Definitiva** — publicada, não muda nunca: trocá-la cria outro app, com
 outro endereço, sem os usuários do primeiro.
 
+### Trocar a logo é trocar UM arquivo e rodar UM comando
+
+```bash
+cd /home/user/Nuvem-Lorena/apps/profissionais
+# substituir docs/logo-ei.png pela arte nova, e então:
+python3 scripts/gerar-icones.py
+```
+
+Isso reescreve os 29 arquivos de marca: os 24 do Android, os 4 do site e a
+`public/marca-ei.png` (o "Ei" recortado do fundo, que é a marca que aparece
+DENTRO do app — cabeçalho, tela de abertura e o carimbo no canto da capa).
+
+**Nenhuma imagem de marca se edita à mão.** Está escrito assim porque a
+mesma falha aconteceu três vezes, e nunca com sintoma:
+
+1. os ícones do site trocaram e os do Android não — a dona viu a marca
+   velha no ícone do celular;
+2. o `index.html` apontava para um arquivo próprio, fora do manifesto — a
+   aba do navegador ficou com a marca velha;
+3. em 08/09, a `marca-ei.png`. Ela era a única imagem feita à mão, e
+   entrava no gerador como matéria-prima. A troca de 06/09 refez tudo o
+   que ele gerava, e ela não era gerada: ficou uma marca de 02/09 dentro
+   de um app com logo de 06/09. Foi como a dona viu — "quando abri o app
+   pelo navegador apareceu uma logo antiga".
+
+As três são o mesmo erro: um arquivo de marca que não sai da fonte única.
+A diferença entre a marca velha e a nova é de 2,4% na proporção — ninguém
+vê olhando, e ninguém vai ver da próxima vez. Quem conferir isso, meça:
+`checar-logo.mjs` (na raiz, ignorado pelo git) compara a proporção do
+arquivo que chegou na tela, nos três lugares.
+
+E o `verificar-app.yml` não pega nada disso: tipos e build passam com
+qualquer PNG.
+
 ### O service worker é desligado no app
 
 Ele guarda cópias dos arquivos para o site abrir rápido. Dentro do app

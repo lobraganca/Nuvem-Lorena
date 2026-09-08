@@ -10,11 +10,21 @@ import marcaEi from "/marca-ei.png";
  * uma imitação parecida — que é pior que nenhuma, porque ninguém percebe que
  * está errada até ver as duas lado a lado.
  *
- * O arquivo saiu da arte original com o fundo azul removido pixel a pixel
- * (0,04% dos pixels destoam, todos na costura entre o branco e o laranja —
- * invisível em qualquer tamanho de tela). Fundo transparente é o que permite
- * usar a mesma marca sobre o azul da abertura e sobre o branco do cabeçalho,
- * sem manter dois arquivos que um dia divergem.
+ * Fundo transparente é o que permite usar a mesma marca sobre o azul da
+ * abertura e sobre o branco do cabeçalho, sem manter dois arquivos que um dia
+ * divergem.
+ *
+ * ── NÃO EDITE `marca-ei.png` À MÃO — 08/09 ────────────────────────────────
+ *
+ * Ela é GERADA, por `scripts/gerar-icones.py`, a partir de
+ * `docs/logo-ei.png`. Até 08/09 era um recorte feito à mão, e foi por isso
+ * que a dona viu marca velha no cabeçalho depois de a logo já ter sido
+ * trocada: o gerador refez tudo o que gerava, e este arquivo não era gerado
+ * — era matéria-prima. Ficou uma marca de 02/09 dentro de um app com logo de
+ * 06/09, e nada na tela do build acusava.
+ *
+ * Para trocar a marca: substitua `docs/logo-ei.png` e rode
+ * `python3 scripts/gerar-icones.py`. Nada mais.
  */
 function Marca({ className }: { className?: string }) {
   return <img src={marcaEi} alt="" className={className} aria-hidden="true" />;

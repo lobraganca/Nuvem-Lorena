@@ -20,7 +20,51 @@ rodar:
     cd /home/user/Nuvem-Lorena/apps/profissionais
     python3 scripts/gerar-icones.py
 
+── E de novo, pelo mesmo motivo — 08/09 ──────────────────────────────
+
+A dona: "quando abri o app pelo navegador apareceu uma logo antiga.
+Troque todas as logos pela anexa." A anexa era, byte por byte, o
+`docs/logo-ei.png` que já estava aqui — ou seja, a fonte estava certa e
+alguma coisa depois dela é que não tinha sido refeita.
+
+Era a `public/marca-ei.png`: o "Ei" recortado do fundo, que é o que o
+cabeçalho, a tela de abertura e a capa da tela inicial mostram. Ela
+entrava aqui como MATÉRIA-PRIMA, feita à mão uma vez, e por isso passou
+incólume pela troca de 06/09 — o script trocou tudo o que gerava, e ela
+não era gerada.
+
+Um arquivo feito à mão no meio de um gerador é exatamente o buraco que
+este script existe para tapar. Agora ela também SAI daqui: o fundo é
+removido em código, e não há mais nenhuma imagem de marca que alguém
+precise lembrar de refazer.
+
+── Como o fundo é removido ───────────────────────────────────────────
+
+Pelo canal VERMELHO, e só por ele. Na arte da marca o azul do fundo tem
+R≈1, o branco do "Ei" tem R=255 e o laranja do pingo tem R=253 — as duas
+tintas quase iguais e o fundo do outro lado da régua. Então
+`alfa = (R - R_do_fundo)` já é a máscara da marca inteira, pingo
+incluído.
+
+Isso importa por causa da costura entre o branco e o laranja: ali os dois
+se misturam, e qualquer método que pergunte "esta cor é o fundo?" erra,
+porque a mistura não é nenhuma das duas. O comentário do arquivo antigo
+registra o resultado disso — "0,04% dos pixels destoam, todos na costura".
+Pelo vermelho a costura nem existe como problema: branco e laranja têm o
+mesmo R, então a máscara ali vale 1 dos dois lados.
+
+Depois de achar o alfa, a cor é "desmisturada": um pixel de borda é
+`alfa` da tinta mais `(1-alfa)` do azul, e o que se quer guardar é só a
+tinta. Sem isso a marca sai com uma auréola azulada — que só aparece
+quando ela é usada sobre fundo branco, que é justamente o cabeçalho.
+
 ── O que é cada arquivo ──────────────────────────────────────────────
+
+Site (`public/`):
+
+  marca-ei.png               o "Ei" sem fundo, transparente. É a marca que
+                             aparece DENTRO do app: cabeçalho, abertura e
+                             o carimbo no canto da capa
 
 Android (`android/app/src/main/res/mipmap-*/`):
 
@@ -82,6 +126,66 @@ DENSIDADES = {
 }
 
 
+def recortar_a_marca(logo: Image.Image) -> Image.Image:
+    """O "Ei" sem o fundo azul, cortado rente à tinta.
+
+    Ver a explicação no cabeçalho do arquivo: o alfa sai do canal vermelho,
+    porque nele o fundo e as duas tintas ficam em extremos opostos, e a
+    costura entre o branco e o laranja deixa de ser um caso especial.
+    """
+    rgb = logo.convert("RGB")
+    fundo = cor_de_fundo(logo)
+    vermelho = rgb.split()[0]
+    largura, altura = logo.size
+
+    # Os dois extremos da régua saem da própria imagem, e nenhum é chutado.
+    #
+    # O teto é o vermelho mais alto que existe: a tinta cheia.
+    #
+    # O piso NÃO é a cor do fundo lida num pixel só. O azul chapado não é
+    # chapado de verdade — na arte que a dona mandou ele varia de 0 a 10 de
+    # vermelho, sobra de compressão. Com o piso em 1 essas sobras viravam
+    # alfa 1 ou 2: invisível na tela, mas suficiente para o corte rente
+    # achar tinta em todo canto e devolver o quadrado inteiro, com a marca
+    # perdida no meio de uma moldura de nada. Foi o que aconteceu na
+    # primeira tentativa.
+    #
+    # Então o piso é medido: o vermelho mais alto na moldura de fora, onde
+    # só existe fundo (a marca ocupa os 48% do meio).
+    borda = max(
+        max(vermelho.crop((0, 0, largura, 40)).getextrema()),
+        max(vermelho.crop((0, altura - 40, largura, altura)).getextrema()),
+        max(vermelho.crop((0, 0, 40, altura)).getextrema()),
+        max(vermelho.crop((largura - 40, 0, largura, altura)).getextrema()),
+    )
+    pico = vermelho.getextrema()[1]
+    faixa = max(1, pico - borda)
+    alfa = vermelho.point(lambda v: max(0, min(255, round((v - borda) * 255 / faixa))))
+
+    # Desmisturar: o pixel de borda é `a` de tinta sobre `1-a` de azul, e o
+    # que se guarda é só a tinta. Sem isto a marca leva junto uma auréola
+    # azul, invisível sobre o azul da abertura e escancarada no cabeçalho
+    # branco.
+    pintados = []
+    for (r, g, b), a in zip(rgb.get_flattened_data(), alfa.get_flattened_data()):
+        if a == 0:
+            pintados.append((0, 0, 0, 0))
+        elif a == 255:
+            pintados.append((r, g, b, 255))
+        else:
+            f = 255 / a
+            pintados.append((
+                max(0, min(255, round(fundo[0] + (r - fundo[0]) * f))),
+                max(0, min(255, round(fundo[1] + (g - fundo[1]) * f))),
+                max(0, min(255, round(fundo[2] + (b - fundo[2]) * f))),
+                a,
+            ))
+
+    marca = Image.new("RGBA", logo.size)
+    marca.putdata(pintados)
+    return marca.crop(marca.split()[3].getbbox())
+
+
 def quadrado(logo: Image.Image, lado: int) -> Image.Image:
     """A logo inteira, do tamanho pedido."""
     return logo.convert("RGBA").resize((lado, lado), Image.LANCZOS)
@@ -119,13 +223,17 @@ def main() -> None:
         raise SystemExit(f"Não achei a logo em {LOGO}")
 
     logo = Image.open(LOGO).convert("RGBA")
-    marca = Image.open(MARCA).convert("RGBA")
-    # A marca vem com folga em volta; o que interessa é a tinta.
-    marca = marca.crop(marca.split()[3].getbbox())
     fundo = cor_de_fundo(logo)
+    # Recortada da logo, e não lida de um arquivo pronto: era o arquivo
+    # pronto que ficava para trás a cada troca de marca (ver o cabeçalho).
+    marca = recortar_a_marca(logo)
     print(f"logo: {logo.size}  fundo: #{fundo[0]:02x}{fundo[1]:02x}{fundo[2]:02x}")
+    print(f"marca recortada: {marca.size}")
 
-    escritos = 0
+    MARCA.parent.mkdir(parents=True, exist_ok=True)
+    marca.save(MARCA)
+
+    escritos = 1
     for pasta, (comum, adaptativo) in DENSIDADES.items():
         destino = RAIZ / "android/app/src/main/res" / pasta
         destino.mkdir(parents=True, exist_ok=True)
