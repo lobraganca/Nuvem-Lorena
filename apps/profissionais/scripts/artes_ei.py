@@ -399,6 +399,38 @@ SOBRE_CAPA = (255, 255, 255)         # branco sobre a capa — 4,98
 SOBRE_CAPA_FRACO = (234, 246, 255)   # 4,53
 FIO_CAPA = (72, 150, 212)            # o fio fino sobre a capa
 
+# ── O AZUL CLARO, PARA AS PEÇAS QUE VÃO PARA A RUA — 08/09 ─────────────
+#
+# A dona, sobre a primeira peça turbinada: "o azul está muito escuro" —
+# com a logo anexada, ou seja, pedindo o azul DELA, o (1,167,253).
+#
+# Sobre esse azul o branco dá 2,64 de contraste: ilegível por qualquer
+# régua (o mínimo é 3,0 para letra grande e 4,5 para o resto). E letra
+# escura ela recusou em 07/09. O pedido ao pé da letra não fecha.
+#
+# O que dá é ir até o limite. Medida a escala inteira entre os dois:
+#
+#     (10,114,196)  4,98   o AZUL_CAPA, que ela achou escuro
+#     (9,122,205)   4,49   o mais claro que ainda passa em letra pequena
+#     (4,148,233)   3,27   ESTE
+#     (3,154,239)   3,06   o limite absoluto, sem folga
+#     (1,167,253)   2,64   o da logo. Branco some.
+#
+# ── O PREÇO, E ELE É AMARRADO ─────────────────────────────────────────
+#
+# 3,27 só vale para LETRA GRANDE — a norma chama de grande o que passa de
+# 24px em negrito. Então a peça que usar este azul não pode ter NENHUM
+# texto branco pequeno: as palavrinhas de apoio e o endereço do rodapé
+# sobem de tamanho e de peso junto.
+#
+# Quem encolher qualquer texto branco tem de escurecer o azul junto. As
+# duas coisas andam amarradas, e é por isso que a constante mora aqui e
+# não dentro de uma peça: a segunda peça a usá-la copiaria o número e
+# deixaria a regra para trás.
+AZUL_CLARO = (4, 148, 233)
+# O fio sobre o azul claro: o FIO_CAPA quase encosta na cor de trás e some.
+FIO_CLARO = (120, 186, 243)
+
 # 4,78 de contraste: o rodapé e o contador têm 22-25px, que fica na
 # fronteira do que a WCAG chama de letra grande. Na dúvida, o valor que
 # passa como letra pequena — é texto que alguém pode precisar ler.
