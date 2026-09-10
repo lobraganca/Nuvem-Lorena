@@ -124,9 +124,11 @@ ENDERECO = "www.empregoitabirito.com.br"
 # O laranja da bolinha do logo, medido no arquivo que a dona mandou.
 LARANJA_EI = (253, 170, 70)
 
-# O azul: o mais claro em que o branco ainda se lê. Ver o cabeçalho — a
-# escala inteira está medida lá, com o motivo de parar aqui.
-AZUL_CLARO = (4, 148, 233)
+# O azul claro e o fio dele moram em `artes_ei` desde 09/09: esta peça
+# deixou de ser a única a usá-los, e constante copiada é constante que
+# diverge. A escala medida e a regra que vem junto (nada de letra branca
+# pequena) estão lá.
+AZUL_CLARO = ei.AZUL_CLARO
 
 # ── AS ALTURAS ─────────────────────────────────────────────────────────
 # Fixas e todas aqui em cima, como nas outras peças: altura calculada no
@@ -191,9 +193,7 @@ def gerar() -> None:
     d = ImageDraw.Draw(img)
     x0, x1 = ei.MARGEM, ei.L - ei.MARGEM
 
-    # O fio fica um pouco mais claro que o do azul escuro: sobre este fundo
-    # o (72,150,212) da casa quase encosta na cor de trás e some.
-    fio = (120, 186, 243)
+    fio = ei.FIO_CLARO
 
     # A caixa da chamada e o desenho do encontro vêm ANTES do texto: o
     # contraste tem de ser medido contra o fundo de verdade. Medindo a peça
