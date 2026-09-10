@@ -2,81 +2,83 @@
 <style>
 @font-face{font-family:Inter;src:url('file:///home/user/Nuvem-Lorena/apps/profissionais/scripts/fontes/Inter-400.ttf');font-weight:400}
 @font-face{font-family:Inter;src:url('file:///home/user/Nuvem-Lorena/apps/profissionais/scripts/fontes/Inter-500.ttf');font-weight:500}
-@font-face{font-family:Inter;src:url('file:///home/user/Nuvem-Lorena/apps/profissionais/scripts/fontes/Inter-600.ttf');font-weight:600}
 @font-face{font-family:Inter;src:url('file:///home/user/Nuvem-Lorena/apps/profissionais/scripts/fontes/Inter-700.ttf');font-weight:700}
 @font-face{font-family:Inter;src:url('file:///home/user/Nuvem-Lorena/apps/profissionais/scripts/fontes/Inter-800.ttf');font-weight:800}
 @font-face{font-family:Inter;src:url('file:///home/user/Nuvem-Lorena/apps/profissionais/scripts/fontes/Inter-900.ttf');font-weight:900}
 :root{--azul:#0494e9;--laranja:#fdaa46;--creme:#f5f2ec;--tinta:#0f2233}
 *{margin:0;padding:0;box-sizing:border-box}
 body{background:#333;font-family:Inter,sans-serif;-webkit-font-smoothing:antialiased}
-.arte{background:var(--azul);color:#fff;padding:96px 96px 84px;display:flex;flex-direction:column;position:relative;overflow:hidden}
-.p1,.p2,.p3{width:1080px;height:1350px}
-.marca{height:78px;width:auto;align-self:flex-start;flex:0 0 auto;display:block}
-.fio{height:2px;background:rgba(255,255,255:.45);background:rgba(255,255,255,.45);margin:34px 0 0}
-.olho{font-size:29px;font-weight:700;letter-spacing:.30em;margin-bottom:20px;opacity:.95}
-.titulao{font-size:118px;font-weight:900;line-height:1.0;padding-top:8px;letter-spacing:-.035em;text-transform:uppercase}
-.sub{font-size:47px;font-weight:700;line-height:1.22;letter-spacing:-.02em;margin-top:34px}
-.apoio{font-size:33px;font-weight:400;line-height:1.45;margin-top:26px;opacity:.95;max-width:850px}
-.cta{background:var(--creme);color:var(--tinta);border-top:9px solid var(--laranja);padding:44px 40px;text-align:center;font-size:45px;font-weight:800;letter-spacing:-.02em}
-.pe{margin-top:auto;padding-top:44px}
-.site{font-size:31px;font-weight:700;letter-spacing:.01em;padding-top:26px;border-top:2px solid rgba(255,255,255,.45)}
-/* os tres passos */
-.passo{display:flex;align-items:flex-start;gap:30px;margin-top:38px}
-.num{flex:0 0 auto;width:66px;height:66px;border-radius:50%;background:var(--laranja);color:var(--tinta);
-     font-size:36px;font-weight:900;display:flex;align-items:center;justify-content:center}
-.pt{font-size:38px;font-weight:700;line-height:1.25;letter-spacing:-.02em}
-.pn{font-size:29px;font-weight:400;line-height:1.4;opacity:.93;margin-top:6px}
-/* selo da promo */
-.selo{display:inline-block;background:var(--laranja);color:var(--tinta);font-size:27px;font-weight:800;
-      letter-spacing:.14em;text-transform:uppercase;padding:14px 26px;border-radius:999px;margin-bottom:26px}
-.gigante{font-size:170px;font-weight:900;line-height:.86;letter-spacing:-.045em}
+
+/* 1080×1080 — o quadrado do post. A dona: "está grande pra post", olhando
+   a versão de 1350. Tudo aqui é medido para caber nessa altura sem
+   apertar: quem paga a diferença num quadrado é sempre o pé da arte. */
+.arte{width:1080px;height:1080px;background:var(--azul);color:#fff;
+      padding:74px 80px 72px;display:flex;flex-direction:column;overflow:hidden}
+.marca{height:64px;width:auto;align-self:flex-start;flex:0 0 auto;display:block}
+.fio{height:2px;background:rgba(255,255,255,.45);margin-top:26px}
+.olho{font-size:25px;font-weight:700;letter-spacing:.28em;margin-bottom:16px;opacity:.95}
+.titulao{font-size:100px;font-weight:900;line-height:1.0;padding-top:6px;letter-spacing:-.035em;text-transform:uppercase}
+.sub{font-size:41px;font-weight:700;line-height:1.2;letter-spacing:-.02em;margin-top:26px}
+.apoio{font-size:29px;font-weight:400;line-height:1.42;margin-top:20px;opacity:.95;max-width:830px}
+.cta{background:var(--creme);color:var(--tinta);border-top:8px solid var(--laranja);
+     padding:34px 32px;text-align:center;font-size:40px;font-weight:800;letter-spacing:-.02em}
+.pe{margin-top:auto;padding-top:34px}
+.site{font-size:27px;font-weight:700;padding-top:20px;border-top:2px solid rgba(255,255,255,.45)}
+.passo{display:flex;align-items:flex-start;gap:24px;margin-top:30px}
+.num{flex:0 0 auto;width:56px;height:56px;border-radius:50%;background:var(--laranja);color:var(--tinta);
+     font-size:31px;font-weight:900;display:flex;align-items:center;justify-content:center}
+.pt{font-size:34px;font-weight:700;line-height:1.2;letter-spacing:-.02em}
+.pn{font-size:26px;font-weight:400;line-height:1.35;opacity:.93;margin-top:4px}
+.selo{display:inline-block;background:var(--laranja);color:var(--tinta);font-size:24px;font-weight:800;
+      letter-spacing:.13em;text-transform:uppercase;padding:12px 22px;border-radius:999px;margin-bottom:20px}
+.gigante{font-size:142px;font-weight:900;line-height:.9;letter-spacing:-.045em;padding-top:6px}
 </style>
 
-<!-- ══ PEÇA 1 — o chamado principal ══ -->
-<div class="arte p1" id="a1">
+<!-- ══ 1 — o chamado principal ══ -->
+<div class="arte" id="a1">
   <img class="marca" src="file:///home/user/Nuvem-Lorena/apps/profissionais/public/marca-ei.png">
   <div class="fio"></div>
-  <div style="margin-top:96px">
+  <div style="margin-top:58px">
     <div class="olho">PARA QUEM CONTRATA EM ITABIRITO</div>
     <div class="titulao">Publique<br>sua vaga</div>
     <div class="sub">O app avisa quem faz esse serviço na cidade.</div>
-    <div class="apoio">Você não espera currículo chegar: assim que a vaga entra no ar, quem tem esse ofício em Itabirito recebe o aviso no celular. E você recebe quem se interessou, com nome e telefone.</div>
+    <div class="apoio">Você não espera currículo chegar. E recebe quem se interessou, com nome e telefone.</div>
   </div>
   <div class="pe">
     <div class="cta">Cadastre sua vaga</div>
-    <div class="site" style="margin-top:40px">www.empregoitabirito.com.br</div>
+    <div class="site" style="margin-top:32px">www.empregoitabirito.com.br</div>
   </div>
 </div>
 
-<!-- ══ PEÇA 2 — como funciona, quadrada ══ -->
-<div class="arte p2" id="a2">
+<!-- ══ 2 — como funciona ══ -->
+<div class="arte" id="a2">
   <img class="marca" src="file:///home/user/Nuvem-Lorena/apps/profissionais/public/marca-ei.png">
   <div class="fio"></div>
-  <div style="margin-top:76px">
+  <div style="margin-top:46px">
     <div class="olho">CONTRATAR EM ITABIRITO</div>
-    <div class="titulao">Em três<br>passos</div>
+    <div class="titulao" style="font-size:86px">Em três passos</div>
     <div class="passo"><div class="num">1</div><div><div class="pt">Publique a vaga</div><div class="pn">Cargo, salário e o que você precisa. Leva 5 minutos.</div></div></div>
     <div class="passo"><div class="num">2</div><div><div class="pt">O app avisa quem faz</div><div class="pn">Quem marcou esse ofício na cidade recebe no celular.</div></div></div>
     <div class="passo"><div class="num">3</div><div><div class="pt">Você chama quem quiser</div><div class="pn">A lista de interessados vem com nome e telefone.</div></div></div>
   </div>
   <div class="pe">
     <div class="cta">Cadastre sua vaga</div>
-    <div class="site" style="margin-top:40px">www.empregoitabirito.com.br</div>
+    <div class="site" style="margin-top:32px">www.empregoitabirito.com.br</div>
   </div>
 </div>
 
-<!-- ══ PEÇA 3 — com a promoção ══ -->
-<div class="arte p3" id="a3">
+<!-- ══ 3 — a promoção ══ -->
+<div class="arte" id="a3">
   <img class="marca" src="file:///home/user/Nuvem-Lorena/apps/profissionais/public/marca-ei.png">
   <div class="fio"></div>
-  <div style="margin-top:88px">
+  <div style="margin-top:52px">
     <div class="selo">Por tempo limitado</div>
     <div class="gigante">30 dias<br>grátis</div>
     <div class="sub">Publique 1 vaga sem pagar nada.</div>
-    <div class="apoio">Para empresas de Itabirito. O app avisa quem faz esse serviço na cidade, e você recebe quem se interessou — com nome e telefone.</div>
+    <div class="apoio">Para empresas de Itabirito. O app avisa quem faz esse serviço na cidade.</div>
   </div>
   <div class="pe">
     <div class="cta">Quero publicar minha vaga</div>
-    <div class="site" style="margin-top:40px">www.empregoitabirito.com.br</div>
+    <div class="site" style="margin-top:32px">www.empregoitabirito.com.br</div>
   </div>
 </div>
