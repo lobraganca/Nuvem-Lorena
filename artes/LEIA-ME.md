@@ -5,8 +5,19 @@ As três peças chamando o empresário a publicar vaga, feitas em 10/09.
 | Arquivo | Tamanho | Para quê |
 |---|---|---|
 | `ei-empresas-1-publique-sua-vaga.png` | 1080×1350 | a principal — o app vai atrás das pessoas |
-| `ei-empresas-2-em-tres-passos.png` | 1080×1080 | como funciona, para quem ainda não entendeu |
+| `ei-empresas-2-em-tres-passos.png` | 1080×1350 | como funciona, para quem ainda não entendeu |
 | `ei-empresas-3-30-dias-gratis.png` | 1080×1350 | a promoção — **só postar com a oferta ligada** |
+
+## O tamanho é 1080×1350, e não foi escolha de gosto
+
+É a medida que `apps/profissionais/scripts/artes_ei.py` já usa (`L, A =
+1080, 1350`). As peças precisam empilhar num carrossel com as que já
+existem — duas medidas diferentes é o mesmo pulo que aquele arquivo foi
+escrito para evitar.
+
+A folga abaixo do endereço é medida, não olhada: 80, 70 e 84px. A peça
+dos três passos chegou a sair com ZERO (o endereço encostado na borda) e
+só apareceu ao medir.
 
 ## Para refazer ou mudar uma frase
 
