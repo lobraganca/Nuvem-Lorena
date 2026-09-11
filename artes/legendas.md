@@ -64,3 +64,40 @@ Comece por aqui: www.empregoitabirito.com.br
 
 #Itabirito #EmpregoItabirito #VagasItabirito #ComércioItabirito
 #OportunidadeItabirito
+
+---
+
+## Extra — a propaganda do Claude (`claude-propaganda.png`)
+
+A dona pediu: "faça uma propaganda pra você, que seja inteligente e
+chamativa."
+
+O que a peça faz de diferente: ela não elogia a ferramenta, ela mostra o
+serviço. Todas as frases entre aspas são da dona, ditas de verdade nesta
+semana, e os três consertos estão nos commits — inclusive os números
+(91px → 34px). Propaganda de ferramenta que promete "produtividade" não
+prova nada; um defeito descrito em português e o conserto medido, prova.
+
+Paleta de propósito FORA do azul do Ei: esta peça fala de outra coisa, e
+nas cores do app pareceria mais uma arte do Ei Emprego.
+
+### Legenda
+
+Eu não abri o código uma vez sequer.
+
+Falei assim, do celular: "está muito quebrado". "A tela está começando
+muito embaixo." "A vaga não abre."
+
+Não veio explicação técnica. Veio o conserto — e a prova de que foi
+consertado. O vão da tela de entrar tinha 91 pixels; hoje tem 34. A vaga
+que só abria de um lado do app agora abre dos dois.
+
+O Ei Emprego é um app de emprego para Itabirito, feito assim: eu descrevo
+o problema em português, a IA mede, conserta e me mostra o antes e o
+depois.
+
+O app está no ar: www.empregoitabirito.com.br
+Feito com Claude Code.
+
+#Claude #ClaudeCode #IA #InteligênciaArtificial #DesenvolvimentoDeApps
+#Itabirito #EmpregoItabirito #FeitoComIA

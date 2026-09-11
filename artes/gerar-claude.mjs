@@ -1,0 +1,12 @@
+import { chromium } from 'playwright';
+const b = await chromium.launch({ executablePath: '/opt/pw-browsers/chromium' });
+const p = await b.newPage({ viewport:{width:1200,height:1200}, deviceScaleFactor:1 });
+await p.goto('file:///home/user/Nuvem-Lorena/artes/claude.html',{waitUntil:'load'});
+await p.evaluate(()=>document.fonts.ready); await p.waitForTimeout(800);
+const el = await p.$('#c1');
+await el.screenshot({path:'/home/user/Nuvem-Lorena/artes/claude-propaganda.png'});
+const m = await p.evaluate(()=>{const a=document.getElementById('c1'),ab=a.getBoundingClientRect();
+  const s=a.querySelector('.assina').getBoundingClientRect();
+  return {alt:Math.round(ab.height), sobraNoPe:Math.round(ab.bottom-s.bottom), transbordou:a.scrollHeight>Math.round(ab.height)};});
+console.log(JSON.stringify(m));
+await b.close();
