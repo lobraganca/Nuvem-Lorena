@@ -67,30 +67,32 @@ Comece por aqui: www.empregoitabirito.com.br
 
 ---
 
-## 4 — "Papel na vitrine"
+## 4 — "Sua vaga chega no celular de quem faz o serviço"
 
-O ângulo é o único das quatro que não fala do app: fala do jeito como o
-comércio de Itabirito já contrata hoje — o papel na vitrine, a indicação
-no grupo. Comparar com o que a pessoa já faz explica a diferença sem
-precisar de nenhuma palavra técnica.
+Esta peça nasceu com o título "Papel na vitrine alcança quem passa na
+porta", comparando com o jeito de contratar da cidade. A dona: "achei a
+frase confusa, preciso de algo mais claro."
 
-E compara sem debochar: o papel na vitrine FUNCIONA, só alcança pouca
-gente. Peça de propaganda que ri do cliente perde o cliente.
+Estava certa, e a lição serve para as próximas: **metáfora cobra um
+segundo de raciocínio, e quem rola o feed não dá esse segundo.** A
+comparação era boa no papel — só que o leitor tinha de montar sozinho a
+outra metade (o que o app faz de diferente), e quem não montasse ficava
+com uma frase sobre vitrine.
+
+O título agora é literal: o que acontece, na ordem em que acontece.
+Nenhuma figura de linguagem, nenhuma palavra que precise ser traduzida.
 
 ### Legenda
 
-Precisa de alguém? Hoje é assim: um papel na vitrine, um recado no grupo
-do WhatsApp, e torcer para a pessoa certa passar na porta.
+Precisa contratar em Itabirito?
 
-O papel funciona — ele só alcança quem passou ali naquele dia.
+Você publica a vaga no Ei Emprego. O app avisa, no celular, quem marcou
+esse ofício aqui na cidade. Quem tiver interesse aparece para você com
+nome e telefone — é só ligar.
 
-No Ei Emprego é o contrário: você publica a vaga e o app avisa, no
-celular, quem faz esse serviço aqui em Itabirito. Quem se interessar
-chega para você com nome e telefone. Aí é só chamar.
+Publicar leva 5 minutos.
 
-A vaga para de esperar e vai atrás.
-
-Cadastre a sua: www.empregoitabirito.com.br
+www.empregoitabirito.com.br
 
 #Itabirito #EmpregoItabirito #VagasItabirito #ComércioItabirito
 #ContrataçãoItabirito #PequenoNegócio
