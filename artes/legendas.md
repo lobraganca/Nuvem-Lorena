@@ -67,6 +67,36 @@ Comece por aqui: www.empregoitabirito.com.br
 
 ---
 
+## 4 — "Papel na vitrine"
+
+O ângulo é o único das quatro que não fala do app: fala do jeito como o
+comércio de Itabirito já contrata hoje — o papel na vitrine, a indicação
+no grupo. Comparar com o que a pessoa já faz explica a diferença sem
+precisar de nenhuma palavra técnica.
+
+E compara sem debochar: o papel na vitrine FUNCIONA, só alcança pouca
+gente. Peça de propaganda que ri do cliente perde o cliente.
+
+### Legenda
+
+Precisa de alguém? Hoje é assim: um papel na vitrine, um recado no grupo
+do WhatsApp, e torcer para a pessoa certa passar na porta.
+
+O papel funciona — ele só alcança quem passou ali naquele dia.
+
+No Ei Emprego é o contrário: você publica a vaga e o app avisa, no
+celular, quem faz esse serviço aqui em Itabirito. Quem se interessar
+chega para você com nome e telefone. Aí é só chamar.
+
+A vaga para de esperar e vai atrás.
+
+Cadastre a sua: www.empregoitabirito.com.br
+
+#Itabirito #EmpregoItabirito #VagasItabirito #ComércioItabirito
+#ContrataçãoItabirito #PequenoNegócio
+
+---
+
 ## Extra — a propaganda do Claude (`claude-propaganda.png`)
 
 A dona pediu: "faça uma propaganda pra você, que seja inteligente e

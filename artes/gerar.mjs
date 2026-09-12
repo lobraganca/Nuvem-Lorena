@@ -4,7 +4,7 @@ const p = await b.newPage({ viewport:{width:1200,height:1500}, deviceScaleFactor
 await p.goto('file:///home/user/Nuvem-Lorena/artes/artes.html',{waitUntil:'load'});
 await p.evaluate(()=>document.fonts.ready);
 await p.waitForTimeout(900);
-for (const [id,nome] of [['a1','1-publique-sua-vaga'],['a2','2-em-tres-passos'],['a3','3-30-dias-gratis']]) {
+for (const [id,nome] of [['a1','1-publique-sua-vaga'],['a2','2-em-tres-passos'],['a3','3-30-dias-gratis'],['a4','4-papel-na-vitrine']]) {
   const el = await p.$('#'+id);
   const box = await el.boundingBox();
   await el.screenshot({path:`/home/user/Nuvem-Lorena/artes/ei-empresas-${nome}.png`});
