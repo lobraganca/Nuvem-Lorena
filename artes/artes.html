@@ -31,6 +31,23 @@ body{background:#333;font-family:Inter,sans-serif;-webkit-font-smoothing:antiali
 .pn{font-size:26px;font-weight:400;line-height:1.35;opacity:.93;margin-top:4px}
 .selo{display:inline-block;background:var(--laranja);color:var(--tinta);font-size:24px;font-weight:800;
       letter-spacing:.13em;text-transform:uppercase;padding:12px 22px;border-radius:999px;margin-bottom:20px}
+/* ── A SERRA, NO PÉ DA ARTE — 12/09 ──────────────────────────────────
+   A dona: "coloque alguma referência de Itabirito."
+
+   Até aqui a única referência era a palavra escrita. Uma cidade cercada
+   de serra se reconhece pelo recorte dela no horizonte antes de ler
+   qualquer nome.
+
+   Fica ATRÁS do conteúdo, num azul mais fundo do mesmo tom: é chão, não
+   ilustração. Se disputasse atenção com o título, viraria mais uma coisa
+   para o olho resolver numa arte que acabou de ser simplificada
+   justamente por isso. */
+/* Sangra até a borda: serra que respeita a margem do texto vira faixa
+   decorativa. Horizonte não tem margem. O recuo negativo é o mesmo valor
+   do padding lateral da arte (80px). */
+.serra{display:block;width:calc(100% + 160px);margin:0 -80px;height:86px}
+/* O pé desta peça não precisa do respiro de cima: a serra é o respiro. */
+.pe-serra{padding-top:0}
 .gigante{font-size:142px;font-weight:900;line-height:.9;letter-spacing:-.045em;padding-top:6px}
 </style>
 
@@ -83,7 +100,7 @@ body{background:#333;font-family:Inter,sans-serif;-webkit-font-smoothing:antiali
   </div>
 </div>
 
-<!-- ══ 4 — o que acontece, dito sem metáfora ══ -->
+<!-- ══ 4 — o que acontece, dito sem metáfora, com a serra no pé ══ -->
 <div class="arte" id="a4">
   <img class="marca" src="file:///home/user/Nuvem-Lorena/apps/profissionais/public/marca-ei.png">
   <div class="fio"></div>
@@ -96,9 +113,17 @@ body{background:#333;font-family:Inter,sans-serif;-webkit-font-smoothing:antiali
          faz o serviço recebe a vaga no celular. -->
     <div class="titulao" style="font-size:76px;text-transform:none">Sua vaga chega<br>no celular de quem<br>faz o serviço.</div>
     <div class="sub" style="margin-top:30px">Você publica. O app avisa. Os interessados chegam.</div>
-    <div class="apoio">Cada um vem com nome e telefone — é só ligar. Publicar leva 5 minutos.</div>
+    <div class="apoio">Cada um vem com nome e telefone. Publicar leva 5 minutos.</div>
   </div>
-  <div class="pe">
+  <div class="pe pe-serra">
+    <svg class="serra" viewBox="0 0 1080 280" preserveAspectRatio="none" aria-hidden="true">
+    <!-- Duas camadas de cumeeira: a de trás mais clara e mais alta, a da
+         frente mais escura. É o que dá profundidade sem desenhar nada
+         reconhecível demais — ver a nota no LEIA-ME sobre não fingir que
+         isto é o retrato do Pico. -->
+    <path fill="#0384d1" d="M0,280 L0,190 L118,168 L214,116 L286,150 L408,44 L520,128 L604,96 L706,158 L818,110 L928,166 L1010,138 L1080,172 L1080,280 Z"/>
+    <path fill="#0270b0" d="M0,280 L0,246 L142,214 L268,250 L392,196 L540,244 L668,204 L806,248 L930,212 L1080,240 L1080,280 Z"/>
+    </svg>
     <div class="cta">Cadastre sua vaga</div>
     <div class="site" style="margin-top:32px">www.empregoitabirito.com.br</div>
   </div>

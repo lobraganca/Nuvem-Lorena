@@ -82,6 +82,25 @@ com uma frase sobre vitrine.
 O título agora é literal: o que acontece, na ordem em que acontece.
 Nenhuma figura de linguagem, nenhuma palavra que precise ser traduzida.
 
+### A serra no pé — e o que ela NÃO é
+
+A dona: "coloque alguma referência de Itabirito."
+
+Entrou uma silhueta de serra sangrando de borda a borda, com a caixa de
+chamada apoiada nela. Fica num azul mais fundo do mesmo tom: é chão, não
+ilustração — se disputasse atenção com o título, seria mais uma coisa
+para o olho resolver numa arte que acabou de ser simplificada justamente
+por isso.
+
+**ATENÇÃO para quem for mexer: esta serra é genérica.** Não é o Pico do
+Itabirito traçado de uma foto — é um horizonte de morros desenhado à mão,
+que evoca a região sem afirmar ser um lugar específico. Foi decisão
+consciente: pôr um contorno errado do Pico numa peça que circula na
+cidade é pior que não pôr nenhum, porque quem mora lá reconhece na hora.
+
+Se um dia houver uma foto do Pico para traçar, aí sim vale o desenho de
+verdade — e aí a referência passa a ser reconhecível, não só sugerida.
+
 ### Legenda
 
 Precisa contratar em Itabirito?
