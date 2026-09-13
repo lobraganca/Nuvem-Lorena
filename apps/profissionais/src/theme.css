@@ -1097,7 +1097,8 @@ textarea::placeholder {
   text-align: center;
   margin: 0 -20px;
   padding: clamp(30px, 7vh, 64px) 20px clamp(26px, 4.5vh, 40px);
-  background: linear-gradient(160deg, var(--color-primary), var(--color-navy));
+  /* Cor sólida, sem degradê — pedido dela depois de ver a primeira versão. */
+  background: var(--color-navy);
 }
 
 @media (max-width: 420px) {
