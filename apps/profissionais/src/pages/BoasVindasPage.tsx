@@ -161,24 +161,28 @@ export function BoasVindasPage() {
           desce sozinho é publicidade enganosa (CDC art. 37), e ser
           descoberto custa mais confiança do que qualquer aparência de
           movimento vale. */}
-      <div className="welcome-topo">
-        {online !== null && online > 0 && (
-          <p className="online-pill">
-            <span className="online-dot" aria-hidden="true" />
-            {online === 1 ? "1 pessoa navegando agora" : `${online} pessoas navegando agora`}
-          </p>
-        )}
-        {/* As visitas saíram daqui e viraram o cartão grande, abaixo da
-            marca. Nos dois lugares ao mesmo tempo, o mesmo número aparecia
-            duas vezes na mesma tela. */}
-      </div>
-
       {/* A capa pedida no modelo de outro app: marca, frase e números sobre
           o azul da abertura (mesmo degradê de `.splash`), em vez do fundo
           claro que a tela tinha. `variant="onBlue"` já existia em LogoMark
           para exatamente este caso — foi feito para a tela de abertura e
-          reaproveitado aqui, não uma cor nova inventada para isto. */}
+          reaproveitado aqui, não uma cor nova inventada para isto.
+
+          A pílula "X pessoas navegando" entrou para dentro do bloco azul.
+          Ela morava numa faixa própria, ANTES do azul começar — e nalguns
+          aparelhos isso sobrava como um vão de fundo claro, com a pílula
+          flutuando sozinha ali, antes do bloco colorido aparecer. Dentro
+          do bloco, ela vira parte da mesma peça em qualquer aparelho, sem
+          depender de altura de barra de status nem de entalhe de câmera.
+          `.online-pill-topo` porque é a variante já feita para pílula
+          sobre fundo azul (usada no cabeçalho) — reaproveitada, não uma
+          cor nova. */}
       <section className="welcome-hero welcome-hero-capa">
+        {online !== null && online > 0 && (
+          <p className="online-pill online-pill-topo welcome-online-pill">
+            <span className="online-dot" aria-hidden="true" />
+            {online === 1 ? "1 pessoa navegando agora" : `${online} pessoas navegando agora`}
+          </p>
+        )}
         <LogoMark variant="onBlue" />
         <p className="welcome-tagline">
           Encontre quem faz, aqui perto, com a opinião de quem já contratou.

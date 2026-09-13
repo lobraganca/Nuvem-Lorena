@@ -1049,24 +1049,9 @@ textarea::placeholder {
   }
 }
 
-/* Linha dos contadores, antes de tudo na tela de início. */
-.welcome-topo {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
-  align-items: center;
-  gap: 8px;
-  padding-top: 14px;
-}
-
 /* `.visitas-pill` foi removida: as visitas deixaram de ser uma pílula
    discreta no topo e passaram a ser o cartão grande abaixo da marca, no
    lugar que era do total de profissionais cadastrados. */
-
-.welcome-topo .online-pill {
-  margin-top: 0;
-  margin-bottom: 0;
-}
 
 /* 72px de respiro em cima gastavam um quinto da primeira tela do celular
    para não dizer nada — e a decisão (os dois botões) só aparecia depois de
@@ -1077,8 +1062,13 @@ textarea::placeholder {
   padding: clamp(26px, 6vh, 60px) 0 clamp(18px, 3.4vh, 34px);
 }
 
-.welcome-topo + .welcome-hero {
-  padding-top: clamp(18px, 4vh, 40px);
+/* A pílula de "gente online" já foi um `<div>` separado antes da capa,
+   com fundo claro — no celular real isso abria um vão claro solto acima
+   do azul antes de a capa começar. Agora ela mora dentro da própria
+   `.welcome-hero-capa`, e só precisa do respiro que a marca abaixo dela
+   pedia. */
+.welcome-online-pill {
+  margin-bottom: 14px;
 }
 
 /* A capa pedida a partir do modelo de outro app: o mesmo azul da abertura
