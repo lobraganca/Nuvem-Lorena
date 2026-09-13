@@ -132,6 +132,11 @@ export function BoasVindasPage() {
      está decidindo se vale procurar aqui. */
   const visitasAppAnimado = useContagemAnimada(stats?.visitasApp ?? 0);
   const visitasHojeAnimado = useContagemAnimada(stats?.visitasHoje ?? 0);
+  /* Voltou a aparecer, a pedido dela: a razão para tê-lo escondido (número
+     pequeno soa como cidade vazia) continua válida em tese, mas a decisão
+     de mostrar ou não é dela, não uma regra fixa deste arquivo. O número
+     em si nunca deixou de ser contado — só a exibição estava desligada. */
+  const profissionaisAnimado = useContagemAnimada(stats?.profissionais ?? 0);
 
   function escolherCliente() {
     markWelcomeSeen();
@@ -168,8 +173,13 @@ export function BoasVindasPage() {
             duas vezes na mesma tela. */}
       </div>
 
-      <section className="welcome-hero">
-        <LogoMark />
+      {/* A capa pedida no modelo de outro app: marca, frase e números sobre
+          o azul da abertura (mesmo degradê de `.splash`), em vez do fundo
+          claro que a tela tinha. `variant="onBlue"` já existia em LogoMark
+          para exatamente este caso — foi feito para a tela de abertura e
+          reaproveitado aqui, não uma cor nova inventada para isto. */}
+      <section className="welcome-hero welcome-hero-capa">
+        <LogoMark variant="onBlue" />
         <p className="welcome-tagline">
           Encontre quem faz, aqui perto, com a opinião de quem já contratou.
         </p>
@@ -193,12 +203,29 @@ export function BoasVindasPage() {
             tela é a única informação que o app consegue dar contra si
             mesmo sem ser verdade útil, porque quem está lendo já é a
             visita número um. */}
-        {stats && stats.visitasApp > 0 && (
+        {stats && (stats.profissionais > 0 || stats.visitasApp > 0) && (
           <div className="welcome-stats">
-            <div className="welcome-stat-card">
-              <strong>{visitasAppAnimado}</strong>
-              <span>{stats.visitasApp === 1 ? "visita ao app" : "visitas ao app"}</span>
-            </div>
+            {/* Primeiro da fila, a pedido dela: é o número que a capa
+                pede em destaque. Escondido no zero, como os outros dois —
+                app sem nenhum cadastro não tem o que mostrar aqui. */}
+            {stats.profissionais > 0 && (
+              <div className="welcome-stat-card">
+                <strong>{profissionaisAnimado}</strong>
+                <span>{stats.profissionais === 1 ? "profissional" : "profissionais"}</span>
+              </div>
+            )}
+            {/* Ganhou trava própria ao virar vizinho do cartão de
+                profissionais: antes a condição de fora já garantia
+                visitasApp > 0 sempre que este trecho renderizava. Agora
+                que a condição de fora aceita profissionais sozinho, sem
+                isto um app com cadastro mas sem visita ainda mostraria
+                "0 visitas ao app". */}
+            {stats.visitasApp > 0 && (
+              <div className="welcome-stat-card">
+                <strong>{visitasAppAnimado}</strong>
+                <span>{stats.visitasApp === 1 ? "visita ao app" : "visitas ao app"}</span>
+              </div>
+            )}
             {/* O de hoje só aparece quando há visita hoje — e some sozinho
                 de madrugada, quando o dia vira e a contagem volta a zero.
                 É de propósito: um "0 hoje" ao lado de um total grande diz

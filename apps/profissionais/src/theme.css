@@ -1081,6 +1081,33 @@ textarea::placeholder {
   padding-top: clamp(18px, 4vh, 40px);
 }
 
+/* A capa pedida a partir do modelo de outro app: o mesmo azul da abertura
+   do procurô (ver `.splash`, mesmo degradê), não um azul novo. Sangra até
+   a borda da tela com margem negativa igual ao padding do container-pai
+   (`.welcome-page`, 20px — 16px na quebra de 420px logo abaixo), porque
+   este container tem `max-width: 960px` e centraliza no desktop: só a
+   margem negativa garante que a cor chegue à borda de verdade no celular,
+   que é onde este app é usado.
+
+   Só o topo muda de cor. Os dois botões de escolha, a grade de recursos e
+   os banners continuam exatamente como estavam — cada um já levou sua
+   própria rodada de ajuste, registrada nos comentários logo abaixo deste
+   bloco, e refazer o que já funciona não estava pedido. */
+.welcome-hero-capa {
+  text-align: center;
+  margin: 0 -20px;
+  padding: clamp(30px, 7vh, 64px) 20px clamp(26px, 4.5vh, 40px);
+  background: linear-gradient(160deg, var(--color-primary), var(--color-navy));
+}
+
+@media (max-width: 420px) {
+  .welcome-hero-capa {
+    margin: 0 -16px;
+    padding-left: 16px;
+    padding-right: 16px;
+  }
+}
+
 /* `.welcome-gratis` foi removida: o aviso de cadastro grátis virou a
    etiqueta `.welcome-choice-gratis`, dentro do próprio botão. O par de
    vermelho que ela estabeleceu (fundo #fdeceb, texto #c0392b) continua
@@ -1092,6 +1119,17 @@ textarea::placeholder {
   margin: 28px auto 0;
   font-size: 1.02rem;
   line-height: 1.55;
+}
+
+/* Dentro da capa escura o texto vira título, não legenda: maior, mais
+   peso, branco — é a mesma frase de sempre (não reescrevi o texto, só o
+   tamanho da letra), só que lida agora como manchete e não como apoio. */
+.welcome-hero-capa .welcome-tagline {
+  color: #fff;
+  font-size: 1.5rem;
+  font-weight: 700;
+  line-height: 1.28;
+  max-width: 22rem;
 }
 
 .welcome-features {
