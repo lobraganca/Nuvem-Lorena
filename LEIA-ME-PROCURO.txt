@@ -1,0 +1,11 @@
+Esta branch é a do procurô no ar.
+
+Ela está congelada no commit d96e017 — o último do procurô, antes de o
+repositório virar Ei Itabirito. É ela que o projeto nuvem-lorena-4uiw da
+Vercel publica (Settings > Environments > Production > Branch Tracking).
+
+NÃO COMMITAR NADA AQUI. Qualquer commit republica o site do procurô.
+
+O motivo de ela existir: o projeto da Vercel servia procuroapp.com.br e
+empregoitabirito.com.br ao mesmo tempo, seguindo a branch do Ei. Publicar
+o Ei tirou o procurô do ar. Separar as branches impede isso de repetir.
