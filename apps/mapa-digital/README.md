@@ -47,6 +47,18 @@ npm run build      # montagem
 O teste de navegador (`testes/navegador.mjs`) precisa do playwright instalado
 na raiz do repositório; as instruções estão no cabeçalho do arquivo.
 
+### A montagem de prévia
+
+```bash
+VITE_PREVIA=1 npx vite build --outDir dist-previa --base ./
+```
+
+Serve para hospedar o app em lugar que não sabe devolver a página para
+endereços fundos (uma prévia publicada, por exemplo). Duas coisas mudam, as
+duas por limite da hospedagem e não por decisão de produto: os endereços ganham
+`#`, e os botões de baixar arquivo somem — lá a página não tem permissão para
+entregar arquivo, e o toque não faria nada. Está tudo em `src/lib/previa.ts`.
+
 ## Este app é separado dos outros
 
 O repositório tem outros dois apps (o Avena na raiz e o Ei Itabirito em

@@ -4,6 +4,7 @@ import { PILARES, caminho, chaveDoCampo } from "../dados/metodo";
 import { ler, respondido, trocarTudo, type Respostas } from "../lib/guardar";
 import { contarTudo, porcento } from "../lib/progresso";
 import { useRespostas } from "../lib/useRespostas";
+import { EH_PREVIA } from "../lib/previa";
 import { Barra } from "../componentes/Menu";
 
 export function Relatorio() {
@@ -19,7 +20,15 @@ export function Relatorio() {
       setRecado("Copiado. É só colar onde você quiser.");
     } catch {
       // Sem permissão de área de transferência (acontece em navegador de
-      // dentro de aplicativo). Em vez de não fazer nada, baixa o arquivo.
+      // dentro de aplicativo). Em vez de não fazer nada, baixa o arquivo — a
+      // não ser na prévia, onde baixar também não funciona e dizer que baixou
+      // seria mentira.
+      if (EH_PREVIA) {
+        setRecado(
+          "O navegador não deixou copiar. Selecione o texto aqui embaixo e copie à mão.",
+        );
+        return;
+      }
       baixar("mapa-digital.md", texto, "text/markdown");
       setRecado("O navegador não deixou copiar, então baixei o arquivo.");
     }
@@ -70,31 +79,45 @@ export function Relatorio() {
         <button type="button" className="botao" onClick={copiar}>
           Copiar tudo
         </button>
-        <button
-          type="button"
-          className="botao-vazado"
-          onClick={() => baixar("mapa-digital.md", emTexto(respostas), "text/markdown")}
-        >
-          Baixar como texto
-        </button>
-        <button type="button" className="botao-vazado" onClick={baixarCopia}>
-          Baixar cópia de segurança
-        </button>
-        <button
-          type="button"
-          className="botao-vazado"
-          onClick={() => arquivo.current?.click()}
-        >
-          Restaurar cópia
-        </button>
-        <input
-          ref={arquivo}
-          type="file"
-          accept="application/json,.json"
-          hidden
-          onChange={(evento) => void restaurar(evento.target.files)}
-        />
+        {/* Na prévia publicada a página não tem permissão para entregar
+            arquivo: estes botões não fariam nada. */}
+        {!EH_PREVIA && (
+          <>
+            <button
+              type="button"
+              className="botao-vazado"
+              onClick={() => baixar("mapa-digital.md", emTexto(respostas), "text/markdown")}
+            >
+              Baixar como texto
+            </button>
+            <button type="button" className="botao-vazado" onClick={baixarCopia}>
+              Baixar cópia de segurança
+            </button>
+            <button
+              type="button"
+              className="botao-vazado"
+              onClick={() => arquivo.current?.click()}
+            >
+              Restaurar cópia
+            </button>
+            <input
+              ref={arquivo}
+              type="file"
+              accept="application/json,.json"
+              hidden
+              onChange={(evento) => void restaurar(evento.target.files)}
+            />
+          </>
+        )}
       </div>
+
+      {EH_PREVIA && (
+        <p className="aviso">
+          Esta é uma prévia, para ver e experimentar. Baixar arquivo não
+          funciona aqui — no app de verdade, funciona. "Copiar tudo" funciona
+          normalmente.
+        </p>
+      )}
 
       {recado && <p className="recado">{recado}</p>}
 
