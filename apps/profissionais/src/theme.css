@@ -1099,6 +1099,16 @@ textarea::placeholder {
   }
 }
 
+/* `.logo-lg` foi feito para a abertura (`.splash`): lá ele é a ÚNICA coisa
+   na tela, sozinho e centralizado, e por isso é enorme. Aqui ele divide o
+   espaço com a pílula, a frase e os três cartões — do tamanho da abertura
+   ele sozinho tomava a tela quase inteira e empurrava os dois botões de
+   ação para fora da primeira vista, exigindo rolar para agir. Menor só
+   aqui dentro da capa; a abertura continua do tamanho que sempre foi. */
+.welcome-hero-capa .logo-lg .logo-brand {
+  font-size: clamp(1.8rem, 7vw, 2.2rem);
+}
+
 /* `.welcome-gratis` foi removida: o aviso de cadastro grátis virou a
    etiqueta `.welcome-choice-gratis`, dentro do próprio botão. O par de
    vermelho que ela estabeleceu (fundo #fdeceb, texto #c0392b) continua
