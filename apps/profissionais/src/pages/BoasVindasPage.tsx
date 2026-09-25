@@ -125,18 +125,15 @@ export function BoasVindasPage() {
     };
   }, []);
 
-  /* Sobrou um número na abertura, e é o de visitas. "Avaliações",
-     "visitas a cadastros" e, agora, "profissionais cadastrados" saíram —
-     este último porque enquanto o app é novo ele lê contra o próprio app:
-     um total baixo numa cidade inteira soa como lugar vazio para quem
-     está decidindo se vale procurar aqui. */
+  /* "Avaliações" e "visitas a cadastros" saíram daqui. "Profissionais
+     cadastrados" voltou a aparecer, a pedido dela: a razão para tê-lo
+     escondido (número pequeno soa como cidade vazia) continua válida em
+     tese, mas a decisão de mostrar ou não é dela, não uma regra fixa
+     deste arquivo. O número em si nunca deixou de ser contado — só a
+     exibição estava desligada. */
+  const profissionaisAnimado = useContagemAnimada(stats?.profissionais ?? 0);
   const visitasAppAnimado = useContagemAnimada(stats?.visitasApp ?? 0);
   const visitasHojeAnimado = useContagemAnimada(stats?.visitasHoje ?? 0);
-  /* Voltou a aparecer, a pedido dela: a razão para tê-lo escondido (número
-     pequeno soa como cidade vazia) continua válida em tese, mas a decisão
-     de mostrar ou não é dela, não uma regra fixa deste arquivo. O número
-     em si nunca deixou de ser contado — só a exibição estava desligada. */
-  const profissionaisAnimado = useContagemAnimada(stats?.profissionais ?? 0);
 
   function escolherCliente() {
     markWelcomeSeen();
@@ -161,29 +158,20 @@ export function BoasVindasPage() {
           desce sozinho é publicidade enganosa (CDC art. 37), e ser
           descoberto custa mais confiança do que qualquer aparência de
           movimento vale. */}
-      {/* A capa pedida no modelo de outro app: marca, frase e números sobre
-          o azul da abertura (mesmo degradê de `.splash`), em vez do fundo
-          claro que a tela tinha. `variant="onBlue"` já existia em LogoMark
-          para exatamente este caso — foi feito para a tela de abertura e
-          reaproveitado aqui, não uma cor nova inventada para isto.
-
-          A pílula "X pessoas navegando" entrou para dentro do bloco azul.
-          Ela morava numa faixa própria, ANTES do azul começar — e nalguns
-          aparelhos isso sobrava como um vão de fundo claro, com a pílula
-          flutuando sozinha ali, antes do bloco colorido aparecer. Dentro
-          do bloco, ela vira parte da mesma peça em qualquer aparelho, sem
-          depender de altura de barra de status nem de entalhe de câmera.
-          `.online-pill-topo` porque é a variante já feita para pílula
-          sobre fundo azul (usada no cabeçalho) — reaproveitada, não uma
-          cor nova. */}
-      <section className="welcome-hero welcome-hero-capa">
+      <div className="welcome-topo">
         {online !== null && online > 0 && (
-          <p className="online-pill online-pill-topo welcome-online-pill">
+          <p className="online-pill">
             <span className="online-dot" aria-hidden="true" />
             {online === 1 ? "1 pessoa navegando agora" : `${online} pessoas navegando agora`}
           </p>
         )}
-        <LogoMark variant="onBlue" />
+        {/* As visitas saíram daqui e viraram o cartão grande, abaixo da
+            marca. Nos dois lugares ao mesmo tempo, o mesmo número aparecia
+            duas vezes na mesma tela. */}
+      </div>
+
+      <section className="welcome-hero">
+        <LogoMark />
         <p className="welcome-tagline">
           Encontre quem faz, aqui perto, com a opinião de quem já contratou.
         </p>
@@ -209,21 +197,19 @@ export function BoasVindasPage() {
             visita número um. */}
         {stats && (stats.profissionais > 0 || stats.visitasApp > 0) && (
           <div className="welcome-stats">
-            {/* Primeiro da fila, a pedido dela: é o número que a capa
-                pede em destaque. Escondido no zero, como os outros dois —
-                app sem nenhum cadastro não tem o que mostrar aqui. */}
+            {/* Primeiro da fila, a pedido dela. Escondido no zero, como os
+                outros dois — app sem nenhum cadastro não tem o que
+                mostrar aqui. */}
             {stats.profissionais > 0 && (
               <div className="welcome-stat-card">
                 <strong>{profissionaisAnimado}</strong>
                 <span>{stats.profissionais === 1 ? "profissional" : "profissionais"}</span>
               </div>
             )}
-            {/* Ganhou trava própria ao virar vizinho do cartão de
-                profissionais: antes a condição de fora já garantia
-                visitasApp > 0 sempre que este trecho renderizava. Agora
-                que a condição de fora aceita profissionais sozinho, sem
-                isto um app com cadastro mas sem visita ainda mostraria
-                "0 visitas ao app". */}
+            {/* Trava própria: com o cartão de profissionais como vizinho,
+                a condição de fora não garante mais visitasApp > 0 sozinha
+                — sem isto, um app com cadastro mas sem visita ainda
+                mostraria "0 visitas ao app". */}
             {stats.visitasApp > 0 && (
               <div className="welcome-stat-card">
                 <strong>{visitasAppAnimado}</strong>

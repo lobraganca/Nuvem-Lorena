@@ -1049,9 +1049,24 @@ textarea::placeholder {
   }
 }
 
+/* Linha dos contadores, antes de tudo na tela de início. */
+.welcome-topo {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: center;
+  gap: 8px;
+  padding-top: 14px;
+}
+
 /* `.visitas-pill` foi removida: as visitas deixaram de ser uma pílula
    discreta no topo e passaram a ser o cartão grande abaixo da marca, no
    lugar que era do total de profissionais cadastrados. */
+
+.welcome-topo .online-pill {
+  margin-top: 0;
+  margin-bottom: 0;
+}
 
 /* 72px de respiro em cima gastavam um quinto da primeira tela do celular
    para não dizer nada — e a decisão (os dois botões) só aparecia depois de
@@ -1062,51 +1077,8 @@ textarea::placeholder {
   padding: clamp(26px, 6vh, 60px) 0 clamp(18px, 3.4vh, 34px);
 }
 
-/* A pílula de "gente online" já foi um `<div>` separado antes da capa,
-   com fundo claro — no celular real isso abria um vão claro solto acima
-   do azul antes de a capa começar. Agora ela mora dentro da própria
-   `.welcome-hero-capa`, e só precisa do respiro que a marca abaixo dela
-   pedia. */
-.welcome-online-pill {
-  margin-bottom: 14px;
-}
-
-/* A capa pedida a partir do modelo de outro app: o mesmo azul da abertura
-   do procurô (ver `.splash`, mesmo degradê), não um azul novo. Sangra até
-   a borda da tela com margem negativa igual ao padding do container-pai
-   (`.welcome-page`, 20px — 16px na quebra de 420px logo abaixo), porque
-   este container tem `max-width: 960px` e centraliza no desktop: só a
-   margem negativa garante que a cor chegue à borda de verdade no celular,
-   que é onde este app é usado.
-
-   Só o topo muda de cor. Os dois botões de escolha, a grade de recursos e
-   os banners continuam exatamente como estavam — cada um já levou sua
-   própria rodada de ajuste, registrada nos comentários logo abaixo deste
-   bloco, e refazer o que já funciona não estava pedido. */
-.welcome-hero-capa {
-  text-align: center;
-  margin: 0 -20px;
-  padding: clamp(30px, 7vh, 64px) 20px clamp(26px, 4.5vh, 40px);
-  /* Cor sólida, sem degradê — pedido dela depois de ver a primeira versão. */
-  background: var(--color-navy);
-}
-
-@media (max-width: 420px) {
-  .welcome-hero-capa {
-    margin: 0 -16px;
-    padding-left: 16px;
-    padding-right: 16px;
-  }
-}
-
-/* `.logo-lg` foi feito para a abertura (`.splash`): lá ele é a ÚNICA coisa
-   na tela, sozinho e centralizado, e por isso é enorme. Aqui ele divide o
-   espaço com a pílula, a frase e os três cartões — do tamanho da abertura
-   ele sozinho tomava a tela quase inteira e empurrava os dois botões de
-   ação para fora da primeira vista, exigindo rolar para agir. Menor só
-   aqui dentro da capa; a abertura continua do tamanho que sempre foi. */
-.welcome-hero-capa .logo-lg .logo-brand {
-  font-size: clamp(1.8rem, 7vw, 2.2rem);
+.welcome-topo + .welcome-hero {
+  padding-top: clamp(18px, 4vh, 40px);
 }
 
 /* `.welcome-gratis` foi removida: o aviso de cadastro grátis virou a
@@ -1120,17 +1092,6 @@ textarea::placeholder {
   margin: 28px auto 0;
   font-size: 1.02rem;
   line-height: 1.55;
-}
-
-/* Dentro da capa escura o texto vira título, não legenda: maior, mais
-   peso, branco — é a mesma frase de sempre (não reescrevi o texto, só o
-   tamanho da letra), só que lida agora como manchete e não como apoio. */
-.welcome-hero-capa .welcome-tagline {
-  color: #fff;
-  font-size: 1.5rem;
-  font-weight: 700;
-  line-height: 1.28;
-  max-width: 22rem;
 }
 
 .welcome-features {
