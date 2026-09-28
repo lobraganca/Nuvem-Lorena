@@ -15,13 +15,13 @@ não tem build — é um arquivo só, `index.html`.
 1. Como prefere (que eu monte / aprender a montar / não sei), para quem é e a área
 2. O que atrapalha hoje (várias) + texto livre
 3. Como resolve hoje (papel, planilha, WhatsApp, sistema pronto…)
-4. Que ferramenta imagina (área de membros, agendamento, gestão da empresa, dashboard, app, loja, automação, "não sei")
-5. O que precisa ter (várias funções)
+4. Que ferramenta imagina (área de membros, agendamento, planilha em app, gestão da empresa, dashboard, app, loja, automação, "não sei")
+5. O que precisa ter (várias funções) e se vai guardar arquivos (vídeo, PDF, imagem, áudio, planilha)
 6. Quem usa e quantas pessoas
 7. Onde vai ficar: domínio próprio, domínio que já tem ou endereço grátis
    (seuapp.vercel.app); e se publica na Play Store, na App Store ou só pelo link
 8. Prazo, investimento e forma de pagamento
-9. Contato (nome e WhatsApp obrigatórios)
+9. Contato (nome e WhatsApp obrigatórios), se quer a sessão ao vivo às 18h (e os melhores dias) e observações
 
 No fim a pessoa vê o diagnóstico — tipo de ferramenta sugerida, se é
 mentoria ou feito para ela, tamanho do projeto (enxuto / intermediário /
@@ -41,10 +41,43 @@ Apple (US$ 99/ano). Se algum deles mudar, corrigir na pergunta 7 e no FAQ.
 | `whatsapp` | número que recebe os diagnósticos, só dígitos: `5531999998888` | o botão do WhatsApp some; ficam Instagram e "copiar" |
 | `instagram` | usuário sem o @ (já está `avena.app`) | — |
 | `webhook` | opcional: endereço que guarda cada diagnóstico (planilha do Google via Apps Script, Formspree, Make) | o diagnóstico só chega se a pessoa tocar no botão de enviar |
+| `sessao.horario` | o horário da sessão de diagnóstico ao vivo (está `18h`) | — |
+| `sessao.com` | nome de quem conduz a sessão | a frase fica "uma conversa individual, só com você" |
+| `sobre.nome`, `sobre.texto`, `sobre.foto` | a seção "Quem monta": nome, apresentação e a foto (arquivo nesta pasta) | a seção não aparece — de propósito, para não ir ao ar com texto de mentira |
 
 **Por que o webhook importa:** sem ele, quem responde tudo e fecha a página
 antes de tocar em "Enviar" se perde. Com ele, toda resposta completa fica
 guardada.
+
+## Como a página está organizada (28/09)
+
+A ordem se inspirou em páginas de venda longas (a dona mandou uma de
+referência): primeiro a dor, depois a solução, a prova, para quem é, e
+chamadas para o diagnóstico espalhadas pelo caminho.
+
+1. Abertura (faixa verde) — "Eu monto a sua ferramenta, sob medida", e o
+   atalho para a sessão ao vivo das 18h
+2. **O problema** — uma semana de exemplo; o amarelo é o que se repete e
+   podia rodar sozinho (11 horas, somadas dos próprios blocos)
+3. **O que passa a acontecer** — cinco frases curtas
+4. **Duas formas** — eu monto para você / eu te ensino a montar
+5. **O que dá para criar** — a planilha que vira app (antes e depois),
+   três telas de exemplo e os nove tipos de ferramenta
+6. **Para quem é / não é**
+7. Como funciona → a sessão das 18h → o diagnóstico
+8. Quem monta (escondida até ser preenchida) e perguntas
+9. Fechamento, na faixa verde
+
+**Tudo o que é exemplo diz "exemplo" na tela** (a ficha, a semana, as
+três telas). Depoimento e número de clientes só entram quando existirem de
+verdade: prova inventada é o que derruba a confiança de quem descobre.
+
+No celular, uma barra com o botão do diagnóstico fica presa embaixo e some
+quando já há outro botão dele na tela.
+
+A página não recebe arquivos (não tem servidor). Quem quiser mostrar a
+planilha, um PDF ou um vídeo é orientado, no fim, a mandar na conversa do
+WhatsApp.
 
 ## A logo e as cores
 

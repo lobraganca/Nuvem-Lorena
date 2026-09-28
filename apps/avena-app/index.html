@@ -196,6 +196,121 @@ section.band.alt { background: var(--surface-2); }
 .pra-quem div { display: grid; gap: 6px; }
 .pra-quem h3 { font-size: 20px; }
 
+/* ——— a semana (o problema) ——— */
+.semana-rolo { overflow-x: auto; margin-inline: -4px; padding: 4px 4px 8px; }
+.semana { display: grid; grid-template-columns: repeat(6, minmax(104px, 1fr)); gap: 8px; min-width: 660px; }
+.dia { display: grid; gap: 6px; align-content: start; }
+.dia > b { font: 500 12px/1 var(--mono); text-transform: uppercase; letter-spacing: .08em; color: var(--muted); padding-bottom: 6px; border-bottom: 1px solid var(--line); }
+.bloco { border-radius: 8px; padding: 8px 9px; font-size: 13px; line-height: 1.25; display: grid; align-content: space-between; gap: 4px; min-height: 40px; }
+.bloco small { font: 500 11px/1 var(--mono); opacity: .75; }
+.bloco.real { background: var(--pine-soft); color: var(--ink); }
+.bloco.rep { background: var(--tape); color: var(--tape-ink); }
+.legenda { display: flex; flex-wrap: wrap; gap: 8px 20px; margin-top: 16px; font-size: 14px; }
+.legenda span { display: inline-flex; align-items: center; gap: 8px; }
+.legenda i { width: 14px; height: 14px; border-radius: 4px; display: inline-block; }
+.semana-total { display: flex; align-items: baseline; gap: 14px; flex-wrap: wrap; margin-top: 28px; padding-top: 22px; border-top: 1px solid var(--line); }
+.semana-total strong { font: 600 clamp(52px, 8vw, 80px)/1 var(--display); color: var(--ink); }
+.semana-total p { max-width: 30em; }
+.arraste { font: 500 12px/1 var(--mono); color: var(--muted); margin-bottom: 10px; display: none; }
+
+/* ——— o que muda ——— */
+.muda { list-style: none; margin: 0 0 28px; padding: 0; display: grid; }
+.muda li { display: grid; grid-template-columns: 150px 1fr; gap: 20px; padding-block: 18px; border-top: 1px solid var(--line); align-items: baseline; }
+.muda li:last-child { border-bottom: 1px solid var(--line); }
+.muda b { font: 500 12px/1.4 var(--mono); text-transform: uppercase; letter-spacing: .08em; color: var(--pine); }
+.muda p { font: 600 clamp(22px, 2.8vw, 30px)/1.15 var(--display); color: var(--ink); }
+
+/* ——— telas de exemplo ——— */
+.telas { display: grid; grid-template-columns: .8fr 1.35fr 1fr; gap: 16px; align-items: start; margin-bottom: 40px; }
+.tela { background: var(--surface); border: 1px solid var(--line); border-radius: 18px; padding: 16px; display: grid; gap: 12px; box-shadow: var(--shadow); font-size: 14px; }
+.tela-top { display: flex; justify-content: space-between; align-items: center; gap: 8px; }
+.tela-top b { color: var(--ink); font-size: 15px; }
+.tela-top em { font: 500 10px/1 var(--mono); font-style: normal; text-transform: uppercase; letter-spacing: .08em; color: var(--muted); border: 1px solid var(--line); border-radius: 999px; padding: 4px 7px; }
+.tela.celular { border-radius: 26px; border-width: 6px; border-color: var(--ink); }
+.horario { display: grid; grid-template-columns: 44px 1fr; gap: 10px; align-items: center; padding: 8px 10px; border-radius: 10px; background: var(--bg); }
+.horario time { font: 500 12px/1 var(--mono); color: var(--muted); font-variant-numeric: tabular-nums; }
+.horario div { display: grid; gap: 2px; color: var(--ink); font-weight: 600; font-size: 13px; }
+.horario small { font-weight: 500; font-size: 12px; color: var(--pine); }
+.horario.livre div { color: var(--muted); font-weight: 400; }
+.kpis { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+.kpis div { background: var(--bg); border-radius: 10px; padding: 10px; display: grid; gap: 4px; }
+.kpis small { font-size: 11px; color: var(--muted); }
+.kpis strong { font-size: 17px; color: var(--ink); font-variant-numeric: tabular-nums; }
+.kpis span { font: 500 11px/1 var(--mono); color: var(--pine); }
+.barras { display: grid; grid-template-columns: repeat(6, 1fr); gap: 8px; align-items: end; height: 110px; padding-top: 8px; border-bottom: 1px solid var(--line); }
+.barras i { display: block; background: var(--pine-soft); border-radius: 5px 5px 0 0; }
+.barras i:last-child { background: var(--pine); }
+.meses { display: grid; grid-template-columns: repeat(6, 1fr); gap: 8px; font: 500 10px/1 var(--mono); color: var(--muted); text-align: center; text-transform: uppercase; }
+.modulo { display: grid; gap: 6px; padding: 10px 12px; border-radius: 10px; background: var(--bg); }
+.modulo div { display: flex; justify-content: space-between; gap: 8px; color: var(--ink); font-weight: 600; font-size: 13px; }
+.modulo div span { font: 500 11px/1.5 var(--mono); color: var(--muted); font-weight: 500; }
+.modulo meter, .modulo .barra { height: 6px; border-radius: 3px; background: var(--surface-2); overflow: hidden; }
+.modulo .barra i { display: block; height: 100%; background: var(--pine); border-radius: 3px; }
+.tela .mini-btn { justify-self: start; background: var(--ink); color: var(--bg); border-radius: 999px; padding: 9px 14px; font-weight: 700; font-size: 13px; }
+
+/* ——— a planilha que vira app ——— */
+.planilha { display: grid; grid-template-columns: 1fr 1.2fr; gap: 28px; align-items: center; background: var(--surface); border: 1px solid var(--line); border-radius: 18px; padding: 28px; margin-bottom: 40px; }
+.planilha h3 { font: 600 clamp(30px, 3.8vw, 42px)/1.05 var(--display); letter-spacing: -0.01em; }
+.planilha .texto { display: grid; gap: 12px; justify-items: start; }
+.antes-depois { display: grid; grid-template-columns: 1fr auto 1fr; gap: 12px; align-items: center; }
+.antes-depois .rotulo { font: 500 10px/1 var(--mono); text-transform: uppercase; letter-spacing: .08em; color: var(--muted); margin-bottom: 6px; display: block; }
+.celulas { border-collapse: collapse; width: 100%; font: 11px/1.2 var(--mono); color: var(--text); background: var(--bg); }
+.celulas th, .celulas td { border: 1px solid var(--line); padding: 5px 6px; text-align: left; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 70px; }
+.celulas th { background: var(--surface-2); color: var(--muted); font-weight: 500; }
+.seta { font: 600 28px/1 var(--display); color: var(--tape); }
+.cartao-app { background: var(--bg); border-radius: 14px; padding: 12px; display: grid; gap: 8px; border: 1px solid var(--line); }
+.cartao-app div { display: flex; justify-content: space-between; gap: 8px; font-size: 13px; color: var(--ink); font-weight: 600; background: var(--surface); border-radius: 8px; padding: 8px 10px; }
+.cartao-app div span { font: 500 11px/1.4 var(--mono); color: var(--pine); }
+.cartao-app b { font-size: 13px; color: var(--ink); }
+
+/* ——— para quem é / não é ——— */
+.quem-e { display: grid; grid-template-columns: 1.2fr 1fr; gap: 16px; }
+.quem-e > div { border-radius: var(--r); padding: 24px; display: grid; gap: 14px; align-content: start; }
+.quem-e .sim { background: var(--surface); border: 1px solid var(--line); }
+.quem-e .nao { border: 1px dashed var(--line); }
+.quem-e h3 { font-size: 18px; }
+.quem-e ul { list-style: none; margin: 0; padding: 0; display: grid; gap: 10px; }
+.quem-e li { display: grid; grid-template-columns: 22px 1fr; gap: 8px; }
+.quem-e li::before { font: 700 15px/1.5 var(--body); }
+.quem-e .sim li::before { content: "✓"; color: var(--pine); }
+.quem-e .nao li::before { content: "×"; color: var(--muted); }
+.quem-e .nao li { color: var(--muted); }
+
+/* ——— quem monta ——— */
+.sobre { display: grid; grid-template-columns: 220px 1fr; gap: 32px; align-items: center; max-width: 900px; }
+.sobre img { width: 100%; aspect-ratio: 4 / 5; object-fit: cover; border-radius: var(--r); }
+.sobre .texto { display: grid; gap: 12px; }
+.sobre h2 { font-size: clamp(34px, 4.8vw, 52px); }
+.sobre .texto p { white-space: pre-line; }
+
+/* ——— fechamento ——— */
+.fechamento { background: var(--brand); color: var(--brand-text); padding-block: 80px; }
+.fechamento h2 { color: var(--brand-ink); font-size: clamp(36px, 5.6vw, 64px); max-width: 16em; }
+.fechamento h2 em { color: var(--tape); }
+.fechamento .wrap { display: grid; gap: 28px; justify-items: start; }
+
+/* ——— barra fixa no celular ——— */
+.barra-cta { display: none; }
+@media (max-width: 860px) {
+  .barra-cta {
+    display: flex; position: fixed; left: 0; right: 0; bottom: 0; z-index: 10;
+    padding: 10px 16px calc(10px + env(safe-area-inset-bottom, 0px));
+    background: var(--brand); box-shadow: 0 -8px 24px -12px rgba(0, 0, 0, .5);
+    transition: transform .25s ease;
+  }
+  .barra-cta .btn { width: 100%; }
+  .barra-cta.fora { transform: translateY(110%); }
+  footer { padding-bottom: 110px; }
+}
+
+/* ——— a sessão ao vivo ——— */
+.sessao { max-width: 760px; margin: 0 auto 24px; background: var(--brand); color: var(--brand-text); border-radius: calc(var(--r) + 4px); padding: 24px 26px; display: grid; grid-template-columns: auto 1fr; gap: 6px 22px; align-items: center; scroll-margin-top: 12px; }
+.sessao .hora { grid-row: span 2; font: 600 clamp(52px, 8vw, 72px)/1 var(--display); color: var(--tape); }
+.sessao h3 { color: var(--brand-ink); font-size: 20px; }
+.sessao p { font-size: 15px; }
+.link-sessao { color: var(--brand-ink); font-weight: 600; text-decoration: underline; text-decoration-color: var(--tape); text-underline-offset: 4px; }
+@media (max-width: 560px) { .sessao { grid-template-columns: 1fr; padding: 22px 18px; } .sessao .hora { grid-row: auto; } }
+
 /* ——— o diagnóstico ——— */
 #diagnostico { scroll-margin-top: 12px; }
 .diag { background: var(--surface); border-radius: calc(var(--r) + 4px); box-shadow: var(--shadow); overflow: hidden; max-width: 760px; margin-inline: auto; }
@@ -287,12 +402,22 @@ footer .wrap { display: flex; flex-wrap: wrap; justify-content: space-between; g
   .steps, .pra-quem { grid-template-columns: 1fr; }
   .grid-tools { grid-template-columns: 1fr 1fr; }
   .grid-tools .tool:last-child:nth-child(odd) { grid-column: 1 / -1; }
+  .telas { grid-template-columns: 1fr 1fr; }
+  .telas .tela:nth-child(2) { grid-column: 1 / -1; order: -1; }
+  .quem-e, .sobre, .planilha { grid-template-columns: 1fr; }
+  .sobre img { max-width: 260px; }
+  .arraste { display: block; }
 }
 @media (max-width: 560px) {
   .wrap { padding-inline: 16px; }
   .hero { padding-block: 12px 40px; }
   .hero .lead { font-size: 17px; }
-  .grid-tools, .chips.cards, .fields { grid-template-columns: 1fr; }
+  .grid-tools, .chips.cards, .fields, .telas { grid-template-columns: 1fr; }
+  .muda li { grid-template-columns: 1fr; gap: 6px; }
+  .planilha { padding: 20px; }
+  .antes-depois { grid-template-columns: 1fr; }
+  .seta { transform: rotate(90deg); justify-self: center; }
+  .fechamento { padding-block: 56px; }
   section.band { padding-block: 48px; }
   .step, .result { padding: 22px 18px; }
   .diag-head { padding: 18px 18px 0; }
@@ -317,11 +442,12 @@ footer .wrap { display: flex; flex-wrap: wrap; justify-content: space-between; g
       <div>
         <p class="eyebrow">Apps e sistemas sob medida</p>
         <h1>Eu monto a sua ferramenta, <mark>sob medida</mark>.</h1>
-        <p class="lead">Área de membros, agendamento de clientes, gestão da empresa, dashboard de resultados, app, loja virtual, automação de WhatsApp. Eu monto para você, ou te ensino a montar. Antes da proposta, eu tiro as medidas: você responde um diagnóstico rápido e recebe uma proposta feita para o seu caso.</p>
+        <p class="lead">Área de membros, agendamento de clientes, gestão da empresa, dashboard de resultados, a sua planilha virando app, loja virtual, automação de WhatsApp. Eu monto para você, ou te ensino a montar. Antes da proposta, eu tiro as medidas: você responde um diagnóstico rápido e recebe uma proposta feita para o seu caso.</p>
         <div class="cta-row">
           <a class="btn tape" href="#diagnostico">Fazer meu diagnóstico grátis</a>
           <span class="cta-note">9 perguntas · cerca de 3 minutos · sem compromisso</span>
         </div>
+        <p style="margin-top:18px"><a class="link-sessao" href="#sessao">Prefiro uma sessão de diagnóstico ao vivo, às <span class="hora-sessao">18h</span></a></p>
       </div>
 
       <aside class="ficha" aria-label="Exemplo de ficha de medidas">
@@ -341,6 +467,52 @@ footer .wrap { display: flex; flex-wrap: wrap; justify-content: space-between; g
 </div>
 
 <main>
+  <section class="band" id="semana">
+    <div class="wrap">
+      <div class="section-head">
+        <p class="eyebrow">O problema</p>
+        <h2>Não falta cliente. Falta semana.</h2>
+        <p>Olhe uma semana comum de quem atende pelo WhatsApp. O amarelo é o que se repete toda semana, igualzinho, e podia estar rodando sozinho.</p>
+      </div>
+      <p class="arraste" aria-hidden="true">← arraste para ver a semana →</p>
+      <div class="semana-rolo">
+        <div class="semana" aria-label="Semana de exemplo">
+          <div class="dia"><b>Seg</b><div class="bloco real" style="min-height:90px">Atendimento<small>3h</small></div><div class="bloco rep" style="min-height:45px">Responder “qual o preço?”<small>1,5h</small></div><div class="bloco rep" style="min-height:30px">Planilha do caixa<small>1h</small></div></div>
+          <div class="dia"><b>Ter</b><div class="bloco real" style="min-height:120px">Atendimento<small>4h</small></div><div class="bloco rep" style="min-height:30px">Remarcar quem faltou<small>1h</small></div><div class="bloco rep" style="min-height:15px">Achar conversa antiga no WhatsApp<small>0,5h</small></div></div>
+          <div class="dia"><b>Qua</b><div class="bloco real" style="min-height:90px">Atendimento<small>3h</small></div><div class="bloco rep" style="min-height:30px">Cobrar quem não pagou<small>1h</small></div><div class="bloco rep" style="min-height:30px">Mandar link e material, um por um<small>1h</small></div></div>
+          <div class="dia"><b>Qui</b><div class="bloco real" style="min-height:120px">Atendimento<small>4h</small></div><div class="bloco rep" style="min-height:30px">Confirmar os horários de amanhã<small>1h</small></div></div>
+          <div class="dia"><b>Sex</b><div class="bloco real" style="min-height:90px">Atendimento<small>3h</small></div><div class="bloco rep" style="min-height:45px">Responder “qual o preço?”<small>1,5h</small></div><div class="bloco rep" style="min-height:45px">Fechar as contas da semana<small>1,5h</small></div></div>
+          <div class="dia"><b>Sáb</b><div class="bloco real" style="min-height:60px">Atendimento<small>2h</small></div><div class="bloco rep" style="min-height:30px">Organizar a agenda da semana<small>1h</small></div></div>
+        </div>
+      </div>
+      <div class="legenda">
+        <span><i style="background:var(--tape)"></i>Tarefa que podia rodar sozinha</span>
+        <span><i style="background:var(--pine-soft)"></i>O seu trabalho de verdade</span>
+      </div>
+      <div class="semana-total">
+        <strong>11 horas</strong>
+        <p>por semana indo embora em tarefa repetida, nesta semana de exemplo. É isso que uma ferramenta sob medida devolve para você.</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="band alt" id="muda">
+    <div class="wrap">
+      <div class="section-head">
+        <p class="eyebrow">Quando a ferramenta existe</p>
+        <h2>O que passa a acontecer sem você.</h2>
+      </div>
+      <ol class="muda">
+        <li><b>Agenda</b><p>O cliente marca, remarca e recebe o lembrete sem te chamar.</p></li>
+        <li><b>Números</b><p>Você abre o painel e sabe como está o mês, sem montar planilha.</p></li>
+        <li><b>Memória</b><p>O histórico de cada cliente fica guardado, e não na sua cabeça.</p></li>
+        <li><b>Membros</b><p>Quem comprou acha o conteúdo sozinho, na ordem certa.</p></li>
+        <li><b>Equipe</b><p>Cada pessoa vê o que é dela e faz do jeito que você definiu.</p></li>
+      </ol>
+      <a class="btn" href="#diagnostico">Quero a minha ferramenta</a>
+    </div>
+  </section>
+
   <section class="band" id="formas">
     <div class="wrap">
       <div class="section-head">
@@ -364,25 +536,66 @@ footer .wrap { display: flex; flex-wrap: wrap; justify-content: space-between; g
     </div>
   </section>
 
-  <section class="band alt">
-    <div class="wrap">
-      <div class="section-head">
-        <p class="eyebrow">Como funciona</p>
-        <h2>Do problema à ferramenta pronta, sem pagar por um pacote que não serve.</h2>
-      </div>
-      <ol class="steps">
-        <li><h3>Diagnóstico</h3><p>Você conta como trabalha hoje, o que atrapalha e o que imagina. Leva uns 3 minutos.</p></li>
-        <li><h3>Proposta</h3><p>Eu estudo as suas respostas e mando uma proposta com o que entra, o prazo e o valor. Se precisar, marcamos uma conversa.</p></li>
-        <li><h3>Ferramenta no ar</h3><p>Eu desenvolvo, você testa e ajusta comigo, e a ferramenta vai para o celular, o navegador ou a loja de apps.</p></li>
-      </ol>
-    </div>
-  </section>
-
-  <section class="band">
+  <section class="band alt" id="criar">
     <div class="wrap">
       <div class="section-head">
         <p class="eyebrow">O que dá para criar</p>
         <h2>Se hoje é planilha, caderno ou WhatsApp, provavelmente pode virar ferramenta.</h2>
+      </div>
+      <div class="planilha">
+        <div class="texto">
+          <span class="pill">Sua planilha vira app</span>
+          <h3>Eu coloco a sua planilha dentro de um app.</h3>
+          <p>A planilha que controla o seu negócio vira telas simples, que abrem no celular, fazem as contas sozinhas e não deixam ninguém apagar a fórmula sem querer. Os seus dados vêm junto.</p>
+          <a class="btn" href="#diagnostico">Quero a minha planilha em app</a>
+        </div>
+        <div class="antes-depois" aria-label="Exemplo: antes e depois">
+          <div>
+            <span class="rotulo">Antes · planilha</span>
+            <table class="celulas">
+              <tr><th></th><th>A</th><th>B</th><th>C</th></tr>
+              <tr><th>1</th><td>Cliente</td><td>Valor</td><td>Pago?</td></tr>
+              <tr><th>2</th><td>Ana</td><td>150</td><td>sim</td></tr>
+              <tr><th>3</th><td>Bruna</td><td>90</td><td>???</td></tr>
+              <tr><th>4</th><td>Carla</td><td>#REF!</td><td></td></tr>
+            </table>
+          </div>
+          <span class="seta" aria-hidden="true">→</span>
+          <div>
+            <span class="rotulo">Depois · app</span>
+            <div class="cartao-app">
+              <b>A receber: R$ 90</b>
+              <div>Ana<span>✓ pago</span></div>
+              <div>Bruna<span>cobrar</span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="telas" aria-label="Telas de exemplo">
+        <div class="tela celular">
+          <div class="tela-top"><b>Terça, 14</b><em>exemplo</em></div>
+          <div class="horario"><time>09:00</time><div>Ana · Limpeza de pele<small>✓ confirmou</small></div></div>
+          <div class="horario"><time>10:30</time><div>Bruna · Sobrancelha<small>lembrete enviado</small></div></div>
+          <div class="horario livre"><time>13:00</time><div>horário livre</div></div>
+          <div class="horario"><time>14:30</time><div>Carla · Massagem<small>✓ confirmou</small></div></div>
+        </div>
+        <div class="tela">
+          <div class="tela-top"><b>Resultados de setembro</b><em>exemplo</em></div>
+          <div class="kpis">
+            <div><small>Faturamento</small><strong>R$ 18.420</strong><span>+12%</span></div>
+            <div><small>Clientes ativos</small><strong>146</strong><span>+9</span></div>
+            <div><small>Ticket médio</small><strong>R$ 126</strong><span>+4%</span></div>
+          </div>
+          <div class="barras" aria-hidden="true"><i style="height:52%"></i><i style="height:61%"></i><i style="height:58%"></i><i style="height:70%"></i><i style="height:82%"></i><i style="height:92%"></i></div>
+          <div class="meses" aria-hidden="true"><span>abr</span><span>mai</span><span>jun</span><span>jul</span><span>ago</span><span>set</span></div>
+        </div>
+        <div class="tela">
+          <div class="tela-top"><b>Área de membros</b><em>exemplo</em></div>
+          <div class="modulo"><div>1 · Primeiros passos<span>100%</span></div><div class="barra"><i style="width:100%"></i></div></div>
+          <div class="modulo"><div>2 · Organizando a rotina<span>60%</span></div><div class="barra"><i style="width:60%"></i></div></div>
+          <div class="modulo"><div>3 · Materiais extras<span>0%</span></div><div class="barra"><i style="width:0%"></i></div></div>
+          <span class="mini-btn">Continuar de onde parei</span>
+        </div>
       </div>
       <div class="grid-tools">
         <div class="tool">
@@ -399,7 +612,7 @@ footer .wrap { display: flex; flex-wrap: wrap; justify-content: space-between; g
         </div>
         <div class="tool">
           <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 20.5h18M6 16.5v-5M11 16.5v-9M16 16.5v-6M20 16.5v-11"/></svg>
-          <h3>Gestão da empresa</h3><p class="ex">Vendas, caixa, estoque, contas a pagar e a receber, num sistema só.</p>
+          <h3>Gestão da empresa</h3><p class="ex">Vendas, caixa, estoque, contas a pagar e a receber, num sistema só. Pode começar da planilha que você já usa.</p>
         </div>
         <div class="tool">
           <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="3.5" width="18" height="17" rx="2.5"/><path d="M3 9h18M9 9v11.5M12.5 17l2.5-3 2 1.5 2-3"/></svg>
@@ -425,19 +638,49 @@ footer .wrap { display: flex; flex-wrap: wrap; justify-content: space-between; g
     </div>
   </section>
 
-  <section class="band alt">
+  <section class="band" id="para-quem">
     <div class="wrap">
       <div class="section-head">
-        <p class="eyebrow">Para quem</p>
+        <p class="eyebrow">Para quem é</p>
         <h2>Do comércio da esquina à ideia que você anota há anos.</h2>
       </div>
-      <div class="pra-quem">
-        <div><h3>Empresas</h3><p>Organizar a operação, vender mais e parar de depender de planilha que só uma pessoa entende.</p></div>
-        <div><h3>Profissionais</h3><p>Salão, consultório, escritório, prestador de serviço: agenda, clientes e cobrança no mesmo lugar.</p></div>
-        <div><h3>Pessoas e projetos</h3><p>Uma ideia de app, uma comunidade, uma associação. Começamos pequeno e crescemos junto.</p></div>
+      <div class="quem-e">
+        <div class="sim">
+          <h3>É para você se</h3>
+          <ul>
+            <li>Você tem um negócio ou atende clientes, e a mesma tarefa se repete toda semana</li>
+            <li>O WhatsApp virou a sua agenda, o seu caixa e o seu arquivo</li>
+            <li>Você quer saber como está o mês sem montar planilha</li>
+            <li>Você vende curso, mentoria ou conteúdo e quer um lugar só seu para os membros</li>
+            <li>Você tem uma ideia de app e quer tirar do papel, ou aprender a montar</li>
+          </ul>
+        </div>
+        <div class="nao">
+          <h3>Não é para você se</h3>
+          <ul>
+            <li>Você procura um sistema pronto de prateleira</li>
+            <li>Você quer o sistema gigante logo na primeira versão</li>
+            <li>Você não vai ter tempo de testar e me dar retorno</li>
+          </ul>
+        </div>
       </div>
     </div>
   </section>
+
+  <section class="band alt" id="como">
+    <div class="wrap">
+      <div class="section-head">
+        <p class="eyebrow">Como funciona</p>
+        <h2>Do problema à ferramenta pronta, sem pagar por um pacote que não serve.</h2>
+      </div>
+      <ol class="steps">
+        <li><h3>Diagnóstico</h3><p>Você conta como trabalha hoje, o que atrapalha e o que imagina. Pelas perguntas daqui leva uns 3 minutos; se preferir, montamos juntos numa sessão ao vivo, às <span class="hora-sessao">18h</span>.</p></li>
+        <li><h3>Proposta</h3><p>Eu estudo as suas respostas e mando uma proposta com o que entra, o prazo e o valor. Se precisar, marcamos uma conversa.</p></li>
+        <li><h3>Ferramenta no ar</h3><p>Eu desenvolvo, você testa e ajusta comigo, e a ferramenta vai para o celular, o navegador ou a loja de apps.</p></li>
+      </ol>
+    </div>
+  </section>
+
 
   <section class="band" id="diagnostico">
     <div class="wrap">
@@ -445,6 +688,12 @@ footer .wrap { display: flex; flex-wrap: wrap; justify-content: space-between; g
         <p class="eyebrow">Diagnóstico grátis</p>
         <h2>Vamos tirar as medidas.</h2>
         <p>Responda com calma. Não existe resposta errada, e "não sei" também é resposta: é para isso que eu estou aqui.</p>
+      </div>
+
+      <div class="sessao" id="sessao">
+        <span class="hora hora-sessao">18h</span>
+        <h3>Prefere conversar? Tem sessão de diagnóstico ao vivo.</h3>
+        <p>Uma conversa individual, só com você<span id="sessao-com"></span>, às <span class="hora-sessao">18h</span>, e montamos o seu diagnóstico juntos. Responda as perguntas abaixo e, no último passo, marque que quer a sessão e os melhores dias. Eu confirmo pelo WhatsApp.</p>
       </div>
 
       <div class="diag">
@@ -545,6 +794,7 @@ footer .wrap { display: flex; flex-wrap: wrap; justify-content: space-between; g
                 <label class="chip"><input type="radio" name="tipo" value="Área de membros"><span>Área de membros<small>conteúdo e aulas só para quem é membro</small></span></label>
                 <label class="chip"><input type="radio" name="tipo" value="Agendamento de clientes"><span>Agendamento de clientes<small>o cliente marca sozinho, com lembrete</small></span></label>
                 <label class="chip"><input type="radio" name="tipo" value="App para os meus clientes"><span>App para os meus clientes<small>eles baixam ou abrem no celular</small></span></label>
+                <label class="chip"><input type="radio" name="tipo" value="Transformar minha planilha em app"><span>Minha planilha em app<small>a planilha que eu já uso, no celular</small></span></label>
                 <label class="chip"><input type="radio" name="tipo" value="Gestão da empresa"><span>Gestão da empresa<small>vendas, caixa, estoque, contas</small></span></label>
                 <label class="chip"><input type="radio" name="tipo" value="Dashboard de resultados"><span>Dashboard de resultados<small>os números do negócio em gráficos</small></span></label>
                 <label class="chip"><input type="radio" name="tipo" value="Site com pedidos"><span>Site com pedidos<small>o cliente pede pelo link</small></span></label>
@@ -579,10 +829,21 @@ footer .wrap { display: flex; flex-wrap: wrap; justify-content: space-between; g
                 <label class="chip"><input type="checkbox" name="funcoes" value="Integração com WhatsApp" data-peso="3"><span>Integração com WhatsApp</span></label>
                 <label class="chip"><input type="checkbox" name="funcoes" value="Emissão de nota fiscal" data-peso="3"><span>Nota fiscal</span></label>
                 <label class="chip"><input type="checkbox" name="funcoes" value="Mapa / localização" data-peso="2"><span>Mapa / localização</span></label>
-                <label class="chip"><input type="checkbox" name="funcoes" value="Fotos e documentos" data-peso="1"><span>Fotos e documentos</span></label>
                 <label class="chip"><input type="checkbox" name="funcoes" value="Chat dentro do app" data-peso="3"><span>Chat dentro do app</span></label>
                 <label class="chip"><input type="checkbox" name="funcoes" value="Programa de pontos / fidelidade" data-peso="2"><span>Pontos e fidelidade</span></label>
               </div>
+            </fieldset>
+            <fieldset class="q">
+              <legend>Vai precisar guardar ou mostrar arquivos? <span class="hint">(pode marcar mais de um)</span></legend>
+              <div class="chips">
+                <label class="chip"><input type="checkbox" name="arquivos" value="Vídeos" data-peso="2"><span>Vídeos</span></label>
+                <label class="chip"><input type="checkbox" name="arquivos" value="PDFs" data-peso="1"><span>PDFs</span></label>
+                <label class="chip"><input type="checkbox" name="arquivos" value="Imagens e fotos" data-peso="1"><span>Imagens e fotos</span></label>
+                <label class="chip"><input type="checkbox" name="arquivos" value="Áudios" data-peso="1"><span>Áudios</span></label>
+                <label class="chip"><input type="checkbox" name="arquivos" value="Planilhas" data-peso="1"><span>Planilhas</span></label>
+                <label class="chip"><input type="checkbox" name="arquivos" value="Não precisa de arquivos" data-peso="0"><span>Não precisa</span></label>
+              </div>
+              <p class="hint">Ex.: aulas em vídeo na área de membros, contrato em PDF para o cliente, fotos do antes e depois.</p>
             </fieldset>
             <div class="q">
               <label class="lbl" for="funcoes_outras">Mais alguma coisa? <span class="hint">(opcional)</span></label>
@@ -691,6 +952,27 @@ footer .wrap { display: flex; flex-wrap: wrap; justify-content: space-between; g
                 <label class="chip"><input type="radio" name="origem" value="Outro"><span>Outro</span></label>
               </div>
             </fieldset>
+            <fieldset class="q">
+              <legend>Quer uma sessão de diagnóstico ao vivo, às <span class="hora-sessao">18h</span>?</legend>
+              <div class="chips cards">
+                <label class="chip"><input type="radio" name="sessao" value="Sim, quero a sessão"><span>Sim, quero a sessão<small>montamos o diagnóstico juntos</small></span></label>
+                <label class="chip"><input type="radio" name="sessao" value="Não precisa"><span>Não precisa<small>pode mandar a proposta direto</small></span></label>
+              </div>
+            </fieldset>
+            <fieldset class="q" id="dias-sessao" hidden>
+              <legend>Quais dias são melhores para você?</legend>
+              <div class="chips">
+                <label class="chip"><input type="checkbox" name="dias_sessao" value="Segunda"><span>Segunda</span></label>
+                <label class="chip"><input type="checkbox" name="dias_sessao" value="Terça"><span>Terça</span></label>
+                <label class="chip"><input type="checkbox" name="dias_sessao" value="Quarta"><span>Quarta</span></label>
+                <label class="chip"><input type="checkbox" name="dias_sessao" value="Quinta"><span>Quinta</span></label>
+                <label class="chip"><input type="checkbox" name="dias_sessao" value="Sexta"><span>Sexta</span></label>
+              </div>
+            </fieldset>
+            <div class="q">
+              <label class="lbl" for="obs">Observações <span class="hint">(opcional)</span></label>
+              <textarea id="obs" name="obs" placeholder="Algo que eu precise saber? Ex.: já tenho logo e cores, preciso pronto antes de um evento, prefiro conversar por áudio."></textarea>
+            </div>
             <p class="privacy">Seus dados servem só para preparar e enviar a sua proposta. Não passo para ninguém.</p>
           </div>
 
@@ -724,6 +1006,11 @@ footer .wrap { display: flex; flex-wrap: wrap; justify-content: space-between; g
             <p id="res-onde"></p>
           </div>
 
+          <div class="res-block" id="res-sessao-bloco" hidden>
+            <h3>Sessão de diagnóstico</h3>
+            <p id="res-sessao"></p>
+          </div>
+
           <div class="send">
             <h3>Último passo: envie o diagnóstico</h3>
             <p>Ele chega para mim com todas as suas respostas, e a proposta volta para o seu WhatsApp.</p>
@@ -733,6 +1020,7 @@ footer .wrap { display: flex; flex-wrap: wrap; justify-content: space-between; g
               <button type="button" class="btn ghost" id="copiar">Copiar respostas</button>
             </div>
             <p id="copiar-msg" aria-live="polite"></p>
+            <p>Tem arquivos para me mostrar, como a sua planilha, um PDF, fotos ou um vídeo? Mande na mesma conversa, logo depois do diagnóstico.</p>
           </div>
 
           <div class="res-block">
@@ -746,21 +1034,46 @@ footer .wrap { display: flex; flex-wrap: wrap; justify-content: space-between; g
     </div>
   </section>
 
-  <section class="band alt">
+  <!-- Aparece só quando CONFIG.sobre tiver nome e texto (no fim da página). -->
+  <section class="band alt" id="quem-monta" hidden>
+    <div class="wrap">
+      <div class="sobre">
+        <img id="sobre-foto" alt="" hidden>
+        <div class="texto">
+          <p class="eyebrow">Quem monta</p>
+          <h2 id="sobre-nome"></h2>
+          <p id="sobre-texto"></p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="band" id="perguntas">
     <div class="wrap">
       <div class="section-head"><p class="eyebrow">Perguntas</p><h2>Antes de começar</h2></div>
       <div class="faq">
         <details><summary>O diagnóstico é pago?</summary><p>Não. O diagnóstico e a proposta são grátis e sem compromisso.</p></details>
+        <details><summary>Como é a sessão de diagnóstico?</summary><p>É uma conversa ao vivo, individual, às <span class="hora-sessao">18h</span>, em que montamos o seu diagnóstico juntos. No fim das perguntas, marque que quer a sessão e os melhores dias. A confirmação vem pelo WhatsApp.</p></details>
         <details><summary>Quanto custa uma ferramenta?</summary><p>Depende do que ela precisa fazer. É por isso que existe o diagnóstico: a proposta chega com o valor do seu caso, e não de um pacote genérico.</p></details>
         <details><summary>E se eu não souber explicar o que preciso?</summary><p>Tudo bem. Conte o que atrapalha hoje. Transformar isso em ferramenta é o meu trabalho.</p></details>
         <details><summary>Dá para começar pequeno?</summary><p>Dá, e é o que eu costumo sugerir: uma primeira versão com o essencial, e o resto entra depois que você já estiver usando.</p></details>
         <details><summary>Você também ensina a fazer?</summary><p>Ensino. Na mentoria você monta o seu próprio app com o meu acompanhamento e aprende a mexer nele. No diagnóstico, escolha "Aprender a montar o meu app".</p></details>
         <details><summary>Preciso ter domínio próprio?</summary><p>Não. Dá para começar num endereço gratuito, como seuapp.vercel.app, e trocar para o domínio próprio depois, sem refazer nada.</p></details>
+        <details><summary>Não entendo nada de tecnologia. Dá certo?</summary><p>Dá. Você só precisa saber como o seu negócio funciona. A parte técnica é comigo, e na mentoria eu te guio em cada passo.</p></details>
+        <details><summary>Já uso um sistema pronto. Vale a pena?</summary><p>Depende do quanto ele te atrapalha. Conte no diagnóstico o que ele não resolve: às vezes a resposta é uma ferramenta pequena ao lado dele, e não trocar tudo.</p></details>
         <details><summary>O app pode ir para a Play Store e para a App Store?</summary><p>Pode, para as duas. Cada loja cobra a conta de quem publica: Google Play, US$ 25 uma vez só; Apple, US$ 99 por ano. Também dá para usar direto pelo link, sem instalar e sem custo de loja.</p></details>
       </div>
     </div>
   </section>
+  <section class="fechamento">
+    <div class="wrap">
+      <h2>Daqui a um mês, a sua semana pode estar igual. <em>Ou pode ter uma ferramenta trabalhando por você.</em></h2>
+      <a class="btn tape" href="#diagnostico">Fazer meu diagnóstico grátis</a>
+    </div>
+  </section>
 </main>
+
+<div class="barra-cta fora" id="barra-cta"><a class="btn tape" href="#diagnostico">Fazer meu diagnóstico grátis</a></div>
 
 <footer>
   <div class="wrap">
@@ -784,7 +1097,20 @@ const CONFIG = {
   // Google via Apps Script, Formspree, Make, Zapier…). Vazio = não envia.
   // Com ele preenchido, o diagnóstico fica guardado mesmo se a pessoa
   // desistir de tocar no botão do WhatsApp no fim.
-  webhook: ""
+  webhook: "",
+  // A seção "Quem monta". Vazia = a seção não aparece. A foto vai nesta
+  // pasta (ex.: "foto.jpg"); o texto aceita quebra de linha com \n.
+  // A sessão de diagnóstico ao vivo. "com" é o nome de quem conduz; vazio,
+  // a frase fica só "uma conversa individual, só com você".
+  sessao: {
+    horario: "18h",
+    com: ""
+  },
+  sobre: {
+    nome: "",
+    foto: "",
+    texto: ""
+  }
 };
 
 const TOTAL = 9;
@@ -800,6 +1126,10 @@ $("link-ig-topo").textContent = "@" + CONFIG.instagram;
 $("link-ig-rodape").textContent = "@" + CONFIG.instagram + " no Instagram";
 $("enviar-ig").href = "https://ig.me/m/" + CONFIG.instagram;
 
+/* a sessão ao vivo: o horário e quem conduz vêm da configuração */
+document.querySelectorAll(".hora-sessao").forEach((el) => { el.textContent = CONFIG.sessao.horario; });
+if (CONFIG.sessao.com) $("sessao-com").textContent = ", com " + CONFIG.sessao.com;
+
 /* "Outra" área abre o campo de texto */
 form.addEventListener("change", (e) => {
   if (e.target.name === "segmento") {
@@ -807,6 +1137,7 @@ form.addEventListener("change", (e) => {
     outro.hidden = e.target.value !== "Outra";
     if (!outro.hidden) outro.focus();
   }
+  if (e.target.name === "sessao") $("dias-sessao").hidden = e.target.value !== "Sim, quero a sessão";
   $("err").textContent = "";
   salvarRascunho();
 });
@@ -877,13 +1208,14 @@ const sugestaoPorDor = [
   ["Não sei meus números (vendas, lucro)", "Dashboard de resultados", "Vendas, gastos e resultado num painel só, atualizado sem você montar planilha no fim do mês."],
   ["Equipe desorganizada", "Ferramenta interna para a equipe", "Tarefas, responsáveis e prazos num lugar que todo mundo enxerga, com cada um vendo só o que é seu."],
   ["Cliente compra uma vez e some", "App de relacionamento e fidelidade", "Pontos, lembretes e ofertas que trazem o cliente de volta, com o histórico de cada um guardado."],
-  ["Perco tempo com planilha e papel", "Sistema sob medida para substituir a planilha", "O que hoje é planilha vira telas simples, com as contas feitas sozinhas e sem risco de apagar a fórmula."],
+  ["Perco tempo com planilha e papel", "A sua planilha virando app", "O que hoje é planilha vira telas simples, com as contas feitas sozinhas e sem risco de apagar a fórmula."],
   ["Tenho uma ideia e não sei por onde começar", "Primeira versão do seu app", "Eu desenho com você a menor versão que já resolve o problema, para colocar na mão das pessoas rápido e aprender com o uso."]
 ];
 const sugestaoPorTipo = {
   "Área de membros": ["Área de membros", "Um espaço com login onde só entra quem é membro: conteúdo, aulas, materiais e, se você quiser, a cobrança da assinatura."],
   "Agendamento de clientes": ["Agendamento online com lembrete automático", "Seus clientes marcam sozinhos, recebem lembrete e confirmam. A agenda para de depender do caderno e do WhatsApp."],
   "App para os meus clientes": ["App para os seus clientes", "Um app com a sua marca, onde o cliente resolve sozinho o que hoje ele pergunta para você."],
+  "Transformar minha planilha em app": ["A sua planilha virando app", "O que hoje é planilha vira telas simples no celular, com as contas feitas sozinhas e sem risco de apagar a fórmula. Os dados que você já tem vêm junto."],
   "Gestão da empresa": ["Sistema de gestão sob medida", "Vendas, caixa, estoque e contas num lugar só, feito do jeito que o seu negócio trabalha, e não o contrário."],
   "Dashboard de resultados": ["Dashboard de resultados", "Faturamento, metas, clientes e o que mais importa para você, em gráficos que se atualizam sozinhos. Você abre e já sabe como o mês está."],
   "Site com pedidos": ["Site com pedidos", "Um endereço para divulgar no Instagram onde o cliente faz o pedido sem esperar resposta."],
@@ -903,7 +1235,7 @@ function diagnosticar() {
   }
 
   const funcoes = valores("funcoes");
-  const pontos = peso("funcoes") + peso("quantos") + peso("lojas") + (valores("usuarios").length > 2 ? 2 : 0);
+  const pontos = peso("funcoes") + peso("arquivos") + peso("quantos") + peso("lojas") + (valores("usuarios").length > 2 ? 2 : 0);
   const nivel = pontos <= 6 ? 0 : pontos <= 14 ? 1 : 2;
   const niveis = [
     ["Enxuto", "Poucas telas e um objetivo claro. É o tipo de projeto que fica pronto mais rápido."],
@@ -942,6 +1274,7 @@ function resumo(d) {
     linha("Usa hoje", valor("sistema_atual")) +
     linha("Imagina", valor("tipo")) +
     linha("Precisa ter", valores("funcoes")) +
+    linha("Arquivos", valores("arquivos")) +
     linha("Mais", valor("funcoes_outras")) +
     linha("Quem usa", valores("usuarios")) +
     linha("Quantas pessoas", valor("quantos")) +
@@ -951,6 +1284,9 @@ function resumo(d) {
     linha("Investimento", valor("investimento")) +
     linha("Pagamento", valor("pagamento")) +
     linha("Conheceu por", valor("origem")) +
+    linha("Sessão ao vivo (" + CONFIG.sessao.horario + ")", valor("sessao")) +
+    linha("Melhores dias", valor("sessao") === "Sim, quero a sessão" ? valores("dias_sessao") : []) +
+    linha("Observações", valor("obs")) +
     "\n" +
     `*Diagnóstico:* ${d.titulo} · projeto ${d.nivelNome.toLowerCase()}`
   ).trim();
@@ -982,12 +1318,22 @@ function concluir() {
   $("enviar-ig").classList.toggle("tape", !CONFIG.whatsapp);
   $("enviar-ig").classList.toggle("ghost", !!CONFIG.whatsapp);
 
+  const querSessao = valor("sessao") === "Sim, quero a sessão";
+  $("res-sessao-bloco").hidden = !querSessao;
+  if (querSessao) {
+    const dias = valores("dias_sessao");
+    $("res-sessao").textContent = "Você pediu a sessão ao vivo, às " + CONFIG.sessao.horario +
+      (dias.length ? ", de preferência " + dias.join(", ").toLowerCase() : "") +
+      (CONFIG.sessao.com ? ", com " + CONFIG.sessao.com : "") +
+      ". Envie o diagnóstico abaixo e eu confirmo o dia pelo WhatsApp.";
+  }
+
   form.hidden = true; $("diag-head").hidden = true; $("result").hidden = false;
   $("diagnostico").scrollIntoView({ block: "start" });
 
   if (CONFIG.webhook) {
     const dados = Object.fromEntries(new FormData(form));
-    ["dores", "funcoes", "usuarios", "lojas"].forEach((k) => { dados[k] = valores(k).join(", "); });
+    ["dores", "funcoes", "arquivos", "usuarios", "lojas", "dias_sessao"].forEach((k) => { dados[k] = valores(k).join(", "); });
     dados.diagnostico = d.titulo; dados.nivel = d.nivelNome; dados.enviado_em = new Date().toISOString();
     fetch(CONFIG.webhook, { method: "POST", mode: "no-cors", headers: { "Content-Type": "text/plain" }, body: JSON.stringify(dados) })
       .catch((err) => console.warn("Diagnóstico não chegou ao webhook:", err));
@@ -1027,9 +1373,30 @@ function lerRascunho() {
       else el.value = v;
     });
     $("segmento_outro").hidden = valor("segmento") !== "Outra";
+    $("dias-sessao").hidden = valor("sessao") !== "Sim, quero a sessão";
     if (salvo.atual > 1 && salvo.atual <= TOTAL) atual = salvo.atual;
   } catch (e) {}
 }
+
+/* "Quem monta": só com nome e texto de verdade — nada de texto de exemplo no ar */
+if (CONFIG.sobre.nome && CONFIG.sobre.texto) {
+  $("sobre-nome").textContent = CONFIG.sobre.nome;
+  $("sobre-texto").textContent = CONFIG.sobre.texto;
+  if (CONFIG.sobre.foto) { $("sobre-foto").src = CONFIG.sobre.foto; $("sobre-foto").alt = CONFIG.sobre.nome; $("sobre-foto").hidden = false; }
+  $("quem-monta").hidden = false;
+}
+
+/* a barra fixa do celular some quando já há um botão do diagnóstico na tela */
+(function () {
+  const barra = $("barra-cta");
+  if (!("IntersectionObserver" in window)) { barra.classList.remove("fora"); return; }
+  const vistos = new Set();
+  const obs = new IntersectionObserver((itens) => {
+    itens.forEach((i) => { i.isIntersecting ? vistos.add(i.target) : vistos.delete(i.target); });
+    barra.classList.toggle("fora", vistos.size > 0);
+  });
+  [document.querySelector(".hero .cta-row"), $("diagnostico"), document.querySelector(".fechamento")].forEach((el) => el && obs.observe(el));
+})();
 
 lerRascunho();
 mostrar(atual, false);
