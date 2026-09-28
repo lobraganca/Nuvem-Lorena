@@ -4,24 +4,28 @@ A página para onde o link da bio do Instagram (@avena.app) vai apontar. Ela
 apresenta o serviço em duas formas — **eu monto para você** ou **eu te
 ensino a montar** (mentoria) — com área de membros, agendamento de
 clientes, gestão da empresa, dashboard de resultados, app, loja e automação, e leva a pessoa a um diagnóstico
-de 9 perguntas **antes** de qualquer proposta.
+de 10 perguntas **antes** de qualquer proposta.
 
 É **outro produto**: não tem nada a ver com o Ei Itabirito
 (`apps/profissionais/`) nem com o Avena de turismo (a raiz). Não usa banco,
 não tem build — é um arquivo só, `index.html`.
 
-## As 9 perguntas
+## As 10 perguntas
 
-1. Como prefere (que eu monte / aprender a montar / não sei), para quem é e a área
-2. O que atrapalha hoje (várias) + texto livre
-3. Como resolve hoje (papel, planilha, WhatsApp, sistema pronto…)
-4. Que ferramenta imagina (área de membros, agendamento, planilha em app, gestão da empresa, dashboard, app, loja, automação, "não sei")
-5. O que precisa ter (várias funções) e se vai guardar arquivos (vídeo, PDF, imagem, áudio, planilha)
-6. Quem usa e quantas pessoas
-7. Onde vai ficar: domínio próprio, domínio que já tem ou endereço grátis
+1. **Nome e WhatsApp**, primeiro de tudo (pedido da dona, 28/09): quem
+   desiste no meio já deixou o contato. Daí em diante a página chama a
+   pessoa pelo primeiro nome ("Prazer, Maria.")
+2. Como prefere (que eu monte / aprender a montar / não sei), para quem é e a área
+3. O que atrapalha hoje (várias) + texto livre
+4. Como resolve hoje (papel, planilha, WhatsApp, sistema pronto…)
+5. Que ferramenta imagina (área de membros, agendamento, planilha em app, gestão da empresa, dashboard, app, loja, automação, "não sei")
+6. O que precisa ter (várias funções) e se vai guardar arquivos (vídeo, PDF, imagem, áudio, planilha)
+7. Quem usa e quantas pessoas
+8. Onde vai ficar: domínio próprio, domínio que já tem ou endereço grátis
    (seuapp.vercel.app); e se publica na Play Store, na App Store ou só pelo link
-8. Prazo, investimento e forma de pagamento
-9. Contato (nome e WhatsApp obrigatórios), se quer a sessão ao vivo às 18h (e os melhores dias) e observações
+9. Prazo, investimento e forma de pagamento
+10. Empresa, cidade e e-mail (opcionais), como conheceu, se quer a sessão
+    ao vivo às 18h (e os melhores dias) e observações
 
 No fim a pessoa vê o diagnóstico — tipo de ferramenta sugerida, se é
 mentoria ou feito para ela, tamanho do projeto (enxuto / intermediário /
@@ -32,7 +36,7 @@ e envia as respostas pelo WhatsApp, pelo Instagram ou copiando o texto.
 não uma promessa; o valor vai na proposta. Os únicos valores que aparecem
 são de terceiros, para a pessoa não se assustar depois: domínio .com.br
 (por volta de R$ 40/ano no Registro.br), Google Play (US$ 25 uma vez) e
-Apple (US$ 99/ano). Se algum deles mudar, corrigir na pergunta 7 e no FAQ.
+Apple (US$ 99/ano). Se algum deles mudar, corrigir na pergunta 8 e no FAQ.
 
 ## O que falta preencher (no começo do `<script>`, bloco `CONFIG`)
 
@@ -46,8 +50,10 @@ Apple (US$ 99/ano). Se algum deles mudar, corrigir na pergunta 7 e no FAQ.
 | `sobre.nome`, `sobre.texto`, `sobre.foto` | a seção "Quem monta": nome, apresentação e a foto (arquivo nesta pasta) | a seção não aparece — de propósito, para não ir ao ar com texto de mentira |
 
 **Por que o webhook importa:** sem ele, quem responde tudo e fecha a página
-antes de tocar em "Enviar" se perde. Com ele, toda resposta completa fica
-guardada.
+antes de tocar em "Enviar" se perde. Com ele, cada pessoa chega **duas
+vezes**: ao passar do primeiro passo (só nome e WhatsApp, `etapa:
+"começou"`) e ao terminar (tudo, `etapa: "completo"`). Quem tem "começou"
+e não tem "completo" desistiu no meio — e o telefone está ali.
 
 ## Como a página está organizada (28/09)
 
@@ -110,7 +116,7 @@ imagem.
 
 ## Faixas de investimento
 
-As da pergunta 8 (até R$ 2 mil, 2–5 mil, 5–15 mil, acima de 15 mil) são um
+As da pergunta 9 (até R$ 2 mil, 2–5 mil, 5–15 mil, acima de 15 mil) são um
 palpite inicial. Ajustar à tabela real de preços.
 
 ## Colocar no ar

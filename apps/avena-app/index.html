@@ -318,7 +318,7 @@ section.band.alt { background: var(--surface-2); }
 .diag-head .meta { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; flex-wrap: wrap; }
 .diag-head .meta b { font: 500 13px/1 var(--mono); color: var(--muted); font-weight: 500; }
 .progress { position: relative; height: 34px; border-radius: 4px; background: var(--surface-2); overflow: hidden; }
-.progress .fita { position: absolute; inset: 0 auto 0 0; width: 11.1%; transition: width .35s ease; border-radius: 4px 0 0 4px; }
+.progress .fita { position: absolute; inset: 0 auto 0 0; width: 10%; transition: width .35s ease; border-radius: 4px 0 0 4px; }
 .progress .fita .nums span { width: 50px; }
 
 form { margin: 0; }
@@ -445,7 +445,7 @@ footer .wrap { display: flex; flex-wrap: wrap; justify-content: space-between; g
         <p class="lead">Área de membros, agendamento de clientes, gestão da empresa, dashboard de resultados, a sua planilha virando app, loja virtual, automação de WhatsApp. Eu monto para você, ou te ensino a montar. Antes da proposta, eu tiro as medidas: você responde um diagnóstico rápido e recebe uma proposta feita para o seu caso.</p>
         <div class="cta-row">
           <a class="btn tape" href="#diagnostico">Fazer meu diagnóstico grátis</a>
-          <span class="cta-note">9 perguntas · cerca de 3 minutos · sem compromisso</span>
+          <span class="cta-note">10 perguntas · cerca de 3 minutos · sem compromisso</span>
         </div>
         <p style="margin-top:18px"><a class="link-sessao" href="#sessao">Prefiro uma sessão de diagnóstico ao vivo, às <span class="hora-sessao">18h</span></a></p>
       </div>
@@ -698,13 +698,25 @@ footer .wrap { display: flex; flex-wrap: wrap; justify-content: space-between; g
 
       <div class="diag">
         <div class="diag-head" id="diag-head">
-          <div class="meta"><span class="eyebrow" id="step-label">Pergunta 1 de 9</span><b id="step-name">Para quem é</b></div>
+          <div class="meta"><span class="eyebrow" id="step-label">Pergunta 1 de 10</span><b id="step-name">Quem é você</b></div>
           <div class="progress" aria-hidden="true"><div class="fita" id="progress-tape"><div class="nums"><span>1</span><span>2</span><span>3</span><span>4</span><span>5</span><span>6</span><span>7</span><span>8</span><span>9</span><span>10</span><span>11</span><span>12</span><span>13</span><span>14</span><span>15</span></div></div></div>
         </div>
 
         <form id="form" novalidate>
-          <!-- 1 -->
-          <div class="step" data-step="1" data-name="Para quem é">
+          <!-- 1 — nome e telefone primeiro, a pedido da dona: quem desiste no
+               meio já deixou o contato (e, com o webhook, ele fica guardado) -->
+          <div class="step" data-step="1" data-name="Quem é você">
+            <h2>Antes de tudo, como posso te chamar?</h2>
+            <div class="fields">
+              <div class="field"><label for="nome">Seu nome</label><input type="text" id="nome" name="nome" autocomplete="name" required></div>
+              <div class="field"><label for="whatsapp">WhatsApp</label><input type="tel" id="whatsapp" name="whatsapp" autocomplete="tel" inputmode="tel" placeholder="(31) 99999-9999" required></div>
+            </div>
+            <p class="privacy">É por ele que a sua proposta chega. Seus dados servem só para isso, e não passo para ninguém.</p>
+          </div>
+
+          <!-- 2 -->
+          <div class="step" data-step="2" data-name="Para quem é" hidden>
+            <p class="sub saudacao" id="saudacao"></p>
             <h2>Para quem é a ferramenta?</h2>
             <fieldset class="q">
               <legend>Como você prefere?</legend>
@@ -741,8 +753,8 @@ footer .wrap { display: flex; flex-wrap: wrap; justify-content: space-between; g
             </fieldset>
           </div>
 
-          <!-- 2 -->
-          <div class="step" data-step="2" data-name="O que atrapalha" hidden>
+          <!-- 3 -->
+          <div class="step" data-step="3" data-name="O que atrapalha" hidden>
             <h2>O que mais atrapalha hoje?</h2>
             <p class="sub">Marque tudo o que acontece com você.</p>
             <fieldset class="q">
@@ -765,8 +777,8 @@ footer .wrap { display: flex; flex-wrap: wrap; justify-content: space-between; g
             </div>
           </div>
 
-          <!-- 3 -->
-          <div class="step" data-step="3" data-name="Como é hoje" hidden>
+          <!-- 4 -->
+          <div class="step" data-step="4" data-name="Como é hoje" hidden>
             <h2>Como você resolve isso hoje?</h2>
             <fieldset class="q">
               <legend class="hint">O jeito principal</legend>
@@ -785,8 +797,8 @@ footer .wrap { display: flex; flex-wrap: wrap; justify-content: space-between; g
             </div>
           </div>
 
-          <!-- 4 -->
-          <div class="step" data-step="4" data-name="O que imagina" hidden>
+          <!-- 5 -->
+          <div class="step" data-step="5" data-name="O que imagina" hidden>
             <h2>Que tipo de ferramenta você imagina?</h2>
             <fieldset class="q">
               <legend class="hint">Escolha o que mais se parece. Se não souber, eu sugiro.</legend>
@@ -805,8 +817,8 @@ footer .wrap { display: flex; flex-wrap: wrap; justify-content: space-between; g
             </fieldset>
           </div>
 
-          <!-- 5 -->
-          <div class="step" data-step="5" data-name="O que precisa ter" hidden>
+          <!-- 6 -->
+          <div class="step" data-step="6" data-name="O que precisa ter" hidden>
             <h2>O que ela precisa ter?</h2>
             <p class="sub">Marque o que é importante. Depois eu separo o que entra primeiro.</p>
             <fieldset class="q">
@@ -851,8 +863,8 @@ footer .wrap { display: flex; flex-wrap: wrap; justify-content: space-between; g
             </div>
           </div>
 
-          <!-- 6 -->
-          <div class="step" data-step="6" data-name="Quem usa" hidden>
+          <!-- 7 -->
+          <div class="step" data-step="7" data-name="Quem usa" hidden>
             <h2>Quem vai usar?</h2>
             <fieldset class="q">
               <legend>Quem usa</legend>
@@ -874,8 +886,8 @@ footer .wrap { display: flex; flex-wrap: wrap; justify-content: space-between; g
             </fieldset>
           </div>
 
-          <!-- 7 -->
-          <div class="step" data-step="7" data-name="Onde vai ficar" hidden>
+          <!-- 8 -->
+          <div class="step" data-step="8" data-name="Onde vai ficar" hidden>
             <h2>Onde a ferramenta vai ficar?</h2>
             <fieldset class="q">
               <legend>Endereço na internet</legend>
@@ -899,8 +911,8 @@ footer .wrap { display: flex; flex-wrap: wrap; justify-content: space-between; g
             </fieldset>
           </div>
 
-          <!-- 8 -->
-          <div class="step" data-step="8" data-name="Prazo e investimento" hidden>
+          <!-- 9 -->
+          <div class="step" data-step="9" data-name="Prazo e investimento" hidden>
             <h2>Prazo e investimento</h2>
             <p class="sub">Serve para a proposta caber na sua realidade. Nada aqui é compromisso.</p>
             <fieldset class="q">
@@ -933,12 +945,10 @@ footer .wrap { display: flex; flex-wrap: wrap; justify-content: space-between; g
             </fieldset>
           </div>
 
-          <!-- 9 -->
-          <div class="step" data-step="9" data-name="Seu contato" hidden>
-            <h2>Para onde mandamos a proposta?</h2>
+          <!-- 10 -->
+          <div class="step" data-step="10" data-name="Últimos detalhes" hidden>
+            <h2>Quase lá. Só mais alguns detalhes.</h2>
             <div class="fields">
-              <div class="field"><label for="nome">Seu nome</label><input type="text" id="nome" name="nome" autocomplete="name" required></div>
-              <div class="field"><label for="whatsapp">WhatsApp</label><input type="tel" id="whatsapp" name="whatsapp" autocomplete="tel" inputmode="tel" placeholder="(31) 99999-9999" required></div>
               <div class="field"><label for="empresa">Empresa ou projeto <small>(opcional)</small></label><input type="text" id="empresa" name="empresa" autocomplete="organization"></div>
               <div class="field"><label for="cidade">Cidade <small>(opcional)</small></label><input type="text" id="cidade" name="cidade" autocomplete="address-level2"></div>
               <div class="field full"><label for="email">E-mail <small>(opcional)</small></label><input type="email" id="email" name="email" autocomplete="email"></div>
@@ -1113,7 +1123,7 @@ const CONFIG = {
   }
 };
 
-const TOTAL = 9;
+const TOTAL = 10;
 const RASCUNHO = "avena-diagnostico-rascunho";
 const form = document.getElementById("form");
 const steps = [...form.querySelectorAll(".step")];
@@ -1157,19 +1167,20 @@ function peso(nome) {
 /* o que cada passo exige para seguir — o resto é opcional de propósito:
    pergunta obrigatória demais é onde a pessoa desiste */
 const exigencias = {
-  1: () => !valor("modo") ? "Escolha como você prefere: que eu monte ou aprender a montar." : !valor("perfil") ? "Escolha para quem é a ferramenta." : "",
-  2: () => !valores("dores").length && !valor("dor_texto") ? "Marque pelo menos uma opção ou escreva com as suas palavras." : "",
-  3: () => !valor("hoje") ? "Escolha como você resolve hoje." : "",
-  4: () => !valor("tipo") ? "Escolha uma opção. \"Não sei\" também vale." : "",
-  5: () => "",
-  6: () => !valores("usuarios").length ? "Marque quem vai usar." : "",
-  7: () => !valor("endereco") ? "Escolha o endereço. \"Não sei\" também vale." : !valores("lojas").length ? "Diga se quer publicar nas lojas. \"Não sei\" também vale." : "",
-  8: () => "",
-  9: () => {
+  1: () => {
     if (!valor("nome")) return "Falta o seu nome.";
     if (valor("whatsapp").replace(/\D/g, "").length < 10) return "Confira o WhatsApp: precisa do DDD e do número.";
     return "";
-  }
+  },
+  2: () => !valor("modo") ? "Escolha como você prefere: que eu monte ou aprender a montar." : !valor("perfil") ? "Escolha para quem é a ferramenta." : "",
+  3: () => !valores("dores").length && !valor("dor_texto") ? "Marque pelo menos uma opção ou escreva com as suas palavras." : "",
+  4: () => !valor("hoje") ? "Escolha como você resolve hoje." : "",
+  5: () => !valor("tipo") ? "Escolha uma opção. \"Não sei\" também vale." : "",
+  6: () => "",
+  7: () => !valores("usuarios").length ? "Marque quem vai usar." : "",
+  8: () => !valor("endereco") ? "Escolha o endereço. \"Não sei\" também vale." : !valores("lojas").length ? "Diga se quer publicar nas lojas. \"Não sei\" também vale." : "",
+  9: () => "",
+  10: () => ""
 };
 
 function mostrar(n, rolar) {
@@ -1182,6 +1193,8 @@ function mostrar(n, rolar) {
   $("voltar").style.visibility = n === 1 ? "hidden" : "visible";
   $("avancar").textContent = n === TOTAL ? "Ver meu diagnóstico" : "Continuar";
   $("err").textContent = "";
+  const primeiro = valor("nome").split(/\s+/)[0];
+  $("saudacao").textContent = primeiro ? `Prazer, ${primeiro}.` : "";
   salvarRascunho();
   if (rolar) $("diagnostico").scrollIntoView({ block: "start" });
 }
@@ -1190,6 +1203,7 @@ form.addEventListener("submit", (e) => {
   e.preventDefault();
   const erro = exigencias[atual]();
   if (erro) { $("err").textContent = erro; return; }
+  if (atual === 1) enviarWebhook({ etapa: "começou", nome: valor("nome"), whatsapp: valor("whatsapp") });
   if (atual < TOTAL) mostrar(atual + 1, true);
   else concluir();
 });
@@ -1292,6 +1306,16 @@ function resumo(d) {
   ).trim();
 }
 
+/* Cada diagnóstico vai para o webhook duas vezes: ao passar do primeiro
+   passo (só nome e WhatsApp, etapa "começou") e ao terminar (tudo, etapa
+   "completo"). Assim quem desiste no meio não some: fica o contato. */
+function enviarWebhook(dados) {
+  if (!CONFIG.webhook) return;
+  dados.enviado_em = new Date().toISOString();
+  fetch(CONFIG.webhook, { method: "POST", mode: "no-cors", headers: { "Content-Type": "text/plain" }, body: JSON.stringify(dados) })
+    .catch((err) => console.warn("Diagnóstico não chegou ao webhook:", err));
+}
+
 function concluir() {
   const d = diagnosticar();
   const texto = resumo(d);
@@ -1331,13 +1355,11 @@ function concluir() {
   form.hidden = true; $("diag-head").hidden = true; $("result").hidden = false;
   $("diagnostico").scrollIntoView({ block: "start" });
 
-  if (CONFIG.webhook) {
-    const dados = Object.fromEntries(new FormData(form));
-    ["dores", "funcoes", "arquivos", "usuarios", "lojas", "dias_sessao"].forEach((k) => { dados[k] = valores(k).join(", "); });
-    dados.diagnostico = d.titulo; dados.nivel = d.nivelNome; dados.enviado_em = new Date().toISOString();
-    fetch(CONFIG.webhook, { method: "POST", mode: "no-cors", headers: { "Content-Type": "text/plain" }, body: JSON.stringify(dados) })
-      .catch((err) => console.warn("Diagnóstico não chegou ao webhook:", err));
-  }
+  const dados = Object.fromEntries(new FormData(form));
+  ["dores", "funcoes", "arquivos", "usuarios", "lojas", "dias_sessao"].forEach((k) => { dados[k] = valores(k).join(", "); });
+  dados.etapa = "completo"; dados.diagnostico = d.titulo; dados.nivel = d.nivelNome;
+  enviarWebhook(dados);
+
 }
 
 $("copiar").addEventListener("click", () => {
