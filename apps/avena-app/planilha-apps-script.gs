@@ -63,6 +63,7 @@ function doPost(e) {
   try {
     const d = JSON.parse(e.postData.contents);
     const aba = SpreadsheetApp.getActiveSpreadsheet().getSheets()[0];
+    garantirTitulos(aba);
 
     if (d.segmento === "Outra" && d.segmento_outro) d.segmento = d.segmento_outro;
     const completo = d.etapa === "completo";
@@ -87,15 +88,26 @@ function doGet() {
   return ContentService.createTextOutput("A planilha do avena.app está recebendo diagnósticos.");
 }
 
+// A linha 1 tem de ser a dos títulos. Em 28/09 o script foi colado numa
+// planilha em branco: sem títulos, o primeiro contato caiu na linha 1 e o
+// "Completo" não o achou. Agora os títulos entram sozinhos, por cima do
+// que já houver.
+function garantirTitulos(aba) {
+  if (aba.getLastRow() > 0 && aba.getRange(1, 1).getValue() === COLUNAS[0][0]) return;
+  if (aba.getLastRow() > 0) aba.insertRowBefore(1);
+  aba.getRange(1, 1, 1, COLUNAS.length).setValues([COLUNAS.map(([titulo]) => titulo)]).setFontWeight("bold");
+  aba.setFrozenRows(1);
+}
+
 // A linha "Só deixou o contato" mais recente com o mesmo WhatsApp (0 = nenhuma)
 function linhaDoContato(aba, whatsapp) {
   const alvo = String(whatsapp || "").replace(/\D/g, "");
   const ultima = aba.getLastRow();
-  if (!alvo || ultima < 2) return 0;
-  const dados = aba.getRange(2, 1, ultima - 1, COL_WHATSAPP).getValues();
+  if (!alvo || ultima < 1) return 0;
+  const dados = aba.getRange(1, 1, ultima, COL_WHATSAPP).getValues();
   for (let i = dados.length - 1; i >= 0; i--) {
     const tel = String(dados[i][COL_WHATSAPP - 1]).replace(/\D/g, "");
-    if (tel === alvo && dados[i][COL_SITUACAO - 1] === "Só deixou o contato") return i + 2;
+    if (tel === alvo && dados[i][COL_SITUACAO - 1] === "Só deixou o contato") return i + 1;
   }
   return 0;
 }
