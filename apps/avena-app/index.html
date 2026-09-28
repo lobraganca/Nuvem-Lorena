@@ -4,38 +4,47 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>avena.app — ferramentas sob medida</title>
-<meta name="description" content="Eu monto a sua ferramenta: área de membros, agendamento de clientes, apps e sistemas sob medida. Faça o diagnóstico grátis e receba uma proposta feita para o seu caso.">
+<meta name="description" content="Eu monto a sua ferramenta: área de membros, agendamento de clientes, gestão da empresa, dashboard de resultados, apps e sistemas sob medida. Faça o diagnóstico grátis e receba uma proposta feita para o seu caso.">
 <meta property="og:title" content="avena.app — ferramentas sob medida">
 <meta property="og:description" content="Conte o que você precisa em 3 minutos. Eu tiro as medidas e mando uma proposta feita para o seu caso.">
 <meta property="og:type" content="website">
 <meta property="og:locale" content="pt_BR">
-<meta name="theme-color" content="#14201c">
-<link rel="icon" type="image/png" href="logo-avena.png">
+<!-- og:image precisa do endereço completo: trocar quando o domínio existir -->
+<meta property="og:image" content="og-avena.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="theme-color" content="#1b251a">
+<link rel="icon" type="image/png" href="icone-avena.png">
+<link rel="apple-touch-icon" href="icone-avena.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=Figtree:wght@400;500;600;700&family=JetBrains+Mono:wght@500&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=Figtree:wght@400;500;600;700&family=JetBrains+Mono:wght@500&display=swap">
 <style>
 /*
-  As cores são tokens: trocar a identidade (quando a logo chegar) é mexer
-  só neste bloco. O amarelo é o da fita métrica — a página inteira é sobre
-  "tirar as medidas" antes de fazer a proposta.
+  As cores saem da logo (medidas pelo gerar-marca.py): o verde do fundo
+  #1b251a e o creme da letra #d1ccb9. A faixa da marca (topo e abertura)
+  é igual nos dois temas, como a própria arte. O dourado é o da fita
+  métrica — a página inteira é sobre "tirar as medidas" antes da proposta.
 */
 :root {
-  --bg: #f4f5f1;
-  --surface: #ffffff;
-  --surface-2: #eceee8;
-  --ink: #14201c;
-  --text: #3d4a45;
-  --muted: #6b7772;
-  --line: #d9ddd5;
-  --pine: #1f5a4a;
-  --pine-soft: rgba(31, 90, 74, 0.09);
-  --tape: #f2c230;
+  --bg: #f2eee4;
+  --surface: #fbf9f4;
+  --surface-2: #e9e3d5;
+  --ink: #1b251a;
+  --text: #414a3f;
+  --muted: #6b7163;
+  --line: #d9d2c2;
+  --pine: #2e4d33;
+  --pine-soft: rgba(46, 77, 51, 0.09);
+  --tape: #c9a55a;
   --tape-ink: #1b1709;
-  --on-pine: #f4f5f1;
-  --danger: #b3261e;
-  --shadow: 0 1px 2px rgba(20, 32, 28, .05), 0 8px 28px -12px rgba(20, 32, 28, .18);
-  --display: "Bricolage Grotesque", "Trebuchet MS", system-ui, sans-serif;
+  --on-pine: #f2eee4;
+  --danger: #a3261e;
+  --brand: #1b251a;
+  --brand-ink: #d1ccb9;
+  --brand-text: rgba(209, 204, 185, 0.78);
+  --shadow: 0 1px 2px rgba(27, 37, 26, .05), 0 8px 28px -12px rgba(27, 37, 26, .2);
+  --display: "Cormorant Garamond", Garamond, "Times New Roman", serif;
   --body: "Figtree", system-ui, "Segoe UI", Roboto, sans-serif;
   --mono: "JetBrains Mono", ui-monospace, "SFMono-Regular", Menlo, monospace;
   --r: 14px;
@@ -43,32 +52,32 @@
 }
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme="light"]) {
-    --bg: #0e1513;
-    --surface: #16201d;
-    --surface-2: #1d2925;
-    --ink: #eef1ec;
-    --text: #c3cbc6;
-    --muted: #8d9993;
-    --line: #2b3834;
-    --pine: #7cc8ae;
-    --pine-soft: rgba(124, 200, 174, 0.12);
-    --on-pine: #0e1513;
+    --bg: #10160f;
+    --surface: #172016;
+    --surface-2: #1e291d;
+    --ink: #ece6d6;
+    --text: #c6c1b1;
+    --muted: #949683;
+    --line: #2e392c;
+    --pine: #a9c39a;
+    --pine-soft: rgba(169, 195, 154, 0.12);
+    --on-pine: #10160f;
     --danger: #ff8a80;
     --shadow: 0 1px 2px rgba(0, 0, 0, .4), 0 10px 30px -12px rgba(0, 0, 0, .6);
     color-scheme: dark;
   }
 }
 :root[data-theme="dark"] {
-  --bg: #0e1513;
-  --surface: #16201d;
-  --surface-2: #1d2925;
-  --ink: #eef1ec;
-  --text: #c3cbc6;
-  --muted: #8d9993;
-  --line: #2b3834;
-  --pine: #7cc8ae;
-  --pine-soft: rgba(124, 200, 174, 0.12);
-  --on-pine: #0e1513;
+  --bg: #10160f;
+  --surface: #172016;
+  --surface-2: #1e291d;
+  --ink: #ece6d6;
+  --text: #c6c1b1;
+  --muted: #949683;
+  --line: #2e392c;
+  --pine: #a9c39a;
+  --pine-soft: rgba(169, 195, 154, 0.12);
+  --on-pine: #10160f;
   --danger: #ff8a80;
   --shadow: 0 1px 2px rgba(0, 0, 0, .4), 0 10px 30px -12px rgba(0, 0, 0, .6);
   color-scheme: dark;
@@ -86,7 +95,9 @@ body {
 }
 img { max-width: 100%; }
 [hidden] { display: none !important; }
-h1, h2, h3 { font-family: var(--display); color: var(--ink); text-wrap: balance; margin: 0; line-height: 1.08; letter-spacing: -0.02em; }
+h1, h2, h3 { color: var(--ink); text-wrap: balance; margin: 0; line-height: 1.15; }
+h1, h2 { font-family: var(--display); font-weight: 600; line-height: 1.02; letter-spacing: -0.01em; }
+h3 { font-family: var(--body); font-weight: 700; letter-spacing: -0.01em; }
 p { margin: 0; }
 a { color: var(--pine); }
 :focus-visible { outline: 3px solid var(--tape); outline-offset: 2px; border-radius: 6px; }
@@ -94,21 +105,26 @@ a { color: var(--pine); }
 .wrap { max-width: 1080px; margin: 0 auto; padding-inline: 20px; }
 .eyebrow { font: 500 12px/1 var(--mono); letter-spacing: .08em; text-transform: uppercase; color: var(--pine); }
 
+/* ——— faixa da marca: topo e abertura, verde como a logo ——— */
+.brand-band { background: var(--brand); color: var(--brand-text); }
+.brand-band h1 { color: var(--brand-ink); }
+.brand-band .eyebrow { color: var(--tape); }
+.brand-band .lead, .brand-band .cta-note { color: var(--brand-text); }
+
 /* ——— topo ——— */
-.top { padding-block: 18px; }
+.top { padding-block: 22px 10px; }
 .top .wrap { display: flex; align-items: center; justify-content: space-between; gap: 16px; }
-.brand { display: flex; align-items: center; gap: 10px; text-decoration: none; color: var(--ink); }
-.brand img { height: 36px; width: auto; }
-.brand .wordmark { font: 800 22px/1 var(--display); letter-spacing: -0.03em; }
-.brand .wordmark span { color: var(--pine); }
-.top a.ig { font: 600 14px/1 var(--body); color: var(--text); text-decoration: none; }
-.top a.ig:hover { color: var(--ink); }
+.brand { display: block; text-decoration: none; }
+/* a faixa é verde nos dois temas, então a marca creme do gerador serve direto */
+.logo { display: block; width: 118px; height: auto; }
+.top a.ig { font: 600 14px/1 var(--body); color: var(--brand-text); text-decoration: none; }
+.top a.ig:hover { color: var(--brand-ink); }
 
 /* ——— abertura ——— */
-.hero { padding-block: 28px 56px; }
+.hero { padding-block: 28px 64px; }
 .hero .wrap { display: grid; grid-template-columns: 1.15fr .85fr; gap: 48px; align-items: center; }
-.hero h1 { font-size: clamp(38px, 6.2vw, 68px); font-weight: 800; margin-block: 14px 18px; }
-.hero h1 mark { background: linear-gradient(transparent 80%, var(--tape) 80%, var(--tape) 96%, transparent 96%); color: inherit; padding-inline: 2px; }
+.hero h1 { font-size: clamp(46px, 7.4vw, 84px); margin-block: 14px 20px; }
+.hero h1 mark { background: none; color: var(--tape); font-style: italic; padding: 0; }
 .hero .lead { font-size: 19px; max-width: 34em; }
 .cta-row { display: flex; flex-wrap: wrap; align-items: center; gap: 14px 20px; margin-top: 28px; }
 .btn {
@@ -120,12 +136,14 @@ a { color: var(--pine); }
 }
 .btn:hover { transform: translateY(-1px); }
 .btn.tape { background: var(--tape); color: var(--tape-ink); }
+.btn.cream { background: var(--brand-ink); color: var(--brand); }
 .btn.ghost { background: transparent; color: var(--ink); box-shadow: inset 0 0 0 1.5px var(--line); }
 .btn[disabled] { opacity: .45; cursor: not-allowed; transform: none; }
 .cta-note { font-size: 14px; color: var(--muted); }
 
 /* a ficha de medidas, do lado da manchete */
 .ficha {
+  border: 1px solid rgba(209, 204, 185, .14);
   background: var(--surface); border-radius: var(--r); box-shadow: var(--shadow);
   padding: 22px 22px 18px; position: relative; overflow: hidden;
 }
@@ -136,7 +154,7 @@ a { color: var(--pine); }
 .ficha .stamp { margin-top: 16px; font-size: 13px; color: var(--muted); }
 
 /* ——— a fita métrica (usada na ficha e no progresso) ——— */
-.tape {
+.fita {
   height: 34px; background: var(--tape); color: var(--tape-ink); border-radius: 4px;
   position: relative; overflow: hidden;
   background-image:
@@ -146,27 +164,34 @@ a { color: var(--pine); }
   background-repeat: no-repeat;
   background-position: 0 0, 0 0;
 }
-.ficha .tape { margin: -22px -22px 18px; border-radius: 0; }
-.tape .nums { position: absolute; inset: auto 0 5px 0; display: flex; font: 500 10px/1 var(--mono); }
-.tape .nums span { width: 50px; flex: none; padding-left: 3px; }
+.ficha .fita { margin: -22px -22px 18px; border-radius: 0; }
+.fita .nums { position: absolute; inset: auto 0 5px 0; display: flex; font: 500 10px/1 var(--mono); }
+.fita .nums span { width: 50px; flex: none; padding-left: 3px; }
 
 /* ——— seções ——— */
 section.band { padding-block: 64px; }
 section.band.alt { background: var(--surface-2); }
 .section-head { display: grid; gap: 12px; margin-bottom: 32px; max-width: 40em; }
-.section-head h2 { font-size: clamp(28px, 4vw, 42px); font-weight: 700; }
+.section-head h2 { font-size: clamp(34px, 4.8vw, 52px); }
 
 .steps { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; counter-reset: passo; }
 .steps li { counter-increment: passo; display: grid; gap: 8px; align-content: start; padding-top: 18px; border-top: 2px solid var(--ink); }
 .steps li::before { content: "passo " counter(passo); font: 500 12px/1 var(--mono); color: var(--pine); text-transform: uppercase; letter-spacing: .08em; }
 .steps h3 { font-size: 22px; }
 
-.grid-tools { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; }
+.grid-tools { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
 .tool { background: var(--surface); border-radius: var(--r); padding: 20px; display: grid; gap: 8px; align-content: start; border: 1px solid var(--line); }
 .tool h3 { font-size: 19px; }
 .tool .ex { font-size: 14px; color: var(--muted); }
 .tool svg { width: 28px; height: 28px; stroke: var(--pine); fill: none; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
 
+.formas { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+.forma { background: var(--surface); border: 1px solid var(--line); border-radius: var(--r); padding: 26px; display: grid; gap: 12px; align-content: start; }
+.forma h3 { font: 600 34px/1.05 var(--display); letter-spacing: -0.01em; }
+.forma ul { margin: 4px 0 0; padding-left: 20px; display: grid; gap: 4px; }
+.forma.escura { background: var(--brand); border-color: var(--brand); color: var(--brand-text); }
+.forma.escura h3 { color: var(--brand-ink); }
+.forma.escura .pill { background: rgba(201, 165, 90, .18); color: var(--tape); }
 .pra-quem { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
 .pra-quem div { display: grid; gap: 6px; }
 .pra-quem h3 { font-size: 20px; }
@@ -178,12 +203,12 @@ section.band.alt { background: var(--surface-2); }
 .diag-head .meta { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; flex-wrap: wrap; }
 .diag-head .meta b { font: 500 13px/1 var(--mono); color: var(--muted); font-weight: 500; }
 .progress { position: relative; height: 34px; border-radius: 4px; background: var(--surface-2); overflow: hidden; }
-.progress .tape { position: absolute; inset: 0 auto 0 0; width: 12.5%; transition: width .35s ease; border-radius: 4px 0 0 4px; }
-.progress .tape .nums span { width: 50px; }
+.progress .fita { position: absolute; inset: 0 auto 0 0; width: 11.1%; transition: width .35s ease; border-radius: 4px 0 0 4px; }
+.progress .fita .nums span { width: 50px; }
 
 form { margin: 0; }
 .step { padding: 26px; display: grid; gap: 22px; }
-.step h2 { font-size: clamp(24px, 3.4vw, 30px); font-weight: 700; }
+.step h2 { font-size: clamp(30px, 4.2vw, 38px); }
 .step .sub { color: var(--muted); margin-top: -12px; }
 .q { display: grid; gap: 10px; border: 0; margin: 0; padding: 0; min-width: 0; }
 .q legend, .q > label.lbl { font-weight: 700; color: var(--ink); padding: 0; margin-bottom: 2px; }
@@ -228,7 +253,7 @@ textarea { min-height: 96px; resize: vertical; }
 .result .kicker { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
 .pill { display: inline-flex; align-items: center; gap: 6px; font: 500 12px/1 var(--mono); text-transform: uppercase; letter-spacing: .06em; padding: 7px 10px; border-radius: 999px; background: var(--pine-soft); color: var(--pine); }
 .pill.tape-pill { background: var(--tape); color: var(--tape-ink); }
-.result h2 { font-size: clamp(26px, 4vw, 36px); font-weight: 800; }
+.result h2 { font-size: clamp(32px, 4.8vw, 44px); }
 .meter { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; }
 .meter div { display: grid; gap: 6px; font: 500 12px/1 var(--mono); color: var(--muted); text-transform: uppercase; letter-spacing: .05em; }
 .meter div::before { content: ""; height: 8px; border-radius: 4px; background: var(--surface-2); }
@@ -240,8 +265,10 @@ textarea { min-height: 96px; resize: vertical; }
 .summary { background: var(--bg); border: 1px dashed var(--line); border-radius: 10px; padding: 14px 16px; font: 13px/1.55 var(--mono); white-space: pre-wrap; max-height: 220px; overflow: auto; color: var(--text); }
 .send { display: grid; gap: 12px; padding: 20px; border-radius: var(--r); background: var(--ink); color: var(--bg); }
 .send h3 { color: var(--bg); font-size: 20px; }
+.send { background: var(--brand); color: var(--brand-ink); }
+.send h3 { color: var(--brand-ink); }
+.send .btn.ghost { color: var(--brand-ink); box-shadow: inset 0 0 0 1.5px rgba(209, 204, 185, .4); }
 .send .row { display: flex; flex-wrap: wrap; gap: 10px; }
-.send .btn.ghost { color: var(--bg); box-shadow: inset 0 0 0 1.5px color-mix(in srgb, var(--bg) 40%, transparent); }
 .hint { font-size: 14px; color: var(--muted); }
 .send p { font-size: 14px; opacity: .8; }
 
@@ -256,8 +283,10 @@ footer .wrap { display: flex; flex-wrap: wrap; justify-content: space-between; g
 
 @media (max-width: 860px) {
   .hero .wrap { grid-template-columns: 1fr; gap: 32px; }
+  .formas { grid-template-columns: 1fr; }
   .steps, .pra-quem { grid-template-columns: 1fr; }
   .grid-tools { grid-template-columns: 1fr 1fr; }
+  .grid-tools .tool:last-child:nth-child(odd) { grid-column: 1 / -1; }
 }
 @media (max-width: 560px) {
   .wrap { padding-inline: 16px; }
@@ -275,33 +304,28 @@ footer .wrap { display: flex; flex-wrap: wrap; justify-content: space-between; g
 </head>
 <body>
 
+<div class="brand-band">
 <header class="top">
   <div class="wrap">
-    <a class="brand" href="#" aria-label="avena.app">
-      <!-- A logo: salvar a arte como logo-avena.png nesta mesma pasta.
-           Enquanto ela não existir, aparece o nome escrito. -->
-      <img id="logo" src="logo-avena.png" alt="avena.app" hidden>
-      <span class="wordmark" id="wordmark">avena<span>.app</span></span>
-    </a>
+    <a class="brand" href="#" aria-label="avena"><img class="logo" src="marca-avena.png" alt="avena" width="515" height="120"></a>
     <a class="ig" id="link-ig-topo" href="https://instagram.com/avena.app" target="_blank" rel="noopener">@avena.app</a>
   </div>
 </header>
 
-<main>
-  <section class="hero">
+<section class="hero">
     <div class="wrap">
       <div>
         <p class="eyebrow">Apps e sistemas sob medida</p>
         <h1>Eu monto a sua ferramenta, <mark>sob medida</mark>.</h1>
-        <p class="lead">Área de membros, agendamento de clientes, app, sistema de gestão, loja virtual, automação de WhatsApp. Para empresas, profissionais e para quem tem uma ideia. Antes da proposta, eu tiro as medidas: você responde um diagnóstico rápido e recebe uma proposta feita para o seu caso.</p>
+        <p class="lead">Área de membros, agendamento de clientes, gestão da empresa, dashboard de resultados, app, loja virtual, automação de WhatsApp. Eu monto para você, ou te ensino a montar. Antes da proposta, eu tiro as medidas: você responde um diagnóstico rápido e recebe uma proposta feita para o seu caso.</p>
         <div class="cta-row">
           <a class="btn tape" href="#diagnostico">Fazer meu diagnóstico grátis</a>
-          <span class="cta-note">8 perguntas · cerca de 3 minutos · sem compromisso</span>
+          <span class="cta-note">9 perguntas · cerca de 3 minutos · sem compromisso</span>
         </div>
       </div>
 
       <aside class="ficha" aria-label="Exemplo de ficha de medidas">
-        <div class="tape" aria-hidden="true"><div class="nums"><span>0</span><span>5</span><span>10</span><span>15</span><span>20</span><span>25</span><span>30</span><span>35</span></div></div>
+        <div class="fita" aria-hidden="true"><div class="nums"><span>0</span><span>5</span><span>10</span><span>15</span><span>20</span><span>25</span><span>30</span><span>35</span></div></div>
         <h3>Ficha de medidas · exemplo</h3>
         <dl>
           <dt>Quem</dt><dd>Clínica de estética, 4 pessoas</dd>
@@ -312,6 +336,31 @@ footer .wrap { display: flex; flex-wrap: wrap; justify-content: space-between; g
         </dl>
         <p class="stamp">É assim que o seu diagnóstico chega para mim. A proposta sai dele.</p>
       </aside>
+    </div>
+</section>
+</div>
+
+<main>
+  <section class="band" id="formas">
+    <div class="wrap">
+      <div class="section-head">
+        <p class="eyebrow">Duas formas</p>
+        <h2>Eu monto para você, ou te ensino a montar.</h2>
+      </div>
+      <div class="formas">
+        <div class="forma escura">
+          <span class="pill">Feito para você</span>
+          <h3>Eu monto a sua ferramenta</h3>
+          <p>Você conta o que precisa e recebe tudo pronto, publicado e funcionando. Eu cuido do desenvolvimento, do endereço e da publicação nas lojas.</p>
+          <ul><li>Você não precisa entender nada de tecnologia</li><li>Publicação incluída: link, domínio, Play Store, App Store</li><li>Ajustes depois da entrega</li></ul>
+        </div>
+        <div class="forma">
+          <span class="pill">Mentoria</span>
+          <h3>Eu te ensino a montar</h3>
+          <p>Você monta o seu próprio app com o meu acompanhamento, passo a passo. No fim, o app é seu e você sabe mexer nele sem depender de ninguém.</p>
+          <ul><li>Acompanhamento do começo até o app no ar</li><li>Você aprende a atualizar sozinho</li><li>Serve para o primeiro app e para os próximos</li></ul>
+        </div>
+      </div>
     </div>
   </section>
 
@@ -350,7 +399,11 @@ footer .wrap { display: flex; flex-wrap: wrap; justify-content: space-between; g
         </div>
         <div class="tool">
           <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 20.5h18M6 16.5v-5M11 16.5v-9M16 16.5v-6M20 16.5v-11"/></svg>
-          <h3>Sistema de gestão</h3><p class="ex">Vendas, caixa, estoque e relatórios num painel só.</p>
+          <h3>Gestão da empresa</h3><p class="ex">Vendas, caixa, estoque, contas a pagar e a receber, num sistema só.</p>
+        </div>
+        <div class="tool">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="3.5" width="18" height="17" rx="2.5"/><path d="M3 9h18M9 9v11.5M12.5 17l2.5-3 2 1.5 2-3"/></svg>
+          <h3>Resultados e dashboard</h3><p class="ex">Faturamento, metas e clientes num painel com gráficos, atualizado sozinho.</p>
         </div>
         <div class="tool">
           <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 4.5h2.5l2 11h10l2-8H7.5"/><circle cx="10" cy="19.5" r="1.3"/><circle cx="17" cy="19.5" r="1.3"/></svg>
@@ -396,14 +449,22 @@ footer .wrap { display: flex; flex-wrap: wrap; justify-content: space-between; g
 
       <div class="diag">
         <div class="diag-head" id="diag-head">
-          <div class="meta"><span class="eyebrow" id="step-label">Pergunta 1 de 8</span><b id="step-name">Para quem é</b></div>
-          <div class="progress" aria-hidden="true"><div class="tape" id="progress-tape"><div class="nums"><span>1</span><span>2</span><span>3</span><span>4</span><span>5</span><span>6</span><span>7</span><span>8</span><span>9</span><span>10</span><span>11</span><span>12</span><span>13</span><span>14</span><span>15</span></div></div></div>
+          <div class="meta"><span class="eyebrow" id="step-label">Pergunta 1 de 9</span><b id="step-name">Para quem é</b></div>
+          <div class="progress" aria-hidden="true"><div class="fita" id="progress-tape"><div class="nums"><span>1</span><span>2</span><span>3</span><span>4</span><span>5</span><span>6</span><span>7</span><span>8</span><span>9</span><span>10</span><span>11</span><span>12</span><span>13</span><span>14</span><span>15</span></div></div></div>
         </div>
 
         <form id="form" novalidate>
           <!-- 1 -->
           <div class="step" data-step="1" data-name="Para quem é">
             <h2>Para quem é a ferramenta?</h2>
+            <fieldset class="q">
+              <legend>Como você prefere?</legend>
+              <div class="chips cards">
+                <label class="chip"><input type="radio" name="modo" value="Quero que você monte"><span>Que você monte para mim<small>recebo pronto e publicado</small></span></label>
+                <label class="chip"><input type="radio" name="modo" value="Quero aprender a montar"><span>Aprender a montar o meu app<small>mentoria, com o seu acompanhamento</small></span></label>
+                <label class="chip"><input type="radio" name="modo" value="Ainda não sei"><span>Ainda não sei<small>quero entender as duas opções</small></span></label>
+              </div>
+            </fieldset>
             <fieldset class="q">
               <legend>Você está pedindo para…</legend>
               <div class="chips cards">
@@ -484,7 +545,8 @@ footer .wrap { display: flex; flex-wrap: wrap; justify-content: space-between; g
                 <label class="chip"><input type="radio" name="tipo" value="Área de membros"><span>Área de membros<small>conteúdo e aulas só para quem é membro</small></span></label>
                 <label class="chip"><input type="radio" name="tipo" value="Agendamento de clientes"><span>Agendamento de clientes<small>o cliente marca sozinho, com lembrete</small></span></label>
                 <label class="chip"><input type="radio" name="tipo" value="App para os meus clientes"><span>App para os meus clientes<small>eles baixam ou abrem no celular</small></span></label>
-                <label class="chip"><input type="radio" name="tipo" value="Sistema interno / painel"><span>Sistema interno<small>painel para mim e a equipe</small></span></label>
+                <label class="chip"><input type="radio" name="tipo" value="Gestão da empresa"><span>Gestão da empresa<small>vendas, caixa, estoque, contas</small></span></label>
+                <label class="chip"><input type="radio" name="tipo" value="Dashboard de resultados"><span>Dashboard de resultados<small>os números do negócio em gráficos</small></span></label>
                 <label class="chip"><input type="radio" name="tipo" value="Site com pedidos"><span>Site com pedidos<small>o cliente pede pelo link</small></span></label>
                 <label class="chip"><input type="radio" name="tipo" value="Loja virtual / catálogo"><span>Loja virtual ou catálogo</span></label>
                 <label class="chip"><input type="radio" name="tipo" value="Automação de WhatsApp"><span>Automação de WhatsApp<small>respostas e avisos automáticos</small></span></label>
@@ -508,7 +570,7 @@ footer .wrap { display: flex; flex-wrap: wrap; justify-content: space-between; g
                 <label class="chip"><input type="checkbox" name="funcoes" value="Pagamento online (Pix, cartão)" data-peso="3"><span>Pagamento online</span></label>
                 <label class="chip"><input type="checkbox" name="funcoes" value="Controle de estoque" data-peso="2"><span>Controle de estoque</span></label>
                 <label class="chip"><input type="checkbox" name="funcoes" value="Financeiro / caixa" data-peso="2"><span>Financeiro / caixa</span></label>
-                <label class="chip"><input type="checkbox" name="funcoes" value="Relatórios e gráficos" data-peso="1"><span>Relatórios e gráficos</span></label>
+                <label class="chip"><input type="checkbox" name="funcoes" value="Dashboard de resultados (gráficos e metas)" data-peso="2"><span>Dashboard de resultados</span></label>
                 <label class="chip"><input type="checkbox" name="funcoes" value="Área de membros com conteúdo exclusivo" data-peso="2"><span>Área de membros</span></label>
                 <label class="chip"><input type="checkbox" name="funcoes" value="Aulas e cursos em vídeo" data-peso="2"><span>Aulas e cursos em vídeo</span></label>
                 <label class="chip"><input type="checkbox" name="funcoes" value="Assinatura mensal (cobrança recorrente)" data-peso="3"><span>Assinatura mensal</span></label>
@@ -529,8 +591,8 @@ footer .wrap { display: flex; flex-wrap: wrap; justify-content: space-between; g
           </div>
 
           <!-- 6 -->
-          <div class="step" data-step="6" data-name="Quem usa e onde" hidden>
-            <h2>Quem vai usar, e onde?</h2>
+          <div class="step" data-step="6" data-name="Quem usa" hidden>
+            <h2>Quem vai usar?</h2>
             <fieldset class="q">
               <legend>Quem usa</legend>
               <div class="chips">
@@ -549,19 +611,35 @@ footer .wrap { display: flex; flex-wrap: wrap; justify-content: space-between; g
                 <label class="chip"><input type="radio" name="quantos" value="Mais de 500" data-peso="3"><span>Mais de 500</span></label>
               </div>
             </fieldset>
-            <fieldset class="q">
-              <legend>Onde vão usar</legend>
-              <div class="chips cards">
-                <label class="chip"><input type="radio" name="onde" value="No celular, pelo navegador" data-peso="0"><span>No celular, pelo navegador<small>abre por um link, sem instalar</small></span></label>
-                <label class="chip"><input type="radio" name="onde" value="App na Play Store / App Store" data-peso="3"><span>App na loja<small>Play Store / App Store</small></span></label>
-                <label class="chip"><input type="radio" name="onde" value="No computador" data-peso="0"><span>No computador</span></label>
-                <label class="chip"><input type="radio" name="onde" value="Tanto faz, quero a sugestão" data-peso="0"><span>Tanto faz<small>quero a sugestão</small></span></label>
-              </div>
-            </fieldset>
           </div>
 
           <!-- 7 -->
-          <div class="step" data-step="7" data-name="Prazo e investimento" hidden>
+          <div class="step" data-step="7" data-name="Onde vai ficar" hidden>
+            <h2>Onde a ferramenta vai ficar?</h2>
+            <fieldset class="q">
+              <legend>Endereço na internet</legend>
+              <div class="chips cards">
+                <label class="chip"><input type="radio" name="endereco" value="Domínio próprio (seunegocio.com.br)"><span>Domínio próprio<small>ex.: seunegocio.com.br</small></span></label>
+                <label class="chip"><input type="radio" name="endereco" value="Já tenho um domínio"><span>Já tenho um domínio</span></label>
+                <label class="chip"><input type="radio" name="endereco" value="Endereço gratuito (ex.: seuapp.vercel.app)"><span>Endereço gratuito<small>ex.: seuapp.vercel.app</small></span></label>
+                <label class="chip"><input type="radio" name="endereco" value="Não sei, quero a sugestão"><span>Não sei<small>quero a sugestão</small></span></label>
+              </div>
+              <p class="hint">Um domínio .com.br custa por volta de R$ 40 por ano no Registro.br. O endereço gratuito funciona igual, só não leva o nome do seu negócio, e dá para trocar depois.</p>
+            </fieldset>
+            <fieldset class="q">
+              <legend>Quer publicar nas lojas de aplicativos?</legend>
+              <div class="chips">
+                <label class="chip"><input type="checkbox" name="lojas" value="Play Store (Android)" data-peso="2"><span>Play Store (Android)</span></label>
+                <label class="chip"><input type="checkbox" name="lojas" value="App Store (iPhone)" data-peso="3"><span>App Store (iPhone)</span></label>
+                <label class="chip"><input type="checkbox" name="lojas" value="Não precisa: abre pelo link, sem instalar" data-peso="0"><span>Não precisa, abre pelo link</span></label>
+                <label class="chip"><input type="checkbox" name="lojas" value="Não sei" data-peso="0"><span>Não sei</span></label>
+              </div>
+              <p class="hint">Cada loja cobra a conta de quem publica: Google Play, US$ 25 uma vez só; Apple, US$ 99 por ano. Abrir pelo link não tem custo de loja.</p>
+            </fieldset>
+          </div>
+
+          <!-- 8 -->
+          <div class="step" data-step="8" data-name="Prazo e investimento" hidden>
             <h2>Prazo e investimento</h2>
             <p class="sub">Serve para a proposta caber na sua realidade. Nada aqui é compromisso.</p>
             <fieldset class="q">
@@ -594,8 +672,8 @@ footer .wrap { display: flex; flex-wrap: wrap; justify-content: space-between; g
             </fieldset>
           </div>
 
-          <!-- 8 -->
-          <div class="step" data-step="8" data-name="Seu contato" hidden>
+          <!-- 9 -->
+          <div class="step" data-step="9" data-name="Seu contato" hidden>
             <h2>Para onde mandamos a proposta?</h2>
             <div class="fields">
               <div class="field"><label for="nome">Seu nome</label><input type="text" id="nome" name="nome" autocomplete="name" required></div>
@@ -625,7 +703,7 @@ footer .wrap { display: flex; flex-wrap: wrap; justify-content: space-between; g
 
         <!-- resultado -->
         <div class="result" id="result" hidden>
-          <div class="kicker"><span class="pill tape-pill">Diagnóstico pronto</span><span class="pill" id="res-nivel-pill"></span></div>
+          <div class="kicker"><span class="pill tape-pill">Diagnóstico pronto</span><span class="pill" id="res-modo-pill"></span><span class="pill" id="res-nivel-pill"></span></div>
           <h2 id="res-titulo"></h2>
           <p id="res-texto"></p>
 
@@ -639,6 +717,11 @@ footer .wrap { display: flex; flex-wrap: wrap; justify-content: space-between; g
             <h3>O que eu sugiro para a primeira versão</h3>
             <ul id="res-v1"></ul>
             <p id="res-depois" class="hint"></p>
+          </div>
+
+          <div class="res-block">
+            <h3>Onde vai ficar</h3>
+            <p id="res-onde"></p>
           </div>
 
           <div class="send">
@@ -671,7 +754,9 @@ footer .wrap { display: flex; flex-wrap: wrap; justify-content: space-between; g
         <details><summary>Quanto custa uma ferramenta?</summary><p>Depende do que ela precisa fazer. É por isso que existe o diagnóstico: a proposta chega com o valor do seu caso, e não de um pacote genérico.</p></details>
         <details><summary>E se eu não souber explicar o que preciso?</summary><p>Tudo bem. Conte o que atrapalha hoje. Transformar isso em ferramenta é o meu trabalho.</p></details>
         <details><summary>Dá para começar pequeno?</summary><p>Dá, e é o que eu costumo sugerir: uma primeira versão com o essencial, e o resto entra depois que você já estiver usando.</p></details>
-        <details><summary>O app pode ir para a Play Store?</summary><p>Pode. Também dá para usar direto pelo navegador do celular, sem instalar nada. No diagnóstico você conta o que prefere.</p></details>
+        <details><summary>Você também ensina a fazer?</summary><p>Ensino. Na mentoria você monta o seu próprio app com o meu acompanhamento e aprende a mexer nele. No diagnóstico, escolha "Aprender a montar o meu app".</p></details>
+        <details><summary>Preciso ter domínio próprio?</summary><p>Não. Dá para começar num endereço gratuito, como seuapp.vercel.app, e trocar para o domínio próprio depois, sem refazer nada.</p></details>
+        <details><summary>O app pode ir para a Play Store e para a App Store?</summary><p>Pode, para as duas. Cada loja cobra a conta de quem publica: Google Play, US$ 25 uma vez só; Apple, US$ 99 por ano. Também dá para usar direto pelo link, sem instalar e sem custo de loja.</p></details>
       </div>
     </div>
   </section>
@@ -702,20 +787,12 @@ const CONFIG = {
   webhook: ""
 };
 
-const TOTAL = 8;
+const TOTAL = 9;
 const RASCUNHO = "avena-diagnostico-rascunho";
 const form = document.getElementById("form");
 const steps = [...form.querySelectorAll(".step")];
 const $ = (id) => document.getElementById(id);
 let atual = 1;
-
-/* a logo: aparece só se o arquivo existir */
-(function () {
-  const img = $("logo");
-  img.addEventListener("load", () => { img.hidden = false; $("wordmark").hidden = true; });
-  img.addEventListener("error", () => { img.remove(); });
-  if (img.complete && img.naturalWidth) { img.hidden = false; $("wordmark").hidden = true; }
-})();
 
 /* o Instagram da configuração vale para todos os links */
 ["link-ig-topo", "link-ig-rodape"].forEach((id) => { $(id).href = "https://instagram.com/" + CONFIG.instagram; });
@@ -749,14 +826,15 @@ function peso(nome) {
 /* o que cada passo exige para seguir — o resto é opcional de propósito:
    pergunta obrigatória demais é onde a pessoa desiste */
 const exigencias = {
-  1: () => !valor("perfil") ? "Escolha para quem é a ferramenta." : "",
+  1: () => !valor("modo") ? "Escolha como você prefere: que eu monte ou aprender a montar." : !valor("perfil") ? "Escolha para quem é a ferramenta." : "",
   2: () => !valores("dores").length && !valor("dor_texto") ? "Marque pelo menos uma opção ou escreva com as suas palavras." : "",
   3: () => !valor("hoje") ? "Escolha como você resolve hoje." : "",
   4: () => !valor("tipo") ? "Escolha uma opção. \"Não sei\" também vale." : "",
   5: () => "",
   6: () => !valores("usuarios").length ? "Marque quem vai usar." : "",
-  7: () => "",
-  8: () => {
+  7: () => !valor("endereco") ? "Escolha o endereço. \"Não sei\" também vale." : !valores("lojas").length ? "Diga se quer publicar nas lojas. \"Não sei\" também vale." : "",
+  8: () => "",
+  9: () => {
     if (!valor("nome")) return "Falta o seu nome.";
     if (valor("whatsapp").replace(/\D/g, "").length < 10) return "Confira o WhatsApp: precisa do DDD e do número.";
     return "";
@@ -796,7 +874,7 @@ const sugestaoPorDor = [
   ["Quero vender pela internet", "Loja virtual ou catálogo com pedidos", "Um catálogo que o cliente abre pelo link, monta o pedido e paga, sem você responder preço um por um."],
   ["WhatsApp lotado de perguntas repetidas", "Automação de atendimento", "As perguntas que chegam sempre iguais passam a ter resposta sozinhas, e só o que precisa de você chega até você."],
   ["Estoque sem controle", "Sistema de gestão com controle de estoque", "Entrada e saída registradas na hora, aviso quando algo está acabando e o número real na mão."],
-  ["Não sei meus números (vendas, lucro)", "Painel de gestão com relatórios", "Vendas, gastos e resultado num painel só, atualizado sem você montar planilha no fim do mês."],
+  ["Não sei meus números (vendas, lucro)", "Dashboard de resultados", "Vendas, gastos e resultado num painel só, atualizado sem você montar planilha no fim do mês."],
   ["Equipe desorganizada", "Ferramenta interna para a equipe", "Tarefas, responsáveis e prazos num lugar que todo mundo enxerga, com cada um vendo só o que é seu."],
   ["Cliente compra uma vez e some", "App de relacionamento e fidelidade", "Pontos, lembretes e ofertas que trazem o cliente de volta, com o histórico de cada um guardado."],
   ["Perco tempo com planilha e papel", "Sistema sob medida para substituir a planilha", "O que hoje é planilha vira telas simples, com as contas feitas sozinhas e sem risco de apagar a fórmula."],
@@ -806,7 +884,8 @@ const sugestaoPorTipo = {
   "Área de membros": ["Área de membros", "Um espaço com login onde só entra quem é membro: conteúdo, aulas, materiais e, se você quiser, a cobrança da assinatura."],
   "Agendamento de clientes": ["Agendamento online com lembrete automático", "Seus clientes marcam sozinhos, recebem lembrete e confirmam. A agenda para de depender do caderno e do WhatsApp."],
   "App para os meus clientes": ["App para os seus clientes", "Um app com a sua marca, onde o cliente resolve sozinho o que hoje ele pergunta para você."],
-  "Sistema interno / painel": ["Sistema interno sob medida", "Um painel feito do jeito que o seu negócio trabalha, e não o contrário."],
+  "Gestão da empresa": ["Sistema de gestão sob medida", "Vendas, caixa, estoque e contas num lugar só, feito do jeito que o seu negócio trabalha, e não o contrário."],
+  "Dashboard de resultados": ["Dashboard de resultados", "Faturamento, metas, clientes e o que mais importa para você, em gráficos que se atualizam sozinhos. Você abre e já sabe como o mês está."],
   "Site com pedidos": ["Site com pedidos", "Um endereço para divulgar no Instagram onde o cliente faz o pedido sem esperar resposta."],
   "Loja virtual / catálogo": ["Loja virtual ou catálogo", "Seus produtos com foto e preço, pedido montado pelo cliente e pagamento no mesmo lugar."],
   "Automação de WhatsApp": ["Automação de atendimento no WhatsApp", "Respostas, confirmações e avisos que saem sozinhos, sem perder o jeito da sua conversa."]
@@ -824,7 +903,7 @@ function diagnosticar() {
   }
 
   const funcoes = valores("funcoes");
-  const pontos = peso("funcoes") + peso("quantos") + peso("onde") + (valores("usuarios").length > 2 ? 2 : 0);
+  const pontos = peso("funcoes") + peso("quantos") + peso("lojas") + (valores("usuarios").length > 2 ? 2 : 0);
   const nivel = pontos <= 6 ? 0 : pontos <= 14 ? 1 : 2;
   const niveis = [
     ["Enxuto", "Poucas telas e um objetivo claro. É o tipo de projeto que fica pronto mais rápido."],
@@ -838,7 +917,9 @@ function diagnosticar() {
   const v1 = ordenadas.length ? ordenadas.slice(0, 5) : ["O essencial para resolver: " + (dores[0] || titulo).toLowerCase()];
   const depois = ordenadas.slice(5);
 
-  return { titulo, texto, nivel, nivelNome: niveis[nivel][0], nivelTexto: niveis[nivel][1], v1, depois, funcoes };
+  const aprender = valor("modo") === "Quero aprender a montar";
+  if (aprender) texto += " E quem monta é você, com o meu acompanhamento em cada passo.";
+  return { titulo, texto, aprender, nivel, nivelNome: niveis[nivel][0], nivelTexto: niveis[nivel][1], v1, depois, funcoes };
 }
 
 function resumo(d) {
@@ -852,6 +933,7 @@ function resumo(d) {
     linha("Empresa/projeto", valor("empresa")) +
     linha("Cidade", valor("cidade")) +
     "\n" +
+    linha("Formato", valor("modo")) +
     linha("Para", valor("perfil")) +
     linha("Área", seg) +
     linha("O que atrapalha", valores("dores")) +
@@ -863,7 +945,8 @@ function resumo(d) {
     linha("Mais", valor("funcoes_outras")) +
     linha("Quem usa", valores("usuarios")) +
     linha("Quantas pessoas", valor("quantos")) +
-    linha("Onde", valor("onde")) +
+    linha("Endereço", valor("endereco")) +
+    linha("Lojas", valores("lojas")) +
     linha("Prazo", valor("prazo")) +
     linha("Investimento", valor("investimento")) +
     linha("Pagamento", valor("pagamento")) +
@@ -880,6 +963,12 @@ function concluir() {
   $("res-titulo").textContent = d.titulo;
   $("res-texto").textContent = d.texto;
   $("res-nivel-pill").textContent = "Projeto " + d.nivelNome.toLowerCase();
+  const modo = valor("modo");
+  $("res-modo-pill").textContent = modo === "Quero aprender a montar" ? "Mentoria" : modo === "Quero que você monte" ? "Feito para você" : "Formato a combinar";
+  const lojas = valores("lojas").filter((l) => l.includes("Store"));
+  $("res-onde").textContent =
+    (valor("endereco") || "Endereço a combinar") + ". " +
+    (lojas.length ? "Publicado em: " + lojas.join(" e ") + "." : "Abre pelo link, sem instalar e sem custo de loja.");
   [...$("meter").children].forEach((el, i) => el.classList.toggle("on", i <= d.nivel));
   $("res-nivel-texto").textContent = d.nivelTexto;
   $("res-v1").innerHTML = "";
@@ -898,7 +987,7 @@ function concluir() {
 
   if (CONFIG.webhook) {
     const dados = Object.fromEntries(new FormData(form));
-    ["dores", "funcoes", "usuarios"].forEach((k) => { dados[k] = valores(k).join(", "); });
+    ["dores", "funcoes", "usuarios", "lojas"].forEach((k) => { dados[k] = valores(k).join(", "); });
     dados.diagnostico = d.titulo; dados.nivel = d.nivelNome; dados.enviado_em = new Date().toISOString();
     fetch(CONFIG.webhook, { method: "POST", mode: "no-cors", headers: { "Content-Type": "text/plain" }, body: JSON.stringify(dados) })
       .catch((err) => console.warn("Diagnóstico não chegou ao webhook:", err));
