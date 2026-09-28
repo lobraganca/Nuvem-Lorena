@@ -1,0 +1,949 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>avena.app — ferramentas sob medida</title>
+<meta name="description" content="Eu monto a sua ferramenta: área de membros, agendamento de clientes, apps e sistemas sob medida. Faça o diagnóstico grátis e receba uma proposta feita para o seu caso.">
+<meta property="og:title" content="avena.app — ferramentas sob medida">
+<meta property="og:description" content="Conte o que você precisa em 3 minutos. Eu tiro as medidas e mando uma proposta feita para o seu caso.">
+<meta property="og:type" content="website">
+<meta property="og:locale" content="pt_BR">
+<meta name="theme-color" content="#14201c">
+<link rel="icon" type="image/png" href="logo-avena.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=Figtree:wght@400;500;600;700&family=JetBrains+Mono:wght@500&display=swap">
+<style>
+/*
+  As cores são tokens: trocar a identidade (quando a logo chegar) é mexer
+  só neste bloco. O amarelo é o da fita métrica — a página inteira é sobre
+  "tirar as medidas" antes de fazer a proposta.
+*/
+:root {
+  --bg: #f4f5f1;
+  --surface: #ffffff;
+  --surface-2: #eceee8;
+  --ink: #14201c;
+  --text: #3d4a45;
+  --muted: #6b7772;
+  --line: #d9ddd5;
+  --pine: #1f5a4a;
+  --pine-soft: rgba(31, 90, 74, 0.09);
+  --tape: #f2c230;
+  --tape-ink: #1b1709;
+  --on-pine: #f4f5f1;
+  --danger: #b3261e;
+  --shadow: 0 1px 2px rgba(20, 32, 28, .05), 0 8px 28px -12px rgba(20, 32, 28, .18);
+  --display: "Bricolage Grotesque", "Trebuchet MS", system-ui, sans-serif;
+  --body: "Figtree", system-ui, "Segoe UI", Roboto, sans-serif;
+  --mono: "JetBrains Mono", ui-monospace, "SFMono-Regular", Menlo, monospace;
+  --r: 14px;
+  color-scheme: light;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0e1513;
+    --surface: #16201d;
+    --surface-2: #1d2925;
+    --ink: #eef1ec;
+    --text: #c3cbc6;
+    --muted: #8d9993;
+    --line: #2b3834;
+    --pine: #7cc8ae;
+    --pine-soft: rgba(124, 200, 174, 0.12);
+    --on-pine: #0e1513;
+    --danger: #ff8a80;
+    --shadow: 0 1px 2px rgba(0, 0, 0, .4), 0 10px 30px -12px rgba(0, 0, 0, .6);
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #0e1513;
+  --surface: #16201d;
+  --surface-2: #1d2925;
+  --ink: #eef1ec;
+  --text: #c3cbc6;
+  --muted: #8d9993;
+  --line: #2b3834;
+  --pine: #7cc8ae;
+  --pine-soft: rgba(124, 200, 174, 0.12);
+  --on-pine: #0e1513;
+  --danger: #ff8a80;
+  --shadow: 0 1px 2px rgba(0, 0, 0, .4), 0 10px 30px -12px rgba(0, 0, 0, .6);
+  color-scheme: dark;
+}
+
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+@media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } *, *::before, *::after { transition: none !important; animation: none !important; } }
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+  font: 16px/1.55 var(--body);
+  -webkit-font-smoothing: antialiased;
+}
+img { max-width: 100%; }
+[hidden] { display: none !important; }
+h1, h2, h3 { font-family: var(--display); color: var(--ink); text-wrap: balance; margin: 0; line-height: 1.08; letter-spacing: -0.02em; }
+p { margin: 0; }
+a { color: var(--pine); }
+:focus-visible { outline: 3px solid var(--tape); outline-offset: 2px; border-radius: 6px; }
+
+.wrap { max-width: 1080px; margin: 0 auto; padding-inline: 20px; }
+.eyebrow { font: 500 12px/1 var(--mono); letter-spacing: .08em; text-transform: uppercase; color: var(--pine); }
+
+/* ——— topo ——— */
+.top { padding-block: 18px; }
+.top .wrap { display: flex; align-items: center; justify-content: space-between; gap: 16px; }
+.brand { display: flex; align-items: center; gap: 10px; text-decoration: none; color: var(--ink); }
+.brand img { height: 36px; width: auto; }
+.brand .wordmark { font: 800 22px/1 var(--display); letter-spacing: -0.03em; }
+.brand .wordmark span { color: var(--pine); }
+.top a.ig { font: 600 14px/1 var(--body); color: var(--text); text-decoration: none; }
+.top a.ig:hover { color: var(--ink); }
+
+/* ——— abertura ——— */
+.hero { padding-block: 28px 56px; }
+.hero .wrap { display: grid; grid-template-columns: 1.15fr .85fr; gap: 48px; align-items: center; }
+.hero h1 { font-size: clamp(38px, 6.2vw, 68px); font-weight: 800; margin-block: 14px 18px; }
+.hero h1 mark { background: linear-gradient(transparent 80%, var(--tape) 80%, var(--tape) 96%, transparent 96%); color: inherit; padding-inline: 2px; }
+.hero .lead { font-size: 19px; max-width: 34em; }
+.cta-row { display: flex; flex-wrap: wrap; align-items: center; gap: 14px 20px; margin-top: 28px; }
+.btn {
+  appearance: none; border: 0; cursor: pointer; text-decoration: none;
+  display: inline-flex; align-items: center; justify-content: center; gap: 10px;
+  font: 700 16px/1 var(--body); padding: 17px 24px; border-radius: 999px;
+  background: var(--ink); color: var(--bg);
+  transition: transform .15s ease, background .15s ease;
+}
+.btn:hover { transform: translateY(-1px); }
+.btn.tape { background: var(--tape); color: var(--tape-ink); }
+.btn.ghost { background: transparent; color: var(--ink); box-shadow: inset 0 0 0 1.5px var(--line); }
+.btn[disabled] { opacity: .45; cursor: not-allowed; transform: none; }
+.cta-note { font-size: 14px; color: var(--muted); }
+
+/* a ficha de medidas, do lado da manchete */
+.ficha {
+  background: var(--surface); border-radius: var(--r); box-shadow: var(--shadow);
+  padding: 22px 22px 18px; position: relative; overflow: hidden;
+}
+.ficha h3 { font-size: 18px; margin-bottom: 14px; }
+.ficha dl { margin: 0; display: grid; grid-template-columns: auto 1fr; gap: 10px 16px; font-size: 15px; }
+.ficha dt { font: 500 12px/1.6 var(--mono); color: var(--muted); text-transform: uppercase; letter-spacing: .06em; }
+.ficha dd { margin: 0; color: var(--ink); font-weight: 600; border-bottom: 1px dashed var(--line); padding-bottom: 8px; }
+.ficha .stamp { margin-top: 16px; font-size: 13px; color: var(--muted); }
+
+/* ——— a fita métrica (usada na ficha e no progresso) ——— */
+.tape {
+  height: 34px; background: var(--tape); color: var(--tape-ink); border-radius: 4px;
+  position: relative; overflow: hidden;
+  background-image:
+    repeating-linear-gradient(90deg, rgba(27,23,9,.75) 0 1px, transparent 1px 10px),
+    repeating-linear-gradient(90deg, rgba(27,23,9,.9) 0 1.5px, transparent 1.5px 50px);
+  background-size: 100% 9px, 100% 16px;
+  background-repeat: no-repeat;
+  background-position: 0 0, 0 0;
+}
+.ficha .tape { margin: -22px -22px 18px; border-radius: 0; }
+.tape .nums { position: absolute; inset: auto 0 5px 0; display: flex; font: 500 10px/1 var(--mono); }
+.tape .nums span { width: 50px; flex: none; padding-left: 3px; }
+
+/* ——— seções ——— */
+section.band { padding-block: 64px; }
+section.band.alt { background: var(--surface-2); }
+.section-head { display: grid; gap: 12px; margin-bottom: 32px; max-width: 40em; }
+.section-head h2 { font-size: clamp(28px, 4vw, 42px); font-weight: 700; }
+
+.steps { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; counter-reset: passo; }
+.steps li { counter-increment: passo; display: grid; gap: 8px; align-content: start; padding-top: 18px; border-top: 2px solid var(--ink); }
+.steps li::before { content: "passo " counter(passo); font: 500 12px/1 var(--mono); color: var(--pine); text-transform: uppercase; letter-spacing: .08em; }
+.steps h3 { font-size: 22px; }
+
+.grid-tools { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; }
+.tool { background: var(--surface); border-radius: var(--r); padding: 20px; display: grid; gap: 8px; align-content: start; border: 1px solid var(--line); }
+.tool h3 { font-size: 19px; }
+.tool .ex { font-size: 14px; color: var(--muted); }
+.tool svg { width: 28px; height: 28px; stroke: var(--pine); fill: none; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+
+.pra-quem { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+.pra-quem div { display: grid; gap: 6px; }
+.pra-quem h3 { font-size: 20px; }
+
+/* ——— o diagnóstico ——— */
+#diagnostico { scroll-margin-top: 12px; }
+.diag { background: var(--surface); border-radius: calc(var(--r) + 4px); box-shadow: var(--shadow); overflow: hidden; max-width: 760px; margin-inline: auto; }
+.diag-head { padding: 22px 26px 0; display: grid; gap: 14px; }
+.diag-head .meta { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; flex-wrap: wrap; }
+.diag-head .meta b { font: 500 13px/1 var(--mono); color: var(--muted); font-weight: 500; }
+.progress { position: relative; height: 34px; border-radius: 4px; background: var(--surface-2); overflow: hidden; }
+.progress .tape { position: absolute; inset: 0 auto 0 0; width: 12.5%; transition: width .35s ease; border-radius: 4px 0 0 4px; }
+.progress .tape .nums span { width: 50px; }
+
+form { margin: 0; }
+.step { padding: 26px; display: grid; gap: 22px; }
+.step h2 { font-size: clamp(24px, 3.4vw, 30px); font-weight: 700; }
+.step .sub { color: var(--muted); margin-top: -12px; }
+.q { display: grid; gap: 10px; border: 0; margin: 0; padding: 0; min-width: 0; }
+.q legend, .q > label.lbl { font-weight: 700; color: var(--ink); padding: 0; margin-bottom: 2px; }
+.q .hint { font-size: 14px; color: var(--muted); font-weight: 400; }
+
+.chips { display: flex; flex-wrap: wrap; gap: 8px; }
+.chip { position: relative; }
+.chip input { position: absolute; opacity: 0; inset: 0; margin: 0; cursor: pointer; }
+.chip span {
+  display: inline-flex; align-items: center; gap: 8px; cursor: pointer; user-select: none;
+  padding: 11px 15px; border-radius: 999px; font-size: 15px; font-weight: 500;
+  border: 1.5px solid var(--line); background: var(--surface); color: var(--ink);
+  transition: border-color .12s ease, background .12s ease;
+}
+.chip span:hover { border-color: var(--muted); }
+.chip input:checked + span { background: var(--pine); border-color: var(--pine); color: var(--on-pine); }
+.chip input:focus-visible + span { outline: 3px solid var(--tape); outline-offset: 2px; }
+.chips.cards { display: grid; grid-template-columns: repeat(2, 1fr); }
+.chips.cards .chip:last-child:nth-child(odd) { grid-column: 1 / -1; }
+.chips.cards .chip span { border-radius: 12px; display: grid; gap: 2px; padding: 14px 16px; height: 100%; }
+.chips.cards .chip span small { font-size: 13px; color: var(--muted); font-weight: 400; }
+.chips.cards .chip input:checked + span small { color: inherit; opacity: .85; }
+
+input[type="text"], input[type="tel"], input[type="email"], textarea, select {
+  width: 100%; font: 16px/1.4 var(--body); color: var(--ink);
+  background: var(--bg); border: 1.5px solid var(--line); border-radius: 10px; padding: 13px 14px;
+}
+input:focus, textarea:focus { outline: none; border-color: var(--pine); }
+textarea { min-height: 96px; resize: vertical; }
+.fields { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+.fields .full { grid-column: 1 / -1; }
+.field { display: grid; gap: 6px; }
+.field label { font-weight: 600; font-size: 15px; color: var(--ink); }
+.field label small { font-weight: 400; color: var(--muted); }
+
+.nav { display: flex; justify-content: space-between; align-items: center; gap: 12px; padding: 18px 26px 24px; border-top: 1px solid var(--line); }
+.nav .err { color: var(--danger); font-size: 14px; flex: 1; text-align: right; }
+.privacy { font-size: 13px; color: var(--muted); }
+
+/* ——— resultado ——— */
+.result { padding: 28px 26px; display: grid; gap: 22px; }
+.result .kicker { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+.pill { display: inline-flex; align-items: center; gap: 6px; font: 500 12px/1 var(--mono); text-transform: uppercase; letter-spacing: .06em; padding: 7px 10px; border-radius: 999px; background: var(--pine-soft); color: var(--pine); }
+.pill.tape-pill { background: var(--tape); color: var(--tape-ink); }
+.result h2 { font-size: clamp(26px, 4vw, 36px); font-weight: 800; }
+.meter { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; }
+.meter div { display: grid; gap: 6px; font: 500 12px/1 var(--mono); color: var(--muted); text-transform: uppercase; letter-spacing: .05em; }
+.meter div::before { content: ""; height: 8px; border-radius: 4px; background: var(--surface-2); }
+.meter div.on::before { background: var(--pine); }
+.meter div.on { color: var(--ink); }
+.res-block { display: grid; gap: 8px; }
+.res-block h3 { font-size: 17px; }
+.res-block ul { margin: 0; padding-left: 20px; display: grid; gap: 4px; }
+.summary { background: var(--bg); border: 1px dashed var(--line); border-radius: 10px; padding: 14px 16px; font: 13px/1.55 var(--mono); white-space: pre-wrap; max-height: 220px; overflow: auto; color: var(--text); }
+.send { display: grid; gap: 12px; padding: 20px; border-radius: var(--r); background: var(--ink); color: var(--bg); }
+.send h3 { color: var(--bg); font-size: 20px; }
+.send .row { display: flex; flex-wrap: wrap; gap: 10px; }
+.send .btn.ghost { color: var(--bg); box-shadow: inset 0 0 0 1.5px color-mix(in srgb, var(--bg) 40%, transparent); }
+.hint { font-size: 14px; color: var(--muted); }
+.send p { font-size: 14px; opacity: .8; }
+
+/* ——— perguntas ——— */
+.faq { display: grid; gap: 10px; max-width: 760px; }
+.faq details { background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 16px 18px; }
+.faq summary { cursor: pointer; font-weight: 700; color: var(--ink); }
+.faq details p { margin-top: 10px; }
+
+footer { padding-block: 40px 56px; font-size: 14px; color: var(--muted); }
+footer .wrap { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 12px; }
+
+@media (max-width: 860px) {
+  .hero .wrap { grid-template-columns: 1fr; gap: 32px; }
+  .steps, .pra-quem { grid-template-columns: 1fr; }
+  .grid-tools { grid-template-columns: 1fr 1fr; }
+}
+@media (max-width: 560px) {
+  .wrap { padding-inline: 16px; }
+  .hero { padding-block: 12px 40px; }
+  .hero .lead { font-size: 17px; }
+  .grid-tools, .chips.cards, .fields { grid-template-columns: 1fr; }
+  section.band { padding-block: 48px; }
+  .step, .result { padding: 22px 18px; }
+  .diag-head { padding: 18px 18px 0; }
+  .nav { padding: 16px 18px 20px; }
+  .btn { padding: 16px 20px; }
+  .cta-row .btn { width: 100%; }
+}
+</style>
+</head>
+<body>
+
+<header class="top">
+  <div class="wrap">
+    <a class="brand" href="#" aria-label="avena.app">
+      <!-- A logo: salvar a arte como logo-avena.png nesta mesma pasta.
+           Enquanto ela não existir, aparece o nome escrito. -->
+      <img id="logo" src="logo-avena.png" alt="avena.app" hidden>
+      <span class="wordmark" id="wordmark">avena<span>.app</span></span>
+    </a>
+    <a class="ig" id="link-ig-topo" href="https://instagram.com/avena.app" target="_blank" rel="noopener">@avena.app</a>
+  </div>
+</header>
+
+<main>
+  <section class="hero">
+    <div class="wrap">
+      <div>
+        <p class="eyebrow">Apps e sistemas sob medida</p>
+        <h1>Eu monto a sua ferramenta, <mark>sob medida</mark>.</h1>
+        <p class="lead">Área de membros, agendamento de clientes, app, sistema de gestão, loja virtual, automação de WhatsApp. Para empresas, profissionais e para quem tem uma ideia. Antes da proposta, eu tiro as medidas: você responde um diagnóstico rápido e recebe uma proposta feita para o seu caso.</p>
+        <div class="cta-row">
+          <a class="btn tape" href="#diagnostico">Fazer meu diagnóstico grátis</a>
+          <span class="cta-note">8 perguntas · cerca de 3 minutos · sem compromisso</span>
+        </div>
+      </div>
+
+      <aside class="ficha" aria-label="Exemplo de ficha de medidas">
+        <div class="tape" aria-hidden="true"><div class="nums"><span>0</span><span>5</span><span>10</span><span>15</span><span>20</span><span>25</span><span>30</span><span>35</span></div></div>
+        <h3>Ficha de medidas · exemplo</h3>
+        <dl>
+          <dt>Quem</dt><dd>Clínica de estética, 4 pessoas</dd>
+          <dt>Dor</dt><dd>Agenda no caderno, cliente falta sem avisar</dd>
+          <dt>Hoje</dt><dd>WhatsApp e papel</dd>
+          <dt>Precisa</dt><dd>Agendamento online com lembrete</dd>
+          <dt>Nível</dt><dd>Intermediário</dd>
+        </dl>
+        <p class="stamp">É assim que o seu diagnóstico chega para mim. A proposta sai dele.</p>
+      </aside>
+    </div>
+  </section>
+
+  <section class="band alt">
+    <div class="wrap">
+      <div class="section-head">
+        <p class="eyebrow">Como funciona</p>
+        <h2>Do problema à ferramenta pronta, sem pagar por um pacote que não serve.</h2>
+      </div>
+      <ol class="steps">
+        <li><h3>Diagnóstico</h3><p>Você conta como trabalha hoje, o que atrapalha e o que imagina. Leva uns 3 minutos.</p></li>
+        <li><h3>Proposta</h3><p>Eu estudo as suas respostas e mando uma proposta com o que entra, o prazo e o valor. Se precisar, marcamos uma conversa.</p></li>
+        <li><h3>Ferramenta no ar</h3><p>Eu desenvolvo, você testa e ajusta comigo, e a ferramenta vai para o celular, o navegador ou a loja de apps.</p></li>
+      </ol>
+    </div>
+  </section>
+
+  <section class="band">
+    <div class="wrap">
+      <div class="section-head">
+        <p class="eyebrow">O que dá para criar</p>
+        <h2>Se hoje é planilha, caderno ou WhatsApp, provavelmente pode virar ferramenta.</h2>
+      </div>
+      <div class="grid-tools">
+        <div class="tool">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="4.5" y="10.5" width="15" height="10" rx="2"/><path d="M8 10.5V7.5a4 4 0 0 1 8 0v3M12 14.5v2.5"/></svg>
+          <h3>Área de membros</h3><p class="ex">Conteúdo exclusivo, aulas, materiais e assinatura, com login só para quem é membro.</p>
+        </div>
+        <div class="tool">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="4.5" width="18" height="16" rx="2.5"/><path d="M3 9.5h18M8 2.5v4M16 2.5v4"/></svg>
+          <h3>Agendamento de clientes</h3><p class="ex">Horários online, lembrete automático, confirmação do cliente.</p>
+        </div>
+        <div class="tool">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="6" y="2.5" width="12" height="19" rx="2.5"/><path d="M10.5 18.5h3"/></svg>
+          <h3>App para clientes</h3><p class="ex">Catálogo, pedidos, pontos de fidelidade, área do cliente.</p>
+        </div>
+        <div class="tool">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 20.5h18M6 16.5v-5M11 16.5v-9M16 16.5v-6M20 16.5v-11"/></svg>
+          <h3>Sistema de gestão</h3><p class="ex">Vendas, caixa, estoque e relatórios num painel só.</p>
+        </div>
+        <div class="tool">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 4.5h2.5l2 11h10l2-8H7.5"/><circle cx="10" cy="19.5" r="1.3"/><circle cx="17" cy="19.5" r="1.3"/></svg>
+          <h3>Loja virtual</h3><p class="ex">Catálogo com foto e preço, pedido montado pelo cliente, pagamento por Pix ou cartão.</p>
+        </div>
+        <div class="tool">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5.5h16v10H9l-5 4z"/><path d="M8.5 10.5h7"/></svg>
+          <h3>Automação de atendimento</h3><p class="ex">Respostas, orçamentos e avisos que saem sozinhos.</p>
+        </div>
+        <div class="tool">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="9" cy="8" r="3.5"/><path d="M2.5 20c.8-3.5 3.3-5.5 6.5-5.5s5.7 2 6.5 5.5M16 5a3.5 3.5 0 0 1 0 6.5M18.5 14.8c1.6.9 2.6 2.6 3 5.2"/></svg>
+          <h3>Ferramenta para a equipe</h3><p class="ex">Tarefas, escalas, ordens de serviço, checklists.</p>
+        </div>
+        <div class="tool">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3.5l2.4 5 5.6.7-4.1 3.8 1 5.5L12 15.8l-4.9 2.7 1-5.5L4 9.2l5.6-.7z"/></svg>
+          <h3>A sua ideia</h3><p class="ex">Um app que ainda não existe. Eu ajudo a desenhar a primeira versão.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="band alt">
+    <div class="wrap">
+      <div class="section-head">
+        <p class="eyebrow">Para quem</p>
+        <h2>Do comércio da esquina à ideia que você anota há anos.</h2>
+      </div>
+      <div class="pra-quem">
+        <div><h3>Empresas</h3><p>Organizar a operação, vender mais e parar de depender de planilha que só uma pessoa entende.</p></div>
+        <div><h3>Profissionais</h3><p>Salão, consultório, escritório, prestador de serviço: agenda, clientes e cobrança no mesmo lugar.</p></div>
+        <div><h3>Pessoas e projetos</h3><p>Uma ideia de app, uma comunidade, uma associação. Começamos pequeno e crescemos junto.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="band" id="diagnostico">
+    <div class="wrap">
+      <div class="section-head" style="margin-inline:auto; max-width:760px;">
+        <p class="eyebrow">Diagnóstico grátis</p>
+        <h2>Vamos tirar as medidas.</h2>
+        <p>Responda com calma. Não existe resposta errada, e "não sei" também é resposta: é para isso que eu estou aqui.</p>
+      </div>
+
+      <div class="diag">
+        <div class="diag-head" id="diag-head">
+          <div class="meta"><span class="eyebrow" id="step-label">Pergunta 1 de 8</span><b id="step-name">Para quem é</b></div>
+          <div class="progress" aria-hidden="true"><div class="tape" id="progress-tape"><div class="nums"><span>1</span><span>2</span><span>3</span><span>4</span><span>5</span><span>6</span><span>7</span><span>8</span><span>9</span><span>10</span><span>11</span><span>12</span><span>13</span><span>14</span><span>15</span></div></div></div>
+        </div>
+
+        <form id="form" novalidate>
+          <!-- 1 -->
+          <div class="step" data-step="1" data-name="Para quem é">
+            <h2>Para quem é a ferramenta?</h2>
+            <fieldset class="q">
+              <legend>Você está pedindo para…</legend>
+              <div class="chips cards">
+                <label class="chip"><input type="radio" name="perfil" value="Empresa"><span>Uma empresa<small>tenho CNPJ, loja ou equipe</small></span></label>
+                <label class="chip"><input type="radio" name="perfil" value="Profissional autônomo"><span>Meu trabalho<small>sou autônomo ou profissional liberal</small></span></label>
+                <label class="chip"><input type="radio" name="perfil" value="Projeto pessoal / ideia"><span>Uma ideia minha<small>quero criar um app novo</small></span></label>
+                <label class="chip"><input type="radio" name="perfil" value="Associação / ONG / grupo"><span>Um grupo<small>associação, ONG, igreja, condomínio</small></span></label>
+              </div>
+            </fieldset>
+            <fieldset class="q">
+              <legend>Qual é a área?</legend>
+              <div class="chips">
+                <label class="chip"><input type="radio" name="segmento" value="Comércio / loja"><span>Comércio / loja</span></label>
+                <label class="chip"><input type="radio" name="segmento" value="Alimentação"><span>Alimentação</span></label>
+                <label class="chip"><input type="radio" name="segmento" value="Saúde"><span>Saúde</span></label>
+                <label class="chip"><input type="radio" name="segmento" value="Beleza e estética"><span>Beleza e estética</span></label>
+                <label class="chip"><input type="radio" name="segmento" value="Serviços"><span>Serviços</span></label>
+                <label class="chip"><input type="radio" name="segmento" value="Educação"><span>Educação</span></label>
+                <label class="chip"><input type="radio" name="segmento" value="Turismo e eventos"><span>Turismo e eventos</span></label>
+                <label class="chip"><input type="radio" name="segmento" value="Construção e reformas"><span>Construção e reformas</span></label>
+                <label class="chip"><input type="radio" name="segmento" value="Indústria"><span>Indústria</span></label>
+                <label class="chip"><input type="radio" name="segmento" value="Outra"><span>Outra</span></label>
+              </div>
+              <input type="text" id="segmento_outro" name="segmento_outro" placeholder="Qual? (ex.: pet shop, imobiliária, academia)" hidden>
+            </fieldset>
+          </div>
+
+          <!-- 2 -->
+          <div class="step" data-step="2" data-name="O que atrapalha" hidden>
+            <h2>O que mais atrapalha hoje?</h2>
+            <p class="sub">Marque tudo o que acontece com você.</p>
+            <fieldset class="q">
+              <legend class="hint">Pode marcar mais de um</legend>
+              <div class="chips">
+                <label class="chip"><input type="checkbox" name="dores" value="Perco tempo com planilha e papel"><span>Perco tempo com planilha e papel</span></label>
+                <label class="chip"><input type="checkbox" name="dores" value="Agenda bagunçada / cliente falta"><span>Agenda bagunçada / cliente falta</span></label>
+                <label class="chip"><input type="checkbox" name="dores" value="WhatsApp lotado de perguntas repetidas"><span>WhatsApp lotado de perguntas repetidas</span></label>
+                <label class="chip"><input type="checkbox" name="dores" value="Não sei meus números (vendas, lucro)"><span>Não sei meus números</span></label>
+                <label class="chip"><input type="checkbox" name="dores" value="Quero vender pela internet"><span>Quero vender pela internet</span></label>
+                <label class="chip"><input type="checkbox" name="dores" value="Estoque sem controle"><span>Estoque sem controle</span></label>
+                <label class="chip"><input type="checkbox" name="dores" value="Equipe desorganizada"><span>Equipe desorganizada</span></label>
+                <label class="chip"><input type="checkbox" name="dores" value="Cliente compra uma vez e some"><span>Cliente compra uma vez e some</span></label>
+                <label class="chip"><input type="checkbox" name="dores" value="Tenho uma ideia e não sei por onde começar"><span>Tenho uma ideia e não sei por onde começar</span></label>
+              </div>
+            </fieldset>
+            <div class="q">
+              <label class="lbl" for="dor_texto">Conte com as suas palavras <span class="hint">(opcional, mas ajuda muito)</span></label>
+              <textarea id="dor_texto" name="dor_texto" placeholder="Ex.: toda segunda eu passo a manhã juntando os pedidos do WhatsApp numa planilha para mandar para a cozinha."></textarea>
+            </div>
+          </div>
+
+          <!-- 3 -->
+          <div class="step" data-step="3" data-name="Como é hoje" hidden>
+            <h2>Como você resolve isso hoje?</h2>
+            <fieldset class="q">
+              <legend class="hint">O jeito principal</legend>
+              <div class="chips cards">
+                <label class="chip"><input type="radio" name="hoje" value="Papel e caderno"><span>Papel e caderno</span></label>
+                <label class="chip"><input type="radio" name="hoje" value="Planilha"><span>Planilha<small>Excel, Google Planilhas</small></span></label>
+                <label class="chip"><input type="radio" name="hoje" value="WhatsApp"><span>WhatsApp</span></label>
+                <label class="chip"><input type="radio" name="hoje" value="Um sistema pronto que não atende"><span>Um sistema pronto<small>mas ele não atende bem</small></span></label>
+                <label class="chip"><input type="radio" name="hoje" value="Na cabeça / não resolvo"><span>Na cabeça<small>ou simplesmente não resolvo</small></span></label>
+                <label class="chip"><input type="radio" name="hoje" value="Ainda não começou (é uma ideia)"><span>Ainda não começou<small>é uma ideia</small></span></label>
+              </div>
+            </fieldset>
+            <div class="q">
+              <label class="lbl" for="sistema_atual">Usa algum programa ou app hoje? <span class="hint">(opcional)</span></label>
+              <input type="text" id="sistema_atual" name="sistema_atual" placeholder="Ex.: Bling, Trinks, iFood, planilha própria">
+            </div>
+          </div>
+
+          <!-- 4 -->
+          <div class="step" data-step="4" data-name="O que imagina" hidden>
+            <h2>Que tipo de ferramenta você imagina?</h2>
+            <fieldset class="q">
+              <legend class="hint">Escolha o que mais se parece. Se não souber, eu sugiro.</legend>
+              <div class="chips cards">
+                <label class="chip"><input type="radio" name="tipo" value="Área de membros"><span>Área de membros<small>conteúdo e aulas só para quem é membro</small></span></label>
+                <label class="chip"><input type="radio" name="tipo" value="Agendamento de clientes"><span>Agendamento de clientes<small>o cliente marca sozinho, com lembrete</small></span></label>
+                <label class="chip"><input type="radio" name="tipo" value="App para os meus clientes"><span>App para os meus clientes<small>eles baixam ou abrem no celular</small></span></label>
+                <label class="chip"><input type="radio" name="tipo" value="Sistema interno / painel"><span>Sistema interno<small>painel para mim e a equipe</small></span></label>
+                <label class="chip"><input type="radio" name="tipo" value="Site com pedidos"><span>Site com pedidos<small>o cliente pede pelo link</small></span></label>
+                <label class="chip"><input type="radio" name="tipo" value="Loja virtual / catálogo"><span>Loja virtual ou catálogo</span></label>
+                <label class="chip"><input type="radio" name="tipo" value="Automação de WhatsApp"><span>Automação de WhatsApp<small>respostas e avisos automáticos</small></span></label>
+                <label class="chip"><input type="radio" name="tipo" value="Não sei, quero uma sugestão"><span>Não sei<small>quero uma sugestão</small></span></label>
+              </div>
+            </fieldset>
+          </div>
+
+          <!-- 5 -->
+          <div class="step" data-step="5" data-name="O que precisa ter" hidden>
+            <h2>O que ela precisa ter?</h2>
+            <p class="sub">Marque o que é importante. Depois eu separo o que entra primeiro.</p>
+            <fieldset class="q">
+              <legend class="hint">Pode marcar mais de um</legend>
+              <div class="chips">
+                <label class="chip"><input type="checkbox" name="funcoes" value="Cadastro de clientes" data-peso="1"><span>Cadastro de clientes</span></label>
+                <label class="chip"><input type="checkbox" name="funcoes" value="Agendamento de horários" data-peso="2"><span>Agendamento de horários</span></label>
+                <label class="chip"><input type="checkbox" name="funcoes" value="Lembretes e avisos automáticos" data-peso="2"><span>Lembretes e avisos</span></label>
+                <label class="chip"><input type="checkbox" name="funcoes" value="Catálogo de produtos ou serviços" data-peso="1"><span>Catálogo de produtos</span></label>
+                <label class="chip"><input type="checkbox" name="funcoes" value="Pedidos / carrinho" data-peso="2"><span>Pedidos / carrinho</span></label>
+                <label class="chip"><input type="checkbox" name="funcoes" value="Pagamento online (Pix, cartão)" data-peso="3"><span>Pagamento online</span></label>
+                <label class="chip"><input type="checkbox" name="funcoes" value="Controle de estoque" data-peso="2"><span>Controle de estoque</span></label>
+                <label class="chip"><input type="checkbox" name="funcoes" value="Financeiro / caixa" data-peso="2"><span>Financeiro / caixa</span></label>
+                <label class="chip"><input type="checkbox" name="funcoes" value="Relatórios e gráficos" data-peso="1"><span>Relatórios e gráficos</span></label>
+                <label class="chip"><input type="checkbox" name="funcoes" value="Área de membros com conteúdo exclusivo" data-peso="2"><span>Área de membros</span></label>
+                <label class="chip"><input type="checkbox" name="funcoes" value="Aulas e cursos em vídeo" data-peso="2"><span>Aulas e cursos em vídeo</span></label>
+                <label class="chip"><input type="checkbox" name="funcoes" value="Assinatura mensal (cobrança recorrente)" data-peso="3"><span>Assinatura mensal</span></label>
+                <label class="chip"><input type="checkbox" name="funcoes" value="Login de clientes (área do cliente)" data-peso="2"><span>Área do cliente com login</span></label>
+                <label class="chip"><input type="checkbox" name="funcoes" value="Acessos diferentes para a equipe" data-peso="2"><span>Acessos para a equipe</span></label>
+                <label class="chip"><input type="checkbox" name="funcoes" value="Integração com WhatsApp" data-peso="3"><span>Integração com WhatsApp</span></label>
+                <label class="chip"><input type="checkbox" name="funcoes" value="Emissão de nota fiscal" data-peso="3"><span>Nota fiscal</span></label>
+                <label class="chip"><input type="checkbox" name="funcoes" value="Mapa / localização" data-peso="2"><span>Mapa / localização</span></label>
+                <label class="chip"><input type="checkbox" name="funcoes" value="Fotos e documentos" data-peso="1"><span>Fotos e documentos</span></label>
+                <label class="chip"><input type="checkbox" name="funcoes" value="Chat dentro do app" data-peso="3"><span>Chat dentro do app</span></label>
+                <label class="chip"><input type="checkbox" name="funcoes" value="Programa de pontos / fidelidade" data-peso="2"><span>Pontos e fidelidade</span></label>
+              </div>
+            </fieldset>
+            <div class="q">
+              <label class="lbl" for="funcoes_outras">Mais alguma coisa? <span class="hint">(opcional)</span></label>
+              <input type="text" id="funcoes_outras" name="funcoes_outras" placeholder="Ex.: assinatura digital de contrato, ranking de vendedores">
+            </div>
+          </div>
+
+          <!-- 6 -->
+          <div class="step" data-step="6" data-name="Quem usa e onde" hidden>
+            <h2>Quem vai usar, e onde?</h2>
+            <fieldset class="q">
+              <legend>Quem usa</legend>
+              <div class="chips">
+                <label class="chip"><input type="checkbox" name="usuarios" value="Só eu"><span>Só eu</span></label>
+                <label class="chip"><input type="checkbox" name="usuarios" value="Minha equipe"><span>Minha equipe</span></label>
+                <label class="chip"><input type="checkbox" name="usuarios" value="Meus clientes"><span>Meus clientes</span></label>
+                <label class="chip"><input type="checkbox" name="usuarios" value="Fornecedores ou parceiros"><span>Fornecedores ou parceiros</span></label>
+              </div>
+            </fieldset>
+            <fieldset class="q">
+              <legend>Quantas pessoas, mais ou menos?</legend>
+              <div class="chips">
+                <label class="chip"><input type="radio" name="quantos" value="Até 5" data-peso="0"><span>Até 5</span></label>
+                <label class="chip"><input type="radio" name="quantos" value="6 a 50" data-peso="1"><span>6 a 50</span></label>
+                <label class="chip"><input type="radio" name="quantos" value="51 a 500" data-peso="2"><span>51 a 500</span></label>
+                <label class="chip"><input type="radio" name="quantos" value="Mais de 500" data-peso="3"><span>Mais de 500</span></label>
+              </div>
+            </fieldset>
+            <fieldset class="q">
+              <legend>Onde vão usar</legend>
+              <div class="chips cards">
+                <label class="chip"><input type="radio" name="onde" value="No celular, pelo navegador" data-peso="0"><span>No celular, pelo navegador<small>abre por um link, sem instalar</small></span></label>
+                <label class="chip"><input type="radio" name="onde" value="App na Play Store / App Store" data-peso="3"><span>App na loja<small>Play Store / App Store</small></span></label>
+                <label class="chip"><input type="radio" name="onde" value="No computador" data-peso="0"><span>No computador</span></label>
+                <label class="chip"><input type="radio" name="onde" value="Tanto faz, quero a sugestão" data-peso="0"><span>Tanto faz<small>quero a sugestão</small></span></label>
+              </div>
+            </fieldset>
+          </div>
+
+          <!-- 7 -->
+          <div class="step" data-step="7" data-name="Prazo e investimento" hidden>
+            <h2>Prazo e investimento</h2>
+            <p class="sub">Serve para a proposta caber na sua realidade. Nada aqui é compromisso.</p>
+            <fieldset class="q">
+              <legend>Para quando você precisa?</legend>
+              <div class="chips">
+                <label class="chip"><input type="radio" name="prazo" value="Urgente (até 1 mês)"><span>Urgente, até 1 mês</span></label>
+                <label class="chip"><input type="radio" name="prazo" value="1 a 3 meses"><span>1 a 3 meses</span></label>
+                <label class="chip"><input type="radio" name="prazo" value="3 a 6 meses"><span>3 a 6 meses</span></label>
+                <label class="chip"><input type="radio" name="prazo" value="Sem pressa"><span>Sem pressa</span></label>
+              </div>
+            </fieldset>
+            <!-- As faixas de valor são um palpite inicial: ajustar à tabela real de preços. -->
+            <fieldset class="q">
+              <legend>Quanto pensa em investir?</legend>
+              <div class="chips">
+                <label class="chip"><input type="radio" name="investimento" value="Até R$ 2 mil"><span>Até R$ 2 mil</span></label>
+                <label class="chip"><input type="radio" name="investimento" value="R$ 2 mil a R$ 5 mil"><span>R$ 2 mil a 5 mil</span></label>
+                <label class="chip"><input type="radio" name="investimento" value="R$ 5 mil a R$ 15 mil"><span>R$ 5 mil a 15 mil</span></label>
+                <label class="chip"><input type="radio" name="investimento" value="Acima de R$ 15 mil"><span>Acima de R$ 15 mil</span></label>
+                <label class="chip"><input type="radio" name="investimento" value="Prefiro ver a proposta"><span>Prefiro ver a proposta</span></label>
+              </div>
+            </fieldset>
+            <fieldset class="q">
+              <legend>Prefere pagar como?</legend>
+              <div class="chips">
+                <label class="chip"><input type="radio" name="pagamento" value="Valor fechado pelo projeto"><span>Valor fechado</span></label>
+                <label class="chip"><input type="radio" name="pagamento" value="Mensalidade"><span>Mensalidade</span></label>
+                <label class="chip"><input type="radio" name="pagamento" value="Tanto faz"><span>Tanto faz</span></label>
+              </div>
+            </fieldset>
+          </div>
+
+          <!-- 8 -->
+          <div class="step" data-step="8" data-name="Seu contato" hidden>
+            <h2>Para onde mandamos a proposta?</h2>
+            <div class="fields">
+              <div class="field"><label for="nome">Seu nome</label><input type="text" id="nome" name="nome" autocomplete="name" required></div>
+              <div class="field"><label for="whatsapp">WhatsApp</label><input type="tel" id="whatsapp" name="whatsapp" autocomplete="tel" inputmode="tel" placeholder="(31) 99999-9999" required></div>
+              <div class="field"><label for="empresa">Empresa ou projeto <small>(opcional)</small></label><input type="text" id="empresa" name="empresa" autocomplete="organization"></div>
+              <div class="field"><label for="cidade">Cidade <small>(opcional)</small></label><input type="text" id="cidade" name="cidade" autocomplete="address-level2"></div>
+              <div class="field full"><label for="email">E-mail <small>(opcional)</small></label><input type="email" id="email" name="email" autocomplete="email"></div>
+            </div>
+            <fieldset class="q">
+              <legend>Como conheceu a avena.app?</legend>
+              <div class="chips">
+                <label class="chip"><input type="radio" name="origem" value="Instagram"><span>Instagram</span></label>
+                <label class="chip"><input type="radio" name="origem" value="Indicação"><span>Indicação</span></label>
+                <label class="chip"><input type="radio" name="origem" value="Google"><span>Google</span></label>
+                <label class="chip"><input type="radio" name="origem" value="Outro"><span>Outro</span></label>
+              </div>
+            </fieldset>
+            <p class="privacy">Seus dados servem só para preparar e enviar a sua proposta. Não passo para ninguém.</p>
+          </div>
+
+          <div class="nav" id="nav">
+            <button type="button" class="btn ghost" id="voltar">Voltar</button>
+            <span class="err" id="err" role="alert"></span>
+            <button type="submit" class="btn" id="avancar">Continuar</button>
+          </div>
+        </form>
+
+        <!-- resultado -->
+        <div class="result" id="result" hidden>
+          <div class="kicker"><span class="pill tape-pill">Diagnóstico pronto</span><span class="pill" id="res-nivel-pill"></span></div>
+          <h2 id="res-titulo"></h2>
+          <p id="res-texto"></p>
+
+          <div class="res-block">
+            <h3>Tamanho do projeto</h3>
+            <div class="meter" id="meter"><div>Enxuto</div><div>Intermediário</div><div>Robusto</div></div>
+            <p id="res-nivel-texto" class="hint"></p>
+          </div>
+
+          <div class="res-block">
+            <h3>O que eu sugiro para a primeira versão</h3>
+            <ul id="res-v1"></ul>
+            <p id="res-depois" class="hint"></p>
+          </div>
+
+          <div class="send">
+            <h3>Último passo: envie o diagnóstico</h3>
+            <p>Ele chega para mim com todas as suas respostas, e a proposta volta para o seu WhatsApp.</p>
+            <div class="row">
+              <a class="btn tape" id="enviar-wa" href="#" target="_blank" rel="noopener">Enviar pelo WhatsApp</a>
+              <a class="btn ghost" id="enviar-ig" href="https://ig.me/m/avena.app" target="_blank" rel="noopener">Enviar pelo Instagram</a>
+              <button type="button" class="btn ghost" id="copiar">Copiar respostas</button>
+            </div>
+            <p id="copiar-msg" aria-live="polite"></p>
+          </div>
+
+          <div class="res-block">
+            <h3>Suas respostas</h3>
+            <pre class="summary" id="summary"></pre>
+          </div>
+
+          <div><button type="button" class="btn ghost" id="editar">Mudar alguma resposta</button></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="band alt">
+    <div class="wrap">
+      <div class="section-head"><p class="eyebrow">Perguntas</p><h2>Antes de começar</h2></div>
+      <div class="faq">
+        <details><summary>O diagnóstico é pago?</summary><p>Não. O diagnóstico e a proposta são grátis e sem compromisso.</p></details>
+        <details><summary>Quanto custa uma ferramenta?</summary><p>Depende do que ela precisa fazer. É por isso que existe o diagnóstico: a proposta chega com o valor do seu caso, e não de um pacote genérico.</p></details>
+        <details><summary>E se eu não souber explicar o que preciso?</summary><p>Tudo bem. Conte o que atrapalha hoje. Transformar isso em ferramenta é o meu trabalho.</p></details>
+        <details><summary>Dá para começar pequeno?</summary><p>Dá, e é o que eu costumo sugerir: uma primeira versão com o essencial, e o resto entra depois que você já estiver usando.</p></details>
+        <details><summary>O app pode ir para a Play Store?</summary><p>Pode. Também dá para usar direto pelo navegador do celular, sem instalar nada. No diagnóstico você conta o que prefere.</p></details>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <div class="wrap">
+    <span>avena.app · ferramentas sob medida</span>
+    <a id="link-ig-rodape" href="https://instagram.com/avena.app" target="_blank" rel="noopener">@avena.app no Instagram</a>
+  </div>
+</footer>
+
+<script>
+/* ============================================================
+   CONFIGURAÇÃO — o que a dona precisa preencher
+   ============================================================ */
+const CONFIG = {
+  // Número que recebe os diagnósticos, só dígitos, com 55 e DDD.
+  // Ex.: "5531999998888". Vazio = o botão do WhatsApp some e ficam
+  // o Instagram e o "copiar".
+  whatsapp: "",
+  // Usuário do Instagram, sem o @.
+  instagram: "avena.app",
+  // Opcional: endereço que recebe cada diagnóstico como JSON (planilha do
+  // Google via Apps Script, Formspree, Make, Zapier…). Vazio = não envia.
+  // Com ele preenchido, o diagnóstico fica guardado mesmo se a pessoa
+  // desistir de tocar no botão do WhatsApp no fim.
+  webhook: ""
+};
+
+const TOTAL = 8;
+const RASCUNHO = "avena-diagnostico-rascunho";
+const form = document.getElementById("form");
+const steps = [...form.querySelectorAll(".step")];
+const $ = (id) => document.getElementById(id);
+let atual = 1;
+
+/* a logo: aparece só se o arquivo existir */
+(function () {
+  const img = $("logo");
+  img.addEventListener("load", () => { img.hidden = false; $("wordmark").hidden = true; });
+  img.addEventListener("error", () => { img.remove(); });
+  if (img.complete && img.naturalWidth) { img.hidden = false; $("wordmark").hidden = true; }
+})();
+
+/* o Instagram da configuração vale para todos os links */
+["link-ig-topo", "link-ig-rodape"].forEach((id) => { $(id).href = "https://instagram.com/" + CONFIG.instagram; });
+$("link-ig-topo").textContent = "@" + CONFIG.instagram;
+$("link-ig-rodape").textContent = "@" + CONFIG.instagram + " no Instagram";
+$("enviar-ig").href = "https://ig.me/m/" + CONFIG.instagram;
+
+/* "Outra" área abre o campo de texto */
+form.addEventListener("change", (e) => {
+  if (e.target.name === "segmento") {
+    const outro = $("segmento_outro");
+    outro.hidden = e.target.value !== "Outra";
+    if (!outro.hidden) outro.focus();
+  }
+  $("err").textContent = "";
+  salvarRascunho();
+});
+form.addEventListener("input", salvarRascunho);
+
+function valores(nome) {
+  return [...form.querySelectorAll(`[name="${nome}"]:checked`)].map((i) => i.value);
+}
+function valor(nome) {
+  const el = form.querySelector(`[name="${nome}"]:checked`) || form.querySelector(`[name="${nome}"]:not([type=radio]):not([type=checkbox])`);
+  return el ? el.value.trim() : "";
+}
+function peso(nome) {
+  return [...form.querySelectorAll(`[name="${nome}"]:checked`)].reduce((s, i) => s + Number(i.dataset.peso || 0), 0);
+}
+
+/* o que cada passo exige para seguir — o resto é opcional de propósito:
+   pergunta obrigatória demais é onde a pessoa desiste */
+const exigencias = {
+  1: () => !valor("perfil") ? "Escolha para quem é a ferramenta." : "",
+  2: () => !valores("dores").length && !valor("dor_texto") ? "Marque pelo menos uma opção ou escreva com as suas palavras." : "",
+  3: () => !valor("hoje") ? "Escolha como você resolve hoje." : "",
+  4: () => !valor("tipo") ? "Escolha uma opção. \"Não sei\" também vale." : "",
+  5: () => "",
+  6: () => !valores("usuarios").length ? "Marque quem vai usar." : "",
+  7: () => "",
+  8: () => {
+    if (!valor("nome")) return "Falta o seu nome.";
+    if (valor("whatsapp").replace(/\D/g, "").length < 10) return "Confira o WhatsApp: precisa do DDD e do número.";
+    return "";
+  }
+};
+
+function mostrar(n, rolar) {
+  atual = n;
+  steps.forEach((s) => { s.hidden = Number(s.dataset.step) !== n; });
+  const passo = steps[n - 1];
+  $("step-label").textContent = `Pergunta ${n} de ${TOTAL}`;
+  $("step-name").textContent = passo.dataset.name;
+  $("progress-tape").style.width = (n / TOTAL * 100) + "%";
+  $("voltar").style.visibility = n === 1 ? "hidden" : "visible";
+  $("avancar").textContent = n === TOTAL ? "Ver meu diagnóstico" : "Continuar";
+  $("err").textContent = "";
+  salvarRascunho();
+  if (rolar) $("diagnostico").scrollIntoView({ block: "start" });
+}
+
+form.addEventListener("submit", (e) => {
+  e.preventDefault();
+  const erro = exigencias[atual]();
+  if (erro) { $("err").textContent = erro; return; }
+  if (atual < TOTAL) mostrar(atual + 1, true);
+  else concluir();
+});
+$("voltar").addEventListener("click", () => { if (atual > 1) mostrar(atual - 1, true); });
+$("editar").addEventListener("click", () => {
+  $("result").hidden = true; form.hidden = false; $("diag-head").hidden = false;
+  mostrar(1, true);
+});
+
+/* ——— o diagnóstico ——— */
+const sugestaoPorDor = [
+  ["Agenda bagunçada / cliente falta", "Agendamento online com lembrete automático", "Seus clientes marcam sozinhos, recebem lembrete e confirmam. A agenda para de depender do caderno e do WhatsApp."],
+  ["Quero vender pela internet", "Loja virtual ou catálogo com pedidos", "Um catálogo que o cliente abre pelo link, monta o pedido e paga, sem você responder preço um por um."],
+  ["WhatsApp lotado de perguntas repetidas", "Automação de atendimento", "As perguntas que chegam sempre iguais passam a ter resposta sozinhas, e só o que precisa de você chega até você."],
+  ["Estoque sem controle", "Sistema de gestão com controle de estoque", "Entrada e saída registradas na hora, aviso quando algo está acabando e o número real na mão."],
+  ["Não sei meus números (vendas, lucro)", "Painel de gestão com relatórios", "Vendas, gastos e resultado num painel só, atualizado sem você montar planilha no fim do mês."],
+  ["Equipe desorganizada", "Ferramenta interna para a equipe", "Tarefas, responsáveis e prazos num lugar que todo mundo enxerga, com cada um vendo só o que é seu."],
+  ["Cliente compra uma vez e some", "App de relacionamento e fidelidade", "Pontos, lembretes e ofertas que trazem o cliente de volta, com o histórico de cada um guardado."],
+  ["Perco tempo com planilha e papel", "Sistema sob medida para substituir a planilha", "O que hoje é planilha vira telas simples, com as contas feitas sozinhas e sem risco de apagar a fórmula."],
+  ["Tenho uma ideia e não sei por onde começar", "Primeira versão do seu app", "Eu desenho com você a menor versão que já resolve o problema, para colocar na mão das pessoas rápido e aprender com o uso."]
+];
+const sugestaoPorTipo = {
+  "Área de membros": ["Área de membros", "Um espaço com login onde só entra quem é membro: conteúdo, aulas, materiais e, se você quiser, a cobrança da assinatura."],
+  "Agendamento de clientes": ["Agendamento online com lembrete automático", "Seus clientes marcam sozinhos, recebem lembrete e confirmam. A agenda para de depender do caderno e do WhatsApp."],
+  "App para os meus clientes": ["App para os seus clientes", "Um app com a sua marca, onde o cliente resolve sozinho o que hoje ele pergunta para você."],
+  "Sistema interno / painel": ["Sistema interno sob medida", "Um painel feito do jeito que o seu negócio trabalha, e não o contrário."],
+  "Site com pedidos": ["Site com pedidos", "Um endereço para divulgar no Instagram onde o cliente faz o pedido sem esperar resposta."],
+  "Loja virtual / catálogo": ["Loja virtual ou catálogo", "Seus produtos com foto e preço, pedido montado pelo cliente e pagamento no mesmo lugar."],
+  "Automação de WhatsApp": ["Automação de atendimento no WhatsApp", "Respostas, confirmações e avisos que saem sozinhos, sem perder o jeito da sua conversa."]
+};
+
+function diagnosticar() {
+  const tipo = valor("tipo");
+  const dores = valores("dores");
+  let titulo, texto;
+  if (sugestaoPorTipo[tipo]) {
+    [titulo, texto] = sugestaoPorTipo[tipo];
+  } else {
+    const achada = sugestaoPorDor.find(([dor]) => dores.includes(dor));
+    [, titulo, texto] = achada || [null, "Ferramenta sob medida", "Pelo que você contou, o melhor caminho sai de uma conversa rápida. A proposta chega com a sugestão de formato."];
+  }
+
+  const funcoes = valores("funcoes");
+  const pontos = peso("funcoes") + peso("quantos") + peso("onde") + (valores("usuarios").length > 2 ? 2 : 0);
+  const nivel = pontos <= 6 ? 0 : pontos <= 14 ? 1 : 2;
+  const niveis = [
+    ["Enxuto", "Poucas telas e um objetivo claro. É o tipo de projeto que fica pronto mais rápido."],
+    ["Intermediário", "Algumas partes conversando entre si. Vale separar uma primeira versão e colocar no ar logo."],
+    ["Robusto", "Muita coisa junta. A sugestão é dividir em etapas, cada uma já útil sozinha."]
+  ];
+
+  const ordenadas = [...form.querySelectorAll('[name="funcoes"]:checked')]
+    .sort((a, b) => Number(a.dataset.peso) - Number(b.dataset.peso))
+    .map((i) => i.value);
+  const v1 = ordenadas.length ? ordenadas.slice(0, 5) : ["O essencial para resolver: " + (dores[0] || titulo).toLowerCase()];
+  const depois = ordenadas.slice(5);
+
+  return { titulo, texto, nivel, nivelNome: niveis[nivel][0], nivelTexto: niveis[nivel][1], v1, depois, funcoes };
+}
+
+function resumo(d) {
+  const linha = (rotulo, v) => v && (Array.isArray(v) ? v.length : true) ? `*${rotulo}:* ${Array.isArray(v) ? v.join(", ") : v}\n` : "";
+  const seg = valor("segmento") === "Outra" ? (valor("segmento_outro") || "Outra") : valor("segmento");
+  return (
+    "Olá! Fiz o diagnóstico no site da avena.app.\n\n" +
+    linha("Nome", valor("nome")) +
+    linha("WhatsApp", valor("whatsapp")) +
+    linha("E-mail", valor("email")) +
+    linha("Empresa/projeto", valor("empresa")) +
+    linha("Cidade", valor("cidade")) +
+    "\n" +
+    linha("Para", valor("perfil")) +
+    linha("Área", seg) +
+    linha("O que atrapalha", valores("dores")) +
+    linha("Nas minhas palavras", valor("dor_texto")) +
+    linha("Como é hoje", valor("hoje")) +
+    linha("Usa hoje", valor("sistema_atual")) +
+    linha("Imagina", valor("tipo")) +
+    linha("Precisa ter", valores("funcoes")) +
+    linha("Mais", valor("funcoes_outras")) +
+    linha("Quem usa", valores("usuarios")) +
+    linha("Quantas pessoas", valor("quantos")) +
+    linha("Onde", valor("onde")) +
+    linha("Prazo", valor("prazo")) +
+    linha("Investimento", valor("investimento")) +
+    linha("Pagamento", valor("pagamento")) +
+    linha("Conheceu por", valor("origem")) +
+    "\n" +
+    `*Diagnóstico:* ${d.titulo} · projeto ${d.nivelNome.toLowerCase()}`
+  ).trim();
+}
+
+function concluir() {
+  const d = diagnosticar();
+  const texto = resumo(d);
+
+  $("res-titulo").textContent = d.titulo;
+  $("res-texto").textContent = d.texto;
+  $("res-nivel-pill").textContent = "Projeto " + d.nivelNome.toLowerCase();
+  [...$("meter").children].forEach((el, i) => el.classList.toggle("on", i <= d.nivel));
+  $("res-nivel-texto").textContent = d.nivelTexto;
+  $("res-v1").innerHTML = "";
+  d.v1.forEach((f) => { const li = document.createElement("li"); li.textContent = f; $("res-v1").appendChild(li); });
+  $("res-depois").textContent = d.depois.length ? "Para uma segunda etapa: " + d.depois.join(", ") + "." : "";
+  $("summary").textContent = texto;
+
+  const wa = $("enviar-wa");
+  if (CONFIG.whatsapp) { wa.href = `https://wa.me/${CONFIG.whatsapp}?text=${encodeURIComponent(texto)}`; wa.hidden = false; }
+  else wa.hidden = true;
+  $("enviar-ig").classList.toggle("tape", !CONFIG.whatsapp);
+  $("enviar-ig").classList.toggle("ghost", !!CONFIG.whatsapp);
+
+  form.hidden = true; $("diag-head").hidden = true; $("result").hidden = false;
+  $("diagnostico").scrollIntoView({ block: "start" });
+
+  if (CONFIG.webhook) {
+    const dados = Object.fromEntries(new FormData(form));
+    ["dores", "funcoes", "usuarios"].forEach((k) => { dados[k] = valores(k).join(", "); });
+    dados.diagnostico = d.titulo; dados.nivel = d.nivelNome; dados.enviado_em = new Date().toISOString();
+    fetch(CONFIG.webhook, { method: "POST", mode: "no-cors", headers: { "Content-Type": "text/plain" }, body: JSON.stringify(dados) })
+      .catch((err) => console.warn("Diagnóstico não chegou ao webhook:", err));
+  }
+}
+
+$("copiar").addEventListener("click", () => {
+  const texto = $("summary").textContent;
+  const ok = () => { $("copiar-msg").textContent = "Copiado. Cole na nossa conversa no WhatsApp ou no Instagram."; };
+  const selecionar = () => {
+    const r = document.createRange(); r.selectNodeContents($("summary"));
+    const s = getSelection(); s.removeAllRanges(); s.addRange(r);
+    $("copiar-msg").textContent = "Texto selecionado. Toque em Copiar no seu celular.";
+  };
+  try { navigator.clipboard.writeText(texto).then(ok, selecionar); } catch (e) { selecionar(); }
+});
+
+/* rascunho: quem sai no meio e volta não perde o que já respondeu */
+function salvarRascunho() {
+  try {
+    const dados = {};
+    form.querySelectorAll("input, textarea").forEach((el) => {
+      if (el.type === "radio" || el.type === "checkbox") { if (el.checked) (dados[el.name] = dados[el.name] || []).push(el.value); }
+      else if (el.value) dados[el.name] = el.value;
+    });
+    localStorage.setItem(RASCUNHO, JSON.stringify({ dados, atual }));
+  } catch (e) {}
+}
+function lerRascunho() {
+  try {
+    const salvo = JSON.parse(localStorage.getItem(RASCUNHO) || "null");
+    if (!salvo) return;
+    form.querySelectorAll("input, textarea").forEach((el) => {
+      const v = salvo.dados[el.name];
+      if (v === undefined) return;
+      if (el.type === "radio" || el.type === "checkbox") el.checked = v.includes(el.value);
+      else el.value = v;
+    });
+    $("segmento_outro").hidden = valor("segmento") !== "Outra";
+    if (salvo.atual > 1 && salvo.atual <= TOTAL) atual = salvo.atual;
+  } catch (e) {}
+}
+
+lerRascunho();
+mostrar(atual, false);
+</script>
+</body>
+</html>
