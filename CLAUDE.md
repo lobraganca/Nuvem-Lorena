@@ -12,7 +12,11 @@ verdade, não uma precaução hipotética.
 |---|---|---|
 | **raiz** (`src/`, `supabase/`) | Avena — turismo, reservas, passeios | outro |
 | **`apps/profissionais/`** | **Ei Itabirito** — busca de profissionais em Itabirito, MG | www.empregoitabirito.com.br |
-| `apps/avena-app/` | **avena.app** — página de captação com diagnóstico, para o serviço de criar ferramentas sob medida. Um `index.html` só, sem banco e sem build (ver o `LEIA-ME.md` de lá) | ainda não publicada |
+
+A página do **avena.app** (ferramentas sob medida) **não mora aqui**: tem
+repositório próprio, `lobraganca/avena-app`, a pedido da dona (28/09 —
+"tem que ser fora de todos os outros projetos"). Ela nasceu em
+`apps/avena-app/` numa branch daqui e saiu inteira; não a recrie aqui.
 
 **Quase todo o trabalho é no `apps/profissionais/`.** A raiz tem outro app,
 com outro banco, outras migrations e outra dona da decisão.
