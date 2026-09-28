@@ -55,6 +55,29 @@ vezes**: ao passar do primeiro passo (só nome e WhatsApp, `etapa:
 "começou"`) e ao terminar (tudo, `etapa: "completo"`). Quem tem "começou"
 e não tem "completo" desistiu no meio — e o telefone está ali.
 
+## A planilha que recebe os diagnósticos (28/09)
+
+[avena · Diagnósticos](https://docs.google.com/spreadsheets/d/1KTN7In3zPEDcR7b6jqZnXN3rR5ZdRCS1klZbc6yAwNU/edit),
+no Google Drive da dona (`lobraganca@gmail.com`). Uma linha por pessoa, 31
+colunas, na ordem de `COLUNAS` em `planilha-apps-script.gs`.
+
+O que escreve nela é o `planilha-apps-script.gs`, colado pela dona em
+Extensões > Apps Script e implantado como App da Web ("Executar como: Eu",
+"Qualquer pessoa"). O endereço `/exec` que sai dali vai em `CONFIG.webhook`.
+
+- A coluna **Situação** diz "Só deixou o contato" (passou do primeiro
+  passo e parou) ou "Completo". O "Completo" **substitui** a linha do
+  mesmo WhatsApp, em vez de criar outra.
+- O telefone é gravado como texto, para não virar número e perder o zero.
+- Texto que começa com `=`, `+`, `-` ou `@` ganha um apóstrofo na frente:
+  sem isso, quem preenche a página poderia escrever uma fórmula dentro da
+  planilha da dona.
+- **Mudou o script? Tem de implantar de novo** (Implantar > Gerenciar
+  implantações > editar > Nova versão). Só salvar não muda o que está no
+  ar, e o endereço `/exec` continua o mesmo.
+- **Coluna nova na página** = campo novo em `COLUNAS` **e** título novo
+  na planilha, na mesma posição. O script escreve por posição.
+
 ## Como a página está organizada (28/09)
 
 A ordem se inspirou em páginas de venda longas (a dona mandou uma de
