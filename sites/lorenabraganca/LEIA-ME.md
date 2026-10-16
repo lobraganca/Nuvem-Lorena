@@ -7,6 +7,11 @@ letras.
 Hoje é uma página só, "em breve, novidades por aqui", em HTML puro e sem
 build. Dá para abrir o `index.html` direto no navegador.
 
+**E não revela o que vem.** Nada de tema, de mentoria, de "gestão por
+indicadores": ela pediu sem spoiler (16/10). Isso vale também para a
+`previa.jpg` e para as `meta` de descrição, que aparecem quando o link é
+colado no WhatsApp.
+
 | Arquivo | Para quê |
 |---|---|
 | `index.html` | a página |
