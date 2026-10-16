@@ -35,7 +35,8 @@ qualquer pessoa lê no GitHub, mesmo depois de apagado.
 
 ### Onde publica
 
-Num projeto **próprio** na Vercel, o `lorenabraganca`, separado do
+Num projeto **próprio** na Vercel, o `nuvem-lorena-lorenabraganca`
+(endereço provisório `nuvem-lorena-lorenabraganca.vercel.app`), separado do
 `ei-itabirito` e do `nuvem-lorena-4uiw` (este é do procurô), com o
 Root Directory = `sites/lorenabraganca` e o Framework Preset = "Other".
 O `vercel.json` da raiz é do outro app e não vale aqui.
