@@ -12,7 +12,7 @@ verdade, não uma precaução hipotética.
 |---|---|---|
 | **raiz** (`src/`, `supabase/`) | Avena — turismo, reservas, passeios | outro |
 | **`apps/profissionais/`** | **Ei Itabirito** — busca de profissionais em Itabirito, MG | www.empregoitabirito.com.br |
-| `sites/lorenabraganca/` | site pessoal da dona, HTML puro, projeto próprio na Vercel. **Não cita nenhum app** — ver o `LEIA-ME.md` de lá | www.lorenabraganca.com.br |
+| `sites/lorenabraganca/` | site pessoal da dona, HTML puro, projeto próprio na Vercel. **Não cita nenhum app**, e tudo o que está na pasta vai para o ar — ver `sites/LEIA-ME.md` | www.lorenabraganca.com.br |
 
 **Quase todo o trabalho é no `apps/profissionais/`.** A raiz tem outro app,
 com outro banco, outras migrations e outra dona da decisão.

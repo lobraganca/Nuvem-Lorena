@@ -5,8 +5,11 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Lorena Bragança</title>
 <meta name="description" content="Em breve, novidades por aqui.">
-<meta name="theme-color" content="#F5F5F0">
+<meta name="theme-color" content="#F5F5F0" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#111117" media="(prefers-color-scheme: dark)">
+<link rel="canonical" href="https://www.lorenabraganca.com.br/">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
+<link rel="icon" href="favicon-32.png" type="image/png" sizes="32x32">
 <link rel="apple-touch-icon" href="icone-180.png">
 
 <!-- A prévia que aparece quando o link é colado no WhatsApp e no Instagram.
@@ -19,6 +22,7 @@
 <meta property="og:image" content="https://www.lorenabraganca.com.br/previa.jpg">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Lorena Bragança sorrindo, ao lado do texto: em breve, novidades por aqui">
 <meta name="twitter:card" content="summary_large_image">
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -48,12 +52,12 @@
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme="light"]) {
     --papel: #111117; --cartao: #1C1C25; --tinta: #F2F2EC; --suave: #A9A9BC;
-    --linha: #2E2E3A; --azul: #5A66FF; --fita: rgba(255, 210, 63, .62); --marca-de: 80%; color-scheme: dark;
+    --linha: #2E2E3A; --azul: #4F5BFF; --fita: rgba(255, 210, 63, .62); --marca-de: 80%; color-scheme: dark;
   }
 }
 :root[data-theme="dark"] {
   --papel: #111117; --cartao: #1C1C25; --tinta: #F2F2EC; --suave: #A9A9BC;
-  --linha: #2E2E3A; --azul: #5A66FF; --fita: rgba(255, 210, 63, .62); --marca-de: 80%; color-scheme: dark;
+  --linha: #2E2E3A; --azul: #4F5BFF; --fita: rgba(255, 210, 63, .62); --marca-de: 80%; color-scheme: dark;
 }
 
 * { box-sizing: border-box; }
@@ -87,7 +91,7 @@ main { flex: 1; display: flex; align-items: center; }
 main .miolo { display: grid; grid-template-columns: .8fr 1.2fr; gap: 64px; align-items: center; padding-block: 32px 64px; }
 .texto { display: grid; gap: 22px; min-width: 0; }
 .selo { display: inline-flex; align-items: center; gap: 10px; width: fit-content; font-size: 14px; font-weight: 600; background: var(--cartao); border: 1.5px solid var(--tinta); border-radius: 999px; padding: 7px 14px; }
-.selo i { width: 9px; height: 9px; border-radius: 50%; background: var(--sol); border: 1.5px solid var(--tinta); animation: pisca 1.6s ease-in-out infinite; }
+.selo i { width: 9px; height: 9px; border-radius: 50%; background: var(--sol); border: 1.5px solid var(--tinta); animation: pisca 1.6s ease-in-out 3; }
 @keyframes pisca { 50% { opacity: .25; } }
 h1 { font-size: clamp(46px, 7.6vw, 92px); font-weight: 800; }
 .sub { font-size: 19px; color: var(--suave); max-width: 32em; }
@@ -106,9 +110,9 @@ h1 { font-size: clamp(46px, 7.6vw, 92px); font-weight: 800; }
 .spoiler { font-size: 25px; color: var(--suave); transform: rotate(-3deg); }
 
 /* foto em colagem */
-.colagem { position: relative; justify-self: center; width: min(100%, 360px); margin: 0; }
+.colagem { position: relative; justify-self: center; width: min(100%, 360px); }
 .papel-foto {
-  background: var(--cartao); padding: 14px 14px 52px; transform: rotate(-2.5deg);
+  margin: 0; background: var(--cartao); padding: 14px 14px 52px; transform: rotate(-2.5deg);
   box-shadow: 0 18px 40px -18px rgba(0,0,0,.45);
   clip-path: polygon(0 0, 100% 0, 100% 96%, 94% 98.5%, 87% 96.5%, 79% 99%, 70% 97%, 61% 99.5%, 52% 97%, 43% 99%, 34% 96.8%, 25% 99.2%, 16% 97%, 8% 99%, 0 97%);
 }
@@ -119,7 +123,7 @@ h1 { font-size: clamp(46px, 7.6vw, 92px); font-weight: 800; }
 .fita.b { top: -8px; right: 8px; transform: rotate(16deg); }
 .adesivo { position: absolute; pointer-events: none; z-index: 3; }
 .adesivo svg { display: block; width: 100%; height: auto; }
-.gira { animation: gira 18s linear infinite; }
+.gira { animation: gira 4s ease-out 1; }
 @keyframes gira { to { transform: rotate(360deg); } }
 
 /* rodapé */
@@ -142,19 +146,19 @@ footer .miolo { padding-block: 18px 24px; border-top: 1px solid var(--linha); fo
 
   <main class="faixa">
     <div class="miolo">
-      <figure class="colagem">
+      <div class="colagem">
         <span class="fita a"></span><span class="fita b"></span>
-        <div class="papel-foto">
+        <figure class="papel-foto">
           <img src="foto.jpg" width="402" height="467" alt="Lorena, de blusa de tricô e braços cruzados, sorrindo para a câmera">
           <figcaption>lorena</figcaption>
-        </div>
+        </figure>
         <span class="adesivo gira" style="width:76px; right:-26px; bottom:-20px" aria-hidden="true">
           <svg viewBox="0 0 100 100"><g stroke="var(--tinta)" stroke-width="4" stroke-linecap="round"><line x1="50" y1="4" x2="50" y2="18"/><line x1="50" y1="82" x2="50" y2="96"/><line x1="4" y1="50" x2="18" y2="50"/><line x1="82" y1="50" x2="96" y2="50"/><line x1="17" y1="17" x2="27" y2="27"/><line x1="73" y1="73" x2="83" y2="83"/><line x1="83" y1="17" x2="73" y2="27"/><line x1="27" y1="73" x2="17" y2="83"/></g><circle cx="50" cy="50" r="22" fill="var(--sol)" stroke="var(--tinta)" stroke-width="4"/></svg>
         </span>
-        <span class="adesivo" style="width:44px; left:-20px; top:38%" aria-hidden="true">
+        <span class="adesivo" style="width:44px; left:-14px; top:38%" aria-hidden="true">
           <svg viewBox="0 0 100 100"><path d="M50 4 C54 38 62 46 96 50 C62 54 54 62 50 96 C46 62 38 54 4 50 C38 46 46 38 50 4Z" fill="var(--rosa)" stroke="var(--tinta)" stroke-width="4" stroke-linejoin="round"/></svg>
         </span>
-      </figure>
+      </div>
 
       <div class="texto">
         <span class="selo"><i></i> site em construção</span>
@@ -165,7 +169,7 @@ footer .miolo { padding-block: 18px 24px; border-top: 1px solid var(--linha); fo
             <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="5" fill="none" stroke="currentColor" stroke-width="2"/><circle cx="12" cy="12" r="4" fill="none" stroke="currentColor" stroke-width="2"/><circle cx="17.5" cy="6.5" r="1.3" fill="currentColor"/></svg>
             me acompanhe no Instagram
           </a>
-          <span class="mao spoiler">fica de olho ✦</span>
+          <span class="mao spoiler">fica de olho <span aria-hidden="true">✦</span></span>
         </div>
       </div>
     </div>
