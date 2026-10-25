@@ -67,3 +67,22 @@ Os dois PNG de ícone saem do `favicon.svg`. O primeiro `icone-180.png` foi
 gerado de um `<img>` que não carregou: saiu um quadrado azul com o símbolo
 de imagem quebrada, e nenhuma conferência de tipo ou de build pega isso.
 Quem refizer: olhe o arquivo gerado antes de commitar.
+
+## `instagram/` — capas dos destaques do @lolemos
+
+Quatro capas no estilo do site com fundo preto: coração (sobre mim), sol
+(novidades), câmera (bastidores) e balão (contato), cada uma com a
+estrelinha do site. Ficam fora de `lorenabraganca/`, então não vão para o ar.
+
+```bash
+cd /home/user/Nuvem-Lorena/sites/instagram
+python3 gerar-capas.py && node gerar-png.mjs
+```
+
+Os SVG são a fonte; os PNG saem deles. Capa nova é uma entrada a mais em
+`CAPAS`, no `gerar-capas.py`, e não um PNG feito à mão: é o mesmo cuidado
+dos ícones do Ei, que já saíram de três fontes diferentes sem ninguém ver.
+
+São de 1080×1920, o tamanho do story. O Instagram recorta o círculo do
+destaque no meio da imagem, com a largura dela, por isso o desenho fica todo
+no centro, longe das bordas.
