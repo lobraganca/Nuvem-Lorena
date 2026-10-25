@@ -6,64 +6,55 @@ Cada capa é um SVG de 1080x1920, o tamanho do story. Ao escolher a capa de um
 destaque, o Instagram recorta um círculo no meio da imagem com a largura dela,
 então o desenho tem de caber todo no círculo central: nada perto das bordas.
 
-As cores e o contorno claro são os do site com fundo preto (sites/lorenabraganca):
-mexer aqui sem mexer lá deixa o perfil e o site com duas caras.
+O estilo é o "B" que ela escolheu em 25/10, entre três: desenho de traço fino e
+claro, com o sublinhado amarelo do título do site embaixo. A primeira versão,
+de adesivos coloridos com contorno e estrelinha, ela achou infantil. Não volte
+a pôr cor dentro do desenho: o amarelo fica só no sublinhado.
+
+As cores são as do site com fundo preto (sites/lorenabraganca): mexer aqui
+sem mexer lá deixa o perfil e o site com duas caras.
 """
 from pathlib import Path
 
-FUNDO, CREME, SOL, ROSA, AZUL = "#111117", "#F2F2EC", "#FFD23F", "#FF9EC4", "#4F5BFF"
+FUNDO, CREME, SOL = "#111117", "#F2F2EC", "#FFD23F"
 PASTA = Path(__file__).parent / "capas"
 
 
-def estrela(x, y, tam, cor):
-    """A estrelinha de quatro pontas do site, o enfeite que amarra as capas."""
-    s = tam / 100
-    return (f'<path transform="translate({x - 50*s} {y - 50*s}) scale({s})" '
-            f'd="M50 4 C54 38 62 46 96 50 C62 54 54 62 50 96 C46 62 38 54 4 50 C38 46 46 38 50 4Z" '
-            f'fill="{cor}" stroke="{CREME}" stroke-width="5" stroke-linejoin="round"/>')
+def desenho(conteudo, escala=4.6, traco=4.6):
+    """Desenho feito numa grade de 100x100, ampliado e centrado um pouco acima
+    do meio, para o desenho e o sublinhado juntos ficarem no centro do círculo."""
+    return (f'<g transform="translate({540 - 50*escala} {900 - 50*escala}) scale({escala})" '
+            f'fill="none" stroke="{CREME}" stroke-width="{traco}" '
+            f'stroke-linecap="round" stroke-linejoin="round">{conteudo}</g>')
 
 
-def grande(conteudo, escala=5.4):
-    """Desenho feito numa grade de 100x100, ampliado e centrado em (540, 960)."""
-    return (f'<g transform="translate({540 - 50*escala} {960 - 50*escala}) scale({escala})" '
-            f'stroke="{CREME}" stroke-width="4" stroke-linejoin="round" stroke-linecap="round">{conteudo}</g>')
+# o marca-texto do "novidades" do site, largo como o desenho
+SUBLINHADO = f'<rect x="370" y="1180" width="340" height="26" rx="13" fill="{SOL}"/>'
 
 
-def capa(desenho, enfeite):
+def capa(conteudo):
     return (f'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1080 1920" width="1080" height="1920">'
-            f'<rect width="1080" height="1920" fill="{FUNDO}"/>{desenho}{enfeite}</svg>\n')
+            f'<rect width="1080" height="1920" fill="{FUNDO}"/>{desenho(conteudo)}{SUBLINHADO}</svg>\n')
 
-
-RAIOS = [(50, 4, 50, 18), (50, 82, 50, 96), (4, 50, 18, 50), (82, 50, 96, 50),
-         (17, 17, 27, 27), (73, 73, 83, 83), (83, 17, 73, 27), (27, 73, 17, 83)]
 
 CAPAS = {
-    # coração rosa: o mesmo adesivo do site
-    "1-sobre-mim": capa(
-        grande(f'<path d="M50 88 C20 66 6 50 6 32 C6 18 17 8 30 8 C40 8 46 14 50 22 '
-               f'C54 14 60 8 70 8 C83 8 94 18 94 32 C94 50 80 66 50 88Z" fill="{ROSA}"/>'),
-        estrela(800, 700, 130, SOL)),
-    # o sol do site, que está ao lado da foto na página "em breve"
-    "2-novidades": capa(
-        grande('<g>' + ''.join(f'<line x1="{a}" y1="{b}" x2="{c}" y2="{d}"/>' for a, b, c, d in RAIOS)
-               + f'</g><circle cx="50" cy="50" r="22" fill="{SOL}"/>', 5.6),
-        estrela(810, 690, 120, ROSA)),
-    "3-bastidores": capa(
-        grande(f'<rect x="32" y="17" width="30" height="16" rx="5" fill="{AZUL}"/>'
-               f'<rect x="7" y="27" width="86" height="58" rx="13" fill="{AZUL}"/>'
-               f'<circle cx="50" cy="56" r="18" fill="{SOL}"/>'
-               f'<circle cx="50" cy="56" r="7" fill="{FUNDO}" stroke-width="3"/>'
-               f'<circle cx="79" cy="40" r="4" fill="{CREME}" stroke="none"/>'),
-        estrela(815, 690, 120, ROSA)),
-    "4-contato": capa(
-        grande(f'<path d="M20 12 H80 Q94 12 94 26 V60 Q94 74 80 74 H46 L24 92 L28 74 H20 '
-               f'Q6 74 6 60 V26 Q6 12 20 12 Z" fill="{SOL}"/>'
-               + ''.join(f'<circle cx="{x}" cy="43" r="6" fill="{FUNDO}" stroke="none"/>' for x in (30, 50, 70))),
-        estrela(810, 690, 120, ROSA)),
+    # uma pessoa: cabeça e ombros
+    "1-sobre-mim": capa('<circle cx="50" cy="34" r="15"/>'
+                        '<path d="M20 84 C20 64 33 56 50 56 C67 56 80 64 80 84"/>'),
+    # a estrela de quatro pontas do site, só no contorno
+    "2-novidades": capa('<path d="M50 8 C53 38 62 47 92 50 C62 53 53 62 50 92 '
+                        'C47 62 38 53 8 50 C38 47 47 38 50 8Z"/>'),
+    "3-bastidores": capa('<path d="M36 26 L41 17 H59 L64 26"/>'
+                         '<rect x="8" y="26" width="84" height="56" rx="10"/>'
+                         '<circle cx="50" cy="54" r="16"/>'),
+    "4-contato": capa('<path d="M20 14 H80 Q92 14 92 26 V58 Q92 70 80 70 H46 L28 86 L30 70 H20 '
+                      'Q8 70 8 58 V26 Q8 14 20 14 Z"/>'),
 }
 
 if __name__ == "__main__":
     PASTA.mkdir(exist_ok=True)
+    for velho in PASTA.glob("*"):
+        velho.unlink()
     for nome, svg in CAPAS.items():
         (PASTA / f"{nome}.svg").write_text(svg)
         print(nome)

@@ -70,9 +70,14 @@ Quem refizer: olhe o arquivo gerado antes de commitar.
 
 ## `instagram/` — capas dos destaques do @lolemos
 
-Quatro capas no estilo do site com fundo preto: coração (sobre mim), sol
-(novidades), câmera (bastidores) e balão (contato), cada uma com a
-estrelinha do site. Ficam fora de `lorenabraganca/`, então não vão para o ar.
+Quatro capas com fundo preto, desenho de traço fino e claro e o sublinhado
+amarelo do título do site embaixo: pessoa (sobre mim), estrela de quatro
+pontas (novidades), câmera (bastidores) e balão (contato). Ficam fora de
+`lorenabraganca/`, então não vão para o ar.
+
+**É o estilo "B", escolhido por ela em 25/10 entre três.** A primeira versão,
+de adesivos coloridos com contorno e estrelinha, ela achou infantil. A cor
+fica só no sublinhado; não volte a pôr cor dentro do desenho.
 
 ```bash
 cd /home/user/Nuvem-Lorena/sites/instagram
