@@ -13,6 +13,10 @@ vale também para a `previa.jpg` e para as `meta` de descrição, que aparecem
 quando o link é colado no WhatsApp. Por isso este arquivo também não diz o
 que vem.
 
+**O fundo é preto para todo mundo**, não só para quem usa o celular no modo
+escuro. Ela escolheu entre seis cores, olhando a página pronta em cada uma
+(25/10). A `previa.jpg` e o `404.html` seguem o mesmo preto.
+
 ### TUDO o que está dentro de `lorenabraganca/` vai para o ar
 
 Sem build, a Vercel publica a pasta inteira, arquivo por arquivo. Uma

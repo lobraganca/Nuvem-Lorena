@@ -5,8 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Lorena Bragança</title>
 <meta name="description" content="Em breve, novidades por aqui.">
-<meta name="theme-color" content="#F5F5F0" media="(prefers-color-scheme: light)">
-<meta name="theme-color" content="#111117" media="(prefers-color-scheme: dark)">
+<meta name="theme-color" content="#111117">
 <link rel="canonical" href="https://www.lorenabraganca.com.br/">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
 <link rel="icon" href="favicon-32.png" type="image/png" sizes="32x32">
@@ -30,34 +29,27 @@
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=Caveat:wght@600&family=Figtree:wght@400;500;600&display=swap">
 <style>
 /* layout: uma tela só — foto presa com fita de um lado, o recado do outro; no celular, empilha */
+/* Fundo preto para todo mundo, escolhido por ela entre seis cores (25/10).
+   Antes o preto só aparecia para quem usava o celular no modo escuro. */
 :root {
-  --papel: #F5F5F0;
-  --cartao: #FFFFFF;
-  --tinta: #17171E;
-  --suave: #55556A;
-  --linha: #DCDCE4;
-  --azul: #2836F0;
+  --papel: #111117;
+  --cartao: #1C1C25;
+  --tinta: #F2F2EC;
+  --suave: #A9A9BC;
+  --linha: #2E2E3A;
+  --azul: #4F5BFF;        /* branco sobre ele: 4,91:1 */
   --sobre-azul: #FFFFFF;
   --sol: #FFD23F;
   --sobre-sol: #17171E;
   --rosa: #FF9EC4;
-  --fita: rgba(255, 210, 63, .78);
-  --marca-de: 55%;
+  --fita: rgba(255, 210, 63, .62);
+  /* No preto o amarelo vira sublinhado: letra clara em cima de amarelo não se lê. */
+  --marca-de: 80%;
 
   --f-titulo: "Bricolage Grotesque", "Arial Black", system-ui, sans-serif;
   --f-texto: "Figtree", system-ui, -apple-system, "Segoe UI", sans-serif;
   --f-mao: "Caveat", "Comic Sans MS", cursive;
-  color-scheme: light;
-}
-@media (prefers-color-scheme: dark) {
-  :root:not([data-theme="light"]) {
-    --papel: #111117; --cartao: #1C1C25; --tinta: #F2F2EC; --suave: #A9A9BC;
-    --linha: #2E2E3A; --azul: #4F5BFF; --fita: rgba(255, 210, 63, .62); --marca-de: 80%; color-scheme: dark;
-  }
-}
-:root[data-theme="dark"] {
-  --papel: #111117; --cartao: #1C1C25; --tinta: #F2F2EC; --suave: #A9A9BC;
-  --linha: #2E2E3A; --azul: #4F5BFF; --fita: rgba(255, 210, 63, .62); --marca-de: 80%; color-scheme: dark;
+  color-scheme: dark;
 }
 
 * { box-sizing: border-box; }
