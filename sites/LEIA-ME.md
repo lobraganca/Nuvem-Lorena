@@ -5,17 +5,28 @@
 O site pessoal da Lorena. Ele não deve citar nenhum app deste repositório:
 ela pediu isso com todas as letras.
 
-Hoje é uma página só, "em breve, novidades por aqui", em HTML puro e sem
-build. Dá para abrir o `index.html` direto no navegador.
+É uma página de captação em HTML puro e sem build: dá para abrir o
+`index.html` direto no navegador. Desde 31/10 ela ocupa o lugar do antigo
+"em breve, novidades por aqui" (o pedido de não dar spoiler acabou com ele).
 
-**E a página não revela o que vem.** Ela pediu sem spoiler (16/10). Isso
-vale também para a `previa.jpg` e para as `meta` de descrição, que aparecem
-quando o link é colado no WhatsApp. Por isso este arquivo também não diz o
-que vem.
+**A cara é a do post dela** — "Eu construo a ferramenta pro seu negócio",
+fundo grafite, verde-limão e cartões arredondados. As cores foram medidas no
+pixel da arte que ela mandou: fundo `#0F1115`, limão `#C8F26B`, cartão
+`#181B21`, borda `#262A32`. A `previa.jpg`, o ícone e o `404.html` seguem
+as mesmas. O Instagram dela nesta página é o **@lo_braganca**.
 
-**O fundo é preto para todo mundo**, não só para quem usa o celular no modo
-escuro. Ela escolheu entre seis cores, olhando a página pronta em cada uma
-(25/10). A `previa.jpg` e o `404.html` seguem o mesmo preto.
+### O diagnóstico, que termina no WhatsApp
+
+Sete perguntas, uma por vez. Quatro valem de 0 a 3 pontos (onde ficam as
+informações, se sabe os números do mês, tempo perdido, se a empresa anda sem
+ela) e viram um índice de 0 a 100. Ramo, equipe e objetivo só vão para a
+conversa e para a sugestão de serviço.
+
+No fim, o botão é um link `wa.me` refeito a cada tecla, com todas as
+respostas escritas: **nada é gravado em lugar nenhum**. Se a pessoa não
+tocar em enviar, a Lorena não fica sabendo. O número fica na constante
+`WHATSAPP` do `index.html` — `5531971473162`, confirmado por ela em 31/10.
+É o mesmo número do suporte do Ei; se ela trocar, é ali.
 
 ### TUDO o que está dentro de `lorenabraganca/` vai para o ar
 

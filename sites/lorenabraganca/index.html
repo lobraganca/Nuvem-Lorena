@@ -3,9 +3,9 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Lorena Bragança</title>
-<meta name="description" content="Em breve, novidades por aqui.">
-<meta name="theme-color" content="#111117">
+<title>Lorena Bragança · Ferramentas sob medida</title>
+<meta name="description" content="Apps de gestão, dashboards, sites e mapeamento de processos feitos do jeito que a sua empresa funciona. Faça o diagnóstico gratuito.">
+<meta name="theme-color" content="#0F1115">
 <link rel="canonical" href="https://www.lorenabraganca.com.br/">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
 <link rel="icon" href="favicon-32.png" type="image/png" sizes="32x32">
@@ -16,159 +16,695 @@
 <meta property="og:type" content="website">
 <meta property="og:locale" content="pt_BR">
 <meta property="og:url" content="https://www.lorenabraganca.com.br/">
-<meta property="og:title" content="Lorena Bragança · em breve, novidades">
-<meta property="og:description" content="Estou preparando algo novo. Fica de olho.">
+<meta property="og:title" content="Eu construo a ferramenta pro seu negócio · Lorena Bragança">
+<meta property="og:description" content="Faça o diagnóstico gratuito e descubra quanto controle você tem da sua empresa.">
 <meta property="og:image" content="https://www.lorenabraganca.com.br/previa.jpg">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
-<meta property="og:image:alt" content="Lorena Bragança sorrindo, ao lado do texto: em breve, novidades por aqui">
+<meta property="og:image:alt" content="Lorena Bragança ao lado do texto: Eu construo a ferramenta pro seu negócio">
 <meta name="twitter:card" content="summary_large_image">
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=Caveat:wght@600&family=Figtree:wght@400;500;600&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@500;600;700;800&family=Figtree:wght@400;500;600&display=swap">
 <style>
-/* layout: uma tela só — foto presa com fita de um lado, o recado do outro; no celular, empilha */
-/* Fundo preto para todo mundo, escolhido por ela entre seis cores (25/10).
-   Antes o preto só aparecia para quem usava o celular no modo escuro. */
+/* layout: o post dela virou página — faixa de título, a lista de serviços ao lado da foto,
+   e o diagnóstico como um cartão que troca de pergunta no lugar; tudo empilha no celular */
+/* As cores saíram da arte que ela mandou (31/10), medidas no pixel. */
 :root {
-  --papel: #111117;
-  --cartao: #1C1C25;
-  --tinta: #F2F2EC;
-  --suave: #A9A9BC;
-  --linha: #2E2E3A;
-  --azul: #4F5BFF;        /* branco sobre ele: 4,91:1 */
-  --sobre-azul: #FFFFFF;
-  --sol: #FFD23F;
-  --sobre-sol: #17171E;
-  --rosa: #FF9EC4;
-  --fita: rgba(255, 210, 63, .62);
-  /* No preto o amarelo vira sublinhado: letra clara em cima de amarelo não se lê. */
-  --marca-de: 80%;
+  --fundo: #0F1115;
+  --cartao: #181B21;
+  --cartao-forte: #1E222A;
+  --borda: #262A32;
+  --texto: #F3F4F0;
+  --suave: #A3A7B1;
+  --apagado: #6E7380;
+  --limao: #C8F26B;
+  --sobre-limao: #0F1115;
 
-  --f-titulo: "Bricolage Grotesque", "Arial Black", system-ui, sans-serif;
+  --f-titulo: "Plus Jakarta Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
   --f-texto: "Figtree", system-ui, -apple-system, "Segoe UI", sans-serif;
-  --f-mao: "Caveat", "Comic Sans MS", cursive;
+  --raio: 18px;
+  --largura: 1080px;
   color-scheme: dark;
 }
 
 * { box-sizing: border-box; }
-html, body { min-height: 100%; }
+/* sem isto, o display:grid da barra de progresso vence o "hidden" e ela fica na tela do resultado */
+[hidden] { display: none !important; }
+html { scroll-behavior: smooth; scroll-padding-top: 80px; }
 body {
-  margin: 0; background: var(--papel); color: var(--tinta);
+  margin: 0; background: var(--fundo); color: var(--texto);
   font-family: var(--f-texto); font-size: 17px; line-height: 1.6;
   overflow-x: hidden;
-  display: flex; flex-direction: column; min-height: 100svh;
-  padding-top: env(safe-area-inset-top, 0px); padding-bottom: env(safe-area-inset-bottom, 0px);
+  padding-bottom: env(safe-area-inset-bottom, 0px);
 }
-.faixa { padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
-.miolo { max-width: 1040px; margin-inline: auto; width: 100%; position: relative; }
-h1 { font-family: var(--f-titulo); line-height: 1; letter-spacing: -.03em; text-wrap: balance; margin: 0; }
+body::before {
+  content: ""; position: fixed; inset: 0 0 auto; height: env(safe-area-inset-top, 0px);
+  z-index: 20; background: var(--fundo);
+}
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  *, *::before, *::after { animation: none !important; transition: none !important; }
+}
+.faixa { padding-left: max(20px, env(safe-area-inset-left, 0px)); padding-right: max(20px, env(safe-area-inset-right, 0px)); position: relative; }
+.miolo { max-width: var(--largura); margin-inline: auto; position: relative; }
+h1, h2, h3 { font-family: var(--f-titulo); margin: 0; letter-spacing: -.03em; line-height: 1.05; text-wrap: balance; }
 p { margin: 0; }
 a { color: inherit; }
-:focus-visible { outline: 3px solid var(--azul); outline-offset: 3px; border-radius: 6px; }
-@media (prefers-reduced-motion: reduce) { * { animation: none !important; transition: none !important; } }
+:focus-visible { outline: 3px solid var(--limao); outline-offset: 3px; border-radius: 8px; }
 
-.marca { background: linear-gradient(transparent var(--marca-de), var(--sol) var(--marca-de), var(--sol) 92%, transparent 92%); padding-inline: .08em; }
-.mao { font-family: var(--f-mao); font-weight: 600; }
+/* o "negócio." da arte: a palavra dentro de um bloco de limão */
+.destaque { background: var(--limao); color: var(--sobre-limao); border-radius: .16em; padding: 0 .14em .04em; box-decoration-break: clone; -webkit-box-decoration-break: clone; }
+
+.selo {
+  display: inline-flex; align-items: center; gap: 10px; width: fit-content;
+  font: 700 13px/1 var(--f-titulo); letter-spacing: .16em; text-transform: uppercase; color: var(--texto);
+  border: 1.5px solid var(--borda); border-radius: 999px; padding: 11px 18px;
+}
+.selo::before { content: ""; width: 8px; height: 8px; border-radius: 50%; background: var(--limao); }
+
+.botao {
+  display: inline-flex; align-items: center; justify-content: center; gap: .6em;
+  font: 700 17px/1.2 var(--f-titulo); text-decoration: none; cursor: pointer;
+  background: var(--limao); color: var(--sobre-limao);
+  padding: 18px 30px; border-radius: 999px; border: 0;
+  transition: transform .15s ease, box-shadow .15s ease, filter .15s;
+}
+.botao:hover { transform: translateY(-2px); box-shadow: 0 10px 30px -10px rgba(200, 242, 107, .55); }
+.botao:active { transform: translateY(0); }
+.botao svg { width: 20px; height: 20px; flex: none; }
+.botao.vazado { background: transparent; color: var(--texto); border: 1.5px solid var(--borda); }
+.botao.vazado:hover { border-color: var(--suave); box-shadow: none; }
+.botao.pequeno { padding: 11px 18px; font-size: 14px; }
+.botao[aria-disabled="true"] { filter: grayscale(1) brightness(.6); cursor: not-allowed; }
+.botao[aria-disabled="true"]:hover { transform: none; box-shadow: none; }
+
+.icone { width: 26px; height: 26px; flex: none; color: var(--limao); }
 
 /* topo */
-.topo .miolo { display: flex; justify-content: space-between; align-items: center; gap: 12px; padding-block: 20px; }
-.nome { font-family: var(--f-titulo); font-weight: 800; font-size: 20px; letter-spacing: -.02em; }
-.arroba { font-weight: 600; font-size: 15px; text-decoration: none; color: var(--suave); }
-.arroba:hover { color: var(--tinta); }
+.topo { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 10; background: color-mix(in srgb, var(--fundo) 88%, transparent); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); border-bottom: 1px solid var(--borda); }
+.topo .miolo { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding-block: 14px; }
+.nome { font: 800 18px/1 var(--f-titulo); letter-spacing: -.02em; text-decoration: none; }
+.nome span { color: var(--limao); }
 
-/* recado */
-main { flex: 1; display: flex; align-items: center; }
-main .miolo { display: grid; grid-template-columns: .8fr 1.2fr; gap: 64px; align-items: center; padding-block: 32px 64px; }
-.texto { display: grid; gap: 22px; min-width: 0; }
-.selo { display: inline-flex; align-items: center; gap: 10px; width: fit-content; font-size: 14px; font-weight: 600; background: var(--cartao); border: 1.5px solid var(--tinta); border-radius: 999px; padding: 7px 14px; }
-.selo i { width: 9px; height: 9px; border-radius: 50%; background: var(--sol); border: 1.5px solid var(--tinta); animation: pisca 1.6s ease-in-out 3; }
-@keyframes pisca { 50% { opacity: .25; } }
-h1 { font-size: clamp(46px, 7.6vw, 92px); font-weight: 800; }
-.sub { font-size: 19px; color: var(--suave); max-width: 32em; }
-.sub b { color: var(--tinta); font-weight: 600; }
-.acoes { display: flex; flex-wrap: wrap; align-items: center; gap: 14px 22px; }
-.botao {
-  display: inline-flex; align-items: center; gap: .55em;
-  font: 600 16px/1.2 var(--f-texto); text-decoration: none;
-  background: var(--azul); color: var(--sobre-azul);
-  padding: 16px 24px; border-radius: 999px; border: 2px solid var(--tinta);
-  box-shadow: 4px 4px 0 var(--tinta); transition: transform .15s, box-shadow .15s;
+/* abertura: o post */
+.abertura { overflow: hidden; }
+.abertura .arco { position: absolute; width: 560px; height: 560px; border: 1.5px solid var(--borda); border-radius: 50%; right: -230px; top: -250px; pointer-events: none; }
+.abertura .arco.dois { width: 340px; height: 340px; right: -150px; top: -60px; opacity: .6; }
+.abertura .miolo { padding-block: 56px 72px; display: grid; gap: 28px; }
+.abertura h1 { font-size: clamp(44px, 8.4vw, 92px); font-weight: 800; max-width: 11.5em; }
+.abertura .sub { font-size: clamp(18px, 2.2vw, 21px); color: var(--suave); max-width: 34em; }
+.vitrine { display: grid; grid-template-columns: minmax(0, 1.7fr) minmax(0, 1fr); gap: 18px; margin-top: 12px; }
+.servicos { display: grid; gap: 14px; margin: 0; padding: 0; list-style: none; }
+.servicos li {
+  display: flex; align-items: center; gap: 18px;
+  background: var(--cartao); border: 1.5px solid var(--borda); border-radius: var(--raio);
+  padding: 22px 26px; font: 700 clamp(17px, 2.1vw, 21px)/1.25 var(--f-titulo); letter-spacing: -.01em;
 }
-.botao:hover { transform: translate(-2px, -2px); box-shadow: 6px 6px 0 var(--tinta); }
-.botao:active { transform: translate(2px, 2px); box-shadow: 2px 2px 0 var(--tinta); }
-.botao svg { width: 20px; height: 20px; flex: none; }
-.spoiler { font-size: 25px; color: var(--suave); transform: rotate(-3deg); }
-
-/* foto em colagem */
-.colagem { position: relative; justify-self: center; width: min(100%, 360px); }
-.papel-foto {
-  margin: 0; background: var(--cartao); padding: 14px 14px 52px; transform: rotate(-2.5deg);
-  box-shadow: 0 18px 40px -18px rgba(0,0,0,.45);
-  clip-path: polygon(0 0, 100% 0, 100% 96%, 94% 98.5%, 87% 96.5%, 79% 99%, 70% 97%, 61% 99.5%, 52% 97%, 43% 99%, 34% 96.8%, 25% 99.2%, 16% 97%, 8% 99%, 0 97%);
+.retrato { position: relative; margin: 0; border-radius: var(--raio); overflow: hidden; border: 1.5px solid var(--borda); background: var(--cartao); min-height: 100%; }
+.retrato img { display: block; width: 100%; height: 100%; object-fit: cover; object-position: 50% 30%; aspect-ratio: 402 / 467; }
+.retrato figcaption { position: absolute; left: 14px; bottom: 14px; background: var(--fundo); color: var(--texto); font: 700 15px/1 var(--f-titulo); padding: 10px 16px; border-radius: 999px; }
+.acoes { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 16px 24px; margin-top: 18px; }
+.acoes .lado { display: flex; flex-wrap: wrap; align-items: center; gap: 12px 20px; }
+.acoes small { color: var(--suave); font-size: 14px; }
+.arroba { font: 500 18px/1 var(--f-texto); color: var(--suave); text-decoration: none; }
+.arroba:hover { color: var(--texto); }
+@media (max-width: 760px) {
+  .abertura .miolo { padding-block: 36px 56px; gap: 22px; }
+  .vitrine { grid-template-columns: 1fr; }
+  .retrato { order: -1; }
+  .retrato img { aspect-ratio: 4 / 3; object-position: 50% 25%; }
+  .servicos li { padding: 18px 20px; }
+  .abertura .arco { width: 380px; height: 380px; right: -200px; top: -170px; }
+  .abertura .arco.dois { display: none; }
+  .acoes .botao { width: 100%; }
 }
-.papel-foto img { display: block; width: 100%; height: auto; aspect-ratio: 402 / 467; object-fit: cover; }
-.papel-foto figcaption { position: absolute; left: 0; right: 0; bottom: 12px; text-align: center; font-family: var(--f-mao); font-size: 26px; font-weight: 600; color: var(--tinta); }
-.fita { position: absolute; width: 104px; height: 30px; background: var(--fita); z-index: 2; }
-.fita.a { top: -12px; left: 16px; transform: rotate(-14deg); }
-.fita.b { top: -8px; right: 8px; transform: rotate(16deg); }
-.adesivo { position: absolute; pointer-events: none; z-index: 3; }
-.adesivo svg { display: block; width: 100%; height: auto; }
-.gira { animation: gira 4s ease-out 1; }
-@keyframes gira { to { transform: rotate(360deg); } }
 
-/* rodapé */
-footer .miolo { padding-block: 18px 24px; border-top: 1px solid var(--linha); font-size: 14px; color: var(--suave); }
+/* seções */
+.secao .miolo { padding-block: 80px; display: grid; gap: 36px; border-top: 1px solid var(--borda); }
+.cabeca { display: grid; gap: 14px; max-width: 680px; }
+.cabeca h2 { font-size: clamp(32px, 5vw, 52px); font-weight: 800; }
+.cabeca p { color: var(--suave); font-size: 18px; }
+.rotulo { font: 700 13px/1 var(--f-titulo); letter-spacing: .16em; text-transform: uppercase; color: var(--limao); }
 
-@media (max-width: 820px) {
-  main .miolo { grid-template-columns: 1fr; gap: 40px; padding-block: 8px 48px; }
-  .colagem { width: min(70%, 280px); order: -1; }
-  .texto { justify-items: start; }
+/* sinais */
+.sinais { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; margin: 0; padding: 0; list-style: none; }
+.sinais li { display: flex; gap: 14px; align-items: flex-start; background: var(--cartao); border: 1.5px solid var(--borda); border-radius: var(--raio); padding: 22px; color: var(--texto); }
+.sinais li::before { content: ""; flex: none; width: 10px; height: 10px; margin-top: .55em; border-radius: 50%; background: var(--limao); }
+.fecho { font: 700 clamp(20px, 2.6vw, 26px)/1.3 var(--f-titulo); letter-spacing: -.01em; }
+.fecho span { color: var(--limao); }
+@media (max-width: 720px) { .sinais { grid-template-columns: 1fr; } }
+
+/* o que eu construo */
+.cartoes { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; }
+.cartoes article { background: var(--cartao); border: 1.5px solid var(--borda); border-radius: var(--raio); padding: 28px; display: grid; gap: 12px; align-content: start; transition: border-color .2s; }
+.cartoes article:hover { border-color: color-mix(in srgb, var(--limao) 45%, var(--borda)); }
+.cartoes .icone { width: 34px; height: 34px; }
+.cartoes h3 { font-size: 22px; font-weight: 800; letter-spacing: -.02em; }
+.cartoes p { color: var(--suave); font-size: 16px; }
+@media (max-width: 720px) { .cartoes { grid-template-columns: 1fr; } .cartoes article { padding: 22px; } }
+
+/* como funciona: é uma sequência de verdade, por isso os números */
+.passos { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px; margin: 0; padding: 0; list-style: none; counter-reset: passo; }
+.passos li { counter-increment: passo; border-top: 2px solid var(--borda); padding-top: 20px; display: grid; gap: 10px; align-content: start; }
+.passos li:first-child { border-top-color: var(--limao); }
+.passos li::before { content: counter(passo, decimal-leading-zero); font: 800 15px/1 var(--f-titulo); color: var(--limao); letter-spacing: .08em; }
+.passos h3 { font-size: 22px; font-weight: 800; }
+.passos p { color: var(--suave); font-size: 16px; }
+@media (max-width: 760px) { .passos { grid-template-columns: 1fr; gap: 26px; } }
+
+/* diagnóstico */
+.diagnostico .miolo { grid-template-columns: minmax(0, .85fr) minmax(0, 1.15fr); align-items: start; gap: 48px; }
+.diagnostico .cabeca { position: sticky; top: 100px; }
+.diagnostico .cabeca ul { margin: 8px 0 0; padding: 0; list-style: none; display: grid; gap: 10px; color: var(--suave); font-size: 16px; }
+.diagnostico .cabeca li { display: flex; gap: 10px; align-items: center; }
+.diagnostico .cabeca li svg { width: 18px; height: 18px; color: var(--limao); flex: none; }
+@media (max-width: 860px) { .diagnostico .miolo { grid-template-columns: 1fr; gap: 28px; } .diagnostico .cabeca { position: static; } }
+
+.quiz { background: var(--cartao); border: 1.5px solid var(--borda); border-radius: 24px; padding: 30px; display: grid; gap: 22px; min-width: 0; box-shadow: 0 30px 80px -40px rgba(0, 0, 0, .8); }
+.progresso { display: grid; gap: 10px; }
+.progresso .linha { display: flex; justify-content: space-between; font: 600 14px/1 var(--f-titulo); color: var(--suave); font-variant-numeric: tabular-nums; }
+.barra { height: 6px; background: var(--borda); border-radius: 999px; overflow: hidden; }
+.barra i { display: block; height: 100%; width: 0; background: var(--limao); border-radius: inherit; transition: width .35s ease; }
+.pergunta { display: grid; gap: 18px; animation: entra .3s ease; }
+@keyframes entra { from { opacity: 0; transform: translateY(8px); } }
+.pergunta h3 { font-size: clamp(22px, 3vw, 27px); font-weight: 800; letter-spacing: -.02em; line-height: 1.2; outline: none; }
+.opcoes { display: grid; gap: 10px; }
+.opcao {
+  display: flex; align-items: center; gap: 14px; width: 100%; text-align: left;
+  font: 600 16px/1.35 var(--f-texto); color: var(--texto);
+  background: var(--cartao-forte); border: 1.5px solid var(--borda); border-radius: 14px;
+  padding: 16px 18px; cursor: pointer; transition: border-color .15s, background .15s;
 }
+.opcao::before { content: ""; flex: none; width: 20px; height: 20px; border-radius: 50%; border: 2px solid var(--apagado); transition: border-color .15s, box-shadow .15s; }
+.opcao:hover { border-color: var(--suave); }
+.opcao[aria-pressed="true"] { border-color: var(--limao); background: color-mix(in srgb, var(--limao) 9%, var(--cartao-forte)); }
+.opcao[aria-pressed="true"]::before { border-color: var(--limao); box-shadow: inset 0 0 0 4px var(--cartao-forte), inset 0 0 0 10px var(--limao); }
+.navegacao { display: flex; justify-content: space-between; align-items: center; min-height: 24px; }
+.voltar { background: none; border: 0; color: var(--suave); font: 600 15px/1 var(--f-titulo); cursor: pointer; padding: 6px 0; }
+.voltar:hover { color: var(--texto); }
+.voltar[hidden] { display: none; }
+
+/* resultado */
+.resultado { display: grid; gap: 22px; animation: entra .35s ease; }
+.medidor { display: grid; grid-template-columns: 150px minmax(0, 1fr); gap: 20px; align-items: center; }
+.medidor svg { width: 150px; height: auto; display: block; }
+.medidor .valor { font: 800 44px/1 var(--f-titulo); fill: var(--texto); }
+.medidor .de { font: 600 13px/1 var(--f-texto); fill: var(--suave); }
+.nivel { display: grid; gap: 6px; }
+.nivel span { font: 700 13px/1 var(--f-titulo); letter-spacing: .14em; text-transform: uppercase; color: var(--limao); }
+.nivel h3 { font-size: clamp(24px, 3.2vw, 30px); font-weight: 800; }
+.nivel p { color: var(--suave); font-size: 16px; }
+.achados { margin: 0; padding: 0; list-style: none; display: grid; gap: 10px; }
+.achados li { display: flex; gap: 12px; align-items: flex-start; font-size: 16px; }
+.achados li svg { width: 20px; height: 20px; flex: none; margin-top: 2px; color: var(--limao); }
+.sugestao { display: grid; gap: 10px; }
+.sugestao > span { font: 600 14px/1 var(--f-titulo); color: var(--suave); }
+.chips { display: flex; flex-wrap: wrap; gap: 8px; }
+.chips span { display: inline-flex; align-items: center; gap: 8px; background: var(--cartao-forte); border: 1.5px solid var(--borda); border-radius: 999px; padding: 9px 14px; font: 700 14px/1 var(--f-titulo); }
+.chips svg { width: 18px; height: 18px; color: var(--limao); }
+.envio { display: grid; gap: 14px; border-top: 1px solid var(--borda); padding-top: 22px; }
+.envio h4 { margin: 0; font: 800 19px/1.3 var(--f-titulo); letter-spacing: -.01em; }
+.campos { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+.campo { display: grid; gap: 6px; }
+.campo label { font: 600 14px/1 var(--f-titulo); color: var(--suave); }
+.campo input {
+  font: 500 17px/1.3 var(--f-texto); color: var(--texto); background: var(--fundo);
+  border: 1.5px solid var(--borda); border-radius: 12px; padding: 14px 16px; width: 100%;
+}
+.campo input::placeholder { color: var(--apagado); }
+.campo input:focus { outline: none; border-color: var(--limao); }
+.envio .botao { width: 100%; }
+.envio .nota { font-size: 14px; color: var(--suave); text-align: center; }
+.envio .erro { color: #FF8A80; font-size: 14px; font-weight: 600; }
+.refazer { justify-self: center; }
+@media (max-width: 520px) {
+  .quiz { padding: 22px 18px; border-radius: 20px; }
+  .campos { grid-template-columns: 1fr; }
+  .medidor { grid-template-columns: 110px minmax(0, 1fr); gap: 14px; }
+  .medidor svg { width: 110px; }
+}
+
+/* sobre */
+.sobre .miolo { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); align-items: center; gap: 48px; }
+.sobre .cabeca p strong { color: var(--texto); font-weight: 600; }
+.fazeres { margin: 0; padding: 0; list-style: none; display: grid; gap: 12px; }
+.fazeres li { display: flex; gap: 14px; align-items: center; background: var(--cartao); border: 1.5px solid var(--borda); border-radius: 14px; padding: 16px 18px; font: 600 16px/1.35 var(--f-texto); }
+@media (max-width: 860px) { .sobre .miolo { grid-template-columns: 1fr; gap: 28px; } }
+
+/* dúvidas */
+.duvidas .miolo { grid-template-columns: minmax(0, .8fr) minmax(0, 1.2fr); gap: 48px; }
+details { border-bottom: 1px solid var(--borda); }
+details:first-child { border-top: 1px solid var(--borda); }
+summary { cursor: pointer; list-style: none; display: flex; justify-content: space-between; align-items: center; gap: 16px; padding: 22px 0; font: 700 19px/1.3 var(--f-titulo); letter-spacing: -.01em; }
+summary::-webkit-details-marker { display: none; }
+summary::after { content: "+"; flex: none; font: 400 28px/1 var(--f-texto); color: var(--limao); transition: transform .2s; }
+details[open] summary::after { transform: rotate(45deg); }
+details p { padding: 0 0 22px; color: var(--suave); max-width: 40em; }
+@media (max-width: 760px) { .duvidas .miolo { grid-template-columns: 1fr; gap: 24px; } }
+
+/* fim */
+.fim .miolo { padding-block: 80px 64px; border-top: 1px solid var(--borda); display: grid; justify-items: center; text-align: center; gap: 22px; }
+.fim h2 { font-size: clamp(34px, 6vw, 64px); font-weight: 800; max-width: 14em; }
+.fim p { color: var(--suave); }
+.rodape .miolo { padding-block: 22px 28px; border-top: 1px solid var(--borda); display: flex; flex-wrap: wrap; justify-content: space-between; gap: 10px; color: var(--apagado); font-size: 14px; }
+.rodape a { color: var(--suave); text-decoration: none; }
+.rodape a:hover { color: var(--texto); }
 </style>
 </head>
 <body>
-  <header class="faixa topo">
-    <div class="miolo">
-      <span class="nome">lorena bragança</span>
-      <a class="arroba" href="https://instagram.com/lolemos" target="_blank" rel="noopener">@lolemos</a>
-    </div>
-  </header>
 
-  <main class="faixa">
+<!-- Os ícones, desenhados uma vez e usados em vários lugares. Traço em currentColor: o limão vem do CSS. -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <symbol id="i-app" viewBox="0 0 24 24"><rect x="6" y="2.5" width="12" height="19" rx="2.5" fill="none" stroke="currentColor" stroke-width="2"/><line x1="10.5" y1="18" x2="13.5" y2="18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></symbol>
+  <symbol id="i-painel" viewBox="0 0 24 24"><rect x="3" y="15" width="3" height="6" rx="1" fill="currentColor" opacity=".35"/><rect x="8.5" y="11" width="3" height="10" rx="1" fill="currentColor" opacity=".55"/><rect x="14" y="7" width="3" height="14" rx="1" fill="currentColor" opacity=".75"/><rect x="19.5" y="3" width="3" height="18" rx="1" fill="currentColor"/></symbol>
+  <symbol id="i-site" viewBox="0 0 24 24"><rect x="2.5" y="4" width="19" height="16" rx="2.5" fill="none" stroke="currentColor" stroke-width="2"/><line x1="2.5" y1="9" x2="21.5" y2="9" stroke="currentColor" stroke-width="2"/><circle cx="6" cy="6.5" r=".9" fill="currentColor"/><circle cx="9" cy="6.5" r=".9" fill="currentColor"/></symbol>
+  <symbol id="i-fluxo" viewBox="0 0 24 24"><rect x="2.5" y="3" width="7" height="5.5" rx="1.5" fill="none" stroke="currentColor" stroke-width="2"/><rect x="14.5" y="15.5" width="7" height="5.5" rx="1.5" fill="none" stroke="currentColor" stroke-width="2"/><path d="M6 8.5v4.5a2.5 2.5 0 0 0 2.5 2.5h6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></symbol>
+  <symbol id="i-seta" viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+  <symbol id="i-ok" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" fill="none" stroke="currentColor" stroke-width="2"/><path d="M7.5 12.5l3 3 6-6.5" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+  <symbol id="i-alerta" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" fill="none" stroke="currentColor" stroke-width="2"/><line x1="12" y1="7" x2="12" y2="13" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/><circle cx="12" cy="16.6" r="1.3" fill="currentColor"/></symbol>
+  <symbol id="i-zap" viewBox="0 0 24 24"><path fill="currentColor" d="M12 2a10 10 0 0 0-8.6 15.1L2 22l5-1.3A10 10 0 1 0 12 2Zm0 18.2a8.2 8.2 0 0 1-4.2-1.2l-.3-.2-3 .8.8-2.9-.2-.3A8.2 8.2 0 1 1 12 20.2Zm4.5-6.1c-.2-.1-1.5-.7-1.7-.8-.2-.1-.4-.1-.6.1l-.8 1c-.1.2-.3.2-.5.1a6.7 6.7 0 0 1-3.3-2.9c-.3-.4.2-.4.7-1.3.1-.2 0-.3 0-.4l-.8-1.8c-.2-.5-.4-.4-.6-.4h-.5a1 1 0 0 0-.7.3 3 3 0 0 0-.9 2.2 5.2 5.2 0 0 0 1.1 2.7 11.8 11.8 0 0 0 4.5 4c1.7.7 2.3.8 3.1.6.5-.1 1.5-.6 1.7-1.2.2-.6.2-1.1.1-1.2l-.5-.3Z"/></symbol>
+</svg>
+
+<header class="faixa topo">
+  <div class="miolo">
+    <a class="nome" href="#">Lorena Bragança<span>.</span></a>
+    <a class="botao pequeno" href="#diagnostico">Fazer diagnóstico</a>
+  </div>
+</header>
+
+<main>
+  <section class="faixa abertura">
+    <span class="arco" aria-hidden="true"></span><span class="arco dois" aria-hidden="true"></span>
     <div class="miolo">
-      <div class="colagem">
-        <span class="fita a"></span><span class="fita b"></span>
-        <figure class="papel-foto">
-          <img src="foto.jpg" width="402" height="467" alt="Lorena, de blusa de tricô e braços cruzados, sorrindo para a câmera">
-          <figcaption>lorena</figcaption>
+      <span class="selo">Ferramentas sob medida</span>
+      <h1>Eu construo a ferramenta pro seu <span class="destaque">negócio.</span></h1>
+      <p class="sub">Chega de planilha confusa e controle no caderno. Uma ferramenta feita do jeito que a sua empresa funciona.</p>
+
+      <div class="vitrine">
+        <ul class="servicos">
+          <li><svg class="icone" aria-hidden="true"><use href="#i-app"/></svg>Apps de gestão</li>
+          <li><svg class="icone" aria-hidden="true"><use href="#i-painel"/></svg>Dashboards e indicadores</li>
+          <li><svg class="icone" aria-hidden="true"><use href="#i-site"/></svg>Sites profissionais</li>
+          <li><svg class="icone" aria-hidden="true"><use href="#i-fluxo"/></svg>Mapeamento de processos</li>
+        </ul>
+        <figure class="retrato">
+          <img src="foto.jpg" width="402" height="467" alt="Lorena Bragança, de blusa de tricô e braços cruzados, sorrindo">
+          <figcaption>Lorena Bragança</figcaption>
         </figure>
-        <span class="adesivo gira" style="width:76px; right:-26px; bottom:-20px" aria-hidden="true">
-          <svg viewBox="0 0 100 100"><g stroke="var(--tinta)" stroke-width="4" stroke-linecap="round"><line x1="50" y1="4" x2="50" y2="18"/><line x1="50" y1="82" x2="50" y2="96"/><line x1="4" y1="50" x2="18" y2="50"/><line x1="82" y1="50" x2="96" y2="50"/><line x1="17" y1="17" x2="27" y2="27"/><line x1="73" y1="73" x2="83" y2="83"/><line x1="83" y1="17" x2="73" y2="27"/><line x1="27" y1="73" x2="17" y2="83"/></g><circle cx="50" cy="50" r="22" fill="var(--sol)" stroke="var(--tinta)" stroke-width="4"/></svg>
-        </span>
-        <span class="adesivo" style="width:44px; left:-14px; top:38%" aria-hidden="true">
-          <svg viewBox="0 0 100 100"><path d="M50 4 C54 38 62 46 96 50 C62 54 54 62 50 96 C46 62 38 54 4 50 C38 46 46 38 50 4Z" fill="var(--rosa)" stroke="var(--tinta)" stroke-width="4" stroke-linejoin="round"/></svg>
-        </span>
       </div>
 
-      <div class="texto">
-        <span class="selo"><i></i> site em construção</span>
-        <h1>em breve, <span class="marca">novidades</span> por aqui.</h1>
-        <p class="sub">estou preparando algo novo. enquanto isso, me acompanhe no Instagram pra <b>saber antes de todo mundo</b>.</p>
-        <div class="acoes">
-          <a class="botao" href="https://instagram.com/lolemos" target="_blank" rel="noopener">
-            <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="5" fill="none" stroke="currentColor" stroke-width="2"/><circle cx="12" cy="12" r="4" fill="none" stroke="currentColor" stroke-width="2"/><circle cx="17.5" cy="6.5" r="1.3" fill="currentColor"/></svg>
-            me acompanhe no Instagram
-          </a>
-          <span class="mao spoiler">fica de olho <span aria-hidden="true">✦</span></span>
+      <div class="acoes">
+        <div class="lado">
+          <a class="botao" href="#diagnostico">Fazer meu diagnóstico <svg aria-hidden="true"><use href="#i-seta"/></svg></a>
+          <small>Gratuito · 7 perguntas · resultado na hora</small>
         </div>
+        <a class="arroba" href="https://instagram.com/lo_braganca" target="_blank" rel="noopener">@lo_braganca</a>
       </div>
     </div>
-  </main>
+  </section>
 
-  <footer class="faixa">
-    <div class="miolo">© 2026 Lorena Bragança</div>
-  </footer>
+  <section class="faixa secao">
+    <div class="miolo">
+      <div class="cabeca">
+        <span class="rotulo">Você se reconhece?</span>
+        <h2>Sinais de que a sua empresa precisa de uma ferramenta própria</h2>
+      </div>
+      <ul class="sinais">
+        <li>As vendas estão numa planilha, os pedidos no WhatsApp e o estoque na cabeça de alguém.</li>
+        <li>Você só descobre se o mês foi bom quando ele já acabou.</li>
+        <li>Se você tira uma semana de folga, a empresa para.</li>
+        <li>Já pagou por um sistema pronto que não se encaixa no jeito que vocês trabalham.</li>
+      </ul>
+      <p class="fecho">Não é falta de esforço. <span>É falta da ferramenta certa.</span></p>
+    </div>
+  </section>
+
+  <section class="faixa secao" id="servicos">
+    <div class="miolo">
+      <div class="cabeca">
+        <span class="rotulo">O que eu construo</span>
+        <h2>Feito pro jeito que a sua empresa já trabalha</h2>
+      </div>
+      <div class="cartoes">
+        <article>
+          <svg class="icone" aria-hidden="true"><use href="#i-app"/></svg>
+          <h3>Apps de gestão</h3>
+          <p>Pedidos, clientes, estoque e agenda num lugar só, no celular e no computador.</p>
+        </article>
+        <article>
+          <svg class="icone" aria-hidden="true"><use href="#i-painel"/></svg>
+          <h3>Dashboards e indicadores</h3>
+          <p>Os números que importam, atualizados, pra decidir com dado e não no achismo.</p>
+        </article>
+        <article>
+          <svg class="icone" aria-hidden="true"><use href="#i-site"/></svg>
+          <h3>Sites profissionais</h3>
+          <p>Um endereço com a cara da sua marca, pronto pra receber clientes.</p>
+        </article>
+        <article>
+          <svg class="icone" aria-hidden="true"><use href="#i-fluxo"/></svg>
+          <h3>Mapeamento de processos</h3>
+          <p>O passo a passo da operação desenhado, pra equipe trabalhar sem depender de você.</p>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <section class="faixa secao">
+    <div class="miolo">
+      <div class="cabeca">
+        <span class="rotulo">Como funciona</span>
+        <h2>Do diagnóstico à ferramenta pronta</h2>
+      </div>
+      <ol class="passos">
+        <li><h3>Diagnóstico</h3><p>Você responde 7 perguntas rápidas e vê na hora o nível de controle da sua empresa.</p></li>
+        <li><h3>Conversa</h3><p>O resultado chega pra mim no WhatsApp e a gente conversa sobre o seu caso.</p></li>
+        <li><h3>Ferramenta sob medida</h3><p>Eu construo a solução do jeito que a sua empresa funciona, e não o contrário.</p></li>
+      </ol>
+    </div>
+  </section>
+
+  <section class="faixa secao diagnostico" id="diagnostico">
+    <div class="miolo">
+      <div class="cabeca">
+        <span class="rotulo">Diagnóstico gratuito</span>
+        <h2>Quanto controle você tem da sua empresa?</h2>
+        <p>Responda 7 perguntas e descubra o seu índice de controle, de 0 a 100, com o que mais pesa no seu caso.</p>
+        <ul>
+          <li><svg aria-hidden="true"><use href="#i-ok"/></svg>Leva cerca de 1 minuto</li>
+          <li><svg aria-hidden="true"><use href="#i-ok"/></svg>O resultado aparece na hora</li>
+          <li><svg aria-hidden="true"><use href="#i-ok"/></svg>Você escolhe se quer conversar depois</li>
+        </ul>
+      </div>
+
+      <div class="quiz" id="quiz">
+        <div class="progresso" id="progresso">
+          <div class="linha"><span id="contador">Pergunta 1 de 7</span><span id="porcento">0%</span></div>
+          <div class="barra" role="progressbar" aria-label="Andamento do diagnóstico" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"><i id="barra"></i></div>
+        </div>
+        <div id="palco" aria-live="polite">
+          <!-- Sem JavaScript, ao menos o caminho para falar com ela continua aqui. -->
+          <div class="pergunta">
+            <h3>O diagnóstico precisa do JavaScript ligado no navegador.</h3>
+            <a class="botao" href="https://wa.me/5531971473162" target="_blank" rel="noopener">Falar comigo no WhatsApp</a>
+          </div>
+        </div>
+        <div class="navegacao"><button type="button" class="voltar" id="voltar" hidden>← Voltar</button></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="faixa secao sobre">
+    <div class="miolo">
+      <div class="cabeca">
+        <span class="rotulo">Quem vai construir</span>
+        <h2>Oi, eu sou a Lorena.</h2>
+        <p>Eu ajudo empresários a <strong>enxergar o próprio negócio</strong>. Mapeio como o trabalho acontece, escolho com você os indicadores que importam e construo a ferramenta que coloca tudo isso na palma da sua mão.</p>
+      </div>
+      <ul class="fazeres">
+        <li><svg class="icone" aria-hidden="true"><use href="#i-fluxo"/></svg>Primeiro eu entendo como a sua empresa funciona</li>
+        <li><svg class="icone" aria-hidden="true"><use href="#i-painel"/></svg>Depois escolho com você o que precisa ser medido</li>
+        <li><svg class="icone" aria-hidden="true"><use href="#i-app"/></svg>E só então construo, sob medida</li>
+      </ul>
+    </div>
+  </section>
+
+  <section class="faixa secao duvidas">
+    <div class="miolo">
+      <div class="cabeca">
+        <span class="rotulo">Dúvidas</span>
+        <h2>Ficou alguma pergunta?</h2>
+      </div>
+      <div>
+        <details>
+          <summary>Preciso entender de tecnologia?</summary>
+          <p>Não. Você entende do seu negócio; a parte técnica é comigo.</p>
+        </details>
+        <details>
+          <summary>Serve pra empresa pequena?</summary>
+          <p>Serve. Quanto antes a empresa se organiza, mais fácil é crescer sem perder o controle.</p>
+        </details>
+        <details>
+          <summary>Quanto custa?</summary>
+          <p>Depende do que a sua empresa precisa. O diagnóstico é gratuito e é o primeiro passo pra eu te passar um valor.</p>
+        </details>
+        <details>
+          <summary>Fazer o diagnóstico me compromete com alguma coisa?</summary>
+          <p>Não. Você vê o resultado na hora e decide se quer mandar pra mim e conversar.</p>
+        </details>
+      </div>
+    </div>
+  </section>
+
+  <section class="faixa fim">
+    <div class="miolo">
+      <h2>Bora colocar a sua empresa na <span class="destaque">palma da mão?</span></h2>
+      <a class="botao" href="#diagnostico">Fazer meu diagnóstico <svg aria-hidden="true"><use href="#i-seta"/></svg></a>
+      <p>ou chama no direct: <a class="arroba" href="https://ig.me/m/lo_braganca" target="_blank" rel="noopener">@lo_braganca</a></p>
+    </div>
+  </section>
+</main>
+
+<footer class="faixa rodape">
+  <div class="miolo">
+    <span>© 2026 Lorena Bragança</span>
+    <a href="https://instagram.com/lo_braganca" target="_blank" rel="noopener">@lo_braganca</a>
+  </div>
+</footer>
+
+<script>
+// O diagnóstico: 7 perguntas, uma por vez. Nada é gravado em lugar nenhum;
+// as respostas só saem daqui na mensagem de WhatsApp, e só se a pessoa tocar no botão.
+
+// Número que recebe os diagnósticos: só dígitos, com 55 e o DDD. Confirmado por ela em 31/10.
+const WHATSAPP = "5531971473162";
+
+const SERVICOS = {
+  app:   { nome: "App de gestão", icone: "i-app" },
+  painel:{ nome: "Dashboard e indicadores", icone: "i-painel" },
+  site:  { nome: "Site profissional", icone: "i-site" },
+  fluxo: { nome: "Mapeamento de processos", icone: "i-fluxo" },
+};
+
+// As quatro do meio valem pontos (0 a 3 cada): são as que medem controle.
+// Ramo, equipe e objetivo só servem para a conversa e para a sugestão.
+const PERGUNTAS = [
+  { id: "ramo", rotulo: "Ramo", titulo: "Qual é o ramo da sua empresa?",
+    opcoes: ["Comércio ou loja", "Prestação de serviços", "Alimentação", "Saúde ou beleza", "Indústria ou produção", "Outro"].map(t => ({ t })) },
+  { id: "equipe", rotulo: "Equipe", titulo: "Quantas pessoas trabalham com você?",
+    opcoes: ["Só eu", "2 a 5 pessoas", "6 a 20 pessoas", "Mais de 20"].map(t => ({ t })) },
+  { id: "info", rotulo: "Informações do dia a dia", titulo: "Onde ficam hoje as informações do dia a dia, como vendas, pedidos e clientes?",
+    opcoes: [
+      { t: "No caderno ou no papel", p: 0 },
+      { t: "Espalhadas em conversas de WhatsApp", p: 0 },
+      { t: "Em planilhas", p: 1 },
+      { t: "Num sistema pronto que não serve direito", p: 2 },
+      { t: "Num sistema que funciona bem", p: 3 },
+    ] },
+  { id: "numeros", rotulo: "Números do mês", titulo: "Se eu perguntar agora quanto a empresa faturou e lucrou no mês passado, você…",
+    opcoes: [
+      { t: "Responde na hora", p: 3 },
+      { t: "Sabe o faturamento, mas o lucro não", p: 2 },
+      { t: "Precisa fazer as contas ou esperar o contador", p: 1 },
+      { t: "Não sabe", p: 0 },
+    ] },
+  { id: "tempo", rotulo: "Tempo perdido por semana", titulo: "Quanto tempo por semana vai embora com retrabalho, procurando informação ou passando dado de um lugar pro outro?",
+    opcoes: [
+      { t: "Quase nenhum", p: 3 },
+      { t: "Algumas horas", p: 2 },
+      { t: "Mais ou menos um dia", p: 1 },
+      { t: "Mais de um dia", p: 0 },
+    ] },
+  { id: "folga", rotulo: "Se eu fico uma semana fora", titulo: "Se você ficar uma semana fora, a empresa…",
+    opcoes: [
+      { t: "Funciona normalmente", p: 3 },
+      { t: "Funciona, mas me ligam toda hora", p: 1 },
+      { t: "Para", p: 0 },
+    ] },
+  { id: "objetivo", rotulo: "Quero resolver", titulo: "O que você mais quer resolver agora?",
+    opcoes: [
+      { t: "Ter os números da empresa na palma da mão", s: "painel" },
+      { t: "Organizar pedidos, clientes ou estoque", s: "app" },
+      { t: "Ter um site profissional", s: "site" },
+      { t: "Fazer a equipe trabalhar sem depender de mim", s: "fluxo" },
+      { t: "Ainda não sei, quero ajuda pra descobrir" },
+    ] },
+];
+const PONTUADAS = PERGUNTAS.filter(q => q.opcoes.some(o => "p" in o));
+const MAXIMO = PONTUADAS.length * 3;
+
+const NIVEIS = [
+  { ate: 39, nome: "No improviso", texto: "A empresa funciona na sua cabeça e no esforço de todo dia. Cada decisão depende de alguém lembrar." },
+  { ate: 69, nome: "No meio do caminho", texto: "A informação existe, mas está espalhada e dá trabalho pra virar decisão." },
+  { ate: 100, nome: "Pronta pra acelerar", texto: "A base está de pé. O próximo passo é ganhar tempo e acompanhar os números sem esforço." },
+];
+
+const respostas = {};   // id da pergunta -> índice da opção
+let passo = 0;
+
+const palco = document.getElementById("palco");
+const voltar = document.getElementById("voltar");
+const progresso = document.getElementById("progresso");
+const barra = document.getElementById("barra");
+const barraPai = barra.parentElement;
+
+function el(tag, attrs = {}, ...filhos) {
+  const n = document.createElement(tag);
+  for (const [k, v] of Object.entries(attrs)) {
+    if (k === "class") n.className = v; else if (k === "text") n.textContent = v; else n.setAttribute(k, v);
+  }
+  filhos.forEach(f => f && n.append(f));
+  return n;
+}
+function icone(id, cls) {
+  const ns = "http://www.w3.org/2000/svg";
+  const s = document.createElementNS(ns, "svg"); s.setAttribute("aria-hidden", "true"); if (cls) s.setAttribute("class", cls);
+  const u = document.createElementNS(ns, "use"); u.setAttribute("href", "#" + id); s.append(u);
+  return s;
+}
+
+function marcarProgresso(feitas) {
+  const pct = Math.round((feitas / PERGUNTAS.length) * 100);
+  barra.style.width = pct + "%";
+  barraPai.setAttribute("aria-valuenow", pct);
+  document.getElementById("porcento").textContent = pct + "%";
+}
+
+function mostrarPergunta(focar) {
+  const q = PERGUNTAS[passo];
+  progresso.hidden = false;
+  document.getElementById("contador").textContent = `Pergunta ${passo + 1} de ${PERGUNTAS.length}`;
+  marcarProgresso(passo);
+  const titulo = el("h3", { tabindex: "-1", text: q.titulo });
+  const opcoes = el("div", { class: "opcoes", role: "group", "aria-label": q.titulo });
+  q.opcoes.forEach((o, i) => {
+    const b = el("button", { type: "button", class: "opcao", "aria-pressed": String(respostas[q.id] === i), text: o.t });
+    b.addEventListener("click", () => escolher(q, i, b));
+    opcoes.append(b);
+  });
+  palco.replaceChildren(el("div", { class: "pergunta" }, titulo, opcoes));
+  voltar.hidden = passo === 0;
+  if (focar) titulo.focus({ preventScroll: true });
+}
+
+function escolher(q, i, botao) {
+  respostas[q.id] = i;
+  botao.parentElement.querySelectorAll(".opcao").forEach(b => b.setAttribute("aria-pressed", String(b === botao)));
+  // um respiro para a marca aparecer antes de trocar de pergunta
+  setTimeout(() => {
+    if (passo < PERGUNTAS.length - 1) { passo++; mostrarPergunta(true); }
+    else mostrarResultado();
+  }, 220);
+}
+
+voltar.addEventListener("click", () => {
+  if (passo > 0) { passo--; mostrarPergunta(true); }
+});
+
+function resposta(id) { const q = PERGUNTAS.find(q => q.id === id); return q.opcoes[respostas[id]]; }
+
+function calcular() {
+  const pontos = PONTUADAS.reduce((s, q) => s + resposta(q.id).p, 0);
+  const indice = Math.round((pontos / MAXIMO) * 100);
+  const nivel = NIVEIS.find(n => indice <= n.ate);
+
+  // o que mais pesa: as respostas fracas viram achados, cada um com o serviço que o resolve
+  const achados = [];
+  if (resposta("info").p <= 1) achados.push({ t: "Suas informações estão espalhadas. Enquanto cada coisa mora num lugar, ninguém enxerga o todo.", s: "app" });
+  if (resposta("numeros").p <= 1) achados.push({ t: "Você ainda não vê os números da empresa na hora de decidir.", s: "painel" });
+  if (resposta("tempo").p <= 1) achados.push({ t: `Retrabalho está levando ${resposta("tempo").t.toLowerCase()} por semana.`, s: "app" });
+  if (resposta("folga").p <= 1) achados.push({ t: "A empresa depende de você pra funcionar.", s: "fluxo" });
+  if (!achados.length) achados.push({ t: "A base está boa: o ganho agora está em acompanhar indicadores e automatizar o que se repete.", s: "painel", bom: true });
+
+  const sugestoes = [];
+  const quer = resposta("objetivo").s;
+  if (quer) sugestoes.push(quer);
+  achados.forEach(a => { if (!sugestoes.includes(a.s)) sugestoes.push(a.s); });
+  return { indice, nivel, achados, sugestoes: sugestoes.slice(0, 3) };
+}
+
+function medidor(indice) {
+  // meio círculo: o arco limão cresce com o índice
+  const ns = "http://www.w3.org/2000/svg";
+  const s = document.createElementNS(ns, "svg");
+  s.setAttribute("viewBox", "0 0 160 100"); s.setAttribute("role", "img"); s.setAttribute("aria-label", `Índice de controle: ${indice} de 100`);
+  const arco = "M 14 86 A 66 66 0 0 1 146 86";
+  const comp = Math.PI * 66;
+  s.innerHTML =
+    `<path d="${arco}" fill="none" stroke="#262A32" stroke-width="14" stroke-linecap="round"/>` +
+    `<path d="${arco}" fill="none" stroke="#C8F26B" stroke-width="14" stroke-linecap="round" stroke-dasharray="${comp}" stroke-dashoffset="${comp}" class="arco-valor"/>` +
+    `<text x="80" y="80" text-anchor="middle" class="valor">${indice}</text>` +
+    `<text x="80" y="98" text-anchor="middle" class="de">de 100</text>`;
+  requestAnimationFrame(() => requestAnimationFrame(() => {
+    const p = s.querySelector(".arco-valor");
+    p.style.transition = "stroke-dashoffset .9s ease";
+    p.style.strokeDashoffset = String(comp * (1 - indice / 100));
+  }));
+  return s;
+}
+
+function mensagem(r, nome, empresa) {
+  const linhas = ["Oi, Lorena! Fiz o diagnóstico no seu site.", "", "Nome: " + nome];
+  if (empresa) linhas.push("Empresa: " + empresa);
+  PERGUNTAS.forEach(q => linhas.push(q.rotulo + ": " + q.opcoes[respostas[q.id]].t));
+  linhas.push("", `Resultado: ${r.indice}/100, ${r.nivel.nome}.`);
+  return linhas.join("\n");
+}
+
+function mostrarResultado() {
+  const r = calcular();
+  marcarProgresso(PERGUNTAS.length);
+  progresso.hidden = true;
+  voltar.hidden = true;
+
+  const titulo = el("h3", { tabindex: "-1", text: r.nivel.nome });
+  const topo = el("div", { class: "medidor" }, medidor(r.indice),
+    el("div", { class: "nivel" }, el("span", { text: "Seu índice de controle" }), titulo, el("p", { text: r.nivel.texto })));
+
+  const achados = el("ul", { class: "achados" });
+  r.achados.forEach(a => achados.append(el("li", {}, icone(a.bom ? "i-ok" : "i-alerta"), el("span", { text: a.t }))));
+
+  const chips = el("div", { class: "chips" });
+  r.sugestoes.forEach(k => chips.append(el("span", {}, icone(SERVICOS[k].icone), document.createTextNode(SERVICOS[k].nome))));
+  const sugestao = el("div", { class: "sugestao" }, el("span", { text: "O que eu construiria primeiro no seu caso" }), chips);
+
+  const nome = el("input", { id: "nome", type: "text", autocomplete: "name", placeholder: "Ex.: Ana Paula", required: "" });
+  const empresa = el("input", { id: "empresa", type: "text", autocomplete: "organization", placeholder: "Opcional" });
+  const erro = el("p", { class: "erro", text: "Escreva seu nome pra eu saber com quem estou falando." }); erro.hidden = true;
+  // o botão é um link de verdade, refeito a cada tecla: é o jeito que abre o WhatsApp em qualquer celular
+  const enviar = el("a", { class: "botao", target: "_blank", rel: "noopener", "aria-disabled": "true" },
+    icone("i-zap"), document.createTextNode("Receber minha análise no WhatsApp"));
+  const atualizar = () => {
+    const n = nome.value.trim();
+    enviar.href = "https://wa.me/" + WHATSAPP + "?text=" + encodeURIComponent(mensagem(r, n, empresa.value.trim()));
+    enviar.setAttribute("aria-disabled", String(!n));
+    if (n) erro.hidden = true;
+  };
+  nome.addEventListener("input", atualizar); empresa.addEventListener("input", atualizar);
+  enviar.addEventListener("click", e => {
+    if (!nome.value.trim()) { e.preventDefault(); erro.hidden = false; nome.focus(); }
+  });
+  atualizar();
+
+  const envio = el("div", { class: "envio" },
+    el("h4", { text: "Quer que eu olhe o seu caso? Mande o resultado pra mim." }),
+    el("div", { class: "campos" },
+      el("div", { class: "campo" }, el("label", { for: "nome", text: "Seu nome" }), nome),
+      el("div", { class: "campo" }, el("label", { for: "empresa", text: "Nome da empresa" }), empresa)),
+    erro, enviar,
+    el("p", { class: "nota", text: "Abre o WhatsApp com as suas respostas já escritas. É só tocar em enviar." }));
+
+  const refazer = el("button", { type: "button", class: "voltar refazer", text: "Refazer o diagnóstico" });
+  refazer.addEventListener("click", () => { for (const k in respostas) delete respostas[k]; passo = 0; mostrarPergunta(true); });
+
+  palco.replaceChildren(el("div", { class: "resultado" }, topo, achados, sugestao, envio, refazer));
+  titulo.focus({ preventScroll: true });
+  document.getElementById("quiz").scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "start" });
+}
+
+mostrarPergunta(false);
+</script>
 </body>
 </html>
