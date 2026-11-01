@@ -14,7 +14,7 @@ export default async function handler(req, res) {
   if (!PAGINAS.includes(d.pagina) || typeof d.visitante !== "string" || !UUID.test(d.visitante)) return responder(res, 400, { erro: "Visita inválida." });
   if (ROBO.test(String(req.headers["user-agent"] || ""))) return responder(res, 204);
   try {
-    await contarVisita(d.pagina, d.visitante.toLowerCase());
+    await contarVisita(d.pagina, d.visitante.toLowerCase(), d.origem);
   } catch (e) {
     console.warn("visita não contou:", e.message);
   }

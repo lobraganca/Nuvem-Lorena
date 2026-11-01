@@ -68,12 +68,16 @@ const chaveDo = (id) => "diag:" + id;
 
 /** Junta campos novos no registro de um diagnóstico — ou cria, se ele ainda não existe.
  *  As etapas chegam em qualquer ordem (a rede pode atrasar uma), e nenhuma apaga a outra. */
+// A política de privacidade (/privacidade) promete: o contato some sozinho em 2 anos.
+// Cada gravação renova o prazo; a lista do /adm ignora quem já expirou.
+const VALIDADE_DO_CONTATO = 730 * 86400;
+
 async function juntar(id, campos) {
   const [atual] = await redis(["GET", chaveDo(id)]);
   const antes = atual ? JSON.parse(atual) : { id, criado_em: new Date().toISOString() };
   const junto = { ...antes, ...campos, id, criado_em: antes.criado_em };
   await redis(
-    ["SET", chaveDo(id), JSON.stringify(junto)],
+    ["SET", chaveDo(id), JSON.stringify(junto), "EX", VALIDADE_DO_CONTATO],
     ["ZADD", "diags", "NX", Date.parse(junto.criado_em), id],
   );
   return { junto, novo: !atual };
@@ -93,12 +97,19 @@ async function listarDiagnosticos(limite = 500) {
 }
 
 /** Liga/desliga "já falei". Devolve undefined se o diagnóstico não existe. */
+/** Apaga de vez (pedido da pessoa, LGPD). Devolve false se ele já não existia. */
+async function apagarDiagnostico(id) {
+  const [apagados] = await redis(["DEL", chaveDo(id)], ["ZREM", "diags", id]);
+  return apagados > 0;
+}
+
 async function marcarContatado(id, feito) {
-  const [atual] = await redis(["GET", chaveDo(id)]);
+  const [atual, falta] = await redis(["GET", chaveDo(id)], ["TTL", chaveDo(id)]);
   if (!atual) return undefined;
   const d = JSON.parse(atual);
   d.contatado_em = feito ? new Date().toISOString() : null;
-  await redis(["SET", chaveDo(id), JSON.stringify(d), "XX"]);
+  // regrava com o MESMO prazo que faltava (marcar "já falei" não renova os 2 anos)
+  await redis(Number(falta) > 0 ? ["SET", chaveDo(id), JSON.stringify(d), "XX", "EX", Number(falta)] : ["SET", chaveDo(id), JSON.stringify(d), "XX"]);
   return d.contatado_em;
 }
 
@@ -121,24 +132,40 @@ function ultimosDias(n) {
   return [...new Set(dias)];
 }
 
-async function contarVisita(pagina, visitante) {
+/** De onde veio: "tiktok", "instagram"... Só letras, números e hífen; o resto vira "outro".
+ *  Ela vai anunciar no TikTok (01/11) e quer saber se o anúncio traz gente. */
+function origemLimpa(o) {
+  const t = String(o || "").toLowerCase().trim();
+  if (!t) return "direto";
+  return /^[a-z0-9-]{1,30}$/.test(t) ? t : "outro";
+}
+
+async function contarVisita(pagina, visitante, origem = "direto") {
   const dia = diaDe(), ttl = GUARDAR_DIAS * 86400;
   await redis(
     ["INCR", `visitas:${pagina}:${dia}`], ["EXPIRE", `visitas:${pagina}:${dia}`, ttl],
     ["PFADD", `unicos:${pagina}:${dia}`, visitante], ["EXPIRE", `unicos:${pagina}:${dia}`, ttl],
+    ["HINCRBY", `origens:${pagina}:${dia}`, origemLimpa(origem), 1], ["EXPIRE", `origens:${pagina}:${dia}`, ttl],
     ["INCR", `visitas:${pagina}:total`],
   );
 }
 
 async function resumoDeVisitas() {
   const dias = ultimosDias(30);
-  const [inicio, pessoasSemana, pessoasMes, total, portfolio] = await redis(
+  const [inicio, pessoasSemana, pessoasMes, total, portfolio, ...origensPorDia] = await redis(
     ["MGET", ...dias.map((d) => `visitas:inicio:${d}`)],
     ["PFCOUNT", ...dias.slice(-7).map((d) => `unicos:inicio:${d}`)],
     ["PFCOUNT", ...dias.map((d) => `unicos:inicio:${d}`)],
     ["GET", "visitas:inicio:total"],
     ["MGET", ...dias.map((d) => `visitas:portifolio:${d}`)],
+    ...dias.map((d) => ["HGETALL", `origens:inicio:${d}`]),
   );
+  // a API REST devolve HGETALL como lista plana [campo, valor, campo, valor...]
+  const origens = {};
+  for (const dia of origensPorDia) {
+    const pares = Array.isArray(dia) ? dia : Object.entries(dia || {}).flat();
+    for (let i = 0; i < pares.length; i += 2) origens[pares[i]] = (origens[pares[i]] || 0) + (Number(pares[i + 1]) || 0);
+  }
   const porDia = inicio.map((v, i) => ({ dia: dias[i], visitas: Number(v) || 0 }));
   const soma = (lista) => lista.reduce((t, x) => t + x, 0);
   return {
@@ -150,6 +177,7 @@ async function resumoDeVisitas() {
     pessoasMes: Number(pessoasMes) || 0,
     total: Number(total) || 0,
     portfolioMes: soma(portfolio.map((v) => Number(v) || 0)),
+    origens, // visitas da página principal por origem, 30 dias
   };
 }
 
@@ -284,7 +312,7 @@ async function avisar(mensagem) {
 
 export {
   SENHA, faltando, responder, lerCorpo,
-  gravarInicio, gravarResultado, gravarContato, listarDiagnosticos, marcarContatado, guardarInscricao,
+  gravarInicio, gravarResultado, gravarContato, listarDiagnosticos, apagarDiagnostico, origemLimpa, marcarContatado, guardarInscricao,
   PAGINAS, contarVisita, resumoDeVisitas,
   senhaConfere, criarPasse, passeValido,
   chavesVapid, cifrar, assinarJwt, avisar,

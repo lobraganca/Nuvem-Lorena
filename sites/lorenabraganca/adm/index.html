@@ -99,6 +99,14 @@ input[type="password"]:focus { outline: none; border-color: var(--limao); }
 .grafico .maximo { fill: var(--apagado); font: 11px var(--f-texto); }
 .grafico-eixo { display: flex; justify-content: space-between; color: var(--apagado); font-size: 12px; }
 .conversao { color: var(--suave); font-size: 14px; line-height: 1.5; }
+.origens { display: grid; gap: 8px; border-top: 1px solid var(--borda); padding-top: 12px; }
+.origens h3 { margin: 0; font: 700 14px/1.2 var(--f-titulo); color: var(--suave); }
+.origem { display: grid; grid-template-columns: minmax(0, 1fr) auto auto; gap: 14px; align-items: baseline; font-size: 15px; font-variant-numeric: tabular-nums; }
+.origem span:first-child { font-weight: 600; color: var(--texto); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.origem span { color: var(--suave); }
+.origem.cabecalho span { font-size: 12px; color: var(--apagado); font-weight: 600; text-transform: uppercase; letter-spacing: .06em; }
+.apagar { justify-self: start; background: none; border: 0; padding: 4px 0; color: var(--apagado); font: 600 13px/1 var(--f-titulo); cursor: pointer; }
+.apagar.confirmar { color: var(--baixo); }
 .conversao b { color: var(--texto); }
 .aviso { background: var(--cartao); border: 1.5px solid var(--borda); border-radius: 16px; padding: 16px; display: grid; gap: 10px; }
 .aviso.ligado { border-color: color-mix(in srgb, var(--limao) 40%, var(--borda)); }
@@ -188,6 +196,7 @@ dd { margin: 0; font-size: 15px; }
       <table class="escondido" id="v-tabela"><caption>Visitas por dia, últimos 14 dias</caption><tbody></tbody></table>
     </div>
     <p class="conversao" id="v-conversao"></p>
+    <div class="origens" id="v-origens" hidden></div>
   </section>
 
   <section class="aviso" id="aviso" aria-live="polite">
@@ -339,6 +348,11 @@ function numeroLegivel(w) { // 5531999998888 -> (31) 99999-8888
   return d.length === 11 ? `(${d.slice(0, 2)}) ${d.slice(2, 7)}-${d.slice(7)}` : `(${d.slice(0, 2)}) ${d.slice(2, 6)}-${d.slice(6)}`;
 }
 
+// os nomes das origens como ela fala; o que não estiver aqui aparece como veio do link
+const NOMES_DA_ORIGEM = { tiktok: "TikTok", instagram: "Instagram", facebook: "Facebook", whatsapp: "WhatsApp", google: "Google",
+  youtube: "YouTube", linkedin: "LinkedIn", "outro-site": "Outro site", outro: "Outra", direto: "Direto ou sem origem" };
+const nomeDaOrigem = (o) => NOMES_DA_ORIGEM[o || "direto"] || o;
+
 function corDoIndice(i) { return i >= 70 ? "var(--alto)" : i >= 40 ? "var(--medio)" : "var(--baixo)"; }
 
 function cartao(x) {
@@ -350,7 +364,8 @@ function cartao(x) {
     : el("div", { class: "indice", style: "--cor:var(--apagado)" }, el("b", { text: "—" }), el("span", { text: "não terminou" }));
   const quem = el("div", {},
     el("h2", { text: temContato ? x.nome : "Sem contato" }),
-    el("small", { text: [temContato && x.empresa, quando(temContato && x.contato_em ? x.contato_em : x.criado_em)].filter(Boolean).join(" · ") }));
+    el("small", { text: [temContato && x.empresa, quando(temContato && x.contato_em ? x.contato_em : x.criado_em),
+      x.origem && x.origem !== "direto" ? "veio do " + nomeDaOrigem(x.origem) : ""].filter(Boolean).join(" · ") }));
   const c = el("article", { class: "pessoa" + (x.contatado_em ? " feito" : "") }, el("div", { class: "cabeca" }, quem, indice));
 
   if (temContato) {
@@ -382,6 +397,29 @@ function cartao(x) {
   const lista = el("dl");
   Object.entries(x.respostas || {}).forEach(([k, v]) => lista.append(el("dt", { text: k }), el("dd", { text: v })));
   if (x.respostas) c.append(el("details", {}, el("summary", { text: "Ver as respostas" }), lista));
+
+  // Apagar de vez: a política de privacidade promete apagar quando a pessoa pedir. Dois toques,
+  // para um toque sem querer não sumir com um contato.
+  const apagar = el("button", { type: "button", class: "apagar", text: "Apagar este contato" });
+  let armado = null;
+  apagar.addEventListener("click", async () => {
+    if (!armado) {
+      apagar.textContent = "Toque de novo para apagar de vez"; apagar.classList.add("confirmar");
+      armado = setTimeout(() => { armado = null; apagar.textContent = "Apagar este contato"; apagar.classList.remove("confirmar"); }, 4000);
+      return;
+    }
+    clearTimeout(armado); apagar.disabled = true; apagar.textContent = "Apagando…";
+    try {
+      await api("apagar", { id: x.id });
+      diagnosticos = diagnosticos.filter((y) => y.id !== x.id);
+      desenhar();
+    } catch (err) {
+      if (err instanceof SemPasse) return mostrar("entrar");
+      apagar.disabled = false; apagar.textContent = err.status === 404 ? "Já tinha sido apagado" : "Não consegui apagar. Tente de novo.";
+      if (err.status === 404) { diagnosticos = diagnosticos.filter((y) => y.id !== x.id); setTimeout(desenhar, 1200); }
+    }
+  });
+  c.append(apagar);
   return c;
 }
 
@@ -442,6 +480,21 @@ function desenharVisitas(v) {
     document.createTextNode("Nos últimos 30 dias, "), el("b", { text: `${v.pessoasMes} ${v.pessoasMes === 1 ? "pessoa visitou" : "pessoas visitaram"}` }),
     document.createTextNode(" a página; "), el("b", { text: `${deixaram} (${pct}%)` }),
     document.createTextNode(` ${deixaram === 1 ? "deixou" : "deixaram"} o contato e ${terminaram} ${terminaram === 1 ? "terminou" : "terminaram"} o diagnóstico. O portfólio teve ${v.portfolioMes} ${v.portfolioMes === 1 ? "visita" : "visitas"}.`));
+
+  // De onde vieram (30 dias): visitas da página principal e contatos, por origem. É o que
+  // diz se o anúncio do TikTok está trazendo gente — e se essa gente deixa o contato.
+  const porOrigem = {};
+  for (const [o, n] of Object.entries(v.origens || {})) porOrigem[o] = { visitas: n, contatos: 0 };
+  for (const x of doMes) if (x.nome && x.whatsapp) {
+    const o = x.origem || "direto";
+    (porOrigem[o] ||= { visitas: 0, contatos: 0 }).contatos++;
+  }
+  const linhas = Object.entries(porOrigem).sort((a, b) => b[1].visitas - a[1].visitas || b[1].contatos - a[1].contatos);
+  const quadro = $("v-origens");
+  quadro.hidden = !linhas.length;
+  quadro.replaceChildren(el("h3", { text: "De onde vieram (30 dias)" }),
+    el("div", { class: "origem cabecalho" }, el("span", { text: "Origem" }), el("span", { text: "Visitas" }), el("span", { text: "Contatos" })),
+    ...linhas.map(([o, n]) => el("div", { class: "origem" }, el("span", { text: nomeDaOrigem(o) }), el("span", { text: String(n.visitas) }), el("span", { text: String(n.contatos) }))));
 }
 
 function contar() {

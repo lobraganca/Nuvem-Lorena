@@ -246,6 +246,7 @@ h1, h2 { position: relative; z-index: 0; }
 .inicio { display: grid; gap: 14px; }
 .inicio .botao { width: 100%; }
 .inicio .nota { font-size: 14px; color: var(--suave); text-align: center; }
+.inicio .nota a { color: var(--suave); }
 .inicio .erro { color: #FF8A80; font-size: 14px; font-weight: 600; }
 .campo { display: grid; gap: 6px; }
 .campo label { font: 600 14px/1 var(--f-titulo); color: var(--suave); }
@@ -501,7 +502,7 @@ details p { padding: 0 0 22px; color: var(--suave); max-width: 40em; }
 <footer class="faixa rodape">
   <div class="miolo">
     <span>© 2026 Lorena Bragança</span>
-    <span style="display:flex;gap:18px"><a href="/portifolio/">Portfólio</a><a href="https://instagram.com/lo_braganca" target="_blank" rel="noopener">@lo_braganca</a></span>
+    <span style="display:flex;gap:18px;flex-wrap:wrap"><a href="/portifolio/">Portfólio</a><a href="/privacidade/">Privacidade</a><a href="https://instagram.com/lo_braganca" target="_blank" rel="noopener">@lo_braganca</a></span>
   </div>
 </footer>
 
@@ -607,6 +608,16 @@ function respostasLegiveis() {
   return r;
 }
 
+// A origem do contato: a última que não foi "direto" nos últimos 30 dias (anotada pelo
+// contador de visitas, no fim da página).
+function origemDoContato() {
+  try {
+    const g = JSON.parse(localStorage.getItem("origem") || "null");
+    if (g && Date.now() - g.t < 30 * 864e5) return g.o;
+  } catch (e) { /* sem memória no navegador */ }
+  return "direto";
+}
+
 // (31) 99999-8888, 31999998888 ou +55 31 99999-8888: tudo vale.
 function whatsappDigitos(v) {
   let d = String(v || "").replace(/\D/g, "");
@@ -661,7 +672,8 @@ function mostrarContato(focar) {
       el("div", { class: "campo" }, el("label", { for: "whatsapp", text: "Seu WhatsApp" }), whatsapp),
       el("div", { class: "campo inteiro" }, el("label", { for: "empresa", text: "Nome da empresa" }), empresa)),
     erro, botao,
-    el("p", { class: "nota", text: "Ao continuar, você autoriza a Lorena a entrar em contato pelo número informado. Seus dados ficam só com ela." }));
+    el("p", { class: "nota" }, document.createTextNode("Ao continuar, você autoriza a Lorena a entrar em contato pelo número informado. Seus dados ficam só com ela. "),
+      el("a", { href: "/privacidade/", target: "_blank", rel: "noopener", text: "Política de privacidade" })));
   form.addEventListener("submit", e => {
     e.preventDefault();
     const n = nome.value.trim(), w = whatsappDigitos(whatsapp.value);
@@ -672,7 +684,7 @@ function mostrarContato(focar) {
       return;
     }
     contato = { nome: n, whatsapp: w, whatsappDigitado: whatsapp.value, empresa: empresa.value.trim() };
-    const dados = { etapa: "inicio", id: diagnosticoId, nome: n, whatsapp: w, empresa: contato.empresa };
+    const dados = { etapa: "inicio", id: diagnosticoId, nome: n, whatsapp: w, empresa: contato.empresa, origem: origemDoContato() };
     const chave = JSON.stringify(dados);
     if (chave !== ultimoInicio) { ultimoInicio = chave; enviarAoServidor(dados); }
     passo = 0;
@@ -806,11 +818,35 @@ function mostrarResultado() {
 mostrarContato(false);
 </script>
 <script>
-// Conta a visita, para o número aparecer no /adm. Sem cookie e sem dado pessoal: só um
-// número aleatório guardado neste navegador, que diz se é a mesma pessoa voltando.
-// Quem já entrou no /adm neste aparelho (a Lorena) não conta.
+// Conta a visita, para o número aparecer no /adm, e anota DE ONDE ela veio (01/11: ela vai
+// anunciar no TikTok e quer saber se o anúncio traz gente). Sem cookie e sem dado pessoal:
+// um número aleatório neste navegador diz se é a mesma pessoa voltando.
 (function () {
   try {
+    // 1. a origem: ?origem=tiktok no link do anúncio (ou utm_source); senão, o site de onde clicou
+    var p = new URLSearchParams(location.search);
+    var marcada = (p.get("origem") || p.get("utm_source") || "").toLowerCase();
+    var apelidos = { ig: "instagram", insta: "instagram", fb: "facebook", tt: "tiktok", zap: "whatsapp", wpp: "whatsapp" };
+    var origem = apelidos[marcada] || marcada;
+    if (!origem && document.referrer) {
+      var site = new URL(document.referrer).hostname;
+      if (site !== location.hostname) {
+        origem = /instagram/.test(site) ? "instagram" : /tiktok/.test(site) ? "tiktok" : /facebook|fb\.com/.test(site) ? "facebook"
+          : /(^|\.)google\./.test(site) ? "google" : /whatsapp|wa\.me/.test(site) ? "whatsapp" : /youtube/.test(site) ? "youtube"
+          : /linkedin/.test(site) ? "linkedin" : "outro-site";
+      }
+    }
+    origem = (origem || "direto").replace(/[^a-z0-9-]/g, "").slice(0, 30) || "direto";
+    // o contato que nascer nos 30 dias seguintes fica com a última origem que não foi "direto":
+    // quem viu o anúncio hoje e volta amanhã digitando o endereço ainda conta para o anúncio
+    if (origem !== "direto") localStorage.setItem("origem", JSON.stringify({ o: origem, t: Date.now() }));
+    // tira o ?origem= do endereço: quem copiar o link para mandar a alguém não leva a marcação junto
+    if (marcada && history.replaceState) {
+      ["origem", "utm_source", "utm_medium", "utm_campaign", "utm_content", "utm_term"].forEach(function (k) { p.delete(k); });
+      history.replaceState(null, "", location.pathname + (p.toString() ? "?" + p : "") + location.hash);
+    }
+
+    // 2. a visita (quem já entrou no /adm neste aparelho, a Lorena, não conta)
     if (localStorage.getItem("adm-passe")) return;
     var v = localStorage.getItem("visitante");
     if (!v) {
@@ -819,7 +855,7 @@ mostrarContato(false);
       });
       localStorage.setItem("visitante", v);
     }
-    fetch("/api/visita", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ pagina: "inicio", visitante: v }), keepalive: true }).catch(function () {});
+    fetch("/api/visita", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ pagina: "inicio", visitante: v, origem: origem }), keepalive: true }).catch(function () {});
   } catch (e) { /* sem memória no navegador: segue sem contar */ }
 })();
 </script>

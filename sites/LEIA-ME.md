@@ -100,6 +100,29 @@ O botão **Atualizar** (no topo e no fim) sempre responde: "Atualizando…" e
 depois "Nada novo" ou "2 novos", com a hora em segundos. Antes, sem novidade,
 nada mudava na tela — e ela achou que o botão não funcionava.
 
+### Política de privacidade e origem — para anunciar no TikTok (01/11)
+
+**`/privacidade`** existe porque o TikTok exige política de privacidade em
+página que coleta dado pessoal (e a LGPD também). O formulário do diagnóstico
+e os rodapés apontam para ela. **O que ela promete o código cumpre** — mexeu
+num, confira o outro:
+
+- contato e respostas **vencem sozinhos em 2 anos** (`EX` no `SET` de
+  `diag:<id>`; marcar "já falei" regrava com o prazo que faltava, não renova);
+- **apagar quando a pessoa pedir**: botão "Apagar este contato" em cada cartão
+  do /adm, com dois toques (`acao: "apagar"`, `DEL` + `ZREM`);
+- visitas por 100 dias, sem cookie.
+
+**A origem:** o link do anúncio leva `?origem=tiktok` (aceita também
+`utm_source` e apelidos como `ig`, `tt`, `zap`); sem isso, vale o site de onde
+a pessoa clicou (instagram, tiktok, google...). A marcação sai do endereço logo
+ao abrir, para não ir junto quando alguém copia o link. Cada visita conta para a
+própria origem (`origens:<página>:<dia>`, um hash). O **contato** fica com a
+última origem que não foi "direto" nos 30 dias anteriores (`localStorage`): quem
+viu o anúncio hoje e voltou amanhã digitando o endereço ainda conta para o
+anúncio. O /adm mostra "veio do TikTok" no cartão e o quadro "De onde vieram",
+com visitas e contatos por origem.
+
 ### O banco: Upstash (Redis), pela própria Vercel
 
 **Não é o Supabase**: o plano grátis dela no Supabase já estava no limite de

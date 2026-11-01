@@ -4,7 +4,7 @@
 // A etapa "contato" (contato DEPOIS do resultado) é do jeito antigo e segue aceita, para
 // quem estiver com a página velha aberta.
 // A página manda e não espera resposta: se isto falhar, o WhatsApp abre do mesmo jeito.
-import { faltando, responder, lerCorpo, gravarInicio, gravarResultado, gravarContato, avisar } from "./_lib.mjs";
+import { faltando, responder, lerCorpo, gravarInicio, gravarResultado, gravarContato, avisar, origemLimpa } from "./_lib.mjs";
 
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 
@@ -44,7 +44,7 @@ export default async function handler(req, res) {
     const empresa = texto(d.empresa, 80) || null;
     if (!id || !nome || !whatsapp) return responder(res, 400, { erro: "Nome e WhatsApp são obrigatórios." });
     try {
-      await gravarInicio(id, { nome, whatsapp, empresa, contato_em: new Date().toISOString() });
+      await gravarInicio(id, { nome, whatsapp, empresa, origem: origemLimpa(d.origem), contato_em: new Date().toISOString() });
     } catch (e) {
       console.error("o contato não gravou:", e.message);
       return responder(res, 502, { erro: "Não foi possível gravar agora." });

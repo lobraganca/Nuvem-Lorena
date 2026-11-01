@@ -386,15 +386,39 @@ h1, h2 { position: relative; z-index: 0; }
 <footer class="faixa rodape">
   <div class="miolo">
     <span>© 2026 Lorena Bragança</span>
-    <nav><a href="/">Início</a><a href="https://instagram.com/lo_braganca" target="_blank" rel="noopener">@lo_braganca</a></nav>
+    <nav><a href="/">Início</a><a href="/privacidade/">Privacidade</a><a href="https://instagram.com/lo_braganca" target="_blank" rel="noopener">@lo_braganca</a></nav>
   </div>
 </footer>
 <script>
-// Conta a visita, para o número aparecer no /adm. Sem cookie e sem dado pessoal: só um
-// número aleatório guardado neste navegador, que diz se é a mesma pessoa voltando.
-// Quem já entrou no /adm neste aparelho (a Lorena) não conta.
+// Conta a visita, para o número aparecer no /adm, e anota DE ONDE ela veio (01/11: ela vai
+// anunciar no TikTok e quer saber se o anúncio traz gente). Sem cookie e sem dado pessoal:
+// um número aleatório neste navegador diz se é a mesma pessoa voltando.
 (function () {
   try {
+    // 1. a origem: ?origem=tiktok no link do anúncio (ou utm_source); senão, o site de onde clicou
+    var p = new URLSearchParams(location.search);
+    var marcada = (p.get("origem") || p.get("utm_source") || "").toLowerCase();
+    var apelidos = { ig: "instagram", insta: "instagram", fb: "facebook", tt: "tiktok", zap: "whatsapp", wpp: "whatsapp" };
+    var origem = apelidos[marcada] || marcada;
+    if (!origem && document.referrer) {
+      var site = new URL(document.referrer).hostname;
+      if (site !== location.hostname) {
+        origem = /instagram/.test(site) ? "instagram" : /tiktok/.test(site) ? "tiktok" : /facebook|fb\.com/.test(site) ? "facebook"
+          : /(^|\.)google\./.test(site) ? "google" : /whatsapp|wa\.me/.test(site) ? "whatsapp" : /youtube/.test(site) ? "youtube"
+          : /linkedin/.test(site) ? "linkedin" : "outro-site";
+      }
+    }
+    origem = (origem || "direto").replace(/[^a-z0-9-]/g, "").slice(0, 30) || "direto";
+    // o contato que nascer nos 30 dias seguintes fica com a última origem que não foi "direto":
+    // quem viu o anúncio hoje e volta amanhã digitando o endereço ainda conta para o anúncio
+    if (origem !== "direto") localStorage.setItem("origem", JSON.stringify({ o: origem, t: Date.now() }));
+    // tira o ?origem= do endereço: quem copiar o link para mandar a alguém não leva a marcação junto
+    if (marcada && history.replaceState) {
+      ["origem", "utm_source", "utm_medium", "utm_campaign", "utm_content", "utm_term"].forEach(function (k) { p.delete(k); });
+      history.replaceState(null, "", location.pathname + (p.toString() ? "?" + p : "") + location.hash);
+    }
+
+    // 2. a visita (quem já entrou no /adm neste aparelho, a Lorena, não conta)
     if (localStorage.getItem("adm-passe")) return;
     var v = localStorage.getItem("visitante");
     if (!v) {
@@ -403,7 +427,7 @@ h1, h2 { position: relative; z-index: 0; }
       });
       localStorage.setItem("visitante", v);
     }
-    fetch("/api/visita", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ pagina: "portifolio", visitante: v }), keepalive: true }).catch(function () {});
+    fetch("/api/visita", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ pagina: "portifolio", visitante: v, origem: origem }), keepalive: true }).catch(function () {});
   } catch (e) { /* sem memória no navegador: segue sem contar */ }
 })();
 </script>

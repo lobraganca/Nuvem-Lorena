@@ -3,10 +3,11 @@
 //   sair       apaga o cookie
 //   listar     todos os diagnósticos, do mais novo para o mais antigo, e as visitas da página
 //   marcar     liga/desliga "já falei com essa pessoa"
+//   apagar     apaga um contato de vez (a pessoa pediu: a política de privacidade promete)
 //   chave      a chave pública para o celular se inscrever nas notificações
 //   inscrever  guarda o celular dela na lista de quem recebe o aviso
 //   testar     manda uma notificação de teste
-import { SENHA, faltando, responder, lerCorpo, listarDiagnosticos, resumoDeVisitas, marcarContatado, guardarInscricao, senhaConfere, criarPasse, passeValido, chavesVapid, avisar } from "./_lib.mjs";
+import { SENHA, faltando, responder, lerCorpo, listarDiagnosticos, resumoDeVisitas, apagarDiagnostico, marcarContatado, guardarInscricao, senhaConfere, criarPasse, passeValido, chavesVapid, avisar } from "./_lib.mjs";
 
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 const esperar = (ms) => new Promise((r) => setTimeout(r, ms));
@@ -78,6 +79,11 @@ export default async function handler(req, res) {
         const contatado_em = await marcarContatado(d.id, Boolean(d.feito));
         if (contatado_em === undefined) return responder(res, 404, { erro: "Diagnóstico não encontrado." });
         return responder(res, 200, { contatado_em });
+      }
+      case "apagar": {
+        if (typeof d.id !== "string" || !UUID.test(d.id)) return responder(res, 400, { erro: "Diagnóstico inválido." });
+        const apagou = await apagarDiagnostico(d.id);
+        return responder(res, apagou ? 200 : 404, apagou ? { ok: true } : { erro: "Esse contato já não existia." });
       }
       case "chave": {
         const { publica } = await chavesVapid();
