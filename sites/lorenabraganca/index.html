@@ -243,6 +243,10 @@ h1, h2 { position: relative; z-index: 0; }
 .envio h4 { margin: 0; font: 800 19px/1.3 var(--f-titulo); letter-spacing: -.01em; }
 .campos { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
 .campo.inteiro { grid-column: 1 / -1; }
+.inicio { display: grid; gap: 14px; }
+.inicio .botao { width: 100%; }
+.inicio .nota { font-size: 14px; color: var(--suave); text-align: center; }
+.inicio .erro { color: #FF8A80; font-size: 14px; font-weight: 600; }
 .campo { display: grid; gap: 6px; }
 .campo label { font: 600 14px/1 var(--f-titulo); color: var(--suave); }
 .campo input {
@@ -418,11 +422,11 @@ details p { padding: 0 0 22px; color: var(--suave); max-width: 40em; }
       <div class="cabeca">
         <span class="rotulo">Diagnóstico gratuito</span>
         <h2>Quanto controle você tem da sua empresa?</h2>
-        <p>Responda 7 perguntas e descubra o seu índice de controle, de 0 a 100, com o que mais pesa no seu caso.</p>
+        <p>Deixe seu nome e WhatsApp, responda 7 perguntas e descubra o seu índice de controle, de 0 a 100, com o que mais pesa no seu caso.</p>
         <ul>
           <li><svg aria-hidden="true"><use href="#i-ok"/></svg>Leva cerca de 1 minuto</li>
           <li><svg aria-hidden="true"><use href="#i-ok"/></svg>O resultado aparece na hora</li>
-          <li><svg aria-hidden="true"><use href="#i-ok"/></svg>Você escolhe se quer conversar depois</li>
+          <li><svg aria-hidden="true"><use href="#i-ok"/></svg>Seus dados ficam só comigo</li>
         </ul>
       </div>
 
@@ -479,7 +483,7 @@ details p { padding: 0 0 22px; color: var(--suave); max-width: 40em; }
         </details>
         <details>
           <summary>Fazer o diagnóstico me compromete com alguma coisa?</summary>
-          <p>Não. Você vê o resultado na hora e decide se quer mandar pra mim e conversar.</p>
+          <p>Não. Você vê o resultado na hora. Eu posso te chamar no WhatsApp pra conversar sobre ele, e você decide se quer seguir.</p>
         </details>
       </div>
     </div>
@@ -502,9 +506,9 @@ details p { padding: 0 0 22px; color: var(--suave); max-width: 40em; }
 </footer>
 
 <script>
-// O diagnóstico: 7 perguntas, uma por vez. Ao chegar no resultado, ele é gravado sem
-// nome (para contar quantos fizeram); ao tocar no botão, com nome e WhatsApp, e a Lorena
-// recebe o aviso no celular. Quem grava é /api/diagnostico — a página não fala com o banco.
+// O diagnóstico: primeiro nome e WhatsApp (gravados na hora, e a Lorena recebe o aviso no
+// celular), depois 7 perguntas, uma por vez; ao chegar no resultado, ele entra no mesmo
+// registro. Quem grava é /api/diagnostico — a página não fala com o banco.
 
 // Número que recebe os diagnósticos: só dígitos, com 55 e o DDD. Confirmado por ela em 31/10.
 const WHATSAPP = "5531971473162";
@@ -584,6 +588,8 @@ function novoId() {
   return `${h.slice(0, 8)}-${h.slice(8, 12)}-${h.slice(12, 16)}-${h.slice(16, 20)}-${h.slice(20)}`;
 }
 let diagnosticoId = novoId();
+let contato = null;          // { nome, whatsapp, empresa } — pedido ANTES das perguntas (pedido dela, 31/10)
+let ultimoInicio = "";       // para não mandar o mesmo contato duas vezes (e avisar duas vezes)
 
 // Manda para o servidor do site e não espera: se falhar (sem internet, banco fora),
 // a pessoa não fica sabendo e o WhatsApp abre do mesmo jeito. O keepalive deixa o envio
@@ -636,6 +642,47 @@ function marcarProgresso(feitas) {
   document.getElementById("porcento").textContent = pct + "%";
 }
 
+// Primeira tela: nome e WhatsApp antes das perguntas (ela pediu, 31/10). Assim o contato
+// chega mesmo de quem desiste no meio — e é aqui que ela recebe o aviso no celular.
+function mostrarContato(focar) {
+  progresso.hidden = false;
+  document.getElementById("contador").textContent = "Antes de começar";
+  marcarProgresso(0);
+  const titulo = el("h3", { tabindex: "-1", text: "Pra começar, como posso te chamar?" });
+  const nome = el("input", { id: "nome", type: "text", autocomplete: "name", placeholder: "Ex.: Ana Paula", required: "" });
+  const whatsapp = el("input", { id: "whatsapp", type: "tel", inputmode: "tel", autocomplete: "tel-national", placeholder: "(31) 99999-8888", required: "" });
+  const empresa = el("input", { id: "empresa", type: "text", autocomplete: "organization", placeholder: "Opcional" });
+  if (contato) { nome.value = contato.nome; whatsapp.value = contato.whatsappDigitado; empresa.value = contato.empresa; }
+  const erro = el("p", { class: "erro" }); erro.hidden = true;
+  const botao = el("button", { type: "submit", class: "botao" }, document.createTextNode("Começar o diagnóstico"), icone("i-seta"));
+  const form = el("form", { class: "inicio", novalidate: "" },
+    el("div", { class: "campos" },
+      el("div", { class: "campo" }, el("label", { for: "nome", text: "Seu nome" }), nome),
+      el("div", { class: "campo" }, el("label", { for: "whatsapp", text: "Seu WhatsApp" }), whatsapp),
+      el("div", { class: "campo inteiro" }, el("label", { for: "empresa", text: "Nome da empresa" }), empresa)),
+    erro, botao,
+    el("p", { class: "nota", text: "Ao continuar, você autoriza a Lorena a entrar em contato pelo número informado. Seus dados ficam só com ela." }));
+  form.addEventListener("submit", e => {
+    e.preventDefault();
+    const n = nome.value.trim(), w = whatsappDigitos(whatsapp.value);
+    if (!n || !w) {
+      erro.textContent = !n ? "Escreva seu nome pra eu saber com quem estou falando." : "Confira o seu WhatsApp, com DDD: (31) 99999-8888.";
+      erro.hidden = false;
+      (!n ? nome : whatsapp).focus();
+      return;
+    }
+    contato = { nome: n, whatsapp: w, whatsappDigitado: whatsapp.value, empresa: empresa.value.trim() };
+    const dados = { etapa: "inicio", id: diagnosticoId, nome: n, whatsapp: w, empresa: contato.empresa };
+    const chave = JSON.stringify(dados);
+    if (chave !== ultimoInicio) { ultimoInicio = chave; enviarAoServidor(dados); }
+    passo = 0;
+    mostrarPergunta(true);
+  });
+  palco.replaceChildren(el("div", { class: "pergunta" }, titulo, form));
+  voltar.hidden = true;
+  if (focar) titulo.focus({ preventScroll: true });
+}
+
 function mostrarPergunta(focar) {
   const q = PERGUNTAS[passo];
   progresso.hidden = false;
@@ -649,7 +696,7 @@ function mostrarPergunta(focar) {
     opcoes.append(b);
   });
   palco.replaceChildren(el("div", { class: "pergunta" }, titulo, opcoes));
-  voltar.hidden = passo === 0;
+  voltar.hidden = false; // na pergunta 1, "Voltar" leva à tela do contato
   if (focar) titulo.focus({ preventScroll: true });
 }
 
@@ -665,6 +712,7 @@ function escolher(q, i, botao) {
 
 voltar.addEventListener("click", () => {
   if (passo > 0) { passo--; mostrarPergunta(true); }
+  else mostrarContato(true);
 });
 
 function resposta(id) { const q = PERGUNTAS.find(q => q.id === id); return q.opcoes[respostas[id]]; }
@@ -736,55 +784,26 @@ function mostrarResultado() {
   r.sugestoes.forEach(k => chips.append(el("span", {}, icone(SERVICOS[k].icone), document.createTextNode(SERVICOS[k].nome))));
   const sugestao = el("div", { class: "sugestao" }, el("span", { text: "O que eu construiria primeiro no seu caso" }), chips);
 
-  const nome = el("input", { id: "nome", type: "text", autocomplete: "name", placeholder: "Ex.: Ana Paula", required: "" });
-  const whatsapp = el("input", { id: "whatsapp", type: "tel", inputmode: "tel", autocomplete: "tel-national", placeholder: "(31) 99999-8888", required: "" });
-  const empresa = el("input", { id: "empresa", type: "text", autocomplete: "organization", placeholder: "Opcional" });
-  const erro = el("p", { class: "erro" }); erro.hidden = true;
-  // o botão é um link de verdade, refeito a cada tecla: é o jeito que abre o WhatsApp em qualquer celular
-  const enviar = el("a", { class: "botao", target: "_blank", rel: "noopener", "aria-disabled": "true" },
+  // o contato veio na primeira tela: o botão já vem pronto. É um link de verdade, que é o
+  // jeito que abre o WhatsApp em qualquer celular.
+  const enviar = el("a", { class: "botao", target: "_blank", rel: "noopener",
+    href: "https://wa.me/" + WHATSAPP + "?text=" + encodeURIComponent(mensagem(r, contato.nome, contato.empresa)) },
     icone("i-zap"), document.createTextNode("Receber minha análise no WhatsApp"));
-  const atualizar = () => {
-    const n = nome.value.trim();
-    enviar.href = "https://wa.me/" + WHATSAPP + "?text=" + encodeURIComponent(mensagem(r, n, empresa.value.trim()));
-    enviar.setAttribute("aria-disabled", String(!n || !whatsappDigitos(whatsapp.value)));
-    if (n && whatsappDigitos(whatsapp.value)) erro.hidden = true;
-  };
-  [nome, whatsapp, empresa].forEach(c => c.addEventListener("input", atualizar));
-  let ultimoEnvio = "";
-  enviar.addEventListener("click", e => {
-    const n = nome.value.trim(), w = whatsappDigitos(whatsapp.value);
-    if (!n || !w) {
-      e.preventDefault();
-      erro.textContent = !n ? "Escreva seu nome pra eu saber com quem estou falando." : "Confira o seu WhatsApp, com DDD: (31) 99999-8888.";
-      erro.hidden = false;
-      (!n ? nome : whatsapp).focus();
-      return;
-    }
-    // o contato vai para o /adm dela; tocar duas vezes sem mudar nada não manda de novo
-    const dados = { etapa: "contato", ...base, nome: n, whatsapp: w, empresa: empresa.value.trim() };
-    const chave = JSON.stringify(dados);
-    if (chave !== ultimoEnvio) { ultimoEnvio = chave; enviarAoServidor(dados); }
-  });
-  atualizar();
-
   const envio = el("div", { class: "envio" },
-    el("h4", { text: "Quer que eu olhe o seu caso? Mande o resultado pra mim." }),
-    el("div", { class: "campos" },
-      el("div", { class: "campo" }, el("label", { for: "nome", text: "Seu nome" }), nome),
-      el("div", { class: "campo" }, el("label", { for: "whatsapp", text: "Seu WhatsApp" }), whatsapp),
-      el("div", { class: "campo inteiro" }, el("label", { for: "empresa", text: "Nome da empresa" }), empresa)),
-    erro, enviar,
-    el("p", { class: "nota", text: "Abre o WhatsApp com as suas respostas já escritas. Ao tocar, você autoriza a Lorena a entrar em contato pelo número informado." }));
+    el("h4", { text: `${contato.nome.split(" ")[0]}, quer que eu olhe o seu caso? Mande o resultado pra mim.` }),
+    enviar,
+    el("p", { class: "nota", text: "Abre o WhatsApp com as suas respostas já escritas. É só tocar em enviar." }));
 
+  // refazer é a mesma pessoa: fica no mesmo registro, e o resultado novo substitui o antigo
   const refazer = el("button", { type: "button", class: "voltar refazer", text: "Refazer o diagnóstico" });
-  refazer.addEventListener("click", () => { for (const k in respostas) delete respostas[k]; passo = 0; diagnosticoId = novoId(); mostrarPergunta(true); });
+  refazer.addEventListener("click", () => { for (const k in respostas) delete respostas[k]; passo = 0; mostrarPergunta(true); });
 
   palco.replaceChildren(el("div", { class: "resultado" }, topo, achados, sugestao, envio, refazer));
   titulo.focus({ preventScroll: true });
   document.getElementById("quiz").scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "start" });
 }
 
-mostrarPergunta(false);
+mostrarContato(false);
 </script>
 <script>
 // Conta a visita, para o número aparecer no /adm. Sem cookie e sem dado pessoal: só um

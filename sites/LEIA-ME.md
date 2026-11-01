@@ -22,13 +22,17 @@ informações, se sabe os números do mês, tempo perdido, se a empresa anda sem
 ela) e viram um índice de 0 a 100. Ramo, equipe e objetivo só vão para a
 conversa e para a sugestão de serviço.
 
-Desde 01/11 ele grava, em duas etapas que caem na mesma linha (o id nasce no
-navegador):
+Ele grava em etapas que caem no mesmo registro (o id nasce no navegador):
 
-1. **chegou ao resultado** → linha sem nome (para contar quantos fizeram);
-2. **tocou em "Receber minha análise"** → nome, WhatsApp e empresa, e o aviso
-   vai para o celular dela. O WhatsApp da pessoa passou a ser obrigatório: sem
-   ele, a Lorena não tinha como chamar quem não mandou a mensagem.
+1. **"inicio" — nome, WhatsApp e empresa, ANTES das perguntas** (pedido dela,
+   31/10). O aviso vai para o celular dela aqui ("Ana · Studio Ana começou o
+   diagnóstico"), então o contato chega mesmo de quem desiste no meio. No /adm
+   essa pessoa aparece como "não terminou", e o "Chamar" fala que ela começou.
+2. **"resultado"** — respostas, índice e nível, no mesmo registro, sem segundo
+   aviso. "Refazer" é a mesma pessoa: substitui o resultado, não cria outro.
+
+A etapa antiga "contato" (contato DEPOIS do resultado, de 01/11) segue aceita
+por `api/diagnostico.mjs`, para quem estiver com a página velha aberta.
 
 A página **não fala com o banco**: manda para `/api/diagnostico` e não espera
 resposta. Se o servidor ou o banco estiverem fora, a pessoa não percebe e o
@@ -91,6 +95,10 @@ JavaScript (o de prévia de link do WhatsApp nem roda, então nunca chega). O
 /adm mostra hoje / 7 / 30 dias, o gráfico de 14 dias e quantos, de quem
 visitou, fizeram o diagnóstico. Se a conta das visitas falhar, a lista de
 pessoas aparece mesmo assim.
+
+O botão **Atualizar** (no topo e no fim) sempre responde: "Atualizando…" e
+depois "Nada novo" ou "2 novos", com a hora em segundos. Antes, sem novidade,
+nada mudava na tela — e ela achou que o botão não funcionava.
 
 ### O banco: Upstash (Redis), pela própria Vercel
 
@@ -218,3 +226,18 @@ dos ícones do Ei, que já saíram de três fontes diferentes sem ninguém ver.
 São de 1080×1920, o tamanho do story. O Instagram recorta o círculo do
 destaque no meio da imagem, com a largura dela, por isso o desenho fica todo
 no centro, longe das bordas.
+
+## `marca/` — a logo "L" e a capa do WhatsApp
+
+`fontes/` tem os desenhos; `node gerar.mjs` (dentro de `sites/marca`) faz os
+PNG ao lado. Fora de `lorenabraganca/`, então não vão para o ar.
+
+| Arquivo | Para quê |
+|---|---|
+| `whatsapp-perfil.png` | foto de perfil, 1080×1080: o L do favicon, centralizado e um pouco maior, porque o WhatsApp recorta em círculo |
+| `whatsapp-perfil-escuro.png` | a mesma, com fundo escuro e L limão |
+| `whatsapp-capa.png` | capa do perfil do WhatsApp Business, 1920×1080 (16:9). O WhatsApp não publica medida nem área segura; a mais citada é 1211×681, a mesma proporção. A foto de perfil pode cobrir a parte de baixo, então o texto termina em 63% da altura (medido) |
+
+O L é o desenho do `lorenabraganca/favicon.svg`. Se o favicon mudar, mude
+`fontes/whatsapp-perfil*.svg` junto e rode o gerador: logo que sai de duas
+fontes diferentes é o defeito que o Ei já teve três vezes.

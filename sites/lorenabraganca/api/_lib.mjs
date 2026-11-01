@@ -66,26 +66,24 @@ async function redis(...comandos) {
 
 const chaveDo = (id) => "diag:" + id;
 
-/** Etapa 1: chegou ao resultado. Não sobrescreve: ver o resultado de novo não muda nada. */
-async function gravarResultado(linha) {
-  const agora = Date.now();
+/** Junta campos novos no registro de um diagnóstico — ou cria, se ele ainda não existe.
+ *  As etapas chegam em qualquer ordem (a rede pode atrasar uma), e nenhuma apaga a outra. */
+async function juntar(id, campos) {
+  const [atual] = await redis(["GET", chaveDo(id)]);
+  const antes = atual ? JSON.parse(atual) : { id, criado_em: new Date().toISOString() };
+  const junto = { ...antes, ...campos, id, criado_em: antes.criado_em };
   await redis(
-    ["SET", chaveDo(linha.id), JSON.stringify({ ...linha, criado_em: new Date(agora).toISOString() }), "NX"],
-    ["ZADD", "diags", "NX", agora, linha.id],
+    ["SET", chaveDo(id), JSON.stringify(junto)],
+    ["ZADD", "diags", "NX", Date.parse(junto.criado_em), id],
   );
+  return { junto, novo: !atual };
 }
 
-/** Etapa 2: deixou o contato. Junta com a etapa 1 — ou cria, se ela não tiver chegado. */
-async function gravarContato(linha, contato) {
-  const [atual] = await redis(["GET", chaveDo(linha.id)]);
-  const antes = atual ? JSON.parse(atual) : { criado_em: new Date().toISOString() };
-  const junto = { ...antes, ...linha, ...contato, criado_em: antes.criado_em };
-  await redis(
-    ["SET", chaveDo(linha.id), JSON.stringify(junto)],
-    ["ZADD", "diags", "NX", Date.parse(junto.criado_em), linha.id],
-  );
-  return junto;
-}
+/** Desde 31/10 o contato vem ANTES das perguntas (etapa "inicio"); o resultado chega depois. */
+async function gravarInicio(id, contato) { return juntar(id, contato); }
+async function gravarResultado(linha) { return juntar(linha.id, { ...linha, concluido_em: new Date().toISOString() }); }
+/** A etapa antiga: contato DEPOIS do resultado. Fica para quem estiver com a página velha aberta. */
+async function gravarContato(linha, contato) { return juntar(linha.id, { ...linha, ...contato }); }
 
 async function listarDiagnosticos(limite = 500) {
   const [ids] = await redis(["ZREVRANGE", "diags", 0, limite - 1]);
@@ -286,7 +284,7 @@ async function avisar(mensagem) {
 
 export {
   SENHA, faltando, responder, lerCorpo,
-  gravarResultado, gravarContato, listarDiagnosticos, marcarContatado, guardarInscricao,
+  gravarInicio, gravarResultado, gravarContato, listarDiagnosticos, marcarContatado, guardarInscricao,
   PAGINAS, contarVisita, resumoDeVisitas,
   senhaConfere, criarPasse, passeValido,
   chavesVapid, cifrar, assinarJwt, avisar,

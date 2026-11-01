@@ -73,6 +73,8 @@ input[type="password"]:focus { outline: none; border-color: var(--limao); }
 
 /* painel */
 .topo { display: flex; justify-content: space-between; align-items: center; gap: 12px; }
+.topo-acoes { display: flex; gap: 18px; }
+.link[disabled] { opacity: .5; cursor: wait; }
 .numeros { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; }
 .numero { background: var(--cartao); border: 1.5px solid var(--borda); border-radius: 16px; padding: 14px; display: grid; gap: 4px; min-width: 0; }
 .numero b { font: 800 30px/1 var(--f-titulo); font-variant-numeric: tabular-nums; }
@@ -161,14 +163,14 @@ dd { margin: 0; font-size: 15px; }
 <main id="painel" hidden>
   <div class="topo">
     <span class="marca">Diagnósticos<span>.</span></span>
-    <button class="link" id="sair" type="button">Sair</button>
+    <span class="topo-acoes"><button class="link botao-atualizar" type="button">Atualizar</button><button class="link" id="sair" type="button">Sair</button></span>
   </div>
 
   <div class="problema" id="problema" hidden></div>
 
   <div class="numeros">
-    <div class="numero"><b id="n-total">–</b><span>fizeram o diagnóstico</span></div>
     <div class="numero"><b id="n-contato">–</b><span>deixaram o contato</span></div>
+    <div class="numero"><b id="n-total">–</b><span>terminaram o diagnóstico</span></div>
     <div class="numero chamar"><b id="n-chamar">–</b><span>falta chamar</span></div>
   </div>
 
@@ -202,7 +204,7 @@ dd { margin: 0; font-size: 15px; }
 
   <div class="lista" id="lista"></div>
 
-  <div class="rodape"><span id="atualizado"></span><button class="link" type="button" id="atualizar">Atualizar</button></div>
+  <div class="rodape"><span id="atualizado" aria-live="polite"></span><button class="link botao-atualizar" type="button">Atualizar</button></div>
   <details class="tecnico"><summary>Detalhes técnicos</summary><pre class="registro"></pre></details>
 </main>
 
@@ -302,7 +304,7 @@ async function carregar() {
     desenharVisitas(visitas);
     $("problema").hidden = true;
     desenhar();
-    $("atualizado").textContent = "Atualizado às " + new Date().toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" });
+    $("atualizado").textContent = "Atualizado às " + new Date().toLocaleTimeString("pt-BR");
     return true;
   } catch (err) {
     if (err instanceof SemPasse) { mostrar("entrar"); return false; }
@@ -341,7 +343,11 @@ function corDoIndice(i) { return i >= 70 ? "var(--alto)" : i >= 40 ? "var(--medi
 
 function cartao(x) {
   const temContato = Boolean(x.nome && x.whatsapp);
-  const indice = el("div", { class: "indice", style: "--cor:" + corDoIndice(x.indice) }, el("b", { text: String(x.indice) }), el("span", { text: x.nivel }));
+  // desde 31/10 o contato vem antes das perguntas: há quem deixe o nome e não termine
+  const terminou = Number.isInteger(x.indice);
+  const indice = terminou
+    ? el("div", { class: "indice", style: "--cor:" + corDoIndice(x.indice) }, el("b", { text: String(x.indice) }), el("span", { text: x.nivel }))
+    : el("div", { class: "indice", style: "--cor:var(--apagado)" }, el("b", { text: "—" }), el("span", { text: "não terminou" }));
   const quem = el("div", {},
     el("h2", { text: temContato ? x.nome : "Sem contato" }),
     el("small", { text: [temContato && x.empresa, quando(temContato && x.contato_em ? x.contato_em : x.criado_em)].filter(Boolean).join(" · ") }));
@@ -349,7 +355,9 @@ function cartao(x) {
 
   if (temContato) {
     const primeiro = x.nome.split(" ")[0];
-    const texto = `Oi, ${primeiro}! Aqui é a Lorena Bragança. Vi que você fez o diagnóstico no meu site e queria conversar sobre o resultado.`;
+    const texto = terminou
+      ? `Oi, ${primeiro}! Aqui é a Lorena Bragança. Vi que você fez o diagnóstico no meu site e queria conversar sobre o resultado.`
+      : `Oi, ${primeiro}! Aqui é a Lorena Bragança. Vi que você começou o diagnóstico no meu site. Posso te ajudar a terminar, ou conversar sobre a sua empresa?`;
     const zap = el("a", { class: "botao pequeno", href: `https://wa.me/${x.whatsapp}?text=${encodeURIComponent(texto)}`, target: "_blank", rel: "noopener" });
     zap.innerHTML = '<svg aria-hidden="true"><use href="#i-zap"/></svg>';
     zap.append("Chamar");
@@ -373,7 +381,7 @@ function cartao(x) {
 
   const lista = el("dl");
   Object.entries(x.respostas || {}).forEach(([k, v]) => lista.append(el("dt", { text: k }), el("dd", { text: v })));
-  c.append(el("details", {}, el("summary", { text: "Ver as respostas" }), lista));
+  if (x.respostas) c.append(el("details", {}, el("summary", { text: "Ver as respostas" }), lista));
   return c;
 }
 
@@ -423,21 +431,22 @@ function desenharVisitas(v) {
   $("v-inicio").textContent = nomeDoDia(dias[0].dia);
   $("v-tabela").tBodies[0].replaceChildren(...dias.map((x) => el("tr", {}, el("th", { text: nomeDoDia(x.dia) }), el("td", { text: String(x.visitas) }))));
 
-  // de quem visitou, quantos fizeram o diagnóstico (mesmos 30 dias)
+  // o funil dos mesmos 30 dias: visitaram -> deixaram o contato -> terminaram
   const desde = Date.now() - 30 * 864e5;
-  const fizeram = diagnosticos.filter((x) => Date.parse(x.criado_em) >= desde);
-  const deixaram = fizeram.filter((x) => x.nome && x.whatsapp).length;
-  const pct = v.pessoasMes ? Math.round((fizeram.length / v.pessoasMes) * 100) : 0;
+  const doMes = diagnosticos.filter((x) => Date.parse(x.criado_em) >= desde);
+  const deixaram = doMes.filter((x) => x.nome && x.whatsapp).length;
+  const terminaram = doMes.filter((x) => Number.isInteger(x.indice)).length;
+  const pct = v.pessoasMes ? Math.round((deixaram / v.pessoasMes) * 100) : 0;
   const c = $("v-conversao");
   c.replaceChildren(
     document.createTextNode("Nos últimos 30 dias, "), el("b", { text: `${v.pessoasMes} ${v.pessoasMes === 1 ? "pessoa visitou" : "pessoas visitaram"}` }),
-    document.createTextNode(" a página; "), el("b", { text: `${fizeram.length} (${pct}%)` }),
-    document.createTextNode(` ${fizeram.length === 1 ? "fez" : "fizeram"} o diagnóstico e ${deixaram} ${deixaram === 1 ? "deixou" : "deixaram"} o contato. O portfólio teve ${v.portfolioMes} ${v.portfolioMes === 1 ? "visita" : "visitas"}.`));
+    document.createTextNode(" a página; "), el("b", { text: `${deixaram} (${pct}%)` }),
+    document.createTextNode(` ${deixaram === 1 ? "deixou" : "deixaram"} o contato e ${terminaram} ${terminaram === 1 ? "terminou" : "terminaram"} o diagnóstico. O portfólio teve ${v.portfolioMes} ${v.portfolioMes === 1 ? "visita" : "visitas"}.`));
 }
 
 function contar() {
   const comContato = diagnosticos.filter((x) => x.nome && x.whatsapp);
-  $("n-total").textContent = diagnosticos.length;
+  $("n-total").textContent = diagnosticos.filter((x) => Number.isInteger(x.indice)).length;
   $("n-contato").textContent = comContato.length;
   $("n-chamar").textContent = comContato.filter((x) => !x.contatado_em).length;
   $("aba-contato").textContent = `Com contato (${comContato.length})`;
@@ -460,7 +469,20 @@ for (const [id, nome] of [["aba-contato", "contato"], ["aba-todos", "todos"]]) {
     desenhar();
   });
 }
-$("atualizar").addEventListener("click", carregar);
+// "Atualizar" tem de RESPONDER, mesmo sem ninguém novo: antes ele buscava a lista e, sem
+// novidade, nada mudava na tela — nem a hora, que só tinha minutos. Ela achou que o botão
+// não funcionava (01/11). Agora diz "Atualizando…" e depois "Nada novo" ou "2 novos".
+document.querySelectorAll(".botao-atualizar").forEach((botao) => botao.addEventListener("click", async () => {
+  const botoes = document.querySelectorAll(".botao-atualizar");
+  const antes = new Set(diagnosticos.map((x) => x.id + "|" + (x.contato_em || "") + "|" + (x.concluido_em || "")));
+  botoes.forEach((b) => { b.disabled = true; b.textContent = "Atualizando…"; });
+  const deuCerto = await carregar();
+  botoes.forEach((b) => { b.disabled = false; b.textContent = "Atualizar"; });
+  if (deuCerto !== true) return; // o erro já aparece no quadro vermelho
+  const novos = diagnosticos.filter((x) => !antes.has(x.id + "|" + (x.contato_em || "") + "|" + (x.concluido_em || ""))).length;
+  $("atualizado").textContent = (novos ? `${novos} ${novos === 1 ? "novo" : "novos"}` : "Nada novo") + " · atualizado às " + new Date().toLocaleTimeString("pt-BR");
+  anotar("atualizar: " + (novos ? novos + " novos" : "nada novo"));
+}));
 document.addEventListener("visibilitychange", () => {
   anotar(document.hidden ? "app foi para o fundo" : "app voltou para a frente");
   if (!document.hidden && !$("painel").hidden) carregar();

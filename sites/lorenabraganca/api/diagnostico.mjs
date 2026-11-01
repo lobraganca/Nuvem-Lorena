@@ -1,8 +1,10 @@
-// Recebe o diagnóstico feito na página principal, em dois momentos:
-//   etapa "resultado": a pessoa chegou ao fim (ainda sem nome) — conta quantos fizeram;
-//   etapa "contato":   ela deixou nome e WhatsApp — aí a Lorena recebe o aviso no celular.
+// Recebe o diagnóstico feito na página principal, em dois momentos (desde 31/10):
+//   etapa "inicio":    nome e WhatsApp, ANTES das perguntas — aí a Lorena recebe o aviso;
+//   etapa "resultado": as respostas e o índice, no mesmo registro.
+// A etapa "contato" (contato DEPOIS do resultado) é do jeito antigo e segue aceita, para
+// quem estiver com a página velha aberta.
 // A página manda e não espera resposta: se isto falhar, o WhatsApp abre do mesmo jeito.
-import { faltando, responder, lerCorpo, gravarResultado, gravarContato, avisar } from "./_lib.mjs";
+import { faltando, responder, lerCorpo, gravarInicio, gravarResultado, gravarContato, avisar } from "./_lib.mjs";
 
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 
@@ -35,6 +37,26 @@ export default async function handler(req, res) {
 
   const d = lerCorpo(req);
   const id = typeof d.id === "string" && UUID.test(d.id) ? d.id.toLowerCase() : null;
+
+  if (d.etapa === "inicio") {
+    const nome = texto(d.nome, 80);
+    const whatsapp = whatsappNormalizado(d.whatsapp);
+    const empresa = texto(d.empresa, 80) || null;
+    if (!id || !nome || !whatsapp) return responder(res, 400, { erro: "Nome e WhatsApp são obrigatórios." });
+    try {
+      await gravarInicio(id, { nome, whatsapp, empresa, contato_em: new Date().toISOString() });
+    } catch (e) {
+      console.error("o contato não gravou:", e.message);
+      return responder(res, 502, { erro: "Não foi possível gravar agora." });
+    }
+    try { // o aviso não pode derrubar o cadastro: o contato já está salvo
+      await avisar({ titulo: "Novo contato", corpo: `${nome}${empresa ? " · " + empresa : ""} começou o diagnóstico`, url: "/adm/", tag: id });
+    } catch (e) {
+      console.warn("o contato foi salvo, mas o aviso falhou:", e.message);
+    }
+    return responder(res, 204);
+  }
+
   const respostas = respostasLimpas(d.respostas);
   const indice = Number.isInteger(d.indice) && d.indice >= 0 && d.indice <= 100 ? d.indice : null;
   const nivel = texto(d.nivel, 40);
@@ -43,7 +65,7 @@ export default async function handler(req, res) {
 
   try {
     if (d.etapa === "resultado") {
-      await gravarResultado(linha); // repetir o mesmo id (voltar e ver de novo) não cria outro
+      await gravarResultado(linha); // junta no registro do contato; refazer substitui o resultado
       return responder(res, 204);
     }
 
