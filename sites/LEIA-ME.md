@@ -75,6 +75,8 @@ O que fica lá, tudo pela API REST da Upstash (`/pipeline`), sem dependência:
 | `push` | os celulares inscritos para o aviso (hash: endereço → inscrição) |
 | `config:vapid` | o par de chaves das notificações; a parte privada nunca sai do servidor |
 
+Ligado por ela em 01/11, pela aba Storage do projeto na Vercel.
+
 As regras que o banco não impõe (WhatsApp `55` + DDD + número, índice de 0 a
 100, textos curtos) estão em `api/diagnostico.mjs`, antes de gravar.
 
