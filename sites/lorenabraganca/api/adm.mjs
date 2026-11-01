@@ -11,15 +11,21 @@ import { SENHA, faltando, responder, lerCorpo, listarDiagnosticos, marcarContata
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 const esperar = (ms) => new Promise((r) => setTimeout(r, ms));
 
-// Ela pediu para não digitar a senha toda hora (01/11). O passe ia na memória da
-// página (localStorage), que o iPhone às vezes descarta; agora vai num cookie que o
-// SERVIDOR grava — o iPhone guarda esse tipo por muito mais tempo que o escrito pela
-// página — e que a página nem consegue ler (HttpOnly). Vale 180 dias e se renova a
-// cada uso: só volta a pedir senha depois de 6 meses sem abrir, ao tocar em Sair,
-// ou se a senha mudar na Vercel.
+// Ela pediu para não digitar a senha toda hora (01/11). O passe vai por DOIS caminhos,
+// e qualquer um basta:
+//  - um cookie gravado pelo servidor (o Safari guarda esse tipo por muito mais tempo
+//    que o escrito pela página), HttpOnly;
+//  - uma cópia que a página guarda no localStorage e manda no cabeçalho.
+// Só o cookie bastaria no papel. Na prática, no app de tela inicial do iPhone, ela
+// digitava a senha e "não acontecia nada": a senha passava, o cookie não voltava na
+// chamada seguinte, e a tela caía de novo na senha, vazia. A cópia é a reserva, e o
+// cookie passou de SameSite=Strict para Lax (o Strict é o suspeito de ser barrado
+// nesse modo; o Lax continua sem ir em pedido vindo de outro site).
+// Vale 180 dias e se renova a cada uso: só volta a pedir senha depois de 6 meses sem
+// abrir, ao tocar em Sair, ou se a senha mudar na Vercel.
 const DIAS = 180;
 const COOKIE = "adm_passe";
-const cookie = (valor, segundos) => `${COOKIE}=${valor}; Path=/api/adm; Max-Age=${segundos}; HttpOnly; Secure; SameSite=Strict`;
+const cookie = (valor, segundos) => `${COOKIE}=${valor}; Path=/api/adm; Max-Age=${segundos}; HttpOnly; Secure; SameSite=Lax`;
 function lerCookie(req) {
   for (const parte of String(req.headers.cookie || "").split(";")) {
     const [k, ...v] = parte.trim().split("=");
@@ -41,8 +47,9 @@ export default async function handler(req, res) {
       await esperar(900); // atrasa quem tenta adivinhar a senha, sem incomodar quem erra uma vez
       return responder(res, 401, { erro: "Senha incorreta." });
     }
-    res.setHeader("Set-Cookie", cookie(criarPasse(DIAS), DIAS * 86400));
-    return responder(res, 200, { ok: true });
+    const passe = criarPasse(DIAS);
+    res.setHeader("Set-Cookie", cookie(passe, DIAS * 86400));
+    return responder(res, 200, { ok: true, passe });
   }
 
   if (d.acao === "sair") {
@@ -53,13 +60,14 @@ export default async function handler(req, res) {
   // o cabeçalho Authorization ainda vale: é como chegam os passes antigos, do localStorage
   const passe = String(req.headers.authorization || "").replace(/^Bearer\s+/i, "") || lerCookie(req);
   if (!passeValido(passe)) return responder(res, 401, { erro: "Entre de novo." });
-  res.setHeader("Set-Cookie", cookie(criarPasse(DIAS), DIAS * 86400)); // renova a cada uso
+  const renovado = criarPasse(DIAS); // renova a cada uso, pelos dois caminhos
+  res.setHeader("Set-Cookie", cookie(renovado, DIAS * 86400));
 
   try {
     switch (d.acao) {
       case "listar": {
         const diagnosticos = await listarDiagnosticos();
-        return responder(res, 200, { diagnosticos });
+        return responder(res, 200, { diagnosticos, passe: renovado });
       }
       case "marcar": {
         if (typeof d.id !== "string" || !UUID.test(d.id)) return responder(res, 400, { erro: "Diagnóstico inválido." });

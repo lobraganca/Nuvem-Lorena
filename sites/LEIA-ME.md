@@ -43,14 +43,23 @@ O número que recebe a mensagem fica na constante `WHATSAPP` do `index.html` —
 botão "Chamar" (abre a conversa já começada) e "Já falei com essa pessoa".
 Fica fora do Google (`noindex`) e sem link em lugar nenhum.
 
-**A senha é pedida uma vez por aparelho** (ela pediu, 01/11). O passe vai num
-cookie gravado pelo servidor (`HttpOnly`, a página nem lê), de 180 dias, que se
-renova a cada uso. Antes ia no `localStorage`, que o iPhone às vezes descarta —
-e o Safari limita a 7 dias cookie escrito pela página, por isso tem de ser o
-servidor a gravar. Só pede de novo depois de 6 meses sem abrir, em "Sair", ou se
-`ADMIN_SENHA` mudar. O app da tela inicial e o Safari guardam login separado:
-entrar num não entra no outro. A tela de senha tem um campo de usuário
-invisível: sem ele, o iPhone não oferece "Salvar senha" no Chaveiro.
+**A senha é pedida uma vez por aparelho** (ela pediu, 01/11). O passe vai por
+dois caminhos, e qualquer um basta: um cookie gravado pelo servidor (`HttpOnly`,
+`SameSite=Lax`, 180 dias) e uma cópia no `localStorage`, mandada no cabeçalho.
+Os dois se renovam a cada abertura. Só pede de novo depois de 6 meses sem abrir,
+em "Sair", ou se `ADMIN_SENHA` mudar.
+
+Por que dois: só com o cookie, no app de tela inicial do iPhone dela, a senha
+"não fazia nada" — passava, o cookie não voltava na chamada seguinte, e a tela
+caía de novo na senha, vazia e sem erro. Reproduzido no teste apagando o cookie
+a cada resposta (cuidado: o Playwright guarda o cookie sozinho no `route.fetch`;
+tirar o `Set-Cookie` da resposta não basta, tem de `clearCookies()`). Se nem a
+cópia for guardada, a tela agora diz "a senha está certa, mas este celular não
+guardou o login", em vez de nada.
+
+O app da tela inicial e o Safari guardam login separado: entrar num não entra
+no outro. A tela de senha tem um campo de usuário invisível: sem ele, o iPhone
+não oferece "Salvar senha" no Chaveiro.
 
 Tudo passa pelas funções da Vercel em `api/` — `diagnostico.mjs` (público),
 `adm.mjs` (com o passe que a senha gera) e `_lib.mjs`

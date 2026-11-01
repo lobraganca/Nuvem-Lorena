@@ -167,12 +167,12 @@ dd { margin: 0; font-size: 15px; }
 </main>
 
 <script>
-// O painel fala só com /api/adm. Quem lembra que ela entrou é o servidor, num cookie
-// que esta página nem consegue ler: vale 180 dias e se renova a cada uso. Trocar a
-// senha na Vercel desloga todo mundo.
-// O "adm-passe" do localStorage é do jeito antigo: se existir, vai uma vez no cabeçalho
-// para o servidor trocar pelo cookie, e some.
-const PASSE_ANTIGO = "adm-passe";
+// O painel fala só com /api/adm. O login vai por dois caminhos (ver api/adm.mjs): o cookie
+// do servidor e uma cópia aqui no localStorage, mandada no cabeçalho. Qualquer um basta —
+// no app de tela inicial do iPhone o cookie chegou a não voltar. Vale 180 dias e se renova
+// a cada abertura. Trocar a senha na Vercel desloga todo mundo.
+const PASSE = "adm-passe";
+const guardar = (k, v) => { try { localStorage.setItem(k, v); } catch {} };
 const ler = (k) => { try { return localStorage.getItem(k); } catch { return null; } };
 const apagar = (k) => { try { localStorage.removeItem(k); } catch {} };
 const $ = (id) => document.getElementById(id);
@@ -184,12 +184,12 @@ class SemPasse extends Error {}
 
 async function api(acao, dados = {}) {
   const cabecalhos = { "Content-Type": "application/json" };
-  const antigo = ler(PASSE_ANTIGO);
-  if (antigo) cabecalhos.Authorization = "Bearer " + antigo;
+  const passe = ler(PASSE);
+  if (passe) cabecalhos.Authorization = "Bearer " + passe;
   const r = await fetch("/api/adm", { method: "POST", credentials: "same-origin", headers: cabecalhos, body: JSON.stringify({ acao, ...dados }) });
   const corpo = await r.json().catch(() => ({}));
-  if (antigo) apagar(PASSE_ANTIGO); // já virou cookie (ou não valia mais)
-  if (r.status === 401 && acao !== "entrar") throw new SemPasse();
+  if (corpo.passe) guardar(PASSE, corpo.passe); // a cópia renovada
+  if (r.status === 401 && acao !== "entrar") { apagar(PASSE); throw new SemPasse(); }
   if (!r.ok) { const e = new Error(corpo.erro || "Erro " + r.status); e.corpo = corpo; e.status = r.status; throw e; }
   return corpo;
 }
@@ -208,7 +208,15 @@ $("form-entrar").addEventListener("submit", async (e) => {
   try {
     await api("entrar", { senha: $("senha").value });
     $("senha").value = "";
-    abrirPainel();
+    if (await carregar() === false) {
+      // a senha passou, mas o login não voltou na chamada seguinte: dizer, em vez de
+      // devolver a tela vazia como se nada tivesse acontecido
+      erro.textContent = "A senha está certa, mas este celular não guardou o login. Tire um print desta tela e mande para quem cuida do site.";
+      erro.hidden = false;
+      return;
+    }
+    mostrar("painel");
+    prepararAviso();
   } catch (err) {
     erro.textContent = err.status === 401 ? "Senha incorreta." : err.status === 503 ? problemaTexto(err.corpo) : "Não consegui entrar agora. Confira a internet e tente de novo.";
     erro.hidden = false;
@@ -216,6 +224,7 @@ $("form-entrar").addEventListener("submit", async (e) => {
 });
 $("sair").addEventListener("click", async () => {
   try { await api("sair"); } catch {}
+  apagar(PASSE);
   mostrar("entrar");
 });
 
