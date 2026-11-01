@@ -81,6 +81,7 @@ input[type="password"]:focus { outline: none; border-color: var(--limao); }
 .aviso.ligado h2::before { background: var(--limao); }
 .aviso p { color: var(--suave); font-size: 15px; }
 .aviso .acoes { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
+.aviso .aparelho { color: var(--apagado); font-size: 12px; }
 
 .abas { display: flex; gap: 8px; }
 .aba { flex: 1; background: var(--cartao); color: var(--suave); border: 1.5px solid var(--borda); border-radius: 999px; padding: 10px 12px; cursor: pointer; font: 700 14px/1 var(--f-titulo); }
@@ -145,6 +146,7 @@ dd { margin: 0; font-size: 15px; }
     <h2 id="aviso-titulo">Notificações</h2>
     <p id="aviso-texto">Conferindo este celular…</p>
     <div class="acoes" id="aviso-acoes"></div>
+    <small class="aparelho" id="aparelho"></small>
   </section>
 
   <div class="abas" role="group" aria-label="Quem mostrar">
@@ -325,7 +327,37 @@ document.addEventListener("visibilitychange", () => { if (!document.hidden && le
 const ehIphone = /iPhone|iPad|iPod/.test(navigator.userAgent);
 const comoApp = matchMedia("(display-mode: standalone)").matches || navigator.standalone === true;
 const temPush = "serviceWorker" in navigator && "PushManager" in window && "Notification" in window;
+// "OS 17_5" no userAgent: 17.5 para mostrar, 17.05 para comparar (16.4 vira 16.04, e 16.10 fica acima dele)
+const iosAchado = navigator.userAgent.match(/OS (\d+)_(\d+)/);
+const iosTexto = iosAchado ? iosAchado[1] + "." + iosAchado[2] : null;
+const versaoIos = iosAchado ? Number(iosAchado[1]) + Number(iosAchado[2]) / 100 : null;
 let registro = null;
+
+// Uma linha com o que o painel enxergou do aparelho: quando o aviso não aparece,
+// é ela que diz por quê (versão do iPhone, aberto ou não pela tela inicial).
+function descreverAparelho() {
+  const partes = [ehIphone ? "iPhone" + (iosTexto ? ", iOS " + iosTexto : "") : (/Android/.test(navigator.userAgent) ? "Android" : "computador"),
+    comoApp ? "aberto pela tela inicial" : "aberto no navegador",
+    temPush ? "aceita notificação" : "sem notificação",
+    "permissão: " + ("Notification" in window ? { granted: "dada", denied: "negada", default: "ainda não pedida" }[Notification.permission] : "—")];
+  $("aparelho").textContent = "Este aparelho: " + partes.join(" · ");
+}
+
+// O "funcionário de fundo" precisa estar ativo para assinar as notificações.
+// Esperar sem prazo (navigator.serviceWorker.ready) deixava o quadro parado em
+// "Conferindo este celular…" para sempre se ele falhasse: agora são 15 segundos.
+function esperarAtivo(reg, ms = 15000) {
+  return new Promise((ok, falha) => {
+    if (reg.active) return ok(reg);
+    const sw = reg.installing || reg.waiting;
+    if (!sw) return falha(new Error("o serviço de notificações não instalou"));
+    const prazo = setTimeout(() => falha(new Error("o serviço de notificações não respondeu")), ms);
+    sw.addEventListener("statechange", () => {
+      if (sw.state === "activated") { clearTimeout(prazo); ok(reg); }
+      if (sw.state === "redundant") { clearTimeout(prazo); falha(new Error("o serviço de notificações falhou ao instalar")); }
+    });
+  });
+}
 
 function base64ParaBytes(b64) {
   const s = atob(b64.replace(/-/g, "+").replace(/_/g, "/") + "=".repeat((4 - (b64.length % 4)) % 4));
@@ -346,16 +378,24 @@ function botao(texto, acao, vazado) {
 }
 
 async function prepararAviso() {
+  descreverAparelho();
+  try { await prepararAvisoSemErro(); } catch (e) {
+    aviso("desligado", "Não consegui preparar as notificações: " + e.message + ".", botao("Tentar de novo", prepararAviso));
+  }
+  descreverAparelho();
+}
+
+async function prepararAvisoSemErro() {
+  if (ehIphone && versaoIos && versaoIos < 16.04) {
+    return aviso("desligado", "Este iPhone está com uma versão antiga do iOS. A Apple só deixa site mandar notificação a partir do iOS 16.4: atualize em Ajustes > Geral > Atualização de Software.");
+  }
   if (ehIphone && !comoApp) {
     return aviso("desligado", "No iPhone, o aviso só chega pelo app: toque em Compartilhar (o quadrado com a seta) e em “Adicionar à Tela de Início”. Depois abra o “Diagnósticos” pela tela inicial e ative aqui.");
   }
   if (!temPush) return aviso("desligado", "Este navegador não recebe notificações. No Android, use o Chrome; no iPhone, o app salvo na Tela de Início.");
-  try {
-    registro = await navigator.serviceWorker.register("/adm/sw.js", { scope: "/adm/" });
-    await navigator.serviceWorker.ready;
-  } catch (e) {
-    return aviso("desligado", "Não consegui preparar as notificações neste celular.");
-  }
+  aviso("desligado", "Preparando as notificações deste celular…");
+  registro = await navigator.serviceWorker.register("/adm/sw.js", { scope: "/adm/" });
+  await esperarAtivo(registro);
   if (Notification.permission === "denied") {
     return aviso("desligado", ehIphone
       ? "As notificações estão bloqueadas. Libere em Ajustes > Notificações > Diagnósticos."
