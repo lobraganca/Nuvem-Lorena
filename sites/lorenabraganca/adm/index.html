@@ -59,6 +59,9 @@ button, input { font: inherit; }
 .erro { color: var(--baixo); font-size: 14px; font-weight: 600; }
 
 /* entrar */
+.tecnico { width: 100%; border: 0; padding: 0; color: var(--apagado); }
+.tecnico summary { color: var(--apagado); font-size: 13px; }
+.registro { margin: 8px 0 0; white-space: pre-wrap; word-break: break-word; font: 12px/1.45 ui-monospace, Menlo, monospace; color: var(--suave); background: var(--cartao); border-radius: 10px; padding: 10px; max-height: 40vh; overflow: auto; }
 .escondido { position: absolute; width: 1px; height: 1px; opacity: 0; pointer-events: none; }
 #abrindo { min-height: 60vh; align-content: center; justify-items: center; color: var(--suave); }
 #entrar { min-height: 80vh; align-content: center; justify-items: start; gap: 22px; }
@@ -133,6 +136,7 @@ dd { margin: 0; font-size: 15px; }
     <p class="erro" id="erro-entrar" hidden></p>
     <button class="botao" type="submit" id="botao-entrar">Entrar</button>
   </form>
+  <details class="tecnico"><summary>Detalhes técnicos</summary><pre class="registro"></pre></details>
 </main>
 
 <main id="painel" hidden>
@@ -164,6 +168,7 @@ dd { margin: 0; font-size: 15px; }
   <div class="lista" id="lista"></div>
 
   <div class="rodape"><span id="atualizado"></span><button class="link" type="button" id="atualizar">Atualizar</button></div>
+  <details class="tecnico"><summary>Detalhes técnicos</summary><pre class="registro"></pre></details>
 </main>
 
 <script>
@@ -182,19 +187,37 @@ let aba = "contato";
 
 class SemPasse extends Error {}
 
+// ---------- o registro do que aconteceu ----------
+// Ela disse "tá em looping" e daqui não dá para ver o iPhone. Cada passo fica anotado
+// (na sessão, para sobreviver a um recarregamento) e aparece em "Detalhes técnicos":
+// um print disso diz o que estava se repetindo.
+function anotar(texto) {
+  let r = [];
+  try { r = JSON.parse(sessionStorage.getItem("adm-registro") || "[]"); } catch {}
+  r.push(new Date().toLocaleTimeString("pt-BR") + "  " + texto);
+  r = r.slice(-40);
+  try { sessionStorage.setItem("adm-registro", JSON.stringify(r)); } catch {}
+  document.querySelectorAll(".registro").forEach((el) => { el.textContent = r.join("\n"); });
+}
+
 async function api(acao, dados = {}) {
   const cabecalhos = { "Content-Type": "application/json" };
   const passe = ler(PASSE);
   if (passe) cabecalhos.Authorization = "Bearer " + passe;
-  const r = await fetch("/api/adm", { method: "POST", credentials: "same-origin", headers: cabecalhos, body: JSON.stringify({ acao, ...dados }) });
+  let r;
+  try {
+    r = await fetch("/api/adm", { method: "POST", credentials: "same-origin", headers: cabecalhos, body: JSON.stringify({ acao, ...dados }) });
+  } catch (e) { anotar(`${acao}: sem resposta (${e.message})`); throw e; }
   const corpo = await r.json().catch(() => ({}));
-  if (corpo.passe) guardar(PASSE, corpo.passe); // a cópia renovada
+  anotar(`${acao}: ${r.status}${passe ? " (com cópia do login)" : " (sem cópia do login)"}${corpo.passe ? ", login renovado" : ""}${corpo.erro ? ", " + corpo.erro : ""}`);
+  if (corpo.passe) { guardar(PASSE, corpo.passe); if (!ler(PASSE)) anotar("o celular não deixou guardar a cópia do login"); } // a cópia renovada
   if (r.status === 401 && acao !== "entrar") { apagar(PASSE); throw new SemPasse(); }
   if (!r.ok) { const e = new Error(corpo.erro || "Erro " + r.status); e.corpo = corpo; e.status = r.status; throw e; }
   return corpo;
 }
 
 function mostrar(tela) {
+  anotar("tela: " + tela);
   $("abrindo").hidden = tela !== "abrindo";
   $("entrar").hidden = tela !== "entrar";
   $("painel").hidden = tela !== "painel";
@@ -344,7 +367,10 @@ for (const [id, nome] of [["aba-contato", "contato"], ["aba-todos", "todos"]]) {
   });
 }
 $("atualizar").addEventListener("click", carregar);
-document.addEventListener("visibilitychange", () => { if (!document.hidden && !$("painel").hidden) carregar(); });
+document.addEventListener("visibilitychange", () => {
+  anotar(document.hidden ? "app foi para o fundo" : "app voltou para a frente");
+  if (!document.hidden && !$("painel").hidden) carregar();
+});
 
 // ---------- notificações ----------
 // No iPhone, notificação de site só funciona com a página salva na Tela de Início
@@ -421,6 +447,7 @@ async function prepararAvisoSemErro() {
   if (!temPush) return aviso("desligado", "Este navegador não recebe notificações. No Android, use o Chrome; no iPhone, o app salvo na Tela de Início.");
   aviso("desligado", "Preparando as notificações deste celular…");
   registro = await navigator.serviceWorker.register("/adm/sw.js", { scope: "/adm/" });
+  anotar("serviço de notificações: " + (registro.active ? "ativo" : registro.installing ? "instalando" : registro.waiting ? "esperando" : "?"));
   await esperarAtivo(registro);
   if (Notification.permission === "denied") {
     return aviso("desligado", ehIphone
@@ -474,8 +501,22 @@ async function abrirPainel() {
 }
 
 if (location.pathname === "/adm") history.replaceState(null, "", "/adm/"); // fica dentro do escopo do app
-mostrar("abrindo");
-abrirPainel();
+// Se a página está recarregando sozinha (4 aberturas em 20 segundos), para tudo e avisa,
+// em vez de entrar no próximo ciclo.
+let aberturas = [];
+try { aberturas = JSON.parse(sessionStorage.getItem("adm-aberturas") || "[]"); } catch {}
+aberturas = [...aberturas.filter((t) => Date.now() - t < 20000), Date.now()];
+try { sessionStorage.setItem("adm-aberturas", JSON.stringify(aberturas)); } catch {}
+anotar(`abriu ${location.pathname}${comoApp ? " (app da tela inicial)" : " (navegador)"} · ${navigator.userAgent.match(/OS [\d_]+/)?.[0] || ""} · cópia do login: ${ler(PASSE) ? "sim" : "não"}`);
+if (aberturas.length >= 4) {
+  anotar("a página abriu " + aberturas.length + " vezes em 20 segundos: parei aqui");
+  mostrar("entrar");
+  $("erro-entrar").textContent = "A página estava recarregando sozinha e eu parei. Toque em \u201cDetalhes técnicos\u201d, logo abaixo, e mande um print.";
+  $("erro-entrar").hidden = false;
+} else {
+  mostrar("abrindo");
+  abrirPainel();
+}
 </script>
 </body>
 </html>
