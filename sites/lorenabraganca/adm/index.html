@@ -1,0 +1,409 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Diagnósticos · Lorena Bragança</title>
+<!-- Página só dela: fora do Google e sem link em lugar nenhum do site. Quem guarda é a senha. -->
+<meta name="robots" content="noindex, nofollow">
+<meta name="theme-color" content="#0F1115">
+<link rel="manifest" href="/adm/manifest.webmanifest">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="/adm/icone-192.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Diagnósticos">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@600;700;800&family=Figtree:wght@400;500;600&display=swap">
+<style>
+/* layout: uma coluna só, pensada para o celular dela — números no topo, o aviso, e a lista de pessoas */
+:root {
+  --fundo: #0F1115;
+  --cartao: #181B21;
+  --cartao-forte: #1E222A;
+  --borda: #262A32;
+  --texto: #F3F4F0;
+  --suave: #A3A7B1;
+  --apagado: #6E7380;
+  --limao: #C8F26B;
+  --sobre-limao: #0F1115;
+  /* cor de estado do índice: separada do limão da marca */
+  --baixo: #FF8A7A;
+  --medio: #F5C451;
+  --alto: #C8F26B;
+  --f-titulo: "Plus Jakarta Sans", system-ui, -apple-system, sans-serif;
+  --f-texto: "Figtree", system-ui, -apple-system, sans-serif;
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+[hidden] { display: none !important; }
+body {
+  margin: 0; background: var(--fundo); color: var(--texto); font: 16px/1.5 var(--f-texto);
+  padding: env(safe-area-inset-top, 0px) max(16px, env(safe-area-inset-right, 0px)) calc(32px + env(safe-area-inset-bottom, 0px)) max(16px, env(safe-area-inset-left, 0px));
+}
+main { max-width: 640px; margin-inline: auto; display: grid; gap: 18px; padding-top: 18px; }
+h1, h2 { font-family: var(--f-titulo); margin: 0; letter-spacing: -.02em; line-height: 1.15; }
+p { margin: 0; }
+button, input { font: inherit; }
+:focus-visible { outline: 3px solid var(--limao); outline-offset: 2px; border-radius: 8px; }
+.marca { font: 800 17px/1 var(--f-titulo); letter-spacing: -.02em; }
+.marca span { color: var(--limao); }
+.botao { display: inline-flex; align-items: center; justify-content: center; gap: 8px; border: 0; cursor: pointer; text-decoration: none; background: var(--limao); color: var(--sobre-limao); font: 700 16px/1.2 var(--f-titulo); padding: 14px 20px; border-radius: 999px; }
+.botao.vazado { background: transparent; color: var(--texto); border: 1.5px solid var(--borda); }
+.botao.pequeno { padding: 9px 14px; font-size: 14px; }
+.botao[disabled] { opacity: .5; cursor: wait; }
+.botao svg { width: 18px; height: 18px; }
+.link { background: none; border: 0; padding: 4px 0; color: var(--suave); cursor: pointer; font: 600 14px/1 var(--f-titulo); }
+.link:hover { color: var(--texto); }
+.erro { color: var(--baixo); font-size: 14px; font-weight: 600; }
+
+/* entrar */
+#entrar { min-height: 80vh; align-content: center; justify-items: start; gap: 22px; }
+#entrar h1 { font-size: 30px; font-weight: 800; }
+#entrar form { display: grid; gap: 12px; width: 100%; }
+#entrar label { font: 600 14px/1 var(--f-titulo); color: var(--suave); }
+input[type="password"] { width: 100%; background: var(--cartao); color: var(--texto); border: 1.5px solid var(--borda); border-radius: 12px; padding: 14px 16px; font-size: 17px; }
+input[type="password"]:focus { outline: none; border-color: var(--limao); }
+
+/* painel */
+.topo { display: flex; justify-content: space-between; align-items: center; gap: 12px; }
+.numeros { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; }
+.numero { background: var(--cartao); border: 1.5px solid var(--borda); border-radius: 16px; padding: 14px; display: grid; gap: 4px; min-width: 0; }
+.numero b { font: 800 30px/1 var(--f-titulo); font-variant-numeric: tabular-nums; }
+.numero span { font-size: 13px; color: var(--suave); line-height: 1.25; }
+.numero.chamar b { color: var(--limao); }
+
+.aviso { background: var(--cartao); border: 1.5px solid var(--borda); border-radius: 16px; padding: 16px; display: grid; gap: 10px; }
+.aviso.ligado { border-color: color-mix(in srgb, var(--limao) 40%, var(--borda)); }
+.aviso h2 { font-size: 17px; display: flex; align-items: center; gap: 8px; }
+.aviso h2::before { content: ""; width: 9px; height: 9px; border-radius: 50%; background: var(--apagado); flex: none; }
+.aviso.ligado h2::before { background: var(--limao); }
+.aviso p { color: var(--suave); font-size: 15px; }
+.aviso .acoes { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
+
+.abas { display: flex; gap: 8px; }
+.aba { flex: 1; background: var(--cartao); color: var(--suave); border: 1.5px solid var(--borda); border-radius: 999px; padding: 10px 12px; cursor: pointer; font: 700 14px/1 var(--f-titulo); }
+.aba[aria-pressed="true"] { background: var(--texto); color: var(--fundo); border-color: var(--texto); }
+
+.lista { display: grid; gap: 12px; }
+.pessoa { background: var(--cartao); border: 1.5px solid var(--borda); border-radius: 18px; padding: 16px; display: grid; gap: 12px; transition: opacity .2s; }
+.pessoa.feito { opacity: .62; }
+.cabeca { display: flex; justify-content: space-between; gap: 12px; align-items: flex-start; }
+.cabeca h2 { font-size: 19px; font-weight: 800; overflow-wrap: anywhere; }
+.cabeca small { display: block; color: var(--suave); font-size: 14px; margin-top: 2px; }
+.indice { flex: none; text-align: right; display: grid; gap: 2px; justify-items: end; }
+.indice b { font: 800 22px/1 var(--f-titulo); font-variant-numeric: tabular-nums; padding: 6px 10px; border-radius: 10px; background: color-mix(in srgb, var(--cor) 16%, transparent); color: var(--cor); }
+.indice span { font-size: 12px; color: var(--suave); }
+.contato { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; justify-content: space-between; }
+.numero-zap { font: 600 16px/1 var(--f-texto); font-variant-numeric: tabular-nums; }
+.feito-sim { display: flex; align-items: center; gap: 10px; cursor: pointer; font-size: 15px; color: var(--suave); user-select: none; }
+.feito-sim input { width: 22px; height: 22px; accent-color: var(--limao); margin: 0; }
+details { border-top: 1px solid var(--borda); padding-top: 10px; }
+summary { cursor: pointer; color: var(--suave); font: 600 14px/1.4 var(--f-titulo); }
+dl { margin: 10px 0 0; display: grid; gap: 8px; }
+dt { font-size: 12px; color: var(--apagado); text-transform: uppercase; letter-spacing: .08em; font-weight: 600; }
+dd { margin: 0; font-size: 15px; }
+.vazio { text-align: center; color: var(--suave); padding: 32px 12px; border: 1.5px dashed var(--borda); border-radius: 18px; }
+.rodape { display: flex; justify-content: space-between; align-items: center; color: var(--apagado); font-size: 13px; }
+.problema { background: color-mix(in srgb, var(--baixo) 10%, var(--cartao)); border: 1.5px solid color-mix(in srgb, var(--baixo) 40%, var(--borda)); border-radius: 16px; padding: 16px; display: grid; gap: 6px; }
+.problema code { font-size: 13px; background: var(--fundo); padding: 2px 6px; border-radius: 6px; }
+</style>
+</head>
+<body>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <symbol id="i-zap" viewBox="0 0 24 24"><path fill="currentColor" d="M12 2a10 10 0 0 0-8.6 15.1L2 22l5-1.3A10 10 0 1 0 12 2Zm0 18.2a8.2 8.2 0 0 1-4.2-1.2l-.3-.2-3 .8.8-2.9-.2-.3A8.2 8.2 0 1 1 12 20.2Zm4.5-6.1c-.2-.1-1.5-.7-1.7-.8-.2-.1-.4-.1-.6.1l-.8 1c-.1.2-.3.2-.5.1a6.7 6.7 0 0 1-3.3-2.9c-.3-.4.2-.4.7-1.3.1-.2 0-.3 0-.4l-.8-1.8c-.2-.5-.4-.4-.6-.4h-.5a1 1 0 0 0-.7.3 3 3 0 0 0-.9 2.2 5.2 5.2 0 0 0 1.1 2.7 11.8 11.8 0 0 0 4.5 4c1.7.7 2.3.8 3.1.6.5-.1 1.5-.6 1.7-1.2.2-.6.2-1.1.1-1.2l-.5-.3Z"/></symbol>
+</svg>
+
+<main id="entrar" hidden>
+  <span class="marca">Lorena Bragança<span>.</span></span>
+  <h1>Diagnósticos</h1>
+  <form id="form-entrar">
+    <label for="senha">Senha</label>
+    <input id="senha" type="password" autocomplete="current-password" required>
+    <p class="erro" id="erro-entrar" hidden></p>
+    <button class="botao" type="submit" id="botao-entrar">Entrar</button>
+  </form>
+</main>
+
+<main id="painel" hidden>
+  <div class="topo">
+    <span class="marca">Diagnósticos<span>.</span></span>
+    <button class="link" id="sair" type="button">Sair</button>
+  </div>
+
+  <div class="problema" id="problema" hidden></div>
+
+  <div class="numeros">
+    <div class="numero"><b id="n-total">–</b><span>fizeram o diagnóstico</span></div>
+    <div class="numero"><b id="n-contato">–</b><span>deixaram o contato</span></div>
+    <div class="numero chamar"><b id="n-chamar">–</b><span>falta chamar</span></div>
+  </div>
+
+  <section class="aviso" id="aviso" aria-live="polite">
+    <h2 id="aviso-titulo">Notificações</h2>
+    <p id="aviso-texto">Conferindo este celular…</p>
+    <div class="acoes" id="aviso-acoes"></div>
+  </section>
+
+  <div class="abas" role="group" aria-label="Quem mostrar">
+    <button class="aba" type="button" id="aba-contato" aria-pressed="true">Com contato</button>
+    <button class="aba" type="button" id="aba-todos" aria-pressed="false">Todos</button>
+  </div>
+
+  <div class="lista" id="lista"></div>
+
+  <div class="rodape"><span id="atualizado"></span><button class="link" type="button" id="atualizar">Atualizar</button></div>
+</main>
+
+<script>
+// O painel fala só com /api/adm. O passe (que a senha gera) fica guardado neste
+// celular por 30 dias; trocar a senha na Vercel desloga todo mundo.
+const CHAVE_PASSE = "adm-passe";
+const ler = (k) => { try { return localStorage.getItem(k); } catch { return null; } };
+const gravar = (k, v) => { try { v == null ? localStorage.removeItem(k) : localStorage.setItem(k, v); } catch {} };
+const $ = (id) => document.getElementById(id);
+
+let diagnosticos = [];
+let aba = "contato";
+
+class SemPasse extends Error {}
+
+async function api(acao, dados = {}) {
+  const r = await fetch("/api/adm", {
+    method: "POST",
+    headers: { "Content-Type": "application/json", Authorization: "Bearer " + (ler(CHAVE_PASSE) || "") },
+    body: JSON.stringify({ acao, ...dados }),
+  });
+  const corpo = await r.json().catch(() => ({}));
+  if (r.status === 401 && acao !== "entrar") throw new SemPasse();
+  if (!r.ok) { const e = new Error(corpo.erro || "Erro " + r.status); e.corpo = corpo; e.status = r.status; throw e; }
+  return corpo;
+}
+
+function mostrar(tela) {
+  $("entrar").hidden = tela !== "entrar";
+  $("painel").hidden = tela !== "painel";
+}
+
+// ---------- entrar e sair ----------
+$("form-entrar").addEventListener("submit", async (e) => {
+  e.preventDefault();
+  const botao = $("botao-entrar"), erro = $("erro-entrar");
+  botao.disabled = true; erro.hidden = true;
+  try {
+    const { passe } = await api("entrar", { senha: $("senha").value });
+    gravar(CHAVE_PASSE, passe);
+    $("senha").value = "";
+    abrirPainel();
+  } catch (err) {
+    erro.textContent = err.status === 401 ? "Senha incorreta." : err.status === 503 ? problemaTexto(err.corpo) : "Não consegui entrar agora. Confira a internet e tente de novo.";
+    erro.hidden = false;
+  } finally { botao.disabled = false; }
+});
+$("sair").addEventListener("click", () => { gravar(CHAVE_PASSE, null); mostrar("entrar"); });
+
+function problemaTexto(corpo) {
+  if (corpo && corpo.erro === "nao-configurado") return "O painel ainda não foi ligado: falta " + (corpo.falta || []).join(", ") + " nas variáveis da Vercel.";
+  return "O servidor não respondeu.";
+}
+
+// ---------- a lista ----------
+async function carregar() {
+  try {
+    const { diagnosticos: d } = await api("listar");
+    diagnosticos = d;
+    $("problema").hidden = true;
+    desenhar();
+    $("atualizado").textContent = "Atualizado às " + new Date().toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" });
+  } catch (err) {
+    if (err instanceof SemPasse) { gravar(CHAVE_PASSE, null); mostrar("entrar"); return; }
+    $("problema").replaceChildren(el("strong", { text: "Não consegui carregar os diagnósticos." }), el("span", { text: err.corpo?.detalhe || err.message }));
+    $("problema").hidden = false;
+  }
+}
+
+function el(tag, attrs = {}, ...filhos) {
+  const n = document.createElement(tag);
+  for (const [k, v] of Object.entries(attrs)) {
+    if (k === "class") n.className = v; else if (k === "text") n.textContent = v; else n.setAttribute(k, v);
+  }
+  filhos.forEach((f) => f && n.append(f));
+  return n;
+}
+
+function quando(iso) {
+  const d = new Date(iso), hoje = new Date();
+  const hora = d.toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" });
+  const dias = Math.round((new Date(hoje.toDateString()) - new Date(d.toDateString())) / 864e5);
+  if (dias === 0) return "hoje, " + hora;
+  if (dias === 1) return "ontem, " + hora;
+  return d.toLocaleDateString("pt-BR", { day: "2-digit", month: "2-digit" }) + ", " + hora;
+}
+
+function numeroLegivel(w) { // 5531999998888 -> (31) 99999-8888
+  const d = w.slice(2);
+  return d.length === 11 ? `(${d.slice(0, 2)}) ${d.slice(2, 7)}-${d.slice(7)}` : `(${d.slice(0, 2)}) ${d.slice(2, 6)}-${d.slice(6)}`;
+}
+
+function corDoIndice(i) { return i >= 70 ? "var(--alto)" : i >= 40 ? "var(--medio)" : "var(--baixo)"; }
+
+function cartao(x) {
+  const temContato = Boolean(x.nome && x.whatsapp);
+  const indice = el("div", { class: "indice", style: "--cor:" + corDoIndice(x.indice) }, el("b", { text: String(x.indice) }), el("span", { text: x.nivel }));
+  const quem = el("div", {},
+    el("h2", { text: temContato ? x.nome : "Sem contato" }),
+    el("small", { text: [temContato && x.empresa, quando(temContato && x.contato_em ? x.contato_em : x.criado_em)].filter(Boolean).join(" · ") }));
+  const c = el("article", { class: "pessoa" + (x.contatado_em ? " feito" : "") }, el("div", { class: "cabeca" }, quem, indice));
+
+  if (temContato) {
+    const primeiro = x.nome.split(" ")[0];
+    const texto = `Oi, ${primeiro}! Aqui é a Lorena Bragança. Vi que você fez o diagnóstico no meu site e queria conversar sobre o resultado.`;
+    const zap = el("a", { class: "botao pequeno", href: `https://wa.me/${x.whatsapp}?text=${encodeURIComponent(texto)}`, target: "_blank", rel: "noopener" });
+    zap.innerHTML = '<svg aria-hidden="true"><use href="#i-zap"/></svg>';
+    zap.append("Chamar");
+    const caixa = el("input", { type: "checkbox" });
+    caixa.checked = Boolean(x.contatado_em);
+    caixa.addEventListener("change", async () => {
+      c.classList.toggle("feito", caixa.checked);
+      try {
+        const r = await api("marcar", { id: x.id, feito: caixa.checked });
+        x.contatado_em = r.contatado_em;
+        contar();
+      } catch (err) {
+        caixa.checked = !caixa.checked; c.classList.toggle("feito", caixa.checked);
+        if (err instanceof SemPasse) { mostrar("entrar"); return; }
+        alert("Não consegui salvar. Tente de novo.");
+      }
+    });
+    c.append(el("div", { class: "contato" }, el("span", { class: "numero-zap", text: numeroLegivel(x.whatsapp) }), zap),
+             el("label", { class: "feito-sim" }, caixa, document.createTextNode("Já falei com essa pessoa")));
+  }
+
+  const lista = el("dl");
+  Object.entries(x.respostas || {}).forEach(([k, v]) => lista.append(el("dt", { text: k }), el("dd", { text: v })));
+  c.append(el("details", {}, el("summary", { text: "Ver as respostas" }), lista));
+  return c;
+}
+
+function contar() {
+  const comContato = diagnosticos.filter((x) => x.nome && x.whatsapp);
+  $("n-total").textContent = diagnosticos.length;
+  $("n-contato").textContent = comContato.length;
+  $("n-chamar").textContent = comContato.filter((x) => !x.contatado_em).length;
+  $("aba-contato").textContent = `Com contato (${comContato.length})`;
+  $("aba-todos").textContent = `Todos (${diagnosticos.length})`;
+}
+
+function desenhar() {
+  contar();
+  const mostrar = aba === "contato" ? diagnosticos.filter((x) => x.nome && x.whatsapp) : diagnosticos;
+  $("lista").replaceChildren(...(mostrar.length ? mostrar.map(cartao) : [el("p", { class: "vazio", text: aba === "contato"
+    ? "Ainda ninguém deixou o contato. Quando alguém fizer o diagnóstico e tocar em “Receber minha análise”, aparece aqui."
+    : "Ainda ninguém fez o diagnóstico." })]));
+}
+
+for (const [id, nome] of [["aba-contato", "contato"], ["aba-todos", "todos"]]) {
+  $(id).addEventListener("click", () => {
+    aba = nome;
+    $("aba-contato").setAttribute("aria-pressed", String(nome === "contato"));
+    $("aba-todos").setAttribute("aria-pressed", String(nome === "todos"));
+    desenhar();
+  });
+}
+$("atualizar").addEventListener("click", carregar);
+document.addEventListener("visibilitychange", () => { if (!document.hidden && ler(CHAVE_PASSE)) carregar(); });
+
+// ---------- notificações ----------
+// No iPhone, notificação de site só funciona com a página salva na Tela de Início
+// e aberta por lá (regra da Apple, desde o iOS 16.4). Fora disso, o botão não aparece:
+// aparece o caminho para chegar lá.
+const ehIphone = /iPhone|iPad|iPod/.test(navigator.userAgent);
+const comoApp = matchMedia("(display-mode: standalone)").matches || navigator.standalone === true;
+const temPush = "serviceWorker" in navigator && "PushManager" in window && "Notification" in window;
+let registro = null;
+
+function base64ParaBytes(b64) {
+  const s = atob(b64.replace(/-/g, "+").replace(/_/g, "/") + "=".repeat((4 - (b64.length % 4)) % 4));
+  return Uint8Array.from(s, (c) => c.charCodeAt(0));
+}
+
+function aviso(estado, texto, ...botoes) {
+  $("aviso").classList.toggle("ligado", estado === "ligado");
+  $("aviso-titulo").textContent = estado === "ligado" ? "Notificações ligadas" : "Notificações";
+  $("aviso-texto").textContent = texto;
+  $("aviso-acoes").replaceChildren(...botoes);
+}
+
+function botao(texto, acao, vazado) {
+  const b = el("button", { type: "button", class: "botao pequeno" + (vazado ? " vazado" : ""), text: texto });
+  b.addEventListener("click", async () => { b.disabled = true; try { await acao(); } finally { b.disabled = false; } });
+  return b;
+}
+
+async function prepararAviso() {
+  if (ehIphone && !comoApp) {
+    return aviso("desligado", "No iPhone, o aviso só chega pelo app: toque em Compartilhar (o quadrado com a seta) e em “Adicionar à Tela de Início”. Depois abra o “Diagnósticos” pela tela inicial e ative aqui.");
+  }
+  if (!temPush) return aviso("desligado", "Este navegador não recebe notificações. No Android, use o Chrome; no iPhone, o app salvo na Tela de Início.");
+  try {
+    registro = await navigator.serviceWorker.register("/adm/sw.js", { scope: "/adm/" });
+    await navigator.serviceWorker.ready;
+  } catch (e) {
+    return aviso("desligado", "Não consegui preparar as notificações neste celular.");
+  }
+  if (Notification.permission === "denied") {
+    return aviso("desligado", ehIphone
+      ? "As notificações estão bloqueadas. Libere em Ajustes > Notificações > Diagnósticos."
+      : "As notificações estão bloqueadas. Libere nas configurações do site, no cadeado ao lado do endereço.");
+  }
+  const inscricao = await registro.pushManager.getSubscription();
+  if (Notification.permission === "granted" && inscricao) {
+    // reenvia a cada abertura: se o servidor perdeu a inscrição, ela volta sozinha
+    api("inscrever", { inscricao: inscricao.toJSON() }).catch(() => {});
+    return aviso("ligado", "Quando alguém deixar o contato, este celular avisa.", botao("Mandar um teste", testar, true));
+  }
+  aviso("desligado", "Ative para receber um aviso neste celular sempre que alguém deixar o contato no diagnóstico.", botao("Ativar notificações", ativar));
+}
+
+async function ativar() {
+  const permissao = await Notification.requestPermission();
+  if (permissao !== "granted") return prepararAviso();
+  try {
+    const { publica } = await api("chave");
+    let inscricao = await registro.pushManager.getSubscription();
+    if (inscricao) await inscricao.unsubscribe(); // uma inscrição antiga, de outra chave, não serve
+    inscricao = await registro.pushManager.subscribe({ userVisibleOnly: true, applicationServerKey: base64ParaBytes(publica) });
+    await api("inscrever", { inscricao: inscricao.toJSON() });
+    await prepararAviso();
+    await testar();
+  } catch (err) {
+    if (err instanceof SemPasse) return mostrar("entrar");
+    aviso("desligado", "Não consegui ligar as notificações: " + (err.corpo?.erro || err.message), botao("Tentar de novo", ativar));
+  }
+}
+
+async function testar() {
+  try {
+    const r = await api("testar");
+    $("aviso-texto").textContent = r.enviadas ? "Mandei uma notificação de teste. Deve chegar em alguns segundos." : "Nenhum celular recebeu o teste. Toque em “Ativar notificações” de novo.";
+  } catch (err) {
+    $("aviso-texto").textContent = "O teste não saiu: " + (err.corpo?.erro || err.message);
+  }
+}
+
+// o service worker pede para atualizar quando chega uma notificação com o painel aberto
+if ("serviceWorker" in navigator) navigator.serviceWorker.addEventListener("message", (e) => { if (e.data === "atualizar") carregar(); });
+
+function abrirPainel() {
+  mostrar("painel");
+  carregar();
+  prepararAviso();
+}
+
+if (location.pathname === "/adm") history.replaceState(null, "", "/adm/"); // fica dentro do escopo do app
+if (ler(CHAVE_PASSE)) abrirPainel(); else mostrar("entrar");
+</script>
+</body>
+</html>

@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Lorena Bragança · Ferramentas sob medida</title>
-<meta name="description" content="Apps de gestão, dashboards, sites e mapeamento de processos feitos do jeito que a sua empresa funciona. Faça o diagnóstico gratuito.">
+<meta name="description" content="Apps de gestão, agendamentos, dashboards, sites e mapeamento de processos feitos do jeito que a sua empresa funciona. Faça o diagnóstico gratuito.">
 <meta name="theme-color" content="#0F1115">
 <link rel="canonical" href="https://www.lorenabraganca.com.br/">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
@@ -172,6 +172,10 @@ h1, h2 { position: relative; z-index: 0; }
 .cartoes article { background: var(--cartao); border: 1.5px solid var(--borda); border-radius: var(--raio); padding: 28px; display: grid; gap: 12px; align-content: start; transition: border-color .2s; }
 .cartoes article:hover { border-color: color-mix(in srgb, var(--limao) 45%, var(--borda)); }
 .cartoes .icone { width: 34px; height: 34px; }
+.cartoes .largo { grid-column: 1 / -1; grid-template-columns: auto minmax(0, 1fr); column-gap: 18px; align-items: start; }
+.cartoes .largo > * { grid-column: 2; }
+.cartoes .largo > .icone { grid-column: 1; grid-row: 1 / span 3; }
+.novo { justify-self: start; font: 800 11px/1 var(--f-titulo); letter-spacing: .14em; text-transform: uppercase; background: var(--limao); color: var(--sobre-limao); border-radius: 999px; padding: 6px 10px; }
 .cartoes h3 { font-size: 22px; font-weight: 800; letter-spacing: -.02em; }
 .cartoes p { color: var(--suave); font-size: 16px; }
 @media (max-width: 720px) { .cartoes { grid-template-columns: 1fr; } .cartoes article { padding: 22px; } }
@@ -238,6 +242,7 @@ h1, h2 { position: relative; z-index: 0; }
 .envio { display: grid; gap: 14px; border-top: 1px solid var(--borda); padding-top: 22px; }
 .envio h4 { margin: 0; font: 800 19px/1.3 var(--f-titulo); letter-spacing: -.01em; }
 .campos { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+.campo.inteiro { grid-column: 1 / -1; }
 .campo { display: grid; gap: 6px; }
 .campo label { font: 600 14px/1 var(--f-titulo); color: var(--suave); }
 .campo input {
@@ -292,6 +297,7 @@ details p { padding: 0 0 22px; color: var(--suave); max-width: 40em; }
   <symbol id="i-painel" viewBox="0 0 24 24"><rect x="3" y="15" width="3" height="6" rx="1" fill="currentColor" opacity=".35"/><rect x="8.5" y="11" width="3" height="10" rx="1" fill="currentColor" opacity=".55"/><rect x="14" y="7" width="3" height="14" rx="1" fill="currentColor" opacity=".75"/><rect x="19.5" y="3" width="3" height="18" rx="1" fill="currentColor"/></symbol>
   <symbol id="i-site" viewBox="0 0 24 24"><rect x="2.5" y="4" width="19" height="16" rx="2.5" fill="none" stroke="currentColor" stroke-width="2"/><line x1="2.5" y1="9" x2="21.5" y2="9" stroke="currentColor" stroke-width="2"/><circle cx="6" cy="6.5" r=".9" fill="currentColor"/><circle cx="9" cy="6.5" r=".9" fill="currentColor"/></symbol>
   <symbol id="i-fluxo" viewBox="0 0 24 24"><rect x="2.5" y="3" width="7" height="5.5" rx="1.5" fill="none" stroke="currentColor" stroke-width="2"/><rect x="14.5" y="15.5" width="7" height="5.5" rx="1.5" fill="none" stroke="currentColor" stroke-width="2"/><path d="M6 8.5v4.5a2.5 2.5 0 0 0 2.5 2.5h6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></symbol>
+  <symbol id="i-agenda" viewBox="0 0 24 24"><rect x="3" y="4.5" width="18" height="16.5" rx="2.5" fill="none" stroke="currentColor" stroke-width="2"/><line x1="3" y1="9.5" x2="21" y2="9.5" stroke="currentColor" stroke-width="2"/><line x1="8" y1="2.5" x2="8" y2="6.5" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><line x1="16" y1="2.5" x2="16" y2="6.5" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><path d="M8.5 15l2.2 2.2 4.8-4.7" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
   <symbol id="i-seta" viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
   <symbol id="i-ok" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" fill="none" stroke="currentColor" stroke-width="2"/><path d="M7.5 12.5l3 3 6-6.5" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
   <symbol id="i-alerta" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" fill="none" stroke="currentColor" stroke-width="2"/><line x1="12" y1="7" x2="12" y2="13" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/><circle cx="12" cy="16.6" r="1.3" fill="currentColor"/></symbol>
@@ -382,8 +388,14 @@ details p { padding: 0 0 22px; color: var(--suave); max-width: 40em; }
           <h3>Mapeamento de processos</h3>
           <p>O passo a passo da operação desenhado, pra equipe trabalhar sem depender de você.</p>
         </article>
+        <article class="largo">
+          <svg class="icone" aria-hidden="true"><use href="#i-agenda"/></svg>
+          <span class="novo">Novo</span>
+          <h3>Sistema de agendamentos</h3>
+          <p>Pra pequenas empresas que atendem com hora marcada: o cliente escolhe o horário pelo celular e você vê a agenda do dia num lugar só.</p>
+        </article>
       </div>
-      <a class="ver-mais" href="/portifolio/">Ver o portfólio completo, com os 9 serviços <svg aria-hidden="true"><use href="#i-seta"/></svg></a>
+      <a class="ver-mais" href="/portifolio/">Ver o portfólio completo, com os 10 serviços <svg aria-hidden="true"><use href="#i-seta"/></svg></a>
     </div>
   </section>
 
@@ -490,8 +502,9 @@ details p { padding: 0 0 22px; color: var(--suave); max-width: 40em; }
 </footer>
 
 <script>
-// O diagnóstico: 7 perguntas, uma por vez. Nada é gravado em lugar nenhum;
-// as respostas só saem daqui na mensagem de WhatsApp, e só se a pessoa tocar no botão.
+// O diagnóstico: 7 perguntas, uma por vez. Ao chegar no resultado, ele é gravado sem
+// nome (para contar quantos fizeram); ao tocar no botão, com nome e WhatsApp, e a Lorena
+// recebe o aviso no celular. Quem grava é /api/diagnostico — a página não fala com o banco.
 
 // Número que recebe os diagnósticos: só dígitos, com 55 e o DDD. Confirmado por ela em 31/10.
 const WHATSAPP = "5531971473162";
@@ -501,6 +514,7 @@ const SERVICOS = {
   painel:{ nome: "Dashboard e indicadores", icone: "i-painel" },
   site:  { nome: "Site profissional", icone: "i-site" },
   fluxo: { nome: "Mapeamento de processos", icone: "i-fluxo" },
+  agenda:{ nome: "Sistema de agendamentos", icone: "i-agenda" },
 };
 
 // As quatro do meio valem pontos (0 a 3 cada): são as que medem controle.
@@ -542,6 +556,7 @@ const PERGUNTAS = [
     opcoes: [
       { t: "Ter os números da empresa na palma da mão", s: "painel" },
       { t: "Organizar pedidos, clientes ou estoque", s: "app" },
+      { t: "Organizar a agenda e os horários marcados", s: "agenda" },
       { t: "Ter um site profissional", s: "site" },
       { t: "Fazer a equipe trabalhar sem depender de mim", s: "fluxo" },
       { t: "Ainda não sei, quero ajuda pra descobrir" },
@@ -558,6 +573,40 @@ const NIVEIS = [
 
 const respostas = {};   // id da pergunta -> índice da opção
 let passo = 0;
+
+// Cada diagnóstico ganha um id aqui no navegador: a etapa "chegou ao resultado" e a
+// etapa "deixou o contato" caem na mesma linha do banco, sem precisar ler nada de volta.
+function novoId() {
+  if (window.crypto && crypto.randomUUID) return crypto.randomUUID();
+  const b = crypto.getRandomValues(new Uint8Array(16));
+  b[6] = (b[6] & 15) | 64; b[8] = (b[8] & 63) | 128;
+  const h = [...b].map(x => x.toString(16).padStart(2, "0")).join("");
+  return `${h.slice(0, 8)}-${h.slice(8, 12)}-${h.slice(12, 16)}-${h.slice(16, 20)}-${h.slice(20)}`;
+}
+let diagnosticoId = novoId();
+
+// Manda para o servidor do site e não espera: se falhar (sem internet, banco fora),
+// a pessoa não fica sabendo e o WhatsApp abre do mesmo jeito. O keepalive deixa o envio
+// terminar mesmo com a pessoa saindo para o WhatsApp.
+function enviarAoServidor(dados) {
+  try {
+    fetch("/api/diagnostico", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(dados), keepalive: true }).catch(() => {});
+  } catch (e) { /* navegador antigo: segue sem gravar */ }
+}
+
+// As respostas com o nome de cada pergunta, legíveis no /adm.
+function respostasLegiveis() {
+  const r = {};
+  PERGUNTAS.forEach(q => { if (respostas[q.id] !== undefined) r[q.rotulo] = q.opcoes[respostas[q.id]].t; });
+  return r;
+}
+
+// (31) 99999-8888, 31999998888 ou +55 31 99999-8888: tudo vale.
+function whatsappDigitos(v) {
+  let d = String(v || "").replace(/\D/g, "");
+  if (d.length === 10 || d.length === 11) d = "55" + d;
+  return /^55\d{10,11}$/.test(d) ? d : null;
+}
 
 const palco = document.getElementById("palco");
 const voltar = document.getElementById("voltar");
@@ -670,6 +719,8 @@ function mensagem(r, nome, empresa) {
 
 function mostrarResultado() {
   const r = calcular();
+  const base = { id: diagnosticoId, respostas: respostasLegiveis(), indice: r.indice, nivel: r.nivel.nome };
+  enviarAoServidor({ etapa: "resultado", ...base });
   marcarProgresso(PERGUNTAS.length);
   progresso.hidden = true;
   voltar.hidden = true;
@@ -686,20 +737,33 @@ function mostrarResultado() {
   const sugestao = el("div", { class: "sugestao" }, el("span", { text: "O que eu construiria primeiro no seu caso" }), chips);
 
   const nome = el("input", { id: "nome", type: "text", autocomplete: "name", placeholder: "Ex.: Ana Paula", required: "" });
+  const whatsapp = el("input", { id: "whatsapp", type: "tel", inputmode: "tel", autocomplete: "tel-national", placeholder: "(31) 99999-8888", required: "" });
   const empresa = el("input", { id: "empresa", type: "text", autocomplete: "organization", placeholder: "Opcional" });
-  const erro = el("p", { class: "erro", text: "Escreva seu nome pra eu saber com quem estou falando." }); erro.hidden = true;
+  const erro = el("p", { class: "erro" }); erro.hidden = true;
   // o botão é um link de verdade, refeito a cada tecla: é o jeito que abre o WhatsApp em qualquer celular
   const enviar = el("a", { class: "botao", target: "_blank", rel: "noopener", "aria-disabled": "true" },
     icone("i-zap"), document.createTextNode("Receber minha análise no WhatsApp"));
   const atualizar = () => {
     const n = nome.value.trim();
     enviar.href = "https://wa.me/" + WHATSAPP + "?text=" + encodeURIComponent(mensagem(r, n, empresa.value.trim()));
-    enviar.setAttribute("aria-disabled", String(!n));
-    if (n) erro.hidden = true;
+    enviar.setAttribute("aria-disabled", String(!n || !whatsappDigitos(whatsapp.value)));
+    if (n && whatsappDigitos(whatsapp.value)) erro.hidden = true;
   };
-  nome.addEventListener("input", atualizar); empresa.addEventListener("input", atualizar);
+  [nome, whatsapp, empresa].forEach(c => c.addEventListener("input", atualizar));
+  let ultimoEnvio = "";
   enviar.addEventListener("click", e => {
-    if (!nome.value.trim()) { e.preventDefault(); erro.hidden = false; nome.focus(); }
+    const n = nome.value.trim(), w = whatsappDigitos(whatsapp.value);
+    if (!n || !w) {
+      e.preventDefault();
+      erro.textContent = !n ? "Escreva seu nome pra eu saber com quem estou falando." : "Confira o seu WhatsApp, com DDD: (31) 99999-8888.";
+      erro.hidden = false;
+      (!n ? nome : whatsapp).focus();
+      return;
+    }
+    // o contato vai para o /adm dela; tocar duas vezes sem mudar nada não manda de novo
+    const dados = { etapa: "contato", ...base, nome: n, whatsapp: w, empresa: empresa.value.trim() };
+    const chave = JSON.stringify(dados);
+    if (chave !== ultimoEnvio) { ultimoEnvio = chave; enviarAoServidor(dados); }
   });
   atualizar();
 
@@ -707,12 +771,13 @@ function mostrarResultado() {
     el("h4", { text: "Quer que eu olhe o seu caso? Mande o resultado pra mim." }),
     el("div", { class: "campos" },
       el("div", { class: "campo" }, el("label", { for: "nome", text: "Seu nome" }), nome),
-      el("div", { class: "campo" }, el("label", { for: "empresa", text: "Nome da empresa" }), empresa)),
+      el("div", { class: "campo" }, el("label", { for: "whatsapp", text: "Seu WhatsApp" }), whatsapp),
+      el("div", { class: "campo inteiro" }, el("label", { for: "empresa", text: "Nome da empresa" }), empresa)),
     erro, enviar,
-    el("p", { class: "nota", text: "Abre o WhatsApp com as suas respostas já escritas. É só tocar em enviar." }));
+    el("p", { class: "nota", text: "Abre o WhatsApp com as suas respostas já escritas. Ao tocar, você autoriza a Lorena a entrar em contato pelo número informado." }));
 
   const refazer = el("button", { type: "button", class: "voltar refazer", text: "Refazer o diagnóstico" });
-  refazer.addEventListener("click", () => { for (const k in respostas) delete respostas[k]; passo = 0; mostrarPergunta(true); });
+  refazer.addEventListener("click", () => { for (const k in respostas) delete respostas[k]; passo = 0; diagnosticoId = novoId(); mostrarPergunta(true); });
 
   palco.replaceChildren(el("div", { class: "resultado" }, topo, achados, sugestao, envio, refazer));
   titulo.focus({ preventScroll: true });

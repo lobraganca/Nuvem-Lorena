@@ -15,18 +15,71 @@ pixel da arte que ela mandou: fundo `#0F1115`, limão `#C8F26B`, cartão
 `#181B21`, borda `#262A32`. A `previa.jpg`, o ícone e o `404.html` seguem
 as mesmas. O Instagram dela nesta página é o **@lo_braganca**.
 
-### O diagnóstico, que termina no WhatsApp
+### O diagnóstico, que termina no WhatsApp — e agora fica gravado
 
 Sete perguntas, uma por vez. Quatro valem de 0 a 3 pontos (onde ficam as
 informações, se sabe os números do mês, tempo perdido, se a empresa anda sem
 ela) e viram um índice de 0 a 100. Ramo, equipe e objetivo só vão para a
 conversa e para a sugestão de serviço.
 
-No fim, o botão é um link `wa.me` refeito a cada tecla, com todas as
-respostas escritas: **nada é gravado em lugar nenhum**. Se a pessoa não
-tocar em enviar, a Lorena não fica sabendo. O número fica na constante
-`WHATSAPP` do `index.html` — `5531971473162`, confirmado por ela em 31/10.
-É o mesmo número do suporte do Ei; se ela trocar, é ali.
+Desde 01/11 ele grava, em duas etapas que caem na mesma linha (o id nasce no
+navegador):
+
+1. **chegou ao resultado** → linha sem nome (para contar quantos fizeram);
+2. **tocou em "Receber minha análise"** → nome, WhatsApp e empresa, e o aviso
+   vai para o celular dela. O WhatsApp da pessoa passou a ser obrigatório: sem
+   ele, a Lorena não tinha como chamar quem não mandou a mensagem.
+
+A página **não fala com o banco**: manda para `/api/diagnostico` e não espera
+resposta. Se o servidor ou o banco estiverem fora, a pessoa não percebe e o
+WhatsApp abre igual — o que se perde é só a linha no /adm.
+
+O número que recebe a mensagem fica na constante `WHATSAPP` do `index.html` —
+`5531971473162`, confirmado por ela em 31/10. É o mesmo do suporte do Ei.
+
+### O `/adm` e o servidor (`api/`)
+
+`/adm` é a lista de quem fez o diagnóstico, só dela: senha, números no topo,
+botão "Chamar" (abre a conversa já começada) e "Já falei com essa pessoa".
+Fica fora do Google (`noindex`) e sem link em lugar nenhum.
+
+Tudo passa pelas funções da Vercel em `api/` — `diagnostico.mjs` (público),
+`adm.mjs` (com o passe que a senha gera, válido por 30 dias) e `_lib.mjs`
+(o "_" faz a Vercel não publicá-lo). São **`.mjs` de propósito**: a raiz do
+repositório tem `"type": "module"`, e um `.js` aqui seria lido de um jeito ou
+de outro conforme quem olhasse. O teste local pegou isso antes de subir.
+
+Precisam de três variáveis em Vercel > Settings > Environment Variables:
+
+| Variável | O quê |
+|---|---|
+| `SUPABASE_URL` | endereço do projeto Supabase **deste site** |
+| `SUPABASE_SERVICE_ROLE_KEY` | a chave secreta (`service_role` ou `sb_secret_…`) — nunca vai para página nenhuma |
+| `ADMIN_SENHA` | a senha do /adm. Trocá-la desloga todo mundo |
+
+Sem elas, as funções respondem 503 dizendo o que falta, e o /adm mostra isso
+na tela. Variável nova só vale depois de uma nova publicação (Redeploy).
+
+### O banco: projeto Supabase próprio
+
+`sites/banco/001_diagnosticos.sql` — três tabelas (`diagnosticos`,
+`inscricoes_push`, `configuracao`) com RLS ligado e **nenhuma regra**: só a
+chave de serviço entra. Testado num Postgres local: anon e authenticated
+recebem "permission denied", o serviço grava, WhatsApp e índice inválidos
+são recusados, e colar duas vezes não dá erro.
+
+### A notificação no celular (Web Push)
+
+Ela escolheu o aviso no próprio /adm, sem app de terceiro. O /adm é um app
+instalável (`adm/manifest.webmanifest` + `adm/sw.js`, escopo `/adm/`).
+**No iPhone só funciona com o /adm salvo na Tela de Início e aberto por lá**
+(regra da Apple) — a tela explica isso em vez de mostrar um botão que falha.
+
+A cifra (RFC 8291) e a assinatura VAPID foram feitas à mão em `_lib.mjs`, com
+o `crypto` do Node, para não ter dependência. Foram conferidas contra a
+biblioteca de referência (`http_ece`): ela abre a mensagem, e recusa quando a
+chave do aparelho é outra. O par de chaves VAPID nasce no primeiro uso e fica
+na tabela `configuracao`; a parte privada nunca sai do servidor.
 
 ### O portfólio: `/portifolio`
 
