@@ -28,6 +28,23 @@ tocar em enviar, a Lorena não fica sabendo. O número fica na constante
 `WHATSAPP` do `index.html` — `5531971473162`, confirmado por ela em 31/10.
 É o mesmo número do suporte do Ei; se ela trocar, é ali.
 
+### O portfólio: `/portifolio`
+
+Assim, com "i": é o endereço que ela pediu (01/11). A pasta `portfolio/`, com
+a grafia certa, só redireciona para lá, para quem digitar da outra forma não
+cair no 404.
+
+Nove serviços em três frentes (gestão, ferramentas, presença digital) e
+quatro trabalhos de verdade como exemplo, com foto de tela: a página com
+diagnóstico, a página de lista de espera da mentoria, as capas dos destaques
+e o post "Eu construo a ferramenta". As fotos de tela (`portifolio/*.jpg`)
+foram tiradas das páginas reais; se uma delas mudar, a foto fica velha até
+alguém tirar outra.
+
+O portfólio usa endereços que começam na raiz (`/foto.jpg`, `/favicon.svg`):
+abrir o arquivo direto no navegador não mostra a foto nem o ícone. Para ver
+como fica, sirva a pasta: `python3 -m http.server` dentro de `lorenabraganca/`.
+
 ### TUDO o que está dentro de `lorenabraganca/` vai para o ar
 
 Sem build, a Vercel publica a pasta inteira, arquivo por arquivo. Uma

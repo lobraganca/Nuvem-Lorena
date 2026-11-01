@@ -75,7 +75,10 @@ a { color: inherit; }
 :focus-visible { outline: 3px solid var(--limao); outline-offset: 3px; border-radius: 8px; }
 
 /* o "negócio." da arte: a palavra dentro de um bloco de limão */
-.destaque { background: var(--limao); color: var(--sobre-limao); border-radius: .16em; padding: 0 .14em .04em; box-decoration-break: clone; -webkit-box-decoration-break: clone; }
+/* o bloco limão fica ATRÁS do texto: sem isto ele cobre a perna do "p" e a cedilha
+   da linha de cima ("pro", "faço"), porque é pintado depois dela */
+h1, h2 { position: relative; z-index: 0; }
+.destaque { position: relative; z-index: -1; background: var(--limao); color: var(--sobre-limao); border-radius: .16em; padding: 0 .14em .04em; box-decoration-break: clone; -webkit-box-decoration-break: clone; }
 
 .selo {
   display: inline-flex; align-items: center; gap: 10px; width: fit-content;
@@ -107,6 +110,14 @@ a { color: inherit; }
 .topo .miolo { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding-block: 14px; }
 .nome { font: 800 18px/1 var(--f-titulo); letter-spacing: -.02em; text-decoration: none; }
 .nome span { color: var(--limao); }
+.nav-topo { display: flex; align-items: center; gap: 20px; }
+.link-topo { font: 600 15px/1 var(--f-titulo); color: var(--suave); text-decoration: none; }
+.link-topo:hover { color: var(--texto); }
+/* no celular não cabe ao lado do botão: o portfólio fica na seção de serviços e no rodapé */
+@media (max-width: 480px) { .link-topo { display: none; } }
+.ver-mais { justify-self: start; display: inline-flex; align-items: center; gap: 8px; font: 700 16px/1 var(--f-titulo); color: var(--limao); text-decoration: none; }
+.ver-mais svg { width: 18px; height: 18px; }
+.ver-mais:hover { text-decoration: underline; text-underline-offset: 4px; }
 
 /* abertura: o post */
 .abertura { overflow: hidden; }
@@ -290,7 +301,10 @@ details p { padding: 0 0 22px; color: var(--suave); max-width: 40em; }
 <header class="faixa topo">
   <div class="miolo">
     <a class="nome" href="#">Lorena Bragança<span>.</span></a>
-    <a class="botao pequeno" href="#diagnostico">Fazer diagnóstico</a>
+    <nav class="nav-topo">
+      <a class="link-topo" href="/portifolio/">Portfólio</a>
+      <a class="botao pequeno" href="#diagnostico">Fazer diagnóstico</a>
+    </nav>
   </div>
 </header>
 
@@ -369,6 +383,7 @@ details p { padding: 0 0 22px; color: var(--suave); max-width: 40em; }
           <p>O passo a passo da operação desenhado, pra equipe trabalhar sem depender de você.</p>
         </article>
       </div>
+      <a class="ver-mais" href="/portifolio/">Ver o portfólio completo, com os 9 serviços <svg aria-hidden="true"><use href="#i-seta"/></svg></a>
     </div>
   </section>
 
@@ -470,7 +485,7 @@ details p { padding: 0 0 22px; color: var(--suave); max-width: 40em; }
 <footer class="faixa rodape">
   <div class="miolo">
     <span>© 2026 Lorena Bragança</span>
-    <a href="https://instagram.com/lo_braganca" target="_blank" rel="noopener">@lo_braganca</a>
+    <span style="display:flex;gap:18px"><a href="/portifolio/">Portfólio</a><a href="https://instagram.com/lo_braganca" target="_blank" rel="noopener">@lo_braganca</a></span>
   </div>
 </footer>
 
