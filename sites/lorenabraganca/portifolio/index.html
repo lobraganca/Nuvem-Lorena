@@ -389,5 +389,23 @@ h1, h2 { position: relative; z-index: 0; }
     <nav><a href="/">Início</a><a href="https://instagram.com/lo_braganca" target="_blank" rel="noopener">@lo_braganca</a></nav>
   </div>
 </footer>
+<script>
+// Conta a visita, para o número aparecer no /adm. Sem cookie e sem dado pessoal: só um
+// número aleatório guardado neste navegador, que diz se é a mesma pessoa voltando.
+// Quem já entrou no /adm neste aparelho (a Lorena) não conta.
+(function () {
+  try {
+    if (localStorage.getItem("adm-passe")) return;
+    var v = localStorage.getItem("visitante");
+    if (!v) {
+      v = (crypto.randomUUID && crypto.randomUUID()) || "10000000-1000-4000-8000-100000000000".replace(/[018]/g, function (c) {
+        return (c ^ crypto.getRandomValues(new Uint8Array(1))[0] & 15 >> c / 4).toString(16);
+      });
+      localStorage.setItem("visitante", v);
+    }
+    fetch("/api/visita", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ pagina: "portifolio", visitante: v }), keepalive: true }).catch(function () {});
+  } catch (e) { /* sem memória no navegador: segue sem contar */ }
+})();
+</script>
 </body>
 </html>

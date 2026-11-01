@@ -104,6 +104,57 @@ async function marcarContatado(id, feito) {
   return d.contatado_em;
 }
 
+// ---------- as visitas da página ----------
+// Ela quis ver no /adm quantas visitas a página teve (01/11). O painel de visitas da
+// Vercel não deixa outro programa ler os números no plano grátis, então a própria
+// página conta, aqui: um contador por dia ("visitas:inicio:2026-11-01") e, para
+// "pessoas diferentes", um HyperLogLog por dia (conta únicos sem guardar quem é).
+// Os dias são os de São Paulo, não os do servidor: senão a visita das 22h caía amanhã.
+const FUSO = "America/Sao_Paulo";
+const GUARDAR_DIAS = 100;
+const PAGINAS = ["inicio", "portifolio"];
+
+function diaDe(data = new Date()) {
+  return new Intl.DateTimeFormat("en-CA", { timeZone: FUSO, year: "numeric", month: "2-digit", day: "2-digit" }).format(data);
+}
+function ultimosDias(n) {
+  const dias = [];
+  for (let i = n - 1; i >= 0; i--) dias.push(diaDe(new Date(Date.now() - i * 864e5)));
+  return [...new Set(dias)];
+}
+
+async function contarVisita(pagina, visitante) {
+  const dia = diaDe(), ttl = GUARDAR_DIAS * 86400;
+  await redis(
+    ["INCR", `visitas:${pagina}:${dia}`], ["EXPIRE", `visitas:${pagina}:${dia}`, ttl],
+    ["PFADD", `unicos:${pagina}:${dia}`, visitante], ["EXPIRE", `unicos:${pagina}:${dia}`, ttl],
+    ["INCR", `visitas:${pagina}:total`],
+  );
+}
+
+async function resumoDeVisitas() {
+  const dias = ultimosDias(30);
+  const [inicio, pessoasSemana, pessoasMes, total, portfolio] = await redis(
+    ["MGET", ...dias.map((d) => `visitas:inicio:${d}`)],
+    ["PFCOUNT", ...dias.slice(-7).map((d) => `unicos:inicio:${d}`)],
+    ["PFCOUNT", ...dias.map((d) => `unicos:inicio:${d}`)],
+    ["GET", "visitas:inicio:total"],
+    ["MGET", ...dias.map((d) => `visitas:portifolio:${d}`)],
+  );
+  const porDia = inicio.map((v, i) => ({ dia: dias[i], visitas: Number(v) || 0 }));
+  const soma = (lista) => lista.reduce((t, x) => t + x, 0);
+  return {
+    porDia,
+    hoje: porDia[porDia.length - 1].visitas,
+    semana: soma(porDia.slice(-7).map((x) => x.visitas)),
+    mes: soma(porDia.map((x) => x.visitas)),
+    pessoasSemana: Number(pessoasSemana) || 0,
+    pessoasMes: Number(pessoasMes) || 0,
+    total: Number(total) || 0,
+    portfolioMes: soma(portfolio.map((v) => Number(v) || 0)),
+  };
+}
+
 // ---------- os celulares inscritos para o aviso ----------
 async function guardarInscricao(inscricao) { await redis(["HSET", "push", inscricao.endpoint, JSON.stringify(inscricao)]); }
 async function listarInscricoes() { const [v] = await redis(["HVALS", "push"]); return v.map((j) => JSON.parse(j)); }
@@ -236,6 +287,7 @@ async function avisar(mensagem) {
 export {
   SENHA, faltando, responder, lerCorpo,
   gravarResultado, gravarContato, listarDiagnosticos, marcarContatado, guardarInscricao,
+  PAGINAS, contarVisita, resumoDeVisitas,
   senhaConfere, criarPasse, passeValido,
   chavesVapid, cifrar, assinarJwt, avisar,
 };

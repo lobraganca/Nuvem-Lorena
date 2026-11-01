@@ -1,12 +1,12 @@
 // O servidor do /adm. Tudo passa por aqui, com o passe que a senha dela gera:
 //   entrar     senha -> passe, guardado num cookie que só o servidor lê
 //   sair       apaga o cookie
-//   listar     todos os diagnósticos, do mais novo para o mais antigo
+//   listar     todos os diagnósticos, do mais novo para o mais antigo, e as visitas da página
 //   marcar     liga/desliga "já falei com essa pessoa"
 //   chave      a chave pública para o celular se inscrever nas notificações
 //   inscrever  guarda o celular dela na lista de quem recebe o aviso
 //   testar     manda uma notificação de teste
-import { SENHA, faltando, responder, lerCorpo, listarDiagnosticos, marcarContatado, guardarInscricao, senhaConfere, criarPasse, passeValido, chavesVapid, avisar } from "./_lib.mjs";
+import { SENHA, faltando, responder, lerCorpo, listarDiagnosticos, resumoDeVisitas, marcarContatado, guardarInscricao, senhaConfere, criarPasse, passeValido, chavesVapid, avisar } from "./_lib.mjs";
 
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 const esperar = (ms) => new Promise((r) => setTimeout(r, ms));
@@ -66,8 +66,12 @@ export default async function handler(req, res) {
   try {
     switch (d.acao) {
       case "listar": {
-        const diagnosticos = await listarDiagnosticos();
-        return responder(res, 200, { diagnosticos, passe: renovado });
+        // as visitas são extra: se a conta delas falhar, a lista de pessoas aparece mesmo assim
+        const [diagnosticos, visitas] = await Promise.all([
+          listarDiagnosticos(),
+          resumoDeVisitas().catch((e) => { console.warn("visitas:", e.message); return null; }),
+        ]);
+        return responder(res, 200, { diagnosticos, visitas, passe: renovado });
       }
       case "marcar": {
         if (typeof d.id !== "string" || !UUID.test(d.id)) return responder(res, 400, { erro: "Diagnóstico inválido." });

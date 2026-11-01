@@ -77,6 +77,21 @@ Precisam de duas coisas ligadas na Vercel:
 Sem elas, as funções respondem 503 dizendo o que falta, e o /adm mostra isso
 na tela. Variável nova só vale depois de uma nova publicação (Redeploy).
 
+### As visitas, contadas pela própria página
+
+Ela quis ver no /adm quantas visitas a página teve (31/10). O painel de visitas
+da Vercel não deixa outro programa ler os números no plano grátis, então a
+página principal e o portfólio avisam `/api/visita` a cada abertura: um contador
+por dia e um HyperLogLog por dia ("pessoas diferentes", sem guardar quem é),
+nos dias de **São Paulo** — no fuso do servidor, a visita das 22h cairia amanhã.
+Guardados 100 dias. Sem cookie: só um número aleatório no `localStorage`.
+
+Quem já entrou no /adm naquele navegador (ela) não conta, nem robô que roda
+JavaScript (o de prévia de link do WhatsApp nem roda, então nunca chega). O
+/adm mostra hoje / 7 / 30 dias, o gráfico de 14 dias e quantos, de quem
+visitou, fizeram o diagnóstico. Se a conta das visitas falhar, a lista de
+pessoas aparece mesmo assim.
+
 ### O banco: Upstash (Redis), pela própria Vercel
 
 **Não é o Supabase**: o plano grátis dela no Supabase já estava no limite de
@@ -92,6 +107,7 @@ O que fica lá, tudo pela API REST da Upstash (`/pipeline`), sem dependência:
 | `diags` | a fila por data (sorted set; pontuação = quando nasceu) — é dela que sai a lista do /adm |
 | `push` | os celulares inscritos para o aviso (hash: endereço → inscrição) |
 | `config:vapid` | o par de chaves das notificações; a parte privada nunca sai do servidor |
+| `visitas:<página>:<dia>`, `unicos:<página>:<dia>` | visitas e pessoas diferentes por dia (`inicio`, `portifolio`), por 100 dias; `visitas:<página>:total` desde o começo |
 
 Ligado por ela em 01/11, pela aba Storage do projeto na Vercel.
 

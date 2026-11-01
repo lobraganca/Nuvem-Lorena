@@ -79,6 +79,25 @@ input[type="password"]:focus { outline: none; border-color: var(--limao); }
 .numero span { font-size: 13px; color: var(--suave); line-height: 1.25; }
 .numero.chamar b { color: var(--limao); }
 
+/* visitas: uma série só (as visitas por dia), sem legenda — o título diz o que é.
+   Barras finas com a ponta arredondada e a base reta, 4px de ar entre elas; hoje em
+   limão cheio, os outros dias no mesmo limão mais apagado. */
+.visitas { background: var(--cartao); border: 1.5px solid var(--borda); border-radius: 16px; padding: 16px; display: grid; gap: 14px; }
+.visitas-topo { display: flex; justify-content: space-between; align-items: baseline; gap: 10px; flex-wrap: wrap; }
+.visitas-topo h2 { font-size: 17px; }
+.visitas-topo span { color: var(--apagado); font-size: 12px; }
+.visitas .numero { background: var(--cartao-forte); }
+.grafico { display: grid; gap: 6px; }
+.grafico-dica { color: var(--suave); font-size: 14px; min-height: 1.5em; font-variant-numeric: tabular-nums; }
+.grafico svg { width: 100%; height: auto; aspect-ratio: 336 / 100; display: block; overflow: visible; }
+.grafico .barra { fill: var(--limao); opacity: .45; transition: opacity .15s; }
+.grafico .barra.hoje, .grafico .alvo:hover + .barra, .grafico .alvo:focus + .barra, .grafico .barra.escolhida { opacity: 1; }
+.grafico .alvo { fill: transparent; cursor: pointer; outline: none; }
+.grafico .base { stroke: var(--borda); stroke-width: 1; }
+.grafico .maximo { fill: var(--apagado); font: 11px var(--f-texto); }
+.grafico-eixo { display: flex; justify-content: space-between; color: var(--apagado); font-size: 12px; }
+.conversao { color: var(--suave); font-size: 14px; line-height: 1.5; }
+.conversao b { color: var(--texto); }
 .aviso { background: var(--cartao); border: 1.5px solid var(--borda); border-radius: 16px; padding: 16px; display: grid; gap: 10px; }
 .aviso.ligado { border-color: color-mix(in srgb, var(--limao) 40%, var(--borda)); }
 .aviso h2 { font-size: 17px; display: flex; align-items: center; gap: 8px; }
@@ -152,6 +171,22 @@ dd { margin: 0; font-size: 15px; }
     <div class="numero"><b id="n-contato">–</b><span>deixaram o contato</span></div>
     <div class="numero chamar"><b id="n-chamar">–</b><span>falta chamar</span></div>
   </div>
+
+  <section class="visitas" id="visitas" hidden>
+    <div class="visitas-topo"><h2>Visitas à página</h2><span>as suas visitas não contam</span></div>
+    <div class="numeros">
+      <div class="numero"><b id="v-hoje">–</b><span>hoje</span></div>
+      <div class="numero"><b id="v-semana">–</b><span>últimos 7 dias</span></div>
+      <div class="numero"><b id="v-mes">–</b><span>últimos 30 dias</span></div>
+    </div>
+    <div class="grafico">
+      <p class="grafico-dica" id="v-dica" aria-live="polite"></p>
+      <svg id="v-barras" viewBox="0 0 336 100" role="img"></svg>
+      <div class="grafico-eixo"><span id="v-inicio"></span><span>hoje</span></div>
+      <table class="escondido" id="v-tabela"><caption>Visitas por dia, últimos 14 dias</caption><tbody></tbody></table>
+    </div>
+    <p class="conversao" id="v-conversao"></p>
+  </section>
 
   <section class="aviso" id="aviso" aria-live="polite">
     <h2 id="aviso-titulo">Notificações</h2>
@@ -262,8 +297,9 @@ function problemaTexto(corpo) {
 // ---------- a lista ----------
 async function carregar() {
   try {
-    const { diagnosticos: d } = await api("listar");
+    const { diagnosticos: d, visitas } = await api("listar");
     diagnosticos = d;
+    desenharVisitas(visitas);
     $("problema").hidden = true;
     desenhar();
     $("atualizado").textContent = "Atualizado às " + new Date().toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" });
@@ -339,6 +375,64 @@ function cartao(x) {
   Object.entries(x.respostas || {}).forEach(([k, v]) => lista.append(el("dt", { text: k }), el("dd", { text: v })));
   c.append(el("details", {}, el("summary", { text: "Ver as respostas" }), lista));
   return c;
+}
+
+const DIA_DA_SEMANA = ["dom.", "seg.", "ter.", "qua.", "qui.", "sex.", "sáb."];
+function nomeDoDia(iso) { // "2026-11-03" -> "ter., 03/11" (meio-dia, para o fuso não trocar o dia)
+  const d = new Date(iso + "T12:00:00");
+  return `${DIA_DA_SEMANA[d.getDay()]} ${iso.slice(8, 10)}/${iso.slice(5, 7)}`;
+}
+
+function desenharVisitas(v) {
+  if (!v) { $("visitas").hidden = true; return; } // a conta das visitas falhou: a lista segue sem ela
+  $("visitas").hidden = false;
+  $("v-hoje").textContent = v.hoje;
+  $("v-semana").textContent = v.semana;
+  $("v-mes").textContent = v.mes;
+
+  // o gráfico: os últimos 14 dias
+  const dias = v.porDia.slice(-14);
+  const maior = Math.max(1, ...dias.map((x) => x.visitas));
+  const ns = "http://www.w3.org/2000/svg", svg = $("v-barras");
+  const ALTURA = 88, BASE = 96, PASSO = 336 / dias.length, LARGURA = Math.min(20, PASSO - 4);
+  svg.replaceChildren();
+  const linha = document.createElementNS(ns, "line");
+  Object.entries({ x1: 0, x2: 336, y1: BASE + 0.5, y2: BASE + 0.5, class: "base" }).forEach(([k, val]) => linha.setAttribute(k, val));
+  svg.append(linha);
+  const topo = document.createElementNS(ns, "text");
+  Object.entries({ x: 0, y: 8, class: "maximo" }).forEach(([k, val]) => topo.setAttribute(k, val));
+  topo.textContent = "máx. " + maior;
+  svg.append(topo);
+  const dica = (x) => { $("v-dica").textContent = `${nomeDoDia(x.dia)}: ${x.visitas} ${x.visitas === 1 ? "visita" : "visitas"}`; };
+  dias.forEach((x, i) => {
+    const cx = i * PASSO + (PASSO - LARGURA) / 2;
+    const h = x.visitas ? Math.max(3, (x.visitas / maior) * ALTURA) : 0;
+    // a área de toque é a coluna inteira, bem maior que a barra
+    const alvo = document.createElementNS(ns, "rect");
+    Object.entries({ x: i * PASSO, y: 0, width: PASSO, height: BASE, class: "alvo", tabindex: "0", "aria-label": `${nomeDoDia(x.dia)}: ${x.visitas} visitas` }).forEach(([k, val]) => alvo.setAttribute(k, val));
+    const barra = document.createElementNS(ns, "path");
+    const r = Math.min(4, h); // ponta arredondada, base reta
+    barra.setAttribute("d", h ? `M${cx},${BASE} V${BASE - h + r} Q${cx},${BASE - h} ${cx + r},${BASE - h} H${cx + LARGURA - r} Q${cx + LARGURA},${BASE - h} ${cx + LARGURA},${BASE - h + r} V${BASE} Z` : "");
+    barra.setAttribute("class", "barra" + (i === dias.length - 1 ? " hoje" : ""));
+    const escolher = () => { svg.querySelectorAll(".barra").forEach((b) => b.classList.remove("escolhida")); barra.classList.add("escolhida"); dica(x); };
+    alvo.addEventListener("click", escolher); alvo.addEventListener("focus", escolher); alvo.addEventListener("pointerenter", escolher);
+    svg.append(alvo, barra);
+  });
+  dica(dias[dias.length - 1]);
+  svg.setAttribute("aria-label", `Visitas por dia nos últimos 14 dias; hoje, ${v.hoje}; no máximo, ${maior}.`);
+  $("v-inicio").textContent = nomeDoDia(dias[0].dia);
+  $("v-tabela").tBodies[0].replaceChildren(...dias.map((x) => el("tr", {}, el("th", { text: nomeDoDia(x.dia) }), el("td", { text: String(x.visitas) }))));
+
+  // de quem visitou, quantos fizeram o diagnóstico (mesmos 30 dias)
+  const desde = Date.now() - 30 * 864e5;
+  const fizeram = diagnosticos.filter((x) => Date.parse(x.criado_em) >= desde);
+  const deixaram = fizeram.filter((x) => x.nome && x.whatsapp).length;
+  const pct = v.pessoasMes ? Math.round((fizeram.length / v.pessoasMes) * 100) : 0;
+  const c = $("v-conversao");
+  c.replaceChildren(
+    document.createTextNode("Nos últimos 30 dias, "), el("b", { text: `${v.pessoasMes} ${v.pessoasMes === 1 ? "pessoa visitou" : "pessoas visitaram"}` }),
+    document.createTextNode(" a página; "), el("b", { text: `${fizeram.length} (${pct}%)` }),
+    document.createTextNode(` ${fizeram.length === 1 ? "fez" : "fizeram"} o diagnóstico e ${deixaram} ${deixaram === 1 ? "deixou" : "deixaram"} o contato. O portfólio teve ${v.portfolioMes} ${v.portfolioMes === 1 ? "visita" : "visitas"}.`));
 }
 
 function contar() {
