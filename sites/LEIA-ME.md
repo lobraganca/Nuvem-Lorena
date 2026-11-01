@@ -264,3 +264,18 @@ PNG ao lado. Fora de `lorenabraganca/`, então não vão para o ar.
 O L é o desenho do `lorenabraganca/favicon.svg`. Se o favicon mudar, mude
 `fontes/whatsapp-perfil*.svg` junto e rode o gerador: logo que sai de duas
 fontes diferentes é o defeito que o Ei já teve três vezes.
+
+### `marca/video/` — o vídeo do anúncio do TikTok (01/11)
+
+16 s, 1080×1920, MP4 H.264 com faixa de áudio muda (a música se põe no próprio
+TikTok). Não é vídeo gravado: `anuncio-tiktok.html` desenha cada quadro com
+`quadro(t)`, e `node gerar-video.mjs saida.mp4` fotografa 30 por segundo e
+entrega ao ffmpeg. Abrir o HTML com `?ver` toca no navegador, para ver o ritmo.
+`--quadros 2.6,8.9` tira só alguns quadros em PNG, para conferir.
+
+Cenas: o gancho ("Sua empresa ainda vive de planilha e caderno?"), três dores,
+a virada ("Eu construo a ferramenta pro seu negócio."), o medidor do
+diagnóstico subindo a 72 e a chamada com o L e o endereço. O texto fica entre
+x 80–940 e y 220–1480: à direita ficam os botões do TikTok e embaixo a legenda.
+As cenas se cruzam e o primeiro quadro já tem texto — tela vazia é onde a
+pessoa rola para o próximo vídeo. O MP4 não vai para o repositório (`.gitignore`).

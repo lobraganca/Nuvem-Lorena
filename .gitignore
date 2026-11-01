@@ -44,3 +44,7 @@ avena-app-fragment.html
 # versionar dezenas de capturas de tela que só serviram para eu medir.
 /fotos-juntos/
 /fotos/
+
+# o vídeo do anúncio sai de sites/marca/video/gerar-video.mjs: não guardar o MP4 gerado
+sites/marca/video/*.mp4
+sites/marca/video/quadro-*.png

@@ -1,0 +1,206 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<!-- O vídeo do anúncio do TikTok (01/11), 1080x1920, 16 s. Não é um vídeo gravado: é esta
+     página desenhada quadro a quadro. quadro(t) põe cada elemento na posição do segundo t, sem
+     animação de CSS — assim cada quadro sai sempre igual e o gerar-video.mjs fotografa 30 por
+     segundo. Abrir no navegador mostra o vídeo tocando (?ver), para conferir o ritmo.
+
+     Área segura do TikTok: o texto fica entre x 80 e 940 (à direita ficam os botões de curtir)
+     e entre y 220 e 1480 (embaixo ficam a legenda e o nome da conta). -->
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@600;700;800&family=Figtree:wght@500;600&display=swap">
+<style>
+:root { --fundo: #0F1115; --cartao: #181B21; --borda: #262A32; --texto: #F3F4F0; --suave: #A3A7B1; --limao: #C8F26B; --baixo: #FF8A7A; }
+html, body { margin: 0; width: 1080px; height: 1920px; overflow: hidden; background: var(--fundo); color: var(--texto); font-family: "Plus Jakarta Sans", sans-serif; }
+.palco { position: relative; width: 1080px; height: 1920px; overflow: hidden; }
+.brilho { position: absolute; width: 1400px; height: 1400px; border-radius: 50%; background: radial-gradient(circle, rgba(200,242,107,.13), rgba(200,242,107,0) 62%); left: -160px; top: 200px; }
+.arco { position: absolute; border: 3px solid var(--borda); border-radius: 50%; }
+.arco.um { width: 1300px; height: 1300px; left: 420px; top: -620px; }
+.arco.dois { width: 760px; height: 760px; left: 660px; top: -260px; opacity: .7; }
+.cena { position: absolute; left: 80px; top: 0; width: 860px; height: 1920px; display: flex; flex-direction: column; justify-content: center; gap: 44px; padding-bottom: 300px; box-sizing: border-box; }
+.linha { display: block; overflow: hidden; padding-bottom: .08em; margin-bottom: -.08em; }
+.linha > span { display: inline-block; will-change: transform; }
+h1, h2 { margin: 0; font-weight: 800; letter-spacing: -.035em; line-height: 1.02; }
+h1 { font-size: 124px; }
+h2 { font-size: 92px; }
+.selo { display: inline-flex; align-items: center; gap: 16px; width: fit-content; font: 700 30px/1 "Plus Jakarta Sans"; letter-spacing: .16em; text-transform: uppercase; border: 3px solid var(--borda); border-radius: 999px; padding: 20px 30px; }
+.selo::before { content: ""; width: 14px; height: 14px; border-radius: 50%; background: var(--limao); }
+.riscada { position: relative; }
+.risco { position: absolute; left: -4px; right: -4px; top: 52%; height: 14px; background: var(--limao); border-radius: 7px; transform-origin: left center; }
+.dor { display: flex; align-items: center; gap: 30px; background: var(--cartao); border: 3px solid var(--borda); border-radius: 36px; padding: 40px 44px; font: 700 50px/1.15 "Plus Jakarta Sans"; letter-spacing: -.015em; }
+.dor i { flex: none; width: 64px; height: 64px; border-radius: 50%; background: rgba(255,138,122,.14); position: relative; }
+.dor i::before, .dor i::after { content: ""; position: absolute; left: 18px; top: 29px; width: 28px; height: 6px; border-radius: 3px; background: var(--baixo); transform: rotate(45deg); }
+.dor i::after { transform: rotate(-45deg); }
+.destaque { position: relative; z-index: 0; display: inline-block; color: var(--fundo); padding: 0 .12em .04em; }
+.destaque b { position: absolute; inset: 0; background: var(--limao); border-radius: .16em; z-index: -1; transform-origin: left center; }
+.destaque span { position: relative; }
+.medidor { background: var(--cartao); border: 3px solid var(--borda); border-radius: 44px; padding: 48px; display: grid; gap: 28px; }
+.medidor-topo { display: flex; align-items: center; gap: 44px; }
+.medidor svg { width: 290px; height: auto; flex: none; }
+.medidor .rotulo { font: 700 28px/1.2 "Plus Jakarta Sans"; letter-spacing: .14em; text-transform: uppercase; color: var(--limao); }
+.medidor .nivel { font: 800 64px/1.05 "Plus Jakarta Sans"; letter-spacing: -.03em; margin-top: 10px; }
+.chip { display: flex; align-items: center; gap: 22px; background: #1E222A; border: 3px solid var(--borda); border-radius: 999px; padding: 24px 34px; font: 700 40px/1 "Plus Jakarta Sans"; width: fit-content; }
+.chip i { width: 18px; height: 18px; border-radius: 50%; background: var(--limao); flex: none; }
+.marca-l { width: 200px; height: 200px; border-radius: 52px; background: var(--limao); display: grid; place-items: center; }
+.marca-l svg { width: 128px; height: 128px; }
+.botao { display: inline-flex; align-items: center; gap: 20px; width: fit-content; background: var(--limao); color: var(--fundo); font: 800 50px/1 "Plus Jakarta Sans"; padding: 40px 60px; border-radius: 999px; }
+.site { font: 700 46px/1 "Plus Jakarta Sans"; color: var(--suave); letter-spacing: -.01em; }
+.site b { color: var(--limao); }
+</style>
+</head>
+<body>
+<div class="palco" id="palco">
+  <div class="brilho" id="brilho"></div>
+  <div class="arco um" id="arco1"></div><div class="arco dois" id="arco2"></div>
+
+  <!-- 1. o gancho -->
+  <section class="cena" id="c1">
+    <h1>
+      <span class="linha"><span>Sua empresa</span></span>
+      <span class="linha"><span>ainda vive de</span></span>
+      <span class="linha"><span class="riscada">planilha<em class="risco" id="risco1"></em></span></span>
+      <span class="linha"><span>e <span class="riscada">caderno?<em class="risco" id="risco2"></em></span></span></span>
+    </h1>
+  </section>
+
+  <!-- 2. as dores -->
+  <section class="cena" id="c2">
+    <div class="dor"><i></i>Vendas perdidas no WhatsApp</div>
+    <div class="dor"><i></i>Estoque na cabeça de alguém</div>
+    <div class="dor"><i></i>Lucro? Só no fim do mês</div>
+  </section>
+
+  <!-- 3. a virada -->
+  <section class="cena" id="c3">
+    <span class="selo">Ferramentas sob medida</span>
+    <h1>
+      <span class="linha"><span>Eu construo a</span></span>
+      <span class="linha"><span>ferramenta pro</span></span>
+      <span class="linha"><span>seu <span class="destaque"><b id="bloco"></b><span>negócio.</span></span></span></span>
+    </h1>
+  </section>
+
+  <!-- 4. o diagnóstico -->
+  <section class="cena" id="c4">
+    <h2><span class="linha"><span>Descubra em</span></span><span class="linha"><span>1 minuto</span></span></h2>
+    <div class="medidor">
+      <div class="medidor-topo">
+        <svg viewBox="0 0 160 100"><path d="M 14 86 A 66 66 0 0 1 146 86" fill="none" stroke="#262A32" stroke-width="14" stroke-linecap="round"/>
+          <path id="arcoValor" d="M 14 86 A 66 66 0 0 1 146 86" fill="none" stroke="#C8F26B" stroke-width="14" stroke-linecap="round"/>
+          <text id="numero" x="80" y="80" text-anchor="middle" style="font:800 44px 'Plus Jakarta Sans';fill:#F3F4F0">0</text>
+          <text x="80" y="98" text-anchor="middle" style="font:600 13px Figtree;fill:#A3A7B1">de 100</text></svg>
+        <div><div class="rotulo">Índice de controle</div><div class="nivel">Pronta pra acelerar</div></div>
+      </div>
+      <div class="chip"><i></i>App de gestão</div>
+      <div class="chip"><i></i>Dashboard e indicadores</div>
+      <div class="chip"><i></i>Sistema de agendamentos</div>
+    </div>
+  </section>
+
+  <!-- 5. a chamada -->
+  <section class="cena" id="c5">
+    <div class="marca-l"><svg viewBox="0 0 64 64"><g transform="translate(32 32) scale(1.12) translate(-35 -32)" fill="#0F1115"><rect x="18" y="13" width="10" height="38" rx="2"/><rect x="18" y="41" width="22" height="10" rx="2"/><circle cx="47" cy="46" r="5"/></g></svg></div>
+    <h1><span class="linha"><span>Faça o</span></span><span class="linha"><span>diagnóstico</span></span><span class="linha"><span>grátis</span></span></h1>
+    <span class="botao" id="botao">Comece agora →</span>
+    <span class="site" id="site"><b>lorenabraganca.com.br</b></span>
+  </section>
+</div>
+
+<script>
+const DURACAO = 16;
+const $ = (id) => document.getElementById(id);
+const limite = (x) => Math.max(0, Math.min(1, x));
+const trecho = (t, a, b) => limite((t - a) / (b - a));      // 0 antes de a, 1 depois de b
+const saida = (x) => 1 - Math.pow(1 - x, 4);                 // rápido e assentando: o "premium" está aqui
+const entradaSaida = (x) => (x < .5 ? 8 * x ** 4 : 1 - Math.pow(-2 * x + 2, 4) / 2);
+
+// As cenas: [entra, sai]. Cada uma entra, segura e sai subindo e sumindo.
+const CENAS = { c1: [0.0, 3.2], c2: [3.2, 6.6], c3: [6.6, 9.9], c4: [9.9, 13.0], c5: [13.0, 99] };
+
+function linhas(cena, t, inicio, intervalo) {
+  // cada linha sobe de dentro da própria máscara, uma depois da outra
+  cena.querySelectorAll(".linha > span").forEach((s, i) => {
+    const p = saida(trecho(t, inicio + i * intervalo, inicio + i * intervalo + .55));
+    s.style.transform = `translateY(${(1 - p) * 110}%)`;
+  });
+}
+
+function quadro(t) {
+  // fundo: os arcos giram devagar e o brilho passeia — movimento que ninguém nota, mas sente
+  $("arco1").style.transform = `rotate(${t * 2.2}deg)`;
+  $("arco2").style.transform = `rotate(${-t * 3.5}deg)`;
+  $("brilho").style.transform = `translate(${Math.sin(t / 2.6) * 90}px, ${Math.cos(t / 3.1) * 140}px)`;
+
+  for (const [id, [a, b]] of Object.entries(CENAS)) {
+    const el = $(id);
+    const fora = saida(trecho(t, b - .35, b));
+    const vivo = t >= a - .3 && t < b + .05; // as cenas se cruzam: a próxima entra enquanto esta sai
+    el.style.visibility = vivo ? "visible" : "hidden";
+    el.style.opacity = String(1 - fora);
+    el.style.transform = `translateY(${-fora * 70}px)`;
+  }
+
+  // 1. gancho: as linhas sobem, e "planilha" e "caderno" levam um risco limão
+  // começa já pela metade: no TikTok o vídeo toca sozinho no feed, e o primeiro quadro não pode estar vazio
+  linhas($("c1"), t, -.3, .16);
+  $("risco1").style.transform = `scaleX(${saida(trecho(t, 1.55, 1.95))})`;
+  $("risco2").style.transform = `scaleX(${saida(trecho(t, 1.85, 2.25))})`;
+
+  // 2. as dores entram da direita, uma por vez
+  $("c2").querySelectorAll(".dor").forEach((d, i) => {
+    const p = saida(trecho(t, 3.0 + i * .5, 3.0 + i * .5 + .6));
+    d.style.opacity = String(p);
+    d.style.transform = `translateX(${(1 - p) * 140}px)`;
+  });
+
+  // 3. a virada: o selo, as linhas, e o bloco limão varre "negócio." da esquerda para a direita
+  const selo = saida(trecho(t, 6.35, 6.85));
+  $("c3").querySelector(".selo").style.opacity = String(selo);
+  $("c3").querySelector(".selo").style.transform = `translateY(${(1 - selo) * 30}px)`;
+  linhas($("c3"), t, 6.45, .16);
+  $("bloco").style.transform = `scaleX(${entradaSaida(trecho(t, 7.4, 7.95))})`;
+  const negocio = trecho(t, 7.6, 7.9);
+  $("bloco").nextElementSibling.style.color = negocio >= 1 ? "var(--fundo)" : negocio > 0 ? `color-mix(in srgb, var(--fundo) ${negocio * 100}%, var(--texto))` : "var(--texto)";
+
+  // 4. o diagnóstico: título, o cartão sobe, o medidor varre até 72 e as sugestões aparecem
+  linhas($("c4"), t, 9.65, .14);
+  const cartao = saida(trecho(t, 9.85, 10.4));
+  const med = $("c4").querySelector(".medidor");
+  med.style.opacity = String(cartao);
+  med.style.transform = `translateY(${(1 - cartao) * 80}px)`;
+  const valor = saida(trecho(t, 10.15, 11.35)) * 72;
+  const comp = Math.PI * 66;
+  $("arcoValor").setAttribute("stroke-dasharray", String(comp));
+  $("arcoValor").setAttribute("stroke-dashoffset", String(comp * (1 - valor / 100)));
+  $("numero").textContent = String(Math.round(valor));
+  $("c4").querySelectorAll(".chip").forEach((c, i) => {
+    const p = saida(trecho(t, 11.05 + i * .22, 11.05 + i * .22 + .45));
+    c.style.opacity = String(p);
+    c.style.transform = `translateY(${(1 - p) * 24}px) scale(${.96 + p * .04})`;
+  });
+
+  // 5. a chamada: o L aparece, o texto sobe, o botão pulsa devagar até o fim
+  const l = saida(trecho(t, 12.8, 13.3));
+  $("c5").querySelector(".marca-l").style.opacity = String(l);
+  $("c5").querySelector(".marca-l").style.transform = `scale(${.7 + l * .3}) rotate(${(1 - l) * -8}deg)`;
+  linhas($("c5"), t, 13.0, .15);
+  const b = saida(trecho(t, 13.65, 14.1));
+  const pulso = t > 14.1 ? 1 + Math.sin((t - 14.1) * 4.2) * .025 : 1;
+  $("botao").style.opacity = String(b);
+  $("botao").style.transform = `translateY(${(1 - b) * 30}px) scale(${pulso})`;
+  $("site").style.opacity = String(saida(trecho(t, 13.9, 14.4)));
+}
+
+window.quadro = quadro;
+window.DURACAO = DURACAO;
+quadro(0);
+// ?ver: toca no navegador, para conferir o ritmo sem gerar o vídeo
+if (location.search.includes("ver")) {
+  const inicio = performance.now();
+  const tocar = (agora) => { quadro(((agora - inicio) / 1000) % DURACAO); requestAnimationFrame(tocar); };
+  requestAnimationFrame(tocar);
+}
+</script>
+</body>
+</html>
