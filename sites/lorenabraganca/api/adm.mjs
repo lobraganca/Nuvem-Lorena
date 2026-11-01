@@ -1,5 +1,6 @@
 // O servidor do /adm. Tudo passa por aqui, com o passe que a senha dela gera:
-//   entrar     senha -> passe (vale 30 dias)
+//   entrar     senha -> passe, guardado num cookie que só o servidor lê
+//   sair       apaga o cookie
 //   listar     todos os diagnósticos, do mais novo para o mais antigo
 //   marcar     liga/desliga "já falei com essa pessoa"
 //   chave      a chave pública para o celular se inscrever nas notificações
@@ -9,6 +10,23 @@ import { SENHA, faltando, responder, lerCorpo, listarDiagnosticos, marcarContata
 
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 const esperar = (ms) => new Promise((r) => setTimeout(r, ms));
+
+// Ela pediu para não digitar a senha toda hora (01/11). O passe ia na memória da
+// página (localStorage), que o iPhone às vezes descarta; agora vai num cookie que o
+// SERVIDOR grava — o iPhone guarda esse tipo por muito mais tempo que o escrito pela
+// página — e que a página nem consegue ler (HttpOnly). Vale 180 dias e se renova a
+// cada uso: só volta a pedir senha depois de 6 meses sem abrir, ao tocar em Sair,
+// ou se a senha mudar na Vercel.
+const DIAS = 180;
+const COOKIE = "adm_passe";
+const cookie = (valor, segundos) => `${COOKIE}=${valor}; Path=/api/adm; Max-Age=${segundos}; HttpOnly; Secure; SameSite=Strict`;
+function lerCookie(req) {
+  for (const parte of String(req.headers.cookie || "").split(";")) {
+    const [k, ...v] = parte.trim().split("=");
+    if (k === COOKIE) return v.join("=");
+  }
+  return "";
+}
 
 export default async function handler(req, res) {
   const falta = faltando();
@@ -23,11 +41,19 @@ export default async function handler(req, res) {
       await esperar(900); // atrasa quem tenta adivinhar a senha, sem incomodar quem erra uma vez
       return responder(res, 401, { erro: "Senha incorreta." });
     }
-    return responder(res, 200, { passe: criarPasse() });
+    res.setHeader("Set-Cookie", cookie(criarPasse(DIAS), DIAS * 86400));
+    return responder(res, 200, { ok: true });
   }
 
-  const passe = String(req.headers.authorization || "").replace(/^Bearer\s+/i, "");
+  if (d.acao === "sair") {
+    res.setHeader("Set-Cookie", cookie("", 0));
+    return responder(res, 204);
+  }
+
+  // o cabeçalho Authorization ainda vale: é como chegam os passes antigos, do localStorage
+  const passe = String(req.headers.authorization || "").replace(/^Bearer\s+/i, "") || lerCookie(req);
   if (!passeValido(passe)) return responder(res, 401, { erro: "Entre de novo." });
+  res.setHeader("Set-Cookie", cookie(criarPasse(DIAS), DIAS * 86400)); // renova a cada uso
 
   try {
     switch (d.acao) {

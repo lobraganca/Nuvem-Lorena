@@ -43,8 +43,17 @@ O número que recebe a mensagem fica na constante `WHATSAPP` do `index.html` —
 botão "Chamar" (abre a conversa já começada) e "Já falei com essa pessoa".
 Fica fora do Google (`noindex`) e sem link em lugar nenhum.
 
+**A senha é pedida uma vez por aparelho** (ela pediu, 01/11). O passe vai num
+cookie gravado pelo servidor (`HttpOnly`, a página nem lê), de 180 dias, que se
+renova a cada uso. Antes ia no `localStorage`, que o iPhone às vezes descarta —
+e o Safari limita a 7 dias cookie escrito pela página, por isso tem de ser o
+servidor a gravar. Só pede de novo depois de 6 meses sem abrir, em "Sair", ou se
+`ADMIN_SENHA` mudar. O app da tela inicial e o Safari guardam login separado:
+entrar num não entra no outro. A tela de senha tem um campo de usuário
+invisível: sem ele, o iPhone não oferece "Salvar senha" no Chaveiro.
+
 Tudo passa pelas funções da Vercel em `api/` — `diagnostico.mjs` (público),
-`adm.mjs` (com o passe que a senha gera, válido por 30 dias) e `_lib.mjs`
+`adm.mjs` (com o passe que a senha gera) e `_lib.mjs`
 (o "_" faz a Vercel não publicá-lo). São **`.mjs` de propósito**: a raiz do
 repositório tem `"type": "module"`, e um `.js` aqui seria lido de um jeito ou
 de outro conforme quem olhasse. O teste local pegou isso antes de subir.

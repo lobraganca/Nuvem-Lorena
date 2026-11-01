@@ -122,7 +122,7 @@ function senhaConfere(tentativa) {
 // A assinatura do passe depende da senha: trocar a senha na Vercel desloga todo mundo.
 function segredoDoPasse() { return resumo("adm|" + BANCO.token + "|" + SENHA); }
 
-function criarPasse(dias = 30) {
+function criarPasse(dias) {
   const validade = String(Date.now() + dias * 864e5);
   const assinatura = crypto.createHmac("sha256", segredoDoPasse()).update(validade).digest("base64url");
   return validade + "." + assinatura;
