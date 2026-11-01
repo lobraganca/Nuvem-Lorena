@@ -4,21 +4,30 @@
 // .mjs, e não .js: a raiz do repositório tem "type": "module" no package.json, e um
 // .js aqui seria lido como um formato ou outro conforme quem olhasse. .mjs é sempre o mesmo.
 //
-// Ninguém fala com o banco direto do navegador. Só estas funções, com a chave de
-// serviço, que mora nas variáveis de ambiente da Vercel e nunca vai para a página.
-// Por isso as tabelas têm RLS ligado e nenhuma regra: a chave pública não lê nada.
+// Ninguém fala com o banco direto do navegador. Só estas funções, com a chave do
+// banco, que mora nas variáveis de ambiente da Vercel e nunca vai para a página.
 import crypto from "node:crypto";
 
-const SUPABASE_URL = (process.env.SUPABASE_URL || process.env.NEXT_PUBLIC_SUPABASE_URL || "").replace(/\/+$/, "");
-const CHAVE_SERVICO = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABASE_SECRET_KEY || "";
+// O banco é o Redis da Upstash que a Vercel liga ao projeto (Storage > Upstash).
+// Ela mesma cria as variáveis; os nomes mudam com o prefixo escolhido na hora de ligar
+// (KV_ por padrão), então aceitamos qualquer *_REST_API_URL / *_REST_API_TOKEN.
+// O Supabase ficou de fora porque o plano grátis dela já estava no limite (01/11).
+function credenciaisDoBanco() {
+  const env = process.env;
+  let url = env.KV_REST_API_URL || env.UPSTASH_REDIS_REST_URL || "";
+  let token = env.KV_REST_API_TOKEN || env.UPSTASH_REDIS_REST_TOKEN || "";
+  for (const [k, v] of Object.entries(env)) {
+    if (!url && k.endsWith("_REST_API_URL")) url = v;
+    if (!token && k.endsWith("_REST_API_TOKEN") && !k.includes("READ_ONLY")) token = v; // a de só leitura não grava
+  }
+  return { url: url.replace(/\/+$/, ""), token };
+}
+const BANCO = credenciaisDoBanco();
 const SENHA = process.env.ADMIN_SENHA || "";
 
-/** O que falta configurar na Vercel, em nomes que ela reconhece na tela. */
+/** O que falta ligar na Vercel. "banco" = Storage > Upstash ainda não conectado ao projeto. */
 function faltando() {
-  const falta = [];
-  if (!SUPABASE_URL) falta.push("SUPABASE_URL");
-  if (!CHAVE_SERVICO) falta.push("SUPABASE_SERVICE_ROLE_KEY");
-  return falta;
+  return BANCO.url && BANCO.token ? [] : ["banco"];
 }
 
 function responder(res, status, corpo) {
@@ -37,25 +46,68 @@ function lerCorpo(req) {
   try { return JSON.parse(String(b)); } catch { return {}; }
 }
 
-/** Uma chamada à API REST do Supabase, como serviço. Erro do banco vira exceção:
+/** Vários comandos do Redis numa ida só (a API REST da Upstash). Erro vira exceção:
  *  função de dados que falha nunca devolve lista vazia (ver o CLAUDE.md do repositório). */
-async function banco(caminho, { metodo = "GET", corpo, preferir } = {}) {
-  const cabecalhos = { apikey: CHAVE_SERVICO, "Content-Type": "application/json" };
-  // As chaves novas do Supabase (sb_secret_...) não são JWT: vão só no apikey.
-  // As antigas (service_role, um JWT) vão também no Authorization.
-  if (!CHAVE_SERVICO.startsWith("sb_")) cabecalhos.Authorization = "Bearer " + CHAVE_SERVICO;
-  if (preferir) cabecalhos.Prefer = preferir;
-  const r = await fetch(`${SUPABASE_URL}/rest/v1/${caminho}`, {
-    method: metodo, headers: cabecalhos, body: corpo === undefined ? undefined : JSON.stringify(corpo),
+async function redis(...comandos) {
+  const r = await fetch(BANCO.url + "/pipeline", {
+    method: "POST",
+    headers: { Authorization: "Bearer " + BANCO.token, "Content-Type": "application/json" },
+    body: JSON.stringify(comandos),
   });
-  const texto = await r.text();
-  if (!r.ok) {
-    const e = new Error(`banco respondeu ${r.status}: ${texto.slice(0, 300)}`);
-    e.status = r.status;
-    throw e;
-  }
-  return texto ? JSON.parse(texto) : null;
+  const corpo = await r.json().catch(() => null);
+  if (!r.ok || !Array.isArray(corpo)) throw new Error(`banco respondeu ${r.status}: ${JSON.stringify(corpo).slice(0, 200)}`);
+  const erro = corpo.find((x) => x && x.error);
+  if (erro) throw new Error("banco: " + erro.error);
+  return corpo.map((x) => x.result);
 }
+
+// ---------- os diagnósticos ----------
+// Cada um é um JSON em "diag:<id>", e "diags" é a fila por data (pontuação = quando nasceu).
+
+const chaveDo = (id) => "diag:" + id;
+
+/** Etapa 1: chegou ao resultado. Não sobrescreve: ver o resultado de novo não muda nada. */
+async function gravarResultado(linha) {
+  const agora = Date.now();
+  await redis(
+    ["SET", chaveDo(linha.id), JSON.stringify({ ...linha, criado_em: new Date(agora).toISOString() }), "NX"],
+    ["ZADD", "diags", "NX", agora, linha.id],
+  );
+}
+
+/** Etapa 2: deixou o contato. Junta com a etapa 1 — ou cria, se ela não tiver chegado. */
+async function gravarContato(linha, contato) {
+  const [atual] = await redis(["GET", chaveDo(linha.id)]);
+  const antes = atual ? JSON.parse(atual) : { criado_em: new Date().toISOString() };
+  const junto = { ...antes, ...linha, ...contato, criado_em: antes.criado_em };
+  await redis(
+    ["SET", chaveDo(linha.id), JSON.stringify(junto)],
+    ["ZADD", "diags", "NX", Date.parse(junto.criado_em), linha.id],
+  );
+  return junto;
+}
+
+async function listarDiagnosticos(limite = 500) {
+  const [ids] = await redis(["ZREVRANGE", "diags", 0, limite - 1]);
+  if (!ids.length) return [];
+  const [jsons] = await redis(["MGET", ...ids.map(chaveDo)]);
+  return jsons.filter(Boolean).map((j) => JSON.parse(j));
+}
+
+/** Liga/desliga "já falei". Devolve undefined se o diagnóstico não existe. */
+async function marcarContatado(id, feito) {
+  const [atual] = await redis(["GET", chaveDo(id)]);
+  if (!atual) return undefined;
+  const d = JSON.parse(atual);
+  d.contatado_em = feito ? new Date().toISOString() : null;
+  await redis(["SET", chaveDo(id), JSON.stringify(d), "XX"]);
+  return d.contatado_em;
+}
+
+// ---------- os celulares inscritos para o aviso ----------
+async function guardarInscricao(inscricao) { await redis(["HSET", "push", inscricao.endpoint, JSON.stringify(inscricao)]); }
+async function listarInscricoes() { const [v] = await redis(["HVALS", "push"]); return v.map((j) => JSON.parse(j)); }
+async function apagarInscricao(endpoint) { await redis(["HDEL", "push", endpoint]); }
 
 // ---------- entrada no /adm: uma senha só, a dela, guardada na Vercel ----------
 
@@ -68,7 +120,7 @@ function senhaConfere(tentativa) {
 }
 
 // A assinatura do passe depende da senha: trocar a senha na Vercel desloga todo mundo.
-function segredoDoPasse() { return resumo("adm|" + CHAVE_SERVICO + "|" + SENHA); }
+function segredoDoPasse() { return resumo("adm|" + BANCO.token + "|" + SENHA); }
 
 function criarPasse(dias = 30) {
   const validade = String(Date.now() + dias * 864e5);
@@ -94,16 +146,15 @@ const b64u = (buf) => Buffer.from(buf).toString("base64url");
 /** O par de chaves que identifica o site para o serviço de notificação.
  *  Nasce na primeira vez que alguém pede e fica no banco: a parte privada nunca sai do servidor. */
 async function chavesVapid() {
-  const ler = () => banco("configuracao?chave=eq.vapid&select=valor");
+  const ler = async () => { const [j] = await redis(["GET", "config:vapid"]); return j ? JSON.parse(j) : null; };
   const existentes = await ler();
-  if (existentes.length) return existentes[0].valor;
+  if (existentes) return existentes;
   const { publicKey, privateKey } = crypto.generateKeyPairSync("ec", { namedCurve: "prime256v1" });
   const pub = publicKey.export({ format: "jwk" });
   const publica = b64u(Buffer.concat([Buffer.from([4]), Buffer.from(pub.x, "base64url"), Buffer.from(pub.y, "base64url")]));
-  const valor = { publica, privada: privateKey.export({ format: "jwk" }) };
-  // se duas chamadas criarem ao mesmo tempo, fica a primeira — e as duas releem a mesma
-  await banco("configuracao", { metodo: "POST", corpo: { chave: "vapid", valor }, preferir: "resolution=ignore-duplicates,return=minimal" });
-  return (await ler())[0].valor;
+  // NX: se duas chamadas criarem ao mesmo tempo, fica a primeira — e as duas releem a mesma
+  await redis(["SET", "config:vapid", JSON.stringify({ publica, privada: privateKey.export({ format: "jwk" }) }), "NX"]);
+  return ler();
 }
 
 function assinarJwt(conteudo, jwkPrivada) {
@@ -159,17 +210,18 @@ async function enviarPara(inscricao, mensagem, vapid) {
 /** Avisa todos os aparelhos inscritos. Aparelho que o serviço diz não existir mais
  *  (404/410: app apagado, permissão retirada) sai da lista, para não tentar para sempre. */
 async function avisar(mensagem) {
-  const inscricoes = await banco("inscricoes_push?select=endpoint,inscricao");
+  const inscricoes = await listarInscricoes();
   if (!inscricoes.length) return { enviadas: 0, falhas: 0, aparelhos: 0 };
   const vapid = await chavesVapid();
   let enviadas = 0, falhas = 0;
-  await Promise.all(inscricoes.map(async ({ endpoint, inscricao }) => {
+  await Promise.all(inscricoes.map(async (inscricao) => {
+    const { endpoint } = inscricao;
     try {
       const status = await enviarPara(inscricao, mensagem, vapid);
       if (status >= 200 && status < 300) { enviadas++; return; }
       falhas++;
       if (status === 404 || status === 410) {
-        await banco("inscricoes_push?endpoint=eq." + encodeURIComponent(endpoint), { metodo: "DELETE" });
+        await apagarInscricao(endpoint);
       } else {
         console.warn("notificação recusada:", status, new URL(endpoint).host);
       }
@@ -182,7 +234,8 @@ async function avisar(mensagem) {
 }
 
 export {
-  SENHA, faltando, responder, lerCorpo, banco,
+  SENHA, faltando, responder, lerCorpo,
+  gravarResultado, gravarContato, listarDiagnosticos, marcarContatado, guardarInscricao,
   senhaConfere, criarPasse, passeValido,
   chavesVapid, cifrar, assinarJwt, avisar,
 };

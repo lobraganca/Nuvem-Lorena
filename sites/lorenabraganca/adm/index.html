@@ -205,8 +205,11 @@ $("form-entrar").addEventListener("submit", async (e) => {
 $("sair").addEventListener("click", () => { gravar(CHAVE_PASSE, null); mostrar("entrar"); });
 
 function problemaTexto(corpo) {
-  if (corpo && corpo.erro === "nao-configurado") return "O painel ainda não foi ligado: falta " + (corpo.falta || []).join(", ") + " nas variáveis da Vercel.";
-  return "O servidor não respondeu.";
+  if (!corpo || corpo.erro !== "nao-configurado") return "O servidor não respondeu.";
+  const falta = corpo.falta || [];
+  if (falta.includes("banco")) return "O banco ainda não foi ligado: na Vercel, abra Storage, crie o Upstash e conecte ao projeto do site.";
+  if (falta.includes("ADMIN_SENHA")) return "Falta criar a senha: a variável ADMIN_SENHA, nas configurações da Vercel.";
+  return "O painel ainda não foi ligado.";
 }
 
 // ---------- a lista ----------

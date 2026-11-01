@@ -2,7 +2,7 @@
 //   etapa "resultado": a pessoa chegou ao fim (ainda sem nome) — conta quantos fizeram;
 //   etapa "contato":   ela deixou nome e WhatsApp — aí a Lorena recebe o aviso no celular.
 // A página manda e não espera resposta: se isto falhar, o WhatsApp abre do mesmo jeito.
-import { faltando, responder, lerCorpo, banco, avisar } from "./_lib.mjs";
+import { faltando, responder, lerCorpo, gravarResultado, gravarContato, avisar } from "./_lib.mjs";
 
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 
@@ -43,8 +43,7 @@ export default async function handler(req, res) {
 
   try {
     if (d.etapa === "resultado") {
-      // repetir o mesmo id (voltar e ver de novo) não cria outra linha
-      await banco("diagnosticos", { metodo: "POST", corpo: linha, preferir: "resolution=ignore-duplicates,return=minimal" });
+      await gravarResultado(linha); // repetir o mesmo id (voltar e ver de novo) não cria outro
       return responder(res, 204);
     }
 
@@ -54,12 +53,7 @@ export default async function handler(req, res) {
       const empresa = texto(d.empresa, 80) || null;
       if (!nome || !whatsapp) return responder(res, 400, { erro: "Nome e WhatsApp são obrigatórios." });
 
-      // Grava por cima da linha da etapa "resultado", ou cria, se aquela não tiver chegado.
-      await banco("diagnosticos?on_conflict=id", {
-        metodo: "POST",
-        corpo: { ...linha, nome, whatsapp, empresa, contato_em: new Date().toISOString() },
-        preferir: "resolution=merge-duplicates,return=minimal",
-      });
+      await gravarContato(linha, { nome, whatsapp, empresa, contato_em: new Date().toISOString() });
 
       // O aviso não pode derrubar o cadastro: se a notificação falhar, o contato já está salvo.
       try {

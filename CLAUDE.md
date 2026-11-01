@@ -396,7 +396,10 @@ rows returned" e engole a resposta da conferência.
 | `ahigenhenzmsjxlmrzhz` | **Ei Emprego** — confirmado pela dona em 04/09 |
 | `dfdinrimxqoqjedemjbw` | **é do procurô**, e não um "projeto antigo do mesmo app" como este arquivo dizia até 04/09. Foi a migration `0065_apagar_o_ei_itabirito.sql` (na branch `procuro-producao`) que separou os dois. Um link para ele em 03/09 fez a SQL responder `relation "public.companies" does not exist` — as tabelas do Ei não estão lá. Não use para o Ei. |
 | `wkuwwzcucsxonhsblkmc` | Avena |
-| (a criar, 01/11) | **site pessoal dela** (`sites/lorenabraganca`): só os diagnósticos do /adm. Projeto próprio, não use o do Ei — ver `sites/LEIA-ME.md` |
+
+O **site pessoal dela** (`sites/lorenabraganca`) não usa nenhum dos três: o
+plano grátis estava no limite, e os diagnósticos do /adm ficam num Upstash
+ligado pela Vercel. Ver `sites/LEIA-ME.md`.
 
 O endereço do painel mostra qual está aberto. No projeto errado, uma
 conferência de coluna responde "não existe" **sem erro nenhum** — porque

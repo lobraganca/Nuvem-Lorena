@@ -49,24 +49,34 @@ Tudo passa pelas funções da Vercel em `api/` — `diagnostico.mjs` (público),
 repositório tem `"type": "module"`, e um `.js` aqui seria lido de um jeito ou
 de outro conforme quem olhasse. O teste local pegou isso antes de subir.
 
-Precisam de três variáveis em Vercel > Settings > Environment Variables:
+Precisam de duas coisas ligadas na Vercel:
 
-| Variável | O quê |
+| O quê | Onde |
 |---|---|
-| `SUPABASE_URL` | endereço do projeto Supabase **deste site** |
-| `SUPABASE_SERVICE_ROLE_KEY` | a chave secreta (`service_role` ou `sb_secret_…`) — nunca vai para página nenhuma |
-| `ADMIN_SENHA` | a senha do /adm. Trocá-la desloga todo mundo |
+| o banco | aba **Storage** do projeto > Upstash (Redis) > conectar ao projeto. A Vercel cria sozinha as variáveis `KV_REST_API_URL` e `KV_REST_API_TOKEN` (o código aceita qualquer prefixo, `*_REST_API_URL`/`*_REST_API_TOKEN`, e nunca a de só leitura) |
+| `ADMIN_SENHA` | Settings > Environment Variables. É a senha do /adm, escolhida por ela; trocá-la desloga todo mundo |
 
 Sem elas, as funções respondem 503 dizendo o que falta, e o /adm mostra isso
 na tela. Variável nova só vale depois de uma nova publicação (Redeploy).
 
-### O banco: projeto Supabase próprio
+### O banco: Upstash (Redis), pela própria Vercel
 
-`sites/banco/001_diagnosticos.sql` — três tabelas (`diagnosticos`,
-`inscricoes_push`, `configuracao`) com RLS ligado e **nenhuma regra**: só a
-chave de serviço entra. Testado num Postgres local: anon e authenticated
-recebem "permission denied", o serviço grava, WhatsApp e índice inválidos
-são recusados, e colar duas vezes não dá erro.
+**Não é o Supabase**: o plano grátis dela no Supabase já estava no limite de
+projetos (01/11), e ela escolheu o banco grátis da Vercel em vez de pausar um
+projeto antigo ou assinar o Pro. Vantagem que sobrou: nenhuma chave passa pela
+mão dela — a Vercel liga o banco ao projeto e cria as variáveis.
+
+O que fica lá, tudo pela API REST da Upstash (`/pipeline`), sem dependência:
+
+| Chave | O quê |
+|---|---|
+| `diag:<id>` | um diagnóstico, em JSON (respostas, índice, nível, nome, WhatsApp, datas) |
+| `diags` | a fila por data (sorted set; pontuação = quando nasceu) — é dela que sai a lista do /adm |
+| `push` | os celulares inscritos para o aviso (hash: endereço → inscrição) |
+| `config:vapid` | o par de chaves das notificações; a parte privada nunca sai do servidor |
+
+As regras que o banco não impõe (WhatsApp `55` + DDD + número, índice de 0 a
+100, textos curtos) estão em `api/diagnostico.mjs`, antes de gravar.
 
 ### A notificação no celular (Web Push)
 
@@ -79,7 +89,7 @@ A cifra (RFC 8291) e a assinatura VAPID foram feitas à mão em `_lib.mjs`, com
 o `crypto` do Node, para não ter dependência. Foram conferidas contra a
 biblioteca de referência (`http_ece`): ela abre a mensagem, e recusa quando a
 chave do aparelho é outra. O par de chaves VAPID nasce no primeiro uso e fica
-na tabela `configuracao`; a parte privada nunca sai do servidor.
+em `config:vapid`; a parte privada nunca sai do servidor.
 
 ### O portfólio: `/portifolio`
 

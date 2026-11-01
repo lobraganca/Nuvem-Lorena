@@ -5,7 +5,7 @@
 //   chave      a chave pública para o celular se inscrever nas notificações
 //   inscrever  guarda o celular dela na lista de quem recebe o aviso
 //   testar     manda uma notificação de teste
-import { SENHA, faltando, responder, lerCorpo, banco, senhaConfere, criarPasse, passeValido, chavesVapid, avisar } from "./_lib.mjs";
+import { SENHA, faltando, responder, lerCorpo, listarDiagnosticos, marcarContatado, guardarInscricao, senhaConfere, criarPasse, passeValido, chavesVapid, avisar } from "./_lib.mjs";
 
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 const esperar = (ms) => new Promise((r) => setTimeout(r, ms));
@@ -32,13 +32,13 @@ export default async function handler(req, res) {
   try {
     switch (d.acao) {
       case "listar": {
-        const diagnosticos = await banco("diagnosticos?select=*&order=criado_em.desc&limit=500");
+        const diagnosticos = await listarDiagnosticos();
         return responder(res, 200, { diagnosticos });
       }
       case "marcar": {
         if (typeof d.id !== "string" || !UUID.test(d.id)) return responder(res, 400, { erro: "Diagnóstico inválido." });
-        const contatado_em = d.feito ? new Date().toISOString() : null;
-        await banco("diagnosticos?id=eq." + d.id, { metodo: "PATCH", corpo: { contatado_em }, preferir: "return=minimal" });
+        const contatado_em = await marcarContatado(d.id, Boolean(d.feito));
+        if (contatado_em === undefined) return responder(res, 404, { erro: "Diagnóstico não encontrado." });
         return responder(res, 200, { contatado_em });
       }
       case "chave": {
@@ -51,9 +51,7 @@ export default async function handler(req, res) {
           && i.keys && typeof i.keys.p256dh === "string" && typeof i.keys.auth === "string";
         if (!ok) return responder(res, 400, { erro: "Inscrição inválida." });
         const inscricao = { endpoint: i.endpoint, keys: { p256dh: i.keys.p256dh, auth: i.keys.auth } };
-        await banco("inscricoes_push?on_conflict=endpoint", {
-          metodo: "POST", corpo: { endpoint: i.endpoint, inscricao }, preferir: "resolution=merge-duplicates,return=minimal",
-        });
+        await guardarInscricao(inscricao);
         return responder(res, 200, { ok: true });
       }
       case "testar": {
