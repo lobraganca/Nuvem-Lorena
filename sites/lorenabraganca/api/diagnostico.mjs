@@ -4,7 +4,7 @@
 // A etapa "contato" (contato DEPOIS do resultado) é do jeito antigo e segue aceita, para
 // quem estiver com a página velha aberta.
 // A página manda e não espera resposta: se isto falhar, o WhatsApp abre do mesmo jeito.
-import { faltando, responder, lerCorpo, gravarInicio, gravarResultado, gravarContato, avisar, origemLimpa } from "./_lib.mjs";
+import { faltando, responder, lerCorpo, gravarInicio, gravarResultado, gravarContato, avisar, origemLimpa, negocioDoDiagnostico } from "./_lib.mjs";
 
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 
@@ -48,6 +48,11 @@ export default async function handler(req, res) {
     } catch (e) {
       console.error("o contato não gravou:", e.message);
       return responder(res, 502, { erro: "Não foi possível gravar agora." });
+    }
+    try { // entra no funil de vendas, na etapa "Novo contato"; falhar aqui não derruba o contato
+      await negocioDoDiagnostico({ id, nome, whatsapp, empresa, origem: origemLimpa(d.origem), contato_em: new Date().toISOString() });
+    } catch (e) {
+      console.warn("o contato foi salvo, mas não entrou no funil:", e.message);
     }
     try { // o aviso não pode derrubar o cadastro: o contato já está salvo
       await avisar({ titulo: "Novo contato", corpo: `${nome}${empresa ? " · " + empresa : ""} começou o diagnóstico`, url: "/adm/", tag: id });

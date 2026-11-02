@@ -1,7 +1,7 @@
 {
-  "name": "Diagnósticos · Lorena Bragança",
-  "short_name": "Diagnósticos",
-  "description": "Quem fez o diagnóstico no site e deixou o contato.",
+  "name": "Gestão · Lorena Bragança",
+  "short_name": "Gestão",
+  "description": "Funil de vendas, projetos e os diagnósticos do site.",
   "start_url": "/adm/",
   "scope": "/adm/",
   "display": "standalone",

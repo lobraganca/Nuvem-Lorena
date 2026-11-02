@@ -136,6 +136,7 @@ O que fica lá, tudo pela API REST da Upstash (`/pipeline`), sem dependência:
 |---|---|
 | `diag:<id>` | um diagnóstico, em JSON (respostas, índice, nível, nome, WhatsApp, datas) |
 | `diags` | a fila por data (sorted set; pontuação = quando nasceu) — é dela que sai a lista do /adm |
+| `negocio:<id>`, `negocios` | o funil de vendas: um negócio em JSON e a fila por data (ver "O funil e os projetos") |
 | `push` | os celulares inscritos para o aviso (hash: endereço → inscrição) |
 | `config:vapid` | o par de chaves das notificações; a parte privada nunca sai do servidor |
 | `visitas:<página>:<dia>`, `unicos:<página>:<dia>` | visitas e pessoas diferentes por dia (`inicio`, `portifolio`), por 100 dias; `visitas:<página>:total` desde o começo |
@@ -144,6 +145,36 @@ Ligado por ela em 01/11, pela aba Storage do projeto na Vercel.
 
 As regras que o banco não impõe (WhatsApp `55` + DDD + número, índice de 0 a
 100, textos curtos) estão em `api/diagnostico.mjs`, antes de gravar.
+
+### O funil e os projetos (02/11)
+
+Ela pediu uma área para gerir as propostas que chegam pela lead page, num funil,
+e os contratos e projetos que saem dele. É o mesmo /adm (mesma senha, mesmo app
+da tela inicial, agora chamado "Gestão"), com três telas: **Funil**, **Projetos**
+e **Diagnósticos** (a lista de antes).
+
+- **Etapas:** Novo contato → Em conversa → Proposta enviada → Negociando →
+  Fechado, e Perdido. O botão do cartão passa para a etapa seguinte; "Fechou!"
+  abre a ficha já em Fechado, para ela pôr forma de pagamento, recebido e contrato.
+- **Quem deixa o contato na lead page entra sozinho em "Novo contato"**, com o
+  MESMO id do diagnóstico (`negocioDoDiagnostico`, `SET NX`): chegar de novo não
+  duplica, e o painel liga um ao outro sem campo extra. Os contatos de antes do
+  funil aparecem numa faixa "ainda não estão no funil", com o botão de trazer
+  (`acao: "importar"`).
+- **Projetos** = os negócios em Fechado: situação (a fazer, em andamento,
+  entregue), prazo, quanto já recebeu e o link do contrato (só `https://`).
+- **"Para hoje"** lista o próximo passo que venceu (datas de São Paulo).
+- Cada mudança de etapa, valor e recebido fica no histórico da ficha.
+- **O servidor regrava o negócio inteiro** com o que chega em `acao: "negocio"`:
+  quem chama manda todos os campos (`dadosDe()` no painel). Mandar só um campo
+  apaga os outros.
+- **Prazo de guarda:** quem virou cliente (Fechado) fica sem prazo — é o contrato
+  dela. O resto some em 2 anos, como o contato do diagnóstico, que é o que a
+  política de privacidade promete. Apagar um contato pelo Diagnósticos (pedido
+  da pessoa) tira também do funil, a não ser que já seja cliente.
+
+As regras de cada campo (texto curto, valor de 0 a 100 milhões, data
+`AAAA-MM-DD`, WhatsApp com DDD) estão em `montarNegocio`, em `api/adm.mjs`.
 
 ### A notificação no celular (Web Push)
 

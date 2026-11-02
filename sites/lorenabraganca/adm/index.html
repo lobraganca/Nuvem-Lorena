@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Diagnósticos · Lorena Bragança</title>
+<title>Gestão · Lorena Bragança</title>
 <!-- Página só dela: fora do Google e sem link em lugar nenhum do site. Quem guarda é a senha. -->
 <meta name="robots" content="noindex, nofollow">
 <meta name="theme-color" content="#0F1115">
@@ -11,13 +11,14 @@
 <link rel="icon" href="/favicon.svg" type="image/svg+xml">
 <link rel="apple-touch-icon" href="/adm/icone-192.png">
 <meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-title" content="Diagnósticos">
+<meta name="apple-mobile-web-app-title" content="Gestão">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@600;700;800&family=Figtree:wght@400;500;600&display=swap">
 <style>
-/* layout: uma coluna só, pensada para o celular dela — números no topo, o aviso, e a lista de pessoas */
+/* layout: três telas, trocadas pelas abas do topo — Funil (as colunas das etapas, que no celular
+   passam de lado), Projetos (os negócios fechados) e Diagnósticos (a lista de antes). Celular primeiro. */
 :root {
   --fundo: #0F1115;
   --cartao: #181B21;
@@ -42,7 +43,7 @@ body {
   margin: 0; background: var(--fundo); color: var(--texto); font: 16px/1.5 var(--f-texto);
   padding: env(safe-area-inset-top, 0px) max(16px, env(safe-area-inset-right, 0px)) calc(32px + env(safe-area-inset-bottom, 0px)) max(16px, env(safe-area-inset-left, 0px));
 }
-main { max-width: 640px; margin-inline: auto; display: grid; gap: 18px; padding-top: 18px; }
+main { max-width: 1180px; margin-inline: auto; display: grid; gap: 18px; padding-top: 18px; }
 h1, h2 { font-family: var(--f-titulo); margin: 0; letter-spacing: -.02em; line-height: 1.15; }
 p { margin: 0; }
 button, input { font: inherit; }
@@ -143,6 +144,87 @@ dd { margin: 0; font-size: 15px; }
 .rodape { display: flex; justify-content: space-between; align-items: center; color: var(--apagado); font-size: 13px; }
 .problema { background: color-mix(in srgb, var(--baixo) 10%, var(--cartao)); border: 1.5px solid color-mix(in srgb, var(--baixo) 40%, var(--borda)); border-radius: 16px; padding: 16px; display: grid; gap: 6px; }
 .problema code { font-size: 13px; background: var(--fundo); padding: 2px 6px; border-radius: 6px; }
+/* ---------- as três telas ---------- */
+.telas { display: flex; gap: 6px; background: var(--cartao); border: 1.5px solid var(--borda); border-radius: 999px; padding: 4px; }
+.telas button { flex: 1; border: 0; background: none; color: var(--suave); border-radius: 999px; padding: 10px 8px; cursor: pointer; font: 700 14px/1 var(--f-titulo); }
+.telas button[aria-current="page"] { background: var(--limao); color: var(--sobre-limao); }
+.tela { display: grid; gap: 18px; }
+.estreita { max-width: 640px; width: 100%; margin-inline: auto; display: grid; gap: 18px; }
+.barra-acoes { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; justify-content: space-between; }
+.numeros.quatro { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.numero b.dinheiro { font-size: clamp(16px, 4.6vw, 24px); white-space: nowrap; }
+.faixa { background: color-mix(in srgb, var(--limao) 8%, var(--cartao)); border: 1.5px solid color-mix(in srgb, var(--limao) 35%, var(--borda)); border-radius: 16px; padding: 14px 16px; display: flex; flex-wrap: wrap; gap: 10px 16px; align-items: center; justify-content: space-between; }
+.faixa p { color: var(--suave); font-size: 15px; }
+.faixa b { color: var(--texto); }
+
+/* para hoje: os próximos passos que venceram */
+.hoje { background: var(--cartao); border: 1.5px solid var(--borda); border-radius: 16px; padding: 14px 16px; display: grid; gap: 4px; }
+.hoje h2 { font-size: 16px; margin-bottom: 6px; }
+.tarefa { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 10px; align-items: center; padding: 8px 0; border-top: 1px solid var(--borda); }
+.tarefa button.abrir { text-align: left; background: none; border: 0; padding: 0; color: var(--texto); cursor: pointer; font: inherit; min-width: 0; }
+.tarefa b { display: block; font: 700 15px/1.3 var(--f-titulo); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.tarefa small { color: var(--suave); font-size: 13px; }
+.atrasado { color: var(--baixo) !important; font-weight: 600; }
+
+/* o funil: uma coluna por etapa. No celular elas passam de lado, uma de cada vez. */
+.quadro { display: grid; grid-auto-flow: column; grid-auto-columns: min(84vw, 300px); gap: 12px; overflow-x: auto; scroll-snap-type: x mandatory; padding-bottom: 10px; margin-inline: -16px; padding-inline: 16px; scroll-padding-inline: 16px; }
+.coluna { scroll-snap-align: start; background: color-mix(in srgb, var(--cartao) 60%, var(--fundo)); border: 1.5px solid var(--borda); border-radius: 18px; padding: 12px; display: grid; gap: 10px; align-content: start; min-height: 180px; }
+.coluna-topo { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; padding: 2px 4px 4px; }
+.coluna-topo h2 { font-size: 15px; display: flex; align-items: center; gap: 8px; }
+.coluna-topo h2::before { content: ""; width: 8px; height: 8px; border-radius: 50%; background: var(--cor, var(--apagado)); }
+.coluna-topo span { color: var(--suave); font-size: 13px; font-variant-numeric: tabular-nums; white-space: nowrap; }
+.coluna .vazio { padding: 18px 10px; font-size: 13px; }
+.negocio { background: var(--cartao); border: 1.5px solid var(--borda); border-radius: 14px; padding: 12px; display: grid; gap: 8px; }
+.negocio .abrir { display: grid; gap: 3px; text-align: left; background: none; border: 0; padding: 0; color: var(--texto); cursor: pointer; font: inherit; }
+.negocio .abrir b { font: 800 16px/1.25 var(--f-titulo); overflow-wrap: anywhere; }
+.negocio .abrir small { color: var(--suave); font-size: 13px; }
+.negocio .valor { font: 800 15px/1 var(--f-titulo); font-variant-numeric: tabular-nums; }
+.negocio .passo { font-size: 13px; color: var(--suave); border-top: 1px solid var(--borda); padding-top: 8px; }
+.negocio .acoes { display: flex; gap: 8px; flex-wrap: wrap; }
+.etiqueta { display: inline-flex; align-items: center; gap: 6px; font: 700 11px/1 var(--f-titulo); padding: 5px 8px; border-radius: 999px; background: var(--cartao-forte); color: var(--suave); }
+.etiqueta.indice { background: color-mix(in srgb, var(--cor) 16%, transparent); color: var(--cor); }
+.mini { display: inline-flex; align-items: center; gap: 6px; border: 1.5px solid var(--borda); background: none; color: var(--texto); border-radius: 999px; padding: 7px 11px; cursor: pointer; font: 700 13px/1 var(--f-titulo); text-decoration: none; }
+.mini svg { width: 15px; height: 15px; }
+.mini.cheio { background: var(--limao); color: var(--sobre-limao); border-color: var(--limao); }
+.ver-mais { background: none; border: 0; color: var(--suave); font: 600 13px/1 var(--f-titulo); cursor: pointer; padding: 6px; }
+
+/* projetos */
+.filtros { display: flex; gap: 8px; flex-wrap: wrap; }
+.filtros .aba { flex: none; padding: 9px 14px; }
+.projetos { display: grid; gap: 12px; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); }
+.projeto { background: var(--cartao); border: 1.5px solid var(--borda); border-radius: 18px; padding: 16px; display: grid; gap: 12px; }
+.projeto .abrir { display: grid; gap: 3px; text-align: left; background: none; border: 0; padding: 0; color: var(--texto); cursor: pointer; font: inherit; }
+.projeto .abrir b { font: 800 18px/1.2 var(--f-titulo); }
+.projeto .abrir small { color: var(--suave); font-size: 14px; }
+.pago { display: grid; gap: 6px; }
+.pago-texto { display: flex; justify-content: space-between; gap: 10px; font-size: 14px; color: var(--suave); font-variant-numeric: tabular-nums; }
+.pago-texto b { color: var(--texto); }
+.trilho { height: 8px; border-radius: 99px; background: var(--cartao-forte); overflow: hidden; }
+.trilho i { display: block; height: 100%; background: var(--limao); border-radius: 99px; }
+.projeto-pe { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; justify-content: space-between; }
+select.situacao { background: var(--cartao-forte); color: var(--texto); border: 1.5px solid var(--borda); border-radius: 999px; padding: 8px 12px; font: 700 13px/1 var(--f-titulo); }
+
+/* o formulário do negócio */
+dialog.ficha { width: min(560px, 100%); max-height: 100%; height: 100%; margin: 0 0 0 auto; padding: 0; border: 0; background: var(--fundo); color: var(--texto); }
+@media (min-width: 600px) { dialog.ficha { height: auto; max-height: calc(100% - 32px); margin: auto; border-radius: 20px; border: 1.5px solid var(--borda); } }
+dialog.ficha::backdrop { background: rgba(0, 0, 0, .6); }
+.ficha form { display: grid; gap: 14px; padding: calc(16px + env(safe-area-inset-top, 0px)) 18px calc(24px + env(safe-area-inset-bottom, 0px)); }
+.ficha-topo { display: flex; justify-content: space-between; align-items: center; gap: 10px; position: sticky; top: 0; background: var(--fundo); padding: 4px 0 8px; z-index: 1; }
+.ficha-topo h2 { font-size: 20px; }
+.campo { display: grid; gap: 6px; }
+.campo > span { font: 600 13px/1 var(--f-titulo); color: var(--suave); }
+.campo input, .campo select, .campo textarea { width: 100%; background: var(--cartao); color: var(--texto); border: 1.5px solid var(--borda); border-radius: 12px; padding: 12px 14px; font: 16px/1.4 var(--f-texto); }
+.campo textarea { min-height: 96px; resize: vertical; }
+.campo input:focus, .campo select:focus, .campo textarea:focus { outline: none; border-color: var(--limao); }
+.dupla { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.grupo { display: grid; gap: 12px; border-top: 1px solid var(--borda); padding-top: 14px; }
+.grupo h3 { margin: 0; font: 800 15px/1.2 var(--f-titulo); }
+.historico { display: grid; gap: 6px; font-size: 13px; color: var(--suave); }
+.historico li { list-style: none; display: grid; grid-template-columns: 92px 1fr; gap: 8px; }
+.historico ol { margin: 0; padding: 0; display: grid; gap: 6px; }
+.ficha .pe { display: flex; flex-wrap: wrap; gap: 10px; justify-content: space-between; align-items: center; }
+.ficha .erro { margin: 0; }
+.do-diagnostico { background: var(--cartao); border-radius: 12px; padding: 10px 12px; font-size: 14px; color: var(--suave); }
 </style>
 </head>
 <body>
@@ -151,11 +233,11 @@ dd { margin: 0; font-size: 15px; }
   <symbol id="i-zap" viewBox="0 0 24 24"><path fill="currentColor" d="M12 2a10 10 0 0 0-8.6 15.1L2 22l5-1.3A10 10 0 1 0 12 2Zm0 18.2a8.2 8.2 0 0 1-4.2-1.2l-.3-.2-3 .8.8-2.9-.2-.3A8.2 8.2 0 1 1 12 20.2Zm4.5-6.1c-.2-.1-1.5-.7-1.7-.8-.2-.1-.4-.1-.6.1l-.8 1c-.1.2-.3.2-.5.1a6.7 6.7 0 0 1-3.3-2.9c-.3-.4.2-.4.7-1.3.1-.2 0-.3 0-.4l-.8-1.8c-.2-.5-.4-.4-.6-.4h-.5a1 1 0 0 0-.7.3 3 3 0 0 0-.9 2.2 5.2 5.2 0 0 0 1.1 2.7 11.8 11.8 0 0 0 4.5 4c1.7.7 2.3.8 3.1.6.5-.1 1.5-.6 1.7-1.2.2-.6.2-1.1.1-1.2l-.5-.3Z"/></symbol>
 </svg>
 
-<main id="abrindo"><span class="marca">Diagnósticos<span>.</span></span><p>Abrindo…</p></main>
+<main id="abrindo"><span class="marca">Gestão<span>.</span></span><p>Abrindo…</p></main>
 
 <main id="entrar" hidden>
   <span class="marca">Lorena Bragança<span>.</span></span>
-  <h1>Diagnósticos</h1>
+  <h1>Gestão</h1>
   <form id="form-entrar">
     <!-- invisível de propósito: sem um campo de usuário, o iPhone não oferece
          "Salvar senha" e o Face ID não tem o que preencher depois -->
@@ -170,12 +252,48 @@ dd { margin: 0; font-size: 15px; }
 
 <main id="painel" hidden>
   <div class="topo">
-    <span class="marca">Diagnósticos<span>.</span></span>
+    <span class="marca">Gestão<span>.</span></span>
     <span class="topo-acoes"><button class="link botao-atualizar" type="button">Atualizar</button><button class="link" id="sair" type="button">Sair</button></span>
   </div>
 
   <div class="problema" id="problema" hidden></div>
 
+  <nav class="telas" aria-label="Telas">
+    <button type="button" data-tela="funil" aria-current="page">Funil</button>
+    <button type="button" data-tela="projetos">Projetos</button>
+    <button type="button" data-tela="diag">Diagnósticos</button>
+  </nav>
+
+  <section class="tela" id="tela-funil">
+    <div class="numeros quatro">
+      <div class="numero"><b class="dinheiro" id="f-aberto">–</b><span id="f-aberto-n">em negociação</span></div>
+      <div class="numero chamar"><b class="dinheiro" id="f-mes">–</b><span id="f-mes-n">fechado este mês</span></div>
+      <div class="numero"><b id="f-taxa">–</b><span>dos contatos viraram cliente</span></div>
+    </div>
+    <div class="faixa" id="f-importar" hidden></div>
+    <section class="hoje" id="f-hoje" hidden></section>
+    <div class="barra-acoes">
+      <button class="botao pequeno" type="button" id="novo-negocio">+ Novo negócio</button>
+      <span class="grafico-dica" id="f-dica">Passe para o lado para ver todas as etapas.</span>
+    </div>
+    <div class="quadro" id="quadro"></div>
+  </section>
+
+  <section class="tela" id="tela-projetos" hidden>
+    <div class="numeros quatro">
+      <div class="numero"><b id="p-ativos">–</b><span>projetos em andamento</span></div>
+      <div class="numero chamar"><b class="dinheiro" id="p-receber">–</b><span>a receber</span></div>
+      <div class="numero"><b class="dinheiro" id="p-ano">–</b><span id="p-ano-n">fechado no ano</span></div>
+    </div>
+    <div class="filtros" role="group" aria-label="Quais projetos mostrar">
+      <button class="aba" type="button" data-filtro="ativos" aria-pressed="true">Em aberto</button>
+      <button class="aba" type="button" data-filtro="entregue" aria-pressed="false">Entregues</button>
+      <button class="aba" type="button" data-filtro="todos" aria-pressed="false">Todos</button>
+    </div>
+    <div class="projetos" id="projetos"></div>
+  </section>
+
+  <section class="tela estreita" id="tela-diag" hidden>
   <div class="numeros">
     <div class="numero"><b id="n-contato">–</b><span>deixaram o contato</span></div>
     <div class="numero"><b id="n-total">–</b><span>terminaram o diagnóstico</span></div>
@@ -212,10 +330,57 @@ dd { margin: 0; font-size: 15px; }
   </div>
 
   <div class="lista" id="lista"></div>
+  </section>
 
   <div class="rodape"><span id="atualizado" aria-live="polite"></span><button class="link botao-atualizar" type="button">Atualizar</button></div>
   <details class="tecnico"><summary>Detalhes técnicos</summary><pre class="registro"></pre></details>
 </main>
+
+<dialog class="ficha" id="ficha" aria-labelledby="ficha-titulo">
+  <form id="form-negocio" novalidate>
+    <div class="ficha-topo"><h2 id="ficha-titulo">Negócio</h2><button class="link" type="button" id="ficha-fechar">Fechar</button></div>
+    <div class="do-diagnostico" id="ficha-diag" hidden></div>
+    <label class="campo"><span>Nome *</span><input name="nome" required maxlength="80" autocomplete="off"></label>
+    <div class="dupla">
+      <label class="campo"><span>Empresa</span><input name="empresa" maxlength="80" autocomplete="off"></label>
+      <label class="campo"><span>WhatsApp</span><input name="whatsapp" inputmode="tel" placeholder="(31) 99999-8888" autocomplete="off"></label>
+    </div>
+    <label class="campo"><span>O que vai vender</span><input name="servico" maxlength="140" placeholder="Ex.: site + sistema de gestão"></label>
+    <div class="dupla">
+      <label class="campo"><span>Etapa</span><select name="etapa"></select></label>
+      <label class="campo"><span>Valor (R$)</span><input name="valor" inputmode="decimal" placeholder="2.997"></label>
+    </div>
+    <div class="dupla">
+      <label class="campo"><span>Pagamento</span><select name="forma"><option value="">—</option><option value="avista">À vista</option><option value="parcelado">Parcelado</option></select></label>
+      <label class="campo"><span>Parcelas</span><input name="parcelas" inputmode="numeric" placeholder="10"></label>
+    </div>
+    <div class="grupo">
+      <h3>Próximo passo</h3>
+      <div class="dupla">
+        <label class="campo"><span>O quê</span><input name="proximo_passo" maxlength="140" placeholder="Ex.: mandar a proposta"></label>
+        <label class="campo"><span>Quando</span><input name="proximo_em" type="date"></label>
+      </div>
+    </div>
+    <label class="campo" id="campo-perda" hidden><span>Por que perdeu</span><input name="motivo_perda" maxlength="140" placeholder="Ex.: achou caro, fechou com outro"></label>
+    <div class="grupo" id="grupo-projeto" hidden>
+      <h3>Projeto e contrato</h3>
+      <div class="dupla">
+        <label class="campo"><span>Situação</span><select name="status"><option value="a_fazer">A fazer</option><option value="andamento">Em andamento</option><option value="entregue">Entregue</option></select></label>
+        <label class="campo"><span>Prazo de entrega</span><input name="prazo" type="date"></label>
+      </div>
+      <label class="campo"><span>Já recebido (R$)</span><input name="recebido" inputmode="decimal" placeholder="0"></label>
+      <label class="campo"><span>Link do contrato (Drive, PDF…)</span><input name="contrato_url" inputmode="url" placeholder="https://"></label>
+    </div>
+    <label class="campo"><span>Anotações</span><textarea name="notas" maxlength="3000"></textarea></label>
+    <p class="erro" id="ficha-erro" hidden></p>
+    <div class="pe">
+      <button class="botao" type="submit" id="ficha-salvar">Salvar</button>
+      <a class="mini" id="ficha-zap" target="_blank" rel="noopener" hidden><svg aria-hidden="true"><use href="#i-zap"/></svg>WhatsApp</a>
+      <button class="apagar" type="button" id="ficha-apagar">Apagar do funil</button>
+    </div>
+    <div class="grupo historico" id="ficha-historico" hidden><h3>Histórico</h3><ol></ol></div>
+  </form>
+</dialog>
 
 <script>
 // O painel fala só com /api/adm. O login vai por dois caminhos (ver api/adm.mjs): o cookie
@@ -229,6 +394,7 @@ const apagar = (k) => { try { localStorage.removeItem(k); } catch {} };
 const $ = (id) => document.getElementById(id);
 
 let diagnosticos = [];
+let negocios = [];
 let aba = "contato";
 
 class SemPasse extends Error {}
@@ -308,11 +474,12 @@ function problemaTexto(corpo) {
 // ---------- a lista ----------
 async function carregar() {
   try {
-    const { diagnosticos: d, visitas } = await api("listar");
+    const { diagnosticos: d, negocios: n, visitas } = await api("listar");
     diagnosticos = d;
+    negocios = n || [];
     desenharVisitas(visitas);
     $("problema").hidden = true;
-    desenhar();
+    desenharTudo();
     $("atualizado").textContent = "Atualizado às " + new Date().toLocaleTimeString("pt-BR");
     return true;
   } catch (err) {
@@ -392,6 +559,16 @@ function cartao(x) {
     });
     c.append(el("div", { class: "contato" }, el("span", { class: "numero-zap", text: numeroLegivel(x.whatsapp) }), zap),
              el("label", { class: "feito-sim" }, caixa, document.createTextNode("Já falei com essa pessoa")));
+    const noFunil = negocios.find((n) => n.id === x.id);
+    if (noFunil) {
+      const ir = el("button", { type: "button", class: "mini", text: "No funil: " + nomeEtapa(noFunil.etapa) + " →" });
+      ir.addEventListener("click", () => { irPara(noFunil.etapa === "fechado" ? "projetos" : "funil"); abrirFicha(noFunil); });
+      c.append(el("div", {}, ir));
+    } else {
+      const levar = el("button", { type: "button", class: "mini cheio", text: "Levar ao funil" });
+      levar.addEventListener("click", () => importar([x.id], levar));
+      c.append(el("div", {}, levar));
+    }
   }
 
   const lista = el("dl");
@@ -412,7 +589,8 @@ function cartao(x) {
     try {
       await api("apagar", { id: x.id });
       diagnosticos = diagnosticos.filter((y) => y.id !== x.id);
-      desenhar();
+      negocios = negocios.filter((n) => n.id !== x.id || n.etapa === "fechado"); // o servidor faz o mesmo
+      desenharTudo();
     } catch (err) {
       if (err instanceof SemPasse) return mostrar("entrar");
       apagar.disabled = false; apagar.textContent = err.status === 404 ? "Já tinha sido apagado" : "Não consegui apagar. Tente de novo.";
@@ -540,6 +718,308 @@ document.addEventListener("visibilitychange", () => {
   anotar(document.hidden ? "app foi para o fundo" : "app voltou para a frente");
   if (!document.hidden && !$("painel").hidden) carregar();
 });
+
+// ---------- o funil de vendas e os projetos (02/11) ----------
+// Quem deixa o contato na lead page entra sozinho em "Novo contato" (o servidor cria o negócio
+// com o mesmo id do diagnóstico). Daí ela vai passando de etapa até Fechado — e o fechado vira
+// projeto, com contrato, prazo e o quanto já recebeu.
+const ETAPAS = [
+  { id: "novo", nome: "Novo contato", cor: "var(--apagado)" },
+  { id: "conversa", nome: "Em conversa", cor: "#7FB2FF" },
+  { id: "proposta", nome: "Proposta enviada", cor: "var(--medio)" },
+  { id: "negociacao", nome: "Negociando", cor: "#FFB36B" },
+  { id: "fechado", nome: "Fechado", cor: "var(--limao)" },
+  { id: "perdido", nome: "Perdido", cor: "var(--baixo)" },
+];
+const ABERTAS = ["novo", "conversa", "proposta", "negociacao"];
+const nomeEtapa = (id) => ETAPAS.find((e) => e.id === id)?.nome || id;
+const SITUACAO = { a_fazer: "A fazer", andamento: "Em andamento", entregue: "Entregue" };
+const MESES = ["janeiro", "fevereiro", "março", "abril", "maio", "junho", "julho", "agosto", "setembro", "outubro", "novembro", "dezembro"];
+let tela = ler("adm-tela") || "funil";
+let filtroProjetos = "ativos";
+
+const reais = (n) => (n === null || n === undefined ? "—" : Number(n).toLocaleString("pt-BR", { style: "currency", currency: "BRL", minimumFractionDigits: n % 1 ? 2 : 0, maximumFractionDigits: 2 }));
+// as datas são as de São Paulo: senão o que vence hoje à noite aparecia como amanhã
+const diaSP = (d = new Date()) => new Intl.DateTimeFormat("en-CA", { timeZone: "America/Sao_Paulo" }).format(new Date(d));
+const dataCurta = (iso) => iso.slice(8, 10) + "/" + iso.slice(5, 7);
+function quandoFazer(iso) {
+  const hoje = diaSP();
+  if (iso < hoje) return { texto: "atrasado, era " + dataCurta(iso), atrasado: true };
+  if (iso === hoje) return { texto: "hoje", atrasado: false };
+  return { texto: dataCurta(iso), atrasado: false };
+}
+/** "2.997", "2997,50", "R$ 3.500" -> número. Vazio -> null. Não entendeu -> NaN. */
+function lerReais(t) {
+  t = String(t || "").replace(/R\$|\s/g, "");
+  if (!t) return null;
+  if (t.includes(",")) t = t.replace(/\./g, "").replace(",", ".");
+  else if (/^\d{1,3}(\.\d{3})+$/.test(t)) t = t.replace(/\./g, "");
+  const n = Number(t);
+  return Number.isFinite(n) && n >= 0 ? n : NaN;
+}
+const CAMPOS = ["nome", "empresa", "whatsapp", "servico", "etapa", "valor", "forma", "parcelas", "proximo_passo", "proximo_em", "motivo_perda", "status", "prazo", "recebido", "contrato_url", "notas", "origem"];
+/** O servidor regrava o negócio inteiro com o que chega: mande sempre todos os campos. */
+const dadosDe = (n) => Object.fromEntries(CAMPOS.map((k) => [k, n[k] ?? ""]));
+
+function zapDe(n, texto) {
+  const a = el("a", { class: "mini", href: `https://wa.me/${n.whatsapp}` + (texto ? "?text=" + encodeURIComponent(texto) : ""), target: "_blank", rel: "noopener", "aria-label": "WhatsApp de " + n.nome });
+  a.innerHTML = '<svg aria-hidden="true"><use href="#i-zap"/></svg>';
+  a.append("WhatsApp");
+  return a;
+}
+
+async function salvarNegocio(id, dados) {
+  const { negocio } = await api("negocio", id ? { id, dados } : { dados });
+  negocios = [negocio, ...negocios.filter((n) => n.id !== negocio.id)];
+  desenharTudo();
+  return negocio;
+}
+
+async function importar(ids, botao) {
+  if (botao) { botao.disabled = true; botao.textContent = "Trazendo…"; }
+  try {
+    const r = await api("importar", { ids });
+    negocios = r.negocios;
+    desenharTudo();
+  } catch (err) {
+    if (err instanceof SemPasse) return mostrar("entrar");
+    if (botao) { botao.disabled = false; botao.textContent = "Não deu certo. Tentar de novo"; }
+  }
+}
+
+function desenharTudo() { desenhar(); desenharFunil(); desenharProjetos(); }
+
+function desenharFunil() {
+  const diagPorId = new Map(diagnosticos.map((x) => [x.id, x]));
+  const abertos = negocios.filter((n) => ABERTAS.includes(n.etapa));
+  $("f-aberto").textContent = reais(abertos.reduce((t, n) => t + (n.valor || 0), 0));
+  $("f-aberto-n").textContent = `em ${abertos.length} ${abertos.length === 1 ? "negócio aberto" : "negócios abertos"}`;
+  const mes = diaSP().slice(0, 7);
+  const doMes = negocios.filter((n) => n.etapa === "fechado" && n.fechado_em && diaSP(n.fechado_em).slice(0, 7) === mes);
+  $("f-mes").textContent = reais(doMes.reduce((t, n) => t + (n.valor || 0), 0));
+  $("f-mes-n").textContent = `fechado em ${MESES[Number(mes.slice(5)) - 1]} (${doMes.length})`;
+  const fechados = negocios.filter((n) => n.etapa === "fechado").length;
+  $("f-taxa").textContent = negocios.length ? Math.round((fechados / negocios.length) * 100) + "%" : "–";
+
+  // contatos da lead page que chegaram antes do funil existir
+  const fora = diagnosticos.filter((x) => x.nome && x.whatsapp && !negocios.some((n) => n.id === x.id));
+  const faixa = $("f-importar");
+  faixa.hidden = !fora.length;
+  if (fora.length) {
+    const b = el("button", { type: "button", class: "botao pequeno", text: "Trazer para o funil" });
+    b.addEventListener("click", () => importar(fora.map((x) => x.id), b));
+    faixa.replaceChildren(el("p", {}, el("b", { text: `${fora.length} ${fora.length === 1 ? "contato" : "contatos"} da lead page` }), document.createTextNode(fora.length === 1 ? " ainda não está no funil." : " ainda não estão no funil.")), b);
+  }
+
+  // para hoje: o próximo passo que venceu
+  const hoje = diaSP();
+  const tarefas = abertos.filter((n) => n.proximo_em && n.proximo_em <= hoje).sort((a, b) => a.proximo_em.localeCompare(b.proximo_em));
+  const caixa = $("f-hoje");
+  caixa.hidden = !tarefas.length;
+  caixa.replaceChildren(el("h2", { text: `Para hoje (${tarefas.length})` }), ...tarefas.map((n) => {
+    const q = quandoFazer(n.proximo_em);
+    const abrir = el("button", { type: "button", class: "abrir" }, el("b", { text: n.nome + (n.empresa ? " · " + n.empresa : "") }),
+      el("small", { class: q.atrasado ? "atrasado" : "", text: (n.proximo_passo || "falar com a pessoa") + " · " + q.texto }));
+    abrir.addEventListener("click", () => abrirFicha(n));
+    return el("div", { class: "tarefa" }, abrir, n.whatsapp ? zapDe(n) : el("span"));
+  }));
+
+  // as colunas
+  const desde = Date.now() - 30 * 864e5;
+  $("quadro").replaceChildren(...ETAPAS.map((e, i) => {
+    let lista = negocios.filter((n) => n.etapa === e.id);
+    const encerrada = e.id === "fechado" || e.id === "perdido";
+    if (encerrada) lista = lista.filter((n) => Date.parse(n.fechado_em || n.perdido_em || n.atualizado_em) >= desde); // só os dos últimos 30 dias
+    lista.sort((a, b) => (a.proximo_em || "9999").localeCompare(b.proximo_em || "9999") || b.atualizado_em.localeCompare(a.atualizado_em));
+    const soma = lista.reduce((t, n) => t + (n.valor || 0), 0);
+    const proxima = ETAPAS[i + 1];
+    return el("section", { class: "coluna", style: "--cor:" + e.cor, "aria-label": e.nome },
+      el("div", { class: "coluna-topo" }, el("h2", { text: `${e.nome} (${lista.length})` }), el("span", { text: soma ? reais(soma) : encerrada ? "30 dias" : "" })),
+      ...(lista.length ? lista.map((n) => cartaoNegocio(n, diagPorId.get(n.diag_id), ABERTAS.includes(n.etapa) ? proxima : null))
+        : [el("p", { class: "vazio", text: e.id === "novo" ? "Quem deixar o contato na lead page aparece aqui." : "Nada aqui." })]));
+  }));
+}
+
+function cartaoNegocio(n, diag, proxima) {
+  const abrir = el("button", { type: "button", class: "abrir" }, el("b", { text: n.nome }),
+    el("small", { text: [n.empresa, n.servico].filter(Boolean).join(" · ") || (n.diag_id ? "veio da lead page" : "sem detalhes ainda") }));
+  abrir.addEventListener("click", () => abrirFicha(n));
+  const linha = el("div", { class: "acoes" });
+  if (n.valor !== null && n.valor !== undefined) linha.append(el("span", { class: "valor", text: reais(n.valor) }));
+  if (diag && Number.isInteger(diag.indice)) linha.append(el("span", { class: "etiqueta indice", style: "--cor:" + corDoIndice(diag.indice), text: "diagnóstico " + diag.indice }));
+  else if (n.diag_id) linha.append(el("span", { class: "etiqueta", text: "lead page" }));
+  const c = el("article", { class: "negocio" }, abrir);
+  if (linha.childNodes.length) c.append(linha);
+  if (n.etapa === "perdido" && n.motivo_perda) c.append(el("p", { class: "passo", text: n.motivo_perda }));
+  else if (ABERTAS.includes(n.etapa) && (n.proximo_passo || n.proximo_em)) {
+    const q = n.proximo_em ? quandoFazer(n.proximo_em) : null;
+    c.append(el("p", { class: "passo" }, document.createTextNode(n.proximo_passo || "Próximo passo"), q ? el("span", { class: q.atrasado ? "atrasado" : "", text: " · " + q.texto }) : null));
+  }
+  const acoes = el("div", { class: "acoes" });
+  if (proxima) {
+    const b = el("button", { type: "button", class: "mini cheio", text: proxima.id === "fechado" ? "Fechou!" : "→ " + proxima.nome });
+    b.addEventListener("click", async () => {
+      // fechar pede os detalhes do contrato: abre a ficha já em "Fechado", e só grava ao salvar
+      if (proxima.id === "fechado") return abrirFicha(n, { etapa: "fechado" });
+      b.disabled = true;
+      try { await salvarNegocio(n.id, { ...dadosDe(n), etapa: proxima.id }); }
+      catch (err) { if (err instanceof SemPasse) return mostrar("entrar"); b.disabled = false; b.textContent = "Não salvou. De novo"; }
+    });
+    acoes.append(b);
+  }
+  if (n.whatsapp) acoes.append(zapDe(n));
+  if (acoes.childNodes.length) c.append(acoes);
+  return c;
+}
+
+function desenharProjetos() {
+  const fechados = negocios.filter((n) => n.etapa === "fechado");
+  $("p-ativos").textContent = fechados.filter((n) => n.status !== "entregue").length;
+  $("p-receber").textContent = reais(fechados.reduce((t, n) => t + Math.max(0, (n.valor || 0) - (n.recebido || 0)), 0));
+  const ano = diaSP().slice(0, 4);
+  const doAno = fechados.filter((n) => n.fechado_em && diaSP(n.fechado_em).startsWith(ano));
+  $("p-ano").textContent = reais(doAno.reduce((t, n) => t + (n.valor || 0), 0));
+  $("p-ano-n").textContent = `fechado em ${ano} (${doAno.length})`;
+  const lista = fechados.filter((n) => filtroProjetos === "todos" || (filtroProjetos === "entregue" ? n.status === "entregue" : n.status !== "entregue"))
+    .sort((a, b) => (a.prazo || "9999").localeCompare(b.prazo || "9999") || (b.fechado_em || "").localeCompare(a.fechado_em || ""));
+  $("projetos").replaceChildren(...(lista.length ? lista.map(cartaoProjeto) : [el("p", { class: "vazio", text: fechados.length
+    ? "Nenhum projeto neste filtro." : "Quando um negócio do funil for fechado, ele aparece aqui como projeto — com contrato, prazo e o quanto já recebeu." })]));
+}
+
+function cartaoProjeto(n) {
+  const abrir = el("button", { type: "button", class: "abrir" }, el("b", { text: n.nome + (n.empresa ? " · " + n.empresa : "") }),
+    el("small", { text: n.servico || "Toque para pôr o que foi vendido" }));
+  abrir.addEventListener("click", () => abrirFicha(n));
+  const total = n.valor || 0, pago = Math.min(total || Infinity, n.recebido || 0);
+  const forma = n.forma === "parcelado" ? `parcelado${n.parcelas ? " em " + n.parcelas + "x" : ""}` : n.forma === "avista" ? "à vista" : "";
+  const trilho = el("div", { class: "trilho" }, el("i", { style: `width:${total ? Math.round((pago / total) * 100) : 0}%` }));
+  const pagoEl = el("div", { class: "pago" },
+    el("div", { class: "pago-texto" }, el("span", {}, document.createTextNode("Recebido "), el("b", { text: reais(n.recebido || 0) }), document.createTextNode(" de " + reais(n.valor))), el("span", { text: forma })),
+    trilho);
+  const situacao = el("select", { class: "situacao", "aria-label": "Situação do projeto" });
+  for (const [v, t] of Object.entries(SITUACAO)) { const o = el("option", { value: v, text: t }); if ((n.status || "a_fazer") === v) o.selected = true; situacao.append(o); }
+  situacao.addEventListener("change", async () => {
+    situacao.disabled = true;
+    try { await salvarNegocio(n.id, { ...dadosDe(n), status: situacao.value }); }
+    catch (err) { if (err instanceof SemPasse) return mostrar("entrar"); situacao.disabled = false; alert("Não consegui salvar. Tente de novo."); }
+  });
+  const pe = el("div", { class: "projeto-pe" }, situacao);
+  if (n.prazo) {
+    const q = quandoFazer(n.prazo);
+    pe.append(el("span", { class: q.atrasado && n.status !== "entregue" ? "atrasado" : "", style: "font-size:14px;color:var(--suave)", text: "entrega " + (q.atrasado && n.status !== "entregue" ? "atrasada, era " + dataCurta(n.prazo) : q.texto) }));
+  }
+  const links = el("div", { class: "acoes" });
+  if (n.contrato_url) links.append(el("a", { class: "mini", href: n.contrato_url, target: "_blank", rel: "noopener", text: "Contrato" }));
+  if (n.whatsapp) links.append(zapDe(n));
+  const c = el("article", { class: "projeto" }, abrir, pagoEl, pe);
+  if (links.childNodes.length) c.append(links);
+  return c;
+}
+
+// ---------- a ficha do negócio ----------
+let fichaAtual = null; // null = negócio novo
+const form = $("form-negocio");
+form.elements.etapa.append(...ETAPAS.map((e) => el("option", { value: e.id, text: e.nome })));
+function ajustarFicha() {
+  const etapa = form.elements.etapa.value;
+  $("campo-perda").hidden = etapa !== "perdido";
+  $("grupo-projeto").hidden = etapa !== "fechado";
+}
+form.elements.etapa.addEventListener("change", ajustarFicha);
+
+function abrirFicha(n, mudancas = {}) {
+  fichaAtual = n || null;
+  form.reset();
+  const v = { ...(n ? dadosDe(n) : { etapa: "novo", origem: "" }), ...mudancas };
+  for (const k of CAMPOS) {
+    const campo = form.elements[k];
+    if (!campo) continue;
+    let valor = v[k] ?? "";
+    if ((k === "valor" || k === "recebido") && valor !== "") valor = Number(valor).toLocaleString("pt-BR");
+    if (k === "whatsapp" && valor) valor = numeroLegivel(valor);
+    campo.value = valor;
+  }
+  if (!form.elements.status.value) form.elements.status.value = "a_fazer";
+  ajustarFicha();
+  $("ficha-titulo").textContent = n ? n.nome : "Novo negócio";
+  const diag = n && diagnosticos.find((x) => x.id === n.diag_id);
+  $("ficha-diag").hidden = !n?.diag_id;
+  if (n?.diag_id) {
+    $("ficha-diag").textContent = "Veio da lead page em " + new Date(n.criado_em).toLocaleDateString("pt-BR") +
+      (n.origem && n.origem !== "direto" ? ", pelo " + nomeDaOrigem(n.origem) : "") +
+      (diag && Number.isInteger(diag.indice) ? ` · diagnóstico ${diag.indice}/100, ${diag.nivel}` : " · não terminou o diagnóstico");
+  }
+  $("ficha-zap").hidden = !n?.whatsapp;
+  if (n?.whatsapp) $("ficha-zap").href = "https://wa.me/" + n.whatsapp;
+  const apagar = $("ficha-apagar");
+  apagar.hidden = !n; apagar.disabled = false; apagar.textContent = "Apagar do funil"; apagar.classList.remove("confirmar");
+  const hist = $("ficha-historico");
+  hist.hidden = !n?.historico?.length;
+  hist.querySelector("ol").replaceChildren(...(n?.historico || []).slice().reverse().slice(0, 20).map((h) =>
+    el("li", {}, el("span", { text: new Date(h.em).toLocaleDateString("pt-BR", { day: "2-digit", month: "2-digit", year: "2-digit" }) }), el("span", { text: h.texto }))));
+  $("ficha-erro").hidden = true;
+  $("ficha").showModal();
+  if (!n) form.elements.nome.focus();
+}
+$("ficha-fechar").addEventListener("click", () => $("ficha").close());
+$("novo-negocio").addEventListener("click", () => abrirFicha(null));
+
+form.addEventListener("submit", async (e) => {
+  e.preventDefault();
+  const erro = $("ficha-erro"), botao = $("ficha-salvar");
+  const dados = Object.fromEntries(CAMPOS.map((k) => [k, form.elements[k] ? form.elements[k].value : (fichaAtual?.[k] ?? "")]));
+  dados.valor = lerReais(dados.valor);
+  dados.recebido = lerReais(dados.recebido);
+  const falha = !dados.nome.trim() ? "Falta o nome." : Number.isNaN(dados.valor) ? "Não entendi o valor. Escreva assim: 2.997 ou 2997,50" : Number.isNaN(dados.recebido) ? "Não entendi o valor recebido." : "";
+  if (falha) { erro.textContent = falha; erro.hidden = false; return; }
+  botao.disabled = true; erro.hidden = true;
+  try {
+    await salvarNegocio(fichaAtual?.id, dados);
+    $("ficha").close();
+  } catch (err) {
+    if (err instanceof SemPasse) { $("ficha").close(); return mostrar("entrar"); }
+    erro.textContent = err.corpo?.erro || "Não consegui salvar. Confira a internet e tente de novo.";
+    erro.hidden = false;
+  } finally { botao.disabled = false; }
+});
+
+// apagar: dois toques, como no diagnóstico
+let armadoNegocio = null;
+$("ficha-apagar").addEventListener("click", async () => {
+  const b = $("ficha-apagar");
+  if (!armadoNegocio) {
+    b.textContent = "Toque de novo para apagar"; b.classList.add("confirmar");
+    armadoNegocio = setTimeout(() => { armadoNegocio = null; b.textContent = "Apagar do funil"; b.classList.remove("confirmar"); }, 4000);
+    return;
+  }
+  clearTimeout(armadoNegocio); armadoNegocio = null; b.disabled = true;
+  try {
+    await api("apagar_negocio", { id: fichaAtual.id });
+    negocios = negocios.filter((n) => n.id !== fichaAtual.id);
+    desenharTudo();
+    $("ficha").close();
+  } catch (err) {
+    if (err instanceof SemPasse) { $("ficha").close(); return mostrar("entrar"); }
+    b.disabled = false; b.textContent = "Não consegui apagar";
+  }
+});
+
+// ---------- as três telas ----------
+function irPara(t) {
+  if (!["funil", "projetos", "diag"].includes(t)) t = "funil";
+  tela = t; guardar("adm-tela", t);
+  document.querySelectorAll(".telas button").forEach((b) => b.setAttribute("aria-current", b.dataset.tela === t ? "page" : "false"));
+  $("tela-funil").hidden = t !== "funil";
+  $("tela-projetos").hidden = t !== "projetos";
+  $("tela-diag").hidden = t !== "diag";
+}
+document.querySelectorAll(".telas button").forEach((b) => b.addEventListener("click", () => irPara(b.dataset.tela)));
+document.querySelectorAll("[data-filtro]").forEach((b) => b.addEventListener("click", () => {
+  filtroProjetos = b.dataset.filtro;
+  document.querySelectorAll("[data-filtro]").forEach((x) => x.setAttribute("aria-pressed", String(x === b)));
+  desenharProjetos();
+}));
+irPara(tela);
 
 // ---------- notificações ----------
 // No iPhone, notificação de site só funciona com a página salva na Tela de Início

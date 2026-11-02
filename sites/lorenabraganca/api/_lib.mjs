@@ -113,6 +113,65 @@ async function marcarContatado(id, feito) {
   return d.contatado_em;
 }
 
+// ---------- o funil de vendas (os "negócios") ----------
+// Ela pediu uma área para gerir as propostas que chegam pela lead page, num funil, e os
+// contratos e projetos que saem dele (02/11). Cada negócio é um JSON em "negocio:<id>",
+// e "negocios" é a fila por data, como nos diagnósticos.
+// Quem chega pela lead page entra sozinho na primeira etapa, com o MESMO id do diagnóstico:
+// assim o painel liga um ao outro sem campo extra, e chegar duas vezes não duplica.
+const ETAPAS = ["novo", "conversa", "proposta", "negociacao", "fechado", "perdido"];
+const NOME_DA_ETAPA = { novo: "Novo contato", conversa: "Em conversa", proposta: "Proposta enviada", negociacao: "Negociando", fechado: "Fechado", perdido: "Perdido" };
+const chaveDoNegocio = (id) => "negocio:" + id;
+
+/** Quem virou cliente fica guardado (é o contrato dela). O resto segue a política de
+ *  privacidade: some em 2 anos, como o contato do diagnóstico. */
+function comandoDeGravarNegocio(n, ...extra) {
+  const base = ["SET", chaveDoNegocio(n.id), JSON.stringify(n)];
+  return n.etapa === "fechado" ? [...base, ...extra] : [...base, "EX", VALIDADE_DO_CONTATO, ...extra];
+}
+
+async function listarNegocios(limite = 1000) {
+  const [ids] = await redis(["ZREVRANGE", "negocios", 0, limite - 1]);
+  if (!ids.length) return [];
+  const [jsons] = await redis(["MGET", ...ids.map(chaveDoNegocio)]);
+  const vivos = [], vencidos = [];
+  jsons.forEach((j, i) => (j ? vivos.push(JSON.parse(j)) : vencidos.push(ids[i])));
+  if (vencidos.length) await redis(["ZREM", "negocios", ...vencidos]).catch(() => {}); // os que venceram saem da fila
+  return vivos;
+}
+
+async function lerNegocio(id) {
+  const [j] = await redis(["GET", chaveDoNegocio(id)]);
+  return j ? JSON.parse(j) : null;
+}
+
+/** Grava. Com soSeNovo, não mexe num negócio que já existe (devolve false). */
+async function gravarNegocio(n, { soSeNovo = false } = {}) {
+  const [ok] = await redis(comandoDeGravarNegocio(n, ...(soSeNovo ? ["NX"] : [])), ["ZADD", "negocios", "NX", Date.parse(n.criado_em), n.id]);
+  return ok === "OK";
+}
+
+async function apagarNegocio(id) {
+  const [apagados] = await redis(["DEL", chaveDoNegocio(id)], ["ZREM", "negocios", id]);
+  return apagados > 0;
+}
+
+/** O contato que chegou pela lead page vira um negócio na etapa "Novo contato". */
+async function negocioDoDiagnostico(d) {
+  const agora = new Date().toISOString();
+  return gravarNegocio({
+    id: d.id, criado_em: d.contato_em || d.criado_em || agora, atualizado_em: agora, etapa: "novo",
+    nome: d.nome, empresa: d.empresa || null, whatsapp: d.whatsapp, origem: d.origem || "direto", diag_id: d.id,
+    historico: [{ em: agora, texto: "Chegou pela lead page" }],
+  }, { soSeNovo: true });
+}
+
+async function lerDiagnosticos(ids) {
+  if (!ids.length) return [];
+  const [jsons] = await redis(["MGET", ...ids.map(chaveDo)]);
+  return jsons.filter(Boolean).map((j) => JSON.parse(j));
+}
+
 // ---------- as visitas da página ----------
 // Ela quis ver no /adm quantas visitas a página teve (01/11). O painel de visitas da
 // Vercel não deixa outro programa ler os números no plano grátis, então a própria
@@ -313,6 +372,7 @@ async function avisar(mensagem) {
 export {
   SENHA, faltando, responder, lerCorpo,
   gravarInicio, gravarResultado, gravarContato, listarDiagnosticos, apagarDiagnostico, origemLimpa, marcarContatado, guardarInscricao,
+  ETAPAS, NOME_DA_ETAPA, listarNegocios, lerNegocio, gravarNegocio, apagarNegocio, negocioDoDiagnostico, lerDiagnosticos,
   PAGINAS, contarVisita, resumoDeVisitas,
   senhaConfere, criarPasse, passeValido,
   chavesVapid, cifrar, assinarJwt, avisar,
