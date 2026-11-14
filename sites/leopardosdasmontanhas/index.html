@@ -1,0 +1,688 @@
+<!doctype html>
+<html lang="pt-BR">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Leopardos das Montanhas</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<meta name="description" content="Trilhas guiadas e imersões na mata para ver de perto cobras, aranhas, escorpiões e borboletas, com respeito e sem medo.">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Gloock&family=Figtree:wght@400;500;600;700&family=DM+Mono:wght@400;500&display=swap">
+<style>
+/* Conceito: a página é uma descida pela mata à noite. Cada seção é uma clareira;
+   os bichos vivem nas bordas entre elas. Tema único e escuro, de propósito. */
+:root{
+  color-scheme:dark;
+  --noite:#04100b;      /* chão da mata, fundo principal */
+  --musgo:#0b2117;      /* clareira */
+  --folha:#1d5236;      /* folhagem iluminada */
+  --broto:#7fc48f;      /* verde claro, detalhes */
+  --ouro:#e2a53b;       /* pelo do leopardo: o destaque */
+  --ouro-fundo:#b97f22;
+  --brasa:#f6d463;      /* olhos */
+  --osso:#f1e9d6;       /* texto */
+  --nevoa:#a9b8a8;      /* texto secundário */
+  --casca:#1c1206;      /* marrom quase preto, manchas */
+  --linha:rgba(241,233,214,.14);
+  --titulo:"Gloock",Georgia,"Times New Roman",serif;
+  --texto:"Figtree",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --campo:"DM Mono",ui-monospace,Menlo,monospace;
+}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+html{scroll-behavior:smooth}
+body{margin:0;background:var(--noite);color:var(--osso);font:400 17px/1.6 var(--texto);overflow-x:hidden;-webkit-font-smoothing:antialiased}
+a{color:inherit}
+h1,h2,h3{font-family:var(--titulo);font-weight:400;line-height:1.05;margin:0;text-wrap:balance}
+p{margin:0}
+.miolo{max-width:1120px;margin-inline:auto;padding-left:max(20px,env(safe-area-inset-left,0px));padding-right:max(20px,env(safe-area-inset-right,0px))}
+.rotulo{font:500 12px/1.2 var(--campo);letter-spacing:.16em;text-transform:uppercase;color:var(--ouro)}
+.secao{position:relative;padding-block:clamp(72px,10vw,128px)}
+.secao h2{font-size:clamp(34px,5.4vw,60px);margin-top:14px}
+.secao .abre{color:var(--nevoa);max-width:56ch;margin-top:18px;font-size:18px}
+:focus-visible{outline:2px solid var(--brasa);outline-offset:3px;border-radius:6px}
+
+.botao{display:inline-flex;align-items:center;gap:10px;padding:15px 26px;border-radius:999px;border:0;cursor:pointer;
+  font:700 16px/1 var(--texto);text-decoration:none;background:var(--ouro);color:var(--casca);transition:transform .2s,background .2s}
+.botao:hover{transform:translateY(-2px);background:var(--brasa)}
+.botao.vazado{background:transparent;color:var(--osso);box-shadow:inset 0 0 0 1.5px var(--linha)}
+.botao.vazado:hover{box-shadow:inset 0 0 0 1.5px var(--ouro);color:var(--ouro)}
+.exemplo{display:inline-block;font:500 10px/1 var(--campo);letter-spacing:.12em;text-transform:uppercase;color:var(--casca);background:var(--broto);padding:5px 8px;border-radius:4px;vertical-align:middle}
+
+/* ---------- topo ---------- */
+.topo{position:absolute;inset:0 0 auto;z-index:20;padding-block:18px}
+.topo .miolo{display:flex;align-items:center;gap:20px}
+.marca{display:flex;align-items:center;gap:12px;text-decoration:none;margin-right:auto}
+.marca svg{width:38px;height:38px;flex:none}
+.marca img{height:54px;width:auto;display:block}
+.marca b{font:400 21px/1 var(--titulo);letter-spacing:.01em}
+.topo nav{display:flex;gap:26px;font-weight:500;font-size:15px}
+.topo nav a{text-decoration:none;opacity:.82}
+.topo nav a:hover{opacity:1;color:var(--ouro)}
+.topo .botao{padding:11px 20px;font-size:14px}
+@media(max-width:760px){.topo nav{display:none}}
+
+/* ---------- abertura ---------- */
+.abertura{position:relative;overflow:hidden;isolation:isolate;
+  background:linear-gradient(180deg,#030a08 0%,#07201a 46%,#124232 78%,#1c5a40 100%);
+  padding-top:clamp(120px,17vh,180px);padding-bottom:clamp(250px,40vh,400px)}
+.abertura .mata,.abertura canvas{position:absolute;inset:0;width:100%;height:100%;z-index:-1}
+.abertura h1{font-size:clamp(46px,9vw,112px);max-width:11ch;letter-spacing:-.01em;margin-top:22px}
+.abertura h1 em{font-style:normal;color:var(--ouro)}
+.abertura .sub{max-width:44ch;margin-top:24px;font-size:clamp(17px,2vw,20px);color:#d7dccb}
+.abertura .acoes{display:flex;flex-wrap:wrap;gap:12px;margin-top:34px}
+.cipos{position:absolute;top:0;right:0;width:min(46vw,420px);z-index:-1;transform-origin:70% 0;animation:balanco 9s ease-in-out infinite alternate}
+.samambaia{position:absolute;bottom:-10px;width:min(52vw,460px);z-index:1;pointer-events:none;animation:balanco 7s ease-in-out infinite alternate}
+.samambaia.esq{left:-40px;transform-origin:0 100%}
+.samambaia.dir{right:-40px;transform-origin:100% 100%;animation-delay:-3s;animation-direction:alternate-reverse}
+@keyframes balanco{from{transform:rotate(-1.6deg)}to{transform:rotate(1.8deg)}}
+.abertura::after{content:"";position:absolute;inset:auto 0 0;height:120px;background:linear-gradient(transparent,var(--noite));z-index:2;pointer-events:none}
+
+/* olhos no escuro */
+.olhos{position:absolute;display:flex;gap:calc(var(--t,22px)*.62);z-index:1;pointer-events:none;filter:drop-shadow(0 0 10px rgba(246,212,99,.75))}
+.olhos i{display:block;width:var(--t,22px);height:calc(var(--t,22px)*.56);background:radial-gradient(circle at 50% 45%,#fff3b0,var(--brasa) 45%,#c9861d);
+  border-radius:0 100% 0 100%;position:relative;overflow:hidden;animation:pisca 6.5s infinite;animation-delay:var(--d,0s)}
+.olhos i+i{border-radius:100% 0 100% 0}
+.olhos u{position:absolute;left:50%;top:50%;width:38%;aspect-ratio:1;margin:-19% 0 0 -19%;background:#0a0603;border-radius:50%;transition:transform .25s ease-out}
+@keyframes pisca{0%,91%,100%{transform:scaleY(1)}94%,97%{transform:scaleY(.06)}}
+
+/* ---------- bichos ---------- */
+.bichos{background:radial-gradient(900px 500px at 85% 0%,rgba(29,82,54,.35),transparent 70%),var(--noite)}
+.fio{position:absolute;top:0;right:max(6vw,24px);width:86px;z-index:3;display:flex;flex-direction:column;align-items:center;cursor:pointer;
+  transform:translateY(0);transition:transform 1.6s cubic-bezier(.3,1.3,.5,1);background:none;border:0;padding:0}
+.fio::before{content:"";width:1px;height:clamp(90px,16vw,190px);background:linear-gradient(rgba(241,233,214,.05),rgba(241,233,214,.6))}
+.fio svg{width:86px;margin-top:-6px;animation:pendulo 4s ease-in-out infinite alternate;transform-origin:50% -160px}
+.fio.subiu{transform:translateY(-78%);transition:transform .5s ease-in}
+@keyframes pendulo{from{transform:rotate(-3deg)}to{transform:rotate(3deg)}}
+.pata-ar{animation:mexe .5s ease-in-out infinite alternate}
+@keyframes mexe{from{transform:rotate(-2deg)}to{transform:rotate(3deg)}}
+
+.pranchas{display:grid;grid-template-columns:repeat(6,1fr);gap:18px;margin-top:54px}
+.prancha{position:relative;grid-column:span 3;min-width:0;border-radius:22px;overflow:hidden;background:linear-gradient(160deg,#0e2a1d,#07170f);
+  box-shadow:inset 0 0 0 1px var(--linha);padding:28px;display:flex;flex-direction:column;gap:10px;min-height:340px;transition:transform .35s,box-shadow .35s}
+.prancha:hover{transform:translateY(-4px);box-shadow:inset 0 0 0 1px rgba(226,165,59,.5),0 24px 50px -20px #000}
+.prancha .cena{position:relative;flex:1;min-height:150px;display:grid;place-items:center}
+.prancha .cena svg{width:min(70%,230px);height:auto;overflow:visible}
+.prancha h3{font-size:30px}
+.prancha p{color:var(--nevoa);font-size:16px;max-width:42ch}
+.prancha .num{font:500 11px/1 var(--campo);letter-spacing:.16em;color:var(--broto);text-transform:uppercase}
+.prancha.leo{grid-column:span 6;flex-direction:row;align-items:center;gap:36px;background:linear-gradient(120deg,#2a1c08,#0c2118 62%);min-height:0}
+.prancha.leo .cena{flex:0 0 min(38%,320px)}
+.prancha.leo .cena svg{width:100%}
+.prancha.leo h3{font-size:clamp(34px,4.6vw,52px)}
+.prancha.leo p{font-size:18px;color:#d9d2bd;margin-top:10px}
+.prancha.leo .corpo{display:flex;flex-direction:column;gap:8px;min-width:0}
+@media(max-width:820px){.prancha{grid-column:span 6}.prancha.leo{flex-direction:column;align-items:stretch}.prancha.leo .cena{flex:none;max-width:260px;margin-inline:auto}}
+
+/* borboleta */
+.asa{transform-origin:50px 40px;animation:bate .22s ease-in-out infinite alternate}
+@keyframes bate{from{transform:scaleX(1)}to{transform:scaleX(.18)}}
+.prancha .asa{animation-duration:.9s}
+.revoada{position:fixed;inset:0;pointer-events:none;z-index:30;overflow:hidden}
+.revoada svg{position:absolute;left:0;top:0;width:44px;height:36px;will-change:transform}
+
+/* escorpião e a lanterna UV */
+.esc-c{fill:#7a4d1f;transition:fill .5s}.esc-e{fill:#a86f2c;transition:fill .5s}.esc-l{stroke:#7a4d1f;transition:stroke .5s}
+.cauda{transform-origin:96px 60px;animation:ferrao 2.6s ease-in-out infinite alternate}
+@keyframes ferrao{from{transform:rotate(4deg)}to{transform:rotate(-7deg)}}
+.prancha.uv{background:linear-gradient(160deg,#1a0f3a,#06041a)}
+.uv .esc-c{fill:#58f0d0}.uv .esc-e{fill:#b6fff0}.uv .esc-l{stroke:#58f0d0}
+.uv .cena svg{filter:drop-shadow(0 0 14px rgba(88,240,208,.8))}
+.lanterna{align-self:flex-start;margin-top:6px;font:500 12px/1 var(--campo);letter-spacing:.1em;text-transform:uppercase;cursor:pointer;
+  color:var(--osso);background:transparent;border:1px solid var(--linha);border-radius:999px;padding:10px 14px}
+.lanterna:hover{border-color:#8f7bff;color:#c9bfff}
+.uv .lanterna{background:#8f7bff;color:#0b0620;border-color:#8f7bff}
+
+/* cobra da prancha: desenhada no script */
+.cobra-cena svg{width:100%!important;max-width:none}
+
+/* ---------- faixa de pelo ---------- */
+.pelo{position:relative;background:var(--ouro);color:var(--casca);padding-block:clamp(64px,9vw,110px);z-index:4}
+.pelo .manchas{position:absolute;inset:0;width:100%;height:100%;-webkit-mask-image:radial-gradient(ellipse 58% 70% at 50% 50%,transparent 35%,#000 100%);mask-image:radial-gradient(ellipse 58% 70% at 50% 50%,transparent 35%,#000 100%)}
+.pelo .miolo{position:relative;text-align:center}
+.pelo p.lema{font:400 clamp(36px,7vw,86px)/1.02 var(--titulo);text-wrap:balance}
+.pelo p.nota{margin-top:20px;font-weight:600;max-width:46ch;margin-inline:auto}
+@media(max-width:700px){.pelo .manchas{opacity:.55;-webkit-mask-image:linear-gradient(#000,transparent 24%,transparent 76%,#000);mask-image:linear-gradient(#000,transparent 24%,transparent 76%,#000)}}
+.rabo{position:absolute;top:calc(100% - 8px);right:clamp(24px,13vw,220px);width:70px;transform-origin:50% 0;animation:rabo 3.4s ease-in-out infinite alternate;z-index:5;pointer-events:none}
+@keyframes rabo{from{transform:rotate(-9deg)}to{transform:rotate(11deg)}}
+
+/* ---------- imersões ---------- */
+.imersoes{background:linear-gradient(180deg,var(--noite),var(--musgo));overflow:hidden;padding-bottom:clamp(150px,18vw,210px)}
+.bilhetes{display:grid;gap:18px;margin-top:50px}
+.bilhete{display:grid;grid-template-columns:190px 1fr auto;align-items:stretch;border-radius:20px;background:#0f2a1e;box-shadow:inset 0 0 0 1px var(--linha);overflow:hidden;transition:transform .3s,box-shadow .3s}
+.bilhete:hover{transform:translateX(6px);box-shadow:inset 0 0 0 1px rgba(226,165,59,.55)}
+.bilhete>*{min-width:0}
+.bilhete .canhoto{background:var(--ouro);color:var(--casca);padding:24px 20px;display:flex;flex-direction:column;justify-content:space-between;gap:16px;
+  -webkit-mask:radial-gradient(circle 9px at 100% 0,transparent 98%,#000) top/100% 51% no-repeat,radial-gradient(circle 9px at 100% 100%,transparent 98%,#000) bottom/100% 51% no-repeat;
+  mask:radial-gradient(circle 9px at 100% 0,transparent 98%,#000) top/100% 51% no-repeat,radial-gradient(circle 9px at 100% 100%,transparent 98%,#000) bottom/100% 51% no-repeat}
+.canhoto .quando{font:400 26px/1.05 var(--titulo)}
+.canhoto .dur{font:500 12px/1.3 var(--campo);letter-spacing:.08em;text-transform:uppercase}
+.bilhete .dentro{padding:24px 26px;display:flex;flex-direction:column;gap:10px;border-left:2px dashed rgba(241,233,214,.18)}
+.bilhete h3{font-size:clamp(26px,3vw,34px)}
+.bilhete .dentro p{color:var(--nevoa);font-size:16px;max-width:56ch}
+.fichas{display:flex;flex-wrap:wrap;gap:8px;margin-top:4px}
+.fichas span{font:500 11px/1 var(--campo);letter-spacing:.1em;text-transform:uppercase;padding:7px 10px;border-radius:999px;box-shadow:inset 0 0 0 1px var(--linha);color:var(--broto)}
+.bilhete .vai{display:flex;align-items:center;padding:24px}
+@media(max-width:820px){.bilhete{grid-template-columns:1fr}.bilhete .canhoto{flex-direction:row;align-items:center;-webkit-mask:none;mask:none}
+  .bilhete .dentro{border-left:0;border-top:2px dashed rgba(241,233,214,.18)}.bilhete .vai{padding-top:0}.bilhete:hover{transform:none}}
+.espia{position:absolute;bottom:0;left:50%;width:clamp(200px,26vw,320px);transform:translate(-50%,52%);animation:espia 9s ease-in-out infinite;z-index:1}
+@keyframes espia{0%,55%,100%{transform:translate(-50%,52%)}65%,88%{transform:translate(-50%,30%)}}
+
+/* ---------- como funciona ---------- */
+.caminho{background:var(--musgo)}
+.passos{display:grid;grid-template-columns:repeat(3,1fr);gap:28px;margin-top:50px;position:relative}
+.passo{min-width:0;display:flex;flex-direction:column;gap:10px}
+.passo .n{font:400 64px/1 var(--titulo);color:var(--ouro)}
+.passo h3{font-size:26px}
+.passo p{color:var(--nevoa)}
+.pegadas{display:flex;gap:clamp(14px,3vw,34px);margin-top:44px;align-items:center;flex-wrap:nowrap;overflow:hidden}
+.pegadas svg{width:30px;height:33px;flex:none;fill:var(--ouro);opacity:.22;transform:rotate(90deg);animation:pisa 6s infinite;animation-delay:calc(var(--i)*.28s)}
+.pegadas svg:nth-child(even){transform:rotate(90deg) translateX(12px)}
+@keyframes pisa{0%,100%{opacity:.16}8%,40%{opacity:1}}
+@media(max-width:820px){.passos{grid-template-columns:1fr}}
+.trilho-cobra{position:relative;height:96px;background:linear-gradient(var(--musgo),var(--noite));overflow:hidden}
+.trilho-cobra svg{position:absolute;inset:0;width:100%;height:100%}
+
+/* ---------- guia ---------- */
+.guia .par{display:grid;grid-template-columns:minmax(0,5fr) minmax(0,7fr);gap:clamp(28px,6vw,80px);align-items:center}
+.retrato{position:relative;aspect-ratio:4/5;max-width:100%;border-radius:200px 200px 22px 22px;overflow:hidden;background:radial-gradient(circle at 50% 35%,#1d5236,#07170f 75%);display:grid;place-items:center;box-shadow:inset 0 0 0 1px var(--linha)}
+.retrato img{width:100%;height:100%;object-fit:cover}
+.retrato svg{width:62%}
+.retrato small{position:absolute;bottom:16px;left:0;right:0;text-align:center;font:500 11px/1.4 var(--campo);letter-spacing:.08em;color:var(--nevoa);text-transform:uppercase;padding-inline:16px}
+.guia .fala{display:flex;flex-direction:column;gap:18px}
+.guia .fala p{color:#d2d6c6;max-width:54ch}
+.guia .fala .falta{font:400 14px/1.5 var(--campo);color:var(--broto);border:1px dashed rgba(127,196,143,.5);border-radius:12px;padding:14px 16px}
+@media(max-width:820px){.guia .par{grid-template-columns:1fr}.retrato{max-width:340px}}
+
+/* ---------- chamada final ---------- */
+.chamada{background:radial-gradient(700px 420px at 15% 20%,rgba(226,165,59,.14),transparent 70%),var(--musgo)}
+.chamada .par{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:clamp(28px,6vw,72px);align-items:start}
+.ficha{background:var(--noite);border-radius:24px;padding:clamp(22px,4vw,36px);box-shadow:inset 0 0 0 1px var(--linha);display:grid;gap:16px}
+.ficha label{display:grid;gap:7px;font:500 12px/1 var(--campo);letter-spacing:.12em;text-transform:uppercase;color:var(--nevoa)}
+.ficha input,.ficha select{font:500 17px/1.2 var(--texto);color:var(--osso);background:#0b2117;border:1px solid var(--linha);border-radius:12px;padding:14px;width:100%}
+.ficha input:focus,.ficha select:focus{outline:2px solid var(--ouro);outline-offset:1px}
+.ficha .botao{justify-content:center}
+.pronto{display:grid;gap:12px;padding:16px;border-radius:14px;background:#0b2117;border:1px solid rgba(226,165,59,.4)}
+.pronto pre{margin:0;white-space:pre-wrap;font:400 14px/1.5 var(--campo);color:var(--osso);user-select:all}
+.pronto .linha{display:flex;flex-wrap:wrap;gap:10px}
+.erro{color:#ffb4a1;font-size:14px}
+@media(max-width:820px){.chamada .par{grid-template-columns:1fr}}
+
+/* ---------- perguntas e rodapé ---------- */
+.perguntas details{border-bottom:1px solid var(--linha);padding-block:20px}
+.perguntas details:first-of-type{border-top:1px solid var(--linha);margin-top:40px}
+.perguntas summary{cursor:pointer;list-style:none;font:400 clamp(21px,2.6vw,27px)/1.2 var(--titulo);display:flex;justify-content:space-between;gap:16px}
+.perguntas summary::-webkit-details-marker{display:none}
+.perguntas summary::after{content:"+";color:var(--ouro);font-family:var(--campo)}
+.perguntas details[open] summary::after{content:"–"}
+.perguntas details p{color:var(--nevoa);max-width:64ch;margin-top:12px}
+.rodape{position:relative;padding-block:56px 84px;border-top:1px solid var(--linha);overflow:hidden}
+.rodape .miolo{display:flex;flex-wrap:wrap;gap:16px 32px;align-items:center;justify-content:space-between;color:var(--nevoa);font-size:15px}
+.rodape a{color:var(--osso)}
+.andarilho{position:absolute;bottom:10px;left:0;width:74px;animation:anda 38s linear infinite}
+.andarilho svg{display:block;width:100%;animation:passinho .3s steps(2) infinite}
+@keyframes anda{0%{transform:translateX(-90px) scaleX(1)}49.9%{transform:translateX(100vw) scaleX(1)}50%{transform:translateX(100vw) scaleX(-1)}99.9%{transform:translateX(-90px) scaleX(-1)}100%{transform:translateX(-90px) scaleX(1)}}
+@keyframes passinho{from{transform:translateY(0)}to{transform:translateY(-1.5px)}}
+
+@media(prefers-reduced-motion:reduce){
+  *,*::before,*::after{animation:none!important;transition:none!important}
+  html{scroll-behavior:auto}
+  .revoada{display:none}
+}
+</style>
+
+<!-- Desenhos reaproveitados -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <symbol id="pata" viewBox="0 0 40 44"><path d="M20 22c8 0 13 8 10 14-3 5-17 5-20 0-3-6 2-14 10-14Z"/><ellipse cx="7" cy="17" rx="4" ry="5.5"/><ellipse cx="15.5" cy="8" rx="4" ry="5.5"/><ellipse cx="24.5" cy="8" rx="4" ry="5.5"/><ellipse cx="33" cy="17" rx="4" ry="5.5"/></symbol>
+  <symbol id="leopardo" viewBox="0 0 200 172">
+    <circle cx="44" cy="42" r="27" fill="#c98b28"/><circle cx="44" cy="45" r="14" fill="#2a1a0c"/>
+    <circle cx="156" cy="42" r="27" fill="#c98b28"/><circle cx="156" cy="45" r="14" fill="#2a1a0c"/>
+    <path d="M100 20c50 0 84 38 82 80-2 40-36 66-82 66s-80-26-82-66c-2-42 32-80 82-80Z" fill="#e2a53b"/>
+    <path d="M100 62c10 0 16 14 16 30l-4 16H88l-4-16c0-16 6-30 16-30Z" fill="#eebb5c"/>
+    <ellipse cx="80" cy="128" rx="25" ry="21" fill="#f6ead0"/><ellipse cx="120" cy="128" rx="25" ry="21" fill="#f6ead0"/><ellipse cx="100" cy="148" rx="19" ry="12" fill="#f6ead0"/>
+    <path d="M87 104q13-7 26 0-3 12-13 17-10-5-13-17Z" fill="#3a2014"/>
+    <path d="M100 121v9m0 0q-9 11-20 5m20-5q9 11 20 5" fill="none" stroke="#3a2014" stroke-width="3" stroke-linecap="round"/>
+    <path d="M46 86q18-19 38 0-19 11-38 0Z" fill="#f6d463" stroke="#1c1206" stroke-width="3.5" stroke-linejoin="round"/>
+    <path d="M154 86q-18-19-38 0 19 11 38 0Z" fill="#f6d463" stroke="#1c1206" stroke-width="3.5" stroke-linejoin="round"/>
+    <circle cx="65" cy="84" r="6.2" fill="#1c1206"/><circle cx="135" cy="84" r="6.2" fill="#1c1206"/>
+    <circle cx="67" cy="82" r="1.8" fill="#fff"/><circle cx="137" cy="82" r="1.8" fill="#fff"/>
+    <path d="M82 90q5 14-4 24M118 90q-5 14 4 24" fill="none" stroke="#1c1206" stroke-width="3.5" stroke-linecap="round"/>
+    <g fill="#1c1206"><circle cx="100" cy="36" r="4"/><circle cx="85" cy="44" r="4"/><circle cx="115" cy="44" r="4"/><circle cx="72" cy="34" r="3.5"/><circle cx="128" cy="34" r="3.5"/><circle cx="100" cy="52" r="3.5"/><circle cx="58" cy="52" r="3.5"/><circle cx="142" cy="52" r="3.5"/><circle cx="74" cy="58" r="3"/><circle cx="126" cy="58" r="3"/>
+      <circle cx="70" cy="124" r="1.8"/><circle cx="77" cy="131" r="1.8"/><circle cx="68" cy="134" r="1.8"/><circle cx="130" cy="124" r="1.8"/><circle cx="123" cy="131" r="1.8"/><circle cx="132" cy="134" r="1.8"/></g>
+    <g fill="#b97f22" stroke="#1c1206" stroke-width="3.6" stroke-linecap="round" stroke-dasharray="9 5">
+      <circle cx="34" cy="96" r="7"/><circle cx="166" cy="96" r="7"/><circle cx="42" cy="122" r="7"/><circle cx="158" cy="122" r="7"/><circle cx="60" cy="146" r="6"/><circle cx="140" cy="146" r="6"/></g>
+    <path d="M58 128 22 120M58 134 24 140M142 128l36-8M142 134l34 6" stroke="#f6ead0" stroke-width="1.4" stroke-linecap="round" opacity=".8"/>
+  </symbol>
+</svg>
+
+<template id="t-borboleta"><svg viewBox="0 0 100 80" aria-hidden="true">
+  <g class="asa"><path d="M50 40C32 4 4 2 7 30c2 14 24 16 43 10Z" fill="var(--asa,#3aa0ff)"/><path d="M50 42C34 46 16 56 26 70c9 11 22-8 24-28Z" fill="var(--asa2,#1f6fd1)"/><path d="M50 40C36 14 14 10 13 28" fill="none" stroke="#04100b" stroke-width="2" opacity=".5"/></g>
+  <g class="asa"><path d="M50 40C68 4 96 2 93 30c-2 14-24 16-43 10Z" fill="var(--asa,#3aa0ff)"/><path d="M50 42c16 4 34 14 24 28-9 11-22-8-24-28Z" fill="var(--asa2,#1f6fd1)"/><path d="M50 40c14-26 36-30 37-12" fill="none" stroke="#04100b" stroke-width="2" opacity=".5"/></g>
+  <ellipse cx="50" cy="44" rx="3.2" ry="15" fill="#120b05"/><path d="M49 30Q44 18 38 16M51 30q5-12 11-14" fill="none" stroke="#120b05" stroke-width="1.6" stroke-linecap="round"/>
+</svg></template>
+
+<template id="t-aranha"><svg viewBox="0 0 100 100" aria-hidden="true">
+  <g fill="none" stroke="#d8cdb4" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round">
+    <g class="pata-ar" style="transform-origin:50px 42px"><path d="M44 36 28 20 14 30M42 41 21 36 7 50M42 46 22 54 10 72M45 50 32 68 24 88"/></g>
+    <g class="pata-ar" style="transform-origin:50px 42px;animation-delay:-.25s"><path d="M56 36 72 20 86 30M58 41 79 36 93 50M58 46 78 54 90 72M55 50 68 68 76 88"/></g>
+  </g>
+  <ellipse cx="50" cy="60" rx="14" ry="17" fill="#2b1d12"/><circle cx="50" cy="39" r="9.5" fill="#3b2817"/>
+  <path d="M44 56q6 6 12 0-1 8-6 12-5-4-6-12Z" fill="#e2a53b"/>
+  <circle cx="46.500" cy="35" r="1.6" fill="#f6d463"/><circle cx="53.500" cy="35" r="1.6" fill="#f6d463"/>
+</svg></template>
+
+<template id="t-escorpiao"><svg viewBox="0 0 140 100" aria-hidden="true">
+  <g fill="none" class="esc-l" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M48 52 40 40 30 38M58 50 54 36 46 30M68 51 68 37 62 30M78 53 82 40 80 32"/>
+    <path d="M48 68 40 80 30 82M58 70 54 84 46 90M68 69 68 83 62 90M78 67 82 80 80 88"/>
+    <path d="M38 54 26 46 20 34M38 66 26 74 20 86" stroke-width="5"/>
+  </g>
+  <g class="esc-c"><ellipse cx="17" cy="27" rx="9" ry="6" transform="rotate(-50 17 27)"/><ellipse cx="17" cy="93" rx="9" ry="6" transform="rotate(50 17 93)"/>
+    <ellipse cx="46" cy="60" rx="14" ry="12"/><ellipse cx="63" cy="60" rx="10" ry="11.500"/><ellipse cx="76" cy="60" rx="8.500" ry="10"/><ellipse cx="87" cy="60" rx="7" ry="8"/></g>
+  <g class="cauda"><g class="esc-c"><circle cx="97" cy="58" r="6"/><circle cx="107" cy="52" r="5.600"/><circle cx="115" cy="43" r="5.200"/><circle cx="118" cy="32" r="5"/><circle cx="114" cy="21.500" r="4.800"/></g>
+    <path class="esc-e" d="M116 20c-4-9-14-9-17-3-2 4 0 8 4 9l-9 5c8-1 15-3 19-7Z"/></g>
+  <g class="esc-e"><circle cx="39" cy="56" r="1.800"/><circle cx="39" cy="64" r="1.800"/></g>
+  <path d="M54 50v20M65 50v20M76 51v18" stroke="#04100b" stroke-width="1.200" opacity=".45"/>
+</svg></template>
+
+<header class="topo">
+  <div class="miolo">
+    <a class="marca" href="#inicio" id="marca" aria-label="Leopardos das Montanhas">
+      <svg viewBox="0 0 40 44" fill="#e2a53b" aria-hidden="true"><use href="#pata"/></svg>
+      <b>Leopardos das Montanhas</b>
+    </a>
+    <nav aria-label="Seções"><a href="#bichos">Os bichos</a><a href="#imersoes">Imersões</a><a href="#guia">O guia</a></nav>
+    <a class="botao" href="#entrar">Quero ir</a>
+  </div>
+</header>
+
+<main>
+<section class="abertura" id="inicio">
+  <svg class="mata" id="mata" viewBox="0 0 1440 800" preserveAspectRatio="xMidYMax slice" aria-hidden="true"></svg>
+  <canvas id="vagalumes" aria-hidden="true"></canvas>
+  <svg class="cipos" id="cipos" viewBox="0 0 420 520" aria-hidden="true"></svg>
+  <div class="olhos" style="left:62%;bottom:23%;--t:26px"><i><u></u></i><i><u></u></i></div>
+  <div class="olhos" style="left:84%;bottom:33%;--t:15px;--d:-2.1s"><i><u></u></i><i><u></u></i></div>
+  <div class="olhos" style="left:14%;bottom:19%;--t:13px;--d:-4.3s"><i><u></u></i><i><u></u></i></div>
+  <div class="olhos" style="left:40%;bottom:30%;--t:10px;--d:-3.2s"><i><u></u></i><i><u></u></i></div>
+  <svg class="samambaia esq" id="samambaia-esq" viewBox="0 0 460 300" aria-hidden="true"></svg>
+  <svg class="samambaia dir" id="samambaia-dir" viewBox="0 0 460 300" aria-hidden="true"></svg>
+  <div class="miolo">
+    <p class="rotulo">Ecoturismo guiado · trilhas e imersões</p>
+    <h1>A mata está <em>olhando</em> para você.</h1>
+    <p class="sub">Trilhas guiadas para ver de perto o que a floresta esconde: cobras, aranhas, escorpiões, borboletas e a história de cada um.</p>
+    <div class="acoes">
+      <a class="botao" href="#imersoes">Ver as próximas imersões</a>
+      <a class="botao vazado" href="https://www.instagram.com/leopardosdasmontanhas" target="_blank" rel="noopener">@leopardosdasmontanhas</a>
+    </div>
+  </div>
+</section>
+
+<section class="secao bichos" id="bichos">
+  <button class="fio" id="fio" type="button" aria-label="Aranha pendurada no fio. Toque para ela subir."></button>
+  <div class="miolo">
+    <p class="rotulo">Quem mora na trilha</p>
+    <h2>Bicho não é susto.<br>É o motivo da viagem.</h2>
+    <p class="abre">Quem tem medo, quase sempre só nunca viu de perto com alguém que conhece. Na trilha você aprende a achar, reconhecer e respeitar cada morador.</p>
+    <div class="pranchas">
+      <article class="prancha leo">
+        <div class="cena"><svg viewBox="0 0 200 172" role="img" aria-label="Rosto de leopardo"><use href="#leopardo"/></svg></div>
+        <div class="corpo">
+          <span class="num">O espírito do grupo</span>
+          <h3>Leopardos</h3>
+          <p>Leopardo é quem anda com a gente: passo leve, olho atento, nenhum rastro deixado para trás. Você entra na mata como visitante e sai como parte do bando.</p>
+        </div>
+      </article>
+      <article class="prancha">
+        <span class="num">Serpentes</span>
+        <div class="cena cobra-cena"><svg id="cobra-prancha" viewBox="0 0 300 150" role="img" aria-label="Cobra-coral se movendo"></svg></div>
+        <h3>Cobras</h3>
+        <p>A maioria só quer distância. Você aprende a ler o corpo, as cores e o comportamento, e a seguir a trilha com calma.</p>
+      </article>
+      <article class="prancha">
+        <span class="num">Tecelãs</span>
+        <div class="cena" data-bicho="aranha"></div>
+        <h3>Aranhas</h3>
+        <p>Engenheiras de teia. Com lanterna e paciência, uma teia molhada de orvalho vira aula de arquitetura.</p>
+      </article>
+      <article class="prancha" id="prancha-escorpiao">
+        <span class="num">Noturnos</span>
+        <div class="cena" data-bicho="escorpiao"></div>
+        <h3>Escorpiões</h3>
+        <p>Sob luz ultravioleta eles brilham em verde-azulado. É um dos espetáculos mais estranhos da noite.</p>
+        <button class="lanterna" id="lanterna" type="button" aria-pressed="false">Ligar a lanterna UV</button>
+      </article>
+      <article class="prancha">
+        <span class="num">Sinal de mata viva</span>
+        <div class="cena" data-bicho="borboleta"></div>
+        <h3>Borboletas</h3>
+        <p>Onde elas aparecem em quantidade, a floresta vai bem. Seguir uma borboleta é um jeito bonito de achar água e flor.</p>
+      </article>
+    </div>
+  </div>
+</section>
+
+<section class="pelo">
+  <svg class="manchas" id="manchas" aria-hidden="true"></svg>
+  <div class="miolo">
+    <p class="lema">Pisar leve. Olhar atento. Sair diferente.</p>
+    <p class="nota">Grupos pequenos, ritmo de quem observa, e um guia que para a trilha inteira por causa de uma lagarta.</p>
+  </div>
+  <svg class="rabo" viewBox="0 0 70 170" aria-hidden="true">
+    <path d="M30 0C30 60 62 84 52 124 45 150 16 146 20 124" fill="none" stroke="#e2a53b" stroke-width="15" stroke-linecap="round"/>
+    <path d="M30 0C30 60 62 84 52 124" fill="none" stroke="#1c1206" stroke-width="15" stroke-dasharray="5 13" opacity=".9"/>
+    <path d="M52 124C45 150 16 146 20 124" fill="none" stroke="#1c1206" stroke-width="15" stroke-linecap="round"/>
+  </svg>
+</section>
+
+<section class="secao imersoes" id="imersoes">
+  <div class="miolo">
+    <p class="rotulo">Imersões</p>
+    <h2>Escolha sua entrada na mata.</h2>
+    <p class="abre">Cada imersão tem data, duração e nível próprios. As vagas são poucas, porque bicho não aparece para multidão.</p>
+    <div class="bilhetes" id="bilhetes"></div>
+  </div>
+  <svg class="espia" viewBox="0 0 200 172" aria-hidden="true"><use href="#leopardo"/></svg>
+</section>
+
+<section class="secao caminho">
+  <div class="miolo">
+    <p class="rotulo">Como funciona</p>
+    <h2>Da mensagem à trilha.</h2>
+    <div class="passos">
+      <div class="passo"><span class="n">1</span><h3>Você escolhe</h3><p>Veja as imersões abertas e reserve sua vaga pelo formulário ou pelo Instagram.</p></div>
+      <div class="passo"><span class="n">2</span><h3>A gente conversa</h3><p>O guia explica o percurso, o que levar e tira as dúvidas, inclusive as de quem tem medo.</p></div>
+      <div class="passo"><span class="n">3</span><h3>Você entra na mata</h3><p>Trilha no ritmo do grupo, com paradas a cada bicho encontrado e tempo para olhar de verdade.</p></div>
+    </div>
+    <div class="pegadas" id="pegadas" aria-hidden="true"></div>
+  </div>
+</section>
+<div class="trilho-cobra" aria-hidden="true"><svg id="cobra-trilho"></svg></div>
+
+<section class="secao guia" id="guia">
+  <div class="miolo par">
+    <div class="retrato" id="retrato">
+      <svg viewBox="0 0 200 172" aria-hidden="true"><use href="#leopardo"/></svg>
+      <small>Aqui entra a foto do guia</small>
+    </div>
+    <div class="fala">
+      <p class="rotulo">O guia</p>
+      <h2>Guia de trilha, apaixonado por bicho.</h2>
+      <p>Ele conduz cada grupo como quem apresenta a própria casa. Conhece os caminhos, sabe onde cada morador costuma aparecer e explica tudo sem pressa.</p>
+      <p class="falta">Falta a história dele: nome, há quantos anos guia, formação, região das trilhas e por que “Leopardos das Montanhas”.</p>
+      <div><a class="botao vazado" href="https://www.instagram.com/leopardosdasmontanhas" target="_blank" rel="noopener">Ver as trilhas no Instagram</a></div>
+    </div>
+  </div>
+</section>
+
+<section class="secao chamada" id="entrar">
+  <div class="miolo par">
+    <div>
+      <p class="rotulo">Garanta sua vaga</p>
+      <h2>Entre para o bando.</h2>
+      <p class="abre">Deixe seu nome e a imersão que chamou você. A mensagem já sai pronta para enviar ao guia.</p>
+    </div>
+    <form class="ficha" id="ficha" novalidate>
+      <label for="f-nome">Seu nome<input id="f-nome" name="nome" autocomplete="name" required></label>
+      <label for="f-zap">Seu WhatsApp<input id="f-zap" name="zap" type="tel" inputmode="tel" autocomplete="tel" placeholder="(00) 00000-0000" required></label>
+      <label for="f-imersao">Qual imersão?<select id="f-imersao" name="imersao"></select></label>
+      <label for="f-nivel">Já fez trilha?<select id="f-nivel" name="nivel"><option>Nunca fiz</option><option>Algumas vezes</option><option>Faço sempre</option></select></label>
+      <p class="erro" id="f-erro" hidden>Preencha seu nome e seu WhatsApp para montar a mensagem.</p>
+      <button class="botao" type="submit">Montar minha mensagem</button>
+      <div class="pronto" id="pronto" hidden>
+        <pre id="f-msg"></pre>
+        <div class="linha">
+          <a class="botao" id="f-enviar" target="_blank" rel="noopener" href="https://www.instagram.com/leopardosdasmontanhas">Enviar</a>
+          <button class="botao vazado" id="f-copiar" type="button">Copiar mensagem</button>
+        </div>
+      </div>
+    </form>
+  </div>
+</section>
+
+<section class="secao perguntas">
+  <div class="miolo">
+    <p class="rotulo">Antes de ir</p>
+    <h2>Perguntas de quem ainda está na borda da mata.</h2>
+    <details><summary>Preciso ter experiência em trilha?</summary><p>Não. Cada imersão mostra o nível no bilhete. Se for sua primeira vez, comece por uma de nível leve e avise o guia na conversa.</p></details>
+    <details><summary>Ver cobra, aranha e escorpião de perto é seguro?</summary><p>A regra é observar sem tocar e manter a distância que o guia indicar. Ele vai na frente, identifica o animal e decide até onde o grupo chega.</p></details>
+    <details><summary>O que eu levo?</summary><p>Calçado fechado e firme, calça comprida, água, repelente e lanterna nas saídas noturnas. A lista completa vem na conversa antes da trilha.</p></details>
+  </div>
+</section>
+</main>
+
+<footer class="rodape">
+  <div class="miolo">
+    <span>Leopardos das Montanhas · ecoturismo guiado</span>
+    <a href="https://www.instagram.com/leopardosdasmontanhas" target="_blank" rel="noopener">instagram.com/leopardosdasmontanhas</a>
+  </div>
+  <div class="andarilho" id="andarilho" aria-hidden="true"></div>
+</footer>
+<div class="revoada" id="revoada" aria-hidden="true"></div>
+
+<script>
+/* =====================================================================
+   O QUE SE TROCA AQUI, sem mexer no resto da página
+   ===================================================================== */
+// Número que recebe a mensagem, só dígitos com 55 e DDD. Vazio = o botão leva ao Instagram.
+const WHATSAPP = "";
+const INSTAGRAM = "https://www.instagram.com/leopardosdasmontanhas";
+// Caminho do arquivo da logo (ex.: "logo.png"). Vazio = a pegada desenhada.
+const LOGO = "";
+// Caminho da foto do guia (ex.: "guia.jpg"). Vazio = o leopardo desenhado.
+const FOTO_GUIA = "";
+// As imersões. "exemplo: true" mostra a etiqueta verde; tire quando os dados forem os de verdade.
+const IMERSOES = [
+  { nome:"Noite dos Olhos Brilhantes", quando:"Data a definir", duracao:"Uma noite", nivel:"Leve", vagas:"Vagas a definir",
+    texto:"Trilha noturna de lanterna na mão, atrás de quem só acorda depois do pôr do sol: aranhas na teia, escorpiões sob a luz UV e olhos que brilham no escuro.", exemplo:true },
+  { nome:"Travessia da Serra", quando:"Data a definir", duracao:"Dois dias", nivel:"Moderado", vagas:"Vagas a definir",
+    texto:"Dois dias de montanha, com pernoite e saída ao amanhecer. Para quem quer tempo de sobra para rastrear, fotografar e ouvir a mata.", exemplo:true },
+  { nome:"Manhã das Borboletas", quando:"Data a definir", duracao:"Uma manhã", nivel:"Leve", vagas:"Vagas a definir",
+    texto:"Caminhada curta em trecho de mata e água, na hora em que as borboletas saem para o sol. Boa porta de entrada para a primeira trilha.", exemplo:true }
+];
+
+/* ===================================================================== */
+const calmo = matchMedia("(prefers-reduced-motion: reduce)").matches;
+const NS = "http://www.w3.org/2000/svg";
+const $ = (s) => document.querySelector(s);
+function svg(nome, attrs, pai){ const e=document.createElementNS(NS,nome); for(const k in attrs) e.setAttribute(k,attrs[k]); if(pai) pai.appendChild(e); return e; }
+// Sorteio com semente: a mata nasce igual toda vez, em vez de mudar a cada visita.
+function sorteio(a){ return function(){ a|=0; a=a+0x6D2B79F5|0; let t=Math.imul(a^a>>>15,1|a); t=t+Math.imul(t^t>>>7,61|t)^t; return ((t^t>>>14)>>>0)/4294967296; }; }
+function texto(s){ const d=document.createElement("div"); d.textContent=s; return d.innerHTML; }
+
+/* ---------- logo e foto, quando chegarem ---------- */
+if (LOGO) $("#marca").innerHTML = '<img src="'+LOGO+'" alt="Leopardos das Montanhas">';
+if (FOTO_GUIA) $("#retrato").innerHTML = '<img src="'+FOTO_GUIA+'" alt="O guia na trilha">';
+
+/* ---------- a mata da abertura: lua, serras e três fileiras de árvores ---------- */
+const camadas = [];
+(function mata(){
+  const m = $("#mata"), r = sorteio(7);
+  const defs = svg("defs",{},m);
+  const g = svg("radialGradient",{id:"lua-halo"},defs);
+  svg("stop",{offset:"0","stop-color":"#f6d463","stop-opacity":".5"},g); svg("stop",{offset:"1","stop-color":"#f6d463","stop-opacity":"0"},g);
+  const ceu = svg("g",{},m); camadas.push([ceu,.04]);
+  svg("circle",{cx:1050,cy:330,r:330,fill:"url(#lua-halo)"},ceu);
+  svg("circle",{cx:1050,cy:330,r:92,fill:"#f3e2a4"},ceu);
+  svg("circle",{cx:1022,cy:306,r:16,fill:"#e3cf8a"},ceu); svg("circle",{cx:1082,cy:356,r:24,fill:"#e3cf8a"},ceu); svg("circle",{cx:1068,cy:290,r:9,fill:"#e3cf8a"},ceu);
+  function serra(base, alt, cor, s, prof){
+    const gg = svg("g",{},m); camadas.push([gg,prof]);
+    let d = "M-80 900";
+    for(let x=-80;x<=1520;x+=20){ const y = base - alt*(.5*Math.sin(x*.0042+s)+.32*Math.sin(x*.0113+s*2.3)+.18*Math.sin(x*.027+s*3.1)); d+=" L"+x+" "+y.toFixed(1); }
+    svg("path",{d:d+" L1520 900Z",fill:cor},gg);
+  }
+  serra(440,110,"#164736",1.2,.07); serra(500,80,"#103a2b",4.1,.11);
+  function arvores(chao, porte, cor, n, prof){
+    const gg = svg("g",{fill:cor},m); camadas.push([gg,prof]);
+    svg("rect",{x:-80,y:chao-6,width:1600,height:400},gg);
+    for(let i=0;i<n;i++){
+      const x = -40 + i/n*1520 + (r()-.5)*40, h = porte*(.6+r()*1.1), copa = porte*(.3+r()*.22);
+      svg("rect",{x:x-porte*.035,y:chao-h,width:porte*.07,height:h},gg);
+      const bolas = 4+Math.floor(r()*3);
+      for(let b=0;b<bolas;b++) svg("circle",{cx:x+(r()-.5)*copa*1.7,cy:chao-h+(r()-.6)*copa*1.1,r:copa*(.55+r()*.5)},gg);
+    }
+  }
+  arvores(590,120,"#0b2a1e",34,.16); arvores(660,170,"#071c14",24,.24); arvores(745,230,"#04100b",16,.34);
+})();
+
+/* ---------- cipós e samambaias ---------- */
+(function cipos(){
+  const c = $("#cipos"), r = sorteio(21);
+  [[120,300],[210,430],[290,240],[350,500],[400,330]].forEach(([x,comp])=>{
+    const dx = (r()-.5)*70;
+    svg("path",{d:"M"+x+" -10 C"+(x+dx)+" "+comp*.4+","+(x-dx)+" "+comp*.7+","+(x+dx*.4)+" "+comp, fill:"none", stroke:"#0b2a1e","stroke-width":3.5,"stroke-linecap":"round"},c);
+    for(let t=.18;t<1;t+=.13){
+      const px = x + dx*Math.sin(t*3)*.5, py = comp*t, lado = r()>.5?1:-1, ang = lado*(35+r()*30);
+      svg("path",{d:"M0 0C10 -9 26 -9 34 0 26 9 10 9 0 0Z", fill:r()>.5?"#12402c":"#0b2a1e", transform:"translate("+px.toFixed(1)+" "+py.toFixed(1)+") rotate("+(lado>0?ang:180-ang).toFixed(0)+")"},c);
+    }
+  });
+})();
+function samambaia(alvo, espelho){
+  const s = $(alvo), r = sorteio(espelho?5:13);
+  const tudo = svg("g", espelho?{transform:"translate(460 0) scale(-1 1)"}:{}, s);
+  [[-8,300,330,-62],[30,310,270,-44],[-10,320,220,-26],[70,320,180,-74]].forEach(([x,y,comp,ang],i)=>{
+    const g = svg("g",{transform:"translate("+x+" "+y+") rotate("+ang+")"},tudo), cor = i%2?"#0b2a1e":"#133f2b";
+    svg("path",{d:"M0 0 Q"+comp*.5+" -18 "+comp+" 0",fill:"none",stroke:cor,"stroke-width":4,"stroke-linecap":"round"},g);
+    for(let t=.08;t<1;t+=.055){
+      const px = comp*t, py = -18*4*t*(1-t)*.5, tam = (1-t*.75)*(38+r()*8);
+      [-1,1].forEach(l=> svg("ellipse",{cx:tam*.5,cy:0,rx:tam*.5,ry:tam*.13,fill:cor,transform:"translate("+px.toFixed(1)+" "+py.toFixed(1)+") rotate("+(l*62)+")"},g));
+    }
+  });
+}
+samambaia("#samambaia-esq",false); samambaia("#samambaia-dir",true);
+
+/* ---------- manchas da faixa dourada: rosetas de leopardo ---------- */
+(function manchas(){
+  const m = $("#manchas"), r = sorteio(3), L = 1600, A = 520;
+  m.setAttribute("viewBox","0 0 "+L+" "+A); m.setAttribute("preserveAspectRatio","xMidYMid slice");
+  for(let y=30;y<A;y+=74) for(let x=30;x<L;x+=92){
+    const cx = x+(r()-.5)*44+((y/74)%2?46:0), cy = y+(r()-.5)*34, R = 15+r()*11, C = 2*Math.PI*R, partes = r()>.5?3:2;
+    const cheio = C/partes*.72, vao = C/partes*.28;
+    svg("ellipse",{cx:cx,cy:cy,rx:R,ry:R*(.72+r()*.2),fill:"#b97f22",stroke:"#1c1206","stroke-width":6+r()*3,"stroke-linecap":"round","stroke-dasharray":cheio.toFixed(1)+" "+vao.toFixed(1),transform:"rotate("+(r()*360).toFixed(0)+" "+cx.toFixed(0)+" "+cy.toFixed(0)+")"},m);
+    if(r()>.6) svg("circle",{cx:cx+R*2.1,cy:cy+R*(r()-.5)*2,r:3+r()*3,fill:"#1c1206"},m);
+  }
+})();
+
+/* ---------- bichos das pranchas, aranha do fio e escorpião do rodapé ---------- */
+const molde = (id) => document.getElementById(id).content.firstElementChild.cloneNode(true);
+document.querySelectorAll("[data-bicho]").forEach(c => c.appendChild(molde("t-"+c.dataset.bicho)));
+$("#fio").appendChild(molde("t-aranha"));
+$("#fio").addEventListener("click", function(){ this.classList.add("subiu"); setTimeout(()=>this.classList.remove("subiu"), 2600); });
+const esc = molde("t-escorpiao"); esc.style.transform = "scaleX(-1)";   // o desenho olha para a esquerda; ele anda para a direita
+const cx_ = document.createElement("div"); cx_.appendChild(esc); $("#andarilho").appendChild(cx_);
+$("#lanterna").addEventListener("click", function(){
+  const ligada = $("#prancha-escorpiao").classList.toggle("uv");
+  this.setAttribute("aria-pressed", ligada); this.textContent = ligada ? "Apagar a lanterna UV" : "Ligar a lanterna UV";
+});
+for(let i=0;i<14;i++){ const p = svg("svg",{viewBox:"0 0 40 44"},$("#pegadas")); p.style.setProperty("--i",i); svg("use",{href:"#pata"},p); }
+
+/* ---------- cobra-coral: fileira de discos que seguem uma onda ---------- */
+const CORAL = ["#d8402b","#d8402b","#d8402b","#d8402b","#16110c","#f1e9d6","#16110c","#f1e9d6","#16110c"];
+function cobra(alvo, n, raio){
+  const g = svg("g",{},alvo), discos = [];
+  for(let i=n-1;i>=1;i--){ discos[i] = svg("circle",{r:(raio*(1-Math.pow(i/n,2.2)*.82)).toFixed(1),fill:CORAL[i%CORAL.length]},g); }
+  const cabeca = svg("g",{},g);
+  const lingua = svg("path",{d:"M"+raio+" 0h9l5-3m-5 3 5 3",fill:"none",stroke:"#ff6a5a","stroke-width":1.6,"stroke-linecap":"round"},cabeca);
+  svg("ellipse",{rx:raio*1.25,ry:raio*1.02,fill:"#16110c"},cabeca);
+  svg("circle",{cx:raio*.35,cy:-raio*.5,r:1.7,fill:"#f6d463"},cabeca); svg("circle",{cx:raio*.35,cy:raio*.5,r:1.7,fill:"#f6d463"},cabeca);
+  return { discos, cabeca, lingua, n, raio };
+}
+function moverCobra(c, hx, meio, amp, t, passo){
+  const y = (x)=> meio + amp*Math.sin(x*.034 - t*3.2);
+  for(let i=1;i<c.n;i++){ const x = hx - i*passo; c.discos[i].setAttribute("cx",x.toFixed(1)); c.discos[i].setAttribute("cy",y(x).toFixed(1)); }
+  const ang = Math.atan2(y(hx)-y(hx-passo), passo)*180/Math.PI;
+  c.cabeca.setAttribute("transform","translate("+hx.toFixed(1)+" "+y(hx).toFixed(1)+") rotate("+ang.toFixed(1)+")");
+  c.lingua.style.opacity = (t%2.4 < .35) ? 1 : 0;
+}
+const cobraP = cobra($("#cobra-prancha"), 46, 8.5);
+const trilho = $("#cobra-trilho"), cobraT = cobra(trilho, 70, 9);
+let largTrilho = 1200;
+function medir(){ largTrilho = trilho.parentNode.clientWidth; trilho.setAttribute("viewBox","0 0 "+largTrilho+" 96"); }
+medir(); addEventListener("resize", medir);
+
+/* ---------- borboletas soltas pela página ---------- */
+const CORES = [["#3aa0ff","#1f6fd1"],["#f08a24","#c8551a"],["#f6d463","#e2a53b"],["#58d6c0","#1f8f86"],["#3aa0ff","#1f6fd1"]];
+const soltas = [];
+if(!calmo){
+  const quantas = innerWidth < 700 ? 3 : 5;
+  for(let i=0;i<quantas;i++){
+    const b = molde("t-borboleta"); b.style.setProperty("--asa",CORES[i][0]); b.style.setProperty("--asa2",CORES[i][1]);
+    b.querySelectorAll(".asa").forEach(a=>a.style.animationDuration=(.16+Math.random()*.1)+"s");
+    $("#revoada").appendChild(b);
+    soltas.push({el:b,x:Math.random()*innerWidth,y:Math.random()*innerHeight,vx:0,vy:0,ax:Math.random()*innerWidth,ay:Math.random()*innerHeight,troca:0,f:Math.random()*9,tam:.7+Math.random()*.5});
+  }
+}
+
+/* ---------- olhos que seguem ---------- */
+const pupilas = [...document.querySelectorAll(".olhos u")];
+let ultimoDedo = 0;
+function olhar(px, py){
+  pupilas.forEach(p=>{ const q = p.parentNode.getBoundingClientRect(), dx = px-(q.left+q.width/2), dy = py-(q.top+q.height/2), d = Math.hypot(dx,dy)||1, a = q.width*.2;
+    p.style.transform = "translate("+(dx/d*a).toFixed(1)+"px,"+(dy/d*a*.5).toFixed(1)+"px)"; });
+}
+addEventListener("pointermove", e=>{ ultimoDedo = performance.now(); olhar(e.clientX,e.clientY); px = e.clientX/innerWidth-.5; }, {passive:true});
+// Sem dedo nem mouse por perto (celular parado), eles olham em volta sozinhos.
+if(!calmo) setInterval(()=>{ if(performance.now()-ultimoDedo>3000) olhar(Math.random()*innerWidth, Math.random()*innerHeight); }, 2400);
+
+/* ---------- vaga-lumes ---------- */
+const tela = $("#vagalumes"), ctx = tela.getContext("2d"), lumes = [];
+function telaMedir(){ const q = tela.getBoundingClientRect(), dpr = Math.min(devicePixelRatio||1,2); tela.width = q.width*dpr; tela.height = q.height*dpr; ctx.setTransform(dpr,0,0,dpr,0,0); tela._w=q.width; tela._h=q.height; }
+telaMedir(); addEventListener("resize", telaMedir);
+for(let i=0;i<46;i++) lumes.push({x:Math.random(),y:.35+Math.random()*.65,f:Math.random()*6.28,v:.4+Math.random()*.9,r:1+Math.random()*1.8});
+function vagalumes(t){
+  ctx.clearRect(0,0,tela._w,tela._h);
+  for(const l of lumes){
+    const x = (l.x + Math.sin(t*.13*l.v+l.f)*.03)*tela._w, y = (l.y + Math.cos(t*.17*l.v+l.f*2)*.03)*tela._h, a = Math.max(0,Math.sin(t*l.v+l.f))**2;
+    const g = ctx.createRadialGradient(x,y,0,x,y,l.r*7); g.addColorStop(0,"rgba(246,226,120,"+(.9*a)+")"); g.addColorStop(1,"rgba(246,226,120,0)");
+    ctx.fillStyle = g; ctx.beginPath(); ctx.arc(x,y,l.r*7,0,6.283); ctx.fill();
+  }
+}
+
+/* ---------- um relógio só para tudo o que se move ---------- */
+let px = 0;
+function quadro(ms){
+  const t = ms/1000, rolo = scrollY;
+  if(rolo < innerHeight*1.3){
+    camadas.forEach(([g,prof])=> g.setAttribute("transform","translate("+(-px*prof*90).toFixed(1)+" "+(rolo*prof*.55).toFixed(1)+")"));
+    vagalumes(t);
+  }
+  moverCobra(cobraP, 232 + Math.sin(t*.6)*14, 75, 26, t, 4.4);
+  const volta = largTrilho + 520;
+  moverCobra(cobraT, (t*46)%volta - 20, 48, 17, t, 5.6);
+  for(const b of soltas){
+    if(t > b.troca){ b.ax = Math.random()*innerWidth; b.ay = Math.random()*innerHeight; b.troca = t+3+Math.random()*4; }
+    b.vx += (b.ax-b.x)*.0009; b.vy += (b.ay-b.y)*.0009; b.vx *= .985; b.vy *= .985;
+    b.x += b.vx; b.y += b.vy + Math.sin(t*5+b.f)*.7;
+    const ang = Math.atan2(b.vy,b.vx)*180/Math.PI+90;
+    b.el.style.transform = "translate("+b.x.toFixed(1)+"px,"+b.y.toFixed(1)+"px) rotate("+ang.toFixed(0)+"deg) scale("+b.tam.toFixed(2)+")";
+  }
+  if(!calmo) requestAnimationFrame(quadro);
+}
+quadro(2500); // parado, a página já nasce desenhada; com movimento, o relógio segue daqui
+
+/* ---------- bilhetes das imersões e o formulário ---------- */
+$("#bilhetes").innerHTML = IMERSOES.map((m,i)=>
+  '<article class="bilhete"><div class="canhoto"><span class="quando">'+texto(m.quando)+'</span><span class="dur">'+texto(m.duracao)+'</span></div>'+
+  '<div class="dentro"><h3>'+texto(m.nome)+(m.exemplo?' <span class="exemplo">exemplo</span>':'')+'</h3><p>'+texto(m.texto)+'</p>'+
+  '<div class="fichas"><span>Nível '+texto(m.nivel)+'</span><span>'+texto(m.vagas)+'</span></div></div>'+
+  '<div class="vai"><a class="botao" href="#entrar" data-imersao="'+i+'">Quero esta</a></div></article>').join("");
+const escolha = $("#f-imersao");
+escolha.innerHTML = IMERSOES.map(m=>'<option>'+texto(m.nome)+'</option>').join("")+'<option>Ainda não sei, quero conversar</option>';
+$("#bilhetes").addEventListener("click", e=>{ const a = e.target.closest("[data-imersao]"); if(a) escolha.selectedIndex = +a.dataset.imersao; });
+
+$("#ficha").addEventListener("submit", e=>{
+  e.preventDefault();
+  const nome = $("#f-nome").value.trim(), zap = $("#f-zap").value.trim();
+  const falta = !nome || zap.replace(/\D/g,"").length < 10;
+  $("#f-erro").hidden = !falta; if(falta){ $("#pronto").hidden = true; return; }
+  const msg = "Oi! Sou "+nome+" e quero entrar para o bando.\nImersão: "+escolha.value+"\nExperiência em trilha: "+$("#f-nivel").value+"\nMeu WhatsApp: "+zap;
+  $("#f-msg").textContent = msg;
+  const enviar = $("#f-enviar");
+  if(WHATSAPP){ enviar.href = "https://wa.me/"+WHATSAPP+"?text="+encodeURIComponent(msg); enviar.textContent = "Enviar pelo WhatsApp"; }
+  else { enviar.href = INSTAGRAM; enviar.textContent = "Copie e envie no Instagram"; }
+  $("#pronto").hidden = false;
+});
+$("#f-copiar").addEventListener("click", function(){
+  const feito = ()=>{ this.textContent = "Copiada"; setTimeout(()=>this.textContent="Copiar mensagem",1800); };
+  const naMao = ()=>{ const s = getSelection(), r = document.createRange(); r.selectNodeContents($("#f-msg")); s.removeAllRanges(); s.addRange(r); this.textContent = "Selecionada: copie"; };
+  try{ navigator.clipboard.writeText($("#f-msg").textContent).then(feito, naMao); }catch(_){ naMao(); }
+});
+</script>
