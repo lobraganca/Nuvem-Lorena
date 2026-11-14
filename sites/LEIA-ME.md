@@ -310,3 +310,24 @@ diagnóstico subindo a 72 e a chamada com o L e o endereço. O texto fica entre
 x 80–940 e y 220–1480: à direita ficam os botões do TikTok e embaixo a legenda.
 As cenas se cruzam e o primeiro quadro já tem texto — tela vazia é onde a
 pessoa rola para o próximo vídeo. O MP4 não vai para o repositório (`.gitignore`).
+
+## `leopardosdasmontanhas/` — página de captação de um guia de trilhas (14/11)
+
+De um amigo da Lorena (Instagram @leopardosdasmontanhas). HTML puro, sem build,
+um arquivo só: abre direto no navegador. **Ainda não tem projeto na Vercel nem
+domínio** — só existe na pasta.
+
+A cara veio de três cartazes que ela mandou como referência (moldura listrada,
+cor chapada, traço escuro, bicho de frente) com o verde-azulado da logo dele.
+
+O que o guia muda fica no começo do `<script>` do `index.html`, e só lá:
+
+- `WHATSAPP` — vazio, todos os botões abrem a conversa do Instagram; com o
+  número (55 + DDD + número), abrem o WhatsApp com a mensagem já escrita.
+- `IMERSOES` — a lista dos cartões. As três que estão lá são **inventadas**, e
+  por isso levam o carimbo "EXEMPLO" (`exemplo: true`). O Instagram recusou a
+  leitura automática (erro 429), então nada ali saiu do perfil dele.
+
+A `logo.png` foi recortada de uma foto de tela (440 px). Se ele tiver o arquivo
+original, vale trocar. Como em `lorenabraganca/`, tudo o que estiver na pasta
+vai para o ar quando ela for publicada.

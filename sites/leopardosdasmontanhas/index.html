@@ -1,0 +1,440 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<!--CABECA-->
+<title>Leopardos das Montanhas</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<meta name="description" content="Trilhas, cachoeiras e imersões na natureza com guia. Veja as próximas imersões e garanta a sua vaga.">
+<meta property="og:title" content="Leopardos das Montanhas · Trilhas e Cachoeiras">
+<meta property="og:description" content="Trilhas, cachoeiras e imersões na natureza com guia.">
+<meta property="og:image" content="logo.png">
+<link rel="icon" href="icone-180.png">
+<link rel="apple-touch-icon" href="icone-180.png">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Londrina+Solid:wght@400;900&family=Londrina+Shadow&family=Karla:wght@400;600;800&display=swap">
+<style>
+/* Ideia: um cartaz de festa popular que rola. Cada seção é um painel com
+   moldura listrada; os bichos são desenhados em formas chapadas, com traço
+   escuro, e o verde-azulado da logo conversa com laranja, vermelho e creme. */
+:root{
+  color-scheme: dark;
+  --noite:#0d1512;      /* fundo, e o traço de todo desenho */
+  --mata:#14362c;       /* painel escuro */
+  --creme:#f8efd6;
+  --laranja:#f08a2c;
+  --vermelho:#d8432e;
+  --rosa:#e25a7c;
+  --amarelo:#f4c64e;
+  --petroleo:#2b7f93;   /* o azul da logo */
+  --verde:#46a474;      /* o verde da logo */
+  --titulo:"Londrina Solid","Arial Black",Impact,sans-serif;
+  --sombra:"Londrina Shadow","Londrina Solid","Arial Black",sans-serif;
+  --texto:"Karla","Helvetica Neue",Arial,sans-serif;
+  --traco:4px;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth;overflow-x:clip}
+body{margin:0;background:var(--noite);color:var(--creme);font:400 17px/1.55 var(--texto);overflow-x:hidden}
+h1,h2,h3{font-family:var(--titulo);font-weight:900;line-height:.95;margin:0;text-wrap:balance;letter-spacing:.01em}
+p{margin:0}
+a{color:inherit}
+:focus-visible{outline:3px solid var(--amarelo);outline-offset:3px}
+.dentro{max-width:1080px;margin-inline:auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+.rotulo{font:800 .78rem/1 var(--texto);letter-spacing:.2em;text-transform:uppercase}
+
+/* a trilha no topo: mostra quanto da página já foi andado */
+.trilha{position:fixed;inset:0 0 auto 0;z-index:30;height:calc(10px + env(safe-area-inset-top,0px));padding-top:env(safe-area-inset-top,0px);background:var(--noite);border-bottom:2px solid var(--creme)}
+.trilha i{display:block;height:100%;width:0;background:repeating-linear-gradient(90deg,var(--laranja) 0 10px,var(--amarelo) 10px 20px)}
+
+/* botões */
+.botao{display:inline-flex;align-items:center;gap:.5em;font:900 1.25rem/1 var(--titulo);letter-spacing:.03em;text-decoration:none;color:var(--noite);background:var(--amarelo);border:var(--traco) solid var(--noite);border-radius:999px;padding:.7em 1.2em;box-shadow:5px 5px 0 var(--noite);cursor:pointer;transition:transform .12s,box-shadow .12s}
+.botao:hover{transform:translate(-2px,-2px);box-shadow:7px 7px 0 var(--noite)}
+.botao:active{transform:translate(3px,3px);box-shadow:2px 2px 0 var(--noite)}
+.botao.claro{background:var(--creme)}
+.botao.fogo{background:var(--laranja)}
+
+/* moldura listrada, a marca de todos os painéis */
+.moldura{border:14px solid;border-image:repeating-linear-gradient(45deg,var(--c1,var(--laranja)) 0 12px,var(--c2,var(--noite)) 12px 24px) 14;outline:var(--traco) solid var(--creme);outline-offset:-22px}
+
+/* ---------- abertura ---------- */
+.abertura{padding-block:34px 0;position:relative}
+.cartaz{--c1:var(--laranja);--c2:var(--petroleo);background:var(--mata);position:relative;overflow:hidden;padding:44px 22px 0;text-align:center}
+.cartaz::before{content:"";position:absolute;inset:0;background:repeating-radial-gradient(ellipse at 50% 58%,transparent 0 16px,rgba(70,164,116,.28) 16px 22px);animation:onda 9s linear infinite}
+@keyframes onda{to{background-size:130% 130%;background-position:50% 60%}}
+.cartaz>*{position:relative}
+.selo{width:clamp(104px,16vw,150px);height:auto;aspect-ratio:1;border-radius:50%;border:var(--traco) solid var(--creme);box-shadow:0 0 0 var(--traco) var(--noite);display:block;margin:0 auto 14px}
+.abertura h1{font-size:clamp(3rem,11.5vw,7rem);color:var(--creme);text-shadow:4px 4px 0 var(--noite);text-transform:uppercase}
+.abertura h1 em{font-style:normal;font-family:var(--sombra);font-weight:400;color:var(--amarelo);display:block}
+.abertura .chamada{max-width:34ch;margin:16px auto 22px;font-size:1.15rem;font-weight:600}
+.acoes{display:flex;flex-wrap:wrap;gap:14px;justify-content:center}
+.palco{position:relative;max-width:520px;margin:26px auto 0;aspect-ratio:1/0.86}
+.sol{position:absolute;left:50%;top:6%;width:92%;aspect-ratio:1;translate:-50% 0;border-radius:50%;background:repeating-conic-gradient(var(--laranja) 0 9deg,var(--vermelho) 9deg 18deg,var(--amarelo) 18deg 27deg,var(--rosa) 27deg 36deg);border:var(--traco) solid var(--noite);animation:gira 60s linear infinite}
+@keyframes gira{to{rotate:360deg}}
+.onca{position:absolute;left:50%;bottom:-3%;width:82%;translate:-50% 0;overflow:visible}
+.onca .olho{transform-box:fill-box;transform-origin:center;animation:pisca 5.5s infinite}
+@keyframes pisca{0%,94%,100%{transform:scaleY(1)}96.5%{transform:scaleY(.08)}}
+.onca .orelha{transform-box:fill-box;transform-origin:50% 90%;animation:mexe 7s infinite}
+.onca .orelha.d{animation-delay:.35s}
+@keyframes mexe{0%,86%,100%{rotate:0deg}90%{rotate:-9deg}94%{rotate:6deg}}
+
+/* faixa que passa */
+.faixa{background:var(--amarelo);color:var(--noite);border-block:var(--traco) solid var(--noite);overflow:hidden;rotate:-1.2deg;margin:26px -12px 0;position:relative;z-index:2}
+.faixa div{display:flex;width:max-content;animation:passa 26s linear infinite}
+.faixa span{font:900 1.5rem/2.1 var(--titulo);text-transform:uppercase;white-space:nowrap;padding-right:.7em}
+.faixa span::after{content:"✹";padding-left:.7em;color:var(--vermelho)}
+@keyframes passa{to{translate:-50% 0}}
+
+/* ---------- seções ---------- */
+section{padding-block:70px 0}
+.cabeca{display:grid;gap:10px;margin-bottom:28px}
+.cabeca .rotulo{color:var(--amarelo)}
+.cabeca h2{font-size:clamp(2.4rem,8vw,4.4rem);text-transform:uppercase}
+.cabeca p{max-width:56ch;font-size:1.08rem}
+
+/* imersões */
+.imersoes{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,290px),1fr));gap:26px}
+.bilhete{background:var(--creme);color:var(--noite);border:var(--traco) solid var(--noite);box-shadow:8px 8px 0 var(--cor);display:grid;grid-template-rows:auto 1fr;position:relative;transition:rotate .2s,translate .2s}
+.bilhete:hover{rotate:-1deg;translate:0 -4px}
+.bilhete .topo{background:var(--cor);padding:18px 18px 16px;border-bottom:var(--traco) dashed var(--noite);position:relative;overflow:hidden;min-height:128px;display:grid;align-content:end;gap:6px}
+.bilhete .topo::before{content:"";position:absolute;right:-46px;top:-46px;width:150px;aspect-ratio:1;border-radius:50%;background:repeating-conic-gradient(var(--noite) 0 10deg,transparent 10deg 20deg);opacity:.22;animation:gira 40s linear infinite}
+.bilhete .quando{font:800 .78rem/1 var(--texto);letter-spacing:.16em;text-transform:uppercase;position:relative}
+.bilhete h3{font-size:2.1rem;text-transform:uppercase;position:relative}
+.bilhete .corpo{padding:16px 18px 20px;display:grid;gap:14px;align-content:start}
+.bilhete ul{list-style:none;margin:0;padding:0;display:flex;flex-wrap:wrap;gap:8px}
+.bilhete li{font:800 .78rem/1 var(--texto);letter-spacing:.06em;text-transform:uppercase;border:2px solid var(--noite);border-radius:999px;padding:.5em .8em}
+.bilhete .botao{justify-self:start;font-size:1.1rem;background:var(--noite);color:var(--creme);box-shadow:4px 4px 0 var(--cor)}
+.carimbo{position:absolute;right:10px;top:10px;z-index:2;rotate:8deg;font:900 .7rem/1 var(--texto);letter-spacing:.18em;border:2px solid var(--noite);padding:.4em .6em;background:var(--creme);color:var(--noite)}
+.aviso{margin-top:30px;--c1:var(--rosa);--c2:var(--noite);background:var(--mata);padding:26px 22px;display:flex;flex-wrap:wrap;gap:18px;align-items:center;justify-content:space-between}
+.aviso h3{font-size:2rem;text-transform:uppercase;color:var(--amarelo)}
+.aviso p{max-width:44ch}
+.aviso>div{display:grid;gap:6px;min-width:0;flex:1 1 280px}
+
+/* bichos */
+.bichos{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,220px),1fr));gap:20px}
+.bicho{all:unset;box-sizing:border-box;display:grid;cursor:pointer;perspective:900px;min-width:0}
+.bicho:focus-visible{outline:3px solid var(--amarelo);outline-offset:4px}
+.bicho .giro{display:grid;transform-style:preserve-3d;transition:transform .55s cubic-bezier(.3,1.4,.5,1)}
+.bicho[aria-pressed="true"] .giro{transform:rotateY(180deg)}
+.bicho .lado{grid-area:1/1;backface-visibility:hidden;-webkit-backface-visibility:hidden;border:var(--traco) solid var(--noite);outline:3px solid var(--creme);padding:16px;display:grid;gap:8px;align-content:start;text-align:center;color:var(--noite);background:var(--cor)}
+.bicho .verso{transform:rotateY(180deg);background:var(--creme);align-content:center;text-align:left}
+.bicho svg{width:100%;max-width:170px;margin-inline:auto;overflow:visible}
+.bicho:hover svg{animation:pula .5s}
+@keyframes pula{40%{translate:0 -8px;rotate:-3deg}}
+.bicho h3{font-size:1.7rem;text-transform:uppercase}
+.bicho .toque{font:800 .7rem/1 var(--texto);letter-spacing:.16em;text-transform:uppercase;opacity:.75}
+.bicho .verso p{font-size:.98rem;line-height:1.45}
+.bicho .verso i{font-size:.85rem}
+
+/* passo a passo */
+.passos{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,220px),1fr));gap:18px;counter-reset:p}
+.passos li{counter-increment:p;border:var(--traco) solid var(--creme);padding:18px;display:grid;gap:8px;align-content:start;background:var(--mata)}
+.passos li::before{content:counter(p);font:400 3.4rem/.9 var(--sombra);color:var(--amarelo)}
+.passos h3{font-size:1.5rem;text-transform:uppercase}
+
+/* fecho */
+.fecho{--c1:var(--amarelo);--c2:var(--vermelho);background:var(--petroleo);text-align:center;padding:46px 22px;display:grid;gap:18px;justify-items:center;position:relative;overflow:hidden}
+.fecho::before{content:"";position:absolute;inset:0;background:repeating-radial-gradient(circle at 50% 120%,transparent 0 18px,rgba(13,21,18,.22) 18px 24px)}
+.fecho>*{position:relative}
+.fecho h2{font-size:clamp(2.6rem,9vw,5rem);text-transform:uppercase;text-shadow:4px 4px 0 var(--noite)}
+.fecho p{max-width:42ch;font-size:1.1rem;font-weight:600}
+footer{padding-block:34px 44px;text-align:center;font-size:.9rem;opacity:.8}
+
+/* a pegada que fica onde a pessoa toca */
+.pegada{position:absolute;width:44px;height:44px;margin:-22px 0 0 -22px;pointer-events:none;z-index:20;animation:some 1.8s forwards}
+@keyframes some{0%{opacity:0;scale:.4}12%{opacity:.9;scale:1}70%{opacity:.7}100%{opacity:0;scale:1}}
+
+@media (prefers-reduced-motion:reduce){
+  *,*::before,*::after{animation:none!important;transition:none!important}
+  html{scroll-behavior:auto}
+}
+</style>
+<!--/CABECA-->
+</head>
+<body>
+<!--CORPO-->
+<div class="trilha" aria-hidden="true"><i id="andado"></i></div>
+
+<header class="abertura">
+  <div class="dentro">
+    <div class="cartaz moldura">
+      <img class="selo" src="logo.png" alt="Logo Leopardos das Montanhas, Trilhas e Cachoeiras" width="104" height="104">
+      <h1>A montanha <em>está chamando</em></h1>
+      <p class="chamada">Trilhas, cachoeiras e imersões na natureza, com guia e com os bichos por perto.</p>
+      <div class="acoes">
+        <a class="botao" href="#imersoes">Ver as imersões</a>
+        <a class="botao claro" data-contato="Oi! Vi o site e quero saber das próximas trilhas." href="https://ig.me/m/leopardosdasmontanhas" target="_blank" rel="noopener">Falar com o guia</a>
+      </div>
+
+      <div class="palco" aria-hidden="true">
+        <div class="sol"></div>
+        <svg class="onca" viewBox="0 0 400 360" stroke="#0d1512" stroke-width="6" stroke-linejoin="round" stroke-linecap="round">
+          <g class="orelha"><circle cx="92" cy="92" r="56" fill="#f08a2c"/><circle cx="92" cy="96" r="30" fill="#e25a7c"/></g>
+          <g class="orelha d"><circle cx="308" cy="92" r="56" fill="#f08a2c"/><circle cx="308" cy="96" r="30" fill="#e25a7c"/></g>
+          <path d="M200 44c96 0 164 62 164 152 0 60-30 108-64 164H100C66 304 36 256 36 196 36 106 104 44 200 44z" fill="#f4a63a"/>
+          <!-- as pintas -->
+          <g fill="#d8432e">
+            <ellipse cx="200" cy="78" rx="13" ry="18"/><ellipse cx="160" cy="92" rx="11" ry="15" transform="rotate(-18 160 92)"/><ellipse cx="240" cy="92" rx="11" ry="15" transform="rotate(18 240 92)"/>
+            <ellipse cx="200" cy="128" rx="9" ry="13"/><ellipse cx="78" cy="238" rx="13" ry="10" transform="rotate(40 78 238)"/><ellipse cx="322" cy="238" rx="13" ry="10" transform="rotate(-40 322 238)"/>
+            <ellipse cx="70" cy="186" rx="10" ry="13"/><ellipse cx="330" cy="186" rx="10" ry="13"/><ellipse cx="108" cy="296" rx="13" ry="10"/><ellipse cx="292" cy="296" rx="13" ry="10"/>
+            <ellipse cx="120" cy="124" rx="10" ry="8"/><ellipse cx="280" cy="124" rx="10" ry="8"/>
+          </g>
+          <!-- os olhos: sol em volta, íris que acompanha o dedo -->
+          <g class="olho">
+            <ellipse cx="130" cy="188" rx="46" ry="34" fill="#f8efd6"/>
+            <g class="iris"><circle cx="130" cy="188" r="22" fill="#2b7f93"/><circle cx="130" cy="188" r="10" fill="#0d1512" stroke="none"/><circle cx="136" cy="181" r="4.5" fill="#f8efd6" stroke="none"/></g>
+          </g>
+          <g class="olho">
+            <ellipse cx="270" cy="188" rx="46" ry="34" fill="#f8efd6"/>
+            <g class="iris"><circle cx="270" cy="188" r="22" fill="#2b7f93"/><circle cx="270" cy="188" r="10" fill="#0d1512" stroke="none"/><circle cx="276" cy="181" r="4.5" fill="#f8efd6" stroke="none"/></g>
+          </g>
+          <!-- focinho -->
+          <path d="M200 232c-34 0-70 22-70 62 0 34 30 52 70 52s70-18 70-52c0-40-36-62-70-62z" fill="#f8efd6"/>
+          <path d="M176 250h48l-24 28z" fill="#e25a7c"/>
+          <path d="M200 278v22M200 300c-10 14-30 14-40 2M200 300c10 14 30 14 40 2" fill="none"/>
+          <g fill="#0d1512" stroke="none"><circle cx="152" cy="282" r="4"/><circle cx="140" cy="298" r="4"/><circle cx="248" cy="282" r="4"/><circle cx="260" cy="298" r="4"/></g>
+          <path d="M200 150l10 22 22 4-18 14 6 22-20-12-20 12 6-22-18-14 22-4z" fill="#f4c64e" stroke-width="4"/>
+        </svg>
+      </div>
+    </div>
+  </div>
+  <div class="faixa" aria-hidden="true"><div id="faixa"></div></div>
+</header>
+
+<main>
+<section id="imersoes">
+  <div class="dentro">
+    <div class="cabeca">
+      <span class="rotulo">Próximas saídas</span>
+      <h2>Imersões</h2>
+      <p>Mais que uma caminhada: um tempo inteiro dentro da mata, no ritmo do grupo. Escolha a sua e chame o guia para reservar a vaga.</p>
+    </div>
+    <div class="imersoes" id="lista-imersoes"></div>
+    <div class="aviso moldura">
+      <div>
+        <h3>Nenhuma data serve?</h3>
+        <p>Peça para entrar na lista. Quando abrir uma imersão nova, você fica sabendo antes de todo mundo.</p>
+      </div>
+      <a class="botao fogo" data-contato="Oi! Quero entrar na lista para saber das próximas imersões." href="https://ig.me/m/leopardosdasmontanhas" target="_blank" rel="noopener">Quero ser avisado</a>
+    </div>
+  </div>
+</section>
+
+<section id="bichos">
+  <div class="dentro">
+    <div class="cabeca">
+      <span class="rotulo">Quem mora na serra</span>
+      <h2>Os donos da trilha</h2>
+      <p>A gente é visita. Toque em cada bicho para conhecer quem já estava aqui muito antes da gente.</p>
+    </div>
+    <div class="bichos">
+      <button class="bicho" aria-pressed="false" style="--cor:var(--amarelo)">
+        <span class="giro">
+          <span class="lado">
+            <svg viewBox="0 0 200 170" stroke="#0d1512" stroke-width="5" stroke-linejoin="round" stroke-linecap="round" aria-hidden="true">
+              <circle cx="52" cy="46" r="26" fill="#c98a4b"/><circle cx="148" cy="46" r="26" fill="#c98a4b"/>
+              <path d="M100 22c50 0 82 32 82 76 0 40-34 66-82 66s-82-26-82-66c0-44 32-76 82-76z" fill="#dba463"/>
+              <path d="M100 100c-22 0-40 14-40 34s18 28 40 28 40-8 40-28-18-34-40-34z" fill="#f8efd6"/>
+              <path d="M86 112h28l-14 16z" fill="#0d1512"/><path d="M100 128v12" fill="none"/>
+              <ellipse cx="66" cy="84" rx="12" ry="9" fill="#f4c64e"/><ellipse cx="134" cy="84" rx="12" ry="9" fill="#f4c64e"/>
+              <circle cx="66" cy="84" r="4" fill="#0d1512" stroke="none"/><circle cx="134" cy="84" r="4" fill="#0d1512" stroke="none"/>
+            </svg>
+            <h3>Onça-parda</h3><span class="toque">toque para virar</span>
+          </span>
+          <span class="lado verso"><h3>Onça-parda</h3><i>Puma concolor</i><p>Também chamada de suçuarana. Não ruge: mia, assobia e ronrona. Anda sozinha e quase sempre vê a gente sem ser vista.</p></span>
+        </span>
+      </button>
+
+      <button class="bicho" aria-pressed="false" style="--cor:var(--laranja)">
+        <span class="giro">
+          <span class="lado">
+            <svg viewBox="0 0 200 170" stroke="#0d1512" stroke-width="5" stroke-linejoin="round" stroke-linecap="round" aria-hidden="true">
+              <path d="M30 78L44 6l44 50z" fill="#d8432e"/><path d="M170 78L156 6l-44 50z" fill="#d8432e"/>
+              <path d="M40 46l6-36 22 26z" fill="#0d1512" stroke="none"/><path d="M160 46l-6-36-22 26z" fill="#0d1512" stroke="none"/>
+              <path d="M100 36c40 0 72 20 72 50 0 22-40 78-72 78S28 108 28 86c0-30 32-50 72-50z" fill="#e8622c"/>
+              <path d="M100 96c-16 0-26 16-26 34s12 34 26 34 26-16 26-34-10-34-26-34z" fill="#0d1512"/>
+              <path d="M74 132c10 24 42 24 52 0-4 22-14 32-26 32s-22-10-26-32z" fill="#f8efd6" stroke-width="3"/>
+              <ellipse cx="68" cy="82" rx="10" ry="8" fill="#f4c64e"/><ellipse cx="132" cy="82" rx="10" ry="8" fill="#f4c64e"/>
+              <circle cx="68" cy="82" r="3.5" fill="#0d1512" stroke="none"/><circle cx="132" cy="82" r="3.5" fill="#0d1512" stroke="none"/>
+            </svg>
+            <h3>Lobo-guará</h3><span class="toque">toque para virar</span>
+          </span>
+          <span class="lado verso"><h3>Lobo-guará</h3><i>Chrysocyon brachyurus</i><p>Pernas compridas para enxergar por cima do capim. Come muita fruta, e a preferida ganhou o nome dele: a lobeira.</p></span>
+        </span>
+      </button>
+
+      <button class="bicho" aria-pressed="false" style="--cor:var(--verde)">
+        <span class="giro">
+          <span class="lado">
+            <svg viewBox="0 0 200 170" stroke="#0d1512" stroke-width="5" stroke-linejoin="round" stroke-linecap="round" aria-hidden="true">
+              <path d="M52 164c-14-40-10-124 36-138 40-12 62 26 54 70-6 34-26 60-50 68z" fill="#0d1512"/>
+              <path d="M96 60c20 0 34 16 34 40s-18 42-36 42-22-22-22-44 8-38 24-38z" fill="#f8efd6"/>
+              <path d="M124 40c30-16 66-6 70 28 2 14-6 26-14 30-10-22-34-30-58-26z" fill="#f08a2c"/>
+              <path d="M180 98c8-4 14-12 14-22-6 4-14 6-20 4z" fill="#0d1512" stroke-width="3"/>
+              <circle cx="104" cy="52" r="15" fill="#f08a2c"/><circle cx="104" cy="52" r="8" fill="#2b7f93" stroke-width="3"/><circle cx="104" cy="52" r="3" fill="#0d1512" stroke="none"/>
+            </svg>
+            <h3>Tucano-toco</h3><span class="toque">toque para virar</span>
+          </span>
+          <span class="lado verso"><h3>Tucano-toco</h3><i>Ramphastos toco</i><p>O bico parece pesado, mas é oco e leve. Ele também serve de radiador: é por ali que o tucano perde calor nos dias quentes.</p></span>
+        </span>
+      </button>
+
+      <button class="bicho" aria-pressed="false" style="--cor:var(--rosa)">
+        <span class="giro">
+          <span class="lado">
+            <svg viewBox="0 0 200 170" stroke="#0d1512" stroke-width="5" stroke-linejoin="round" stroke-linecap="round" aria-hidden="true">
+              <path d="M100 14c46 0 74 30 74 76 0 44-30 74-74 74s-74-30-74-74c0-46 28-76 74-76z" fill="#a9713f"/>
+              <path d="M100 96c-18 0-36 14-36 40 0 18 16 28 36 28s36-10 36-28c0-26-18-40-36-40z" fill="#f8efd6"/>
+              <g fill="#f8efd6" stroke="none"><circle cx="76" cy="30" r="4"/><circle cx="100" cy="24" r="4"/><circle cx="124" cy="30" r="4"/><circle cx="88" cy="40" r="3"/><circle cx="112" cy="40" r="3"/></g>
+              <circle cx="68" cy="78" r="26" fill="#f8efd6"/><circle cx="132" cy="78" r="26" fill="#f8efd6"/>
+              <circle cx="68" cy="78" r="15" fill="#f4c64e"/><circle cx="132" cy="78" r="15" fill="#f4c64e"/>
+              <circle cx="68" cy="78" r="7" fill="#0d1512" stroke="none"/><circle cx="132" cy="78" r="7" fill="#0d1512" stroke="none"/>
+              <path d="M92 96h16l-8 18z" fill="#f08a2c"/>
+              <path d="M84 134h32M88 148h24" fill="none" stroke-width="3" stroke="#a9713f"/>
+            </svg>
+            <h3>Coruja-buraqueira</h3><span class="toque">toque para virar</span>
+          </span>
+          <span class="lado verso"><h3>Coruja-buraqueira</h3><i>Athene cunicularia</i><p>Mora em buraco no chão e fica de guarda na porta, em plena luz do dia. Gira a cabeça quase toda para trás para vigiar.</p></span>
+        </span>
+      </button>
+    </div>
+  </div>
+</section>
+
+<section id="como">
+  <div class="dentro">
+    <div class="cabeca">
+      <span class="rotulo">Do sofá até a cachoeira</span>
+      <h2>Como funciona</h2>
+    </div>
+    <ol class="passos">
+      <li><h3>Escolha a saída</h3><p>Veja as imersões abertas e qual combina com o seu fôlego.</p></li>
+      <li><h3>Chame o guia</h3><p>Um toque no botão e a conversa já abre. Tire as dúvidas e reserve a vaga.</p></li>
+      <li><h3>Arrume a mochila</h3><p>Você recebe o ponto de encontro e a lista do que levar.</p></li>
+      <li><h3>Pé na trilha</h3><p>Agora é andar, ouvir a mata e mergulhar na cachoeira.</p></li>
+    </ol>
+  </div>
+</section>
+
+<section id="contato">
+  <div class="dentro">
+    <div class="fecho moldura">
+      <h2>Bora pra trilha?</h2>
+      <p>Chame no Instagram, conte de onde você é e quando quer ir. A resposta vem do próprio guia.</p>
+      <a class="botao" data-contato="Oi! Vi o site e quero fazer uma trilha." href="https://ig.me/m/leopardosdasmontanhas" target="_blank" rel="noopener">Chamar agora</a>
+      <a class="rotulo" href="https://www.instagram.com/leopardosdasmontanhas" target="_blank" rel="noopener">@leopardosdasmontanhas no Instagram</a>
+    </div>
+  </div>
+</section>
+</main>
+
+<footer><div class="dentro">Leopardos das Montanhas · Trilhas e Cachoeiras. Leve só fotos, deixe só pegadas.</div></footer>
+
+<script>
+/* ============================================================
+   O QUE O GUIA MUDA FICA AQUI EM CIMA. Só isto.
+   ============================================================ */
+
+/* Com o número preenchido (55 + DDD + número, só algarismos), todos os
+   botões abrem o WhatsApp com a mensagem já escrita. Vazio, abrem a
+   conversa do Instagram. */
+var WHATSAPP = "";
+var INSTAGRAM = "leopardosdasmontanhas";
+
+/* As imersões. Uma por bloco; para tirar uma, apague o bloco inteiro.
+   "exemplo: true" põe o carimbo EXEMPLO no cartão — apague a linha
+   quando a imersão for de verdade. */
+var IMERSOES = [
+  { nome: "Lua Cheia", quando: "Data a definir", cor: "var(--petroleo)", exemplo: true,
+    texto: "Subida no fim da tarde, pôr do sol no alto e a volta com a lua iluminando o caminho.",
+    detalhes: ["Noturna", "Nível moderado", "Vagas limitadas"] },
+  { nome: "Rota das Cachoeiras", quando: "Data a definir", cor: "var(--laranja)", exemplo: true,
+    texto: "Um dia inteiro de poço em poço, com tempo de sobra para banho e para o lanche na pedra.",
+    detalhes: ["Dia inteiro", "Nível leve", "Banho de cachoeira"] },
+  { nome: "Rastros", quando: "Data a definir", cor: "var(--rosa)", exemplo: true,
+    texto: "Andar devagar e de olho no chão: pegadas, tocas, penas e os sinais de quem passou antes.",
+    detalhes: ["Manhã", "Observação de bichos", "Para todas as idades"] }
+];
+
+var BICHOS_DA_FAIXA = ["Onça-parda","Lobo-guará","Tucano","Coruja","Quati","Tamanduá","Seriema","Sagui","Gavião","Tatu"];
+
+/* ============================================================ */
+
+function escapar(t){ var d=document.createElement("div"); d.textContent=t; return d.innerHTML; }
+function linkDeContato(msg){
+  return WHATSAPP ? "https://wa.me/"+WHATSAPP+"?text="+encodeURIComponent(msg)
+                  : "https://ig.me/m/"+INSTAGRAM;
+}
+
+document.getElementById("lista-imersoes").innerHTML = IMERSOES.map(function(i){
+  return '<article class="bilhete" style="--cor:'+i.cor+'">'+
+    (i.exemplo?'<span class="carimbo">EXEMPLO</span>':'')+
+    '<div class="topo"><span class="quando">'+escapar(i.quando)+'</span><h3>'+escapar(i.nome)+'</h3></div>'+
+    '<div class="corpo"><p>'+escapar(i.texto)+'</p><ul>'+
+    i.detalhes.map(function(d){return '<li>'+escapar(d)+'</li>';}).join("")+
+    '</ul><a class="botao" target="_blank" rel="noopener" data-contato="Oi! Quero ir na imersão '+escapar(i.nome)+'.">Quero ir nessa</a></div></article>';
+}).join("");
+
+[].forEach.call(document.querySelectorAll("[data-contato]"), function(a){
+  a.href = linkDeContato(a.getAttribute("data-contato"));
+});
+
+/* a faixa: o texto vai duas vezes para emendar sem salto */
+var faixa = BICHOS_DA_FAIXA.map(function(b){return "<span>"+escapar(b)+"</span>";}).join("");
+document.getElementById("faixa").innerHTML = faixa + faixa;
+
+/* cartões dos bichos viram no toque */
+[].forEach.call(document.querySelectorAll(".bicho"), function(b){
+  b.addEventListener("click", function(){
+    b.setAttribute("aria-pressed", b.getAttribute("aria-pressed")==="true" ? "false" : "true");
+  });
+});
+
+var semMovimento = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+/* a trilha do topo */
+var andado = document.getElementById("andado");
+function medir(){
+  var total = document.documentElement.scrollHeight - innerHeight;
+  andado.style.width = (total>0 ? Math.min(100, scrollY/total*100) : 0) + "%";
+}
+addEventListener("scroll", medir, {passive:true}); addEventListener("resize", medir); medir();
+
+/* os olhos da onça seguem o dedo (ou o mouse). Sem ninguém mexendo há
+   dois segundos, ela olha em volta sozinha — no celular não há mouse. */
+var iris = [].slice.call(document.querySelectorAll(".onca .iris"));
+var ultimo = 0, alvo = null;
+function olhar(x, y){
+  iris.forEach(function(g){
+    var r = g.getBoundingClientRect();
+    var dx = x-(r.left+r.width/2), dy = y-(r.top+r.height/2);
+    var d = Math.hypot(dx,dy) || 1, k = Math.min(1, d/160);
+    g.setAttribute("transform", "translate("+(dx/d*18*k).toFixed(1)+" "+(dy/d*9*k).toFixed(1)+")");
+  });
+}
+addEventListener("pointermove", function(e){ ultimo = performance.now(); alvo = [e.clientX, e.clientY]; });
+addEventListener("pointerdown", function(e){ ultimo = performance.now(); alvo = [e.clientX, e.clientY]; });
+if (!semMovimento && iris.length) (function quadro(t){
+  if (alvo && t-ultimo < 2000) olhar(alvo[0], alvo[1]);
+  else iris.forEach(function(g){
+    g.setAttribute("transform","translate("+(Math.sin(t/900)*14).toFixed(1)+" "+(Math.sin(t/1400)*5).toFixed(1)+")");
+  });
+  requestAnimationFrame(quadro);
+})(0);
+
+/* cada toque fora de botão deixa uma pegada */
+var PEGADA = '<svg viewBox="0 0 44 44" fill="#f4c64e"><ellipse cx="22" cy="29" rx="10" ry="8"/><ellipse cx="9" cy="19" rx="4" ry="5.5"/><ellipse cx="17" cy="11" rx="4" ry="5.5"/><ellipse cx="27" cy="11" rx="4" ry="5.5"/><ellipse cx="35" cy="19" rx="4" ry="5.5"/></svg>';
+if (!semMovimento) addEventListener("pointerdown", function(e){
+  if (e.target.closest("a,button")) return;
+  var p = document.createElement("div");
+  p.className = "pegada"; p.innerHTML = PEGADA;
+  p.style.left = Math.min(e.pageX, document.documentElement.clientWidth-24)+"px";
+  p.style.top = e.pageY+"px";
+  p.style.rotate = (Math.random()*50-25)+"deg";
+  document.body.appendChild(p);
+  setTimeout(function(){ p.remove(); }, 1800);
+});
+</script>
+<!--/CORPO-->
+</body>
+</html>
