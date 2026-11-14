@@ -59,24 +59,40 @@ a{color:inherit}
 
 /* ---------- abertura ---------- */
 .abertura{padding-block:34px 0;position:relative}
-.cartaz{--c1:var(--laranja);--c2:var(--petroleo);background:var(--mata);position:relative;overflow:hidden;padding:44px 22px 0;text-align:center}
-.cartaz::before{content:"";position:absolute;inset:0;background:repeating-radial-gradient(ellipse at 50% 58%,transparent 0 16px,rgba(70,164,116,.28) 16px 22px);animation:onda 9s linear infinite}
-@keyframes onda{to{background-size:130% 130%;background-position:50% 60%}}
+.cartaz{--c1:var(--laranja);--c2:var(--petroleo);background:var(--mata);position:relative;overflow:hidden;padding:78px 22px 34px;text-align:center}
 .cartaz>*{position:relative}
 .selo{width:clamp(104px,16vw,150px);height:auto;aspect-ratio:1;border-radius:50%;border:var(--traco) solid var(--creme);box-shadow:0 0 0 var(--traco) var(--noite);display:block;margin:0 auto 14px}
 .abertura h1{font-size:clamp(3rem,11.5vw,7rem);color:var(--creme);text-shadow:4px 4px 0 var(--noite);text-transform:uppercase}
-.abertura h1 em{font-style:normal;font-family:var(--sombra);font-weight:400;color:var(--amarelo);display:block}
-.abertura .chamada{max-width:34ch;margin:16px auto 22px;font-size:1.15rem;font-weight:600}
+.abertura h1 em{font-style:normal;color:var(--amarelo);display:block}
+.abertura .chamada{max-width:34ch;margin:18px auto 22px;font-size:1.12rem;font-weight:600;background:var(--noite);border:2px solid var(--creme);border-radius:14px;padding:.6em .9em}
 .acoes{display:flex;flex-wrap:wrap;gap:14px;justify-content:center}
-.palco{position:relative;max-width:520px;margin:26px auto 0;aspect-ratio:1/0.86}
-.sol{position:absolute;left:50%;top:6%;width:92%;aspect-ratio:1;translate:-50% 0;border-radius:50%;background:repeating-conic-gradient(var(--laranja) 0 9deg,var(--vermelho) 9deg 18deg,var(--amarelo) 18deg 27deg,var(--rosa) 27deg 36deg);border:var(--traco) solid var(--noite);animation:gira 60s linear infinite}
+.palco{position:relative;max-width:520px;margin:26px auto 0;aspect-ratio:1/0.92}
+.sol{position:absolute;left:50%;top:2%;width:88%;aspect-ratio:1;translate:-50% 0;border-radius:50%;background:repeating-conic-gradient(var(--laranja) 0 9deg,var(--vermelho) 9deg 18deg,var(--amarelo) 18deg 27deg,var(--rosa) 27deg 36deg);border:var(--traco) solid var(--noite);animation:gira 60s linear infinite}
 @keyframes gira{to{rotate:360deg}}
-.onca{position:absolute;left:50%;bottom:-3%;width:82%;translate:-50% 0;overflow:visible}
+.onca{position:absolute;left:50%;bottom:4%;width:82%;translate:-50% 0;overflow:visible}
 .onca .olho{transform-box:fill-box;transform-origin:center;animation:pisca 5.5s infinite}
 @keyframes pisca{0%,94%,100%{transform:scaleY(1)}96.5%{transform:scaleY(.08)}}
 .onca .orelha{transform-box:fill-box;transform-origin:50% 90%;animation:mexe 7s infinite}
 .onca .orelha.d{animation-delay:.35s}
 @keyframes mexe{0%,86%,100%{rotate:0deg}90%{rotate:-9deg}94%{rotate:6deg}}
+
+
+/* --- o que veio dos cartazes de referência --- */
+/* listras onduladas, como pele de zebra e como curva de nível de mapa */
+.zebra{position:absolute!important;inset:0;width:100%;height:100%;pointer-events:none}
+/* estrelas de ponta nos quatro cantos da moldura */
+.canto{position:absolute!important;width:34px;aspect-ratio:1;background:var(--creme);clip-path:polygon(50.0% 0.0%,56.2% 26.8%,75.0% 6.7%,67.0% 33.0%,93.3% 25.0%,73.2% 43.8%,100.0% 50.0%,73.2% 56.2%,93.3% 75.0%,67.0% 67.0%,75.0% 93.3%,56.2% 73.2%,50.0% 100.0%,43.8% 73.2%,25.0% 93.3%,33.0% 67.0%,6.7% 75.0%,26.8% 56.2%,0.0% 50.0%,26.8% 43.8%,6.7% 25.0%,33.0% 33.0%,25.0% 6.7%,43.8% 26.8%);z-index:3;animation:gira 24s linear infinite}
+.canto.a{left:-4px;top:-4px}.canto.b{right:-4px;top:-4px}.canto.c{left:-4px;bottom:-4px}.canto.d{right:-4px;bottom:-4px}
+/* placas: o nome em cima, o ofício embaixo */
+.placa{position:absolute!important;left:50%;translate:-50% 0;z-index:3;white-space:nowrap;background:var(--laranja);color:var(--noite);border:var(--traco) solid var(--noite);font:900 clamp(.95rem,3.6vw,1.35rem)/1 var(--titulo);letter-spacing:.08em;text-transform:uppercase;padding:.55em 1em}
+.placa::before,.placa::after{content:"✹";color:var(--vermelho);padding-inline:.5em}
+.placa.cima{top:-2px;border-radius:0 0 16px 16px}
+.placa.baixo{bottom:-2px;border-radius:16px 16px 0 0;background:var(--amarelo)}
+.folhas{position:absolute;bottom:-2%;width:44%;overflow:visible}
+.folhas.e{left:-13%}.folhas.d{right:-13%;scale:-1 1}
+.folhas path{transform-box:fill-box;transform-origin:100% 100%;animation:balanca 6s ease-in-out infinite}
+.folhas path:nth-child(2n){animation-delay:-2s}.folhas path:nth-child(3n){animation-delay:-4s}
+@keyframes balanca{50%{rotate:5deg}}
 
 /* faixa que passa */
 .faixa{background:var(--amarelo);color:var(--noite);border-block:var(--traco) solid var(--noite);overflow:hidden;rotate:-1.2deg;margin:26px -12px 0;position:relative;z-index:2}
@@ -133,8 +149,7 @@ section{padding-block:70px 0}
 .passos h3{font-size:1.5rem;text-transform:uppercase}
 
 /* fecho */
-.fecho{--c1:var(--amarelo);--c2:var(--vermelho);background:var(--petroleo);text-align:center;padding:46px 22px;display:grid;gap:18px;justify-items:center;position:relative;overflow:hidden}
-.fecho::before{content:"";position:absolute;inset:0;background:repeating-radial-gradient(circle at 50% 120%,transparent 0 18px,rgba(13,21,18,.22) 18px 24px)}
+.fecho{--c1:var(--amarelo);--c2:var(--vermelho);background:var(--petroleo);text-align:center;padding:56px 22px;display:grid;gap:18px;justify-items:center;position:relative;overflow:hidden}
 .fecho>*{position:relative}
 .fecho h2{font-size:clamp(2.6rem,9vw,5rem);text-transform:uppercase;text-shadow:4px 4px 0 var(--noite)}
 .fecho p{max-width:42ch;font-size:1.1rem;font-weight:600}
@@ -153,11 +168,18 @@ footer{padding-block:34px 44px;text-align:center;font-size:.9rem;opacity:.8}
 </head>
 <body>
 <!--CORPO-->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs>
+  <filter id="zebra-clara" x="0" y="0" width="100%" height="100%"><feTurbulence type="fractalNoise" baseFrequency=".007 .011" numOctaves="2" seed="7"/><feColorMatrix values="0 0 0 0 .27  0 0 0 0 .64  0 0 0 0 .45  1 0 0 0 0"/><feComponentTransfer><feFuncA type="discrete" tableValues="0 .3 0 .3 0 .3 0 .3 0 .3 0 .3 0 .3 0 .3 0 .3 0 .3 0 .3 0 .3 0 .3 0 .3"/></feComponentTransfer></filter>
+  <filter id="zebra-escura" x="0" y="0" width="100%" height="100%"><feTurbulence type="fractalNoise" baseFrequency=".007 .011" numOctaves="2" seed="21"/><feColorMatrix values="0 0 0 0 .05  0 0 0 0 .08  0 0 0 0 .07  1 0 0 0 0"/><feComponentTransfer><feFuncA type="discrete" tableValues="0 .3 0 .3 0 .3 0 .3 0 .3 0 .3 0 .3 0 .3 0 .3 0 .3 0 .3 0 .3 0 .3 0 .3"/></feComponentTransfer></filter>
+</defs></svg>
 <div class="trilha" aria-hidden="true"><i id="andado"></i></div>
 
 <header class="abertura">
   <div class="dentro">
     <div class="cartaz moldura">
+      <svg class="zebra" aria-hidden="true"><rect width="100%" height="100%" filter="url(#zebra-clara)"/></svg><i class="canto a"></i><i class="canto b"></i><i class="canto c"></i><i class="canto d"></i>
+      <span class="placa cima" aria-hidden="true">Leopardos das Montanhas</span>
+      <span class="placa baixo" aria-hidden="true">Trilhas e Cachoeiras</span>
       <img class="selo" src="logo.png" alt="Logo Leopardos das Montanhas, Trilhas e Cachoeiras" width="104" height="104">
       <h1>A montanha <em>está chamando</em></h1>
       <p class="chamada">Trilhas, cachoeiras e imersões na natureza, com guia e com os bichos por perto.</p>
@@ -167,6 +189,18 @@ footer{padding-block:34px 44px;text-align:center;font-size:.9rem;opacity:.8}
       </div>
 
       <div class="palco" aria-hidden="true">
+        <svg class="folhas e" viewBox="0 0 200 200" stroke="#0d1512" stroke-width="5" stroke-linejoin="round">
+          <path d="M200 200C150 150 90 60 20 10c10 80 80 150 180 190z" fill="#2b7f93"/>
+          <path d="M200 200C140 170 60 130 0 110c30 60 110 90 200 90z" fill="#d8432e"/>
+          <path d="M200 200C170 140 150 70 110 0c-20 70 20 150 90 200z" fill="#e25a7c"/>
+          <path d="M200 200C150 190 80 190 10 190c50 20 130 20 190 10z" fill="#46a474"/>
+        </svg>
+        <svg class="folhas d" viewBox="0 0 200 200" stroke="#0d1512" stroke-width="5" stroke-linejoin="round">
+          <path d="M200 200C150 150 90 60 20 10c10 80 80 150 180 190z" fill="#2b7f93"/>
+          <path d="M200 200C140 170 60 130 0 110c30 60 110 90 200 90z" fill="#d8432e"/>
+          <path d="M200 200C170 140 150 70 110 0c-20 70 20 150 90 200z" fill="#e25a7c"/>
+          <path d="M200 200C150 190 80 190 10 190c50 20 130 20 190 10z" fill="#46a474"/>
+        </svg>
         <div class="sol"></div>
         <svg class="onca" viewBox="0 0 400 360" stroke="#0d1512" stroke-width="6" stroke-linejoin="round" stroke-linecap="round">
           <g class="orelha"><circle cx="92" cy="92" r="56" fill="#f08a2c"/><circle cx="92" cy="96" r="30" fill="#e25a7c"/></g>
@@ -319,6 +353,7 @@ footer{padding-block:34px 44px;text-align:center;font-size:.9rem;opacity:.8}
 <section id="contato">
   <div class="dentro">
     <div class="fecho moldura">
+      <svg class="zebra" aria-hidden="true"><rect width="100%" height="100%" filter="url(#zebra-escura)"/></svg><i class="canto a"></i><i class="canto b"></i><i class="canto c"></i><i class="canto d"></i>
       <h2>Bora pra trilha?</h2>
       <p>Chame no Instagram, conte de onde você é e quando quer ir. A resposta vem do próprio guia.</p>
       <a class="botao" data-contato="Oi! Vi o site e quero fazer uma trilha." href="https://ig.me/m/leopardosdasmontanhas" target="_blank" rel="noopener">Chamar agora</a>
