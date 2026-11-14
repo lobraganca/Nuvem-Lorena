@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Lorena Bragança · Ferramentas sob medida</title>
 <meta name="description" content="Apps de gestão, agendamentos, dashboards, sites e mapeamento de processos feitos do jeito que a sua empresa funciona. Faça o diagnóstico gratuito.">
-<meta name="theme-color" content="#0F1115">
+<meta name="theme-color" content="#FAFAF6">
 <link rel="canonical" href="https://www.lorenabraganca.com.br/">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
 <link rel="icon" href="favicon-32.png" type="image/png" sizes="32x32">
@@ -27,26 +27,32 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@500;600;700;800&family=Figtree:wght@400;500;600&display=swap">
+<script>document.documentElement.classList.add("js");</script>
 <style>
 /* layout: o post dela virou página — faixa de título, a lista de serviços ao lado da foto,
    e o diagnóstico como um cartão que troca de pergunta no lugar; tudo empilha no celular */
 /* As cores saíram da arte que ela mandou (31/10), medidas no pixel. */
 :root {
-  --fundo: #0F1115;
-  --cartao: #181B21;
-  --cartao-forte: #1E222A;
-  --borda: #262A32;
-  --texto: #F3F4F0;
-  --suave: #A3A7B1;
-  --apagado: #6E7380;
+  /* 14/11: ela achou a página escura demais. Mesmo briefing (grafite + verde-limão),
+     agora em fundo claro; o grafite ficou para a vitrine animada e a faixa que rola. */
+  --fundo: #FAFAF6;
+  --cartao: #FFFFFF;
+  --cartao-forte: #F2F4EC;
+  --borda: #E3E5DC;
+  --texto: #121418;
+  --suave: #4E535C;
+  --apagado: #80858E;
   --limao: #C8F26B;
-  --sobre-limao: #0F1115;
+  /* verde-limão puro some em fundo claro: texto e ícone de destaque usam este verde fechado */
+  --verde: #4A6A0B;
+  --sobre-limao: #121418;
+  --grafite: #0F1115;
 
   --f-titulo: "Plus Jakarta Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
   --f-texto: "Figtree", system-ui, -apple-system, "Segoe UI", sans-serif;
   --raio: 18px;
   --largura: 1080px;
-  color-scheme: dark;
+  color-scheme: light;
 }
 
 * { box-sizing: border-box; }
@@ -72,7 +78,7 @@ body::before {
 h1, h2, h3 { font-family: var(--f-titulo); margin: 0; letter-spacing: -.03em; line-height: 1.05; text-wrap: balance; }
 p { margin: 0; }
 a { color: inherit; }
-:focus-visible { outline: 3px solid var(--limao); outline-offset: 3px; border-radius: 8px; }
+:focus-visible { outline: 3px solid var(--verde); outline-offset: 3px; border-radius: 8px; }
 
 /* o "negócio." da arte: a palavra dentro de um bloco de limão */
 /* o bloco limão fica ATRÁS do texto: sem isto ele cobre a perna do "p" e a cedilha
@@ -85,7 +91,8 @@ h1, h2 { position: relative; z-index: 0; }
   font: 700 13px/1 var(--f-titulo); letter-spacing: .16em; text-transform: uppercase; color: var(--texto);
   border: 1.5px solid var(--borda); border-radius: 999px; padding: 11px 18px;
 }
-.selo::before { content: ""; width: 8px; height: 8px; border-radius: 50%; background: var(--limao); }
+.selo::before { content: ""; width: 8px; height: 8px; border-radius: 50%; background: var(--verde); animation: pisca 2s ease-in-out infinite; }
+@keyframes pisca { 50% { opacity: .3; } }
 
 .botao {
   display: inline-flex; align-items: center; justify-content: center; gap: .6em;
@@ -103,74 +110,196 @@ h1, h2 { position: relative; z-index: 0; }
 .botao[aria-disabled="true"] { filter: grayscale(1) brightness(.6); cursor: not-allowed; }
 .botao[aria-disabled="true"]:hover { transform: none; box-shadow: none; }
 
-.icone { width: 26px; height: 26px; flex: none; color: var(--limao); }
+.icone { width: 26px; height: 26px; flex: none; color: var(--verde); }
 
 /* topo */
 .topo { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 10; background: color-mix(in srgb, var(--fundo) 88%, transparent); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); border-bottom: 1px solid var(--borda); }
 .topo .miolo { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding-block: 14px; }
 .nome { font: 800 18px/1 var(--f-titulo); letter-spacing: -.02em; text-decoration: none; }
-.nome span { color: var(--limao); }
+.nome span { color: var(--verde); }
 .nav-topo { display: flex; align-items: center; gap: 20px; }
 .link-topo { font: 600 15px/1 var(--f-titulo); color: var(--suave); text-decoration: none; }
 .link-topo:hover { color: var(--texto); }
 /* no celular não cabe ao lado do botão: o portfólio fica na seção de serviços e no rodapé */
 @media (max-width: 480px) { .link-topo { display: none; } }
-.ver-mais { justify-self: start; display: inline-flex; align-items: center; gap: 8px; font: 700 16px/1 var(--f-titulo); color: var(--limao); text-decoration: none; }
+.ver-mais { justify-self: start; display: inline-flex; align-items: center; gap: 8px; font: 700 16px/1 var(--f-titulo); color: var(--verde); text-decoration: none; }
 .ver-mais svg { width: 18px; height: 18px; }
 .ver-mais:hover { text-decoration: underline; text-underline-offset: 4px; }
 
-/* abertura: o post */
+/* abertura: o título à esquerda e, à direita, uma tela que mostra em animação o que ela
+   constrói (14/11: "quero que mostre em animação o que eu faço"). Cinco cenas, uma por vez,
+   trocadas sozinhas a cada 5 s ou pelas abas de baixo. No celular a tela vem depois do título. */
 .abertura { overflow: hidden; }
-.abertura .arco { position: absolute; width: 560px; height: 560px; border: 1.5px solid var(--borda); border-radius: 50%; right: -230px; top: -250px; pointer-events: none; }
-.abertura .arco.dois { width: 340px; height: 340px; right: -150px; top: -60px; opacity: .6; }
-.abertura .miolo { padding-block: 56px 72px; display: grid; gap: 28px; }
-.abertura h1 { font-size: clamp(44px, 8.4vw, 92px); font-weight: 800; max-width: 11.5em; }
-.abertura .sub { font-size: clamp(18px, 2.2vw, 21px); color: var(--suave); max-width: 34em; }
-.vitrine { display: grid; grid-template-columns: minmax(0, 1.7fr) minmax(0, 1fr); gap: 18px; margin-top: 12px; }
-.servicos { display: grid; gap: 14px; margin: 0; padding: 0; list-style: none; }
-.servicos li {
-  display: flex; align-items: center; gap: 18px;
-  background: var(--cartao); border: 1.5px solid var(--borda); border-radius: var(--raio);
-  padding: 22px 26px; font: 700 clamp(17px, 2.1vw, 21px)/1.25 var(--f-titulo); letter-spacing: -.01em;
-}
-.retrato { position: relative; margin: 0; border-radius: var(--raio); overflow: hidden; border: 1.5px solid var(--borda); background: var(--cartao); min-height: 100%; }
-.retrato img { display: block; width: 100%; height: 100%; object-fit: cover; object-position: 50% 30%; aspect-ratio: 402 / 467; }
-.retrato figcaption { position: absolute; left: 14px; bottom: 14px; background: var(--fundo); color: var(--texto); font: 700 15px/1 var(--f-titulo); padding: 10px 16px; border-radius: 999px; }
-.acoes { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 16px 24px; margin-top: 18px; }
-.acoes .lado { display: flex; flex-wrap: wrap; align-items: center; gap: 12px 20px; }
+.brilho { position: absolute; width: 760px; height: 760px; right: -220px; top: -300px; border-radius: 50%; pointer-events: none;
+  background: radial-gradient(closest-side, rgba(200, 242, 107, .55), rgba(200, 242, 107, 0)); animation: flutua 14s ease-in-out infinite alternate; }
+.brilho.dois { width: 520px; height: 520px; left: -260px; right: auto; top: 55%; opacity: .55; animation-duration: 18s; animation-direction: alternate-reverse; }
+@keyframes flutua { to { transform: translate(-90px, 70px) scale(1.12); } }
+.abertura .miolo { padding-block: 48px 40px; display: grid; gap: 30px; }
+.abertura-grade { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.05fr); gap: 44px; align-items: center; }
+.abertura-texto { display: grid; gap: 24px; justify-items: start; }
+.abertura-texto > * { animation: sobe .8s cubic-bezier(.2, .7, .2, 1) both; animation-delay: calc(var(--i, 0) * 110ms); }
+@keyframes sobe { from { opacity: 0; transform: translateY(22px); } }
+.abertura h1 { font-size: clamp(42px, 6.2vw, 76px); font-weight: 800; }
+.abertura .sub { font-size: clamp(18px, 2.2vw, 21px); color: var(--suave); max-width: 32em; }
+.acoes { display: flex; flex-wrap: wrap; align-items: center; gap: 12px 20px; }
 .acoes small { color: var(--suave); font-size: 14px; }
 .arroba { font: 500 18px/1 var(--f-texto); color: var(--suave); text-decoration: none; }
 .arroba:hover { color: var(--texto); }
-@media (max-width: 760px) {
-  .abertura .miolo { padding-block: 36px 56px; gap: 22px; }
-  .vitrine { grid-template-columns: 1fr; }
-  .retrato { order: -1; }
-  .retrato img { aspect-ratio: 4 / 3; object-position: 50% 25%; }
-  .servicos li { padding: 18px 20px; }
-  .abertura .arco { width: 380px; height: 380px; right: -200px; top: -170px; }
-  .abertura .arco.dois { display: none; }
+
+/* a tela animada: grafite, como a arte dela, com as medidas em em para encolher junto */
+.demo { container-type: inline-size; animation: sobe .9s .25s cubic-bezier(.2, .7, .2, 1) both; }
+.tela-demo { position: relative; background: var(--grafite); color: #F3F4F0; border-radius: 22px; aspect-ratio: 10 / 8.4;
+  font: 400 clamp(9px, 3.1cqw, 15px)/1.35 var(--f-texto); overflow: hidden;
+  box-shadow: 0 50px 90px -50px rgba(18, 20, 24, .7), 0 0 0 1px rgba(18, 20, 24, .06); transform: rotate(-1.2deg); }
+.demo-barra { display: flex; align-items: center; gap: .45em; padding: 1em 1.2em .2em; }
+.demo-barra i { width: .65em; height: .65em; border-radius: 50%; background: #2E333C; }
+.demo-barra i:first-child { background: var(--limao); }
+.demo-barra span { margin-left: .6em; font: 700 .85em/1 var(--f-titulo); color: #A3A7B1; letter-spacing: .04em; }
+.cena { position: absolute; inset: 3.3em 1.3em 1.3em; opacity: 0; visibility: hidden; transition: opacity .45s ease, visibility .45s; }
+.cena.ativa { opacity: 1; visibility: visible; }
+.c-tit { display: flex; justify-content: space-between; align-items: baseline; gap: 1em; font: 800 1.35em/1.1 var(--f-titulo); letter-spacing: -.02em; margin-bottom: .8em; }
+.c-tit small { font: 600 .6em/1 var(--f-texto); color: #A3A7B1; letter-spacing: 0; }
+.ativa .anima { animation: var(--a, entra-lado) .55s cubic-bezier(.2, .7, .2, 1) both; animation-delay: calc(var(--i, 0) * .32s + .25s); }
+@keyframes entra-lado { from { opacity: 0; transform: translateX(1.6em); } }
+@keyframes estoura { 0% { opacity: 0; transform: scale(.5); } 70% { transform: scale(1.06); } }
+@keyframes cresce { from { transform: scaleY(0); } }
+@keyframes revela { from { clip-path: inset(0 100% 0 0); } }
+@keyframes desenha { from { stroke-dashoffset: 1; } }
+@keyframes sobe-curto { from { opacity: 0; transform: translateY(1.2em); } }
+
+/* cena 1: app de gestão — os pedidos chegando */
+.pedido { display: grid; grid-template-columns: 2.3em minmax(0, 1fr) auto auto; gap: .8em; align-items: center; padding: .65em .8em; border-radius: .8em; background: #181B21; margin-bottom: .5em; }
+.av { width: 2.3em; height: 2.3em; border-radius: 50%; background: #262A32; display: grid; place-items: center; font: 800 .85em/1 var(--f-titulo); color: #C8F26B; }
+.pedido b { font: 700 1em/1.2 var(--f-titulo); }
+.pedido small { display: block; color: #A3A7B1; font-size: .78em; }
+.pedido .preco { font: 700 .95em/1 var(--f-titulo); font-variant-numeric: tabular-nums; }
+.pill { font: 700 .72em/1 var(--f-titulo); padding: .5em .75em; border-radius: 99px; background: #262A32; color: #A3A7B1; white-space: nowrap; }
+.pill.ok { background: rgba(200, 242, 107, .16); color: #C8F26B; }
+.troca { display: grid; justify-items: end; }
+.troca > * { grid-area: 1 / 1; }
+.troca .antes { opacity: 0; }
+.ativa .troca .antes { animation: some 2.9s both; }
+.ativa .troca .depois { animation: estoura .4s 2.6s both; }
+@keyframes some { 0%, 90% { opacity: 1; } 100% { opacity: 0; } }
+
+.total-demo { display: flex; justify-content: space-between; align-items: baseline; margin-top: .9em; padding-top: .8em; border-top: 1px solid #2E333C; color: #A3A7B1; font-size: .85em; }
+.total-demo b { color: #C8F26B; font: 800 1.7em/1 var(--f-titulo); font-variant-numeric: tabular-nums; }
+
+/* cena 2: painel de indicadores — os números contando e as barras subindo */
+.kpis-demo { display: grid; grid-template-columns: 1.3fr 1fr; gap: .6em; margin-bottom: .9em; }
+.kpis-demo div { background: #181B21; border-radius: .8em; padding: .75em .9em; }
+.kpis-demo small { display: block; color: #A3A7B1; font-size: .78em; }
+.kpis-demo b { display: block; font: 800 1.55em/1.15 var(--f-titulo); font-variant-numeric: tabular-nums; letter-spacing: -.02em; }
+.kpis-demo .sobe { color: #C8F26B; font: 700 .75em/1 var(--f-titulo); }
+.barras-demo { display: flex; align-items: flex-end; gap: .55em; height: 9.2em; padding: 0 .2em; border-bottom: 1px solid #2E333C; }
+.barras-demo i { flex: 1; height: var(--h); border-radius: .35em .35em .1em .1em; background: #3A4150; transform-origin: bottom; }
+.barras-demo i:last-child { background: var(--limao); }
+.ativa .barras-demo i { animation: cresce .8s cubic-bezier(.2, .7, .2, 1) both; animation-delay: calc(var(--i) * .09s + .3s); }
+.meses-demo { display: flex; gap: .55em; padding: .4em .2em 0; color: #80858E; font-size: .7em; }
+.meses-demo span { flex: 1; text-align: center; }
+
+/* cena 3: site — a página se montando dentro do navegador */
+.navegador-demo { background: #fff; color: #121418; border-radius: .8em; overflow: hidden; height: 100%; display: flex; flex-direction: column; }
+.url-demo { display: flex; align-items: center; gap: .5em; padding: .55em .8em; background: #ECEEE7; font-size: .72em; color: #4E535C; }
+.url-demo b { flex: 1; background: #fff; border-radius: 99px; padding: .35em .9em; font-weight: 600; text-align: center; }
+.site-demo { padding: 1em 1.1em; display: grid; gap: .8em; align-content: start; }
+.site-topo-demo { display: flex; justify-content: space-between; align-items: center; font: 800 .9em/1 var(--f-titulo); }
+.site-topo-demo i { font-style: normal; }
+.site-topo-demo span { display: flex; gap: .9em; font: 600 .75em/1 var(--f-texto); color: #4E535C; }
+.site-h { font: 800 1.6em/1.05 var(--f-titulo); letter-spacing: -.03em; }
+.site-h em { font-style: normal; background: var(--limao); padding: 0 .12em; border-radius: .12em; }
+.ativa .site-h { animation: revela 1.1s .3s steps(28, end) both; }
+.site-p { color: #4E535C; font-size: .8em; }
+.site-bt { justify-self: start; background: #121418; color: #fff; border-radius: 99px; padding: .6em 1.1em; font: 700 .8em/1 var(--f-titulo); }
+.site-cards { display: grid; grid-template-columns: repeat(3, 1fr); gap: .5em; }
+.site-cards span { aspect-ratio: 4 / 3; border-radius: .5em; background: linear-gradient(135deg, #E9F7C8, #F2F4EC); }
+.site-cards span:nth-child(2) { background: linear-gradient(135deg, #DCE9F7, #F2F4EC); }
+.site-cards span:nth-child(3) { background: linear-gradient(135deg, #F7E3D3, #F2F4EC); }
+
+/* cena 4: mapeamento de processos — o fluxo se desenhando */
+.fluxo-demo { width: 100%; height: auto; display: block; overflow: visible; }
+.fluxo-demo .no rect { fill: #181B21; stroke: #2E333C; stroke-width: 1.5; }
+.fluxo-demo .no.fim rect { fill: rgba(200, 242, 107, .16); stroke: #C8F26B; }
+.fluxo-demo text { fill: #F3F4F0; font: 700 13px var(--f-titulo); }
+.fluxo-demo text.dono { fill: #A3A7B1; font: 500 10.5px var(--f-texto); }
+.fluxo-demo path { fill: none; stroke: #C8F26B; stroke-width: 2; stroke-linecap: round; stroke-dasharray: 1; stroke-dashoffset: 0; }
+.ativa .fluxo-demo .no { animation: estoura .45s both; animation-delay: calc(var(--i) * .55s + .2s); transform-box: fill-box; transform-origin: center; }
+.ativa .fluxo-demo path { animation: desenha .45s ease-out both; animation-delay: calc(var(--i) * .55s + .5s); }
+.legenda-demo { color: #A3A7B1; font-size: .78em; margin-top: .6em; }
+.ativa .legenda-demo { animation: sobe-curto .5s 2.4s both; }
+
+/* cena 5: agendamentos — a semana se enchendo de horários marcados */
+.agenda-demo { display: grid; grid-template-columns: 2.4em repeat(5, minmax(0, 1fr)); gap: .3em; font-size: .78em; }
+.agenda-demo .dia { text-align: center; color: #A3A7B1; font-weight: 700; padding-bottom: .2em; }
+.agenda-demo .hora { color: #80858E; align-self: center; }
+.agenda-demo .vaga { height: 2.5em; border-radius: .45em; background: #181B21; }
+.agenda-demo .marcado { height: 2.5em; border-radius: .45em; background: #2A3020; color: #C8F26B; font: 700 .9em/1.1 var(--f-titulo); padding: .35em .45em; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
+.agenda-demo .marcado.novo-demo { background: var(--limao); color: #121418; }
+.aviso-demo { position: absolute; left: 0; right: 0; bottom: 0; display: flex; align-items: center; gap: .6em; background: #F3F4F0; color: #121418; border-radius: .8em; padding: .7em .9em; font: 700 .85em/1.2 var(--f-titulo); box-shadow: 0 1em 2em -1em rgba(0, 0, 0, .6); }
+.aviso-demo i { width: 1.5em; height: 1.5em; flex: none; border-radius: 50%; background: var(--limao); display: grid; place-items: center; font-style: normal; }
+.ativa .aviso-demo { animation: sobe-curto .5s 2.7s cubic-bezier(.2, .7, .2, 1) both; }
+
+/* as abas: o nome de cada coisa que ela faz, com a barrinha do tempo da cena */
+.servicos { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 10px; margin: 0; padding: 0; list-style: none; }
+.servicos button { position: relative; width: 100%; height: 100%; display: flex; align-items: center; gap: 12px; text-align: left; cursor: pointer;
+  background: var(--cartao); color: var(--texto); border: 1.5px solid var(--borda); border-radius: var(--raio); overflow: hidden;
+  padding: 16px 16px 18px; font: 700 15px/1.25 var(--f-titulo); letter-spacing: -.01em; transition: border-color .2s, transform .2s, background .2s; }
+.servicos button:hover { transform: translateY(-2px); }
+.servicos button[aria-selected="true"] { border-color: #A8D64B; background: color-mix(in srgb, var(--limao) 16%, var(--cartao)); }
+.servicos .icone { width: 24px; height: 24px; }
+.tempo { position: absolute; left: 0; bottom: 0; height: 3px; width: 100%; background: var(--verde); transform-origin: left; transform: scaleX(0); }
+.servicos [aria-selected="true"] .tempo { animation: enche 5.2s linear both; }
+.parado .servicos .tempo { animation-play-state: paused; }
+@keyframes enche { to { transform: scaleX(1); } }
+@media (max-width: 860px) {
+  .abertura .miolo { padding-block: 32px 36px; gap: 26px; }
+  .abertura-grade { grid-template-columns: 1fr; gap: 30px; }
+  .tela-demo { transform: none; }
   .acoes .botao { width: 100%; }
+  .brilho { width: 520px; height: 520px; right: -260px; top: -200px; }
+  /* no celular as abas passam de lado */
+  .servicos { display: flex; overflow-x: auto; scroll-snap-type: x mandatory; margin-inline: -20px; padding: 2px 20px 6px; scrollbar-width: none; }
+  .servicos::-webkit-scrollbar { display: none; }
+  .servicos li { flex: none; scroll-snap-align: start; }
+  .servicos button { white-space: nowrap; }
 }
+
+/* a faixa grafite que rola: o que ela faz, sem parar */
+.rolante { overflow: hidden; background: var(--grafite); color: #F3F4F0; padding-block: 16px; }
+.rolo { display: flex; width: max-content; animation: rola 34s linear infinite; }
+.rolo span { display: flex; align-items: center; gap: 28px; padding-right: 28px; font: 800 clamp(18px, 2.4vw, 26px)/1 var(--f-titulo); letter-spacing: -.02em; white-space: nowrap; }
+.rolo span::after { content: "✦"; color: var(--limao); font-size: .8em; }
+@keyframes rola { to { transform: translateX(-50%); } }
+
+/* aparece ao rolar: só some se o JavaScript estiver lá para trazer de volta */
+.js .revela { opacity: 0; transform: translateY(22px); transition: opacity .7s ease, transform .7s cubic-bezier(.2, .7, .2, 1); transition-delay: calc(var(--i, 0) * 90ms); }
+.js .revela.visivel { opacity: 1; transform: none; }
+
+/* a foto agora fica na seção "Oi, eu sou a Lorena" */
+.retrato { position: relative; margin: 0; border-radius: var(--raio); overflow: hidden; border: 1.5px solid var(--borda); background: var(--cartao); }
+.retrato img { display: block; width: 100%; height: auto; object-fit: cover; object-position: 50% 30%; aspect-ratio: 4 / 5; }
+.retrato figcaption { position: absolute; left: 14px; bottom: 14px; background: var(--fundo); color: var(--texto); font: 700 15px/1 var(--f-titulo); padding: 10px 16px; border-radius: 999px; }
 
 /* seções */
 .secao .miolo { padding-block: 80px; display: grid; gap: 36px; border-top: 1px solid var(--borda); }
 .cabeca { display: grid; gap: 14px; max-width: 680px; }
 .cabeca h2 { font-size: clamp(32px, 5vw, 52px); font-weight: 800; }
 .cabeca p { color: var(--suave); font-size: 18px; }
-.rotulo { font: 700 13px/1 var(--f-titulo); letter-spacing: .16em; text-transform: uppercase; color: var(--limao); }
+.rotulo { font: 700 13px/1 var(--f-titulo); letter-spacing: .16em; text-transform: uppercase; color: var(--verde); }
 
 /* sinais */
 .sinais { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; margin: 0; padding: 0; list-style: none; }
 .sinais li { display: flex; gap: 14px; align-items: flex-start; background: var(--cartao); border: 1.5px solid var(--borda); border-radius: var(--raio); padding: 22px; color: var(--texto); }
-.sinais li::before { content: ""; flex: none; width: 10px; height: 10px; margin-top: .55em; border-radius: 50%; background: var(--limao); }
+.sinais li::before { content: ""; flex: none; width: 10px; height: 10px; margin-top: .55em; border-radius: 50%; background: var(--verde); }
 .fecho { font: 700 clamp(20px, 2.6vw, 26px)/1.3 var(--f-titulo); letter-spacing: -.01em; }
-.fecho span { color: var(--limao); }
+.fecho span { background: linear-gradient(transparent 58%, var(--limao) 58%, var(--limao) 92%, transparent 92%); -webkit-box-decoration-break: clone; box-decoration-break: clone; padding: 0 .08em; }
 @media (max-width: 720px) { .sinais { grid-template-columns: 1fr; } }
 
 /* o que eu construo */
 .cartoes { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; }
 .cartoes article { background: var(--cartao); border: 1.5px solid var(--borda); border-radius: var(--raio); padding: 28px; display: grid; gap: 12px; align-content: start; transition: border-color .2s; }
-.cartoes article:hover { border-color: color-mix(in srgb, var(--limao) 45%, var(--borda)); }
+.cartoes article { transition: border-color .2s, transform .25s ease, box-shadow .25s ease; }
+.cartoes article:hover { border-color: #A8D64B; transform: translateY(-4px); box-shadow: 0 22px 40px -28px rgba(18, 20, 24, .35); }
 .cartoes .icone { width: 34px; height: 34px; }
 .cartoes .largo { grid-column: 1 / -1; grid-template-columns: auto minmax(0, 1fr); column-gap: 18px; align-items: start; }
 .cartoes .largo > * { grid-column: 2; }
@@ -183,8 +312,8 @@ h1, h2 { position: relative; z-index: 0; }
 /* como funciona: é uma sequência de verdade, por isso os números */
 .passos { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px; margin: 0; padding: 0; list-style: none; counter-reset: passo; }
 .passos li { counter-increment: passo; border-top: 2px solid var(--borda); padding-top: 20px; display: grid; gap: 10px; align-content: start; }
-.passos li:first-child { border-top-color: var(--limao); }
-.passos li::before { content: counter(passo, decimal-leading-zero); font: 800 15px/1 var(--f-titulo); color: var(--limao); letter-spacing: .08em; }
+.passos li:first-child { border-top-color: #A8D64B; }
+.passos li::before { content: counter(passo, decimal-leading-zero); font: 800 15px/1 var(--f-titulo); color: var(--verde); letter-spacing: .08em; }
 .passos h3 { font-size: 22px; font-weight: 800; }
 .passos p { color: var(--suave); font-size: 16px; }
 @media (max-width: 760px) { .passos { grid-template-columns: 1fr; gap: 26px; } }
@@ -194,10 +323,10 @@ h1, h2 { position: relative; z-index: 0; }
 .diagnostico .cabeca { position: sticky; top: 100px; }
 .diagnostico .cabeca ul { margin: 8px 0 0; padding: 0; list-style: none; display: grid; gap: 10px; color: var(--suave); font-size: 16px; }
 .diagnostico .cabeca li { display: flex; gap: 10px; align-items: center; }
-.diagnostico .cabeca li svg { width: 18px; height: 18px; color: var(--limao); flex: none; }
+.diagnostico .cabeca li svg { width: 18px; height: 18px; color: var(--verde); flex: none; }
 @media (max-width: 860px) { .diagnostico .miolo { grid-template-columns: 1fr; gap: 28px; } .diagnostico .cabeca { position: static; } }
 
-.quiz { background: var(--cartao); border: 1.5px solid var(--borda); border-radius: 24px; padding: 30px; display: grid; gap: 22px; min-width: 0; box-shadow: 0 30px 80px -40px rgba(0, 0, 0, .8); }
+.quiz { background: var(--cartao); border: 1.5px solid var(--borda); border-radius: 24px; padding: 30px; display: grid; gap: 22px; min-width: 0; box-shadow: 0 30px 70px -40px rgba(18, 20, 24, .35); }
 .progresso { display: grid; gap: 10px; }
 .progresso .linha { display: flex; justify-content: space-between; font: 600 14px/1 var(--f-titulo); color: var(--suave); font-variant-numeric: tabular-nums; }
 .barra { height: 6px; background: var(--borda); border-radius: 999px; overflow: hidden; }
@@ -214,8 +343,8 @@ h1, h2 { position: relative; z-index: 0; }
 }
 .opcao::before { content: ""; flex: none; width: 20px; height: 20px; border-radius: 50%; border: 2px solid var(--apagado); transition: border-color .15s, box-shadow .15s; }
 .opcao:hover { border-color: var(--suave); }
-.opcao[aria-pressed="true"] { border-color: var(--limao); background: color-mix(in srgb, var(--limao) 9%, var(--cartao-forte)); }
-.opcao[aria-pressed="true"]::before { border-color: var(--limao); box-shadow: inset 0 0 0 4px var(--cartao-forte), inset 0 0 0 10px var(--limao); }
+.opcao[aria-pressed="true"] { border-color: #A8D64B; background: color-mix(in srgb, var(--limao) 22%, var(--cartao)); }
+.opcao[aria-pressed="true"]::before { border-color: var(--verde); box-shadow: inset 0 0 0 4px var(--cartao), inset 0 0 0 10px var(--verde); }
 .navegacao { display: flex; justify-content: space-between; align-items: center; min-height: 24px; }
 .voltar { background: none; border: 0; color: var(--suave); font: 600 15px/1 var(--f-titulo); cursor: pointer; padding: 6px 0; }
 .voltar:hover { color: var(--texto); }
@@ -228,17 +357,17 @@ h1, h2 { position: relative; z-index: 0; }
 .medidor .valor { font: 800 44px/1 var(--f-titulo); fill: var(--texto); }
 .medidor .de { font: 600 13px/1 var(--f-texto); fill: var(--suave); }
 .nivel { display: grid; gap: 6px; }
-.nivel span { font: 700 13px/1 var(--f-titulo); letter-spacing: .14em; text-transform: uppercase; color: var(--limao); }
+.nivel span { font: 700 13px/1 var(--f-titulo); letter-spacing: .14em; text-transform: uppercase; color: var(--verde); }
 .nivel h3 { font-size: clamp(24px, 3.2vw, 30px); font-weight: 800; }
 .nivel p { color: var(--suave); font-size: 16px; }
 .achados { margin: 0; padding: 0; list-style: none; display: grid; gap: 10px; }
 .achados li { display: flex; gap: 12px; align-items: flex-start; font-size: 16px; }
-.achados li svg { width: 20px; height: 20px; flex: none; margin-top: 2px; color: var(--limao); }
+.achados li svg { width: 20px; height: 20px; flex: none; margin-top: 2px; color: var(--verde); }
 .sugestao { display: grid; gap: 10px; }
 .sugestao > span { font: 600 14px/1 var(--f-titulo); color: var(--suave); }
 .chips { display: flex; flex-wrap: wrap; gap: 8px; }
 .chips span { display: inline-flex; align-items: center; gap: 8px; background: var(--cartao-forte); border: 1.5px solid var(--borda); border-radius: 999px; padding: 9px 14px; font: 700 14px/1 var(--f-titulo); }
-.chips svg { width: 18px; height: 18px; color: var(--limao); }
+.chips svg { width: 18px; height: 18px; color: var(--verde); }
 .envio { display: grid; gap: 14px; border-top: 1px solid var(--borda); padding-top: 22px; }
 .envio h4 { margin: 0; font: 800 19px/1.3 var(--f-titulo); letter-spacing: -.01em; }
 .campos { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
@@ -247,7 +376,7 @@ h1, h2 { position: relative; z-index: 0; }
 .inicio .botao { width: 100%; }
 .inicio .nota { font-size: 14px; color: var(--suave); text-align: center; }
 .inicio .nota a { color: var(--suave); }
-.inicio .erro { color: #FF8A80; font-size: 14px; font-weight: 600; }
+.inicio .erro { color: #C62828; font-size: 14px; font-weight: 600; }
 .campo { display: grid; gap: 6px; }
 .campo label { font: 600 14px/1 var(--f-titulo); color: var(--suave); }
 .campo input {
@@ -255,10 +384,10 @@ h1, h2 { position: relative; z-index: 0; }
   border: 1.5px solid var(--borda); border-radius: 12px; padding: 14px 16px; width: 100%;
 }
 .campo input::placeholder { color: var(--apagado); }
-.campo input:focus { outline: none; border-color: var(--limao); }
+.campo input:focus { outline: none; border-color: var(--verde); }
 .envio .botao { width: 100%; }
 .envio .nota { font-size: 14px; color: var(--suave); text-align: center; }
-.envio .erro { color: #FF8A80; font-size: 14px; font-weight: 600; }
+.envio .erro { color: #C62828; font-size: 14px; font-weight: 600; }
 .refazer { justify-self: center; }
 @media (max-width: 520px) {
   .quiz { padding: 22px 18px; border-radius: 20px; }
@@ -268,11 +397,11 @@ h1, h2 { position: relative; z-index: 0; }
 }
 
 /* sobre */
-.sobre .miolo { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); align-items: center; gap: 48px; }
+.sobre .miolo { grid-template-columns: minmax(0, .8fr) minmax(0, 1fr) minmax(0, 1fr); align-items: center; gap: 40px; }
 .sobre .cabeca p strong { color: var(--texto); font-weight: 600; }
 .fazeres { margin: 0; padding: 0; list-style: none; display: grid; gap: 12px; }
 .fazeres li { display: flex; gap: 14px; align-items: center; background: var(--cartao); border: 1.5px solid var(--borda); border-radius: 14px; padding: 16px 18px; font: 600 16px/1.35 var(--f-texto); }
-@media (max-width: 860px) { .sobre .miolo { grid-template-columns: 1fr; gap: 28px; } }
+@media (max-width: 860px) { .sobre .miolo { grid-template-columns: 1fr; gap: 28px; } .sobre .retrato { max-width: 360px; } }
 
 /* dúvidas */
 .duvidas .miolo { grid-template-columns: minmax(0, .8fr) minmax(0, 1.2fr); gap: 48px; }
@@ -280,7 +409,7 @@ details { border-bottom: 1px solid var(--borda); }
 details:first-child { border-top: 1px solid var(--borda); }
 summary { cursor: pointer; list-style: none; display: flex; justify-content: space-between; align-items: center; gap: 16px; padding: 22px 0; font: 700 19px/1.3 var(--f-titulo); letter-spacing: -.01em; }
 summary::-webkit-details-marker { display: none; }
-summary::after { content: "+"; flex: none; font: 400 28px/1 var(--f-texto); color: var(--limao); transition: transform .2s; }
+summary::after { content: "+"; flex: none; font: 400 28px/1 var(--f-texto); color: var(--verde); transition: transform .2s; }
 details[open] summary::after { transform: rotate(45deg); }
 details p { padding: 0 0 22px; color: var(--suave); max-width: 40em; }
 @media (max-width: 760px) { .duvidas .miolo { grid-template-columns: 1fr; gap: 24px; } }
@@ -320,80 +449,148 @@ details p { padding: 0 0 22px; color: var(--suave); max-width: 40em; }
 </header>
 
 <main>
-  <section class="faixa abertura">
-    <span class="arco" aria-hidden="true"></span><span class="arco dois" aria-hidden="true"></span>
+  <section class="faixa abertura" id="abertura">
+    <span class="brilho" aria-hidden="true"></span><span class="brilho dois" aria-hidden="true"></span>
     <div class="miolo">
-      <span class="selo">Ferramentas sob medida</span>
-      <h1>Eu construo a ferramenta pro seu <span class="destaque">negócio.</span></h1>
-      <p class="sub">Chega de planilha confusa e controle no caderno. Uma ferramenta feita do jeito que a sua empresa funciona.</p>
-
-      <div class="vitrine">
-        <ul class="servicos">
-          <li><svg class="icone" aria-hidden="true"><use href="#i-app"/></svg>Apps de gestão</li>
-          <li><svg class="icone" aria-hidden="true"><use href="#i-painel"/></svg>Dashboards e indicadores</li>
-          <li><svg class="icone" aria-hidden="true"><use href="#i-site"/></svg>Sites profissionais</li>
-          <li><svg class="icone" aria-hidden="true"><use href="#i-fluxo"/></svg>Mapeamento de processos</li>
-        </ul>
-        <figure class="retrato">
-          <img src="foto.jpg" width="402" height="467" alt="Lorena Bragança, de blusa de tricô e braços cruzados, sorrindo">
-          <figcaption>Lorena Bragança</figcaption>
-        </figure>
-      </div>
-
-      <div class="acoes">
-        <div class="lado">
-          <a class="botao" href="#diagnostico">Fazer meu diagnóstico <svg aria-hidden="true"><use href="#i-seta"/></svg></a>
-          <small>Gratuito · 7 perguntas · resultado na hora</small>
+      <div class="abertura-grade">
+        <div class="abertura-texto">
+          <span class="selo" style="--i:0">Ferramentas sob medida</span>
+          <h1 style="--i:1">Eu construo a ferramenta pro seu <span class="destaque">negócio.</span></h1>
+          <p class="sub" style="--i:2">Chega de planilha confusa e controle no caderno. Uma ferramenta feita do jeito que a sua empresa funciona.</p>
+          <div class="acoes" style="--i:3">
+            <a class="botao" href="#diagnostico">Fazer meu diagnóstico <svg aria-hidden="true"><use href="#i-seta"/></svg></a>
+            <small>Gratuito · 7 perguntas · resultado na hora</small>
+          </div>
         </div>
-        <a class="arroba" href="https://instagram.com/lo_braganca" target="_blank" rel="noopener">@lo_braganca</a>
+
+        <!-- A vitrine animada (14/11). Cada cena é desenhada aqui mesmo, sem imagem nem
+             vídeo: carrega na hora e fica nítida em qualquer tela. Os nomes e números são de exemplo. -->
+        <div class="demo" id="demo" role="region" aria-roledescription="vitrine" aria-label="O que eu construo, em animação">
+          <div class="tela-demo">
+            <div class="demo-barra" aria-hidden="true"><i></i><i></i><i></i><span id="demo-titulo">App de gestão</span></div>
+
+            <div class="cena ativa" id="cena-app" data-titulo="App de gestão" role="tabpanel" aria-label="App de gestão: os pedidos do dia chegando e sendo pagos">
+              <div class="c-tit">Pedidos de hoje <small>terça, 14:32</small></div>
+              <div class="pedido anima" style="--i:0"><span class="av">A</span><span><b>Ana</b><small>Mesa 4</small></span><span class="preco">R$ 86</span><span class="pill ok">Pago</span></div>
+              <div class="pedido anima" style="--i:1"><span class="av">B</span><span><b>Bruno</b><small>Entrega</small></span><span class="preco">R$ 142</span><span class="pill">Saiu</span></div>
+              <div class="pedido anima" style="--i:2"><span class="av">C</span><span><b>Carla</b><small>Retirada</small></span><span class="preco">R$ 58</span><span class="pill ok">Pago</span></div>
+              <div class="pedido anima" style="--i:3"><span class="av">D</span><span><b>Dani</b><small>Encomenda</small></span><span class="preco">R$ 310</span><span class="troca"><span class="pill antes">Aguardando</span><span class="pill ok depois">Pago ✓</span></span></div>
+              <div class="total-demo anima" style="--i:4;--a:sobe-curto"><span>Total do dia · 4 pedidos</span><b data-conta="596" data-antes="R$ ">R$ 596</b></div>
+            </div>
+
+            <div class="cena" id="cena-painel" data-titulo="Dashboard e indicadores" role="tabpanel" aria-label="Dashboard: o faturamento do mês e as barras de cada mês subindo">
+              <div class="c-tit">Visão do mês <small>atualizado agora</small></div>
+              <div class="kpis-demo">
+                <div class="anima" style="--i:0;--a:sobe-curto"><small>Faturamento</small><b data-conta="48320" data-antes="R$ ">R$ 48.320</b><span class="sobe">▲ 18% sobre outubro</span></div>
+                <div class="anima" style="--i:1;--a:sobe-curto"><small>Ticket médio</small><b data-conta="92" data-antes="R$ ">R$ 92</b></div>
+              </div>
+              <div class="barras-demo" aria-hidden="true"><i style="--h:38%;--i:0"></i><i style="--h:46%;--i:1"></i><i style="--h:42%;--i:2"></i><i style="--h:55%;--i:3"></i><i style="--h:61%;--i:4"></i><i style="--h:58%;--i:5"></i><i style="--h:72%;--i:6"></i><i style="--h:90%;--i:7"></i></div>
+              <div class="meses-demo" aria-hidden="true"><span>abr</span><span>mai</span><span>jun</span><span>jul</span><span>ago</span><span>set</span><span>out</span><span>nov</span></div>
+            </div>
+
+            <div class="cena" id="cena-site" data-titulo="Site profissional" role="tabpanel" aria-label="Site: uma página de empresa se montando no navegador">
+              <div class="navegador-demo">
+                <div class="url-demo" aria-hidden="true"><b>suaempresa.com.br</b></div>
+                <div class="site-demo">
+                  <div class="site-topo-demo anima" style="--i:0;--a:sobe-curto">Studio Bella<span><i>Serviços</i><i>Agenda</i><i>Contato</i></span></div>
+                  <p class="site-h">Beleza com <em>hora marcada.</em></p>
+                  <p class="site-p anima" style="--i:3;--a:sobe-curto">Escolha o serviço e o horário em 1 minuto, pelo celular.</p>
+                  <span class="site-bt anima" style="--i:4;--a:estoura">Agendar agora</span>
+                  <div class="site-cards anima" style="--i:5;--a:sobe-curto" aria-hidden="true"><span></span><span></span><span></span></div>
+                </div>
+              </div>
+            </div>
+
+            <div class="cena" id="cena-fluxo" data-titulo="Mapeamento de processos" role="tabpanel" aria-label="Processo: pedido chega, separar, entregar e receber, cada etapa com um responsável">
+              <div class="c-tit">Como o pedido anda <small>quem faz o quê</small></div>
+              <svg class="fluxo-demo" viewBox="0 0 400 210" aria-hidden="true">
+                <g class="no" style="--i:0"><rect x="4" y="10" width="160" height="62" rx="12"/><text x="20" y="38">Pedido chega</text><text class="dono" x="20" y="57">WhatsApp · Ana</text></g>
+                <path pathLength="1" style="--i:0" d="M164 41 H236"/>
+                <g class="no" style="--i:1"><rect x="236" y="10" width="160" height="62" rx="12"/><text x="252" y="38">Separar</text><text class="dono" x="252" y="57">Estoque · Bruno</text></g>
+                <path pathLength="1" style="--i:1" d="M316 72 V138"/>
+                <g class="no" style="--i:2"><rect x="236" y="138" width="160" height="62" rx="12"/><text x="252" y="166">Entregar</text><text class="dono" x="252" y="185">Rota · Carla</text></g>
+                <path pathLength="1" style="--i:2" d="M236 169 H164"/>
+                <g class="no fim" style="--i:3"><rect x="4" y="138" width="160" height="62" rx="12"/><text x="20" y="166">Receber ✓</text><text class="dono" x="20" y="185">Financeiro · você</text></g>
+              </svg>
+              <p class="legenda-demo">Cada etapa com dono e prazo — a empresa anda sem depender de você.</p>
+            </div>
+
+            <div class="cena" id="cena-agenda" data-titulo="Sistema de agendamentos" role="tabpanel" aria-label="Agenda: os horários da semana sendo marcados pelos clientes">
+              <div class="c-tit">Agenda da semana <small>novembro</small></div>
+              <div class="agenda-demo" aria-hidden="true">
+                <span></span><span class="dia">Seg</span><span class="dia">Ter</span><span class="dia">Qua</span><span class="dia">Qui</span><span class="dia">Sex</span>
+                <span class="hora">9h</span><span class="marcado anima" style="--i:0;--a:estoura">Ana</span><span class="vaga"></span><span class="marcado anima" style="--i:2;--a:estoura">Rita</span><span class="vaga"></span><span class="marcado anima" style="--i:4;--a:estoura">Lu</span>
+                <span class="hora">10h</span><span class="vaga"></span><span class="marcado anima" style="--i:1;--a:estoura">Bia</span><span class="vaga"></span><span class="marcado novo-demo anima" style="--i:7;--a:estoura">Carol</span><span class="vaga"></span>
+                <span class="hora">11h</span><span class="marcado anima" style="--i:3;--a:estoura">Dani</span><span class="vaga"></span><span class="vaga"></span><span class="marcado anima" style="--i:5;--a:estoura">Gabi</span><span class="vaga"></span>
+                <span class="hora">14h</span><span class="vaga"></span><span class="vaga"></span><span class="marcado anima" style="--i:6;--a:estoura">Iris</span><span class="vaga"></span><span class="vaga"></span>
+              </div>
+              <div class="aviso-demo"><i>✓</i>Novo horário: Carol, quinta às 10h</div>
+            </div>
+          </div>
+        </div>
       </div>
+
+      <ul class="servicos" role="tablist" aria-label="O que eu construo">
+        <li role="presentation"><button type="button" role="tab" aria-selected="true" aria-controls="cena-app"><svg class="icone" aria-hidden="true"><use href="#i-app"/></svg>Apps de gestão<i class="tempo" aria-hidden="true"></i></button></li>
+        <li role="presentation"><button type="button" role="tab" aria-selected="false" aria-controls="cena-painel" tabindex="-1"><svg class="icone" aria-hidden="true"><use href="#i-painel"/></svg>Dashboards<i class="tempo" aria-hidden="true"></i></button></li>
+        <li role="presentation"><button type="button" role="tab" aria-selected="false" aria-controls="cena-site" tabindex="-1"><svg class="icone" aria-hidden="true"><use href="#i-site"/></svg>Sites<i class="tempo" aria-hidden="true"></i></button></li>
+        <li role="presentation"><button type="button" role="tab" aria-selected="false" aria-controls="cena-fluxo" tabindex="-1"><svg class="icone" aria-hidden="true"><use href="#i-fluxo"/></svg>Processos<i class="tempo" aria-hidden="true"></i></button></li>
+        <li role="presentation"><button type="button" role="tab" aria-selected="false" aria-controls="cena-agenda" tabindex="-1"><svg class="icone" aria-hidden="true"><use href="#i-agenda"/></svg>Agendamentos<i class="tempo" aria-hidden="true"></i></button></li>
+      </ul>
     </div>
   </section>
 
+  <div class="rolante" aria-hidden="true">
+    <div class="rolo">
+      <span>Apps de gestão</span><span>Dashboards e indicadores</span><span>Sites profissionais</span><span>Mapeamento de processos</span><span>Agendamentos</span><span>Lead pages</span><span>Área de membros</span><span>Consultoria de gestão</span>
+      <span>Apps de gestão</span><span>Dashboards e indicadores</span><span>Sites profissionais</span><span>Mapeamento de processos</span><span>Agendamentos</span><span>Lead pages</span><span>Área de membros</span><span>Consultoria de gestão</span>
+    </div>
+  </div>
+
   <section class="faixa secao">
     <div class="miolo">
-      <div class="cabeca">
+      <div class="cabeca revela">
         <span class="rotulo">Você se reconhece?</span>
         <h2>Sinais de que a sua empresa precisa de uma ferramenta própria</h2>
       </div>
       <ul class="sinais">
-        <li>As vendas estão numa planilha, os pedidos no WhatsApp e o estoque na cabeça de alguém.</li>
-        <li>Você só descobre se o mês foi bom quando ele já acabou.</li>
-        <li>Se você tira uma semana de folga, a empresa para.</li>
-        <li>Já pagou por um sistema pronto que não se encaixa no jeito que vocês trabalham.</li>
+        <li class="revela" style="--i:0">As vendas estão numa planilha, os pedidos no WhatsApp e o estoque na cabeça de alguém.</li>
+        <li class="revela" style="--i:1">Você só descobre se o mês foi bom quando ele já acabou.</li>
+        <li class="revela" style="--i:2">Se você tira uma semana de folga, a empresa para.</li>
+        <li class="revela" style="--i:3">Já pagou por um sistema pronto que não se encaixa no jeito que vocês trabalham.</li>
       </ul>
-      <p class="fecho">Não é falta de esforço. <span>É falta da ferramenta certa.</span></p>
+      <p class="fecho revela">Não é falta de esforço. <span>É falta da ferramenta certa.</span></p>
     </div>
   </section>
 
   <section class="faixa secao" id="servicos">
     <div class="miolo">
-      <div class="cabeca">
+      <div class="cabeca revela">
         <span class="rotulo">O que eu construo</span>
         <h2>Feito pro jeito que a sua empresa já trabalha</h2>
       </div>
       <div class="cartoes">
-        <article>
+        <article class="revela" style="--i:0">
           <svg class="icone" aria-hidden="true"><use href="#i-app"/></svg>
           <h3>Apps de gestão</h3>
           <p>Pedidos, clientes, estoque e agenda num lugar só, no celular e no computador.</p>
         </article>
-        <article>
+        <article class="revela" style="--i:1">
           <svg class="icone" aria-hidden="true"><use href="#i-painel"/></svg>
           <h3>Dashboards e indicadores</h3>
           <p>Os números que importam, atualizados, pra decidir com dado e não no achismo.</p>
         </article>
-        <article>
+        <article class="revela" style="--i:2">
           <svg class="icone" aria-hidden="true"><use href="#i-site"/></svg>
           <h3>Sites profissionais</h3>
           <p>Um endereço com a cara da sua marca, pronto pra receber clientes.</p>
         </article>
-        <article>
+        <article class="revela" style="--i:3">
           <svg class="icone" aria-hidden="true"><use href="#i-fluxo"/></svg>
           <h3>Mapeamento de processos</h3>
           <p>O passo a passo da operação desenhado, pra equipe trabalhar sem depender de você.</p>
         </article>
-        <article class="largo">
+        <article class="largo revela" style="--i:4">
           <svg class="icone" aria-hidden="true"><use href="#i-agenda"/></svg>
           <span class="novo">Novo</span>
           <h3>Sistema de agendamentos</h3>
@@ -406,21 +603,21 @@ details p { padding: 0 0 22px; color: var(--suave); max-width: 40em; }
 
   <section class="faixa secao">
     <div class="miolo">
-      <div class="cabeca">
+      <div class="cabeca revela">
         <span class="rotulo">Como funciona</span>
         <h2>Do diagnóstico à ferramenta pronta</h2>
       </div>
       <ol class="passos">
-        <li><h3>Diagnóstico</h3><p>Você responde 7 perguntas rápidas e vê na hora o nível de controle da sua empresa.</p></li>
-        <li><h3>Conversa</h3><p>O resultado chega pra mim no WhatsApp e a gente conversa sobre o seu caso.</p></li>
-        <li><h3>Ferramenta sob medida</h3><p>Eu construo a solução do jeito que a sua empresa funciona, e não o contrário.</p></li>
+        <li class="revela" style="--i:0"><h3>Diagnóstico</h3><p>Você responde 7 perguntas rápidas e vê na hora o nível de controle da sua empresa.</p></li>
+        <li class="revela" style="--i:1"><h3>Conversa</h3><p>O resultado chega pra mim no WhatsApp e a gente conversa sobre o seu caso.</p></li>
+        <li class="revela" style="--i:2"><h3>Ferramenta sob medida</h3><p>Eu construo a solução do jeito que a sua empresa funciona, e não o contrário.</p></li>
       </ol>
     </div>
   </section>
 
   <section class="faixa secao diagnostico" id="diagnostico">
     <div class="miolo">
-      <div class="cabeca">
+      <div class="cabeca revela">
         <span class="rotulo">Diagnóstico gratuito</span>
         <h2>Quanto controle você tem da sua empresa?</h2>
         <p>Deixe seu nome e WhatsApp, responda 7 perguntas e descubra o seu índice de controle, de 0 a 100, com o que mais pesa no seu caso.</p>
@@ -431,7 +628,7 @@ details p { padding: 0 0 22px; color: var(--suave); max-width: 40em; }
         </ul>
       </div>
 
-      <div class="quiz" id="quiz">
+      <div class="quiz revela" id="quiz">
         <div class="progresso" id="progresso">
           <div class="linha"><span id="contador">Pergunta 1 de 7</span><span id="porcento">0%</span></div>
           <div class="barra" role="progressbar" aria-label="Andamento do diagnóstico" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"><i id="barra"></i></div>
@@ -450,22 +647,26 @@ details p { padding: 0 0 22px; color: var(--suave); max-width: 40em; }
 
   <section class="faixa secao sobre">
     <div class="miolo">
-      <div class="cabeca">
+      <figure class="retrato revela">
+        <img src="foto.jpg" width="402" height="467" alt="Lorena Bragança, de blusa de tricô e braços cruzados, sorrindo" loading="lazy">
+        <figcaption>Lorena Bragança</figcaption>
+      </figure>
+      <div class="cabeca revela">
         <span class="rotulo">Quem vai construir</span>
         <h2>Oi, eu sou a Lorena.</h2>
         <p>Eu ajudo empresários a <strong>enxergar o próprio negócio</strong>. Mapeio como o trabalho acontece, escolho com você os indicadores que importam e construo a ferramenta que coloca tudo isso na palma da sua mão.</p>
       </div>
       <ul class="fazeres">
-        <li><svg class="icone" aria-hidden="true"><use href="#i-fluxo"/></svg>Primeiro eu entendo como a sua empresa funciona</li>
-        <li><svg class="icone" aria-hidden="true"><use href="#i-painel"/></svg>Depois escolho com você o que precisa ser medido</li>
-        <li><svg class="icone" aria-hidden="true"><use href="#i-app"/></svg>E só então construo, sob medida</li>
+        <li class="revela" style="--i:0"><svg class="icone" aria-hidden="true"><use href="#i-fluxo"/></svg>Primeiro eu entendo como a sua empresa funciona</li>
+        <li class="revela" style="--i:1"><svg class="icone" aria-hidden="true"><use href="#i-painel"/></svg>Depois escolho com você o que precisa ser medido</li>
+        <li class="revela" style="--i:2"><svg class="icone" aria-hidden="true"><use href="#i-app"/></svg>E só então construo, sob medida</li>
       </ul>
     </div>
   </section>
 
   <section class="faixa secao duvidas">
     <div class="miolo">
-      <div class="cabeca">
+      <div class="cabeca revela">
         <span class="rotulo">Dúvidas</span>
         <h2>Ficou alguma pergunta?</h2>
       </div>
@@ -757,8 +958,8 @@ function medidor(indice) {
   const arco = "M 14 86 A 66 66 0 0 1 146 86";
   const comp = Math.PI * 66;
   s.innerHTML =
-    `<path d="${arco}" fill="none" stroke="#262A32" stroke-width="14" stroke-linecap="round"/>` +
-    `<path d="${arco}" fill="none" stroke="#C8F26B" stroke-width="14" stroke-linecap="round" stroke-dasharray="${comp}" stroke-dashoffset="${comp}" class="arco-valor"/>` +
+    `<path d="${arco}" fill="none" stroke="#E6E8E1" stroke-width="14" stroke-linecap="round"/>` +
+    `<path d="${arco}" fill="none" stroke="#A8D64B" stroke-width="14" stroke-linecap="round" stroke-dasharray="${comp}" stroke-dashoffset="${comp}" class="arco-valor"/>` +
     `<text x="80" y="80" text-anchor="middle" class="valor">${indice}</text>` +
     `<text x="80" y="98" text-anchor="middle" class="de">de 100</text>`;
   requestAnimationFrame(() => requestAnimationFrame(() => {
@@ -857,6 +1058,100 @@ mostrarContato(false);
     }
     fetch("/api/visita", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ pagina: "inicio", visitante: v, origem: origem }), keepalive: true }).catch(function () {});
   } catch (e) { /* sem memória no navegador: segue sem contar */ }
+})();
+</script>
+<script>
+// A vitrine animada do topo (14/11) e o "aparece ao rolar".
+// As cenas trocam sozinhas a cada 5,2 s; tocar numa aba vai direto para ela. Para quando a
+// pessoa põe o dedo/mouse na tela, quando a vitrine sai da tela e quando a aba do navegador
+// não está à vista. Quem pede "menos movimento" no celular vê a cena pronta, sem trocar sozinha.
+(() => {
+  const demo = document.getElementById("demo");
+  if (!demo) return;
+  const abertura = document.getElementById("abertura");
+  const cenas = [...demo.querySelectorAll(".cena")];
+  const abas = [...document.querySelectorAll('.servicos [role="tab"]')];
+  const titulo = document.getElementById("demo-titulo");
+  const calmo = matchMedia("(prefers-reduced-motion: reduce)").matches;
+  const TEMPO = 5200;
+  let atual = 0, relogio = null, emCima = false, naTela = true;
+
+  // os números do painel contam do zero até o valor
+  function contar(cena) {
+    cena.querySelectorAll("[data-conta]").forEach((b) => {
+      const fim = Number(b.dataset.conta), antes = b.dataset.antes || "";
+      const escrever = (n) => { b.textContent = antes + Math.round(n).toLocaleString("pt-BR"); };
+      if (calmo) return escrever(fim);
+      const t0 = performance.now() + 300, dur = 1300;
+      const passo = (t) => {
+        const p = Math.min(1, Math.max(0, (t - t0) / dur));
+        escrever(fim * (1 - Math.pow(1 - p, 3)));
+        if (p < 1 && cena.classList.contains("ativa")) requestAnimationFrame(passo);
+      };
+      escrever(0);
+      requestAnimationFrame(passo);
+    });
+  }
+
+  function reiniciarTempo() {
+    const t = abas[atual] && abas[atual].querySelector(".tempo");
+    if (!t) return;
+    t.style.animation = "none"; void t.offsetWidth; t.style.animation = "";
+  }
+
+  function rodar() {
+    clearTimeout(relogio);
+    const parado = calmo || emCima || !naTela || document.hidden;
+    abertura.classList.toggle("parado", parado);
+    if (!parado) relogio = setTimeout(() => mostrar(atual + 1), TEMPO);
+  }
+
+  function mostrar(n) {
+    atual = (n + cenas.length) % cenas.length;
+    cenas.forEach((c, k) => {
+      c.classList.remove("ativa");
+      c.setAttribute("aria-hidden", String(k !== atual));
+      if (k === atual) { void c.offsetWidth; c.classList.add("ativa"); } // tira e põe: a animação começa de novo
+    });
+    abas.forEach((a, k) => { a.setAttribute("aria-selected", String(k === atual)); a.tabIndex = k === atual ? 0 : -1; });
+    titulo.textContent = cenas[atual].dataset.titulo;
+    reiniciarTempo();
+    contar(cenas[atual]);
+    rodar();
+  }
+
+  abas.forEach((a, k) => {
+    a.addEventListener("click", () => mostrar(k));
+    a.addEventListener("keydown", (e) => {
+      const d = e.key === "ArrowRight" ? 1 : e.key === "ArrowLeft" ? -1 : 0;
+      if (!d) return;
+      e.preventDefault(); mostrar(atual + d); abas[atual].focus();
+    });
+  });
+  // dedo ou mouse em cima: segura a cena para ler; ao sair, ela ganha o tempo inteiro de novo
+  demo.addEventListener("pointerenter", (e) => { if (e.pointerType === "mouse") { emCima = true; rodar(); } });
+  demo.addEventListener("pointerleave", (e) => { if (e.pointerType === "mouse") { emCima = false; reiniciarTempo(); rodar(); } });
+  document.addEventListener("visibilitychange", () => { if (!document.hidden) reiniciarTempo(); rodar(); });
+  if ("IntersectionObserver" in window) {
+    new IntersectionObserver(([e]) => {
+      const antes = naTela; naTela = e.isIntersecting;
+      if (naTela && !antes) mostrar(atual); else rodar();
+    }, { threshold: .25 }).observe(demo);
+  }
+  cenas.forEach((c, k) => c.setAttribute("aria-hidden", String(k !== 0)));
+  contar(cenas[0]);
+  rodar();
+})();
+
+// aparece ao rolar: cada bloco sobe de leve quando entra na tela, uma vez só
+(() => {
+  const itens = document.querySelectorAll(".revela");
+  // sem observador, ou para quem pediu menos movimento: tudo já aparece
+  if (!("IntersectionObserver" in window) || matchMedia("(prefers-reduced-motion: reduce)").matches) return itens.forEach((x) => x.classList.add("visivel"));
+  const io = new IntersectionObserver((es) => es.forEach((e) => {
+    if (e.isIntersecting) { e.target.classList.add("visivel"); io.unobserve(e.target); }
+  }), { rootMargin: "0px 0px -8% 0px" });
+  itens.forEach((x) => io.observe(x));
 })();
 </script>
 </body>
