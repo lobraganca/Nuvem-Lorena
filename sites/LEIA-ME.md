@@ -317,8 +317,11 @@ De um amigo da Lorena (Instagram @leopardosdasmontanhas). HTML puro, sem build,
 um arquivo só: abre direto no navegador. **Ainda não tem projeto na Vercel nem
 domínio** — só existe na pasta.
 
-A cara veio de três cartazes que ela mandou como referência (moldura listrada,
-cor chapada, traço escuro, bicho de frente) com o verde-azulado da logo dele.
+A cara veio de três cartazes que ela mandou como referência: moldura listrada,
+preto, vermelho, mostarda e azul chapados, letra alta de cartaz e o bicho como
+máscara de frente, séria. **A primeira versão tinha onça de olhão sorrindo e
+bichinhos redondos, e ela achou infantil** (14/11). Não volte a desenhar bicho
+fofo: no meio da página os bichos aparecem pela pegada, não pelo rosto.
 
 O que o guia muda fica no começo do `<script>` do `index.html`, e só lá:
 
