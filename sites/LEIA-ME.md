@@ -310,3 +310,23 @@ diagnóstico subindo a 72 e a chamada com o L e o endereço. O texto fica entre
 x 80–940 e y 220–1480: à direita ficam os botões do TikTok e embaixo a legenda.
 As cenas se cruzam e o primeiro quadro já tem texto — tela vazia é onde a
 pessoa rola para o próximo vídeo. O MP4 não vai para o repositório (`.gitignore`).
+
+## `leopardosdasmontanhas/` → site do amigo guia de trilha (14/11)
+
+Página de captação de um amigo da Lorena, guia de trilha
+(Instagram **@leopardosdasmontanhas**). Não é dela nem cita nenhum app.
+Um `index.html` só, sem build e sem servidor. **Ainda não está publicada em
+lugar nenhum**: não tem projeto na Vercel nem domínio.
+
+- O que o guia edita fica no topo do `<script>`: `CONFIG` (Instagram,
+  WhatsApp, arquivo da logo) e `IMERSOES`.
+- **As três imersões são exemplos inventados** ("Data a confirmar"). Trocar
+  pelas de verdade antes de divulgar.
+- **A logo não chegou** na conversa em que a página foi feita. Basta salvar o
+  arquivo como `logo.png` nesta pasta: a página troca sozinha o nome escrito
+  pela imagem (e sem o arquivo, mostra o nome).
+- Sem `CONFIG.whatsapp`, o formulário monta o recado para a pessoa copiar e
+  colar na conversa do Instagram (o Instagram não aceita texto pronto no link).
+- Todos os bichos são SVG desenhado no próprio arquivo, sem imagem externa.
+  Quem pediu menos movimento no aparelho (`prefers-reduced-motion`) vê a
+  página parada.
