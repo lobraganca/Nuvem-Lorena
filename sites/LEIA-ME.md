@@ -318,15 +318,46 @@ Página de captação de um amigo da Lorena, guia de trilha
 Um `index.html` só, sem build e sem servidor. **Ainda não está publicada em
 lugar nenhum**: não tem projeto na Vercel nem domínio.
 
+**A cara: documentário de natureza, não gibi.** A primeira versão tinha
+leopardo sorrindo, letra gorda e botão arredondado, e a resposta dela foi
+"muito infantil". O que vale agora, e que não deve voltar atrás:
+
+- bicho é **silhueta contra pouca luz** (o leopardo no galho diante da lua, o
+  que atravessa a crista) ou **traço fino de prancha de naturalista** (aranha,
+  escorpião, borboleta, vistos de cima);
+- nada de rosto com expressão, nada de bicho que "reage" ao toque com graça;
+- letra serifada fina, rótulos em letra de máquina, um único destaque (âmbar).
+
+O que se mexe: o rabo e o piscar do leopardo do galho, o leopardo que anda na
+crista (as pernas são calculadas a cada quadro, com o pé parado no chão
+enquanto apoia), a cobra-coral que cruza a tela, as borboletas soltas, a
+aranha que desce no fio conforme a página rola, o escorpião que acende sob
+"luz UV", e o par de olhos que acompanha o dedo.
+
+Três coisas que custaram tentativa e não são óbvias:
+
+1. **Leopardo não tem a risca preta do olho até a boca.** Isso é do guepardo.
+   O dono do site é guia e ama bicho: ele repara. O desenho do olho tem só o
+   cantinho de dentro.
+2. **Corpo e membros da silhueta vão em caminhos (`<path>`) separados.** O
+   contorno do corpo gira num sentido e as fitas das pernas no outro; juntos
+   num caminho só, o preenchimento abre um buraco onde se cruzam, e a lua
+   aparecia através do peito do bicho.
+3. **De perfil a cabeça virava urso.** Por isso o leopardo do galho olha para
+   quem vê: de frente, duas orelhas bastam para a silhueta dizer "felino".
+   E o da crista ficou mais alto e mais curto, porque comprido e baixo ele
+   parecia uma lontra.
+
+O que falta, e depende de quem pede:
+
 - O que o guia edita fica no topo do `<script>`: `CONFIG` (Instagram,
   WhatsApp, arquivo da logo) e `IMERSOES`.
-- **As três imersões são exemplos inventados** ("Data a confirmar"). Trocar
-  pelas de verdade antes de divulgar.
+- **As três imersões são exemplos inventados** ("A confirmar"). Trocar pelas
+  de verdade antes de divulgar.
 - **A logo não chegou** na conversa em que a página foi feita. Basta salvar o
   arquivo como `logo.png` nesta pasta: a página troca sozinha o nome escrito
   pela imagem (e sem o arquivo, mostra o nome).
 - Sem `CONFIG.whatsapp`, o formulário monta o recado para a pessoa copiar e
   colar na conversa do Instagram (o Instagram não aceita texto pronto no link).
-- Todos os bichos são SVG desenhado no próprio arquivo, sem imagem externa.
-  Quem pediu menos movimento no aparelho (`prefers-reduced-motion`) vê a
-  página parada.
+- Nenhuma imagem externa: tudo é desenhado no próprio arquivo. Quem pediu
+  menos movimento no aparelho (`prefers-reduced-motion`) vê a página parada.
