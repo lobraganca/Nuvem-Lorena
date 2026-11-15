@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Lorena Bragança · Ferramentas sob medida</title>
-<meta name="description" content="Apps de gestão, agendamentos, dashboards, sites e mapeamento de processos feitos do jeito que a sua empresa funciona. Faça o diagnóstico gratuito.">
+<meta name="description" content="Eu tiro a sua empresa do caderno e coloco na palma da mão: apps de gestão, painéis de indicadores, sites e agendamentos sob medida. Faça o diagnóstico gratuito.">
 <meta name="theme-color" content="#FAFAF6">
 <link rel="canonical" href="https://www.lorenabraganca.com.br/">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
@@ -26,7 +26,7 @@
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@500;600;700;800&family=Figtree:wght@400;500;600&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@500;600;700;800&family=Figtree:wght@400;500;600&family=Instrument+Serif:ital@0;1&display=swap">
 <script>document.documentElement.classList.add("js");</script>
 <style>
 /* layout: o post dela virou página — faixa de título, a lista de serviços ao lado da foto,
@@ -126,25 +126,98 @@ h1, h2 { position: relative; z-index: 0; }
 .ver-mais svg { width: 18px; height: 18px; }
 .ver-mais:hover { text-decoration: underline; text-underline-offset: 4px; }
 
-/* abertura: o título à esquerda e, à direita, uma tela que mostra em animação o que ela
-   constrói (14/11: "quero que mostre em animação o que eu faço"). Cinco cenas, uma por vez,
-   trocadas sozinhas a cada 5 s ou pelas abas de baixo. No celular a tela vem depois do título. */
+/* abertura (15/11): no modelo dos sites que ela fez (Pousada Ingá, Leopardos das Montanhas),
+   o topo é uma cena viva em que a pessoa mexe. Aqui é o "antes e depois": arrastando a alça,
+   a bagunça de planilha, caderno e WhatsApp vira o app no celular. É o trabalho dela, mostrado
+   em vez de explicado. A alça passeia sozinha uma vez, para ensinar que dá para arrastar. */
 .abertura { overflow: hidden; }
 .brilho { position: absolute; width: 760px; height: 760px; right: -220px; top: -300px; border-radius: 50%; pointer-events: none;
   background: radial-gradient(closest-side, rgba(200, 242, 107, .55), rgba(200, 242, 107, 0)); animation: flutua 14s ease-in-out infinite alternate; }
 .brilho.dois { width: 520px; height: 520px; left: -260px; right: auto; top: 55%; opacity: .55; animation-duration: 18s; animation-direction: alternate-reverse; }
 @keyframes flutua { to { transform: translate(-90px, 70px) scale(1.12); } }
-.abertura .miolo { padding-block: 48px 40px; display: grid; gap: 30px; }
-.abertura-grade { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.05fr); gap: 44px; align-items: center; }
+.abertura .miolo { padding-block: 44px 60px; }
+.abertura-grade { display: grid; grid-template-columns: minmax(0, .95fr) minmax(0, 1.05fr); gap: 52px; align-items: center; }
 .abertura-texto { display: grid; gap: 24px; justify-items: start; }
 .abertura-texto > * { animation: sobe .8s cubic-bezier(.2, .7, .2, 1) both; animation-delay: calc(var(--i, 0) * 110ms); }
 @keyframes sobe { from { opacity: 0; transform: translateY(22px); } }
-.abertura h1 { font-size: clamp(42px, 6.2vw, 76px); font-weight: 800; }
-.abertura .sub { font-size: clamp(18px, 2.2vw, 21px); color: var(--suave); max-width: 32em; }
-.acoes { display: flex; flex-wrap: wrap; align-items: center; gap: 12px 20px; }
-.acoes small { color: var(--suave); font-size: 14px; }
+.abertura h1 { font-size: clamp(40px, 5.4vw, 68px); font-weight: 800; }
+.abertura .sub { font-size: clamp(18px, 2.1vw, 21px); color: var(--suave); max-width: 30em; }
+.acoes { display: flex; flex-wrap: wrap; align-items: center; gap: 14px 22px; }
+.acoes small { width: 100%; color: var(--suave); font-size: 14px; }
+.link-seta { display: inline-flex; align-items: center; gap: 8px; font: 700 16px/1 var(--f-titulo); color: var(--texto); text-decoration: none; }
+.link-seta svg { width: 18px; height: 18px; transform: rotate(90deg); transition: transform .2s; }
+.link-seta:hover svg { transform: rotate(90deg) translateX(3px); }
 .arroba { font: 500 18px/1 var(--f-texto); color: var(--suave); text-decoration: none; }
 .arroba:hover { color: var(--texto); }
+/* o itálico com serifa, como nos títulos dos modelos */
+h2 em, .serifa { font-family: "Instrument Serif", Georgia, serif; font-style: italic; font-weight: 400; letter-spacing: -.01em; font-size: 1.1em; }
+
+/* o antes e depois */
+.ad { margin: 0; container-type: inline-size; display: grid; gap: 12px; animation: sobe .9s .25s cubic-bezier(.2, .7, .2, 1) both; }
+.ad-palco { --x: 55%; position: relative; aspect-ratio: 10 / 9; border-radius: 28px; overflow: hidden; cursor: ew-resize;
+  touch-action: pan-y; user-select: none; -webkit-user-select: none; font: 400 clamp(8px, 2.7cqw, 14px)/1.3 var(--f-texto);
+  box-shadow: 0 50px 90px -50px rgba(18, 20, 24, .6), 0 0 0 1px rgba(18, 20, 24, .08); }
+.ad-lado { position: absolute; inset: 0; }
+.ad-depois { background: radial-gradient(70% 60% at 72% 30%, rgba(200, 242, 107, .28), transparent 70%), var(--grafite); color: #F3F4F0; }
+.ad-antes { background: #F1ECE2; background-image: linear-gradient(rgba(18, 20, 24, .05) 1px, transparent 1px), linear-gradient(90deg, rgba(18, 20, 24, .05) 1px, transparent 1px);
+  background-size: 2em 2em; clip-path: inset(0 calc(100% - var(--x)) 0 0); }
+.ad-rotulo { position: absolute; top: 1.2em; z-index: 2; font: 800 .82em/1 var(--f-titulo); letter-spacing: .16em; text-transform: uppercase; padding: .65em 1em; border-radius: 99px; }
+.ad-antes .ad-rotulo { left: 1.2em; background: #121418; color: #F3F4F0; }
+.ad-depois .ad-rotulo { right: 1.2em; background: var(--limao); color: #121418; }
+.ad-alca { position: absolute; top: 0; bottom: 0; left: var(--x); z-index: 3; width: 0; pointer-events: none; }
+.ad-alca::before { content: ""; position: absolute; top: 0; bottom: 0; left: -1.5px; width: 3px; background: #fff; box-shadow: 0 0 0 1px rgba(18, 20, 24, .12); }
+.ad-botao { position: absolute; top: 50%; left: 0; translate: -50% -50%; width: 3.6em; height: 3.6em; border-radius: 50%; display: grid; place-items: center;
+  background: var(--limao); color: #121418; font: 800 1.2em/1 var(--f-titulo); box-shadow: 0 .6em 1.4em -.4em rgba(18, 20, 24, .5), 0 0 0 .3em rgba(255, 255, 255, .9); }
+.ad-palco:not(.mexeu) .ad-botao { animation: chama 1.8s ease-in-out infinite; }
+@keyframes chama { 50% { box-shadow: 0 .6em 1.4em -.4em rgba(18, 20, 24, .5), 0 0 0 .3em rgba(255, 255, 255, .9), 0 0 0 1em rgba(200, 242, 107, .35); } }
+.ad-dica { text-align: center; color: var(--suave); font: 600 14px/1.3 var(--f-titulo); }
+.so-leitor { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+.ad-faixa:focus-visible + .ad-dica { outline: 3px solid var(--verde); outline-offset: 4px; border-radius: 8px; }
+
+/* o lado do "antes": papel por todo lado, tudo tremendo um pouco */
+.bagunca { position: absolute; left: var(--l); top: var(--t); width: var(--w); rotate: var(--r, 0deg); animation: treme 2.6s ease-in-out infinite alternate; animation-delay: var(--d, 0s); }
+@keyframes treme { to { translate: .15em -.45em; rotate: calc(var(--r, 0deg) + 1.5deg); } }
+.planilha { background: #fff; border-radius: .4em; box-shadow: 0 .5em 1.2em -.6em rgba(18, 20, 24, .45); overflow: hidden; font-size: .82em; }
+.planilha b { display: block; background: #1F7A45; color: #fff; padding: .45em .7em; font: 700 .9em/1 var(--f-titulo); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.planilha table { width: 100%; border-collapse: collapse; }
+.planilha td { border: 1px solid #DADDD4; padding: .3em .4em; color: #4E535C; font-variant-numeric: tabular-nums; white-space: nowrap; }
+.planilha td.erro { color: #C62828; font-weight: 700; background: #FDECEC; }
+.caderno { background: #FFF6CF; border-radius: .3em; padding: .9em 1em .9em 1.6em; box-shadow: 0 .5em 1.2em -.6em rgba(18, 20, 24, .45);
+  background-image: linear-gradient(90deg, transparent 1.1em, #F2A2A2 1.1em, #F2A2A2 1.2em, transparent 1.2em), repeating-linear-gradient(transparent 0 1.55em, #C9D7EA 1.55em 1.62em);
+  font: italic 400 1.25em/1.24 "Instrument Serif", Georgia, serif; color: #2B3A67; }
+.caderno s { color: #8A8F99; }
+.bolha { background: #fff; border-radius: 1em 1em 1em .25em; padding: .55em .85em; font-size: .92em; color: #121418; box-shadow: 0 .4em 1em -.5em rgba(18, 20, 24, .45); white-space: nowrap; }
+.bolha::before { content: ""; display: inline-block; width: .55em; height: .55em; border-radius: 50%; background: #25D366; margin-right: .45em; }
+.contador-zap { position: absolute; left: var(--l); top: var(--t); background: #25D366; color: #fff; font: 800 .85em/1 var(--f-titulo); padding: .45em .65em; border-radius: 99px; animation: treme 1.4s ease-in-out infinite alternate; }
+.postit { padding: .7em .8em; font: italic 400 1.15em/1.15 "Instrument Serif", Georgia, serif; color: #3B3320; box-shadow: 0 .5em 1em -.6em rgba(18, 20, 24, .5); }
+.postit.amarelo { background: #FFE47A; } .postit.rosa { background: #FFC2D1; }
+
+/* o lado do "depois": tudo no lugar, no app */
+.ordem { position: absolute; left: var(--l); top: var(--t); width: var(--w); animation: boia 4s ease-in-out infinite alternate; animation-delay: var(--d, 0s); }
+@keyframes boia { to { translate: 0 -.35em; } }
+.cartao-app { background: #181B21; border: 1px solid #2E333C; border-radius: .9em; padding: .8em .95em; }
+.cartao-app small { display: block; color: #A3A7B1; font-size: .8em; }
+.cartao-app b { display: block; font: 800 1.45em/1.15 var(--f-titulo); letter-spacing: -.02em; }
+.cartao-app .verde { color: #C8F26B; font: 700 .78em/1 var(--f-titulo); }
+.toast-app { display: flex; align-items: center; gap: .6em; background: #F3F4F0; color: #121418; border-radius: .9em; padding: .65em .85em; font: 700 .88em/1.2 var(--f-titulo); }
+.toast-app i { flex: none; width: 1.6em; height: 1.6em; border-radius: 50%; background: var(--limao); display: grid; place-items: center; font-style: normal; }
+.cel-app { position: absolute; left: 58%; top: 9%; width: 35%; height: 84%; border-radius: 1.8em; background: #2A2F38; padding: .45em; box-shadow: 0 1.5em 3em -1.2em rgba(0, 0, 0, .7); }
+.cel-tela { height: 100%; border-radius: 1.45em; background: #F3F4F0; color: #121418; padding: 1.5em .8em .8em; display: grid; gap: .55em; align-content: start; overflow: hidden; }
+.cel-tela .oi { font: 700 .78em/1 var(--f-titulo); color: #4E535C; }
+.cel-tela .grande { font: 800 1.55em/1 var(--f-titulo); letter-spacing: -.03em; }
+.cel-tela .grande small { display: block; font: 600 .45em/1.4 var(--f-texto); color: #80858E; letter-spacing: 0; }
+.mini-barras { display: flex; align-items: flex-end; gap: .25em; height: 3.4em; }
+.mini-barras i { flex: 1; height: var(--h); background: #D3D7CB; border-radius: .2em .2em 0 0; }
+.mini-barras i:last-child { background: #9BCB2E; }
+.cel-linha { display: flex; justify-content: space-between; align-items: center; gap: .4em; background: #fff; border-radius: .6em; padding: .5em .6em; font: 700 .72em/1.2 var(--f-titulo); }
+.cel-linha span { color: #4A6A0B; }
+@media (max-width: 860px) {
+  .abertura .miolo { padding-block: 30px 40px; }
+  .abertura-grade { grid-template-columns: 1fr; gap: 30px; }
+  .acoes .botao { width: 100%; }
+  .acoes .link-seta { margin-inline: auto; }
+  .brilho { width: 520px; height: 520px; right: -260px; top: -200px; }
+}
 
 /* a tela animada: grafite, como a arte dela, com as medidas em em para encolher junto */
 .demo { container-type: inline-size; animation: sobe .9s .25s cubic-bezier(.2, .7, .2, 1) both; }
@@ -239,29 +312,36 @@ h1, h2 { position: relative; z-index: 0; }
 .aviso-demo i { width: 1.5em; height: 1.5em; flex: none; border-radius: 50%; background: var(--limao); display: grid; place-items: center; font-style: normal; }
 .ativa .aviso-demo { animation: sobe-curto .5s 2.7s cubic-bezier(.2, .7, .2, 1) both; }
 
-/* as abas: o nome de cada coisa que ela faz, com a barrinha do tempo da cena */
-.servicos { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 10px; margin: 0; padding: 0; list-style: none; }
-.servicos button { position: relative; width: 100%; height: 100%; display: flex; align-items: center; gap: 12px; text-align: left; cursor: pointer;
-  background: var(--cartao); color: var(--texto); border: 1.5px solid var(--borda); border-radius: var(--raio); overflow: hidden;
-  padding: 16px 16px 18px; font: 700 15px/1.25 var(--f-titulo); letter-spacing: -.01em; transition: border-color .2s, transform .2s, background .2s; }
-.servicos button:hover { transform: translateY(-2px); }
-.servicos button[aria-selected="true"] { border-color: #A8D64B; background: color-mix(in srgb, var(--limao) 16%, var(--cartao)); }
-.servicos .icone { width: 24px; height: 24px; }
+/* 01 · o que eu construo: a tela animada à esquerda e, à direita, a lista do que ela faz.
+   A aba escolhida abre a frase que explica; a barrinha embaixo mostra o tempo da cena. */
+.construo-grade { display: grid; grid-template-columns: minmax(0, 1.1fr) minmax(0, .9fr); gap: 52px; align-items: center; }
+.construo-lado { display: grid; gap: 26px; }
+.tela-demo { transform: rotate(-1.2deg); }
+.servicos { display: grid; gap: 8px; margin: 0; padding: 0; list-style: none; }
+.servicos button { position: relative; width: 100%; display: flex; align-items: flex-start; gap: 14px; text-align: left; cursor: pointer;
+  background: var(--cartao); color: var(--texto); border: 1.5px solid var(--borda); border-radius: 16px; overflow: hidden;
+  padding: 14px 16px 16px; font: 700 17px/1.25 var(--f-titulo); letter-spacing: -.01em; transition: border-color .2s, background .2s; }
+.servicos button small { display: block; margin-top: 6px; font: 400 15px/1.45 var(--f-texto); color: var(--suave); letter-spacing: 0; display: none; }
+.servicos button[aria-selected="true"] { border-color: #A8D64B; background: color-mix(in srgb, var(--limao) 18%, var(--cartao)); }
+.servicos button[aria-selected="true"] small { display: block; animation: sobe .4s ease both; }
+.servicos .icone { width: 24px; height: 24px; margin-top: -1px; }
 .tempo { position: absolute; left: 0; bottom: 0; height: 3px; width: 100%; background: var(--verde); transform-origin: left; transform: scaleX(0); }
 .servicos [aria-selected="true"] .tempo { animation: enche 5.2s linear both; }
 .parado .servicos .tempo { animation-play-state: paused; }
 @keyframes enche { to { transform: scaleX(1); } }
+.demo-desc { display: none; }
 @media (max-width: 860px) {
-  .abertura .miolo { padding-block: 32px 36px; gap: 26px; }
-  .abertura-grade { grid-template-columns: 1fr; gap: 30px; }
+  .construo-grade { grid-template-columns: 1fr; gap: 22px; }
+  .construo-lado { display: contents; }
+  .construo .cabeca { order: -1; }
   .tela-demo { transform: none; }
-  .acoes .botao { width: 100%; }
-  .brilho { width: 520px; height: 520px; right: -260px; top: -200px; }
-  /* no celular as abas passam de lado */
+  /* no celular as abas passam de lado, e a frase aparece embaixo delas */
   .servicos { display: flex; overflow-x: auto; scroll-snap-type: x mandatory; margin-inline: -20px; padding: 2px 20px 6px; scrollbar-width: none; }
   .servicos::-webkit-scrollbar { display: none; }
   .servicos li { flex: none; scroll-snap-align: start; }
-  .servicos button { white-space: nowrap; }
+  .servicos button { white-space: nowrap; align-items: center; font-size: 15px; }
+  .servicos button[aria-selected="true"] small { display: none; }
+  .demo-desc { display: block; color: var(--suave); font-size: 17px; min-height: 3em; }
 }
 
 /* a faixa grafite que rola: o que ela faz, sem parar */
@@ -280,43 +360,36 @@ h1, h2 { position: relative; z-index: 0; }
 .retrato img { display: block; width: 100%; height: auto; object-fit: cover; object-position: 50% 30%; aspect-ratio: 4 / 5; }
 .retrato figcaption { position: absolute; left: 14px; bottom: 14px; background: var(--fundo); color: var(--texto); font: 700 15px/1 var(--f-titulo); padding: 10px 16px; border-radius: 999px; }
 
-/* seções */
-.secao .miolo { padding-block: 80px; display: grid; gap: 36px; border-top: 1px solid var(--borda); }
-.cabeca { display: grid; gap: 14px; max-width: 680px; }
-.cabeca h2 { font-size: clamp(32px, 5vw, 52px); font-weight: 800; }
-.cabeca p { color: var(--suave); font-size: 18px; }
-.rotulo { font: 700 13px/1 var(--f-titulo); letter-spacing: .16em; text-transform: uppercase; color: var(--verde); }
+/* seções: como nos modelos — número, rótulo e um título grande; uma ideia por seção */
+.secao .miolo { padding-block: 84px; display: grid; gap: 40px; }
+.cabeca { display: grid; gap: 14px; max-width: 720px; }
+.cabeca h2 { font-size: clamp(34px, 5.4vw, 60px); font-weight: 800; }
+.cabeca p { color: var(--suave); font-size: 18px; max-width: 34em; }
+.rotulo { display: inline-flex; align-items: center; gap: 12px; font: 700 13px/1 var(--f-titulo); letter-spacing: .16em; text-transform: uppercase; color: var(--verde); }
+.rotulo b { display: inline-grid; place-items: center; min-width: 30px; height: 30px; padding: 0 6px; border-radius: 9px; background: var(--grafite); color: var(--limao); font-size: 12px; letter-spacing: .02em; }
+/* entre as seções, a logo dela no meio de uma linha (como a folha no site do Ingá) */
+.divisor { display: flex; align-items: center; gap: 18px; max-width: var(--largura); margin-inline: auto; }
+.divisor::before, .divisor::after { content: ""; flex: 1; height: 1px; background: var(--borda); }
+.divisor svg { width: 30px; height: 30px; }
+.ver-mais { justify-self: start; }
 
-/* sinais */
-.sinais { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; margin: 0; padding: 0; list-style: none; }
-.sinais li { display: flex; gap: 14px; align-items: flex-start; background: var(--cartao); border: 1.5px solid var(--borda); border-radius: var(--raio); padding: 22px; color: var(--texto); }
-.sinais li::before { content: ""; flex: none; width: 10px; height: 10px; margin-top: .55em; border-radius: 50%; background: var(--verde); }
-.fecho { font: 700 clamp(20px, 2.6vw, 26px)/1.3 var(--f-titulo); letter-spacing: -.01em; }
-.fecho span { background: linear-gradient(transparent 58%, var(--limao) 58%, var(--limao) 92%, transparent 92%); -webkit-box-decoration-break: clone; box-decoration-break: clone; padding: 0 .08em; }
-@media (max-width: 720px) { .sinais { grid-template-columns: 1fr; } }
-
-/* o que eu construo */
-.cartoes { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; }
-.cartoes article { background: var(--cartao); border: 1.5px solid var(--borda); border-radius: var(--raio); padding: 28px; display: grid; gap: 12px; align-content: start; transition: border-color .2s; }
-.cartoes article { transition: border-color .2s, transform .25s ease, box-shadow .25s ease; }
-.cartoes article:hover { border-color: #A8D64B; transform: translateY(-4px); box-shadow: 0 22px 40px -28px rgba(18, 20, 24, .35); }
-.cartoes .icone { width: 34px; height: 34px; }
-.cartoes .largo { grid-column: 1 / -1; grid-template-columns: auto minmax(0, 1fr); column-gap: 18px; align-items: start; }
-.cartoes .largo > * { grid-column: 2; }
-.cartoes .largo > .icone { grid-column: 1; grid-row: 1 / span 3; }
-.novo { justify-self: start; font: 800 11px/1 var(--f-titulo); letter-spacing: .14em; text-transform: uppercase; background: var(--limao); color: var(--sobre-limao); border-radius: 999px; padding: 6px 10px; }
-.cartoes h3 { font-size: 22px; font-weight: 800; letter-spacing: -.02em; }
-.cartoes p { color: var(--suave); font-size: 16px; }
-@media (max-width: 720px) { .cartoes { grid-template-columns: 1fr; } .cartoes article { padding: 22px; } }
-
-/* como funciona: é uma sequência de verdade, por isso os números */
-.passos { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px; margin: 0; padding: 0; list-style: none; counter-reset: passo; }
-.passos li { counter-increment: passo; border-top: 2px solid var(--borda); padding-top: 20px; display: grid; gap: 10px; align-content: start; }
-.passos li:first-child { border-top-color: #A8D64B; }
-.passos li::before { content: counter(passo, decimal-leading-zero); font: 800 15px/1 var(--f-titulo); color: var(--verde); letter-spacing: .08em; }
-.passos h3 { font-size: 22px; font-weight: 800; }
-.passos p { color: var(--suave); font-size: 16px; }
-@media (max-width: 760px) { .passos { grid-template-columns: 1fr; gap: 26px; } }
+/* 02 · como funciona: a linha entre os passos enche conforme a pessoa rola */
+.passos { --progresso: 0; position: relative; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 28px; margin: 0; padding: 0; list-style: none; counter-reset: passo; }
+.passos::before, .passos::after { content: ""; position: absolute; left: 28px; right: 28px; top: 27px; height: 3px; border-radius: 3px; background: var(--borda); }
+.passos::after { background: var(--verde); transform: scaleX(var(--progresso)); transform-origin: left; }
+.passos li { position: relative; z-index: 1; display: grid; gap: 10px; align-content: start; counter-increment: passo; }
+.passos li::before { content: counter(passo); width: 56px; height: 56px; border-radius: 50%; display: grid; place-items: center; margin-bottom: 8px;
+  background: var(--cartao); border: 2px solid var(--borda); font: 800 22px/1 var(--f-titulo); transition: background .3s, border-color .3s, transform .3s; }
+.passos li.feito::before { background: var(--limao); border-color: var(--limao); transform: scale(1.06); }
+.passos .quando { font: 700 12px/1 var(--f-titulo); letter-spacing: .14em; text-transform: uppercase; color: var(--verde); }
+.passos h3 { font-size: 26px; font-weight: 800; }
+.passos p { color: var(--suave); font-size: 17px; }
+@media (max-width: 760px) {
+  .passos { grid-template-columns: 1fr; gap: 30px; padding-left: 74px; }
+  .passos::before, .passos::after { left: 27px; right: auto; top: 28px; bottom: 28px; width: 3px; height: auto; }
+  .passos::after { transform: scaleY(var(--progresso)); transform-origin: top; }
+  .passos li::before { position: absolute; left: -74px; top: -6px; margin: 0; }
+}
 
 /* diagnóstico */
 .diagnostico .miolo { grid-template-columns: minmax(0, .85fr) minmax(0, 1.15fr); align-items: start; gap: 48px; }
@@ -396,12 +469,12 @@ h1, h2 { position: relative; z-index: 0; }
   .medidor svg { width: 110px; }
 }
 
-/* sobre */
-.sobre .miolo { grid-template-columns: minmax(0, .8fr) minmax(0, 1fr) minmax(0, 1fr); align-items: center; gap: 40px; }
+/* 04 · quem faz */
+.sobre .miolo { grid-template-columns: minmax(0, .75fr) minmax(0, 1.25fr); align-items: center; gap: 56px; }
 .sobre .cabeca p strong { color: var(--texto); font-weight: 600; }
-.fazeres { margin: 0; padding: 0; list-style: none; display: grid; gap: 12px; }
-.fazeres li { display: flex; gap: 14px; align-items: center; background: var(--cartao); border: 1.5px solid var(--borda); border-radius: 14px; padding: 16px 18px; font: 600 16px/1.35 var(--f-texto); }
-@media (max-width: 860px) { .sobre .miolo { grid-template-columns: 1fr; gap: 28px; } .sobre .retrato { max-width: 360px; } }
+.etiquetas { display: flex; flex-wrap: wrap; gap: 8px; margin: 6px 0 0; padding: 0; list-style: none; }
+.etiquetas li { padding: 9px 14px; border-radius: 999px; border: 1.5px solid var(--borda); background: var(--cartao); font: 700 14px/1 var(--f-titulo); }
+@media (max-width: 860px) { .sobre .miolo { grid-template-columns: 1fr; gap: 28px; } .sobre .retrato { max-width: 320px; } }
 
 /* dúvidas */
 .duvidas .miolo { grid-template-columns: minmax(0, .8fr) minmax(0, 1.2fr); gap: 48px; }
@@ -414,10 +487,24 @@ details[open] summary::after { transform: rotate(45deg); }
 details p { padding: 0 0 22px; color: var(--suave); max-width: 40em; }
 @media (max-width: 760px) { .duvidas .miolo { grid-template-columns: 1fr; gap: 24px; } }
 
-/* fim */
-.fim .miolo { padding-block: 80px 64px; border-top: 1px solid var(--borda); display: grid; justify-items: center; text-align: center; gap: 22px; }
-.fim h2 { font-size: clamp(34px, 6vw, 64px); font-weight: 800; max-width: 14em; }
-.fim p { color: var(--suave); }
+/* o fim: um cartão grafite, como o "The sea is here" do Ingá */
+.fim .miolo { padding-block: 16px 72px; }
+.fim-cartao { position: relative; overflow: hidden; isolation: isolate; background: var(--grafite); color: #F3F4F0; border-radius: 32px;
+  padding: clamp(36px, 6vw, 76px); display: grid; gap: 22px; justify-items: start; }
+.fim-cartao::before { content: ""; position: absolute; z-index: -1; width: 640px; height: 640px; right: -200px; top: -260px; border-radius: 50%;
+  background: radial-gradient(closest-side, rgba(200, 242, 107, .35), transparent); animation: flutua 12s ease-in-out infinite alternate; }
+.fim-cartao h2 { font-size: clamp(34px, 5.6vw, 64px); font-weight: 800; max-width: 12em; }
+.fim-cartao p { color: #A3A7B1; font-size: 18px; max-width: 30em; }
+.fim-cartao .acoes small { color: #A3A7B1; }
+.botao.escuro { background: transparent; color: #F3F4F0; border: 1.5px solid #3A404B; }
+.botao.escuro:hover { border-color: #F3F4F0; box-shadow: none; }
+
+/* celular: depois do topo, o botão do diagnóstico fica sempre à mão (some quando o diagnóstico está na tela) */
+.cta-fixo { position: fixed; left: 16px; right: 16px; bottom: calc(14px + env(safe-area-inset-bottom, 0px)); z-index: 15; display: none; transform: translateY(160%); transition: transform .35s cubic-bezier(.2, .7, .2, 1); }
+.cta-fixo .botao { width: 100%; box-shadow: 0 14px 30px -10px rgba(18, 20, 24, .45); }
+.cta-fixo.mostrar { transform: none; }
+@media (max-width: 760px) { .cta-fixo { display: block; } }
+
 .rodape .miolo { padding-block: 22px 28px; border-top: 1px solid var(--borda); display: flex; flex-wrap: wrap; justify-content: space-between; gap: 10px; color: var(--apagado); font-size: 14px; }
 .rodape a { color: var(--suave); text-decoration: none; }
 .rodape a:hover { color: var(--texto); }
@@ -432,6 +519,8 @@ details p { padding: 0 0 22px; color: var(--suave); max-width: 40em; }
   <symbol id="i-site" viewBox="0 0 24 24"><rect x="2.5" y="4" width="19" height="16" rx="2.5" fill="none" stroke="currentColor" stroke-width="2"/><line x1="2.5" y1="9" x2="21.5" y2="9" stroke="currentColor" stroke-width="2"/><circle cx="6" cy="6.5" r=".9" fill="currentColor"/><circle cx="9" cy="6.5" r=".9" fill="currentColor"/></symbol>
   <symbol id="i-fluxo" viewBox="0 0 24 24"><rect x="2.5" y="3" width="7" height="5.5" rx="1.5" fill="none" stroke="currentColor" stroke-width="2"/><rect x="14.5" y="15.5" width="7" height="5.5" rx="1.5" fill="none" stroke="currentColor" stroke-width="2"/><path d="M6 8.5v4.5a2.5 2.5 0 0 0 2.5 2.5h6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></symbol>
   <symbol id="i-agenda" viewBox="0 0 24 24"><rect x="3" y="4.5" width="18" height="16.5" rx="2.5" fill="none" stroke="currentColor" stroke-width="2"/><line x1="3" y1="9.5" x2="21" y2="9.5" stroke="currentColor" stroke-width="2"/><line x1="8" y1="2.5" x2="8" y2="6.5" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><line x1="16" y1="2.5" x2="16" y2="6.5" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><path d="M8.5 15l2.2 2.2 4.8-4.7" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+  <!-- a logo dela: o mesmo desenho de sites/marca/fontes/whatsapp-perfil.svg -->
+  <symbol id="logo-l" viewBox="0 0 64 64"><rect width="64" height="64" rx="14" fill="#C8F26B"/><g transform="translate(32 32) scale(1.12) translate(-35 -32)" fill="#0F1115"><rect x="18" y="13" width="10" height="38" rx="2"/><rect x="18" y="41" width="22" height="10" rx="2"/><circle cx="47" cy="46" r="5"/></g></symbol>
   <symbol id="i-seta" viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
   <symbol id="i-ok" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" fill="none" stroke="currentColor" stroke-width="2"/><path d="M7.5 12.5l3 3 6-6.5" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
   <symbol id="i-alerta" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" fill="none" stroke="currentColor" stroke-width="2"/><line x1="12" y1="7" x2="12" y2="13" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/><circle cx="12" cy="16.6" r="1.3" fill="currentColor"/></symbol>
@@ -442,6 +531,8 @@ details p { padding: 0 0 22px; color: var(--suave); max-width: 40em; }
   <div class="miolo">
     <a class="nome" href="#">Lorena Bragança<span>.</span></a>
     <nav class="nav-topo">
+      <a class="link-topo" href="#construo">O que eu faço</a>
+      <a class="link-topo" href="#como">Como funciona</a>
       <a class="link-topo" href="/portifolio/">Portfólio</a>
       <a class="botao pequeno" href="#diagnostico">Fazer diagnóstico</a>
     </nav>
@@ -449,168 +540,161 @@ details p { padding: 0 0 22px; color: var(--suave); max-width: 40em; }
 </header>
 
 <main>
-  <section class="faixa abertura" id="abertura">
+  <section class="faixa abertura" id="inicio">
     <span class="brilho" aria-hidden="true"></span><span class="brilho dois" aria-hidden="true"></span>
     <div class="miolo">
       <div class="abertura-grade">
         <div class="abertura-texto">
           <span class="selo" style="--i:0">Ferramentas sob medida</span>
-          <h1 style="--i:1">Eu construo a ferramenta pro seu <span class="destaque">negócio.</span></h1>
-          <p class="sub" style="--i:2">Chega de planilha confusa e controle no caderno. Uma ferramenta feita do jeito que a sua empresa funciona.</p>
+          <h1 style="--i:1">Eu tiro a sua empresa do caderno e coloco na <span class="destaque">palma da mão.</span></h1>
+          <p class="sub" style="--i:2">Apps de gestão, painéis de indicadores, sites e agendamentos, feitos do jeito que a sua empresa já trabalha.</p>
           <div class="acoes" style="--i:3">
-            <a class="botao" href="#diagnostico">Fazer meu diagnóstico <svg aria-hidden="true"><use href="#i-seta"/></svg></a>
+            <a class="botao" href="#diagnostico">Fazer o diagnóstico grátis <svg aria-hidden="true"><use href="#i-seta"/></svg></a>
+            <a class="link-seta" href="#construo">Ver o que eu faço <svg aria-hidden="true"><use href="#i-seta"/></svg></a>
             <small>Gratuito · 7 perguntas · resultado na hora</small>
           </div>
         </div>
 
-        <!-- A vitrine animada (14/11). Cada cena é desenhada aqui mesmo, sem imagem nem
-             vídeo: carrega na hora e fica nítida em qualquer tela. Os nomes e números são de exemplo. -->
-        <div class="demo" id="demo" role="region" aria-roledescription="vitrine" aria-label="O que eu construo, em animação">
-          <div class="tela-demo">
-            <div class="demo-barra" aria-hidden="true"><i></i><i></i><i></i><span id="demo-titulo">App de gestão</span></div>
-
-            <div class="cena ativa" id="cena-app" data-titulo="App de gestão" role="tabpanel" aria-label="App de gestão: os pedidos do dia chegando e sendo pagos">
-              <div class="c-tit">Pedidos de hoje <small>terça, 14:32</small></div>
-              <div class="pedido anima" style="--i:0"><span class="av">A</span><span><b>Ana</b><small>Mesa 4</small></span><span class="preco">R$ 86</span><span class="pill ok">Pago</span></div>
-              <div class="pedido anima" style="--i:1"><span class="av">B</span><span><b>Bruno</b><small>Entrega</small></span><span class="preco">R$ 142</span><span class="pill">Saiu</span></div>
-              <div class="pedido anima" style="--i:2"><span class="av">C</span><span><b>Carla</b><small>Retirada</small></span><span class="preco">R$ 58</span><span class="pill ok">Pago</span></div>
-              <div class="pedido anima" style="--i:3"><span class="av">D</span><span><b>Dani</b><small>Encomenda</small></span><span class="preco">R$ 310</span><span class="troca"><span class="pill antes">Aguardando</span><span class="pill ok depois">Pago ✓</span></span></div>
-              <div class="total-demo anima" style="--i:4;--a:sobe-curto"><span>Total do dia · 4 pedidos</span><b data-conta="596" data-antes="R$ ">R$ 596</b></div>
-            </div>
-
-            <div class="cena" id="cena-painel" data-titulo="Dashboard e indicadores" role="tabpanel" aria-label="Dashboard: o faturamento do mês e as barras de cada mês subindo">
-              <div class="c-tit">Visão do mês <small>atualizado agora</small></div>
-              <div class="kpis-demo">
-                <div class="anima" style="--i:0;--a:sobe-curto"><small>Faturamento</small><b data-conta="48320" data-antes="R$ ">R$ 48.320</b><span class="sobe">▲ 18% sobre outubro</span></div>
-                <div class="anima" style="--i:1;--a:sobe-curto"><small>Ticket médio</small><b data-conta="92" data-antes="R$ ">R$ 92</b></div>
-              </div>
-              <div class="barras-demo" aria-hidden="true"><i style="--h:38%;--i:0"></i><i style="--h:46%;--i:1"></i><i style="--h:42%;--i:2"></i><i style="--h:55%;--i:3"></i><i style="--h:61%;--i:4"></i><i style="--h:58%;--i:5"></i><i style="--h:72%;--i:6"></i><i style="--h:90%;--i:7"></i></div>
-              <div class="meses-demo" aria-hidden="true"><span>abr</span><span>mai</span><span>jun</span><span>jul</span><span>ago</span><span>set</span><span>out</span><span>nov</span></div>
-            </div>
-
-            <div class="cena" id="cena-site" data-titulo="Site profissional" role="tabpanel" aria-label="Site: uma página de empresa se montando no navegador">
-              <div class="navegador-demo">
-                <div class="url-demo" aria-hidden="true"><b>suaempresa.com.br</b></div>
-                <div class="site-demo">
-                  <div class="site-topo-demo anima" style="--i:0;--a:sobe-curto">Studio Bella<span><i>Serviços</i><i>Agenda</i><i>Contato</i></span></div>
-                  <p class="site-h">Beleza com <em>hora marcada.</em></p>
-                  <p class="site-p anima" style="--i:3;--a:sobe-curto">Escolha o serviço e o horário em 1 minuto, pelo celular.</p>
-                  <span class="site-bt anima" style="--i:4;--a:estoura">Agendar agora</span>
-                  <div class="site-cards anima" style="--i:5;--a:sobe-curto" aria-hidden="true"><span></span><span></span><span></span></div>
+        <!-- O antes e depois (15/11): desenhado aqui mesmo, sem imagem. Nomes e números são de exemplo. -->
+        <figure class="ad">
+          <div class="ad-palco" id="ad-palco">
+            <div class="ad-lado ad-depois" aria-hidden="true">
+              <span class="ad-rotulo">Depois</span>
+              <div class="ordem cartao-app" style="--l:6%;--t:17%;--w:44%"><small>Vendas do mês</small><b>R$ 48.320</b><span class="verde">▲ 18% sobre outubro</span></div>
+              <div class="ordem cartao-app" style="--l:8%;--t:44%;--w:40%;--d:.8s"><small>Agenda de amanhã</small><b>6 horários</b><span class="verde">todos confirmados</span></div>
+              <div class="ordem toast-app" style="--l:5%;--t:72%;--w:46%;--d:1.6s"><i>✓</i>Pedido #37 pago</div>
+              <div class="cel-app">
+                <div class="cel-tela">
+                  <span class="oi">Bom dia, Ana</span>
+                  <span class="grande">R$ 48.320<small>vendas do mês</small></span>
+                  <div class="mini-barras"><i style="--h:40%"></i><i style="--h:55%"></i><i style="--h:48%"></i><i style="--h:66%"></i><i style="--h:74%"></i><i style="--h:92%"></i></div>
+                  <div class="cel-linha">Pedidos hoje<span>12 ✓</span></div>
+                  <div class="cel-linha">Estoque<span>em dia</span></div>
+                  <div class="cel-linha">A receber<span>R$ 3.120</span></div>
                 </div>
               </div>
             </div>
-
-            <div class="cena" id="cena-fluxo" data-titulo="Mapeamento de processos" role="tabpanel" aria-label="Processo: pedido chega, separar, entregar e receber, cada etapa com um responsável">
-              <div class="c-tit">Como o pedido anda <small>quem faz o quê</small></div>
-              <svg class="fluxo-demo" viewBox="0 0 400 210" aria-hidden="true">
-                <g class="no" style="--i:0"><rect x="4" y="10" width="160" height="62" rx="12"/><text x="20" y="38">Pedido chega</text><text class="dono" x="20" y="57">WhatsApp · Ana</text></g>
-                <path pathLength="1" style="--i:0" d="M164 41 H236"/>
-                <g class="no" style="--i:1"><rect x="236" y="10" width="160" height="62" rx="12"/><text x="252" y="38">Separar</text><text class="dono" x="252" y="57">Estoque · Bruno</text></g>
-                <path pathLength="1" style="--i:1" d="M316 72 V138"/>
-                <g class="no" style="--i:2"><rect x="236" y="138" width="160" height="62" rx="12"/><text x="252" y="166">Entregar</text><text class="dono" x="252" y="185">Rota · Carla</text></g>
-                <path pathLength="1" style="--i:2" d="M236 169 H164"/>
-                <g class="no fim" style="--i:3"><rect x="4" y="138" width="160" height="62" rx="12"/><text x="20" y="166">Receber ✓</text><text class="dono" x="20" y="185">Financeiro · você</text></g>
-              </svg>
-              <p class="legenda-demo">Cada etapa com dono e prazo — a empresa anda sem depender de você.</p>
-            </div>
-
-            <div class="cena" id="cena-agenda" data-titulo="Sistema de agendamentos" role="tabpanel" aria-label="Agenda: os horários da semana sendo marcados pelos clientes">
-              <div class="c-tit">Agenda da semana <small>novembro</small></div>
-              <div class="agenda-demo" aria-hidden="true">
-                <span></span><span class="dia">Seg</span><span class="dia">Ter</span><span class="dia">Qua</span><span class="dia">Qui</span><span class="dia">Sex</span>
-                <span class="hora">9h</span><span class="marcado anima" style="--i:0;--a:estoura">Ana</span><span class="vaga"></span><span class="marcado anima" style="--i:2;--a:estoura">Rita</span><span class="vaga"></span><span class="marcado anima" style="--i:4;--a:estoura">Lu</span>
-                <span class="hora">10h</span><span class="vaga"></span><span class="marcado anima" style="--i:1;--a:estoura">Bia</span><span class="vaga"></span><span class="marcado novo-demo anima" style="--i:7;--a:estoura">Carol</span><span class="vaga"></span>
-                <span class="hora">11h</span><span class="marcado anima" style="--i:3;--a:estoura">Dani</span><span class="vaga"></span><span class="vaga"></span><span class="marcado anima" style="--i:5;--a:estoura">Gabi</span><span class="vaga"></span>
-                <span class="hora">14h</span><span class="vaga"></span><span class="vaga"></span><span class="marcado anima" style="--i:6;--a:estoura">Iris</span><span class="vaga"></span><span class="vaga"></span>
+            <div class="ad-lado ad-antes" aria-hidden="true">
+              <span class="ad-rotulo">Antes</span>
+              <div class="bagunca planilha" style="--l:5%;--t:15%;--w:52%;--r:-6deg">
+                <b>planilha_final_v3 (2).xlsx</b>
+                <table><tr><td>out</td><td>12.400</td><td>???</td></tr><tr><td>nov</td><td class="erro">#REF!</td><td>8.9</td></tr><tr><td>total</td><td class="erro">#DIV/0!</td><td></td></tr></table>
               </div>
-              <div class="aviso-demo"><i>✓</i>Novo horário: Carol, quinta às 10h</div>
+              <div class="bagunca caderno" style="--l:7%;--t:47%;--w:42%;--r:4deg;--d:.6s"><s>vendas de out</s><br>pagar boleto dia 10<br>ligar p/ a Ana!!<br>cadê o estoque?</div>
+              <div class="bagunca bolha" style="--l:58%;--t:16%;--r:3deg;--d:.3s">Cadê meu pedido?</div>
+              <div class="bagunca bolha" style="--l:61%;--t:29%;--r:-2deg;--d:1s">Tem horário amanhã?</div>
+              <div class="bagunca bolha" style="--l:55%;--t:42%;--r:2deg;--d:.5s">Mandou o orçamento??</div>
+              <span class="contador-zap" style="--l:84%;--t:11%">37</span>
+              <div class="bagunca postit amarelo" style="--l:56%;--t:60%;--w:30%;--r:-5deg;--d:.2s">quanto eu vendi esse mês?</div>
+              <div class="bagunca postit rosa" style="--l:70%;--t:77%;--w:24%;--r:7deg;--d:1.2s">estoque???</div>
             </div>
+            <div class="ad-alca" aria-hidden="true"><span class="ad-botao">‹ ›</span></div>
           </div>
-        </div>
+          <input class="ad-faixa so-leitor" id="ad-faixa" type="range" min="0" max="100" value="55" aria-label="Antes e depois: arraste para comparar a empresa no caderno e no app">
+          <figcaption class="ad-dica">← Arraste e veja: do caderno ao app →</figcaption>
+        </figure>
       </div>
-
-      <ul class="servicos" role="tablist" aria-label="O que eu construo">
-        <li role="presentation"><button type="button" role="tab" aria-selected="true" aria-controls="cena-app"><svg class="icone" aria-hidden="true"><use href="#i-app"/></svg>Apps de gestão<i class="tempo" aria-hidden="true"></i></button></li>
-        <li role="presentation"><button type="button" role="tab" aria-selected="false" aria-controls="cena-painel" tabindex="-1"><svg class="icone" aria-hidden="true"><use href="#i-painel"/></svg>Dashboards<i class="tempo" aria-hidden="true"></i></button></li>
-        <li role="presentation"><button type="button" role="tab" aria-selected="false" aria-controls="cena-site" tabindex="-1"><svg class="icone" aria-hidden="true"><use href="#i-site"/></svg>Sites<i class="tempo" aria-hidden="true"></i></button></li>
-        <li role="presentation"><button type="button" role="tab" aria-selected="false" aria-controls="cena-fluxo" tabindex="-1"><svg class="icone" aria-hidden="true"><use href="#i-fluxo"/></svg>Processos<i class="tempo" aria-hidden="true"></i></button></li>
-        <li role="presentation"><button type="button" role="tab" aria-selected="false" aria-controls="cena-agenda" tabindex="-1"><svg class="icone" aria-hidden="true"><use href="#i-agenda"/></svg>Agendamentos<i class="tempo" aria-hidden="true"></i></button></li>
-      </ul>
     </div>
   </section>
 
   <div class="rolante" aria-hidden="true">
     <div class="rolo">
-      <span>Apps de gestão</span><span>Dashboards e indicadores</span><span>Sites profissionais</span><span>Mapeamento de processos</span><span>Agendamentos</span><span>Lead pages</span><span>Área de membros</span><span>Consultoria de gestão</span>
-      <span>Apps de gestão</span><span>Dashboards e indicadores</span><span>Sites profissionais</span><span>Mapeamento de processos</span><span>Agendamentos</span><span>Lead pages</span><span>Área de membros</span><span>Consultoria de gestão</span>
+      <span>Apps de gestão</span><span>Dashboards e indicadores</span><span>Sites profissionais</span><span>Mapeamento de processos</span><span>Agendamentos</span><span>Lead pages</span>
+      <span>Apps de gestão</span><span>Dashboards e indicadores</span><span>Sites profissionais</span><span>Mapeamento de processos</span><span>Agendamentos</span><span>Lead pages</span>
     </div>
   </div>
 
-  <section class="faixa secao">
+  <section class="faixa secao construo" id="construo">
     <div class="miolo">
-      <div class="cabeca revela">
-        <span class="rotulo">Você se reconhece?</span>
-        <h2>Sinais de que a sua empresa precisa de uma ferramenta própria</h2>
+      <div class="construo-grade">
+      <div class="demo" id="demo" role="region" aria-roledescription="vitrine" aria-label="O que eu construo, em animação">
+        <div class="tela-demo">
+          <div class="demo-barra" aria-hidden="true"><i></i><i></i><i></i><span id="demo-titulo">App de gestão</span></div>
+
+          <div class="cena ativa" id="cena-app" data-desc="Pedidos, clientes, estoque e agenda num lugar só, no celular e no computador." data-titulo="App de gestão" role="tabpanel" aria-label="App de gestão: os pedidos do dia chegando e sendo pagos">
+            <div class="c-tit">Pedidos de hoje <small>terça, 14:32</small></div>
+            <div class="pedido anima" style="--i:0"><span class="av">A</span><span><b>Ana</b><small>Mesa 4</small></span><span class="preco">R$ 86</span><span class="pill ok">Pago</span></div>
+            <div class="pedido anima" style="--i:1"><span class="av">B</span><span><b>Bruno</b><small>Entrega</small></span><span class="preco">R$ 142</span><span class="pill">Saiu</span></div>
+            <div class="pedido anima" style="--i:2"><span class="av">C</span><span><b>Carla</b><small>Retirada</small></span><span class="preco">R$ 58</span><span class="pill ok">Pago</span></div>
+            <div class="pedido anima" style="--i:3"><span class="av">D</span><span><b>Dani</b><small>Encomenda</small></span><span class="preco">R$ 310</span><span class="troca"><span class="pill antes">Aguardando</span><span class="pill ok depois">Pago ✓</span></span></div>
+            <div class="total-demo anima" style="--i:4;--a:sobe-curto"><span>Total do dia · 4 pedidos</span><b data-conta="596" data-antes="R$ ">R$ 596</b></div>
+          </div>
+
+          <div class="cena" id="cena-painel" data-desc="Os números que importam, atualizados sozinhos, pra decidir com dado e não no achismo." data-titulo="Dashboard e indicadores" role="tabpanel" aria-label="Dashboard: o faturamento do mês e as barras de cada mês subindo">
+            <div class="c-tit">Visão do mês <small>atualizado agora</small></div>
+            <div class="kpis-demo">
+              <div class="anima" style="--i:0;--a:sobe-curto"><small>Faturamento</small><b data-conta="48320" data-antes="R$ ">R$ 48.320</b><span class="sobe">▲ 18% sobre outubro</span></div>
+              <div class="anima" style="--i:1;--a:sobe-curto"><small>Ticket médio</small><b data-conta="92" data-antes="R$ ">R$ 92</b></div>
+            </div>
+            <div class="barras-demo" aria-hidden="true"><i style="--h:38%;--i:0"></i><i style="--h:46%;--i:1"></i><i style="--h:42%;--i:2"></i><i style="--h:55%;--i:3"></i><i style="--h:61%;--i:4"></i><i style="--h:58%;--i:5"></i><i style="--h:72%;--i:6"></i><i style="--h:90%;--i:7"></i></div>
+            <div class="meses-demo" aria-hidden="true"><span>abr</span><span>mai</span><span>jun</span><span>jul</span><span>ago</span><span>set</span><span>out</span><span>nov</span></div>
+          </div>
+
+          <div class="cena" id="cena-site" data-desc="Um endereço com a cara da sua marca, pronto pra receber clientes." data-titulo="Site profissional" role="tabpanel" aria-label="Site: uma página de empresa se montando no navegador">
+            <div class="navegador-demo">
+              <div class="url-demo" aria-hidden="true"><b>suaempresa.com.br</b></div>
+              <div class="site-demo">
+                <div class="site-topo-demo anima" style="--i:0;--a:sobe-curto">Studio Bella<span><i>Serviços</i><i>Agenda</i><i>Contato</i></span></div>
+                <p class="site-h">Beleza com <em>hora marcada.</em></p>
+                <p class="site-p anima" style="--i:3;--a:sobe-curto">Escolha o serviço e o horário em 1 minuto, pelo celular.</p>
+                <span class="site-bt anima" style="--i:4;--a:estoura">Agendar agora</span>
+                <div class="site-cards anima" style="--i:5;--a:sobe-curto" aria-hidden="true"><span></span><span></span><span></span></div>
+              </div>
+            </div>
+          </div>
+
+          <div class="cena" id="cena-fluxo" data-desc="O passo a passo da operação desenhado, pra equipe trabalhar sem depender de você." data-titulo="Mapeamento de processos" role="tabpanel" aria-label="Processo: pedido chega, separar, entregar e receber, cada etapa com um responsável">
+            <div class="c-tit">Como o pedido anda <small>quem faz o quê</small></div>
+            <svg class="fluxo-demo" viewBox="0 0 400 210" aria-hidden="true">
+              <g class="no" style="--i:0"><rect x="4" y="10" width="160" height="62" rx="12"/><text x="20" y="38">Pedido chega</text><text class="dono" x="20" y="57">WhatsApp · Ana</text></g>
+              <path pathLength="1" style="--i:0" d="M164 41 H236"/>
+              <g class="no" style="--i:1"><rect x="236" y="10" width="160" height="62" rx="12"/><text x="252" y="38">Separar</text><text class="dono" x="252" y="57">Estoque · Bruno</text></g>
+              <path pathLength="1" style="--i:1" d="M316 72 V138"/>
+              <g class="no" style="--i:2"><rect x="236" y="138" width="160" height="62" rx="12"/><text x="252" y="166">Entregar</text><text class="dono" x="252" y="185">Rota · Carla</text></g>
+              <path pathLength="1" style="--i:2" d="M236 169 H164"/>
+              <g class="no fim" style="--i:3"><rect x="4" y="138" width="160" height="62" rx="12"/><text x="20" y="166">Receber ✓</text><text class="dono" x="20" y="185">Financeiro · você</text></g>
+            </svg>
+            <p class="legenda-demo">Cada etapa com dono e prazo — a empresa anda sem depender de você.</p>
+          </div>
+
+          <div class="cena" id="cena-agenda" data-desc="O cliente escolhe o horário pelo celular e você vê a agenda do dia num lugar só." data-titulo="Sistema de agendamentos" role="tabpanel" aria-label="Agenda: os horários da semana sendo marcados pelos clientes">
+            <div class="c-tit">Agenda da semana <small>novembro</small></div>
+            <div class="agenda-demo" aria-hidden="true">
+              <span></span><span class="dia">Seg</span><span class="dia">Ter</span><span class="dia">Qua</span><span class="dia">Qui</span><span class="dia">Sex</span>
+              <span class="hora">9h</span><span class="marcado anima" style="--i:0;--a:estoura">Ana</span><span class="vaga"></span><span class="marcado anima" style="--i:2;--a:estoura">Rita</span><span class="vaga"></span><span class="marcado anima" style="--i:4;--a:estoura">Lu</span>
+              <span class="hora">10h</span><span class="vaga"></span><span class="marcado anima" style="--i:1;--a:estoura">Bia</span><span class="vaga"></span><span class="marcado novo-demo anima" style="--i:7;--a:estoura">Carol</span><span class="vaga"></span>
+              <span class="hora">11h</span><span class="marcado anima" style="--i:3;--a:estoura">Dani</span><span class="vaga"></span><span class="vaga"></span><span class="marcado anima" style="--i:5;--a:estoura">Gabi</span><span class="vaga"></span>
+              <span class="hora">14h</span><span class="vaga"></span><span class="vaga"></span><span class="marcado anima" style="--i:6;--a:estoura">Iris</span><span class="vaga"></span><span class="vaga"></span>
+            </div>
+            <div class="aviso-demo"><i>✓</i>Novo horário: Carol, quinta às 10h</div>
+          </div>
+        </div>
       </div>
-      <ul class="sinais">
-        <li class="revela" style="--i:0">As vendas estão numa planilha, os pedidos no WhatsApp e o estoque na cabeça de alguém.</li>
-        <li class="revela" style="--i:1">Você só descobre se o mês foi bom quando ele já acabou.</li>
-        <li class="revela" style="--i:2">Se você tira uma semana de folga, a empresa para.</li>
-        <li class="revela" style="--i:3">Já pagou por um sistema pronto que não se encaixa no jeito que vocês trabalham.</li>
-      </ul>
-      <p class="fecho revela">Não é falta de esforço. <span>É falta da ferramenta certa.</span></p>
+        <div class="construo-lado">
+          <div class="cabeca revela"><span class="rotulo"><b>01</b>O que eu construo</span><h2>Cinco ferramentas. <em>Todas do seu jeito.</em></h2></div>
+          <ul class="servicos" role="tablist" aria-label="O que eu construo">
+            <li role="presentation"><button type="button" role="tab" aria-selected="true" aria-controls="cena-app"><svg class="icone" aria-hidden="true"><use href="#i-app"/></svg><span>Apps de gestão<small>Pedidos, clientes, estoque e agenda num lugar só, no celular e no computador.</small></span><i class="tempo" aria-hidden="true"></i></button></li>
+            <li role="presentation"><button type="button" role="tab" aria-selected="false" aria-controls="cena-painel" tabindex="-1"><svg class="icone" aria-hidden="true"><use href="#i-painel"/></svg><span>Dashboards<small>Os números que importam, atualizados sozinhos, pra decidir com dado e não no achismo.</small></span><i class="tempo" aria-hidden="true"></i></button></li>
+            <li role="presentation"><button type="button" role="tab" aria-selected="false" aria-controls="cena-site" tabindex="-1"><svg class="icone" aria-hidden="true"><use href="#i-site"/></svg><span>Sites<small>Um endereço com a cara da sua marca, pronto pra receber clientes.</small></span><i class="tempo" aria-hidden="true"></i></button></li>
+            <li role="presentation"><button type="button" role="tab" aria-selected="false" aria-controls="cena-fluxo" tabindex="-1"><svg class="icone" aria-hidden="true"><use href="#i-fluxo"/></svg><span>Processos<small>O passo a passo da operação desenhado, pra equipe trabalhar sem depender de você.</small></span><i class="tempo" aria-hidden="true"></i></button></li>
+            <li role="presentation"><button type="button" role="tab" aria-selected="false" aria-controls="cena-agenda" tabindex="-1"><svg class="icone" aria-hidden="true"><use href="#i-agenda"/></svg><span>Agendamentos<small>O cliente escolhe o horário pelo celular e você vê a agenda do dia num lugar só.</small></span><i class="tempo" aria-hidden="true"></i></button></li>
+          </ul>
+          <p class="demo-desc" id="demo-desc" aria-live="polite">Pedidos, clientes, estoque e agenda num lugar só, no celular e no computador.</p>
+          <a class="ver-mais" href="/portifolio/">Ver o portfólio completo <svg aria-hidden="true"><use href="#i-seta"/></svg></a>
+        </div>
+      </div>
     </div>
   </section>
 
-  <section class="faixa secao" id="servicos">
-    <div class="miolo">
-      <div class="cabeca revela">
-        <span class="rotulo">O que eu construo</span>
-        <h2>Feito pro jeito que a sua empresa já trabalha</h2>
-      </div>
-      <div class="cartoes">
-        <article class="revela" style="--i:0">
-          <svg class="icone" aria-hidden="true"><use href="#i-app"/></svg>
-          <h3>Apps de gestão</h3>
-          <p>Pedidos, clientes, estoque e agenda num lugar só, no celular e no computador.</p>
-        </article>
-        <article class="revela" style="--i:1">
-          <svg class="icone" aria-hidden="true"><use href="#i-painel"/></svg>
-          <h3>Dashboards e indicadores</h3>
-          <p>Os números que importam, atualizados, pra decidir com dado e não no achismo.</p>
-        </article>
-        <article class="revela" style="--i:2">
-          <svg class="icone" aria-hidden="true"><use href="#i-site"/></svg>
-          <h3>Sites profissionais</h3>
-          <p>Um endereço com a cara da sua marca, pronto pra receber clientes.</p>
-        </article>
-        <article class="revela" style="--i:3">
-          <svg class="icone" aria-hidden="true"><use href="#i-fluxo"/></svg>
-          <h3>Mapeamento de processos</h3>
-          <p>O passo a passo da operação desenhado, pra equipe trabalhar sem depender de você.</p>
-        </article>
-        <article class="largo revela" style="--i:4">
-          <svg class="icone" aria-hidden="true"><use href="#i-agenda"/></svg>
-          <span class="novo">Novo</span>
-          <h3>Sistema de agendamentos</h3>
-          <p>Pra pequenas empresas que atendem com hora marcada: o cliente escolhe o horário pelo celular e você vê a agenda do dia num lugar só.</p>
-        </article>
-      </div>
-      <a class="ver-mais" href="/portifolio/">Ver o portfólio completo, com os 10 serviços <svg aria-hidden="true"><use href="#i-seta"/></svg></a>
-    </div>
-  </section>
+  <div class="faixa"><div class="divisor" aria-hidden="true"><svg><use href="#logo-l"/></svg></div></div>
 
-  <section class="faixa secao">
+  <section class="faixa secao" id="como">
     <div class="miolo">
-      <div class="cabeca revela">
-        <span class="rotulo">Como funciona</span>
-        <h2>Do diagnóstico à ferramenta pronta</h2>
-      </div>
-      <ol class="passos">
-        <li class="revela" style="--i:0"><h3>Diagnóstico</h3><p>Você responde 7 perguntas rápidas e vê na hora o nível de controle da sua empresa.</p></li>
-        <li class="revela" style="--i:1"><h3>Conversa</h3><p>O resultado chega pra mim no WhatsApp e a gente conversa sobre o seu caso.</p></li>
-        <li class="revela" style="--i:2"><h3>Ferramenta sob medida</h3><p>Eu construo a solução do jeito que a sua empresa funciona, e não o contrário.</p></li>
+      <div class="cabeca revela"><span class="rotulo"><b>02</b>Como funciona</span><h2>Do primeiro oi à <em>ferramenta pronta.</em></h2></div>
+      <ol class="passos" id="passos">
+        <li class="revela" style="--i:0"><span class="quando">1 minuto</span><h3>Diagnóstico</h3><p>Você responde 7 perguntas e vê na hora quanto controle tem da sua empresa.</p></li>
+        <li class="revela" style="--i:1"><span class="quando">no WhatsApp</span><h3>Conversa</h3><p>Eu olho o seu resultado e a gente conversa sobre o seu caso.</p></li>
+        <li class="revela" style="--i:2"><span class="quando">sob medida</span><h3>Ferramenta pronta</h3><p>Eu construo do jeito que a sua empresa funciona, e não o contrário.</p></li>
       </ol>
     </div>
   </section>
@@ -618,8 +702,8 @@ details p { padding: 0 0 22px; color: var(--suave); max-width: 40em; }
   <section class="faixa secao diagnostico" id="diagnostico">
     <div class="miolo">
       <div class="cabeca revela">
-        <span class="rotulo">Diagnóstico gratuito</span>
-        <h2>Quanto controle você tem da sua empresa?</h2>
+        <span class="rotulo"><b>03</b>Diagnóstico grátis</span>
+        <h2>Quanto controle você tem da <em>sua empresa?</em></h2>
         <p>Deixe seu nome e WhatsApp, responda 7 perguntas e descubra o seu índice de controle, de 0 a 100, com o que mais pesa no seu caso.</p>
         <ul>
           <li><svg aria-hidden="true"><use href="#i-ok"/></svg>Leva cerca de 1 minuto</li>
@@ -645,22 +729,19 @@ details p { padding: 0 0 22px; color: var(--suave); max-width: 40em; }
     </div>
   </section>
 
-  <section class="faixa secao sobre">
+  <section class="faixa secao sobre" id="quem">
     <div class="miolo">
       <figure class="retrato revela">
         <img src="foto.jpg" width="402" height="467" alt="Lorena Bragança, de blusa de tricô e braços cruzados, sorrindo" loading="lazy">
         <figcaption>Lorena Bragança</figcaption>
       </figure>
       <div class="cabeca revela">
-        <span class="rotulo">Quem vai construir</span>
-        <h2>Oi, eu sou a Lorena.</h2>
-        <p>Eu ajudo empresários a <strong>enxergar o próprio negócio</strong>. Mapeio como o trabalho acontece, escolho com você os indicadores que importam e construo a ferramenta que coloca tudo isso na palma da sua mão.</p>
+        <span class="rotulo"><b>04</b>Quem faz</span>
+        <h2>Oi, eu sou a <em>Lorena.</em></h2>
+        <p>Eu ajudo empresários a <strong>enxergar o próprio negócio</strong>. Primeiro entendo como o trabalho acontece, depois escolho com você o que precisa ser medido, e só então construo a ferramenta.</p>
+        <ul class="etiquetas"><li>Gestão por indicadores</li><li>Mapeamento de processos</li><li>Ferramentas sob medida</li></ul>
+        <a class="arroba" href="https://instagram.com/lo_braganca" target="_blank" rel="noopener">@lo_braganca no Instagram</a>
       </div>
-      <ul class="fazeres">
-        <li class="revela" style="--i:0"><svg class="icone" aria-hidden="true"><use href="#i-fluxo"/></svg>Primeiro eu entendo como a sua empresa funciona</li>
-        <li class="revela" style="--i:1"><svg class="icone" aria-hidden="true"><use href="#i-painel"/></svg>Depois escolho com você o que precisa ser medido</li>
-        <li class="revela" style="--i:2"><svg class="icone" aria-hidden="true"><use href="#i-app"/></svg>E só então construo, sob medida</li>
-      </ul>
     </div>
   </section>
 
@@ -693,9 +774,14 @@ details p { padding: 0 0 22px; color: var(--suave); max-width: 40em; }
 
   <section class="faixa fim">
     <div class="miolo">
-      <h2>Bora colocar a sua empresa na <span class="destaque">palma da mão?</span></h2>
-      <a class="botao" href="#diagnostico">Fazer meu diagnóstico <svg aria-hidden="true"><use href="#i-seta"/></svg></a>
-      <p>ou chama no direct: <a class="arroba" href="https://ig.me/m/lo_braganca" target="_blank" rel="noopener">@lo_braganca</a></p>
+      <div class="fim-cartao revela">
+        <h2>Bora colocar a sua empresa na <span class="destaque">palma da mão?</span></h2>
+        <p>Comece pelo diagnóstico: 1 minuto, grátis, e o resultado aparece na hora.</p>
+        <div class="acoes">
+          <a class="botao" href="#diagnostico">Fazer o diagnóstico grátis <svg aria-hidden="true"><use href="#i-seta"/></svg></a>
+          <a class="botao escuro" href="https://ig.me/m/lo_braganca" target="_blank" rel="noopener">Chamar no direct</a>
+        </div>
+      </div>
     </div>
   </section>
 </main>
@@ -706,6 +792,8 @@ details p { padding: 0 0 22px; color: var(--suave); max-width: 40em; }
     <span style="display:flex;gap:18px;flex-wrap:wrap"><a href="/portifolio/">Portfólio</a><a href="/privacidade/">Privacidade</a><a href="https://instagram.com/lo_braganca" target="_blank" rel="noopener">@lo_braganca</a></span>
   </div>
 </footer>
+
+<div class="cta-fixo" id="cta-fixo" aria-hidden="true"><a class="botao" href="#diagnostico" tabindex="-1">Fazer o diagnóstico grátis <svg aria-hidden="true"><use href="#i-seta"/></svg></a></div>
 
 <script>
 // O diagnóstico: primeiro nome e WhatsApp (gravados na hora, e a Lorena recebe o aviso no
@@ -1068,7 +1156,8 @@ mostrarContato(false);
 (() => {
   const demo = document.getElementById("demo");
   if (!demo) return;
-  const abertura = document.getElementById("abertura");
+  const abertura = document.getElementById("construo"); // a seção da vitrine: é nela que fica a classe "parado"
+  const descricao = document.getElementById("demo-desc");
   const cenas = [...demo.querySelectorAll(".cena")];
   const abas = [...document.querySelectorAll('.servicos [role="tab"]')];
   const titulo = document.getElementById("demo-titulo");
@@ -1115,6 +1204,7 @@ mostrarContato(false);
     });
     abas.forEach((a, k) => { a.setAttribute("aria-selected", String(k === atual)); a.tabIndex = k === atual ? 0 : -1; });
     titulo.textContent = cenas[atual].dataset.titulo;
+    if (descricao) descricao.textContent = cenas[atual].dataset.desc;
     reiniciarTempo();
     contar(cenas[atual]);
     rodar();
@@ -1152,6 +1242,83 @@ mostrarContato(false);
     if (e.isIntersecting) { e.target.classList.add("visivel"); io.unobserve(e.target); }
   }), { rootMargin: "0px 0px -8% 0px" });
   itens.forEach((x) => io.observe(x));
+})();
+</script>
+<script>
+// O "antes e depois" do topo (15/11). Arrastar (dedo ou mouse) move a alça; no teclado,
+// a faixa escondida faz o mesmo com as setas. Quando a cena aparece pela primeira vez, a
+// alça passeia sozinha de um lado para o outro, uma vez, para ensinar que dá para arrastar.
+(() => {
+  const palco = document.getElementById("ad-palco"), faixa = document.getElementById("ad-faixa");
+  if (!palco || !faixa) return;
+  const calmo = matchMedia("(prefers-reduced-motion: reduce)").matches;
+  let arrastando = false, passeio = null;
+  const pos = (v) => { const x = Math.max(3, Math.min(97, v)); palco.style.setProperty("--x", x + "%"); faixa.value = Math.round(x); };
+  const doDedo = (e) => { const r = palco.getBoundingClientRect(); return ((e.clientX - r.left) / r.width) * 100; };
+  const parar = () => { if (passeio) cancelAnimationFrame(passeio); passeio = null; palco.classList.add("mexeu"); };
+  palco.addEventListener("pointerdown", (e) => { parar(); arrastando = true; palco.setPointerCapture(e.pointerId); pos(doDedo(e)); });
+  palco.addEventListener("pointermove", (e) => { if (arrastando) pos(doDedo(e)); });
+  ["pointerup", "pointercancel", "lostpointercapture"].forEach((t) => palco.addEventListener(t, () => { arrastando = false; }));
+  faixa.addEventListener("input", () => { parar(); pos(Number(faixa.value)); });
+
+  function passear() {
+    if (calmo || palco.classList.contains("mexeu")) return;
+    const pontos = [[0, 55], [1300, 88], [2900, 14], [4000, 52]];
+    const suave = (t) => (t < .5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2);
+    const t0 = performance.now();
+    const passo = (agora) => {
+      const t = agora - t0;
+      let k = 0; while (k < pontos.length - 2 && t > pontos[k + 1][0]) k++;
+      const [ta, xa] = pontos[k], [tb, xb] = pontos[k + 1];
+      const f = Math.min(1, Math.max(0, (t - ta) / (tb - ta)));
+      pos(xa + (xb - xa) * suave(f));
+      if (t < pontos[pontos.length - 1][0]) passeio = requestAnimationFrame(passo); else passeio = null;
+    };
+    passeio = requestAnimationFrame(passo);
+  }
+  if ("IntersectionObserver" in window) {
+    const io = new IntersectionObserver(([e]) => { if (e.isIntersecting) { io.disconnect(); setTimeout(passear, 900); } }, { threshold: .5 });
+    io.observe(palco);
+  }
+})();
+
+// "Como funciona": a linha entre os passos enche conforme a pessoa rola, e cada número
+// acende quando a linha chega nele.
+(() => {
+  const passos = document.getElementById("passos");
+  if (!passos) return;
+  const itens = [...passos.children];
+  let pedido = false;
+  const medir = () => {
+    pedido = false;
+    const r = passos.getBoundingClientRect(), h = innerHeight;
+    const p = Math.min(1, Math.max(0, (h * .8 - r.top) / (r.height + h * .3)));
+    passos.style.setProperty("--progresso", p.toFixed(3));
+    itens.forEach((li, k) => li.classList.toggle("feito", p >= k / Math.max(1, itens.length - 1) - .02));
+  };
+  addEventListener("scroll", () => { if (!pedido) { pedido = true; requestAnimationFrame(medir); } }, { passive: true });
+  addEventListener("resize", medir);
+  medir();
+})();
+
+// No celular, depois do topo, o botão do diagnóstico fica preso embaixo da tela;
+// some quando o próprio diagnóstico ou o cartão do fim estão à vista, para não cobrir nada.
+(() => {
+  const cta = document.getElementById("cta-fixo"), topo = document.getElementById("inicio"), diag = document.getElementById("diagnostico");
+  if (!cta || !topo || !diag || !("IntersectionObserver" in window)) return;
+  const link = cta.querySelector("a");
+  let passouDoTopo = false, noDiagnostico = false;
+  const atualizar = () => {
+    const mostrar = passouDoTopo && !noDiagnostico;
+    cta.classList.toggle("mostrar", mostrar);
+    cta.setAttribute("aria-hidden", String(!mostrar));
+    link.tabIndex = mostrar ? 0 : -1;
+  };
+  new IntersectionObserver(([e]) => { passouDoTopo = !e.isIntersecting; atualizar(); }).observe(topo);
+  // escondido também no cartão do fim, que já tem o mesmo botão (e senão cobria o rodapé)
+  const cobrem = new Set();
+  const io = new IntersectionObserver((es) => { es.forEach((e) => (e.isIntersecting ? cobrem.add(e.target) : cobrem.delete(e.target))); noDiagnostico = cobrem.size > 0; atualizar(); });
+  [diag, document.querySelector("section.fim")].filter(Boolean).forEach((x) => io.observe(x));
 })();
 </script>
 </body>
