@@ -1,5 +1,5 @@
 // Peças comuns das funções do site. O "_" no começo do nome faz a Vercel NÃO
-// publicar este arquivo como endereço: ele só é usado por diagnostico.mjs e adm.mjs.
+// publicar este arquivo como endereço: ele só é usado pelas outras funções desta pasta.
 //
 // .mjs, e não .js: a raiz do repositório tem "type": "module" no package.json, e um
 // .js aqui seria lido como um formato ou outro conforme quem olhasse. .mjs é sempre o mesmo.
@@ -111,6 +111,39 @@ async function marcarContatado(id, feito) {
   // regrava com o MESMO prazo que faltava (marcar "já falei" não renova os 2 anos)
   await redis(Number(falta) > 0 ? ["SET", chaveDo(id), JSON.stringify(d), "XX", "EX", Number(falta)] : ["SET", chaveDo(id), JSON.stringify(d), "XX"]);
   return d.contatado_em;
+}
+
+// ---------- os formulários de clientes ----------
+// Desde 19/11: um formulário de diagnóstico feito para UM cliente, numa página só dele
+// (/pousadamare foi o primeiro). Cada resposta é um JSON em "form:<id>", e "forms" é a
+// fila pela data da última resposta. O mesmo prazo de 2 anos do contato (/privacidade).
+// Enviar de novo do mesmo aparelho (mesmo id) atualiza a resposta, em vez de criar outra.
+// Cliente novo = uma linha aqui e uma página com o mesmo nome.
+const FORMULARIOS = { pousadamare: "Pousada Maré" };
+const chaveDoFormulario = (id) => "form:" + id;
+
+async function gravarFormulario(f) {
+  const [atual] = await redis(["GET", chaveDoFormulario(f.id)]);
+  const antes = atual ? JSON.parse(atual) : null;
+  const agora = new Date().toISOString();
+  const junto = { ...f, criado_em: antes?.criado_em || agora, atualizado_em: agora, envios: (antes?.envios || 0) + 1 };
+  await redis(
+    ["SET", chaveDoFormulario(f.id), JSON.stringify(junto), "EX", VALIDADE_DO_CONTATO],
+    ["ZADD", "forms", Date.parse(agora), f.id], // atualizada sobe para o topo da lista
+  );
+  return { formulario: junto, novo: !antes };
+}
+
+async function listarFormularios(limite = 200) {
+  const [ids] = await redis(["ZREVRANGE", "forms", 0, limite - 1]);
+  if (!ids.length) return [];
+  const [jsons] = await redis(["MGET", ...ids.map(chaveDoFormulario)]);
+  return jsons.filter(Boolean).map((j) => JSON.parse(j));
+}
+
+async function apagarFormulario(id) {
+  const [apagados] = await redis(["DEL", chaveDoFormulario(id)], ["ZREM", "forms", id]);
+  return apagados > 0;
 }
 
 // ---------- o funil de vendas (os "negócios") ----------
@@ -373,6 +406,7 @@ export {
   SENHA, faltando, responder, lerCorpo,
   gravarInicio, gravarResultado, gravarContato, listarDiagnosticos, apagarDiagnostico, origemLimpa, marcarContatado, guardarInscricao,
   ETAPAS, NOME_DA_ETAPA, listarNegocios, lerNegocio, gravarNegocio, apagarNegocio, negocioDoDiagnostico, lerDiagnosticos,
+  FORMULARIOS, gravarFormulario, listarFormularios, apagarFormulario,
   PAGINAS, contarVisita, resumoDeVisitas,
   senhaConfere, criarPasse, passeValido,
   chavesVapid, cifrar, assinarJwt, avisar,

@@ -140,6 +140,14 @@ summary { cursor: pointer; color: var(--suave); font: 600 14px/1.4 var(--f-titul
 dl { margin: 10px 0 0; display: grid; gap: 8px; }
 dt { font-size: 12px; color: var(--apagado); text-transform: uppercase; letter-spacing: .08em; font-weight: 600; }
 dd { margin: 0; font-size: 15px; }
+.formularios { display: grid; gap: 12px; }
+.formulario .etiqueta-form { flex: none; font: 700 12px/1 var(--f-titulo); letter-spacing: .08em; text-transform: uppercase; color: var(--sobre-limao); background: var(--limao); border-radius: 999px; padding: 6px 10px; }
+.formulario h3 { margin: 16px 0 0; font: 800 15px/1.3 var(--f-titulo); color: var(--limao); }
+.formulario h3:first-of-type { margin-top: 6px; }
+/* as perguntas são frases longas: sem a caixa alta das respostas do diagnóstico */
+.formulario dt { text-transform: none; letter-spacing: 0; font-size: 13px; color: var(--suave); font-weight: 600; }
+.formulario dd { white-space: pre-line; overflow-wrap: anywhere; }
+.formulario dd.sem { color: var(--apagado); font-style: italic; }
 .vazio { text-align: center; color: var(--suave); padding: 32px 12px; border: 1.5px dashed var(--borda); border-radius: 18px; }
 .rodape { display: flex; justify-content: space-between; align-items: center; color: var(--apagado); font-size: 13px; }
 .problema { background: color-mix(in srgb, var(--baixo) 10%, var(--cartao)); border: 1.5px solid color-mix(in srgb, var(--baixo) 40%, var(--borda)); border-radius: 16px; padding: 16px; display: grid; gap: 6px; }
@@ -294,6 +302,11 @@ dialog.ficha::backdrop { background: rgba(0, 0, 0, .6); }
   </section>
 
   <section class="tela estreita" id="tela-diag" hidden>
+  <!-- 19/11: as respostas dos formulários feitos para um cliente só (/pousadamare) -->
+  <section class="formularios" id="formularios" hidden>
+    <div class="visitas-topo"><h2>Formulários de clientes</h2><span id="form-conta"></span></div>
+    <div class="lista" id="lista-form"></div>
+  </section>
   <div class="numeros">
     <div class="numero"><b id="n-contato">–</b><span>deixaram o contato</span></div>
     <div class="numero"><b id="n-total">–</b><span>terminaram o diagnóstico</span></div>
@@ -395,6 +408,7 @@ const $ = (id) => document.getElementById(id);
 
 let diagnosticos = [];
 let negocios = [];
+let formularios = [];
 let aba = "contato";
 
 class SemPasse extends Error {}
@@ -474,9 +488,10 @@ function problemaTexto(corpo) {
 // ---------- a lista ----------
 async function carregar() {
   try {
-    const { diagnosticos: d, negocios: n, visitas } = await api("listar");
+    const { diagnosticos: d, negocios: n, formularios: f, visitas } = await api("listar");
     diagnosticos = d;
     negocios = n || [];
+    formularios = f || [];
     desenharVisitas(visitas);
     $("problema").hidden = true;
     desenharTudo();
@@ -706,11 +721,13 @@ for (const [id, nome] of [["aba-contato", "contato"], ["aba-todos", "todos"]]) {
 document.querySelectorAll(".botao-atualizar").forEach((botao) => botao.addEventListener("click", async () => {
   const botoes = document.querySelectorAll(".botao-atualizar");
   const antes = new Set(diagnosticos.map((x) => x.id + "|" + (x.contato_em || "") + "|" + (x.concluido_em || "")));
+  const antesForm = new Set(formularios.map((f) => f.id + "|" + f.atualizado_em));
   botoes.forEach((b) => { b.disabled = true; b.textContent = "Atualizando…"; });
   const deuCerto = await carregar();
   botoes.forEach((b) => { b.disabled = false; b.textContent = "Atualizar"; });
   if (deuCerto !== true) return; // o erro já aparece no quadro vermelho
-  const novos = diagnosticos.filter((x) => !antes.has(x.id + "|" + (x.contato_em || "") + "|" + (x.concluido_em || ""))).length;
+  const novos = diagnosticos.filter((x) => !antes.has(x.id + "|" + (x.contato_em || "") + "|" + (x.concluido_em || ""))).length
+    + formularios.filter((f) => !antesForm.has(f.id + "|" + f.atualizado_em)).length;
   $("atualizado").textContent = (novos ? `${novos} ${novos === 1 ? "novo" : "novos"}` : "Nada novo") + " · atualizado às " + new Date().toLocaleTimeString("pt-BR");
   anotar("atualizar: " + (novos ? novos + " novos" : "nada novo"));
 }));
@@ -787,7 +804,62 @@ async function importar(ids, botao) {
   }
 }
 
-function desenharTudo() { desenhar(); desenharFunil(); desenharProjetos(); }
+function desenharTudo() { desenhar(); desenharFormularios(); desenharFunil(); desenharProjetos(); }
+
+// ---------- os formulários de clientes (19/11) ----------
+// Cada cliente tem uma página com as perguntas dele (/pousadamare). As respostas vêm
+// agrupadas pelos blocos do formulário; a mais nova já aparece aberta.
+function desenharFormularios() {
+  $("formularios").hidden = !formularios.length;
+  $("form-conta").textContent = formularios.length === 1 ? "1 resposta" : formularios.length + " respostas";
+  $("lista-form").replaceChildren(...formularios.map((f, i) => cartaoFormulario(f, i === 0)));
+}
+
+function cartaoFormulario(f, aberto) {
+  const reenviado = f.envios > 1 ? " · atualizado" : "";
+  const c = el("article", { class: "pessoa formulario" },
+    el("div", { class: "cabeca" },
+      el("div", {}, el("h2", { text: f.cliente || f.formulario }), el("small", { text: f.nome + " · " + quando(f.atualizado_em || f.criado_em) + reenviado })),
+      el("span", { class: "etiqueta-form", text: "formulário" })));
+  if (f.whatsapp) {
+    const texto = `Oi, ${f.nome.split(" ")[0]}! Aqui é a Lorena Bragança. Recebi as respostas do formulário${f.cliente ? " da " + f.cliente : ""}, obrigada!`;
+    const zap = el("a", { class: "botao pequeno", href: `https://wa.me/${f.whatsapp}?text=${encodeURIComponent(texto)}`, target: "_blank", rel: "noopener" });
+    zap.innerHTML = '<svg aria-hidden="true"><use href="#i-zap"/></svg>';
+    zap.append("Chamar");
+    c.append(el("div", { class: "contato" }, el("span", { class: "numero-zap", text: numeroLegivel(f.whatsapp) }), zap));
+  }
+  const respondidas = (f.respostas || []).filter((r) => r.resposta).length;
+  const caixa = el("details", {}, el("summary", { text: `Ver as respostas (${respondidas} de ${(f.respostas || []).length})` }));
+  if (aberto) caixa.open = true;
+  let secao = null, lista = null;
+  for (const r of f.respostas || []) {
+    if (r.secao !== secao) { secao = r.secao; lista = el("dl"); caixa.append(el("h3", { text: secao }), lista); }
+    lista.append(el("dt", { text: r.pergunta }), r.resposta ? el("dd", { text: r.resposta }) : el("dd", { class: "sem", text: "sem resposta" }));
+  }
+  c.append(caixa);
+
+  // dois toques, como no diagnóstico: um toque sem querer não some com as respostas
+  const apagar = el("button", { type: "button", class: "apagar", text: "Apagar esta resposta" });
+  let armado = null;
+  apagar.addEventListener("click", async () => {
+    if (!armado) {
+      apagar.textContent = "Toque de novo para apagar de vez"; apagar.classList.add("confirmar");
+      armado = setTimeout(() => { armado = null; apagar.textContent = "Apagar esta resposta"; apagar.classList.remove("confirmar"); }, 4000);
+      return;
+    }
+    clearTimeout(armado); apagar.disabled = true; apagar.textContent = "Apagando…";
+    try {
+      await api("apagar_formulario", { id: f.id });
+      formularios = formularios.filter((y) => y.id !== f.id);
+      desenharFormularios();
+    } catch (err) {
+      if (err instanceof SemPasse) return mostrar("entrar");
+      apagar.disabled = false; apagar.textContent = err.status === 404 ? "Já tinha sido apagada" : "Não consegui apagar. Tente de novo.";
+    }
+  });
+  c.append(apagar);
+  return c;
+}
 
 function desenharFunil() {
   const diagPorId = new Map(diagnosticos.map((x) => [x.id, x]));
@@ -1020,6 +1092,8 @@ document.querySelectorAll("[data-filtro]").forEach((b) => b.addEventListener("cl
   desenharProjetos();
 }));
 irPara(tela);
+// o aviso de resposta nova abre em /adm/#formularios: vai direto para lá
+if (location.hash === "#formularios") irPara("diag");
 
 // ---------- notificações ----------
 // No iPhone, notificação de site só funciona com a página salva na Tela de Início

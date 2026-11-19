@@ -10,9 +10,11 @@
 //   negocio    cria ou altera um negócio do funil (e o projeto, quando fecha)
 //   apagar_negocio  tira um negócio do funil
 //   importar   traz para o funil os contatos da lead page que chegaram antes dele existir
+//   apagar_formulario  apaga uma resposta de formulário de cliente (/pousadamare)
 import crypto from "node:crypto";
 import { SENHA, faltando, responder, lerCorpo, listarDiagnosticos, resumoDeVisitas, apagarDiagnostico, marcarContatado, guardarInscricao, senhaConfere, criarPasse, passeValido, chavesVapid, avisar,
-  ETAPAS, NOME_DA_ETAPA, listarNegocios, lerNegocio, gravarNegocio, apagarNegocio, negocioDoDiagnostico, lerDiagnosticos } from "./_lib.mjs";
+  ETAPAS, NOME_DA_ETAPA, listarNegocios, lerNegocio, gravarNegocio, apagarNegocio, negocioDoDiagnostico, lerDiagnosticos,
+  listarFormularios, apagarFormulario } from "./_lib.mjs";
 
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 const esperar = (ms) => new Promise((r) => setTimeout(r, ms));
@@ -138,12 +140,13 @@ export default async function handler(req, res) {
     switch (d.acao) {
       case "listar": {
         // as visitas são extra: se a conta delas falhar, a lista de pessoas aparece mesmo assim
-        const [diagnosticos, negocios, visitas] = await Promise.all([
+        const [diagnosticos, negocios, formularios, visitas] = await Promise.all([
           listarDiagnosticos(),
           listarNegocios(),
+          listarFormularios(),
           resumoDeVisitas().catch((e) => { console.warn("visitas:", e.message); return null; }),
         ]);
-        return responder(res, 200, { diagnosticos, negocios, visitas, passe: renovado });
+        return responder(res, 200, { diagnosticos, negocios, formularios, visitas, passe: renovado });
       }
       case "marcar": {
         if (typeof d.id !== "string" || !UUID.test(d.id)) return responder(res, 400, { erro: "Diagnóstico inválido." });
@@ -172,6 +175,11 @@ export default async function handler(req, res) {
         if (typeof d.id !== "string" || !UUID.test(d.id)) return responder(res, 400, { erro: "Negócio inválido." });
         const apagou = await apagarNegocio(d.id);
         return responder(res, apagou ? 200 : 404, apagou ? { ok: true } : { erro: "Esse negócio já não existia." });
+      }
+      case "apagar_formulario": {
+        if (typeof d.id !== "string" || !UUID.test(d.id)) return responder(res, 400, { erro: "Resposta inválida." });
+        const apagou = await apagarFormulario(d.id);
+        return responder(res, apagou ? 200 : 404, apagou ? { ok: true } : { erro: "Essa resposta já não existia." });
       }
       case "importar": {
         const ids = Array.isArray(d.ids) ? d.ids.filter((x) => typeof x === "string" && UUID.test(x)).slice(0, 500) : [];

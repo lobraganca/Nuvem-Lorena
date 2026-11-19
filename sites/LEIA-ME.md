@@ -41,6 +41,24 @@ WhatsApp abre igual — o que se perde é só a linha no /adm.
 O número que recebe a mensagem fica na constante `WHATSAPP` do `index.html` —
 `5531971473162`, confirmado por ela em 31/10. É o mesmo do suporte do Ei.
 
+### Formulários de clientes: o `/pousadamare` (19/11)
+
+Um formulário de diagnóstico feito para um cliente só, numa página dele, fora do
+Google (`noindex`). O primeiro é o da Pousada Maré, com as perguntas que ela
+mandou em 19/11; as cores e a logo (`pousadamare/logo-mare.png`, recortada do
+print que ela mandou) são as da pousada. As perguntas ficam numa lista no começo
+do script da página: mudar uma pergunta é mudar uma linha.
+
+- O rascunho fica guardado no aparelho de quem responde até enviar; enviar de novo
+  do mesmo aparelho atualiza a mesma resposta (não duplica).
+- `api/formulario.mjs` grava em `form:<id>` (fila `forms`), 2 anos como o contato,
+  e manda o aviso para o celular dela ("Nova resposta · Pousada Maré").
+- No /adm, aparece em **Diagnósticos > Formulários de clientes**; o aviso abre
+  direto ali (`/adm/#formularios`).
+- **Cliente novo**: uma linha em `FORMULARIOS` (`api/_lib.mjs`) com o nome da
+  página, e uma cópia da pasta `pousadamare/` com as perguntas dele. O servidor
+  recusa formulário que não está na lista.
+
 ### O `/adm` e o servidor (`api/`)
 
 `/adm` é a lista de quem fez o diagnóstico, só dela: senha, números no topo,
