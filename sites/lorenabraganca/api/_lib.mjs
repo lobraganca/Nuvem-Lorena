@@ -126,12 +126,17 @@ async function gravarFormulario(f) {
   const [atual] = await redis(["GET", chaveDoFormulario(f.id)]);
   const antes = atual ? JSON.parse(atual) : null;
   const agora = new Date().toISOString();
-  const junto = { ...f, criado_em: antes?.criado_em || agora, atualizado_em: agora, envios: (antes?.envios || 0) + 1 };
+  // desde a tarde de 19/11 a página salva a cada pergunta (concluido: false) e no fim (true):
+  // "concluido_em" é a primeira vez que a pessoa tocou em Enviar, e não volta a ficar vazio
+  const concluido_em = antes?.concluido_em || (f.concluido ? agora : null);
+  const { concluido, ...dados } = f;
+  const junto = { ...dados, criado_em: antes?.criado_em || agora, atualizado_em: agora, concluido_em,
+    envios: (antes?.envios || 0) + (concluido ? 1 : 0) };
   await redis(
     ["SET", chaveDoFormulario(f.id), JSON.stringify(junto), "EX", VALIDADE_DO_CONTATO],
     ["ZADD", "forms", Date.parse(agora), f.id], // atualizada sobe para o topo da lista
   );
-  return { formulario: junto, novo: !antes };
+  return { formulario: junto, antes };
 }
 
 async function listarFormularios(limite = 200) {

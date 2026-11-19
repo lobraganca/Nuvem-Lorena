@@ -113,6 +113,21 @@ input:focus, textarea:focus { outline: none; border-color: var(--verde); }
 .rodape { text-align: center; padding: 8px 0 40px; font-size: 14px; color: var(--suave); }
 .rodape a { color: var(--suave); }
 @media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+
+/* 19/11, à tarde: ela pediu UMA pergunta por tela, que vai salvando e passando para a
+   próxima, e uma tela de agradecimento no fim */
+.tela { padding: 28px 0 40px; }
+.passo { background: var(--cartao); border: 1.5px solid var(--borda); border-radius: 22px; padding: 26px 20px; display: grid; gap: 22px; }
+.passo .chapeu { font: 700 12px/1.3 var(--f-titulo); letter-spacing: .14em; text-transform: uppercase; color: var(--verde); }
+.passo h2 { font-size: clamp(23px, 6vw, 28px); font-weight: 800; outline: none; }
+.passo .dica { margin-top: -10px; font-size: 15px; }
+.navegar { display: flex; gap: 10px; align-items: center; }
+.navegar .botao { flex: 1; }
+.navegar .voltar { flex: none; width: auto; padding-inline: 20px; }
+.pular { justify-self: center; background: none; border: 0; color: var(--suave); font: 600 14px/1 var(--f-titulo); cursor: pointer; padding: 8px; }
+.salvo { justify-self: center; font-size: 13px; color: var(--apagado); min-height: 1em; }
+.pronto .logo { width: min(220px, 70%); height: auto; }
+.resumo-envio { color: var(--suave); font-size: 15px; }
 </style>
 </head>
 <body>
@@ -126,46 +141,44 @@ input:focus, textarea:focus { outline: none; border-color: var(--verde); }
 </header>
 
 <main class="miolo">
-  <section class="abertura">
+  <!-- abertura -->
+  <section class="abertura tela" id="tela-abertura">
     <img class="logo" src="/pousadamare/logo-mare.png" alt="Pousada Maré" width="540" height="217">
     <span class="selo">Diagnóstico do site</span>
     <h1>Vamos desenhar o site da <span>Pousada Maré</span></h1>
-    <p class="apoio">São cinco blocos de perguntas. O que é de marcar, é só tocar; o que é de escrever, pode ser curto. É destas respostas que eu monto a proposta do site de vocês.</p>
-    <p class="nota">Pode parar e continuar depois: o que você já respondeu fica guardado neste aparelho até enviar.</p>
+    <p class="apoio">Uma pergunta por vez. O que é de marcar, é só tocar; o que é de escrever, pode ser curto. É destas respostas que eu monto a proposta do site de vocês.</p>
+    <p class="nota">Cada resposta já fica salva quando você passa para a próxima: pode parar e continuar depois, deste mesmo aparelho.</p>
     <p class="ja-enviado" id="ja-enviado" hidden></p>
+    <button class="botao" type="button" id="comecar">Começar</button>
   </section>
 
-  <form id="form" novalidate>
-    <section class="bloco" aria-labelledby="t-quem">
-      <h2 id="t-quem"><span class="n" aria-hidden="true">•</span>Quem está respondendo</h2>
-      <div class="campos">
-        <label class="campo"><span>Seu nome</span><input type="text" id="nome" name="nome" autocomplete="name" maxlength="80" required></label>
-        <label class="campo"><span>WhatsApp (opcional)</span><input type="tel" id="whatsapp" name="whatsapp" autocomplete="tel" inputmode="tel" maxlength="20" placeholder="(73) 99999-9999"></label>
-      </div>
-    </section>
-    <div id="blocos" style="display: grid; gap: 18px"></div>
-    <div class="envio">
-      <p class="erro" id="erro" role="alert" hidden></p>
-      <button class="botao" type="submit" id="enviar">Enviar respostas</button>
-      <p class="nota">As respostas vão só para a Lorena Bragança. <a href="/privacidade/">Privacidade</a></p>
-    </div>
+  <!-- uma pergunta por vez -->
+  <form class="tela" id="form" novalidate hidden>
+    <div class="passo" id="passo"></div>
   </form>
 
-  <section class="pronto" id="pronto" hidden tabindex="-1">
-    <div class="icone" aria-hidden="true"><svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></div>
-    <h2>Recebi as respostas. Obrigada!</h2>
-    <p>Agora eu preparo a proposta do site da Maré a partir delas e te chamo para conversar.</p>
-    <button class="botao vazado" type="button" id="mudar">Mudar alguma resposta</button>
+  <!-- agradecimento -->
+  <section class="tela" id="tela-pronto" hidden>
+    <div class="pronto" id="pronto">
+      <img class="logo" src="/pousadamare/logo-mare.png" alt="Pousada Maré" width="540" height="217">
+      <div class="icone" aria-hidden="true"><svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></div>
+      <h2 id="obrigada" tabindex="-1">Obrigada!</h2>
+      <p><span id="recebi">Recebi todas as respostas.</span> Agora eu preparo a proposta do site da Maré a partir delas e te chamo para conversar.</p>
+      <p class="resumo-envio" id="resumo-envio"></p>
+      <button class="botao vazado" type="button" id="revisar">Revisar minhas respostas</button>
+    </div>
   </section>
 </main>
 
-<footer class="rodape">Feito por <a href="/">Lorena Bragança</a></footer>
+<footer class="rodape">Feito por <a href="/">Lorena Bragança</a> · <a href="/privacidade/">Privacidade</a></footer>
 
 <script>
 // As perguntas são as que a Lorena mandou em 19/11, na ordem dela. "um" = marca uma opção,
 // "varios" = marca quantas quiser, "texto" = escreve. Onde ela não deu as opções, elas foram
-// escritas aqui (quartos, preços, restaurante, domínio) e podem mudar sem mexer no resto.
+// escritas aqui (quartos, preços, restaurante, domínio, fotos) e podem mudar sem mexer no resto.
 // Uma pergunta com "seRestaurante" só aparece se a pousada tem restaurante.
+// Desde a tarde de 19/11 é uma pergunta por tela: a cada "Próxima" o que já foi respondido
+// vai para o servidor (o /adm mostra "em andamento"), e o aviso no celular dela só sai no fim.
 const FORMULARIO = "pousadamare";
 const BLOCOS = [
   { titulo: "A pousada hoje", perguntas: [
@@ -201,6 +214,7 @@ const BLOCOS = [
 const OUTRO = /^Outr[oa]$/;
 const $ = (id) => document.getElementById(id);
 const GUARDADO = "form-" + FORMULARIO;
+const TODAS = BLOCOS.flatMap((b, i) => b.perguntas.map((p) => ({ ...p, bloco: i + 1, secao: `${i + 1}. ${b.titulo}` })));
 
 function el(tag, attrs = {}, ...filhos) {
   const n = document.createElement(tag);
@@ -210,177 +224,207 @@ function el(tag, attrs = {}, ...filhos) {
   filhos.forEach((f) => f && n.append(f));
   return n;
 }
-
-// ---------- desenhar as perguntas ----------
-function areaDeTexto(id, rotulo, placeholder) {
-  const t = el("textarea", { id, name: id, rows: "3", maxlength: "2000" });
-  if (placeholder) t.placeholder = placeholder;
-  t.addEventListener("input", () => crescer(t));
-  return t;
-}
 function crescer(t) { t.style.height = "auto"; t.style.height = t.scrollHeight + 3 + "px"; }
 
-BLOCOS.forEach((b, i) => {
-  const tid = "t-" + i;
-  const bloco = el("section", { class: "bloco", "aria-labelledby": tid },
-    el("h2", { id: tid }, el("span", { class: "n", "aria-hidden": "true", text: String(i + 1) }), document.createTextNode(b.titulo)));
-  for (const p of b.perguntas) {
-    let caixa;
-    if (p.tipo === "texto") {
-      caixa = el("div", { class: "pergunta", "data-pergunta": p.id },
-        el("label", { for: "q-" + p.id, text: p.texto }), areaDeTexto("q-" + p.id));
-    } else {
-      const lista = el("div", { class: "opcoes" });
-      p.opcoes.forEach((o, j) => {
-        lista.append(el("label", { class: "opcao" },
-          el("input", { type: p.tipo === "um" ? "radio" : "checkbox", name: "q-" + p.id, value: o, id: `q-${p.id}-${j}` }),
-          el("span", { text: o })));
-      });
-      const legenda = el("legend", { text: p.texto });
-      if (p.dica) legenda.append(el("span", { class: "dica", text: p.dica }));
-      caixa = el("fieldset", { class: "pergunta", "data-pergunta": p.id }, legenda, lista);
-      if (p.opcoes.some((o) => OUTRO.test(o))) {
-        const outro = el("input", { type: "text", id: "q-" + p.id + "-outro", maxlength: "200", placeholder: "Qual?", "aria-label": "Qual? (" + p.texto + ")" });
-        outro.hidden = true;
-        caixa.append(outro);
-      }
-      if (p.detalhe) {
-        const d = el("label", { class: "campo", id: "q-" + p.id + "-detalhe-caixa" }, el("span", { text: p.detalhe }),
-          p.detalheSe ? el("input", { type: "text", id: "q-" + p.id + "-detalhe", maxlength: "200" }) : areaDeTexto("q-" + p.id + "-detalhe"));
-        if (p.detalheSe) d.hidden = true;
-        caixa.append(d);
-      }
-    }
-    bloco.append(caixa);
-  }
-  $("blocos").append(bloco);
-});
-const TODAS = BLOCOS.flatMap((b, i) => b.perguntas.map((p) => ({ ...p, secao: `${i + 1}. ${b.titulo}` })));
-
-// ---------- ler o que está marcado ----------
-function marcadas(p) { return [...document.querySelectorAll(`input[name="q-${p.id}"]:checked`)].map((x) => x.value); }
-function temRestaurante() { return marcadas({ id: "restaurante" })[0] !== "Não"; }
-function visivel(p) { return !p.seRestaurante || temRestaurante(); }
-
-/** A resposta de uma pergunta, em texto, como vai aparecer no /adm. "" = não respondeu. */
-function resposta(p) {
-  if (p.tipo === "texto") return $("q-" + p.id).value.trim();
-  const outro = $("q-" + p.id + "-outro");
-  let r = marcadas(p).map((o) => (OUTRO.test(o) && outro && outro.value.trim() ? o + ": " + outro.value.trim() : o)).join(", ");
-  const det = $("q-" + p.id + "-detalhe");
-  if (r && det && det.value.trim() && (!p.detalheSe || marcadas(p)[0] === p.detalheSe)) r += (p.detalheSe ? ": " : "\nDetalhes: ") + det.value.trim();
-  return r;
-}
-
-function atualizarTela() {
-  for (const p of TODAS) {
-    document.querySelector(`[data-pergunta="${p.id}"]`).hidden = !visivel(p);
-    const outro = $("q-" + p.id + "-outro");
-    if (outro) outro.hidden = !marcadas(p).some((o) => OUTRO.test(o));
-    const caixa = $("q-" + p.id + "-detalhe-caixa");
-    if (caixa && p.detalheSe) caixa.hidden = marcadas(p)[0] !== p.detalheSe;
-  }
-  const valem = TODAS.filter(visivel);
-  const feitas = valem.filter((p) => resposta(p)).length;
-  $("contagem").textContent = `${feitas} de ${valem.length}`;
-  $("barra").style.width = (100 * feitas / valem.length) + "%";
-}
-
-// ---------- o rascunho, guardado no aparelho ----------
-// A dona da pousada pode responder aos poucos, entre um hóspede e outro. Se o celular
-// não deixar guardar (aba anônima), o formulário funciona do mesmo jeito, só não lembra.
+// ---------- o que já foi respondido (guardado no aparelho) ----------
+// v = { "quartos": "6 a 10", "canais": ["WhatsApp"], "canais-outro": "...", "nome": "..." }
 function novoId() {
   if (window.crypto && crypto.randomUUID) return crypto.randomUUID();
   return "10000000-1000-4000-8000-100000000000".replace(/[018]/g, (c) => (c ^ (crypto.getRandomValues(new Uint8Array(1))[0] & (15 >> (c / 4)))).toString(16));
 }
-let estado = { id: null, enviado_em: null };
+let estado = { id: null, v: {}, passo: 0, enviado_em: null };
 try { estado = { ...estado, ...JSON.parse(localStorage.getItem(GUARDADO) || "{}") }; } catch {}
 if (!estado.id) estado.id = novoId();
+if (!estado.v || typeof estado.v !== "object") estado.v = {};
+function guardar() { try { localStorage.setItem(GUARDADO, JSON.stringify(estado)); } catch {} }
 
-function campos() { return [...$("form").querySelectorAll("input, textarea")]; }
-function guardar() {
-  const valores = {};
-  for (const c of campos()) {
-    if (c.type === "radio" || c.type === "checkbox") { if (c.checked) valores[c.id] = true; }
-    else if (c.value) valores[c.id] = c.value;
-  }
-  try { localStorage.setItem(GUARDADO, JSON.stringify({ ...estado, valores })); } catch {}
+function marcadas(p) { const x = estado.v[p.id]; return Array.isArray(x) ? x : x ? [x] : []; }
+function visivel(p) { return !p.seRestaurante || estado.v.restaurante !== "Não"; }
+/** A resposta em texto, como aparece no /adm. "" = não respondeu. */
+function resposta(p) {
+  if (p.tipo === "texto") return (estado.v[p.id] || "").trim();
+  const outro = (estado.v[p.id + "-outro"] || "").trim();
+  let r = marcadas(p).map((o) => (OUTRO.test(o) && outro ? o + ": " + outro : o)).join(", ");
+  const det = (estado.v[p.id + "-detalhe"] || "").trim();
+  if (r && det && (!p.detalheSe || marcadas(p)[0] === p.detalheSe)) r += (p.detalheSe ? ": " : "\nDetalhes: ") + det;
+  return r;
 }
-function restaurar() {
-  const v = estado.valores || {};
-  for (const c of campos()) {
-    if (!(c.id in v)) continue;
-    if (c.type === "radio" || c.type === "checkbox") c.checked = true; else c.value = v[c.id];
-  }
-  document.querySelectorAll("textarea").forEach(crescer);
-  mostrarJaEnviado();
-}
-function mostrarJaEnviado() {
-  if (!estado.enviado_em) return;
-  const dia = new Date(estado.enviado_em).toLocaleDateString("pt-BR", { day: "2-digit", month: "2-digit" });
-  $("ja-enviado").textContent = `Você já enviou as respostas em ${dia}. Se mudar alguma coisa, é só enviar de novo: atualiza o que eu recebi.`;
-  $("ja-enviado").hidden = false;
-}
-restaurar();
-atualizarTela();
-$("form").addEventListener("input", () => { atualizarTela(); guardar(); });
-$("form").addEventListener("change", () => { atualizarTela(); guardar(); });
 
-// ---------- enviar ----------
+// os passos: 0 = quem está respondendo, depois uma pergunta por passo
+function passos() { return ["quem", ...TODAS.filter(visivel)]; }
+
+// ---------- desenhar um passo ----------
+function desenharPasso() {
+  const lista = passos();
+  estado.passo = Math.max(0, Math.min(estado.passo, lista.length - 1));
+  const i = estado.passo, p = lista[i], ultimo = i === lista.length - 1;
+  const caixa = $("passo");
+  caixa.replaceChildren();
+
+  if (p === "quem") {
+    caixa.append(el("span", { class: "chapeu", text: "Antes de começar" }),
+      el("h2", { id: "titulo-passo", tabindex: "-1", text: "Quem está respondendo?" }));
+    const nome = el("input", { type: "text", id: "nome", autocomplete: "name", maxlength: "80" });
+    const zap = el("input", { type: "tel", id: "whatsapp", autocomplete: "tel", inputmode: "tel", maxlength: "20", placeholder: "(73) 99999-9999" });
+    nome.value = estado.v.nome || ""; zap.value = estado.v.whatsapp || "";
+    nome.addEventListener("input", () => { estado.v.nome = nome.value; guardar(); });
+    zap.addEventListener("input", () => { estado.v.whatsapp = zap.value; guardar(); });
+    caixa.append(el("div", { class: "campos" },
+      el("label", { class: "campo" }, el("span", { text: "Seu nome" }), nome),
+      el("label", { class: "campo" }, el("span", { text: "WhatsApp (opcional)" }), zap)));
+  } else {
+    caixa.append(el("span", { class: "chapeu", text: p.secao }));
+    const titulo = el("h2", { id: "titulo-passo", tabindex: "-1", text: p.texto });
+    caixa.append(titulo);
+    if (p.dica) caixa.append(el("p", { class: "dica", text: p.dica }));
+    if (p.tipo === "texto") {
+      const t = el("textarea", { id: "q-" + p.id, rows: "4", maxlength: "2000", "aria-labelledby": "titulo-passo" });
+      t.value = estado.v[p.id] || "";
+      t.addEventListener("input", () => { estado.v[p.id] = t.value; guardar(); crescer(t); atualizarContagem(); });
+      caixa.append(t);
+      requestAnimationFrame(() => crescer(t));
+    } else {
+      const grupo = el("div", { class: "opcoes", role: p.tipo === "um" ? "radiogroup" : "group", "aria-labelledby": "titulo-passo" });
+      const extras = el("div", { style: "display: grid; gap: 12px" });
+      p.opcoes.forEach((o, j) => {
+        const inp = el("input", { type: p.tipo === "um" ? "radio" : "checkbox", name: "q-" + p.id, value: o, id: `q-${p.id}-${j}` });
+        inp.checked = marcadas(p).includes(o);
+        inp.addEventListener("change", () => {
+          if (p.tipo === "um") estado.v[p.id] = o;
+          else estado.v[p.id] = [...grupo.querySelectorAll("input:checked")].map((x) => x.value);
+          guardar(); desenharExtras(p, extras); atualizarContagem();
+          // marca uma e já passa, se não há mais nada para preencher nesta pergunta
+          if (p.tipo === "um" && !(p.detalheSe && o === p.detalheSe) && !(p.detalhe && !p.detalheSe)) setTimeout(() => avancar(), 280);
+        });
+        grupo.append(el("label", { class: "opcao" }, inp, el("span", { text: o })));
+      });
+      caixa.append(grupo, extras);
+      desenharExtras(p, extras);
+    }
+  }
+
+  const nav = el("div", { class: "navegar" });
+  if (i > 0) {
+    const voltar = el("button", { type: "button", class: "botao vazado voltar", "aria-label": "Voltar", text: "←" });
+    voltar.addEventListener("click", () => ir(i - 1));
+    nav.append(voltar);
+  }
+  const seguir = el("button", { type: "submit", class: "botao", id: "seguir", text: ultimo ? "Enviar respostas" : "Próxima →" });
+  nav.append(seguir);
+  caixa.append(el("p", { class: "erro", id: "erro", role: "alert", hidden: "" }), nav, el("span", { class: "salvo", id: "salvo", "aria-live": "polite" }));
+  atualizarContagem();
+}
+
+function desenharExtras(p, onde) {
+  onde.replaceChildren();
+  if (marcadas(p).some((o) => OUTRO.test(o))) {
+    const outro = el("input", { type: "text", maxlength: "200", placeholder: "Qual?", "aria-label": "Qual?" });
+    outro.value = estado.v[p.id + "-outro"] || "";
+    outro.addEventListener("input", () => { estado.v[p.id + "-outro"] = outro.value; guardar(); });
+    onde.append(outro);
+  }
+  if (p.detalhe && (!p.detalheSe || marcadas(p)[0] === p.detalheSe)) {
+    const campo = p.detalheSe ? el("input", { type: "text", maxlength: "200" }) : el("textarea", { rows: "3", maxlength: "2000" });
+    campo.value = estado.v[p.id + "-detalhe"] || "";
+    campo.addEventListener("input", () => { estado.v[p.id + "-detalhe"] = campo.value; guardar(); if (campo.tagName === "TEXTAREA") crescer(campo); });
+    onde.append(el("label", { class: "campo" }, el("span", { text: p.detalhe }), campo));
+  }
+}
+
+function atualizarContagem() {
+  const lista = TODAS.filter(visivel);
+  if ($("form").hidden) { $("contagem").textContent = ""; $("barra").style.width = "0"; return; }
+  const i = estado.passo;
+  $("contagem").textContent = i === 0 ? "Começando" : `Pergunta ${i} de ${lista.length}`;
+  $("barra").style.width = (100 * Math.max(0, i) / (lista.length + 1)) + "%";
+}
+
+function mostrar(tela) {
+  $("tela-abertura").hidden = tela !== "abertura";
+  $("form").hidden = tela !== "form";
+  $("tela-pronto").hidden = tela !== "pronto";
+  if (tela !== "form") { $("contagem").textContent = ""; $("barra").style.width = tela === "pronto" ? "100%" : "0"; }
+  window.scrollTo(0, 0);
+}
+
+function ir(i) {
+  estado.passo = i; guardar();
+  desenharPasso();
+  window.scrollTo(0, 0);
+  const t = $("titulo-passo"); if (t) t.focus({ preventScroll: true });
+}
+
+// ---------- salvar no servidor ----------
 function whatsappValido(v) {
-  let d = v.replace(/\D/g, "");
+  let d = String(v || "").replace(/\D/g, "");
   if (!d) return "";
   if (d.length === 10 || d.length === 11) d = "55" + d;
   return /^55\d{10,11}$/.test(d) ? d : null;
 }
-function erro(texto, foco) {
-  $("erro").textContent = texto; $("erro").hidden = false;
-  if (foco) foco.focus();
+function corpo(concluido) {
+  return {
+    id: estado.id, formulario: FORMULARIO, concluido,
+    nome: (estado.v.nome || "").trim(), whatsapp: whatsappValido(estado.v.whatsapp) || null,
+    respostas: TODAS.filter(visivel).map((p) => ({ secao: p.secao, pergunta: p.texto, resposta: resposta(p) })),
+  };
+}
+async function salvar(concluido) {
+  const r = await fetch("/api/formulario", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(corpo(concluido)) });
+  if (!r.ok) { const c = await r.json().catch(() => ({})); throw new Error(c.erro || "Erro " + r.status); }
 }
 
-$("form").addEventListener("submit", async (e) => {
-  e.preventDefault();
-  $("erro").hidden = true;
-  const nome = $("nome").value.trim();
-  const whatsapp = whatsappValido($("whatsapp").value);
-  if (!nome) return erro("Escreva o seu nome lá em cima, para eu saber quem respondeu.", $("nome"));
-  if (whatsapp === null) return erro("O WhatsApp não parece certo: escreva com o DDD, como (73) 99999-9999. Ou deixe em branco.", $("whatsapp"));
-  const respostas = TODAS.filter(visivel).map((p) => ({ secao: p.secao, pergunta: p.texto, resposta: resposta(p) }));
-  if (!respostas.some((r) => r.resposta)) return erro("Responda pelo menos uma pergunta antes de enviar.");
+function erro(texto) { const e = $("erro"); e.textContent = texto; e.hidden = false; }
 
-  const botao = $("enviar");
-  botao.disabled = true; botao.textContent = "Enviando…";
-  try {
-    const r = await fetch("/api/formulario", {
-      method: "POST", headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ id: estado.id, formulario: FORMULARIO, nome, whatsapp: whatsapp || null, respostas }),
-    });
-    if (!r.ok) {
-      const corpo = await r.json().catch(() => ({}));
-      throw new Error(corpo.erro || "Erro " + r.status);
-    }
-    estado.enviado_em = new Date().toISOString();
-    guardar();
-    $("form").hidden = true;
-    document.querySelector(".abertura").hidden = true;
-    $("pronto").hidden = false;
-    $("pronto").focus();
-    window.scrollTo(0, 0);
-  } catch (err) {
-    erro("Não consegui enviar agora (" + err.message + "). Confira a internet e tente de novo: as suas respostas continuam aqui.");
-  } finally {
-    botao.disabled = false; botao.textContent = "Enviar respostas";
+// "Próxima": confere o passo, salva o que já tem e vai em frente
+async function avancar() {
+  const lista = passos(), i = estado.passo, p = lista[i], ultimo = i === lista.length - 1;
+  if (p === "quem") {
+    if (!(estado.v.nome || "").trim()) { erro("Escreva o seu nome, para eu saber quem respondeu."); $("nome").focus(); return; }
+    if (whatsappValido(estado.v.whatsapp) === null) { erro("O WhatsApp não parece certo: escreva com o DDD, como (73) 99999-9999. Ou deixe em branco."); $("whatsapp").focus(); return; }
   }
-});
+  const temAlguma = TODAS.some((q) => visivel(q) && resposta(q));
+  if (ultimo) {
+    if (!temAlguma) { erro("Responda pelo menos uma pergunta antes de enviar."); return; }
+    const b = $("seguir"); b.disabled = true; b.textContent = "Enviando…";
+    try {
+      await salvar(true);
+    } catch (e) {
+      b.disabled = false; b.textContent = "Enviar respostas";
+      erro("Não consegui enviar agora (" + e.message + "). Confira a internet e tente de novo: as suas respostas continuam aqui.");
+      return;
+    }
+    estado.enviado_em = new Date().toISOString(); guardar();
+    const feitas = TODAS.filter((q) => visivel(q) && resposta(q)).length, total = TODAS.filter(visivel).length;
+    const primeiro = (estado.v.nome || "").trim().split(" ")[0];
+    $("obrigada").textContent = primeiro ? `Obrigada, ${primeiro}!` : "Obrigada!";
+    $("recebi").textContent = feitas < total ? "Recebi as suas respostas." : "Recebi todas as respostas.";
+    $("resumo-envio").textContent = feitas < total ? `Você respondeu ${feitas} de ${total} perguntas. Se quiser completar depois, é só voltar aqui.` : "";
+    mostrar("pronto");
+    $("obrigada").focus({ preventScroll: true });
+    return;
+  }
+  // salvar no meio do caminho não pode travar quem está respondendo: se falhar, segue
+  // em frente (tudo continua guardado no aparelho e vai junto no próximo envio)
+  if (temAlguma && (estado.v.nome || "").trim()) {
+    salvar(false).then(() => { const s = $("salvo"); if (s) s.textContent = "Respostas salvas"; }).catch(() => {});
+  }
+  ir(i + 1);
+}
 
-$("mudar").addEventListener("click", () => {
-  $("pronto").hidden = true;
-  $("form").hidden = false;
-  document.querySelector(".abertura").hidden = false;
-  mostrarJaEnviado(); // os campos continuam preenchidos: só o formulário estava escondido
-  document.querySelectorAll("textarea").forEach(crescer);
-  $("nome").focus();
-});
+$("form").addEventListener("submit", (e) => { e.preventDefault(); avancar(); });
+$("comecar").addEventListener("click", () => { mostrar("form"); ir(estado.passo || 0); });
+$("revisar").addEventListener("click", () => { mostrar("form"); ir(1); });
+
+// abrindo de novo: lembra onde parou
+if (estado.enviado_em) {
+  const dia = new Date(estado.enviado_em).toLocaleDateString("pt-BR", { day: "2-digit", month: "2-digit" });
+  $("ja-enviado").textContent = `Você já enviou as respostas em ${dia}. Se mudar alguma coisa, é só enviar de novo: atualiza o que eu recebi.`;
+  $("ja-enviado").hidden = false;
+  $("comecar").textContent = "Revisar as respostas";
+} else if (estado.passo > 0) {
+  $("comecar").textContent = "Continuar de onde parei";
+}
+mostrar("abertura");
 </script>
 </body>
 </html>

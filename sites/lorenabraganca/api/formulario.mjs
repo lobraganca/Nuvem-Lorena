@@ -1,6 +1,7 @@
 // Recebe as respostas de um formulário de cliente (desde 19/11; o primeiro é o /pousadamare).
-// A página manda tudo de uma vez, no fim. Mandar de novo do mesmo aparelho (mesmo id)
-// atualiza a resposta em vez de criar outra. A Lorena recebe o aviso no celular, e as
+// A página manda o que já foi respondido a cada pergunta (concluido: false) e tudo de novo
+// no fim (concluido: true). Mandar de novo do mesmo aparelho (mesmo id) atualiza a mesma
+// resposta em vez de criar outra. O aviso no celular só sai quando a pessoa termina. A Lorena recebe o aviso no celular, e as
 // respostas aparecem no /adm, em Diagnósticos > Formulários de clientes.
 import { faltando, responder, lerCorpo, FORMULARIOS, gravarFormulario, avisar } from "./_lib.mjs";
 
@@ -41,13 +42,16 @@ export default async function handler(req, res) {
   if (!respostas) return responder(res, 400, { erro: "Nenhuma resposta chegou." });
 
   const cliente = FORMULARIOS[formulario];
-  let novo;
+  const concluido = d.concluido !== false; // a página antiga não mandava o campo: era sempre no fim
+  let antes;
   try {
-    ({ novo } = await gravarFormulario({ id, formulario, cliente, nome, whatsapp, respostas }));
+    ({ antes } = await gravarFormulario({ id, formulario, cliente, nome, whatsapp, respostas, concluido }));
   } catch (e) {
     console.error("o formulário não gravou:", e.message);
     return responder(res, 502, { erro: "Não foi possível gravar agora." });
   }
+  if (!concluido) return responder(res, 204); // no meio do caminho: salva e não avisa
+  const novo = !antes?.concluido_em;
   try { // o aviso não pode derrubar a resposta: ela já está salva
     await avisar({
       titulo: (novo ? "Nova resposta · " : "Resposta atualizada · ") + cliente,

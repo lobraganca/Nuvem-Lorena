@@ -51,8 +51,12 @@ A logo vai com endereço completo (`/pousadamare/logo-mare.png`): aberta sem a b
 no fim, a página procurava a imagem na raiz e ela não aparecia (19/11). As perguntas ficam numa lista no começo
 do script da página: mudar uma pergunta é mudar uma linha.
 
-- O rascunho fica guardado no aparelho de quem responde até enviar; enviar de novo
-  do mesmo aparelho atualiza a mesma resposta (não duplica).
+- Uma pergunta por tela (pedido dela, 19/11 à tarde), com Voltar e Próxima; pergunta
+  de marcar uma opção passa sozinha. No fim, a tela de agradecimento.
+- Cada "Próxima" já salva no servidor o que foi respondido (`concluido: false`): no
+  /adm aparece como "respondendo". O aviso no celular dela só sai quando a pessoa
+  toca em Enviar. Tudo fica também no aparelho de quem responde, para continuar
+  depois de onde parou; enviar de novo atualiza a mesma resposta (não duplica).
 - `api/formulario.mjs` grava em `form:<id>` (fila `forms`), 2 anos como o contato,
   e manda o aviso para o celular dela ("Nova resposta · Pousada Maré").
 - No /adm, aparece em **Diagnósticos > Formulários de clientes**; o aviso abre
