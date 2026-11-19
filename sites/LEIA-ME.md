@@ -67,6 +67,12 @@ do script da página: mudar uma pergunta é mudar uma linha.
 
 ### O `/adm` e o servidor (`api/`)
 
+**A tela do /adm tem versão** (`VERSAO_DA_TELA`, em `adm/index.html` E em
+`api/adm.mjs`): mexeu na tela, mude as duas, juntas. O app da tela inicial do
+iPhone guardava a tela velha e só atualizava os números (19/11: ela fechou e abriu
+e a parte nova não aparecia); quando o servidor diz outra versão, a tela se
+recarrega sozinha, uma vez.
+
 `/adm` é a lista de quem fez o diagnóstico, só dela: senha, números no topo,
 botão "Chamar" (abre a conversa já começada) e "Já falei com essa pessoa".
 Fica fora do Google (`noindex`) e sem link em lugar nenhum.

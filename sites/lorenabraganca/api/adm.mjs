@@ -96,6 +96,11 @@ function montarNegocio(antes, d) {
 // nesse modo; o Lax continua sem ir em pedido vindo de outro site).
 // Vale 180 dias e se renova a cada uso: só volta a pedir senha depois de 6 meses sem
 // abrir, ao tocar em Sair, ou se a senha mudar na Vercel.
+// A versão da tela do /adm. Mudou o adm/index.html? Mude AQUI e lá (VERSAO_DA_TELA), juntos.
+// O app da tela inicial do iPhone guarda a tela velha e só busca os dados de novo: em 19/11
+// ela não via a parte nova mesmo fechando e abrindo. Com isto, a tela vê que ficou para
+// trás e se recarrega sozinha.
+const VERSAO_DA_TELA = "2026-11-19b";
 const DIAS = 180;
 const COOKIE = "adm_passe";
 const cookie = (valor, segundos) => `${COOKIE}=${valor}; Path=/api/adm; Max-Age=${segundos}; HttpOnly; Secure; SameSite=Lax`;
@@ -146,7 +151,7 @@ export default async function handler(req, res) {
           listarFormularios(),
           resumoDeVisitas().catch((e) => { console.warn("visitas:", e.message); return null; }),
         ]);
-        return responder(res, 200, { diagnosticos, negocios, formularios, visitas, passe: renovado });
+        return responder(res, 200, { diagnosticos, negocios, formularios, visitas, versao: VERSAO_DA_TELA, passe: renovado });
       }
       case "marcar": {
         if (typeof d.id !== "string" || !UUID.test(d.id)) return responder(res, 400, { erro: "Diagnóstico inválido." });

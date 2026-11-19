@@ -407,6 +407,8 @@ const ler = (k) => { try { return localStorage.getItem(k); } catch { return null
 const apagar = (k) => { try { localStorage.removeItem(k); } catch {} };
 const $ = (id) => document.getElementById(id);
 
+// mude junto com VERSAO_DA_TELA de api/adm.mjs: se o servidor disser outra, a tela está velha
+const VERSAO_DA_TELA = "2026-11-19b";
 let diagnosticos = [];
 let negocios = [];
 let formularios = [];
@@ -489,7 +491,19 @@ function problemaTexto(corpo) {
 // ---------- a lista ----------
 async function carregar() {
   try {
-    const { diagnosticos: d, negocios: n, formularios: f, visitas } = await api("listar");
+    const { diagnosticos: d, negocios: n, formularios: f, visitas, versao } = await api("listar");
+    // tela velha guardada pelo celular: recarrega uma vez, com um endereço que fura a cópia
+    if (versao && versao !== VERSAO_DA_TELA) {
+      let tentou = null;
+      try { tentou = sessionStorage.getItem("adm-versao-tentada"); } catch {}
+      if (tentou !== versao) {
+        try { sessionStorage.setItem("adm-versao-tentada", versao); } catch {}
+        anotar("tela velha (" + VERSAO_DA_TELA + "), recarregando para " + versao);
+        location.replace("/adm/?v=" + encodeURIComponent(versao) + location.hash);
+        return true;
+      }
+      anotar("a tela continua velha depois de recarregar");
+    }
     diagnosticos = d;
     negocios = n || [];
     formularios = f || [];
