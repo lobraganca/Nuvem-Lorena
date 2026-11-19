@@ -49,6 +49,7 @@ a { color: var(--verde); }
 /* topo fixo com o andamento: são muitas perguntas, e no celular ajuda saber quanto falta */
 .topo { position: sticky; top: 0; z-index: 10; background: rgba(250, 250, 246, .94); backdrop-filter: blur(8px); border-bottom: 1px solid var(--borda); }
 .topo .miolo { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding-block: 12px; }
+.logo-topo { height: 50px; width: auto; display: block; }
 .nome { font: 800 18px/1 var(--f-titulo); letter-spacing: -.02em; text-decoration: none; color: var(--texto); }
 .nome span { color: var(--verde); }
 .contagem { font: 700 14px/1 var(--f-titulo); color: var(--suave); font-variant-numeric: tabular-nums; }
@@ -134,7 +135,7 @@ input:focus, textarea:focus { outline: none; border-color: var(--verde); }
 
 <header class="topo">
   <div class="miolo">
-    <a class="nome" href="/">Lorena Bragança<span>.</span></a>
+    <img class="logo-topo" src="/pousadamare/logo-mare.png" alt="Pousada Maré" width="540" height="217">
     <span class="contagem" id="contagem" aria-live="polite"></span>
   </div>
   <div class="barra" aria-hidden="true"><span id="barra"></span></div>
