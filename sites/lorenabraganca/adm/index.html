@@ -304,7 +304,7 @@ dialog.ficha::backdrop { background: rgba(0, 0, 0, .6); }
 
   <section class="tela estreita" id="tela-diag" hidden>
   <!-- 19/11: as respostas dos formulários feitos para um cliente só (/pousadamare) -->
-  <section class="formularios" id="formularios" hidden>
+  <section class="formularios" id="formularios">
     <div class="visitas-topo"><h2>Formulários de clientes</h2><span id="form-conta"></span></div>
     <div class="lista" id="lista-form"></div>
   </section>
@@ -811,8 +811,15 @@ function desenharTudo() { desenhar(); desenharFormularios(); desenharFunil(); de
 // Cada cliente tem uma página com as perguntas dele (/pousadamare). As respostas vêm
 // agrupadas pelos blocos do formulário; a mais nova já aparece aberta.
 function desenharFormularios() {
-  $("formularios").hidden = !formularios.length;
+  // sempre à vista, mesmo vazia: escondida até a primeira resposta, ela não achou onde ficava (19/11)
+  $("formularios").hidden = false;
   $("form-conta").textContent = formularios.length === 1 ? "1 resposta" : formularios.length + " respostas";
+  if (!formularios.length) {
+    const vazio = el("p", { class: "vazio" }, document.createTextNode("Ainda não chegou nenhuma resposta do formulário da Pousada Maré. Elas aparecem aqui. "));
+    vazio.append(el("a", { href: "/pousadamare", target: "_blank", rel: "noopener", text: "Abrir o formulário" }));
+    $("lista-form").replaceChildren(vazio);
+    return;
+  }
   $("lista-form").replaceChildren(...formularios.map((f, i) => cartaoFormulario(f, i === 0)));
 }
 
