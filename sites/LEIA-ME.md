@@ -61,8 +61,12 @@ do script da página: mudar uma pergunta é mudar uma linha.
   e manda o aviso para o celular dela ("Nova resposta · Pousada Maré").
 - No /adm, aparece em **Diagnósticos > Formulários de clientes**; o aviso abre
   direto ali (`/adm/#formularios`).
-- **Cliente novo**: uma linha em `FORMULARIOS` (`api/_lib.mjs`) com o nome da
-  página, e uma cópia da pasta `pousadamare/` com as perguntas dele. O servidor
+- **Cliente novo**: uma linha em `FORMULARIOS` (`api/_lib.mjs`) e em
+  `PAGINAS_DE_CLIENTES` (`adm/index.html`), e uma cópia da pasta `sinalverde/` com
+  as perguntas dele (essa já tem o "se" genérico: pergunta que só aparece conforme
+  outra resposta). Mexeu no /adm: suba a `VERSAO_DA_TELA`.
+- `/sinalverde` (19/11): Sinal Verde Veículos, @sinalverde_veiculos. Ainda sem a
+  logo: o nome vai escrito no lugar dela. O servidor
   recusa formulário que não está na lista.
 
 ### O `/adm` e o servidor (`api/`)

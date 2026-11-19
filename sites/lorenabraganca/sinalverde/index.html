@@ -1,0 +1,432 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Diagnóstico do site · Sinal Verde Veículos</title>
+<!-- página de um cliente só: fora do Google -->
+<meta name="robots" content="noindex, nofollow">
+<meta name="theme-color" content="#FAFAF6">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<meta property="og:type" content="website">
+<meta property="og:locale" content="pt_BR">
+<meta property="og:title" content="Diagnóstico do site da Sinal Verde Veículos">
+<meta property="og:description" content="Responda as perguntas e eu monto a proposta do site de vocês. Lorena Bragança">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@600;700;800&family=Figtree:wght@400;500;600&display=swap">
+<style>
+/* 19/11: o formulário do diagnóstico da Sinal Verde Veículos, feito a partir do da Pousada Maré.
+   Primeiro saiu nas cores da pousada; ela pediu a paleta DELA, nas cores claras (as da
+   lead page de 14/11), com a logo da pousada no topo. O limão puro some em fundo claro:
+   texto e ícone de destaque usam o verde fechado. Contrastes: texto 17,6 · suave 7,6 ·
+   verde 6,4 · texto sobre limão 14,7. */
+:root {
+  --fundo: #FAFAF6;
+  --cartao: #FFFFFF;
+  --cartao-forte: #F2F4EC;
+  --borda: #E3E5DC;
+  --texto: #121418;
+  --suave: #4E535C;
+  --apagado: #80858E;
+  --limao: #C8F26B;
+  --verde: #4A6A0B;
+  --sobre-limao: #121418;
+  --f-titulo: "Plus Jakarta Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --f-texto: "Figtree", system-ui, -apple-system, "Segoe UI", sans-serif;
+  color-scheme: light;
+}
+* { box-sizing: border-box; }
+[hidden] { display: none !important; }
+html { scroll-padding-top: 90px; }
+body { margin: 0; background: var(--fundo); color: var(--texto); font: 17px/1.55 var(--f-texto); padding-bottom: env(safe-area-inset-bottom, 0px); }
+h1, h2, h3 { font-family: var(--f-titulo); margin: 0; letter-spacing: -.02em; line-height: 1.15; text-wrap: balance; }
+p { margin: 0; }
+a { color: var(--verde); }
+:focus-visible { outline: 3px solid var(--verde); outline-offset: 3px; border-radius: 8px; }
+.miolo { max-width: 680px; margin-inline: auto; padding-inline: max(18px, env(safe-area-inset-left, 0px)); }
+
+/* topo fixo com o andamento: são muitas perguntas, e no celular ajuda saber quanto falta */
+.topo { position: sticky; top: 0; z-index: 10; background: rgba(250, 250, 246, .94); backdrop-filter: blur(8px); border-bottom: 1px solid var(--borda); }
+.topo .miolo { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding-block: 12px; }
+/* sem a logo da agência ainda (19/11): o nome escrito no lugar. Chegando a logo, volta a ser <img> */
+.marca-cliente { font: 800 30px/1.05 var(--f-titulo); letter-spacing: -.03em; color: var(--texto); }
+.marca-cliente b { display: block; font-weight: 600; font-size: .5em; letter-spacing: .2em; text-transform: uppercase; color: var(--verde); margin-top: 4px; }
+.marca-cliente.pequena { font-size: 19px; }
+.pronto .marca-cliente { text-align: center; }
+.nome { font: 800 18px/1 var(--f-titulo); letter-spacing: -.02em; text-decoration: none; color: var(--texto); }
+.nome span { color: var(--verde); }
+.contagem { font: 700 14px/1 var(--f-titulo); color: var(--suave); font-variant-numeric: tabular-nums; }
+.barra { height: 4px; background: var(--borda); }
+.barra span { display: block; height: 100%; width: 0; background: var(--limao); transition: width .3s ease; }
+
+.abertura { display: grid; gap: 16px; padding: 36px 0 28px; }
+.abertura .logo { width: min(320px, 80%); height: auto; justify-self: start; }
+.selo { display: inline-flex; align-items: center; gap: 10px; width: fit-content; font: 700 12px/1 var(--f-titulo); letter-spacing: .16em; text-transform: uppercase; color: var(--texto); border: 1.5px solid var(--borda); background: var(--cartao); border-radius: 999px; padding: 10px 16px; }
+.selo::before { content: ""; width: 8px; height: 8px; border-radius: 50%; background: var(--verde); }
+.abertura h1 { font-size: clamp(30px, 7vw, 42px); font-weight: 800; }
+.abertura h1 span { position: relative; z-index: -1; background: var(--limao); color: var(--sobre-limao); border-radius: .16em; padding: 0 .14em .04em; box-decoration-break: clone; -webkit-box-decoration-break: clone; }
+.abertura h1 { position: relative; z-index: 0; }
+.apoio { color: var(--suave); font-size: 18px; }
+.nota { color: var(--suave); font-size: 14px; }
+.ja-enviado { background: var(--cartao-forte); border: 1.5px solid var(--borda); border-radius: 14px; padding: 12px 16px; font-size: 15px; }
+
+form { display: grid; gap: 18px; padding-bottom: 40px; }
+.bloco { background: var(--cartao); border: 1.5px solid var(--borda); border-radius: 22px; padding: 24px 20px; display: grid; gap: 26px; }
+.bloco > h2 { display: flex; align-items: center; gap: 12px; font-size: 21px; font-weight: 800; }
+.bloco > h2 .n { flex: none; display: grid; place-items: center; width: 36px; height: 36px; border-radius: 12px; background: var(--limao); color: var(--sobre-limao); font-size: 15px; letter-spacing: 0; }
+
+.pergunta { display: grid; gap: 10px; border: 0; margin: 0; padding: 0; min-width: 0; }
+.pergunta legend, .pergunta > label { padding: 0; font: 700 17px/1.35 var(--f-titulo); letter-spacing: -.01em; }
+.pergunta legend { margin-bottom: 10px; }
+.dica { display: block; margin-top: 4px; font: 500 14px/1.4 var(--f-texto); color: var(--suave); letter-spacing: 0; }
+
+/* as opções "de marcar" viram botões redondos: toca e marca */
+.opcoes { display: flex; flex-wrap: wrap; gap: 8px; }
+.opcao { position: relative; }
+.opcao input { position: absolute; opacity: 0; inset: 0; margin: 0; cursor: pointer; }
+.opcao span { display: inline-flex; align-items: center; gap: 8px; min-height: 46px; padding: 11px 16px; border: 1.5px solid var(--borda); border-radius: 999px; background: var(--fundo); font: 600 15px/1.25 var(--f-titulo); cursor: pointer; transition: background-color .15s, border-color .15s; }
+/* marcada: muda o fundo, a borda E ganha o ✓ — a cor sozinha não basta para ver */
+.opcao input:checked + span { background: var(--limao); border-color: var(--verde); color: var(--sobre-limao); }
+.opcao input:checked + span::before { content: "✓"; color: var(--sobre-limao); font-weight: 800; }
+.opcao input:focus-visible + span { outline: 3px solid var(--verde); outline-offset: 2px; }
+
+.campo { display: grid; gap: 6px; }
+.campo > span { font: 600 14px/1.2 var(--f-titulo); color: var(--suave); }
+input[type="text"], input[type="tel"], textarea {
+  font: 500 17px/1.45 var(--f-texto); color: var(--texto); background: var(--fundo);
+  border: 1.5px solid var(--borda); border-radius: 12px; padding: 13px 15px; width: 100%;
+}
+textarea { resize: none; min-height: 96px; overflow: hidden; }
+input::placeholder, textarea::placeholder { color: var(--apagado); }
+input:focus, textarea:focus { outline: none; border-color: var(--verde); }
+.campos { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+@media (max-width: 520px) { .campos { grid-template-columns: 1fr; } }
+
+.envio { display: grid; gap: 12px; padding-top: 6px; }
+.botao { display: inline-flex; align-items: center; justify-content: center; gap: 10px; width: 100%; border: 0; cursor: pointer; border-radius: 999px; padding: 18px 28px; background: var(--limao); color: var(--sobre-limao); font: 700 17px/1.2 var(--f-titulo); text-decoration: none; }
+.botao:disabled { opacity: .6; cursor: wait; }
+.botao.vazado { background: transparent; color: var(--texto); border: 1.5px solid var(--borda); }
+.erro { color: #B3261E; font-size: 15px; font-weight: 600; }
+.envio .nota { text-align: center; }
+
+.pronto { display: grid; gap: 16px; justify-items: center; text-align: center; background: var(--cartao); border: 1.5px solid var(--borda); border-radius: 22px; padding: 36px 22px; margin: 8px 0 48px; }
+.pronto .icone { width: 64px; height: 64px; border-radius: 50%; display: grid; place-items: center; background: var(--limao); color: var(--sobre-limao); }
+.pronto h2 { font-size: 26px; font-weight: 800; }
+.pronto p { color: var(--suave); max-width: 46ch; }
+
+.rodape { text-align: center; padding: 8px 0 40px; font-size: 14px; color: var(--suave); }
+.rodape a { color: var(--suave); }
+@media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+
+/* 19/11, à tarde: ela pediu UMA pergunta por tela, que vai salvando e passando para a
+   próxima, e uma tela de agradecimento no fim */
+.tela { padding: 28px 0 40px; }
+.passo { background: var(--cartao); border: 1.5px solid var(--borda); border-radius: 22px; padding: 26px 20px; display: grid; gap: 22px; }
+.passo .chapeu { font: 700 12px/1.3 var(--f-titulo); letter-spacing: .14em; text-transform: uppercase; color: var(--verde); }
+.passo h2 { font-size: clamp(23px, 6vw, 28px); font-weight: 800; outline: none; }
+.passo .dica { margin-top: -10px; font-size: 15px; }
+.navegar { display: flex; gap: 10px; align-items: center; }
+.navegar .botao { flex: 1; }
+.navegar .voltar { flex: none; width: auto; padding-inline: 20px; }
+.pular { justify-self: center; background: none; border: 0; color: var(--suave); font: 600 14px/1 var(--f-titulo); cursor: pointer; padding: 8px; }
+.salvo { justify-self: center; font-size: 13px; color: var(--apagado); min-height: 1em; }
+.pronto .logo { width: min(220px, 70%); height: auto; }
+.resumo-envio { color: var(--suave); font-size: 15px; }
+</style>
+</head>
+<body>
+
+<header class="topo">
+  <div class="miolo">
+    <span class="marca-cliente pequena">Sinal Verde <b>Veículos</b></span>
+    <span class="contagem" id="contagem" aria-live="polite"></span>
+  </div>
+  <div class="barra" aria-hidden="true"><span id="barra"></span></div>
+</header>
+
+<main class="miolo">
+  <!-- abertura -->
+  <section class="abertura tela" id="tela-abertura">
+    <span class="marca-cliente">Sinal Verde <b>Veículos</b></span>
+    <span class="selo">Diagnóstico do site</span>
+    <h1>Vamos desenhar o site da <span>Sinal Verde</span></h1>
+    <p class="apoio">Uma pergunta por vez. O que é de marcar, é só tocar; o que é de escrever, pode ser curto. É destas respostas que eu monto a proposta do site de vocês.</p>
+    <p class="nota">Cada resposta já fica salva quando você passa para a próxima: pode parar e continuar depois, deste mesmo aparelho.</p>
+    <p class="ja-enviado" id="ja-enviado" hidden></p>
+    <button class="botao" type="button" id="comecar">Começar</button>
+  </section>
+
+  <!-- uma pergunta por vez -->
+  <form class="tela" id="form" novalidate hidden>
+    <div class="passo" id="passo"></div>
+  </form>
+
+  <!-- agradecimento -->
+  <section class="tela" id="tela-pronto" hidden>
+    <div class="pronto" id="pronto">
+      <span class="marca-cliente">Sinal Verde <b>Veículos</b></span>
+      <div class="icone" aria-hidden="true"><svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></div>
+      <h2 id="obrigada" tabindex="-1">Obrigada!</h2>
+      <p><span id="recebi">Recebi todas as respostas.</span> Agora eu preparo a proposta do site da Sinal Verde a partir delas e te chamo para conversar.</p>
+      <p class="resumo-envio" id="resumo-envio"></p>
+      <button class="botao vazado" type="button" id="revisar">Revisar minhas respostas</button>
+    </div>
+  </section>
+</main>
+
+<footer class="rodape">Feito por <a href="/">Lorena Bragança</a> · <a href="/privacidade/">Privacidade</a></footer>
+
+<script>
+// As perguntas são as que a Lorena organizou em 19/11 para a Sinal Verde Veículos (@sinalverde_veiculos). "um" = marca uma opção,
+// "varios" = marca quantas quiser, "texto" = escreve. Onde ela não deu as opções, elas foram
+// escritas aqui e podem mudar sem mexer no resto.
+// Uma pergunta com "se" só aparece conforme outra resposta (a gestão só se quiserem gestão).
+// Desde a tarde de 19/11 é uma pergunta por tela: a cada "Próxima" o que já foi respondido
+// vai para o servidor (o /adm mostra "em andamento"), e o aviso no celular dela só sai no fim.
+const FORMULARIO = "sinalverde";
+const BLOCOS = [
+  { titulo: "A agência hoje", perguntas: [
+    { id: "estoque", texto: "Quantos carros vocês têm em estoque, em média?", tipo: "um", opcoes: ["Até 10", "11 a 30", "31 a 60", "Mais de 60"] },
+    { id: "tipo", texto: "Vendem carros novos, seminovos ou os dois?", tipo: "um", opcoes: ["Novos", "Seminovos", "Os dois"] },
+  ]},
+  { titulo: "Como chegam os clientes", perguntas: [
+    { id: "canais", texto: "Por onde o cliente chega hoje?", dica: "Pode marcar mais de um.", tipo: "varios", opcoes: ["WhatsApp", "Instagram", "OLX", "Webmotors", "Facebook", "Indicação", "Passando na porta", "Outro"] },
+    { id: "duvidas", texto: "O que o cliente mais pergunta antes de visitar ou fechar?", tipo: "texto" },
+    { id: "atendimento", texto: "Quem responde os contatos e em qual horário?", tipo: "texto" },
+  ]},
+  { titulo: "Estoque e vendas", perguntas: [
+    { id: "controle", texto: "Onde o estoque é controlado hoje?", dica: "Pode marcar mais de um.", tipo: "varios", opcoes: ["Planilha", "Caderno", "Sistema", "Só nas plataformas", "Outro"] },
+    { id: "precos_site", texto: "Os preços podem aparecer no site?", tipo: "um", opcoes: ["Sim", "Só um “a partir de”", "Não"] },
+    { id: "pagamento", texto: "Trabalham com financiamento, troca ou consórcio?", dica: "Pode marcar mais de um.", tipo: "varios", opcoes: ["Financiamento", "Troca", "Consórcio", "Nenhum"] },
+    { id: "simulador", texto: "Querem um simulador de financiamento no site?", tipo: "um", opcoes: ["Sim", "Não", "Talvez"] },
+    { id: "avaliacao", texto: "Fazem avaliação do carro do cliente para troca?", tipo: "um", opcoes: ["Sim", "Não"] },
+    { id: "compra", texto: "Querem uma parte no site onde a pessoa cadastra o carro dela para vocês avaliarem uma possível compra?", tipo: "um", opcoes: ["Sim", "Não", "Talvez"] },
+  ]},
+  { titulo: "Gestão", perguntas: [
+    { id: "escopo", texto: "O que vocês querem: só o catálogo de carros no site, ou também um sistema de gestão?", tipo: "um", opcoes: ["Só o catálogo", "Catálogo + gestão", "Ainda não sei"] },
+    { id: "gestao", texto: "O que a gestão precisa fazer?", dica: "Pode marcar mais de um.", tipo: "varios", opcoes: ["Controle do estoque", "Documentos dos carros em digital", "Checklist da documentação de cada carro", "Financeiro por veículo (custo, gastos e lucro)", "Vendedores e comissões", "Contratos gerados automaticamente", "Outro"], se: { escopo: ["Catálogo + gestão", "Ainda não sei"] } },
+    { id: "papel", texto: "Tem mais alguma coisa que vocês controlam hoje no papel ou na planilha e gostariam que estivesse no sistema?", dica: "Opcional.", tipo: "texto", se: { escopo: ["Catálogo + gestão", "Ainda não sei"] } },
+  ]},
+  { titulo: "Material", perguntas: [
+    { id: "dominio", texto: "Já têm domínio .com.br e site? Quem cuida deles hoje?", tipo: "texto" },
+  ]},
+];
+const OUTRO = /^Outr[oa]$/;
+const $ = (id) => document.getElementById(id);
+const GUARDADO = "form-" + FORMULARIO;
+const TODAS = BLOCOS.flatMap((b, i) => b.perguntas.map((p) => ({ ...p, bloco: i + 1, secao: `${i + 1}. ${b.titulo}` })));
+
+function el(tag, attrs = {}, ...filhos) {
+  const n = document.createElement(tag);
+  for (const [k, v] of Object.entries(attrs)) {
+    if (k === "class") n.className = v; else if (k === "text") n.textContent = v; else n.setAttribute(k, v);
+  }
+  filhos.forEach((f) => f && n.append(f));
+  return n;
+}
+function crescer(t) { t.style.height = "auto"; t.style.height = t.scrollHeight + 3 + "px"; }
+
+// ---------- o que já foi respondido (guardado no aparelho) ----------
+// v = { "quartos": "6 a 10", "canais": ["WhatsApp"], "canais-outro": "...", "nome": "..." }
+function novoId() {
+  if (window.crypto && crypto.randomUUID) return crypto.randomUUID();
+  return "10000000-1000-4000-8000-100000000000".replace(/[018]/g, (c) => (c ^ (crypto.getRandomValues(new Uint8Array(1))[0] & (15 >> (c / 4)))).toString(16));
+}
+let estado = { id: null, v: {}, passo: 0, enviado_em: null };
+try { estado = { ...estado, ...JSON.parse(localStorage.getItem(GUARDADO) || "{}") }; } catch {}
+if (!estado.id) estado.id = novoId();
+if (!estado.v || typeof estado.v !== "object") estado.v = {};
+function guardar() { try { localStorage.setItem(GUARDADO, JSON.stringify(estado)); } catch {} }
+
+function marcadas(p) { const x = estado.v[p.id]; return Array.isArray(x) ? x : x ? [x] : []; }
+// "se": a pergunta só aparece quando outra foi respondida com um destes valores
+function visivel(p) { return !p.se || Object.entries(p.se).every(([id, vals]) => vals.includes(estado.v[id])); }
+/** A resposta em texto, como aparece no /adm. "" = não respondeu. */
+function resposta(p) {
+  if (p.tipo === "texto") return (estado.v[p.id] || "").trim();
+  const outro = (estado.v[p.id + "-outro"] || "").trim();
+  let r = marcadas(p).map((o) => (OUTRO.test(o) && outro ? o + ": " + outro : o)).join(", ");
+  const det = (estado.v[p.id + "-detalhe"] || "").trim();
+  if (r && det && (!p.detalheSe || marcadas(p)[0] === p.detalheSe)) r += (p.detalheSe ? ": " : "\nDetalhes: ") + det;
+  return r;
+}
+
+// os passos: 0 = quem está respondendo, depois uma pergunta por passo
+function passos() { return ["quem", ...TODAS.filter(visivel)]; }
+
+// ---------- desenhar um passo ----------
+function desenharPasso() {
+  const lista = passos();
+  estado.passo = Math.max(0, Math.min(estado.passo, lista.length - 1));
+  const i = estado.passo, p = lista[i], ultimo = i === lista.length - 1;
+  const caixa = $("passo");
+  caixa.replaceChildren();
+
+  if (p === "quem") {
+    caixa.append(el("span", { class: "chapeu", text: "Antes de começar" }),
+      el("h2", { id: "titulo-passo", tabindex: "-1", text: "Quem está respondendo?" }));
+    const nome = el("input", { type: "text", id: "nome", autocomplete: "name", maxlength: "80" });
+    const zap = el("input", { type: "tel", id: "whatsapp", autocomplete: "tel", inputmode: "tel", maxlength: "20", placeholder: "(73) 99999-9999" });
+    nome.value = estado.v.nome || ""; zap.value = estado.v.whatsapp || "";
+    nome.addEventListener("input", () => { estado.v.nome = nome.value; guardar(); });
+    zap.addEventListener("input", () => { estado.v.whatsapp = zap.value; guardar(); });
+    caixa.append(el("div", { class: "campos" },
+      el("label", { class: "campo" }, el("span", { text: "Seu nome" }), nome),
+      el("label", { class: "campo" }, el("span", { text: "WhatsApp (opcional)" }), zap)));
+  } else {
+    caixa.append(el("span", { class: "chapeu", text: p.secao }));
+    const titulo = el("h2", { id: "titulo-passo", tabindex: "-1", text: p.texto });
+    caixa.append(titulo);
+    if (p.dica) caixa.append(el("p", { class: "dica", text: p.dica }));
+    if (p.tipo === "texto") {
+      const t = el("textarea", { id: "q-" + p.id, rows: "4", maxlength: "2000", "aria-labelledby": "titulo-passo" });
+      t.value = estado.v[p.id] || "";
+      t.addEventListener("input", () => { estado.v[p.id] = t.value; guardar(); crescer(t); atualizarContagem(); });
+      caixa.append(t);
+      requestAnimationFrame(() => crescer(t));
+    } else {
+      const grupo = el("div", { class: "opcoes", role: p.tipo === "um" ? "radiogroup" : "group", "aria-labelledby": "titulo-passo" });
+      const extras = el("div", { style: "display: grid; gap: 12px" });
+      p.opcoes.forEach((o, j) => {
+        const inp = el("input", { type: p.tipo === "um" ? "radio" : "checkbox", name: "q-" + p.id, value: o, id: `q-${p.id}-${j}` });
+        inp.checked = marcadas(p).includes(o);
+        inp.addEventListener("change", () => {
+          if (p.tipo === "um") estado.v[p.id] = o;
+          else estado.v[p.id] = [...grupo.querySelectorAll("input:checked")].map((x) => x.value);
+          guardar(); desenharExtras(p, extras); atualizarContagem();
+          // marca uma e já passa, se não há mais nada para preencher nesta pergunta
+          if (p.tipo === "um" && !(p.detalheSe && o === p.detalheSe) && !(p.detalhe && !p.detalheSe)) setTimeout(() => avancar(), 280);
+        });
+        grupo.append(el("label", { class: "opcao" }, inp, el("span", { text: o })));
+      });
+      caixa.append(grupo, extras);
+      desenharExtras(p, extras);
+    }
+  }
+
+  const nav = el("div", { class: "navegar" });
+  if (i > 0) {
+    const voltar = el("button", { type: "button", class: "botao vazado voltar", "aria-label": "Voltar", text: "←" });
+    voltar.addEventListener("click", () => ir(i - 1));
+    nav.append(voltar);
+  }
+  const seguir = el("button", { type: "submit", class: "botao", id: "seguir", text: ultimo ? "Enviar respostas" : "Próxima →" });
+  nav.append(seguir);
+  caixa.append(el("p", { class: "erro", id: "erro", role: "alert", hidden: "" }), nav, el("span", { class: "salvo", id: "salvo", "aria-live": "polite" }));
+  atualizarContagem();
+}
+
+function desenharExtras(p, onde) {
+  onde.replaceChildren();
+  if (marcadas(p).some((o) => OUTRO.test(o))) {
+    const outro = el("input", { type: "text", maxlength: "200", placeholder: "Qual?", "aria-label": "Qual?" });
+    outro.value = estado.v[p.id + "-outro"] || "";
+    outro.addEventListener("input", () => { estado.v[p.id + "-outro"] = outro.value; guardar(); });
+    onde.append(outro);
+  }
+  if (p.detalhe && (!p.detalheSe || marcadas(p)[0] === p.detalheSe)) {
+    const campo = p.detalheSe ? el("input", { type: "text", maxlength: "200" }) : el("textarea", { rows: "3", maxlength: "2000" });
+    campo.value = estado.v[p.id + "-detalhe"] || "";
+    campo.addEventListener("input", () => { estado.v[p.id + "-detalhe"] = campo.value; guardar(); if (campo.tagName === "TEXTAREA") crescer(campo); });
+    onde.append(el("label", { class: "campo" }, el("span", { text: p.detalhe }), campo));
+  }
+}
+
+function atualizarContagem() {
+  const lista = TODAS.filter(visivel);
+  if ($("form").hidden) { $("contagem").textContent = ""; $("barra").style.width = "0"; return; }
+  const i = estado.passo;
+  $("contagem").textContent = i === 0 ? "Começando" : `Pergunta ${i} de ${lista.length}`;
+  $("barra").style.width = (100 * Math.max(0, i) / (lista.length + 1)) + "%";
+}
+
+function mostrar(tela) {
+  $("tela-abertura").hidden = tela !== "abertura";
+  $("form").hidden = tela !== "form";
+  $("tela-pronto").hidden = tela !== "pronto";
+  if (tela !== "form") { $("contagem").textContent = ""; $("barra").style.width = tela === "pronto" ? "100%" : "0"; }
+  window.scrollTo(0, 0);
+}
+
+function ir(i) {
+  estado.passo = i; guardar();
+  desenharPasso();
+  window.scrollTo(0, 0);
+  const t = $("titulo-passo"); if (t) t.focus({ preventScroll: true });
+}
+
+// ---------- salvar no servidor ----------
+function whatsappValido(v) {
+  let d = String(v || "").replace(/\D/g, "");
+  if (!d) return "";
+  if (d.length === 10 || d.length === 11) d = "55" + d;
+  return /^55\d{10,11}$/.test(d) ? d : null;
+}
+function corpo(concluido) {
+  return {
+    id: estado.id, formulario: FORMULARIO, concluido,
+    nome: (estado.v.nome || "").trim(), whatsapp: whatsappValido(estado.v.whatsapp) || null,
+    respostas: TODAS.filter(visivel).map((p) => ({ secao: p.secao, pergunta: p.texto, resposta: resposta(p) })),
+  };
+}
+async function salvar(concluido) {
+  const r = await fetch("/api/formulario", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(corpo(concluido)) });
+  if (!r.ok) { const c = await r.json().catch(() => ({})); throw new Error(c.erro || "Erro " + r.status); }
+}
+
+function erro(texto) { const e = $("erro"); e.textContent = texto; e.hidden = false; }
+
+// "Próxima": confere o passo, salva o que já tem e vai em frente
+async function avancar() {
+  const lista = passos(), i = estado.passo, p = lista[i], ultimo = i === lista.length - 1;
+  if (p === "quem") {
+    if (!(estado.v.nome || "").trim()) { erro("Escreva o seu nome, para eu saber quem respondeu."); $("nome").focus(); return; }
+    if (whatsappValido(estado.v.whatsapp) === null) { erro("O WhatsApp não parece certo: escreva com o DDD, como (73) 99999-9999. Ou deixe em branco."); $("whatsapp").focus(); return; }
+  }
+  const temAlguma = TODAS.some((q) => visivel(q) && resposta(q));
+  if (ultimo) {
+    if (!temAlguma) { erro("Responda pelo menos uma pergunta antes de enviar."); return; }
+    const b = $("seguir"); b.disabled = true; b.textContent = "Enviando…";
+    try {
+      await salvar(true);
+    } catch (e) {
+      b.disabled = false; b.textContent = "Enviar respostas";
+      erro("Não consegui enviar agora (" + e.message + "). Confira a internet e tente de novo: as suas respostas continuam aqui.");
+      return;
+    }
+    estado.enviado_em = new Date().toISOString(); guardar();
+    const feitas = TODAS.filter((q) => visivel(q) && resposta(q)).length, total = TODAS.filter(visivel).length;
+    const primeiro = (estado.v.nome || "").trim().split(" ")[0];
+    $("obrigada").textContent = primeiro ? `Obrigada, ${primeiro}!` : "Obrigada!";
+    $("recebi").textContent = feitas < total ? "Recebi as suas respostas." : "Recebi todas as respostas.";
+    $("resumo-envio").textContent = feitas < total ? `Você respondeu ${feitas} de ${total} perguntas. Se quiser completar depois, é só voltar aqui.` : "";
+    mostrar("pronto");
+    $("obrigada").focus({ preventScroll: true });
+    return;
+  }
+  // salvar no meio do caminho não pode travar quem está respondendo: se falhar, segue
+  // em frente (tudo continua guardado no aparelho e vai junto no próximo envio)
+  if (temAlguma && (estado.v.nome || "").trim()) {
+    salvar(false).then(() => { const s = $("salvo"); if (s) s.textContent = "Respostas salvas"; }).catch(() => {});
+  }
+  ir(i + 1);
+}
+
+$("form").addEventListener("submit", (e) => { e.preventDefault(); avancar(); });
+$("comecar").addEventListener("click", () => { mostrar("form"); ir(estado.passo || 0); });
+$("revisar").addEventListener("click", () => { mostrar("form"); ir(1); });
+
+// abrindo de novo: lembra onde parou
+if (estado.enviado_em) {
+  const dia = new Date(estado.enviado_em).toLocaleDateString("pt-BR", { day: "2-digit", month: "2-digit" });
+  $("ja-enviado").textContent = `Você já enviou as respostas em ${dia}. Se mudar alguma coisa, é só enviar de novo: atualiza o que eu recebi.`;
+  $("ja-enviado").hidden = false;
+  $("comecar").textContent = "Revisar as respostas";
+} else if (estado.passo > 0) {
+  $("comecar").textContent = "Continuar de onde parei";
+}
+mostrar("abertura");
+</script>
+</body>
+</html>
