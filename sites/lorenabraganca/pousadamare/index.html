@@ -6,7 +6,7 @@
 <title>Diagnóstico do site · Pousada Maré</title>
 <!-- página de um cliente só: fora do Google -->
 <meta name="robots" content="noindex, nofollow">
-<meta name="theme-color" content="#F7FBFC">
+<meta name="theme-color" content="#FAFAF6">
 <link rel="icon" href="/favicon.svg" type="image/svg+xml">
 <meta property="og:type" content="website">
 <meta property="og:locale" content="pt_BR">
@@ -17,21 +17,21 @@
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@600;700;800&family=Figtree:wght@400;500;600&display=swap">
 <style>
 /* 19/11: o formulário do diagnóstico da Pousada Maré, que ela manda para a dona da pousada.
-   As cores saíram da logo da Maré (o azul e o verde das ondas, medidos no pixel); o azul
-   da logo (#4FA2B4) não passa como texto em fundo claro (2,9), então texto e botão usam o
-   mesmo azul fechado. Contrastes: texto 12,7 · texto suave 5,9 · botão 6,1 · verde 5,0. */
+   Primeiro saiu nas cores da pousada; ela pediu a paleta DELA, nas cores claras (as da
+   lead page de 14/11), com a logo da pousada no topo. O limão puro some em fundo claro:
+   texto e ícone de destaque usam o verde fechado. Contrastes: texto 17,6 · suave 7,6 ·
+   verde 6,4 · texto sobre limão 14,7. */
 :root {
-  --fundo: #F7FBFC;
+  --fundo: #FAFAF6;
   --cartao: #FFFFFF;
-  --borda: #D6E7EC;
-  --texto: #15343D;
-  --suave: #4B6670;
-  --apagado: #7E949B;
-  --azul: #4FA2B4;          /* o da logo: só em fundo, borda e enfeite */
-  --azul-fechado: #1C6B7C;  /* texto, botão e foco */
-  --verde: #5BBC9D;         /* a onda de cima da logo */
-  --verde-fechado: #2E7D63;
-  --marcado: #DCEFF3;
+  --cartao-forte: #F2F4EC;
+  --borda: #E3E5DC;
+  --texto: #121418;
+  --suave: #4E535C;
+  --apagado: #80858E;
+  --limao: #C8F26B;
+  --verde: #4A6A0B;
+  --sobre-limao: #121418;
   --f-titulo: "Plus Jakarta Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
   --f-texto: "Figtree", system-ui, -apple-system, "Segoe UI", sans-serif;
   color-scheme: light;
@@ -42,32 +42,34 @@ html { scroll-padding-top: 90px; }
 body { margin: 0; background: var(--fundo); color: var(--texto); font: 17px/1.55 var(--f-texto); padding-bottom: env(safe-area-inset-bottom, 0px); }
 h1, h2, h3 { font-family: var(--f-titulo); margin: 0; letter-spacing: -.02em; line-height: 1.15; text-wrap: balance; }
 p { margin: 0; }
-a { color: var(--azul-fechado); }
-:focus-visible { outline: 3px solid var(--azul-fechado); outline-offset: 3px; border-radius: 8px; }
+a { color: var(--verde); }
+:focus-visible { outline: 3px solid var(--verde); outline-offset: 3px; border-radius: 8px; }
 .miolo { max-width: 680px; margin-inline: auto; padding-inline: max(18px, env(safe-area-inset-left, 0px)); }
 
 /* topo fixo com o andamento: são muitas perguntas, e no celular ajuda saber quanto falta */
-.topo { position: sticky; top: 0; z-index: 10; background: rgba(247, 251, 252, .94); backdrop-filter: blur(8px); border-bottom: 1px solid var(--borda); }
+.topo { position: sticky; top: 0; z-index: 10; background: rgba(250, 250, 246, .94); backdrop-filter: blur(8px); border-bottom: 1px solid var(--borda); }
 .topo .miolo { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding-block: 12px; }
-.topo img { height: 34px; width: auto; display: block; }
+.nome { font: 800 18px/1 var(--f-titulo); letter-spacing: -.02em; text-decoration: none; color: var(--texto); }
+.nome span { color: var(--verde); }
 .contagem { font: 700 14px/1 var(--f-titulo); color: var(--suave); font-variant-numeric: tabular-nums; }
 .barra { height: 4px; background: var(--borda); }
-.barra span { display: block; height: 100%; width: 0; background: linear-gradient(90deg, var(--verde), var(--azul)); transition: width .3s ease; }
+.barra span { display: block; height: 100%; width: 0; background: var(--limao); transition: width .3s ease; }
 
 .abertura { display: grid; gap: 16px; padding: 36px 0 28px; }
-.abertura .logo { width: min(300px, 78%); height: auto; }
-.selo { display: inline-flex; align-items: center; gap: 10px; width: fit-content; font: 700 12px/1 var(--f-titulo); letter-spacing: .16em; text-transform: uppercase; color: var(--azul-fechado); border: 1.5px solid var(--borda); background: var(--cartao); border-radius: 999px; padding: 10px 16px; }
+.abertura .logo { width: min(320px, 80%); height: auto; justify-self: start; }
+.selo { display: inline-flex; align-items: center; gap: 10px; width: fit-content; font: 700 12px/1 var(--f-titulo); letter-spacing: .16em; text-transform: uppercase; color: var(--texto); border: 1.5px solid var(--borda); background: var(--cartao); border-radius: 999px; padding: 10px 16px; }
 .selo::before { content: ""; width: 8px; height: 8px; border-radius: 50%; background: var(--verde); }
 .abertura h1 { font-size: clamp(30px, 7vw, 42px); font-weight: 800; }
-.abertura h1 span { color: var(--azul-fechado); }
+.abertura h1 span { position: relative; z-index: -1; background: var(--limao); color: var(--sobre-limao); border-radius: .16em; padding: 0 .14em .04em; box-decoration-break: clone; -webkit-box-decoration-break: clone; }
+.abertura h1 { position: relative; z-index: 0; }
 .apoio { color: var(--suave); font-size: 18px; }
 .nota { color: var(--suave); font-size: 14px; }
-.ja-enviado { background: var(--marcado); border-radius: 14px; padding: 12px 16px; font-size: 15px; }
+.ja-enviado { background: var(--cartao-forte); border: 1.5px solid var(--borda); border-radius: 14px; padding: 12px 16px; font-size: 15px; }
 
 form { display: grid; gap: 18px; padding-bottom: 40px; }
 .bloco { background: var(--cartao); border: 1.5px solid var(--borda); border-radius: 22px; padding: 24px 20px; display: grid; gap: 26px; }
 .bloco > h2 { display: flex; align-items: center; gap: 12px; font-size: 21px; font-weight: 800; }
-.bloco > h2 .n { flex: none; display: grid; place-items: center; width: 36px; height: 36px; border-radius: 12px; background: var(--marcado); color: var(--azul-fechado); font-size: 15px; letter-spacing: 0; }
+.bloco > h2 .n { flex: none; display: grid; place-items: center; width: 36px; height: 36px; border-radius: 12px; background: var(--limao); color: var(--sobre-limao); font-size: 15px; letter-spacing: 0; }
 
 .pergunta { display: grid; gap: 10px; border: 0; margin: 0; padding: 0; min-width: 0; }
 .pergunta legend, .pergunta > label { padding: 0; font: 700 17px/1.35 var(--f-titulo); letter-spacing: -.01em; }
@@ -80,9 +82,9 @@ form { display: grid; gap: 18px; padding-bottom: 40px; }
 .opcao input { position: absolute; opacity: 0; inset: 0; margin: 0; cursor: pointer; }
 .opcao span { display: inline-flex; align-items: center; gap: 8px; min-height: 46px; padding: 11px 16px; border: 1.5px solid var(--borda); border-radius: 999px; background: var(--fundo); font: 600 15px/1.25 var(--f-titulo); cursor: pointer; transition: background-color .15s, border-color .15s; }
 /* marcada: muda o fundo, a borda E ganha o ✓ — a cor sozinha não basta para ver */
-.opcao input:checked + span { background: var(--marcado); border-color: var(--azul-fechado); color: var(--texto); }
-.opcao input:checked + span::before { content: "✓"; color: var(--azul-fechado); font-weight: 800; }
-.opcao input:focus-visible + span { outline: 3px solid var(--azul-fechado); outline-offset: 2px; }
+.opcao input:checked + span { background: var(--limao); border-color: var(--verde); color: var(--sobre-limao); }
+.opcao input:checked + span::before { content: "✓"; color: var(--sobre-limao); font-weight: 800; }
+.opcao input:focus-visible + span { outline: 3px solid var(--verde); outline-offset: 2px; }
 
 .campo { display: grid; gap: 6px; }
 .campo > span { font: 600 14px/1.2 var(--f-titulo); color: var(--suave); }
@@ -92,19 +94,19 @@ input[type="text"], input[type="tel"], textarea {
 }
 textarea { resize: none; min-height: 96px; overflow: hidden; }
 input::placeholder, textarea::placeholder { color: var(--apagado); }
-input:focus, textarea:focus { outline: none; border-color: var(--azul-fechado); }
+input:focus, textarea:focus { outline: none; border-color: var(--verde); }
 .campos { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
 @media (max-width: 520px) { .campos { grid-template-columns: 1fr; } }
 
 .envio { display: grid; gap: 12px; padding-top: 6px; }
-.botao { display: inline-flex; align-items: center; justify-content: center; gap: 10px; width: 100%; border: 0; cursor: pointer; border-radius: 999px; padding: 18px 28px; background: var(--azul-fechado); color: #FFFFFF; font: 700 17px/1.2 var(--f-titulo); text-decoration: none; }
+.botao { display: inline-flex; align-items: center; justify-content: center; gap: 10px; width: 100%; border: 0; cursor: pointer; border-radius: 999px; padding: 18px 28px; background: var(--limao); color: var(--sobre-limao); font: 700 17px/1.2 var(--f-titulo); text-decoration: none; }
 .botao:disabled { opacity: .6; cursor: wait; }
-.botao.vazado { background: transparent; color: var(--azul-fechado); border: 1.5px solid var(--borda); }
+.botao.vazado { background: transparent; color: var(--texto); border: 1.5px solid var(--borda); }
 .erro { color: #B3261E; font-size: 15px; font-weight: 600; }
 .envio .nota { text-align: center; }
 
 .pronto { display: grid; gap: 16px; justify-items: center; text-align: center; background: var(--cartao); border: 1.5px solid var(--borda); border-radius: 22px; padding: 36px 22px; margin: 8px 0 48px; }
-.pronto .icone { width: 64px; height: 64px; border-radius: 50%; display: grid; place-items: center; background: var(--marcado); color: var(--azul-fechado); }
+.pronto .icone { width: 64px; height: 64px; border-radius: 50%; display: grid; place-items: center; background: var(--limao); color: var(--sobre-limao); }
 .pronto h2 { font-size: 26px; font-weight: 800; }
 .pronto p { color: var(--suave); max-width: 46ch; }
 
@@ -117,7 +119,7 @@ input:focus, textarea:focus { outline: none; border-color: var(--azul-fechado); 
 
 <header class="topo">
   <div class="miolo">
-    <img src="logo-mare.png" alt="Pousada Maré" width="540" height="217">
+    <a class="nome" href="/">Lorena Bragança<span>.</span></a>
     <span class="contagem" id="contagem" aria-live="polite"></span>
   </div>
   <div class="barra" aria-hidden="true"><span id="barra"></span></div>
@@ -125,6 +127,7 @@ input:focus, textarea:focus { outline: none; border-color: var(--azul-fechado); 
 
 <main class="miolo">
   <section class="abertura">
+    <img class="logo" src="/pousadamare/logo-mare.png" alt="Pousada Maré" width="540" height="217">
     <span class="selo">Diagnóstico do site</span>
     <h1>Vamos desenhar o site da <span>Pousada Maré</span></h1>
     <p class="apoio">São cinco blocos de perguntas. O que é de marcar, é só tocar; o que é de escrever, pode ser curto. É destas respostas que eu monto a proposta do site de vocês.</p>

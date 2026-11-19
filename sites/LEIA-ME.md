@@ -45,8 +45,10 @@ O número que recebe a mensagem fica na constante `WHATSAPP` do `index.html` —
 
 Um formulário de diagnóstico feito para um cliente só, numa página dele, fora do
 Google (`noindex`). O primeiro é o da Pousada Maré, com as perguntas que ela
-mandou em 19/11; as cores e a logo (`pousadamare/logo-mare.png`, recortada do
-print que ela mandou) são as da pousada. As perguntas ficam numa lista no começo
+mandou em 19/11. A paleta é a dela, nas cores claras da lead page, com a logo da
+pousada no topo (`pousadamare/logo-mare.png`, recortada do print que ela mandou).
+A logo vai com endereço completo (`/pousadamare/logo-mare.png`): aberta sem a barra
+no fim, a página procurava a imagem na raiz e ela não aparecia (19/11). As perguntas ficam numa lista no começo
 do script da página: mudar uma pergunta é mudar uma linha.
 
 - O rascunho fica guardado no aparelho de quem responde até enviar; enviar de novo
