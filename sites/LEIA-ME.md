@@ -65,8 +65,8 @@ do script da página: mudar uma pergunta é mudar uma linha.
   `PAGINAS_DE_CLIENTES` (`adm/index.html`), e uma cópia da pasta `sinalverde/` com
   as perguntas dele (essa já tem o "se" genérico: pergunta que só aparece conforme
   outra resposta). Mexeu no /adm: suba a `VERSAO_DA_TELA`.
-- `/sinalverde` (19/11): Sinal Verde Veículos, @sinalverde_veiculos. Ainda sem a
-  logo: o nome vai escrito no lugar dela. O servidor
+- `/sinalverde` (19/11): Sinal Verde Veículos, @sinalverde_veiculos. A logo é branca
+  sobre fundo escuro, então vai recortada com o próprio fundo, num cartão arredondado. O servidor
   recusa formulário que não está na lista.
 
 ### O `/adm` e o servidor (`api/`)
