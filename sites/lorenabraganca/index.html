@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Lorena Bragança · Ferramentas e sites integrados à gestão</title>
-<meta name="description" content="Me conta a tarefa que você repete e eu transformo numa ferramenta: apps de gestão, painéis de indicadores e sites integrados à gestão, sob medida. Peça seu orçamento.">
+<meta name="description" content="Me conta a tarefa que você repete e eu transformo numa ferramenta: apps de gestão, painéis de indicadores e sites integrados à gestão, sob medida. Solicite uma proposta.">
 <meta name="theme-color" content="#FAFAF6">
 <link rel="canonical" href="https://www.lorenabraganca.com.br/">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
@@ -17,7 +17,7 @@
 <meta property="og:locale" content="pt_BR">
 <meta property="og:url" content="https://www.lorenabraganca.com.br/">
 <meta property="og:title" content="Eu construo a ferramenta pro seu negócio · Lorena Bragança">
-<meta property="og:description" content="Me conta a tarefa que você repete: você vê na hora a ferramenta que faria esse trabalho e pede o seu orçamento.">
+<meta property="og:description" content="Me conta a tarefa que você repete: você vê na hora a ferramenta que faria esse trabalho e solicita uma proposta.">
 <meta property="og:image" content="https://www.lorenabraganca.com.br/previa.jpg">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
@@ -612,6 +612,15 @@ details p { padding: 0 0 22px; color: var(--suave); max-width: 40em; }
 .exemplos-int b { font: 800 17px/1.3 var(--f-titulo); }
 .exemplos-int span { color: var(--suave); font-size: 15px; line-height: 1.5; }
 .exemplos-int { margin: 0; padding: 0; }
+
+/* 21/11, à tarde: o topo limpo, com a pergunta e o pedido de orçamento */
+.abertura.limpa .miolo { padding-block: 56px 72px; display: grid; gap: 34px; }
+.abertura.limpa .abertura-texto { justify-items: center; text-align: center; gap: 18px; }
+.abertura.limpa h1 { font-size: clamp(44px, 7.4vw, 92px); letter-spacing: -.04em; line-height: .98; }
+.abertura.limpa .sub { max-width: none; }
+.abertura-cotador { animation: sobe .8s cubic-bezier(.2, .7, .2, 1) both; animation-delay: 330ms; max-width: 980px; width: 100%; justify-self: center; }
+.abertura-cotador .cotador { box-shadow: 0 50px 110px -60px rgba(18, 20, 24, .5); }
+@media (max-width: 760px) { .abertura.limpa .miolo { padding-block: 30px 44px; gap: 24px; } }
 </style>
 </head>
 <body>
@@ -636,87 +645,25 @@ details p { padding: 0 0 22px; color: var(--suave); max-width: 40em; }
     <a class="nome" href="#">Lorena Bragança<span>.</span></a>
     <nav class="nav-topo">
       <a class="link-topo" href="#integrado">Site + gestão</a>
-      <a class="link-topo" href="#construo">O que eu faço</a>
       <a class="link-topo" href="/portifolio/">Portfólio</a>
-      <a class="botao pequeno" href="#orcamento">Pedir orçamento</a>
+      <a class="botao pequeno" href="#orcamento">Solicite uma proposta</a>
     </nav>
   </div>
 </header>
 
 <main>
-  <section class="faixa abertura" id="inicio">
+  <!-- 21/11, à tarde: "muito confuso, muita coisa escrita; mais clean e dinâmico".
+       O topo virou a própria pergunta, com o pedido de orçamento logo embaixo. -->
+  <section class="faixa abertura limpa" id="inicio">
     <span class="brilho" aria-hidden="true"></span><span class="brilho dois" aria-hidden="true"></span>
     <div class="miolo">
-      <div class="abertura-grade">
-        <div class="abertura-texto">
-          <span class="selo" style="--i:0">Ferramentas e sites</span>
-          <h1 style="--i:1">Me conta a tarefa que você repete. Eu transformo numa <span class="destaque">ferramenta.</span></h1>
-          <p class="sub" style="--i:2">Apps de gestão, painéis de indicadores e sites integrados à gestão, feitos do jeito que a sua empresa já trabalha.</p>
-          <div class="acoes" style="--i:3">
-            <a class="botao" href="#orcamento">Contar minha tarefa <svg aria-hidden="true"><use href="#i-seta"/></svg></a>
-            <a class="link-seta" href="#integrado">Site integrado à gestão <svg aria-hidden="true"><use href="#i-seta"/></svg></a>
-            <small>2 minutos · orçamento sem compromisso · resposta no WhatsApp</small>
-          </div>
-        </div>
-
-        <!-- O antes e depois (15/11): desenhado aqui mesmo, sem imagem. Nomes e números são de exemplo. -->
-        <figure class="ad">
-          <div class="ad-palco" id="ad-palco">
-            <div class="ad-lado ad-depois" aria-hidden="true">
-              <span class="ad-rotulo">Depois</span>
-              <div class="ordem cartao-app" style="--l:6%;--t:17%;--w:44%"><small>Vendas do mês</small><b>R$ 48.320</b><span class="verde">▲ 18% sobre outubro</span></div>
-              <div class="ordem cartao-app" style="--l:8%;--t:44%;--w:40%;--d:.8s"><small>Agenda de amanhã</small><b>6 horários</b><span class="verde">todos confirmados</span></div>
-              <div class="ordem toast-app" style="--l:5%;--t:72%;--w:46%;--d:1.6s"><i>✓</i>Pedido #37 pago</div>
-              <div class="cel-app">
-                <div class="cel-tela">
-                  <span class="oi">Bom dia, Ana</span>
-                  <span class="grande">R$ 48.320<small>vendas do mês</small></span>
-                  <div class="mini-barras"><i style="--h:40%"></i><i style="--h:55%"></i><i style="--h:48%"></i><i style="--h:66%"></i><i style="--h:74%"></i><i style="--h:92%"></i></div>
-                  <div class="cel-linha">Pedidos hoje<span>12 ✓</span></div>
-                  <div class="cel-linha">Estoque<span>em dia</span></div>
-                  <div class="cel-linha">A receber<span>R$ 3.120</span></div>
-                </div>
-              </div>
-            </div>
-            <div class="ad-lado ad-antes" aria-hidden="true">
-              <span class="ad-rotulo">Antes</span>
-              <div class="bagunca planilha" style="--l:5%;--t:15%;--w:52%;--r:-6deg">
-                <b>planilha_final_v3 (2).xlsx</b>
-                <table><tr><td>out</td><td>12.400</td><td>???</td></tr><tr><td>nov</td><td class="erro">#REF!</td><td>8.9</td></tr><tr><td>total</td><td class="erro">#DIV/0!</td><td></td></tr></table>
-              </div>
-              <div class="bagunca caderno" style="--l:7%;--t:47%;--w:42%;--r:4deg;--d:.6s"><s>vendas de out</s><br>pagar boleto dia 10<br>ligar p/ a Ana!!<br>cadê o estoque?</div>
-              <div class="bagunca bolha" style="--l:58%;--t:16%;--r:3deg;--d:.3s">Cadê meu pedido?</div>
-              <div class="bagunca bolha" style="--l:61%;--t:29%;--r:-2deg;--d:1s">Tem horário amanhã?</div>
-              <div class="bagunca bolha" style="--l:55%;--t:42%;--r:2deg;--d:.5s">Mandou o orçamento??</div>
-              <span class="contador-zap" style="--l:84%;--t:11%">37</span>
-              <div class="bagunca postit amarelo" style="--l:56%;--t:60%;--w:30%;--r:-5deg;--d:.2s">quanto eu vendi esse mês?</div>
-              <div class="bagunca postit rosa" style="--l:70%;--t:77%;--w:24%;--r:7deg;--d:1.2s">estoque???</div>
-            </div>
-            <div class="ad-alca" aria-hidden="true"><span class="ad-botao">‹ ›</span></div>
-          </div>
-          <input class="ad-faixa so-leitor" id="ad-faixa" type="range" min="0" max="100" value="55" aria-label="Antes e depois: arraste para comparar a empresa no caderno e no app">
-          <figcaption class="ad-dica">← Arraste e veja: do caderno ao app →</figcaption>
-        </figure>
+      <div class="abertura-texto">
+        <span class="selo" style="--i:0">Ferramentas e sites</span>
+        <h1 style="--i:1">Qual tarefa você <span class="destaque">repete?</span></h1>
+        <p class="sub" style="--i:2">Escreva aqui. Eu te mostro a ferramenta que faz isso por você.</p>
       </div>
-    </div>
-  </section>
-
-  <div class="rolante" aria-hidden="true">
-    <div class="rolo">
-      <span>Apps de gestão</span><span>Dashboards e indicadores</span><span>Sites profissionais</span><span>Mapeamento de processos</span><span>Agendamentos</span><span>Lead pages</span>
-      <span>Apps de gestão</span><span>Dashboards e indicadores</span><span>Sites profissionais</span><span>Mapeamento de processos</span><span>Agendamentos</span><span>Lead pages</span>
-    </div>
-  </div>
-
-  <section class="faixa secao orcamento" id="orcamento">
-    <div class="miolo">
-      <div class="cabeca revela">
-        <span class="rotulo"><b>01</b>Pedido de orçamento</span>
-        <h2>Qual tarefa você <em>repete toda semana?</em></h2>
-        <p>Escreva do seu jeito. Enquanto você escreve, eu te mostro a ferramenta que faria esse trabalho por você e quanto tempo você ganha de volta.</p>
-      </div>
-
-      <div class="cotador revela" id="cotador">
+      <div id="orcamento" style="--i:3" class="abertura-cotador">
+      <div class="cotador" id="cotador">
         <div class="cot-topo">
           <div class="cot-passos" aria-hidden="true"><i></i><i></i><i></i><i></i></div>
           <span class="cot-conta" id="cot-conta">Passo 1 de 4</span>
@@ -729,24 +676,30 @@ details p { padding: 0 0 22px; color: var(--suave); max-width: 40em; }
           </div>
         </div>
       </div>
+      </div>
     </div>
   </section>
+
+  <div class="rolante" aria-hidden="true">
+    <div class="rolo">
+      <span>Apps de gestão</span><span>Dashboards e indicadores</span><span>Sites profissionais</span><span>Mapeamento de processos</span><span>Agendamentos</span><span>Lead pages</span>
+      <span>Apps de gestão</span><span>Dashboards e indicadores</span><span>Sites profissionais</span><span>Mapeamento de processos</span><span>Agendamentos</span><span>Lead pages</span>
+    </div>
+  </div>
 
   <section class="faixa secao integrado" id="integrado">
     <div class="miolo">
       <div class="cabeca revela">
-        <span class="rotulo"><b>02</b>Site integrado à gestão</span>
-        <h2>O site que o cliente vê, <em>ligado à gestão que você usa.</em></h2>
-        <p>Eu faço sites que não param na vitrine: o que o cliente faz no site cai direto no seu painel de gestão, sem ninguém copiar nada de um lugar para o outro.</p>
+        <span class="rotulo">Site integrado à gestão</span>
+        <h2>O cliente usa o site. <em>Tudo cai na sua gestão.</em></h2>
       </div>
       <div class="integrado-grade revela">
         <div class="integrado-lado site">
           <span class="quem">O que o cliente vê</span>
           <h3>O seu site</h3>
           <ul>
-            <li><svg aria-hidden="true"><use href="#i-ok"/></svg>Com a cara da sua marca, rápido no celular</li>
-            <li><svg aria-hidden="true"><use href="#i-ok"/></svg>Catálogo, preços e fotos sempre atualizados</li>
-            <li><svg aria-hidden="true"><use href="#i-ok"/></svg>Reserva, agendamento ou pedido em poucos toques</li>
+            <li><svg aria-hidden="true"><use href="#i-ok"/></svg>Com a cara da sua marca</li>
+            <li><svg aria-hidden="true"><use href="#i-ok"/></svg>Reserva, agenda ou pedido em poucos toques</li>
           </ul>
         </div>
         <div class="integrado-seta" aria-hidden="true"><svg><use href="#i-seta"/></svg></div>
@@ -754,18 +707,11 @@ details p { padding: 0 0 22px; color: var(--suave); max-width: 40em; }
           <span class="quem">O que só você vê</span>
           <h3>O seu painel de gestão</h3>
           <ul>
-            <li><svg aria-hidden="true"><use href="#i-ok"/></svg>Cada pedido do site chega pronto, com quem e quando</li>
-            <li><svg aria-hidden="true"><use href="#i-ok"/></svg>Agenda, estoque, vendas e cobranças num lugar só</li>
-            <li><svg aria-hidden="true"><use href="#i-ok"/></svg>Os números do mês, atualizados sozinhos</li>
+            <li><svg aria-hidden="true"><use href="#i-ok"/></svg>Cada pedido chega pronto</li>
+            <li><svg aria-hidden="true"><use href="#i-ok"/></svg>Agenda, estoque e vendas num lugar só</li>
           </ul>
         </div>
       </div>
-      <ul class="exemplos-int revela">
-        <li><b>Pousada</b><span>A reserva feita no site entra na agenda das suítes e no financeiro.</span></li>
-        <li><b>Agência de carros</b><span>O interesse num carro vira atendimento, venda, contrato e comissão.</span></li>
-        <li><b>Estúdio ou consultório</b><span>O cliente marca o horário sozinho e o lembrete sai no dia certo.</span></li>
-      </ul>
-      <a class="botao vazado" href="#orcamento" style="justify-self:start">Quero um site integrado <svg aria-hidden="true"><use href="#i-seta"/></svg></a>
     </div>
   </section>
 
@@ -836,7 +782,7 @@ details p { padding: 0 0 22px; color: var(--suave); max-width: 40em; }
         </div>
       </div>
         <div class="construo-lado">
-          <div class="cabeca revela"><span class="rotulo"><b>03</b>O que eu construo</span><h2>Cinco ferramentas. <em>Todas do seu jeito.</em></h2></div>
+          <div class="cabeca revela"><span class="rotulo">O que eu construo</span><h2>Do seu <em>jeito.</em></h2></div>
           <ul class="servicos" role="tablist" aria-label="O que eu construo">
             <li role="presentation"><button type="button" role="tab" aria-selected="true" aria-controls="cena-app"><svg class="icone" aria-hidden="true"><use href="#i-app"/></svg><span>Apps de gestão<small>Pedidos, clientes, estoque e agenda num lugar só, no celular e no computador.</small></span><i class="tempo" aria-hidden="true"></i></button></li>
             <li role="presentation"><button type="button" role="tab" aria-selected="false" aria-controls="cena-painel" tabindex="-1"><svg class="icone" aria-hidden="true"><use href="#i-painel"/></svg><span>Dashboards<small>Os números que importam, atualizados sozinhos, pra decidir com dado e não no achismo.</small></span><i class="tempo" aria-hidden="true"></i></button></li>
@@ -851,30 +797,14 @@ details p { padding: 0 0 22px; color: var(--suave); max-width: 40em; }
     </div>
   </section>
 
-  <div class="faixa"><div class="divisor" aria-hidden="true"><svg><use href="#logo-l"/></svg></div></div>
 
-  <section class="faixa secao" id="como">
-    <div class="miolo">
-      <div class="cabeca revela"><span class="rotulo"><b>04</b>Como funciona</span><h2>Do primeiro oi à <em>ferramenta pronta.</em></h2></div>
-      <ol class="passos" id="passos">
-        <li class="revela" style="--i:0"><span class="quando">2 minutos</span><h3>Você conta a tarefa</h3><p>Escreve o que repete e já vê a ferramenta que resolveria e o tempo que ela te devolve.</p></li>
-        <li class="revela" style="--i:1"><span class="quando">no WhatsApp</span><h3>Conversa e orçamento</h3><p>Eu te chamo com a ideia da ferramenta e o valor, sem compromisso.</p></li>
-        <li class="revela" style="--i:2"><span class="quando">sob medida</span><h3>Ferramenta pronta</h3><p>Eu construo do jeito que a sua empresa funciona, e não o contrário.</p></li>
-      </ol>
-    </div>
-  </section>
 
   <section class="faixa secao diagnostico" id="diagnostico">
     <div class="miolo">
       <div class="cabeca revela">
-        <span class="rotulo"><b>05</b>Diagnóstico grátis</span>
+        <span class="rotulo">Diagnóstico grátis</span>
         <h2>Quanto controle você tem da <em>sua empresa?</em></h2>
-        <p>Deixe seu nome e WhatsApp, responda 7 perguntas e descubra o seu índice de controle, de 0 a 100, com o que mais pesa no seu caso.</p>
-        <ul>
-          <li><svg aria-hidden="true"><use href="#i-ok"/></svg>Leva cerca de 1 minuto</li>
-          <li><svg aria-hidden="true"><use href="#i-ok"/></svg>O resultado aparece na hora</li>
-          <li><svg aria-hidden="true"><use href="#i-ok"/></svg>Seus dados ficam só comigo</li>
-        </ul>
+        <p>7 perguntas, 1 minuto, resultado na hora.</p>
       </div>
 
       <div class="quiz revela" id="quiz">
@@ -901,58 +831,15 @@ details p { padding: 0 0 22px; color: var(--suave); max-width: 40em; }
         <figcaption>Lorena Bragança</figcaption>
       </figure>
       <div class="cabeca revela">
-        <span class="rotulo"><b>06</b>Quem faz</span>
+        <span class="rotulo">Quem faz</span>
         <h2>Oi, eu sou a <em>Lorena.</em></h2>
-        <p>Eu ajudo empresários a <strong>enxergar o próprio negócio</strong>. Primeiro entendo como o trabalho acontece, depois escolho com você o que precisa ser medido, e só então construo a ferramenta.</p>
-        <ul class="etiquetas"><li>Gestão por indicadores</li><li>Mapeamento de processos</li><li>Ferramentas sob medida</li></ul>
+        <p>Primeiro entendo como o seu trabalho acontece. Depois construo a ferramenta.</p>
         <a class="arroba" href="https://instagram.com/lo_braganca" target="_blank" rel="noopener">@lo_braganca no Instagram</a>
       </div>
     </div>
   </section>
 
-  <section class="faixa secao duvidas">
-    <div class="miolo">
-      <div class="cabeca revela">
-        <span class="rotulo">Dúvidas</span>
-        <h2>Ficou alguma pergunta?</h2>
-      </div>
-      <div>
-        <details>
-          <summary>Preciso entender de tecnologia?</summary>
-          <p>Não. Você entende do seu negócio; a parte técnica é comigo.</p>
-        </details>
-        <details>
-          <summary>Serve pra empresa pequena?</summary>
-          <p>Serve. Quanto antes a empresa se organiza, mais fácil é crescer sem perder o controle.</p>
-        </details>
-        <details>
-          <summary>Quanto custa?</summary>
-          <p>Depende da ferramenta. Conte a tarefa que você repete no <a href="#orcamento">pedido de orçamento</a> e eu te passo o valor no WhatsApp, sem compromisso.</p>
-        </details>
-        <details>
-          <summary>Você faz site?</summary>
-          <p>Faço, e integrado à gestão: o que o cliente faz no site (reserva, agendamento, pedido) cai direto no seu painel, sem ninguém copiar de um lugar para o outro.</p>
-        </details>
-        <details>
-          <summary>Fazer o diagnóstico me compromete com alguma coisa?</summary>
-          <p>Não. Você vê o resultado na hora. Eu posso te chamar no WhatsApp pra conversar sobre ele, e você decide se quer seguir.</p>
-        </details>
-      </div>
-    </div>
-  </section>
 
-  <section class="faixa fim">
-    <div class="miolo">
-      <div class="fim-cartao revela">
-        <h2>Bora colocar a sua empresa na <span class="destaque">palma da mão?</span></h2>
-        <p>Comece contando a tarefa que você repete: em 2 minutos você vê a ferramenta e pede o seu orçamento.</p>
-        <div class="acoes">
-          <a class="botao" href="#orcamento">Contar minha tarefa <svg aria-hidden="true"><use href="#i-seta"/></svg></a>
-          <a class="botao escuro" href="https://ig.me/m/lo_braganca" target="_blank" rel="noopener">Chamar no direct</a>
-        </div>
-      </div>
-    </div>
-  </section>
 </main>
 
 <footer class="faixa rodape">
@@ -962,7 +849,7 @@ details p { padding: 0 0 22px; color: var(--suave); max-width: 40em; }
   </div>
 </footer>
 
-<div class="cta-fixo" id="cta-fixo" aria-hidden="true"><a class="botao" href="#orcamento" tabindex="-1">Pedir orçamento <svg aria-hidden="true"><use href="#i-seta"/></svg></a></div>
+<div class="cta-fixo" id="cta-fixo" aria-hidden="true"><a class="botao" href="#orcamento" tabindex="-1">Solicite uma proposta <svg aria-hidden="true"><use href="#i-seta"/></svg></a></div>
 
 <script>
 // O diagnóstico: primeiro nome e WhatsApp (gravados na hora, e a Lorena recebe o aviso no
@@ -1600,7 +1487,7 @@ mostrarContato(false);
     const achadas = reconhecer(e.tarefa);
     caixa.replaceChildren(el("span", { class: "selo-ideia", text: achadas.length ? "Isso vira uma ferramenta" : "Escreva e veja aqui" }));
     if (!achadas.length) {
-      caixa.append(el("p", { class: "vazia", text: e.tarefa.trim().length >= 4 ? "Não reconheci essa tarefa de cara, e tudo bem: quase todo trabalho repetido vira ferramenta. Siga em frente que eu desenho a sua sob medida." : "Conte com as suas palavras, por exemplo: \"todo dia eu passo os pedidos do WhatsApp para a planilha\". A ferramenta certa aparece aqui." }));
+      caixa.append(el("p", { class: "vazia", text: e.tarefa.trim().length >= 4 ? "Essa eu desenho sob medida. Pode continuar." : "A ferramenta aparece aqui enquanto você escreve." }));
       return;
     }
     achadas.forEach((i) => {
@@ -1614,13 +1501,13 @@ mostrarContato(false);
     const tela = el("div", { class: "cot-tela" });
 
     if (e.passo === 0) {
-      tela.append(el("h3", { tabindex: "-1", html: "Me conta a tarefa que <em>você faz sempre igual.</em>" }));
+      tela.append(el("h3", { tabindex: "-1", html: "O que você faz <em>sempre igual?</em>" }));
       const grade = el("div", { class: "cot-grade" });
-      const area = el("textarea", { id: "cot-tarefa", rows: "4", maxlength: "1200", placeholder: "Ex.: toda semana eu copio o orçamento antigo, troco o nome do cliente e os valores e mando em PDF…", "aria-label": "Qual tarefa você repete?" });
+      const area = el("textarea", { id: "cot-tarefa", rows: "4", maxlength: "1200", placeholder: "Ex.: copio o orçamento antigo e troco o nome…", "aria-label": "Qual tarefa você repete?" });
       area.value = e.tarefa;
       const ideia = el("div", { class: "cot-ideia", "aria-live": "polite" });
       area.addEventListener("input", () => { e.tarefa = area.value; guardar(); desenharIdeia(ideia); });
-      const exemplos = el("div", { class: "cot-exemplos" }, el("span", { text: "Ou toque num exemplo:" }));
+      const exemplos = el("div", { class: "cot-exemplos" }, el("span", { text: "Exemplos:" }));
       EXEMPLOS.forEach((x) => {
         const b = el("button", { type: "button", class: "cot-chip", text: x });
         b.addEventListener("click", () => { area.value = (area.value.trim() ? area.value.trim() + "\n" : "") + x; e.tarefa = area.value; guardar(); desenharIdeia(ideia); area.focus(); });
@@ -1635,19 +1522,19 @@ mostrarContato(false);
     }
 
     if (e.passo === 1) {
-      tela.append(el("h3", { tabindex: "-1", html: "Quanto tempo essa tarefa <em>te toma?</em>" }));
+      tela.append(el("h3", { tabindex: "-1", html: "Quanto tempo <em>ela te toma?</em>" }));
       const conta = el("div", { class: "cot-conta-grande", "aria-live": "polite" });
       const atualizarConta = () => {
         const h = horasAno();
-        if (h == null) { conta.replaceChildren(el("p", { text: "Marque as duas respostas e eu faço a conta do ano." })); return; }
+        if (h == null) { conta.replaceChildren(el("p", { text: "Marque e veja a conta do ano." })); return; }
         const dias = h / 8;
         conta.replaceChildren(
           el("span", { class: "numero", html: `≈ ${fmtH(h)}<small>${h === 1 ? "hora" : "horas"} por ano</small>` }),
-          el("p", { html: dias >= 1 ? `Quase <b>${Math.round(dias)} ${Math.round(dias) === 1 ? "dia inteiro" : "dias inteiros"} de trabalho</b> numa tarefa só. É esse tempo que a ferramenta te devolve.` : "Pouco tempo por vez, mas toda semana. E quase sempre não é a única tarefa repetida." }),
+          el("p", { html: dias >= 1 ? `Quase <b>${Math.round(dias)} ${Math.round(dias) === 1 ? "dia" : "dias"} de trabalho</b> que a ferramenta te devolve.` : "Pouco por vez, mas toda semana." }),
           el("span", { class: "conta-fina", text: `${e.minutos} min × ${e.vezes.toLowerCase()} × 50 semanas` }));
       };
-      const linhaMin = el("div", { class: "cot-linha" }, el("span", { text: "Cada vez que você faz, leva…" }));
-      const linhaVez = el("div", { class: "cot-linha" }, el("span", { text: "E você faz…" }));
+      const linhaMin = el("div", { class: "cot-linha" }, el("span", { text: "Cada vez leva…" }));
+      const linhaVez = el("div", { class: "cot-linha" }, el("span", { text: "Você faz…" }));
       const redesenhar = () => {
         linhaMin.replaceChildren(linhaMin.firstChild, chips(MINUTOS.map((m) => m[0]), MINUTOS.find((m) => m[1] === e.minutos)?.[0], (r) => { e.minutos = MINUTOS.find((m) => m[0] === r)[1]; guardar(); redesenhar(); }));
         linhaVez.replaceChildren(linhaVez.firstChild, chips(VEZES.map((v) => v[0]), e.vezes, (r) => { e.vezes = r; guardar(); redesenhar(); }));
@@ -1658,8 +1545,8 @@ mostrarContato(false);
     }
 
     if (e.passo === 2) {
-      tela.append(el("h3", { tabindex: "-1", html: "Além dessa ferramenta, <em>o que mais te interessa?</em>" }),
-        el("p", { text: "Pode marcar mais de um. Isso me ajuda a montar um orçamento do tamanho certo." }));
+      tela.append(el("h3", { tabindex: "-1", html: "O que mais <em>te interessa?</em>" }),
+        null);
       const caixa = el("div");
       const redesenhar = () => caixa.replaceChildren(chips(QUER, e.quer, (r) => { e.quer = e.quer.includes(r) ? e.quer.filter((x) => x !== r) : [...e.quer, r]; guardar(); redesenhar(); }, true));
       redesenhar();
@@ -1667,8 +1554,8 @@ mostrarContato(false);
     }
 
     if (e.passo === 3) {
-      tela.append(el("h3", { tabindex: "-1", html: "Para onde eu mando <em>o seu orçamento?</em>" }),
-        el("p", { text: "Eu olho a sua tarefa e te chamo no WhatsApp com a ideia da ferramenta e o valor." }));
+      tela.append(el("h3", { tabindex: "-1", html: "Para onde eu mando <em>a sua proposta?</em>" }),
+        null);
       const campo = (id, rot, attrs, chave) => {
         const i = el("input", { id, ...attrs }); i.value = e[chave] || "";
         i.addEventListener("input", () => { e[chave] = i.value; guardar(); });
@@ -1682,12 +1569,12 @@ mostrarContato(false);
       tela.append(el("div", { class: "cot-resumo" },
         el("div", {}, el("span", { text: "Ferramenta" }), el("b", { text: achadas.length ? achadas.map((i) => i.nome).join(" + ") : "Sob medida" })),
         el("div", {}, el("span", { text: "Tempo que volta" }), el("b", { text: h != null ? `≈ ${fmtH(h)} h por ano` : "a calcular" }))));
-      tela.append(nav(enviar, "Pedir meu orçamento"), el("p", { class: "nota", style: "font-size:14px;color:var(--suave);text-align:center", html: 'Sem compromisso. Seus dados ficam só comigo. <a href="/privacidade/" style="color:inherit">Privacidade</a>' }));
+      tela.append(nav(enviar, "Solicitar proposta"), el("p", { class: "nota", style: "font-size:14px;color:var(--suave);text-align:center", html: 'Sem compromisso. Seus dados ficam só comigo. <a href="/privacidade/" style="color:inherit">Privacidade</a>' }));
     }
 
     if (e.passo === 4) {
       const primeiro = (e.nome || "").trim().split(" ")[0];
-      const texto = `Oi, Lorena! Pedi um orçamento no site. A tarefa que eu repito: ${e.tarefa.trim().slice(0, 300)}`;
+      const texto = `Oi, Lorena! Solicitei uma proposta no site. A tarefa que eu repito: ${e.tarefa.trim().slice(0, 300)}`;
       const zap = el("a", { class: "botao", href: "https://wa.me/5531971473162?text=" + encodeURIComponent(texto), target: "_blank", rel: "noopener" });
       zap.innerHTML = '<svg aria-hidden="true"><use href="#i-zap"/></svg>Adiantar a conversa no WhatsApp';
       const novo = el("button", { type: "button", class: "botao vazado", text: "Contar outra tarefa" });
@@ -1695,7 +1582,7 @@ mostrarContato(false);
       tela.append(el("div", { class: "cot-pronto" },
         el("div", { class: "icone-ok", "aria-hidden": "true", html: '<svg viewBox="0 0 24 24" fill="none" stroke="#121418" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>' }),
         el("h3", { tabindex: "-1", html: `Recebi${primeiro ? ", " + primeiro.replace(/</g, "") : ""}! <em>Agora é comigo.</em>` }),
-        el("p", { style: "color:var(--suave)", text: "Eu leio a sua tarefa, penso na ferramenta e te chamo no WhatsApp com a ideia e o valor. Se quiser, já me manda um oi por lá." }),
+        el("p", { style: "color:var(--suave)", text: "Te chamo no WhatsApp com a ideia e o valor." }),
         el("div", { class: "cot-nav" }, zap, novo)));
     }
     palco.replaceChildren(tela);
@@ -1707,7 +1594,7 @@ mostrarContato(false);
     let d = (e.whatsapp || "").replace(/\D/g, "");
     if (d.length === 10 || d.length === 11) d = "55" + d;
     if (!nome) { erro(tela, "Escreva o seu nome."); return document.getElementById("cot-nome").focus(); }
-    if (!/^55\d{10,11}$/.test(d)) { erro(tela, "Escreva o WhatsApp com DDD, como (31) 99999-9999, para eu te mandar o orçamento."); return document.getElementById("cot-zap").focus(); }
+    if (!/^55\d{10,11}$/.test(d)) { erro(tela, "Escreva o WhatsApp com DDD, como (31) 99999-9999, para eu te mandar a proposta."); return document.getElementById("cot-zap").focus(); }
     const h = horasAno(), achadas = reconhecer(e.tarefa);
     const respostas = [
       { secao: "A tarefa", pergunta: "Qual tarefa você repete?", resposta: e.tarefa.trim() },
@@ -1724,7 +1611,7 @@ mostrarContato(false);
       if (!r.ok) { const c = await r.json().catch(() => ({})); throw new Error(c.erro || "Erro " + r.status); }
       e.enviado = true; ir(4);
     } catch (err) {
-      b.disabled = false; b.textContent = "Pedir meu orçamento";
+      b.disabled = false; b.textContent = "Solicitar proposta";
       erro(tela, "Não consegui enviar agora (" + err.message + "). Tente de novo, ou me chame no WhatsApp: (31) 97147-3162.");
     }
   }
