@@ -19,6 +19,8 @@ html, body { margin: 0; width: 1080px; height: 1920px; overflow: hidden; backgro
 .luz { border-radius: 50%; pointer-events: none; }
 #luz1 { width: 1400px; height: 1400px; left: -160px; top: 380px; background: radial-gradient(closest-side, rgba(200,242,107,.13), transparent); }
 #luz2 { width: 900px; height: 900px; left: 400px; top: -300px; background: radial-gradient(closest-side, rgba(200,242,107,.09), transparent); }
+/* 21/11: ela pediu para tirar o reflexo verde — as luzes de fundo e os brilhos limão saíram */
+#luz1, #luz2, #holofote { display: none; }
 #vinheta { inset: 0; background: radial-gradient(130% 90% at 50% 45%, transparent 55%, rgba(0,0,0,.62) 100%); pointer-events: none; z-index: 50; }
 #grao { inset: -100px; z-index: 51; opacity: .075; mix-blend-mode: overlay; pointer-events: none; }
 em { font-family: "Instrument Serif", Georgia, serif; font-style: italic; font-weight: 400; letter-spacing: -.005em; }
@@ -31,7 +33,7 @@ em { font-family: "Instrument Serif", Georgia, serif; font-style: italic; font-w
 #pov { left: 80px; top: 236px; width: 900px; }
 #pov h1 { margin: 30px 0 0; font: 700 70px/1.06 "Plus Jakarta Sans"; letter-spacing: -.035em; color: #E9EBE4; }
 #numero { display: flex; align-items: baseline; gap: 10px; margin-top: 4px; }
-#numero b { font: 400 230px/.86 "Instrument Serif"; font-style: italic; color: var(--l); letter-spacing: -.03em; font-variant-numeric: lining-nums tabular-nums; text-shadow: 0 0 60px rgba(200,242,107,.25); }
+#numero b { font: 400 230px/.86 "Instrument Serif"; font-style: italic; color: var(--l); letter-spacing: -.03em; font-variant-numeric: lining-nums tabular-nums; }
 #numero span { font: 700 60px/1 "Plus Jakarta Sans"; color: var(--t); letter-spacing: -.02em; }
 #mesa { left: 0; top: 0; width: 1080px; height: 1920px; perspective: 1700px; }
 #pilha { position: absolute; left: 330px; top: 820px; width: 420px; height: 540px; transform-style: preserve-3d; }
@@ -48,11 +50,11 @@ em { font-family: "Instrument Serif", Georgia, serif; font-style: italic; font-w
 .tecla { width: 140px; height: 124px; border-radius: 28px; display: grid; place-items: center; font: 700 42px/1 "Plus Jakarta Sans"; color: #E9EBE4;
   background: linear-gradient(180deg, #2A2F38, #1A1D23); box-shadow: inset 0 2px 0 rgba(255,255,255,.08), inset 0 -6px 0 rgba(0,0,0,.35), 0 14px 0 #050607, 0 26px 30px -10px rgba(0,0,0,.7); }
 .tecla.longa { width: 196px; }
-.tecla.apertada { background: linear-gradient(180deg, #D6F78A, #B4E04F); color: #0B0C0F; box-shadow: inset 0 2px 0 rgba(255,255,255,.5), inset 0 -4px 0 rgba(0,0,0,.15), 0 4px 0 #6E8F22, 0 10px 30px -6px rgba(200,242,107,.55); }
+.tecla.apertada { background: linear-gradient(180deg, #D6F78A, #B4E04F); color: #0B0C0F; box-shadow: inset 0 2px 0 rgba(255,255,255,.5), inset 0 -4px 0 rgba(0,0,0,.15), 0 4px 0 #6E8F22; }
 #mais { font: 500 52px/1 "Plus Jakarta Sans"; color: var(--s); }
 #anel { width: 230px; height: 230px; }
 #anel .trilho { fill: none; stroke: #23272F; stroke-width: 14; }
-#anel .arco { fill: none; stroke: var(--l); stroke-width: 14; stroke-linecap: round; filter: drop-shadow(0 0 10px rgba(200,242,107,.5)); }
+#anel .arco { fill: none; stroke: var(--l); stroke-width: 14; stroke-linecap: round; }
 #anel text { fill: var(--t); text-anchor: middle; }
 #anel .h { font: 800 58px "Plus Jakarta Sans"; letter-spacing: -2px; }
 #anel .s { font: 600 20px "Figtree"; fill: var(--s); letter-spacing: 3px; }
@@ -65,10 +67,10 @@ em { font-family: "Instrument Serif", Georgia, serif; font-style: italic; font-w
 #B h2 em { color: var(--l); font-size: 1.18em; }
 #holofote { width: 1000px; height: 1000px; left: 40px; top: 470px; background: radial-gradient(closest-side, rgba(200,242,107,.22), transparent); }
 #botao { left: 540px; top: 960px; display: flex; align-items: center; gap: 24px; padding: 46px 66px; border-radius: 99px; white-space: nowrap; font: 700 58px/1 "Plus Jakarta Sans"; letter-spacing: -.02em; color: #0B0C0F;
-  background: linear-gradient(180deg, #DDF99A, #B9E35A); box-shadow: inset 0 2px 0 rgba(255,255,255,.6), inset 0 -6px 0 rgba(0,0,0,.12), 0 30px 70px -20px rgba(200,242,107,.55), 0 0 0 10px rgba(200,242,107,.08); }
+  background: linear-gradient(180deg, #DDF99A, #B9E35A); box-shadow: inset 0 2px 0 rgba(255,255,255,.6), inset 0 -6px 0 rgba(0,0,0,.12), 0 30px 60px -24px rgba(0,0,0,.8); }
 #botao svg { width: 54px; height: 54px; }
 #choque { left: 540px; top: 960px; width: 300px; height: 300px; border-radius: 50%; border: 6px solid var(--l); }
-.faisca { width: 16px; height: 16px; border-radius: 50%; background: var(--l); box-shadow: 0 0 16px rgba(200,242,107,.9); left: 540px; top: 960px; }
+.faisca { width: 16px; height: 16px; border-radius: 50%; background: var(--l); left: 540px; top: 960px; }
 #cursor { width: 140px; height: 140px; filter: drop-shadow(0 12px 18px rgba(0,0,0,.6)); }
 #cena3d { left: 0; top: 0; width: 1080px; height: 1920px; perspective: 1400px; }
 #pdf { position: absolute; left: 220px; top: 1180px; width: 640px; display: flex; align-items: center; gap: 30px; padding: 34px 40px; border-radius: 34px; overflow: hidden;
@@ -90,18 +92,23 @@ em { font-family: "Instrument Serif", Georgia, serif; font-style: italic; font-w
 .coment .bal { background: linear-gradient(180deg, #1B1F26, #14171C); border: 2px solid #2A2F38; border-radius: 34px 34px 34px 10px; padding: 26px 34px; font: 600 42px/1.25 "Figtree"; min-height: 110px; box-shadow: 0 30px 50px -30px rgba(0,0,0,.8); }
 .coment .bal small { display: block; font: 700 26px/1 "Plus Jakarta Sans"; color: var(--s); margin-bottom: 12px; letter-spacing: .02em; }
 .coment .bal small i { font-style: normal; color: #5E636D; font-weight: 600; margin-left: 10px; }
-.coment.voce .bal { border-color: rgba(200,242,107,.55); box-shadow: 0 0 0 6px rgba(200,242,107,.08), 0 30px 50px -30px rgba(0,0,0,.8); }
+.coment.voce .bal { border-color: rgba(200,242,107,.55); box-shadow: 0 30px 50px -30px rgba(0,0,0,.8); }
 .cur { display: inline-block; width: 4px; height: 42px; background: var(--l); vertical-align: -6px; margin-left: 4px; border-radius: 2px; }
 .coracao { position: absolute; right: -4px; bottom: -26px; display: flex; align-items: center; gap: 8px; background: #1F232B; border: 2px solid #2A2F38; border-radius: 99px; padding: 8px 16px; font: 700 26px/1 "Plus Jakarta Sans"; color: var(--t); }
 .coracao svg { width: 28px; height: 28px; }
-#comenta { left: 80px; top: 1330px; display: flex; align-items: center; gap: 22px; font: 700 58px/1 "Plus Jakarta Sans"; letter-spacing: -.02em; color: var(--l); }
+#comenta { left: 80px; top: 1215px; display: flex; align-items: center; gap: 22px; font: 700 58px/1 "Plus Jakarta Sans"; letter-spacing: -.02em; color: var(--l); }
 #comenta svg { width: 64px; height: 64px; }
-#assin { left: 80px; top: 1430px; display: flex; align-items: center; gap: 22px; font: 700 38px/1 "Plus Jakarta Sans"; color: var(--t); }
-#assin svg { width: 66px; height: 66px; }
+#assin { left: 80px; top: 1340px; display: flex; align-items: center; gap: 30px; font: 800 58px/1 "Plus Jakarta Sans"; letter-spacing: -.02em; color: var(--t); }
+#assin svg { width: 140px; height: 140px; }
+#assin small { display: block; margin-top: 12px; font: 600 32px/1 "Figtree"; color: var(--s); letter-spacing: 0; }
+/* a logo dela fica à vista o vídeo todo, no alto (acima da área do texto) */
+#selo { left: 80px; top: 112px; z-index: 45; display: flex; align-items: center; gap: 18px; font: 700 34px/1 "Plus Jakarta Sans"; letter-spacing: -.01em; color: var(--t); }
+#selo svg { width: 84px; height: 84px; }
 </style>
 </head>
 <body>
 <svg width="0" height="0" style="position:absolute">
+  <symbol id="logo-s" viewBox="0 0 64 64"><rect width="64" height="64" rx="14" fill="#C8F26B"/><g transform="translate(32 32) scale(1.12) translate(-35 -32)" fill="#0B0C0F"><rect x="18" y="13" width="10" height="38" rx="2"/><rect x="18" y="41" width="22" height="10" rx="2"/><circle cx="47" cy="46" r="5"/></g></symbol>
   <symbol id="seta" viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></symbol>
   <symbol id="baixo" viewBox="0 0 24 24"><path d="M12 4v15M6 13l6 6 6-6" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></symbol>
   <symbol id="ok" viewBox="0 0 24 24"><circle cx="12" cy="12" r="11" fill="#3E7F1E"/><path d="M6.5 12.5l3.5 3.5 7.5-8" fill="none" stroke="#fff" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></symbol>
@@ -139,9 +146,10 @@ em { font-family: "Instrument Serif", Georgia, serif; font-style: italic; font-w
       <div class="abs coment" id="c2"><span class="av" style="background:#BFE3FF">R</span><div class="bal" style="position:relative"><small>rafa.oficina<i>agora</i></small><span id="t2"></span><span class="coracao" id="h2"><svg><use href="#cor"/></svg><span id="n2">8</span></span></div></div>
       <div class="abs coment voce" id="c3"><span class="av" style="background:#C8F26B">?</span><div class="bal"><small>você</small><span id="t3"></span></div></div>
       <div class="abs" id="comenta">Comenta a sua <svg><use href="#baixo"/></svg></div>
-      <div class="abs" id="assin"><svg id="logo" viewBox="0 0 64 64"><rect id="lq" width="64" height="64" rx="14" fill="#C8F26B"/><g transform="translate(32 32) scale(1.12) translate(-35 -32)" fill="#0B0C0F"><rect id="l1" x="18" y="13" width="10" height="38" rx="2"/><rect id="l2" x="18" y="41" width="22" height="10" rx="2"/><circle id="l3" cx="47" cy="46" r="5"/></g></svg><span>@lo_braganca</span></div>
+      <div class="abs" id="assin"><svg id="logo" viewBox="0 0 64 64"><rect id="lq" width="64" height="64" rx="14" fill="#C8F26B"/><g transform="translate(32 32) scale(1.12) translate(-35 -32)" fill="#0B0C0F"><rect id="l1" x="18" y="13" width="10" height="38" rx="2"/><rect id="l2" x="18" y="41" width="22" height="10" rx="2"/><circle id="l3" cx="47" cy="46" r="5"/></g></svg><span>Lorena Bragança<small>@lo_braganca</small></span></div>
     </div>
   </div>
+  <div class="abs" id="selo"><svg viewBox="0 0 64 64"><use href="#logo-s"/></svg><span id="selo-nome">@lo_braganca</span></div>
   <div class="abs" id="cortina"></div>
   <div class="abs" id="vinheta"></div>
   <div class="abs" id="grao"></div>
@@ -198,6 +206,9 @@ window.quadro = function (t) {
   $("luz2").style.transform = `translate(${Math.cos(t * .3) * 70}px, ${Math.sin(t * .22) * 50}px)`;
   const f = Math.floor(t * 24); // o grão muda 24 vezes por segundo, como filme
   $("grao").style.backgroundPosition = `${(f * 97) % 256}px ${(f * 61) % 256}px`;
+
+  const sel = $("selo"); vis(sel, sai(seg(t, .1, .5)) * (1 - seg(t, 14.0, 14.3)));
+  sel.style.transform = `translateY(${lerp(-20, 0, sai(seg(t, .1, .6)))}px)`;
 
   // ---------- A: o POV (0–6,3 s) ----------
   const A = $("A"); vis(A, 1 - seg(t, 6.05, 6.3));
@@ -277,7 +288,7 @@ window.quadro = function (t) {
   // ---------- C: a pergunta (10,8–16 s) ----------
   const C = $("C"); vis(C, seg(t, 10.78, 10.82));
   linhas($("ch"), t, 10.9, .12, .8);
-  [["c1", "t1", "fechar o caixa todo dia no caderno", 11.6, 12.8, 690], ["c2", "t2", "mandar orçamento um por um no whats", 12.6, 13.7, 930], ["c3", "t3", "", 13.7, 14.0, 1170]].forEach(([cid, tid, txt, a, b, y], i) => {
+  [["c1", "t1", "fechar o caixa todo dia no caderno", 11.6, 12.8, 600], ["c2", "t2", "mandar orçamento um por um no whats", 12.6, 13.7, 815], ["c3", "t3", "", 13.7, 14.0, 1030]].forEach(([cid, tid, txt, a, b, y], i) => {
     const ap = sai5(seg(t, a - .35, a + .15));
     const el = $(cid); vis(el, ap); el.style.transform = `translateY(${y + lerp(50, 0, ap)}px) scale(${lerp(.96, 1, ap)})`;
     const escrito = digita(txt, seg(t, a, b));
@@ -298,7 +309,8 @@ window.quadro = function (t) {
   $("l1").style.transform = `scaleY(${sai5(seg(t, 14.5, 14.8))})`; $("l1").style.transformOrigin = "23px 51px";
   $("l2").style.transform = `scaleX(${sai5(seg(t, 14.7, 15.0))})`; $("l2").style.transformOrigin = "18px 46px";
   $("l3").style.transform = `scale(${pl(14.9)})`; $("l3").style.transformOrigin = "47px 46px";
-  $("assin").querySelector("span").style.opacity = sai(seg(t, 14.9, 15.3));
+  $("assin").querySelector("span").style.opacity = sai(seg(t, 14.8, 15.2));
+  $("assin").querySelector("span").style.transform = `translateX(${lerp(-24, 0, sai(seg(t, 14.8, 15.3)))}px)`;
 };
 window.quadro(0);
 if (location.search.includes("ver")) { const t0 = performance.now(); const tocar = () => { window.quadro(((performance.now() - t0) / 1000) % window.DURACAO); requestAnimationFrame(tocar); }; tocar(); }
