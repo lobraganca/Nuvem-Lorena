@@ -238,6 +238,8 @@ dialog.ficha::backdrop { background: rgba(0, 0, 0, .6); }
 .zerar-caixa { display: grid; gap: 10px; margin-top: 10px; padding: 16px; border: 1.5px solid color-mix(in srgb, var(--baixo) 40%, var(--borda)); border-radius: 16px; font-size: 14px; color: var(--suave); }
 .zerar-caixa b { color: var(--texto); }
 .zerar-caixa input { width: 100%; background: var(--cartao); color: var(--texto); border: 1.5px solid var(--borda); border-radius: 12px; padding: 12px 14px; font: 600 16px/1 var(--f-titulo); letter-spacing: .1em; }
+.euzinha { border-color: var(--borda); }
+.euzinha .botao { justify-self: start; }
 .botao.perigo { background: var(--baixo); color: #0F1115; justify-self: start; }
 .zerar-res { font-weight: 600; color: var(--texto); }
 </style>
@@ -355,6 +357,17 @@ dialog.ficha::backdrop { background: rgba(0, 0, 0, .6); }
   <div class="rodape"><span id="atualizado" aria-live="polite"></span><button class="link botao-atualizar" type="button">Atualizar</button></div>
   <!-- 21/11: "zere o histórico, para eu ver quem vai entrar agora". Fica escondido aqui embaixo
        e pede a palavra ZERAR escrita: não tem volta. As respostas dos clientes ficam. -->
+  <!-- 21/11: as visitas dela não contam. Ter entrado no /adm só vale para ESTE aplicativo;
+       o Safari e o navegador do Instagram precisam abrir o link uma vez, cada um. -->
+  <details class="tecnico zerar">
+    <summary>Não contar as minhas visitas</summary>
+    <div class="zerar-caixa euzinha">
+      <p>Neste app as suas visitas já não contam. No <b>Safari</b> e no <b>navegador do Instagram</b> é preciso abrir este link <b>uma vez</b> em cada um. Depois disso, as suas visitas não entram mais nos números.</p>
+      <a class="botao pequeno" href="https://www.lorenabraganca.com.br/?sou-eu" target="_blank" rel="noopener">Abrir no navegador</a>
+      <button class="link" type="button" id="copiar-sou-eu">Copiar o link (para colar no Instagram)</button>
+      <p class="zerar-res" id="sou-eu-res" aria-live="polite"></p>
+    </div>
+  </details>
   <details class="tecnico zerar">
     <summary>Zerar histórico</summary>
     <div class="zerar-caixa">
@@ -1138,6 +1151,12 @@ document.querySelectorAll("[data-filtro]").forEach((b) => b.addEventListener("cl
 irPara(tela);
 // o aviso de resposta nova abre em /adm/#formularios: vai direto para lá
 if (location.hash === "#formularios") irPara("diag");
+
+$("copiar-sou-eu").addEventListener("click", async () => {
+  const link = "https://www.lorenabraganca.com.br/?sou-eu";
+  try { await navigator.clipboard.writeText(link); $("sou-eu-res").textContent = "Copiado. Cole numa conversa sua no Instagram (pode ser com você mesma) e toque nele."; }
+  catch { $("sou-eu-res").textContent = link; }
+});
 
 // ---------- zerar o histórico ----------
 $("zerar-botao").addEventListener("click", async () => {

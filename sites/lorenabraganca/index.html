@@ -1231,7 +1231,23 @@ mostrarContato(false);
     }
 
     // 2. a visita (quem já entrou no /adm neste aparelho, a Lorena, não conta)
-    if (localStorage.getItem("adm-passe")) return;
+    // 21/11: "fazer com que o meu acesso não conte". No iPhone o app do /adm, o Safari e o
+    // navegador do Instagram guardam tudo separado, então ter entrado no /adm não bastava.
+    // Abrir o site UMA vez com ?sou-eu marca aquele navegador para sempre (memória + cookie).
+    var url = new URLSearchParams(location.search);
+    if (url.has("sou-eu")) {
+      localStorage.setItem("sou-eu", "1");
+      document.cookie = "sou_eu=1; Path=/; Max-Age=" + 60 * 60 * 24 * 400 + "; SameSite=Lax; Secure";
+      url.delete("sou-eu");
+      if (history.replaceState) history.replaceState(null, "", location.pathname + (url.toString() ? "?" + url : "") + location.hash);
+      var aviso = document.createElement("div");
+      aviso.textContent = "Pronto: neste navegador as suas visitas não contam mais.";
+      aviso.setAttribute("role", "status");
+      aviso.style.cssText = "position:fixed;left:16px;right:16px;top:16px;z-index:99;background:#0F1115;color:#F3F4F0;border:2px solid #C8F26B;border-radius:14px;padding:14px 16px;font:600 15px/1.35 system-ui,sans-serif;text-align:center";
+      document.body.appendChild(aviso);
+      setTimeout(function () { aviso.remove(); }, 5000);
+    }
+    if (localStorage.getItem("adm-passe") || localStorage.getItem("sou-eu") || /(^|;\s*)sou_eu=1/.test(document.cookie)) return;
     var v = localStorage.getItem("visitante");
     if (!v) {
       v = (crypto.randomUUID && crypto.randomUUID()) || "10000000-1000-4000-8000-100000000000".replace(/[018]/g, function (c) {
