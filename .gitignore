@@ -48,3 +48,7 @@ avena-app-fragment.html
 # o vídeo do anúncio sai de sites/marca/video/gerar-video.mjs: não guardar o MP4 gerado
 sites/marca/video/*.mp4
 sites/marca/video/quadro-*.png
+
+# o Reel sai de sites/instagram/posts/*/reel/gerar.mjs: não guardar o MP4 nem os quadros de conferência
+sites/instagram/posts/*/reel/*.mp4
+sites/instagram/posts/*/reel/quadro-*.png

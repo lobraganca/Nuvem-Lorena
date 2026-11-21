@@ -1,0 +1,212 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<!-- Reel "a tarefa repetitiva" (21/11), 1080 × 1920, 15 s. Ela pediu algo visual, que dê
+     engajamento: quase sem texto, no formato "POV". Não é um vídeo gravado: quadro(t) desenha
+     o segundo t, sem animação de CSS, e gerar.mjs fotografa 30 quadros por segundo.
+     Abrir com ?ver mostra tocando, para conferir o ritmo.
+     Área segura do Reels: texto entre x 80 e 940 e entre y 220 e 1480 (embaixo ficam a
+     legenda e o nome; à direita, curtir e comentar). -->
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@600;700;800&family=Figtree:wght@500;600;700&family=Instrument+Serif:ital@0;1&display=swap">
+<style>
+:root { --g: #0F1115; --c: #181B21; --b: #2E333C; --t: #F3F4F0; --s: #A3A7B1; --l: #C8F26B; }
+html, body { margin: 0; width: 1080px; height: 1920px; overflow: hidden; background: var(--g); color: var(--t); font-family: "Plus Jakarta Sans", sans-serif; }
+* { box-sizing: border-box; }
+.abs { position: absolute; }
+#palco { position: relative; width: 1080px; height: 1920px; overflow: hidden; }
+#brilho { width: 1500px; height: 1500px; border-radius: 50%; background: radial-gradient(closest-side, rgba(200,242,107,.16), transparent); left: -210px; top: 260px; }
+em { font-family: "Instrument Serif", Georgia, serif; font-style: italic; font-weight: 400; letter-spacing: -.01em; }
+
+/* A: POV */
+#pov { left: 80px; top: 230px; width: 880px; }
+.pill { display: inline-block; background: var(--l); color: var(--g); font: 800 40px/1 "Plus Jakarta Sans"; padding: 16px 26px; border-radius: 99px; letter-spacing: .04em; }
+#pov h1 { margin: 26px 0 0; font: 800 76px/1.05 "Plus Jakarta Sans"; letter-spacing: -.035em; }
+#pov h1 b { display: block; font-size: 150px; letter-spacing: -.05em; color: var(--l); line-height: 1; margin-top: 6px; font-variant-numeric: tabular-nums; }
+.doc { width: 440px; height: 560px; border-radius: 26px; background: #F3F4F0; color: #121418; padding: 40px 36px; box-shadow: 0 30px 60px -30px rgba(0,0,0,.8); }
+.doc .cab { display: flex; justify-content: space-between; align-items: center; font: 800 34px/1 "Plus Jakarta Sans"; letter-spacing: .06em; }
+.doc .cab i { width: 70px; height: 70px; border-radius: 18px; background: #E2E5DC; }
+.doc .campo { margin-top: 36px; font: 600 30px/1 "Figtree"; color: #4E535C; }
+.doc .nome { display: block; margin-top: 12px; height: 64px; border-radius: 14px; background: #fff; border: 3px solid #D6D9CF; padding: 14px 18px; font: 700 34px/1 "Plus Jakarta Sans"; color: #121418; white-space: nowrap; overflow: hidden; }
+.doc .linhas { margin-top: 34px; display: grid; gap: 18px; }
+.doc .linhas i { display: block; height: 20px; border-radius: 10px; background: #DDE0D6; }
+.fantasma { width: 440px; height: 560px; border-radius: 26px; background: #C9CCC2; border: 3px solid #E6E8E1; }
+.tecla { width: 150px; height: 130px; border-radius: 26px; background: var(--c); border: 4px solid var(--b); box-shadow: 0 12px 0 #07080A; display: grid; place-items: center; font: 800 46px/1 "Plus Jakarta Sans"; color: var(--t); }
+.tecla.longa { width: 210px; }
+#mais { font: 800 56px/1 "Plus Jakarta Sans"; color: var(--s); }
+#relogio { width: 260px; height: 150px; border-radius: 30px; background: var(--c); border: 4px solid var(--b); display: grid; place-items: center; text-align: center; }
+#relogio b { font: 800 66px/1 "Plus Jakarta Sans"; letter-spacing: -.03em; font-variant-numeric: tabular-nums; }
+#relogio small { display: block; font: 700 24px/1 "Figtree"; color: var(--s); margin-top: 6px; }
+
+/* B: 1 clique */
+#onda { left: 540px; top: 960px; width: 10px; height: 10px; border-radius: 50%; background: var(--l); }
+#B h2 { left: 80px; top: 250px; width: 900px; margin: 0; font: 800 120px/1.02 "Plus Jakarta Sans"; letter-spacing: -.045em; color: var(--g); }
+#B h2 em { font-size: 1.12em; }
+#botao { left: 540px; top: 900px; translate: -50% -50%; display: flex; align-items: center; gap: 24px; background: var(--g); color: var(--t); font: 800 62px/1 "Plus Jakarta Sans"; padding: 50px 70px; border-radius: 99px; white-space: nowrap; }
+#botao svg { width: 56px; height: 56px; color: var(--l); }
+#cursor { width: 150px; height: 150px; }
+#pdf { left: 540px; top: 1200px; translate: -50% -50%; width: 640px; display: flex; align-items: center; gap: 30px; background: #fff; color: #121418; border-radius: 34px; padding: 34px 40px; box-shadow: 0 30px 60px -30px rgba(0,0,0,.5); }
+#pdf .tag { flex: none; width: 120px; height: 140px; border-radius: 18px; background: #D93F3F; color: #fff; display: grid; place-items: center; font: 800 38px/1 "Plus Jakarta Sans"; }
+#pdf b { display: block; font: 800 46px/1.1 "Plus Jakarta Sans"; letter-spacing: -.02em; }
+#pdf span { display: flex; align-items: center; gap: 12px; margin-top: 12px; font: 700 34px/1 "Figtree"; color: #2F7D1F; }
+#segundos { left: 540px; top: 1370px; translate: -50% 0; font: 800 54px/1 "Plus Jakarta Sans"; color: var(--g); white-space: nowrap; }
+
+/* C: a pergunta */
+#C h2 { left: 80px; top: 240px; width: 900px; margin: 0; font: 800 104px/1.03 "Plus Jakarta Sans"; letter-spacing: -.04em; }
+#C h2 em { color: var(--l); font-size: 1.1em; }
+.coment { left: 80px; width: 860px; display: flex; gap: 26px; align-items: flex-start; }
+.coment .av { flex: none; width: 96px; height: 96px; border-radius: 50%; display: grid; place-items: center; font: 800 42px/1 "Plus Jakarta Sans"; color: var(--g); }
+.coment .bal { background: var(--c); border: 3px solid var(--b); border-radius: 34px; border-top-left-radius: 10px; padding: 28px 34px; font: 600 44px/1.25 "Figtree"; min-height: 110px; }
+.coment .bal small { display: block; font: 700 28px/1 "Plus Jakarta Sans"; color: var(--s); margin-bottom: 12px; }
+.cur { display: inline-block; width: 4px; height: 44px; background: var(--l); vertical-align: -6px; margin-left: 4px; }
+#comenta { left: 80px; top: 1320px; display: flex; align-items: center; gap: 24px; font: 800 60px/1 "Plus Jakarta Sans"; color: var(--l); }
+#comenta svg { width: 70px; height: 70px; }
+#assin { left: 80px; top: 1420px; display: flex; align-items: center; gap: 20px; font: 700 40px/1 "Plus Jakarta Sans"; color: var(--t); }
+#assin svg { width: 64px; height: 64px; }
+</style>
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute">
+  <symbol id="logo" viewBox="0 0 64 64"><rect width="64" height="64" rx="14" fill="#C8F26B"/><g transform="translate(32 32) scale(1.12) translate(-35 -32)" fill="#0F1115"><rect x="18" y="13" width="10" height="38" rx="2"/><rect x="18" y="41" width="22" height="10" rx="2"/><circle cx="47" cy="46" r="5"/></g></symbol>
+  <symbol id="seta" viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+  <symbol id="baixo" viewBox="0 0 24 24"><path d="M12 4v15M6 13l6 6 6-6" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+  <symbol id="ok" viewBox="0 0 24 24"><circle cx="12" cy="12" r="11" fill="#2F7D1F"/><path d="M6.5 12.5l3.5 3.5 7.5-8" fill="none" stroke="#fff" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+</svg>
+<div id="palco">
+  <div class="abs" id="brilho"></div>
+
+  <div id="A">
+    <div class="abs" id="fantasmas"></div>
+    <div class="abs doc" id="doc"><div class="cab">ORÇAMENTO<i></i></div><div class="campo">Cliente<span class="nome" id="nome"></span></div><div class="linhas"><i style="width:100%"></i><i style="width:86%"></i><i style="width:94%"></i><i style="width:62%"></i><i style="width:80%"></i></div></div>
+    <div class="abs" id="pov"><span class="pill">POV:</span><h1>você fazendo a mesma tarefa pela <b id="vez">1ª vez</b></h1></div>
+    <div class="abs tecla longa" id="kctrl">Ctrl</div><div class="abs" id="mais">+</div><div class="abs tecla" id="kletra">C</div>
+    <div class="abs" id="relogio"><div><b id="horas">0h</b><small>no ano</small></div></div>
+  </div>
+
+  <div class="abs" id="onda"></div>
+  <div id="B">
+    <h2 class="abs" id="bt1">E se fosse<br><em>1 clique?</em></h2>
+    <div class="abs" id="botao">Gerar orçamento <svg><use href="#seta"/></svg></div>
+    <div class="abs" id="pdf"><span class="tag">PDF</span><div><b>Orçamento · Ana</b><span><svg width="38" height="38"><use href="#ok"/></svg>pronto</span></div></div>
+    <div class="abs" id="segundos">2 segundos. Não 21 horas.</div>
+    <svg class="abs" id="cursor" viewBox="0 0 24 24"><path d="M5 3l14 8-6.2 1.6L9.6 19 5 3z" fill="#fff" stroke="#0F1115" stroke-width="1.6" stroke-linejoin="round"/></svg>
+  </div>
+
+  <div id="C">
+    <h2 class="abs" id="ct">Qual tarefa você repete <em>toda semana?</em></h2>
+    <div class="abs coment" id="c1"><span class="av" style="background:#FFC2D1">M</span><div class="bal"><small>marina.doces</small><span id="t1"></span></div></div>
+    <div class="abs coment" id="c2"><span class="av" style="background:#BFE3FF">R</span><div class="bal"><small>rafa.oficina</small><span id="t2"></span></div></div>
+    <div class="abs coment" id="c3"><span class="av" style="background:var(--l)">?</span><div class="bal"><small>você</small><span id="t3"></span></div></div>
+    <div class="abs" id="comenta">Comenta a sua <svg><use href="#baixo"/></svg></div>
+    <div class="abs" id="assin"><svg><use href="#logo"/></svg>@lo_braganca</div>
+  </div>
+</div>
+<script>
+window.DURACAO = 15;
+const $ = (id) => document.getElementById(id);
+const cl = (x, a = 0, b = 1) => Math.min(b, Math.max(a, x));
+const seg = (t, a, b) => cl((t - a) / (b - a));
+const sai = (p) => 1 - Math.pow(1 - p, 3);
+const entra = (p) => p * p * p;
+const meio = (p) => (p < .5 ? 4 * p * p * p : 1 - Math.pow(-2 * p + 2, 3) / 2);
+const pula = (p) => { const c = 1.7; return 1 + (c + 1) * Math.pow(p - 1, 3) + c * Math.pow(p - 1, 2); };
+const lerp = (a, b, p) => a + (b - a) * p;
+const pos = (el, x, y, extra = "") => { el.style.transform = `translate(${x}px, ${y}px) ${extra}`; };
+const vis = (el, o) => { el.style.opacity = o; el.style.visibility = o <= 0.001 ? "hidden" : "visible"; };
+const digita = (texto, p) => texto.slice(0, Math.round(texto.length * cl(p)));
+
+const NOMES = ["Ana", "Bruno", "Carla", "Dani", "Edu", "Fabi", "Gui", "Helô", "Iara", "João", "Kátia", "Léo"];
+// as cópias empilhadas atrás do orçamento (posições fixas, sorteadas uma vez)
+const FANT = Array.from({ length: 14 }, (_, k) => ({ dx: ((k * 47) % 60) - 30, dy: -k * 9, r: ((k * 37) % 14) - 7 }));
+const caixa = $("fantasmas");
+FANT.forEach(() => { const d = document.createElement("div"); d.className = "abs fantasma"; caixa.appendChild(d); });
+
+window.quadro = function (t) {
+  $("brilho").style.transform = `translate(${Math.sin(t * .4) * 80}px, ${Math.cos(t * .3) * 60}px)`;
+
+  // ---------- A: o POV (0 a 6,2 s) ----------
+  const fimA = seg(t, 5.9, 6.4);
+  const A = $("A"); vis(A, 1 - fimA);
+  const pA = seg(t, .9, 5.3);                 // o contador acelera de 1 a 250
+  const vez = Math.max(1, Math.round(1 + 249 * entra(pA)));
+  $("vez").textContent = vez + "ª vez";
+  const apPov = sai(seg(t, 0, .45));
+  vis($("pov"), apPov); pos($("pov"), 0, lerp(40, 0, apPov));
+  // o orçamento: entra, e o nome do cliente se reescreve cada vez mais rápido
+  const apDoc = pula(seg(t, .25, .8));
+  const doc = $("doc"); vis(doc, cl(seg(t, .25, .5)));
+  pos(doc, 320, 790, `scale(${lerp(.7, 1, apDoc)}) rotate(${Math.sin(t * 9) * pA * 1.2}deg)`);
+  const ciclo = lerp(.75, .16, entra(pA));      // segundos por cópia
+  const k = Math.floor(Math.max(0, t - .8) / ciclo), f = ((Math.max(0, t - .8) / ciclo) % 1);
+  const nome = NOMES[k % NOMES.length];
+  $("nome").textContent = t < .8 ? "" : digita(nome, f * 2.2);
+  // a pilha de cópias cresce
+  const nf = Math.round(FANT.length * sai(pA));
+  [...caixa.children].forEach((d, i) => {
+    const F = FANT[i];
+    vis(d, i < nf ? 1 : 0);
+    pos(d, 320 + F.dx, 790 + 20 + F.dy * .9, `rotate(${F.r}deg)`);
+  });
+  // as teclas: Ctrl + C / Ctrl + V, batendo no ritmo das cópias
+  const apT = sai(seg(t, .5, .9));
+  const fase = f < .5;                          // metade C, metade V
+  $("kletra").textContent = fase ? "C" : "V";
+  const aperta = (f % .5) < .14;
+  const yT = 1400 + lerp(60, 0, apT);
+  [["kctrl", 205], ["kletra", 545]].forEach(([id, x]) => {
+    const el = $(id); vis(el, apT);
+    pos(el, x, yT + (aperta ? 10 : 0));
+    el.style.background = aperta ? "#C8F26B" : ""; el.style.color = aperta ? "#0F1115" : "";
+    el.style.boxShadow = aperta ? "0 2px 0 #07080A" : "";
+  });
+  vis($("mais"), apT); pos($("mais"), 440, yT + 36);
+  // o relógio: as horas do ano somando
+  const r = $("relogio"); vis(r, apT); pos(r, 740, yT - 10);
+  $("horas").textContent = Math.round(21 * sai(pA)) + "h";
+  r.style.borderColor = pA > .98 ? "#FF8A7A" : "";
+
+  // ---------- transição: uma onda limão sai do centro ----------
+  const onda = $("onda");
+  const pOnda = meio(seg(t, 5.9, 6.55));
+  const pVolta = meio(seg(t, 10.1, 10.6));
+  onda.style.transform = `translate(-50%, -50%) scale(${pOnda * 460 * (1 - pVolta)})`;
+  vis(onda, pOnda > 0 && pVolta < 1 ? 1 : 0);
+
+  // ---------- B: 1 clique (6,3 a 10,3 s) ----------
+  const B = $("B"); vis(B, seg(t, 6.25, 6.45) * (1 - seg(t, 10.05, 10.25)));
+  const apH = sai(seg(t, 6.35, 6.85));
+  pos($("bt1"), 0, lerp(50, 0, apH)); vis($("bt1"), apH);
+  const apB = pula(seg(t, 6.6, 7.1));
+  const clique = seg(t, 7.75, 7.85) - seg(t, 7.95, 8.1);
+  $("botao").style.transform = `scale(${lerp(.6, 1, apB) * (1 - .08 * clique)})`; vis($("botao"), cl(seg(t, 6.6, 6.8)));
+  // o cursor vem de baixo e clica
+  const pc = meio(seg(t, 7.0, 7.7));
+  const cur = $("cursor"); vis(cur, seg(t, 6.9, 7.1) * (1 - seg(t, 8.6, 8.9)));
+  pos(cur, lerp(900, 620, pc), lerp(1500, 900, pc), `scale(${1 - .15 * clique})`);
+  // o PDF salta para fora
+  const apP = pula(seg(t, 8.0, 8.55));
+  const pdf = $("pdf"); vis(pdf, cl(seg(t, 8.0, 8.15)));
+  pdf.style.transform = `translateY(${lerp(-300, 0, sai(seg(t, 8, 8.55)))}px) scale(${lerp(.3, 1, apP)}) rotate(${lerp(-12, 0, sai(seg(t, 8, 8.7)))}deg)`;
+  const apS = sai(seg(t, 8.9, 9.3)); vis($("segundos"), apS); $("segundos").style.transform = `translateY(${lerp(30, 0, apS)}px)`;
+
+  // ---------- C: a pergunta (10,3 a 15 s) ----------
+  const C = $("C"); vis(C, seg(t, 10.3, 10.5));
+  const apC = sai(seg(t, 10.35, 10.9));
+  vis($("ct"), apC); pos($("ct"), 0, lerp(60, 0, apC));
+  const comentarios = [["c1", "t1", "fechar o caixa todo dia no caderno", 11.0, 12.2, 680], ["c2", "t2", "mandar orçamento um por um no whats", 12.1, 13.2, 920], ["c3", "t3", "", 13.2, 13.6, 1150]];
+  comentarios.forEach(([cid, tid, txt, a, b, y], i) => {
+    const ap = sai(seg(t, a - .25, a + .1));
+    vis($(cid), ap); pos($(cid), 0, y + lerp(40, 0, ap));
+    const escrito = digita(txt, seg(t, a, b));
+    const piscando = i === 2 ? (Math.floor(t * 2.4) % 2 === 0) : (t < b && t > a - .2);
+    $(tid).innerHTML = escrito.replace(/[<&]/g, "") + (piscando ? '<i class="cur"></i>' : (i === 2 ? '<i class="cur" style="opacity:0"></i>' : ""));
+  });
+  const apCm = sai(seg(t, 13.5, 13.9));
+  vis($("comenta"), apCm); pos($("comenta"), 0, lerp(30, 0, apCm) + Math.sin(t * 6) * 8 * apCm);
+  vis($("assin"), sai(seg(t, 13.8, 14.2)));
+};
+window.quadro(0);
+if (location.search.includes("ver")) { const t0 = performance.now(); const tocar = () => { window.quadro(((performance.now() - t0) / 1000) % window.DURACAO); requestAnimationFrame(tocar); }; tocar(); }
+</script>
+</body>
+</html>
