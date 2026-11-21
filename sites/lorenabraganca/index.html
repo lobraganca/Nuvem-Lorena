@@ -660,7 +660,7 @@ details p { padding: 0 0 22px; color: var(--suave); max-width: 40em; }
       <div class="abertura-texto">
         <span class="selo" style="--i:0">Ferramentas e sites</span>
         <h1 style="--i:1">Qual tarefa você <span class="destaque">repete?</span></h1>
-        <p class="sub" style="--i:2">Escreva aqui. Eu te mostro a ferramenta que faz isso por você.</p>
+        <p class="sub" style="--i:2">Conte em 1 minuto e receba uma proposta de ferramenta sob medida.</p>
       </div>
       <div id="orcamento" style="--i:3" class="abertura-cotador">
       <div class="cotador" id="cotador">
@@ -1380,10 +1380,12 @@ mostrarContato(false);
 </script>
 <script>
 // ================= o pedido de orçamento (21/11) =================
-// 4 passos: 1) a tarefa, escrita do jeito da pessoa, com a ferramenta aparecendo enquanto
-// ela escreve; 2) quanto tempo a tarefa leva (a mesma conta do carrossel: 5 min × 5 dias
-// × 50 semanas = 21 h); 3) o que mais ela quer (site integrado, painel...); 4) nome e
-// WhatsApp. Vai para /api/formulario como "orcamento" e aparece no /adm, em
+// 4 passos (reordenados à tarde, a pedido dela: "nome e telefone primeiro, e assim que a
+// pessoa colocar o nome tem que ficar gravado pra eu entrar em contato"):
+// 1) nome e WhatsApp, gravados enquanto a pessoa escreve, mesmo que ela pare ali;
+// 2) a tarefa, com a ferramenta aparecendo enquanto ela escreve; 3) quanto tempo leva
+// (5 min × 5 dias × 50 semanas = 21 h); 4) o que mais ela quer e a empresa, e Enviar.
+// Cada passo também grava (concluido: false); o aviso "pronto" só sai no Enviar. Vai para /api/formulario como "orcamento" e aparece no /adm, em
 // Diagnósticos > Formulários de clientes, com aviso no celular dela.
 (function () {
   const palco = document.getElementById("cot-palco");
@@ -1428,8 +1430,40 @@ mostrarContato(false);
   let e = { passo: 0, tarefa: "", minutos: null, vezes: null, quer: [], nome: "", whatsapp: "", empresa: "", id: null, enviado: false };
   try { e = { ...e, ...JSON.parse(localStorage.getItem(GUARDADO) || "{}") }; } catch {}
   if (!e.id) e.id = (crypto.randomUUID ? crypto.randomUUID() : "10000000-1000-4000-8000-100000000000".replace(/[018]/g, (c) => (c ^ (crypto.getRandomValues(new Uint8Array(1))[0] & (15 >> (c / 4)))).toString(16)));
-  if (e.enviado) e.passo = 0;
+  if (e.enviado) e.passo = 4;
   const guardar = () => { try { localStorage.setItem(GUARDADO, JSON.stringify(e)); } catch {} };
+
+  const zapLimpo = () => { let d = (e.whatsapp || "").replace(/\D/g, ""); if (d.length === 10 || d.length === 11) d = "55" + d; return /^55\d{10,11}$/.test(d) ? d : ""; };
+  function respostasAgora() {
+    const h = horasAno(), achadas = reconhecer(e.tarefa);
+    return [
+      { secao: "A tarefa", pergunta: "Qual tarefa você repete?", resposta: e.tarefa.trim() },
+      { secao: "A tarefa", pergunta: "Ferramenta que a página sugeriu", resposta: e.tarefa.trim() ? (achadas.map((i) => i.nome).join(" + ") || "não reconheceu (sob medida)") : "" },
+      { secao: "O tempo", pergunta: "Quanto leva cada vez", resposta: e.minutos ? MINUTOS.find((m) => m[1] === e.minutos)[0] : "" },
+      { secao: "O tempo", pergunta: "Com que frequência", resposta: e.vezes || "" },
+      { secao: "O tempo", pergunta: "Horas por ano nessa tarefa", resposta: h != null ? `≈ ${fmtH(h)} h` : "" },
+      { secao: "O que mais quer", pergunta: "Além da ferramenta", resposta: e.quer.join(", ") },
+      { secao: "Quem pediu", pergunta: "Empresa", resposta: (e.empresa || "").trim() },
+    ];
+  }
+  // O rascunho vai para o /adm assim que existe um nome (2 letras), com o WhatsApp se já
+  // estiver completo. Espera a pessoa parar de digitar, e não repete o que já foi.
+  let ultimoRascunho = "", relogio = null;
+  function rascunho(ja) {
+    clearTimeout(relogio);
+    const nome = (e.nome || "").trim();
+    if (e.enviado || nome.length < 2) return;
+    const vai = () => {
+      const corpo = JSON.stringify({ id: e.id, formulario: "orcamento", nome, whatsapp: zapLimpo() || undefined, respostas: respostasAgora(), concluido: false });
+      if (corpo === ultimoRascunho) return;
+      ultimoRascunho = corpo;
+      fetch("/api/formulario", { method: "POST", headers: { "Content-Type": "application/json" }, body: corpo, keepalive: true }).catch(() => { ultimoRascunho = ""; });
+    };
+    if (ja) vai(); else relogio = setTimeout(vai, 900);
+  }
+  // quem fecha a aba no meio da digitação não perde o nome
+  addEventListener("pagehide", () => rascunho(true));
+  document.addEventListener("visibilitychange", () => { if (document.visibilityState === "hidden") rascunho(true); });
 
   function horasAno() {
     if (!e.minutos || e.vezes == null) return null;
@@ -1479,7 +1513,7 @@ mostrarContato(false);
     p.textContent = texto;
   }
   function ir(passo, foco = true) {
-    e.passo = passo; guardar(); desenhar();
+    e.passo = passo; guardar(); rascunho(true); desenhar();
     if (foco) { const h = palco.querySelector("h3"); if (h) { h.focus({ preventScroll: true }); document.getElementById("cotador").scrollIntoView({ behavior: "smooth", block: "start" }); } }
   }
 
@@ -1500,13 +1534,33 @@ mostrarContato(false);
     topo();
     const tela = el("div", { class: "cot-tela" });
 
+    const campo = (id, rot, attrs, chave) => {
+      const i = el("input", { id, ...attrs }); i.value = e[chave] || "";
+      i.addEventListener("input", () => { e[chave] = i.value; guardar(); rascunho(); });
+      i.addEventListener("blur", () => rascunho(true));
+      return el("div", { class: "campo" + (id === "cot-empresa" ? " inteiro" : "") }, el("label", { for: id, text: rot }), i);
+    };
+
     if (e.passo === 0) {
+      tela.append(el("h3", { tabindex: "-1", html: "Primeiro, <em>como te chamo?</em>" }),
+        el("div", { class: "campos" },
+          campo("cot-nome", "Seu nome", { type: "text", autocomplete: "name", maxlength: "80", placeholder: "Ex.: Ana Paula" }, "nome"),
+          campo("cot-zap", "Seu WhatsApp", { type: "tel", autocomplete: "tel", inputmode: "tel", maxlength: "20", placeholder: "(31) 99999-9999" }, "whatsapp")),
+        nav(() => {
+          if ((e.nome || "").trim().length < 2) { erro(tela, "Escreva o seu nome."); return document.getElementById("cot-nome").focus(); }
+          if (!zapLimpo()) { erro(tela, "Escreva o WhatsApp com DDD, como (31) 99999-9999."); return document.getElementById("cot-zap").focus(); }
+          ir(1);
+        }, "Começar"),
+        el("p", { class: "nota", style: "font-size:14px;color:var(--suave);text-align:center;margin:0", html: 'Leva 1 minuto. Sem compromisso. <a href="/privacidade/" style="color:inherit">Privacidade</a>' }));
+    }
+
+    if (e.passo === 1) {
       tela.append(el("h3", { tabindex: "-1", html: "O que você faz <em>sempre igual?</em>" }));
       const grade = el("div", { class: "cot-grade" });
       const area = el("textarea", { id: "cot-tarefa", rows: "4", maxlength: "1200", placeholder: "Ex.: copio o orçamento antigo e troco o nome…", "aria-label": "Qual tarefa você repete?" });
       area.value = e.tarefa;
       const ideia = el("div", { class: "cot-ideia", "aria-live": "polite" });
-      area.addEventListener("input", () => { e.tarefa = area.value; guardar(); desenharIdeia(ideia); });
+      area.addEventListener("input", () => { e.tarefa = area.value; guardar(); desenharIdeia(ideia); rascunho(); });
       const exemplos = el("div", { class: "cot-exemplos" }, el("span", { text: "Exemplos:" }));
       EXEMPLOS.forEach((x) => {
         const b = el("button", { type: "button", class: "cot-chip", text: x });
@@ -1517,11 +1571,11 @@ mostrarContato(false);
       desenharIdeia(ideia);
       tela.append(grade, nav(() => {
         if (e.tarefa.trim().length < 4) return erro(tela, "Escreva a tarefa, mesmo que em poucas palavras.");
-        ir(1);
+        ir(2);
       }, "Continuar"));
     }
 
-    if (e.passo === 1) {
+    if (e.passo === 2) {
       tela.append(el("h3", { tabindex: "-1", html: "Quanto tempo <em>ela te toma?</em>" }));
       const conta = el("div", { class: "cot-conta-grande", "aria-live": "polite" });
       const atualizarConta = () => {
@@ -1541,35 +1595,21 @@ mostrarContato(false);
         atualizarConta();
       };
       redesenhar();
-      tela.append(el("div", { class: "cot-tempo" }, linhaMin, linhaVez, conta), nav(() => ir(2), "Continuar"));
-    }
-
-    if (e.passo === 2) {
-      tela.append(el("h3", { tabindex: "-1", html: "O que mais <em>te interessa?</em>" }),
-        null);
-      const caixa = el("div");
-      const redesenhar = () => caixa.replaceChildren(chips(QUER, e.quer, (r) => { e.quer = e.quer.includes(r) ? e.quer.filter((x) => x !== r) : [...e.quer, r]; guardar(); redesenhar(); }, true));
-      redesenhar();
-      tela.append(caixa, nav(() => ir(3), "Continuar"));
+      tela.append(el("div", { class: "cot-tempo" }, linhaMin, linhaVez, conta), nav(() => ir(3), "Continuar"));
     }
 
     if (e.passo === 3) {
-      tela.append(el("h3", { tabindex: "-1", html: "Para onde eu mando <em>a sua proposta?</em>" }),
-        null);
-      const campo = (id, rot, attrs, chave) => {
-        const i = el("input", { id, ...attrs }); i.value = e[chave] || "";
-        i.addEventListener("input", () => { e[chave] = i.value; guardar(); });
-        return el("div", { class: "campo" + (id === "cot-empresa" ? " inteiro" : "") }, el("label", { for: id, text: rot }), i);
-      };
-      tela.append(el("div", { class: "campos" },
-        campo("cot-nome", "Seu nome", { type: "text", autocomplete: "name", maxlength: "80" }, "nome"),
-        campo("cot-zap", "WhatsApp", { type: "tel", autocomplete: "tel", inputmode: "tel", maxlength: "20", placeholder: "(31) 99999-9999" }, "whatsapp"),
+      tela.append(el("h3", { tabindex: "-1", html: "Última: o que mais <em>te interessa?</em>" }));
+      const caixa = el("div");
+      const redesenhar = () => caixa.replaceChildren(chips(QUER, e.quer, (r) => { e.quer = e.quer.includes(r) ? e.quer.filter((x) => x !== r) : [...e.quer, r]; guardar(); rascunho(); redesenhar(); }, true));
+      redesenhar();
+      tela.append(caixa, el("div", { class: "campos" },
         campo("cot-empresa", "Sua empresa e o que ela faz (opcional)", { type: "text", maxlength: "120", placeholder: "Ex.: confeitaria, pousada, clínica…" }, "empresa")));
       const h = horasAno(), achadas = reconhecer(e.tarefa);
       tela.append(el("div", { class: "cot-resumo" },
         el("div", {}, el("span", { text: "Ferramenta" }), el("b", { text: achadas.length ? achadas.map((i) => i.nome).join(" + ") : "Sob medida" })),
         el("div", {}, el("span", { text: "Tempo que volta" }), el("b", { text: h != null ? `≈ ${fmtH(h)} h por ano` : "a calcular" }))));
-      tela.append(nav(enviar, "Solicitar proposta"), el("p", { class: "nota", style: "font-size:14px;color:var(--suave);text-align:center", html: 'Sem compromisso. Seus dados ficam só comigo. <a href="/privacidade/" style="color:inherit">Privacidade</a>' }));
+      tela.append(nav(enviar, "Solicitar proposta"));
     }
 
     if (e.passo === 4) {
@@ -1578,7 +1618,7 @@ mostrarContato(false);
       const zap = el("a", { class: "botao", href: "https://wa.me/5531971473162?text=" + encodeURIComponent(texto), target: "_blank", rel: "noopener" });
       zap.innerHTML = '<svg aria-hidden="true"><use href="#i-zap"/></svg>Adiantar a conversa no WhatsApp';
       const novo = el("button", { type: "button", class: "botao vazado", text: "Contar outra tarefa" });
-      novo.addEventListener("click", () => { e = { ...e, passo: 0, tarefa: "", minutos: null, vezes: null, quer: [], enviado: false, id: crypto.randomUUID ? crypto.randomUUID() : e.id }; ir(0); });
+      novo.addEventListener("click", () => { e = { ...e, passo: 0, tarefa: "", minutos: null, vezes: null, quer: [], enviado: false, id: crypto.randomUUID ? crypto.randomUUID() : e.id }; ultimoRascunho = ""; ir(1); });
       tela.append(el("div", { class: "cot-pronto" },
         el("div", { class: "icone-ok", "aria-hidden": "true", html: '<svg viewBox="0 0 24 24" fill="none" stroke="#121418" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>' }),
         el("h3", { tabindex: "-1", html: `Recebi${primeiro ? ", " + primeiro.replace(/</g, "") : ""}! <em>Agora é comigo.</em>` }),
@@ -1590,24 +1630,13 @@ mostrarContato(false);
 
   async function enviar() {
     const tela = palco.querySelector(".cot-tela");
-    const nome = (e.nome || "").trim();
-    let d = (e.whatsapp || "").replace(/\D/g, "");
-    if (d.length === 10 || d.length === 11) d = "55" + d;
-    if (!nome) { erro(tela, "Escreva o seu nome."); return document.getElementById("cot-nome").focus(); }
-    if (!/^55\d{10,11}$/.test(d)) { erro(tela, "Escreva o WhatsApp com DDD, como (31) 99999-9999, para eu te mandar a proposta."); return document.getElementById("cot-zap").focus(); }
-    const h = horasAno(), achadas = reconhecer(e.tarefa);
-    const respostas = [
-      { secao: "A tarefa", pergunta: "Qual tarefa você repete?", resposta: e.tarefa.trim() },
-      { secao: "A tarefa", pergunta: "Ferramenta que a página sugeriu", resposta: achadas.map((i) => i.nome).join(" + ") || "não reconheceu (sob medida)" },
-      { secao: "O tempo", pergunta: "Quanto leva cada vez", resposta: e.minutos ? MINUTOS.find((m) => m[1] === e.minutos)[0] : "" },
-      { secao: "O tempo", pergunta: "Com que frequência", resposta: e.vezes || "" },
-      { secao: "O tempo", pergunta: "Horas por ano nessa tarefa", resposta: h != null ? `≈ ${fmtH(h)} h` : "" },
-      { secao: "O que mais quer", pergunta: "Além da ferramenta", resposta: e.quer.join(", ") },
-      { secao: "Quem pediu", pergunta: "Empresa", resposta: (e.empresa || "").trim() },
-    ];
+    const nome = (e.nome || "").trim(), d = zapLimpo();
+    if (nome.length < 2 || !d) return ir(0); // não acontece pelo caminho normal: o contato é o passo 1
+    const respostas = respostasAgora();
+    clearTimeout(relogio);
     const b = document.getElementById("cot-seguir"); b.disabled = true; b.textContent = "Enviando…";
     try {
-      const r = await fetch("/api/formulario", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ id: e.id, formulario: "orcamento", nome, whatsapp: d, respostas }) });
+      const r = await fetch("/api/formulario", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ id: e.id, formulario: "orcamento", nome, whatsapp: d, respostas, concluido: true }) });
       if (!r.ok) { const c = await r.json().catch(() => ({})); throw new Error(c.erro || "Erro " + r.status); }
       e.enviado = true; ir(4);
     } catch (err) {

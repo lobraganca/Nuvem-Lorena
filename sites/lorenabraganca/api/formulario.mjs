@@ -38,11 +38,14 @@ export default async function handler(req, res) {
   if (!nome) return responder(res, 400, { erro: "Falta o nome." });
   const whatsapp = d.whatsapp ? whatsappNormalizado(d.whatsapp) : null;
   if (d.whatsapp && !whatsapp) return responder(res, 400, { erro: "WhatsApp inválido: use DDD e número." });
-  const respostas = respostasLimpas(d.respostas);
+  const concluido = d.concluido !== false; // a página antiga não mandava o campo: era sempre no fim
+  // 21/11: no pedido de proposta o nome e o WhatsApp vêm PRIMEIRO, e ficam gravados assim
+  // que a pessoa escreve, mesmo que ela pare ali ("tem que ficar gravado pra eu entrar em
+  // contato"). Então, no meio do caminho, pode chegar só o contato, sem resposta nenhuma.
+  const respostas = respostasLimpas(d.respostas) || (concluido ? null : []);
   if (!respostas) return responder(res, 400, { erro: "Nenhuma resposta chegou." });
 
   const cliente = FORMULARIOS[formulario];
-  const concluido = d.concluido !== false; // a página antiga não mandava o campo: era sempre no fim
   let antes;
   try {
     ({ antes } = await gravarFormulario({ id, formulario, cliente, nome, whatsapp, respostas, concluido }));
@@ -50,7 +53,16 @@ export default async function handler(req, res) {
     console.error("o formulário não gravou:", e.message);
     return responder(res, 502, { erro: "Não foi possível gravar agora." });
   }
-  if (!concluido) return responder(res, 204); // no meio do caminho: salva e não avisa
+  if (!concluido) {
+    // no meio do caminho: salva e não avisa. A exceção é o pedido de proposta na primeira vez
+    // que chega um WhatsApp: é um contato que ela pode chamar, mesmo que a pessoa pare ali.
+    if (formulario === "orcamento" && whatsapp && !antes?.whatsapp && !antes?.concluido_em) {
+      try {
+        await avisar({ titulo: "Novo contato · Pedido de proposta", corpo: `${nome} deixou o WhatsApp e começou o pedido`, url: "/adm/#formularios", tag: "form-" + id });
+      } catch (e) { console.warn("o contato foi salvo, mas o aviso falhou:", e.message); }
+    }
+    return responder(res, 204);
+  }
   const novo = !antes?.concluido_em;
   try { // o aviso não pode derrubar a resposta: ela já está salva
     await avisar({
