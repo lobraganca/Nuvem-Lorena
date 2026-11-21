@@ -211,6 +211,30 @@ async function lerDiagnosticos(ids) {
   return jsons.filter(Boolean).map((j) => JSON.parse(j));
 }
 
+// ---------- zerar o histórico (21/11) ----------
+// Ela pediu "zere o histórico da página, para eu ver quem vai entrar agora". Apaga, de vez:
+// as visitas, os diagnósticos, os pedidos de proposta da página inicial ("orcamento") e o
+// funil inteiro. Ficam as respostas dos formulários de CLIENTES (Pousada Maré, Sinal
+// Verde...): são trabalho entregue, e ela escolheu manter. Não tem volta.
+async function zerarHistorico() {
+  const apagar = async (chaves) => { for (let i = 0; i < chaves.length; i += 400) if (chaves.length) await redis(["DEL", ...chaves.slice(i, i + 400)]); };
+  const [diags, negs, forms] = await redis(["ZRANGE", "diags", 0, -1], ["ZRANGE", "negocios", 0, -1], ["ZRANGE", "forms", 0, -1]);
+  // pedidos de proposta: só os formulários "orcamento"; os dos clientes ficam
+  const jsons = forms.length ? (await redis(["MGET", ...forms.map(chaveDoFormulario)]))[0] : [];
+  const pedidos = forms.filter((id, i) => { try { return JSON.parse(jsons[i] || "{}").formulario === "orcamento"; } catch { return false; } });
+  await apagar([...diags.map(chaveDo), ...negs.map(chaveDoNegocio), ...pedidos.map(chaveDoFormulario)]);
+  await redis(["DEL", "diags", "negocios"]);
+  if (pedidos.length) await redis(["ZREM", "forms", ...pedidos]);
+  // visitas: todos os dias guardados (e mais uma folga), de todas as páginas contadas
+  const visitas = [];
+  for (const p of PAGINAS) {
+    visitas.push(`visitas:${p}:total`);
+    for (const d of ultimosDias(GUARDAR_DIAS + 10)) visitas.push(`visitas:${p}:${d}`, `unicos:${p}:${d}`, `origens:${p}:${d}`);
+  }
+  await apagar(visitas);
+  return { diagnosticos: diags.length, negocios: negs.length, pedidos: pedidos.length };
+}
+
 // ---------- as visitas da página ----------
 // Ela quis ver no /adm quantas visitas a página teve (01/11). O painel de visitas da
 // Vercel não deixa outro programa ler os números no plano grátis, então a própria
@@ -411,6 +435,7 @@ async function avisar(mensagem) {
 export {
   SENHA, faltando, responder, lerCorpo,
   gravarInicio, gravarResultado, gravarContato, listarDiagnosticos, apagarDiagnostico, origemLimpa, marcarContatado, guardarInscricao,
+  zerarHistorico,
   ETAPAS, NOME_DA_ETAPA, listarNegocios, lerNegocio, gravarNegocio, apagarNegocio, negocioDoDiagnostico, lerDiagnosticos,
   FORMULARIOS, gravarFormulario, listarFormularios, apagarFormulario,
   PAGINAS, contarVisita, resumoDeVisitas,

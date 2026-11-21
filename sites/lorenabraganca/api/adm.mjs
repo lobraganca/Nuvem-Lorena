@@ -14,7 +14,7 @@
 import crypto from "node:crypto";
 import { SENHA, faltando, responder, lerCorpo, listarDiagnosticos, resumoDeVisitas, apagarDiagnostico, marcarContatado, guardarInscricao, senhaConfere, criarPasse, passeValido, chavesVapid, avisar,
   ETAPAS, NOME_DA_ETAPA, listarNegocios, lerNegocio, gravarNegocio, apagarNegocio, negocioDoDiagnostico, lerDiagnosticos,
-  listarFormularios, apagarFormulario } from "./_lib.mjs";
+  listarFormularios, apagarFormulario , zerarHistorico } from "./_lib.mjs";
 
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 const esperar = (ms) => new Promise((r) => setTimeout(r, ms));
@@ -175,6 +175,12 @@ export default async function handler(req, res) {
         if (erro) return responder(res, 400, { erro });
         await gravarNegocio(negocio);
         return responder(res, 200, { negocio });
+      }
+      case "zerar": {
+        // apagar tudo pede a palavra escrita, além do login: um toque sem querer não zera nada
+        if (d.confirmacao !== "ZERAR") return responder(res, 400, { erro: "Para zerar, escreva ZERAR." });
+        const apagados = await zerarHistorico();
+        return responder(res, 200, { ok: true, apagados });
       }
       case "apagar_negocio": {
         if (typeof d.id !== "string" || !UUID.test(d.id)) return responder(res, 400, { erro: "Negócio inválido." });
