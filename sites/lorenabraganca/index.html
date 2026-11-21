@@ -3,8 +3,8 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Lorena Bragança · Ferramentas sob medida</title>
-<meta name="description" content="Eu tiro a sua empresa do caderno e coloco na palma da mão: apps de gestão, painéis de indicadores, sites e agendamentos sob medida. Faça o diagnóstico gratuito.">
+<title>Lorena Bragança · Ferramentas e sites integrados à gestão</title>
+<meta name="description" content="Me conta a tarefa que você repete e eu transformo numa ferramenta: apps de gestão, painéis de indicadores e sites integrados à gestão, sob medida. Peça seu orçamento.">
 <meta name="theme-color" content="#FAFAF6">
 <link rel="canonical" href="https://www.lorenabraganca.com.br/">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
@@ -17,7 +17,7 @@
 <meta property="og:locale" content="pt_BR">
 <meta property="og:url" content="https://www.lorenabraganca.com.br/">
 <meta property="og:title" content="Eu construo a ferramenta pro seu negócio · Lorena Bragança">
-<meta property="og:description" content="Faça o diagnóstico gratuito e descubra quanto controle você tem da sua empresa.">
+<meta property="og:description" content="Me conta a tarefa que você repete: você vê na hora a ferramenta que faria esse trabalho e pede o seu orçamento.">
 <meta property="og:image" content="https://www.lorenabraganca.com.br/previa.jpg">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
@@ -508,6 +508,110 @@ details p { padding: 0 0 22px; color: var(--suave); max-width: 40em; }
 .rodape .miolo { padding-block: 22px 28px; border-top: 1px solid var(--borda); display: flex; flex-wrap: wrap; justify-content: space-between; gap: 10px; color: var(--apagado); font-size: 14px; }
 .rodape a { color: var(--suave); text-decoration: none; }
 .rodape a:hover { color: var(--texto); }
+
+/* ---------- 21/11: o pedido de orçamento inteligente ----------
+   Ela pediu a página "mais intuitiva, inteligente e de alto padrão", para a pessoa
+   pedir orçamento contando a tarefa que repete (o mesmo assunto do carrossel e do
+   Reel de 20/11). A pessoa escreve do jeito dela e a página reconhece a tarefa e
+   mostra, na hora, a ferramenta que resolveria e as horas que ela ganha no ano.
+   Sem IA paga: reconhecimento por palavras, na própria página (escolha dela). */
+.cotador { position: relative; background: var(--cartao); border: 1.5px solid var(--borda); border-radius: 28px; padding: 34px; display: grid; gap: 26px; box-shadow: 0 40px 90px -50px rgba(18, 20, 24, .45); overflow: hidden; }
+.cotador::before { content: ""; position: absolute; right: -140px; top: -140px; width: 320px; height: 320px; border-radius: 50%; border: 1.5px solid var(--borda); pointer-events: none; }
+.cot-topo { display: flex; align-items: center; justify-content: space-between; gap: 16px; position: relative; }
+.cot-passos { display: flex; gap: 6px; }
+.cot-passos i { width: 34px; height: 5px; border-radius: 3px; background: var(--borda); transition: background .3s; }
+.cot-passos i.feito { background: var(--verde); }
+.cot-passos i.agora { background: var(--limao); }
+.cot-conta { font: 700 13px/1 var(--f-titulo); letter-spacing: .14em; text-transform: uppercase; color: var(--apagado); }
+.cot-tela { display: grid; gap: 20px; animation: entra .3s ease; position: relative; }
+.cot-tela h3 { font-size: clamp(24px, 3.2vw, 32px); font-weight: 800; letter-spacing: -.02em; line-height: 1.15; outline: none; }
+.cot-tela h3 em { font-family: "Instrument Serif", Georgia, serif; font-style: italic; font-weight: 400; color: var(--verde); font-size: 1.08em; }
+.cot-tela > p { color: var(--suave); }
+.cot-grade { display: grid; grid-template-columns: minmax(0, 1.05fr) minmax(0, 1fr); gap: 22px; align-items: start; }
+@media (max-width: 860px) { .cot-grade { grid-template-columns: 1fr; } }
+.cot-escrever { display: grid; gap: 12px; }
+.cot-escrever textarea {
+  font: 500 19px/1.5 var(--f-texto); color: var(--texto); background: var(--fundo);
+  border: 1.5px solid var(--borda); border-radius: 18px; padding: 18px 20px; width: 100%;
+  min-height: 150px; resize: none; transition: border-color .15s, box-shadow .15s;
+}
+.cot-escrever textarea:focus { outline: none; border-color: var(--verde); box-shadow: 0 0 0 4px color-mix(in srgb, var(--limao) 35%, transparent); }
+.cot-escrever textarea::placeholder { color: var(--apagado); }
+.cot-exemplos { display: flex; flex-wrap: wrap; gap: 8px; }
+.cot-exemplos span { width: 100%; font: 600 13px/1 var(--f-titulo); color: var(--apagado); }
+.cot-chip { display: inline-flex; align-items: center; gap: 6px; min-height: 40px; padding: 9px 14px; border: 1.5px solid var(--borda); border-radius: 999px; background: var(--cartao); font: 600 14px/1.2 var(--f-titulo); color: var(--texto); cursor: pointer; transition: border-color .15s, background-color .15s, transform .15s; }
+.cot-chip:hover { border-color: var(--suave); transform: translateY(-1px); }
+.cot-chip[aria-pressed="true"] { background: var(--limao); border-color: var(--verde); }
+.cot-chip[aria-pressed="true"]::before { content: "✓"; font-weight: 800; }
+
+/* a resposta que aparece enquanto a pessoa escreve. A classe da lista é "ideia-troca",
+   e não "troca": essa já existe na vitrine animada, com posição absoluta, e encavalava o texto */
+.cot-ideia { align-content: start; border-radius: 22px; background: var(--grafite); color: #F3F4F0; padding: 24px; display: grid; gap: 16px; min-height: 100%; position: relative; overflow: hidden; }
+.cot-ideia::after { content: ""; position: absolute; right: -60px; bottom: -60px; width: 200px; height: 200px; border-radius: 50%; border: 1px solid rgba(200, 242, 107, .25); }
+.cot-ideia .selo-ideia { display: inline-flex; align-items: center; gap: 8px; font: 700 12px/1 var(--f-titulo); letter-spacing: .16em; text-transform: uppercase; color: var(--limao); }
+.cot-ideia .selo-ideia::before { content: ""; width: 8px; height: 8px; border-radius: 50%; background: var(--limao); box-shadow: 0 0 0 0 rgba(200, 242, 107, .6); animation: pulsa 1.8s infinite; }
+@keyframes pulsa { 70% { box-shadow: 0 0 0 10px rgba(200, 242, 107, 0); } 100% { box-shadow: 0 0 0 0 rgba(200, 242, 107, 0); } }
+.cot-ideia .vazia { color: #A3A7B1; font-size: 16px; line-height: 1.55; }
+.ideia { display: grid; gap: 10px; padding-top: 14px; border-top: 1px solid rgba(255, 255, 255, .1); animation: entra .35s ease; }
+.ideia:first-of-type { border-top: 0; padding-top: 0; }
+.ideia b { font: 800 21px/1.2 var(--f-titulo); letter-spacing: -.02em; }
+.ideia .ideia-troca { display: grid; grid-template-columns: auto 1fr; gap: 6px 12px; font-size: 15px; line-height: 1.45; }
+.ideia .ideia-troca dt { font: 700 11px/1.9 var(--f-titulo); letter-spacing: .14em; text-transform: uppercase; color: #A3A7B1; }
+.ideia .ideia-troca dd { margin: 0; }
+.ideia .ideia-troca dd.hoje { color: #A3A7B1; text-decoration: line-through; text-decoration-color: rgba(255, 255, 255, .3); }
+.ideia .ideia-troca dd.depois { color: #F3F4F0; }
+
+/* o tempo */
+.cot-tempo { display: grid; gap: 18px; }
+.cot-linha { display: grid; gap: 10px; }
+.cot-linha > span { font: 700 15px/1.3 var(--f-titulo); }
+.cot-conta-grande { display: flex; flex-wrap: wrap; align-items: baseline; gap: 6px 16px; border-radius: 22px; background: var(--grafite); color: #F3F4F0; padding: 24px 26px; }
+.cot-conta-grande .numero { font: 800 clamp(46px, 7vw, 72px)/1 var(--f-titulo); letter-spacing: -.04em; color: var(--limao); }
+.cot-conta-grande .numero small { font-size: .45em; letter-spacing: -.01em; margin-left: 4px; }
+.cot-conta-grande p { flex: 1 1 220px; color: #C9CCD2; font-size: 16px; line-height: 1.5; }
+.cot-conta-grande p b { color: #F3F4F0; }
+.cot-conta-grande .conta-fina { width: 100%; font: 600 13px/1.4 var(--f-titulo); color: #8E939C; }
+
+/* navegação do cotador */
+.cot-nav { display: flex; gap: 10px; align-items: center; }
+.cot-nav .botao { flex: 1; justify-content: center; }
+.cot-nav .voltar-cot { flex: none; }
+.cot-erro { color: #C62828; font-size: 15px; font-weight: 600; }
+.cot-resumo { display: grid; gap: 8px; border-radius: 18px; background: var(--cartao-forte); border: 1.5px solid var(--borda); padding: 18px 20px; font-size: 15px; }
+.cot-resumo div { display: flex; gap: 10px; justify-content: space-between; }
+.cot-resumo span { color: var(--suave); }
+.cot-resumo b { text-align: right; font-family: var(--f-titulo); }
+.cot-pronto { display: grid; gap: 16px; justify-items: start; }
+.cot-pronto .cot-nav { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); width: 100%; }
+.cot-pronto .icone-ok { width: 64px; height: 64px; border-radius: 50%; display: grid; place-items: center; background: var(--limao); }
+.cot-pronto .icone-ok svg { width: 34px; height: 34px; }
+@media (max-width: 520px) {
+  .cotador { padding: 24px 18px; border-radius: 22px; }
+  .cot-escrever textarea { font-size: 17px; min-height: 130px; }
+  .cot-ideia { padding: 20px; }
+}
+
+/* ---------- 21/11: site integrado à gestão ---------- */
+.integrado-grade { display: grid; grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr); gap: 18px; align-items: stretch; }
+@media (max-width: 860px) { .integrado-grade { grid-template-columns: 1fr; } .integrado-seta { transform: rotate(90deg); justify-self: center; } }
+.integrado-lado { border-radius: 24px; padding: 26px; display: grid; gap: 14px; align-content: start; }
+.integrado-lado.site { background: var(--cartao); border: 1.5px solid var(--borda); }
+.integrado-lado.painel { background: var(--grafite); color: #F3F4F0; }
+.integrado-lado .quem { font: 700 12px/1 var(--f-titulo); letter-spacing: .16em; text-transform: uppercase; color: var(--verde); }
+.integrado-lado.painel .quem { color: var(--limao); }
+.integrado-lado h3 { font-size: 24px; font-weight: 800; letter-spacing: -.02em; }
+.integrado-lado ul { list-style: none; margin: 0; padding: 0; display: grid; gap: 10px; }
+.integrado-lado li { display: flex; gap: 10px; align-items: flex-start; font-size: 16px; line-height: 1.45; }
+.integrado-lado li svg { flex: none; width: 22px; height: 22px; color: var(--verde); margin-top: 1px; }
+.integrado-lado.painel li svg { color: var(--limao); }
+.integrado-seta { align-self: center; display: grid; place-items: center; width: 56px; height: 56px; border-radius: 50%; background: var(--limao); }
+.integrado-seta svg { width: 26px; height: 26px; }
+.exemplos-int { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px; }
+@media (max-width: 860px) { .exemplos-int { grid-template-columns: 1fr; } }
+.exemplos-int li { list-style: none; border-top: 2px solid var(--texto); padding-top: 14px; display: grid; gap: 6px; }
+.exemplos-int b { font: 800 17px/1.3 var(--f-titulo); }
+.exemplos-int span { color: var(--suave); font-size: 15px; line-height: 1.5; }
+.exemplos-int { margin: 0; padding: 0; }
 </style>
 </head>
 <body>
@@ -531,10 +635,10 @@ details p { padding: 0 0 22px; color: var(--suave); max-width: 40em; }
   <div class="miolo">
     <a class="nome" href="#">Lorena Bragança<span>.</span></a>
     <nav class="nav-topo">
+      <a class="link-topo" href="#integrado">Site + gestão</a>
       <a class="link-topo" href="#construo">O que eu faço</a>
-      <a class="link-topo" href="#como">Como funciona</a>
       <a class="link-topo" href="/portifolio/">Portfólio</a>
-      <a class="botao pequeno" href="#diagnostico">Fazer diagnóstico</a>
+      <a class="botao pequeno" href="#orcamento">Pedir orçamento</a>
     </nav>
   </div>
 </header>
@@ -545,13 +649,13 @@ details p { padding: 0 0 22px; color: var(--suave); max-width: 40em; }
     <div class="miolo">
       <div class="abertura-grade">
         <div class="abertura-texto">
-          <span class="selo" style="--i:0">Ferramentas sob medida</span>
-          <h1 style="--i:1">Eu tiro a sua empresa do caderno e coloco na <span class="destaque">palma da mão.</span></h1>
-          <p class="sub" style="--i:2">Apps de gestão, painéis de indicadores, sites e agendamentos, feitos do jeito que a sua empresa já trabalha.</p>
+          <span class="selo" style="--i:0">Ferramentas e sites</span>
+          <h1 style="--i:1">Me conta a tarefa que você repete. Eu transformo numa <span class="destaque">ferramenta.</span></h1>
+          <p class="sub" style="--i:2">Apps de gestão, painéis de indicadores e sites integrados à gestão, feitos do jeito que a sua empresa já trabalha.</p>
           <div class="acoes" style="--i:3">
-            <a class="botao" href="#diagnostico">Fazer o diagnóstico grátis <svg aria-hidden="true"><use href="#i-seta"/></svg></a>
-            <a class="link-seta" href="#construo">Ver o que eu faço <svg aria-hidden="true"><use href="#i-seta"/></svg></a>
-            <small>Gratuito · 7 perguntas · resultado na hora</small>
+            <a class="botao" href="#orcamento">Contar minha tarefa <svg aria-hidden="true"><use href="#i-seta"/></svg></a>
+            <a class="link-seta" href="#integrado">Site integrado à gestão <svg aria-hidden="true"><use href="#i-seta"/></svg></a>
+            <small>2 minutos · orçamento sem compromisso · resposta no WhatsApp</small>
           </div>
         </div>
 
@@ -603,6 +707,67 @@ details p { padding: 0 0 22px; color: var(--suave); max-width: 40em; }
       <span>Apps de gestão</span><span>Dashboards e indicadores</span><span>Sites profissionais</span><span>Mapeamento de processos</span><span>Agendamentos</span><span>Lead pages</span>
     </div>
   </div>
+
+  <section class="faixa secao orcamento" id="orcamento">
+    <div class="miolo">
+      <div class="cabeca revela">
+        <span class="rotulo"><b>01</b>Pedido de orçamento</span>
+        <h2>Qual tarefa você <em>repete toda semana?</em></h2>
+        <p>Escreva do seu jeito. Enquanto você escreve, eu te mostro a ferramenta que faria esse trabalho por você e quanto tempo você ganha de volta.</p>
+      </div>
+
+      <div class="cotador revela" id="cotador">
+        <div class="cot-topo">
+          <div class="cot-passos" aria-hidden="true"><i></i><i></i><i></i><i></i></div>
+          <span class="cot-conta" id="cot-conta">Passo 1 de 4</span>
+        </div>
+        <div id="cot-palco" aria-live="polite">
+          <!-- Sem JavaScript, ao menos o caminho para falar com ela continua aqui. -->
+          <div class="cot-tela">
+            <h3>Me conta no WhatsApp qual tarefa você repete.</h3>
+            <a class="botao" href="https://wa.me/5531971473162" target="_blank" rel="noopener">Falar comigo no WhatsApp</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="faixa secao integrado" id="integrado">
+    <div class="miolo">
+      <div class="cabeca revela">
+        <span class="rotulo"><b>02</b>Site integrado à gestão</span>
+        <h2>O site que o cliente vê, <em>ligado à gestão que você usa.</em></h2>
+        <p>Eu faço sites que não param na vitrine: o que o cliente faz no site cai direto no seu painel de gestão, sem ninguém copiar nada de um lugar para o outro.</p>
+      </div>
+      <div class="integrado-grade revela">
+        <div class="integrado-lado site">
+          <span class="quem">O que o cliente vê</span>
+          <h3>O seu site</h3>
+          <ul>
+            <li><svg aria-hidden="true"><use href="#i-ok"/></svg>Com a cara da sua marca, rápido no celular</li>
+            <li><svg aria-hidden="true"><use href="#i-ok"/></svg>Catálogo, preços e fotos sempre atualizados</li>
+            <li><svg aria-hidden="true"><use href="#i-ok"/></svg>Reserva, agendamento ou pedido em poucos toques</li>
+          </ul>
+        </div>
+        <div class="integrado-seta" aria-hidden="true"><svg><use href="#i-seta"/></svg></div>
+        <div class="integrado-lado painel">
+          <span class="quem">O que só você vê</span>
+          <h3>O seu painel de gestão</h3>
+          <ul>
+            <li><svg aria-hidden="true"><use href="#i-ok"/></svg>Cada pedido do site chega pronto, com quem e quando</li>
+            <li><svg aria-hidden="true"><use href="#i-ok"/></svg>Agenda, estoque, vendas e cobranças num lugar só</li>
+            <li><svg aria-hidden="true"><use href="#i-ok"/></svg>Os números do mês, atualizados sozinhos</li>
+          </ul>
+        </div>
+      </div>
+      <ul class="exemplos-int revela">
+        <li><b>Pousada</b><span>A reserva feita no site entra na agenda das suítes e no financeiro.</span></li>
+        <li><b>Agência de carros</b><span>O interesse num carro vira atendimento, venda, contrato e comissão.</span></li>
+        <li><b>Estúdio ou consultório</b><span>O cliente marca o horário sozinho e o lembrete sai no dia certo.</span></li>
+      </ul>
+      <a class="botao vazado" href="#orcamento" style="justify-self:start">Quero um site integrado <svg aria-hidden="true"><use href="#i-seta"/></svg></a>
+    </div>
+  </section>
 
   <section class="faixa secao construo" id="construo">
     <div class="miolo">
@@ -671,7 +836,7 @@ details p { padding: 0 0 22px; color: var(--suave); max-width: 40em; }
         </div>
       </div>
         <div class="construo-lado">
-          <div class="cabeca revela"><span class="rotulo"><b>01</b>O que eu construo</span><h2>Cinco ferramentas. <em>Todas do seu jeito.</em></h2></div>
+          <div class="cabeca revela"><span class="rotulo"><b>03</b>O que eu construo</span><h2>Cinco ferramentas. <em>Todas do seu jeito.</em></h2></div>
           <ul class="servicos" role="tablist" aria-label="O que eu construo">
             <li role="presentation"><button type="button" role="tab" aria-selected="true" aria-controls="cena-app"><svg class="icone" aria-hidden="true"><use href="#i-app"/></svg><span>Apps de gestão<small>Pedidos, clientes, estoque e agenda num lugar só, no celular e no computador.</small></span><i class="tempo" aria-hidden="true"></i></button></li>
             <li role="presentation"><button type="button" role="tab" aria-selected="false" aria-controls="cena-painel" tabindex="-1"><svg class="icone" aria-hidden="true"><use href="#i-painel"/></svg><span>Dashboards<small>Os números que importam, atualizados sozinhos, pra decidir com dado e não no achismo.</small></span><i class="tempo" aria-hidden="true"></i></button></li>
@@ -690,10 +855,10 @@ details p { padding: 0 0 22px; color: var(--suave); max-width: 40em; }
 
   <section class="faixa secao" id="como">
     <div class="miolo">
-      <div class="cabeca revela"><span class="rotulo"><b>02</b>Como funciona</span><h2>Do primeiro oi à <em>ferramenta pronta.</em></h2></div>
+      <div class="cabeca revela"><span class="rotulo"><b>04</b>Como funciona</span><h2>Do primeiro oi à <em>ferramenta pronta.</em></h2></div>
       <ol class="passos" id="passos">
-        <li class="revela" style="--i:0"><span class="quando">1 minuto</span><h3>Diagnóstico</h3><p>Você responde 7 perguntas e vê na hora quanto controle tem da sua empresa.</p></li>
-        <li class="revela" style="--i:1"><span class="quando">no WhatsApp</span><h3>Conversa</h3><p>Eu olho o seu resultado e a gente conversa sobre o seu caso.</p></li>
+        <li class="revela" style="--i:0"><span class="quando">2 minutos</span><h3>Você conta a tarefa</h3><p>Escreve o que repete e já vê a ferramenta que resolveria e o tempo que ela te devolve.</p></li>
+        <li class="revela" style="--i:1"><span class="quando">no WhatsApp</span><h3>Conversa e orçamento</h3><p>Eu te chamo com a ideia da ferramenta e o valor, sem compromisso.</p></li>
         <li class="revela" style="--i:2"><span class="quando">sob medida</span><h3>Ferramenta pronta</h3><p>Eu construo do jeito que a sua empresa funciona, e não o contrário.</p></li>
       </ol>
     </div>
@@ -702,7 +867,7 @@ details p { padding: 0 0 22px; color: var(--suave); max-width: 40em; }
   <section class="faixa secao diagnostico" id="diagnostico">
     <div class="miolo">
       <div class="cabeca revela">
-        <span class="rotulo"><b>03</b>Diagnóstico grátis</span>
+        <span class="rotulo"><b>05</b>Diagnóstico grátis</span>
         <h2>Quanto controle você tem da <em>sua empresa?</em></h2>
         <p>Deixe seu nome e WhatsApp, responda 7 perguntas e descubra o seu índice de controle, de 0 a 100, com o que mais pesa no seu caso.</p>
         <ul>
@@ -736,7 +901,7 @@ details p { padding: 0 0 22px; color: var(--suave); max-width: 40em; }
         <figcaption>Lorena Bragança</figcaption>
       </figure>
       <div class="cabeca revela">
-        <span class="rotulo"><b>04</b>Quem faz</span>
+        <span class="rotulo"><b>06</b>Quem faz</span>
         <h2>Oi, eu sou a <em>Lorena.</em></h2>
         <p>Eu ajudo empresários a <strong>enxergar o próprio negócio</strong>. Primeiro entendo como o trabalho acontece, depois escolho com você o que precisa ser medido, e só então construo a ferramenta.</p>
         <ul class="etiquetas"><li>Gestão por indicadores</li><li>Mapeamento de processos</li><li>Ferramentas sob medida</li></ul>
@@ -762,7 +927,11 @@ details p { padding: 0 0 22px; color: var(--suave); max-width: 40em; }
         </details>
         <details>
           <summary>Quanto custa?</summary>
-          <p>Depende do que a sua empresa precisa. O diagnóstico é gratuito e é o primeiro passo pra eu te passar um valor.</p>
+          <p>Depende da ferramenta. Conte a tarefa que você repete no <a href="#orcamento">pedido de orçamento</a> e eu te passo o valor no WhatsApp, sem compromisso.</p>
+        </details>
+        <details>
+          <summary>Você faz site?</summary>
+          <p>Faço, e integrado à gestão: o que o cliente faz no site (reserva, agendamento, pedido) cai direto no seu painel, sem ninguém copiar de um lugar para o outro.</p>
         </details>
         <details>
           <summary>Fazer o diagnóstico me compromete com alguma coisa?</summary>
@@ -776,9 +945,9 @@ details p { padding: 0 0 22px; color: var(--suave); max-width: 40em; }
     <div class="miolo">
       <div class="fim-cartao revela">
         <h2>Bora colocar a sua empresa na <span class="destaque">palma da mão?</span></h2>
-        <p>Comece pelo diagnóstico: 1 minuto, grátis, e o resultado aparece na hora.</p>
+        <p>Comece contando a tarefa que você repete: em 2 minutos você vê a ferramenta e pede o seu orçamento.</p>
         <div class="acoes">
-          <a class="botao" href="#diagnostico">Fazer o diagnóstico grátis <svg aria-hidden="true"><use href="#i-seta"/></svg></a>
+          <a class="botao" href="#orcamento">Contar minha tarefa <svg aria-hidden="true"><use href="#i-seta"/></svg></a>
           <a class="botao escuro" href="https://ig.me/m/lo_braganca" target="_blank" rel="noopener">Chamar no direct</a>
         </div>
       </div>
@@ -793,7 +962,7 @@ details p { padding: 0 0 22px; color: var(--suave); max-width: 40em; }
   </div>
 </footer>
 
-<div class="cta-fixo" id="cta-fixo" aria-hidden="true"><a class="botao" href="#diagnostico" tabindex="-1">Fazer o diagnóstico grátis <svg aria-hidden="true"><use href="#i-seta"/></svg></a></div>
+<div class="cta-fixo" id="cta-fixo" aria-hidden="true"><a class="botao" href="#orcamento" tabindex="-1">Pedir orçamento <svg aria-hidden="true"><use href="#i-seta"/></svg></a></div>
 
 <script>
 // O diagnóstico: primeiro nome e WhatsApp (gravados na hora, e a Lorena recebe o aviso no
@@ -1318,8 +1487,250 @@ mostrarContato(false);
   // escondido também no cartão do fim, que já tem o mesmo botão (e senão cobria o rodapé)
   const cobrem = new Set();
   const io = new IntersectionObserver((es) => { es.forEach((e) => (e.isIntersecting ? cobrem.add(e.target) : cobrem.delete(e.target))); noDiagnostico = cobrem.size > 0; atualizar(); });
-  [diag, document.querySelector("section.fim")].filter(Boolean).forEach((x) => io.observe(x));
+  // 21/11: o botão fixo leva ao pedido de orçamento; some também enquanto ele está à vista
+  [diag, document.getElementById("orcamento"), document.querySelector("section.fim")].filter(Boolean).forEach((x) => io.observe(x));
 })();
 </script>
+<script>
+// ================= o pedido de orçamento (21/11) =================
+// 4 passos: 1) a tarefa, escrita do jeito da pessoa, com a ferramenta aparecendo enquanto
+// ela escreve; 2) quanto tempo a tarefa leva (a mesma conta do carrossel: 5 min × 5 dias
+// × 50 semanas = 21 h); 3) o que mais ela quer (site integrado, painel...); 4) nome e
+// WhatsApp. Vai para /api/formulario como "orcamento" e aparece no /adm, em
+// Diagnósticos > Formulários de clientes, com aviso no celular dela.
+(function () {
+  const palco = document.getElementById("cot-palco");
+  if (!palco) return;
+  const GUARDADO = "pedido-orcamento";
+
+  // O "inteligente": cada ferramenta com as palavras que a denunciam. A ordem decide o
+  // desempate. "hoje" e "depois" são o antes e o depois que a pessoa vê.
+  const IDEIAS = [
+    { id: "orcamento", nome: "Gerador de orçamentos", hoje: "Copiar o orçamento antigo e trocar nome e valores", depois: "Você escolhe o cliente e os itens, e o orçamento sai pronto em PDF, com a sua logo.",
+      palavras: ["orcamento", "orçamento", "proposta", "cotacao", "cotação", "pdf", "precificar", "valor do servico"] },
+    { id: "agenda", nome: "Agenda online", hoje: "Responder \"tem horário?\" e remarcar pelo WhatsApp", depois: "O cliente escolhe o horário sozinho, e o lembrete sai no dia certo.",
+      palavras: ["horario", "horário", "agenda", "agendar", "marcar", "remarcar", "consulta", "aula", "reserva", "reservar", "disponibilidade", "encaixe"] },
+    { id: "pedidos", nome: "Sistema de pedidos", hoje: "Passar o pedido do caderno ou do WhatsApp para a planilha", depois: "Anotou uma vez, já está no sistema: com status, valor e entrega.",
+      palavras: ["pedido", "pedidos", "planilha", "caderno", "anotar", "lancar", "lançar", "digitar", "copiar", "excel", "encomenda", "venda", "vendas"] },
+    { id: "cobranca", nome: "Cobrança automática", hoje: "Cobrar cliente um por um e conferir quem pagou", depois: "O lembrete vai no dia certo e você vê na hora quem pagou e quem falta.",
+      palavras: ["cobrar", "cobranca", "cobrança", "boleto", "pagamento", "pagou", "pix", "fiado", "receber", "mensalidade", "inadimpl", "vencimento"] },
+    { id: "painel", nome: "Painel de indicadores", hoje: "Montar o relatório do mês na mão", depois: "Os números do mês se atualizam sozinhos, num painel que você abre no celular.",
+      palavras: ["relatorio", "relatório", "fechamento", "faturamento", "lucro", "numeros", "números", "indicador", "resultado", "quanto vendi", "dashboard", "meta"] },
+    { id: "estoque", nome: "Controle de estoque", hoje: "Contar o estoque e descobrir que faltou produto", depois: "Cada venda baixa o estoque sozinha, e o sistema avisa o que está acabando.",
+      palavras: ["estoque", "produto", "produtos", "mercadoria", "falta", "inventario", "inventário", "reposicao", "reposição", "compra"] },
+    { id: "respostas", nome: "Catálogo e respostas prontas", hoje: "Responder as mesmas perguntas e mandar foto de cada produto", depois: "Um catálogo com preços e as respostas de sempre: o cliente já chega sabendo.",
+      palavras: ["whatsapp", "responder", "mensagem", "mensagens", "pergunta", "duvida", "dúvida", "preco", "preço", "cardapio", "cardápio", "catalogo", "catálogo", "foto"] },
+    { id: "contratos", nome: "Contratos automáticos", hoje: "Preencher contrato e documento à mão, um por um", depois: "O contrato sai preenchido com os dados do cliente, numerado e com a sua logo.",
+      palavras: ["contrato", "contratos", "documento", "documentos", "assinatura", "recibo", "ficha", "cadastro"] },
+    { id: "equipe", nome: "Gestão da equipe", hoje: "Calcular comissão, escala e tarefas da equipe na mão", depois: "Vendas, comissões e tarefas de cada um calculadas sozinhas, no fim do mês pronto.",
+      palavras: ["comissao", "comissão", "vendedor", "vendedores", "equipe", "funcionario", "funcionário", "escala", "ponto", "tarefa da equipe"] },
+  ];
+  const sem = (t) => t.toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g, "");
+  function reconhecer(texto) {
+    const t = sem(texto);
+    if (t.trim().length < 4) return [];
+    const pontos = IDEIAS.map((i) => ({ i, n: i.palavras.filter((p) => t.includes(sem(p))).length })).filter((x) => x.n);
+    pontos.sort((a, b) => b.n - a.n);
+    return pontos.slice(0, 2).map((x) => x.i);
+  }
+  const EXEMPLOS = ["Copiar o orçamento e trocar o nome", "Responder \"tem horário amanhã?\"", "Passar o pedido do caderno pra planilha", "Cobrar cliente um por um", "Montar o relatório do mês"];
+  const MINUTOS = [["2 min", 2], ["5 min", 5], ["15 min", 15], ["30 min", 30], ["1 hora", 60], ["2 horas", 120]];
+  const VEZES = [["Várias vezes por dia", 15], ["Todo dia", 5], ["Algumas vezes por semana", 3], ["Uma vez por semana", 1], ["Uma vez por mês", 0.25]];
+  const QUER = ["Só a ferramenta para essa tarefa", "Um site integrado à gestão", "Um painel com os números da empresa", "Ainda não sei, quero conversar"];
+
+  let e = { passo: 0, tarefa: "", minutos: null, vezes: null, quer: [], nome: "", whatsapp: "", empresa: "", id: null, enviado: false };
+  try { e = { ...e, ...JSON.parse(localStorage.getItem(GUARDADO) || "{}") }; } catch {}
+  if (!e.id) e.id = (crypto.randomUUID ? crypto.randomUUID() : "10000000-1000-4000-8000-100000000000".replace(/[018]/g, (c) => (c ^ (crypto.getRandomValues(new Uint8Array(1))[0] & (15 >> (c / 4)))).toString(16)));
+  if (e.enviado) e.passo = 0;
+  const guardar = () => { try { localStorage.setItem(GUARDADO, JSON.stringify(e)); } catch {} };
+
+  function horasAno() {
+    if (!e.minutos || e.vezes == null) return null;
+    const porSemana = VEZES.find((v) => v[0] === e.vezes)?.[1] ?? 0;
+    return (e.minutos * porSemana * 50) / 60;
+  }
+  const fmtH = (h) => h >= 10 ? Math.round(h).toLocaleString("pt-BR") : h.toLocaleString("pt-BR", { maximumFractionDigits: 1 });
+
+  function el(tag, attrs = {}, ...filhos) {
+    const n = document.createElement(tag);
+    for (const [k, v] of Object.entries(attrs)) {
+      if (k === "class") n.className = v; else if (k === "text") n.textContent = v; else if (k === "html") n.innerHTML = v; else n.setAttribute(k, v);
+    }
+    filhos.forEach((f) => f != null && n.append(f));
+    return n;
+  }
+  function chips(lista, ativo, aoTocar, varios) {
+    const caixa = el("div", { class: "cot-exemplos", role: "group" });
+    lista.forEach((rot) => {
+      const b = el("button", { type: "button", class: "cot-chip", "aria-pressed": String(varios ? ativo.includes(rot) : ativo === rot), text: rot });
+      b.addEventListener("click", () => aoTocar(rot));
+      caixa.append(b);
+    });
+    return caixa;
+  }
+  function topo() {
+    const ps = document.querySelectorAll(".cot-passos i");
+    ps.forEach((p, i) => { p.className = i < e.passo ? "feito" : i === e.passo ? "agora" : ""; });
+    document.getElementById("cot-conta").textContent = e.passo < 4 ? `Passo ${e.passo + 1} de 4` : "Pronto";
+  }
+  function nav(seguir, rotulo, voltar = true) {
+    const n = el("div", { class: "cot-nav" });
+    if (voltar && e.passo > 0) {
+      const v = el("button", { type: "button", class: "botao vazado voltar-cot", "aria-label": "Voltar", text: "←" });
+      v.addEventListener("click", () => ir(e.passo - 1));
+      n.append(v);
+    }
+    const s = el("button", { type: "button", class: "botao", id: "cot-seguir" }, rotulo);
+    s.insertAdjacentHTML("beforeend", ' <svg aria-hidden="true"><use href="#i-seta"/></svg>');
+    s.addEventListener("click", seguir);
+    n.append(s);
+    return n;
+  }
+  function erro(onde, texto) {
+    let p = onde.querySelector(".cot-erro");
+    if (!p) { p = el("p", { class: "cot-erro", role: "alert" }); onde.insertBefore(p, onde.querySelector(".cot-nav")); }
+    p.textContent = texto;
+  }
+  function ir(passo, foco = true) {
+    e.passo = passo; guardar(); desenhar();
+    if (foco) { const h = palco.querySelector("h3"); if (h) { h.focus({ preventScroll: true }); document.getElementById("cotador").scrollIntoView({ behavior: "smooth", block: "start" }); } }
+  }
+
+  function desenharIdeia(caixa) {
+    const achadas = reconhecer(e.tarefa);
+    caixa.replaceChildren(el("span", { class: "selo-ideia", text: achadas.length ? "Isso vira uma ferramenta" : "Escreva e veja aqui" }));
+    if (!achadas.length) {
+      caixa.append(el("p", { class: "vazia", text: e.tarefa.trim().length >= 4 ? "Não reconheci essa tarefa de cara, e tudo bem: quase todo trabalho repetido vira ferramenta. Siga em frente que eu desenho a sua sob medida." : "Conte com as suas palavras, por exemplo: \"todo dia eu passo os pedidos do WhatsApp para a planilha\". A ferramenta certa aparece aqui." }));
+      return;
+    }
+    achadas.forEach((i) => {
+      const dl = el("dl", { class: "ideia-troca" }, el("dt", { text: "Hoje" }), el("dd", { class: "hoje", text: i.hoje }), el("dt", { text: "Com ela" }), el("dd", { class: "depois", text: i.depois }));
+      caixa.append(el("div", { class: "ideia" }, el("b", { text: i.nome }), dl));
+    });
+  }
+
+  function desenhar() {
+    topo();
+    const tela = el("div", { class: "cot-tela" });
+
+    if (e.passo === 0) {
+      tela.append(el("h3", { tabindex: "-1", html: "Me conta a tarefa que <em>você faz sempre igual.</em>" }));
+      const grade = el("div", { class: "cot-grade" });
+      const area = el("textarea", { id: "cot-tarefa", rows: "4", maxlength: "1200", placeholder: "Ex.: toda semana eu copio o orçamento antigo, troco o nome do cliente e os valores e mando em PDF…", "aria-label": "Qual tarefa você repete?" });
+      area.value = e.tarefa;
+      const ideia = el("div", { class: "cot-ideia", "aria-live": "polite" });
+      area.addEventListener("input", () => { e.tarefa = area.value; guardar(); desenharIdeia(ideia); });
+      const exemplos = el("div", { class: "cot-exemplos" }, el("span", { text: "Ou toque num exemplo:" }));
+      EXEMPLOS.forEach((x) => {
+        const b = el("button", { type: "button", class: "cot-chip", text: x });
+        b.addEventListener("click", () => { area.value = (area.value.trim() ? area.value.trim() + "\n" : "") + x; e.tarefa = area.value; guardar(); desenharIdeia(ideia); area.focus(); });
+        exemplos.append(b);
+      });
+      grade.append(el("div", { class: "cot-escrever" }, area, exemplos), ideia);
+      desenharIdeia(ideia);
+      tela.append(grade, nav(() => {
+        if (e.tarefa.trim().length < 4) return erro(tela, "Escreva a tarefa, mesmo que em poucas palavras.");
+        ir(1);
+      }, "Continuar"));
+    }
+
+    if (e.passo === 1) {
+      tela.append(el("h3", { tabindex: "-1", html: "Quanto tempo essa tarefa <em>te toma?</em>" }));
+      const conta = el("div", { class: "cot-conta-grande", "aria-live": "polite" });
+      const atualizarConta = () => {
+        const h = horasAno();
+        if (h == null) { conta.replaceChildren(el("p", { text: "Marque as duas respostas e eu faço a conta do ano." })); return; }
+        const dias = h / 8;
+        conta.replaceChildren(
+          el("span", { class: "numero", html: `≈ ${fmtH(h)}<small>${h === 1 ? "hora" : "horas"} por ano</small>` }),
+          el("p", { html: dias >= 1 ? `Quase <b>${Math.round(dias)} ${Math.round(dias) === 1 ? "dia inteiro" : "dias inteiros"} de trabalho</b> numa tarefa só. É esse tempo que a ferramenta te devolve.` : "Pouco tempo por vez, mas toda semana. E quase sempre não é a única tarefa repetida." }),
+          el("span", { class: "conta-fina", text: `${e.minutos} min × ${e.vezes.toLowerCase()} × 50 semanas` }));
+      };
+      const linhaMin = el("div", { class: "cot-linha" }, el("span", { text: "Cada vez que você faz, leva…" }));
+      const linhaVez = el("div", { class: "cot-linha" }, el("span", { text: "E você faz…" }));
+      const redesenhar = () => {
+        linhaMin.replaceChildren(linhaMin.firstChild, chips(MINUTOS.map((m) => m[0]), MINUTOS.find((m) => m[1] === e.minutos)?.[0], (r) => { e.minutos = MINUTOS.find((m) => m[0] === r)[1]; guardar(); redesenhar(); }));
+        linhaVez.replaceChildren(linhaVez.firstChild, chips(VEZES.map((v) => v[0]), e.vezes, (r) => { e.vezes = r; guardar(); redesenhar(); }));
+        atualizarConta();
+      };
+      redesenhar();
+      tela.append(el("div", { class: "cot-tempo" }, linhaMin, linhaVez, conta), nav(() => ir(2), "Continuar"));
+    }
+
+    if (e.passo === 2) {
+      tela.append(el("h3", { tabindex: "-1", html: "Além dessa ferramenta, <em>o que mais te interessa?</em>" }),
+        el("p", { text: "Pode marcar mais de um. Isso me ajuda a montar um orçamento do tamanho certo." }));
+      const caixa = el("div");
+      const redesenhar = () => caixa.replaceChildren(chips(QUER, e.quer, (r) => { e.quer = e.quer.includes(r) ? e.quer.filter((x) => x !== r) : [...e.quer, r]; guardar(); redesenhar(); }, true));
+      redesenhar();
+      tela.append(caixa, nav(() => ir(3), "Continuar"));
+    }
+
+    if (e.passo === 3) {
+      tela.append(el("h3", { tabindex: "-1", html: "Para onde eu mando <em>o seu orçamento?</em>" }),
+        el("p", { text: "Eu olho a sua tarefa e te chamo no WhatsApp com a ideia da ferramenta e o valor." }));
+      const campo = (id, rot, attrs, chave) => {
+        const i = el("input", { id, ...attrs }); i.value = e[chave] || "";
+        i.addEventListener("input", () => { e[chave] = i.value; guardar(); });
+        return el("div", { class: "campo" + (id === "cot-empresa" ? " inteiro" : "") }, el("label", { for: id, text: rot }), i);
+      };
+      tela.append(el("div", { class: "campos" },
+        campo("cot-nome", "Seu nome", { type: "text", autocomplete: "name", maxlength: "80" }, "nome"),
+        campo("cot-zap", "WhatsApp", { type: "tel", autocomplete: "tel", inputmode: "tel", maxlength: "20", placeholder: "(31) 99999-9999" }, "whatsapp"),
+        campo("cot-empresa", "Sua empresa e o que ela faz (opcional)", { type: "text", maxlength: "120", placeholder: "Ex.: confeitaria, pousada, clínica…" }, "empresa")));
+      const h = horasAno(), achadas = reconhecer(e.tarefa);
+      tela.append(el("div", { class: "cot-resumo" },
+        el("div", {}, el("span", { text: "Ferramenta" }), el("b", { text: achadas.length ? achadas.map((i) => i.nome).join(" + ") : "Sob medida" })),
+        el("div", {}, el("span", { text: "Tempo que volta" }), el("b", { text: h != null ? `≈ ${fmtH(h)} h por ano` : "a calcular" }))));
+      tela.append(nav(enviar, "Pedir meu orçamento"), el("p", { class: "nota", style: "font-size:14px;color:var(--suave);text-align:center", html: 'Sem compromisso. Seus dados ficam só comigo. <a href="/privacidade/" style="color:inherit">Privacidade</a>' }));
+    }
+
+    if (e.passo === 4) {
+      const primeiro = (e.nome || "").trim().split(" ")[0];
+      const texto = `Oi, Lorena! Pedi um orçamento no site. A tarefa que eu repito: ${e.tarefa.trim().slice(0, 300)}`;
+      const zap = el("a", { class: "botao", href: "https://wa.me/5531971473162?text=" + encodeURIComponent(texto), target: "_blank", rel: "noopener" });
+      zap.innerHTML = '<svg aria-hidden="true"><use href="#i-zap"/></svg>Adiantar a conversa no WhatsApp';
+      const novo = el("button", { type: "button", class: "botao vazado", text: "Contar outra tarefa" });
+      novo.addEventListener("click", () => { e = { ...e, passo: 0, tarefa: "", minutos: null, vezes: null, quer: [], enviado: false, id: crypto.randomUUID ? crypto.randomUUID() : e.id }; ir(0); });
+      tela.append(el("div", { class: "cot-pronto" },
+        el("div", { class: "icone-ok", "aria-hidden": "true", html: '<svg viewBox="0 0 24 24" fill="none" stroke="#121418" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>' }),
+        el("h3", { tabindex: "-1", html: `Recebi${primeiro ? ", " + primeiro.replace(/</g, "") : ""}! <em>Agora é comigo.</em>` }),
+        el("p", { style: "color:var(--suave)", text: "Eu leio a sua tarefa, penso na ferramenta e te chamo no WhatsApp com a ideia e o valor. Se quiser, já me manda um oi por lá." }),
+        el("div", { class: "cot-nav" }, zap, novo)));
+    }
+    palco.replaceChildren(tela);
+  }
+
+  async function enviar() {
+    const tela = palco.querySelector(".cot-tela");
+    const nome = (e.nome || "").trim();
+    let d = (e.whatsapp || "").replace(/\D/g, "");
+    if (d.length === 10 || d.length === 11) d = "55" + d;
+    if (!nome) { erro(tela, "Escreva o seu nome."); return document.getElementById("cot-nome").focus(); }
+    if (!/^55\d{10,11}$/.test(d)) { erro(tela, "Escreva o WhatsApp com DDD, como (31) 99999-9999, para eu te mandar o orçamento."); return document.getElementById("cot-zap").focus(); }
+    const h = horasAno(), achadas = reconhecer(e.tarefa);
+    const respostas = [
+      { secao: "A tarefa", pergunta: "Qual tarefa você repete?", resposta: e.tarefa.trim() },
+      { secao: "A tarefa", pergunta: "Ferramenta que a página sugeriu", resposta: achadas.map((i) => i.nome).join(" + ") || "não reconheceu (sob medida)" },
+      { secao: "O tempo", pergunta: "Quanto leva cada vez", resposta: e.minutos ? MINUTOS.find((m) => m[1] === e.minutos)[0] : "" },
+      { secao: "O tempo", pergunta: "Com que frequência", resposta: e.vezes || "" },
+      { secao: "O tempo", pergunta: "Horas por ano nessa tarefa", resposta: h != null ? `≈ ${fmtH(h)} h` : "" },
+      { secao: "O que mais quer", pergunta: "Além da ferramenta", resposta: e.quer.join(", ") },
+      { secao: "Quem pediu", pergunta: "Empresa", resposta: (e.empresa || "").trim() },
+    ];
+    const b = document.getElementById("cot-seguir"); b.disabled = true; b.textContent = "Enviando…";
+    try {
+      const r = await fetch("/api/formulario", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ id: e.id, formulario: "orcamento", nome, whatsapp: d, respostas }) });
+      if (!r.ok) { const c = await r.json().catch(() => ({})); throw new Error(c.erro || "Erro " + r.status); }
+      e.enviado = true; ir(4);
+    } catch (err) {
+      b.disabled = false; b.textContent = "Pedir meu orçamento";
+      erro(tela, "Não consegui enviar agora (" + err.message + "). Tente de novo, ou me chame no WhatsApp: (31) 97147-3162.");
+    }
+  }
+  desenhar();
+})();
+</script>
+
 </body>
 </html>

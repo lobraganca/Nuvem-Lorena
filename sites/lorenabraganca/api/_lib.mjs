@@ -119,7 +119,8 @@ async function marcarContatado(id, feito) {
 // fila pela data da última resposta. O mesmo prazo de 2 anos do contato (/privacidade).
 // Enviar de novo do mesmo aparelho (mesmo id) atualiza a resposta, em vez de criar outra.
 // Cliente novo = uma linha aqui e uma página com o mesmo nome.
-const FORMULARIOS = { pousadamare: "Pousada Maré", sinalverde: "Sinal Verde Veículos" };
+// "orcamento" (21/11) não é de um cliente: é o pedido de orçamento da página inicial
+const FORMULARIOS = { pousadamare: "Pousada Maré", sinalverde: "Sinal Verde Veículos", orcamento: "Pedido de orçamento" };
 const chaveDoFormulario = (id) => "form:" + id;
 
 async function gravarFormulario(f) {

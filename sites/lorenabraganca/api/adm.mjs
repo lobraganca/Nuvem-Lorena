@@ -100,7 +100,7 @@ function montarNegocio(antes, d) {
 // O app da tela inicial do iPhone guarda a tela velha e só busca os dados de novo: em 19/11
 // ela não via a parte nova mesmo fechando e abrindo. Com isto, a tela vê que ficou para
 // trás e se recarrega sozinha.
-const VERSAO_DA_TELA = "2026-11-19c";
+const VERSAO_DA_TELA = "2026-11-21a";
 const DIAS = 180;
 const COOKIE = "adm_passe";
 const cookie = (valor, segundos) => `${COOKIE}=${valor}; Path=/api/adm; Max-Age=${segundos}; HttpOnly; Secure; SameSite=Lax`;

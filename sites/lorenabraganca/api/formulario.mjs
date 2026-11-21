@@ -55,7 +55,10 @@ export default async function handler(req, res) {
   try { // o aviso não pode derrubar a resposta: ela já está salva
     await avisar({
       titulo: (novo ? "Nova resposta · " : "Resposta atualizada · ") + cliente,
-      corpo: novo ? `${nome} respondeu o formulário` : `${nome} mudou as respostas`,
+      // no pedido de orçamento, o aviso já diz a tarefa: é o que decide se ela chama logo
+      corpo: formulario === "orcamento"
+        ? `${nome}: ${(respostas[0]?.resposta || "").replace(/\s+/g, " ").slice(0, 110)}`
+        : novo ? `${nome} respondeu o formulário` : `${nome} mudou as respostas`,
       url: "/adm/#formularios",
       tag: "form-" + id,
     });

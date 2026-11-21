@@ -41,6 +41,23 @@ WhatsApp abre igual — o que se perde é só a linha no /adm.
 O número que recebe a mensagem fica na constante `WHATSAPP` do `index.html` —
 `5531971473162`, confirmado por ela em 31/10. É o mesmo do suporte do Ei.
 
+### O pedido de orçamento da página inicial (21/11)
+
+Ela pediu a página "mais intuitiva, inteligente e de alto padrão", para a pessoa pedir
+orçamento contando a tarefa que repete (o mesmo assunto do carrossel e do Reel de
+20/11), e dizer que ela faz site integrado à gestão. A inicial ganhou:
+
+- **Topo novo**: "Me conta a tarefa que você repete. Eu transformo numa ferramenta."
+- **01 · Pedido de orçamento** (`#orcamento`): 4 passos. A pessoa escreve a tarefa e,
+  enquanto escreve, a página reconhece a tarefa por palavras (lista `IDEIAS` no fim do
+  `index.html`, sem IA paga: escolha dela) e mostra a ferramenta, com o "hoje" e o
+  "com ela". Depois o tempo (a conta do carrossel: min × vezes por semana × 50) e o
+  que mais quer; no fim nome e WhatsApp. Vai para `api/formulario.mjs` como
+  `orcamento` e aparece no /adm em Formulários de clientes; o aviso no celular já traz
+  a tarefa.
+- **02 · Site integrado à gestão** (`#integrado`).
+- O diagnóstico continua, agora como 05. O botão fixo do celular leva ao orçamento.
+
 ### Formulários de clientes: o `/pousadamare` (19/11)
 
 Um formulário de diagnóstico feito para um cliente só, numa página dele, fora do
