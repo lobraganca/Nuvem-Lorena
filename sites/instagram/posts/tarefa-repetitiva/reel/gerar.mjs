@@ -1,4 +1,4 @@
-// Monta o Reel: abre reel.html, chama quadro(t) 30 vezes por segundo,
+// Monta o Reel: abre reel.html, chama quadro(t) 60 vezes por segundo,
 // fotografa cada quadro e entrega a sequência ao ffmpeg, que faz o MP4 (H.264, o que o iPhone
 // salva na galeria e o TikTok aceita), com uma faixa de áudio muda — a música se põe no TikTok.
 //   node sites/instagram/posts/tarefa-repetitiva/reel/gerar.mjs [saida.mp4] [--quadros 2.5,8.6]
@@ -11,7 +11,7 @@ const aqui = dirname(fileURLToPath(import.meta.url));
 const args = process.argv.slice(2);
 const so = args.includes("--quadros") ? args[args.indexOf("--quadros") + 1].split(",").map(Number) : null;
 const saida = args.find((a) => a.endsWith(".mp4")) || join(aqui, "reel-tarefa-repetitiva.mp4");
-const FPS = 30;
+const FPS = 60;
 
 const navegador = await chromium.launch();
 const pagina = await navegador.newPage({ viewport: { width: 1080, height: 1920 } });
@@ -29,7 +29,7 @@ if (so) { // só alguns quadros, em PNG, para conferir o visual
 } else {
   const ffmpeg = spawn("ffmpeg", ["-y", "-loglevel", "error", "-f", "image2pipe", "-framerate", String(FPS), "-i", "-",
     "-f", "lavfi", "-i", "anullsrc=r=44100:cl=stereo", "-shortest",
-    "-c:v", "libx264", "-preset", "slow", "-crf", "18", "-pix_fmt", "yuv420p", "-profile:v", "high", "-movflags", "+faststart",
+    "-c:v", "libx264", "-preset", "slow", "-crf", "16", "-pix_fmt", "yuv420p", "-profile:v", "high", "-movflags", "+faststart",
     "-c:a", "aac", "-b:a", "128k", saida], { stdio: ["pipe", "inherit", "inherit"] });
   const total = Math.round(duracao * FPS);
   for (let i = 0; i < total; i++) {
