@@ -1,0 +1,141 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<title>Carrossel · tarefa repetitiva</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@600;700;800&family=Figtree:wght@400;500;600&family=Instrument+Serif:ital@0;1&display=swap">
+<style>
+/* Carrossel do feed (21/11): "se você tem tarefa repetitiva, ela vira ferramenta e te poupa tempo".
+   A virada é a conta: 5 min por dia × 5 dias × 50 semanas = 1.250 min ≈ 21 h por ano.
+   Cinco telas de 1080 × 1350 (4:5, o tamanho que o feed mostra inteiro). Sai em PNG por gerar.mjs. */
+:root { --grafite: #0F1115; --claro: #FAFAF6; --limao: #C8F26B; --verde: #4A6A0B; --suave-c: #A3A7B1; --suave: #4E535C; --borda: #E3E5DC;
+  --f-t: "Plus Jakarta Sans", sans-serif; --f-x: "Figtree", sans-serif; --f-s: "Instrument Serif", Georgia, serif; }
+* { box-sizing: border-box; margin: 0; }
+body { background: #555; display: grid; gap: 40px; padding: 40px; justify-content: center; }
+.tela { position: relative; width: 1080px; height: 1350px; overflow: hidden; padding: 96px 92px; display: flex; flex-direction: column; font-family: var(--f-x); }
+.escura { background: var(--grafite); color: #F3F4F0; }
+.clara { background: var(--claro); color: #121418; }
+.lima { background: var(--limao); color: #121418; }
+.topo { display: flex; align-items: center; gap: 16px; font: 700 26px/1 var(--f-t); letter-spacing: .01em; }
+.topo svg { width: 52px; height: 52px; }
+.topo .pag { margin-left: auto; font: 600 24px/1 var(--f-t); opacity: .55; }
+.miolo { flex: 1; display: flex; flex-direction: column; justify-content: center; gap: 44px; }
+h1, h2 { font-family: var(--f-t); font-weight: 800; letter-spacing: -.035em; line-height: 1.02; }
+h1 { font-size: 108px; } h2 { font-size: 84px; }
+em { font-family: var(--f-s); font-style: italic; font-weight: 400; letter-spacing: -.01em; font-size: 1.1em; }
+.escura em { color: var(--limao); }
+.marca { padding: 0 .12em; background: linear-gradient(transparent 56%, var(--limao) 56%, var(--limao) 92%, transparent 92%); }
+.texto { font-size: 40px; line-height: 1.4; }
+.escura .texto { color: var(--suave-c); } .clara .texto { color: var(--suave); }
+.arrasta { display: flex; align-items: center; gap: 14px; font: 700 28px/1 var(--f-t); }
+.escura .arrasta { color: var(--limao); }
+.arrasta svg { width: 34px; height: 34px; }
+.brilho { position: absolute; width: 900px; height: 900px; right: -340px; top: -360px; border-radius: 50%; background: radial-gradient(closest-side, rgba(200,242,107,.28), transparent); }
+.relogio { position: absolute; right: 92px; top: 200px; width: 230px; height: 230px; }
+
+/* tela 2: a conta */
+.conta { display: grid; gap: 22px; }
+.linha-conta { display: flex; align-items: baseline; gap: 26px; font: 800 96px/1 var(--f-t); letter-spacing: -.04em; }
+.linha-conta small { font: 500 40px/1 var(--f-x); color: var(--suave); letter-spacing: 0; }
+.linha-conta .op { width: 64px; color: var(--verde); font-weight: 700; }
+.resultado { margin-top: 12px; padding: 40px 44px; border-radius: 32px; background: var(--grafite); color: #F3F4F0; display: grid; gap: 10px; }
+.resultado b { font: 800 132px/1 var(--f-t); letter-spacing: -.045em; color: var(--limao); }
+.resultado span { font-size: 38px; color: var(--suave-c); }
+
+/* tela 3: a lista para se reconhecer */
+.lista { display: grid; gap: 22px; list-style: none; padding: 0; }
+.lista li { display: flex; align-items: center; gap: 30px; background: #fff; border: 2px solid var(--borda); border-radius: 28px; padding: 30px 36px; font: 600 40px/1.2 var(--f-x); }
+.lista li::before { content: ""; flex: none; width: 48px; height: 48px; border-radius: 12px; border: 4px solid #121418;
+  background: var(--limao) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M5 12.5l4.5 4.5L19 7.5' fill='none' stroke='%23121418' stroke-width='3.2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") center/30px no-repeat; }
+
+/* tela 4: antes e depois */
+.trocas { display: grid; gap: 20px; }
+.troca { display: grid; grid-template-columns: .85fr 50px 1.25fr; align-items: center; gap: 18px; }
+.troca span { font: 500 34px/1.25 var(--f-x); }
+.troca .antes { color: var(--suave-c); text-decoration: line-through; text-decoration-color: rgba(243,244,240,.35); }
+.troca .depois { background: #1B1F26; border: 2px solid #2E333C; border-radius: 22px; padding: 22px 26px; color: #F3F4F0; font-weight: 600; }
+.troca svg { width: 44px; height: 44px; color: var(--limao); }
+
+/* tela 5: a chamada */
+.lima h2 { font-size: 100px; }
+.lima .texto { color: #2A3020; }
+.cta { display: grid; gap: 18px; padding: 44px; border-radius: 34px; background: var(--grafite); color: #F3F4F0; }
+.cta b { font: 800 46px/1.15 var(--f-t); letter-spacing: -.02em; }
+.cta span { font: 600 36px/1 var(--f-t); color: var(--limao); }
+</style>
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <symbol id="logo" viewBox="0 0 64 64"><rect width="64" height="64" rx="14" fill="#C8F26B"/><g transform="translate(32 32) scale(1.12) translate(-35 -32)" fill="#0F1115"><rect x="18" y="13" width="10" height="38" rx="2"/><rect x="18" y="41" width="22" height="10" rx="2"/><circle cx="47" cy="46" r="5"/></g></symbol>
+  <symbol id="logo-escura" viewBox="0 0 64 64"><rect width="64" height="64" rx="14" fill="#0F1115"/><g transform="translate(32 32) scale(1.12) translate(-35 -32)" fill="#C8F26B"><rect x="18" y="13" width="10" height="38" rx="2"/><rect x="18" y="41" width="22" height="10" rx="2"/><circle cx="47" cy="46" r="5"/></g></symbol>
+  <symbol id="seta" viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+</svg>
+
+<!-- 1. o gancho -->
+<section class="tela escura">
+  <span class="brilho"></span>
+  <div class="topo"><svg><use href="#logo"/></svg>@lo_braganca<span class="pag">1/5</span></div>
+  <div class="miolo">
+    <h1>Essa tarefa de <em>5 minutos</em> custa <em>21 horas</em> por ano.</h1>
+    <p class="texto">E provavelmente você tem mais de uma.</p>
+  </div>
+  <svg class="relogio" viewBox="0 0 100 100" aria-hidden="true"><circle cx="50" cy="50" r="44" fill="none" stroke="#2E333C" stroke-width="6"/><path d="M50 6 A44 44 0 0 1 94 50" fill="none" stroke="#C8F26B" stroke-width="6" stroke-linecap="round"/><path d="M50 50 V24 M50 50 L66 60" stroke="#F3F4F0" stroke-width="5" stroke-linecap="round"/><circle cx="50" cy="50" r="4" fill="#C8F26B"/></svg>
+  <div class="arrasta">Faz a conta comigo <svg><use href="#seta"/></svg></div>
+</section>
+
+<!-- 2. a conta -->
+<section class="tela clara">
+  <div class="topo"><svg><use href="#logo"/></svg>@lo_braganca<span class="pag">2/5</span></div>
+  <div class="miolo">
+    <h2>A <span class="marca">conta</span> que ninguém faz:</h2>
+    <div class="conta">
+      <div class="linha-conta"><span class="op"></span>5 min<small>por dia</small></div>
+      <div class="linha-conta"><span class="op">×</span>5 dias<small>por semana</small></div>
+      <div class="linha-conta"><span class="op">×</span>50<small>semanas no ano</small></div>
+      <div class="resultado"><span>= 1.250 minutos</span><b>≈ 21 horas</b><span>Quase 3 dias inteiros de trabalho. Por uma tarefa só.</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- 3. a lista -->
+<section class="tela clara">
+  <div class="topo"><svg><use href="#logo"/></svg>@lo_braganca<span class="pag">3/5</span></div>
+  <div class="miolo">
+    <h2>Quantas dessas você faz <em>toda semana?</em></h2>
+    <ul class="lista">
+      <li>Copiar o orçamento antigo e trocar o nome</li>
+      <li>Responder "tem horário amanhã?" no WhatsApp</li>
+      <li>Passar o pedido do caderno pra planilha</li>
+      <li>Cobrar cliente um por um</li>
+      <li>Montar o relatório do mês na mão</li>
+    </ul>
+  </div>
+</section>
+
+<!-- 4. a virada -->
+<section class="tela escura">
+  <span class="brilho"></span>
+  <div class="topo"><svg><use href="#logo"/></svg>@lo_braganca<span class="pag">4/5</span></div>
+  <div class="miolo">
+    <h2>Toda tarefa repetida pode virar <em>uma ferramenta.</em></h2>
+    <div class="trocas">
+      <div class="troca"><span class="antes">Copiar orçamento</span><svg><use href="#seta"/></svg><span class="depois">Preenche o nome, sai o PDF</span></div>
+      <div class="troca"><span class="antes">"Tem horário?"</span><svg><use href="#seta"/></svg><span class="depois">O cliente marca sozinho</span></div>
+      <div class="troca"><span class="antes">Caderno → planilha</span><svg><use href="#seta"/></svg><span class="depois">Anotou, já está no sistema</span></div>
+      <div class="troca"><span class="antes">Cobrar um por um</span><svg><use href="#seta"/></svg><span class="depois">Lembrete automático no dia</span></div>
+      <div class="troca"><span class="antes">Relatório na mão</span><svg><use href="#seta"/></svg><span class="depois">Painel que se atualiza sozinho</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- 5. a chamada -->
+<section class="tela lima">
+  <div class="topo"><svg><use href="#logo-escura"/></svg>@lo_braganca<span class="pag">5/5</span></div>
+  <div class="miolo">
+    <h2>Qual tarefa você repete <em>toda semana?</em></h2>
+    <p class="texto">Me conta aqui nos comentários. Eu te digo se ela pode virar uma ferramenta — e quanto tempo você ganha de volta.</p>
+    <div class="cta"><b>Ou faça o diagnóstico grátis: 1 minuto, resultado na hora.</b><span>lorenabraganca.com.br</span></div>
+  </div>
+</section>
+</body>
+</html>
