@@ -621,6 +621,36 @@ details p { padding: 0 0 22px; color: var(--suave); max-width: 40em; }
 .abertura-cotador { animation: sobe .8s cubic-bezier(.2, .7, .2, 1) both; animation-delay: 330ms; max-width: 980px; width: 100%; justify-self: center; }
 .abertura-cotador .cotador { box-shadow: 0 50px 110px -60px rgba(18, 20, 24, .5); }
 @media (max-width: 760px) { .abertura.limpa .miolo { padding-block: 30px 44px; gap: 24px; } }
+
+/* 21/11, 12h20: "mais clean e mais profissional". Menos enfeite: sem brilho, sem
+   caixa limão no título, sem cartões tortos e sem círculos decorativos. O limão fica
+   só nos botões, que é onde a atenção deve ir. */
+.abertura.limpa { background: var(--fundo); border-bottom: 1px solid var(--borda); }
+.abertura.limpa .miolo { padding-block: 72px 64px; gap: 40px; }
+.abertura.limpa .abertura-texto { gap: 16px; }
+.abertura.limpa h1 { font-size: clamp(40px, 6vw, 76px); letter-spacing: -.035em; line-height: 1.02; }
+.abertura.limpa h1 em { font-family: "Instrument Serif", Georgia, serif; font-size: 1.1em; font-weight: 400; font-style: italic; color: var(--verde); letter-spacing: -.01em; }
+.abertura.limpa .sub { font-size: clamp(17px, 1.6vw, 20px); color: var(--suave); }
+.abertura-cotador { max-width: 760px; display: grid; gap: 20px; }
+.abertura-cotador .cotador { border: 1px solid var(--borda); border-radius: 20px; box-shadow: 0 1px 2px rgba(18, 20, 24, .04), 0 24px 60px -36px rgba(18, 20, 24, .28); }
+.cotador::before, .cot-ideia::after { display: none; }
+.cot-ideia { border-radius: 16px; }
+.garantias { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; justify-content: center; gap: 8px 26px; color: var(--suave); font-size: 14px; }
+.garantias li { display: flex; align-items: center; gap: 8px; }
+.garantias li::before { content: ""; width: 6px; height: 6px; border-radius: 50%; background: var(--verde); }
+.rolante.leve { background: var(--fundo); color: var(--suave); border-bottom: 1px solid var(--borda); padding-block: 18px; }
+.rolante.leve .rolo { animation-duration: 48s; }
+.rolante.leve .rolo span { font: 600 15px/1 var(--f-titulo); letter-spacing: .02em; gap: 26px; padding-right: 26px; }
+.rolante.leve .rolo span::after { content: ""; width: 4px; height: 4px; border-radius: 50%; background: var(--borda); }
+.tela-demo { transform: none; box-shadow: 0 30px 70px -40px rgba(18, 20, 24, .45), 0 0 0 1px rgba(18, 20, 24, .06); }
+.integrado-seta { background: var(--cartao); border: 1px solid var(--borda); }
+@media (max-width: 760px) {
+  .abertura.limpa .miolo { padding-block: 40px 40px; gap: 26px; }
+  .abertura.limpa .abertura-texto { text-align: left; justify-items: start; }
+  .garantias { justify-content: flex-start; gap: 6px 18px; font-size: 13px; }
+}
+.fecho .miolo { padding-block: 72px; display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 24px; border-top: 1px solid var(--borda); }
+.fecho h2 { font-size: clamp(30px, 4vw, 48px); max-width: 16ch; }
 </style>
 </head>
 <body>
@@ -655,12 +685,11 @@ details p { padding: 0 0 22px; color: var(--suave); max-width: 40em; }
   <!-- 21/11, à tarde: "muito confuso, muita coisa escrita; mais clean e dinâmico".
        O topo virou a própria pergunta, com o pedido de orçamento logo embaixo. -->
   <section class="faixa abertura limpa" id="inicio">
-    <span class="brilho" aria-hidden="true"></span><span class="brilho dois" aria-hidden="true"></span>
     <div class="miolo">
       <div class="abertura-texto">
-        <span class="selo" style="--i:0">Ferramentas e sites</span>
-        <h1 style="--i:1">Qual tarefa você <span class="destaque">repete?</span></h1>
-        <p class="sub" style="--i:2">Conte em 1 minuto e receba uma proposta de ferramenta sob medida.</p>
+        <span class="rotulo" style="--i:0">Ferramentas e sites sob medida</span>
+        <h1 style="--i:1">Qual tarefa você <em>repete?</em></h1>
+        <p class="sub" style="--i:2">Conte em 1 minuto e receba uma proposta de ferramenta feita para o seu negócio.</p>
       </div>
       <div id="orcamento" style="--i:3" class="abertura-cotador">
       <div class="cotador" id="cotador">
@@ -677,10 +706,13 @@ details p { padding: 0 0 22px; color: var(--suave); max-width: 40em; }
         </div>
       </div>
       </div>
+      <ul class="garantias" style="--i:4">
+        <li>Proposta sem compromisso</li><li>Conversa pelo WhatsApp</li><li>Feito sob medida para você</li>
+      </ul>
     </div>
   </section>
 
-  <div class="rolante" aria-hidden="true">
+  <div class="rolante leve" aria-hidden="true">
     <div class="rolo">
       <span>Apps de gestão</span><span>Dashboards e indicadores</span><span>Sites profissionais</span><span>Mapeamento de processos</span><span>Agendamentos</span><span>Lead pages</span>
       <span>Apps de gestão</span><span>Dashboards e indicadores</span><span>Sites profissionais</span><span>Mapeamento de processos</span><span>Agendamentos</span><span>Lead pages</span>
@@ -842,6 +874,13 @@ details p { padding: 0 0 22px; color: var(--suave); max-width: 40em; }
 
 </main>
 
+  <!-- 21/11: um fecho curto, para quem leu até aqui não ter de voltar ao topo -->
+  <section class="faixa fecho">
+    <div class="miolo">
+      <h2>Vamos tirar essa tarefa <em>do seu dia?</em></h2>
+      <a class="botao" href="#orcamento">Solicite uma proposta <svg aria-hidden="true"><use href="#i-seta"/></svg></a>
+    </div>
+  </section>
 <footer class="faixa rodape">
   <div class="miolo">
     <span>© 2026 Lorena Bragança</span>
@@ -1551,7 +1590,7 @@ mostrarContato(false);
           if (!zapLimpo()) { erro(tela, "Escreva o WhatsApp com DDD, como (31) 99999-9999."); return document.getElementById("cot-zap").focus(); }
           ir(1);
         }, "Começar"),
-        el("p", { class: "nota", style: "font-size:14px;color:var(--suave);text-align:center;margin:0", html: 'Leva 1 minuto. Sem compromisso. <a href="/privacidade/" style="color:inherit">Privacidade</a>' }));
+        el("p", { class: "nota", style: "font-size:14px;color:var(--suave);text-align:center;margin:0", html: 'Leva 1 minuto. Seus dados ficam só comigo. <a href="/privacidade/" style="color:inherit">Privacidade</a>' }));
     }
 
     if (e.passo === 1) {
