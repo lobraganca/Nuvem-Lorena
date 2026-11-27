@@ -1,0 +1,246 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<!-- Reel da Black Friday (27/11), 1080 × 1920, 15 s, 60 quadros/s. Produto: site integrado à
+     gestão. Oferta dela: de R$ 4.500 por R$ 3.497 à vista, ou 10x de R$ 349,70 sem juros, SÓ
+     HOJE (27/11). Mesmo acabamento do Reel da tarefa repetitiva (granulado, vinheta, câmera
+     lenta, texto por linha), sem reflexo verde e com a logo dela à vista o tempo todo.
+     quadro(t) desenha o segundo t; gerar.mjs fotografa e faz o MP4. ?ver mostra tocando.
+     Área segura do Reels: texto entre x 80–940 e y 220–1480. -->
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@500;600;700;800&family=Figtree:wght@500;600;700&family=Instrument+Serif:ital@0;1&display=swap">
+<style>
+:root { --g: #0B0C0F; --c: #15181D; --b: #2A2F38; --t: #F3F4F0; --s: #9EA3AD; --l: #C8F26B; --azul: #0F2341; }
+html, body { margin: 0; width: 1080px; height: 1920px; overflow: hidden; background: var(--g); color: var(--t); font-family: "Plus Jakarta Sans", sans-serif; -webkit-font-smoothing: antialiased; }
+* { box-sizing: border-box; }
+.abs { position: absolute; }
+#palco { position: relative; width: 1080px; height: 1920px; overflow: hidden; background: radial-gradient(120% 80% at 50% 38%, #16191F 0%, #0B0C0F 70%); }
+#camera { position: absolute; inset: 0; transform-origin: 50% 45%; }
+#vinheta { inset: 0; z-index: 50; background: radial-gradient(130% 90% at 50% 45%, transparent 55%, rgba(0,0,0,.62) 100%); }
+#grao { inset: -100px; z-index: 51; opacity: .075; mix-blend-mode: overlay; }
+em { font-family: "Instrument Serif", Georgia, serif; font-style: italic; font-weight: 400; letter-spacing: -.005em; }
+.ln { display: block; overflow: hidden; padding: .04em 0 .14em; margin: -.04em 0 -.14em; }
+.ln > span { display: inline-block; }
+.rot { display: inline-flex; align-items: center; gap: 18px; font: 700 30px/1 "Plus Jakarta Sans"; letter-spacing: .32em; text-transform: uppercase; color: var(--l); }
+.rot::before { content: ""; width: 56px; height: 3px; background: var(--l); border-radius: 2px; }
+#selo { left: 80px; top: 112px; z-index: 45; display: flex; align-items: center; gap: 18px; font: 700 34px/1 "Plus Jakarta Sans"; color: var(--t); }
+#selo svg { width: 84px; height: 84px; }
+
+/* 1. BLACK FRIDAY */
+#bf { left: 80px; top: 470px; width: 920px; }
+#bf .palavra { display: flex; font: 800 196px/.86 "Plus Jakarta Sans"; letter-spacing: -.06em; }
+#bf .palavra span { display: inline-block; }
+#bf .palavra.dois span { color: var(--l); }
+#bf p { margin: 46px 0 0; font: 600 48px/1.2 "Figtree"; color: var(--s); }
+#bf p b { color: var(--t); font-weight: 700; }
+.faixa { left: -60px; width: 1200px; height: 104px; background: var(--l); color: var(--g); display: flex; align-items: center; overflow: hidden; white-space: nowrap; }
+.faixa div { display: flex; gap: 46px; font: 800 52px/1 "Plus Jakarta Sans"; letter-spacing: .02em; padding-left: 20px; }
+.faixa i { font-style: normal; opacity: .55; }
+#faixa1 { top: 1250px; transform: rotate(-4deg); }
+
+/* 2. o produto: site + sistema */
+#P h2 { left: 80px; top: 236px; width: 920px; margin: 0; font: 700 94px/1.04 "Plus Jakarta Sans"; letter-spacing: -.04em; }
+#P h2 em { color: var(--l); font-size: 1.14em; }
+#nav { left: 80px; top: 640px; width: 660px; height: 560px; border-radius: 28px; overflow: hidden; background: #fff; box-shadow: 0 0 0 2px #2A2F38, 0 50px 80px -40px rgba(0,0,0,.9); color: var(--azul); }
+#nav .barra { display: flex; align-items: center; gap: 10px; padding: 16px 20px; background: #E9EBE4; }
+#nav .barra i { width: 16px; height: 16px; border-radius: 50%; background: #FF5F57; } #nav .barra i:nth-child(2) { background: #FEBC2E; } #nav .barra i:nth-child(3) { background: #28C840; }
+#nav .barra b { flex: 1; margin-left: 14px; background: #fff; border-radius: 99px; padding: 8px 16px; font: 600 22px/1 "Figtree"; color: #4E535C; text-align: center; }
+#nav .topo { display: flex; justify-content: space-between; align-items: center; padding: 22px 26px; background: var(--azul); color: #fff; font: 800 28px/1 "Plus Jakarta Sans"; }
+#nav .topo span { background: var(--l); color: var(--azul); font: 800 20px/1 "Plus Jakarta Sans"; padding: 10px 16px; border-radius: 99px; }
+#grade { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; padding: 22px 26px; }
+.item { border-radius: 16px; background: #F3F5F8; overflow: hidden; }
+.item .foto { height: 120px; }
+.item b { display: block; padding: 12px 12px 4px; font: 800 22px/1 "Plus Jakarta Sans"; }
+.item small { display: block; padding: 0 12px 14px; font: 600 17px/1.2 "Figtree"; color: #6B7689; }
+#cel { left: 735px; top: 900px; width: 280px; height: 560px; border-radius: 52px; padding: 12px; background: linear-gradient(150deg, #30353E, #15181D 60%); box-shadow: 0 0 0 2px #3B414C, 0 50px 80px -40px rgba(0,0,0,.95); }
+#cel .tela { height: 100%; border-radius: 42px; background: #F3F4F0; color: #121418; padding: 52px 20px 20px; display: grid; gap: 14px; align-content: start; overflow: hidden; }
+#cel .tela small { font: 700 20px/1 "Plus Jakarta Sans"; color: #6B7689; }
+#cel .tela .t { font: 800 30px/1.1 "Plus Jakarta Sans"; letter-spacing: -.02em; }
+.campo { height: 52px; border-radius: 12px; background: #fff; border: 2.5px solid #D6D9CF; padding: 12px 14px; font: 700 22px/1 "Plus Jakarta Sans"; white-space: nowrap; overflow: hidden; }
+#salvar { height: 64px; border-radius: 16px; background: var(--g); color: var(--l); display: grid; place-items: center; font: 800 24px/1 "Plus Jakarta Sans"; }
+#voando { width: 192px; border-radius: 16px; background: #F3F5F8; overflow: hidden; z-index: 5; box-shadow: 0 30px 40px -20px rgba(0,0,0,.6); color: var(--azul); }
+#voando .foto { height: 120px; }
+#voando b { display: block; padding: 12px 12px 4px; font: 800 22px/1 "Plus Jakarta Sans"; }
+#voando small { display: block; padding: 0 12px 14px; font: 600 17px/1.2 "Figtree"; color: #6B7689; }
+#legP { left: 80px; top: 1300px; width: 580px; font: 700 40px/1.25 "Plus Jakarta Sans"; letter-spacing: -.01em; }
+#legP span { color: var(--l); }
+
+/* 3. o preço */
+#R .rot { position: absolute; left: 80px; top: 250px; }
+#de { left: 80px; top: 360px; font: 700 76px/1 "Plus Jakarta Sans"; color: var(--s); letter-spacing: -.03em; }
+#risco { left: 70px; top: 398px; height: 10px; border-radius: 5px; background: #FF5C5C; transform-origin: left; }
+#por { left: 80px; top: 500px; font: 600 46px/1 "Figtree"; color: var(--s); }
+#preco { left: 70px; top: 560px; display: flex; align-items: flex-start; gap: 14px; }
+#preco small { font: 800 74px/1 "Plus Jakarta Sans"; margin-top: 40px; color: var(--l); }
+#preco b { font: 400 330px/.9 "Instrument Serif"; font-style: italic; letter-spacing: -.04em; color: var(--l); font-variant-numeric: lining-nums tabular-nums; }
+#parc { left: 80px; top: 960px; width: 920px; display: flex; align-items: baseline; gap: 18px; font: 700 56px/1.1 "Plus Jakarta Sans"; letter-spacing: -.02em; }
+#parc span { font: 600 40px/1 "Figtree"; color: var(--s); }
+#economia { left: 80px; top: 1100px; display: flex; align-items: center; gap: 20px; padding: 26px 36px; border-radius: 99px; background: var(--l); color: var(--g); font: 800 50px/1 "Plus Jakarta Sans"; letter-spacing: -.02em; }
+#lista { left: 80px; top: 1260px; display: flex; flex-wrap: wrap; gap: 14px; width: 920px; }
+#lista span { padding: 16px 24px; border-radius: 99px; border: 2px solid var(--b); background: var(--c); font: 700 32px/1 "Plus Jakarta Sans"; }
+
+/* 4. só hoje */
+#H h2 { left: 80px; top: 250px; width: 920px; margin: 0; font: 800 176px/.9 "Plus Jakarta Sans"; letter-spacing: -.06em; }
+#H h2 em { display: block; font-size: .62em; color: var(--l); letter-spacing: -.02em; margin-top: 16px; }
+#relogio { left: 80px; top: 760px; display: flex; gap: 18px; }
+#relogio div { width: 210px; padding: 30px 0 24px; border-radius: 30px; background: var(--c); border: 2px solid var(--b); text-align: center; }
+#relogio b { display: block; font: 800 104px/1 "Plus Jakarta Sans"; letter-spacing: -.04em; font-variant-numeric: tabular-nums; }
+#relogio small { display: block; margin-top: 12px; font: 700 24px/1 "Figtree"; color: var(--s); letter-spacing: .2em; text-transform: uppercase; }
+#relogio .largo { width: 360px; }
+#relogio i { align-self: center; font: 800 80px/1 "Plus Jakarta Sans"; color: var(--s); font-style: normal; }
+#cta { left: 80px; top: 1080px; display: flex; align-items: center; gap: 22px; padding: 40px 54px; border-radius: 99px; background: var(--l); color: var(--g); font: 800 54px/1 "Plus Jakarta Sans"; letter-spacing: -.02em; }
+#cta svg { width: 56px; height: 56px; }
+#zap { left: 80px; top: 1250px; font: 700 44px/1 "Plus Jakarta Sans"; color: var(--t); letter-spacing: -.01em; }
+#zap span { color: var(--s); font-weight: 600; }
+#assin { left: 80px; top: 1340px; display: flex; align-items: center; gap: 28px; font: 800 54px/1 "Plus Jakarta Sans"; letter-spacing: -.02em; }
+#assin svg { width: 130px; height: 130px; }
+#assin small { display: block; margin-top: 10px; font: 600 30px/1 "Figtree"; color: var(--s); letter-spacing: 0; }
+#cortina { inset: 0; z-index: 40; background: var(--l); }
+</style>
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute">
+  <symbol id="logo" viewBox="0 0 64 64"><rect width="64" height="64" rx="14" fill="#C8F26B"/><g transform="translate(32 32) scale(1.12) translate(-35 -32)" fill="#0B0C0F"><rect x="18" y="13" width="10" height="38" rx="2"/><rect x="18" y="41" width="22" height="10" rx="2"/><circle cx="47" cy="46" r="5"/></g></symbol>
+  <symbol id="zapi" viewBox="0 0 24 24"><path fill="currentColor" d="M12 2a10 10 0 0 0-8.6 15.1L2 22l5-1.3A10 10 0 1 0 12 2Zm0 18.2a8.2 8.2 0 0 1-4.2-1.2l-.3-.2-3 .8.8-2.9-.2-.3A8.2 8.2 0 1 1 12 20.2Zm4.5-6.1c-.2-.1-1.5-.7-1.7-.8-.2-.1-.4-.1-.6.1l-.8 1c-.1.2-.3.2-.5.1a6.7 6.7 0 0 1-3.3-2.9c-.3-.4.2-.4.7-1.3.1-.2 0-.3 0-.4l-.8-1.8c-.2-.5-.4-.4-.6-.4h-.5a1 1 0 0 0-.7.3 3 3 0 0 0-.9 2.2 5.2 5.2 0 0 0 1.1 2.7 11.8 11.8 0 0 0 4.5 4c1.7.7 2.3.8 3.1.6.5-.1 1.5-.6 1.7-1.2.2-.6.2-1.1.1-1.2l-.5-.3Z"/></symbol>
+</svg>
+<div id="palco">
+  <div id="camera">
+    <!-- 1 -->
+    <div id="A">
+      <div class="abs" id="bf">
+        <span class="rot" id="bfrot">Só hoje · 27/11</span>
+        <div class="palavra um" id="p1"></div>
+        <div class="palavra dois" id="p2"></div>
+        <p id="bfsub">Site integrado à gestão com <b>preço que não volta.</b></p>
+      </div>
+      <div class="abs faixa" id="faixa1"><div id="rolo1"></div></div>
+    </div>
+    <!-- 2 -->
+    <div id="P">
+      <h2 class="abs" id="ph"><span class="ln"><span>Seu site e a sua</span></span><span class="ln"><span>gestão <em>num lugar só.</em></span></span></h2>
+      <div class="abs" id="nav">
+        <div class="barra"><i></i><i></i><i></i><b>suaempresa.com.br</b></div>
+        <div class="topo">Sua Empresa<span>WhatsApp</span></div>
+        <div id="grade">
+          <div class="item"><div class="foto" style="background:linear-gradient(135deg,#CFE3F7,#EEF4FB)"></div><b>R$ 1.800</b><small>Produto A</small></div>
+          <div class="item"><div class="foto" style="background:linear-gradient(135deg,#FBE3CF,#FFF5EC)"></div><b>R$ 2.600</b><small>Produto B</small></div>
+          <div class="item" id="vaga" style="background:transparent;border:3px dashed #C9CDD6"></div>
+        </div>
+      </div>
+      <div class="abs" id="cel"><div class="tela"><small>SISTEMA · NOVO ITEM</small><span class="t">Cadastrar</span><div class="campo" id="campo1"></div><div class="campo" id="campo2"></div><div id="salvar">Publicar no site</div></div></div>
+      <div class="abs" id="voando"><div class="foto" style="background:linear-gradient(135deg,#E9F7C8,#F2F4EC)"></div><b>R$ 950</b><small>Produto novo</small></div>
+      <p class="abs" id="legP">Cadastrou no sistema, <span>já está no site.</span></p>
+    </div>
+    <!-- 3 -->
+    <div id="R">
+      <span class="rot" id="rrot">Black Friday</span>
+      <div class="abs" id="de">De R$ 4.500</div><div class="abs" id="risco"></div>
+      <div class="abs" id="por">por</div>
+      <div class="abs" id="preco"><small>R$</small><b id="valor">4.500</b></div>
+      <div class="abs" id="parc">ou 10x de R$ 349,70 <span>sem juros</span></div>
+      <div class="abs" id="economia">Você economiza R$ 1.003</div>
+      <div class="abs" id="lista"><span>Site com a sua cara</span><span>Sistema de gestão</span><span>Funciona no celular</span></div>
+    </div>
+    <!-- 4 -->
+    <div id="H">
+      <h2 class="abs" id="hh"><span class="ln"><span>Só hoje.</span></span><span class="ln"><span><em>Termina à meia-noite.</em></span></span></h2>
+      <div class="abs" id="relogio"><div><b>27</b><small>novembro</small></div><div class="largo"><b>23h59</b><small>último minuto</small></div></div>
+      <div class="abs" id="cta"><svg><use href="#zapi"/></svg>Chama no WhatsApp</div>
+      <div class="abs" id="zap">(31) 97147-3162 <span>· ou link na bio</span></div>
+      <div class="abs" id="assin"><svg><use href="#logo"/></svg><span>Lorena Bragança<small>@lo_braganca</small></span></div>
+    </div>
+  </div>
+  <div class="abs" id="selo"><svg><use href="#logo"/></svg><span>@lo_braganca</span></div>
+  <div class="abs" id="cortina"></div>
+  <div class="abs" id="vinheta"></div>
+  <div class="abs" id="grao"></div>
+</div>
+<script>
+window.DURACAO = 15;
+const $ = (id) => document.getElementById(id);
+const cl = (x, a = 0, b = 1) => Math.min(b, Math.max(a, x));
+const seg = (t, a, b) => cl((t - a) / (b - a));
+const sai = (p) => 1 - Math.pow(1 - p, 3), sai5 = (p) => 1 - Math.pow(1 - p, 5);
+const meio = (p) => (p < .5 ? 4 * p * p * p : 1 - Math.pow(-2 * p + 2, 3) / 2);
+const pula = (p) => { const c = 1.5; return p <= 0 ? 0 : 1 + (c + 1) * Math.pow(p - 1, 3) + c * Math.pow(p - 1, 2); };
+const lerp = (a, b, p) => a + (b - a) * p;
+const vis = (el, o) => { el.style.opacity = o; el.style.visibility = o <= .001 ? "hidden" : "visible"; };
+const digita = (s, p) => s.slice(0, Math.round(s.length * cl(p)));
+function linhas(el, t, a, passo = .1, dur = .7) { [...el.querySelectorAll(".ln > span")].forEach((s, i) => { const p = sai5(seg(t, a + i * passo, a + i * passo + dur)); s.style.transform = `translateY(${(1 - p) * 118}%)`; }); }
+(() => { const c = document.createElement("canvas"); c.width = c.height = 256; const x = c.getContext("2d"), img = x.createImageData(256, 256); let s = 7; const r = () => ((s = (s * 16807) % 2147483647) / 2147483647);
+  for (let i = 0; i < img.data.length; i += 4) { const v = r() * 255; img.data[i] = img.data[i + 1] = img.data[i + 2] = v; img.data[i + 3] = 255; } x.putImageData(img, 0, 0); $("grao").style.backgroundImage = `url(${c.toDataURL()})`; })();
+for (const [id, txt] of [["p1", "BLACK"], ["p2", "FRIDAY"]]) $(id).innerHTML = [...txt].map((c) => `<span>${c}</span>`).join("");
+$("rolo1").innerHTML = Array.from({ length: 8 }, () => "<span>SÓ HOJE</span><i>✦</i><span>DE R$ 4.500 POR R$ 3.497</span><i>✦</i>").join("");
+const real = (n) => Math.round(n).toLocaleString("pt-BR");
+
+window.quadro = function (t) {
+  const z = t < 3.3 ? lerp(1, 1.05, seg(t, 0, 3.3)) : t < 7.4 ? lerp(1, 1.035, seg(t, 3.3, 7.4)) : t < 11.2 ? lerp(1, 1.04, seg(t, 7.4, 11.2)) : lerp(1, 1.03, seg(t, 11.2, 15));
+  const soco = Math.sin(seg(t, 8.55, 8.85) * Math.PI) * .018;
+  $("camera").style.transform = `scale(${z + soco})`;
+  const f = Math.floor(t * 24); $("grao").style.backgroundPosition = `${(f * 97) % 256}px ${(f * 61) % 256}px`;
+  const se = $("selo"); vis(se, sai(seg(t, .1, .5)) * (1 - seg(t, 13.4, 13.7))); se.style.transform = `translateY(${lerp(-20, 0, sai(seg(t, .1, .6)))}px)`;
+
+  // cortinas entre as cenas (diagonais, como no Reel anterior)
+  const cortes = [[3.05, 3.65], [7.15, 7.75], [10.95, 11.55]];
+  let ativo = 0; for (const [a, b] of cortes) if (t >= a && t <= b) ativo = meio(seg(t, a, b));
+  const pol = (p) => `polygon(0 ${lerp(120, -30, p)}%, 100% ${lerp(100, -50, p)}%, 100% ${lerp(160, 10, p) + 40}%, 0 ${lerp(180, 30, p) + 40}%)`;
+  $("cortina").style.clipPath = pol(ativo); vis($("cortina"), ativo > 0 && ativo < 1 ? 1 : 0);
+  const cena = (a, b) => (t >= a && t < b ? 1 : 0);
+
+  // 1. BLACK FRIDAY (0–3,35)
+  vis($("A"), cena(0, 3.35));
+  vis($("bfrot"), sai(seg(t, .1, .4))); $("bfrot").style.transform = `translateX(${lerp(-30, 0, sai(seg(t, .1, .5)))}px)`;
+  [["p1", .25], ["p2", .7]].forEach(([id, a]) => [...$(id).children].forEach((s, i) => {
+    const p = seg(t, a + i * .055, a + i * .055 + .32);
+    s.style.opacity = cl(p * 3); s.style.transform = `translateY(${lerp(-140, 0, sai5(p))}px) scale(${lerp(1.6, 1, sai5(p))})`;
+  }));
+  const ps = sai(seg(t, 1.35, 1.8)); vis($("bfsub"), ps); $("bfsub").style.transform = `translateY(${lerp(30, 0, ps)}px)`;
+  const pf = sai5(seg(t, .9, 1.4)); vis($("faixa1"), pf);
+  $("faixa1").style.transform = `rotate(-4deg) translateX(${lerp(-1300, 0, pf)}px)`;
+  $("rolo1").style.transform = `translateX(${-t * 260}px)`;
+
+  // 2. o produto (3,35–7,45)
+  vis($("P"), cena(3.35, 7.45));
+  linhas($("ph"), t, 3.45, .12, .75);
+  const pn = sai5(seg(t, 3.6, 4.2)); vis($("nav"), pn); $("nav").style.transform = `translateY(${lerp(80, 0, pn)}px) rotate(${lerp(-3, -1, pn)}deg)`;
+  const pc = sai5(seg(t, 3.8, 4.4)); vis($("cel"), pc); $("cel").style.transform = `translateY(${lerp(120, 0, pc)}px) rotate(${lerp(6, 3, pc)}deg)`;
+  $("campo1").innerHTML = digita("Produto novo", seg(t, 4.4, 5.0)) || "&nbsp;";
+  $("campo2").innerHTML = digita("R$ 950", seg(t, 5.0, 5.35)) || "&nbsp;";
+  const toque = seg(t, 5.5, 5.58) - seg(t, 5.65, 5.8);
+  $("salvar").style.transform = `scale(${1 - .06 * toque})`; $("salvar").style.background = t > 5.55 ? "#C8F26B" : ""; $("salvar").style.color = t > 5.55 ? "#0B0C0F" : "";
+  $("salvar").textContent = t > 5.55 ? "Publicado ✓" : "Publicar no site";
+  // o cartão voa do celular para a vaga do site
+  const pv = meio(seg(t, 5.65, 6.45));
+  const v = $("voando"); vis(v, t > 5.65 && t < 7.45 ? 1 : 0);
+  const x = lerp(780, 522, pv), y = lerp(1150, 794, pv) - Math.sin(pv * Math.PI) * 140;
+  v.style.transform = `translate(${x}px, ${y}px) rotate(${lerp(8, 0, pv)}deg) scale(${lerp(.8, 1, pv)})`;
+  vis($("vaga"), 1 - seg(t, 6.3, 6.45));
+  const pl = sai5(seg(t, 6.4, 6.9)); vis($("legP"), pl); $("legP").style.transform = `translateY(${lerp(30, 0, pl)}px)`;
+
+  // 3. o preço (7,45–11,25)
+  vis($("R"), cena(7.45, 11.25));
+  vis($("rrot"), sai(seg(t, 7.55, 7.9)));
+  const pd = sai5(seg(t, 7.6, 8.0)); vis($("de"), pd); $("de").style.transform = `translateY(${lerp(30, 0, pd)}px)`;
+  const larg = $("de").offsetWidth + 20;
+  $("risco").style.width = larg + "px"; $("risco").style.transform = `scaleX(${sai5(seg(t, 8.05, 8.4))}) rotate(-3deg)`; vis($("risco"), t > 8.05 ? 1 : 0);
+  vis($("por"), sai(seg(t, 8.3, 8.55)));
+  const pp = seg(t, 8.45, 9.3);
+  vis($("preco"), cl(seg(t, 8.45, 8.6))); $("preco").style.transform = `scale(${lerp(.75, 1, pula(seg(t, 8.45, 8.95)))})`; $("preco").style.transformOrigin = "left center";
+  $("valor").textContent = real(lerp(4500, 3497, sai5(pp)));
+  const pq = sai5(seg(t, 9.25, 9.65)); vis($("parc"), pq); $("parc").style.transform = `translateY(${lerp(30, 0, pq)}px)`;
+  const pe = pula(seg(t, 9.6, 10.05)); vis($("economia"), cl(seg(t, 9.6, 9.7))); $("economia").style.transform = `scale(${pe}) rotate(${lerp(-8, -2, cl(seg(t, 9.6, 10.05)))}deg)`; $("economia").style.transformOrigin = "left center";
+  [...$("lista").children].forEach((s, i) => { const p = sai5(seg(t, 10.0 + i * .12, 10.4 + i * .12)); s.style.opacity = p; s.style.transform = `translateY(${lerp(24, 0, p)}px)`; });
+
+  // 4. só hoje (11,25–15)
+  vis($("H"), cena(11.25, 99));
+  linhas($("hh"), t, 11.35, .14, .75);
+  const pr = sai5(seg(t, 11.8, 12.3)); vis($("relogio"), pr); $("relogio").style.transform = `translateY(${lerp(40, 0, pr)}px)`;
+  const pt = pula(seg(t, 12.4, 12.9)); vis($("cta"), cl(seg(t, 12.4, 12.5))); $("cta").style.transform = `scale(${pt * (1 + Math.sin(t * 6) * .012 * seg(t, 12.9, 13.2))})`; $("cta").style.transformOrigin = "left center";
+  const pz = sai5(seg(t, 12.8, 13.2)); vis($("zap"), pz); $("zap").style.transform = `translateY(${lerp(24, 0, pz)}px)`;
+  const pa = sai5(seg(t, 13.5, 14.0)); vis($("assin"), pa); $("assin").style.transform = `translateY(${lerp(30, 0, pa)}px)`;
+};
+window.quadro(0);
+if (location.search.includes("ver")) { const t0 = performance.now(); const tocar = () => { window.quadro(((performance.now() - t0) / 1000) % window.DURACAO); requestAnimationFrame(tocar); }; tocar(); }
+</script>
+</body>
+</html>

@@ -52,3 +52,5 @@ sites/marca/video/quadro-*.png
 # o Reel sai de sites/instagram/posts/*/reel/gerar.mjs: não guardar o MP4 nem os quadros de conferência
 sites/instagram/posts/*/reel/*.mp4
 sites/instagram/posts/*/reel/quadro-*.png
+sites/instagram/posts/*/*.mp4
+sites/instagram/posts/*/quadro-*.png
